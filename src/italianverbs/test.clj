@@ -54,7 +54,7 @@
 (def test5-fn gram/np)
 (def test5-head {:cat :noun
                  :furniture true})
-(def test5-comp {})
+(def test5-comp {:def :def})
 
 ;; def test5 lets us use the results of test5 in subsequent tests, e.g. test6.
 (def test5
@@ -69,7 +69,11 @@
                  ; so using the following instead (as workaround).
                  :furniture-prep true})
                  
-(def test6-comp test5)
+(def test6-comp 
+     (gram/np-with-post-conditions 
+      {:furniture true}
+      (defn dont-know-how-to-make-anonymous-functions [fs]
+	(= (get fs :def) "def"))))
 
 (def test6
   (apply test6-fn (list test6-head test6-comp)))
@@ -228,11 +232,9 @@
    ;(conjugations)
 
    (html/tablize (merge {:test "test6: furniture PPs"} test6))
-   (html/tablize (merge {:test "test5: plural NPs"} test5))
-   (random-sentences 1 test4-fn test4-head test4-comp)
-   (random-sentences 1 test1-fn test1-head test1-comp)
-   (random-sentences 1 test2-fn test2-head test2-comp)
-   (random-sentences 1 test3-fn test3-head test3-comp)
+   (html/tablize (merge {:test "test5: plural NPs that are :def"} test5))
+;   (random-sentences 1 test4-fn test4-head test4-comp)
+;   (random-sentences 1 test1-fn test1-head test1-comp)
+;   (random-sentences 1 test2-fn test2-head test2-comp)
+;   (random-sentences 1 test3-fn test3-head test3-comp)
    ))
-
-  
