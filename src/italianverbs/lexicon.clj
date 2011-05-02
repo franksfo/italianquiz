@@ -777,7 +777,22 @@
      {:cat :prep
       :landscape-prep true}) ;; e.g. "the post office is right next to the bank".
 
+;; furniture prepositions.
+;; note that the query language currently might not support nested constraints like [:obj [:furniture true]]
 (add "accanto a" "next to"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "dietro" "behind"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+
+(add "sul" "on"
      {:cat :prep
       :furniture-prep true
       :obj {:case {:$ne :nom}
