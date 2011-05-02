@@ -208,9 +208,10 @@
     (let [np (if obj obj
                  (np (get prep :obj)))]
       (merge 
-       {:choose-head prep}
-       {:choose-comp np}
-       {:given-an-obj (if obj true false)}
+;       {:choose-head prep}
+;       {:choose-comp np}
+;       {:given-an-obj (if obj true false)}
+; ^^for debugging : comment-out if not needed.
        (combine prep np left)
        {:italian (morph/conjugate-italian-prep prep np)}))))
 
