@@ -772,5 +772,13 @@
 (add "qui" "here"
 	   {:cat :adjective})
 
+;; note whimsical :furniture true constraint on :obj.
 (add "proprio accanto a" "right next to"
-     {:cat :prep})
+     {:cat :prep
+      :landscape-prep true}) ;; e.g. "the post office is right next to the bank".
+
+(add "accanto a" "next to"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
