@@ -62,7 +62,13 @@
 
 ;; test6 : prepositional phrases
 (def test6-fn gram/pp)
-(def test6-head {})
+
+(def test6-head {:cat :prep
+                 ;; this does not seem to work: (nested selection path obj->furniture.)
+                 ;     :obj {:furniture true}})
+                 ; so using the following instead (as workaround).
+                 :furniture-prep true})
+                 
 (def test6-comp test5)
 
 (def test6
