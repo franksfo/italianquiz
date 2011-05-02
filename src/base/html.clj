@@ -35,7 +35,7 @@
       [:div {:class "poweredbox major"}
       
        [:div {:class "poweredby"}
-        "Powered by " [:a {:href "https://github.com/ekoontz/minimal-compojure/tree/italian"}
+        "Powered by " [:a {:href "https://github.com/ekoontz/italianquiz/tree/italian"}
                        "italianverbs" ] ]
        
        [:div {:class "poweredby"}
