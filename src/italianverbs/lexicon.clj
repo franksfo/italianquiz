@@ -683,6 +683,11 @@
       :number :singular}
      (list noun))
 
+(add-with-plural "camino" "fireplace"
+     {:furniture true
+      :gender :masc
+      :number :singular}
+     (list noun))
 
 (add "cinema" "the theatre"
      {:andare-al true
