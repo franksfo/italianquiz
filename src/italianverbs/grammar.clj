@@ -130,7 +130,7 @@
                      (choose-lexeme determiner-search))]
     (if determiner
       (merge 
-       {:choose-comp determiner-search}
+;       {:choose-comp determiner-search}
        (combine noun determiner right)
        {:italian (morph/italian-article determiner noun)})
       noun)))
