@@ -623,12 +623,15 @@
 	     :gender :masc
          :person :3rd
          :artifact true
+         :holdable true
          :written true}
         (list noun))
 
 (add-with-plural "abito" "dress"
   {:gender :masc
-   :artifact true}
+   :artifact true
+   :holdable :true
+   }
   (list noun))
 
 (add-with-plural "parola" "word"
@@ -683,11 +686,18 @@
       :number :singular}
      (list noun))
 
-(add-with-plural "camino" "fireplace"
+(add-with-plural "finestra" "window"
      {:furniture true
-      :gender :masc
+      :gender :fem
       :number :singular}
      (list noun))
+
+(add-with-plural "parete" "wall"
+     {:furniture true
+      :gender :fem
+      :number :singular}
+     (list noun))
+
 
 (add "cinema" "the theatre"
      {:andare-al true
@@ -784,9 +794,29 @@
 
 ;; furniture prepositions.
 ;; note that the query language currently might not support nested constraints like [:obj [:furniture true]]
+
+(add "a destra" "to the right of"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "a sinistra" "to the left of"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
 (add "accanto a" "next to"
      {:cat :prep
       :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "dentro" "inside"
+     {:cat :prep
+      :furniture-prep true
+      :subj {:holdable true}
       :obj {:case {:$ne :nom}
             :furniture true}})
 
@@ -796,9 +826,49 @@
       :obj {:case {:$ne :nom}
             :furniture true}})
 
+(add "davanti a" "in front of"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:furniture true}})
 
-(add "sul" "on"
+;; le sedie e` intorno al tavolino
+;; (the chairs are around the the table)
+;; TODO: doesn't work yet: :obj should be post-condition on NP.
+(add "intorno a" "around"
+     {:cat :prep
+      :furniture-prep true
+      :subj {:number :plural
+             :furniture true}
+      :obj {:number :sing
+            :furniture true}})
+
+(add "sopra" "above"
      {:cat :prep
       :furniture-prep true
       :obj {:case {:$ne :nom}
             :furniture true}})
+
+(add "sotto" "under"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "su" "on"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+;; TODO: doesn't work yet: :obj should be post-condition on NP.
+;(add "tra" "between"
+;     {:cat :prep
+;      :furniture-prep true
+;      :obj {:plural true
+;            :case {:$ne :nom}
+;            :furniture true}})
+
+(add "vicino a" "close to"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:furniture true}})
