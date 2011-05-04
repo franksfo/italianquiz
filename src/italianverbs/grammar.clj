@@ -40,11 +40,14 @@
    {:head head
     :comp comp
     :def (get comp :def)
-
     }
-   ;; following is all features copied from complement to parent..
+   ;; following are all features copied from head to parent: {det,number,gender}
    (if (get head :det)
      {:det (get head :det)})
+   (if (get head :number)
+     {:number (get head :number)})
+   (if (get head :gender)
+     {:gender (get head :gender)})
 
    ;; following is all features copied from complement to parent..
    (if (get comp :def)
