@@ -207,7 +207,9 @@
   "generate a prepositional phrase.
    fs adds restrictions on prep.
    obj is simply an object for the preposition."
-  (let [prep (choose-lexeme (merge fs {:cat :prep}))]
+  (let [prep (if (get fs :already-looked-up)
+               fs
+               (choose-lexeme (merge fs {:cat :prep})))]
     (let [np (if obj obj
                  (np (get prep :obj)))]
       (merge 
