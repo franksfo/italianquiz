@@ -52,7 +52,7 @@
 (defn each-correct [question]
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
-(defn show-history-rows [qs count]
+(defn show-history-rows [qs count hide-answer]
   (if (first qs)
     (let
         [row (first qs)
@@ -65,8 +65,8 @@
         [:th count]
         [:td (get row :question)] 
         [:td {:class correctness} (get row :guess) ]
-        [:td (if (first (rest qs)) (get row :answer))]]
-       (show-history-rows (rest qs) (+ 1 count))))))
+        [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]]
+       (show-history-rows (rest qs) (- count 1) true)))))
 
 (defn show-history []
   (let 
@@ -123,7 +123,23 @@
    (gram/np {:number :plural
              :pronoun {:$ne true}}
             (gram/choose-lexeme {:def :part}))
-   (= question-type 'mese)
+   (= question-type 'furniture-pp)
+   (let [fn gram/pp
+         head (merge
+               {:already-looked-up true}
+               (gram/choose-lexeme
+                {
+                 :cat :prep
+                 :furniture-prep true}))
+         comp (gram/np-with-post-conditions 
+                (get head :obj)
+                (defn fn [fs]
+                  (and (= (get fs :def) "def")
+                       (= (get fs :number) "singular"))))]
+     (merge {:question-type question-type}
+            (apply fn (list head comp))))
+
+   (= question-type 'mese) ;; months of the year.
    (gram/choose-lexeme {:month true})
    true
    (gram/sentence)))
@@ -144,7 +160,9 @@
         ]
        ]
       [:tbody
-       (show-history-rows (fetch :question :where {:session session}) 1) ; where..(session..)
+       (show-history-rows (fetch :question :where {:session session} :sort {:_id -1})
+                          (count (fetch :question :where {:session session}))
+                          false)
        ]
       ]]
     
@@ -159,7 +177,7 @@
          ]
         ]
        
-       [:tr
+       [:tr {:style "display:none"}
         [:th
          [:input.furniture {:onclick "submit()" :type "checkbox" :checked "checked"}]]
         [:td "preposizioni"
@@ -167,7 +185,7 @@
         ]
        
        
-       [:tr
+       [:tr {:style "display:none"}
         [:th
          [:input.furniture {:onclick "submit()" :type "checkbox" :checked "checked"}]]
         [:td "partitivo"
@@ -203,7 +221,7 @@
         ;; TODO: next-question is too totally different things depending on the (if) - it's confusing.
         (if (or last-guess
                 (= get-next-question-id 0))
-          (generate (nth '(mese) (rand-int 1)))
+          (generate (nth '(mese furniture-pp) (rand-int 2)))
           (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0))]
 
       (if last-guess (store-guess last-guess))
