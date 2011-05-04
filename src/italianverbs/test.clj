@@ -58,25 +58,33 @@
 
 ;; def test5 lets us use the results of test5 in subsequent tests, e.g. test6.
 (def test5
-  (apply test5-fn (list test5-head test5-comp)))
+  (merge {:test "plural NPs that are :def"} 
+         (apply test5-fn (list test5-head test5-comp))))
 
-;; test6 : prepositional phrases
+;; test6 : prepositional phrases about furniture.
 (def test6-fn gram/pp)
 
-(def test6-head {:cat :prep
-                 ;; this does not seem to work: (nested selection path obj->furniture.)
-                 ;     :obj {:furniture true}})
-                 ; so using the following instead (as workaround).
-                 :furniture-prep true})
+(def test6-head
+  (merge
+   {:already-looked-up true}
+   (gram/choose-lexeme
+    {
+     :cat :prep
+     ;; this does not seem to work: (nested selection path obj->furniture.)
+                                        ;     :obj {:furniture true}})
+                                        ; so using the following instead (as workaround).
+     :furniture-prep true})))
                  
 (def test6-comp 
-     (gram/np-with-post-conditions 
-      {:furniture true}
-      (defn dont-know-how-to-make-anonymous-functions [fs]
-	(= (get fs :def) "def"))))
+  (gram/np-with-post-conditions 
+    (get test6-head :obj)
+    (defn dont-know-how-to-make-anonymous-functions [fs]
+      (and (= (get fs :def) "def")
+           (= (get fs :number) "singular")))))
 
 (def test6
-  (apply test6-fn (list test6-head test6-comp)))
+  (merge {:test "furniture PPs"}
+         (apply test6-fn (list test6-head test6-comp))))
 
 ;; useful library functions: will move elsewhere after testing.
 (defn show-answer [question] (get question :answer))
@@ -231,8 +239,8 @@
 
    ;(conjugations)
 
-   (html/tablize (merge {:test "test6: furniture PPs"} test6))
-   (html/tablize (merge {:test "test5: plural NPs that are :def"} test5))
+   (html/tablize test6)
+   (html/tablize test5)
 ;   (random-sentences 1 test4-fn test4-head test4-comp)
 ;   (random-sentences 1 test1-fn test1-head test1-comp)
 ;   (random-sentences 1 test2-fn test2-head test2-comp)
