@@ -86,6 +86,20 @@
   (merge {:test "furniture PPs"}
          (apply test6-fn (list test6-head test6-comp))))
 
+(def test7-fn gram/vp-pp)
+
+(def test7-head
+  (gram/choose-lexeme
+   {:cat :verb
+    :italian "essere"}))
+
+(def test7-comp test6)
+
+(def test7
+  (merge {:test "furniture VPs"}
+         (apply test7-fn (list test7-head test7-comp))))
+
+
 ;; useful library functions: will move elsewhere after testing.
 (defn show-answer [question] (get question :answer))
 (defn wrap-div [string]
@@ -239,6 +253,7 @@
 
    ;(conjugations)
 
+   (html/tablize test7)
    (html/tablize test6)
    (html/tablize test5)
 ;   (random-sentences 1 test4-fn test4-head test4-comp)
