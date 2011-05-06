@@ -454,6 +454,24 @@
 (add-infl "fanno" (list thirdp plural plural present
 			 {:root fare}))
 
+(def essere (add "essere" "to be"
+                     {:cat :verb :infl :infinitive
+                      :obj {:cat :noun
+                            :artifact true}}))
+
+(add-infl "sono" (list firstp sing present
+			{:root essere}))
+(add-infl "sei" (list secondp sing present
+		      {:root essere}))
+(add-infl "è" (list thirdp sing present
+		      {:root essere}))
+(add-infl "siamo" (list firstp plural sing present
+			   {:root essere}))
+(add-infl "siete" (list secondp plural plural present
+			 {:root essere}))
+(add-infl "sono" (list thirdp plural plural present
+			 {:root essere}))
+
 ;; pronouns
 (add "io" "i" {
                :person :1st :number :singular :cat :noun
@@ -698,6 +716,11 @@
       :number :singular}
      (list noun))
 
+(add-with-plural "sedia" "chair"
+     {:furniture true
+      :gender :fem
+      :number :singular}
+     (list noun))
 
 (add "cinema" "the theatre"
      {:andare-al true
@@ -831,12 +854,12 @@
       :furniture-prep true
       :obj {:furniture true}})
 
-;; le sedie e` intorno al tavolino
-;; (the chairs are around the the table)
+;; "le sedie sono intorno al tavolino
+;;  (the chairs are around the the table)"
 ;; TODO: doesn't work yet: :obj should be post-condition on NP.
 (add "intorno a" "around"
      {:cat :prep
-      :furniture-prep true
+      :furniture-prep false
       :subj {:number :plural
              :furniture true}
       :obj {:number :sing
