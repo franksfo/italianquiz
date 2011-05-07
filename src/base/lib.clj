@@ -28,9 +28,20 @@
       [:th "key"]
       [:th "val"]
       ]
+     ;; do headers separately: since it's so long, it stretches the table too much.
       (string/join " " (seq
                         (map req-tr
                              (map (fn [key]
                                     (list key (get request key)))
                                   (set/difference (set (keys request))
-                                                  (set (list )))))))]]))
+                                                  (set (list :body :headers)))))))
+     [:tr
+      [:th {:colspan "2" :style "text-align:left"} "headers"]
+      ]
+     [:tr
+      [:th {:colspan "2" :style "text-align:left"} "body"]
+      ]
+     [:tr
+            [:td {:colspan "2"} (get request :headers)]]]]))
+     
+       

@@ -80,7 +80,7 @@
            [:tr [:th "Correct:"]
 	        [:td (count (mapcat each-correct (fetch :question))) "/" total ]]
          ]
-	 [:div.controls [:a {:href "/quiz/clear/"} "Clear"]]
+	 [:div {class "controls quiz-elem"} [:a {:href "/quiz/clear/"} "Clear"]]
        ]      
        [:table
         [:tr
@@ -173,7 +173,7 @@
 (defn with-history-and-controls [session content]
   [:div
    content
-    [:div {:class "major history"}
+    [:div {:class "history quiz-elem"}
      [:h2 "History"]
      [:table
       [:thead
@@ -191,7 +191,7 @@
        ]
       ]]
     
-    [:div {:class "major controls"}
+    [:div {:class "controls quiz-elem"}
      [:h2 "Controls"]
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
@@ -256,7 +256,7 @@
       (html
        (with-history-and-controls
          (session/request-to-session request)
-         [:div.quiz
+         [:div {:class "quiz quiz-elem"}
           [:h2 (str "Question" " "
                     (if (or last-guess
                             (= get-next-question-id 0))
