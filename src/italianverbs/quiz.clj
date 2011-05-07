@@ -262,7 +262,7 @@
                             (= get-next-question-id 0))
                       (+ 1 get-next-question-id)
                       get-next-question-id))]
-          [:form {:method "post" :action "/quiz/" :accept-charset "ISO-8859-1"}
+          [:form {:method "post" :action "/quiz/" :accept-charset "UTF-8"}
            [:table
             [:tr
              [:td [:h1 

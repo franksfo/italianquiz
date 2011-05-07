@@ -55,7 +55,7 @@
 (defn page [title & [content request]]
   (html5
    [:head 
-    [:meta  {:http-equiv "Content-Type" :content "text/html; charset=ISO-8859-1"}]
+    [:meta  {:charset="ISO-8859-1"}]
     [:title "Verbi italiani &#0187; " title]
     (include-css "/css/style.css")]
    [:body
