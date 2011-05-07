@@ -3,7 +3,7 @@ body {
 }
 
 div.selected {
-    background #caecae;
+    background: #caecae;
 }
 
 div.major {
@@ -75,7 +75,7 @@ div.footer div {
 div.poweredbox {
     float:right;
     position:relative;
-    whitespace:nowrap;
+    white-space:nowrap;
     right:0%;
     bottom:0;
     width:30%;
