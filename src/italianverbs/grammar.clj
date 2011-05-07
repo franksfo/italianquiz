@@ -6,7 +6,9 @@
    [clojure.string :as string]))
 
 (defn right [head comp]
-  {:english (string/join " "
+  {:head head
+   :comp comp
+   :english (string/join " "
                          (list 
                           (get comp :english)
                           (get head :english)))
@@ -17,7 +19,9 @@
    :children (list comp head)})
 
 (defn left [head comp]
-  {:english (string/join " "
+  {:head head
+   :comp comp
+   :english (string/join " "
                          (list 
                           (get head :english)
                           (get comp :english)))
