@@ -173,8 +173,7 @@
 (defn with-history-and-controls [session content]
   [:div
    content
-   [:div {:style "float:right"} ;; contains the history and the controls.
-    [:div {:class "major"}
+    [:div {:class "major history"}
      [:h2 "History"]
      [:table
       [:thead
@@ -192,9 +191,9 @@
        ]
       ]]
     
-    [:div {:class "major"}
+    [:div {:class "major controls"}
      [:h2 "Controls"]
-     [:form {:method "post" :action "/quiz/filter"}
+     [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
        [:tr
         [:th
@@ -225,13 +224,11 @@
         [:td "le mese"
          ]
         ]
-
-       
        ]]
      
      [:div {:style "float:right"}
       [:form {:method "post" :action "/quiz/clear"}
-       [:input.submit {:type "submit" :value "clear"}]]]]]])
+       [:input.submit {:type "submit" :value "clear"}]]]]])
 
 (defn quiz [last-guess request]
   "choose a question type: currently either pp or partitivo."
