@@ -273,7 +273,7 @@
                           :question)))]]]
             [:tr
              [:td
-              [:textarea {:name "guess" }]]]]
+              [:textarea {:cols "100" :name "guess" }]]]]
            [:div
             [:input.submit {:type "submit" :value "riposta"}]]]]))))
 
