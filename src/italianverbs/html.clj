@@ -55,6 +55,7 @@
                                           (or (= key :head-debug) (= key :comp-debug)
                                               (= key :subj)(= key :obj)
                                               (= key :det)
+;                                              (= key :head)(= key :comp)
                                               (= key :notefs) ;; the following set is used for debugging.
                                               (= key :adjunct)(= key :iobj)
                                               (= key :choose)(= key :root)
