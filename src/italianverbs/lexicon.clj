@@ -456,21 +456,26 @@
 
 (def essere (add "essere" "to be"
                      {:cat :verb :infl :infinitive
-                      :obj {:cat :noun
-                            :artifact true}}))
+                      :obj {:cat :noun}}))
 
 (add-infl "sono" (list firstp sing present
-			{:root essere}))
+                       {:root essere
+                        :english "am"}))
 (add-infl "sei" (list secondp sing present
-		      {:root essere}))
+                      {:root essere
+                       :english "are"}))
 (add-infl "è" (list thirdp sing present
-		      {:root essere}))
+                    {:root essere
+                     :english "is"}))
 (add-infl "siamo" (list firstp plural sing present
-			   {:root essere}))
+                        {:root essere
+                         :english "are"}))
 (add-infl "siete" (list secondp plural plural present
-			 {:root essere}))
+                        {:root essere
+                         :english "are"}))
 (add-infl "sono" (list thirdp plural plural present
-			 {:root essere}))
+                       {:root essere
+                        :english "are"}))
 
 ;; pronouns
 (add "io" "i" {
