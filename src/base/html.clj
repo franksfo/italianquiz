@@ -59,8 +59,12 @@
     (include-css "/css/style.css")]
    [:body
     {:onload
-     (if (= title "test")
-       "setTimeout('location.reload(true);',5000);")}
+     (cond
+      (= title "Quiz")
+      "document.quiz.guess.focus();"
+      (= title "test")
+      "setTimeout('location.reload(true);',5000);"
+      true "")}
     [:h1
      [:a {:href "/"} "Verbi italiani" ]
       " &#0187;" title ]
