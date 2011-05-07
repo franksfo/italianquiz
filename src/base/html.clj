@@ -17,40 +17,39 @@
       [:a {:href "/session/set/"} "Login"]
       )]))
 
+(defn menubar [session-row]
+  (html
+   [:div {:class "footer major"}
+    [:div 
+     [:a {:href "/"} "Main"  ] ] 
+    (if session-row
+      [:div [:a {:href "/quiz/"} "Quiz"]])
+    [:div 
+     [:a {:href "/lexicon/"} "Lexicon"  ] ] 
+    [:div 
+     [:a {:href "/test/"} "Test"  ] ] 
+    [:div 
+     [:a {:href "/form/"} "Forms"  ] ] 
+    ]))
+
 (defn footer [session-row]
-     (html
-      [:div {:class "footer major"}
-        [:div 
-	  [:a {:href "/"} "Main"  ] ] 
-       (if session-row
-         [:div [:a {:href "/quiz/"} "Quiz"]])
-       [:div 
-        [:a {:href "/lexicon/"} "Lexicon"  ] ] 
-       [:div 
-        [:a {:href "/test/"} "Test"  ] ] 
-       [:div 
-        [:a {:href "/form/"} "Forms"  ] ] 
-       ] 
+  (html
 
-      [:div {:class "poweredbox major"}
-      
-       [:div {:class "poweredby"}
-        "Powered by " [:a {:href "https://github.com/ekoontz/italianquiz/tree/italian"}
-                       "italianverbs" ] ]
-       
-       [:div {:class "poweredby"}
-        "Powered by " [:a {:href "http://github.com/weavejester/compojure"}
-                       "compojure" ] ]
-       
-       [:div {:class "poweredby"}
-        "Powered by " [:a {:href "https://github.com/somnium/congomongo"}
-                       "congomongo" ] ]
-
-       ]
-
-
-
-      ))
+   [:div {:class "poweredbox major"}
+    
+    [:div {:class "poweredby"}
+     "Powered by " [:a {:href "https://github.com/ekoontz/italianquiz/tree/italian"}
+                    "italianverbs" ] ]
+    
+    [:div {:class "poweredby"}
+     "Powered by " [:a {:href "http://github.com/weavejester/compojure"}
+                    "compojure" ] ]
+    
+    [:div {:class "poweredby"}
+     "Powered by " [:a {:href "https://github.com/somnium/congomongo"}
+                    "congomongo" ] ]
+    
+    ]))
 
 (defn page [title & [content request]]
   (html5
@@ -65,18 +64,25 @@
     [:h1
      [:a {:href "/"} "Verbi italiani" ]
       " &#0187;" title ]
-     [:div#content content]
+
+    (if request
+      (menubar (session/get-session-row request)))
+
+    [:div#content content]
+
+
+    (if request
+      (footer (session/get-session-row request)))
+
 
     (if request
       [:div {:class "http major"}
        (welcome (session/get-username request))])
+
     
     (if request
       [:div.reqdata
-       (baselib/reqdata request)])
-
-    (if request
-      (footer (session/get-session-row request)))]))
+       (baselib/reqdata request)])]))
    
 
 

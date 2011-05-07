@@ -56,7 +56,7 @@ div.http a {
 }
 
 div.footer {
-    width:60%;
+    width:auto;
     float:left;
     margin:1em;
     padding:0.5em;
