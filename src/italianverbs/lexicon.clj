@@ -823,13 +823,13 @@
 ;; furniture prepositions.
 ;; note that the query language currently might not support nested constraints like [:obj [:furniture true]]
 
-(add "a destra" "to the right of"
+(add "a destra de" "to the right of"
      {:cat :prep
       :furniture-prep true
       :obj {:case {:$ne :nom}
             :furniture true}})
 
-(add "a sinistra" "to the left of"
+(add "a sinistra de" "to the left of"
      {:cat :prep
       :furniture-prep true
       :obj {:case {:$ne :nom}
