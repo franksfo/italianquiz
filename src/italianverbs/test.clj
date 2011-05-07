@@ -78,9 +78,8 @@
 (def test6-comp 
   (gram/np-with-post-conditions 
     (get test6-head :obj)
-    (defn dont-know-how-to-make-anonymous-functions [fs]
-      (and (= (get fs :def) "def")
-           (= (get fs :number) "singular")))))
+    (defn fn [fs]
+      (= (get fs :def) "def"))))
 
 (def test6
   (merge {:test "furniture PPs"}
@@ -99,6 +98,18 @@
   (merge {:test "furniture VPs"}
          (apply test7-fn (list test7-head test7-comp))))
 
+
+(def test8-fn gram/sv)
+(def test8-head test7)
+(def test8-comp
+  (gram/np-with-post-conditions 
+    (get test6-head :obj)
+    (defn fn [fs]
+      (= (get fs :def) "def"))))
+  
+(def test8
+  (merge {:test "furniture sentences"}
+         (apply test8-fn (list test8-head test8-comp))))
 
 ;; useful library functions: will move elsewhere after testing.
 (defn show-answer [question] (get question :answer))
@@ -253,6 +264,7 @@
 
    ;(conjugations)
 
+   (html/tablize test8)
    (html/tablize test7)
    (html/tablize test6)
    (html/tablize test5)
