@@ -39,9 +39,12 @@
       [:th {:colspan "2" :style "text-align:left"} "headers"]
       ]
      [:tr
-      [:th {:colspan "2" :style "text-align:left"} "body"]
-      ]
+      [:td {:colspan "2"}
+       [:div {:style "overflow:scroll;width:90%"}
+        (get request :headers)]]]
      [:tr
-            [:td {:colspan "2"} (get request :headers)]]]]))
+      [:th {:colspan "2" :style "text-align:left"} "body"]]
+     [:tr
+      [:td {:colspan "2"} (get request :body)]]]]))
      
        

@@ -92,7 +92,7 @@
        request
        ;; response map
        {
-        ;; not working yet: just redirect for now.
+        :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
         :headers {"Location" "/quiz/display"}
         }

@@ -49,6 +49,13 @@
   (destroy! :question {:session session})
   session)
 
+(defn set-filters [session request]
+  (do
+    (insert! :filter {:filter "foo"
+                      :session session})
+    session))
+
+
 (defn each-correct [question]
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
