@@ -51,7 +51,8 @@
 
 (defn set-filters [session request]
   (do
-    (insert! :filter {:filter "foo"
+    (destroy! :filter {:session session})
+    (insert! :filter {:form-params (get request :form-params)
                       :session session})
     session))
 
@@ -162,6 +163,24 @@
    true
    (gram/sentence)))
 
+(defn checked [session key]
+  "return 'checked' if checkbox with key _key_ is set to true according to user's preferences."
+  (let [record (fetch-one :filter :where {:session session})
+        filters (if record
+                  (get record :form-params))]
+    (if (get filters key)
+      {:checked "checked"}
+      {})))
+
+(defn checkbox-row [name key session & [label display]]
+  (let [label (if label label name)]
+    (html
+     [:tr {:style (if display (str "display:" display))}
+      [:th
+       [:input (merge {:onclick "submit()" :name name :type "checkbox"}
+                      (checked session key))]]
+      [:td label ] ] )))
+  
 (defn with-history-and-controls [session content]
   [:div
    content
@@ -187,35 +206,10 @@
      [:h2 "Controls"]
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
-       [:tr
-        [:th
-         [:input.furniture {:onclick "submit()" :type "checkbox" :checked "checked"}]]
-        [:td "mobili"
-         ]
-        ]
-       
-       [:tr {:style "display:none"}
-        [:th
-         [:input.furniture {:onclick "submit()" :type "checkbox" :checked "checked"}]]
-        [:td "preposizioni"
-         ]
-        ]
-       
-       
-       [:tr {:style "display:none"}
-        [:th
-         [:input.furniture {:onclick "submit()" :type "checkbox" :checked "checked"}]]
-        [:td "partitivo"
-         ]
-        ]
-
-
-       [:tr
-        [:th
-         [:input.le_mese {:onclick "submit()" :type "checkbox" :checked "checked"}]]
-        [:td "le mese"
-         ]
-        ]
+       (checkbox-row "mobili" :mobili session)
+       (checkbox-row "preposizioni" :preposizioni session)
+       (checkbox-row "partitivo" :partitivo session)
+       (checkbox-row "mese" :mese session "le mese")
        ]]
      
      [:div {:style "float:right"}
