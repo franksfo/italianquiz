@@ -72,14 +72,17 @@ div.poweredbox {
     right:0%;
     bottom:0;
     width:30%;
+    text-align:center;
 }
 
-div.poweredby {
-    width:90%;
-    margin:0.2em;
-    float:right;
-    text-align:right;
-    width:auto;
+div.poweredbox table {
+    width:100%;
+    text-align:center;
+}
+
+div.poweredbox td {
+    border:1px solid #878ade;
+    text-align:center;
 }
 
 div.guess {
@@ -230,12 +233,12 @@ table.fs th.fs {
 }
 
 div.reqdata {
-    display:none;
+    display:block;
     height:15em;
     overflow:scroll;
     font-size:small;
     font-family:monospace;
-    width:35%;
+    width:50%;
     border:2px solid blue;
     padding:3px;
     position: absolute;
@@ -244,7 +247,8 @@ div.reqdata {
 }
 
 div.reqdata table {
-    width:5em;
+    width:95%;
+    overflow:scroll;
 }
 
 div.reqdata th {

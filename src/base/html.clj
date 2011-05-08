@@ -36,24 +36,38 @@
      [:a {:href "/test/"} "Test"  ] ] 
     ]))
 
+(defn powered-by [name link]
+  (html
+   [:div {:class "poweredby"}
+    [:a {:href link}
+     name ]]))
+
 (defn footer [session-row]
   (html
-
    [:div {:class "poweredbox major"}
-    
-    [:div {:class "poweredby"}
-     "Powered by " [:a {:href "https://github.com/ekoontz/italianquiz/tree/italian"}
-                    "italianverbs" ] ]
-    
-    [:div {:class "poweredby"}
-     "Powered by " [:a {:href "http://github.com/weavejester/compojure"}
-                    "compojure" ] ]
-    
-    [:div {:class "poweredby"}
-     "Powered by " [:a {:href "https://github.com/somnium/congomongo"}
-                    "congomongo" ] ]
-    
-    ]))
+    [:h3 "Powered by"]
+    [:table
+     [:tr
+      [:td {:colspan "4"}
+       (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz/tree/italian")]]
+     [:tr
+      [:td {:colspan "2"}
+       (powered-by "compojure" "https://github.com/weavjester/compojure")]
+      [:td {:rowspan "2" :colspan "2"}
+       (powered-by "congomongo" "https://github.com/somnium/congomongo")]]
+      [:tr
+       [:td {:colspan "2"}
+        (powered-by "ring" "https://github.com/mmcgrana/ring")]]
+     [:tr
+      [:td 
+       (powered-by "jetty" "http://jetty.codehaus.org/jetty/")]
+      [:td {:colspan "2"}
+       (powered-by "clojure" "http://clojure.org/")]
+      [:td {:colspan "1"}
+       (powered-by "mongodb" "http://www.mongodb.org/")
+       ]]]]))
+
+
 
 (defn page [title & [content request]]
   (html5
