@@ -99,7 +99,7 @@
         :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/quiz/display"}
+        :headers {"Location" "/quiz/display#controlbottom"}
         }
        )
 

@@ -88,7 +88,7 @@
            [:tr [:th "Correct:"]
 	        [:td (count (mapcat each-correct (fetch :question))) "/" total ]]
          ]
-	 [:div {class "controls quiz-elem"} [:a {:href "/quiz/clear/"} "Clear"]]
+	 [:div {:id "controls"} {:class "controls quiz-elem"} [:a {:href "/quiz/clear/"} "Clear"]]
        ]      
        [:table
         [:tr
@@ -202,7 +202,7 @@
        ]
       ]]
     
-    [:div {:class "controls quiz-elem"}
+    [:div {:id "controls" :class "controls quiz-elem"}
      [:h2 "Controls"]
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
@@ -214,7 +214,16 @@
      
      [:div {:style "float:right"}
       [:form {:method "post" :action "/quiz/clear"}
-       [:input.submit {:type "submit" :value "clear"}]]]]])
+       [:input.submit {:type "submit" :value "clear"}]]]]
+
+   ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
+   [:div {:id "controlbottom" :style "display:none"} 
+    " "
+    ]
+   
+   ]
+  
+  )
 
 (defn quiz [last-guess request]
   "choose a question type: currently either pp or partitivo."
