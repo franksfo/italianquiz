@@ -233,7 +233,7 @@ table.fs th.fs {
 }
 
 div.reqdata {
-    display:block;
+    display:none;
     height:15em;
     overflow:scroll;
     font-size:small;
