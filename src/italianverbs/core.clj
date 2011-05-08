@@ -26,6 +26,7 @@
 
        ;; response map
        {
+        :session (get request :session)
         :body (page "Welcome"
                     (title request)
                     request)
@@ -36,6 +37,7 @@
        request
        ;; response map
        {
+        :session (get request :session)
         :body
         (do ;"reload lexicon into mongodb and then render it as HTML."
           (load-file "src/italianverbs/lexicon.clj")
@@ -54,21 +56,23 @@
   (GET "/quiz/" 
        request
        ;; response map
-       { 
-         :body (page "Quiz"
-                     (quiz/run request)
-                     request)
-       }
+       {
+        :session (get request :session)
+        :body (page "Quiz"
+                    (quiz/run request)
+                    request)
+        }
        )
 
   (GET "/quiz/display" 
        request
        ;; response map
-       { 
-         :body (page "Quiz"
-                     (quiz/display request)
-                     request)
-       }
+       {
+        :session (get request :session)
+        :body (page "Quiz"
+                    (quiz/display request)
+                    request)
+        }
        )
 
   
@@ -76,6 +80,7 @@
        request
        ;; response map
        {
+        :session (get request :session)
         :body (page "Quiz"
                     (quiz/run request)
                     request)
@@ -90,9 +95,9 @@
   
   (POST "/quiz/filter" ;; for now just run quiz.
        request
-       ;; response map
        {
-        ;; not working yet: just redirect for now.
+        :session (get request :session)
+        :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
         :headers {"Location" "/quiz/display"}
         }
@@ -101,16 +106,18 @@
   
   (POST "/quiz/clear" 
        request
-       ;; response map
-       { :side-effect (quiz/clear-questions (session/request-to-session request))
-         :status 302
-         :headers {"Location" "/quiz/"}
+       {
+        :session (get request :session)
+        :side-effect (quiz/clear-questions (session/request-to-session request))
+        :status 302
+        :headers {"Location" "/quiz/"}
        }
        )
 
   (GET "/test/" 
        request
        {
+        :session (get request :session)
         :body (page "test" 
                     (map test/wrap-div 
                          (flatten test/tests))
@@ -120,6 +127,7 @@
   (POST "/test/" 
        request
        {
+        :session (get request :session)
         :body (page "test" 
                     (map test/wrap-div 
                          test/tests)
@@ -130,17 +138,19 @@
   (GET "/session/set/"  
        request
        {
-       :side-effect (session/register request)
-       :status 302
-       :headers {"Location" "/?msg=set"}
-       })
+        :session (get request :session)
+        :side-effect (session/register request)
+        :status 302
+        :headers {"Location" "/?msg=set"}
+        })
 
   (GET "/session/clear/" 
        request 
        {
-       :side-effect (session/unregister request)
-       :status 302
-       :headers {"Location" "/?msg=cleared"}
+        :session (get request :session)
+        :side-effect (session/unregister request)
+        :status 302
+        :headers {"Location" "/?msg=cleared"}
        })
 
   (route/resources "/")

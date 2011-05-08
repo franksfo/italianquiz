@@ -1,7 +1,10 @@
 (ns base.html
-    (:use [hiccup core page-helpers])
-    (:require [base.lib :as baselib]
-              [italianverbs.session :as session]))
+  (:use [hiccup core page-helpers]
+        [somnium.congomongo])
+  (:require [base.lib :as baselib]
+            [clojure.set :as set]
+            [italianverbs.session :as session]
+            [clojure.string :as string]))
 
 (defn message [msg] 
   (html
@@ -67,7 +70,42 @@
        (powered-by "mongodb" "http://www.mongodb.org/")
        ]]]]))
 
+(defn req-tr [key-value-pair]
+  (let [key (first key-value-pair)
+        val (second key-value-pair)]
+    (str "<tr><th>" key "</th><td>" val "</td></tr>")))
 
+(defn reqdata [request]
+  (let [prefs (get (fetch :filter :where {:session (baselib/get-session-key request)} :limit 1) :form-params)]
+    (html
+     [:div
+      [:h2 "Cookie:"
+       (baselib/get-session-key request)]
+
+      [:h2 "Request Map"]
+      [:table
+       [:tr
+        [:th "key"]
+        [:th "val"]
+        ]
+       ;; do headers separately: since it's so long, it stretches the table too much.
+       (string/join " " (seq
+                         (map req-tr
+                              (map (fn [key]
+                                     (list key (get request key)))
+                                   (set/difference (set (keys request))
+                                                   (set (list :body :headers)))))))
+       [:tr
+        [:th {:colspan "2" :style "text-align:left"} "headers"]
+        ]
+       [:tr
+        [:td {:colspan "2"}
+         [:div {:style "overflow:scroll;width:90%"}
+          (get request :headers)]]]
+       [:tr
+        [:th {:colspan "2" :style "text-align:left"} "body"]]
+       [:tr
+        [:td {:colspan "2"} (get request :body)]]]])))
 
 (defn page [title & [content request]]
   (html5
@@ -98,13 +136,10 @@
 
     (if request
       (footer (session/get-session-row request)))
-
-
-
     
     (if request
       [:div.reqdata
-       (baselib/reqdata request)])]))
+       (reqdata request)])]))
    
 
 
