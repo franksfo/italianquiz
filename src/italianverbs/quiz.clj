@@ -209,8 +209,8 @@
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
        (checkbox-row "mobili" :mobili session)
-       (checkbox-row "preposizioni" :preposizioni session)
-       (checkbox-row "partitivo" :partitivo session)
+       (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
+       (checkbox-row "partitivo" :partitivo session "partitvio" "none")
        (checkbox-row "mese" :mese session "le mese")
        ]]
      
