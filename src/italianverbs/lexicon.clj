@@ -719,6 +719,13 @@
      {:furniture true
       :gender :fem
       :number :singular}
+     (list noun)
+     "pareti")
+
+(add-with-plural "poltrona" "easy chair"
+     {:furniture true
+      :gender :fem
+      :number :singular}
      (list noun))
 
 (add-with-plural "sedia" "chair"
