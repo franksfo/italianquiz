@@ -227,15 +227,22 @@
   
   )
 
+(defn in-preferences [question-type-and-filters]
+  (let [question-type (first question-type-and-filters)
+        filters (second question-type-and-filters)]
+    (if (or (get filters question-type)
+            true)
+      (list question-type))))
+
 (defn possible-question-types [session]
   (let [record (fetch-one :filter :where {:session session})
         filters (if record
                   (get record :form-params))]
-;  (mapcar #'(question-type)
-;       (if (get filter question-type)
-;         question-type)
-  '(:mese :mobili)))
-;    '(mobili)))
+    (mapcat #'in-preferences
+            (map (defn foo [question-type]
+                   (list question-type filters))
+                 '(:mobili :mese)))))
+                 
     
 (defn quiz [last-guess request]
   "choose a question type: currently either pp or partitivo."
@@ -265,7 +272,7 @@
        (with-history-and-controls
          (session/request-to-session request)
          [:div {:class "quiz quiz-elem"}
-          [:h2 (str "Domande" " "
+          [:h2 (str "Domanda" " "
                     (if (or last-guess
                             (= get-next-question-id 0))
                       (+ 1 get-next-question-id)
