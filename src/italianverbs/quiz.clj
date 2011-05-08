@@ -234,16 +234,18 @@
             true)
       (list question-type))))
 
+;; TODO: learn how to use anonymous functions in clojure,
+;; e.g. (mapcat #(list %1 %2) [1 2 3] [4 5 6])
 (defn possible-question-types [session]
   (let [record (fetch-one :filter :where {:session session})
         filters (if record
                   (get record :form-params))]
-    (mapcat #'in-preferences
-            (map (defn foo [question-type]
-                   (list question-type filters))
-                 '(:mobili :mese)))))
+    '(:mobili)))
+;    (mapcat #'in-preferences
+;            (map (fn [questiontype]
+;                    (list questiontype filters))
+;                 '(:mobili :mese)))))
                  
-    
 (defn quiz [last-guess request]
   "choose a question type: currently either pp or partitivo."
   (let [session (session/request-to-session request)
