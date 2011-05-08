@@ -235,12 +235,19 @@
       (filter-by-criteria (rest list)
                            criteria))))
 
+(def all-possible-question-types
+  '(:mobili :mese))
+
 (defn possible-question-types [session]
-  (let [possible-question-types '(:mobili :mese)
+  (let [possible-question-types all-possible-question-types
         record (fetch-one :filter :where {:session session})
         filters (if record
-                  (get record :form-params))]
-    (filter-by-criteria possible-question-types filters)))
+                  (get record :form-params))
+        result (filter-by-criteria possible-question-types filters)]
+    (if (> (count result) 0)
+      result
+      all-possible-question-types)))
+        
     
 (defn quiz [last-guess request]
   "choose a question type: currently either pp or partitivo."
