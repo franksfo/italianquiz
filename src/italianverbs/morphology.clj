@@ -266,14 +266,6 @@
                     (get np :italian))]
     (replace-from-list
      (list
-      (list #"\bdi il " "del ")
-      (list #"\bdi lo " "dello ")
-      (list #"\bdi la " "della ")
-      (list #"\bdi l'" "dell'")
-      (list #"\bdi i " "dei ")
-      (list #"\bdi gli " "degli ")
-      (list #"\bdi le " "delle ")
-
       (list #"\ba il " "al ")
       (list #"\ba lo " "allo ")
       (list #"\ba la " "alla ")
@@ -290,6 +282,22 @@
       (list #"\bda gli " "dagli ")
       (list #"\bda le " "dalle ")
 
+      (list #"\bde il " "del ")
+      (list #"\bde lo " "dello ")
+      (list #"\bde la " "della ")
+      (list #"\bde l'" "dell'")
+      (list #"\bde i " "dei ")
+      (list #"\bde gli " "degli ")
+      (list #"\bde le " "delle ")
+      
+      (list #"\bdi il " "del ")
+      (list #"\bdi lo " "dello ")
+      (list #"\bdi la " "della ")
+      (list #"\bdi l'" "dell'")
+      (list #"\bdi i " "dei ")
+      (list #"\bdi gli " "degli ")
+      (list #"\bdi le " "delle ")
+      
       (list #"\bin il " "nel ")
       (list #"\bin lo " "nello ")
       (list #"\bin la " "nella ")
