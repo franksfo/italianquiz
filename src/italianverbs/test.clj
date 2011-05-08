@@ -97,19 +97,35 @@
 (def test7
   (merge {:test "furniture VPs"}
          (apply test7-fn (list test7-head test7-comp))))
-
-
-(def test8-fn gram/sv)
-(def test8-head test7)
-(def test8-comp
-  (gram/np-with-post-conditions 
-    (get test6-head :obj)
-    (defn fn [fs]
-      (= (get fs :def) "def"))))
   
 (def test8
-  (merge {:test "furniture sentences"}
-         (apply test8-fn (list test8-head test8-comp))))
+   (let [fn gram/sv
+         head
+         (let [fn gram/vp-pp
+               head (gram/choose-lexeme
+                     {:cat :verb
+                      :italian "essere"})
+               comp
+               (let [fn gram/pp
+                     head (merge
+                           {:already-looked-up true}
+                           (gram/choose-lexeme
+                            {:cat :prep
+                             :italian "a sinistra de"
+                             :furniture-prep true}))
+                     comp (gram/np-with-post-conditions 
+                            (get head :obj)
+                            (defn fn [fs]
+                              (= (get fs :def) "def")))]
+                 (apply fn (list head comp)))]
+           (apply fn (list head comp)))
+         comp
+         (gram/np-with-post-conditions 
+           {:furniture true}
+           (defn fn [fs]
+             (= (get fs :def) "def")))]
+     (merge {:test "furniture sentences"}
+            (apply fn (list head comp)))))
 
 ;; useful library functions: will move elsewhere after testing.
 (defn show-answer [question] (get question :answer))
