@@ -237,10 +237,11 @@
 ;; TODO: learn how to use anonymous functions in clojure,
 ;; e.g. (mapcat #(list %1 %2) [1 2 3] [4 5 6])
 (defn possible-question-types [session]
-  (let [record (fetch-one :filter :where {:session session})
+  (let [possible-question-types '(:mobili :mese)
+        record (fetch-one :filter :where {:session session})
         filters (if record
                   (get record :form-params))]
-    '(:mobili)))
+    possible-question-types))
 ;    (mapcat #'in-preferences
 ;            (map (fn [questiontype]
 ;                    (list questiontype filters))
