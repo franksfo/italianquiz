@@ -120,6 +120,7 @@
     (update! :question question (merge question {:guess guess}))))
 
 (defn generate [question-type]
+  "maps a question-type to feature structure. right now a big 'switch(question-type)' statement in C terms."
   (cond
    (= question-type 'pp)
    (gram/pp
@@ -131,7 +132,7 @@
    (gram/np {:number :plural
              :pronoun {:$ne true}}
             (gram/choose-lexeme {:def :part}))
-   (= question-type 'mobili)
+   (or (= question-type 'mobili) (= question-type "mobili") (= question-type :mobili))
    (let [fn gram/sv
          head
          (let [fn gram/vp-pp
@@ -158,7 +159,8 @@
              (= (get fs :def) "def")))]
      (merge {:question-type question-type}
             (apply fn (list head comp))))
-   (= question-type 'mese) ;; months of the year.
+;   (= question-type 'mese) ;; months of the year.
+   (or (= question-type 'mese) (= question-type "mese") (= question-type :mese))
    (gram/choose-lexeme {:month true})
    true
    (gram/sentence)))
@@ -225,6 +227,16 @@
   
   )
 
+(defn possible-question-types [session]
+  (let [record (fetch-one :filter :where {:session session})
+        filters (if record
+                  (get record :form-params))]
+;  (mapcar #'(question-type)
+;       (if (get filter question-type)
+;         question-type)
+  '(:mese :mobili)))
+;    '(mobili)))
+    
 (defn quiz [last-guess request]
   "choose a question type: currently either pp or partitivo."
   (let [session (session/request-to-session request)
@@ -233,14 +245,14 @@
                 (= get-next-question-id 0))
           (get-next-question-id request)
           (get-next-question-id request))
+        possible (possible-question-types (session/request-to-session request))
         next-question
 ;;        (generate (nth '(pp partitivo mese) (rand-int 3)))]
 
         ;; TODO: next-question is too totally different things depending on the (if) - it's confusing.
         (if (or last-guess
                 (= get-next-question-id 0))
-                                        ;          (generate (nth '(mese mobili) (rand-int 2)))
-                    (generate (nth '(mobili) (rand-int 1)))
+          (generate (nth possible (rand-int (count possible))))
           (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0))]
 
       (if last-guess (store-guess last-guess))
@@ -253,7 +265,7 @@
        (with-history-and-controls
          (session/request-to-session request)
          [:div {:class "quiz quiz-elem"}
-          [:h2 (str "Question" " "
+          [:h2 (str "Domande" " "
                     (if (or last-guess
                             (= get-next-question-id 0))
                       (+ 1 get-next-question-id)
