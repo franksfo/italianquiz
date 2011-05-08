@@ -229,7 +229,8 @@
         ;; TODO: next-question is too totally different things depending on the (if) - it's confusing.
         (if (or last-guess
                 (= get-next-question-id 0))
-          (generate (nth '(mese mobili) (rand-int 2)))
+                                        ;          (generate (nth '(mese mobili) (rand-int 2)))
+                    (generate (nth '(mobili) (rand-int 1)))
           (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0))]
 
       (if last-guess (store-guess last-guess))
