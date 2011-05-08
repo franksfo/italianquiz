@@ -123,7 +123,7 @@
    (gram/np {:number :plural
              :pronoun {:$ne true}}
             (gram/choose-lexeme {:def :part}))
-   (= question-type 'furniture)
+   (= question-type 'mobili)
    (let [fn gram/sv
          head
          (let [fn gram/vp-pp
@@ -148,21 +148,6 @@
            {:furniture true}
            (defn fn [fs]
              (= (get fs :def) "def")))]
-     (merge {:question-type question-type}
-            (apply fn (list head comp))))
-   (= question-type 'furniture-pp)
-   (let [fn gram/pp
-         head (merge
-               {:already-looked-up true}
-               (gram/choose-lexeme
-                {
-                 :cat :prep
-                 :furniture-prep true}))
-         comp (gram/np-with-post-conditions 
-                (get head :obj)
-                (defn fn [fs]
-                  (and (= (get fs :def) "def")
-                       (= (get fs :number) "singular"))))]
      (merge {:question-type question-type}
             (apply fn (list head comp))))
    (= question-type 'mese) ;; months of the year.
@@ -244,7 +229,7 @@
         ;; TODO: next-question is too totally different things depending on the (if) - it's confusing.
         (if (or last-guess
                 (= get-next-question-id 0))
-          (generate (nth '(mese furniture) (rand-int 2)))
+          (generate (nth '(mese mobili) (rand-int 2)))
           (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0))]
 
       (if last-guess (store-guess last-guess))
