@@ -227,42 +227,21 @@
   
   )
 
-(defn in-preferences [question-type-and-filters]
-  (let [question-type (first question-type-and-filters)
-        filters (second question-type-and-filters)]
-    (if (or (get filters question-type)
-            true)
-      (list question-type))))
-
-;; TODO: learn how to use anonymous functions in clojure,
-;; e.g. (mapcat #(list %1 %2) [1 2 3] [4 5 6])
-;(defn possible-question-types [session]
-;  (let [possible-question-types '(:mobili :mese)
-;        record (fetch-one :filter :where {:session session})
-;        filters (if record
-;                  (get record :form-params))]
-
-;    (mapcat (fn [question-type]
-;              (list question-type))
-;            (list
-;             (list :mobili filters)
-;             (list :mese filters)))
-                                        ; ))
-
-
+(defn filter-by-criteria [list criteria]
+  (if (> (count list) 0)
+    (if (get criteria (first list))
+      (cons (first list)
+            (filter-by-criteria (rest list) criteria))
+      (filter-by-criteria (rest list)
+                           criteria))))
 
 (defn possible-question-types [session]
   (let [possible-question-types '(:mobili :mese)
-        record nil
+        record (fetch-one :filter :where {:session session})
         filters (if record
                   (get record :form-params))]
-
-    (mapcat (fn [question-type-cursed]
-              (list question-type-cursed))
-            (map (fn [question-type]
-                     (list question-type filters))
-                 possible-question-types))))
-                 
+    (filter-by-criteria possible-question-types filters)))
+    
 (defn quiz [last-guess request]
   "choose a question type: currently either pp or partitivo."
   (let [session (session/request-to-session request)
