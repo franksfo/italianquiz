@@ -43,7 +43,8 @@
                 (string/join " "
                              (map (fn [lexeme]
                                     (ihtml/fs lexeme))
-                                  (fetch :lexicon :sort {"italian" 1})))))
+                                  (fetch :lexicon :sort {"italian" 1})))
+                request))
         }
        )
 
@@ -143,7 +144,7 @@
        })
 
   (route/resources "/")
-  (route/not-found (page "Non posso trovare. Page not found." "Non passo trovare. Sorry, page not found.")))
+  (route/not-found (page "Non posso trovare (page not found)." "Non passo trovare. Sorry, page not found.")))
 
 ; http://weavejester.github.com/compojure/compojure.handler-api.html
 ; site function

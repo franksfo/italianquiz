@@ -17,19 +17,23 @@
       [:a {:href "/session/set/"} "Login"]
       )]))
 
-(defn menubar [session-row]
+(defn menubar [session-row relative-url]
   (html
-   [:div {:class "footer major"}
-    [:div 
+   [:div {:class "menubar major"}
+;    "URL:" relative-url
+    [:div
+     (if (= relative-url "/") {:class "selected"})
      [:a {:href "/"} "Main"  ] ] 
-    (if session-row
-      [:div [:a {:href "/quiz/"} "Quiz"]])
-    [:div 
+    (if session-row ;; only show quiz option if there's a session to save the quiz for.
+      [:div
+       (if (= relative-url "/quiz/") {:class "selected"})
+       [:a {:href "/quiz/"} "Quiz"]])
+    [:div
+     (if (= relative-url "/lexicon/") {:class "selected"})
      [:a {:href "/lexicon/"} "Lexicon"  ] ] 
-    [:div 
+    [:div
+     (if (= relative-url "/test/") {:class "selected"})
      [:a {:href "/test/"} "Test"  ] ] 
-    [:div 
-     [:a {:href "/form/"} "Forms"  ] ] 
     ]))
 
 (defn footer [session-row]
@@ -70,18 +74,18 @@
       " &#0187;" title ]
 
     (if request
-      (menubar (session/get-session-row request)))
+      [:div {:class "welcome major"}
+       (welcome (session/get-username request))])
 
+    (menubar (session/get-session-row request)
+             (if request (get request :uri)))
+    
     [:div#content content]
-
 
     (if request
       (footer (session/get-session-row request)))
 
 
-    (if request
-      [:div {:class "http major"}
-       (welcome (session/get-username request))])
 
     
     (if request
