@@ -111,7 +111,6 @@
                            {:already-looked-up true}
                            (gram/choose-lexeme
                             {:cat :prep
-                             :italian "a sinistra de"
                              :furniture-prep true}))
                      comp (gram/np-with-post-conditions 
                             (get head :obj)
@@ -127,7 +126,44 @@
      (merge {:test "furniture sentences"}
             (apply fn (list head comp)))))
 
-;; useful library functions: will move elsewhere after testing.
+;;  "possessive NPs"
+(def test9
+  (let [fn gram/n-bar
+        head (gram/choose-lexeme
+              {:cat :noun
+               :common true
+               :number :singular})
+        comp (gram/choose-lexeme
+              {:cat :adj
+               :gender (get head :gender)
+               :possessive true})]
+    (merge {:test "possessive NPs"}
+           (apply fn (list head comp)))))
+
+(def test10
+  (let [fn gram/np-det-n-bar
+        head
+        (let [fn gram/n-bar
+              head (gram/choose-lexeme
+                    {:cat :noun
+                     :common true
+                     :number :singular})
+              comp (gram/choose-lexeme
+                    {:cat :adj
+                     :gender (get head :gender)
+                     :possessive true})]
+          (merge {:test "possessive NPs"}
+                 (apply fn (list head comp))))
+        comp (gram/choose-lexeme
+              {:cat :det
+               :gender (get head :gender)
+               :number (get head :number)
+               :def :def})]
+    (merge {:test "det-n-bar"}
+           (apply fn (list head comp)))))
+            
+
+;; apply library functions: will move elsewhere after testing.
 (defn show-answer [question] (get question :answer))
 (defn wrap-div [string]
   (str "<div class='test'>" string "</div>"))
@@ -280,12 +316,10 @@
 
    ;(conjugations)
 
+;   (html/tablize test9)
+   (html/tablize test10)
    (html/tablize test8)
    (html/tablize test7)
    (html/tablize test6)
    (html/tablize test5)
-;   (random-sentences 1 test4-fn test4-head test4-comp)
-;   (random-sentences 1 test1-fn test1-head test1-comp)
-;   (random-sentences 1 test2-fn test2-head test2-comp)
-;   (random-sentences 1 test3-fn test3-head test3-comp)
    ))
