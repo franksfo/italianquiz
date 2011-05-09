@@ -55,7 +55,7 @@
 
 ;; BEGIN LEXICON
 
-;; TODO: do a map over pairs rather than this..
+;; TODO: do a map over pairs rather than these
 (add "gennario" "january"
      {:month true})
 (add "febbraio" "february"
@@ -80,6 +80,21 @@
      {:month true})
 (add "dicembre" "december"
      {:month true})
+
+(add "lunedi" "monday"
+     {:giorni-della-settimana true})
+(add "martedì" "tuesday"
+     {:giorni-della-settimana true})
+(add "mercoledì" "wednesday"
+     {:giorni-della-settimana true})
+(add "giovedi" "thursday"
+     {:giorni-della-settimana true})
+(add "venerdì" "friday"
+     {:giorni-della-settimana true})
+(add "sabato" "saturday"
+     {:giorni-della-settimana true})
+(add "domenica" "sunday"
+     {:giorni-della-settimana true})
 
 ;; prepotizioni (prepositions)
 (add "in" "to"

@@ -159,9 +159,10 @@
              (= (get fs :def) "def")))]
      (merge {:question-type question-type}
             (apply fn (list head comp))))
-;   (= question-type 'mese) ;; months of the year.
-   (or (= question-type 'mese) (= question-type "mese") (= question-type :mese))
+   (= question-type :mese)
    (gram/choose-lexeme {:month true})
+   (= question-type :giorni)
+   (gram/choose-lexeme {:giorni-della-settimana true})
    true
    (gram/sentence)))
 
@@ -208,10 +209,12 @@
      [:h2 "Controls"]
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
+       (checkbox-row "giorni" :giorni session "giorni della settimana")
        (checkbox-row "mobili" :mobili session)
        (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
        (checkbox-row "partitivo" :partitivo session "partitvio" "none")
        (checkbox-row "mese" :mese session "le mese")
+
        ]]
      
      [:div {:style "float:right"}
@@ -236,7 +239,7 @@
                            criteria))))
 
 (def all-possible-question-types
-  '(:mobili :mese))
+  '(:mobili :mese :giorni))
 
 (defn possible-question-types [session]
   (let [possible-question-types all-possible-question-types
