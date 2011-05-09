@@ -592,13 +592,15 @@
   {:cat :noun
    :number :singular
    :gender :masc
-   :animate true}
+   :animate true
+   :common true}
   (list noun))
 
 (add "pacco" "package"
      {:cat :noun
       :number :singular
       :gender :masc
+      :common true
       :artifact true}
      (list noun))
 
@@ -606,6 +608,7 @@
      {:cat :noun
       :number :singular
       :gender :masc
+      :common true
       :artifact true
       :edible true
       :holdable true}
@@ -617,6 +620,7 @@
 	     :gender :fem
          :makeable true
          :edible true
+         :common true
          :det {:def :def}
          :holdable true}
         (list mass-noun noun))
@@ -631,6 +635,7 @@
       :roomable true
       :tableable true
       :ruggable true
+      :common true
       :person :3rd}
      (list noun))
 
@@ -643,15 +648,16 @@
       :holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
       :furniture true
       :ruggable true
+      :common true
       :person :3rd}
      (list noun))
-
 
 (add-with-plural "gamba" "leg"
   {:cat :noun
    :number :singular
    :gender :fem
    :person :3rd
+   :common true
    :body-part true}
   (list noun))
 
@@ -662,19 +668,22 @@
          :person :3rd
          :artifact true
          :holdable true
+         :common true
          :written true}
         (list noun))
 
 (add-with-plural "abito" "dress"
   {:gender :masc
    :artifact true
-   :holdable :true
+   :common true
+   :holdable true
    }
   (list noun))
 
 (add-with-plural "parola" "word"
   {:sayable true
    :writable true
+   :common true
    :gender :fem}
   (list noun)
   "parole" "words")
@@ -922,3 +931,61 @@
      {:cat :prep
       :furniture-prep true
       :obj {:furniture true}})
+
+(add "mio" "my"
+     {:cat :adj
+      :possessive true
+      :person :1st
+      :gender :masc
+      :number :singular})
+
+(add "mia" "my"
+     {:cat :adj
+      :possessive true
+      :person :1st
+      :gender :fem
+      :number :singular})
+
+
+(add "tuo" "your"
+     {:cat :adj
+      :possessive true
+      :person :2nd
+      :gender :masc
+      :number :singular})
+
+(add "tua" "your"
+     {:cat :adj
+      :possessive true
+      :person :2nd
+      :gender :fem
+      :number :singular})
+
+
+(add "suo" "his"
+     {:cat :adj
+      :possessive true
+      :person :1st
+      :gender :masc
+      :number :singular})
+
+(add "suo" "her"
+     {:cat :adj
+      :possessive true
+      :person :1st
+      :gender :masc
+      :number :singular})
+
+(add "sua" "his"
+     {:cat :adj
+      :possessive true
+      :person :1st
+      :gender :fem
+      :number :singular})
+
+(add "sua" "her"
+     {:cat :adj
+      :possessive true
+      :person :1st
+      :gender :fem
+      :number :singular})

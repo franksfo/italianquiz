@@ -7,6 +7,9 @@
               [italianverbs.session :as session]
               [italianverbs.grammar :as gram]))
 
+(def all-possible-question-types
+  '(:mobili :mese :giorni :possessives))
+
 (defn wrapchoice [word & [ istrue ] ]
   ;; FIXME: url-encode word.
   (let [href_prefix "/quiz/?"
@@ -124,7 +127,8 @@
   (cond
    (= question-type 'pp)
    (gram/pp
-    {:$or [ {:italian "a"}, {:italian "di" }, {:italian "da"}, {:italian "in" :english "in"}, {:italian "su"} ]}
+    {:$or [ {:italian "a"}, {:italian "di" }, {:italian "da"},
+            {:italian "in" :english "in"}, {:italian "su"} ]}
     (gram/np-with-post-conditions
      {}
      gram/np-with-common-noun-and-definite-pronoun))
@@ -132,7 +136,7 @@
    (gram/np {:number :plural
              :pronoun {:$ne true}}
             (gram/choose-lexeme {:def :part}))
-   (or (= question-type 'mobili) (= question-type "mobili") (= question-type :mobili))
+   (= question-type :mobili)
    (let [fn gram/sv
          head
          (let [fn gram/vp-pp
@@ -159,6 +163,27 @@
              (= (get fs :def) "def")))]
      (merge {:question-type question-type}
             (apply fn (list head comp))))
+   (= question-type :possessives)
+   (let [fn gram/np-det-n-bar
+         head
+         (let [fn gram/n-bar
+               head (gram/choose-lexeme
+                     {:cat :noun
+                      :common true
+                      :number :singular})
+               comp (gram/choose-lexeme
+                     {:cat :adj
+                      :gender (get head :gender)
+                      :possessive true})]
+           (merge {:test "possessive NPs"}
+                  (apply fn (list head comp))))
+         comp (gram/choose-lexeme
+               {:cat :det
+                :gender (get head :gender)
+                :number (get head :number)
+                :def :def})]
+    (merge {:test "det-n-bar"}
+           (apply fn (list head comp))))
    (= question-type :mese)
    (gram/choose-lexeme {:month true})
    (= question-type :giorni)
@@ -214,6 +239,7 @@
        (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
        (checkbox-row "partitivo" :partitivo session "partitvio" "none")
        (checkbox-row "mese" :mese session "le mese")
+       (checkbox-row "possessives" :possessives session)
 
        ]]
      
@@ -237,9 +263,6 @@
             (filter-by-criteria (rest list) criteria))
       (filter-by-criteria (rest list)
                            criteria))))
-
-(def all-possible-question-types
-  '(:mobili :mese :giorni))
 
 (defn possible-question-types [session]
   (let [possible-question-types all-possible-question-types

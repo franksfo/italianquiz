@@ -139,6 +139,36 @@
        {:italian (morph/italian-article determiner noun)})
       noun)))
 
+(defn n-bar [noun adjective]
+  {:italian (string/join " "
+                         (list 
+                          (get adjective :italian)
+                          (get noun :italian)))
+   :english (string/join " "
+                         (list 
+                          (get adjective :english)
+                          (get noun :english)))
+   :head noun
+   :gender (get noun :gender)
+   :number (get noun :number)
+   :comp adjective
+   })
+
+(defn np-det-n-bar [n-bar det]
+  {:italian (string/join " "
+                         (list 
+                          (get det :italian)
+                          (get n-bar :italian)))
+   :english (string/join " "
+                         (list 
+                          (get n-bar :english)))
+   :gender (get n-bar :gender)
+   :number (get n-bar :number)
+   :head n-bar
+   :comp det
+   })
+
+  
 (def np-with-common-noun-and-definite-pronoun
   (fn [candidate]
     (and (not (= (get candidate :pronoun) true)) ;; e.g. "noi (us)"
