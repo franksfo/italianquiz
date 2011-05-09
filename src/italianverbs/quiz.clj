@@ -200,12 +200,13 @@
       {:checked "checked"}
       {})))
 
-(defn checkbox-row [name key session & [label display]]
+(defn checkbox-row [name key session & [label display checkbox-disabled]]
   (let [label (if label label name)]
     (html
      [:tr {:style (if display (str "display:" display))}
       [:th
        [:input (merge {:onclick "submit()" :name name :type "checkbox"}
+                      (if (= checkbox-disabled "disabled") {:disabled "disabled"} {})
                       (checked session key))]]
       [:td label ] ] )))
   
@@ -239,6 +240,8 @@
        (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
        (checkbox-row "partitivo" :partitivo session "partitvio" "none")
        (checkbox-row "mese" :mese session "le mese")
+       (checkbox-row "numeri" :numeri session "numeri" "block" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
+       (checkbox-row "passato prossimo" :passatoprossimo session "passato prossimo" "block" "disabled")  ;; e.g. "io ho fatto"
        (checkbox-row "possessives" :possessives session)
 
        ]]
