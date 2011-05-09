@@ -81,13 +81,13 @@
 (add "dicembre" "december"
      {:month true})
 
-(add "lunedi" "monday"
+(add "lunedì" "monday"
      {:giorni-della-settimana true})
 (add "martedì" "tuesday"
      {:giorni-della-settimana true})
 (add "mercoledì" "wednesday"
      {:giorni-della-settimana true})
-(add "giovedi" "thursday"
+(add "giovedì" "thursday"
      {:giorni-della-settimana true})
 (add "venerdì" "friday"
      {:giorni-della-settimana true})
