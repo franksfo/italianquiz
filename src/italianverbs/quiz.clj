@@ -182,8 +182,7 @@
                 :gender (get head :gender)
                 :number (get head :number)
                 :def :def})]
-    (merge {:test "det-n-bar"}
-           (apply fn (list head comp))))
+     (apply fn (list head comp)))
    (= question-type :mese)
    (gram/choose-lexeme {:month true})
    (= question-type :giorni)
