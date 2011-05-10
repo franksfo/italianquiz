@@ -8,7 +8,7 @@
               [italianverbs.grammar :as gram]))
 
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives))
+  '(:mobili :mese :giorni :possessives :partitivo))
 
 (defn wrapchoice [word & [ istrue ] ]
   ;; FIXME: url-encode word.
@@ -132,7 +132,7 @@
     (gram/np-with-post-conditions
      {}
      gram/np-with-common-noun-and-definite-pronoun))
-   (= question-type 'partitivo)
+   (= question-type :partitivo)
    (gram/np {:number :plural
              :pronoun {:$ne true}}
             (gram/choose-lexeme {:def :part}))
@@ -235,14 +235,17 @@
      [:h2 "Controls"]
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
+       (checkbox-row "che ore è" :che-ora session "Che ora è?" "block" "disabled")  ;; e.g. "5:30 => cinque ore e .."
        (checkbox-row "giorni" :giorni session "giorni della settimana")
        (checkbox-row "mobili" :mobili session)
        (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
-       (checkbox-row "partitivo" :partitivo session "partitvio" "none")
+       (checkbox-row "partitivo" :partitivo session "articoli determinativi ed partivi")
        (checkbox-row "mese" :mese session "le mese")
        (checkbox-row "numeri" :numeri session "numeri" "block" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
        (checkbox-row "passato prossimo" :passatoprossimo session "passato prossimo" "block" "disabled")  ;; e.g. "io ho fatto"
+
        (checkbox-row "possessives" :possessives session)
+
 
        ]]
      
