@@ -162,6 +162,23 @@
     (merge {:test "det-n-bar"}
            (apply fn (list head comp)))))
             
+(def test11
+  (let [hour (rand-int 12)
+        minute (* (rand-int 12) 5)
+        hour (if (= hour 0) 12 hour)]
+    {:test "che-ora"
+     :english (str hour ":" (if (< minute 10) (str "0" minute) minute))
+     :italian (str "le " ;; TODO "l'" if hour is 1.
+                   (if (< minute 30)
+                     (gram/italian-number hour)
+                     (gram/italian-number (+ hour 1)))
+                   (cond
+                    (= minute 0) ""
+                    (<= minute 30)
+                    (str " e " (gram/italian-number minute))
+                    true (str " meno "(gram/italian-number (- 60 minute)))))
+     :hour hour
+     :minute minute}))
 
 ;; apply library functions: will move elsewhere after testing.
 (defn show-answer [question] (get question :answer))
@@ -316,7 +333,7 @@
 
    ;(conjugations)
 
-;   (html/tablize test9)
+   (html/tablize test11)
    (html/tablize test10)
    (html/tablize test8)
    (html/tablize test7)

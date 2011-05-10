@@ -317,3 +317,28 @@
         {:cat :error
          :error "vp-with-adjunct-pp returned null."}))))
 
+(defn italian-number [number]
+  (cond
+   (= number 1) "una"
+   (= number 2) "due"
+   (= number 3) "tre"
+   (= number 4) "quatro"
+   (= number 5) "cinque"
+   (= number 6) "sei"
+   (= number 7) "sette"
+   (= number 8) "otto"
+   (= number 9) "nove"
+   (= number 10) "diece"
+   (= number 11) "undiece"
+   (= number 12) "duediece"
+   (= number 13) "trediece"
+   (= number 14) "quattrediece"
+   (= number 15) "quindiece"
+   (= number 16) "seidiece"
+   (< number 20) (str (italian-number 10) (italian-number (- number 10)))
+   
+   ;; ...
+   (= number 20) "vente"
+   (= number 25) (str (italian-number 20) (italian-number (- number 20)))
+   true "??"))
+
