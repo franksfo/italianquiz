@@ -8,7 +8,7 @@
               [italianverbs.grammar :as gram]))
 
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo))
+  '(:mobili :mese :giorni :possessives :partitivo :ora))
 
 (defn wrapchoice [word & [ istrue ] ]
   ;; FIXME: url-encode word.
@@ -123,7 +123,7 @@
     (update! :question question (merge question {:guess guess}))))
 
 (defn generate [question-type]
-  "maps a question-type to feature structure. right now a big 'switch(question-type)' statement in C terms."
+  "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    (= question-type 'pp)
    (gram/pp
@@ -136,6 +136,15 @@
    (gram/np {:number :plural
              :pronoun {:$ne true}}
             (gram/choose-lexeme {:def :part}))
+   (= question-type :ora)
+   (let [hour (rand-int 12)
+         minute (* (rand-int 12) 5)
+         ampm (if (= (rand-int 2) 0)
+                "am"
+                "pm")
+         hour (if (= hour 0) 12 hour)]
+    {:english (gram/english-time hour minute ampm)
+     :italian (gram/italian-time hour minute ampm)})
    (= question-type :mobili)
    (let [fn gram/sv
          head
@@ -234,14 +243,14 @@
      [:h2 "Controls"]
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
-       (checkbox-row "che ore è" :che-ora session "Che ora è?" "block" "disabled")  ;; e.g. "5:30 => cinque ore e .."
+       (checkbox-row "ora" :ora session "Che ora è?")  ;; e.g. "5:30 => cinque ore e .."
        (checkbox-row "giorni" :giorni session "giorni della settimana")
        (checkbox-row "mobili" :mobili session)
        (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
-       (checkbox-row "partitivo" :partitivo session "articoli determinativi ed partivi")
+       (checkbox-row "partitivo" :partitivo session "articoli determinativi e partivi")
        (checkbox-row "mese" :mese session "le mese")
-       (checkbox-row "numeri" :numeri session "numeri" "block" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
-       (checkbox-row "passato prossimo" :passatoprossimo session "passato prossimo" "block" "disabled")  ;; e.g. "io ho fatto"
+       (checkbox-row "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
+       (checkbox-row "passato prossimo" :passatoprossimo session "passato prossimo" "" "disabled")  ;; e.g. "io ho fatto"
 
        (checkbox-row "possessives" :possessives session)
 

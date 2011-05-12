@@ -317,6 +317,7 @@
         {:cat :error
          :error "vp-with-adjunct-pp returned null."}))))
 
+;; TODO: move to lexicon (maybe).
 (defn italian-number [number]
   (cond
    (= number 1) "una"
@@ -329,16 +330,46 @@
    (= number 8) "otto"
    (= number 9) "nove"
    (= number 10) "diece"
-   (= number 11) "undiece"
-   (= number 12) "duediece"
-   (= number 13) "trediece"
-   (= number 14) "quattrediece"
-   (= number 15) "quindiece"
-   (= number 16) "seidiece"
+   (= number 11) "undici"
+   (= number 12) "duedici"
+   (= number 13) "tredici"
+   (= number 14) "quattredici"
+   (= number 15) "quindici"
+   (= number 16) "seidici"
    (< number 20) (str (italian-number 10) (italian-number (- number 10)))
    
    ;; ...
-   (= number 20) "vente"
-   (= number 25) (str (italian-number 20) (italian-number (- number 20)))
+   (= number 20) "venti"
+   (< number 30) (str (italian-number 20) (italian-number (- number 20)))
+   (= number 30) "trenta"
+   (< number 40) (str (italian-number 30) (italian-number (- number 30)))
    true "??"))
 
+(defn italian-time [hour minute ampm]
+  (let [print-hour
+        (if (<= minute 30)
+          (italian-number hour)
+          (italian-number
+           (if (= hour 12)
+             1
+             (+ hour 1))))]
+    (str
+     (cond
+      (and (= print-hour 12)
+           (= ampm "am"))
+      "mezzogiorno"
+      (and (= print-hour 12)
+           (= ampm "pm"))
+      "mezzonotte"
+      true (morph/italian-article {:italian "le" :def :def} {:number :singular :italian print-hour :numerical true}))
+     (cond
+      (= minute 0) ""
+      (= minute 15) " e un quarto"
+      (= minute 30) " e mezzo"
+      (= minute 45) " meno un quarto"
+      (<= minute 30)
+      (str " e " (italian-number minute))
+      true (str " meno "(italian-number (- 60 minute)))))))
+
+(defn english-time [hour minute ampm]
+  (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") "")))

@@ -199,12 +199,21 @@
 
 (defn italian-article [det noun]
   "do italian det/noun morphology e.g. [def :def] + studente => lo studente" 
+  ;; TODO: return a feature structure holding the current return value in :italian.
   (let [det-italian (get det :italian)
         det-noun (get noun :italian)]
     (cond
      (and (re-find #"^[aeiou]" (get noun :italian))
-          (= (get det :def) "def")
-          (= (get noun :number) "singular"))
+          ;; TODO: figure out why we need to check for both string ("def") and symbol (:def)
+          ;; probably has to do with mongo to clojure mapping.
+          (or (= (get det :def) "def")
+              (= (get det :def) :def))
+          (or (= (get noun :number) "singular")
+              (= (get noun :number) :singular))
+          ;; for numbers, "l'una" but "le otto", only match "una" here.
+          ;; not sure about other numbers that start with "una", if any.
+          (and (= (get noun :numerical) true)
+               (= (get noun :italian) "una")))
      (str "l'" (get noun :italian))
 
      (and (re-find #"^st" (get noun :italian))
@@ -245,6 +254,7 @@
      (str "dei " (get noun :italian))
      
      true (str det-italian " " det-noun))))
+
 
 (defn replace-from-list [regexp-list target]
   "Apply the first regexp pair (from=>to) from regexp-list to target;
