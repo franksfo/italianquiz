@@ -329,14 +329,16 @@
    (= number 7) "sette"
    (= number 8) "otto"
    (= number 9) "nove"
-   (= number 10) "diece"
+   (= number 10) "dieci"
    (= number 11) "undici"
-   (= number 12) "duedici"
+   (= number 12) "dodici"
    (= number 13) "tredici"
-   (= number 14) "quattredici"
+   (= number 14) "quattordici"
    (= number 15) "quindici"
-   (= number 16) "seidici"
-   (< number 20) (str (italian-number 10) (italian-number (- number 10)))
+   (= number 16) "sedici"
+   (= number 17) "diciassette"
+   (= number 18) "diciotto"
+   (= number 19) "diciannove"
    
    ;; ...
    (= number 20) "venti"
