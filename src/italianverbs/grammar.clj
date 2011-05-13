@@ -323,7 +323,7 @@
    (= number 1) "una"
    (= number 2) "due"
    (= number 3) "tre"
-   (= number 4) "quatro"
+   (= number 4) "quattro"
    (= number 5) "cinque"
    (= number 6) "sei"
    (= number 7) "sette"
