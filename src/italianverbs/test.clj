@@ -175,6 +175,11 @@
      :hour hour
      :minute minute}))
 
+(def test12
+  (merge 
+   (gram/random-passato-prossimo)
+   {:test "passivo partato"}))
+
 ;; apply library functions: will move elsewhere after testing.
 (defn show-answer [question] (get question :answer))
 (defn wrap-div [string]
@@ -333,10 +338,12 @@
       (merge
        {:test "sentence"}
        (gram/sentence))))
-   (html/tablize test11)
-   (html/tablize test10)
-   (html/tablize test8)
-   (html/tablize test7)
-   (html/tablize test6)
-   (html/tablize test5)
+
+   (html/tablize test12)
+;   (html/tablize test11)
+;   (html/tablize test10)
+;   (html/tablize test8)
+;   (html/tablize test7)
+;   (html/tablize test6)
+;   (html/tablize test5)
    ))

@@ -375,3 +375,8 @@
 
 (defn english-time [hour minute ampm]
   (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") "")))
+
+(defn random-passato-prossimo []
+  {:english "i have gone to italy"
+   :italian "io ho andato in italia"})
+  
