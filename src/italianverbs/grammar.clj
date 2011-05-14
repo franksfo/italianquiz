@@ -408,7 +408,7 @@
   
 (defn random-passato-prossimo []
   (let [
-        verb-past (choose-lexeme {:root.cat :verb :infl :passato-prossimo :italian "mangiato"})
+        verb-past (choose-lexeme {:root.cat :verb :infl :passato-prossimo})
         verb-inf (choose-lexeme {:cat :verb :infl :infinitive :italian (get verb-past :aux)})
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
         verb-aux (choose-lexeme {:cat :verb :infl :present
