@@ -295,7 +295,7 @@
    and then generate a question for that question type."
   (let [session (session/request-to-session request)
         ;; normalize guess: remove space from beginning and end, and lower-case.
-        last-guess (strinc/trim (stringc/lower-case last-guess))
+        last-guess (stringc/trim (stringc/lower-case last-guess))
         get-next-question-id (get-next-question-id request)
         possible (possible-question-types (session/request-to-session request))
         next-question
