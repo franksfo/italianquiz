@@ -44,25 +44,37 @@
                            :infl :present
                            :person (get (get-head subject) :person)
                            :number (get subject :number)
-                           :root.english "to be"})]
+                           ;; the following looks confusing: it's needed
+                           ;; because there are lexical entries such as "mangia" and "parla"
+                           ;; that are needed due to problems to do with italian morphology,
+                           ;; or at least until it can be verified that no problems exist
+                           ;; that require the exceptional lexical entries.
+                           :english {:$ne english} 
+                           :root.english (get verb-head :english)})]
     (cond
-     irregular
+
+     (get irregular :english)
      (str (get irregular :english) " "
           (get (get verb-head :comp) :english))
+
      (= (get (get-head verb-head) :english) "must")
      (stringc/replace-re
       #"^must to"
       "must"
       (get verb-head :english))
+
      (= (get (get-head verb-head) :english) "to be able")
      (stringc/replace-re
       #"^to be able to"
       "can"
       (get verb-head :english))
+
      (= (get (get-head subject) :person) "1st")
      (get remove-to :remove-to)
+
      (= (get (get-head subject) :person) "2nd")
      (get remove-to :remove-to)
+
      (and
       (= (get (get-head subject) :person) "3rd")
       (= (get (get-head subject) :number) "singular"))
@@ -72,8 +84,9 @@
         remove-to
         {:english (get remove-to :remove-to)}))
       :add-s)
+
      true ;; 3rd plural
-     (get remove-to :remove-to))))
+     (str (get remove-to :remove-to)))))
 
 (defn conjugate-italian-verb-regular [verb-head subject-head]
   (let [root-form (get verb-head :italian)

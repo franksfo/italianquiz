@@ -263,11 +263,18 @@
       :cat :verb :infl :present
       :person :3rd :number :singular})
 
-(add "parlere" "to speak"
-     {:subj {:human true}
-      :cat :verb :infl :infinitive
-      :iobj {:obj.human true}
-      :adjunct adjunct-in-a-place})
+(def parlare
+  (add "parlare" "to speak"
+       {:subj {:human true}
+        :cat :verb :infl :infinitive
+        :iobj {:obj.human true}
+        :adjunct adjunct-in-a-place}))
+(add "parla" "to speak"
+	    {:root parlare
+	     :cat :verb :infl :present
+	     :person :3rd :number :singular})
+
+
 
 (add "smettere" "to quit"
      {:cat :verb :infl :infinitive-omit
@@ -288,6 +295,11 @@
   (add "andare" "to go"
              {:cat :verb :infl :supertype
               :subj {:animate true}}))
+
+(add "andato" "gone"
+     {:cat :verb
+      :root andare
+      :infl :passato-prossimo})
 
 ;; <andare adjunct variants> 
 (add "andare" "to go"
@@ -491,6 +503,31 @@
 (add-infl "sono" (list thirdp plural plural present
                        {:root essere
                         :english "are"}))
+
+
+(def avere (add "avere" "to have"
+                {:cat :verb :infl :infinitive
+                 :obj {:cat :noun}}))
+
+(add-infl "ho" (list firstp sing present
+                       {:root avere
+                        :english "have"}))
+(add-infl "hai" (list secondp sing present
+                      {:root avere
+                       :english "have"}))
+(add-infl "ha" (list thirdp sing present
+                    {:root avere
+                     :english "has"}))
+(add-infl "abbiamo" (list firstp plural sing present
+                        {:root avere
+                         :english "have"}))
+(add-infl "avete" (list secondp plural plural present
+                        {:root avere
+                         :english "have"}))
+(add-infl "hanno" (list thirdp plural plural present
+                       {:root avere
+                        :english "have"}))
+
 
 ;; pronouns
 (add "io" "i" {

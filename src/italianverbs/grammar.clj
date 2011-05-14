@@ -376,17 +376,64 @@
 (defn english-time [hour minute ampm]
   (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") "")))
 
-(defn random-passato-prossimo []
-  (let [verb (choose-lexeme {:cat :verb
-                             :infl :infinitive})
-        subject (np
-                 (merge
-                  {:case {:$ne :acc}}
-                  (get verb :subj)))]
+(defn random-present []
+  (let [verb-inf (choose-lexeme {:cat :verb :infl :infinitive})
+        ;; TODO: more complicated matching: i.e. {:root verb-inf}
+        verb (choose-lexeme {:cat :verb :infl :present
+                             :root.italian (get verb-inf :italian)
+                             })
+        subject (cond
+                 (or (= (get verb :person) "1st")
+                     (= (get verb :person) "2nd"))
+                 (choose-lexeme
+                  (merge {:case {:$ne :acc}
+                          :cat :noun
+                          :person (get verb :person)
+                          :number (get verb :number)}
+                         (get (get verb :root) :subj)))
+                 true
+                 (np
+                  (merge
+                   {:case {:$ne :acc}}
+                   {:number (get verb :number)}
+                   {:person (get verb :person)}
+                   (get (get verb :root) :subj))))]
     (merge
-     {:verb verb
+     {:verb-inf verb-inf
+      :verb verb
       :subject subject
-      :english "i have gone"
-      :italian "io ho andato"}
-    {:type-is-fs (set '(:verb :subject))})))
+      :english (str (get subject :english) " " (morph/conjugate-english-verb verb-inf subject))
+      :italian (str (get subject :italian) " " (get verb :italian))}
+    {:type-is-fs (set '(:verb :subject :verb-inf))})))
+  
+(defn random-passato-prossimo []
+  (let [verb-inf (choose-lexeme {:cat :verb :infl :infinitive :italian "avere"})
+        ;; TODO: more complicated matching: i.e. {:root verb-inf}
+        aux-verb (choose-lexeme {:cat :verb :infl :present
+                                 :root.italian (get verb-inf :italian)
+                                 })
+        verb (choose-lexeme {:root.cat :verb :infl :passato-prossimo})
+
+        subject (cond
+                 (or (= (get aux-verb :person) "1st")
+                     (= (get aux-verb :person) "2nd"))
+                 (choose-lexeme
+                  (merge {:case {:$ne :acc}
+                          :cat :noun
+                          :person (get aux-verb :person)
+                          :number (get aux-verb :number)}
+                         (get (get aux-verb :root) :subj)))
+                 true
+                 (np
+                  (merge
+                   {:case {:$ne :acc}}
+                   (get (get aux-verb :root) :subj))))]
+    (merge
+     {:verb-inf verb-inf
+      :verb verb
+      :subject subject
+      :english (str (get subject :english) " " (morph/conjugate-english-verb verb-inf subject) " "
+                    (get verb :english))
+      :italian (str (get subject :italian) " " (get aux-verb :italian) " " (get verb :italian))}
+    {:type-is-fs (set '(:verb :subject :verb-inf))})))
   
