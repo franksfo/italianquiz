@@ -262,6 +262,13 @@
      {:root mangiare
       :cat :verb :infl :present
       :person :3rd :number :singular})
+(add "mangiato" "ate"
+     {:cat :verb
+      :root mangiare
+      :infl :passato-prossimo
+      :aux "avere"
+      })
+
 
 (def parlare
   (add "parlare" "to speak"
@@ -273,6 +280,13 @@
 	    {:root parlare
 	     :cat :verb :infl :present
 	     :person :3rd :number :singular})
+
+(add "parlato" "spoke"
+     {:cat :verb
+      :root parlare
+      :infl :passato-prossimo
+      :aux "avere"
+      })
 
 
 
@@ -296,10 +310,12 @@
              {:cat :verb :infl :supertype
               :subj {:animate true}}))
 
-(add "andato" "gone"
+(add "andato" "went"
      {:cat :verb
       :root andare
-      :infl :passato-prossimo})
+      :infl :passato-prossimo
+      :aux "essere"
+      })
 
 ;; <andare adjunct variants> 
 (add "andare" "to go"

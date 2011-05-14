@@ -407,33 +407,36 @@
     {:type-is-fs (set '(:verb :subject :verb-inf))})))
   
 (defn random-passato-prossimo []
-  (let [verb-inf (choose-lexeme {:cat :verb :infl :infinitive :italian "avere"})
+  (let [
+        verb-past (choose-lexeme {:root.cat :verb :infl :passato-prossimo :italian "mangiato"})
+        verb-inf (choose-lexeme {:cat :verb :infl :infinitive :italian (get verb-past :aux)})
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
-        aux-verb (choose-lexeme {:cat :verb :infl :present
+        verb-aux (choose-lexeme {:cat :verb :infl :present
                                  :root.italian (get verb-inf :italian)
                                  })
-        verb (choose-lexeme {:root.cat :verb :infl :passato-prossimo})
-
+        subj-constraints
+        (merge
+         {:cat :noun
+          :case {:$ne :acc}}
+         (get (get verb-past :root) :subj)
+         (get verb-inf :subj)
+         {:person (get verb-aux :person)
+          :number (get verb-aux :number)})
         subject (cond
-                 (or (= (get aux-verb :person) "1st")
-                     (= (get aux-verb :person) "2nd"))
-                 (choose-lexeme
-                  (merge {:case {:$ne :acc}
-                          :cat :noun
-                          :person (get aux-verb :person)
-                          :number (get aux-verb :number)}
-                         (get (get aux-verb :root) :subj)))
+                 (or (= (get verb-aux :person) "1st")
+                     (= (get verb-aux :person) "2nd"))
+                 (choose-lexeme subj-constraints)
                  true
-                 (np
-                  (merge
-                   {:case {:$ne :acc}}
-                   (get (get aux-verb :root) :subj))))]
+                 (np subj-constraints))]
     (merge
      {:verb-inf verb-inf
-      :verb verb
+      :verb-aux verb-aux
+      :verb-past verb-past
       :subject subject
-      :english (str (get subject :english) " " (morph/conjugate-english-verb verb-inf subject) " "
-                    (get verb :english))
-      :italian (str (get subject :italian) " " (get aux-verb :italian) " " (get verb :italian))}
-    {:type-is-fs (set '(:verb :subject :verb-inf))})))
+      :subj-constraints subj-constraints
+      :english (str (get subject :english) " "
+                    ;(morph/conjugate-english-verb verb-inf subject) " "
+                    (get verb-past :english))
+      :italian (str (get subject :italian) " " (get verb-aux :italian) " " (get verb-past :italian))}
+    {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
   
