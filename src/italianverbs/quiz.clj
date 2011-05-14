@@ -254,9 +254,7 @@
        (checkbox-row "mese" :mese session "le mese")
        (checkbox-row "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
        (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
-
-       (checkbox-row "possessives" :possessives session)
-
+       (checkbox-row "possessives" :possessives session) ;; e.g. "il tuo cane"
 
        ]]
      
@@ -293,18 +291,16 @@
         
     
 (defn quiz [last-guess request]
-  "choose a question type: currently either pp or partitivo."
+  "choose a question type from the set of question types possible given the user's preference, and
+   and then generate a question for that question type."
   (let [session (session/request-to-session request)
-        get-next-question-id
-        (if (or last-guess
-                (= get-next-question-id 0))
-          (get-next-question-id request)
-          (get-next-question-id request))
+        ;; normalize guess: remove space from beginning and end, and lower-case.
+        last-guess (strinc/trim (stringc/lower-case last-guess))
+        get-next-question-id (get-next-question-id request)
         possible (possible-question-types (session/request-to-session request))
         next-question
-;;        (generate (nth '(pp partitivo mese) (rand-int 3)))]
 
-        ;; TODO: next-question is too totally different things depending on the (if) - it's confusing.
+        ;; TODO: next-question is two totally different things depending on the (if) - it's confusing.
         (if (or last-guess
                 (= get-next-question-id 0))
           (generate (nth possible (rand-int (count possible))))
@@ -336,7 +332,7 @@
                           :question)))]]]
             [:tr
              [:td
-              [:textarea {:cols "100" :name "guess" }]]]]
+              [:textarea {:cols "50" :rows "5" :name "guess" }]]]]
            [:div
             [:input.submit {:type "submit" :value "riposta"}]]]]))))
 
