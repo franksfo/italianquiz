@@ -1,3 +1,4 @@
+;; Seems like you need to restart ring to see changes to this file.
 (ns italianverbs.quiz
     (:use 
      [hiccup core page-helpers]
@@ -8,7 +9,7 @@
               [italianverbs.grammar :as gram]))
 
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo :ora))
+  '(:mobili :mese :giorni :possessives :partitivo :ora :passato))
 
 (defn wrapchoice [word & [ istrue ] ]
   ;; FIXME: url-encode word.
@@ -125,7 +126,9 @@
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
-   (= question-type 'pp)
+   (= question-type :passato)
+   (gram/random-passato-prossimo)
+   (= question-type :pp)
    (gram/pp
     {:$or [ {:italian "a"}, {:italian "di" }, {:italian "da"},
             {:italian "in" :english "in"}, {:italian "su"} ]}
@@ -250,7 +253,7 @@
        (checkbox-row "partitivo" :partitivo session "articoli determinativi e partivi")
        (checkbox-row "mese" :mese session "le mese")
        (checkbox-row "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
-       (checkbox-row "passato prossimo" :passatoprossimo session "passato prossimo" "" "disabled")  ;; e.g. "io ho fatto"
+       (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
 
        (checkbox-row "possessives" :possessives session)
 
