@@ -59,10 +59,12 @@
                                               (= key :notefs) ;; the following set is used for debugging.
                                               (= key :adjunct)(= key :iobj)
                                               (= key :choose)(= key :root)
+                                              (contains? (get feature-structure :type-is-fs) key)
                                               (= key :choose-comp)(= key :choose-head))
                                           (list key
                                                 (fs (get feature-structure key)))
                                           (= key :comp) nil
+                                          (= key :type-is-fs) nil
                                           true
                                           (list key
                                                 (get feature-structure key))))
