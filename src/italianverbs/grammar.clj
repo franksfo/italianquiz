@@ -377,6 +377,16 @@
   (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") "")))
 
 (defn random-passato-prossimo []
-  {:english "i have gone to italy"
-   :italian "io ho andato in italia"})
+  (let [verb (choose-lexeme {:cat :verb
+                             :infl :infinitive})
+        subject (np
+                 (merge
+                  {:case {:$ne :acc}}
+                  (get verb :subj)))]
+    (merge
+     {:verb verb
+      :subject subject
+      :english "i have gone"
+      :italian "io ho andato"}
+    {:type-is-fs (set '(:verb :subject))})))
   
