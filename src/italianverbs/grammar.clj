@@ -408,10 +408,15 @@
   
 (defn random-passato-prossimo []
   (let [
-        verb-past (choose-lexeme {:root.cat :verb :infl :passato-prossimo})
+        ;; choose a random verb in the passato-prossimo form.
+        verb-past (choose-lexeme {:root.cat :verb :infl :passato-prossimo :italian "capito"})
+
+        ;; find the infinitive for this form.
         verb-inf (choose-lexeme {:cat :verb :infl :infinitive :italian (get verb-past :aux)})
+
+        ;; get the appropriate auxilliary for that verb.
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
-        verb-aux (choose-lexeme {:cat :verb :infl :present
+        verb-aux (choose-lexeme {:infl :present
                                  :root.italian (get verb-inf :italian)
                                  })
         subj-constraints
