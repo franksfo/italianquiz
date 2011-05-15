@@ -36,11 +36,16 @@
     
 (defn conjugate-english-verb [verb-head subject]
   ;; conjugate verb based on subject and eventually verb's features (such as tense)
-  (let [english (get verb-head :english)
+  (let [vp verb-head
+        verb-head (if (get verb-head :head)
+                    (get verb-head :head)
+                    verb-head)
+        english (get verb-head :english)
         remove-to (remove-to verb-head)
         irregular ;; c.f.: (conjugate-italian-verb)
         (fetch-one :lexicon
-                   :where {:cat :verb
+                   :where {
+                           :cat :verb
                            :infl :present
                            :person (get (get-head subject) :person)
                            :number (get subject :number)
@@ -52,10 +57,9 @@
                            :english {:$ne english} 
                            :root.english (get verb-head :english)})]
     (cond
-
      (get irregular :english)
      (str (get irregular :english) " "
-          (get (get verb-head :comp) :english))
+          (get (get vp :comp) :english))
 
      (= (get (get-head verb-head) :english) "must")
      (stringc/replace-re
