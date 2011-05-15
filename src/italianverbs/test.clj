@@ -6,6 +6,7 @@
      [italianverbs.html :as html]
      [italianverbs.lexiconfn :as lexfn]
      [italianverbs.grammar :as gram]
+     [italianverbs.generate :as gen]
      [clojure.string :as string]
      [italianverbs.quiz :as quiz]))
 
@@ -177,7 +178,7 @@
 
 (def test12
   (merge 
-   (gram/random-passato-prossimo)
+   (gen/random-passato-prossimo)
    {:test "passivo partato"}))
 
 ;; apply library functions: will move elsewhere after testing.
@@ -342,7 +343,7 @@
    (if false
      (html/tablize
       (merge 
-       (gram/random-present)
+       (gen/random-present)
        {:test "present"})))
 
    (html/tablize test12)

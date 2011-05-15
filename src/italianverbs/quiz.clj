@@ -6,7 +6,8 @@
     (:require [clojure.contrib.string :as stringc]
               [italianverbs.lexicon :as lexicon]
               [italianverbs.session :as session]
-              [italianverbs.grammar :as gram]))
+              [italianverbs.grammar :as gram]
+              [italianverbs.generate :as gen]))
 
 (def all-possible-question-types
   '(:mobili :mese :giorni :possessives :partitivo :ora :passato))
@@ -127,7 +128,7 @@
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    (= question-type :passato)
-   (gram/random-passato-prossimo)
+   (gen/random-passato-prossimo)
    (= question-type :pp)
    (gram/pp
     {:$or [ {:italian "a"}, {:italian "di" }, {:italian "da"},
@@ -149,32 +150,7 @@
     {:english (gram/english-time hour minute ampm)
      :italian (gram/italian-time hour minute ampm)})
    (= question-type :mobili)
-   (let [fn gram/sv
-         head
-         (let [fn gram/vp-pp
-               head (gram/choose-lexeme
-                     {:cat :verb
-                      :italian "essere"})
-               comp
-               (let [fn gram/pp
-                     head (merge
-                           {:already-looked-up true}
-                           (gram/choose-lexeme
-                            {:cat :prep
-                             :furniture-prep true}))
-                     comp (gram/np-with-post-conditions 
-                            (get head :obj)
-                            (defn fn [fs]
-                              (= (get fs :def) "def")))]
-                 (apply fn (list head comp)))]
-           (apply fn (list head comp)))
-         comp
-         (gram/np-with-post-conditions 
-           {:furniture true}
-           (defn fn [fs]
-             (= (get fs :def) "def")))]
-     (merge {:question-type question-type}
-            (apply fn (list head comp))))
+   (gen/mobili)
    (= question-type :possessives)
    (let [fn gram/np-det-n-bar
          head
