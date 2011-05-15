@@ -226,6 +226,12 @@
    content
     [:div {:class "history quiz-elem"}
      [:h2 "History"]
+
+
+     [:div {:style "float:right"}
+      [:form {:method "post" :action "/quiz/clear"}
+       [:input.submit {:type "submit" :value "clear"}]]]
+
      [:table
       [:thead
        [:tr
@@ -241,7 +247,8 @@
                           false)
        ]
       ]]
-    
+
+   
     [:div {:id "controls" :class "controls quiz-elem"}
      [:h2 "Controls"]
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
@@ -257,10 +264,10 @@
        (checkbox-row "possessives" :possessives session) ;; e.g. "il tuo cane"
 
        ]]
-     
-     [:div {:style "float:right"}
-      [:form {:method "post" :action "/quiz/clear"}
-       [:input.submit {:type "submit" :value "clear"}]]]]
+    
+
+
+     ]
 
    ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
    [:div {:id "controlbottom" :style "display:none"} 
