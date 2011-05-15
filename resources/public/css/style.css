@@ -262,3 +262,14 @@ div.reqdata td {
     border-bottom:1px dashed black;
 }
 
+div.optiongroup {
+    border:1px solid #caecae;
+    padding:2px;
+    margin:2px;
+    float:left;
+}
+
+div.optiongroup h4{
+    margin:0;
+    padding:0;
+}

@@ -10,7 +10,7 @@
               [italianverbs.generate :as gen]))
 
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo :ora :passato))
+  '(:mobili :mese :giorni :possessives :partitivo :ora :passato :presente))
 
 (defn wrapchoice [word & [ istrue ] ]
   ;; FIXME: url-encode word.
@@ -129,6 +129,8 @@
   (cond
    (= question-type :passato)
    (gen/random-passato-prossimo)
+   (= question-type :presente)
+   (gen/random-present)
    (= question-type :pp)
    (gram/pp
     {:$or [ {:italian "a"}, {:italian "di" }, {:italian "da"},
@@ -236,10 +238,17 @@
        (checkbox-row "partitivo" :partitivo session "articoli determinativi e partivi")
        (checkbox-row "mese" :mese session "le mese")
        (checkbox-row "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
-       (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
        (checkbox-row "possessives" :possessives session) ;; e.g. "il tuo cane"
-
-       ]]
+       ]
+      [:div {:class "optiongroup"}
+       [:h4 "Verbi"]
+       [:table
+        (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
+        (checkbox-row "presente" :presente session "presente indicativo")  ;; e.g. "io vado"
+        ]
+       ]
+      
+      ]
     
 
 
