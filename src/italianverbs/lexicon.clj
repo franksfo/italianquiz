@@ -269,6 +269,40 @@
       :aux "avere"
       })
 
+(def ricevere
+  (add "ricevere" "to receive"
+       {:cat :verb
+        :subj {:human true}
+       :obj {:cat :noun
+             :artifact true}}))
+
+(add "ricevuto" "received"
+     {:cat :verb
+      :root ricevere
+      :infl :passato-prossimo
+      :aux "avere"})
+
+(def vendere
+  (add "vendere" "to sell"
+       {:cat :verb
+        :subj {:human true}
+        :obj {:cat :noun
+              :artifact true}}))
+
+(add "venduto" "sold"
+     {:cat :verb
+      :root vendere
+      :infl :passato-prossimo
+      :aux "avere"})
+
+(add-with-pass-pross "capire" "capito" "to understand" "understood" "avere" {:subj {:human true} :obj {:sayable true}})
+(add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animal true}})
+
+(add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
+(add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
+(add-with-pass-pross "partire" "partiti" "to leave" "left" "essere" {:subj {:animate true}})
+(add-with-pass-pross "uscire" "usciti" "to go out" "went out" "essere" {:subj {:animate true}})
+(add-with-pass-pross "salire" "saliti" "to leave" "left" "essere" {:subj {:animate true}})
 
 (def parlare
   (add "parlare" "to speak"
