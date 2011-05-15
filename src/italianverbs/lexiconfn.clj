@@ -40,6 +40,22 @@
                           (assoc {} :italian italian))))]
       (add-fs featuremap))))
 
+(defn add-with-pass-pross [italian-infinitive italian-pass-pross english-infinitive english-past avere-o-assere & [ fs ]  ]
+  "add an infinitive form of a verb and the participio passato form. _fs_ contains additional lexical info." 
+  (let [inf
+        (add italian-infinitive italian-pass-pross
+             (merge
+              {:cat :verb}
+              fs))]
+    (add italian-pass-pross english-past
+         {:cat :verb
+          :root inf
+          :infl :passato-prossimo
+          :aux avere-o-assere})))
+
+  
+
+
 (defn italian-pluralize [singular gender]
   (cond
    (= gender :masc)
