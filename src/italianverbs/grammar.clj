@@ -409,7 +409,7 @@
 (defn random-passato-prossimo []
   (let [
         ;; choose a random verb in the passato-prossimo form.
-        verb-past (choose-lexeme {:root.cat :verb :infl :passato-prossimo :italian "capito"})
+        verb-past (choose-lexeme {:root.cat :verb :infl :passato-prossimo})
 
         ;; find the infinitive for this form.
         verb-inf (choose-lexeme {:cat :verb :infl :infinitive :italian (get verb-past :aux)})
