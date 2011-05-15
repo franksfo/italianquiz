@@ -296,7 +296,7 @@
       :aux "avere"})
 
 (add-with-pass-pross "capire" "capito" "to understand" "understood" "avere" {:subj {:human true} :obj {:sayable true}})
-(add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animal true}})
+(add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animate true}})
 
 (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
 (add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
