@@ -254,15 +254,16 @@
        (combine prep np left)
        {:italian (morph/conjugate-italian-prep prep np)}))))
 
-(defn sv [head comp]
+(defn sv [vp subj]
   (merge
-   (right head comp)
+   (right vp subj)
    {:english (string/join " "
-                          (list (get comp :english)
-                                (morph/conjugate-english-verb head comp)))
+                          (list (get subj :english)
+                                (morph/conjugate-english-verb vp
+                                                              subj)))
     :italian (string/join " "
-                          (list (get comp :italian)
-                                (morph/conjugate-italian-verb head comp)))}))
+                          (list (get subj :italian)
+                                (morph/conjugate-italian-verb vp subj)))}))
 
 (defn vo [head comp]
   (left head comp))
