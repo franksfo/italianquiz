@@ -70,7 +70,7 @@
 
      (= (get (get-head verb-head) :english) "to be able")
      (stringc/replace-re
-      #"^to be able to"
+      #"^to be able( to)?"
       "can"
       (get verb-head :english))
 
