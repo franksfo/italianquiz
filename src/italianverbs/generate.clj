@@ -34,36 +34,40 @@
     (merge {:question-type :mobili}
            (apply fn (list head comp)))))
 
-;; move these random generation functions to a separate file: generate.clj
+
+;; TODO : factor out commonalities between random-present and random-passato-prossimo.
 (defn random-present []
-  (let [verb-inf (gram/choose-lexeme {:cat :verb :infl :infinitive})
-        ;; TODO: find a way to do more complicated matching: i.e. {:root verb-inf}
-        verb (gram/choose-lexeme {:cat :verb :infl :present
-                             :root.italian (get verb-inf :italian)
-                             })
+  (let [;; choose a random verb in the presentivo-indicitivo form
+        verb-present (gram/choose-lexeme {:root.cat :verb :infl :present})
+
+        ;; find the infinitive for this form.
+        verb-inf (gram/choose-lexeme {:cat :verb :infl :infinitive :italian (get (get verb-present :root) :italian)})
+
+        subj-constraints
+        (merge
+         {:cat :noun
+          :case {:$ne :acc}}
+         (get (get verb-present :root) :subj)
+         (get verb-inf :subj)
+         {:person (get verb-present :person)
+          :number (get verb-present :number)})
         subject (cond
-                 (or (= (get verb :person) "1st")
-                     (= (get verb :person) "2nd"))
-                 (gram/choose-lexeme
-                  (merge {:case {:$ne :acc}
-                          :cat :noun
-                          :person (get verb :person)
-                          :number (get verb :number)}
-                         (get (get verb :root) :subj)))
+                 (or (= (get verb-present :person) "1st")
+                     (= (get verb-present :person) "2nd"))
+                 (gram/choose-lexeme subj-constraints)
                  true
-                 (gram/np
-                  (merge
-                   {:case {:$ne :acc}}
-                   {:number (get verb :number)}
-                   {:person (get verb :person)}
-                   (get (get verb :root) :subj))))]
+                 (gram/np subj-constraints))]
     (merge
      {:verb-inf verb-inf
-      :verb verb
+      :verb-present verb-present
       :subject subject
-      :english (str (get subject :english) " " (morph/conjugate-english-verb verb-inf subject))
-      :italian (str (get subject :italian) " " (get verb :italian))}
-    {:type-is-fs (set '(:verb :subject :verb-inf))})))
+      :subj-constraints subj-constraints
+      :english (str (get subject :english) " "
+                    (if (get verb-present :english)
+                      (get verb-present :english)
+                      (morph/conjugate-english-verb verb-inf subject)))
+      :italian (str (get subject :italian) " " (get verb-present :italian))}
+    {:type-is-fs (set '(:verb-present :subject :verb-inf :subj-constraints))})))
   
 (defn random-passato-prossimo []
   (let [
