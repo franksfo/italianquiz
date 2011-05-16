@@ -1,4 +1,4 @@
-;; (not known if) RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (must reload browser 2x though).
+;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (must reload browser 2x though).
 (ns italianverbs.generate
   (:use [somnium.congomongo])
   (:require
