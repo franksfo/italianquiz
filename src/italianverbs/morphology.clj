@@ -1,3 +1,4 @@
+;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE.
 (ns italianverbs.morphology
   (:use [hiccup core page-helpers]
 	[somnium.congomongo])
@@ -92,34 +93,46 @@
      true ;; 3rd plural
      (str (get remove-to :remove-to)))))
 
+(defn final-char-of [string]
+  (str-utils/get string (- (.length string) 1)))
+
 (defn conjugate-italian-verb-regular [verb-head subject-head]
   (let [root-form (get verb-head :italian)
-        regex #"^([^ ]*)i?([aei])re[ ]*$"]
+        regex #"^([^ ]*)([aei])re[ ]*$"]
     (cond
+
      (and (or (= (get subject-head :person) "1st")
               (= (get subject-head :person) :1st))
           (or (= (get subject-head :number) "singular")
               (= (get subject-head :number) :singular)))
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem "o" space)))
+
      (and (or (= (get subject-head :person) "1st")
               (= (get subject-head :person) :1st))
           (or (= (get subject-head :number) "plural")
               (= (get subject-head :number) :plural)))
      (str-utils/replace root-form regex
-                        (fn [[_ stem vowel space]] (str stem "i" "amo" space)))
+                        (fn [[_ stem i space]] (str stem
+                                                    (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
+                                                    "amo" space)))
+
      (and (or (= (get subject-head :person) "2nd")
               (= (get subject-head :person) :2nd))
           (or (= (get subject-head :number) :singular)
               (= (get subject-head :number) "singular")))
      (str-utils/replace root-form regex
-                        (fn [[_ stem vowel space]] (str stem "i" space)))
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
+                                                        space)))
+
      (and (or (= (get subject-head :person) "2nd")
               (= (get subject-head :person) :2nd))
           (or (= (get subject-head :number) "plural")
               (= (get subject-head :number) :plural)))
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem vowel "te" space)))
+
      (and (or (= (get subject-head :person) "3rd")
               (= (get subject-head :person) :3rd))
           (or (= (get subject-head :number) "singular")
