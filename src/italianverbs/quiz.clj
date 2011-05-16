@@ -244,7 +244,7 @@
        [:h4 "Verbi"]
        [:table
         (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
-        (checkbox-row "presente" :presente session "presente indicativo" "" "disabled")  ;; e.g. "io vado"
+        (checkbox-row "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
         ]
        ]
       
@@ -357,15 +357,5 @@
      ;; get 'guess' from query-string (e.g. from "guess=to%20eat")
      ;; pass the users's guess to (quiz), which will evaluate it.
      [:div (quiz nil request)])))
-
-(defn filter [request]
-  (let [query-string (get request :form-params)]
-    (html
-     ;; get 'guess' from query-string (e.g. from "guess=to%20eat")
-     ;; pass the users's guess to (quiz), which will evaluate it.
-     (with-history-and-controls
-       (session/request-to-session request)
-       [:div
-        "stuff done got filtered."]))))
 
 
