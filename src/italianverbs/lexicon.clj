@@ -187,14 +187,14 @@
             :obj {:cat :noun :holdable true}
             :adjunct adjunct-in-a-place})
 
-(add "mostrare" "to show"
-           {:cat :verb :infl :infinitive
-            :subj {
-                   :human true
-                   }
-            :obj {:cat :noun}
-            :iobj {:obj.animate true}
-            :adjunct adjunct-in-a-place})
+(add-infl-reg
+ (add "mostrare" "to show"
+      {:cat :verb
+       :infl :infinitive
+       :subj {:human true}
+       :obj {:cat :noun}
+       :iobj {:obj.animate true}
+       :adjunct adjunct-in-a-place}))
 
 (def dire (add "dire" "to say"
                      {:cat :verb :infl :infinitive
@@ -241,33 +241,16 @@
                    :obj.human true}
            :adjunct adjunct-in-a-place})
 
-(def mangiare
-  (add "mangiare" "to eat"
+(add-infl-reg
+ (add "mangiare" "to eat"
              {:cat :verb
               :subj {:animate true}
               :obj {:cat :noun
                     :edible true}
               :adjunct {:cat :prep
                         :obj.place true}
-              :infl :infinitive}))
-
-
-;; FIXME: hacks until italian morphology works better: mangiare
-;; is a regular -are verb.
-(add "mangi" "to eat"
-	    {:root mangiare
-	     :cat :verb :infl :present
-	     :person :2nd :number :singular})
-(add "mangia" "to eat"
-     {:root mangiare
-      :cat :verb :infl :present
-      :person :3rd :number :singular})
-(add "mangiato" "ate"
-     {:cat :verb
-      :root mangiare
-      :infl :passato-prossimo
-      :aux "avere"
-      })
+              :infl :infinitive})
+ "mangiato" "ate" "avere")
 
 (def ricevere
   (add "ricevere" "to receive"

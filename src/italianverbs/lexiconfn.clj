@@ -2,7 +2,8 @@
   (:use [hiccup core page-helpers]
 	[somnium.congomongo])
   (:require
-   [clojure.contrib.string :as stringc]))
+   [clojure.contrib.string :as stringc]
+   [italianverbs.morphology :as morph]))
 
 ; global initializations go here, i guess..
 (mongo! :db "mydb")
@@ -112,6 +113,46 @@
      (rest types)
      (merge (first types) result))
     (add italian nil result)))
+
+(defn add-infl-reg [infinitive & [passato-prossimo past aux]]
+  (let [firstp {:person :1st}
+        secondp {:person :2nd}
+        thirdp {:person :3rd}
+        sing {:number :singular}
+        plural {:number :plural}
+        present {:cat :verb :infl :present}]
+    (add-infl (morph/conjugate-italian-verb infinitive (merge firstp sing))
+              (list firstp sing present
+                    {:root infinitive}))
+
+    (add-infl (morph/conjugate-italian-verb infinitive (merge secondp sing))
+              (list secondp sing present
+                    {:root infinitive}))
+
+    (add-infl (morph/conjugate-italian-verb infinitive (merge thirdp sing))
+              (list thirdp sing present
+                    {:root infinitive}))
+
+    (add-infl (morph/conjugate-italian-verb infinitive (merge firstp plural))
+              (list firstp plural present
+                    {:root infinitive}))
+
+    (add-infl (morph/conjugate-italian-verb infinitive (merge secondp plural))
+              (list secondp plural present
+                    {:root infinitive}))
+
+    (add-infl (morph/conjugate-italian-verb infinitive (merge thirdp plural))
+              (list thirdp plural present
+                    {:root infinitive}))
+
+    (if (and passato-prossimo past aux)
+      (add passato-prossimo past
+           {:cat :verb
+            :root infinitive
+            :infl :passato-prossimo
+            :aux aux}))
+    ))
+
 
 (defn lookup [italian & [where ]]
   (fetch-one :lexicon :where (merge where {:italian italian})))
