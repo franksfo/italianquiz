@@ -137,8 +137,10 @@
               (= (get subject-head :person) :3rd))
           (or (= (get subject-head :number) "singular")
               (= (get subject-head :number) :singular)))
+     ;; TODO: this works for -ire verbs like aprire->aprie but not
+     ;; -ire verbs like finire->finisco.
      (str-utils/replace root-form regex
-                        (fn [[_ stem vowel space]] (str stem "e" space)))
+                        (fn [[_ stem vowel space]] (str stem vowel space)))
 
      (and (or (= (get subject-head :person) "3rd")
               (= (get subject-head :person) :3rd))
@@ -255,8 +257,9 @@
               (= (get noun :number) :singular))
           ;; for numbers, "l'una" but "le otto", only match "una" here.
           ;; not sure about other numbers that start with "una", if any.
-          (and (= (get noun :numerical) true)
-               (= (get noun :italian) "una")))
+          (or (not (= (get noun :numerical) true))
+              (and (= (get noun :numerical) true)
+                   (= (get noun :italian) "una"))))
      (str "l'" (get noun :italian))
 
      (and (re-find #"^st" (get noun :italian))
