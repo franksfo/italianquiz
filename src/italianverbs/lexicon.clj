@@ -252,6 +252,15 @@
               :infl :infinitive})
  "mangiato" "ate" "avere")
 
+(add-infl-reg
+ (add "parlare" "to speak"
+      {:cat :verb
+       :subj {:human true}
+       :infl :infinitive
+       :iobj {:obj.human true}
+       :adjunct adjunct-in-a-place})
+ "parlato" "spoke" "avere")
+
 (def ricevere
   (add "ricevere" "to receive"
        {:cat :verb
@@ -287,26 +296,6 @@
 (add-with-pass-pross "uscire" "usciti" "to go out" "went out" "essere" {:subj {:animate true}})
 ;; can't have "salire" until there's some quiz-readable way to distinguish it from "partire".
 ;(add-with-pass-pross "salire" "saliti" "to leave" "left" "essere" {:subj {:animate true}})
-
-(def parlare
-  (add "parlare" "to speak"
-       {:subj {:human true}
-        :cat :verb :infl :infinitive
-        :iobj {:obj.human true}
-        :adjunct adjunct-in-a-place}))
-(add "parla" "to speak"
-	    {:root parlare
-	     :cat :verb :infl :present
-	     :person :3rd :number :singular})
-
-(add "parlato" "spoke"
-     {:cat :verb
-      :root parlare
-      :infl :passato-prossimo
-      :aux "avere"
-      })
-
-
 
 (add "smettere" "to quit"
      {:cat :verb :infl :infinitive-omit
