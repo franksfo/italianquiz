@@ -244,7 +244,7 @@
        [:h4 "Verbi"]
        [:table
         (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
-        (checkbox-row "presente" :presente session "presente indicativo")  ;; e.g. "io vado"
+        (checkbox-row "presente" :presente session "presente indicativo" "" "disabled")  ;; e.g. "io vado"
         ]
        ]
       
