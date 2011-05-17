@@ -288,12 +288,23 @@
   "to understand" "understood"
   "avere"
   {:subj {:human true} :obj {:sayable true}})
-(add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animate true}})
 
+(add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animate true}})
 (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
 (add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
 (add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
 (add-with-pass-pross "uscire" "uscito" "to go out" "went out" "essere" {:subj {:animate true}})
+
+(add-with-pass-pross "prendere" "preso" "to take" "took" "avere" {:subj {:animate true}})
+(add-with-pass-pross "scendere" "sceso" "to go down" "went down" "essere" {:subj {:animate true}})
+(add-with-pass-pross "spendere" "speso" "to spend" "spent" "avere" {:subj {:animate true}})
+(add-with-pass-pross "chiudere" "chiuso" "to close" "closed" "avere" {:subj {:human true}})
+(add-with-pass-pross "accendere" "acceso" "to turn on" "turned on" "avere" {:subj {:human true}})
+(add-with-pass-pross "decidere" "deciso" "to decide" "decided" "avere" {:subj {:human true}})
+
+
+
+
 
 (def corrigere
   (add "correggere" "to correct"
