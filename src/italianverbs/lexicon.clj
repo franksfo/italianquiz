@@ -470,26 +470,25 @@
                  (list choose-vp-inf)))
 (add-infl "devo" (list firstp sing present
                        {:root dovere}))
-(add-infl "devi" (list firstp sing present
+(add-infl "devi" (list secondp sing present
                        {:root dovere}))
-(add-infl "deve" (list firstp sing present
+(add-infl "deve" (list thirdp sing present
                        {:root dovere}))
-(add-infl "dobbiamo" (list firstp sing present
+(add-infl "dobbiamo" (list firstp plural present
                        {:root dovere}))
-(add-infl "dovete" (list firstp sing present
+(add-infl "dovete" (list secondp plural present
                        {:root dovere}))
-(add-infl "devono" (list firstp sing present
-                       {:root dovere}))
-
+(add-infl "devono" (list thirdp sing present
+                         {:root dovere}))
 
 (def fare (add "fare" "to make"
-                     {:cat :verb :infl :infinitive
-                      :obj {:cat :noun
-                            :artifact true}
-                      :subj {:human true}
-                      :iobj {:obj.animate true
-                             :benefactive true}
-                      :adjunct adjunct-in-a-place}))
+               {:cat :verb :infl :infinitive
+                :obj {:cat :noun
+                      :artifact true}
+                :subj {:human true}
+                :iobj {:obj.animate true
+                       :benefactive true}
+                :adjunct adjunct-in-a-place}))
                      
 (add-infl "facio" (list firstp sing present
 			{:root fare}))
