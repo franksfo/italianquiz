@@ -105,6 +105,8 @@
       :english (str (get subject :english) " "
                     ;(morph/conjugate-english-verb verb-inf subject) " "
                     (get verb-past :english))
-      :italian (str (get subject :italian) " " (get verb-aux :italian) " " (get verb-past :italian))}
+      :italian (str (get subject :italian) " " (get verb-aux :italian) " "
+                    (morph/conjugate-italian-verb verb-past subject))}
+
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
   

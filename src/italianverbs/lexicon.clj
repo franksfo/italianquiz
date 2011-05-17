@@ -292,10 +292,10 @@
 
 (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
 (add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
-(add-with-pass-pross "partire" "partiti" "to leave" "left" "essere" {:subj {:animate true}})
-(add-with-pass-pross "uscire" "usciti" "to go out" "went out" "essere" {:subj {:animate true}})
+(add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
+(add-with-pass-pross "uscire" "uscito" "to go out" "went out" "essere" {:subj {:animate true}})
 ;; can't have "salire" until there's some quiz-readable way to distinguish it from "partire".
-;(add-with-pass-pross "salire" "saliti" "to leave" "left" "essere" {:subj {:animate true}})
+;(add-with-pass-pross "salire" "salito" "to leave" "left" "essere" {:subj {:animate true}})
 
 (add "smettere" "to quit"
      {:cat :verb :infl :infinitive-omit

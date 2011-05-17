@@ -167,36 +167,86 @@
   (let [regex #"^[^ ]+[ ]?(.*)"]
     (str-utils/replace words regex (fn [[_ rest]] rest))))
 
+(defn plural-masc [italian]
+ (let [regex #"^([^ ]*)o([ ]?)(.*)"]
+   (str-utils/replace
+    italian
+    regex (fn [[_ stem space rest]] (str stem "i" space rest)))))
+
+(defn plural-fem [italian]
+ (let [regex #"^([^ ]*)a([ ]?)(.*)"]
+   (str-utils/replace
+    italian
+    regex (fn [[_ stem space rest]] (str stem "e" space rest)))))
+
+(defn single-fem [italian]
+ (let [regex #"^([^ ]*)a([ ]?)(.*)"]
+   (str-utils/replace
+    italian
+    regex (fn [[_ stem space rest]] (str stem "a" space rest)))))
+
+(defn conjugate-passato-prossimo [verb-phrase subject]
+  (cond
+
+   (and (= (get verb-phrase :aux) "essere")
+        (or (= (get subject :gender) :fem)
+            (= (get subject :gender) "fem"))
+        (or (= (get subject :number) :singular)
+            (= (get subject :number) "singular")))
+   (single-fem (get verb-phrase :italian))
+
+   (and (= (get verb-phrase :aux) "essere")
+        (or (= (get subject :gender) :masc)
+            (= (get subject :gender) "masc")
+            (not (get subject :gender)))
+        (or (= (get subject :number) :plural)
+            (= (get subject :number) "plural")))
+   (plural-masc (get verb-phrase :italian))
+
+   (and (= (get verb-phrase :aux) "essere")
+        (or (= (get subject :gender) :fem)
+            (= (get subject :gender) "fem"))
+        (or (= (get subject :number) :plural)
+            (= (get subject :number) "plural")))
+   (plural-fem (get verb-phrase :italian))
+
+   true (get verb-phrase :italian)))
+
 (defn conjugate-italian-verb [verb-phrase subject]
   ;; conjugate verb based on subject and eventually verb's features (such as tense)
   ;; takes two feature structures and returns a string.
-  (let [italian (get verb-phrase :italian)
-        italian-head (get (get-head verb-phrase) :italian)
-        ;; all we need is the head, which has the relevant grammatical information, not the whole subject
-        subject (get-head subject)] 
-    (let [italian (if italian-head italian italian)]
-      (let [irregular
-            (fetch-one :lexicon
-                       :where {:cat :verb
-                               :infl :present
-                               :person (get subject :person)
+  (cond
+   (or (= (get verb-phrase :infl) :passato-prossimo)
+       (= (get verb-phrase :infl) "passato-prossimo"))
+   (conjugate-passato-prossimo verb-phrase subject)
+   true
+   (let [italian (get verb-phrase :italian)
+         italian-head (get (get-head verb-phrase) :italian)
+         ;; all we need is the head, which has the relevant grammatical information, not the whole subject
+         subject (get-head subject)] 
+     (let [italian (if italian-head italian italian)]
+       (let [irregular
+             (fetch-one :lexicon
+                        :where {:cat :verb
+                                :infl :present
+                                :person (get subject :person)
                                :number (get subject :number)
-                               :root.italian (get (get-root-head verb-phrase) :italian)
-                               }
-                       )
-            except-first
-            (except-first-words
-             (get-head verb-phrase)
-             (get verb-phrase :italian))]
-        (if irregular
-          (string/join " "
-                       (list (get irregular :italian)
-                             except-first))
-          (string/join " " 
-                       (list
-                        (conjugate-italian-verb-regular
-                         (get-head verb-phrase) subject)
-                        except-first)))))))
+                                :root.italian (get (get-root-head verb-phrase) :italian)
+                                }
+                        )
+             except-first
+             (except-first-words
+              (get-head verb-phrase)
+              (get verb-phrase :italian))]
+         (if irregular
+           (string/join " "
+                        (list (get irregular :italian)
+                              except-first))
+           (string/join " " 
+                        (list
+                         (conjugate-italian-verb-regular
+                          (get-head verb-phrase) subject)
+                         except-first))))))))
 
 (defn plural-masc [italian]
  (let [regex #"^([^ ]*)o([ ]?)(.*)"]
