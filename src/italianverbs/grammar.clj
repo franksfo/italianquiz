@@ -117,7 +117,7 @@
    (symbol fn)
    true fn))
 
-  
+;; TODO: move to generate.clj  
 (defn np [ & [fs determiner]]
   "'fs' puts pre-conditions on noun (head of the np)"
   (let [chosen-determiner determiner
