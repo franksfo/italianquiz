@@ -517,7 +517,7 @@
                        {:root dovere}))
 (add-infl "dovete" (list secondp plural present
                        {:root dovere}))
-(add-infl "devono" (list thirdp sing present
+(add-infl "devono" (list thirdp plural present
                          {:root dovere}))
 
 (def fare (add "fare" "to make"
