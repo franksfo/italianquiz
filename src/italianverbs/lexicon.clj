@@ -217,29 +217,25 @@
 (add-infl "dicono" (list thirdp plural present
 		       {:root dire}))
 
-(add "scrivere" "to write"
-           {:cat :verb :infl :infinitive
-            :subj {:human true}
-            :obj {:writable true
-                  :cat :noun}
-            :iobj {:obj.human true
-                   :benefactive true}
-            :adjunct adjunct-in-a-place})
+(def scrivere (add "scrivere" "to write"
+                   {:cat :verb :infl :infinitive
+                    :subj {:human true}
+                    :obj {:writable true
+                          :cat :noun}
+                    :iobj {:obj.human true
+                           :benefactive true}
+                    :adjunct adjunct-in-a-place}))
 
-(add "correggere" "to correct"
-           {:cat :verb :infl :infinitive
-            :subj {:human true}
-            :obj {:cat :noun :human true}
-            :adjunct adjunct-in-a-place})
 
-(add "leggere" "to read"
-           {:cat :verb
-            :infl :infinitive
-            :subj {:human true}
-            :obj {:cat :noun :written true}
-            :iobj {:obj.case {:$ne :nom}
-                   :obj.human true}
-           :adjunct adjunct-in-a-place})
+(def leggere
+  (add "leggere" "to read"
+       {:cat :verb
+        :infl :infinitive
+        :subj {:human true}
+        :obj {:cat :noun :written true}
+        :iobj {:obj.case {:$ne :nom}
+               :obj.human true}
+        :adjunct adjunct-in-a-place}))
 
 (add-infl-reg
  (add "mangiare" "to eat"
@@ -287,13 +283,56 @@
       :infl :passato-prossimo
       :aux "avere"})
 
-(add-with-pass-pross "capire" "capito" "to understand" "understood" "avere" {:subj {:human true} :obj {:sayable true}})
+(add-with-pass-pross
+  "capire" "capito"
+  "to understand" "understood"
+  "avere"
+  {:subj {:human true} :obj {:sayable true}})
 (add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animate true}})
 
 (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
 (add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
 (add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
 (add-with-pass-pross "uscire" "uscito" "to go out" "went out" "essere" {:subj {:animate true}})
+
+(def corrigere
+  (add "correggere" "to correct"
+       {:cat :verb :infl :infinitive
+        :subj {:human true}
+        :obj {:cat :noun :human true}
+        :adjunct adjunct-in-a-place}))
+
+(add "corretto" "corrected"
+     {:cat :verb
+      :root corrigere
+      :infl :passato-prossimo
+      :aux "avere"})
+
+(add "detto" "said"
+     {:cat :verb
+      :root dire
+      :infl :passato-prossimo
+      :aux "avere"})
+
+(add "fatto" "made"
+     {:cat :verb
+      :root fare
+      :infl :passato-prossimo
+      :aux "avere"})
+
+(add "letto" "read (past)"
+     {:cat :verb
+      :root leggere
+      :infl :passato-prossimo
+      :aux "avere"})
+
+(add "scritto" "wrote"
+     {:cat :verb
+      :root scrivere
+      :infl :passato-prossimo
+      :aux "avere"})
+
+
 ;; can't have "salire" until there's some quiz-readable way to distinguish it from "partire".
 ;(add-with-pass-pross "salire" "salito" "to leave" "left" "essere" {:subj {:animate true}})
 
