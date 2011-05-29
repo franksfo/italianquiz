@@ -307,7 +307,7 @@
 (add-with-pass-pross "aprire" "aperto" "to open" "opened" "avere" {:subj {:human true}})
 (add-with-pass-pross "soffrire" "sofferto" "to suffer" "suffered" "avere" {:subj {:human true}})
 
-(add-with-pass-pross "venire" "vissuto" "to live" "lived" "avere" {:subj {:animate true}})
+(add-with-pass-pross "vivere" "vissuto" "to live" "lived" "avere" {:subj {:animate true}})
 (add-with-pass-pross "perdere" "perso" "to lose" "lost" "avere" {:subj {:human true}})
 (add-with-pass-pross "scegliere" "scelto" "to choose" "chose" "avere" {:subj {:human true}})
 
@@ -465,9 +465,9 @@
 ;; </venire adjunct variants>
 
  ;; <venire exceptions>
- (add-infl "vengo" (list firstp sing present
-		       {:root venire}))
-(add-infl "vieni" (list secondp present
+(add-infl "vengo" (list firstp sing present
+                        {:root venire}))
+(add-infl "vieni" (list secondp sing present
 		       {:root venire}))
 (add-infl "viene" (list thirdp sing present
 		       {:root venire}))
