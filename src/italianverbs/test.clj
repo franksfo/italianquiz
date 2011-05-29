@@ -334,8 +334,8 @@
 
    ;(conjugations)
 
-   (html/tablize
-    (if false
+   (if false
+     (html/tablize
       (merge
        {:test "sentence"}
        (gram/sentence))))
