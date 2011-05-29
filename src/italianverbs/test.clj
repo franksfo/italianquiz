@@ -340,14 +340,13 @@
        {:test "sentence"}
        (gram/sentence))))
 
-   (if false
+   (if true
      (html/tablize
       (merge 
        (gen/random-present)
        {:test "present"})))
-
-
-   (if true
+   
+   (if false
      (html/tablize
       (merge 
        (gen/random-passato-prossimo)
