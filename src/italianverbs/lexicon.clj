@@ -302,9 +302,14 @@
 (add-with-pass-pross "accendere" "acceso" "to turn on" "turned on" "avere" {:subj {:human true}})
 (add-with-pass-pross "decidere" "deciso" "to decide" "decided" "avere" {:subj {:human true}})
 
+(add-with-pass-pross "morire" "morto" "to die" "died" "essere" {:subj {:animate true}})
+(add-with-pass-pross "offrire" "offerto" "to offer" "offered" "avere" {:subj {:human true}})
+(add-with-pass-pross "aprire" "aperto" "to open" "opened" "avere" {:subj {:human true}})
+(add-with-pass-pross "soffrire" "sofferto" "to suffer" "suffered" "avere" {:subj {:human true}})
 
-
-
+(add-with-pass-pross "venire" "vissuto" "to live" "lived" "avere" {:subj {:animate true}})
+(add-with-pass-pross "perdere" "perso" "to lose" "lost" "avere" {:subj {:human true}})
+(add-with-pass-pross "scegliere" "scelto" "to choose" "chose" "avere" {:subj {:human true}})
 
 (def corrigere
   (add "correggere" "to correct"
@@ -322,12 +327,6 @@
 (add "detto" "said"
      {:cat :verb
       :root dire
-      :infl :passato-prossimo
-      :aux "avere"})
-
-(add "fatto" "made"
-     {:cat :verb
-      :root fare
       :infl :passato-prossimo
       :aux "avere"})
 
@@ -423,6 +422,11 @@
   (add "venire" "to come"
              {:cat :verb :infl :supertype
               :subj {:animate true}}))
+
+(add "venuto" "came" {:cat :verb
+                     :root venire
+                     :infl :passato-prossimo
+                     :aux "essere"})
 
 ;; <venire adjunct variants>
 ;; TODO : add and use (add-variant)
@@ -553,9 +557,60 @@
 (add-infl "fanno" (list thirdp plural plural present
 			 {:root fare}))
 
+(add "fatto" "made" {:cat :verb
+                     :root fare
+                     :infl :passato-prossimo
+                     :aux "avere"})
+
+
 (def essere (add "essere" "to be"
                      {:cat :verb :infl :infinitive
                       :obj {:cat :noun}}))
+
+(add "stato" "was" {:cat :verb
+                    :root essere
+                    :infl :passato-prossimo
+                    :aux "essere"})
+
+(add "stato" "was" {:cat :verb
+                    :root essere
+                    :person :1st
+                    :number :singular
+                    :infl :passato-prossimo
+                    :aux "essere"})
+(add "stato" "was" {:cat :verb
+                    :root essere
+                    :person :2nd
+                    :number :singular
+                    :infl :passato-prossimo
+                    :aux "essere"})
+(add "stato" "was" {:cat :verb
+                    :root essere
+                    :person :3rd
+                    :number :singular
+                    :infl :passato-prossimo
+                    :aux "essere"})
+(add "stato" "were" {:cat :verb
+                     :root essere
+                     :person :1st
+                     :number :plural
+                     :infl :passato-prossimo
+                     :aux "essere"
+                     :english "were"})
+(add "stato" "were" {:cat :verb
+                     :root essere
+                     :person :2nd
+                     :number :plural
+                     :infl :passato-prossimo
+                     :aux "essere"
+                     :english "were"})
+(add "stato" "were" {:cat :verb
+                     :root essere
+                     :person :3rd
+                     :number :plural
+                     :infl :passato-prossimo
+                     :aux "essere"
+                     :english "were"})
 
 (add-infl "sono" (list firstp sing present
                        {:root essere
