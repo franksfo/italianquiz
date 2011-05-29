@@ -1,4 +1,4 @@
-;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (must reload browser 2x though).
+;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (purtroppo)
 (ns italianverbs.generate
   (:use [somnium.congomongo])
   (:require
@@ -72,7 +72,7 @@
 (defn random-passato-prossimo []
   (let [
         ;; choose a random verb in the passato-prossimo form.
-        verb-past (gram/choose-lexeme {:root.cat :verb :infl :passato-prossimo})
+        verb-past (gram/choose-lexeme {:root.cat :verb :infl :passato-prossimo :italian "stato"})
 
         ;; find the infinitive for this form.
         verb-inf (gram/choose-lexeme {:cat :verb :infl :infinitive :italian (get verb-past :aux)})
@@ -103,8 +103,8 @@
       :subject subject
       :subj-constraints subj-constraints
       :english (str (get subject :english) " "
-                    ;(morph/conjugate-english-verb verb-inf subject) " "
-                    (get verb-past :english))
+                    (morph/conjugate-english-verb verb-past subject) " ")
+                    ;(get verb-past :english))
       :italian (str (get subject :italian) " " (get verb-aux :italian) " "
                     (morph/conjugate-italian-verb verb-past subject))}
 

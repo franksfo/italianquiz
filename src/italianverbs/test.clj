@@ -346,7 +346,15 @@
        (gen/random-present)
        {:test "present"})))
 
-   (html/tablize test12)
+
+   (if true
+     (html/tablize
+      (merge 
+       (gen/random-passato-prossimo)
+       {:test "passato prossimo"})))
+
+   
+;   (html/tablize test12)
 ;   (html/tablize test11)
 ;   (html/tablize test10)
 ;   (html/tablize test8)
