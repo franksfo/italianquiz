@@ -47,7 +47,7 @@
         (fetch-one :lexicon
                    :where {
                            :cat :verb
-                           :infl :present
+                           :infl (get verb-head :infl)
                            :person (get (get-head subject) :person)
                            :number (get subject :number)
                            ;; the following looks confusing: it's needed
@@ -81,6 +81,7 @@
      (get remove-to :remove-to)
 
      (and
+      (= (get (get-head verb-head) :infl) "present")
       (= (get (get-head subject) :person) "3rd")
       (= (get (get-head subject) :number) "singular"))
      (get
