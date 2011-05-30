@@ -578,7 +578,7 @@
                     :number :singular
                     :infl :passato-prossimo
                     :aux "essere"})
-(add "stato" "was" {:cat :verb
+(add "stato" "were" {:cat :verb
                     :root essere
                     :person :2nd
                     :number :singular
