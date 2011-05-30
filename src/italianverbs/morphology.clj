@@ -1,4 +1,4 @@
-;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE.
+;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (for some reason that should be learnt.)
 (ns italianverbs.morphology
   (:use [hiccup core page-helpers]
 	[somnium.congomongo])
@@ -169,16 +169,16 @@
     (str-utils/replace words regex (fn [[_ rest]] rest))))
 
 (defn plural-masc [italian]
- (let [regex #"^([^ ]*)o([ ]?)(.*)"]
-   (str-utils/replace
-    italian
-    regex (fn [[_ stem space rest]] (str stem "i" space rest)))))
+  (stringc/join " "
+                (cons (stringc/replace-re #"[o]$" "i" (first (stringc/split #"\s+"
+                                                                          italian)))
+                      (rest (stringc/split #"\s+" italian)))))
 
 (defn plural-fem [italian]
- (let [regex #"^([^ ]*)a([ ]?)(.*)"]
-   (str-utils/replace
-    italian
-    regex (fn [[_ stem space rest]] (str stem "e" space rest)))))
+  (stringc/join " "
+                (cons (stringc/replace-re #"[oa]$" "e" (first (stringc/split #"\s+"
+                                                                          italian)))
+                      (rest (stringc/split #"\s+" italian)))))
 
 (defn single-fem [italian]
  (let [regex #"^([^ ]*)a([ ]?)(.*)"]
@@ -210,7 +210,6 @@
         (or (= (get subject :number) :plural)
             (= (get subject :number) "plural")))
    (plural-fem (get verb-phrase :italian))
-
    true (get verb-phrase :italian)))
 
 (defn conjugate-italian-verb [verb-phrase subject]
@@ -241,25 +240,15 @@
               (get verb-phrase :italian))]
          (if irregular
            (string/join " "
-                        (list (get irregular :italian)
-                              except-first))
-           (string/join " " 
                         (list
+                         (get irregular :italian)
+                         except-first))
+           (string/join " (reg) " 
+                        (list
+                         " "
                          (conjugate-italian-verb-regular
                           (get-head verb-phrase) subject)
                          except-first))))))))
-
-(defn plural-masc [italian]
- (let [regex #"^([^ ]*)o([ ]?)(.*)"]
-   (str-utils/replace
-    italian
-    regex (fn [[_ stem space rest]] (str stem "i" space rest)))))
-
-(defn plural-fem [italian]
- (let [regex #"^([^ ]*)a([ ]?)(.*)"]
-   (str-utils/replace
-    italian
-    regex (fn [[_ stem space rest]] (str stem "e" space rest)))))
 
 (defn conjugate-it [head]
   (cond (= (get head :cat) "noun")
