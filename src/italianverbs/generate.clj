@@ -77,16 +77,17 @@
         ;; find the infinitive for this form.
         verb-inf (gram/choose-lexeme {:cat :verb :infl :infinitive :italian (get verb-past :aux)})
 
-        ;; get the appropriate auxilliary for that verb.
+        ;; get the appropriate auxiliary for that verb.
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
         verb-aux (gram/choose-lexeme {:infl :present
-                                 :root.italian (get verb-inf :italian)
-                                 })
+                                      :person (get verb-past :person)
+                                      :number (get verb-past :number)
+                                      :root.italian (get verb-inf :italian)
+                                      })
         subj-constraints
         (merge
          {:cat :noun
           :case {:$ne :acc}}
-         (get (get verb-past :root) :subj)
          (get verb-inf :subj)
          {:person (get verb-aux :person)
           :number (get verb-aux :number)})
