@@ -41,20 +41,87 @@
                           (assoc {} :italian italian))))]
       (add-fs featuremap))))
 
+;; _italian is a string; _types is a list of symbols (each of which is a map of key-values);
+;; _result is an accumulator which contains the merge of all of the maps
+;; in _types.
+;; no _english param needed; _result should be assumed to contain a :root key-value.
+(defn add-infl [italian & [types result]]
+  (if (first types)
+    (add-infl
+     italian
+     (rest types)
+     (merge (first types) result))
+    (add italian nil result)))
+
+(def firstp
+  {:person :1st})
+(def secondp
+  {:person :2nd})
+(def thirdp
+  {:person :3rd})
+(def sing
+  {:number :singular})
+(def plural
+  {:number :plural})
+(def present
+  {:cat :verb :infl :present})
+
 (defn add-with-pass-pross [italian-infinitive italian-pass-pross english-infinitive english-past avere-o-assere & [ fs ]  ]
   "add an infinitive form of a verb and the participio passato form. _fs_ contains additional lexical info." 
   (let [inf
-        (add italian-infinitive italian-pass-pross
+        (add italian-infinitive english-infinitive
              (merge
-              {:cat :verb}
+              {:cat :verb
+               :infl :infinitive}
               fs))]
+
+    (add-infl
+     (morph/conjugate-italian-verb-regular
+      inf
+      (merge firstp sing present))
+     (list (merge firstp sing present))
+     {:root inf})
+
+    (add-infl
+     (morph/conjugate-italian-verb-regular
+      inf
+      (merge secondp sing present))
+     (list (merge secondp sing present))
+     {:root inf})
+
+    (add-infl
+     (morph/conjugate-italian-verb-regular
+      inf
+      (merge thirdp sing present))
+     (list (merge thirdp sing present))
+     {:root inf})
+    
+    (add-infl
+     (morph/conjugate-italian-verb-regular
+      inf
+      (merge firstp plural present))
+     (list (merge firstp plural present))
+     {:root inf})
+
+    (add-infl
+     (morph/conjugate-italian-verb-regular
+      inf
+      (merge secondp plural present))
+     (list (merge secondp plural present))
+     {:root inf})
+
+    (add-infl
+     (morph/conjugate-italian-verb-regular
+      inf
+      (merge thirdp plural present))
+     (list (merge thirdp plural present))
+     {:root inf})
+
     (add italian-pass-pross english-past
          {:cat :verb
           :root inf
           :infl :passato-prossimo
           :aux avere-o-assere})))
-
-  
 
 
 (defn italian-pluralize [singular gender]
@@ -101,18 +168,6 @@
      (rest types)
      (merge (first types) result))
     (add italian nil (merge {:english english} result))))
-
-;; _italian is a string; _types is a list of symbols (each of which is a map of key-values);
-;; _result is an accumulator which contains the merge of all of the maps
-;; in _types.
-;; no _english param needed; _result should be assumed to contain a :root key-value.
-(defn add-infl [italian & [types result]]
-  (if (first types)
-    (add-infl
-     italian
-     (rest types)
-     (merge (first types) result))
-    (add italian nil result)))
 
 (defn add-infl-reg [infinitive & [passato-prossimo past aux]]
   (let [firstp {:person :1st}

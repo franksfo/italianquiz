@@ -24,18 +24,7 @@
 (def propernoun
   (merge noun
          {:det nil})) ;; propernouns also don't take a determiner.
-(def firstp
-  {:person :1st})
-(def secondp
-  {:person :2nd})
-(def thirdp
-  {:person :3rd})
-(def sing
-  {:number :singular})
-(def plural
-  {:number :plural})
-(def present
-  {:cat :verb :infl :present})
+
 (def choose-vp-inf
   {:obj {:cat :verb}})
 (def human
