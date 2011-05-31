@@ -243,8 +243,7 @@
                         (list
                          (get irregular :italian)
                          except-first))
-           (string/join " (reg) " 
-                        (list
+           (string/join (list
                          " "
                          (conjugate-italian-verb-regular
                           (get-head verb-phrase) subject)
