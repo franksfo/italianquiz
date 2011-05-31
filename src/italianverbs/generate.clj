@@ -86,9 +86,16 @@
 
         ;; get the appropriate auxiliary for that verb.
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
-        verb-aux (gram/choose-lexeme {:infl :present
-                                      :root.italian (get verb-inf :italian)
-                                      })
+        verb-aux (gram/choose-lexeme
+                  (merge
+                   {:infl :present
+                    :root.italian (get verb-inf :italian)}
+                   (if (get verb-past :person)
+                     {:person (get verb-past :person)}
+                     {})
+                   (if (get verb-past :number)
+                     {:number (get verb-past :number)}
+                     {})))
         subj-constraints
         (merge
          {:cat :noun
