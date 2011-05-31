@@ -96,6 +96,7 @@
          (get verb-inf :subj)
          {:person (get verb-aux :person)
           :number (get verb-aux :number)}
+         (get (get verb-past :root) :subj)
          (get verb-inf :subj)
          config/random-passato-prossimo-subj)
         subject (cond
