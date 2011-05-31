@@ -7,6 +7,7 @@
   {
 ;   :italian "corretto"
 ;   :italian "venuto"
+;   :italian "stato"
    })
 
 
