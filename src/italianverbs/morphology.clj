@@ -141,7 +141,7 @@
      ;; TODO: this works for -ire verbs like aprire->aprie but not
      ;; -ire verbs like finire->finisco.
      (str-utils/replace root-form regex
-                        (fn [[_ stem vowel space]] (str stem vowel space)))
+                        (fn [[_ stem vowel space]] (str stem "e" space)))
 
      (and (or (= (get subject-head :person) "3rd")
               (= (get subject-head :person) :3rd))
