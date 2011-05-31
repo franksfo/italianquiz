@@ -81,9 +81,10 @@
      (get remove-to :remove-to)
 
      (and
-      (= (get (get-head verb-head) :infl) "present")
-      (= (get (get-head subject) :person) "3rd")
-      (= (get (get-head subject) :number) "singular"))
+      (or (= (get (get-head subject) :person) "3rd")
+          (= (get (get-head subject) :person) :3rd))
+      (or (= (get (get-head subject) :number) "singular")
+          (= (get (get-head subject) :number) :singular)))
      (get
       (add-s-to-first-word
        (merge
