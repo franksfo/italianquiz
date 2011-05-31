@@ -98,6 +98,11 @@
 (defn final-char-of [string]
   (str-utils/get string (- (.length string) 1)))
 
+(defn if-isco [verb]
+  (if (= (get verb :isco) true)
+    "isc"
+    ""))
+
 (defn conjugate-italian-verb-regular [verb-head subject-head]
   (let [root-form (get verb-head :italian)
         regex #"^([^ ]*)([aei])re[ ]*$"]
@@ -108,7 +113,10 @@
           (or (= (get subject-head :number) "singular")
               (= (get subject-head :number) :singular)))
      (str-utils/replace root-form regex
-                        (fn [[_ stem vowel space]] (str stem "o" space)))
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
+                                                        "o"
+                                                        space)))
 
      (and (or (= (get subject-head :person) "1st")
               (= (get subject-head :person) :1st))
@@ -116,6 +124,7 @@
               (= (get subject-head :number) :plural)))
      (str-utils/replace root-form regex
                         (fn [[_ stem i space]] (str stem
+                                                    (if-isco verb-head)
                                                     (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
                                                     "amo" space)))
 
@@ -125,6 +134,7 @@
               (= (get subject-head :number) "singular")))
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
                                                         (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
                                                         space)))
 
@@ -133,7 +143,9 @@
           (or (= (get subject-head :number) "plural")
               (= (get subject-head :number) :plural)))
      (str-utils/replace root-form regex
-                        (fn [[_ stem vowel space]] (str stem vowel "te" space)))
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
+                                                        vowel "te" space)))
 
      (and (or (= (get subject-head :person) "3rd")
               (= (get subject-head :person) :3rd))
@@ -142,7 +154,12 @@
      ;; TODO: this works for -ire verbs like aprire->aprie but not
      ;; -ire verbs like finire->finisco.
      (str-utils/replace root-form regex
-                        (fn [[_ stem vowel space]] (str stem "e" space)))
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
+                                                        (cond
+                                                         (= vowel "a") "a"
+                                                         true "e")
+                                                        space)))
 
      (and (or (= (get subject-head :person) "3rd")
               (= (get subject-head :person) :3rd))
@@ -150,6 +167,7 @@
               (= (get subject-head :number) :plural)))
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
                                                         (cond
                                                          (= vowel "a") "a"
                                                          true "o")
