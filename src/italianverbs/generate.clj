@@ -39,8 +39,11 @@
 ;; TODO : factor out commonalities between random-present and random-passato-prossimo.
 (defn random-present []
   (let [;; choose a random verb in the presentivo-indicitivo form
-        verb-present (gram/choose-lexeme {:root.cat :verb :infl :present})
-
+        verb-constraints
+        (merge 
+         {:root.cat :verb :infl :present}
+         config/random-present-verb)
+        verb-present (gram/choose-lexeme verb-constraints)
         ;; find the infinitive for this form.
         verb-inf (gram/choose-lexeme {:cat :verb :infl :infinitive :italian (get (get verb-present :root) :italian)})
 
@@ -62,13 +65,14 @@
      {:verb-inf verb-inf
       :verb-present verb-present
       :subject subject
+      :verb-constraints verb-constraints
       :subj-constraints subj-constraints
       :english (str (get subject :english) " "
                     (if (get verb-present :english)
                       (get verb-present :english)
                       (morph/conjugate-english-verb verb-inf subject)))
       :italian (str (get subject :italian) " " (get verb-present :italian))}
-    {:type-is-fs (set '(:verb-present :subject :verb-inf :subj-constraints))})))
+    {:type-is-fs (set '(:verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
   
 (defn random-passato-prossimo []
   (let [
