@@ -4,6 +4,7 @@
   (:require
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]
+   [italianverbs.config :as config]
    [clojure.string :as string]))
 
 (defn mobili []
@@ -38,7 +39,7 @@
 ;; TODO : factor out commonalities between random-present and random-passato-prossimo.
 (defn random-present []
   (let [;; choose a random verb in the presentivo-indicitivo form
-        verb-present (gram/choose-lexeme {:root.cat :verb :infl :present :english "is"})
+        verb-present (gram/choose-lexeme {:root.cat :verb :infl :present})
 
         ;; find the infinitive for this form.
         verb-inf (gram/choose-lexeme {:cat :verb :infl :infinitive :italian (get (get verb-present :root) :italian)})
@@ -72,16 +73,20 @@
 (defn random-passato-prossimo []
   (let [
         ;; choose a random verb in the passato-prossimo form.
-        verb-past (gram/choose-lexeme {:root.cat :verb :infl :passato-prossimo :italian "stato"})
+        ;; the {:italian "stato"} is a testing restriction that should move elsewhere.
+        verb-past (gram/choose-lexeme
+                   (merge
+                    {:root.cat :verb :infl :passato-prossimo}
+                    config/random-passato-prossimo-verb-past))
 
         ;; find the infinitive for this form.
-        verb-inf (gram/choose-lexeme {:cat :verb :infl :infinitive :italian (get verb-past :aux)})
+        verb-inf (gram/choose-lexeme {:cat :verb
+                                      :infl :infinitive
+                                      :italian (get verb-past :aux)})
 
         ;; get the appropriate auxiliary for that verb.
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
         verb-aux (gram/choose-lexeme {:infl :present
-                                      :person (get verb-past :person)
-                                      :number (get verb-past :number)
                                       :root.italian (get verb-inf :italian)
                                       })
         subj-constraints
@@ -90,7 +95,9 @@
           :case {:$ne :acc}}
          (get verb-inf :subj)
          {:person (get verb-aux :person)
-          :number (get verb-aux :number)})
+          :number (get verb-aux :number)}
+         (get verb-inf :subj)
+         config/random-passato-prossimo-subj)
         subject (cond
                  (or (= (get verb-aux :person) "1st")
                      (= (get verb-aux :person) "2nd"))
