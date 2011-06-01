@@ -79,7 +79,6 @@
 (defn random-passato-prossimo []
   (let [
         ;; choose a random verb in the passato-prossimo form.
-        ;; the {:italian "stato"} is a testing restriction that should move elsewhere.
         verb-past (gram/choose-lexeme
                    (merge
                     {:root.cat :verb :infl :passato-prossimo}
