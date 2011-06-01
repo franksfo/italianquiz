@@ -213,10 +213,10 @@
                       (rest (stringc/split #"\s+" italian)))))
 
 (defn single-fem [italian]
- (let [regex #"^([^ ]*)a([ ]?)(.*)"]
-   (str-utils/replace
-    italian
-    regex (fn [[_ stem space rest]] (str stem "a" space rest)))))
+  (stringc/join " "
+                (cons (stringc/replace-re #"[o]$" "a" (first (stringc/split #"\s+"
+                                                                            italian)))
+                      (rest (stringc/split #"\s+" italian)))))
 
 (defn conjugate-passato-prossimo [verb-phrase subject]
   (cond
