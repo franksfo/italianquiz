@@ -10,23 +10,25 @@
 (defn mobili []
   (let [fn gram/sv
         head
-        (let [fn gram/vp-pp
-              head (gram/choose-lexeme
-                    {:cat :verb
-                     :italian "essere"})
-              comp
-              (let [fn gram/pp
-                    head (merge
-                          {:already-looked-up true}
-                          (gram/choose-lexeme
-                           {:cat :prep
-                            :furniture-prep true}))
-                    comp (gram/np-with-post-conditions 
-                           (get head :obj)
-                           (defn fn [fs]
-                             (= (get fs :def) "def")))]
-                (apply fn (list head comp)))]
-          (apply fn (list head comp)))
+        (merge
+         {:infl :present}
+         (let [fn gram/vp-pp
+               head (gram/choose-lexeme
+                     {:cat :verb
+                      :italian "essere"})
+               comp
+               (let [fn gram/pp
+                     head (merge
+                           {:already-looked-up true}
+                           (gram/choose-lexeme
+                            {:cat :prep
+                             :furniture-prep true}))
+                     comp (gram/np-with-post-conditions 
+                            (get head :obj)
+                            (defn fn [fs]
+                              (= (get fs :def) "def")))]
+                 (apply fn (list head comp)))]
+           (apply fn (list head comp))))
         comp
         (gram/np-with-post-conditions 
           {:furniture true}
