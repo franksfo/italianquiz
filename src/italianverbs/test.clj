@@ -341,7 +341,6 @@
        {:test "sentence"}
        (gram/sentence))))
 
-
    (if config/present
      (html/tablize
       (merge 
@@ -354,6 +353,11 @@
        (gen/random-passato-prossimo)
        {:test "passato prossimo"})))
 
+   (if config/mobili
+     (html/tablize
+      (merge
+       {:test "mobili"}
+       (gen/mobili))))
    
 ;   (html/tablize test12)
 ;   (html/tablize test11)

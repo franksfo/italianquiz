@@ -3,9 +3,10 @@
 
 
 ;; which tests to run : set to true to run.
-(def sentence false)
+(def sentence true)
 (def present true)
-(def passato false)
+(def passato true)
+(def mobili true)
 
 ;; examples of constraints on generation.
 
@@ -24,7 +25,7 @@
   {
 ;   :person :3rd
 ;   :number :singular
-;   :root.italian "capire"
+;   :root.italian "essere"
    })
 
 
