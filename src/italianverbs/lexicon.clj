@@ -293,7 +293,10 @@
 (add-with-pass-pross "accendere" "acceso" "to turn on" "turned on" "avere" {:subj {:human true}})
 (add-with-pass-pross "decidere" "deciso" "to decide" "decided" "avere" {:subj {:human true}})
 
-(add-with-pass-pross "morire" "morto" "to die" "died" "essere" {:subj {:animate true}})
+(add-with-pass-pross "morire" "morto" "to die" "died" "essere"
+  {:subj {:animate true}}
+  (list "muoro" "muori" "muore" "moriamo" "moriate" "muoiono"))
+
 (add-with-pass-pross "offrire" "offerto" "to offer" "offered" "avere" {:subj {:human true}})
 (add-with-pass-pross "aprire" "aperto" "to open" "opened" "avere" {:subj {:human true}})
 (add-with-pass-pross "soffrire" "sofferto" "to suffer" "suffered" "avere" {:subj {:human true}})

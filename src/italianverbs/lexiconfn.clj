@@ -66,54 +66,65 @@
 (def present
   {:cat :verb :infl :present})
 
-(defn add-with-pass-pross [italian-infinitive italian-pass-pross english-infinitive english-past avere-o-assere & [ fs ]  ]
+(defn add-with-pass-pross [italian-infinitive italian-pass-pross english-infinitive english-past avere-o-assere & [ fs present-indicative-list ]  ]
   "add an infinitive form of a verb and the participio passato form. _fs_ contains additional lexical info." 
   (let [inf
         (add italian-infinitive english-infinitive
              (merge
               {:cat :verb
                :infl :infinitive}
-              fs))]
-
+              fs))
+        first-sing (nth present-indicative-list 0)
+        second-sing (nth present-indicative-list 1)
+        third-sing (nth present-indicative-list 2)
+        first-plur (nth present-indicative-list 3)
+        second-plur (nth present-indicative-list 4)
+        third-plur (nth present-indicative-list 5)]
     (add-infl
-     (morph/conjugate-italian-verb-regular
-      inf
-      (merge firstp sing present))
+     (if first-sing first-sing
+       (morph/conjugate-italian-verb-regular
+        inf
+        (merge firstp sing present)))
      (list (merge firstp sing present))
      {:root inf})
 
     (add-infl
-     (morph/conjugate-italian-verb-regular
-      inf
-      (merge secondp sing present))
+     (if second-sing second-sing
+         (morph/conjugate-italian-verb-regular
+          inf
+          (merge secondp sing present)))
      (list (merge secondp sing present))
      {:root inf})
 
     (add-infl
-     (morph/conjugate-italian-verb-regular
-      inf
-      (merge thirdp sing present))
+     (if third-sing third-sing
+         (morph/conjugate-italian-verb-regular
+          inf
+          (merge thirdp sing present)))
      (list (merge thirdp sing present))
      {:root inf})
     
     (add-infl
-     (morph/conjugate-italian-verb-regular
-      inf
-      (merge firstp plural present))
+     (if first-plur first-plur
+         (morph/conjugate-italian-verb-regular
+          inf
+          (merge firstp plural present)))
      (list (merge firstp plural present))
      {:root inf})
 
     (add-infl
-     (morph/conjugate-italian-verb-regular
-      inf
-      (merge secondp plural present))
+     (if second-plur second-plur
+         (morph/conjugate-italian-verb-regular
+          inf
+          (merge secondp plural present)))
      (list (merge secondp plural present))
      {:root inf})
 
     (add-infl
-     (morph/conjugate-italian-verb-regular
-      inf
-      (merge thirdp plural present))
+     (if third-plur third-plur
+         (morph/conjugate-italian-verb-regular
+          inf
+          (merge thirdp plural present)))
      (list (merge thirdp plural present))
      {:root inf})
 
