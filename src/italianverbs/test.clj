@@ -6,6 +6,7 @@
      [italianverbs.html :as html]
      [italianverbs.lexiconfn :as lexfn]
      [italianverbs.grammar :as gram]
+     [italianverbs.config :as config]
      [italianverbs.generate :as gen]
      [clojure.string :as string]
      [italianverbs.quiz :as quiz]))
@@ -334,19 +335,20 @@
 
    ;(conjugations)
 
-   (if false
+   (if config/sentence
      (html/tablize
       (merge
        {:test "sentence"}
        (gram/sentence))))
 
-   (if false
+
+   (if config/present
      (html/tablize
       (merge 
        (gen/random-present)
        {:test "present"})))
    
-   (if true
+   (if config/passato
      (html/tablize
       (merge 
        (gen/random-passato-prossimo)
