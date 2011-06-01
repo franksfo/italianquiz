@@ -35,7 +35,7 @@
        {:add-s with-s}
        english-verb-phrase))))
     
-(defn conjugate-english-verb [verb-head subject]
+(defn conjugate-english-verb [verb-head subject & [conjugate-verb-as]]
   ;; conjugate verb based on subject and eventually verb's features (such as tense)
   (let [vp verb-head
         verb-head (if (get verb-head :head)
@@ -91,7 +91,9 @@
       (or (= (get (get-head subject) :person) "3rd")
           (= (get (get-head subject) :person) :3rd))
       (or (= (get (get-head subject) :number) "singular")
-          (= (get (get-head subject) :number) :singular)))
+          (= (get (get-head subject) :number) :singular))
+      (or (= (get (get-head verb-head) :infl) :present)
+          (= (get conjugate-verb-as :infl) :present)))
      (str (get
            (add-s-to-first-word
             (merge

@@ -72,7 +72,7 @@
       :english (str (get subject :english) " "
                     (if (get verb-present :english)
                       (get verb-present :english)
-                      (morph/conjugate-english-verb verb-inf subject)))
+                      (morph/conjugate-english-verb verb-inf subject {:infl :present})))
       :italian (str (get subject :italian) " " (get verb-present :italian))}
     {:type-is-fs (set '(:verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
   
