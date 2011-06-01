@@ -1,4 +1,4 @@
-;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (for some reason that should be learnt.)
+;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (maybe not actually)
 (ns italianverbs.morphology
   (:use [hiccup core page-helpers]
 	[somnium.congomongo])
@@ -47,53 +47,64 @@
         (fetch-one :lexicon
                    :where {
                            :cat :verb
-                           :infl (get verb-head :infl)
+                           :infl (get vp :infl)
                            :person (get (get-head subject) :person)
-                           :number (get subject :number)
-                           ;; the following looks confusing: it's needed
-                           ;; because there are lexical entries such as "mangia" and "parla"
-                           ;; that are needed due to problems to do with italian morphology,
-                           ;; or at least until it can be verified that no problems exist
-                           ;; that require the exceptional lexical entries.
-                           :english {:$ne english} 
-                           :root.english (get verb-head :english)})]
+                           :number (get (get-head subject) :number)
+                           :root.english (get (get-head verb-head) :english)})]
     (cond
      (get irregular :english)
      (str (get irregular :english) " "
           (get (get vp :comp) :english))
 
      (= (get (get-head verb-head) :english) "must")
-     (stringc/replace-re
-      #"^must to"
-      "must"
-      (get verb-head :english))
+     (str
+      (stringc/replace-re
+       #"^must to"
+       "must"
+       (get verb-head :english))
+      " "
+      (get (get vp :comp) :english))
 
      (= (get (get-head verb-head) :english) "to be able")
-     (stringc/replace-re
-      #"^to be able( to)?"
-      "can"
-      (get verb-head :english))
+     (str
+      (stringc/replace-re
+       #"^to be able( to)?"
+       "can"
+       (get verb-head :english))
+      " "
+      (get (get vp :comp) :english))
 
      (= (get (get-head subject) :person) "1st")
-     (get remove-to :remove-to)
+     (str
+      (get remove-to :remove-to)
+      " "
+      (get (get vp :comp) :english))
 
      (= (get (get-head subject) :person) "2nd")
-     (get remove-to :remove-to)
+     (str
+      (get remove-to :remove-to)
+      " "
+      (get (get vp :comp) :english))
+      
 
      (and
       (or (= (get (get-head subject) :person) "3rd")
           (= (get (get-head subject) :person) :3rd))
       (or (= (get (get-head subject) :number) "singular")
           (= (get (get-head subject) :number) :singular)))
-     (get
-      (add-s-to-first-word
-       (merge
-        remove-to
-        {:english (get remove-to :remove-to)}))
-      :add-s)
+     (str (get
+           (add-s-to-first-word
+            (merge
+             remove-to
+             {:english (get remove-to :remove-to)}))
+           :add-s)
+          " "
+          (get (get vp :comp) :english))
 
      true ;; 3rd plural
-     (str (get remove-to :remove-to)))))
+     (str (get remove-to :remove-to)
+          " "
+          (get (get vp :comp) :english)))))
 
 (defn final-char-of [string]
   (str-utils/get string (- (.length string) 1)))
