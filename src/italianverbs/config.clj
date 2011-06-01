@@ -24,7 +24,7 @@
   {
 ;   :person :3rd
 ;   :number :singular
-;   :root.english "to offer"
+;   :root.italian "capire"
    })
 
 
