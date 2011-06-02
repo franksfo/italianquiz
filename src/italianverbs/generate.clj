@@ -106,11 +106,12 @@
          {:cat :noun
           :case {:$ne :acc}}
          (get verb-inf :subj)
-         {:person (get verb-aux :person)
-          :number (get verb-aux :number)}
          (get (get verb-past :root) :subj)
          (get verb-inf :subj)
-         config/random-passato-prossimo-subj)
+         config/random-passato-prossimo-subj
+         {:person (get verb-aux :person)
+          :number (get verb-aux :number)}
+         )
         subject (cond
                  (or (= (get verb-aux :person) "1st")
                      (= (get verb-aux :person) "2nd"))
