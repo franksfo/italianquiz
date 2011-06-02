@@ -358,12 +358,9 @@
       (merge
        {:test "mobili"}
        (gen/mobili))))
-   
-;   (html/tablize test12)
-;   (html/tablize test11)
-;   (html/tablize test10)
-;   (html/tablize test8)
-;   (html/tablize test7)
-;   (html/tablize test6)
-;   (html/tablize test5)
-   ))
+
+   (if config/espressioni
+     (html/tablize
+      (merge
+       {:test "espressioni"}
+       (gen/espressioni))))))

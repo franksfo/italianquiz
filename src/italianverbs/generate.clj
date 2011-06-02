@@ -76,6 +76,9 @@
       :italian (str (get subject :italian) " " (get verb-present :italian))}
     {:type-is-fs (set '(:verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
   
+(defn espressioni []
+  (gram/choose-lexeme {:cat :espressioni}))
+
 (defn random-passato-prossimo []
   (let [
         ;; choose a random verb in the passato-prossimo form.

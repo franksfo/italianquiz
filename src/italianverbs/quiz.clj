@@ -10,7 +10,7 @@
               [italianverbs.generate :as gen]))
 
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo :ora :passato :presente))
+  '(:mobili :mese :giorni :possessives :partitivo :ora :passato :presente :espressioni))
 
 (defn wrapchoice [word & [ istrue ] ]
   ;; FIXME: url-encode word.
@@ -127,6 +127,8 @@
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
+   (= question-type :espressioni)
+   (gen/espressioni)
    (= question-type :passato)
    (gen/random-passato-prossimo)
    (= question-type :presente)
@@ -239,6 +241,7 @@
        (checkbox-row "mese" :mese session "le mese")
        (checkbox-row "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
        (checkbox-row "possessives" :possessives session) ;; e.g. "il tuo cane"
+       (checkbox-row "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
        ]
       [:div {:class "optiongroup"}
        [:h4 "Verbi"]

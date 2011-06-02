@@ -1147,3 +1147,7 @@
       :person :1st
       :gender :fem
       :number :singular})
+
+(add "dov'è il bagno" "where is the bathroom"
+     {:cat :espressioni})
+

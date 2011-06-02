@@ -3,10 +3,11 @@
 
 
 ;; which tests to run : set to true to run.
-(def sentence true)
-(def present true)
+(def sentence false)
+(def present false)
 (def passato true)
 (def mobili true)
+(def espressioni true)
 
 ;; examples of constraints on generation.
 
@@ -15,10 +16,16 @@
 ;   :italian "corretto"
 ;   :italian "venuto"
 ;   :italian "stato"
+;   :number :plural
+;   :person :1st
+;   :italian "mangiato"
    })
 
 (def random-passato-prossimo-subj
   {
+   :person :1st
+   :number :plural
+;   :english "she"
    })
 
 (def random-present-verb
