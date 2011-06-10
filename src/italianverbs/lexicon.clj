@@ -563,24 +563,7 @@
 
 (add "stato" "was" {:cat :verb
                     :root essere
-                    :infl :passato-prossimo
-                    :aux "essere"})
-
-(add "stato" "was" {:cat :verb
-                    :root essere
                     :person :1st
-                    :number :singular
-                    :infl :passato-prossimo
-                    :aux "essere"})
-(add "stato" "were" {:cat :verb
-                    :root essere
-                    :person :2nd
-                    :number :singular
-                    :infl :passato-prossimo
-                    :aux "essere"})
-(add "stato" "was" {:cat :verb
-                    :root essere
-                    :person :3rd
                     :number :singular
                     :infl :passato-prossimo
                     :aux "essere"})
@@ -591,6 +574,13 @@
                      :infl :passato-prossimo
                      :aux "essere"
                      :english "were"})
+
+(add "stato" "were" {:cat :verb
+                    :root essere
+                    :person :2nd
+                    :number :singular
+                    :infl :passato-prossimo
+                    :aux "essere"})
 (add "stato" "were" {:cat :verb
                      :root essere
                      :person :2nd
@@ -598,6 +588,13 @@
                      :infl :passato-prossimo
                      :aux "essere"
                      :english "were"})
+
+(add "stato" "was" {:cat :verb
+                    :root essere
+                    :person :3rd
+                    :number :singular
+                    :infl :passato-prossimo
+                    :aux "essere"})
 (add "stato" "were" {:cat :verb
                      :root essere
                      :person :3rd
