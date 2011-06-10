@@ -1,13 +1,12 @@
 ;; RESTARTING OF RING NOT REQUIRED FOR CHANGES TO THIS FILE.
 (ns italianverbs.config)
 
+; All tests.
+;(def tests '(gram/sentence gen/random-present gen/random-passato-prossimo
+;                              gen/mobili gen/espressioni))
 
-;; which tests to run : set to true to run.
-(def sentence false)
-(def present false)
-(def passato true)
-(def mobili true)
-(def espressioni true)
+
+(def tests '(gen/random-passato-prossimo))
 
 ;; examples of constraints on generation.
 

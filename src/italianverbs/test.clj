@@ -327,40 +327,46 @@
   (list
    (random-sentences-1 num generate-fn head comp)))
 
+(defn run-test [test-fn]
+  (list (html/tablize
+         (apply (eval test-fn) []))))
+
 (def tests
-  (list
-;   (reload-button) ; reload button does not work yet (results are still cached)
+  (mapcat run-test config/tests))
+
+;(def old-tests                                        ;
+;  (reload-button) ; reload button does not work yet (results are still cached)
 
    ;(bugs)
 
    ;(conjugations)
-
-   (if config/sentence
-     (html/tablize
-      (merge
-       {:test "sentence"}
-       (gram/sentence))))
-
-   (if config/present
-     (html/tablize
-      (merge 
-       (gen/random-present)
-       {:test "present"})))
+;  (list
+;   (if config/sentence
+;     (html/tablize
+;      (merge
+;       {:test "sentence"}
+;       (gram/sentence))))
+;
+;   (if config/present
+;     (html/tablize
+;      (merge 
+;       (gen/random-present)
+;       {:test "present"})))
    
-   (if config/passato
-     (html/tablize
-      (merge 
-       (gen/random-passato-prossimo)
-       {:test "passato prossimo"})))
+;   (if config/passato
+;     (html/tablize
+;      (merge 
+;       (gen/random-passato-prossimo)
+;       {:test "passato prossimo"})))
+;
+;   (if config/mobili
+;     (html/tablize
+;      (merge
+;       {:test "mobili"}
+;       (gen/mobili))))
 
-   (if config/mobili
-     (html/tablize
-      (merge
-       {:test "mobili"}
-       (gen/mobili))))
-
-   (if config/espressioni
-     (html/tablize
-      (merge
-       {:test "espressioni"}
-       (gen/espressioni))))))
+;   (if config/espressioni
+;     (html/tablize
+;      (merge
+;       {:test "espressioni"}
+;       (gen/espressioni))))))
