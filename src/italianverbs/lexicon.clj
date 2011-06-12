@@ -165,6 +165,13 @@
             :subj {:animate true}
             :obj {:cat :noun}})
 
+(add "giocare" "to play"
+           {:cat :verb :infl :infinitive
+            :subj {:human true}
+            :obj {:cat :noun
+                  :musical true}})
+
+
 ;; FIXME: should also allow "at".
 (def adjunct-in-a-place
   {:action-occurring-in true
@@ -621,6 +628,35 @@
 (add-infl "sono" (list thirdp plural plural present
                        {:root essere
                         :english "are"}))
+
+
+;; <stare>
+
+(def stare (add "stare" "to be (stare)"
+                     {:cat :verb :infl :infinitive
+                      :subj {:animate true}
+                      :obj {:cat :noun}}))
+
+(add-infl "sto" (list firstp sing present
+                       {:root stare
+                        :english "am"}))
+(add-infl "stai" (list secondp sing present
+                      {:root stare
+                       :english "are"}))
+(add-infl "sta" (list thirdp sing present
+                    {:root stare
+                     :english "is"}))
+(add-infl "stiamo" (list firstp plural sing present
+                        {:root stare
+                         :english "are"}))
+(add-infl "state" (list secondp plural plural present
+                        {:root stare
+                         :english "are"}))
+(add-infl "stanno" (list thirdp plural plural present
+                       {:root stare
+                        :english "are"}))
+
+;; </stare>
 
 
 (def avere (add "avere" "to have"
@@ -1148,3 +1184,13 @@
 (add "dov'è il bagno" "where is the bathroom"
      {:cat :espressioni})
 
+
+(add "piano" "pianoforte"
+     {:cat :noun
+      :gender :masc
+      :musical true})
+
+(add "chitarra" "guitar"
+     {:cat :noun
+      :gender :fem
+      :musical true})
