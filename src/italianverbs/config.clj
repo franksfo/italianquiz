@@ -36,7 +36,7 @@
 
 (def random-present-inf
   {
-   :italian "giocare"
+;   :italian "sapere"
    })
 
 

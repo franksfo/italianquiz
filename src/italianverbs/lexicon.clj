@@ -634,8 +634,7 @@
 
 (def stare (add "stare" "to be (stare)"
                      {:cat :verb :infl :infinitive
-                      :subj {:animate true}
-                      :obj {:cat :noun}}))
+                      :subj {:animate true}}))
 
 (add-infl "sto" (list firstp sing present
                        {:root stare
@@ -657,6 +656,37 @@
                         :english "are"}))
 
 ;; </stare>
+
+;; <sapare>
+
+(def sapere (add "sapere" "to know"
+                     {:cat :verb :infl :infinitive
+                      :subj {:human true}
+                      :obj {:knowable true}}))
+
+;; FIXME: should not need to specify english inflection
+;; if it's regular (as it is with this verb).
+(add-infl "so" (list firstp sing present
+                       {:root sapere
+                        :english "know"}))
+(add-infl "sai" (list secondp sing present
+                      {:root sapere
+                       :english "know"}))
+(add-infl "sa" (list thirdp sing present
+                    {:root sapere
+                     :english "knows"}))
+(add-infl "sappiamo" (list firstp plural sing present
+                        {:root sapere
+                         :english "know"}))
+(add-infl "sapete" (list secondp plural plural present
+                        {:root sapere
+                         :english "know"}))
+(add-infl "sanno" (list thirdp plural plural present
+                       {:root sapere
+                        :english "know"}))
+
+;; </sapere>
+
 
 
 (def avere (add "avere" "to have"
