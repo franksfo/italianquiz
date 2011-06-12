@@ -143,7 +143,7 @@
                         (fn [[_ stem i space]] (str stem
                                                     (if-isco verb-head)
 
-                                                    (if (not (= (next-to-final-char-of stem) (final-char-of "c")))
+                                                    (if (= (final-char-of stem) (final-char-of "c"))
                                                       "h" "")
 
                                                     (if (not (= (final-char-of stem) (final-char-of "i")))
@@ -161,7 +161,7 @@
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
 
-                                                        (if (not (= (next-to-final-char-of stem) (final-char-of "c")))
+                                                        (if (= (final-char-of stem) (final-char-of "c"))
                                                           "h" "")
                                                         
                                                         (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
