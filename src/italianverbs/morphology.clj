@@ -34,7 +34,14 @@
       (merge
        {:add-s with-s}
        english-verb-phrase))))
-    
+
+(defn fetch-criteria [vp subject verb-head]
+  {:cat :verb
+   :infl (get vp :infl)
+   :person (get (get-head subject) :person)
+   :number (get (get-head subject) :number)
+   :root.english (get (get-head verb-head) :english)})
+
 (defn conjugate-english-verb [verb-head subject & [conjugate-verb-as]]
   ;; conjugate verb based on subject and eventually verb's features (such as tense)
   (let [vp verb-head
@@ -45,12 +52,7 @@
         remove-to (remove-to verb-head)
         irregular ;; c.f.: (conjugate-italian-verb)
         (fetch-one :lexicon
-                   :where {
-                           :cat :verb
-                           :infl (get vp :infl)
-                           :person (get (get-head subject) :person)
-                           :number (get (get-head subject) :number)
-                           :root.english (get (get-head verb-head) :english)})]
+                   :where (fetch-criteria vp subject verb-head))]
     (cond
      (get irregular :english)
      (str (get irregular :english) " "
@@ -74,13 +76,23 @@
       " "
       (get (get vp :comp) :english))
 
-     (= (get (get-head subject) :person) "1st")
+     (= (get (get-head verb-head) :english) "to be named")
+     (str
+      ;; FIXME: should use (conjugate-english-verb) here, not (overly-lowlevel) (fetch-one)
+      (get (fetch-one :lexicon :where {:root.english "to be" :infl :present
+                                       :number (get subject :number)
+                                       :person (get subject :person)}) :english) " "
+      "named")
+     
+     (or (= (get (get-head subject) :person) "1st")
+         (= (get (get-head subject) :person) :1st))
      (str
       (get remove-to :remove-to)
-      " "
+      (str (fetch-criteria vp subject verb-head))
       (get (get vp :comp) :english))
 
-     (= (get (get-head subject) :person) "2nd")
+     (or (= (get (get-head subject) :person) "2nd")
+         (= (get (get-head subject) :person) :2nd))
      (str
       (get remove-to :remove-to)
       " "
@@ -282,7 +294,7 @@
                         :where {:cat :verb
                                 :infl :present
                                 :person (get subject :person)
-                               :number (get subject :number)
+                                :number (get subject :number)
                                 :root.italian (get (get-root-head verb-phrase) :italian)
                                 }
                         )

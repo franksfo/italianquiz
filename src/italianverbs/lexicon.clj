@@ -172,6 +172,10 @@
                   :musical true}})
 
 
+(add "chiamare" "to be named"
+           {:cat :verb :infl :infinitive
+            :subj {:human true}})
+
 ;; FIXME: should also allow "at".
 (def adjunct-in-a-place
   {:action-occurring-in true
