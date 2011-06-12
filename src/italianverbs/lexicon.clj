@@ -291,7 +291,9 @@
 (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
 (add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
 (add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
-(add-with-pass-pross "uscire" "uscito" "to go out" "went out" "essere" {:subj {:animate true}})
+
+(add-with-pass-pross "uscire" "uscito" "to go out" "went out" "essere" {:subj {:animate true}}
+  (list "esco" "esci" "esce" "usciamo" "uscite" "escono"))
 
 (add-with-pass-pross "prendere" "preso" "to take" "took" "avere" {:subj {:animate true}})
 (add-with-pass-pross "scendere" "sceso" "to go down" "went down" "essere" {:subj {:animate true}})
@@ -657,7 +659,7 @@
 
 ;; </stare>
 
-;; <sapare>
+;; <sapere>
 
 (def sapere (add "sapere" "to know"
                      {:cat :verb :infl :infinitive
@@ -687,6 +689,37 @@
 
 ;; </sapere>
 
+
+;; <dare>
+
+(def dare (add "dare" "to give"
+                     {:cat :verb :infl :infinitive
+                      :subj {:human true}
+                      :obj {:givable true}}))
+
+;; FIXME: should not need to specify english inflection
+;; if it's regular (as it is with this verb).
+(add-infl "do" (list firstp sing present
+                       {:root dare
+                        :english "give"}))
+(add-infl "dai" (list secondp sing present
+                      {:root dare
+                       :english "give"}))
+(add-infl "dà" (list thirdp sing present
+                    {:root dare
+                     :english "gives"}))
+
+(add-infl "diamo" (list firstp plural sing present
+                        {:root dare
+                         :english "give"}))
+(add-infl "date" (list secondp plural plural present
+                        {:root dare
+                         :english "give"}))
+(add-infl "danno" (list thirdp plural plural present
+                       {:root dare
+                        :english "give"}))
+
+;; </dare>
 
 
 (def avere (add "avere" "to have"
