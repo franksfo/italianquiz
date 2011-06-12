@@ -6,7 +6,8 @@
 ;                              gen/mobili gen/espressioni))
 
 
-(def tests '(gen/random-passato-prossimo))
+                                        ;(def tests '(gen/random-passato-prossimo))
+(def tests '(gen/random-present))
 
 ;; examples of constraints on generation.
 
@@ -27,12 +28,15 @@
 ;   :english "she"
    })
 
-(def random-present-verb
+(def random-present-subj
   {
-;   :person :3rd
-;   :number :singular
-;   :root.italian "essere"
+   :person :3rd
+   :number :singular
    })
 
+(def random-present-inf
+  {
+   :italian "giocare"
+   })
 
 

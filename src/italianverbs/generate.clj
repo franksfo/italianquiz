@@ -40,14 +40,44 @@
 
 ;; TODO : factor out commonalities between random-present and random-passato-prossimo.
 (defn random-present []
-  (let [;; choose a random verb in the presentivo-indicitivo form
-        verb-constraints
+  (let [;; choose a random verb in the infinitive form.
+        verb-inf (gram/choose-lexeme
+                  (merge {:cat :verb
+                          :infl :infinitive}
+                         config/random-present-inf))
+
+
+        verb-present-constraints
         (merge 
          {:root.cat :verb :infl :present}
-         config/random-present-verb)
-        verb-present (gram/choose-lexeme verb-constraints)
-        ;; find the infinitive for this form.
-        verb-inf (gram/choose-lexeme {:cat :verb :infl :infinitive :italian (get (get verb-present :root) :italian)})
+         {:root.italian (get verb-inf :italian)})
+
+        verb-present
+        (let [lexical
+              (gram/choose-lexeme verb-present-constraints)]
+          (if (not (= (get lexical :cat) :error))
+            lexical
+              ;; else, use a pronoun as a source of a random person/number pair,
+              ;; and generate a present verb.
+            (let [pronoun (gram/choose-lexeme
+                           (merge
+                            {:pronoun true}
+                            config/random-present-subj))
+                  number (get pronoun :number)
+                  person (get pronoun :person)]
+              {:italian (morph/conjugate-italian-verb-regular verb-inf
+                                                        {:person person
+                                                         :number number})
+
+                                                
+               :english (morph/conjugate-english-verb verb-inf
+                                                {:person person
+                                                 :number number}
+                                                {:infl :present})
+                                               
+               :root verb-inf
+               :person person
+               :number number})))
 
         subj-constraints
         (merge
@@ -67,7 +97,7 @@
      {:verb-inf verb-inf
       :verb-present verb-present
       :subject subject
-      :verb-constraints verb-constraints
+      :verb-constraints verb-present-constraints
       :subj-constraints subj-constraints
       :english (str (get subject :english) " "
                     (if (get verb-present :english)
