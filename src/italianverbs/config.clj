@@ -6,8 +6,8 @@
 ;                              gen/mobili gen/espressioni))
 
 
-                                        ;(def tests '(gen/random-passato-prossimo))
-(def tests '(gen/random-present))
+;                                        ;(def tests '(gen/random-passato-prossimo))
+(def tests '(gen/random-present gen/random-passato-prossimo gen/mobili gen/espressioni))
 
 ;; examples of constraints on generation.
 
