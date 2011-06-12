@@ -111,6 +111,10 @@
 (defn final-char-of [string]
   (str-utils/get string (- (.length string) 1)))
 
+(defn next-to-final-char-of [string]
+  (str-utils/get string (- (.length string) 2)))
+
+
 (defn if-isco [verb]
   (if (= (get verb :isco) true)
     "isc"
@@ -138,7 +142,15 @@
      (str-utils/replace root-form regex
                         (fn [[_ stem i space]] (str stem
                                                     (if-isco verb-head)
-                                                    (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
+
+                                                    (if (not (= (next-to-final-char-of stem) (final-char-of "c")))
+                                                      "h" "")
+
+                                                    (if (not (= (final-char-of stem) (final-char-of "i")))
+                                                      "i" "")
+
+
+                                                    
                                                     "amo" space)))
 
      (and (or (= (get subject-head :person) "2nd")
@@ -148,6 +160,10 @@
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
+
+                                                        (if (not (= (next-to-final-char-of stem) (final-char-of "c")))
+                                                          "h" "")
+                                                        
                                                         (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
                                                         space)))
 
