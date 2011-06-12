@@ -23,20 +23,20 @@
 
 (def random-passato-prossimo-subj
   {
-   :person :1st
-   :number :plural
+;   :person :1st
+;   :number :plural
 ;   :english "she"
    })
 
 (def random-present-subj
   {
-   :person :3rd
-   :number :singular
+;   :person :1st
+;   :number :singular
    })
 
 (def random-present-inf
   {
-;   :italian "sapere"
+;   :italian "aprire"
    })
 
 

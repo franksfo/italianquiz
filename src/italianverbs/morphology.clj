@@ -87,8 +87,7 @@
      (or (= (get (get-head subject) :person) "1st")
          (= (get (get-head subject) :person) :1st))
      (str
-      (get remove-to :remove-to)
-      (str (fetch-criteria vp subject verb-head))
+      (get remove-to :remove-to) 
       (get (get vp :comp) :english))
 
      (or (= (get (get-head subject) :person) "2nd")
