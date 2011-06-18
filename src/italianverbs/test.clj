@@ -329,7 +329,12 @@
 
 (defn run-test [test-fn]
   (list (html/tablize
-         (apply (eval test-fn) []))))
+         (if (= test-fn 'random-infinitivo)
+;           this doesn't work for some reason:
+;           (apply (eval 'gen/random-infinitivo) [])
+           (gen/random-infinitivo)
+           (apply
+            (eval test-fn) [])))))
 
 (def tests
   (mapcat run-test config/tests))

@@ -6,8 +6,8 @@
 ;                              gen/mobili gen/espressioni))
 
 
-;                                        ;(def tests '(gen/random-passato-prossimo))
-(def tests '(gen/random-present gen/random-passato-prossimo gen/mobili gen/espressioni))
+; All tests.
+(def tests '(gen/random-present gen/random-passato-prossimo gen/mobili gen/espressioni random-infinitivo))
 
 ;; examples of constraints on generation.
 
@@ -39,4 +39,4 @@
 ;   :italian "aprire"
    })
 
-
+(def random-infinitivo {})

@@ -10,7 +10,7 @@
               [italianverbs.generate :as gen]))
 
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo :ora :passato :presente :espressioni))
+  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :presente :espressioni))
 
 (defn per-user-correct [questions]
   "count of all correctly-answered questions for all session."
@@ -152,6 +152,8 @@
   (cond
    (= question-type :espressioni)
    (gen/espressioni)
+   (= question-type :infinitivo)
+   (gen/random-infinitivo)
    (= question-type :passato)
    (gen/random-passato-prossimo)
    (= question-type :presente)
@@ -292,6 +294,7 @@
         [:table
          (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
          (checkbox-row "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
+         (checkbox-row "infinitivo" :infinitivo session "infinitivo")  ;; e.g. "fare"
          ]
         ]
        ]

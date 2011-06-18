@@ -105,7 +105,13 @@
                       (morph/conjugate-english-verb verb-inf subject {:infl :present})))
       :italian (str (get subject :italian) " " (get verb-present :italian))}
     {:type-is-fs (set '(:verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
-  
+
+(defn random-infinitivo []
+  (gram/choose-lexeme
+   (merge {:cat :verb
+           :infl :infinitive}
+          config/random-infinitivo)))
+
 (defn espressioni []
   (gram/choose-lexeme {:cat :espressioni}))
 
