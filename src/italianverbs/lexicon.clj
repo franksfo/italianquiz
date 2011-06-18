@@ -318,6 +318,12 @@
 (add-with-pass-pross "perdere" "perso" "to lose" "lost" "avere" {:subj {:human true}})
 (add-with-pass-pross "scegliere" "scelto" "to choose" "chose" "avere" {:subj {:human true}})
 
+(add "imparare" "to learn"
+     {:cat :verb
+      :infl :infinitive
+      :subj {:human true}
+      :obj {:cat :noun :written true}})
+
 (def corrigere
   (add "correggere" "to correct"
        {:cat :verb :infl :infinitive
