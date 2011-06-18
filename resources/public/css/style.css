@@ -16,7 +16,7 @@ div.major {
 
 div.quiz-elem {
     padding:0;
-    margin:0;
+    margin:0.5em;
    
 }
 
@@ -120,13 +120,6 @@ div.debug {
     padding:1px;
 }
 
-div.history {
-    border:4px solid #caecae;
-    width:95%;
-    float:right;
-    margin-top:0.5em;
-    margin-bottom:0.5em;
-}
 
 div.history h2 {
     padding:0.25em;
@@ -157,7 +150,6 @@ div.quiz-elem h2 {
 div.quiz form {
     margin-left:10%;
 }
-
 
 div.quiz input.submit {
     padding:0.5em;
@@ -269,7 +261,17 @@ div.optiongroup {
     float:left;
 }
 
-div.optiongroup h4{
+div.optiongroup h4 {
     margin:0;
     padding:0;
+}
+
+div.history {
+    width:45%;
+    float:left;
+}
+
+div.stats {
+    float:left;
+    width:10%;
 }

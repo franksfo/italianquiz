@@ -12,6 +12,29 @@
 (def all-possible-question-types
   '(:mobili :mese :giorni :possessives :partitivo :ora :passato :presente :espressioni))
 
+(defn per-user-correct [questions]
+  "count of all correctly-answered questions for all session."
+  (reduce
+   (fn [x y]
+     (+ x y))
+   (map (fn [x] (if (= (get x :answer) (get x :guess)) 1 0))
+        questions)))
+
+(defn per-user-incorrect [questions]
+  "count of all incorrectly-answered questions for all session."
+  (reduce
+   (fn [x y]
+     (+ x y))
+   (map (fn [x] (if (not (= (get x :answer) (get x :guess)))
+                  (if (= nil (get x :guess))
+                    0 1)
+                  0))
+        questions)))
+
+(defn per-user-total [questions]
+  "count of all incorrectly-answered questions for all session."
+  (count questions))
+
 (defn wrapchoice [word & [ istrue ] ]
   ;; FIXME: url-encode word.
   (let [href_prefix "/quiz/?"
@@ -202,69 +225,84 @@
       [:td label ] ] )))
   
 (defn with-history-and-controls [session content]
-  [:div
-   content
-    [:div {:class "history quiz-elem"}
-     [:h2 "History"]
-
-
-     [:div {:style "float:right"}
-      [:form {:method "post" :action "/quiz/clear"}
-       [:input.submit {:type "submit" :value "clear"}]]]
-
-     [:table
-      [:thead
-       [:tr
-        [:th]
-        [:th "Q"]
-        [:th "Guess"]
-        [:th "A"]
-        ]
-       ]
-      [:tbody
-       (show-history-rows (fetch :question :where {:session session} :sort {:_id -1})
-                          (count (fetch :question :where {:session session}))
-                          false)
-       ]
-      ]]
-
-   
-    [:div {:id "controls" :class "controls quiz-elem"}
-     [:h2 "Controls"]
-     [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
-      [:table
-       (checkbox-row "ora" :ora session "Che ora è?")  ;; e.g. "5:30 => cinque ore e .."
-       (checkbox-row "giorni" :giorni session "giorni della settimana")
-       (checkbox-row "mobili" :mobili session)
-       (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
-       (checkbox-row "partitivo" :partitivo session "articoli determinativi e partivi")
-       (checkbox-row "mese" :mese session "le mese")
-       (checkbox-row "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
-       (checkbox-row "possessives" :possessives session) ;; e.g. "il tuo cane"
-       (checkbox-row "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
-       ]
-      [:div {:class "optiongroup"}
-       [:h4 "Verbi"]
-       [:table
-        (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
-        (checkbox-row "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
-        ]
-       ]
+  (let [questions (fetch :question :where {:session session})]
+    [:div
+     content
+     [:div {:class "history quiz-elem"}
+      [:h2 "History"]
       
+      
+      [:div {:style "float:right"}
+       [:form {:method "post" :action "/quiz/clear"}
+        [:input.submit {:type "submit" :value "clear"}]]]
+      
+      [:table
+       [:thead
+        [:tr
+         [:th]
+         [:th "Q"]
+         [:th "Guess"]
+        [:th "A"]
+         ]
+        ]
+       [:tbody
+        (show-history-rows (fetch :question :where {:session session} :sort {:_id -1})
+                           (count (fetch :question :where {:session session}))
+                           false)
+        ]
+       ]]
+     
+     [:div {:class "quiz-elem stats"}
+      [:h2 "Stats"]
+      [:table
+       [:tr
+        [:th "Correct"]
+        [:td (per-user-correct questions)]
+        ]
+       
+       [:tr
+        [:th "Incorrect"]
+        [:td (per-user-incorrect questions)]
+        ]
+       
+       [:tr
+        [:th "Total"]
+        [:td (per-user-total questions)]
+        ]
+       
+       ]
       ]
-    
-
-
+     
+     [:div {:id "controls" :class "controls quiz-elem"}
+      [:h2 "Controls"]
+      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
+       [:table
+        (checkbox-row "ora" :ora session "Che ora è?")  ;; e.g. "5:30 => cinque ore e .."
+        (checkbox-row "giorni" :giorni session "giorni della settimana")
+        (checkbox-row "mobili" :mobili session)
+        (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
+        (checkbox-row "partitivo" :partitivo session "articoli determinativi e partivi")
+        (checkbox-row "mese" :mese session "le mese")
+        (checkbox-row "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
+        (checkbox-row "possessives" :possessives session) ;; e.g. "il tuo cane"
+        (checkbox-row "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
+        ]
+       [:div {:class "optiongroup"}
+        [:h4 "Verbi"]
+        [:table
+         (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
+         (checkbox-row "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
+         ]
+        ]
+       ]
+      ]
+     
+     ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
+     [:div {:id "controlbottom" :style "display:none"} 
+      " "
+      ]
      ]
-
-   ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
-   [:div {:id "controlbottom" :style "display:none"} 
-    " "
-    ]
-   
-   ]
-  
-  )
+    ))
 
 (defn filter-by-criteria [list criteria]
   (if (> (count list) 0)
