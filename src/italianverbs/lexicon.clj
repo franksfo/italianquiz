@@ -301,7 +301,7 @@
 
 (add-with-pass-pross "prendere" "preso" "to take" "took" "avere" {:subj {:animate true}})
 (add-with-pass-pross "scendere" "sceso" "to go down" "went down" "essere" {:subj {:animate true}})
-(add-with-pass-pross "spendere" "speso" "to spend" "spent" "avere" {:subj {:animate true}})
+(add-with-pass-pross "spendere" "speso" "to spend" "spent" "avere" {:subj {:human true}})
 (add-with-pass-pross "chiudere" "chiuso" "to close" "closed" "avere" {:subj {:human true}})
 (add-with-pass-pross "accendere" "acceso" "to turn on" "turned on" "avere" {:subj {:human true}})
 (add-with-pass-pross "decidere" "deciso" "to decide" "decided" "avere" {:subj {:human true}})
