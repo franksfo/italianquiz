@@ -120,6 +120,12 @@
         ;; choose a random verb in the passato-prossimo form.
         verb-past (gram/choose-lexeme
                    (merge
+                    (if (get config/random-passato-prossimo-subj :person)
+                      {:person (get config/random-passato-prossimo-subj :person)}
+                      {})
+                    (if (get config/random-passato-prossimo-subj :number)
+                      {:number (get config/random-passato-prossimo-subj :number)}
+                      {})
                     {:root.cat :verb :infl :passato-prossimo}
                     config/random-passato-prossimo-verb-past))
 
