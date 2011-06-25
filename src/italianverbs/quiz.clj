@@ -328,7 +328,8 @@
     
 (defn quiz [last-guess request]
   "choose a question type from the set of question types possible given the user's preference, and
-   and then generate a question for that question type."
+   and then generate a question for that question type. _last-guess_ contains the user's guess, if any,
+   from the user's POST to the server."
   (let [session (session/request-to-session request)
         ;; normalize guess: remove space from beginning and end, and lower-case.
         last-guess (if last-guess (stringc/trim (stringc/lower-case last-guess)))
@@ -336,6 +337,9 @@
         possible (possible-question-types (session/request-to-session request))
         next-question
 
+        ;; If last-guess exists, or there are no questions yet, generate the next question.
+        ;; If last-guess does not exist and there is an existing question, then simple retrieve that
+        ;; as the next question.
         ;; TODO: next-question is two totally different things depending on the (if) - it's confusing.
         (if (or last-guess
                 (= get-next-question-id 0))
@@ -389,6 +393,9 @@
 
 ;; TODO : differentiate (run) and (display): see also TODO in core.clj.
 (defn run [request]
+  "get request->form-params->guess and pass to (quiz). quiz also takes the entire
+   request object as its second argument. TODO: simply pass the whole request object
+   to (quiz) since this object contains the guess."
   (let [query-string (get request :form-params)]
     (html
      ;; get 'guess' from query-string (e.g. from "guess=to%20eat")
