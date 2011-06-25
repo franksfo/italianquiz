@@ -14,11 +14,12 @@
 
 (defn per-user-correct [questions]
   "count of all correctly-answered questions for all session."
-  (reduce
-   (fn [x y]
-     (+ x y))
-   (map (fn [x] (if (= (get x :answer) (get x :guess)) 1 0))
-        questions)))
+  (if questions
+    (reduce
+     (fn [x y]
+       (+ x y))
+     (map (fn [x] (if (and true (= (get x :answer) (get x :guess))) 1 0))
+          questions))))
 
 (defn per-user-incorrect [questions]
   "count of all incorrectly-answered questions for all session."
@@ -68,10 +69,21 @@
   (stringc/replace-re #"[ ]+$" "" (stringc/replace-re #"^[ ]+" "" (stringc/replace-re #"[ ]+" " " string))))
 
 (defn store-question [question request]
-  (insert! :question {:question (normalize-whitespace (get question :english))
-                      :answer (normalize-whitespace (get question :italian))
-                      :id (get-next-question-id request)
-                      :session request}))
+  ;; TODO: use ":english", not ":question"
+  ;; should be:
+  ;;  (insert! :question (merge question ... (with what is below))
+  (insert! :question (merge 
+                                        ;question
+                      {
+                       :english (get question :english)
+                       :answer (get question :italian)
+                       :session request
+                       }
+                            {
+                                        ;:id (get-next-question-id request)
+                                        ;:question (get question :english)
+                                        ;:session request
+                             })))
 
 (defn clear-questions [session]
   (destroy! :question {:session session})
@@ -101,7 +113,11 @@
         [:th count]
         [:td (get row :question)] 
         [:td {:class correctness} (get row :guess) ]
-        [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]]
+        [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]
+        [:td (html/tablize row)]
+        ]
+       
+
        (show-history-rows (rest qs) (- count 1) true)))))
 
 (defn show-history []
@@ -149,6 +165,8 @@
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
+  ;; TODO: quiz should not need to know what question types are available; should not need to access anything
+  ;; in the gen/ namespace.
   (cond
    (= question-type :espressioni)
    (gen/espressioni)
@@ -234,7 +252,7 @@
       [:h2 "History"]
       
       
-      [:div {:style "float:right"}
+      [:div {:style "width:100%;float:right"}
        [:form {:method "post" :action "/quiz/clear"}
         [:input.submit {:type "submit" :value "clear"}]]]
       
@@ -244,7 +262,8 @@
          [:th]
          [:th "Q"]
          [:th "Guess"]
-        [:th "A"]
+         [:th "A"]
+         [:th "Debug"]
          ]
         ]
        [:tbody
