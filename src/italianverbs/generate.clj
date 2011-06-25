@@ -175,5 +175,7 @@
       :italian (str (get subject :italian) " " (get verb-aux :italian) " "
                     (morph/conjugate-italian-verb verb-past subject))}
 
-    {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
+     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))}
+     {:save-to-db (set '(:verb-past :subject))}
+     )))
   
