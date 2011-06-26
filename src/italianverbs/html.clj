@@ -50,7 +50,8 @@
                                           (= key :children) nil
                                         ; uncomment for debugging.
                                           (= key :fn) nil
-                                          (= key :head) nil
+;                                          (= key :head) nil
+                                          (= key :question-struct) nil
                                           ;; featues whose values are nested feature structures.
                                           (or (= key :head-debug) (= key :comp-debug)
                                               (= key :subj)(= key :obj)
@@ -59,6 +60,7 @@
                                               (= key :notefs) ;; the following set is used for debugging.
                                               (= key :adjunct)(= key :iobj)
                                               (= key :choose)(= key :root)
+                                              (= key :head)
                                               (contains? (get feature-structure :type-is-fs) key)
                                               (= key :choose-comp)(= key :choose-head))
                                           (list key

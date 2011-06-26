@@ -71,8 +71,10 @@
   ;; should be:
   ;;  (insert! :question (merge question ... (with what is below))
   (insert! :question (merge 
-                                        ;question
+
                       {
+                       :head (get question :head)
+                       :italian (get question :italian)
                        :english (get question :english)
                        :question (get question :english)
                        :answer (get question :italian)
