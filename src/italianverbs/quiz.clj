@@ -59,25 +59,26 @@
 		 (show-choice (dissoc lexicon (nth (keys lexicon) choice)) (- remaining 1)
 			answer show-true-before)))))))
 
-(defn get-next-question-id [request]
+(defn get-next-question-id [session-cookie]
   "get the question id for the next question for this user."
   ;; TODO: improve: only return last question and get its _id.
-  (let [session (session/request-to-session request)]
-    (count (fetch :question :where {:session session}))))
+  (count (fetch :question :where {:session-cookie session-cookie})))
 
 (defn normalize-whitespace [string]
   (stringc/replace-re #"[ ]+$" "" (stringc/replace-re #"^[ ]+" "" (stringc/replace-re #"[ ]+" " " string))))
 
-(defn store-question [question request]
-  ;; TODO: use ":english", not ":question"
+(defn store-question [question session-cookie]
   ;; should be:
   ;;  (insert! :question (merge question ... (with what is below))
   (insert! :question (merge 
                                         ;question
                       {
                        :english (get question :english)
+                       :question (get question :english)
                        :answer (get question :italian)
-                       :session request
+                       :session-cookie session-cookie
+                       :id (get-next-question-id session-cookie)
+
                        }
                             {
                                         ;:id (get-next-question-id request)
@@ -86,7 +87,7 @@
                              })))
 
 (defn clear-questions [session]
-  (destroy! :question {:session session})
+  (destroy! :question {:session-cookie session})
   session)
 
 (defn set-filters [session request]
@@ -125,7 +126,7 @@
       [session nil ;; TODO : get session from request (as param to this fn).
        total (fetch-count :question)
        skip (if (> total 10) (- total 10) 0)
-       qs (fetch :question {:session session} :sort {:id 1} :limit 10 :skip skip )]
+       qs (fetch :question {:session-cookie session} :sort {:id 1} :limit 10 :skip skip )]
       (html
        [:div#stats
          [:table
@@ -161,7 +162,9 @@
         question 
         (if (not (= (fetch :question :sort {:_id -1}) '()))
           (nth (fetch :question :sort {:_id -1}) 0))]
-    (update! :question question (merge question {:guess guess}))))
+    (if question
+      (update! :question question (merge question {:guess guess})))))
+;; TODO : throw error if question is null.
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
@@ -245,7 +248,7 @@
       [:td label ] ] )))
   
 (defn with-history-and-controls [session content]
-  (let [questions (fetch :question :where {:session session})]
+  (let [questions (fetch :question :where {:session-cookie session})]
     [:div
      content
      [:div {:class "history quiz-elem"}
@@ -267,8 +270,8 @@
          ]
         ]
        [:tbody
-        (show-history-rows (fetch :question :where {:session session} :sort {:_id -1})
-                           (count (fetch :question :where {:session session}))
+        (show-history-rows (fetch :question :where {:session-cookie session} :sort {:_id -1})
+                           (count (fetch :question :where {:session-cookie session}))
                            false)
         ]
        ]]
@@ -352,7 +355,7 @@
   (let [session (session/request-to-session request)
         ;; normalize guess: remove space from beginning and end, and lower-case.
         last-guess (if last-guess (stringc/trim (stringc/lower-case last-guess)))
-        get-next-question-id (get-next-question-id request)
+        get-next-question-id (get-next-question-id (get (get (get request :cookies) "ring-session") :value))
         possible (possible-question-types (session/request-to-session request))
         next-question
 
@@ -363,7 +366,7 @@
         (if (or last-guess
                 (= get-next-question-id 0))
           (generate (nth possible (rand-int (count possible))))
-          (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0))]
+          (nth (fetch :question :where {:session-cookie session} :sort {:_id -1} :limit 1) 0))]
 
       (if last-guess (store-guess last-guess))
 
@@ -387,7 +390,7 @@
                    (if (or last-guess
                            (= get-next-question-id 0))
                      (get next-question :english)
-                     (str (get (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)
+                     (str (get (nth (fetch :question :where {:session-cookie session} :sort {:_id -1} :limit 1) 0)
                           :question)))]]]
             [:tr
              [:td
