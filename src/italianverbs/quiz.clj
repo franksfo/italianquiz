@@ -7,6 +7,7 @@
               [italianverbs.lexicon :as lexicon]
               [italianverbs.session :as session]
               [italianverbs.grammar :as gram]
+              [italianverbs.html :as html]
               [italianverbs.generate :as gen]))
 
 (def all-possible-question-types
@@ -71,6 +72,12 @@
   (insert! :question {:question (normalize-whitespace (get question :english))
                       :answer (normalize-whitespace (get question :italian))
                       :id (get-next-question-id request)
+                      :keys (str (keys question))
+                      :cat (get question :cat)
+                      :gender (get question :gender)
+                      :italian (get question :italian)
+                      :english (get question :english)
+                      :children (get question :children)
                       :session request}))
 
 (defn clear-questions [session]
@@ -101,42 +108,9 @@
         [:th count]
         [:td (get row :question)] 
         [:td {:class correctness} (get row :guess) ]
-        [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]]
+        [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]
+        [:td (html/fs row)]]
        (show-history-rows (rest qs) (- count 1) true)))))
-
-(defn show-history []
-  (let 
-      [session nil ;; TODO : get session from request (as param to this fn).
-       total (fetch-count :question)
-       skip (if (> total 10) (- total 10) 0)
-       qs (fetch :question {:session session} :sort {:id 1} :limit 10 :skip skip )]
-      (html
-       [:div#stats
-         [:table
-           [:tr [:th "Correct:"]
-	        [:td (count (mapcat each-correct (fetch :question))) "/" total ]]
-         ]
-	 [:div {:id "controls"} {:class "controls quiz-elem"} [:a {:href "/quiz/clear/"} "Clear"]]
-       ]      
-       [:table
-        [:tr
-	  [:td]
-	  [:th "question"]
-          [:th "answer" ]
-	  [:th "guess" ]
-	]
-       (show-history-rows qs (+ 1 skip) total)
-       ]
-       )))
-
-(defn evaluate-guess [ guess ]
-  ;; get last question.
-  ;; FIXME: should filter by session!
-  (let [question 
-    (if (not (= (fetch :question :sort {:_id -1}) '()))
-	(nth (fetch :question :sort {:_id -1} :limit 1) 0))]
-	(if question
-	    (update! :question question (merge question {:guess guess})))))
 
 (defn store-guess [guess]
   "update question # question id with guess: a rewrite of (evaluate-guess)."
@@ -244,7 +218,8 @@
          [:th]
          [:th "Q"]
          [:th "Guess"]
-        [:th "A"]
+         [:th "A"]
+         [:th "Debug"]
          ]
         ]
        [:tbody
