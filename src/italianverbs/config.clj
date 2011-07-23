@@ -1,5 +1,6 @@
 ;; RESTARTING OF RING NOT REQUIRED FOR CHANGES TO THIS FILE.
-(ns italianverbs.config)
+(ns italianverbs.config
+  (:require [italianverbs.lev :as lev]))
 
 ; All tests.
 ;(def tests '(gram/sentence gen/random-present gen/random-passato-prossimo
@@ -7,7 +8,7 @@
 
 
 ; All tests.
-(def tests '(gen/random-present gen/random-passato-prossimo gen/mobili gen/espressioni random-infinitivo))
+(def tests '(lev/matrix gen/random-present gen/random-passato-prossimo gen/mobili gen/espressioni random-infinitivo))
 
 ;; examples of constraints on generation.
 

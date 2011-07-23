@@ -8,6 +8,7 @@
      [italianverbs.grammar :as gram]
      [italianverbs.config :as config]
      [italianverbs.generate :as gen]
+     [italianverbs.lev :as lev]
      [clojure.string :as string]
      [italianverbs.quiz :as quiz]))
 

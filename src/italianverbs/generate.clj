@@ -2,6 +2,7 @@
 (ns italianverbs.generate
   (:use [somnium.congomongo])
   (:require
+   [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]
    [italianverbs.config :as config]

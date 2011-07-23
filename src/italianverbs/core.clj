@@ -5,12 +5,13 @@
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [base.lib :as baselib]
+            [italianverbs.lev :as lev]
+            [italianverbs.generate :as gen]
             [clojure.string :as string]
             [italianverbs.html :as ihtml]
             [italianverbs.quiz :as quiz]
             [italianverbs.test :as test]
-            [italianverbs.session :as session]
-            [italianverbs.lexiconfn :as lexfn]))
+            [italianverbs.session :as session]))
 
 (defn title [request]
   (let [username (session/get-username request)]
