@@ -1,12 +1,14 @@
 (ns italianverbs.core
   (:use [compojure.core]
         [somnium.congomongo]
+        [italianverbs.generate]
         [base.html])
-  (:require [compojure.route :as route]
+  (:require [italianverbs.generate :as gen]
+            [compojure.route :as route]
             [compojure.handler :as handler]
             [base.lib :as baselib]
             [italianverbs.lev :as lev]
-            [italianverbs.generate :as gen]
+
             [clojure.string :as string]
             [italianverbs.html :as ihtml]
             [italianverbs.quiz :as quiz]

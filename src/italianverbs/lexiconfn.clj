@@ -1,6 +1,6 @@
 (ns italianverbs.lexiconfn
   (:use [hiccup core page-helpers]
-	[somnium.congomongo])
+        [somnium.congomongo])
   (:require
    [clojure.contrib.string :as stringc]
    [italianverbs.morphology :as morph]))

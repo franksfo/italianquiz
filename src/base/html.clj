@@ -1,3 +1,4 @@
+;; probably can remove congomongo from here.
 (ns base.html
   (:use [hiccup core page-helpers]
         [somnium.congomongo])

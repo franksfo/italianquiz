@@ -1,13 +1,14 @@
  (ns italianverbs.test
     (:use 
      [hiccup core page-helpers]
+     [italianverbs.generate]
      [somnium.congomongo])
     (:require
      [italianverbs.html :as html]
      [italianverbs.lexiconfn :as lexfn]
      [italianverbs.grammar :as gram]
-     [italianverbs.config :as config]
      [italianverbs.generate :as gen]
+     [italianverbs.config :as config]
      [italianverbs.lev :as lev]
      [clojure.string :as string]
      [italianverbs.quiz :as quiz]))
@@ -65,28 +66,28 @@
          (apply test5-fn (list test5-head test5-comp))))
 
 ;; test6 : prepositional phrases about furniture.
-(def test6-fn gram/pp)
+;(def test6-fn gram/pp)
 
-(def test6-head
-  (merge
-   {:already-looked-up true}
-   (gram/choose-lexeme
-    {
-     :cat :prep
-     ;; this does not seem to work: (nested selection path obj->furniture.)
-                                        ;     :obj {:furniture true}})
-                                        ; so using the following instead (as workaround).
-     :furniture-prep true})))
+;(def test6-head
+;  (merge
+;   {:already-looked-up true}
+;   (gram/choose-lexeme
+;    {
+;     :cat :prep
+;     ;; this does not seem to work: (nested selection path obj->furniture.)
+;                                        ;     :obj {:furniture true}})
+;                                        ; so using the following instead (as workaround).
+;     :furniture-prep true})))
                  
-(def test6-comp 
-  (gram/np-with-post-conditions 
-    (get test6-head :obj)
-    (defn fn [fs]
-      (= (get fs :def) "def"))))
+;(def test6-comp 
+;  (gram/np-with-post-conditions 
+;    (get test6-head :obj)))
+;    (defn fn [fs]
+;      (= (get fs :def) "def"))))
 
-(def test6
-  (merge {:test "furniture PPs"}
-         (apply test6-fn (list test6-head test6-comp))))
+;(def test6
+;  (merge {:test "furniture PPs"}
+;         (apply test6-fn (list test6-head test6-comp))))
 
 (def test7-fn gram/vp-pp)
 
@@ -95,40 +96,12 @@
    {:cat :verb
     :italian "essere"}))
 
-(def test7-comp test6)
+;(def test7-comp test6)
 
-(def test7
-  (merge {:test "furniture VPs"}
-         (apply test7-fn (list test7-head test7-comp))))
+;(def test7
+;  (merge {:test "furniture VPs"}
+;         (apply test7-fn (list test7-head test7-comp))))
   
-(def test8
-   (let [fn gram/sv
-         head
-         (let [fn gram/vp-pp
-               head (gram/choose-lexeme
-                     {:cat :verb
-                      :italian "essere"})
-               comp
-               (let [fn gram/pp
-                     head (merge
-                           {:already-looked-up true}
-                           (gram/choose-lexeme
-                            {:cat :prep
-                             :furniture-prep true}))
-                     comp (gram/np-with-post-conditions 
-                            (get head :obj)
-                            (defn fn [fs]
-                              (= (get fs :def) "def")))]
-                 (apply fn (list head comp)))]
-           (apply fn (list head comp)))
-         comp
-         (gram/np-with-post-conditions 
-           {:furniture true}
-           (defn fn [fs]
-             (= (get fs :def) "def")))]
-     (merge {:test "furniture sentences"}
-            (apply fn (list head comp)))))
-
 ;;  "possessive NPs"
 (def test9
   (let [fn gram/n-bar

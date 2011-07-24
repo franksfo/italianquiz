@@ -1,6 +1,7 @@
 ;; RESTARTING OF RING NOT REQUIRED FOR CHANGES TO THIS FILE.
 (ns italianverbs.config
-  (:require [italianverbs.lev :as lev]))
+  (:require [italianverbs.lev :as lev]
+            [italianverbs.generate :as gen]))
 
 ; All tests.
 ;(def tests '(gram/sentence gen/random-present gen/random-passato-prossimo
