@@ -26,14 +26,17 @@
                              :furniture-prep true}))
                      comp (gram/np-with-post-conditions 
                             (get head :obj)
-                            (defn fn [fs]
+                            ;; note that fn name must be unique
+                            ;; to avoid a fatal runtime error
+                            ;; due to namespace collision.
+                            (defn mobili-np-filterfn1 [fs]
                               (= (get fs :def) "def")))]
                  (apply fn (list head comp)))]
            (apply fn (list head comp))))
         comp
         (gram/np-with-post-conditions 
           {:furniture true}
-          (defn fn [fs]
+          (defn mobili-np-filterfn2 [fs]
             (= (get fs :def) "def")))]
     (merge {:question-type :mobili}
            (apply fn (list head comp)))))

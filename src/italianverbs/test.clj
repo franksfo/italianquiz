@@ -151,11 +151,6 @@
      :hour hour
      :minute minute}))
 
-(def test12
-  (merge 
-   (gen/random-passato-prossimo)
-   {:test "passivo partato"}))
-
 ;; apply library functions: will move elsewhere after testing.
 (defn show-answer [question] (get question :answer))
 (defn wrap-div [string]
@@ -303,12 +298,8 @@
 
 (defn run-test [test-fn]
   (list (html/tablize
-         (if (= test-fn 'random-infinitivo)
-;           this doesn't work for some reason:
-;           (apply (eval 'gen/random-infinitivo) [])
-           (gen/random-infinitivo)
-           (apply
-            (eval test-fn) [])))))
+         (apply
+          (eval test-fn) []))))
 
 (def tests
   (mapcat run-test config/tests))
