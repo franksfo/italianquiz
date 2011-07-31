@@ -3,4 +3,7 @@
    [italianverbs.grammar :as gram]))
 
 (defn matrix []
-  (gram/choose-lexeme {}))
+  {:english "(matrix)" :italian "(matrici)"
+   :cat :matrix
+   :note "yep, it is a matrix."
+   :choose {}})
