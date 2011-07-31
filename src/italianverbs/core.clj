@@ -19,6 +19,9 @@
   (let [username (session/get-username request)]
     (str "Welcome to Italian Verbs" (if username (str ", " username)) ".")))
 
+(defn printlex [lexeme]
+  (ihtml/fs lexeme))
+
 (defroutes main-routes
 ;   "A handler processes the request map and returns a response map."
 ; http://groups.google.com/group/compojure/browse_thread/thread/3c507da23540da6e
@@ -46,9 +49,7 @@
           (load-file "src/italianverbs/lexicon.clj")
           (page "Lexicon"
                 (string/join " "
-                             (map (fn [] ; [lexeme]
-                                    "foo")
-                                        ;                                    (ihtml/fs lexeme))
+                             (map printlex
                                   (fetch :lexicon :sort {"italian" 1})))
                 request))
         }
