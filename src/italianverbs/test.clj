@@ -302,7 +302,14 @@
           (eval test-fn) []))))
 
                                         ;(def tests '(lev/matrix gen/random-present gen/random-passato-prossimo gen/mobili gen/espressioni random-infinitivo))
-(def tests '(lev/matrix gen/random-present))
+(def tests '(lev/matrix
+             gen/random-present
+             gen/random-passato-prossimo
+             gen/mobili
+;             gen/espressioni
+
+             ))
+            
 
 (def tests
   (mapcat run-test tests))
