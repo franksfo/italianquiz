@@ -2,14 +2,6 @@
 (ns italianverbs.config
   (:require [italianverbs.lev :as lev]))
 
-; All tests.
-;(def tests '(gram/sentence gen/random-present gen/random-passato-prossimo
-;                              gen/mobili gen/espressioni))
-
-
-; All tests.
-(def tests '(lev/matrix gen/random-present gen/random-passato-prossimo gen/mobili gen/espressioni random-infinitivo))
-
 ;; examples of constraints on generation.
 
 (def random-passato-prossimo-verb-past
