@@ -4,7 +4,6 @@
   (:require
    [clojure.set :as set]
    [clojure.string :as string]
-   [italianverbs.lexiconfn :as lex]
    [clojure.contrib.str-utils2 :as str-utils]))
 
 (defn verb-row [italian]

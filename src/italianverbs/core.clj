@@ -2,13 +2,13 @@
   (:use [compojure.core]
         [somnium.congomongo]
         [italianverbs.generate]
+        [italianverbs.lexicon]
         [base.html])
   (:require [italianverbs.generate :as gen]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [base.lib :as baselib]
             [italianverbs.lev :as lev]
-
             [clojure.string :as string]
             [italianverbs.html :as ihtml]
             [italianverbs.quiz :as quiz]
@@ -46,8 +46,9 @@
           (load-file "src/italianverbs/lexicon.clj")
           (page "Lexicon"
                 (string/join " "
-                             (map (fn [lexeme]
-                                    (ihtml/fs lexeme))
+                             (map (fn [] ; [lexeme]
+                                    "foo")
+                                        ;                                    (ihtml/fs lexeme))
                                   (fetch :lexicon :sort {"italian" 1})))
                 request))
         }

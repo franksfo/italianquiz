@@ -1,12 +1,16 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (maybe not actually)
 (ns italianverbs.morphology
   (:use [hiccup core page-helpers]
-	[somnium.congomongo])
+        [somnium.congomongo])
   (:require
    [clojure.string :as string]
    [italianverbs.html :as html]
    [clojure.contrib.string :as stringc]
    [clojure.contrib.str-utils2 :as str-utils]))
+
+
+(defn foo []
+  "foo(got here)")
 
 (defn get-head [sign]
   (if (get sign :head)
