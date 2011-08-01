@@ -52,7 +52,36 @@
 (defn testi [string]
   (create-initial-row (explode string) 0))
 
+(defn tablize-row [matrix i j]
+  (if (get matrix (list i j))
+    (str
+     "<td>"
+     (get matrix (list i j))
+     "</td>"
+     (tablize-row matrix (+ i 1) j))
+    ""))
+
+(defn matrix-header [charlist]
+  (if (> (.size charlist) 0)
+    (str "<th>" (first charlist) "</th>"
+         (matrix-header (rest charlist)))))
+
+(defn tablize [matrix j]
+  (if (get matrix (list 0 j))
+    (str
+     "<tr>"
+     (tablize-row matrix 0 j)
+     "</tr>"
+     (tablize matrix (+ 1 j)))
+    ""))
+
 (defn matrix []
   {:italian "matrice"
-   :matrix (.toString (test (testi "foobar") 1 5))})
+   :test (str "<table>"
+              "<tr>"
+              (matrix-header (explode "matrice"))
+              "</tr>"
+              (tablize (test (testi "matrice") 1 5) 0)
+              "</table>")})
+
 
