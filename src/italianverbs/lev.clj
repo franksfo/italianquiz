@@ -66,22 +66,37 @@
     (str "<th>" (first charlist) "</th>"
          (matrix-header (rest charlist)))))
 
-(defn tablize [matrix j]
+(defn tablize [matrix vertical-char-list j]
   (if (get matrix (list 0 j))
     (str
      "<tr>"
+     "<th>"
+     j
+     "</th>"
+     "<th>"
+     ;; j'th element of vertical string.
+     (nth vertical-char-list j)
+     "</th>"
      (tablize-row matrix 0 j)
      "</tr>"
-     (tablize matrix (+ 1 j)))
+     (tablize matrix vertical-char-list (+ 1 j)))
     ""))
 
 (defn matrix []
   {:italian "matrice"
    :test (str "<table>"
+
               "<tr>"
+              "<th colspan='2'> </th>"
+              (matrix-header (explode "0123456"))
+              "</tr>"
+
+              "<tr>"
+              "<th colspan='2'> </th>"
               (matrix-header (explode "matrice"))
               "</tr>"
-              (tablize (test (testi "matrice") 1 5) 0)
+              (tablize (test (testi "matrice") 1 5)
+                       (explode "matrix") 0)
               "</table>")})
 
 
