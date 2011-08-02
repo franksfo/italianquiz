@@ -22,7 +22,7 @@
            Float/POSITIVE_INFINITY))))
 
 (defn testi1 [matrix i y]
-  "adds value [i y] to the matrix for all i:[0,end]"
+  "adds values for one whole row ([i:[0,end], y]) to the matrix."
   (if (get matrix (list i (- y 1)))
     (testi1
      (merge
@@ -32,7 +32,9 @@
     matrix))
 
 (defn test [matrix j y]
-  "adds one row at a time to matrix for all rows up to y."
+  "adds one row at a time to matrix for all rows up to y.
+   assumes that matrix already has one row created with
+   (create-initial-row)"
   ;; TODO: for consistency, do similar to testi1 does:
   ;;  (check for existence of (get matrix [0,j])).
   (if (<= j y)
@@ -45,16 +47,16 @@
             y))
     matrix))
 
-(defn create-initial-row [charlist i]
-  (if (> (.size charlist) 0)
+(defn create-initial-row [char-list-horiz i char-list-vert]
+  "i is an index into char-list-horiz"
+  (if (> (.size char-list-horiz) 0)
+    ;; TODO: should depend on input strings.
     (merge
      {(list i 0) i}
-     (create-initial-row (rest charlist)
-                         (+ i 1)))
+     (create-initial-row (rest char-list-horiz)
+                         (+ i 1)
+                         char-list-vert))
     {}))
-
-(defn testi [string]
-  (create-initial-row (explode string) 0))
 
 (defn tablize-row [matrix i j]
   (if (get matrix (list i j))
@@ -99,7 +101,10 @@
               "<th colspan='2'> </th>"
               (matrix-header (explode "matrice"))
               "</tr>"
-              (tablize (test (testi "matrice") 1 5)
+              (tablize (test
+                        (create-initial-row
+                         (explode "matrice") 0 (explode "matrix"))
+                        1 5)
                        (explode "matrix") 0)
               "</table>")})
 
