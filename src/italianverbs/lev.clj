@@ -57,15 +57,18 @@
                      vert-char-list))
     matrix))
 
-(defn create-initial-row [char-list-horiz i char-list-vert]
+(defn create-initial-row [char-list-horiz char-list-vert
+                          i
+                          current-val]
   "i is an index into char-list-horiz"
   (if (> (.size char-list-horiz) 0)
-    ;; TODO: should depend on input strings.
     (merge
-     {(list i 0) i}
+     {(list i 0) current-val}
      (create-initial-row (rest char-list-horiz)
+                         char-list-vert
                          (+ i 1)
-                         char-list-vert))
+                         (+ current-val 1)
+                         ))
     {}))
 
 (defn tablize-row [matrix i j horiz-char-list vert-char-list]
@@ -99,7 +102,7 @@
     ""))
 
 (defn matrix []
-  (let [word1 "the large dog sits"
+  (let [word1 "a large dog sits"
         word2 "a large cat eats"]
   {:italian word1
    :test (str "<table>"
@@ -113,7 +116,11 @@
               "</tr>"
               (tablize (create-matrix
                         (create-initial-row
-                         (explode word1) 0 (explode word2))
+                         (explode word1) (explode word2) 0
+                         (if (= (first (explode word1))
+                                (first (explode word2)))
+                           0
+                           1))
                         1 (- (.size (explode word2)) 1)
                         (explode word1)
                         (explode word2))
