@@ -8,8 +8,9 @@
   "abc => (\"a\" \"b\" \"c\")"
   (rest (string/split (java.util.regex.Pattern/compile "") string)))
 
-(defn get-min [matrix x y]
-  (let [diag 0] ;; depends on whether char = char (0 if ==, 1 otherwise)
+(defn get-min [matrix x y char-x char-y]
+  (let [diag
+        (if (= char-x char-y) 0 1)]
     (min (if (> x 0)
            (+ 1 (get matrix (list (- x 1) y)))
            Float/POSITIVE_INFINITY)
@@ -21,17 +22,22 @@
               (get matrix (list (- x 1) (- y 1))))
            Float/POSITIVE_INFINITY))))
 
-(defn add-one-row [matrix i y]
-  "adds values for one whole row ([i:[0,end], y]) to the matrix."
-  (if (get matrix (list i (- y 1)))
+(defn add-one-row [matrix x y horiz-char-list vert-char-list]
+  "adds values for one whole row ([x:[0,end], y]) to the matrix."
+  (if (get matrix (list x (- y 1)))
     (add-one-row
      (merge
       matrix
-      {(list i y) (get-min matrix i y)})
-     (+ 1 i) y)
+      {(list x y) (get-min matrix
+                           x y
+                           (nth horiz-char-list x)
+                           (nth vert-char-list y)
+                           )})
+     (+ 1 x) y
+     horiz-char-list vert-char-list)
     matrix))
 
-(defn create-matrix [matrix j y]
+(defn create-matrix [matrix j y horiz-char-list vert-char-list]
   "adds one row at a time to matrix for all rows up to y.
    assumes that matrix already has one row created with
    (create-initial-row)"
@@ -41,10 +47,14 @@
     (let [new-matrix
           (merge
            matrix
-           (add-one-row matrix 0 j))]
+           (add-one-row matrix 0 j
+                        horiz-char-list
+                        vert-char-list))]
       (create-matrix new-matrix
-            (+ 1 j)
-            y))
+                     (+ 1 j)
+                     y
+                     horiz-char-list
+                     vert-char-list))
     matrix))
 
 (defn create-initial-row [char-list-horiz i char-list-vert]
@@ -58,13 +68,13 @@
                          char-list-vert))
     {}))
 
-(defn tablize-row [matrix i j]
+(defn tablize-row [matrix i j horiz-char-list vert-char-list]
   (if (get matrix (list i j))
     (str
      "<td>"
      (get matrix (list i j))
      "</td>"
-     (tablize-row matrix (+ i 1) j))
+     (tablize-row matrix (+ i 1) j horiz-char-list vert-char-list))
     ""))
 
 (defn matrix-header [charlist]
@@ -72,7 +82,7 @@
     (str "<th>" (first charlist) "</th>"
          (matrix-header (rest charlist)))))
 
-(defn tablize [matrix vertical-char-list j]
+(defn tablize [matrix horiz-char-list vert-char-list j]
   (if (get matrix (list 0 j))
     (str
      "<tr>"
@@ -81,29 +91,34 @@
      "</th>"
      "<th>"
      ;; j'th element of vertical string.
-     (nth vertical-char-list j)
+     (nth vert-char-list j)
      "</th>"
-     (tablize-row matrix 0 j)
+     (tablize-row matrix 0 j horiz-char-list vert-char-list)
      "</tr>"
-     (tablize matrix vertical-char-list (+ 1 j)))
+     (tablize matrix horiz-char-list vert-char-list (+ 1 j)))
     ""))
 
 (defn matrix []
-  {:italian "matrice"
+  (let [word1 "the large dog sits"
+        word2 "a large cat eats"]
+  {:italian word1
    :test (str "<table>"
               "<tr>"
               "<th colspan='2'> </th>"
-              (matrix-header (explode "0123456"))
+              (matrix-header (range 0 (.size (explode word1))))
               "</tr>"
               "<tr>"
               "<th colspan='2'> </th>"
-              (matrix-header (explode "matrice"))
+              (matrix-header (explode word1))
               "</tr>"
               (tablize (create-matrix
                         (create-initial-row
-                         (explode "matrice") 0 (explode "matrix"))
-                        1 5)
-                       (explode "matrix") 0)
-              "</table>")})
+                         (explode word1) 0 (explode word2))
+                        1 (- (.size (explode word2)) 1)
+                        (explode word1)
+                        (explode word2))
+                       (explode word1)
+                       (explode word2) 0)
+              "</table>")}))
 
 
