@@ -21,28 +21,28 @@
               (get matrix (list (- x 1) (- y 1))))
            Float/POSITIVE_INFINITY))))
 
-(defn testi1 [matrix i y]
+(defn add-one-row [matrix i y]
   "adds values for one whole row ([i:[0,end], y]) to the matrix."
   (if (get matrix (list i (- y 1)))
-    (testi1
+    (add-one-row
      (merge
       matrix
       {(list i y) (get-min matrix i y)})
      (+ 1 i) y)
     matrix))
 
-(defn test [matrix j y]
+(defn create-matrix [matrix j y]
   "adds one row at a time to matrix for all rows up to y.
    assumes that matrix already has one row created with
    (create-initial-row)"
-  ;; TODO: for consistency, do similar to testi1 does:
+  ;; TODO: for consistency, do similar to add-one-row does:
   ;;  (check for existence of (get matrix [0,j])).
   (if (<= j y)
     (let [new-matrix
           (merge
            matrix
-           (testi1 matrix 0 j))]
-      (test new-matrix
+           (add-one-row matrix 0 j))]
+      (create-matrix new-matrix
             (+ 1 j)
             y))
     matrix))
@@ -91,17 +91,15 @@
 (defn matrix []
   {:italian "matrice"
    :test (str "<table>"
-
               "<tr>"
               "<th colspan='2'> </th>"
               (matrix-header (explode "0123456"))
               "</tr>"
-
               "<tr>"
               "<th colspan='2'> </th>"
               (matrix-header (explode "matrice"))
               "</tr>"
-              (tablize (test
+              (tablize (create-matrix
                         (create-initial-row
                          (explode "matrice") 0 (explode "matrix"))
                         1 5)
