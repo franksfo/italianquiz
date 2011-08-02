@@ -22,6 +22,7 @@
            Float/POSITIVE_INFINITY))))
 
 (defn testi1 [matrix i y]
+  "adds value [i y] to the matrix for all i:[0,end]"
   (if (get matrix (list i (- y 1)))
     (testi1
      (merge
@@ -31,6 +32,9 @@
     matrix))
 
 (defn test [matrix j y]
+  "adds one row at a time to matrix for all rows up to y."
+  ;; TODO: for consistency, do similar to testi1 does:
+  ;;  (check for existence of (get matrix [0,j])).
   (if (<= j y)
     (let [new-matrix
           (merge
