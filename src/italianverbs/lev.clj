@@ -101,31 +101,155 @@
      (tablize matrix horiz-char-list vert-char-list (+ 1 j)))
     ""))
 
+(defn interpret-op [op curr diag horiz-char-list vert-char-list x y]
+  (if (= op nil)
+    (if (= (nth horiz-char-list 0)
+           (nth vert-char-list 0))
+      (list '/ (nth horiz-char-list 0))
+      (list 'x (nth horiz-char-list 0)
+           (nth vert-char-list 0) ))
+    (if (= op "/")
+      (list '/ (nth horiz-char-list x) )
+      (if (= op "x")
+        (list 'x
+             (nth horiz-char-list x)
+             (nth vert-char-list y)
+             )
+        (if (= op "|")
+          (list '|
+               (nth vert-char-list y)
+               )
+          (if (= op "-")
+            (list '-
+                 (nth horiz-char-list x)
+                 )
+            "??"))))))
+
+(defn find-minimum-path [matrix x y horiz-char-list vert-char-list op] 
+  (let [curr (get matrix (list x y))
+        down (get matrix (list x (+ y 1)))
+        right (get matrix (list (+ x 1) y))
+        diag (get matrix (list (+ x 1) (+ y 1)))
+        interpret-op
+        (interpret-op op
+                      curr
+                      diag
+                      horiz-char-list
+                      vert-char-list x y)
+        ]
+    ;; handle nulls first.
+    (if (and (= nil down)
+             (= nil right))
+      (list interpret-op)
+      (if (= nil down)
+        (cons interpret-op
+              (find-minimum-path matrix
+                                 (+ x 1)
+                                 y
+                                 horiz-char-list
+                                 vert-char-list
+                                 "-"))
+        (if (= nil right)
+          (cons interpret-op
+                (find-minimum-path matrix
+                                  x
+                                  (+ y 1)
+                                  horiz-char-list
+                                  vert-char-list
+                                  "|"
+                                  ))
+          ;; neither down nor right are null; so
+          ;; neither is diag.
+          (if (and (< diag right)
+                   (< diag down))
+            (cons
+             interpret-op
+             (find-minimum-path matrix
+                                (+ x 1)
+                                (+ y 1)
+                                horiz-char-list
+                                vert-char-list
+                                (if (= curr diag)
+                                  "/"
+                                  "x")))
+            (if (< down right)
+              (cons interpret-op
+                    (find-minimum-path matrix
+                                      x
+                                      (+ y 1)
+                                      horiz-char-list
+                                      vert-char-list
+                                      "|"
+                                      ))
+              (if (< right down)
+                (cons interpret-op
+                      (find-minimum-path matrix
+                                         (+ x 1)
+                                         y
+                                         horiz-char-list
+                                         vert-char-list
+                                         "-"
+                                         ))
+                (if (<= diag right)
+                  (cons interpret-op
+                        (find-minimum-path matrix
+                                           (+ x 1)
+                                           (+ y 1)
+                                           horiz-char-list
+                                           vert-char-list
+                                           (if (= curr diag)
+                                             "/"
+                                             "x")))
+                  (cons interpret-op
+                        (find-minimum-path matrix
+                                           (+ x 1)
+                                           y
+                                           horiz-char-list
+                                           vert-char-list
+                                           "-")))))))))))
+
+(defn score [path]
+  (if (first path)
+    (let [elem (first path)
+          elem-score 
+          (if (= (first elem) '/)
+            0
+            1)]
+    (+
+     elem-score
+     (score (rest path))))
+    0))
+
 (defn matrix []
-  (let [word1 "a large dog sits"
-        word2 "a large cat eats"]
-  {:italian word1
-   :test (str "<table>"
-              "<tr>"
-              "<th colspan='2'> </th>"
-              (matrix-header (range 0 (.size (explode word1))))
-              "</tr>"
-              "<tr>"
-              "<th colspan='2'> </th>"
-              (matrix-header (explode word1))
-              "</tr>"
-              (tablize (create-matrix
-                        (create-initial-row
-                         (explode word1) (explode word2) 0
-                         (if (= (first (explode word1))
-                                (first (explode word2)))
-                           0
-                           1))
-                        1 (- (.size (explode word2)) 1)
-                        (explode word1)
-                        (explode word2))
-                       (explode word1)
-                       (explode word2) 0)
-              "</table>")}))
+  (let [word1 "the large porpoise eats quietly"
+        word2 "so many very large cats eat slowly"
+        wordlist1 (explode word1)
+        wordlist2 (explode word2)
+        matrix
+        (create-matrix
+         (create-initial-row
+          wordlist1 wordlist2 0
+          (if (= (first wordlist1)
+                 (first wordlist2))
+            0
+            1))
+         1 (- (.size wordlist2) 1)
+         wordlist1
+         wordlist2)]
+    {:italian word1
+     :test (str "<table>"
+                "<tr>"
+                "<th colspan='2'> </th>"
+                (matrix-header (range 0 (.size wordlist1)))
+                "</tr>"
+                "<tr>"
+                "<th colspan='2'> </th>"
+                (matrix-header wordlist1)
+                "</tr>"
+                (tablize
+                 matrix
+                 wordlist1
+                 wordlist2 0)
+                "</table>")}))
 
 
