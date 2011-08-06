@@ -275,3 +275,7 @@ div.stats {
     float:left;
     width:15em;
 }
+
+table.matrix td {
+    text-align:center;
+}
