@@ -302,7 +302,7 @@
           (eval test-fn) []))))
 
                                         ;(def tests '(lev/matrix gen/random-present gen/random-passato-prossimo gen/mobili gen/espressioni random-infinitivo))
-(def tests '(lev/matrix
+(def tests '(lev/test
              gen/random-present
              gen/random-passato-prossimo
              gen/mobili
