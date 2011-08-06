@@ -71,14 +71,6 @@
                          ))
     {}))
 
-(defn tablize-row [matrix i j horiz-char-list vert-char-list]
-  (if (get matrix (list i j))
-    (str
-     "<td>"
-     (get matrix (list i j))
-     "</td>"
-     (tablize-row matrix (+ i 1) j horiz-char-list vert-char-list))
-    ""))
 
 (defn matrix-header [charlist]
   (if (> (.size charlist) 0)
@@ -86,20 +78,29 @@
          (matrix-header (rest charlist)))))
 
 (defn tablize [matrix horiz-char-list vert-char-list j]
-  (if (get matrix (list 0 j))
-    (str
-     "<tr>"
-     "<th>"
-     j
-     "</th>"
-     "<th>"
-     ;; j'th element of vertical string.
-     (nth vert-char-list j)
-     "</th>"
-     (tablize-row matrix 0 j horiz-char-list vert-char-list)
-     "</tr>"
-     (tablize matrix horiz-char-list vert-char-list (+ 1 j)))
-    ""))
+  (let [tablize-row
+        (fn [matrix i j horiz-char-list vert-char-list]
+          (if (get matrix (list i j))
+            (str
+             "<td>"
+             (get matrix (list i j))
+             "</td>"
+             (tablize-row matrix (+ i 1) j horiz-char-list vert-char-list))
+            ""))]
+    (if (get matrix (list 0 j))
+      (str
+       "<tr>"
+       "<th>"
+       j
+       "</th>"
+       "<th>"
+       ;; j'th element of vertical string.
+       (nth vert-char-list j)
+       "</th>"
+       (tablize-row matrix 0 j horiz-char-list vert-char-list)
+       "</tr>"
+       (tablize matrix horiz-char-list vert-char-list (+ 1 j)))
+      "")))
 
 (defn interpret-op [op curr diag horiz-char-list vert-char-list x y]
   (if (= op nil)
@@ -124,6 +125,33 @@
                  (nth horiz-char-list x)
                  )
             "??"))))))
+
+(defn find-min-path-up [matrix horiz-char-list vert-char-list]
+  (let [x (- (.size horiz-char-list) 1)
+        y (- (.size vert-char-list) 1)]
+    (if (or (> x 0)
+            (> y 0))
+      (let [curr (get matrix (list x y))
+            up (if (> y 0)
+                 (get matrix (list x y)))
+            left (if (> x 0)
+                   (get matrix (list x y)))
+            diag (if (and (> x 0)
+                          (> y 0))
+                   (get matrix (list (- x 1) (- y 1))))]
+        (if (and diag left up
+                 (< diag left)
+                 (< diag up))
+          (cons
+           (list '/
+                 (nth horiz-char-list (- x 1))
+                 (nth vert-char-list (- y 1)))
+           (find-min-path-up matrix
+                             (butlast horiz-char-list)
+                             (butlast horiz-char-list)))
+          (list 'done diag left up x y
+                (< diag left)
+                (< diag up)))))))
 
 (defn find-minimum-path [matrix x y horiz-char-list vert-char-list op] 
   (let [curr (get matrix (list x y))
@@ -220,10 +248,8 @@
      (score (rest path))))
     0))
 
-(defn matrix []
-  (let [word1 "the large porpoise eats quietly"
-        word2 "so many very large cats eat slowly"
-        wordlist1 (explode word1)
+(defn matrix [word1 word2]
+  (let [wordlist1 (explode word1)
         wordlist2 (explode word2)
         matrix
         (create-matrix
@@ -237,7 +263,8 @@
          wordlist1
          wordlist2)]
     {:italian word1
-     :test (str "<table>"
+     :path (find-min-path-up matrix wordlist1 wordlist2)
+     :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
                 (matrix-header (range 0 (.size wordlist1)))
@@ -252,4 +279,7 @@
                  wordlist2 0)
                 "</table>")}))
 
+(defn test []
+  (matrix "abcdxyz"
+          "xyzabcd"))
 
