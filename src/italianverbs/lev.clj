@@ -77,7 +77,10 @@
   (let [tablize-row (fn ! [matrix i j horiz-char-list vert-char-list path]
                       (if (get matrix (list i j))
                         (str
-                         "<td>"
+                         "<td"
+                         (if (get path (list i j)) " class='path'")
+                         ">"
+                         (list i j)
                          (get matrix (list i j))
                          "</td>"
                          (! matrix (+ i 1) j horiz-char-list vert-char-list path))
@@ -182,11 +185,11 @@
       (if (> min-value lookup)
         (find-min-in-shell (rest shell) (first shell) lookup matrix)
         (find-min-in-shell (rest shell) min-key min-value matrix)))
-    min-key))
+    {min-key min-value}))
 
 (defn find-min-in-shells [shells matrix]
   (if (> (.size shells) 0)
-    (cons
+    (merge
      (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix)
      (find-min-in-shells (rest shells) matrix))))
 
