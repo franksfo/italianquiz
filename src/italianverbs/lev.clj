@@ -199,8 +199,10 @@
          1 (- (.size wordlist2) 1)
          wordlist1
          wordlist2)
-        shells (shells (- (.size wordlist1) 1)
-                       (- (.size wordlist2) 1))
+        shells
+        (cons (list (list 32 24))
+              (shells (- (.size wordlist1) 2)
+                      (- (.size wordlist2) 2)))
         path-diag-only (find-min-in-shells-diag-only shells matrix nil)]
     {:italian word1
      :shells shells
