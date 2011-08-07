@@ -109,16 +109,12 @@
     (cons (list x y)
           (shell-y-axis x (- y 1)))))
 
-(defn shell [x y]
-  "generate a shell with the vertex at (x y)."
-  (concat (shell-x-axis x y)
-          (if (> y 0)
-            (shell-y-axis x (- y 1)))))
-
 (defn shells [x y]
   (if (>= x 0)
     (cons
-     (shell x y)
+     (concat (shell-x-axis x y)
+             (if (> y 0)
+               (shell-y-axis x (- y 1))))
      (shells
       (if (>= x y)
         (- x 1)
