@@ -131,8 +131,8 @@
             (let [candidate (get matrix (first shell))
                   current-min-x (first min-key)
                   current-min-y (second min-key)
-                  candidate-x (first min-key)
-                  candidate-y (second min-key)
+                  candidate-x (first (first shell))
+                  candidate-y (second (first shell))
                   parent-x (first (first (first in-upper-shell)))]
               ;; replace current min if it's better.
               ;; 'candidate' is the (potentially smaller) value we are
@@ -144,11 +144,10 @@
                    (and
                     (or
                      (= candidate-x nil)
-                     (= nil parent-x)
+                     (= nil current-min-x)
                      (= nil min-in-upper-shell)
                      (= nil candidate-x)
-                     (or true
-                         (<= candidate-x parent-x)))))
+                     (<= candidate-x current-min-x))))
 
                 ;; true: replace current minimum value with current candidate;
                 ;; continue testing other candidates with new current minimum.
@@ -159,7 +158,6 @@
             
             {min-key {
                       :candidate-x (first min-key)
-                      :parent-x (first (first (first in-upper-shell)))
                       :parent-info in-upper-shell
                       :score min-value}}))]
     (if (> (.size shells) 0)
