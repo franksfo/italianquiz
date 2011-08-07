@@ -279,3 +279,9 @@ div.stats {
 table.matrix td {
     text-align:center;
 }
+
+
+table.matrix td.path {
+    background: #008800;
+
+}
