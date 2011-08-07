@@ -203,9 +203,6 @@
                        (- (.size wordlist2) 1))
         path-diag-only (find-min-in-shells-diag-only shells matrix nil)]
     {:italian word1
-     :path-diag (str "<div style='font-family:monospace'> " path-diag-only "</div>" )
-     :shell-5-min (str "<div style='font-family:monospace'> " (get path-diag-only (list 3 6))  "</div>" )
-     :shell-4-min (str "<div style='font-family:monospace'> " (get path-diag-only (list 5 5))  "</div>" )
      :shells shells
      :test (str "<table class='matrix'>"
                 "<tr>"
@@ -223,5 +220,5 @@
                 "</table>")}))
 
 (defn test []
-  (matrix "three small dogs"
-          "a small dog slowly runs"))
+  (matrix "one two three four five six seven"
+          "test one three five seven"))
