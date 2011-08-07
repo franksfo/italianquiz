@@ -127,48 +127,44 @@
   (let [find-min-in-shell
         (fn ! [shell min-key min-value matrix in-upper-shell]
           (if (> (.size shell) 0)
-            (let [candidate (get matrix (first shell))]
+            (let [candidate (get matrix (first shell))
+                  candidate-x (first min-key)
+                  candidate-y (second min-key)
+                  parent-x (first (first (first in-upper-shell)))
+                  min-x-value (if min-in-upper-shell
+                                (first (first (first min-in-upper-shell))))]
               ;; replace current min if it's better.
               ;; 'candidate' is the (potentially smaller) value we are
               ;; testing against current minimum 'min-value'.
               ;; 'candidate''s 'x' value must be smaller than current min-value's
               ;; 'x' value.
-              (if (and (> min-value candidate)
-                       (let [min-x-value (if min-in-upper-shell
-                                           (first min-in-upper-shell))]
-                         true))
+              (if (and
+                   (> min-value candidate)
+                   (and
+                    (or
+                     (= nil min-in-upper-shell)
+                     (= nil parent-x)
+                     (= nil candidate-x)
+                     (<= candidate-x parent-x))))
+
                 ;; true: replace current minimum value with current candidate;
                 ;; continue testing other candidates with new current minimum.
                 (! (rest shell) (first shell) candidate matrix in-upper-shell)
-
+                
                 ;; false: reject current candidate; continue with existing minimum.
                 (! (rest shell) min-key min-value matrix in-upper-shell)))
-
-            {min-key {:score min-value}}))]
+            
+            {min-key {
+                      :candidate-x (first min-key)
+                      :parent-x (first (first (first in-upper-shell)))
+                      :parent-info in-upper-shell
+                      :score min-value}}))]
     (if (> (.size shells) 0)
       (let [min-in-this-shell
             (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix min-in-upper-shell)]
         (merge
          min-in-this-shell
          (find-min-in-shells-diag-only (rest shells) matrix min-in-this-shell))))))
-
-(defn find-min-in-shells [shells matrix min-in-upper-shell]
-  (let [find-min-in-shell
-        (fn ! [shell min-key min-value matrix in-upper-shell]
-          (if (> (.size shell) 0)
-            (let [lookup (get matrix (first shell))]
-              (if (and (> min-value lookup)
-                       (or (= nil min-in-upper-shell)
-                           true))
-                (! (rest shell) (first shell) lookup matrix in-upper-shell)
-                (! (rest shell) min-key min-value matrix in-upper-shell)))
-            {min-key min-value}))]
-    (if (> (.size shells) 0)
-      (let [min-in-this-shell
-            (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix min-in-upper-shell)]
-      (merge
-       min-in-this-shell
-       (find-min-in-shells (rest shells) matrix min-in-this-shell))))))
 
 (defn matrix [word1 word2]
   (let [explode
@@ -190,11 +186,11 @@
          wordlist2)
         shells (shells (- (.size wordlist1) 1)
                        (- (.size wordlist2) 1))
-        path (find-min-in-shells shells matrix nil)
         path-diag-only (find-min-in-shells-diag-only shells matrix nil)]
     {:italian word1
-     :path path
-     :path-diag path-diag-only
+     :path-diag (str "<div style='font-family:monospace'> " path-diag-only "</div>" )
+     :shell-5-min (str "<div style='font-family:monospace'> " (get path-diag-only (list 3 6))  "</div>" )
+     :shell-4-min (str "<div style='font-family:monospace'> " (get path-diag-only (list 5 5))  "</div>" )
      :shells shells
      :test (str "<table class='matrix'>"
                 "<tr>"
@@ -208,7 +204,7 @@
                 (tablize
                  matrix
                  wordlist1
-                 wordlist2 0 path)
+                 wordlist2 0 path-diag-only)
                 "</table>")}))
 
 (defn test []
