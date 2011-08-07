@@ -123,19 +123,52 @@
         (- y 1)
         y)))))
 
-(defn find-min-in-shells [shells matrix]
+(defn find-min-in-shells-diag-only [shells matrix min-in-upper-shell]
   (let [find-min-in-shell
-        (fn ! [shell min-key min-value matrix]
+        (fn ! [shell min-key min-value matrix in-upper-shell]
+          (if (> (.size shell) 0)
+            (let [candidate (get matrix (first shell))]
+              ;; replace current min if it's better.
+              ;; 'candidate' is the (potentially smaller) value we are
+              ;; testing against current minimum 'min-value'.
+              ;; 'candidate''s 'x' value must be smaller than current min-value's
+              ;; 'x' value.
+              (if (and (> min-value candidate)
+                       (let [min-x-value (if min-in-upper-shell
+                                           (first min-in-upper-shell))]
+                         true))
+                ;; true: replace current minimum value with current candidate;
+                ;; continue testing other candidates with new current minimum.
+                (! (rest shell) (first shell) candidate matrix in-upper-shell)
+
+                ;; false: reject current candidate; continue with existing minimum.
+                (! (rest shell) min-key min-value matrix in-upper-shell)))
+
+            {min-key {:score min-value}}))]
+    (if (> (.size shells) 0)
+      (let [min-in-this-shell
+            (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix min-in-upper-shell)]
+        (merge
+         min-in-this-shell
+         (find-min-in-shells-diag-only (rest shells) matrix min-in-this-shell))))))
+
+(defn find-min-in-shells [shells matrix min-in-upper-shell]
+  (let [find-min-in-shell
+        (fn ! [shell min-key min-value matrix in-upper-shell]
           (if (> (.size shell) 0)
             (let [lookup (get matrix (first shell))]
-              (if (> min-value lookup)
-                (! (rest shell) (first shell) lookup matrix)
-                (! (rest shell) min-key min-value matrix)))
+              (if (and (> min-value lookup)
+                       (or (= nil min-in-upper-shell)
+                           true))
+                (! (rest shell) (first shell) lookup matrix in-upper-shell)
+                (! (rest shell) min-key min-value matrix in-upper-shell)))
             {min-key min-value}))]
     (if (> (.size shells) 0)
+      (let [min-in-this-shell
+            (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix min-in-upper-shell)]
       (merge
-       (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix)
-       (find-min-in-shells (rest shells) matrix)))))
+       min-in-this-shell
+       (find-min-in-shells (rest shells) matrix min-in-this-shell))))))
 
 (defn matrix [word1 word2]
   (let [explode
@@ -157,9 +190,11 @@
          wordlist2)
         shells (shells (- (.size wordlist1) 1)
                        (- (.size wordlist2) 1))
-        path (find-min-in-shells shells matrix)]
+        path (find-min-in-shells shells matrix nil)
+        path-diag-only (find-min-in-shells-diag-only shells matrix nil)]
     {:italian word1
      :path path
+     :path-diag path-diag-only
      :shells shells
      :test (str "<table class='matrix'>"
                 "<tr>"
