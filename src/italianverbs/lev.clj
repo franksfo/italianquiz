@@ -3,59 +3,55 @@
    [clojure.contrib.string :as string]
    [italianverbs.grammar :as gram]))
 
-(defn explode [string]
-  "abc => (\"a\" \"b\" \"c\")"
-  (rest (string/split (java.util.regex.Pattern/compile "") string)))
-
-(defn add-one-row [matrix x y horiz-char-list vert-char-list]
-  "adds values for one whole row ([x:[0,end], y]) to the matrix."
-  ;; TODO: use recur:
-  ;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
-  (let [get-min (fn [matrix x y char-x char-y]
-                  (let [diag
-                        (if (= char-x char-y) 0 1)]
-                    (min (if (> x 0)
-                           (+ 1 (get matrix (list (- x 1) y)))
-                           Float/POSITIVE_INFINITY)
-                         (if (> y 0)
-                           (+ 1 (get matrix (list x (- y 1))))
-                           Float/POSITIVE_INFINITY)
-                         (if (and (> x 0) (> y 0))
-                           (+ diag
-                              (get matrix (list (- x 1) (- y 1))))
-                           Float/POSITIVE_INFINITY))))]
-    (if (get matrix (list x (- y 1)))
-      (add-one-row
-       (merge
-        matrix
-        {(list x y) (get-min matrix
-                             x y
-                             (nth horiz-char-list x)
-                             (nth vert-char-list y)
-                             )})
-       (+ 1 x) y
-       horiz-char-list vert-char-list)
-      matrix)))
-  
 (defn create-matrix [matrix j y horiz-char-list vert-char-list]
   "adds one row at a time to matrix for all rows up to y.
    assumes that matrix already has one row created with
    (create-initial-row)"
   ;; TODO: for consistency, do similar to add-one-row does:
   ;;  (check for existence of (get matrix [0,j])).
-  (if (<= j y)
-    (let [new-matrix
-          (merge
-           matrix
-           (add-one-row matrix 0 j
-                        horiz-char-list
-                        vert-char-list))]
-      (create-matrix new-matrix
-                     (+ 1 j)
-                     y
-                     horiz-char-list
-                     vert-char-list))
-    matrix))
+  (let [add-one-row
+        (fn ! [matrix x y horiz-char-list vert-char-list]
+          "adds values for one whole row ([x:[0,end], y]) to the matrix."
+          ;; TODO: use recur:
+          ;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
+          (let [get-min (fn [matrix x y char-x char-y]
+                          (let [diag
+                                (if (= char-x char-y) 0 1)]
+                            (min (if (> x 0)
+                                   (+ 1 (get matrix (list (- x 1) y)))
+                                   Float/POSITIVE_INFINITY)
+                                 (if (> y 0)
+                                   (+ 1 (get matrix (list x (- y 1))))
+                           Float/POSITIVE_INFINITY)
+                                 (if (and (> x 0) (> y 0))
+                                   (+ diag
+                                      (get matrix (list (- x 1) (- y 1))))
+                                   Float/POSITIVE_INFINITY))))]
+            (if (get matrix (list x (- y 1)))
+              (!
+               (merge
+                matrix
+                {(list x y) (get-min matrix
+                                     x y
+                                     (nth horiz-char-list x)
+                                     (nth vert-char-list y)
+                                     )})
+               (+ 1 x) y
+               horiz-char-list vert-char-list)
+              matrix)))]
+    (if (<= j y)
+      (let [new-matrix
+            (merge
+             matrix
+             (add-one-row matrix 0 j
+                          horiz-char-list
+                          vert-char-list))]
+        (create-matrix new-matrix
+                       (+ 1 j)
+                       y
+                       horiz-char-list
+                       vert-char-list))
+      matrix)))
 
 (defn create-initial-row [char-list-horiz char-list-vert
                           i
@@ -277,7 +273,11 @@
         y)))))
 
 (defn matrix [word1 word2]
-  (let [wordlist1 (explode word1)
+  (let [explode
+        (fn [string]
+          "abc => (\"a\" \"b\" \"c\")"
+          (rest (string/split (java.util.regex.Pattern/compile "") string)))
+        wordlist1 (explode word1)
         wordlist2 (explode word2)
         matrix
         (create-matrix
