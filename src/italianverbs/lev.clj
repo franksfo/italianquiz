@@ -78,8 +78,15 @@
                       (if (get matrix (list i j))
                         (str
                          "<td"
-                         (if (get path (list i j)) " class='path'")
-                         ">"
+                         (if (get path (list i j))
+                           (if (=
+                                (nth horiz-char-list i)
+                                (nth vert-char-list j))
+                             " class='corrent'"
+                             " class='path'"))
+                           ">"
+                         (nth horiz-char-list i) "/"
+                         (nth vert-char-list j) ":"
                          (get matrix (list i j))
                          "</td>"
                          (! matrix (+ i 1) j horiz-char-list vert-char-list path))
@@ -207,12 +214,14 @@
          wordlist1
          wordlist2)
         shells
-        (cons (list (list 32 24))
+        (cons (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1)))
               (shells (- (.size wordlist1) 2)
                       (- (.size wordlist2) 2)))
         path (find-min-in-shells-diag-only shells matrix nil)]
     {:italian word1
      :shells (nth (rest shells) 1)
+     :len-x (- (.size wordlist1) 1)
+     :len-y (- (.size wordlist2) 1)
      :path-diag (str "<div style='font-family:monospace'> " (lookup-x-key path 19) "</div>")
      :test (str "<table class='matrix'>"
                 "<tr>"
@@ -230,5 +239,5 @@
                 "</table>")}))
 
 (defn test []
-  (matrix "one two three four five six seven"
-          "test one three five seven"))
+  (matrix "a test one two"
+          "test one three two"))
