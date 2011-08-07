@@ -99,57 +99,6 @@
        (tablize matrix horiz-char-list vert-char-list (+ 1 j) path))
       "")))
 
-(defn interpret-op [op curr diag horiz-char-list vert-char-list x y]
-  (if (= op nil)
-    (if (= (nth horiz-char-list 0)
-           (nth vert-char-list 0))
-      (list '/ (nth horiz-char-list 0))
-      (list 'x (nth horiz-char-list 0)
-           (nth vert-char-list 0) ))
-    (if (= op "/")
-      (list '/ (nth horiz-char-list x) )
-      (if (= op "x")
-        (list 'x
-             (nth horiz-char-list x)
-             (nth vert-char-list y)
-             )
-        (if (= op "|")
-          (list '|
-               (nth vert-char-list y)
-               )
-          (if (= op "-")
-            (list '-
-                 (nth horiz-char-list x)
-                 )
-            "??"))))))
-
-(defn find-min-path-up [matrix horiz-char-list vert-char-list]
-  (let [x (- (.size horiz-char-list) 1)
-        y (- (.size vert-char-list) 1)]
-    (if (or (> x 0)
-            (> y 0))
-      (let [curr (get matrix (list x y))
-            up (if (> y 0)
-                 (get matrix (list x y)))
-            left (if (> x 0)
-                   (get matrix (list x y)))
-            diag (if (and (> x 0)
-                          (> y 0))
-                   (get matrix (list (- x 1) (- y 1))))]
-        (if (and diag left up
-                 (< diag left)
-                 (< diag up))
-          (cons
-           (list '/
-                 (nth horiz-char-list (- x 1))
-                 (nth vert-char-list (- y 1)))
-           (find-min-path-up matrix
-                             (butlast horiz-char-list)
-                             (butlast horiz-char-list)))
-          (list 'done diag left up x y
-                (< diag left)
-                (< diag up)))))))
-
 (defn shell-x-axis [x y]
   (if (>= x 0)
     (cons (list x y)
