@@ -124,7 +124,11 @@
         y)))))
 
 (defn find-min-in-shells-diag-only [shells matrix min-in-upper-shell]
-  (let [find-min-in-shell
+  (let [parent-x
+        (first (first (first min-in-upper-shell)))
+        parent-y
+        (second (first (first min-in-upper-shell)))
+        find-min-in-shell
         (fn ! [shell min-key min-value matrix in-upper-shell]
           ;; initially: [*shell* nil Float/POSITIVE_INFINITY *matrix* nil]
           (if (> (.size shell) 0)
@@ -133,6 +137,7 @@
                   current-min-y (second min-key)
                   candidate-x (first (first shell))
                   candidate-y (second (first shell))
+                  parent-y (second (first (first in-upper-shell)))
                   parent-x (first (first (first in-upper-shell)))]
               ;; replace current min if it's better.
               ;; 'candidate' is the (potentially smaller) value we are
@@ -141,13 +146,21 @@
               ;; 'x' value.
               (if (and
                    (>= min-value candidate)
-                   (and
-                    (or
-                     (= candidate-x nil)
-                     (= nil current-min-x)
-                     (= nil min-in-upper-shell)
-                     (= nil candidate-x)
-                     (<= candidate-x current-min-x))))
+
+                   (or
+                    (= candidate-y nil)
+                    (= nil current-min-y)
+                    (= nil parent-y)
+                    (= candidate-y parent-y)
+                    (= candidate-y (- parent-y 1)))
+                   
+                   (or
+                    (= candidate-x nil)
+                    (= nil current-min-x)
+                    (= nil parent-x)
+                    (= candidate-x parent-x)
+                    (= candidate-x (- parent-x 1))))
+
 
                 ;; true: replace current minimum value with current candidate;
                 ;; continue testing other candidates with new current minimum.
@@ -156,7 +169,8 @@
                 ;; false: reject current candidate; continue with existing minimum.
                 (! (rest shell) min-key min-value matrix in-upper-shell)))
             
-            {min-key {
+            {min-key {:parent-x parent-x
+                      :parent-y parent-y
                       :candidate-x (first min-key)
                       :parent-info in-upper-shell
                       :score min-value}}))]
@@ -209,5 +223,5 @@
                 "</table>")}))
 
 (defn test []
-  (matrix "abcdxyz"
-          "xyzabcd"))
+  (matrix "three small dogs"
+          "a small dog slowly runs"))
