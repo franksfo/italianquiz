@@ -148,8 +148,6 @@
                    (>= min-value candidate)
 
                    (or
-                    (= candidate-y nil)
-                    (= nil current-min-y)
                     (= nil parent-y)
                     (= candidate-y parent-y)
                     (= candidate-y (- parent-y 1)))
@@ -171,7 +169,8 @@
             
             {min-key {:parent-x parent-x
                       :parent-y parent-y
-                      :candidate-x (first min-key)
+                      :min-x (first min-key)
+                      :min-y (second min-key)
                       :parent-info in-upper-shell
                       :score min-value}}))]
     (if (> (.size shells) 0)
@@ -181,6 +180,14 @@
          min-in-this-shell
          (find-min-in-shells-diag-only (rest shells) matrix min-in-this-shell))))))
 
+(defn lookup-x-key [path-diag key]
+  "sequential lookup through list."
+  (if (> (.size path-diag) 0)
+    (if (= (first (first (first path-diag)))
+           key)
+      (first path-diag)
+      (lookup-x-key (rest path-diag) key))))
+  
 (defn matrix [word1 word2]
   (let [explode
         (fn [string]
@@ -203,9 +210,10 @@
         (cons (list (list 32 24))
               (shells (- (.size wordlist1) 2)
                       (- (.size wordlist2) 2)))
-        path-diag-only (find-min-in-shells-diag-only shells matrix nil)]
+        path (find-min-in-shells-diag-only shells matrix nil)]
     {:italian word1
-     :shells shells
+     :shells (nth (rest shells) 1)
+     :path-diag (str "<div style='font-family:monospace'> " (lookup-x-key path 19) "</div>")
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
@@ -218,7 +226,7 @@
                 (tablize
                  matrix
                  wordlist1
-                 wordlist2 0 path-diag-only)
+                 wordlist2 0 path)
                 "</table>")}))
 
 (defn test []
