@@ -126,26 +126,29 @@
 (defn find-min-in-shells-diag-only [shells matrix min-in-upper-shell]
   (let [find-min-in-shell
         (fn ! [shell min-key min-value matrix in-upper-shell]
+          ;; initially: [*shell* nil Float/POSITIVE_INFINITY *matrix* nil]
           (if (> (.size shell) 0)
             (let [candidate (get matrix (first shell))
+                  current-min-x (first min-key)
+                  current-min-y (second min-key)
                   candidate-x (first min-key)
                   candidate-y (second min-key)
-                  parent-x (first (first (first in-upper-shell)))
-                  min-x-value (if min-in-upper-shell
-                                (first (first (first min-in-upper-shell))))]
+                  parent-x (first (first (first in-upper-shell)))]
               ;; replace current min if it's better.
               ;; 'candidate' is the (potentially smaller) value we are
               ;; testing against current minimum 'min-value'.
               ;; 'candidate''s 'x' value must be smaller than current min-value's
               ;; 'x' value.
               (if (and
-                   (> min-value candidate)
+                   (>= min-value candidate)
                    (and
                     (or
-                     (= nil min-in-upper-shell)
+                     (= candidate-x nil)
                      (= nil parent-x)
+                     (= nil min-in-upper-shell)
                      (= nil candidate-x)
-                     (<= candidate-x parent-x))))
+                     (or true
+                         (<= candidate-x parent-x)))))
 
                 ;; true: replace current minimum value with current candidate;
                 ;; continue testing other candidates with new current minimum.
