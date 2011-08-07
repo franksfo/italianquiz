@@ -73,30 +73,29 @@
     (str "<th>" (first charlist) "</th>"
          (matrix-header (rest charlist)))))
 
-(defn tablize-row [matrix i j horiz-char-list vert-char-list]
-  (if (get matrix (list i j))
-    (str
-     "<td>"
-     (get matrix (list i j))
-     "</td>"
-     (tablize-row matrix (+ i 1) j horiz-char-list vert-char-list))
-    ""))
-
-(defn tablize [matrix horiz-char-list vert-char-list j]
-  (if (get matrix (list 0 j))
-    (str
-     "<tr>"
-     "<th>"
-     j
-     "</th>"
-     "<th>"
-     ;; j'th element of vertical string.
-     (nth vert-char-list j)
-     "</th>"
-     (tablize-row matrix 0 j horiz-char-list vert-char-list)
-     "</tr>"
-     (tablize matrix horiz-char-list vert-char-list (+ 1 j)))
-    ""))
+(defn tablize [matrix horiz-char-list vert-char-list j path]
+  (let [tablize-row (fn ! [matrix i j horiz-char-list vert-char-list path]
+                      (if (get matrix (list i j))
+                        (str
+                         "<td>"
+                         (get matrix (list i j))
+                         "</td>"
+                         (! matrix (+ i 1) j horiz-char-list vert-char-list path))
+                        ""))]
+    (if (get matrix (list 0 j))
+      (str
+       "<tr>"
+       "<th>"
+       j
+       "</th>"
+       "<th>"
+       ;; j'th element of vertical string.
+       (nth vert-char-list j)
+       "</th>"
+       (tablize-row matrix 0 j horiz-char-list vert-char-list path)
+       "</tr>"
+       (tablize matrix horiz-char-list vert-char-list (+ 1 j) path))
+      "")))
 
 (defn interpret-op [op curr diag horiz-char-list vert-char-list x y]
   (if (= op nil)
@@ -305,10 +304,10 @@
          wordlist1
          wordlist2)
         shells (shells (- (.size wordlist1) 1)
-                       (- (.size wordlist2) 1))]
+                       (- (.size wordlist2) 1))
+        path (find-min-in-shells shells matrix)]
     {:italian word1
-     :outer-min (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix)
-     :path (find-min-in-shells shells matrix)
+     :path path
      :shells shells
      :test (str "<table class='matrix'>"
                 "<tr>"
@@ -322,7 +321,7 @@
                 (tablize
                  matrix
                  wordlist1
-                 wordlist2 0)
+                 wordlist2 0 path)
                 "</table>")}))
 
 (defn test []
