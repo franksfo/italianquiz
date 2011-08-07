@@ -80,7 +80,6 @@
                          "<td"
                          (if (get path (list i j)) " class='path'")
                          ">"
-                         (list i j)
                          (get matrix (list i j))
                          "</td>"
                          (! matrix (+ i 1) j horiz-char-list vert-char-list path))
@@ -179,19 +178,19 @@
         (- y 1)
         y)))))
 
-(defn find-min-in-shell [shell min-key min-value matrix]
-  (if (> (.size shell) 0)
-    (let [lookup (get matrix (first shell))]
-      (if (> min-value lookup)
-        (find-min-in-shell (rest shell) (first shell) lookup matrix)
-        (find-min-in-shell (rest shell) min-key min-value matrix)))
-    {min-key min-value}))
-
 (defn find-min-in-shells [shells matrix]
-  (if (> (.size shells) 0)
-    (merge
-     (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix)
-     (find-min-in-shells (rest shells) matrix))))
+  (let [find-min-in-shell
+        (fn ! [shell min-key min-value matrix]
+          (if (> (.size shell) 0)
+            (let [lookup (get matrix (first shell))]
+              (if (> min-value lookup)
+                (! (rest shell) (first shell) lookup matrix)
+                (! (rest shell) min-key min-value matrix)))
+            {min-key min-value}))]
+    (if (> (.size shells) 0)
+      (merge
+       (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix)
+       (find-min-in-shells (rest shells) matrix)))))
 
 (defn matrix [word1 word2]
   (let [explode
