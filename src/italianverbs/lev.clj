@@ -263,7 +263,7 @@
 (defn shells [x y]
   (if (>= x 0)
     (cons
-     (list (list x y) (shell x y))
+     (shell x y)
      (shells
       (if (>= x y)
         (- x 1)
@@ -271,6 +271,20 @@
       (if (>= y x)
         (- y 1)
         y)))))
+
+(defn find-min-in-shell [shell min-key min-value matrix]
+  (if (> (.size shell) 0)
+    (let [lookup (get matrix (first shell))]
+      (if (> min-value lookup)
+        (find-min-in-shell (rest shell) (first shell) lookup matrix)
+        (find-min-in-shell (rest shell) min-key min-value matrix)))
+    min-key))
+
+(defn find-min-in-shells [shells matrix]
+  (if (> (.size shells) 0)
+    (cons
+     (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix)
+     (find-min-in-shells (rest shells) matrix))))
 
 (defn matrix [word1 word2]
   (let [explode
@@ -289,10 +303,13 @@
             1))
          1 (- (.size wordlist2) 1)
          wordlist1
-         wordlist2)]
+         wordlist2)
+        shells (shells (- (.size wordlist1) 1)
+                       (- (.size wordlist2) 1))]
     {:italian word1
-     :shells (shells (.size wordlist1)
-                     (.size wordlist2))
+     :outer-min (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix)
+     :path (find-min-in-shells shells matrix)
+     :shells shells
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
