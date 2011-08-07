@@ -3,13 +3,14 @@
    [clojure.contrib.string :as string]
    [italianverbs.grammar :as gram]))
 
-
 (defn explode [string]
   "abc => (\"a\" \"b\" \"c\")"
   (rest (string/split (java.util.regex.Pattern/compile "") string)))
 
 (defn add-one-row [matrix x y horiz-char-list vert-char-list]
   "adds values for one whole row ([x:[0,end], y]) to the matrix."
+  ;; TODO: use recur:
+  ;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
   (let [get-min (fn [matrix x y char-x char-y]
                   (let [diag
                         (if (= char-x char-y) 0 1)]
@@ -247,6 +248,34 @@
      (score (rest path))))
     0))
 
+(defn shell-x-axis [x y]
+  (if (>= x 0)
+    (cons (list x y)
+          (shell-x-axis (- x 1) y))))
+           
+(defn shell-y-axis [x y]
+  (if (>= y 0)
+    (cons (list x y)
+          (shell-y-axis x (- y 1)))))
+
+(defn shell [x y]
+  "generate a shell with the vertex at (x y)."
+  (concat (shell-x-axis x y)
+          (if (> y 0)
+            (shell-y-axis x (- y 1)))))
+
+(defn shells [x y]
+  (if (>= x 0)
+    (cons
+     (list (list x y) (shell x y))
+     (shells
+      (if (>= x y)
+        (- x 1)
+        x)
+      (if (>= y x)
+        (- y 1)
+        y)))))
+
 (defn matrix [word1 word2]
   (let [wordlist1 (explode word1)
         wordlist2 (explode word2)
@@ -262,7 +291,8 @@
          wordlist1
          wordlist2)]
     {:italian word1
-     :path (find-min-path-up matrix wordlist1 wordlist2)
+     :shells (shells (.size wordlist1)
+                     (.size wordlist2))
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
@@ -281,4 +311,3 @@
 (defn test []
   (matrix "abcdxyz"
           "xyzabcd"))
-
