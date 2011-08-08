@@ -130,13 +130,26 @@
         (- y 1)
         y)))))
 
-(defn find-path [shells matrix min-in-upper-shell]
+(defn next-candidates [min-key]
+;  min-key)
+  (let [key (nth (first min-key) 0)
+        x (first key)
+        y (second key)]
+    (list 
+     (list (- x 1)
+           y)
+     (list x
+           (- y 1))
+     (list (- x 1)
+           (- y 1)))))
+
+(defn find-path [shells matrix min-in-upper-shell candidates]
   (let [parent-x
         (first (first (first min-in-upper-shell)))
         parent-y
         (second (first (first min-in-upper-shell)))
         find-min-in-shell
-        (fn ! [shell min-key min-value matrix in-upper-shell]
+        (fn ! [shell min-key min-value matrix in-upper-shell candidates all-candidates]
           ;; initially: [*shell* nil Float/POSITIVE_INFINITY *matrix* nil]
           (if (> (.size shell) 0)
             (let [candidate (get matrix (first shell))
@@ -166,22 +179,26 @@
 
                 ;; true: replace current minimum value with current candidate;
                 ;; continue testing other candidates with new current minimum.
-                (! (rest shell) (first shell) candidate matrix in-upper-shell)
+                (! (rest shell) (first shell) candidate matrix in-upper-shell candidates candidates)
                 
                 ;; false: reject current candidate; continue with existing minimum.
-                (! (rest shell) min-key min-value matrix in-upper-shell)))
+                (! (rest shell) min-key min-value matrix in-upper-shell candidates candidates)))
             
             {min-key {:parent-x parent-x
+                      :candidates all-candidates
                       :parent-y parent-y
                       :min-x (first min-key)
                       :min-y (second min-key)
                       :score min-value}}))]
     (if (> (.size shells) 0)
-      (let [min-in-this-shell
-            (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix min-in-upper-shell)]
+      (let [
+            min-in-this-shell
+            (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix min-in-upper-shell candidates candidates)]
         (merge
-         min-in-this-shell
-         (find-path (rest shells) matrix min-in-this-shell))))))
+         (merge
+          min-in-this-shell
+          {})
+         (find-path (rest shells) matrix min-in-this-shell (next-candidates min-in-this-shell)))))))
 
 (defn lookup-x-key [path-diag key]
   "sequential lookup through list."
@@ -219,15 +236,14 @@
         (cons (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1)))
               (shells (- (.size wordlist1) 2)
                       (- (.size wordlist2) 2)))
-        path (find-path shells matrix nil)]
+        path (find-path shells matrix nil
+                        (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
      :len-x (- (.size wordlist1) 1)
      :len-y (- (.size wordlist2) 1)
-     :parent (str "<div style='font-family:monospace'> " (lookup-x-key path 7) "</div>")
-     :wrong (str "<div style='font-family:monospace'> " (lookup-x-key path 6) "</div>")
-     :shell (print-out-shell (nth shells 6))
-     :parent2 (str "<div style='font-family:monospace'> " (lookup-x-key path 9) "</div>")
-     :correct2 (str "<div style='font-family:monospace'> " (lookup-x-key path 8) "</div>")
+     :top (str "<div style='font-family:monospace'> " (lookup-x-key path 9) "</div>")
+     :child-of-top (str "<div style='font-family:monospace'> " (lookup-x-key path 8) "</div>")
+     :child-of-child-of-top (str "<div style='font-family:monospace'> " (lookup-x-key path 7) "</div>")
 
      :test (str "<table class='matrix'>"
                 "<tr>"
