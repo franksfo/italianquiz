@@ -83,10 +83,15 @@
                                 (=
                                  (nth horiz-char-list i)
                                  (nth vert-char-list j))
-                                (or true (get path (list (+ i 1) (+ j 1)))
-                                    (= i (- (.size horiz-char-list) 1))
-                                    (= j (- (.size vert-char-list) 1))))
-                             
+
+                                (or
+                                 (and
+                                  (= i 0)
+                                  (= j 0))
+                                 (get path
+                                      (list (- i 1)
+                                            (- j 1)))))
+
                              " class='corrent'"
                              " class='path'"))
                          ">"
@@ -207,7 +212,7 @@
             (= (first (get (first segments) :at)) 0)
             (= (second (get (first segments) :at)) 0))
            (get path (list (- (first (get (first segments) :at)) 1)
-                             (- (second (get (first segments) :at)) 1)))))
+                           (- (second (get (first segments) :at)) 1)))))
        " class='correct'")
      ">"
      "&nbsp;" ;; this insures there is some text in the td even if the (nth ..) below is nil.
