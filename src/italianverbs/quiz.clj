@@ -101,10 +101,10 @@
     (if (= (first green)
            index)
        (str
-        (str "G" (first guess))
+        (str "<span class='c'>" (first guess) "</span>")
         (highlight-green (rest guess) (rest green) (+ index 1)))
        (str
-        (str "R" (first guess) "/" (first green))
+        (str "<span class='i'>" (first guess) "</span>")
         (highlight-green (rest guess) green (+ index 1))))))
 
 (defn show-history-rows [qs count hide-answer]
@@ -119,15 +119,11 @@
        [:tr 
         [:th count]
         [:td (get row :question)] 
-        [:td (if (get row :green)
+        [:td {:class "eval"} (if (get row :green)
                (highlight-green
                 (lev/explode (get row :guess))
                 (get row :green) 0)
                "")]
-        [:td (if (get row :green)
-               (.toString (get row :green))
-               "")]
-        [:td {:class correctness} (get row :guess) ]
         [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]
         [:td (html/fs row)]]
        (show-history-rows (rest qs) (- count 1) true)))))

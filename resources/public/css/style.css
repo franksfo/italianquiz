@@ -294,3 +294,19 @@ table.matrix td.path {
 table.matrix td.corrent {
     background: lightgreen;
 }
+
+span.c {
+    background: lightgreen;
+}
+
+span.i {
+    background: red;
+}
+
+td.eval {
+    white-space:nowrap;
+}
+
+td.eval span {
+    padding:2px;
+}
