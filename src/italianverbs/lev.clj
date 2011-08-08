@@ -79,14 +79,17 @@
                         (str
                          "<td"
                          (if (get path (list i j))
-                           (if (=
-                                (nth horiz-char-list i)
-                                (nth vert-char-list j))
+                           (if (and
+                                (=
+                                 (nth horiz-char-list i)
+                                 (nth vert-char-list j))
+                                (or (get path (list (+ i 1) (+ j 1)))
+                                    (= i (- (.size horiz-char-list) 1))
+                                    (= j (- (.size vert-char-list) 1))))
+                             
                              " class='corrent'"
                              " class='path'"))
-                           ">"
-                         (nth horiz-char-list i) "/"
-                         (nth vert-char-list j) ":"
+                         ">"
                          (get matrix (list i j))
                          "</td>"
                          (! matrix (+ i 1) j horiz-char-list vert-char-list path))
@@ -241,5 +244,5 @@
                 "</table>")}))
 
 (defn test []
-  (matrix "one three five six seven"
+  (matrix "foo one three five six seven"
           "one two three four five seven"))
