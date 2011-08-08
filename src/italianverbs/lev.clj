@@ -241,5 +241,5 @@
                 "</table>")}))
 
 (defn test []
-  (matrix "a test two"
-          "test three two"))
+  (matrix "one three five six seven"
+          "one two three four five seven"))
