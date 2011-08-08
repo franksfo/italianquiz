@@ -198,7 +198,9 @@
                       :min-x (first min-key)
                       :min-y (second min-key)
                       :score min-value}}))]
-    (if (> (.size shells) 0)
+    (if (and
+         candidates
+         (> (.size candidates) 0))
       (let [
             min-in-this-shell
             (find-min-in-shell candidates nil Float/POSITIVE_INFINITY matrix min-in-upper-shell candidates)
@@ -256,7 +258,7 @@
         path (find-path shells matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
-     :xth (get path (list 7 10))
+     :xth (get path (list 2 0))
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
