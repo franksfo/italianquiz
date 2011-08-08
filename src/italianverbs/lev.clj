@@ -144,56 +144,41 @@
            (- y 1)))))
 
 (defn find-path [shells matrix min-in-upper-shell candidates]
-  (let [parent-x
-        (first (first (first min-in-upper-shell)))
-        parent-y
-        (second (first (first min-in-upper-shell)))
-        find-min-in-shell
-        (fn ! [shell min-key min-value matrix in-upper-shell candidates all-candidates]
+  (let [find-min-in-shell
+        (fn ! [shell min-key min-value matrix in-upper-shell all-candidates]
           ;; initially: [*shell* nil Float/POSITIVE_INFINITY *matrix* nil]
           (if (> (.size shell) 0)
             (let [candidate (get matrix (first shell))
                   current-min-x (first min-key)
                   current-min-y (second min-key)
                   candidate-x (first (first shell))
-                  candidate-y (second (first shell))
-                  parent-y (second (first (first in-upper-shell)))
-                  parent-x (first (first (first in-upper-shell)))]
+                  candidate-y (second (first shell))]
               ;; replace current min if it's better.
               ;; 'candidate' is the (potentially smaller) value we are
               ;; testing against current minimum 'min-value'.
               ;; 'candidate''s 'x' value must be smaller than current min-value's
               ;; 'x' value.
-              (if (and
+              (if
+                  (or 
                    (> min-value candidate)
-                   (or
-                    (= nil parent-y)
-                    (= candidate-y parent-y)
-                    (= candidate-y (- parent-y 1)))
-                   (or
-                    (= candidate-x nil)
-                    (= nil parent-x)
-                    (= candidate-x parent-x)
-                    (= candidate-x (- parent-x 1))))
-
+                   false)
+                
 
                 ;; true: replace current minimum value with current candidate;
                 ;; continue testing other candidates with new current minimum.
-                (! (rest shell) (first shell) candidate matrix in-upper-shell candidates candidates)
+                (! (rest shell) (first shell) candidate matrix in-upper-shell candidates)
                 
                 ;; false: reject current candidate; continue with existing minimum.
-                (! (rest shell) min-key min-value matrix in-upper-shell candidates candidates)))
+                (! (rest shell) min-key min-value matrix in-upper-shell candidates)))
             
-            {min-key {:parent-x parent-x
-                      :candidates all-candidates
-                      :parent-y parent-y
+            {min-key {:candidates all-candidates
                       :min-x (first min-key)
                       :min-y (second min-key)
                       :score min-value}}))]
     (if (> (.size shells) 0)
       (let [
             min-in-this-shell
-            (find-min-in-shell candidates nil Float/POSITIVE_INFINITY matrix min-in-upper-shell candidates candidates)
+            (find-min-in-shell candidates nil Float/POSITIVE_INFINITY matrix min-in-upper-shell candidates)
             ]
         (merge
          (merge
@@ -240,11 +225,7 @@
         path (find-path shells matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
-     :len-x (- (.size wordlist1) 1)
-     :len-y (- (.size wordlist2) 1)
-     :top (str "<div style='font-family:monospace'> " (lookup-x-key path 9) "</div>")
-     :child-of-top (str "<div style='font-family:monospace'> " (lookup-x-key path 8) "</div>")
-     :child-of-child-of-top (str "<div style='font-family:monospace'> " (lookup-x-key path 7) "</div>")
+     :three (str "<div style='font-family:monospace'> " (lookup-x-key path 2) "</div>")
 
      :test (str "<table class='matrix'>"
                 "<tr>"
