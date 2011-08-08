@@ -292,6 +292,5 @@ table.matrix td.path {
 }
 
 table.matrix td.corrent {
-    background: #008800;
-
+    background: lightgreen;
 }
