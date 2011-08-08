@@ -130,7 +130,7 @@
         (- y 1)
         y)))))
 
-(defn find-min-in-shells-diag-only [shells matrix min-in-upper-shell]
+(defn find-path [shells matrix min-in-upper-shell]
   (let [parent-x
         (first (first (first min-in-upper-shell)))
         parent-y
@@ -153,13 +153,10 @@
               ;; 'x' value.
               (if (and
                    (> min-value candidate)
-
                    (or
-                    
                     (= nil parent-y)
                     (= candidate-y parent-y)
                     (= candidate-y (- parent-y 1)))
-                   
                    (or
                     (= candidate-x nil)
                     (= nil parent-x)
@@ -184,7 +181,7 @@
             (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix min-in-upper-shell)]
         (merge
          min-in-this-shell
-         (find-min-in-shells-diag-only (rest shells) matrix min-in-this-shell))))))
+         (find-path (rest shells) matrix min-in-this-shell))))))
 
 (defn lookup-x-key [path-diag key]
   "sequential lookup through list."
@@ -222,7 +219,7 @@
         (cons (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1)))
               (shells (- (.size wordlist1) 2)
                       (- (.size wordlist2) 2)))
-        path (find-min-in-shells-diag-only shells matrix nil)]
+        path (find-path shells matrix nil)]
     {:italian word1
      :len-x (- (.size wordlist1) 1)
      :len-y (- (.size wordlist2) 1)
