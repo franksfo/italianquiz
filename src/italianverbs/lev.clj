@@ -280,6 +280,11 @@
                  wordlist2 0 path)
                 "</table>")}))
 
+(defn get-green [word1 word2]
+  (let [matrix
+        (matrix word1 word2)]
+    (get matrix :green)))
+
 (defn test []
   (matrix "un'uomo va in Roma"
           "gli uomini vanno a Roma"))

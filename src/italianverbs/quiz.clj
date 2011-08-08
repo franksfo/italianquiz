@@ -5,6 +5,7 @@
      [somnium.congomongo])
     (:require [clojure.contrib.string :as stringc]
               [italianverbs.lexicon :as lexicon]
+              [italianverbs.lev :as lev]
               [italianverbs.session :as session]
               [italianverbs.grammar :as gram]
               [italianverbs.html :as html]
@@ -119,7 +120,9 @@
         question 
         (if (not (= (fetch :question :sort {:_id -1}) '()))
           (nth (fetch :question :sort {:_id -1}) 0))]
-    (update! :question question (merge question {:guess guess}))))
+    (update! :question question (merge question {:guess guess
+                                                 :green (lev/get-green (get question :answer)
+                                                                       guess)}))))
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
