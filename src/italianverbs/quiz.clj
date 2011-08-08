@@ -96,6 +96,17 @@
 (defn each-correct [question]
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
+(defn highlight-green [guess green index]
+  (if (> (.size guess) 0)
+    (if (= (first green)
+           index)
+       (str
+        (str "G" (first guess))
+        (highlight-green (rest guess) (rest green) (+ index 1)))
+       (str
+        (str "R" (first guess) "/" (first green))
+        (highlight-green (rest guess) green (+ index 1))))))
+
 (defn show-history-rows [qs count hide-answer]
   (if (first qs)
     (let
@@ -108,6 +119,14 @@
        [:tr 
         [:th count]
         [:td (get row :question)] 
+        [:td (if (get row :green)
+               (highlight-green
+                (lev/explode (get row :guess))
+                (get row :green) 0)
+               "")]
+        [:td (if (get row :green)
+               (.toString (get row :green))
+               "")]
         [:td {:class correctness} (get row :guess) ]
         [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]
         [:td (html/fs row)]]
