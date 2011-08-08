@@ -135,13 +135,32 @@
   (let [key (nth (first min-key) 0)
         x (first key)
         y (second key)]
-    (list 
-     (list (- x 1)
-           y)
-     (list x
-           (- y 1))
-     (list (- x 1)
-           (- y 1)))))
+    (if (and (> x 0)
+             (> y 0))
+      (list 
+
+       (list x
+             (- y 1))
+
+
+       (list (- x 1)
+             y)
+
+       (list (- x 1)
+             (- y 1))
+
+       
+       )
+      (if (> x 0)
+        (list 
+         (list (- x 1)
+               y))
+        (if (> y 0)
+          (list
+           (list x
+                 (- y 1))))))))
+
+        
 
 (defn find-path [shells matrix min-in-upper-shell candidates]
   (let [find-min-in-shell
@@ -162,7 +181,6 @@
                   (or 
                    (> min-value candidate)
                    false)
-                
 
                 ;; true: replace current minimum value with current candidate;
                 ;; continue testing other candidates with new current minimum.
@@ -172,6 +190,8 @@
                 (! (rest shell) min-key min-value matrix in-upper-shell candidates)))
             
             {min-key {:candidates all-candidates
+                      :in-upper-shell (nth (first in-upper-shell) 0)
+                      :in-upper-shell-score (get matrix (nth (first in-upper-shell) 0))
                       :min-x (first min-key)
                       :min-y (second min-key)
                       :score min-value}}))]
@@ -193,6 +213,14 @@
            key)
       (first path-diag)
       (lookup-x-key (rest path-diag) key))))
+
+(defn lookup-y-key [path key]
+  "sequential lookup through list."
+  (if (> (.size path) 0)
+    (if (= (second (first (first path)))
+           key)
+      (first path)
+      (lookup-x-key (rest path) key))))
 
 (defn print-out-shell [shell]
   (if (> (.size shell) 0)
@@ -225,8 +253,7 @@
         path (find-path shells matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
-     :three (str "<div style='font-family:monospace'> " (lookup-x-key path 2) "</div>")
-
+     :xth (get path (list 7 10))
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
