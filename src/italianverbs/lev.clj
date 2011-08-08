@@ -152,16 +152,16 @@
               ;; 'candidate''s 'x' value must be smaller than current min-value's
               ;; 'x' value.
               (if (and
-                   (>= min-value candidate)
+                   (> min-value candidate)
 
                    (or
+                    
                     (= nil parent-y)
                     (= candidate-y parent-y)
                     (= candidate-y (- parent-y 1)))
                    
                    (or
                     (= candidate-x nil)
-                    (= nil current-min-x)
                     (= nil parent-x)
                     (= candidate-x parent-x)
                     (= candidate-x (- parent-x 1))))
@@ -178,7 +178,6 @@
                       :parent-y parent-y
                       :min-x (first min-key)
                       :min-y (second min-key)
-                      :parent-info in-upper-shell
                       :score min-value}}))]
     (if (> (.size shells) 0)
       (let [min-in-this-shell
@@ -194,7 +193,13 @@
            key)
       (first path-diag)
       (lookup-x-key (rest path-diag) key))))
-  
+
+(defn print-out-shell [shell]
+  (if (> (.size shell) 0)
+    (str (first shell)
+         (print-out-shell (rest shell)))
+    ""))
+
 (defn matrix [word1 word2]
   (let [explode
         (fn [string]
@@ -219,10 +224,14 @@
                       (- (.size wordlist2) 2)))
         path (find-min-in-shells-diag-only shells matrix nil)]
     {:italian word1
-     :shells (nth (rest shells) 1)
      :len-x (- (.size wordlist1) 1)
      :len-y (- (.size wordlist2) 1)
-     :path-diag (str "<div style='font-family:monospace'> " (lookup-x-key path 19) "</div>")
+     :parent (str "<div style='font-family:monospace'> " (lookup-x-key path 7) "</div>")
+     :wrong (str "<div style='font-family:monospace'> " (lookup-x-key path 6) "</div>")
+     :shell (print-out-shell (nth shells 6))
+     :parent2 (str "<div style='font-family:monospace'> " (lookup-x-key path 9) "</div>")
+     :correct2 (str "<div style='font-family:monospace'> " (lookup-x-key path 8) "</div>")
+
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
@@ -239,5 +248,5 @@
                 "</table>")}))
 
 (defn test []
-  (matrix "a test one two"
-          "test one three two"))
+  (matrix "a test two"
+          "test three two"))
