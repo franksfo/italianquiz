@@ -244,5 +244,5 @@
                 "</table>")}))
 
 (defn test []
-  (matrix "foo one three five six seven"
-          "one two three four five seven"))
+  (matrix "an enormous dog plays piano badly"
+          "a small doggie plays golf somewhat badly"))
