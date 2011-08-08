@@ -202,6 +202,9 @@
   (if (> (.size segments) 0)
     (str
      "<tr>"
+     "<td>"
+     (first (get (first segments) :at))
+     "</td>"
      "<td"
      (if (and 
           (=
@@ -224,6 +227,22 @@
      (path-rows (rest segments) wordlist1 wordlist2 matrix path))
     ""))
 
+(defn green [path current wordlist1 wordlist2]
+  (if (get path current)
+    (if (and
+         (=
+          (nth wordlist1 (first current))
+          (nth wordlist2 (second current)))
+         (or 
+          (and 
+           (= (first current) 0)
+           (= (second current) 0))
+          (get path (list (- (first current) 1)
+                          (- (second current) 1)))))
+    (cons (second current) ;; (second current) is index into wordlist2.
+          (green path (get (get path current) :in-upper-shell) wordlist1 wordlist2))
+    (green path (get (get path current) :in-upper-shell) wordlist1 wordlist2))))
+  
 (defn matrix [word1 word2]
   (let [explode
         (fn [string]
@@ -245,6 +264,7 @@
         path (find-path matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
+     :green (green path (list 0 0) wordlist1 wordlist2)
      :path
      (str
       "<table>"
@@ -268,4 +288,4 @@
 
 (defn test []
   (matrix "un'uomo va in Roma"
-          "l'uomo andate in Roma"))
+          "gli uomini vanno a Roma"))
