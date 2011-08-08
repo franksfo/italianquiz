@@ -106,30 +106,6 @@
        (tablize matrix horiz-char-list vert-char-list (+ 1 j) path))
       "")))
 
-(defn shell-x-axis [x y]
-  (if (>= x 0)
-    (cons (list x y)
-          (shell-x-axis (- x 1) y))))
-           
-(defn shell-y-axis [x y]
-  (if (>= y 0)
-    (cons (list x y)
-          (shell-y-axis x (- y 1)))))
-
-(defn shells [x y]
-  (if (>= x 0)
-    (cons
-     (concat (shell-x-axis x y)
-             (if (> y 0)
-               (shell-y-axis x (- y 1))))
-     (shells
-      (if (>= x y)
-        (- x 1)
-        x)
-      (if (>= y x)
-        (- y 1)
-        y)))))
-
 (defn next-candidates [min-key]
 ;  min-key)
   (let [key (nth (first min-key) 0)
@@ -165,7 +141,7 @@
 
         
 
-(defn find-path [shells matrix min-in-upper-shell candidates]
+(defn find-path [matrix min-in-upper-shell candidates]
   (let [find-min-in-shell
         (fn ! [shell min-key min-value matrix in-upper-shell all-candidates]
           ;; initially: [*shell* nil Float/POSITIVE_INFINITY *matrix* nil]
@@ -209,7 +185,7 @@
          (merge
           min-in-this-shell
           {})
-         (find-path (rest shells) matrix min-in-this-shell (next-candidates min-in-this-shell)))))))
+         (find-path matrix min-in-this-shell (next-candidates min-in-this-shell)))))))
 
 (defn lookup-x-key [path-diag key]
   "sequential lookup through list."
@@ -226,12 +202,6 @@
            key)
       (first path)
       (lookup-x-key (rest path) key))))
-
-(defn print-out-shell [shell]
-  (if (> (.size shell) 0)
-    (str (first shell)
-         (print-out-shell (rest shell)))
-    ""))
 
 (defn matrix [word1 word2]
   (let [explode
@@ -251,11 +221,7 @@
          1 (- (.size wordlist2) 1)
          wordlist1
          wordlist2)
-        shells
-        (cons (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1)))
-              (shells (- (.size wordlist1) 2)
-                      (- (.size wordlist2) 2)))
-        path (find-path shells matrix nil
+        path (find-path matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
      :xth (get path (list 2 0))
