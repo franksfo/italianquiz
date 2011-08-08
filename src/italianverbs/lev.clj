@@ -193,7 +193,8 @@
     (if (> (.size shells) 0)
       (let [
             min-in-this-shell
-            (find-min-in-shell (first shells) nil Float/POSITIVE_INFINITY matrix min-in-upper-shell candidates candidates)]
+            (find-min-in-shell candidates nil Float/POSITIVE_INFINITY matrix min-in-upper-shell candidates candidates)
+            ]
         (merge
          (merge
           min-in-this-shell
