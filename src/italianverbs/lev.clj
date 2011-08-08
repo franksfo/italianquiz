@@ -265,12 +265,6 @@
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
      :green (green path (list 0 0) wordlist1 wordlist2)
-     :path
-     (str
-      "<table>"
-      "<tr><th>vert</th></tr>"
-      (path-rows (path-info path (list 0 0)) wordlist1 wordlist2 matrix path)
-      "</table>")
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
