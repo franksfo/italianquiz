@@ -16,7 +16,7 @@
           ;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
           (let [get-min (fn [matrix x y char-x char-y]
                           (let [diag
-                                (if (= char-x char-y) 0 1)]
+                                (if (= char-x char-y) 0 2)]
                             (min (if (> x 0)
                                    (+ 1 (get matrix (list (- x 1) y)))
                                    Float/POSITIVE_INFINITY)
@@ -139,15 +139,18 @@
              (> y 0))
       (list 
 
+       (list (- x 1)
+             (- y 1))
+
+
        (list x
              (- y 1))
+
 
 
        (list (- x 1)
              y)
 
-       (list (- x 1)
-             (- y 1))
 
        
        )
