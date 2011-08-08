@@ -83,7 +83,7 @@
                                 (=
                                  (nth horiz-char-list i)
                                  (nth vert-char-list j))
-                                (or (get path (list (+ i 1) (+ j 1)))
+                                (or true (get path (list (+ i 1) (+ j 1)))
                                     (= i (- (.size horiz-char-list) 1))
                                     (= j (- (.size vert-char-list) 1))))
                              
@@ -183,29 +183,32 @@
          min-in-this-shell
          (find-path matrix min-in-this-shell (next-candidates min-in-this-shell)))))))
 
-(defn lookup-x-key [path-diag key]
-  "sequential lookup through list."
-  (if (> (.size path-diag) 0)
-    (if (= (first (first (first path-diag)))
-           key)
-      (first path-diag)
-      (lookup-x-key (rest path-diag) key))))
+(defn path-info [path current]
+  (if (get path current)
+    (let [info (get path current)
+          next (get (get path current) :in-upper-shell)]
+      (cons
+       {:info info
+        :at current
+        :score (get info :score)}
+       (path-info path next)))))
 
-(defn lookup-y-key [path key]
-  "sequential lookup through list."
-  (if (> (.size path) 0)
-    (if (= (second (first (first path)))
-           key)
-      (first path)
-      (lookup-x-key (rest path) key))))
-
-(defn path-info [path]
-  (if (> (.size path) 0)
-    (cons
-     {
-      :score (get (second (first path)) :score)
-      :at (first (first path))}
-     (path-info (rest path)))))
+(defn path-rows [segments wordlist1 wordlist2]
+  (if (> (.size segments) 0)
+    (str
+     "<tr>"
+     "<td"
+     (if (=
+          (nth wordlist1 (first (get (first segments) :at)))
+          (nth wordlist2 (second (get (first segments) :at))))
+       " class='correct'")
+     ">"
+     "&nbsp;" ;; this insures there is some text in the td even if the (nth ..) below is nil.
+     (nth wordlist2 (second (get (first segments) :at)))
+     "</td>"
+     "</tr>"
+     (path-rows (rest segments) wordlist1 wordlist2))
+    ""))
 
 (defn matrix [word1 word2]
   (let [explode
@@ -228,7 +231,12 @@
         path (find-path matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
-     :path (path-info path)
+     :path
+     (str
+      "<table>"
+      "<tr><th>vert</th></tr>"
+      (path-rows (path-info path (list 0 0)) wordlist1 wordlist2)
+      "</table>")
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
@@ -245,5 +253,5 @@
                 "</table>")}))
 
 (defn test []
-  (matrix "an enormous dog plays piano badly"
-          "a small doggie plays golf somewhat badly"))
+  (matrix "un'uomo va in Roma"
+          "l'uomo andate in Roma"))
