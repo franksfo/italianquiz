@@ -242,13 +242,13 @@
     (cons (second current) ;; (second current) is index into wordlist2.
           (green path (get (get path current) :in-upper-shell) wordlist1 wordlist2))
     (green path (get (get path current) :in-upper-shell) wordlist1 wordlist2))))
+
+(defn explode [string]
+  "abc => (\"a\" \"b\" \"c\")"
+  (rest (string/split (java.util.regex.Pattern/compile "") string)))
   
 (defn matrix [word1 word2]
-  (let [explode
-        (fn [string]
-          "abc => (\"a\" \"b\" \"c\")"
-          (rest (string/split (java.util.regex.Pattern/compile "") string)))
-        wordlist1 (explode word1)
+  (let [wordlist1 (explode word1)
         wordlist2 (explode word2)
         matrix
         (create-matrix
