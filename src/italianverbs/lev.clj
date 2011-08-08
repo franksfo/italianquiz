@@ -128,11 +128,7 @@
 
 
        (list (- x 1)
-             y)
-
-
-       
-       )
+             y))
       (if (> x 0)
         (list 
          (list (- x 1)
@@ -146,7 +142,7 @@
 
 (defn find-path [matrix min-in-upper-shell candidates]
   (let [find-min-in-shell
-        (fn ! [shell min-key min-value matrix in-upper-shell all-candidates]
+        (fn ! [shell min-key min-value matrix in-upper-shell]
           ;; initially: [*shell* nil Float/POSITIVE_INFINITY *matrix* nil]
           (if (> (.size shell) 0)
             (let [candidate (get matrix (first shell))
@@ -166,13 +162,12 @@
 
                 ;; true: replace current minimum value with current candidate;
                 ;; continue testing other candidates with new current minimum.
-                (! (rest shell) (first shell) candidate matrix in-upper-shell candidates)
+                (! (rest shell) (first shell) candidate matrix in-upper-shell)
                 
                 ;; false: reject current candidate; continue with existing minimum.
-                (! (rest shell) min-key min-value matrix in-upper-shell candidates)))
+                (! (rest shell) min-key min-value matrix in-upper-shell)))
             
-            {min-key {:candidates all-candidates
-                      :in-upper-shell (nth (first in-upper-shell) 0)
+            {min-key {:in-upper-shell (nth (first in-upper-shell) 0)
                       :in-upper-shell-score (get matrix (nth (first in-upper-shell) 0))
                       :min-x (first min-key)
                       :min-y (second min-key)
@@ -182,12 +177,10 @@
          (> (.size candidates) 0))
       (let [
             min-in-this-shell
-            (find-min-in-shell candidates nil Float/POSITIVE_INFINITY matrix min-in-upper-shell candidates)
+            (find-min-in-shell candidates nil Float/POSITIVE_INFINITY matrix min-in-upper-shell)
             ]
         (merge
-         (merge
-          min-in-this-shell
-          {})
+         min-in-this-shell
          (find-path matrix min-in-this-shell (next-candidates min-in-this-shell)))))))
 
 (defn lookup-x-key [path-diag key]
@@ -205,6 +198,14 @@
            key)
       (first path)
       (lookup-x-key (rest path) key))))
+
+(defn path-info [path]
+  (if (> (.size path) 0)
+    (cons
+     {
+      :score (get (second (first path)) :score)
+      :at (first (first path))}
+     (path-info (rest path)))))
 
 (defn matrix [word1 word2]
   (let [explode
@@ -227,7 +228,7 @@
         path (find-path matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
     {:italian word1
-     :xth (get path (list 2 0))
+     :path (path-info path)
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
