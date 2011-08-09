@@ -75,6 +75,7 @@
                       :id (get-next-question-id request)
                       :keys (str (keys question))
                       :cat (get question :cat)
+                      :guess ""
                       :gender (get question :gender)
                       :italian (get question :italian)
                       :english (get question :english)
@@ -126,12 +127,13 @@
                        })
         [:th {:class "debug"} count]
         [:td (get row :question)] 
-        [:td {:class "eval"} (if (get row :green)
-               (highlight-green
-                (lev/explode (get row :guess))
-                (get row :green) 0)
-               "")]
-        [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]
+        [:td {:class "eval"}
+         (if (get row :green)
+           (str (highlight-green
+                     (lev/explode (get row :guess))
+                     (get row :green) 0))
+           (str "" (get row :guess)   ))]
+        [:td {:class "answer"} (if (= hide-answer false) (first (rest qs)) (get row :answer))]
         [:td {:class "debug"} (html/fs row)]]
        (show-history-rows (rest qs) (- count 1) true total)))))
 
@@ -345,36 +347,36 @@
                 (= get-next-question-id 0))
           (generate (nth possible (rand-int (count possible))))
           (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0))]
-
-      (if last-guess (store-guess last-guess))
-
-      (if (or last-guess
-              (= get-next-question-id 0))
-        (store-question next-question (session/request-to-session request)))
-
-      (html
-       (with-history-and-controls
-         (session/request-to-session request)
-         [:div {:class "quiz quiz-elem"}
-          [:h2 (str "Domanda" " "
-                    (if (or last-guess
-                            (= get-next-question-id 0))
-                      (+ 1 get-next-question-id)
-                      get-next-question-id))]
-          [:form {:name "quiz" :method "post" :action "/quiz/" :accept-charset "UTF-8"}
-           [:table
-            [:tr
-             [:td [:h1 
-                   (if (or last-guess
-                           (= get-next-question-id 0))
+    
+    (if last-guess (store-guess last-guess))
+    
+    (if (or last-guess
+            (= get-next-question-id 0))
+      (store-question next-question (session/request-to-session request)))
+    
+    (html
+     (with-history-and-controls
+       (session/request-to-session request)
+       [:div {:class "quiz quiz-elem"}
+        [:h2 (str "Domanda" " "
+                  (if (or last-guess
+                          (= get-next-question-id 0))
+                    (+ 1 get-next-question-id)
+                    get-next-question-id))]
+        [:form {:name "quiz" :method "post" :action "/quiz/" :accept-charset "UTF-8"}
+         [:table
+          [:tr
+           [:td [:h1 
+                 (if (or last-guess
+                         (= get-next-question-id 0))
                      (get next-question :english)
                      (str (get (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)
-                          :question)))]]]
+                               :question)))]]]
             [:tr
              [:td
               [:textarea {:cols "50" :rows "5" :name "guess" }]]]]
-           [:div
-            [:input.submit {:type "submit" :value "riposta"}]]]]))))
+         [:div
+          [:input.submit {:type "submit" :value "riposta"}]]]]))))
 
 (defn url-decode [string]
   (.replaceAll string "(%20)" " "))
