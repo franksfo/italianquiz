@@ -242,7 +242,7 @@
       [:table
        [:thead
         [:tr
-         [:th]
+         [:th {:class "debug"} ]
          [:th "Q"]
          [:th "Guess"]
          [:th "A"]
