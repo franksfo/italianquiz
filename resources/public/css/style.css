@@ -267,13 +267,13 @@ div.optiongroup h4 {
 }
 
 div.history {
-    width:45%;
+    width:75%;
     float:left;
 }
 
 div.stats {
-    float:left;
-    width:15em;
+    float:right;
+    width:10%;
 }
 
 table.matrix td {
@@ -309,4 +309,24 @@ td.eval {
 
 td.eval span {
     padding:1px;
+}
+
+tr.dist0 {
+    font-size: 300%;
+}
+
+tr.dist1 {
+    font-size: 250%;
+}
+
+tr.dist2 {
+    font-size: 200%;
+}
+
+tr.dist3 {
+    font-size: 200%;
+}
+
+tr.dist4 {
+    font-size: 200%;
 }

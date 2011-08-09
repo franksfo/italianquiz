@@ -107,16 +107,23 @@
         (str "<span class='i'>" (first guess) "</span>")
         (highlight-green (rest guess) green (+ index 1))))))
 
-(defn show-history-rows [qs count hide-answer]
+(defn show-history-rows [qs count hide-answer total]
   (if (first qs)
     (let
         [row (first qs)
+         distance-from-top (- total count)
          correctness (if (and (get row :guess) (not (= (get row :guess) "")))
                        (if (= (get row :answer) (get row :guess))
                          "correct"
                          "incorrect"))]
       (html
-       [:tr 
+       [:tr
+        (if (< distance-from-top 5)
+          {:class (str "dist" distance-from-top
+                       (if (= distance-from-top 0)
+                         " debug"))
+
+                       })
         [:th count]
         [:td (get row :question)] 
         [:td {:class "eval"} (if (get row :green)
@@ -126,7 +133,7 @@
                "")]
         [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]
         [:td {:class "debug"} (html/fs row)]]
-       (show-history-rows (rest qs) (- count 1) true)))))
+       (show-history-rows (rest qs) (- count 1) true total)))))
 
 (defn store-guess [guess]
   "update question # question id with guess: a rewrite of (evaluate-guess)."
@@ -243,7 +250,9 @@
        [:tbody
         (show-history-rows (fetch :question :where {:session session} :sort {:_id -1})
                            (count (fetch :question :where {:session session}))
-                           false)
+                           false
+                           (count (fetch :question :where {:session session}))
+                           )
         ]
        ]]
      
