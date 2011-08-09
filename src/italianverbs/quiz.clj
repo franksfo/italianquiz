@@ -124,7 +124,7 @@
                          " debug"))
 
                        })
-        [:th count]
+        [:th {:class "debug"} count]
         [:td (get row :question)] 
         [:td {:class "eval"} (if (get row :green)
                (highlight-green
