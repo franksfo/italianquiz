@@ -111,7 +111,7 @@ div.question {
 }
 
 .debug {
-    display:block;
+    display:none;
 }
 
 div.debug {
@@ -308,5 +308,5 @@ td.eval {
 }
 
 td.eval span {
-    padding:2px;
+    padding:1px;
 }

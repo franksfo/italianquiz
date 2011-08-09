@@ -119,7 +119,7 @@
      (cond
       (= title "Quiz")
       "document.quiz.guess.focus();"
-      (= title "test")
+      (= title "testx")
       "setTimeout('location.reload(true);',5000);"
       true "")}
     [:h1

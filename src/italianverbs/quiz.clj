@@ -125,7 +125,7 @@
                 (get row :green) 0)
                "")]
         [:td (if (= hide-answer false) (first (rest qs)) (get row :answer))]
-        [:td (html/fs row)]]
+        [:td {:class "debug"} (html/fs row)]]
        (show-history-rows (rest qs) (- count 1) true)))))
 
 (defn store-guess [guess]
@@ -237,7 +237,7 @@
          [:th "Q"]
          [:th "Guess"]
          [:th "A"]
-         [:th "Debug"]
+         [:th {:class "debug"} "Debug"]
          ]
         ]
        [:tbody
