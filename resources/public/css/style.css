@@ -271,6 +271,12 @@ div.history {
     float:left;
 }
 
+div.history table {
+    width:95%;
+    float:left;
+}
+
+
 div.stats {
     float:right;
     width:10%;
@@ -329,4 +335,8 @@ tr.dist3 {
 
 tr.dist4 {
     font-size: 200%;
+}
+
+td.answer {
+    text-align:right;
 }
