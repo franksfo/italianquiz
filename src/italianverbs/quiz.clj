@@ -143,8 +143,10 @@
         (if (not (= (fetch :question :sort {:_id -1}) '()))
           (nth (fetch :question :sort {:_id -1}) 0))]
     (update! :question question (merge question {:guess guess
-                                                 :green (lev/get-green (get question :answer)
-                                                                       guess)}))))
+                                                 :green (if (and guess
+                                                                 (> (.length guess) 0))
+                                                          (lev/get-green (get question :answer)
+                                                                         guess))}))))
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
