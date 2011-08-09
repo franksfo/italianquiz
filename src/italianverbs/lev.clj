@@ -285,6 +285,10 @@
         (matrix word1 word2)]
     (get matrix :green)))
 
+;(defn test []
+;  (matrix "un'uomo va in Roma"
+;          "gli uomini vanno a Roma"))
+
 (defn test []
-  (matrix "un'uomo va in Roma"
-          "gli uomini vanno a Roma"))
+  (matrix "voi accendete"
+          "voi accete"))
