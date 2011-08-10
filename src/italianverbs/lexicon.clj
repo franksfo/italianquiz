@@ -1254,8 +1254,6 @@
       :gender :fem
       :number :singular})
 
-(add "dov'è il bagno" "where is the bathroom"
-     {:cat :espressioni})
 
 
 (add "piano" "pianoforte"
@@ -1267,3 +1265,27 @@
      {:cat :noun
       :gender :fem
       :musical true})
+
+(add "dov'è il bagno" "where is the bathroom"
+     {:cat :espressioni})
+
+(add "mi scusi, potrei chierderle una cosa" "excuse me, can i ask you something"
+     {:cat :espressioni})
+
+
+(add "che caldo oggi" "it's so hot today"
+     {:cat :espressioni})
+
+
+(add "ci porti il conto" "could i have the bill, please?"
+     {:cat :espressioni})
+
+(add "dov'è l'ufficio postale più vicino" "where's the nearest post office?"
+     {:cat :espressioni})
+
+(add "vende dei giornali inglesi" "do you sell english newspapers"
+     {:cat :espressioni})
+
+
+(add "bisogna prendere un appuntamento" "do i have to make an appointment?"
+     {:cat :espressioni})
