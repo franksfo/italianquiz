@@ -310,7 +310,7 @@ span.i {
 }
 
 td.eval {
-    white-space:nowrap;
+    white-space:normal;
 }
 
 td.eval span {
