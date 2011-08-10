@@ -69,13 +69,13 @@
 (defn normalize-whitespace [string]
   (stringc/replace-re #"[ ]+$" "" (stringc/replace-re #"^[ ]+" "" (stringc/replace-re #"[ ]+" " " string))))
 
-(defn store-question [question request]
+(defn store-question [question request last-guess]
   (insert! :question {:question (normalize-whitespace (get question :english))
                       :answer (normalize-whitespace (get question :italian))
                       :id (get-next-question-id request)
                       :keys (str (keys question))
                       :cat (get question :cat)
-                      :guess ""
+                      :guess last-guess
                       :gender (get question :gender)
                       :italian (get question :italian)
                       :english (get question :english)
@@ -137,13 +137,10 @@
         [:td {:class "debug"} (html/fs row)]]
        (show-history-rows (rest qs) (- count 1) true total)))))
 
-(defn store-guess [guess]
+(defn store-guess [guess question]
   "update question # question id with guess: a rewrite of (evaluate-guess)."
   (let [guess
-        (normalize-whitespace guess)
-        question 
-        (if (not (= (fetch :question :sort {:_id -1}) '()))
-          (nth (fetch :question :sort {:_id -1}) 0))]
+        (normalize-whitespace guess)]
     (update! :question question (merge question {:guess guess
                                                  :green (if (and guess
                                                                  (> (.length guess) 0))
@@ -341,18 +338,17 @@
         get-next-question-id (get-next-question-id request)
         possible (possible-question-types (session/request-to-session request))
         next-question
-
         ;; TODO: next-question is two totally different things depending on the (if) - it's confusing.
         (if (or last-guess
                 (= get-next-question-id 0))
-          (generate (nth possible (rand-int (count possible))))
-          (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0))]
+          (generate (nth possible (rand-int (count possible)))))]
     
-    (if last-guess (store-guess last-guess))
+    (if last-guess (store-guess last-guess
+                                (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)))
     
     (if (or last-guess
             (= get-next-question-id 0))
-      (store-question next-question (session/request-to-session request)))
+      (store-question next-question (session/request-to-session request) last-guess))
     
     (html
      (with-history-and-controls
