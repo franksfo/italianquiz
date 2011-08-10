@@ -79,7 +79,6 @@
                       :gender (get question :gender)
                       :italian (get question :italian)
                       :english (get question :english)
-                      :children (get question :children)
                       :session request}))
 
 (defn clear-questions [session]
