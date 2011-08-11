@@ -97,6 +97,7 @@
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
 (defn highlight-green [guess green index]
+  "update letters in the guess that are correct."
   (if (> (.size guess) 0)
     (if (= (first green)
            index)
@@ -206,28 +207,70 @@
    true
    (gram/sentence)))
 
-(defn checked [session key]
-  "return 'checked' if checkbox with key _key_ is set to true according to user's preferences."
-  (let [record (fetch-one :filter :where {:session session})
-        filters (if record
-                  (get record :form-params))]
-    (if (get filters key)
-      {:checked "checked"}
-      {})))
+(defn controls [session]
+  (let [checked (fn [session key]
+                  "return 'checked' if checkbox with key _key_ is set to true according to user's preferences."
+                  (let [record (fetch-one :filter :where {:session session})
+                        filters (if record
+                                  (get record :form-params))]
+                    (if (get filters key)
+                      {:checked "checked"}
+                      {})))
+        checkbox-row (fn checkbox-row [name key session & [label display checkbox-disabled]]
+                       (let [label (if label label name)]
+                         (html
+                          [:tr {:style (if display (str "display:" display))}
+                           [:th
+                            [:input (merge {:onclick "submit()" :name name :type "checkbox"}
+                                           (if (= checkbox-disabled "disabled") {:disabled "disabled"} {})
+                                           (checked session key))]]
+                           [:td label ] ] )))
+        checkbox-col (fn checkbox-col [name key session & [label display checkbox-disabled]]
+                       (let [label (if label label name)]
+                         (html
+                          [:th
+                           [:input (merge {:onclick "submit()" :name name :type "checkbox"}
+                                          (if (= checkbox-disabled "disabled") {:disabled "disabled"} {})
+                                          (checked session key))]]
+                          [:td label ] )))]
+    [:div {:id "controls" :class "controls quiz-elem"}
+     [:h2 "Controls"]
+     [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
+      [:table
+       [:tr
+        (checkbox-col "ora" :ora session "Che ora è?")  ;; e.g. "5:30 => cinque ore e .."
+        (checkbox-col "giorni" :giorni session "giorni della settimana")
+        (checkbox-col "mobili" :mobili session)
+        (checkbox-col "preposizioni" :preposizioni session "preposizioni" "none")
+        (checkbox-col "partitivo" :partitivo session "articoli determinativi e partivi")
+        (checkbox-col "mese" :mese session "le mese")
+        (checkbox-col "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
+        (checkbox-col "possessives" :possessives session) ;; e.g. "il tuo cane"
+        (checkbox-col "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
+        ]
+       ]
+      [:div {:class "optiongroup"}
+       [:h4 "Verbi"]
+       [:table
+        [:tr
+         (checkbox-col "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
+         (checkbox-col "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
+         (checkbox-col "infinitivo" :infinitivo session "infinitivo")  ;; e.g. "fare"
+         ]
+        ]      
+       ]
+      ]
+     
+     ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
+     [:div {:id "controlbottom" :style "display:none"} 
+      " "
+      ]
+   ]))
 
-(defn checkbox-row [name key session & [label display checkbox-disabled]]
-  (let [label (if label label name)]
-    (html
-     [:tr {:style (if display (str "display:" display))}
-      [:th
-       [:input (merge {:onclick "submit()" :name name :type "checkbox"}
-                      (if (= checkbox-disabled "disabled") {:disabled "disabled"} {})
-                      (checked session key))]]
-      [:td label ] ] )))
-  
 (defn with-history-and-controls [session content]
   (let [questions (fetch :question :where {:session session})]
     [:div
+     (controls session)
      content
      [:div {:class "history quiz-elem"}
       [:h2 "History"]
@@ -277,35 +320,6 @@
        ]
       ]
      
-     [:div {:id "controls" :class "controls quiz-elem"}
-      [:h2 "Controls"]
-      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
-       [:table
-        (checkbox-row "ora" :ora session "Che ora è?")  ;; e.g. "5:30 => cinque ore e .."
-        (checkbox-row "giorni" :giorni session "giorni della settimana")
-        (checkbox-row "mobili" :mobili session)
-        (checkbox-row "preposizioni" :preposizioni session "preposizioni" "none")
-        (checkbox-row "partitivo" :partitivo session "articoli determinativi e partivi")
-        (checkbox-row "mese" :mese session "le mese")
-        (checkbox-row "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
-        (checkbox-row "possessives" :possessives session) ;; e.g. "il tuo cane"
-        (checkbox-row "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
-        ]
-       [:div {:class "optiongroup"}
-        [:h4 "Verbi"]
-        [:table
-         (checkbox-row "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
-         (checkbox-row "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
-         (checkbox-row "infinitivo" :infinitivo session "infinitivo")  ;; e.g. "fare"
-         ]
-        ]
-       ]
-      ]
-     
-     ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
-     [:div {:id "controlbottom" :style "display:none"} 
-      " "
-      ]
      ]
     ))
 
