@@ -112,29 +112,43 @@
   (if (first qs)
     (let
         [row (first qs)
-         distance-from-top (- total count)
+         distance-from-top
+         (str "dist"
+              (if (< (- total count) 5)
+                (if (= (- total count) 0)
+                  (str (- total count) " debug")
+                  (- total count))
+                "n"))
          correctness (if (and (get row :guess) (not (= (get row :guess) "")))
                        (if (= (get row :answer) (get row :guess))
                          "correct"
                          "incorrect"))]
       (html
        [:tr
-        (if (< distance-from-top 5)
-          {:class (str "dist" distance-from-top
-                       (if (= distance-from-top 0)
-                         " debug"))
+        {:class (str distance-from-top
+                     (if (= (mod count 2) 1)
+                       " odd"))}
+        [:td {:rowspan "2"} (get row :question)] ]
 
-                       })
-        [:th {:class "debug"} count]
-        [:td (get row :question)] 
+       [:tr
+        {:class (str distance-from-top
+                     (if (= (mod count 2) 1)
+                       " odd"))}
         [:td {:class "eval"}
          (if (get row :green)
            (str (highlight-green
                      (lev/explode (get row :guess))
                      (get row :green) 0))
            (str "" (get row :guess)   ))]
+        ]
+       [:tr
+        {:class (str distance-from-top
+                     (if (= (mod count 2) 1)
+                       " odd"))}
+        [:td "" ]
         [:td {:class "answer"} (if (= hide-answer false) (first (rest qs)) (get row :answer))]
-        [:td {:class "debug"} (html/fs row)]]
+        ]
+       
        (show-history-rows (rest qs) (- count 1) true total)))))
 
 (defn store-guess [guess question]
@@ -281,14 +295,8 @@
         [:input.submit {:type "submit" :value "clear"}]]]
       
       [:table
+       {:class "history"}
        [:thead
-        [:tr
-         [:th {:class "debug"} ]
-         [:th "Q"]
-         [:th "Guess"]
-         [:th "A"]
-         [:th {:class "debug"} "Debug"]
-         ]
         ]
        [:tbody
         (show-history-rows (fetch :question :where {:session session} :sort {:_id -1})
@@ -385,6 +393,8 @@
              [:td
               [:textarea {:cols "50" :rows "5" :name "guess" }]]]]
          [:div
+          {:style "float:right;padding:1em"
+           }
           [:input.submit {:type "submit" :value "riposta"}]]]]))))
 
 (defn url-decode [string]

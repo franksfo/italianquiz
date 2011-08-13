@@ -176,8 +176,9 @@ div.stats table {
     float:left;width:80%;
 }
 
-div#controls {
-
+div#controls input.submit {
+    float:right;
+    width:50%;
 }
 
 table.fs {
@@ -302,11 +303,11 @@ table.matrix td.corrent {
 }
 
 span.c {
-    background: lightgreen;
+    border-bottom: 8px solid lightgreen;
 }
 
 span.i {
-    background: red;
+    border-bottom: 8px solid red;
 }
 
 td.eval {
@@ -317,6 +318,17 @@ td.eval span {
     padding:1px;
 }
 
+table.history {
+    border-collapse: collapse;
+    width:100%;
+    border:3px solid #33ffff;
+    margin:0.5em;
+}
+
+tr.odd {
+    background: #33ffff;
+}
+
 tr.dist0 {
     font-size: 300%;
 }
@@ -325,18 +337,43 @@ tr.dist1 {
     font-size: 250%;
 }
 
+tr.dist1 td {
+    padding-bottom:1em;
+}
+
 tr.dist2 {
     font-size: 200%;
+}
+
+tr.dist2 td {
+    padding-bottom:1em;
 }
 
 tr.dist3 {
     font-size: 200%;
 }
 
-tr.dist4 {
-    font-size: 200%;
+tr.dist3 td {
+    padding-bottom:1em;
 }
 
+tr.dist4 {
+    font-size: 100%;
+}
+
+tr.dist4 td {
+    padding-bottom:1em;
+}
+
+tr.distn {
+    font-size: 90%;
+}
+
+tr.distn td {
+    padding-bottom:0.75em;
+}
+
+
 td.answer {
-    text-align:right;
+    text-align:left;
 }
