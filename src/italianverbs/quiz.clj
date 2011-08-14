@@ -116,6 +116,8 @@
     (if (> (.size green2) 0)
       (str
        "<span class='" style "'>" char "</span>"
+       (if (= style "subst")
+         (str "<span class='delete'>" (get (first green2) :truth) "</span>"))
        (highlight-green2
         (rest green2) (+ index 1))))))
 
@@ -160,13 +162,16 @@
 
 
         ]
-       [:tr
-        {:class (str distance-from-top
-                     (if (= (mod count 2) 1)
-                       " odd"))}
-        [:td "" ]
-        [:td {:class "answer"} (if (= hide-answer false) (first (rest qs)) (get row :answer))]
-        ]
+       (if (not (= (get row :answer)
+                   (get row :guess)))
+                 
+         [:tr
+          {:class (str distance-from-top
+                       (if (= (mod count 2) 1)
+                         " odd"))}
+          [:td "" ]
+          [:td {:class "answer"} (if (= hide-answer false) (first (rest qs)) (get row :answer))]
+          ])
        
        (show-history-rows (rest qs) (- count 1) true total)))))
 
