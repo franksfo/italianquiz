@@ -311,11 +311,20 @@ span.i {
 }
 
 span.insert {
-    border-bottom: 8px solid blue;
+    border-bottom: 8px solid red;
+    text-decoration:line-through;
 }
 
 span.delete {
-    border-bottom: 8px solid yellow;
+    color:#ddd;
+    border-bottom: 8px solid red;
+}
+span.subst {
+    border-bottom: 8px solid red;
+    text-decoration:line-through;
+}
+span.match {
+    border-bottom: 8px solid lightgreen;
 }
 
 

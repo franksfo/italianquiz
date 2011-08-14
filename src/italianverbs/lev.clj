@@ -87,7 +87,7 @@
 ;                     (str "[/" (nth test y) "]")
 ;                     (str (nth truth x)))))
 
-(defn path-in-order [path pair truth test]
+(defn path-in-order [path pair truth test prev-elem prev-score]
   (if pair
     (let [path-step (get path pair)
           next-pair (get path-step :next)
@@ -97,31 +97,46 @@
           y (second pair)
           next-x (first next-pair)
           next-y (second next-pair)
+          prev-x (first prev-elem)
+          prev-y (second prev-elem)
           incr (and
-                next-pair
-                (> (get (get path next-pair) :score)
+                prev-elem
+                (< prev-score
                    score))
+          subst (and (= incr true)
+                     (< prev-x x)
+                     (< prev-y y))
+
           delete (and (= incr true)
-                      (> next-x x))
+                      (< prev-x x))
           insert (and (= incr true)
-                      (> next-y y))
+                      (> prev-y y))
           ]
       (cons
        {:pair pair
         :score score
-        :action (if (and
-                     (= delete true)
-                     (= insert true))
+        :prev prev-elem
+;        :incr incr
+;        :subst subst
+;        :delete delete
+;        :insert insert
+        :action (if (= subst true)
                   "subst"
                   (if (= delete true)
                     "delete"
-                    (if (= insert true)
-                      "insert"
+                    ;; todo: should not need this insert,insert,match list.
+                    (if (or (= insert true)
+                            (= incr true)
+                            (and (= x 0)
+                                 (= y 0)
+                                 (> score 0)))
+                        "insert"
                       "match")))
         :truth (nth truth x)
         :test (nth test y)
         }
-       (path-in-order path next-pair truth test)))))
+       (path-in-order path next-pair truth test pair score)))))
+
 
 (defn tablize [matrix horiz-char-list vert-char-list j path]
   (let [tablize-row (fn ! [matrix i j horiz-char-list vert-char-list path]
@@ -280,9 +295,9 @@
     {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
      :green (green path (list 0 0) wordlist1 wordlist2)
      :path-table (str "<table>"
-                      (path-in-order-table (path-in-order path (list 0 0) wordlist1 wordlist2))
+                      (path-in-order-table (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0))
                       "</table>")
-     :path (path-in-order path (list 0 0) wordlist1 wordlist2)
+     :path (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0)
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
@@ -310,10 +325,11 @@
         (matrix word1 word2)]
     (get matrix :path)))
 
+;; TODO: make this a list of tests.
 ;(defn test []
 ;  (matrix "un'uomo va in Roma"
 ;          "gli uomini vanno a Roma"))
 
 (defn test []
-  (matrix "voi accendete"
-          "voi acete noi"))
+  (matrix "le finestre sono a sinistra delle poltrone"
+          "le finestre sono a sinistra alle poltroni"))

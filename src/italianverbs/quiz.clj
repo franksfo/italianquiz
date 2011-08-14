@@ -109,10 +109,13 @@
         (highlight-green (rest guess) green (+ index 1))))))
 
 (defn highlight-green2 [green2 index]
-  (let [char "x"]
+  (let [char (if (= (get (first green2) :action) "delete")
+               (get (first green2) :truth)
+               (get (first green2) :test))
+        style (get (first green2) :action)]
     (if (> (.size green2) 0)
       (str
-       "<span class='" "delete" "'>" char "</span>"
+       "<span class='" style "'>" char "</span>"
        (highlight-green2
         (rest green2) (+ index 1))))))
 
@@ -142,12 +145,12 @@
         {:class (str distance-from-top
                      (if (= (mod count 2) 1)
                        " odd"))}
-        [:td {:class "eval"}
-         (if (get row :green)
-           (str (highlight-green
-                     (lev/explode (get row :guess))
-                     (get row :green) 0))
-           (str "" (get row :guess)   ))]
+;        [:td {:class "eval"}
+;         (if (get row :green)
+;           (str (highlight-green
+;                     (lev/explode (get row :guess))
+;                     (get row :green) 0))
+;           (str "" (get row :guess)   ))]
 
         [:td {:class "eval"}
          (if (get row :green2)
@@ -277,6 +280,8 @@
         (checkbox-col "giorni" :giorni session "giorni della settimana")
         (checkbox-col "mobili" :mobili session)
         (checkbox-col "preposizioni" :preposizioni session "preposizioni" "none")
+        ]
+       [:tr
         (checkbox-col "partitivo" :partitivo session "articoli determinativi e partivi")
         (checkbox-col "mese" :mese session "le mese")
         (checkbox-col "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
