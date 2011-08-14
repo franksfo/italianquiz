@@ -1,7 +1,6 @@
 (ns italianverbs.lev
   (:require
-   [clojure.contrib.string :as string]
-   [italianverbs.grammar :as gram]))
+   [clojure.contrib.string :as string]))
 
 (defn create-matrix [matrix j y horiz-char-list vert-char-list]
   "adds one row at a time to matrix for all rows up to y.
@@ -146,7 +145,7 @@
 (defn path-info [path current]
   (if (get path current)
     (let [info (get path current)
-          next (get (get path current) :in-outer-set)]
+          next (get (get path current) :next)]
       (cons
        {:info info
         :at current
@@ -166,8 +165,8 @@
           (get path (list (- (first current) 1)
                           (- (second current) 1)))))
     (cons (second current) ;; (second current) is index into wordlist2.
-          (green path (get (get path current) :in-outer-set) wordlist1 wordlist2))
-    (green path (get (get path current) :in-outer-set) wordlist1 wordlist2))))
+          (green path (get (get path current) :next) wordlist1 wordlist2))
+    (green path (get (get path current) :next) wordlist1 wordlist2))))
 
 (defn explode [string]
   "abc => (\"a\" \"b\" \"c\")"
@@ -220,10 +219,7 @@
                         ;; false: reject current candidate; continue with existing minimum.
                         (! (rest candidates) min-key min-value matrix in-outer-set)))
                     
-                    {min-key {:in-outer-set (nth (first in-outer-set) 0)
-                              :in-outer-set-score (get matrix (nth (first in-outer-set) 0))
-                              :min-x (first min-key)
-                              :min-y (second min-key)
+                    {min-key {:next (nth (first in-outer-set) 0)
                               :score min-value}}))]
             (if (and
                  candidates
@@ -237,7 +233,9 @@
                  (! matrix min-in-this-set (next-candidates min-in-this-set)))))))
           
         path (find-path matrix nil
-                        (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
+                        (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))
+
+        ]
 
     {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
      :green (green path (list 0 0) wordlist1 wordlist2)
