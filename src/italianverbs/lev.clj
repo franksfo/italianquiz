@@ -143,55 +143,10 @@
            (list x
                  (- y 1))))))))
 
-        
-
-(defn find-path [matrix min-in-upper-shell candidates]
-  (let [find-min-in-shell
-        (fn ! [shell min-key min-value matrix in-upper-shell]
-          ;; initially: [*shell* nil Float/POSITIVE_INFINITY *matrix* nil]
-          (if (> (.size shell) 0)
-            (let [candidate (get matrix (first shell))
-                  current-min-x (first min-key)
-                  current-min-y (second min-key)
-                  candidate-x (first (first shell))
-                  candidate-y (second (first shell))]
-              ;; replace current min if it's better.
-              ;; 'candidate' is the (potentially smaller) value we are
-              ;; testing against current minimum 'min-value'.
-              ;; 'candidate''s 'x' value must be smaller than current min-value's
-              ;; 'x' value.
-              (if
-                  (or 
-                   (> min-value candidate)
-                   false)
-
-                ;; true: replace current minimum value with current candidate;
-                ;; continue testing other candidates with new current minimum.
-                (! (rest shell) (first shell) candidate matrix in-upper-shell)
-                
-                ;; false: reject current candidate; continue with existing minimum.
-                (! (rest shell) min-key min-value matrix in-upper-shell)))
-            
-            {min-key {:in-upper-shell (nth (first in-upper-shell) 0)
-                      :in-upper-shell-score (get matrix (nth (first in-upper-shell) 0))
-                      :min-x (first min-key)
-                      :min-y (second min-key)
-                      :score min-value}}))]
-    (if (and
-         candidates
-         (> (.size candidates) 0))
-      (let [
-            min-in-this-shell
-            (find-min-in-shell candidates nil Float/POSITIVE_INFINITY matrix min-in-upper-shell)
-            ]
-        (merge
-         min-in-this-shell
-         (find-path matrix min-in-this-shell (next-candidates min-in-this-shell)))))))
-
 (defn path-info [path current]
   (if (get path current)
     (let [info (get path current)
-          next (get (get path current) :in-upper-shell)]
+          next (get (get path current) :in-outer-set)]
       (cons
        {:info info
         :at current
@@ -222,7 +177,7 @@
      (nth wordlist2 (second (get (first segments) :at)))
      "</td>"
      "<td>" (get (first segments) :score)  "</td>"
-     "<td>" (get (get (first segments) :info) :in-upper-shell-score) "</td>"
+     "<td>" (get (get (first segments) :info) :in-outer-set-score) "</td>"
      "</tr>"
      (path-rows (rest segments) wordlist1 wordlist2 matrix path))
     ""))
@@ -240,16 +195,20 @@
           (get path (list (- (first current) 1)
                           (- (second current) 1)))))
     (cons (second current) ;; (second current) is index into wordlist2.
-          (green path (get (get path current) :in-upper-shell) wordlist1 wordlist2))
-    (green path (get (get path current) :in-upper-shell) wordlist1 wordlist2))))
+          (green path (get (get path current) :in-outer-set) wordlist1 wordlist2))
+    (green path (get (get path current) :in-outer-set) wordlist1 wordlist2))))
 
 (defn explode [string]
   "abc => (\"a\" \"b\" \"c\")"
   (rest (string/split (java.util.regex.Pattern/compile "") string)))
   
 (defn matrix [word1 word2]
-  (let [wordlist1 (explode word1)
+  (let [
+
+        wordlist1 (explode word1)
+
         wordlist2 (explode word2)
+
         matrix
         (create-matrix
          (create-initial-row
@@ -261,10 +220,57 @@
          1 (- (.size wordlist2) 1)
          wordlist1
          wordlist2)
+
+        find-path
+        (fn ! [matrix min-in-outer-set candidates]
+          (let [find-min-in-set
+                (fn ! [candidates min-key min-value matrix in-outer-set]
+                  ;; initially: [*candidates* nil Float/POSITIVE_INFINITY *matrix* nil]
+                  (if (> (.size candidates) 0)
+                    (let [candidate (get matrix (first candidates))
+                          current-min-x (first min-key)
+                          current-min-y (second min-key)
+                          candidate-x (first (first candidates))
+                          candidate-y (second (first candidates))]
+                      ;; replace current min if it's better.
+                      ;; 'candidate' is the (potentially smaller) value we are
+                      ;; testing against current minimum 'min-value'.
+                      ;; 'candidate''s 'x' value must be smaller than current min-value's
+                      ;; 'x' value.
+                      (if
+                          (or 
+                           (> min-value candidate)
+                           false)
+                        
+                        ;; true: replace current minimum value with current candidate;
+                        ;; continue testing other candidates with new current minimum.
+                        (! (rest candidates) (first candidates) candidate matrix in-outer-set)
+                        
+                        ;; false: reject current candidate; continue with existing minimum.
+                        (! (rest candidates) min-key min-value matrix in-outer-set)))
+                    
+                    {min-key {:in-outer-set (nth (first in-outer-set) 0)
+                              :in-outer-set-score (get matrix (nth (first in-outer-set) 0))
+                              :min-x (first min-key)
+                              :min-y (second min-key)
+                              :score min-value}}))]
+            (if (and
+                 candidates
+                 (> (.size candidates) 0))
+              (let [
+                    min-in-this-set
+                    (find-min-in-set candidates nil Float/POSITIVE_INFINITY matrix min-in-outer-set)
+                    ]
+                (merge
+                 min-in-this-set
+                 (! matrix min-in-this-set (next-candidates min-in-this-set)))))))
+          
         path (find-path matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))]
-    {:italian word1
+
+    {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
      :green (green path (list 0 0) wordlist1 wordlist2)
+     :path path
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
@@ -281,6 +287,7 @@
                 "</table>")}))
 
 (defn get-green [word1 word2]
+  "convenient function for external usage."
   (let [matrix
         (matrix word1 word2)]
     (get matrix :green)))
@@ -291,4 +298,4 @@
 
 (defn test []
   (matrix "voi accendete"
-          "voi accete"))
+          "voi acete"))
