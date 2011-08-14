@@ -310,6 +310,15 @@ span.i {
     border-bottom: 8px solid red;
 }
 
+span.insert {
+    border-bottom: 8px solid blue;
+}
+
+span.delete {
+    border-bottom: 8px solid yellow;
+}
+
+
 td.eval {
     white-space:normal;
 }

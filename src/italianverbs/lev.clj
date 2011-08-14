@@ -72,6 +72,21 @@
     (str "<th>" (first charlist) "</th>"
          (matrix-header (rest charlist)))))
 
+(defn path-in-order-table [path]
+  (if (> (.size path) 0)
+    (str "<tr>" "<td>" (first path) "</td>" "</tr>"
+         (path-in-order-table (rest path)))))
+
+;        :print (if (and
+;                    (= delete true)
+;                    (= insert true))
+;                 (str "[" (nth truth x) "/" (nth test y) "]")
+;                 (if (= delete true)
+;                   (str "[" (nth truth x) "/" "]")
+;                   (if (= insert true)
+;                     (str "[/" (nth test y) "]")
+;                     (str (nth truth x)))))
+
 (defn path-in-order [path pair truth test]
   (if pair
     (let [path-step (get path pair)
@@ -94,10 +109,17 @@
       (cons
        {:pair pair
         :score score
-        :delete delete
-        :insert insert
-        :truth (nth truth (first pair))
-        :test (nth test (second pair))
+        :action (if (and
+                     (= delete true)
+                     (= insert true))
+                  "subst"
+                  (if (= delete true)
+                    "delete"
+                    (if (= insert true)
+                      "insert"
+                      "match")))
+        :truth (nth truth x)
+        :test (nth test y)
         }
        (path-in-order path next-pair truth test)))))
 
@@ -257,6 +279,9 @@
 
     {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
      :green (green path (list 0 0) wordlist1 wordlist2)
+     :path-table (str "<table>"
+                      (path-in-order-table (path-in-order path (list 0 0) wordlist1 wordlist2))
+                      "</table>")
      :path (path-in-order path (list 0 0) wordlist1 wordlist2)
      :test (str "<table class='matrix'>"
                 "<tr>"
@@ -279,10 +304,16 @@
         (matrix word1 word2)]
     (get matrix :green)))
 
+(defn get-green2 [word1 word2]
+  "convenient function for external usage."
+  (let [matrix
+        (matrix word1 word2)]
+    (get matrix :path)))
+
 ;(defn test []
 ;  (matrix "un'uomo va in Roma"
 ;          "gli uomini vanno a Roma"))
 
 (defn test []
   (matrix "voi accendete"
-          "voi acete"))
+          "voi acete noi"))

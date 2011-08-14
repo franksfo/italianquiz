@@ -108,6 +108,14 @@
         (str "<span class='i'>" (first guess) "</span>")
         (highlight-green (rest guess) green (+ index 1))))))
 
+(defn highlight-green2 [green2 index]
+  (let [char "x"]
+    (if (> (.size green2) 0)
+      (str
+       "<span class='" "delete" "'>" char "</span>"
+       (highlight-green2
+        (rest green2) (+ index 1))))))
+
 (defn show-history-rows [qs count hide-answer total]
   (if (first qs)
     (let
@@ -140,6 +148,14 @@
                      (lev/explode (get row :guess))
                      (get row :green) 0))
            (str "" (get row :guess)   ))]
+
+        [:td {:class "eval"}
+         (if (get row :green2)
+           (str (highlight-green2
+                     (get row :green2) 0))
+           (str "" (get row :guess)   ))]
+
+
         ]
        [:tr
         {:class (str distance-from-top
@@ -156,6 +172,11 @@
   (let [guess
         (normalize-whitespace guess)]
     (update! :question question (merge question {:guess guess
+                                                 :green2
+                                                 (if (and guess
+                                                          (> (.length guess) 0))
+                                                   (lev/get-green2 (get question :answer)
+                                                                   guess))
                                                  :green (if (and guess
                                                                  (> (.length guess) 0))
                                                           (lev/get-green (get question :answer)
