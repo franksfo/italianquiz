@@ -153,35 +153,6 @@
         :score (get info :score)}
        (path-info path next)))))
 
-(defn path-rows [segments wordlist1 wordlist2 matrix path]
-  (if (> (.size segments) 0)
-    (str
-     "<tr>"
-     "<td>"
-     (first (get (first segments) :at))
-     "</td>"
-     "<td"
-     (if (and 
-          (=
-           (nth wordlist1 (first (get (first segments) :at)))
-           (nth wordlist2 (second (get (first segments) :at))))
-          (or 
-           (and 
-            (= (first (get (first segments) :at)) 0)
-            (= (second (get (first segments) :at)) 0))
-           (get path (list (- (first (get (first segments) :at)) 1)
-                           (- (second (get (first segments) :at)) 1)))))
-       " class='correct'")
-     ">"
-     "&nbsp;" ;; this insures there is some text in the td even if the (nth ..) below is nil.
-     (nth wordlist2 (second (get (first segments) :at)))
-     "</td>"
-     "<td>" (get (first segments) :score)  "</td>"
-     "<td>" (get (get (first segments) :info) :in-outer-set-score) "</td>"
-     "</tr>"
-     (path-rows (rest segments) wordlist1 wordlist2 matrix path))
-    ""))
-
 (defn green [path current wordlist1 wordlist2]
   (if (get path current)
     (if (and
