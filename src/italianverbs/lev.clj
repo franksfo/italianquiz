@@ -72,6 +72,35 @@
     (str "<th>" (first charlist) "</th>"
          (matrix-header (rest charlist)))))
 
+(defn path-in-order [path pair truth test]
+  (if pair
+    (let [path-step (get path pair)
+          next-pair (get path-step :next)
+          next-step (get path next-pair)
+          score (get path-step :score)
+          x (first pair)
+          y (second pair)
+          next-x (first next-pair)
+          next-y (second next-pair)
+          incr (and
+                next-pair
+                (> (get (get path next-pair) :score)
+                   score))
+          delete (and (= incr true)
+                      (> next-x x))
+          insert (and (= incr true)
+                      (> next-y y))
+          ]
+      (cons
+       {:pair pair
+        :score score
+        :delete delete
+        :insert insert
+        :truth (nth truth (first pair))
+        :test (nth test (second pair))
+        }
+       (path-in-order path next-pair truth test)))))
+
 (defn tablize [matrix horiz-char-list vert-char-list j path]
   (let [tablize-row (fn ! [matrix i j horiz-char-list vert-char-list path]
                       (if (get matrix (list i j))
@@ -114,7 +143,6 @@
       "")))
 
 (defn next-candidates [min-key]
-;  min-key)
   (let [key (nth (first min-key) 0)
         x (first key)
         y (second key)]
@@ -141,16 +169,6 @@
           (list
            (list x
                  (- y 1))))))))
-
-(defn path-info [path current]
-  (if (get path current)
-    (let [info (get path current)
-          next (get (get path current) :next)]
-      (cons
-       {:info info
-        :at current
-        :score (get info :score)}
-       (path-info path next)))))
 
 (defn green [path current wordlist1 wordlist2]
   (if (get path current)
@@ -239,7 +257,7 @@
 
     {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
      :green (green path (list 0 0) wordlist1 wordlist2)
-     :path path
+     :path (path-in-order path (list 0 0) wordlist1 wordlist2)
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
