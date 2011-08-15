@@ -1,7 +1,7 @@
 Usage:
 
-1. git clone git://github.com/ekoontz/minimal-compojure.git i2
-2. cd i2/
+1. git clone git://github.com/ekoontz/italianquiz.git italianquiz
+2. cd italianquiz/
 3. lein deps
 4. sudo mongod 
 5. lein ring server
