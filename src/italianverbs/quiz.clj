@@ -96,18 +96,6 @@
 (defn each-correct [question]
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
-(defn highlight-green [guess green index]
-  "update letters in the guess that are correct."
-  (if (> (.size guess) 0)
-    (if (= (first green)
-           index)
-       (str
-        (str "<span class='c'>" (first guess) "</span>")
-        (highlight-green (rest guess) (rest green) (+ index 1)))
-       (str
-        (str "<span class='i'>" (first guess) "</span>")
-        (highlight-green (rest guess) green (+ index 1))))))
-
 (defn highlight-green2 [green2 index]
   (let [char (if (= (get (first green2) :action) "delete")
                (get (first green2) :truth)
@@ -147,12 +135,6 @@
         {:class (str distance-from-top
                      (if (= (mod count 2) 1)
                        " odd"))}
-;        [:td {:class "eval"}
-;         (if (get row :green)
-;           (str (highlight-green
-;                     (lev/explode (get row :guess))
-;                     (get row :green) 0))
-;           (str "" (get row :guess)   ))]
 
         [:td {:class "eval"}
          (if (get row :green2)
@@ -184,11 +166,7 @@
                                                  (if (and guess
                                                           (> (.length guess) 0))
                                                    (lev/get-green2 (get question :answer)
-                                                                   guess))
-                                                 :green (if (and guess
-                                                                 (> (.length guess) 0))
-                                                          (lev/get-green (get question :answer)
-                                                                         guess))}))))
+                                                                   guess))}))))
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."

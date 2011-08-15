@@ -293,7 +293,6 @@
         ]
 
     {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
-     :green (green path (list 0 0) wordlist1 wordlist2)
      :path-table (str "<table>"
                       (path-in-order-table (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0))
                       "</table>")
@@ -312,12 +311,6 @@
                  wordlist1
                  wordlist2 0 path)
                 "</table>")}))
-
-(defn get-green [word1 word2]
-  "convenient function for external usage."
-  (let [matrix
-        (matrix word1 word2)]
-    (get matrix :green)))
 
 (defn get-green2 [word1 word2]
   "convenient function for external usage."
