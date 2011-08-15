@@ -247,14 +247,6 @@ table.matrix td.corrent {
     background: lightgreen;
 }
 
-span.c {
-    border-bottom: 8px solid lightgreen;
-}
-
-span.i {
-    border-bottom: 8px solid red;
-}
-
 span.insert {
     border-bottom: 8px solid red;
     text-decoration:line-through;
@@ -271,7 +263,6 @@ span.subst {
 span.match {
     border-bottom: 8px solid lightgreen;
 }
-
 
 td.eval {
     white-space:normal;
@@ -293,7 +284,7 @@ tr.odd {
 }
 
 tr.dist0 {
-    font-size: 300%;
+    font-size: 250%;
 }
 
 tr.dist1 {
@@ -336,7 +327,32 @@ tr.distn td {
     padding-bottom:0.75em;
 }
 
-
 td.answer {
     text-align:left;
+}
+
+tr.distn span.insert {
+    border-bottom: 2px solid red;
+}
+
+tr.distn span.delete {
+    border-bottom: 2px solid red;
+}
+tr.distn span.subst {
+    border-bottom: 2px solid red;
+}
+tr.distn span.match {
+    border-bottom: 2px solid lightgreen;
+}
+
+span.delete {
+    color:#ddd;
+    border-bottom: 8px solid red;
+}
+span.subst {
+    border-bottom: 8px solid red;
+    text-decoration:line-through;
+}
+span.match {
+    border-bottom: 8px solid lightgreen;
 }

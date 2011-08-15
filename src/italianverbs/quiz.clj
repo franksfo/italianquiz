@@ -296,8 +296,9 @@
   (let [questions (fetch :question :where {:session session})]
     [:div
      [:div {:style "float:left;width:45%;margin-right:1em"}
+      content
       (controls session)
-      content]
+      ]
 
      [:div {:class "history quiz-elem"}
       [:h2 "History"]
