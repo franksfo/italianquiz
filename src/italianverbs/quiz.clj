@@ -284,11 +284,13 @@
         (checkbox-col "ora" :ora session "Che ora è?")  ;; e.g. "5:30 => cinque ore e .."
         (checkbox-col "giorni" :giorni session "giorni della settimana")
         (checkbox-col "mobili" :mobili session)
-        (checkbox-col "preposizioni" :preposizioni session "preposizioni" "none")
         ]
        [:tr
+        (checkbox-col "preposizioni" :preposizioni session "preposizioni" "none")
         (checkbox-col "partitivo" :partitivo session "articoli determinativi e partivi")
         (checkbox-col "mese" :mese session "le mese")
+        ]
+       [:tr
         (checkbox-col "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
         (checkbox-col "possessives" :possessives session) ;; e.g. "il tuo cane"
         (checkbox-col "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
@@ -422,7 +424,7 @@
                                :question)))]]]
             [:tr
              [:td
-              [:textarea {:cols "50" :rows "5" :name "guess" }]]]]
+              [:textarea {:cols "50" :rows "2" :name "guess" }]]]]
          [:div
           {:style "float:right;padding:1em"
            }
