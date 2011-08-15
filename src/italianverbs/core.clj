@@ -33,9 +33,9 @@
        ;; response map
        {
         :session (get request :session)
-        :body (page "Welcome"
-                    (title request)
-                    request)
+        :side-effect (quiz/set-filters (session/request-to-session request) request)
+        :status 302
+        :headers {"Location" "/quiz/"}
        }
  )
 
