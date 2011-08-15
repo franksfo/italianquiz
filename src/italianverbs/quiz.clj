@@ -317,8 +317,10 @@
 (defn with-history-and-controls [session content]
   (let [questions (fetch :question :where {:session session})]
     [:div
-     (controls session)
-     content
+     [:div {:style "float:left;width:45%;margin-right:1em"}
+      (controls session)
+      content]
+
      [:div {:class "history quiz-elem"}
       [:h2 "History"]
       

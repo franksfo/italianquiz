@@ -1,9 +1,34 @@
+/* put the following here: width,float,height.. */
 body {
+}
+
+h1 {
+    width:auto;
+    float:left;
+}
+
+div.menubar {
+    width:auto;
+    float:right;
+}
+
+div.menubar div {
+    float:left;
+    width:auto;
+}
+
+div.major {
+    float:right;
+}
+
+div#content {
+    width:100%;
+    border:0px dashed blue;
+    float:left;
 }
 
 div.poweredbox {
     float:left;
-    position:absolute
     white-space:nowrap;
     left:0%;
     top:90%;
@@ -27,14 +52,15 @@ div.history {
 }
 
 div.quiz {
-    width:45%;
-    position:absolute;
-    left:0;
-    top:45%;
+    width:100%;
+    float:left;
+}
+
+div.quiz-elem {
+    float:left;
 }
 
 div.stats {
-    position:absolute;
     left:0;
     top:70%;
 }
@@ -44,7 +70,7 @@ div.stats table {
 }
 
 div#controls {
-    width:45%;
+    width:100%;
 }
 
 div#controls input.submit {
@@ -52,3 +78,11 @@ div#controls input.submit {
     width:50%;
 }
 
+div.welcome {
+    float:right;
+}
+
+div.history {
+    width:45%;
+    right:0;
+}

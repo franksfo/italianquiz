@@ -8,7 +8,6 @@ div.selected {
 
 div.major {
     border:4px solid #caecae;
-    float:right;
     margin-top:0.5em;
     margin-bottom:0.5em;
     padding-bottom:2px;
@@ -26,21 +25,9 @@ div.quiz-elem form {
 
 h1 {
     width:auto;
-    float:left;
     padding:0;
     margin:0.5em;
 }
-
-div#content {
-    width:100%;
-    border:0px dashed blue;
-    float:left;
-}
-
-div.welcome {
-    float:right;
-}
-
 
 div.http h4 {
     padding:0;
@@ -52,8 +39,6 @@ div.http a {
 }
 
 div.menubar {
-    width:auto;
-    float:right;
     margin:1em;
     padding:0.5em;
 }
@@ -61,8 +46,6 @@ div.menubar {
 div.menubar div {
     padding:3px;
     margin-right:1em;
-    width:auto;
-    float:left;
 }
 
 div.poweredbox table {
@@ -118,7 +101,6 @@ div.quiz-elem {
     margin-top:0;
     margin-bottom:1em;
     border: 4px solid #caecae;
-    float:left;
 }
 
 div.quiz-elem h2 {
@@ -242,12 +224,6 @@ div.optiongroup h4 {
     padding:0;
 }
 
-div.history {
-    width:45%;
-    position:absolute;
-    right:0;
-}
-
 div.history table {
     width:95%;
     float:left;
@@ -256,7 +232,6 @@ div.history table {
 table.matrix td {
     text-align:center;
 }
-
 
 table.matrix td.path {
     background: #008800;

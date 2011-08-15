@@ -13,9 +13,9 @@
 
 (defn welcome [username] 
   (html
-   [:div.sessiondata
+   [:div
     (if username 
-      [:p "Welcome, " username "." 
+      [:div "Welcome, " username "." 
        [:a {:href "/session/clear/"} "Logout"]
        ]
       [:a {:href "/session/set/"} "Login"]
