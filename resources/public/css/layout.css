@@ -1,0 +1,54 @@
+body {
+}
+
+div.poweredbox {
+    float:left;
+    position:absolute
+    white-space:nowrap;
+    left:0%;
+    top:90%;
+    width:30%;
+    text-align:center;
+    display:block;
+}
+
+div.guess {
+    width:70%;
+}
+
+div.question {
+    display:block;
+    width:55%;
+    float:left;
+}
+
+div.history {
+    float:right;
+}
+
+div.quiz {
+    width:45%;
+    position:absolute;
+    left:0;
+    top:45%;
+}
+
+div.stats {
+    position:absolute;
+    left:0;
+    top:70%;
+}
+
+div.stats table {
+    float:left;width:80%;
+}
+
+div#controls {
+    width:45%;
+}
+
+div#controls input.submit {
+    float:right;
+    width:50%;
+}
+

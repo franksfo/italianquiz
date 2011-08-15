@@ -113,7 +113,9 @@
    [:head 
     [:meta  {:charset="ISO-8859-1"}]
     [:title "Verbi italiani &#0187; " title]
-    (include-css "/css/style.css")]
+    (include-css "/css/style.css")
+    (include-css "/css/layout.css")
+    ]
    [:body
     {:onload
      (cond
