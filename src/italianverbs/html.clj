@@ -1,6 +1,7 @@
 (ns italianverbs.html
-  (:use [hiccup core page-helpers]
-	[somnium.congomongo])
+  (:use
+   [hiccup core page-helpers]
+   [somnium.congomongo])
   (:require
    [clojure.set :as set]
    [clojure.string :as string]
@@ -91,5 +92,4 @@
 					    "</td>")) children))
      "</tr>"
      "</table></div>")))
-
 

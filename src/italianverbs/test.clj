@@ -4,9 +4,10 @@
      [italianverbs.generate]
      [somnium.congomongo])
     (:require
-     [italianverbs.html :as html]
      [italianverbs.generate :as gen]
-     [italianverbs.lev :as lev]))
+     [italianverbs.lev :as lev]
+     [italianverbs.html :as html]
+     ))
 
 (defn run-test [test-fn]
   (list (html/tablize
