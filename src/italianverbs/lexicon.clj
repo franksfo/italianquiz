@@ -226,7 +226,6 @@
                            :benefactive true}
                     :adjunct adjunct-in-a-place}))
 
-
 (def leggere
   (add "leggere" "to read"
        {:cat :verb
@@ -236,6 +235,12 @@
         :iobj {:obj.case {:$ne :nom}
                :obj.human true}
         :adjunct adjunct-in-a-place}))
+
+(add "letto" "read (past)"
+     {:cat :verb
+      :root leggere
+      :infl :passato-prossimo
+      :aux "avere"})
 
 (add-infl-reg
  (add "mangiare" "to eat"
@@ -256,6 +261,22 @@
        :iobj {:obj.human true}
        :adjunct adjunct-in-a-place})
  "parlato" "spoke" "avere")
+
+(add-infl-reg
+ (add "lavorare" "to work"
+      {:cat :verb
+       :subj {:human true}
+       :infl :infinitive
+       :adjunct adjunct-in-a-place})
+ "lavorato" "worked" "avere")
+
+(add-infl-reg
+ (add "scivolare" "to slip"
+      {:cat :verb
+       :subj {:animate true}
+       :infl :infinitive
+       :adjunct adjunct-in-a-place})
+ "scivolarato" "slipped" "avere") ;; <- essere(?)
 
 (def ricevere
   (add "ricevere" "to receive"
@@ -340,12 +361,6 @@
 (add "detto" "said"
      {:cat :verb
       :root dire
-      :infl :passato-prossimo
-      :aux "avere"})
-
-(add "letto" "read (past)"
-     {:cat :verb
-      :root leggere
       :infl :passato-prossimo
       :aux "avere"})
 
