@@ -25,9 +25,6 @@
   (html
    [:div {:class "menubar major"}
 ;    "URL:" relative-url
-    [:div
-     (if (= relative-url "/") {:class "selected"})
-     [:a {:href "/"} "Main"  ] ] 
     (if session-row ;; only show quiz option if there's a session to save the quiz for.
       [:div
        (if (= relative-url "/quiz/") {:class "selected"})
@@ -37,7 +34,7 @@
      [:a {:href "/lexicon/"} "Lexicon"  ] ] 
     [:div
      (if (= relative-url "/test/") {:class "selected"})
-     [:a {:href "/test/"} "Test"  ] ] 
+     [:a {:href "/test/"} "Unit Tests"  ] ] 
     ]))
 
 (defn powered-by [name link]
