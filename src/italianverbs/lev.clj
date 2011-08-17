@@ -296,7 +296,6 @@
      :path-table (str "<table>"
                       (path-in-order-table (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0))
                       "</table>")
-     :path (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0)
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
