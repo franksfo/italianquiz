@@ -1,6 +1,7 @@
 (ns italianverbs.lev
   (:require
-   [clojure.contrib.string :as string]))
+   [clojure.contrib.string :as string]
+   [italianverbs.html :as html]))
 
 (defn create-matrix [matrix j y horiz-char-list vert-char-list]
   "adds one row at a time to matrix for all rows up to y.
@@ -72,20 +73,13 @@
     (str "<th>" (first charlist) "</th>"
          (matrix-header (rest charlist)))))
 
-(defn path-in-order-table [path]
+(defn tr-path [path counter ]
   (if (> (.size path) 0)
-    (str "<tr>" "<td>" (first path) "</td>" "</tr>"
-         (path-in-order-table (rest path)))))
-
-;        :print (if (and
-;                    (= delete true)
-;                    (= insert true))
-;                 (str "[" (nth truth x) "/" (nth test y) "]")
-;                 (if (= delete true)
-;                   (str "[" (nth truth x) "/" "]")
-;                   (if (= insert true)
-;                     (str "[/" (nth test y) "]")
-;                     (str (nth truth x)))))
+    (str "<td>" (html/fs (first path)) "</td>" 
+         (if (and (> counter 0)
+                  (= (mod counter 3) 0))
+           (str "</tr>" "<tr>"))
+         (tr-path (rest path) (+ 1 counter)))))
 
 (defn path-in-order [path pair truth test prev-elem prev-score]
   (if pair
@@ -116,10 +110,6 @@
        {:pair pair
         :score score
         :prev prev-elem
-;        :incr incr
-;        :subst subst
-;        :delete delete
-;        :insert insert
         :action (if (= subst true)
                   "subst"
                   (if (= delete true)
@@ -293,9 +283,11 @@
         ]
 
     {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
-     :path-table (str "<table>"
-                      (path-in-order-table (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0))
-                      "</table>")
+     :path (str "<table>"
+                "<tr>"
+                (tr-path (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0) 0)
+                "</tr>"
+                "</table>")
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
