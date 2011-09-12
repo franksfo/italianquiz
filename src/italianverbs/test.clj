@@ -12,13 +12,13 @@
 (defn run-test [test-fn]
   (list (html/tablize
          (apply
-          (eval test-fn) []))))
+          test-fn []))))
 
-(def tests '(lev/test
-             gen/random-present
-             gen/random-passato-prossimo
-             gen/mobili
-             ))
+(def tests (list lev/test
+                 gen/random-present
+                 gen/random-passato-prossimo
+                 gen/mobili
+                 html/test))
 
 (defn wrap-div [string]
   (str "<div class='test'>" string "</div>"))

@@ -93,3 +93,7 @@
      "</tr>"
      "</table></div>")))
 
+(defn test []
+  {:this "is"
+   :the "html"
+   :test "here."})

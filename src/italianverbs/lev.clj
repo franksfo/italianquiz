@@ -283,11 +283,7 @@
         ]
 
     {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
-     :path (str "<table>"
-                "<tr>"
-                (tr-path (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0) 0)
-                "</tr>"
-                "</table>")
+     :path (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0)
      :test (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
