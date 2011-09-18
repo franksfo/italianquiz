@@ -112,6 +112,7 @@
     [:title "Verbi italiani &#0187; " title]
     (include-css "/css/style.css")
     (include-css "/css/layout.css")
+    (include-css "/css/fs.css")
     ]
    [:body
     {:onload

@@ -1,0 +1,15 @@
+div.atom {
+    border: 1px dashed blue;
+    padding: 2px;
+}
+
+table.map {
+    margin:0.25em;
+    border-collapse: collapse;
+    border: 2px solid lightblue;
+}
+
+table.map th {
+    background: lightblue;
+    padding: 2px;
+}

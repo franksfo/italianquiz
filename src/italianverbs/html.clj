@@ -110,6 +110,7 @@
    {:this "is"
     :the "html"
     :test "here"}
+   {:testing {:some {:nesting "here.."}}}
    {:another "static"
     :test "is here"}))
 
