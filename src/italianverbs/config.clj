@@ -3,6 +3,9 @@
   (:require [italianverbs.lev :as lev]))
 
 ;; examples of constraints on generation.
+;; these variables are useful for debugging and testing and perhaps later, user preferences.
+
+(def futuro-semplice {:italian "tornerò"})
 
 (def random-passato-prossimo-verb-past
   {

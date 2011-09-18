@@ -313,7 +313,7 @@
    :isco true})
 
 (add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animate true}})
-(add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
+(def tornare (get (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}}) :root))
 (add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
 (add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
 
@@ -370,6 +370,10 @@
       :infl :passato-prossimo
       :aux "avere"})
 
+(add "tornerò" "i will return"
+     {:cat :verb
+      :infl :futuro-semplice
+      :root tornare})
 
 ;; can't have "salire" until there's some quiz-readable way to distinguish it from "partire".
 ;(add-with-pass-pross "salire" "salito" "to leave" "left" "essere" {:subj {:animate true}})

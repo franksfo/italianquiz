@@ -120,6 +120,15 @@
   (gram/choose-lexeme {:cat :espressioni}))
 
 
+(defn random-futuro-semplice []
+  (let [
+        ;; 1. choose a random verb in the passato-prossimo form.
+        verb-future (gram/choose-lexeme
+                     (merge
+                      {}
+                      config/futuro-semplice))]
+    verb-future))
+
 (defn random-passato-prossimo []
   (let [
         ;; 1. choose a random verb in the passato-prossimo form.
@@ -182,5 +191,9 @@
   return a map or a list or a function. a function will be applied against an
   empty argument list"
   (list
-   {:comment "random 'passato prossimo' expression."
-    :test (random-passato-prossimo)}))
+   {:comment "random 'passato prossimo' sentence."
+    :test (random-passato-prossimo)}
+   {:comment "random 'futuro semplice' sentence."
+    :test (random-futuro-semplice)}))
+
+
