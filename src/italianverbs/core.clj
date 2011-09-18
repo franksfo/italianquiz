@@ -2,17 +2,17 @@
   (:use [compojure.core]
         [somnium.congomongo]
         [base.html])
-  (:require [italianverbs.generate :as gen]
-            [compojure.route :as route]
-            [compojure.handler :as handler]
-            [base.lib :as baselib]
-            [italianverbs.lev :as lev]
-            [clojure.string :as string]
-            [italianverbs.lexicon :as lex]
-            [italianverbs.html :as ihtml]
-            [italianverbs.quiz :as quiz]
-            [italianverbs.test :as test]
-            [italianverbs.session :as session]))
+  (:require
+   [clojure.string :as string]
+   [compojure.route :as route]
+   [compojure.handler :as handler]
+   [italianverbs.test :as test]
+   [italianverbs.generate :as gen]
+   [italianverbs.lev :as lev]
+   [italianverbs.html :as ihtml]
+   [italianverbs.session :as session]
+   [italianverbs.quiz :as quiz]
+   ))
 
 (defn title [request]
   (let [username (session/get-username request)]
