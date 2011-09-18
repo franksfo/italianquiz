@@ -9,9 +9,6 @@
    [clojure.contrib.str-utils2 :as str-utils]))
 
 
-(defn foo []
-  "foo(got here)")
-
 (defn get-head [sign]
   (if (get sign :head)
     (get-head (get sign :head))
@@ -479,3 +476,12 @@
       
       )
      concat)))
+
+(defn conjugate-future-italian [infinitive subject]
+  "tornerò")
+
+(defn test []
+  (list
+   {:comment "conjugate futuro semplice"
+    :test (conjugate-future-italian italianverbs.lexicon/tornare {:person :1st :number :singular})}))
+

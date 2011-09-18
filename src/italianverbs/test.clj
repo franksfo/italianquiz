@@ -6,6 +6,7 @@
      [italianverbs.generate :as gen]
      [italianverbs.grammar :as gram]
      [italianverbs.lev :as lev]
+     [italianverbs.morphology :as morph]
      [italianverbs.html :as html]
      [italianverbs.quiz :as quiz]
      ))
@@ -39,13 +40,12 @@
                                           tests)
                                      "</div>")))
                             package-tests-map)))
-           
-
 
 ; list of all packages to test (for now you must suffixize with "/test")
 ; shown in order from more basic to more complex, but can be in any order.
 (def alltests
   {:html html/test
+   :morph morph/test
    :grammar gram/test
    :generate gen/test
    :lev lev/test
@@ -56,7 +56,7 @@
 (def tests
   (map run-test alltests))
 
-;; these tests run at each invocation of (test/run-tests):
+;; these tests run at each invocation of (test/run-tests) (which is run by core.clj when the "/test/" URL is GETted.)
 (defn run-tests []
   (mongo! :db "mydb")
   (let [test-results
@@ -118,7 +118,8 @@
                                                                                  (get test :comment)))]
                                                                    (str "<div class='test'>"
                                                                         (html/tablize test)
-                                                                        "<a name='" anchor "'> </a>")))
+                                                                        "<a name='" anchor "'> </a>"
+                                                                        "</div>")))
                                                                (get package :tests)))
                                      "</div>")))
                                 test-results))))))

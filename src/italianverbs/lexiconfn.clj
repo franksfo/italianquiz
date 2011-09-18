@@ -226,3 +226,66 @@
 (defn clear []
   (destroy! :lexicon {}))
 
+(defn regular-future [infinitive]
+  "_infinitive_ should be a lexical entry."
+  (add
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :1st
+     :number :singular})
+   (str "(i) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :1st
+           :number :singular}
+    :infl :futuro-semplice
+    :root infinitive})
+  
+  (add
+   "tornerai"
+   (str "(you) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :2nd
+           :number :singular}
+    :infl :futuro-semplice
+    :root infinitive})
+  
+  (add
+   "tornera"
+   (str "(he/she) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :3rd
+           :number :singular}
+    :infl :futuro-semplice
+    :root infinitive})
+  
+  (add
+   "torneremo"
+   (str "(we) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :1st
+           :number :plural}
+    :infl :futuro-semplice
+    :root infinitive})
+  
+  (add
+   "tornerete"
+   (str "(you all) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :2nd
+           :number :plural}
+    :infl :futuro-semplice
+    :root infinitive})
+  
+  (add
+   "torneranno"
+   (str "(they) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :3rd
+           :number :plural}
+    :infl :futuro-semplice
+    :root infinitive}))
+
+  
+
+
+  
