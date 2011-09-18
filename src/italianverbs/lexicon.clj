@@ -313,14 +313,25 @@
    :isco true})
 
 (add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animate true}})
-(def tornare (get (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}}) :root))
+
+(def tornare (get (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
+                  :root))
+(regular-future tornare)
+
 (add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
-(add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
+
+(def partire (get
+              (add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
+              :root))
+(regular-future partire)
 
 (add-with-pass-pross "uscire" "uscito" "to go out" "went out" "essere" {:subj {:animate true}}
   (list "esco" "esci" "esce" "usciamo" "uscite" "escono"))
 
-(add-with-pass-pross "prendere" "preso" "to take" "took" "avere" {:subj {:animate true}})
+(def prendere (get (add-with-pass-pross "prendere" "preso" "to take" "took" "avere" {:subj {:animate true}})
+                   :root))
+(regular-future prendere)
+
 (add-with-pass-pross "scendere" "sceso" "to go down" "went down" "essere" {:subj {:animate true}})
 (add-with-pass-pross "spendere" "speso" "to spend" "spent" "avere" {:subj {:human true}})
 (add-with-pass-pross "chiudere" "chiuso" "to close" "closed" "avere" {:subj {:human true}})
@@ -369,8 +380,6 @@
       :root scrivere
       :infl :passato-prossimo
       :aux "avere"})
-
-(regular-future tornare)
 
 ;; can't have "salire" until there's some quiz-readable way to distinguish it from "partire".
 ;(add-with-pass-pross "salire" "salito" "to leave" "left" "essere" {:subj {:animate true}})

@@ -239,9 +239,12 @@
            :number :singular}
     :infl :futuro-semplice
     :root infinitive})
-  
+
   (add
-   "tornerai"
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :2nd
+     :number :singular})
    (str "(you) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :2nd
@@ -250,34 +253,48 @@
     :root infinitive})
   
   (add
-   "tornera"
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :1st
+     :number :singular})
    (str "(he/she) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :3rd
            :number :singular}
     :infl :futuro-semplice
     :root infinitive})
-  
+
   (add
-   "torneremo"
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :1st
+     :number :plural})
    (str "(we) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :1st
            :number :plural}
     :infl :futuro-semplice
     :root infinitive})
-  
+
+
   (add
-   "tornerete"
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :1st
+     :number :singular})
    (str "(you all) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :2nd
            :number :plural}
     :infl :futuro-semplice
     :root infinitive})
+
   
   (add
-   "torneranno"
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :3rd
+     :number :plural})
    (str "(they) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :3rd
@@ -285,7 +302,6 @@
     :infl :futuro-semplice
     :root infinitive}))
 
-  
 
 
   

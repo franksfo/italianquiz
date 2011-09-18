@@ -514,8 +514,6 @@
 
 (defn test []
   (list
-   {:comment "conjugate futuro semplice"
-    :test (conjugate-future-italian italianverbs.lexicon/tornare {:person :1st :number :singular})}
-   {:comment "stem"
-    :test (stem-per-futuro (get italianverbs.lexicon/tornare :italian))}))
+   {:comment "stem verb for futuro semplice"
+    :test (stem-per-futuro "tornare")}))
 
