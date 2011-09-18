@@ -255,7 +255,7 @@
   (add
    (morph/conjugate-future-italian
     infinitive
-    {:person :1st
+    {:person :3rd
      :number :singular})
    (str "(he/she) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
