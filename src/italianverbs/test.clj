@@ -4,6 +4,7 @@
      [somnium.congomongo])
     (:require
      [italianverbs.generate :as gen]
+     [italianverbs.grammar :as gram]
      [italianverbs.lev :as lev]
      [italianverbs.html :as html]
      ))
@@ -29,7 +30,7 @@
 ;(def alltests (list html/test quiz/test gen/test lev/test))
                                         ;(def alltests (list html/test gen/test))
                                         ;(def alltests (list html/test))
-(def alltests (list html/test gen/test))
+(def alltests (list html/test gen/test gram/test))
 
 ;; these tests run at load-time:
 (def tests
@@ -37,6 +38,7 @@
 
 ;; these tests run at each invocation of (test/run-tests):
 (defn run-tests []
+  (mongo! :db "mydb")
   (clojure.string/join ""
                        (map run-test alltests)))
 

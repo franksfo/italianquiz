@@ -119,6 +119,9 @@
 (defn espressioni []
   (gram/choose-lexeme {:cat :espressioni}))
 
+(defn foo []
+  "bar")
+
 (defn random-passato-prossimo []
   (let [
         ;; choose a random verb in the passato-prossimo form.
@@ -176,11 +179,12 @@
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
 
 (defn generate-something []
-  {:generate "something"})
+  {:generate "generate-package-test"})
 
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
   return a map or a list or a function. a function will be applied against an
   empty argument list"
   (list
-   (generate-something)))
+   (generate-something)
+   (gram/choose-lexeme {})))

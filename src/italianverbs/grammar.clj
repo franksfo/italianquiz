@@ -377,5 +377,11 @@
 (defn english-time [hour minute ampm]
   (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") "")))
 
+(defn foo []
+  {:grammar "test is here"})
+
+(defn test []
+  (foo))
+
 
 
