@@ -119,23 +119,21 @@
 (defn espressioni []
   (gram/choose-lexeme {:cat :espressioni}))
 
-(defn foo []
-  "bar")
 
 (defn random-passato-prossimo []
   (let [
-        ;; choose a random verb in the passato-prossimo form.
+        ;; 1. choose a random verb in the passato-prossimo form.
         verb-past (gram/choose-lexeme
                    (merge
                     {:root.cat :verb :infl :passato-prossimo}
                     config/random-passato-prossimo-verb-past))
 
-        ;; find the infinitive for this form.
+        ;; 2. find the infinitive for this form.
         verb-inf (gram/choose-lexeme {:cat :verb
                                       :infl :infinitive
                                       :italian (get verb-past :aux)})
 
-        ;; get the appropriate auxiliary for that verb.
+        ;; 3. get the appropriate auxiliary for that verb.
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
         verb-aux (gram/choose-lexeme
                   (merge
@@ -147,6 +145,7 @@
                    (if (get verb-past :number)
                      {:number (get verb-past :number)}
                      {})))
+        ;; 4. generate subject according to verb's constraints.
         subj-constraints
         (merge
          {:cat :noun
@@ -162,7 +161,7 @@
                  (or (= (get verb-aux :person) "1st")
                      (= (get verb-aux :person) "2nd"))
                  (gram/choose-lexeme subj-constraints)
-                 true
+                 true ;; 3rd person: can be any NP (TODO: verify that gram/np will never generate a :person 1st or :person 2nd np).
                  (gram/np subj-constraints))]
     (merge
      {:verb-inf verb-inf
