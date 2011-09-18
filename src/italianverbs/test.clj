@@ -45,8 +45,8 @@
 ; list of all packages to test (for now you must suffixize with "/test")
 (def alltests
   {:html html/test
-   :generate gen/test
    :grammar gram/test
+   :generate gen/test
    :lev lev/test
    :quiz quiz/test
    })
