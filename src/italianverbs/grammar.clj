@@ -381,7 +381,8 @@
   {:grammar "test is here"})
 
 (defn test []
-  (foo))
+  {:english-time
+   (english-time 5 43 "pm")})
 
 
 
