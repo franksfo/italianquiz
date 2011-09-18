@@ -478,7 +478,37 @@
      concat)))
 
 (defn conjugate-future-italian [infinitive subject]
-  "tornerò")
+  (let [stem "torner"]
+    (cond
+     (= (get subject :person)
+        :1st)
+     (cond (= (get subject :number)
+              :singular)
+           (str stem "ò")
+           (= (get subject :number)
+              :plural)
+           (str stem "emo")
+           true "??")
+     (= (get subject :person)
+        :2nd)
+     (cond (= (get subject :number)
+              :singular)
+           (str stem "ai")
+           (= (get subject :number)
+              :plural)
+           (str stem "ete")
+           true "??")
+     (= (get subject :person)
+        :3rd)
+     (cond (= (get subject :number)
+              :singular)
+           (str stem "a")
+           (= (get subject :number)
+              :plural)
+           (str stem "anno")
+           true "??")
+     true
+     "??")))
 
 (defn test []
   (list
