@@ -59,32 +59,66 @@
 ;; these tests run at each invocation of (test/run-tests):
 (defn run-tests []
   (mongo! :db "mydb")
-  (clojure.string/join ""
-                       (flatten
-                        (list
-                         (str "<div class='legend'><h2>Contents</h2>"
-                              (clojure.string/join ""
-                                                   (map (fn [package]
-                                                          (str
-                                                           "<div class='package-toc'><h1><a href='#" (get package :name) "'>" (get package :name) "</a></h1>"
-
-                                                           "</div>"
-                                                           ))
-                                                        (map
-                                                         (fn [package]
-                                                           {:name (first package)})
-                                                         alltests)))
-                              "</div>")
-                         (map (fn [package]
-                                (str
-                                 "<div class='package'>"
-                                 "<h1><a name='" (get package :package) "'>" (get package :package) "</a></h1>"
-                                 (html/tablize (get package :tests))
-                                 "</div>"))
-                              (map
-                               (fn [package]
-                                 {:package (first package)
-                                  :tests
-                                  (apply (second package) [])})
-                               alltests))))))
-  
+  (let [test-results
+        (map
+         (fn [package]
+           {:package (first package)
+            :tests
+            (apply (second package) [])})
+         alltests)]
+    (clojure.string/join ""
+                         (flatten
+                          (list
+                           (str "<div class='legend'><h2>Contents</h2>"
+                                (clojure.string/join
+                                 ""
+                                 (map (fn [package]
+                                        (let [package-name (get package :name)]
+                                          (str
+                                           "<div class='package-toc'><h1><a href='#" package-name "'>" package-name "</a></h1>"
+                                           (clojure.string/join ""
+                                                                (map (fn [test-result]
+                                                                       (str
+                                                                        (if (= (get test-result :package) package-name)
+                                                                          (clojure.string/join ""
+                                                                                               (map (fn [test]
+                                                                                                      (let [anchor (html/create-anchor
+                                                                                                                    package-name
+                                                                                                                    (if (get test :anchor)
+                                                                                                                      (get test :anchor)
+                                                                                                                      (get test :comment)))]
+                                                                                                        (str "<h3><a href='#"
+                                                                                                             ;; use colon(:) as a separator between
+                                                                                                             ;; package and test.
+                                                                                                             anchor
+                                                                                                             "'>"
+                                                                                                             (get test :comment)
+                                                                                                             "</a></h3>")))
+                                                                                                    (get test-result :tests))))))
+                                                                     test-results))
+                                           
+                                           "</div>"
+                                           )))
+                                      (map
+                                       (fn [package]
+                                         {:name (first package)})
+                                       alltests)))
+                                "</div>")
+                           (map (fn [package]
+                                  (let [package-name (get package :package)]
+                                    (str
+                                     "<div class='package'>"
+                                     "<h1><a name='" (get package :package) "'>" (get package :package) "</a></h1>"
+                                     (clojure.string/join ""
+                                                          (map (fn [test]
+                                                                 (let [anchor (html/create-anchor
+                                                                               package-name
+                                                                               (if (get test :anchor)
+                                                                                 (get test :anchor)
+                                                                                 (get test :comment)))]
+                                                                   (str "<div class='test'>"
+                                                                        (html/tablize test)
+                                                                        "<a name='" anchor "'> </a>")))
+                                                               (get package :tests)))
+                                     "</div>")))
+                                test-results))))))

@@ -1,7 +1,8 @@
 (ns italianverbs.html
   (:use
    [hiccup core page-helpers]
-   [somnium.congomongo])
+   [somnium.congomongo]
+   [ring.util.codec :as codec])
   (:require
    [clojure.set :as set]
    [clojure.string :as string]
@@ -173,6 +174,9 @@
 (defn nested-fs []
   {:foo {:bar {:baz "biff"}}})
 
+(defn create-anchor [package test]
+  (codec/url-encode (str package ":" test)))
+
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
   return a map or a list or a function. a function will be applied against an
@@ -181,6 +185,9 @@
    {:comment "a simple feature structure"
     :test (simple-fs)}
    {:comment "showing nesting: where a value is itself a feature structure."
-    :test (nested-fs)}))
+    :test (nested-fs)}
+   {:comment "test anchor"
+    :test (create-anchor "foo" "bar 'baz'")}
+   ))
 
 

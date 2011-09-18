@@ -36,3 +36,30 @@ div.unknown {
 tr.comment td {
     font-style:italic;
 }
+
+div.legend h2 {
+    float:left;
+    width:auto;
+    padding:2px;
+}
+
+div.legend {
+    font-size:small;
+    width:95%;
+    float:left;
+    padding:2px;
+    border: 2px solid lightblue;
+}
+
+div.legend div.package-toc {
+    border:1px solid lightblue;
+    margin-bottom:2px;
+    float:right;
+    width:95%;
+}
+
+div.legend h3 {
+    width:80%;
+    text-align:right;
+    float:right;
+}
