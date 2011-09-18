@@ -316,8 +316,16 @@
     :test (let [test
                 (matrix "le finestre sono a sinistra delle poltrone"
                         "le finestre sono a sinistra alle poltroni")]
-            {:path (html/tablize (get test :path))
-             :table (get test :table)})}))
+            {:path (str
+                    "<div class='lev'>"
+                    (html/tablize (get test :path))
+                    "</div>")
+             :table (str
+                     "<div class='lev'>"
+                     (html/tablize (get test :table))
+                     "</div>")})}))
+
+
 
 
 

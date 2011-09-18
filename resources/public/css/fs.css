@@ -1,5 +1,8 @@
-div.atom {
-    padding: 2px;
+span.atom {
+}
+
+div.lev {
+    font-family: monospace;
 }
 
 div.map {
@@ -28,4 +31,8 @@ div.package {
 div.unknown {
     background: #FF7F50;
     padding:2px;
+}
+
+tr.comment td {
+    font-style:italic;
 }

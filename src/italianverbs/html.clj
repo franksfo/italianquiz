@@ -24,7 +24,13 @@
 (defn fs-tr [key-val-pair]
   (let [key (first key-val-pair)
         val (second key-val-pair)]
-    (str "<tr> <th> " key "</th>  <td>" val "</td></tr>")))
+    (str "<tr"
+         (cond
+          (= key :comment)
+          (str " class='" key ")")
+          true
+          (str " class='" key ")"))
+         "'>" "<th>" key "</th>  <td>" val "</td></tr>")))
 
 (defn google-translate [italian]
   (str
@@ -93,7 +99,18 @@
     "<div class='map'><table class='map'>"
     (clojure.string/join ""
                          (map (fn [tr]
-                                (str "<tr><th>"
+                                (str "<tr"
+                                     (cond
+                                      ;; use a custom CSS class for :comment.
+                                      (= (first tr) :comment)
+                                      " class='comment'"
+
+                                      ;; ..handle other keywords that need a custom CSS class..
+
+                                      ;; default: no custom CSS class.
+                                      true "")
+                                     ">"
+                                     "<th>"
                                      (str (first tr))
                                      "</th>"
                                      "<td>"
@@ -101,10 +118,18 @@
                                      "</td></tr>"))
                               arg))
     "</table></div>")
+   (= (type arg) clojure.lang.PersistentHashSet)
+   (str
+    "{"
+    (clojure.string/join ","
+                         (map (fn [member]
+                                (tablize member))
+                              arg))
+    "}")
    (= (type arg) clojure.lang.PersistentHashMap)
    (fs arg)
    (and (= (type arg) clojure.lang.PersistentArrayMap)
-        (= nil (get arg :children)))
+        (not (= nil (get arg :children))))
    (let
        [children (get arg :children)]
      (str
@@ -138,7 +163,7 @@
           org.bson.types.ObjectId)
        (= (type arg)
           java.lang.Boolean))
-   (str "<div class='atom'>" arg "</div>")
+   (str "<span class='atom'>" arg "</div>")
    true
    (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>")))
 
