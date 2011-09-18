@@ -56,6 +56,16 @@
 (def tests
   (map run-test alltests))
 
+
+(def improved-alltests
+  (list
+   {:package "HTML"
+    :tests
+    (apply (get alltests :html) [])}))
+                                        ;  (clojure.string/join ""
+;                       (map run-test alltests)))
+
+
 ;; these tests run at each invocation of (test/run-tests):
 (defn run-tests []
   (mongo! :db "mydb")
@@ -66,10 +76,11 @@
                                "<h1>" (get package :package) "</h1>"
                                (html/tablize (get package :tests))
                                "</div>"))
-                            (list
-                             {:package "HTML"
-                              :tests
-                              (apply (get alltests :html) [])}))))
+                            improved-alltests)))
+;                            (list
+;                             {:package "HTML"
+;                              :tests
+;                              (apply (get alltests :html) [])}))))
                                         ;  (clojure.string/join ""
 ;                       (map run-test alltests)))
 
