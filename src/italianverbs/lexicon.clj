@@ -372,8 +372,18 @@
 
 (add "tornerò" "i will return"
      {:cat :verb
+      :subj {:person :1st
+             :number :singular}
       :infl :futuro-semplice
       :root tornare})
+
+(add "tornerai" "you will return"
+     {:cat :verb
+      :subj {:person :2nd
+             :number :singular}
+      :infl :futuro-semplice
+      :root tornare})
+
 
 ;; can't have "salire" until there's some quiz-readable way to distinguish it from "partire".
 ;(add-with-pass-pross "salire" "salito" "to leave" "left" "essere" {:subj {:animate true}})

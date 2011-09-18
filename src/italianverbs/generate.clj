@@ -120,12 +120,13 @@
   (gram/choose-lexeme {:cat :espressioni}))
 
 
-(defn random-futuro-semplice []
+(defn random-futuro-semplice [& constraints]
   (let [
         ;; 1. choose a random verb in the passato-prossimo form.
         verb-future (gram/choose-lexeme
                      (merge
-                      {}
+                      (if constraints (first constraints) {})
+                      {:infl :futuro-semplice}
                       config/futuro-semplice))]
     verb-future))
 

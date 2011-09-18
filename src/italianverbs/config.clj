@@ -4,8 +4,11 @@
 
 ;; examples of constraints on generation.
 ;; these variables are useful for debugging and testing and perhaps later, user preferences.
+;; Unfortunately, nested constraints (e.g. :root {:italian "tornare"}) do not work yet.
 
-(def futuro-semplice {:italian "tornerò"})
+(def futuro-semplice {
+;                      :italian "tornerai"
+                      })
 
 (def random-passato-prossimo-verb-past
   {
