@@ -15,13 +15,13 @@
     -list (evaluate each recursively)
     -function (apply with no args)
     -(TODO): map of function => arg"
-  (html/tablize
-   (cond
-    (= (type test-fn) clojure.lang.LazySeq)
-    "lazyseq"
-    (= (type test-fn) clojure.lang.PersistentList)
-    "persistent-list"
-    true
+  (cond
+   (= (type test-fn) clojure.lang.LazySeq)
+   "lazyseq"
+   (= (type test-fn) clojure.lang.PersistentList)
+   "persistent-list"
+   true
+   (html/tablize
     (apply test-fn []))))
 
 ; list of all packages to test (for now you must suffixize with "/test")
