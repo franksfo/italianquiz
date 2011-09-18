@@ -9,39 +9,13 @@
      [italianverbs.html :as html]
      ))
 
-(defn tablize [arg]
-  (cond
-   (= (type arg) clojure.lang.LazySeq)
-   (str
-    (clojure.string/join ""
-                         (map tablize arg)))
-   (= (type arg) clojure.lang.PersistentList)
-   (str
-    (clojure.string/join ""
-                         (map tablize arg)))
-   (= (type arg) clojure.lang.PersistentArrayMap)
-   (str
-    "<table class='map'>"
-    (clojure.string/join ""
-                         (map (fn [tr]
-                                (str "<tr><th>"
-                                     (str (first tr))
-                                     "</th>"
-                                     "<td>"
-                                     (tablize (second tr))
-                                     "</td></tr>"))
-                              arg))
-    "</table>")
-   true
-   (str "<div class='atom'>" arg "</div>")))
-
 (defn run-test [test-fn]
   "run a single test and wrap an HTML string in a list.
    acts according to the type of test-fn which can be:
     -list (evaluate each recursively)
     -function (apply with no args)
     -(TODO): map of function => arg"
-  (tablize
+  (html/tablize
    (cond
     (= (type test-fn) clojure.lang.LazySeq)
     "lazyseq"

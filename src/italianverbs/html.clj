@@ -73,21 +73,38 @@
        "</table>"))
 
 ;; TODO: check _parent_ type: (string,symbol,list,map) should be enough to start.
-(defn tablize [parent]
+(defn tablize [arg]
   (cond
-   (or (= (type parent) java.lang.String)
-       (= (type parent) clojure.lang.Symbol)
-       (= (type parent) java.lang.Integer))
-   (str "<div class='atom'>" parent "</div>")
-   (= (type parent) clojure.lang.PersistentArrayMap)
-   (str "<div class='map'>" "(map goes here)" "</div>")
-   true
+   (= (type arg) clojure.lang.LazySeq)
+   (str
+    (clojure.string/join ""
+                         (map tablize arg)))
+   (= (type arg) clojure.lang.PersistentList)
+   (str
+    (clojure.string/join ""
+                         (map tablize arg)))
+   (and (= (type arg) clojure.lang.PersistentArrayMap)
+        (= nil (get arg :children)))
+   (str
+    "<table class='map'>"
+    (clojure.string/join ""
+                         (map (fn [tr]
+                                (str "<tr><th>"
+                                     (str (first tr))
+                                     "</th>"
+                                     "<td>"
+                                     (tablize (second tr))
+                                     "</td></tr>"))
+                              arg))
+    "</table>")
+   (and (= (type arg) clojure.lang.PersistentArrayMap)
+        (= nil (get arg :children)))
    (let
-       [children (get parent :children)]
+       [children (get arg :children)]
      (str
       "<div class='syntax'><table class='syntax'>"
       "<tr><td style='padding-left:5%;width:90%' colspan='" (count children) "'>"
-      (fs parent)
+      (fs arg)
       "</td></tr>"
       "<tr>"
       ;; now show syntactic children for this parent.
@@ -100,7 +117,16 @@
                                                    (fs child))
                                              "</td>")) children))
       "</tr>"
-      "</table></div>"))))
+      "</table></div>"))
+   (or (= (type arg)
+          java.lang.String)
+       (= (type arg)
+          java.lang.Integer)
+       (= (type arg)
+          java.lang.Double))
+   (str "<div class='atom'>" arg "</div>")
+   true
+   (str "<div class='unknown'>" arg "</div>")))
 
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
