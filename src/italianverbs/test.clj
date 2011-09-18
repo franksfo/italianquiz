@@ -46,11 +46,9 @@
                                         ;(def alltests (list html/test gen/test))
                                         ;(def alltests (list html/test))
 (def alltests
-  {:html html/test})
-
-;  {:html html/test})
-;   :generate gen/test
-;   :grammar gram/test})
+  {:html html/test
+   :generate gen/test
+   :grammar gram/test})
 
 ;; these tests run at load-time:
 (def tests
@@ -58,13 +56,12 @@
 
 
 (def improved-alltests
-  (list
-   {:package "HTML"
-    :tests
-    (apply (get alltests :html) [])}))
-                                        ;  (clojure.string/join ""
-;                       (map run-test alltests)))
-
+  (map
+   (fn [package]
+     {:package (first package)
+      :tests
+      (apply (second package) [])})
+   alltests))
 
 ;; these tests run at each invocation of (test/run-tests):
 (defn run-tests []
@@ -76,11 +73,9 @@
                                "<h1>" (get package :package) "</h1>"
                                (html/tablize (get package :tests))
                                "</div>"))
-                            improved-alltests)))
-;                            (list
-;                             {:package "HTML"
-;                              :tests
-;                              (apply (get alltests :html) [])}))))
-                                        ;  (clojure.string/join ""
-;                       (map run-test alltests)))
-
+                            (map
+                             (fn [package]
+                               {:package (first package)
+                                :tests
+                                (apply (second package) [])})
+                             alltests))))
