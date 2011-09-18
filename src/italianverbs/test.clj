@@ -16,9 +16,11 @@
     -(TODO): map of function => arg"
   (cond
    (= (type test-fn) clojure.lang.LazySeq)
-   "lazyseq"
+   (clojure.string/join ""
+                        (map run-test test-fn))
    (= (type test-fn) clojure.lang.PersistentList)
-   "persistent-list"
+   (clojure.string/join ""
+                        (map run-test test-fn))
    true
    (html/tablize
     (apply test-fn []))))
