@@ -472,13 +472,15 @@
       (list #"\bsu i " "sui ")
       (list #"\bsu gli " "sugli ")
       (list #"\bsu le " "sulle ")
-
-      
       )
      concat)))
 
+(defn stem-per-futuro [infinitive]
+  "_infinitive_ should be a string (italian verb infinitive form)"
+  (str-utils/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
+  
 (defn conjugate-future-italian [infinitive subject]
-  (let [stem "torner"]
+  (let [stem (stem-per-futuro (get infinitive :italian))]
     (cond
      (= (get subject :person)
         :1st)
@@ -513,5 +515,7 @@
 (defn test []
   (list
    {:comment "conjugate futuro semplice"
-    :test (conjugate-future-italian italianverbs.lexicon/tornare {:person :1st :number :singular})}))
+    :test (conjugate-future-italian italianverbs.lexicon/tornare {:person :1st :number :singular})}
+   {:comment "stem"
+    :test (stem-per-futuro (get italianverbs.lexicon/tornare :italian))}))
 
