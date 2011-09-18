@@ -43,6 +43,7 @@
 
 
 ; list of all packages to test (for now you must suffixize with "/test")
+; shown in order from more basic to more complex, but can be in any order.
 (def alltests
   {:html html/test
    :grammar gram/test
