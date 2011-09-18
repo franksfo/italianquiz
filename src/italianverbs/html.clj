@@ -72,28 +72,45 @@
                                                        (set (list :italian)))))))
        "</table>"))
 
+;; TODO: check _parent_ type: (string,symbol,list,map) should be enough to start.
 (defn tablize [parent]
-  (let
-      [children (get parent :children)]
-      (str
-     "<div class='syntax'><table class='syntax'>"
-     "<tr><td style='padding-left:5%;width:90%' colspan='" (count children) "'>"
-       (fs parent)
-     "</td></tr>"
-     "<tr>"
-     ;; now show syntactic children for this parent.
-     (string/join " " (map (fn [child] (str "<td>"
-					    (cond (string? child)
-						  child
-						  (get child :children)
-						  (tablize child)
-						  true
-						  (fs child))
-					    "</td>")) children))
-     "</tr>"
-     "</table></div>")))
+  (cond
+   (or (= (type parent) java.lang.String)
+       (= (type parent) clojure.lang.Symbol)
+       (= (type parent) java.lang.Integer))
+   (str "<div class='atom'>" parent "</div>")
+   (= (type parent) clojure.lang.PersistentArrayMap)
+   (str "<div class='map'>" "(map goes here)" "</div>")
+   true
+   (let
+       [children (get parent :children)]
+     (str
+      "<div class='syntax'><table class='syntax'>"
+      "<tr><td style='padding-left:5%;width:90%' colspan='" (count children) "'>"
+      (fs parent)
+      "</td></tr>"
+      "<tr>"
+      ;; now show syntactic children for this parent.
+      (string/join " " (map (fn [child] (str "<td>"
+                                             (cond (string? child)
+                                                   child
+                                                   (get child :children)
+                                                   (tablize child)
+                                                   true
+                                                   (fs child))
+                                             "</td>")) children))
+      "</tr>"
+      "</table></div>"))))
 
 (defn test []
-  {:this "is"
-   :the "html"
-   :test "here."})
+  "this should contain a list of all the tests for the html package. each test can
+  return a map or a list or a function. a function will be applied against an
+  empty argument list"
+  (list 
+   {:this "is"
+    :the "html"
+    :test "here"}
+   {:another "static"
+    :test "is here"}))
+
+
