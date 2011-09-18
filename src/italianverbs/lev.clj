@@ -284,7 +284,7 @@
 
     {:italian word1 ;; not necessarily :italian, but :italian is displayed at top of feature structure.
      :path (path-in-order path (list 0 0) wordlist1 wordlist2 nil 0)
-     :test (str "<table class='matrix'>"
+     :table (str "<table class='matrix'>"
                 "<tr>"
                 "<th colspan='2'> </th>"
                 (matrix-header (range 0 (.size wordlist1)))
@@ -311,5 +311,15 @@
 ;          "gli uomini vanno a Roma"))
 
 (defn test []
-  (matrix "le finestre sono a sinistra delle poltrone"
-          "le finestre sono a sinistra alle poltroni"))
+  (list
+   {:comment "'le finestre sono a sinistra delle poltrone' vs 'le finestre sono a sinistra alle poltroni'"
+    :test (let [test
+                (matrix "le finestre sono a sinistra delle poltrone"
+                        "le finestre sono a sinistra alle poltroni")]
+            {:path (html/tablize (get test :path))
+             :table (get test :table)})}))
+
+
+
+
+

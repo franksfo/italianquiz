@@ -42,13 +42,11 @@
 
 
 ; list of all packages to test (for now you must suffixize with "/test")
-;(def alltests (list html/test quiz/test gen/test lev/test))
-                                        ;(def alltests (list html/test gen/test))
-                                        ;(def alltests (list html/test))
 (def alltests
   {:html html/test
    :generate gen/test
-   :grammar gram/test})
+   :grammar gram/test
+   :lev lev/test})
 
 ;; these tests run at load-time:
 (def tests
@@ -67,15 +65,29 @@
 (defn run-tests []
   (mongo! :db "mydb")
   (clojure.string/join ""
-                       (map (fn [package]
-                              (str
-                               "<div class='package'>"
-                               "<h1>" (get package :package) "</h1>"
-                               (html/tablize (get package :tests))
-                               "</div>"))
-                            (map
-                             (fn [package]
-                               {:package (first package)
-                                :tests
-                                (apply (second package) [])})
-                             alltests))))
+                       (flatten
+                        (list
+                         (str "<div class='legend'>"
+                              (clojure.string/join ""
+                                                   (map (fn [package]
+                                                          (str
+                                                           "<h1><a href='#" (get package :name) "'>" (get package :name) "</a></h1>"
+                                                           ))
+                                                        (map
+                                                         (fn [package]
+                                                           {:name (first package)})
+                                                         alltests)))
+                              "</div>")
+                         (map (fn [package]
+                                (str
+                                 "<div class='package'>"
+                                 "<h1><a name='" (get package :package) "'>" (get package :package) "</a></h1>"
+                                 (html/tablize (get package :tests))
+                                 "</div>"))
+                              (map
+                               (fn [package]
+                                 {:package (first package)
+                                  :tests
+                                  (apply (second package) [])})
+                               alltests))))))
+  

@@ -83,10 +83,14 @@
    (str
     (clojure.string/join ""
                          (map tablize arg)))
+   (= (type arg) clojure.lang.Cons)
+   (str
+    (clojure.string/join ""
+                         (map tablize arg)))
    (and (= (type arg) clojure.lang.PersistentArrayMap)
         (= nil (get arg :children)))
    (str
-    "<table class='map'>"
+    "<div class='map'><table class='map'>"
     (clojure.string/join ""
                          (map (fn [tr]
                                 (str "<tr><th>"
@@ -96,7 +100,9 @@
                                      (tablize (second tr))
                                      "</td></tr>"))
                               arg))
-    "</table>")
+    "</table></div>")
+   (= (type arg) clojure.lang.PersistentHashMap)
+   (fs arg)
    (and (= (type arg) clojure.lang.PersistentArrayMap)
         (= nil (get arg :children)))
    (let
@@ -118,15 +124,23 @@
                                              "</td>")) children))
       "</tr>"
       "</table></div>"))
+   (= nil arg)
+   (str "<div class='atom'><i>nil</i></div>")
    (or (= (type arg)
           java.lang.String)
        (= (type arg)
           java.lang.Integer)
        (= (type arg)
-          java.lang.Double))
+          java.lang.Double)
+       (= (type arg)
+          clojure.lang.Keyword)
+       (= (type arg)
+          org.bson.types.ObjectId)
+       (= (type arg)
+          java.lang.Boolean))
    (str "<div class='atom'>" arg "</div>")
    true
-   (str "<div class='unknown'>" arg "</div>")))
+   (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>")))
 
 (defn simple-fs []
   {:foo "bar"})

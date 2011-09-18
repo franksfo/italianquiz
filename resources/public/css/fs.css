@@ -2,6 +2,11 @@ div.atom {
     padding: 2px;
 }
 
+div.map {
+    width:auto;
+    float:left;
+}
+
 table.map {
     margin:0.25em;
     border-collapse: collapse;
@@ -18,4 +23,9 @@ div.package {
     float:left;
     width:auto;
     margin:2px;
+}
+
+div.unknown {
+    background: #FF7F50;
+    padding:2px;
 }
