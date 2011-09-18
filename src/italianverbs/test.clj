@@ -25,8 +25,10 @@
     (apply test-fn []))))
 
 ; list of all packages to test (for now you must suffixize with "/test")
-;(def alltests (list html/test quiz/test generate/test lev/test))
-(def alltests (list html/test))
+;(def alltests (list html/test quiz/test gen/test lev/test))
+                                        ;(def alltests (list html/test gen/test))
+                                        ;(def alltests (list html/test))
+(def alltests (list html/test gen/test))
 
 ;; these tests run at load-time:
 (def tests

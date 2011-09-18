@@ -174,4 +174,13 @@
                     (morph/conjugate-italian-verb verb-past subject))}
 
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
-  
+
+(defn generate-something []
+  {:generate "something"})
+
+(defn test []
+  "this should contain a list of all the tests for the html package. each test can
+  return a map or a list or a function. a function will be applied against an
+  empty argument list"
+  (list
+   (generate-something)))
