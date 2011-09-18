@@ -12,3 +12,10 @@ table.map th {
     background: lightblue;
     padding: 2px;
 }
+
+div.package {
+    border: 2px solid lightblue;
+    float:left;
+    width:auto;
+    margin:2px;
+}

@@ -139,7 +139,9 @@
   return a map or a list or a function. a function will be applied against an
   empty argument list"
   (list
-   (simple-fs)
-   (nested-fs)))
+   {:comment "a simple feature structure"
+    :test (simple-fs)}
+   {:comment "showing nesting: where a value is itself a feature structure."
+    :test (nested-fs)}))
 
 

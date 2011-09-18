@@ -186,5 +186,4 @@
   return a map or a list or a function. a function will be applied against an
   empty argument list"
   (list
-   (generate-something)
    (gram/choose-lexeme {})))
