@@ -377,12 +377,13 @@
 (defn english-time [hour minute ampm]
   (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") "")))
 
-(defn foo []
-  {:grammar "test is here"})
-
 (defn test []
-  {:english-time
-   (english-time 5 43 "pm")})
+  (list
+   {:comment "universal (non-localized) time format."
+    :test (english-time 5 43 "pm")}
+   {:comment "choose a random lexeme with no restrictions."
+    :test (choose-lexeme {})}))
+
 
 
 

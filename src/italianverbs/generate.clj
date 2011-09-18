@@ -178,12 +178,10 @@
 
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
 
-(defn generate-something []
-  {:generate "generate-package-test"})
-
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
   return a map or a list or a function. a function will be applied against an
   empty argument list"
   (list
-   (gram/choose-lexeme {})))
+   {:comment "random 'passato prossimo' expression."
+    :test (random-passato-prossimo)}))
