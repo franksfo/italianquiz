@@ -22,6 +22,9 @@
 (defn printlex [lexeme]
   (ihtml/fs lexeme))
 
+(defn wrap-div [string]
+  (str "<div class='test'>" string "</div>"))
+
 (defroutes main-routes
 ;   "A handler processes the request map and returns a response map."
 ; http://groups.google.com/group/compojure/browse_thread/thread/3c507da23540da6e
@@ -124,12 +127,7 @@
        {
         :session (get request :session)
         :body (page "test"
-                    (map test/wrap-div 
-;                         (list "test41" "test42" "test43"
-;                               "test44" "test45" )
-                         (flatten test/tests)
-                         )
-                                        ;                         (flatten test/tests))
+                    (test/run-tests)
                     request)
         })
 
@@ -138,7 +136,7 @@
        {
         :session (get request :session)
         :body (page "test" 
-                    (map test/wrap-div 
+                    (map wrap-div 
                          test/tests)
                     request)
         })
