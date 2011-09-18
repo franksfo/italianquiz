@@ -62,11 +62,13 @@
   (clojure.string/join ""
                        (flatten
                         (list
-                         (str "<div class='legend'>"
+                         (str "<div class='legend'><h2>Contents</h2>"
                               (clojure.string/join ""
                                                    (map (fn [package]
                                                           (str
-                                                           "<h1><a href='#" (get package :name) "'>" (get package :name) "</a></h1>"
+                                                           "<div class='package-toc'><h1><a href='#" (get package :name) "'>" (get package :name) "</a></h1>"
+
+                                                           "</div>"
                                                            ))
                                                         (map
                                                          (fn [package]
