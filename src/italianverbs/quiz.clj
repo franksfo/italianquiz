@@ -442,3 +442,10 @@
      [:div (quiz nil request)])))
 
 
+(defn test []
+  (list
+   {:comment "all possible question types."
+    :test all-possible-question-types}))
+
+
+

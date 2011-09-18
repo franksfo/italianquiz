@@ -7,6 +7,7 @@
      [italianverbs.grammar :as gram]
      [italianverbs.lev :as lev]
      [italianverbs.html :as html]
+     [italianverbs.quiz :as quiz]
      ))
 
 (defn run-test [test-fn]
@@ -46,20 +47,13 @@
   {:html html/test
    :generate gen/test
    :grammar gram/test
-   :lev lev/test})
+   :lev lev/test
+   :quiz quiz/test
+   })
 
 ;; these tests run at load-time:
 (def tests
   (map run-test alltests))
-
-
-(def improved-alltests
-  (map
-   (fn [package]
-     {:package (first package)
-      :tests
-      (apply (second package) [])})
-   alltests))
 
 ;; these tests run at each invocation of (test/run-tests):
 (defn run-tests []
