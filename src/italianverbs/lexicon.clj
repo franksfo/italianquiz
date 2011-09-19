@@ -452,6 +452,14 @@
 ;; </andare exceptions>
 ;; </andare>
 
+;; <vedere>
+(add-with-pass-pross "vedere" "visto" "to see" "saw" "avere" {
+                                                              :subj {:animate true}
+                                                              :futuro-semplice-stem "vedr"
+                                                              })
+;; </vedere>
+
+
 ;; <venire>
 
 (def venire
