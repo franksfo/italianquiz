@@ -66,7 +66,7 @@
 (def present
   {:cat :verb :infl :present})
 
-(defn regular-future [infinitive]
+(defn futuro-semplice [infinitive]
   "_infinitive_ should be a lexical entry."
   (add
    (morph/conjugate-future-italian
@@ -209,7 +209,7 @@
           :root inf
           :infl :passato-prossimo
           :aux avere-o-assere})
-    (regular-future inf)))
+    (futuro-semplice inf)))
 
 (defn italian-pluralize [singular gender]
   (cond
