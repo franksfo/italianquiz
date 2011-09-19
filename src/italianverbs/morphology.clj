@@ -506,7 +506,7 @@
         :3rd)
      (cond (= (get subject :number)
               :singular)
-           (str stem "a")
+           (str stem "à")
            (= (get subject :number)
               :plural)
            (str stem "anno")
