@@ -458,7 +458,7 @@
   (add "venire" "to come"
              {:cat :verb :infl :supertype
               :subj {:animate true}}))
-
+(futuro-semplice venire "verr")
 (add "venuto" "came" {:cat :verb
                      :root venire
                      :infl :passato-prossimo
@@ -521,7 +521,8 @@
                  {:cat :verb :infl :infinitive
                   :subj {:animate true}}
                  (list choose-vp-inf)))
-                       
+(futuro-semplice volare "vorr")
+
 (add-infl "voglio" (list firstp sing present
 			 {:root volare}))
 (add-infl "vogli" (list secondp sing present
@@ -540,6 +541,7 @@
                  {:cat :verb :infl :infinitive
                   :subj {:animate true}}
                  (list choose-vp-inf)))
+(futuro-semplice potere "potr")
 
 (add-infl "posso" (list firstp sing present
 			 {:root potere}))
@@ -701,6 +703,7 @@
                      {:cat :verb :infl :infinitive
                       :subj {:human true}
                       :obj {:knowable true}}))
+(futuro-semplice sapere "sapr")
 
 ;; FIXME: should not need to specify english inflection
 ;; if it's regular (as it is with this verb).
