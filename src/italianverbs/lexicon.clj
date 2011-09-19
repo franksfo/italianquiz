@@ -340,8 +340,7 @@
 (add-with-pass-pross "offrire" "offerto" "to offer" "offered" "avere" {:subj {:human true}})
 (add-with-pass-pross "aprire" "aperto" "to open" "opened" "avere" {:subj {:human true}})
 (add-with-pass-pross "soffrire" "sofferto" "to suffer" "suffered" "avere" {:subj {:human true}})
-
-(add-with-pass-pross "vivere" "vissuto" "to live" "lived" "avere" {:subj {:animate true}})
+(add-with-pass-pross "vivere" "vissuto" "to live" "lived" "avere" {:subj {:animate true}} nil "vivr")
 (add-with-pass-pross "perdere" "perso" "to lose" "lost" "avere" {:subj {:human true}})
 (add-with-pass-pross "scegliere" "scelto" "to choose" "chose" "avere" {:subj {:human true}})
 
@@ -757,6 +756,7 @@
 (def avere (add "avere" "to have"
                 {:cat :verb :infl :infinitive
                  :obj {:cat :noun}}))
+(futuro-semplice essere "avr")
 
 (add-infl "ho" (list firstp sing present
                        {:root avere

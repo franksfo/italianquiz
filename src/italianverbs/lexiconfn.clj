@@ -148,7 +148,8 @@
     :infl :futuro-semplice
     :root infinitive}))
 
-(defn add-with-pass-pross [italian-infinitive italian-pass-pross english-infinitive english-past avere-o-assere & [ fs present-indicative-list ]  ]
+;; TODO: use a param map; this is getting unweildy: too many params.
+(defn add-with-pass-pross [italian-infinitive italian-pass-pross english-infinitive english-past avere-o-assere & [ fs present-indicative-list futuro-semplice-stem ]  ]
   "add an infinitive form of a verb and the participio passato form. _fs_ contains additional lexical info." 
   (let [inf
         (add italian-infinitive english-infinitive
@@ -215,7 +216,7 @@
           :root inf
           :infl :passato-prossimo
           :aux avere-o-assere})
-    (futuro-semplice inf)))
+    (futuro-semplice inf futuro-semplice-stem)))
 
 (defn italian-pluralize [singular gender]
   (cond
