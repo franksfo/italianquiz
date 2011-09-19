@@ -280,7 +280,7 @@
   (add
    (morph/conjugate-future-italian
     infinitive
-    {:person :1st
+    {:person :2nd
      :number :singular})
    (str "(you all) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
