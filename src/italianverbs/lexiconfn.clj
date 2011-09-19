@@ -125,7 +125,7 @@
    (morph/conjugate-future-italian
     infinitive
     {:person :2nd
-     :number :singular}
+     :number :plural}
     prefix)
    (str "(you all) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
