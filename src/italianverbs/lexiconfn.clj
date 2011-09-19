@@ -149,9 +149,15 @@
     :root infinitive}))
 
 ;; TODO: use a param map; this is getting unweildy: too many params.
+;; right now, _fs_ is acting as the param map.
 (defn add-with-pass-pross [italian-infinitive italian-pass-pross english-infinitive english-past avere-o-assere & [ fs present-indicative-list futuro-semplice-stem ]  ]
   "add an infinitive form of a verb and the participio passato form. _fs_ contains additional lexical info." 
-  (let [inf
+  (let [futuro-semplice-stem
+        (if futuro-semplice-stem
+          futuro-semplice-stem
+          (if (get fs :futuro-semplice-stem)
+            (get fs :futuro-semplice-stem)))
+        inf
         (add italian-infinitive english-infinitive
              (merge
               {:cat :verb

@@ -340,7 +340,10 @@
 (add-with-pass-pross "offrire" "offerto" "to offer" "offered" "avere" {:subj {:human true}})
 (add-with-pass-pross "aprire" "aperto" "to open" "opened" "avere" {:subj {:human true}})
 (add-with-pass-pross "soffrire" "sofferto" "to suffer" "suffered" "avere" {:subj {:human true}})
-(add-with-pass-pross "vivere" "vissuto" "to live" "lived" "avere" {:subj {:animate true}} nil "vivr")
+(add-with-pass-pross "vivere" "vissuto" "to live" "lived" "avere" {
+                                                                   :subj {:animate true}
+                                                                   :futuro-semplice-stem "vivr"
+                                                                   })
 (add-with-pass-pross "perdere" "perso" "to lose" "lost" "avere" {:subj {:human true}})
 (add-with-pass-pross "scegliere" "scelto" "to choose" "chose" "avere" {:subj {:human true}})
 
@@ -397,6 +400,7 @@
   (add "andare" "to go"
              {:cat :verb :infl :supertype
               :subj {:animate true}}))
+(futuro-semplice andare "andr")
 
 (add "andato" "went"
      {:cat :verb
@@ -552,6 +556,7 @@
 
 (def dovere (add "dovere" "must"
                  {:cat :verb :infl :infinitive
+                  :futuro-semplice-stem "dovr"
                   :subj {:animate true}}
                  (list choose-vp-inf)))
 (add-infl "devo" (list firstp sing present
