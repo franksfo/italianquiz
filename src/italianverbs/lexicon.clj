@@ -756,7 +756,7 @@
 (def avere (add "avere" "to have"
                 {:cat :verb :infl :infinitive
                  :obj {:cat :noun}}))
-(futuro-semplice essere "avr")
+(futuro-semplice avere "avr")
 
 (add-infl "ho" (list firstp sing present
                        {:root avere
