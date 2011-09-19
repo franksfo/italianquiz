@@ -126,6 +126,7 @@
         verb-future (gram/choose-lexeme
                      (merge
                       (if constraints (first constraints) {})
+                      {:root.italian "essere"}
                       {:infl :futuro-semplice}
                       config/futuro-semplice))]
     verb-future))

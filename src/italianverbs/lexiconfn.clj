@@ -66,6 +66,82 @@
 (def present
   {:cat :verb :infl :present})
 
+(defn regular-future [infinitive]
+  "_infinitive_ should be a lexical entry."
+  (add
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :1st
+     :number :singular})
+   (str "(i) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :1st
+           :number :singular}
+    :infl :futuro-semplice
+    :root infinitive})
+
+  (add
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :2nd
+     :number :singular})
+   (str "(you) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :2nd
+           :number :singular}
+    :infl :futuro-semplice
+    :root infinitive})
+  
+  (add
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :3rd
+     :number :singular})
+   (str "(he/she) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :3rd
+           :number :singular}
+    :infl :futuro-semplice
+    :root infinitive})
+
+  (add
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :1st
+     :number :plural})
+   (str "(we) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :1st
+           :number :plural}
+    :infl :futuro-semplice
+    :root infinitive})
+
+
+  (add
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :2nd
+     :number :singular})
+   (str "(you all) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :2nd
+           :number :plural}
+    :infl :futuro-semplice
+    :root infinitive})
+
+  
+  (add
+   (morph/conjugate-future-italian
+    infinitive
+    {:person :3rd
+     :number :plural})
+   (str "(they) will " (get (morph/remove-to infinitive) :remove-to))
+   {:cat :verb
+    :subj {:person :3rd
+           :number :plural}
+    :infl :futuro-semplice
+    :root infinitive}))
+
 (defn add-with-pass-pross [italian-infinitive italian-pass-pross english-infinitive english-past avere-o-assere & [ fs present-indicative-list ]  ]
   "add an infinitive form of a verb and the participio passato form. _fs_ contains additional lexical info." 
   (let [inf
@@ -132,8 +208,8 @@
          {:cat :verb
           :root inf
           :infl :passato-prossimo
-          :aux avere-o-assere})))
-
+          :aux avere-o-assere})
+    (regular-future inf)))
 
 (defn italian-pluralize [singular gender]
   (cond
@@ -225,82 +301,6 @@
 
 (defn clear []
   (destroy! :lexicon {}))
-
-(defn regular-future [infinitive]
-  "_infinitive_ should be a lexical entry."
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :1st
-     :number :singular})
-   (str "(i) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :1st
-           :number :singular}
-    :infl :futuro-semplice
-    :root infinitive})
-
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :2nd
-     :number :singular})
-   (str "(you) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :2nd
-           :number :singular}
-    :infl :futuro-semplice
-    :root infinitive})
-  
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :3rd
-     :number :singular})
-   (str "(he/she) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :3rd
-           :number :singular}
-    :infl :futuro-semplice
-    :root infinitive})
-
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :1st
-     :number :plural})
-   (str "(we) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :1st
-           :number :plural}
-    :infl :futuro-semplice
-    :root infinitive})
-
-
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :2nd
-     :number :singular})
-   (str "(you all) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :2nd
-           :number :plural}
-    :infl :futuro-semplice
-    :root infinitive})
-
-  
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :3rd
-     :number :plural})
-   (str "(they) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :3rd
-           :number :plural}
-    :infl :futuro-semplice
-    :root infinitive}))
 
 
 

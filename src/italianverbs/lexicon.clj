@@ -316,21 +316,16 @@
 
 (def tornare (get (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
                   :root))
-(regular-future tornare)
-
 (add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
 
 (def partire (get
               (add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
               :root))
-(regular-future partire)
-
 (add-with-pass-pross "uscire" "uscito" "to go out" "went out" "essere" {:subj {:animate true}}
   (list "esco" "esci" "esce" "usciamo" "uscite" "escono"))
 
 (def prendere (get (add-with-pass-pross "prendere" "preso" "to take" "took" "avere" {:subj {:animate true}})
                    :root))
-(regular-future prendere)
 
 (add-with-pass-pross "scendere" "sceso" "to go down" "went down" "essere" {:subj {:animate true}})
 (add-with-pass-pross "spendere" "speso" "to spend" "spent" "avere" {:subj {:human true}})
@@ -604,6 +599,8 @@
 (def essere (add "essere" "to be"
                      {:cat :verb :infl :infinitive
                       :obj {:cat :noun}}))
+
+(regular-future essere)
 
 (add "stato" "was" {:cat :verb
                     :root essere
