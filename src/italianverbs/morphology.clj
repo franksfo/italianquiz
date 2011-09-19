@@ -479,8 +479,10 @@
   "_infinitive_ should be a string (italian verb infinitive form)"
   (str-utils/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
   
-(defn conjugate-future-italian [infinitive subject]
-  (let [stem (stem-per-futuro (get infinitive :italian))]
+(defn conjugate-future-italian [infinitive subject & [ stem ] ]
+  (let [stem (if stem
+               stem 
+               (stem-per-futuro (get infinitive :italian)))]
     (cond
      (= (get subject :person)
         :1st)

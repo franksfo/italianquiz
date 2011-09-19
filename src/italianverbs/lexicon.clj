@@ -600,7 +600,7 @@
                      {:cat :verb :infl :infinitive
                       :obj {:cat :noun}}))
 
-(futuro-semplice essere)
+(futuro-semplice essere "sar")
 
 (add "stato" "was" {:cat :verb
                     :root essere

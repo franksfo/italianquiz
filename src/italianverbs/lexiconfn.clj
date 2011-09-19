@@ -66,13 +66,14 @@
 (def present
   {:cat :verb :infl :present})
 
-(defn futuro-semplice [infinitive]
+(defn futuro-semplice [infinitive & [ prefix ]]
   "_infinitive_ should be a lexical entry."
   (add
    (morph/conjugate-future-italian
     infinitive
     {:person :1st
-     :number :singular})
+     :number :singular}
+    prefix)
    (str "(i) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :1st
@@ -84,7 +85,8 @@
    (morph/conjugate-future-italian
     infinitive
     {:person :2nd
-     :number :singular})
+     :number :singular}
+    prefix)
    (str "(you) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :2nd
@@ -96,7 +98,8 @@
    (morph/conjugate-future-italian
     infinitive
     {:person :3rd
-     :number :singular})
+     :number :singular}
+    prefix)
    (str "(he/she) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :3rd
@@ -108,7 +111,8 @@
    (morph/conjugate-future-italian
     infinitive
     {:person :1st
-     :number :plural})
+     :number :plural}
+    prefix)
    (str "(we) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :1st
@@ -121,7 +125,8 @@
    (morph/conjugate-future-italian
     infinitive
     {:person :2nd
-     :number :singular})
+     :number :singular}
+    prefix)
    (str "(you all) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :2nd
@@ -134,7 +139,8 @@
    (morph/conjugate-future-italian
     infinitive
     {:person :3rd
-     :number :plural})
+     :number :plural}
+    prefix)
    (str "(they) will " (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :3rd
