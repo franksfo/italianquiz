@@ -15,7 +15,7 @@
   (html
    [:div
     (if username 
-      [:div "Welcome, " username "." 
+      [:div "benvenuti, " username "."
        [:a {:href "/session/clear/"} "Logout"]
        ]
       [:a {:href "/session/set/"} "Login"]

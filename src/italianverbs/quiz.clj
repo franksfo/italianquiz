@@ -257,7 +257,7 @@
                                           (checked session key))]]
                           [:td label ] )))]
     [:div {:id "controls" :class "controls quiz-elem"}
-     [:h2 "Controls"]
+     [:h2 "I controlli"]
      [:form {:method "post" :action "/quiz/filter" :accept-charset "iso-8859-1" }
       [:table
        [:tr
@@ -272,7 +272,7 @@
         ]
        [:tr
         (checkbox-col "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
-        (checkbox-col "possessives" :possessives session) ;; e.g. "il tuo cane"
+        (checkbox-col "possessivi" :possessives session) ;; e.g. "il tuo cane"
         (checkbox-col "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
         ]
        ]
@@ -304,7 +304,7 @@
       ]
 
      [:div {:class "history quiz-elem"}
-      [:h2 "History"]
+      [:h2 "storia"]
       
       
       [:div {:style "float:right"}
