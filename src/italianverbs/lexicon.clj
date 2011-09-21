@@ -569,6 +569,9 @@
                   :futuro-semplice-stem "dovr"
                   :subj {:animate true}}
                  (list choose-vp-inf)))
+
+(futuro-semplice dovere "dovr")
+
 (add-infl "devo" (list firstp sing present
                        {:root dovere}))
 (add-infl "devi" (list secondp sing present
@@ -590,7 +593,8 @@
                 :iobj {:obj.animate true
                        :benefactive true}
                 :adjunct adjunct-in-a-place}))
-                     
+(futuro-semplice fare "far")
+
 (add-infl "facio" (list firstp sing present
 			{:root fare}))
 (add-infl "fai" (list secondp sing present
@@ -608,7 +612,6 @@
                      :root fare
                      :infl :passato-prossimo
                      :aux "avere"})
-
 
 (def essere (add "essere" "to be"
                      {:cat :verb :infl :infinitive
