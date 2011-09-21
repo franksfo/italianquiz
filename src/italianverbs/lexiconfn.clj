@@ -74,7 +74,13 @@
     {:person :1st
      :number :singular}
     prefix)
-   (str "(i) will " (get (morph/remove-to infinitive) :remove-to))
+   (str "(i)"
+        (if (= (get infinitive :future-english) "have to")
+          (morph/conjugate-english-verb
+           {:english "have to"}
+           {:person :1st}))
+          ;; default
+          (get (morph/remove-to infinitive) :remove-to))
    {:cat :verb
     :subj {:person :1st
            :number :singular}

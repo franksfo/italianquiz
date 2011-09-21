@@ -567,6 +567,7 @@
 (def dovere (add "dovere" "must"
                  {:cat :verb :infl :infinitive
                   :futuro-semplice-stem "dovr"
+;                  :future-english "have to"
                   :subj {:animate true}}
                  (list choose-vp-inf)))
 

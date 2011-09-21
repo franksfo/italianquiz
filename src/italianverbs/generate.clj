@@ -194,7 +194,12 @@
   (list
    {:comment "random 'passato prossimo' sentence."
     :test (random-passato-prossimo)}
+
    {:comment "random 'futuro semplice' sentence."
-    :test (random-futuro-semplice)}))
+    :test (random-futuro-semplice)}
+
+   {:comment "testing english translation of future modal verbs e.g. 'dovere' (must)"
+    :test (random-futuro-semplice
+           {:italian "dovere"})}))
 
 
