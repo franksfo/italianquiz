@@ -547,6 +547,7 @@
 
 (def potere (add "potere" "to be able"
                  {:cat :verb :infl :infinitive
+                  :future-english "be able to"
                   :subj {:animate true}}
                  (list choose-vp-inf)))
 (futuro-semplice potere "potr")
@@ -567,7 +568,7 @@
 (def dovere (add "dovere" "must"
                  {:cat :verb :infl :infinitive
                   :futuro-semplice-stem "dovr"
-;                  :future-english "have to"
+                  :future-english "have to"
                   :subj {:animate true}}
                  (list choose-vp-inf)))
 

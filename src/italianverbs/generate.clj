@@ -203,7 +203,11 @@
 
    {:comment "testing english translation of future modal verbs e.g. 'dovere' (must)"
     :test (random-futuro-semplice
-           {:italian "dovrò"})}))
+           {:italian "dovrai"})}
+
+   {:comment "testing english translation of future modal verbs e.g. 'potere' (can)"
+    :test (random-futuro-semplice
+           {:italian "potrai"})}))
 
 
 

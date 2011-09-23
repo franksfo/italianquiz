@@ -68,91 +68,91 @@
 
 (defn futuro-semplice [infinitive & [ prefix ]]
   "_infinitive_ should be a lexical entry."
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :1st
-     :number :singular}
-    prefix)
-   (str "(i)"
-        (if (= (get infinitive :future-english) "have to")
-          (morph/conjugate-english-verb
-           {:english "have to"}
-           {:person :1st}))
-          ;; default
-          (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :1st
-           :number :singular}
-    :infl :futuro-semplice
-    :root infinitive})
+  (let [english-modal
+        (str
+         "will "
+         (if (get infinitive :future-english)
+           (get infinitive :future-english)
+           (get (morph/remove-to infinitive) :remove-to)))]
+    (add
+     (morph/conjugate-future-italian
+      infinitive
+      {:person :1st
+       :number :singular}
+      prefix)
+     (str "(i) " english-modal)
+     {:cat :verb
+      :subj {:person :1st
+             :number :singular}
+      :infl :futuro-semplice
+      :root infinitive})
 
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :2nd
-     :number :singular}
-    prefix)
-   (str "(you) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :2nd
-           :number :singular}
-    :infl :futuro-semplice
-    :root infinitive})
-  
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :3rd
-     :number :singular}
-    prefix)
-   (str "(he/she) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :3rd
-           :number :singular}
-    :infl :futuro-semplice
-    :root infinitive})
-
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :1st
-     :number :plural}
-    prefix)
-   (str "(we) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :1st
-           :number :plural}
-    :infl :futuro-semplice
-    :root infinitive})
-
-
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :2nd
-     :number :plural}
-    prefix)
-   (str "(you all) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :2nd
-           :number :plural}
-    :infl :futuro-semplice
-    :root infinitive})
-
-  
-  (add
-   (morph/conjugate-future-italian
-    infinitive
-    {:person :3rd
-     :number :plural}
-    prefix)
-   (str "(they) will " (get (morph/remove-to infinitive) :remove-to))
-   {:cat :verb
-    :subj {:person :3rd
-           :number :plural}
-    :infl :futuro-semplice
-    :root infinitive}))
+    (add
+     (morph/conjugate-future-italian
+      infinitive
+      {:person :2nd
+       :number :singular}
+      prefix)
+     (str "(you) " english-modal)
+     {:cat :verb
+      :subj {:person :2nd
+             :number :singular}
+      :infl :futuro-semplice
+      :root infinitive})
+    
+    (add
+     (morph/conjugate-future-italian
+      infinitive
+      {:person :3rd
+       :number :singular}
+      prefix)
+     (str "(he/she) " english-modal)
+     {:cat :verb
+      :subj {:person :3rd
+             :number :singular}
+      :infl :futuro-semplice
+      :root infinitive})
+    
+    (add
+     (morph/conjugate-future-italian
+      infinitive
+      {:person :1st
+       :number :plural}
+      prefix)
+     (str "(we) " english-modal)
+     {:cat :verb
+      :subj {:person :1st
+             :number :plural}
+      :infl :futuro-semplice
+      :root infinitive})
+    
+    
+    (add
+     (morph/conjugate-future-italian
+      infinitive
+      {:person :2nd
+       :number :plural}
+      prefix)
+     (str "(you all) " english-modal)
+     {:cat :verb
+      :subj {:person :2nd
+             :number :plural}
+      :infl :futuro-semplice
+      :root infinitive})
+    
+    
+    (add
+     (morph/conjugate-future-italian
+      infinitive
+      {:person :3rd
+       :number :plural}
+      prefix)
+     (str "(they) " english-modal)
+     {:cat :verb
+      :subj {:person :3rd
+             :number :plural}
+      :infl :futuro-semplice
+      :root infinitive})))
 
 ;; TODO: use a param map; this is getting unweildy: too many params.
 ;; right now, _fs_ is acting as the param map.
