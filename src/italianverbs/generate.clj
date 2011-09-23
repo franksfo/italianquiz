@@ -198,8 +198,12 @@
    {:comment "random 'futuro semplice' sentence."
     :test (random-futuro-semplice)}
 
+   {:comment "sceglieremo (we will choose)"
+    :test (random-futuro-semplice {:italian "sceglieremo"})}
+
    {:comment "testing english translation of future modal verbs e.g. 'dovere' (must)"
     :test (random-futuro-semplice
-           {:italian "dovere"})}))
+           {:italian "dovrò"})}))
+
 
 
