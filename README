@@ -8,3 +8,9 @@ Usage:
 
   ..then start editing files in the src/italianverbs directory.
   That's all there is to it!
+
+Notes:
+
+-resources/public/js/jsquery-1.6.4.min.js 
+  is provided under the LGPL version 2 per http://jquery.org/license/.
+-remainder: see LICENSE file.

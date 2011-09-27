@@ -110,6 +110,7 @@
    [:head 
     [:meta  {:charset "ISO-8859-1"}]
     [:title "Verbi italiani &#0187; " title]
+    [:script {:type "text/javascript" :src "/js/jquery-1.6.4.min.js"}]
     (include-css "/css/style.css")
     (include-css "/css/layout.css")
     (include-css "/css/fs.css")
