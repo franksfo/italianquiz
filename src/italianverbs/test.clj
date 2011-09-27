@@ -70,6 +70,7 @@
                          (flatten
                           (list
                            (str "<div class='legend'><h2>Contents</h2>"
+                                "<div onclick='got(\"here..\")'>click me</div>"
                                 (clojure.string/join
                                  ""
                                  (map (fn [package]
