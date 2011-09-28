@@ -161,7 +161,7 @@
        request
        {
         :body (xml-response "guess.."
-                            "test here.."
+                            (italianverbs.html/fs (italianverbs.quiz/generate :passato))
                             request)
         :status 200
         :headers {"Content-type" "text/xml"}
