@@ -9,7 +9,14 @@ Usage:
   ..then start editing files in the src/italianverbs directory.
   That's all there is to it!
 
-Notes:
+Hacking:
+
+1. Start with src/italianverbs/core.clj
+2. Follow the routes in (defroutes main-routes).
+3. Look at :body value for each route:
+   This is the function that is executed for that route.
+
+License:
 
 -resources/public/js/jsquery-1.6.4.min.js 
   is provided under the LGPL version 2 per http://jquery.org/license/.
