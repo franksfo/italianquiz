@@ -105,6 +105,9 @@
        [:tr
         [:td {:colspan "2"} (get request :body)]]]])))
 
+(defn xml-response [title & [content request]]
+  (str "<test title='" title "'" "/>"))
+
 (defn page [title & [content request]]
   (html5
    [:head 

@@ -13,8 +13,8 @@ Hacking:
 
 1. Start with src/italianverbs/core.clj
 2. Follow the routes in (defroutes main-routes).
-3. Look at :body value for each route:
-   This is the function that is executed for that route.
+3. Look at :body attribute for each route:
+   This holds the function that is executed for that route.
 
 REPL: see comments at the top of src/italianverbs/repl.clj.
 

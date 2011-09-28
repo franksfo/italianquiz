@@ -81,7 +81,6 @@
                     request)
         }
        )
-
   
   (POST "/quiz/"
        request
@@ -109,7 +108,6 @@
         :headers {"Location" "/quiz/display#controlbottom"}
         }
        )
-
   
   (POST "/quiz/clear" 
        request
@@ -157,7 +155,17 @@
         :side-effect (session/unregister request)
         :status 302
         :headers {"Location" "/?msg=cleared"}
-       })
+        })
+
+  (GET "/guess/"
+       request
+       {
+        :body (xml-response "guess.."
+                            "test here.."
+                            request)
+        :status 200
+        :headers {"Content-type" "text/xml"}
+        })
 
   (route/resources "/")
   (route/not-found (page "Non posso trovare (page not found)." "Non passo trovare. Sorry, page not found.")))
