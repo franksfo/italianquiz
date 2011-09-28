@@ -369,3 +369,8 @@ div.click:hover {
     background: white;
     color: darkgrey;
 }
+
+div.click:blur {
+    background: green;
+    color: lightgrey;
+}
