@@ -2,6 +2,7 @@
   (:use
    [hiccup core page-helpers])
   (:require
+   [italianverbs.quiz :as quiz]
    [clojure.string :as string]
    [clojure.contrib.str-utils2 :as str-utils]))
 
@@ -17,16 +18,17 @@
                                  </table>"))))
 
 (defn prepend-dynamic []
-  (clojure.string/join ""
-                       (flatten
-                        (list "<div class='click' onclick='addguess(\"i go\",\"io vado\")'>Guess</div>"
-                              "<table>
+  (let [quiz (quiz/run nil)
+        tmp "about quiz.."]
+    (clojure.string/join ""
+                         (flatten
+                          (list "<div class='click' onclick='addguess(\"" tmp  "\",\"io vado\")'>Guess</div>"
+                                "<table>
                                    <thead>
                                      <tr><th/><th>En</th><th>It</th></tr>
                                    </thead>
                                    <tbody id='guess-table'></tbody>
-                                 </table>"))))
-
+                                 </table>")))))
 
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
