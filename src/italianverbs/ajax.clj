@@ -18,11 +18,13 @@
                                  </table>"))))
 
 (defn prepend-dynamic []
-  (let [quiz (quiz/run nil)
-        tmp "about quiz.."]
+  (let [type :passato
+        question (italianverbs.quiz/generate :passato)
+        english (get question :english)
+        italian (get question :italian)]
     (clojure.string/join ""
                          (flatten
-                          (list "<div class='click' onclick='addguess(\"" tmp  "\",\"io vado\")'>Guess</div>"
+                          (list "<div class='click' onclick='addguess(\"" english "\",\"" italian "\")'>Guess</div>"
                                 "<table>
                                    <thead>
                                      <tr><th/><th>En</th><th>It</th></tr>
