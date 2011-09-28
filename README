@@ -16,6 +16,8 @@ Hacking:
 3. Look at :body value for each route:
    This is the function that is executed for that route.
 
+REPL: see comments at the top of src/italianverbs/repl.clj.
+
 License:
 
 -resources/public/js/jsquery-1.6.4.min.js 
