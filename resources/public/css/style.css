@@ -357,8 +357,15 @@ span.match {
     border-bottom: 8px solid lightgreen;
 }
 div.click {
-    border: 2px solid lightgreen;
+    border: 3px solid lightgreen;
+    background: green;
+    color: lightgrey;
     padding: 3px;
     width:auto;
     float:left;
+}
+
+div.click:hover {
+    background: white;
+    color: darkgrey;
 }
