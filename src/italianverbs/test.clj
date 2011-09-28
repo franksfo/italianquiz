@@ -3,6 +3,7 @@
      [hiccup core page-helpers]
      [somnium.congomongo])
     (:require
+     [italianverbs.ajax :as ajax]
      [italianverbs.generate :as gen]
      [italianverbs.grammar :as gram]
      [italianverbs.lev :as lev]
@@ -44,7 +45,8 @@
 ; list of all packages to test (for now you must suffixize with "/test")
 ; shown in order from more basic to more complex, but can be in any order.
 (def alltests
-  {:html html/test
+  {:ajax ajax/test
+   :html html/test
    :morph morph/test
    :grammar gram/test
    :generate gen/test
@@ -70,7 +72,6 @@
                          (flatten
                           (list
                            (str "<div class='legend'><h2>Contents</h2>"
-                                "<div onclick='got(\"here..\")'>click me</div>"
                                 (clojure.string/join
                                  ""
                                  (map (fn [package]

@@ -356,3 +356,9 @@ span.subst {
 span.match {
     border-bottom: 8px solid lightgreen;
 }
+div.click {
+    border: 2px solid lightgreen;
+    padding: 3px;
+    width:auto;
+    float:left;
+}
