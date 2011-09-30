@@ -9,6 +9,7 @@
    [italianverbs.test :as test]
    [italianverbs.generate :as gen]
    [italianverbs.lev :as lev]
+   [italianverbs.xml :as xml]
    [italianverbs.html :as ihtml]
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
@@ -160,9 +161,12 @@
   (GET "/guess/"
        request
        {
-        :body (xml-response "guess.."
-                            (italianverbs.html/fs (italianverbs.quiz/generate :passato))
-                            request)
+        :body
+        (let [guess (italianverbs.quiz/generate :passato)]
+          (xml/guess 
+           (get guess :italian)
+           (get guess :english)
+          request))
         :status 200
         :headers {"Content-type" "text/xml"}
         })

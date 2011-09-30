@@ -9,6 +9,7 @@
               [italianverbs.session :as session]
               [italianverbs.grammar :as gram]
               [italianverbs.html :as html]
+              [italianverbs.xml :as xml]
               [italianverbs.generate :as gen]))
 
 (def all-possible-question-types

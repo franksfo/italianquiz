@@ -9,6 +9,7 @@
      [italianverbs.lev :as lev]
      [italianverbs.morphology :as morph]
      [italianverbs.html :as html]
+     [italianverbs.xml :as xml]
      [italianverbs.quiz :as quiz]
      ))
 
@@ -46,6 +47,7 @@
 ; shown in order from more basic to more complex, but can be in any order.
 (def alltests
   {:ajax ajax/test
+   :xml xml/test
    :html html/test
    :morph morph/test
    :grammar gram/test
