@@ -162,7 +162,8 @@
        request
        {
         :body
-        (let [guess (italianverbs.quiz/generate :passato)]
+        (let [type (italianverbs.quiz/random-guess-type)
+              guess (italianverbs.quiz/generate type)]
           (xml/guess 
            (get guess :italian)
            (get guess :english)

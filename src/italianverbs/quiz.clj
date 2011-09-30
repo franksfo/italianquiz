@@ -15,6 +15,10 @@
 (def all-possible-question-types
   '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni))
 
+(defn random-guess-type []
+  (let [possible all-possible-question-types]
+    (nth possible (rand-int (count possible)))))
+
 (defn per-user-correct [questions]
   "count of all correctly-answered questions for all session."
   (reduce
