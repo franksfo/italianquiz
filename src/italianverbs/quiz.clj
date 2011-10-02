@@ -451,6 +451,20 @@
      [:div (quiz nil request)])))
 
 
+(defn eval-most-recent-question [request])
+
+;; note that request has the following keys:
+;; :remote-addr :scheme :query-params :session :form-params :multipart-params :request-method :query-string :route-params :content-type :cookies :uri :server-name :params :headers :content-length :server-port :character-encoding :body
+
+(defn guess [question request]
+  (let [params (if (get request :form-params)
+                 (get request :form-params)
+                 (get request :query-params))]
+  (xml/serialize
+   (merge
+    (get request :query-params)
+    question))))
+
 (defn test []
   (list
    {:comment "all possible question types."

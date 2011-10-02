@@ -162,12 +162,9 @@
        request
        {
         :body
-        (let [type (italianverbs.quiz/random-guess-type)
-              guess (italianverbs.quiz/generate type)]
-          (xml/guess 
-           (get guess :italian)
-           (get guess :english)
-          request))
+        (let [type (quiz/random-guess-type)
+              question (quiz/generate type)]
+          (quiz/guess question request))
         :status 200
         :headers {"Content-type" "text/xml"}
         })

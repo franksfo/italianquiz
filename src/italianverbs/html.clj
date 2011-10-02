@@ -192,8 +192,6 @@
    {:comment "anchor"
     :test (create-anchor "foo" "bar 'baz'")}
    {:comment "iframe"
-    :test (iframe "/guess/")}
-   {:comment "iframe-html"
-    :test (iframe "/guess/?format=html")}))
+    :test (iframe "/guess/")}))
 
 
