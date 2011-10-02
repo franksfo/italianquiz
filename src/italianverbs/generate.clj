@@ -1,6 +1,5 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (purtroppo)
 (ns italianverbs.generate
-  (:use [somnium.congomongo])
   (:require
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
