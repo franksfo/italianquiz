@@ -142,9 +142,9 @@
                        " odd"))}
 
         [:td {:class "eval"}
-         (if (get row :green2)
+         (if (get row :evaluation)
            (str (highlight-green2
-                     (get row :green2) 0))
+                     (get row :evaluation) 0))
            (str "" (get row :guess)   ))]
 
 
@@ -166,12 +166,13 @@
   "update question # question id with guess: a rewrite of (evaluate-guess)."
   (let [guess
         (normalize-whitespace guess)]
-    (update! :question question (merge question {:guess guess
-                                                 :green2
-                                                 (if (and guess
-                                                          (> (.length guess) 0))
-                                                   (lev/get-green2 (get question :answer)
-                                                                   guess))}))))
+    (update! :question question
+             (merge question {:guess guess
+                              :evaluation ;; evaluate the user's guess against the correct response.
+                              (if (and guess
+                                       (> (.length guess) 0))
+                                (lev/get-green2 (get question :answer)
+                                                guess))}))))
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
