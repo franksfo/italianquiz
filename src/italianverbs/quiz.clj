@@ -101,7 +101,7 @@
 (defn each-correct [question]
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
-(defn highlight-green2 [green2 index]
+(defn format-evaluation [green2 index]
   (let [char (if (= (get (first green2) :action) "delete")
                (get (first green2) :truth)
                (get (first green2) :test))
@@ -111,7 +111,7 @@
        "<span class='" style "'>" char "</span>"
        (if (= style "subst")
          (str "<span class='delete'>" (get (first green2) :truth) "</span>"))
-       (highlight-green2
+       (format-evaluation
         (rest green2) (+ index 1))))))
 
 (defn show-history-rows [qs count hide-answer total]
@@ -143,7 +143,7 @@
 
         [:td {:class "eval"}
          (if (get row :evaluation)
-           (str (highlight-green2
+           (str (format-evaluation
                      (get row :evaluation) 0))
            (str "" (get row :guess)   ))]
 
