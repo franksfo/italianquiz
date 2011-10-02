@@ -17,12 +17,22 @@
  [x]
   (-> x str (.replace "&" "&amp;") (.replace "<" "&lt;") (.replace ">" "&gt;")))
 
-(defn guess [italian english & [request]]
-  (str (encoding)
-       "<guess>"
-       "<italian>" italian "</italian>"
-       "<english>" english "</english>"
-       "</guess>"))
+;; serialize a map as XML
+;; TODO: make it work for arbitrary keys - not specifically :english and :italian.
+(defn serialize [map]
+  (let [english (get map :english)
+        italian (get map :italian)
+        format (get map "format")
+        input (get map "input")
+        guess (get map "guess")]
+    (str (encoding)
+         "<question>"
+         "<format>" format "</format>"
+         "<input>" input "</input>"
+         "<guess>" guess "</guess>"
+         "<italian>" italian "</italian>"
+         "<english>" english "</english>"
+         "</question>")))
        
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
@@ -32,7 +42,10 @@
    {:comment "xml content"
     :test (xml-str (content))}
    {:comment "xml guess"
-    :test (xml-str (guess "io sono stato" "i went"))}))
+    :test (xml-str (serialize
+                    {:italian "io sono stato"
+                     :english "i went"}))}))
+
 
 
 
