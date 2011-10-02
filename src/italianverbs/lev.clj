@@ -107,9 +107,11 @@
                       (> prev-y y))
           ]
       (cons
-       {:pair pair
-        :score score
-        :prev prev-elem
+       ;; pair,score,prev-elem are commented out to lessen database storage.
+       ;; may be useful to uncomment for debugging lev code.
+       {;:pair pair
+        ;:score score
+        ;:prev prev-elem
         :action (if (= subst true)
                   "subst"
                   (if (= delete true)
