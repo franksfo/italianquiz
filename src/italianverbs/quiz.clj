@@ -162,8 +162,8 @@
        
        (show-history-rows (rest qs) (- count 1) true total)))))
 
+;;  "update question with guess - a rewrite of (format-evaluation)."
 (defn store-guess [guess question]
-  "update question # question id with guess: a rewrite of (evaluate-guess)."
   (let [guess
         (normalize-whitespace guess)]
     (update! :question question
