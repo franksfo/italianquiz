@@ -43,7 +43,7 @@
   (count questions))
 
 (defn wrapchoice [word & [ istrue ] ]
-  ;; FIXME: url-encode word.
+  ;; TODO: url-encode word.
   (let [href_prefix "/quiz/?"
 ;        english word]
         english (get word :english)]
@@ -456,21 +456,34 @@
 ;; note that request has the following keys:
 ;; :remote-addr :scheme :query-params :session :form-params :multipart-params :request-method :query-string :route-params :content-type :cookies :uri :server-name :params :headers :content-length :server-port :character-encoding :body
 
-(defn guess [question request]
-  (let [params (if (get request :form-params)
-                 (get request :form-params)
-                 (get request :query-params))]
-  (xml/serialize
-   (merge
-    (get request :query-params)
-    question))))
+(defn guess [question request format]
+  (let [params (if (= (get request :request-method) :get)
+                 (get request :query-params)
+                 (get request :form-params))
+        content (merge
+                 {:method (get request :request-method)}
+                 params
+                 {:question question})]
+    (if (= format "xml")
+      (xml/serialize
+       content)
+      (str ;; default: html.
+       (xml/encoding)
+       (html/showdoctype)
+       "<html>"
+       (html/head)
+       (html/fs content)
+       "</html>"))))
 
 (defn test []
   (list
    {:comment "all possible question types."
     :test all-possible-question-types}
-   {:comment "display a triple: input (english) user guess (italian), correct response (italian)"
-    :test (html/iframe "/guess/?format=html&input=you+know&guess=tu+sei")}))
+   {:comment "xml-display a triple: input (english) user guess (italian), correct response (italian)"
+    :test (html/iframe "/guess/xml/?input=you+know&guess=tu+sei")}
+   {:comment "html-display a triple: input (english) user guess (italian), correct response (italian)"
+    :test (html/iframe "/guess/?input=you+know&guess=tu+sei")}))
+
 
 
 
