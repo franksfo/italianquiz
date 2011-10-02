@@ -1,9 +1,9 @@
 ;; Seems like you need to restart ring to see changes to this file.
 (ns italianverbs.quiz
     (:use 
-     [hiccup core page-helpers]
-     [somnium.congomongo])
+     [hiccup core page-helpers])
     (:require [clojure.contrib.string :as stringc]
+              [somnium.congomongo :as mongo]
               [italianverbs.lexicon :as lexicon]
               [italianverbs.lev :as lev]
               [italianverbs.session :as session]
@@ -69,13 +69,13 @@
   "get the question id for the next question for this user."
   ;; TODO: improve: only return last question and get its _id.
   (let [session (session/request-to-session request)]
-    (count (fetch :question :where {:session session}))))
+    (count (mongo/fetch :question :where {:session session}))))
 
 (defn normalize-whitespace [string]
   (stringc/replace-re #"[ ]+$" "" (stringc/replace-re #"^[ ]+" "" (stringc/replace-re #"[ ]+" " " string))))
 
 (defn store-question [question request last-guess]
-  (insert! :question {:question (normalize-whitespace (get question :english))
+  (mongo/insert! :question {:question (normalize-whitespace (get question :english))
                       :answer (normalize-whitespace (get question :italian))
                       :id (get-next-question-id request)
                       :keys (str (keys question))
@@ -87,13 +87,13 @@
                       :session request}))
 
 (defn clear-questions [session]
-  (destroy! :question {:session session})
+  (mongo/destroy! :question {:session session})
   session)
 
 (defn set-filters [session request]
   (do
-    (destroy! :filter {:session session})
-    (insert! :filter {:form-params (get request :form-params)
+    (mongo/destroy! :filter {:session session})
+    (mongo/insert! :filter {:form-params (get request :form-params)
                       :session session})
     session))
 
@@ -166,7 +166,7 @@
 (defn store-guess [guess question]
   (let [guess
         (normalize-whitespace guess)]
-    (update! :question question
+    (mongo/update! :question question
              (merge question {:guess guess
                               :evaluation ;; evaluate the user's guess against the correct response.
                               (if (and guess
@@ -239,7 +239,7 @@
 (defn controls [session]
   (let [checked (fn [session key]
                   "return 'checked' if checkbox with key _key_ is set to true according to user's preferences."
-                  (let [record (fetch-one :filter :where {:session session})
+                  (let [record (mongo/fetch-one :filter :where {:session session})
                         filters (if record
                                   (get record :form-params))]
                     (if (get filters key)
@@ -302,7 +302,7 @@
    ]))
 
 (defn with-history-and-controls [session content]
-  (let [questions (fetch :question :where {:session session})]
+  (let [questions (mongo/fetch :question :where {:session session})]
     [:div
      [:div {:style "float:left;width:45%;margin-right:1em"}
       content
@@ -322,10 +322,10 @@
        [:thead
         ]
        [:tbody
-        (show-history-rows (fetch :question :where {:session session} :sort {:_id -1})
-                           (count (fetch :question :where {:session session}))
+        (show-history-rows (mongo/fetch :question :where {:session session} :sort {:_id -1})
+                           (count (mongo/fetch :question :where {:session session}))
                            false
-                           (count (fetch :question :where {:session session}))
+                           (count (mongo/fetch :question :where {:session session}))
                            )
         ]
        ]]
@@ -364,7 +364,7 @@
 
 (defn possible-question-types [session]
   (let [possible-question-types all-possible-question-types
-        record (fetch-one :filter :where {:session session})
+        record (mongo/fetch-one :filter :where {:session session})
         filters (if record
                   (get record :form-params))
         result (filter-by-criteria possible-question-types filters)]
@@ -388,7 +388,7 @@
           (generate (nth possible (rand-int (count possible)))))]
     
     (if last-guess (store-guess last-guess
-                                (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)))
+                                (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)))
     
     (if (or last-guess
             (= get-next-question-id 0))
@@ -410,7 +410,7 @@
                  (if (or last-guess
                          (= get-next-question-id 0))
                      (get next-question :english)
-                     (str (get (nth (fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)
+                     (str (get (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)
                                :question)))]]]
             [:tr
              [:td
