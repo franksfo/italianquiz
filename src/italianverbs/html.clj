@@ -33,13 +33,17 @@
           (str " class='" key ")"))
          "'>" "<th>" key "</th>  <td>" val "</td></tr>")))
 
+(defn- url-escape
+ "Like clojure.core/str but escapes ',\", ..(maybe more)."
+ [x]
+  (-> x str (.replace "'" "%27")))
+
 (defn google-translate [italian]
   (str
    "<a href='"
    "http://translate.google.com/"
    "#it|en|"
-   ;; TODO: URL:encode the following:
-   italian
+   (codec/url-encode italian)
    "'"   ">"
    italian "</a>"))
 
@@ -62,6 +66,7 @@
                                           (or (= key :head-debug) (= key :comp-debug)
                                               (= key :subj)(= key :obj)
                                               (= key :det)
+                                              (= key :question)
 ;                                              (= key :head)(= key :comp)
                                               (= key :notefs) ;; the following set is used for debugging.
                                               (= key :adjunct)(= key :iobj)
@@ -179,6 +184,20 @@
 
 (defn iframe [url]
   (str "<iframe src=\""  url "\"></iframe>"))
+
+(defn head []
+  (str
+   "<head>"
+   "<title>Quiz Italiani</title>"
+   "<script src='/js/jquery-1.6.4.min.js' type='text/javascript'></script>"
+   "<script src='/js/quiz.js' type='text/javascript'></script><link href='/css/style.css' rel='stylesheet' type='text/css'>"
+   "<link href='/css/layout.css' rel='stylesheet' type='text/css'>"
+   "<link href='/css/fs.css' rel='stylesheet' type='text/css'></head>"))
+
+;; TODO: look at hiccup.page-helpers/doctype
+(defn showdoctype []
+  "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"
+	\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">")
 
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
