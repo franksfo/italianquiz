@@ -454,7 +454,10 @@
 (defn test []
   (list
    {:comment "all possible question types."
-    :test all-possible-question-types}))
+    :test all-possible-question-types}
+   {:comment "display a triple: input (english) user guess (italian), correct response (italian)"
+    :test (html/iframe "/guess/?format=html&input=you+know&guess=tu+sei")}))
+
 
 
 
