@@ -24,9 +24,11 @@
         italian (get map :italian)
         format (get map "format")
         input (get map "input")
+        method (get map :method)
         guess (get map "guess")]
     (str (encoding)
          "<question>"
+         "<method>" method "</method>"
          "<format>" format "</format>"
          "<input>" input "</input>"
          "<guess>" guess "</guess>"

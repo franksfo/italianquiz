@@ -158,16 +158,28 @@
         :headers {"Location" "/?msg=cleared"}
         })
 
+  (GET "/guess/xml/"
+       request
+       {
+        :body
+        (let [type (quiz/random-guess-type)
+              question (quiz/generate type)]
+          (quiz/guess question request "xml"))
+        :status 200
+        :headers {"Content-type" "text/xml"}
+        })
+
   (GET "/guess/"
        request
        {
         :body
         (let [type (quiz/random-guess-type)
               question (quiz/generate type)]
-          (quiz/guess question request))
+          (quiz/guess question request "html"))
         :status 200
-        :headers {"Content-type" "text/xml"}
+        :headers {"Content-type" "text/html"}
         })
+
 
   (route/resources "/")
   (route/not-found (page "Non posso trovare (page not found)." "Non passo trovare. Sorry, page not found.")))
