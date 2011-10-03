@@ -28,6 +28,7 @@
 (defroutes main-routes
 ;   "A handler processes the request map and returns a response map."
 ; http://groups.google.com/group/compojure/browse_thread/thread/3c507da23540da6e
+; http://brehaut.net/blog/2011/ring_introduction
   (GET "/" 
        ;; request map: access it with (get request X),
        ;; where X in {:session,:request-method,:uri,...}
