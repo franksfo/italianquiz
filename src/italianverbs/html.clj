@@ -49,40 +49,39 @@
 
 (defn fs [feature-structure]
   "Format a feature structure as an  HTML table."
-  (str "<table class='fs'>"
-       (if (get feature-structure :italian)
-         (str "<tr><th colspan='2' class='fs'>"
-              (google-translate (get feature-structure :italian))
-              "</th></tr>"))
-       (string/join " " (seq (map fs-tr
-                                  (map (fn [key]
-                                         (cond
-                                          (= key :_id) nil
-                                          (= key :children) nil
-                                        ; uncomment for debugging.
-                                          (= key :fn) nil
-                                          (= key :head) nil
-                                          ;; featues whose values are nested feature structures.
-                                          (or (= key :head-debug) (= key :comp-debug)
-                                              (= key :subj)(= key :obj)
-                                              (= key :det)
-                                              (= key :question)
-;                                              (= key :head)(= key :comp)
-                                              (= key :notefs) ;; the following set is used for debugging.
-                                              (= key :adjunct)(= key :iobj)
-                                              (= key :choose)(= key :root)
-                                              (contains? (get feature-structure :type-is-fs) key)
-                                              (= key :choose-comp)(= key :choose-head))
-                                          (list key
-                                                (fs (get feature-structure key)))
-                                          (= key :comp) nil
-                                          (= key :type-is-fs) nil
-                                          true
-                                          (list key
-                                                (get feature-structure key))))
-                                       (set/difference (set (keys feature-structure))
-                                                       (set (list :italian)))))))
-       "</table>"))
+  (if (= java.lang.String (type feature-structure)) feature-structure
+      (str "<table class='fs'>"
+           (if (get feature-structure :italian)
+             (str "<tr><th colspan='2' class='fs'>"
+                  (google-translate (get feature-structure :italian))
+                  "</th></tr>"))
+           (string/join " " (seq (map fs-tr
+                                      (map (fn [key]
+                                             (cond
+                                              (= key :_id) nil
+                                              (= key :children) nil
+                                              ;; features whose values are nested feature structures.
+                                              (or (= key :head-debug) (= key :comp-debug)
+                                                  (= key :subj)(= key :obj)
+                                                  (= key :det)
+                                                  (= key :question)
+                                                  (= key :most-recent)
+                                                  (= key :head)(= key :comp)
+                                                  (= key :notefs) ;; the following set is used for debugging.
+                                                  (= key :adjunct)(= key :iobj)
+                                                  (= key :choose)(= key :root)
+                                                  (contains? (get feature-structure :type-is-fs) key)
+                                                  (= key :choose-comp)(= key :choose-head))
+                                              (list key
+                                                    (fs (get feature-structure key)))
+                                              (= key :comp) nil
+                                              (= key :type-is-fs) nil
+                                              true
+                                              (list key
+                                                    (get feature-structure key))))
+                                           (set/difference (set (keys feature-structure))
+                                                           (set (list :italian)))))))
+           "</table>")))
 
 ;; TODO: check _parent_ type: (string,symbol,list,map) should be enough to start.
 (defn tablize [arg]
@@ -188,7 +187,7 @@
 (defn head []
   (str
    "<head>"
-   "<title>Quiz Italiani</title>"
+   "<title>Verbi Italiani</title>"
    "<script src='/js/jquery-1.6.4.min.js' type='text/javascript'></script>"
    "<script src='/js/quiz.js' type='text/javascript'></script><link href='/css/style.css' rel='stylesheet' type='text/css'>"
    "<link href='/css/layout.css' rel='stylesheet' type='text/css'>"
