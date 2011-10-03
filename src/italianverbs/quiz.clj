@@ -76,15 +76,15 @@
 
 (defn store-question [question request last-guess]
   (mongo/insert! :question {:question (normalize-whitespace (get question :english))
-                      :answer (normalize-whitespace (get question :italian))
-                      :id (get-next-question-id request)
-                      :keys (str (keys question))
-                      :cat (get question :cat)
-                      :guess last-guess
-                      :gender (get question :gender)
-                      :italian (get question :italian)
-                      :english (get question :english)
-                      :session request}))
+                            :answer (normalize-whitespace (get question :italian))
+                            :id (get-next-question-id request)
+                            :keys (str (keys question))
+                            :cat (get question :cat)
+                            :guess last-guess
+                            :gender (get question :gender)
+                            :italian (get question :italian)
+                            :english (get question :english)
+                            :session request}))
 
 (defn clear-questions [session]
   (mongo/destroy! :question {:session session})
@@ -460,9 +460,12 @@
   (let [params (if (= (get request :request-method) :get)
                  (get request :query-params)
                  (get request :form-params))
+        session (session/request-to-session request)
         content (merge
                  {:method (get request :request-method)}
                  params
+                 {:most-recent (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)}
+                 {:session session}
                  {:question question})]
     (if (= format "xml")
       (xml/serialize
@@ -476,13 +479,22 @@
        "</html>"))))
 
 (defn test []
-  (list
-   {:comment "all possible question types."
-    :test all-possible-question-types}
-   {:comment "xml-display a triple: input (english) user guess (italian), correct response (italian)"
-    :test (html/iframe "/guess/xml/?input=you+know&guess=tu+sei")}
-   {:comment "html-display a triple: input (english) user guess (italian), correct response (italian)"
-    :test (html/iframe "/guess/?input=you+know&guess=tu+sei")}))
+  (let [session "e0933a66-2b37-4bc7-b4c6-400ff2e81d9a"]
+    (list
+     {:comment "all possible question types."
+      :test all-possible-question-types}
+     {:comment "xml-display a triple: input (english) user guess (italian), correct response (italian)"
+      :test (html/iframe "/guess/xml/?input=you+know&guess=tu+sei")}
+     {:comment "html-display a triple: input (english) user guess (italian), correct response (italian)"
+      :test (html/iframe "/guess/?input=you+know&guess=tu+sei")}
+     {:comment "fs printing"
+      :test (html/fs
+             {:most-recent
+              (let [qs (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
+                (if (> (.size qs) 0)
+                  (nth qs 0)
+                  "(no questions yet.)"))})})))
+  
 
 
 
