@@ -163,7 +163,7 @@
        (show-history-rows (rest qs) (- count 1) true total)))))
 
 ;;  "update question with guess - a rewrite of (format-evaluation)."
-(defn store-guess [guess question]
+(defn update-question-with-guess [guess question]
   (let [guess
         (normalize-whitespace guess)]
     (mongo/update! :question question
@@ -387,8 +387,8 @@
                 (= get-next-question-id 0))
           (generate (nth possible (rand-int (count possible)))))]
     
-    (if last-guess (store-guess last-guess
-                                (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)))
+    (if last-guess (update-question-with-guess last-guess
+                     (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)))
     
     (if (or last-guess
             (= get-next-question-id 0))
@@ -461,22 +461,30 @@
                  (get request :query-params)
                  (get request :form-params))
         session (session/request-to-session request)
+        guess (get params "guess")
         content (merge
                  {:method (get request :request-method)}
                  params
-                 {:most-recent (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)}
+                 {:most-recent
+                  (let [most-recent-singleton-set
+                        (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
+                    (if (> (.size most-recent-singleton-set) 0)
+                      (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)
+                      nil))}
                  {:session session}
                  {:question question})]
-    (if (= format "xml")
-      (xml/serialize
-       content)
-      (str ;; default: html.
-       (xml/encoding)
-       (html/showdoctype)
-       "<html>"
-       (html/head)
-       (html/fs content)
-       "</html>"))))
+    (do
+      (store-question question (session/request-to-session request) guess)
+      (if (= format "xml")
+        (xml/serialize
+         content)
+        (str ;; default: html.
+         (xml/encoding)
+         (html/showdoctype)
+         "<html>"
+         (html/head)
+         (html/fs content)
+         "</html>")))))
 
 (defn test []
   (let [session "e0933a66-2b37-4bc7-b4c6-400ff2e81d9a"]
