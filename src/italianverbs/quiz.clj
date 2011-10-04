@@ -112,6 +112,8 @@
        (format-evaluation
         (rest green2) (+ index 1))))))
 
+;; TODO: use tail recursion per
+;; http://clojure.org/functional_programming#Functional%20Programming--Recursive%20Looping
 (defn show-history-rows [qs count hide-answer total]
   (if (first qs)
     (let
@@ -122,11 +124,7 @@
                 (if (= (- total count) 0)
                   (str (- total count) " debug")
                   (- total count))
-                "n"))
-         correctness (if (and (get row :guess) (not (= (get row :guess) "")))
-                       (if (= (get row :answer) (get row :guess))
-                         "correct"
-                         "incorrect"))]
+                "n"))]
       (html
        [:tr
         {:class (str distance-from-top
@@ -143,7 +141,7 @@
          (if (get row :evaluation)
            (str (format-evaluation
                      (get row :evaluation) 0))
-           (str "" (get row :guess)   ))]
+           (str "" (get row :guess)))]
 
 
         ]
@@ -477,17 +475,20 @@
           (if (and results (> (.size results) 0))
             (update-question-with-guess guess (nth results 0)))))
       (store-question question (session/request-to-session request) guess)
-      (if (= format "xml")
-        (xml/serialize
-         content)
-        (str ;; default: html.
-         (xml/encoding)
-         (html/showdoctype)
-         "<html>"
-         (html/head)
-         "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
-         "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
-         "</html>")))))
+      (cond
+       (= format "xml")
+       (xml/serialize
+        content)
+       (= format "tr")
+       (html/guess-tr content)
+       (str ;; default: html.
+        (xml/encoding)
+        (html/showdoctype)
+        "<html>"
+        (html/head)
+        "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
+        "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
+        "</html>")))))
 
 (defn test []
   (let [session "e0933a66-2b37-4bc7-b4c6-400ff2e81d9a"]
