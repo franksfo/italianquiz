@@ -170,6 +170,7 @@
         :headers {"Content-type" "text/xml"}
         })
 
+  ;; TODO: move quiz/* (except for quiz/guess) calls to body of quiz/guess.
   (GET "/guess/"
        request
        {
