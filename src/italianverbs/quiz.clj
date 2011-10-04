@@ -112,7 +112,42 @@
        (format-evaluation
         (rest green2) (+ index 1))))))
 
-;; TODO: use tail recursion per
+(defn show-history-row [row count hide-answer total next-q]
+  (let [distance-from-top
+        (str "dist"
+             (if (< (- total count) 5)
+               (if (= (- total count) 0)
+                 (str (- total count) " debug")
+                 (- total count))
+               "n"))]
+    (html
+     [:tr
+      {:class (str distance-from-top
+                   (if (= (mod count 2) 1)
+                     " odd"))}
+      [:td {:rowspan "2"} (get row :question)] ]
+     [:tr
+      {:class (str distance-from-top
+                   (if (= (mod count 2) 1)
+                     " odd"))}
+      
+      [:td {:class "eval"}
+       (if (get row :evaluation)
+         (str (format-evaluation
+               (get row :evaluation) 0))
+         (str "" (get row :guess)))]]
+     (if (not (= (get row :answer)
+                 (get row :guess)))
+       
+       [:tr
+        {:class (str distance-from-top
+                     (if (= (mod count 2) 1)
+                       " odd"))}
+        [:td "" ]
+        [:td {:class "answer"} (if (= hide-answer false) next-q (get row :answer))]
+        ]))))
+
+;; TODO: use tail recursion per:
 ;; http://clojure.org/functional_programming#Functional%20Programming--Recursive%20Looping
 (defn show-history-rows [qs count hide-answer total]
   (if (first qs)
@@ -480,7 +515,8 @@
        (xml/serialize
         content)
        (= format "tr")
-       (html/guess-tr content)
+       (str "<tr>" "<td>" content "</td>" "</tr>")
+       true
        (str ;; default: html.
         (xml/encoding)
         (html/showdoctype)
