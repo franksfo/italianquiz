@@ -13,7 +13,8 @@
 ; ..test output..
 
 (ns italianverbs.generate
-  (:use [somnium.congomongo]))
+  (:use [somnium.congomongo])
+  (:require [somnium.congomongo :as mongo]))
 
 (mongo! :db "mydb")
 (load "generate")
