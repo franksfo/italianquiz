@@ -482,7 +482,8 @@
          (html/showdoctype)
          "<html>"
          (html/head)
-         (html/fs content)
+         "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
+         "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
          "</html>")))))
 
 (defn test []
