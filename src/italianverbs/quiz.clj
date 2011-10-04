@@ -1,7 +1,6 @@
 ;; Seems like you need to restart ring to see changes to this file.
 (ns italianverbs.quiz
-    (:use 
-     [hiccup core page-helpers])
+    (:use [hiccup core page-helpers])
     (:require [clojure.contrib.string :as stringc]
               [somnium.congomongo :as mongo]
               [italianverbs.lexicon :as lexicon]
@@ -473,6 +472,10 @@
                  {:session session}
                  {:question question})]
     (do
+      (if guess
+        (let [results (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
+          (if (and results (> (.size results) 0))
+            (update-question-with-guess guess (nth results 0)))))
       (store-question question (session/request-to-session request) guess)
       (if (= format "xml")
         (xml/serialize
