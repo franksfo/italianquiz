@@ -28,13 +28,13 @@
     (if session-row ;; only show quiz option if there's a session to save the quiz for.
       [:div
        (if (= relative-url "/quiz/") {:class "selected"})
-       [:a {:href "/quiz/"} "Quiz"]])
+       [:a {:href "quiz/"} "Quiz"]])
     [:div
      (if (= relative-url "/lexicon/") {:class "selected"})
-     [:a {:href "/lexicon/"} "Lexicon"  ] ] 
+     [:a {:href "lexicon/"} "Lexicon"  ] ] 
     [:div
      (if (= relative-url "/test/") {:class "selected"})
-     [:a {:href "/test/"} "Unit Tests"  ] ] 
+     [:a {:href "test/"} "Unit Tests"  ] ] 
     ]))
 
 (defn powered-by [name link]
@@ -109,12 +109,13 @@
   (html5
    [:head 
     [:meta  {:charset "ISO-8859-1"}]
+    [:base  {:href "http://hiro-tan.org/italian/"}]
     [:title "Verbi italiani &#0187; " title]
-    [:script {:type "text/javascript" :src "/js/jquery-1.6.4.min.js"}]
-    [:script {:type "text/javascript" :src "/js/quiz.js"}]
-    (include-css "/css/style.css")
-    (include-css "/css/layout.css")
-    (include-css "/css/fs.css")
+    [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
+    [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
+    (include-css "css/style.css")
+    (include-css "css/layout.css")
+    (include-css "css/fs.css")
     ]
    [:body
     {:onload
@@ -125,7 +126,7 @@
       "setTimeout('location.reload(true);',5000);"
       true "")}
     [:h1
-     [:a {:href "/"} "Verbi italiani" ]
+     [:a {:href "/italian/"} "Verbi italiani" ]
       " &#0187;" title ]
 
     (if request
