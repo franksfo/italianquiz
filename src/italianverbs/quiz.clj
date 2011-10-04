@@ -78,7 +78,6 @@
   (mongo/insert! :question {:question (normalize-whitespace (get question :english))
                             :answer (normalize-whitespace (get question :italian))
                             :id (get-next-question-id request)
-                            :keys (str (keys question))
                             :cat (get question :cat)
                             :guess last-guess
                             :gender (get question :gender)
