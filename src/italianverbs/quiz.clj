@@ -353,11 +353,11 @@
        [:thead
         ]
        [:tbody
-        (show-history-rows (mongo/fetch :question :where {:session session} :sort {:_id -1})
-                           (count (mongo/fetch :question :where {:session session}))
-                           false
-                           (count (mongo/fetch :question :where {:session session}))
-                           )
+        (let [count (count (mongo/fetch :question :where {:session session}))]
+          (show-history-rows (mongo/fetch :question :where {:session session} :sort {:_id -1})
+                             count
+                             false
+                             count))
         ]
        ]]
      
