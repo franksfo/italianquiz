@@ -179,15 +179,27 @@
         :headers {"Content-type" "text/xml"}
         })
 
-  (GET "/guess/tr/"
+  (GET "/guess/"
        request
        {
         :body
         (let [type (quiz/random-guess-type)
               question (quiz/generate type)]
-          (quiz/guess question request "tr"))
+          (quiz/guess question request "xml"))
         :status 200
-        :headers {"Content-type" "text/html"}
+        :headers {"Content-type" "text/xml"}
+        })
+
+  
+  (GET "/guess/xmltr/"
+       request
+       {
+        :body
+        (let [type (quiz/random-guess-type)
+              question (quiz/generate type)]
+          (quiz/guess question request "xmltr"))
+        :status 200
+        :headers {"Content-type" "text/xml"}
         })
 
   (GET "/guess/html/"

@@ -547,6 +547,13 @@
                "</container>"))
          (= format "tr")
          (table-row top2)
+         (= format "xmltr")
+         (str
+          (xml/encoding)
+          "<xmltr>"
+          "<question>" (get top1 :english) "</question>"
+          (table-row top2)
+          "</xmltr>")
          true
          (str ;; default: html.
           (xml/encoding)
