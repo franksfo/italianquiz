@@ -493,8 +493,21 @@
       (nth most-recent-set 1)
       nil)))
 
+(defn table-row [answered-question-tuple]
+  (let [english (get answered-question-tuple :english)
+        italian (get answered-question-tuple :italian)
+        guess (get answered-question-tuple :guess)
+        evaluation (get answered-question-tuple :evaluation)]
 ;; note that request has the following keys:
 ;; :remote-addr :scheme :query-params :session :form-params :multipart-params :request-method :query-string :route-params :content-type :cookies :uri :server-name :params :headers :content-length :server-port :character-encoding :body
+    (str
+     "<tr>"
+     "<td rowspan='2'>" english "</td>"
+     "<td>" italian   "</td>"
+     "</tr>"
+     "<tr>"
+     "<td>" evaluation "</td>"
+     "</tr>")))
 
 (defn guess [question request format]
   (let [params (if (= (get request :request-method) :get)
@@ -518,14 +531,18 @@
        (xml/serialize
         content)
        (= format "tr")
-       (str "<tr>" "<td>" content "</td>" "</tr>")
+       (table-row
+        {:english "foo"
+         :italian "bar"
+         :guess "guess"
+         :evaluation "eval"})
        true
        (let [top1 {:english (get (get content :question) :english)}
              previous-question (previous-question session)
              top2 {:english (get previous-question :english)
                    :italian (get previous-question :italian)
                    :guess (get previous-question :guess)
-                   :evaluation (get previous-question :evaluation)}]
+                   :evaluation (format-evaluation (get previous-question :evaluation) 0)}]
          (str ;; default: html.
           (xml/encoding)
           (html/showdoctype)
@@ -533,7 +550,11 @@
           (html/head)
           "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
           "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>1</h1>" (html/fs top1) "</div>"
-          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>2</h1>" (html/fs top2) "</div>"
+          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>2</h1>"
+          "<table class='test'>"
+          (table-row top2)
+          "</table>"
+          "</div>"
           "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
           "</html>"))))))
 
