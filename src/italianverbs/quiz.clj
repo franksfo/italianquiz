@@ -99,6 +99,8 @@
 (defn each-correct [question]
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
+;; TODO: use looping per:
+;; http://clojure.org/functional_programming#Functional%20Programming--Recursive%20Looping
 (defn format-evaluation [green2 index]
   (let [char (if (= (get (first green2) :action) "delete")
                (get (first green2) :truth)
@@ -147,7 +149,7 @@
         [:td {:class "answer"} (if (= hide-answer false) next-q (get row :answer))]
         ]))))
 
-;; TODO: use tail recursion per:
+;; TODO: use looping per:
 ;; http://clojure.org/functional_programming#Functional%20Programming--Recursive%20Looping
 (defn show-history-rows [qs count hide-answer total]
   (if (first qs)
@@ -483,7 +485,13 @@
      [:div (quiz nil request)])))
 
 
-(defn eval-most-recent-question [request])
+(defn previous-question [session]
+  (let [most-recent-set
+        (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 2)]
+    ;; must be at least 2 results: if not, return nil.
+    (if (> (.size most-recent-set) 1)
+      (nth most-recent-set 1)
+      nil)))
 
 ;; note that request has the following keys:
 ;; :remote-addr :scheme :query-params :session :form-params :multipart-params :request-method :query-string :route-params :content-type :cookies :uri :server-name :params :headers :content-length :server-port :character-encoding :body
@@ -497,18 +505,8 @@
         content (merge
                  {:method (get request :request-method)}
                  params
-                 {:most-recent
-                  (let [most-recent-singleton-set
-                        (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
-                    (if (> (.size most-recent-singleton-set) 0)
-                      (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)
-                      nil))}
                  {:session session}
-                 {:question question})
-        top1 {:english (get (get content :question) :english)}
-        top2 {:english (get (get content :most-recent) :english)
-              :guess (get (get content :most-recent) :guess)
-              :italian (get (get content :most-recent) :italian)}]
+                 {:question question})]
     (do
       (if guess
         (let [results (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
@@ -522,16 +520,22 @@
        (= format "tr")
        (str "<tr>" "<td>" content "</td>" "</tr>")
        true
-       (str ;; default: html.
-        (xml/encoding)
-        (html/showdoctype)
-        "<html>"
-        (html/head)
-        "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
-        "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>1</h1>" (html/fs top1) "</div>"
-        "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>2</h1>" (html/fs top2) "</div>"
-        "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
-        "</html>")))))
+       (let [top1 {:english (get (get content :question) :english)}
+             previous-question (previous-question session)
+             top2 {:english (get previous-question :english)
+                   :italian (get previous-question :italian)
+                   :guess (get previous-question :guess)
+                   :evaluation (get previous-question :evaluation)}]
+         (str ;; default: html.
+          (xml/encoding)
+          (html/showdoctype)
+          "<html>"
+          (html/head)
+          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
+          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>1</h1>" (html/fs top1) "</div>"
+          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>2</h1>" (html/fs top2) "</div>"
+          "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
+          "</html>"))))))
 
 (defn test []
   (let [session "e0933a66-2b37-4bc7-b4c6-400ff2e81d9a"]
