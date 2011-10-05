@@ -374,3 +374,11 @@ div.click:blur {
     background: green;
     color: lightgrey;
 }
+
+table.test td {
+    border:1px dashed green;
+    padding-top:0.25em;
+    padding-bottom:0.25em;
+}
+
+
