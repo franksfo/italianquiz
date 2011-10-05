@@ -536,8 +536,15 @@
                   :evaluation (format-evaluation (get previous-question :evaluation) 0)}]
         (cond
          (= format "xml")
-         (xml/serialize
-          content)
+         (str
+          (xml/encoding)
+          (str "<container>"
+               "<question>" (get top1 :english) "</question>"
+               "<english>" (get top2 :english) "</english>"
+               "<italian>" (get top2 :italian) "</italian>"
+               "<guess>" (get top2 :guess) "</guess>"
+               "<evaluation>" (get top2 :evaluation) "</evaluation>"
+               "</container>"))
          (= format "tr")
          (table-row top2)
          true
