@@ -159,16 +159,12 @@
         :headers {"Location" "/?msg=cleared"}
         })
 
+  ;; xml is default, so just redirect to /guess/.
+  ;; TODO: pass params along.
   (GET "/guess/xml/"
        request
-       {
-        :body
-        (let [type (quiz/random-guess-type)
-              question (quiz/generate type)]
-          (quiz/guess question request))
-        :status 200
-        :headers {"Content-type" "text/xml"}
-        })
+       {:status 302
+        :headers {"Location" "/guess/"}})
 
   ;; TODO: move quiz/* (except for quiz/guess) calls to body of quiz/guess.
   ;; TODO: add POST equivalents for all of these.
