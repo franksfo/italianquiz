@@ -550,8 +550,8 @@
           "<html>"
           (html/head)
           "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
-          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>1</h1>" (html/fs top1) "</div>"
-          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>2</h1>"
+          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>current question</h1>" (html/fs top1) "</div>"
+          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>previous question</h1>"
           "<table class='test'>"
           (table-row top2)
           "</table>"
