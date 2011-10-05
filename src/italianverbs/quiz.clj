@@ -516,6 +516,7 @@
                  (get request :form-params))
         session (session/request-to-session request)
         guess (get params "guess")
+        format (if format format (get params "format"))
         content (merge
                  {:method (get request :request-method)}
                  params
@@ -527,23 +528,19 @@
           (if (and results (> (.size results) 0))
             (update-question-with-guess guess (nth results 0)))))
       (store-question question (session/request-to-session request) guess)
-      (cond
-       (= format "xml")
-       (xml/serialize
-        content)
-       (= format "tr")
-       (table-row
-        {:english "foo"
-         :italian "bar"
-         :guess "guess"
-         :evaluation "eval"})
-       true
-       (let [top1 {:english (get (get content :question) :english)}
-             previous-question (previous-question session)
-             top2 {:english (get previous-question :english)
-                   :italian (get previous-question :italian)
-                   :guess (get previous-question :guess)
-                   :evaluation (format-evaluation (get previous-question :evaluation) 0)}]
+      (let [top1 {:english (get (get content :question) :english)}
+            previous-question (previous-question session)
+            top2 {:english (get previous-question :english)
+                  :italian (get previous-question :italian)
+                  :guess (get previous-question :guess)
+                  :evaluation (format-evaluation (get previous-question :evaluation) 0)}]
+        (cond
+         (= format "xml")
+         (xml/serialize
+          content)
+         (= format "tr")
+         (table-row top2)
+         true
          (str ;; default: html.
           (xml/encoding)
           (html/showdoctype)
@@ -558,7 +555,7 @@
           "</div>"
           "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
           "</html>"))))))
-
+  
 (defn test []
   (let [session "e0933a66-2b37-4bc7-b4c6-400ff2e81d9a"]
     (list

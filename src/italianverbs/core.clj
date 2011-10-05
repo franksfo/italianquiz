@@ -165,13 +165,36 @@
         :body
         (let [type (quiz/random-guess-type)
               question (quiz/generate type)]
-          (quiz/guess question request "xml"))
+          (quiz/guess question request))
         :status 200
         :headers {"Content-type" "text/xml"}
         })
 
   ;; TODO: move quiz/* (except for quiz/guess) calls to body of quiz/guess.
+  ;; TODO: add POST equivalents for all of these.
   (GET "/guess/"
+       request
+       {
+        :body
+        (let [type (quiz/random-guess-type)
+              question (quiz/generate type)]
+          (quiz/guess question request "xml"))
+        :status 200
+        :headers {"Content-type" "text/xml"}
+        })
+
+  (GET "/guess/tr/"
+       request
+       {
+        :body
+        (let [type (quiz/random-guess-type)
+              question (quiz/generate type)]
+          (quiz/guess question request "tr"))
+        :status 200
+        :headers {"Content-type" "text/html"}
+        })
+
+  (GET "/guess/html/"
        request
        {
         :body
