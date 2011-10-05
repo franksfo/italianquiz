@@ -504,7 +504,11 @@
                       (nth (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1) 0)
                       nil))}
                  {:session session}
-                 {:question question})]
+                 {:question question})
+        top1 {:english (get (get content :question) :english)}
+        top2 {:english (get (get content :most-recent) :english)
+              :guess (get (get content :most-recent) :guess)
+              :italian (get (get content :most-recent) :italian)}]
     (do
       (if guess
         (let [results (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
@@ -524,6 +528,8 @@
         "<html>"
         (html/head)
         "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
+        "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>1</h1>" (html/fs top1) "</div>"
+        "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>2</h1>" (html/fs top2) "</div>"
         "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
         "</html>")))))
 
