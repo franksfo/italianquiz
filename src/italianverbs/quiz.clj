@@ -102,17 +102,18 @@
 ;; TODO: use looping per:
 ;; http://clojure.org/functional_programming#Functional%20Programming--Recursive%20Looping
 (defn format-evaluation [green2 index]
-  (let [char (if (= (get (first green2) :action) "delete")
-               (get (first green2) :truth)
-               (get (first green2) :test))
-        style (get (first green2) :action)]
-    (if (> (.size green2) 0)
-      (str
-       "<span class='" style "'>" char "</span>"
-       (if (= style "subst")
-         (str "<span class='delete'>" (get (first green2) :truth) "</span>"))
-       (format-evaluation
-        (rest green2) (+ index 1))))))
+  (if green2
+    (let [char (if (= (get (first green2) :action) "delete")
+                 (get (first green2) :truth)
+                 (get (first green2) :test))
+          style (get (first green2) :action)]
+      (if (> (.size green2) 0)
+        (str
+         "<span class='" style "'>" char "</span>"
+         (if (= style "subst")
+           (str "<span class='delete'>" (get (first green2) :truth) "</span>"))
+         (format-evaluation
+          (rest green2) (+ index 1)))))))
 
 (defn show-history-row [row count hide-answer total next-q]
   (let [distance-from-top
