@@ -12,7 +12,7 @@
 ; italianverbs.generate=> (test)
 ; ..test output..
 
-(ns italianverbs.generate
+(ns italianverbs.quiz
   (:use [somnium.congomongo])
   (:require [somnium.congomongo :as mongo]))
 
