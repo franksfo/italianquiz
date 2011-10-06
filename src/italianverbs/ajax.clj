@@ -33,10 +33,10 @@
                                  </table>")))))
 
 (defn ajax-update []
-  (clojure.string/join ""
-                       (flatten
-                        (list "<button class='click' onclick='ajax_refresh()'>refresh</button>"
-                              "<table><tbody id='ajax_update'></tbody></table>"))))
+  (str
+   "<input id='guess_input' type='text' value='myguess'></input>"
+   "<button class='click' onclick='ajax_refresh(\"guess_input\")'>refresh</button>"
+   "<table><tbody id='ajax_update'></tbody></table>"))
 
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
