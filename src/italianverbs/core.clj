@@ -176,18 +176,18 @@
               question (quiz/generate type)]
           (quiz/guess question request "xml"))
         :status 200
-        :headers {"Content-type" "text/xml"}
+        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
 
-  (GET "/guess/"
+  (GET "/guess/tr/"
        request
        {
         :body
         (let [type (quiz/random-guess-type)
               question (quiz/generate type)]
-          (quiz/guess question request "xml"))
+          (quiz/guess question request "tr"))
         :status 200
-        :headers {"Content-type" "text/xml"}
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
   
@@ -199,7 +199,7 @@
               question (quiz/generate type)]
           (quiz/guess question request "xmltr"))
         :status 200
-        :headers {"Content-type" "text/xml"}
+        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
 
   (GET "/guess/html/"
@@ -210,7 +210,7 @@
               question (quiz/generate type)]
           (quiz/guess question request "html"))
         :status 200
-        :headers {"Content-type" "text/html"}
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
 

@@ -32,6 +32,12 @@
                                    <tbody id='guess-table'></tbody>
                                  </table>")))))
 
+(defn ajax-update []
+  (clojure.string/join ""
+                       (flatten
+                        (list "<button class='click' onclick='ajax_refresh()'>refresh</button>"
+                              "<table><tbody id='ajax_update'></tbody></table>"))))
+
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
   return a map or a list or a function. a function will be applied against an
@@ -40,5 +46,7 @@
    {:comment "add static content to the top of a table."
     :test (prepend-static)}
    {:comment "add dynamic content to the top of a table."
-    :test (prepend-dynamic)}))
+    :test (prepend-dynamic)}
+   {:comment "add ajax content to a div."
+    :test (ajax-update)}))
 

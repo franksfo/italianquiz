@@ -13,3 +13,14 @@ function addguess(english,italian) {
     $("#guess_row_"+guessNumber).fadeIn("slow");
     guessNumber++;
 }
+
+function ajax_refresh(content) {
+ var new_content = $.ajax({
+     dataType: "html",
+     url: '/guess/tr/?guess=gennario',
+     success: function (content) {
+         $("#ajax_update").prepend(content);
+     }
+ });
+}
+
