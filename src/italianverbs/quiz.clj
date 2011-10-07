@@ -196,17 +196,40 @@
        
        (show-history-rows (rest qs) (- count 1) true total)))))
 
+(defn most-recent-qid-for-user [session]
+  (let [results (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
+    (if (> (.size results) 0)
+      (get (nth results 0) :_id))))
+
+(defn update-question-by-id-with-guess [guess qid]
+  (let [guess
+        (normalize-whitespace guess)
+        question (nth (mongo/fetch :question :where {:_id qid}) 0)] ;; TODO : throw exception if question[_id=qid] not found.
+    (mongo/update! :question {:_id qid}
+                   (merge
+                    question
+                    {:guess guess
+                     :evaluation ;; evaluate the user's guess against the correct response.
+                     (if (and guess
+                              (> (.length guess) 0))
+                       (lev/get-green2 (get question :answer)
+                                       guess))}))
+    (nth (mongo/fetch :question :where {:_id qid}) 0)))
+
 ;;  "update question with guess - a rewrite of (format-evaluation)."
 (defn update-question-with-guess [guess question]
   (let [guess
         (normalize-whitespace guess)]
     (mongo/update! :question question
-             (merge question {:guess guess
-                              :evaluation ;; evaluate the user's guess against the correct response.
-                              (if (and guess
-                                       (> (.length guess) 0))
-                                (lev/get-green2 (get question :answer)
-                                                guess))}))))
+                   (merge {:guess guess
+                           :shitty "crap"
+                           :evaluation ;; evaluate the user's guess against the correct response.
+                           (if (and guess
+                                    (> (.length guess) 0))
+                             (lev/get-green2 (get question :answer)
+                                             guess))}
+                          question
+                          {:fucking "clojure"}))))
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
@@ -406,8 +429,7 @@
     (if (> (count result) 0)
       result
       all-possible-question-types)))
-        
-    
+
 (defn quiz [last-guess request]
   "choose a question type from the set of question types possible given the user's preference, and
    and then generate a question for that question type."
@@ -509,6 +531,62 @@
      "<tr>"
      "<td>" evaluation "</td>"
      "</tr>")))
+
+(defn question [request]
+  ;; create a new question, store in backing store, and return question's english form
+  ;; to pose question to user.
+  (let [type (random-guess-type)
+        question (generate type)]
+    (store-question question (session/request-to-session request) nil)
+    (get question :english)))
+
+(defn evaluate [request format]
+  (let [params (if (= (get request :request-method) :get)
+                 (get request :query-params)
+                 (get request :form-params))
+        session (session/request-to-session request)
+        guess (get params "guess")
+        format (if format format (get params "format"))
+        content (merge
+                 {:method (get request :request-method)}
+                 params
+                 {:session session})]
+    (if guess
+      (let [qid (most-recent-qid-for-user session)
+            result
+            (if qid
+              (update-question-by-id-with-guess guess qid))]
+        (cond
+         (= format "xml")
+         (str
+          (xml/encoding)
+          (str "<container>"
+               "<guess>" guess "</guess>"
+               "<correctanswer>" (get result :italian) "</correctanswer>"
+               "<evaluation>" (get result :evaluation) "</evaluation>"
+               "</container>"))
+         (= format "tr")
+         (table-row result)
+         (= format "xmltr")
+         (str
+          (xml/encoding)
+          "<xmltr>"
+          (table-row result)
+          "</xmltr>")
+         true
+         (str ;; default: html.
+          (xml/encoding)
+          (html/showdoctype)
+          "<html>"
+          (html/head)
+          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
+          "<table class='test'>"
+          (table-row result)
+          "</table>"
+          "</div>"
+          "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
+          "</html>")))
+      (str "<error>no guess" guess "</error>"))))
 
 (defn guess [question request format]
   (let [params (if (= (get request :request-method) :get)
