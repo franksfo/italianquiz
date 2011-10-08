@@ -516,6 +516,12 @@
       (nth most-recent-set 1)
       nil)))
 
+(defn table-row-debug-info [answered-question-tuple]
+  (str
+   "<tr>"
+   "<td>id=" (get answered-question-tuple :_id) "</td>"
+   "</tr>"))
+
 (defn table-row [answered-question-tuple]
   (let [english (get answered-question-tuple :english)
         italian (get answered-question-tuple :italian)
@@ -526,21 +532,24 @@
     (str
      "<tr>"
      "<td rowspan='2'>" english "</td>"
-     "<td>" italian   "</td>"
+     "<td>" italian "</td>"
      "</tr>"
      "<tr>"
      "<td>" (format-evaluation evaluation 0) "</td>"
-     "</tr>")))
+     "</tr>"
+     (if false (table-row-debug-info))
+     )))
 
 (defn question [request]
   ;; create a new question, store in backing store, and return question's english form
   ;; to pose question to user.
   (let [type (random-guess-type)
-        question (generate type)]
-    (store-question question (session/request-to-session request) nil)
-    (get question :english)))
+        question (store-question (generate type)
+                                 (session/request-to-session request) nil)]
+    (str "<div id='question_text'>" (get question :question) "</div>"
+        "<div id='question_id'>" (get question :_id) "</div>")))
 
-(defn evaluate [request format]
+(defn evaluate [request format & [ qid ]]
   (let [params (if (= (get request :request-method) :get)
                  (get request :query-params)
                  (get request :form-params))
