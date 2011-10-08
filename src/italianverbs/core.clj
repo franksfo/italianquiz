@@ -179,6 +179,17 @@
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
 
+  ;; create a new question, store in backing store, and return question's english form
+  ;; to pose question to user.
+  (GET "/guess/question/"
+       request
+       {
+        :body
+        (quiz/question request)
+        :status 200
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        })
+
   (GET "/guess/tr/"
        request
        {
@@ -190,6 +201,32 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
+  (GET "/evaluate/tr/"
+       request
+       {
+        :body
+        (quiz/evaluate request "tr")
+        :status 200
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        })
+
+  (GET "/evaluate/xml/"
+       request
+       {
+        :body
+        (quiz/evaluate request "xml")
+        :status 200
+        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
+        })
+
+  (GET "/evaluate/xmltr/"
+       request
+       {
+        :body
+        (quiz/evaluate request "xmltr")
+        :status 200
+        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
+        })
   
   (GET "/guess/xmltr/"
        request
@@ -213,6 +250,11 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
+  (GET "/quiz/ajaxified/"
+       request
+       {:body (quiz/minimal request)
+        :status 200
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
 
   (route/resources "/")
   (route/not-found (page "Non posso trovare (page not found)." "Non passo trovare. Sorry, page not found.")))

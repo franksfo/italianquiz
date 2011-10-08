@@ -34,6 +34,7 @@
 
 (defn ajax-update []
   (str
+   "<div id='ajax_question'><script>get_next_question();</script></div>"
    "<input id='guess_input' type='text' value='myguess'></input>"
    "<button class='click' onclick='ajax_refresh(\"guess_input\")'>refresh</button>"
    "<table><tbody id='ajax_update'></tbody></table>"))
@@ -49,4 +50,7 @@
     :test (prepend-dynamic)}
    {:comment "add ajax content to a div."
     :test (ajax-update)}))
+
+
+
 

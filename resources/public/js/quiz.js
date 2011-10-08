@@ -16,13 +16,26 @@ function addguess(english,italian) {
 
 function ajax_refresh(form_input_id) {
     var guess = $("#"+form_input_id).val();
-    var new_content = $.ajax({
+
+    // apply user's guess to guess evaluation..
+    $.ajax({
         dataType: "html",
-        url: "/guess/tr/?guess="+escape(guess),
+        url: "/evaluate/tr/?guess="+escape(guess),
         success: function (content) {
             $("#ajax_update").prepend(content);
         }
     });
+    get_next_question();
+
 }
 
+function get_next_question() {
+    $.ajax({
+        dataType: "html",
+        url: "/guess/question/",
+        success: function (content) {
+            $("#ajax_question").html(content);
+        }
+    });
+}
 

@@ -529,7 +529,7 @@
      "<td>" italian   "</td>"
      "</tr>"
      "<tr>"
-     "<td>" evaluation "</td>"
+     "<td>" (format-evaluation evaluation 0) "</td>"
      "</tr>")))
 
 (defn question [request]
@@ -647,16 +647,32 @@
           "</div>"
           "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
           "</html>"))))))
-  
+
+;; a minimal, self-contained quiz applet.
+(defn minimal [request]
+  (str
+   (xml/encoding)
+   (html/showdoctype)
+   "<html>"
+   (html/head)
+   "<body>"
+   "<div id='ajax_question'><script>get_next_question();</script></div>"
+   "<input size='100' id='guess_input' type='text' value='myguess'></input>"
+   "<button class='click' onclick='ajax_refresh(\"guess_input\")'>refresh</button>"
+   "<table><tbody id='ajax_update'></tbody></table>"
+   "</body>"
+   "</html>"))
+
 (defn test []
   (let [session "e0933a66-2b37-4bc7-b4c6-400ff2e81d9a"]
     (list
      {:comment "all possible question types."
       :test all-possible-question-types}
-     {:comment "xml-display a triple: input (english) user guess (italian), correct response (italian)"
-      :test (html/iframe "/guess/xml/?input=you+know&guess=tu+sei")}
-     {:comment "html-display a triple: input (english) user guess (italian), correct response (italian)"
-      :test (html/iframe "/guess/?input=you+know&guess=tu+sei")}
+
+     {:comment "quiz inside a iframe."
+      :test (html/iframe "/quiz/ajaxified?guess=foo")}
+;     {:comment "html-display a triple: input (english) user guess (italian), correct response (italian)"
+;      :test (html/iframe "/guess/?input=you+know&guess=tu+sei")}
      {:comment "fs printing"
       :test (html/fs
              {:most-recent

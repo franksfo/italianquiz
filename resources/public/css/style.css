@@ -370,10 +370,11 @@ div.click:hover {
     color: darkgrey;
 }
 
-div.click:blur {
+/* firefox says "unknown pseudo-class or pseudo-element" */
+/*div.click:blur {
     background: green;
     color: lightgrey;
-}
+}*/
 
 table.test td {
     border:1px dashed green;
