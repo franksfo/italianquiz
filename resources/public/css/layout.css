@@ -86,3 +86,20 @@ div.history {
     width:45%;
     right:0;
 }
+
+div#ajax_question {
+    width:90%;
+    float:left;
+    margin:0.25em;
+    margin-bottom: 1em;
+}
+
+div#ajax_question div {
+    padding:0.5em;
+    width:auto;
+    float:left;
+}
+
+div#ajax_quiz input {
+    margin:0.5em;
+}
