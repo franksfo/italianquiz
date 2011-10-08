@@ -20,13 +20,13 @@ function ajax_refresh(form_input_id) {
     // apply user's guess to guess evaluation..
     $.ajax({
         dataType: "html",
-        url: "/evaluate/tr/?guess="+escape(guess),
+        url: "/evaluate/tr/?guess="+escape(guess)+"&qid="+$("#question_id").val(),
         success: function (content) {
             $("#ajax_update").prepend(content);
         }
     });
     get_next_question();
-
+    clear_guess_input();
 }
 
 function get_next_question() {
@@ -39,3 +39,19 @@ function get_next_question() {
     });
 }
 
+function clear_guess_input() {
+    $("#guess_input").val('');
+    $("#guess_input").focus();
+}
+
+function ajax_quiz() {
+    document.body.innerHTML = 
+        "<div id='ajax_quiz'>" +
+        "  <div id='ajax_question'><script>get_next_question();</script></div>" +
+        "  <input size='100' id='guess_input' type='text'><script>clear_guess_input();</script></input>" +
+        "  <button class='click' onclick='ajax_refresh(\"guess_input\")'>Rispondi</button>" +
+        "  <table><tbody id='ajax_update'></tbody></table>" +
+        "</div>";
+    get_next_question();
+    clear_guess_input();
+}
