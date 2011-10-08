@@ -1,4 +1,7 @@
 ;; Seems like you need to restart ring to see changes to this file.
+;; TODO: verify using tests that a user authenticated with session 'x' cannot modify a question
+;; whose session is 'y' where 'x' != 'y'.
+;; (see update-question-by-id-with-guess) where this is enforced by the mongo/fetch's :where clause.
 (ns italianverbs.quiz
     (:use [hiccup core page-helpers])
     (:require [clojure.contrib.string :as stringc]
@@ -201,10 +204,10 @@
     (if (> (.size results) 0)
       (get (nth results 0) :_id))))
 
-(defn update-question-by-id-with-guess [guess qid]
+(defn update-question-by-id-with-guess [guess qid session]
   (let [guess
         (normalize-whitespace guess)
-        question (nth (mongo/fetch :question :where {:_id qid}) 0)] ;; TODO : throw exception if question[_id=qid] not found.
+        question (nth (mongo/fetch :question :where {:_id qid :session session}) 0)] ;; TODO : throw exception if question[:_id=qid, :session=session] not found.
     (mongo/update! :question {:_id qid}
                    (merge
                     question
@@ -561,10 +564,10 @@
                  params
                  {:session session})]
     (if guess
-      (let [qid (most-recent-qid-for-user session)
+      (let [qid (if qid qid (most-recent-qid-for-user session))
             result
             (if qid
-              (update-question-by-id-with-guess guess qid))]
+              (update-question-by-id-with-guess guess qid session))]
         (cond
          (= format "xml")
          (str
