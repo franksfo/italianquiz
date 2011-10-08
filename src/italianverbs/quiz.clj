@@ -655,11 +655,7 @@
    (html/showdoctype)
    "<html>"
    (html/head)
-   "<body>"
-   "<div id='ajax_question'><script>get_next_question();</script></div>"
-   "<input size='100' id='guess_input' type='text' value='myguess'></input>"
-   "<button class='click' onclick='ajax_refresh(\"guess_input\")'>refresh</button>"
-   "<table><tbody id='ajax_update'></tbody></table>"
+   "<body onload='ajax_quiz()'>"
    "</body>"
    "</html>"))
 
