@@ -64,3 +64,16 @@ function ajax_quiz() {
     get_next_question();
     clear_guess_input();
 }
+
+function table_row(question_id, english, italian, perfect, formatted_evaluation) {
+    var rowspan = "1";
+    var row_id = "tr_"+question_id+"_js"; // <-"_js" will go away.
+    if (perfect == "true") {rowspan = 1;} else {rowspan = 2;}
+    var english_td = "<td rowspan='" + rowspan + "'>" + english + "</td>";
+    var row = "<tbody id='" + row_id + "'><tr>" + english_td + "</tr></tbody>";
+    $("#quiz_table").prepend(row);
+
+
+    fade_in(row_id);
+
+}

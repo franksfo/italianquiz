@@ -103,11 +103,14 @@
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
 (defn eval-segments [segments]
-  {:size (.size segments)
-   :match (.size (remove (fn [segment]
-                           (let [edit-action (get segment :action)]
-                             (not (= edit-action "match"))))
-                      segments))})
+  (if segments
+    {:size (.size segments)
+     :match (.size (remove (fn [segment]
+                             (let [edit-action (get segment :action)]
+                               (not (= edit-action "match"))))
+                           segments))}
+    {:size 0
+     :match nil}))
 
 ;; TODO: use looping per:
 ;; http://clojure.org/functional_programming#Functional%20Programming--Recursive%20Looping
@@ -560,8 +563,10 @@
        (str "<tr>"
             "  <td>" formatted-evaluation "</td>"
             "</tr>"))
-     (if false (table-row-debug-info))
      "</tbody>"
+     (if false (table-row-debug-info))
+     "<tbody><script>table_row('tr_" row_id "_js','" english "','c','d','e');</script></tbody>"
+
      )))
 
 (defn question [request]
