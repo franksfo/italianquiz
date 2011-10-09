@@ -399,3 +399,11 @@ div#question_text {
     border:2px dashed green;
     background:#ccc;
 }
+
+#quiz_table td {
+    border:0px dashed green;
+}
+
+#quiz_table th {
+    border:0px dashed green;
+}

@@ -14,6 +14,10 @@ function addguess(english,italian) {
     guessNumber++;
 }
 
+function fade_in(row_id) {
+    $("#tr_"+row_id).fadeIn("slow");
+}
+
 function submit_user_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
 
@@ -22,7 +26,7 @@ function submit_user_response(form_input_id) {
         dataType: "html",
         url: "/evaluate/tr/?guess="+escape(guess)+"&qid="+$("#question_id").val(),
         success: function (content) {
-            $("#ajax_update").prepend(content);
+            $("#quiz_table").prepend(content);
         }
     });
     // 2. generate a new question and present it to the user.
@@ -52,7 +56,7 @@ function ajax_quiz() {
         "  <div id='ajax_question'><script>get_next_question();</script></div>" +
         "  <input size='100' id='guess_input' type='text'><script>clear_guess_input();</script></input>" +
         "  <button class='click' onclick='submit_user_response(\"guess_input\")'>Rispondi</button>" +
-        "  <table><tbody id='ajax_update'></tbody></table>" +
+        "  <table id='quiz_table'></table>" +
         "</div>";
     get_next_question();
     clear_guess_input();

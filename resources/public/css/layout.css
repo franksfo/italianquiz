@@ -103,3 +103,16 @@ div#ajax_question div {
 div#ajax_quiz input {
     margin:0.5em;
 }
+
+#quiz_table {
+    width:90%;
+}
+
+#quiz_table td {
+    padding-top:0.5em;
+    padding-bottom:0.5em;
+}
+
+#quiz_table tbody {
+    padding-bottom:1em;
+}
