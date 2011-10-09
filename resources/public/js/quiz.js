@@ -14,10 +14,10 @@ function addguess(english,italian) {
     guessNumber++;
 }
 
-function ajax_refresh(form_input_id) {
+function submit_user_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
 
-    // apply user's guess to guess evaluation..
+    // 1. apply user's guess to guess evaluation.
     $.ajax({
         dataType: "html",
         url: "/evaluate/tr/?guess="+escape(guess)+"&qid="+$("#question_id").val(),
@@ -25,7 +25,9 @@ function ajax_refresh(form_input_id) {
             $("#ajax_update").prepend(content);
         }
     });
+    // 2. generate a new question and present it to the user.
     get_next_question();
+    // 3. initialize UI so that user is ready to answer question.
     clear_guess_input();
 }
 
@@ -49,7 +51,7 @@ function ajax_quiz() {
         "<div id='ajax_quiz'>" +
         "  <div id='ajax_question'><script>get_next_question();</script></div>" +
         "  <input size='100' id='guess_input' type='text'><script>clear_guess_input();</script></input>" +
-        "  <button class='click' onclick='ajax_refresh(\"guess_input\")'>Rispondi</button>" +
+        "  <button class='click' onclick='submit_user_response(\"guess_input\")'>Rispondi</button>" +
         "  <table><tbody id='ajax_update'></tbody></table>" +
         "</div>";
     get_next_question();
