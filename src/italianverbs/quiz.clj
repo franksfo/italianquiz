@@ -546,6 +546,8 @@
 (defn question [request]
   ;; create a new question, store in backing store, and return an HTML fragment with the question's english form
   ;; and the question id to pose question to user.
+  ;; TODO: move HTML (presentation layer) to javascript: simply return javascript call to "generate_question()" with
+  ;; 2 params: question text and question id.
   (let [type (random-guess-type)
         question (store-question (generate type)
                                  (session/request-to-session request) nil)]
