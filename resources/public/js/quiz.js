@@ -65,25 +65,36 @@ function ajax_quiz() {
     clear_guess_input();
 }
 
-function table_row(question_id, english, italian, perfect, formatted_evaluation) {
+function table_row(question_id, english, italian, perfect) {
     var rowspan = "1";
     var row_id = "tr_"+question_id+"_js"; // <-"_js" will go away.
     if (perfect == "true") {rowspan = 1;} else {rowspan = 2;}
     var english_td = "<td rowspan='" + rowspan + "'>" + english + "</td>";
-    var eval_td = "";
+    var evaluation = $("#"+row_id+"_eval").html();
+    correct_td = "";
     if (perfect == "true") {
-        eval_td = "<td> " + formatted_evaluation + "</td>";
+        correct_td = "<td> " + evaluation + "</td>";
     } else {
-        eval_td = "<td>" + italian + "</td>";
+        correct_td = "<td>" + italian + "</td>";
+    }
+    var eval_tr = "";
+    if (perfect != "true") {
+        eval_tr = "<tr><td>" + evaluation + "</td></tr>";
+    } else {
+        eval_tr = ""; // no correction necessary: user's response was correct.
     }
 
-    var row = "<tbody id='" + row_id + "'><tr>" + 
-        english_td + 
-        eval_td + 
-        "</tr></tbody>";
+    var row
+        = "<tbody id='" + row_id + "' style='display:none'   >" +
+          "  <tr>" +
+        english_td +
+        correct_td +
+          "</tr>" +
+          eval_tr +
+        "</tbody>";
+
     $("#quiz_table").prepend(row);
 
-
-    fade_in(row_id);
+    $("#" + row_id ).fadeIn("fast");
 
 }

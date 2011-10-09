@@ -549,24 +549,10 @@
     ;; TODO: move HTML generation to javascript: just create a javascript call with the params:
     ;; {english,italian,formatted evaluation (itself html), debug info}.
     (str
-     "<tbody id='tr_" row_id "' style='display:none'>"
-     "  <script>fade_in('" row_id "');</script>" ;; initially hidden and faded-in with javascript.
-     "<tr>"
-     "  <td rowspan='" rowspan "'>" english "</td>"
-     "  <td>"
-     (if perfect
-       formatted-evaluation
-       italian)
-     "  </td>"
-     "</tr>"
-     (if (not perfect)
-       (str "<tr>"
-            "  <td>" formatted-evaluation "</td>"
-            "</tr>"))
-     "</tbody>"
-     (if false (table-row-debug-info))
-     "<tbody><script>table_row('tr_" row_id "_js','" english "','"  italian "','" perfect "','(eval)');</script></tbody>"
-
+     "<tbody style='display:none'  ><tr><td><div id='"  "tr_" row_id "_js_eval" "'>" formatted-evaluation  "</div></td></tr></tbody>"
+     "<tbody>"
+     ;; save html in an identified <div> element so it can be passed to javascript.
+     "<tbody><script>table_row('" row_id"','" english "','"  italian "','" perfect "');</script></tbody>"
      )))
 
 (defn question [request]
