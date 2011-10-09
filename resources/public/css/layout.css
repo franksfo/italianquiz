@@ -109,10 +109,7 @@ div#ajax_quiz input {
 }
 
 #quiz_table td {
-    padding-top:0.5em;
-    padding-bottom:0.5em;
+    padding-top:0.25em;
+    padding-bottom:0.25em;
 }
 
-#quiz_table tbody {
-    padding-bottom:1em;
-}

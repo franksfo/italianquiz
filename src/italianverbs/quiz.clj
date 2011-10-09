@@ -102,6 +102,13 @@
 (defn each-correct [question]
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
+(defn eval-segments [segments]
+  {:size (.size segments)
+   :match (.size (remove (fn [segment]
+                           (let [edit-action (get segment :action)]
+                             (not (= edit-action "match"))))
+                      segments))})
+
 ;; TODO: use looping per:
 ;; http://clojure.org/functional_programming#Functional%20Programming--Recursive%20Looping
 (defn format-evaluation [green2 index]
@@ -530,21 +537,29 @@
         italian (get answered-question-tuple :italian)
         guess (get answered-question-tuple :guess)
         evaluation (get answered-question-tuple :evaluation)
-        row_id (get answered-question-tuple :_id)]
-;; note that request has the following keys:
-;; :remote-addr :scheme :query-params :session :form-params :multipart-params :request-method :query-string :route-params :content-type :cookies :uri :server-name :params :headers :content-length :server-port :character-encoding :body
+        row_id (get answered-question-tuple :_id)
+        eval (eval-segments evaluation)
+        ;; translation of evaluation into feedback to user.
+        perfect (= (get eval :size) (get eval :match))
+        rowspan (if perfect 1 2)
+        formatted-evaluation (format-evaluation evaluation 0)]
     ;; TODO: move HTML generation to javascript: just create a javascript call with the params:
     ;; {english,italian,formatted evaluation (itself html), debug info}.
     (str
      "<tbody id='tr_" row_id "' style='display:none'>"
      "  <script>fade_in('" row_id "');</script>" ;; initially hidden and faded-in with javascript.
      "<tr>"
-     "  <td rowspan='2'>" english "</td>"
-     "  <td>" italian "</td>"
+     "  <td rowspan='" rowspan "'>" english "</td>"
+     "  <td>"
+     (if perfect
+       formatted-evaluation
+       italian)
+     "  </td>"
      "</tr>"
-     "<tr>"
-     "  <td>" (format-evaluation evaluation 0) "</td>"
-     "</tr>"
+     (if (not perfect)
+       (str "<tr>"
+            "  <td>" formatted-evaluation "</td>"
+            "</tr>"))
      (if false (table-row-debug-info))
      "</tbody>"
      )))
@@ -554,6 +569,10 @@
   ;; and the question id to pose question to user.
   ;; TODO: move HTML (presentation layer) to javascript: simply return javascript call to "generate_question()" with
   ;; 2 params: question text and question id.
+  ;; note that request has the following keys:
+  ;; :remote-addr :scheme :query-params :session :form-params :multipart-params :request-method :query-string
+  ;; :route-params :content-type :cookies :uri :server-name :params :headers :content-length :server-port
+  ;; :character-encoding :body
   (let [type (random-guess-type)
         question (store-question (generate type)
                                  (session/request-to-session request) nil)]
