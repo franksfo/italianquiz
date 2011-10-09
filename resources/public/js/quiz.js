@@ -24,7 +24,10 @@ function submit_user_response(form_input_id) {
     // 1. apply user's guess to guess evaluation.
     $.ajax({
         dataType: "html",
-        url: "/evaluate/tr/?guess="+escape(guess)+"&qid="+$("#question_id").val(),
+        data: {guess: guess, qid: $("#question_id").val()},
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded;charset=ISO-8859-1",
+        url: "/evaluate/tr/",
         success: function (content) {
             $("#quiz_table").prepend(content);
         }

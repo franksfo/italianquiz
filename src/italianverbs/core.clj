@@ -210,6 +210,15 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
+  (POST "/evaluate/tr/"
+       request
+       {
+        :body
+        (quiz/evaluate request "tr")
+        :status 200
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        })
+
   (GET "/evaluate/xml/"
        request
        {
