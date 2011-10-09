@@ -394,7 +394,7 @@ div#question_text {
     border:0px dashed green;
 }
 
-div#question_id {
+#question_id {
     display:none;
     border:2px dashed green;
     background:#ccc;

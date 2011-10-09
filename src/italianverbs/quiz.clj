@@ -544,13 +544,13 @@
      )))
 
 (defn question [request]
-  ;; create a new question, store in backing store, and return question's english form
-  ;; to pose question to user.
+  ;; create a new question, store in backing store, and return an HTML fragment with the question's english form
+  ;; and the question id to pose question to user.
   (let [type (random-guess-type)
         question (store-question (generate type)
                                  (session/request-to-session request) nil)]
     (str "<div id='question_text'>" (get question :question) "</div>"
-        "<div id='question_id'>" (get question :_id) "</div>")))
+         "<input id='question_id' value='" (get question :_id) "'/>")))
 
 (defn evaluate [request format & [ qid ]]
   (let [params (if (= (get request :request-method) :get)
@@ -671,6 +671,7 @@
    "</body>"
    "</html>"))
 
+;; TODO: more usage of fake session below for more coverage of quiz stateful behavior.
 (defn test []
   (let [session "e0933a66-2b37-4bc7-b4c6-400ff2e81d9a"]
     (list
