@@ -565,7 +565,7 @@
             "</tr>"))
      "</tbody>"
      (if false (table-row-debug-info))
-     "<tbody><script>table_row('tr_" row_id "_js','" english "','c','d','e');</script></tbody>"
+     "<tbody><script>table_row('tr_" row_id "_js','" english "','"  italian "','" perfect "','(eval)');</script></tbody>"
 
      )))
 

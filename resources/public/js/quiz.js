@@ -70,7 +70,17 @@ function table_row(question_id, english, italian, perfect, formatted_evaluation)
     var row_id = "tr_"+question_id+"_js"; // <-"_js" will go away.
     if (perfect == "true") {rowspan = 1;} else {rowspan = 2;}
     var english_td = "<td rowspan='" + rowspan + "'>" + english + "</td>";
-    var row = "<tbody id='" + row_id + "'><tr>" + english_td + "</tr></tbody>";
+    var eval_td = "";
+    if (perfect == "true") {
+        eval_td = "<td> " + formatted_evaluation + "</td>";
+    } else {
+        eval_td = "<td>" + italian + "</td>";
+    }
+
+    var row = "<tbody id='" + row_id + "'><tr>" + 
+        english_td + 
+        eval_td + 
+        "</tr></tbody>";
     $("#quiz_table").prepend(row);
 
 
