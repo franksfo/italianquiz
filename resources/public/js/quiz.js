@@ -15,7 +15,7 @@ function addguess(english,italian) {
 }
 
 function fade_in(row_id) {
-    $("#tr_"+row_id).fadeIn("slow");
+    $("#tr_"+row_id).fadeIn("fast");
 }
 
 function submit_user_response(form_input_id) {
