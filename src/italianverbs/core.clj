@@ -101,7 +101,7 @@
                                         ;              (quiz/filter request)
                                         ;              request)
   
-  (POST "/quiz/filter" ;; for now just run quiz.
+  (POST "/quiz/filter"
        request
        {
         :session (get request :session)
@@ -110,6 +110,27 @@
         :headers {"Location" "/quiz/display#controlbottom"}
         }
        )
+
+  (GET "/quiz/filter/iframe/"
+       request
+       {
+        :session (get request :session)
+        :status 200
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        :body (quiz/iframe-controls (session/request-to-session request) "/quiz/filter/iframe/")
+        }
+       )
+
+  (POST "/quiz/filter/iframe/"
+       request
+       {
+        :session (get request :session)
+        :side-effect (quiz/set-filters (session/request-to-session request) request)
+        :status 302
+        :headers {"Location" "/quiz/filter/iframe/"}
+        }
+       )
+
   
   (POST "/quiz/clear" 
        request
