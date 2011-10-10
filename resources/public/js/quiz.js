@@ -85,7 +85,7 @@ function table_row(question_id, english, italian, perfect) {
     }
 
     var row
-        = "<tbody id='" + row_id + "' style='display:block'   >" +
+        = "<tbody id='" + row_id + "' style='display:none'   >" +
           "  <tr>" +
         english_td +
         correct_td +
