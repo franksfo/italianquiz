@@ -100,7 +100,12 @@ div#ajax_question div {
     float:left;
 }
 
-div#ajax_quiz input {
+#ajax_quiz {
+    float:left;
+    width:90%;
+}
+
+#ajax_quiz input {
     margin:0.5em;
 }
 
@@ -113,3 +118,22 @@ div#ajax_quiz input {
     padding-bottom:0.25em;
 }
 
+#quiz_table {
+    width:100%;
+}
+
+#quiz_table tbody {
+    width:100%;
+}
+
+#quiz_table tr {
+    width:100%;
+}
+
+#quiz_table td {
+    width:50em;
+}
+
+#quiz_table th {
+    width:50em;
+}

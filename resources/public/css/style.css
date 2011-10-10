@@ -400,10 +400,6 @@ div#question_text {
     background:#ccc;
 }
 
-#quiz_table td {
-    border:0px dashed green;
+#ajax_quiz {
 }
 
-#quiz_table th {
-    border:0px dashed green;
-}
