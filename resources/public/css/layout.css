@@ -137,3 +137,8 @@ div#ajax_question div {
 #quiz_table th {
     width:50em;
 }
+
+#quiz_container {
+    float:left;
+    margin-bottom:1em;
+}
