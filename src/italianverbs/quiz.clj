@@ -215,9 +215,14 @@
       (get (nth results 0) :_id))))
 
 (defn update-question-by-id-with-guess [guess qid session]
-  (let [guess
-        (normalize-whitespace guess)
-        question (nth (mongo/fetch :question :where {:_id qid :session session}) 0)] ;; TODO : throw exception if question[:_id=qid, :session=session] not found.
+  (let [guess (normalize-whitespace guess)
+        fetch (mongo/fetch :question :where {:_id qid :session session})
+        question (cond
+                  (< (.size fetch) 1)
+                  (/ 1 0)  ;; TODO : throw exception if question[:_id=qid, :session=session] not found.
+                  (= (.size fetch) 1)
+                  (nth fetch 0)
+                  true (/ 42 0))]
     (mongo/update! :question {:_id qid}
                    (merge
                     question
@@ -570,22 +575,22 @@
     (str "<div id='question_text'>" (get question :question) "</div>"
          "<input id='question_id' value='" (get question :_id) "'/>")))
 
-(defn evaluate [request format & [ qid ]]
+(defn evaluate [request format]
   (let [params (if (= (get request :request-method) :get)
                  (get request :query-params)
                  (get request :form-params))
         session (session/request-to-session request)
         guess (get params "guess")
+        qid (get params "qid")
         format (if format format (get params "format"))
         content (merge
                  {:method (get request :request-method)}
                  params
                  {:session session})]
+    ;; make sure qid is defined.
+    (if (= nil qid) (/ 1 0)) ;; figure out how to throw exceptions in clojure.
     (if guess
-      (let [qid (if qid qid (most-recent-qid-for-user session))
-            result
-            (if qid
-              (update-question-by-id-with-guess guess qid session))]
+      (let [result (update-question-by-id-with-guess guess qid session)]
         (cond
          (= format "xml")
          (str
