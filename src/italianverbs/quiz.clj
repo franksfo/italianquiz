@@ -700,11 +700,11 @@
    (html/showdoctype)
    "<html>"
    (html/head)
-   "<body onload='ajax_quiz(\"quiz_container\")'>"
-   "<div><h2>Quiz with preferences..</h2></div>"
-   "<div id='quiz_container'>quiz will go in here..</div>"
-   "</body>"
-   "</html>"))
+   (html [:body {:onload "ajax_quiz('quiz_container')" }
+          [:h2 "Quiz with preferences.." ]
+          (controls (session/request-to-session request))
+          [:div#quiz_container
+           "if you can see this, either javascript is not enabled or there was a problem running the javascript."]])))
 
 ;; TODO: more usage of fake session below for more coverage of quiz stateful behavior.
 (defn test []
