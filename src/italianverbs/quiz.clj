@@ -239,14 +239,12 @@
         (normalize-whitespace guess)]
     (mongo/update! :question question
                    (merge {:guess guess
-                           :shitty "crap"
                            :evaluation ;; evaluate the user's guess against the correct response.
                            (if (and guess
                                     (> (.length guess) 0))
                              (lev/get-green2 (get question :answer)
                                              guess))}
-                          question
-                          {:fucking "clojure"}))))
+                          question))))
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
