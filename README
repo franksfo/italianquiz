@@ -81,6 +81,8 @@ ajax_quiz()
 \---> get_next_question() ---> "GET /guess/question" ---HTML---> #ajax_question
 |
 \---> user clicks button ---> submit_user_response() ---> "POST /evaluate/tr" --HTML---> #quiz_table
+|
+\---> user checks a preference box ---> submit_user_preference() --> "POST /quiz/filter/ajax" --HTML--> #prefs
 
 License:
 
