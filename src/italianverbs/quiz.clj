@@ -330,6 +330,7 @@
                        (let [label (if label label name)]
                          (html
                           [:th
+                           ;; TODO: onclick should be parameterizable for use by AJAX.
                            [:input (merge {:onclick "submit()" :name name :type "checkbox"}
                                           (if (= checkbox-disabled "disabled") {:disabled "disabled"} {})
                                           (checked session key))]]
@@ -556,6 +557,8 @@
      "<tbody style='display:none'  ><tr><td><div id='"  "tr_" row_id "_js_eval" "'>" formatted-evaluation  "</div></td></tr></tbody>"
      "<tbody>"
      ;; save html in an identified <div> element so it can be passed to javascript.
+
+     ;; TODO: escape english and italian (and the other js args too for that matter : (just use hiccup))
      "<tbody><script>table_row('" row_id"','" english "','"  italian "','" perfect "');</script></tbody>"
      )))
 
