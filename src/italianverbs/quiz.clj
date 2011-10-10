@@ -687,7 +687,9 @@
    (html/showdoctype)
    "<html>"
    (html/head)
-   "<body onload='ajax_quiz()'>"
+   "<body onload='ajax_quiz(\"quiz_container\")'>"
+   "<div><h2>A very minimal quiz interface..</h2></div>"
+   "<div id='quiz_container'>quiz will go in here..</div>"
    "</body>"
    "</html>"))
 

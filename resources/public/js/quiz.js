@@ -53,14 +53,23 @@ function clear_guess_input() {
     $("#guess_input").focus();
 }
 
-function ajax_quiz() {
-    document.body.innerHTML = 
-        "<div id='ajax_quiz'>" +
+function ajax_quiz(dom_id) {
+    var quiz_html = "<div id='ajax_quiz'>" +
         "  <div id='ajax_question'><script>get_next_question();</script></div>" +
         "  <input size='100' id='guess_input' type='text'><script>clear_guess_input();</script></input>" +
         "  <button class='click' onclick='submit_user_response(\"guess_input\")'>Rispondi</button>" +
         "  <table id='quiz_table'></table>" +
         "</div>";
+
+    var dom_node;
+    if (dom_id == undefined) {
+        dom_node = document.body;
+        document.body.innerHTML = quiz_html;
+    } else {
+        dom_node = $("#"+dom_id);
+        dom_node.html(quiz_html);
+    }
+
     get_next_question();
     clear_guess_input();
 }
