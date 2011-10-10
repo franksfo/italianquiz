@@ -217,7 +217,9 @@
 ;; TODO: enforce session :where check.
 (defn update-question-by-id-with-guess [guess qid session]
   (let [guess (normalize-whitespace guess)
-        question (mongo/fetch-one :question :where {:_id (new org.bson.types.ObjectId qid)})
+        question (mongo/fetch-one :question
+                                  :where {:_id (new org.bson.types.ObjectId qid)
+                                          :session session})
         updated-question-map
         (merge
          question
