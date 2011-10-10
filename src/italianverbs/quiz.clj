@@ -214,25 +214,24 @@
     (if (> (.size results) 0)
       (get (nth results 0) :_id))))
 
+;; TODO: enforce session :where check.
 (defn update-question-by-id-with-guess [guess qid session]
   (let [guess (normalize-whitespace guess)
-        fetch (mongo/fetch :question :where {:_id qid :session session})
-        question (cond
-                  (< (.size fetch) 1)
-                  (/ 1 0)  ;; TODO : throw exception if question[:_id=qid, :session=session] not found.
-                  (= (.size fetch) 1)
-                  (nth fetch 0)
-                  true (/ 42 0))]
-    (mongo/update! :question {:_id qid}
-                   (merge
-                    question
-                    {:guess guess
-                     :evaluation ;; evaluate the user's guess against the correct response.
-                     (if (and guess
-                              (> (.length guess) 0))
-                       (lev/get-green2 (get question :answer)
-                                       guess))}))
-    (nth (mongo/fetch :question :where {:_id qid}) 0)))
+        question (mongo/fetch-one :question :where {:_id (new org.bson.types.ObjectId qid)})
+        updated-question-map
+        (merge
+         question
+         {:guess guess
+          :evaluation ;; evaluate the user's guess against the correct response.
+          (if (and guess
+                   (> (.length guess) 0))
+            (lev/get-green2 (get question :answer)
+                            guess))})]
+    (mongo/update! :question {:_id (new org.bson.types.ObjectId qid)}
+                   updated-question-map)
+    updated-question-map))
+;; for testing/sanity checking, might want to refetch (i.e. uncomment the line below and comment out line above).
+;;    (mongo/fetch-one :question :where {:_id (new org.bson.types.ObjectId qid)})))
 
 ;;  "update question with guess - a rewrite of (format-evaluation)."
 (defn update-question-with-guess [guess question]
