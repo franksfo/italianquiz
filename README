@@ -48,8 +48,6 @@ Apache HTTP Server Proxying:
 
 Ajax, Routes, and Page Structure
 
-See (quiz/minimal)
-
 1. create a static html page whose head is:
 
 (html/head)
@@ -62,7 +60,9 @@ and a <body> that simply has:
 
 3. The ajax_quiz() javascript function is defined in resources/public/js/quiz.js.
 
-Schematically:
+See (quiz.clj:quiz/minimal()) for relevant clojure code.
+
+Sequentially:
 
 -ajax_quiz() creates the form elements: empty #quiz_table and user-guess-submittal input form and button.
 ajax_quiz() then calls get_next_question() which AJAX-GETs /guess/question/. Resulting content is put in
@@ -74,6 +74,12 @@ top of form to pose question to user.
 
 -resulting content (evaluation of user's guess) is appended by submit_user_response()'s callback to #quiz_table.
 
+Schematically:
+
+ajax_quiz()
+\---> get_next_question() ---> "GET /guess/question" ---HTML---> #ajax_question
+|
+\---> user clicks button ---> submit_user_response() ---> "POST /evaluate/tr" --HTML---> #quiz_table
 
 License:
 
