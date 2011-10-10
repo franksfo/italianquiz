@@ -693,6 +693,19 @@
    "</body>"
    "</html>"))
 
+;; same as (minimal), but with checkboxes for quiz preferences.
+(defn quiz-with-prefs [request]
+  (str
+   (xml/encoding)
+   (html/showdoctype)
+   "<html>"
+   (html/head)
+   "<body onload='ajax_quiz(\"quiz_container\")'>"
+   "<div><h2>Quiz with preferences..</h2></div>"
+   "<div id='quiz_container'>quiz will go in here..</div>"
+   "</body>"
+   "</html>"))
+
 ;; TODO: more usage of fake session below for more coverage of quiz stateful behavior.
 (defn test []
   (let [session "e0933a66-2b37-4bc7-b4c6-400ff2e81d9a"]

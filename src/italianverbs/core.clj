@@ -265,6 +265,12 @@
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
 
+  (GET "/quiz/with-prefs/"
+       request
+       {:body (quiz/quiz-with-prefs request)
+        :status 200
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
+
   (route/resources "/")
   (route/not-found (page "Non posso trovare (page not found)." "Non passo trovare. Sorry, page not found.")))
 
