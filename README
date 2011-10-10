@@ -6,7 +6,7 @@ Usage:
 4. sudo mongod 
 5. lein ring server
 
-  ..then start editing files in the src/italianverbs directory.
+  ..then point your browser to http://localhost:3000
   That's all there is to it!
 
 Hacking:
@@ -17,6 +17,50 @@ Hacking:
    This holds the function that is executed for that route.
 
 REPL: see comments at the top of src/italianverbs/repl.clj.
+
+Apache HTTP Server Proxying:
+
+(some of this is probably not needed):
+
+--->% begin http configuration --->%----
+
+    ProxyPreserveHost on
+
+    ProxyPass /italian http://localhost:3000
+    ProxyPassReverse /italian http://localhost:3000
+
+    ProxyPass /quiz http://localhost:3000/quiz
+    ProxyPassReverse /quiz http://localhost:3000/quiz
+
+    <Location /italian>
+     Options All
+     Order allow,deny
+     allow from all
+    </Location>
+
+    <Location /quiz>
+     Options All
+     Order allow,deny
+     allow from all
+    </Location>
+
+--->% end http configuration --->%----
+
+Ajax, Routes, and Page Structure
+
+See (quiz/minimal)
+
+1. create a static html page whose head is:
+
+(html/head)
+
+This includes all the necessary CSS and javascript.
+
+and a <body> that simply has:
+
+2. <body onload="ajax_quiz()"/>
+
+3. The ajax_quiz() javascript function is defined in resources/public/js/quiz.js.
 
 License:
 
