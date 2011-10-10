@@ -62,6 +62,19 @@ and a <body> that simply has:
 
 3. The ajax_quiz() javascript function is defined in resources/public/js/quiz.js.
 
+Schematically:
+
+-ajax_quiz() creates the form elements: empty #quiz_table and user-guess-submittal input form and button.
+ajax_quiz() then calls get_next_question() which AJAX-GETs /guess/question/. Resulting content is put in
+top of form to pose question to user.
+
+-button element created in previous step calls submit_user_response() with the user's guess.
+
+-submit_user_response() AJAX-POSTs to /evaluate/tr.
+
+-resulting content (evaluation of user's guess) is appended by submit_user_response()'s callback to #quiz_table.
+
+
 License:
 
 -resources/public/js/jsquery-1.6.4.min.js 
