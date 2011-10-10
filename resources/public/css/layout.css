@@ -70,7 +70,7 @@ div.stats table {
 }
 
 div#controls {
-    width:100%;
+    width:auto;
 }
 
 div#controls input.submit {
