@@ -259,7 +259,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/quiz/ajaxified/"
+  (GET "/quiz/minimal/"
        request
        {:body (quiz/minimal request)
         :status 200

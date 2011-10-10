@@ -60,7 +60,8 @@ and a <body> that simply has:
 
 3. The ajax_quiz() javascript function is defined in resources/public/js/quiz.js.
 
-See (quiz.clj:quiz/minimal()) for relevant clojure code.
+See quiz.clj:quiz/minimal() for a minimal function that does step 1.
+See core.clj:defroutes()'s "/quiz/minimal" for a route that calls quiz/minimal().
 
 Sequentially:
 
