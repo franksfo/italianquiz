@@ -10,6 +10,7 @@
               [italianverbs.lev :as lev]
               [italianverbs.session :as session]
               [italianverbs.grammar :as gram]
+              [base.html :as basehtml]
               [italianverbs.html :as html]
               [italianverbs.xml :as xml]
               [italianverbs.generate :as gen]))
@@ -705,19 +706,32 @@
 
 ;; same as (minimal), but with checkboxes for quiz preferences.
 (defn quiz-with-prefs [request]
-  (str
-   (html/myhtml5)
-   "<html>"
-   (html/head)
-   (html [:body {:onload "ajax_quiz('quiz_container',true)" }
-          [:div {:class "quiz-elem"}
-           [:h2 "Quiz" ]
-           [:div#quiz_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
-          ]
-          [:div#controls_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
-          ])
-          ;;          [:iframe {:scrolling "no" :width "90%" :height "300px" :frameborder "0" :src "/quiz/filter/iframe/"}]])
-   "</html>"))
+  (basehtml/page "Quiz"
+   (html
+    [:div {:class "quiz-elem"}
+     [:h2 "Quiz" ]
+     [:div#quiz_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
+     ]
+     [:div#controls_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
+     )
+   request
+   "ajax_quiz('quiz_container',true)"))
+          
+;          ;;          [:iframe {:scrolling "no" :width "90%" :height "300px" :frameborder "0" :src "/quiz/filter/iframe/"}]])
+    
+                                        ;  (str
+;   (html/myhtml5)
+;   "<html>"
+;   (html/head)
+;   (html [:body {:onload "ajax_quiz('quiz_container',true)" }
+;          [:div {:class "quiz-elem"}
+;           [:h2 "Quiz" ]
+;           [:div#quiz_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
+;          ]
+;          [:div#controls_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
+;          ])
+;          ;;          [:iframe {:scrolling "no" :width "90%" :height "300px" :frameborder "0" :src "/quiz/filter/iframe/"}]])
+;   "</html>"))
 
 ;; TODO: more usage of fake session below for more coverage of quiz stateful behavior.
 (defn test []

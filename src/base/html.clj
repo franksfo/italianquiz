@@ -105,7 +105,7 @@
        [:tr
         [:td {:colspan "2"} (get request :body)]]]])))
 
-(defn page [title & [content request]]
+(defn page [title & [content request onload]]
   (html5
    [:head 
     [:meta  {:charset "ISO-8859-1"}]
@@ -119,6 +119,7 @@
    [:body
     {:onload
      (cond
+      onload onload
       (= title "Quiz")
       "document.quiz.guess.focus();"
       (= title "testx")
