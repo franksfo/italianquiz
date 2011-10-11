@@ -83,6 +83,21 @@ function ajax_quiz(dom_id,controller) {
     }
 }
 
+function ajax_quiz_submit(dom_id) {
+    // TODO: use dom_id rather than hard-wired #controls_container.
+    //    alert($("#controls_form").serialize());
+    $.ajax({
+        dataType: "html",
+        data: $("#controls_form").serialize(),
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded;charset=ISO-8859-1",
+        url: "/quiz/filter/ajax/",
+        success: function (content) {
+            $("#controls_container").html(content);
+        }
+    });
+}
+
 function table_row(question_id, english, italian, perfect) {
     var rowspan = "1";
     var row_id = "tr_"+question_id+"_js"; // <-"_js" will go away.
