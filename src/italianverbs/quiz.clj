@@ -748,4 +748,4 @@
 
 (defn ajax-controls [session action]
   (html
-   (controls session nil "ajax_quiz_submit('#controls_container');")))
+   (controls session nil "quiz_filters_submit('#controls_container','#controls_form');")))

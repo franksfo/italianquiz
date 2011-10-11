@@ -83,17 +83,15 @@ function ajax_quiz(dom_id,controller) {
     }
 }
 
-function ajax_quiz_submit(dom_id) {
-    // TODO: use dom_id rather than hard-wired #controls_container.
-    //    alert($("#controls_form").serialize());
+function quiz_filters_submit(container, form) {
     $.ajax({
         dataType: "html",
-        data: $("#controls_form").serialize(),
+        data: $(form).serialize(),
         type: "POST",
         contentType: "application/x-www-form-urlencoded;charset=ISO-8859-1",
         url: "/quiz/filter/ajax/",
         success: function (content) {
-            $("#controls_container").html(content);
+            $(container).html(content);
         }
     });
 }
