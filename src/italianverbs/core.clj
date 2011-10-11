@@ -213,7 +213,7 @@
        request
        {
         :body
-        (let [type (quiz/random-guess-type)
+        (let [type (quiz/random-guess-type (session/request-to-session request))
               question (quiz/generate type)]
           (quiz/guess question request "xml"))
         :status 200
