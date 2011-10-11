@@ -88,7 +88,7 @@ div.history {
 }
 
 div#ajax_question {
-    width:90%;
+    width:70%;
     float:left;
     margin:0.25em;
     margin-bottom: 1em;
@@ -111,21 +111,22 @@ div#ajax_question div {
 
 #quiz_table {
     margin-left:0.25em;
-    width:90%;
+    width:70%;
 }
 
 #quiz_table td.corr {
-    padding-bottom:1em;
+    padding-bottom:0.5em;
 }
 
 /* 'incorrect' being used somewhere else (TODO fix name collision). */
 #quiz_table td.incorr {
-    padding-bottom:2em;
+    padding-bottom:1em;
 }
 
 #quiz_table {
     border-collapse:collapse;
     width:100%;
+    margin-top:0.5em;
 }
 
 #quiz_table tbody {
@@ -137,11 +138,11 @@ div#ajax_question div {
 }
 
 #quiz_table td {
-    width:50em;
+    width:35%;
 }
 
 #quiz_table th {
-    width:50em;
+    width:35%;
 }
 
 #quiz_container {
