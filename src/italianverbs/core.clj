@@ -111,6 +111,26 @@
         }
        )
 
+  (GET "/quiz/filter/ajax/"
+       request
+       {
+        :session (get request :session)
+        :status 200
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        :body (quiz/ajax-controls (session/request-to-session request) "/quiz/filter/ajax/")
+        }
+       )
+
+  (POST "/quiz/filter/ajax/"
+       request
+       {
+        :session (get request :session)
+        :side-effect (quiz/set-filters (session/request-to-session request) request)
+        :status 302
+        :headers {"Location" "/quiz/filter/ajax/"}
+        }
+       )
+
   (GET "/quiz/filter/iframe/"
        request
        {
@@ -120,7 +140,7 @@
         :body (quiz/iframe-controls (session/request-to-session request) "/quiz/filter/iframe/")
         }
        )
-
+  
   (POST "/quiz/filter/iframe/"
        request
        {
@@ -291,7 +311,7 @@
        {:body (quiz/quiz-with-prefs request)
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
-
+  
   (route/resources "/")
   (route/not-found (page "Non posso trovare (page not found)." "Non passo trovare. Sorry, page not found.")))
 

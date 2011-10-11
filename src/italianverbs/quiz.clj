@@ -17,10 +17,6 @@
 (def all-possible-question-types
   '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni))
 
-(defn random-guess-type [session]
-  (let [possible (possible-question-types session)]
-    (nth possible (rand-int (count possible)))))
-
 (defn per-user-correct [questions]
   "count of all correctly-answered questions for all session."
   (reduce
@@ -451,6 +447,10 @@
       result
       all-possible-question-types)))
 
+(defn random-guess-type [session]
+  (let [possible (possible-question-types session)]
+    (nth possible (rand-int (count possible)))))
+
 (defn quiz [last-guess request]
   "choose a question type from the set of question types possible given the user's preference, and
    and then generate a question for that question type."
@@ -705,16 +705,17 @@
 ;; same as (minimal), but with checkboxes for quiz preferences.
 (defn quiz-with-prefs [request]
   (str
-   (xml/encoding)
-   (html/showdoctype)
+   (html/myhtml5)
    "<html>"
    (html/head)
-   (html [:body {:onload "ajax_quiz('quiz_container')" }
+   (html [:body {:onload "ajax_quiz('quiz_container',true)" }
           [:div {:class "quiz-elem"}
            [:h2 "Quiz with preferences.." ]
-           [:div#quiz_container
-            "if you can see this, either javascript is not enabled or there was a problem running the javascript."]]
-          [:iframe {:scrolling "no" :width "90%" :height "300px" :frameborder "0" :src "/quiz/filter/iframe/"}]])
+           [:div#quiz_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
+          ]
+          [:div#controls_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
+          ])
+          ;;          [:iframe {:scrolling "no" :width "90%" :height "300px" :frameborder "0" :src "/quiz/filter/iframe/"}]])
    "</html>"))
 
 ;; TODO: more usage of fake session below for more coverage of quiz stateful behavior.
@@ -738,8 +739,12 @@
 
 (defn iframe-controls [session action]
   (str
-   (html/showdoctype)
+   (html/myhtml5)
    "<html>"
    (html/head)
-   (html [:body 
+   (html [:body
           (controls session action)])))
+
+(defn ajax-controls [session action]
+  (html
+   (controls session action)))

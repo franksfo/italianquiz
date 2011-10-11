@@ -142,3 +142,7 @@ div#ajax_question div {
     float:left;
     margin-bottom:1em;
 }
+
+#controls_container {
+    float:left;
+}

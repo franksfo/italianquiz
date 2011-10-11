@@ -194,9 +194,16 @@
    "<link href='/css/fs.css' rel='stylesheet' type='text/css'></head>"))
 
 ;; TODO: look at hiccup.page-helpers/doctype
-(defn showdoctype []
-  "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"
-	\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">")
+(defn showdoctype [ & [type] ]
+  (cond
+   (= type "html5")
+   "<!DOCTYPE html>"
+   true ;; default is xhtml transitional (for now).
+   "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"
+	\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"))
+
+(defn myhtml5 []
+  "<!DOCTYPE html>")
 
 (defn test []
   "this should contain a list of all the tests for the html package. each test can

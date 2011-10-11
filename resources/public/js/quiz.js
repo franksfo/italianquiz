@@ -53,7 +53,7 @@ function clear_guess_input() {
     $("#guess_input").focus();
 }
 
-function ajax_quiz(dom_id) {
+function ajax_quiz(dom_id,controller) {
     var quiz_html = "<div id='ajax_quiz'>" +
         "  <div id='ajax_question'><script>get_next_question();</script></div>" +
         "  <input size='100' id='guess_input' type='text'><script>clear_guess_input();</script></input>" +
@@ -70,8 +70,17 @@ function ajax_quiz(dom_id) {
         dom_node.html(quiz_html);
     }
 
-    get_next_question();
     clear_guess_input();
+
+    if (controller == true) {
+        $.ajax({
+            dataType: "html",
+            url: "/quiz/filter/ajax/",
+            success: function (content) {
+                $("#controls_container").html(content);
+            }
+        });
+    }
 }
 
 function table_row(question_id, english, italian, perfect) {
