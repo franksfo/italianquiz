@@ -84,7 +84,7 @@ function ajax_quiz(dom_id,controller) {
     }
 }
 
-function quiz_filters_submit(container, form) {
+function submit_quiz_filters(container, form) {
     $.ajax({
         dataType: "html",
         data: $(form).serialize(),
@@ -109,14 +109,16 @@ function table_row(question_id, english, italian, perfect) {
     } else {
         correct_td = "<td>" + italian + "</td>";
     }
+    var stripe = $("#stripe_toggle").html();
+
     var eval_tr = "";
     if (perfect != "true") {
-        eval_tr = "<tr><td class='incorr'>" + evaluation + "</td></tr>";
+        eval_tr = "<tr class='" + stripe + "'><td class='incorr'>" + evaluation + "</td></tr>";
     } else {
         eval_tr = ""; // no correction necessary: user's response was correct.
     }
 
-    var stripe = $("#stripe_toggle").html();
+
 
     var row
         = "<tbody id='" + row_id + "' style='display:none'   >" +

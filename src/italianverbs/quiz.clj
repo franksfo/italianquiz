@@ -711,7 +711,7 @@
    (html/head)
    (html [:body {:onload "ajax_quiz('quiz_container',true)" }
           [:div {:class "quiz-elem"}
-           [:h2 "Quiz with preferences.." ]
+           [:h2 "Quiz" ]
            [:div#quiz_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
           ]
           [:div#controls_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
@@ -748,4 +748,4 @@
 
 (defn ajax-controls [session action]
   (html
-   (controls session nil "quiz_filters_submit('#controls_container','#controls_form');")))
+   (controls session nil "submit_quiz_filters('#controls_container','#controls_form');")))
