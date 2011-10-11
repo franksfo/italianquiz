@@ -118,8 +118,6 @@ function table_row(question_id, english, italian, perfect) {
         eval_tr = ""; // no correction necessary: user's response was correct.
     }
 
-
-
     var row
         = "<tbody id='" + row_id + "' style='display:none'   >" +
           "  <tr class='" + stripe + "'>" +
@@ -138,5 +136,4 @@ function table_row(question_id, english, italian, perfect) {
     } else {
         $("#stripe_toggle").html("odd");
     }
-
 }
