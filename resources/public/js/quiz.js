@@ -59,6 +59,7 @@ function ajax_quiz(dom_id,controller) {
         "  <input size='100' id='guess_input' type='text'><script>clear_guess_input();</script></input>" +
         "  <button class='click' onclick='submit_user_response(\"guess_input\")'>Rispondi</button>" +
         "  <table id='quiz_table'></table>" +
+        "  <div style='display:none' id='stripe_toggle'>odd</div>" +
         "</div>";
 
     var dom_node;
@@ -104,20 +105,22 @@ function table_row(question_id, english, italian, perfect) {
     var evaluation = $("#"+row_id+"_eval").html();
     correct_td = "";
     if (perfect == "true") {
-        correct_td = "<td> " + evaluation + "</td>";
+        correct_td = "<td class='corr'> " + evaluation + "</td>";
     } else {
         correct_td = "<td>" + italian + "</td>";
     }
     var eval_tr = "";
     if (perfect != "true") {
-        eval_tr = "<tr><td>" + evaluation + "</td></tr>";
+        eval_tr = "<tr><td class='incorr'>" + evaluation + "</td></tr>";
     } else {
         eval_tr = ""; // no correction necessary: user's response was correct.
     }
 
+    var stripe = $("#stripe_toggle").html();
+
     var row
         = "<tbody id='" + row_id + "' style='display:none'   >" +
-          "  <tr>" +
+          "  <tr class='" + stripe + "'>" +
         english_td +
         correct_td +
           "</tr>" +
@@ -127,5 +130,11 @@ function table_row(question_id, english, italian, perfect) {
     $("#quiz_table").prepend(row);
 
     $("#" + row_id ).fadeIn("fast");
+
+    if (stripe == "odd") {
+        $("#stripe_toggle").html("even");
+    } else {
+        $("#stripe_toggle").html("odd");
+    }
 
 }
