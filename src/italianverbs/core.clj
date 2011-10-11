@@ -62,7 +62,7 @@
   ;; TO DO: /quiz/ and quiz/display/ should
   ;; be the same thing. for now we need this here
   ;; in order to initialize a new quiz.
-  (GET "/quiz/" 
+  (GET "/old/quiz/" 
        request
        ;; response map
        {
@@ -73,7 +73,7 @@
         }
        )
 
-  (GET "/quiz/display" 
+  (GET "/old/quiz/display" 
        request
        ;; response map
        {
@@ -84,7 +84,7 @@
         }
        )
   
-  (POST "/quiz/"
+  (POST "/old/quiz/"
        request
        ;; response map
        {
@@ -306,7 +306,7 @@
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
 
-  (GET "/quiz/with-prefs/"
+  (GET "/quiz/"
        request
        {:body (quiz/quiz-with-prefs request)
         :status 200
