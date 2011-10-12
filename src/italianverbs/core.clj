@@ -48,6 +48,7 @@
        ;; response map
        {
         :session (get request :session)
+        :headers {"Content-type" "text/html"}
         :body
         (do ;"reload lexicon into mongodb and then render it as HTML."
           (load-file "src/italianverbs/lexicon.clj")
@@ -66,6 +67,7 @@
        request
        ;; response map
        {
+        :headers {"Content-type" "text/html"}
         :session (get request :session)
         :body (page "Quiz"
                     (quiz/run request)
@@ -78,6 +80,7 @@
        ;; response map
        {
         :session (get request :session)
+        :headers {"Content-type" "text/html"}
         :body (page "Quiz"
                     (quiz/display request)
                     request)
@@ -89,6 +92,7 @@
        ;; response map
        {
         :session (get request :session)
+        :headers {"Content-type" "text/html"}
         :body (page "Quiz"
                     (quiz/run request)
                     request)
@@ -165,6 +169,7 @@
   (GET "/test/" 
        request
        {
+        :headers {"Content-type" "text/html"}
         :session (get request :session)
         :body (page "test"
                     (test/run-tests)
@@ -175,6 +180,7 @@
        request
        {
         :session (get request :session)
+        :headers {"Content-type" "text/html"}
         :body (page "test" 
                     (map wrap-div 
                          test/tests)
