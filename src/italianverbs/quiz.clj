@@ -43,7 +43,7 @@
 
 (defn wrapchoice [word & [ istrue ] ]
   ;; TODO: url-encode word.
-  (let [href_prefix "/quiz/?"
+  (let [href_prefix "/italian/quiz/?"
 ;        english word]
         english (get word :english)]
        (html [:div {:class "guess"}
@@ -308,7 +308,7 @@
    (gram/sentence)))
 
 (defn controls [session & [ form-action onclick ] ]
-  (let [action (if form-action form-action "/quiz/filter")
+  (let [action (if form-action form-action "/italian/quiz/filter")
         onclick (if onclick onclick "submit()")
         checked (fn [session key]
                   "return 'checked' if checkbox with key _key_ is set to true according to user's preferences."
@@ -390,7 +390,7 @@
       
       
       [:div {:style "float:right"}
-       [:form {:method "post" :action "/quiz/clear"}
+       [:form {:method "post" :action "/italian/quiz/clear"}
         [:input.submit {:type "submit" :value "clear"}]]]
       
       [:table
@@ -483,7 +483,7 @@
                           (= get-next-question-id 0))
                     (+ 1 get-next-question-id)
                     get-next-question-id))]
-        [:form {:name "quiz" :method "post" :action "/old/quiz/" :accept-charset "UTF-8"}
+        [:form {:name "quiz" :method "post" :action "/italian/old/quiz/" :accept-charset "UTF-8"}
          [:table
           [:tr
            [:td [:h1 
@@ -725,9 +725,9 @@
       :test all-possible-question-types}
 
      {:comment "quiz inside a iframe."
-      :test (html/iframe "/quiz/ajaxified?guess=foo")}
+      :test (html/iframe "/italian/quiz/?guess=foo")}
 ;     {:comment "html-display a triple: input (english) user guess (italian), correct response (italian)"
-;      :test (html/iframe "/guess/?input=you+know&guess=tu+sei")}
+;      :test (html/iframe "/italian/guess/?input=you+know&guess=tu+sei")}
      {:comment "fs printing"
       :test (html/fs
              {:most-recent
