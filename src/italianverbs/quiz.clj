@@ -483,7 +483,7 @@
                           (= get-next-question-id 0))
                     (+ 1 get-next-question-id)
                     get-next-question-id))]
-        [:form {:name "quiz" :method "post" :action "/quiz/" :accept-charset "UTF-8"}
+        [:form {:name "quiz" :method "post" :action "/old/quiz/" :accept-charset "UTF-8"}
          [:table
           [:tr
            [:td [:h1 
@@ -710,28 +710,12 @@
    (html
     [:div {:class "quiz-elem"}
      [:h2 "Quiz" ]
-     [:div#quiz_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
+     [:div#quiz_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz."]
      ]
-     [:div#controls_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
+    [:div#controls_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz controls."]
      )
    request
-   "ajax_quiz('quiz_container',true)"))
-          
-;          ;;          [:iframe {:scrolling "no" :width "90%" :height "300px" :frameborder "0" :src "/quiz/filter/iframe/"}]])
-    
-                                        ;  (str
-;   (html/myhtml5)
-;   "<html>"
-;   (html/head)
-;   (html [:body {:onload "ajax_quiz('quiz_container',true)" }
-;          [:div {:class "quiz-elem"}
-;           [:h2 "Quiz" ]
-;           [:div#quiz_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
-;          ]
-;          [:div#controls_container "if you can see this, either javascript is not enabled or there was a problem communicating with the server."]
-;          ])
-;          ;;          [:iframe {:scrolling "no" :width "90%" :height "300px" :frameborder "0" :src "/quiz/filter/iframe/"}]])
-;   "</html>"))
+   "ajax_quiz('quiz_container')"))
 
 ;; TODO: more usage of fake session below for more coverage of quiz stateful behavior.
 (defn test []
