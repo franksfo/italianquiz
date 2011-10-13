@@ -16,9 +16,9 @@
    [:div
     (if username 
       [:div "benvenuti, " username "."
-       [:a {:href "/session/clear/"} "Logout"]
+       [:a {:href "/italian/session/clear/"} "Logout"]
        ]
-      [:a {:href "/session/set/"} "Login"]
+      [:a {:href "/italian/session/set/"} "Login"]
       )]))
 
 (defn menubar [session-row relative-url]
@@ -27,14 +27,14 @@
 ;    "URL:" relative-url
     (if session-row ;; only show quiz option if there's a session to save the quiz for.
       [:div
-       (if (= relative-url "/quiz/") {:class "selected"})
-       [:a {:href "quiz/"} "Quiz"]])
+       (if (= relative-url "/italian/quiz/") {:class "selected"})
+       [:a {:href "/italian/quiz/"} "Quiz"]])
     [:div
-     (if (= relative-url "/lexicon/") {:class "selected"})
-     [:a {:href "lexicon/"} "Lexicon"  ] ] 
+     (if (= relative-url "/italian/lexicon/") {:class "selected"})
+     [:a {:href "/italian/lexicon/"} "Lexicon"  ] ] 
     [:div
-     (if (= relative-url "/test/") {:class "selected"})
-     [:a {:href "test/"} "Unit Tests"  ] ] 
+     (if (= relative-url "/italian/test/") {:class "selected"})
+     [:a {:href "/italian/test/"} "Unit Tests"  ] ] 
     ]))
 
 (defn powered-by [name link]
@@ -129,9 +129,10 @@
      [:a {:href "/italian/"} "Verbi italiani" ]
       " &#0187;" title ]
 
-    (if request
-      [:div {:class "welcome major"}
-       (welcome (session/get-username request))])
+    (if false
+      (if request
+        [:div {:class "welcome major"}
+         (welcome (session/get-username request))]))
 
     (menubar (session/get-session-row request)
              (if request (get request :uri)))

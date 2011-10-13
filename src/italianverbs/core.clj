@@ -39,11 +39,24 @@
         :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/quiz/"}
+        :headers {"Location" "/italian/quiz/"}
+       }
+ )
+  (GET "/italian/" 
+       ;; request map: access it with (get request X),
+       ;; where X in {:session,:request-method,:uri,...}
+       request
+
+       ;; response map
+       {
+        :session (get request :session)
+        :side-effect (quiz/set-filters (session/request-to-session request) request)
+        :status 302
+        :headers {"Location" "/italian/quiz/"}
        }
  )
 
-  (GET "/lexicon/" 
+  (GET "/italian/lexicon/" 
        request
        ;; response map
        {
@@ -63,7 +76,7 @@
   ;; TO DO: /quiz/ and quiz/display/ should
   ;; be the same thing. for now we need this here
   ;; in order to initialize a new quiz.
-  (GET "/old/quiz/" 
+  (GET "/italian/old/quiz/" 
        request
        ;; response map
        {
@@ -75,7 +88,7 @@
         }
        )
 
-  (GET "/old/quiz/display" 
+  (GET "/italian/old/quiz/display" 
        request
        ;; response map
        {
@@ -87,7 +100,7 @@
         }
        )
   
-  (POST "/old/quiz/"
+  (POST "/italian/old/quiz/"
        request
        ;; response map
        {
@@ -105,68 +118,68 @@
                                         ;              (quiz/filter request)
                                         ;              request)
   
-  (POST "/quiz/filter"
+  (POST "/italian/quiz/filter"
        request
        {
         :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/quiz/display#controlbottom"}
+        :headers {"Location" "/italian/quiz/display#controlbottom"}
         }
        )
 
-  (GET "/quiz/filter/ajax/"
+  (GET "/italian/quiz/filter/ajax/"
        request
        {
         :session (get request :session)
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
-        :body (quiz/ajax-controls (session/request-to-session request) "/quiz/filter/ajax/")
+        :body (quiz/ajax-controls (session/request-to-session request) "/italian/quiz/filter/ajax/")
         }
        )
 
-  (POST "/quiz/filter/ajax/"
+  (POST "/italian/quiz/filter/ajax/"
        request
        {
         :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/quiz/filter/ajax/"}
+        :headers {"Location" "/italian/quiz/filter/ajax/"}
         }
        )
 
-  (GET "/quiz/filter/iframe/"
+  (GET "/italian/quiz/filter/iframe/"
        request
        {
         :session (get request :session)
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
-        :body (quiz/iframe-controls (session/request-to-session request) "/quiz/filter/iframe/")
+        :body (quiz/iframe-controls (session/request-to-session request) "/italian/quiz/filter/iframe/")
         }
        )
   
-  (POST "/quiz/filter/iframe/"
+  (POST "/italian/quiz/filter/iframe/"
        request
        {
         :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/quiz/filter/iframe/"}
+        :headers {"Location" "/italian/quiz/filter/iframe/"}
         }
        )
 
   
-  (POST "/quiz/clear" 
+  (POST "/italian/quiz/clear" 
        request
        {
         :session (get request :session)
         :side-effect (quiz/clear-questions (session/request-to-session request))
         :status 302
-        :headers {"Location" "/quiz/"}
+        :headers {"Location" "/italian/quiz/"}
        }
        )
 
-  (GET "/test/" 
+  (GET "/italian/test/" 
        request
        {
         :headers {"Content-type" "text/html"}
@@ -176,7 +189,7 @@
                     request)
         })
 
-  (POST "/test/" 
+  (POST "/italian/test/" 
        request
        {
         :session (get request :session)
@@ -188,34 +201,34 @@
         })
   
 ;; TODO: make this a POST with 'username' and 'password' params.
-  (GET "/session/set/"  
+  (GET "/italian/session/set/"  
        request
        {
         :session (get request :session)
         :side-effect (session/register request)
         :status 302
-        :headers {"Location" "/?msg=set"}
+        :headers {"Location" "/italian/?msg=set"}
         })
 
-  (GET "/session/clear/" 
+  (GET "/italian/session/clear/" 
        request 
        {
         :session (get request :session)
         :side-effect (session/unregister request)
         :status 302
-        :headers {"Location" "/?msg=cleared"}
+        :headers {"Location" "/italian/?msg=cleared"}
         })
 
   ;; xml is default, so just redirect to /guess/.
   ;; TODO: pass params along.
-  (GET "/guess/xml/"
+  (GET "/italian/guess/xml/"
        request
        {:status 302
-        :headers {"Location" "/guess/"}})
+        :headers {"Location" "/italian/guess/"}})
 
   ;; TODO: move quiz/* (except for quiz/guess) calls to body of quiz/guess.
   ;; TODO: add POST equivalents for all of these.
-  (GET "/guess/"
+  (GET "/italian/guess/"
        request
        {
         :body
@@ -228,7 +241,7 @@
 
   ;; create a new question, store in backing store, and return question's english form
   ;; to pose question to user.
-  (GET "/guess/question/"
+  (GET "/italian/guess/question/"
        request
        {
         :body
@@ -237,7 +250,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/guess/tr/"
+  (GET "/italian/guess/tr/"
        request
        {
         :body
@@ -248,7 +261,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/evaluate/tr/"
+  (GET "/italian/evaluate/tr/"
        request
        {
         :body
@@ -257,7 +270,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (POST "/evaluate/tr/"
+  (POST "/italian/evaluate/tr/"
        request
        {
         :body
@@ -266,7 +279,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/evaluate/xml/"
+  (GET "/italian/evaluate/xml/"
        request
        {
         :body
@@ -275,7 +288,7 @@
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
 
-  (GET "/evaluate/xmltr/"
+  (GET "/italian/evaluate/xmltr/"
        request
        {
         :body
@@ -284,7 +297,7 @@
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
   
-  (GET "/guess/xmltr/"
+  (GET "/italian/guess/xmltr/"
        request
        {
         :body
@@ -295,7 +308,7 @@
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
 
-  (GET "/guess/html/"
+  (GET "/italian/guess/html/"
        request
        {
         :body
@@ -306,13 +319,13 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/quiz/minimal/"
+  (GET "/italian/quiz/minimal/"
        request
        {:body (quiz/minimal request)
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
 
-  (GET "/quiz/"
+  (GET "/italian/quiz/"
        request
        {:body (quiz/quiz-with-prefs request)
         :status 200

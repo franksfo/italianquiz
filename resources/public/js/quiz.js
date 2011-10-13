@@ -27,7 +27,7 @@ function submit_user_response(form_input_id) {
         data: {guess: guess, qid: $("#question_id").val()},
         type: "POST",
         contentType: "application/x-www-form-urlencoded;charset=ISO-8859-1",
-        url: "/evaluate/tr/",
+        url: "/italian/evaluate/tr/",
         success: function (content) {
             $("#quiz_table").prepend(content);
         }
@@ -41,7 +41,7 @@ function submit_user_response(form_input_id) {
 function get_next_question() {
     $.ajax({
         dataType: "html",
-        url: "/guess/question/",
+        url: "/italian/guess/question/",
         success: function (content) {
             $("#ajax_question").html(content);
         }
@@ -77,7 +77,7 @@ function ajax_quiz(dom_id) {
     // show quiz controls form.
     $.ajax({
         dataType: "html",
-        url: "/quiz/filter/ajax/",
+        url: "/italian/quiz/filter/ajax/",
         success: function (content) {
             $("#controls_container").html(content);
         }
@@ -90,7 +90,7 @@ function submit_quiz_filters(container, form) {
         data: $(form).serialize(),
         type: "POST",
         contentType: "application/x-www-form-urlencoded;charset=ISO-8859-1",
-        url: "/quiz/filter/ajax/",
+        url: "/italian/quiz/filter/ajax/",
         success: function (content) {
             $(container).html(content);
         }
