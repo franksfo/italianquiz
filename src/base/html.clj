@@ -109,7 +109,6 @@
   (html5
    [:head 
     [:meta  {:charset "ISO-8859-1"}]
-    [:base  {:href "http://hiro-tan.org/italian/"}]
     [:title "Verbi italiani &#0187; " title]
     [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
     [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
