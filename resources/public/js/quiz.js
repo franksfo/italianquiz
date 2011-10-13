@@ -53,7 +53,7 @@ function clear_guess_input() {
     $("#guess_input").focus();
 }
 
-function ajax_quiz(dom_id,controller) {
+function ajax_quiz(dom_id) {
     var quiz_html = "<div id='ajax_quiz'>" +
         "  <div id='ajax_question'><script>get_next_question();</script></div>" +
         "  <input size='100' id='guess_input' type='text'><script>clear_guess_input();</script></input>" +
@@ -64,6 +64,7 @@ function ajax_quiz(dom_id,controller) {
 
     var dom_node;
     if (dom_id == undefined) {
+        // if no dom_id supplied, just use the body as the node.
         dom_node = document.body;
         document.body.innerHTML = quiz_html;
     } else {
@@ -73,15 +74,14 @@ function ajax_quiz(dom_id,controller) {
 
     clear_guess_input();
 
-    if (controller == true) {
-        $.ajax({
-            dataType: "html",
-            url: "/quiz/filter/ajax/",
-            success: function (content) {
-                $("#controls_container").html(content);
-            }
-        });
-    }
+    // show quiz controls form.
+    $.ajax({
+        dataType: "html",
+        url: "/quiz/filter/ajax/",
+        success: function (content) {
+            $("#controls_container").html(content);
+        }
+    });
 }
 
 function submit_quiz_filters(container, form) {
