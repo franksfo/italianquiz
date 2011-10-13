@@ -318,7 +318,7 @@
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
   
-  (route/resources "/")
+  (route/resources "/italian/")
   (route/not-found (page "Non posso trovare (page not found)." "Non passo trovare. Sorry, page not found.")))
 
 ; http://weavejester.github.com/compojure/compojure.handler-api.html

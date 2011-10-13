@@ -113,9 +113,9 @@
     [:title "Verbi italiani &#0187; " title]
     [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
     [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
-    (include-css "css/style.css")
-    (include-css "css/layout.css")
-    (include-css "css/fs.css")
+    (include-css "/italian/css/style.css")
+    (include-css "/italian/css/layout.css")
+    (include-css "/italian/css/fs.css")
     ]
    [:body
     {:onload
