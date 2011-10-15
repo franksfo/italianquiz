@@ -20,8 +20,9 @@
 ;; 2. register this function in the (generate) method below.
 ;; 3. register :mytype with (controls) method below.
 ;; 4. add :mytype to all-possible-question-types (immediately below).
+;; TODO: make 1-4 a macro.
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 ))
+  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo))
 
 (defn per-user-correct [questions]
   "count of all correctly-answered questions for all session."
@@ -253,11 +254,16 @@
 (defn oct2011 []
   (gram/choose-lexeme {:oct2011 true}))
 
+(defn che-tempo []
+  (gram/choose-lexeme {:chetempo true}))
+
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    (= question-type :oct2011)
    (oct2011)
+   (= question-type :chetempo)
+   (che-tempo)
    (= question-type :espressioni)
    (gen/espressioni)
    (= question-type :infinitivo)
@@ -370,6 +376,7 @@
 
        [:tr
         (checkbox-col "oct2011" :oct2011 session "oct2011")
+        (checkbox-col "chetempo" :chetempo session "che tempo è?")
         ]
 
 

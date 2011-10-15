@@ -869,6 +869,11 @@
    :gender :fem
    :oct2011 true})
 
+(add "sereno" "sunny"
+  {:cat :noun
+   :chetempo true})
+
+
 (add-with-plural "uomo" "man"
   {:cat :noun
    :number :singular
