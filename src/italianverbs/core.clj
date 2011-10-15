@@ -143,15 +143,22 @@
        {:status 302
         :headers {"Location" "/guess/"}})
 
-  ;; TODO: move quiz/* (except for quiz/guess) calls to body of quiz/guess.
-  ;; TODO: add POST equivalents for all of these.
   (GET "/guess/"
        request
-       {
-        :body
-        (let [type (quiz/random-guess-type (session/request-to-session request))
+       {:body
+        (let [type (if (quiz/question-type (get request :query-params))
+                     (quiz/question-type (get request :query-params))
+                     (quiz/random-guess-type (session/request-to-session request)))
               question (quiz/generate type)]
           (quiz/guess question request "xml"))
+        :status 200
+        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
+        })
+
+  (GET "/types/"
+       request
+       {:body
+        (quiz/types)
         :status 200
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })

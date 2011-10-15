@@ -24,6 +24,38 @@
 (def all-possible-question-types
   '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo))
 
+(def question-type-map
+  {"mobili" {:sym :mobili :desc "furniture sentences"},
+   "mese" {:sym :mese :desc "months of the year"},
+   "giorni" {:sym :giorni, :desc "days of the week"},
+   "possessivi" {:sym :possessives, :desc "possessive pronouns"},
+   "partitivo" {:sym :partitivo, :desc "partitive pronouns (e.g. 'degli uomini')"},
+   "ora" {:sym :ora, :desc "clock times"},
+   "infinitivo" {:sym :infinitivo, :desc "infinitive verbs"},
+   "passato" {:sym :passato, :desc "passato prossimo verbs"},
+   "futuro" {:sym :futuro, :desc "futuro semplice verbs"},
+   "presente" {:sym :presente, :desc "present tense verbs"},
+   "espressioni" {:sym :espressioni, :desc "useful expressions"},
+   "oct2011" {:sym :oct2011, :desc "recently-encountered vocabulary"},
+   "chetempo" {:sym :chetempo, :desc "weather-related terms"}})
+
+(defn question-type [params]
+  (let [type-symbol (get params "type")]
+    (if type-symbol
+      (if (get question-type-map type-symbol)
+        (get (get question-type-map type-symbol) :sym)))))
+
+(defn types []
+  "display all possible question types."
+  (str
+   (xml/encoding)
+   (html
+    [:types
+     (map (fn [key]
+            [:type {:key key} (str
+                  (get (get question-type-map key) :desc))])
+          (keys question-type-map))])))
+
 (defn per-user-correct [questions]
   "count of all correctly-answered questions for all session."
   (reduce
@@ -665,61 +697,13 @@
                  (get request :query-params)
                  (get request :form-params))
         session (session/request-to-session request)
-        guess (get params "guess")
-        format (if format format (get params "format"))
-        content (merge
-                 {:method (get request :request-method)}
-                 params
-                 {:session session}
-                 {:question question})]
-    (do
-      (if guess
-        (let [results (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
-          (if (and results (> (.size results) 0))
-            (update-question-with-guess guess (nth results 0)))))
-      (store-question question (session/request-to-session request) guess)
-      (let [top1 {:english (get (get content :question) :english)}
-            previous-question (previous-question session)
-            top2 {:english (get previous-question :english)
-                  :italian (get previous-question :italian)
-                  :guess (get previous-question :guess)
-                  :id (get previous-question :_id)
-                  :evaluation (format-evaluation (get previous-question :evaluation) 0)}]
-        (cond
-         (= format "xml")
-         (str
-          (xml/encoding)
-          (str "<container id='" (get top2 :id) "'>"
- ;              "<question>" (get top1 :english) "</question>"
-               "<english>" (get top2 :english) "</english>"
-               "<italian>" (get top2 :italian) "</italian>"
-;               "<guess>" (get top2 :guess) "</guess>"
-;               "<evaluation>" (get top2 :evaluation) "</evaluation>"
-               "</container>"))
-         (= format "tr")
-         (table-row top2)
-         (= format "xmltr")
-         (str
-          (xml/encoding)
-          "<xmltr>"
-          "<question>" (get top1 :english) "</question>"
-          (table-row top2)
-          "</xmltr>")
-         true
-         (str ;; default: html.
-          (xml/encoding)
-          (html/showdoctype)
-          "<html>"
-          (html/head)
-          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
-          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>current question</h1>" (html/fs top1) "</div>"
-          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>previous question</h1>"
-          "<table class='test'>"
-          (table-row top2)
-          "</table>"
-          "</div>"
-          "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
-          "</html>"))))))
+        stored (store-question question (session/request-to-session request) nil)]
+    (str
+     (xml/encoding)
+     (html
+      [:container {:id (get stored :_id) :type (question-type params)}
+       [:english (get stored :english)]
+       [:italian (get stored :italian)]]))))
 
 ;; a minimal, self-contained quiz applet.
 (defn minimal [request]
