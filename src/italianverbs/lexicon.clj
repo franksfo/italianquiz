@@ -685,7 +685,7 @@
 
 ;; <stare>
 
-(def stare (add "stare" "to be (stare)"
+(def stare (add "stare" "to be (not essere)"
                      {:cat :verb :infl :infinitive
                       :subj {:animate true}}))
 
