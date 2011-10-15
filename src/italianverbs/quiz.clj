@@ -697,7 +697,11 @@
                  (get request :query-params)
                  (get request :form-params))
         session (session/request-to-session request)
-        stored (store-question question (session/request-to-session request) nil)]
+        stored (if (get params "id")
+                 (mongo/fetch-one :question
+                                  :where {:_id (new org.bson.types.ObjectId (get params "id"))
+                                          :session session})
+                 (store-question question (session/request-to-session request) nil))]
     (str
      (xml/encoding)
      (html
