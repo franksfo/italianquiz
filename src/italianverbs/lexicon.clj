@@ -718,6 +718,14 @@
                       :obj {:knowable true}}))
 (futuro-semplice sapere "sapr")
 
+
+(def festeggiare
+  (add "festeggiare" "to celebrate"
+       {:cat :verb :infl :infinitive
+        :oct2011 true
+        :subj {:human true}}))
+
+
 ;; FIXME: should not need to specify english inflection
 ;; if it's regular (as it is with this verb).
 (add-infl "so" (list firstp sing present
@@ -863,6 +871,127 @@
 
 
 ;; nouns
+(add "natale" "christmas"
+  {:cat :noun
+   :number :singular
+   :gender :fem
+   :oct2011 true})
+
+(add "scontrino" "receipt"
+     {:cat :noun
+      :number :singular
+      :gender :masc
+      :oct2011 true})
+
+(add "capodanno" "new year"
+     {:cat :noun
+      :oct2011 true})
+
+(add "biglietto" "ticket"
+     {:cat :noun
+      :number :singular
+      :gender :masc
+      :oct2011 true})
+
+(add "coppia" "pair"
+     {:cat :noun
+      :number :singular
+      :gender :fem
+      :oct2011 true})
+
+
+;; logical terms
+(add "oppure" "or (not o)"
+  {:cat :logical
+   :oct2011 true})
+
+(add "dunque" "therefore"
+  {:cat :logical
+   :oct2011 true})
+
+(add "località" "resort"
+  {:cat :noun
+   :oct2011 true})
+
+(add "scompartimento" "compartment"
+  {:cat :noun
+   :oct2011 true})
+
+(add "crociera" "cruise"
+  {:cat :noun
+   :oct2011 true})
+
+(add "valige" "bags"
+  {:cat :noun
+   :oct2011 true})
+
+(add "babagli" "baggage"
+  {:cat :noun
+   :oct2011 true})
+
+(add "nave" "ship"
+  {:cat :noun
+   :oct2011 true})
+
+(add "binario" "track"
+  {:cat :noun
+   :oct2011 true})
+
+(add "prenotazione" "reservation"
+  {:cat :noun
+   :oct2011 true})
+
+(add "tariffa" "rate"
+  {:cat :noun
+   :oct2011 true})
+
+(add "camera" "room"
+  {:cat :noun
+   :oct2011 true})
+
+(add "prezzo" "price"
+  {:cat :noun
+   :oct2011 true})
+
+
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+
+
+(add "sereno" "sunny"
+  {:cat :noun
+   :chetempo true})
+
+(add "variabile" "changeable"
+  {:cat :noun
+   :chetempo true})
+(add "nuvoloso" "cloudy"
+  {:cat :noun
+   :chetempo true})
+(add "pioggia" "rainy"
+  {:cat :noun
+   :chetempo true})
+(add "temporale" "thunderstorms" 
+  {:cat :noun
+   :chetempo true})
+(add "neve" "snow"
+  {:cat :noun
+   :chetempo true})
+(add "nebbia" "fog"
+  {:cat :noun
+   :chetempo true})
+
+
 (add-with-plural "uomo" "man"
   {:cat :noun
    :number :singular
@@ -1319,7 +1448,6 @@
 (add "che caldo oggi" "it's so hot today"
      {:cat :espressioni})
 
-
 (add "ci porti il conto" "could i have the bill, please?"
      {:cat :espressioni})
 
@@ -1328,7 +1456,5 @@
 
 (add "vende dei giornali inglesi" "do you sell english newspapers"
      {:cat :espressioni})
-
-
 (add "bisogna prendere un appuntamento" "do i have to make an appointment?"
      {:cat :espressioni})
