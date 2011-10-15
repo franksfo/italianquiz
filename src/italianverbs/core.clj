@@ -60,101 +60,25 @@
         }
        )
 
-  ;; TO DO: /quiz/ and quiz/display/ should
-  ;; be the same thing. for now we need this here
-  ;; in order to initialize a new quiz.
-  (GET "/old/quiz/" 
-       request
-       ;; response map
-       {
-        :headers {"Content-type" "text/html"}
-        :session (get request :session)
-        :body (page "Quiz"
-                    (quiz/run request)
-                    request)
-        }
-       )
-
-  (GET "/old/quiz/display" 
-       request
-       ;; response map
-       {
-        :session (get request :session)
-        :headers {"Content-type" "text/html"}
-        :body (page "Quiz"
-                    (quiz/display request)
-                    request)
-        }
-       )
-  
-  (POST "/old/quiz/"
-       request
-       ;; response map
-       {
-        :session (get request :session)
-        :headers {"Content-type" "text/html"}
-        :body (page "Quiz"
-                    (quiz/run request)
-                    request)
-        }
-       )
-
-                                        ; TODO: when quiz/filter works, use this instead of the redirect.
-                                        ; might also redirect after :side-effect instead of a separate filter page.
-                                        ;  :body (page "Quiz"
-                                        ;              (quiz/filter request)
-                                        ;              request)
-  
-  (POST "/quiz/filter"
-       request
-       {
-        :session (get request :session)
-        :side-effect (quiz/set-filters (session/request-to-session request) request)
-        :status 302
-        :headers {"Location" "/quiz/display#controlbottom"}
-        }
-       )
-
-  (GET "/quiz/filter/ajax/"
+  (GET "/quiz/filter/"
        request
        {
         :session (get request :session)
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
-        :body (quiz/ajax-controls (session/request-to-session request) "/italian/quiz/filter/ajax/")
+        :body (quiz/ajax-controls (session/request-to-session request) "/italian/quiz/filter/")
         }
        )
 
-  (POST "/quiz/filter/ajax/"
+  (POST "/quiz/filter/"
        request
        {
         :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/italian/quiz/filter/ajax/"}
+        :headers {"Location" "/italian/quiz/filter/"}
         }
        )
-
-  (GET "/quiz/filter/iframe/"
-       request
-       {
-        :session (get request :session)
-        :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
-        :body (quiz/iframe-controls (session/request-to-session request) "/quiz/filter/iframe/")
-        }
-       )
-  
-  (POST "/quiz/filter/iframe/"
-       request
-       {
-        :session (get request :session)
-        :side-effect (quiz/set-filters (session/request-to-session request) request)
-        :status 302
-        :headers {"Location" "/quiz/filter/iframe/"}
-        }
-       )
-
   
   (POST "/quiz/clear" 
        request
@@ -248,16 +172,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/evaluate/tr/"
-       request
-       {
-        :body
-        (quiz/evaluate request "tr")
-        :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
-        })
-
-  (POST "/evaluate/tr/"
+  (POST "/evaluate/"
        request
        {
         :body
@@ -283,34 +198,6 @@
         :status 200
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
-  
-  (GET "/guess/xmltr/"
-       request
-       {
-        :body
-        (let [type (quiz/random-guess-type)
-              question (quiz/generate type)]
-          (quiz/guess question request "xmltr"))
-        :status 200
-        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
-        })
-
-  (GET "/guess/html/"
-       request
-       {
-        :body
-        (let [type (quiz/random-guess-type)
-              question (quiz/generate type)]
-          (quiz/guess question request "html"))
-        :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
-        })
-
-  (GET "/quiz/minimal/"
-       request
-       {:body (quiz/minimal request)
-        :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
 
   (GET "/quiz/"
        request

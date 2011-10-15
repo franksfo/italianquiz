@@ -3,7 +3,6 @@
      [hiccup core page-helpers]
      [somnium.congomongo])
     (:require
-     [italianverbs.ajax :as ajax]
      [italianverbs.generate :as gen]
      [italianverbs.grammar :as gram]
      [italianverbs.lev :as lev]
@@ -46,8 +45,7 @@
 ; list of all packages to test (for now you must suffixize with "/test")
 ; shown in order from more basic to more complex, but can be in any order.
 (def alltests
-  {:ajax ajax/test
-   :xml xml/test
+  {:xml xml/test
    :html html/test
    :morph morph/test
    :grammar gram/test
