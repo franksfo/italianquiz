@@ -43,6 +43,12 @@
        }
  )
 
+  (GET "/quiz/"
+       request
+       {:body (quiz/quiz-with-prefs request)
+        :status 200
+        :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
+
   (GET "/lexicon/" 
        request
        ;; response map
@@ -180,12 +186,6 @@
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
-
-  (GET "/quiz/"
-       request
-       {:body (quiz/quiz-with-prefs request)
-        :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
   
   (route/resources "/")
 
