@@ -873,6 +873,25 @@
   {:cat :noun
    :chetempo true})
 
+(add "variabile" "changeable"
+  {:cat :noun
+   :chetempo true})
+(add "nuvoloso" "cloudy"
+  {:cat :noun
+   :chetempo true})
+(add "pioggia" "rainy"
+  {:cat :noun
+   :chetempo true})
+(add "temporale" "thunderstorms" 
+  {:cat :noun
+   :chetempo true})
+(add "neve" "snow"
+  {:cat :noun
+   :chetempo true})
+(add "nebbia" "fog"
+  {:cat :noun
+   :chetempo true})
+
 
 (add-with-plural "uomo" "man"
   {:cat :noun
