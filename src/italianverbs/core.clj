@@ -42,21 +42,8 @@
         :headers {"Location" "/italian/quiz/"}
        }
  )
-  (GET "/italian/" 
-       ;; request map: access it with (get request X),
-       ;; where X in {:session,:request-method,:uri,...}
-       request
 
-       ;; response map
-       {
-        :session (get request :session)
-        :side-effect (quiz/set-filters (session/request-to-session request) request)
-        :status 302
-        :headers {"Location" "/italian/quiz/"}
-       }
- )
-
-  (GET "/italian/lexicon/" 
+  (GET "/lexicon/" 
        request
        ;; response map
        {
@@ -76,7 +63,7 @@
   ;; TO DO: /quiz/ and quiz/display/ should
   ;; be the same thing. for now we need this here
   ;; in order to initialize a new quiz.
-  (GET "/italian/old/quiz/" 
+  (GET "/old/quiz/" 
        request
        ;; response map
        {
@@ -88,7 +75,7 @@
         }
        )
 
-  (GET "/italian/old/quiz/display" 
+  (GET "/old/quiz/display" 
        request
        ;; response map
        {
@@ -100,7 +87,7 @@
         }
        )
   
-  (POST "/italian/old/quiz/"
+  (POST "/old/quiz/"
        request
        ;; response map
        {
@@ -118,17 +105,17 @@
                                         ;              (quiz/filter request)
                                         ;              request)
   
-  (POST "/italian/quiz/filter"
+  (POST "/quiz/filter"
        request
        {
         :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/italian/quiz/display#controlbottom"}
+        :headers {"Location" "/quiz/display#controlbottom"}
         }
        )
 
-  (GET "/italian/quiz/filter/ajax/"
+  (GET "/quiz/filter/ajax/"
        request
        {
         :session (get request :session)
@@ -138,7 +125,7 @@
         }
        )
 
-  (POST "/italian/quiz/filter/ajax/"
+  (POST "/quiz/filter/ajax/"
        request
        {
         :session (get request :session)
@@ -148,38 +135,38 @@
         }
        )
 
-  (GET "/italian/quiz/filter/iframe/"
+  (GET "/quiz/filter/iframe/"
        request
        {
         :session (get request :session)
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
-        :body (quiz/iframe-controls (session/request-to-session request) "/italian/quiz/filter/iframe/")
+        :body (quiz/iframe-controls (session/request-to-session request) "/quiz/filter/iframe/")
         }
        )
   
-  (POST "/italian/quiz/filter/iframe/"
+  (POST "/quiz/filter/iframe/"
        request
        {
         :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/italian/quiz/filter/iframe/"}
+        :headers {"Location" "/quiz/filter/iframe/"}
         }
        )
 
   
-  (POST "/italian/quiz/clear" 
+  (POST "/quiz/clear" 
        request
        {
         :session (get request :session)
         :side-effect (quiz/clear-questions (session/request-to-session request))
         :status 302
-        :headers {"Location" "/italian/quiz/"}
+        :headers {"Location" "/quiz/"}
        }
        )
 
-  (GET "/italian/test/" 
+  (GET "/test/" 
        request
        {
         :headers {"Content-type" "text/html"}
@@ -189,7 +176,7 @@
                     request)
         })
 
-  (POST "/italian/test/" 
+  (POST "/test/" 
        request
        {
         :session (get request :session)
@@ -201,34 +188,34 @@
         })
   
 ;; TODO: make this a POST with 'username' and 'password' params.
-  (GET "/italian/session/set/"  
+  (GET "/session/set/"  
        request
        {
         :session (get request :session)
         :side-effect (session/register request)
         :status 302
-        :headers {"Location" "/italian/?msg=set"}
+        :headers {"Location" "/?msg=set"}
         })
 
-  (GET "/italian/session/clear/" 
+  (GET "/session/clear/" 
        request 
        {
         :session (get request :session)
         :side-effect (session/unregister request)
         :status 302
-        :headers {"Location" "/italian/?msg=cleared"}
+        :headers {"Location" "/?msg=cleared"}
         })
 
   ;; xml is default, so just redirect to /guess/.
   ;; TODO: pass params along.
-  (GET "/italian/guess/xml/"
+  (GET "/guess/xml/"
        request
        {:status 302
-        :headers {"Location" "/italian/guess/"}})
+        :headers {"Location" "/guess/"}})
 
   ;; TODO: move quiz/* (except for quiz/guess) calls to body of quiz/guess.
   ;; TODO: add POST equivalents for all of these.
-  (GET "/italian/guess/"
+  (GET "/guess/"
        request
        {
         :body
@@ -241,7 +228,7 @@
 
   ;; create a new question, store in backing store, and return question's english form
   ;; to pose question to user.
-  (GET "/italian/guess/question/"
+  (GET "/guess/question/"
        request
        {
         :body
@@ -250,7 +237,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/italian/guess/tr/"
+  (GET "/guess/tr/"
        request
        {
         :body
@@ -261,7 +248,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/italian/evaluate/tr/"
+  (GET "/evaluate/tr/"
        request
        {
         :body
@@ -270,7 +257,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (POST "/italian/evaluate/tr/"
+  (POST "/evaluate/tr/"
        request
        {
         :body
@@ -279,7 +266,7 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/italian/evaluate/xml/"
+  (GET "/evaluate/xml/"
        request
        {
         :body
@@ -288,7 +275,7 @@
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
 
-  (GET "/italian/evaluate/xmltr/"
+  (GET "/evaluate/xmltr/"
        request
        {
         :body
@@ -297,7 +284,7 @@
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
   
-  (GET "/italian/guess/xmltr/"
+  (GET "/guess/xmltr/"
        request
        {
         :body
@@ -308,7 +295,7 @@
         :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
 
-  (GET "/italian/guess/html/"
+  (GET "/guess/html/"
        request
        {
         :body
@@ -319,20 +306,23 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (GET "/italian/quiz/minimal/"
+  (GET "/quiz/minimal/"
        request
        {:body (quiz/minimal request)
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
 
-  (GET "/italian/quiz/"
+  (GET "/quiz/"
        request
        {:body (quiz/quiz-with-prefs request)
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
   
-  (route/resources "/italian/")
-  (route/not-found (page "Non posso trovare (page not found)." "Non passo trovare. Sorry, page not found.")))
+  (route/resources "/")
+
+  (route/not-found (page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
+)
+
 
 ; http://weavejester.github.com/compojure/compojure.handler-api.html
 ; site function
