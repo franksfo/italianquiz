@@ -654,17 +654,18 @@
             top2 {:english (get previous-question :english)
                   :italian (get previous-question :italian)
                   :guess (get previous-question :guess)
+                  :id (get previous-question :_id)
                   :evaluation (format-evaluation (get previous-question :evaluation) 0)}]
         (cond
          (= format "xml")
          (str
           (xml/encoding)
-          (str "<container>"
-               "<question>" (get top1 :english) "</question>"
+          (str "<container id='" (get top2 :id) "'>"
+ ;              "<question>" (get top1 :english) "</question>"
                "<english>" (get top2 :english) "</english>"
                "<italian>" (get top2 :italian) "</italian>"
-               "<guess>" (get top2 :guess) "</guess>"
-               "<evaluation>" (get top2 :evaluation) "</evaluation>"
+;               "<guess>" (get top2 :guess) "</guess>"
+;               "<evaluation>" (get top2 :evaluation) "</evaluation>"
                "</container>"))
          (= format "tr")
          (table-row top2)
