@@ -27,13 +27,13 @@
 ;    "URL:" relative-url
     (if session-row ;; only show quiz option if there's a session to save the quiz for.
       [:div
-       (if (= relative-url "/italian/quiz/") {:class "selected"})
+       (if (= relative-url "/quiz/") {:class "selected"})
        [:a {:href "/italian/quiz/"} "Quiz"]])
     [:div
-     (if (= relative-url "/italian/lexicon/") {:class "selected"})
+     (if (= relative-url "/lexicon/") {:class "selected"})
      [:a {:href "/italian/lexicon/"} "Lexicon"  ] ] 
     [:div
-     (if (= relative-url "/italian/test/") {:class "selected"})
+     (if (= relative-url "/test/") {:class "selected"})
      [:a {:href "/italian/test/"} "Unit Tests"  ] ] 
     ]))
 
