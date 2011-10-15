@@ -15,8 +15,13 @@
               [italianverbs.xml :as xml]
               [italianverbs.generate :as gen]))
 
+;; to add a new question type:
+;; 1. write a function (gen/mytype) that generates a random question for mytype.
+;; 2. register this function in the (generate) method below.
+;; 3. register :mytype with (controls) method below.
+;; 4. add :mytype to all-possible-question-types (immediately below).
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni))
+  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 ))
 
 (defn per-user-correct [questions]
   "count of all correctly-answered questions for all session."
@@ -245,9 +250,14 @@
                                              guess))}
                           question))))
 
+(defn oct2011 []
+  (gram/choose-lexeme {:oct2011 true}))
+
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
+   (= question-type :oct2011)
+   (oct2011)
    (= question-type :espressioni)
    (gen/espressioni)
    (= question-type :infinitivo)
@@ -357,7 +367,14 @@
         (checkbox-col "possessivi" :possessives session) ;; e.g. "il tuo cane"
         (checkbox-col "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
         ]
+
+       [:tr
+        (checkbox-col "oct2011" :oct2011 session "oct2011")
+        ]
+
+
        ]
+
       [:div {:class "optiongroup"}
        [:h4 "Verbi"]
        [:table
@@ -367,8 +384,11 @@
          (checkbox-col "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
          (checkbox-col "infinitivo" :infinitivo session "infinitivo")  ;; e.g. "fare"
          ]
-        ]      
+        ]
        ]
+
+
+      
       ]
      
      ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
@@ -431,6 +451,8 @@
      ]
     ))
 
+;; TODO: use recur:
+;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
 (defn filter-by-criteria [list criteria]
   (if (> (count list) 0)
     (if (get criteria (first list))

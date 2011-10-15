@@ -863,6 +863,12 @@
 
 
 ;; nouns
+(add "natale" "christmas"
+  {:cat :noun
+   :number :singular
+   :gender :fem
+   :oct2011 true})
+
 (add-with-plural "uomo" "man"
   {:cat :noun
    :number :singular
@@ -1319,7 +1325,6 @@
 (add "che caldo oggi" "it's so hot today"
      {:cat :espressioni})
 
-
 (add "ci porti il conto" "could i have the bill, please?"
      {:cat :espressioni})
 
@@ -1328,7 +1333,5 @@
 
 (add "vende dei giornali inglesi" "do you sell english newspapers"
      {:cat :espressioni})
-
-
 (add "bisogna prendere un appuntamento" "do i have to make an appointment?"
      {:cat :espressioni})
