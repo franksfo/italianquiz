@@ -718,6 +718,14 @@
                       :obj {:knowable true}}))
 (futuro-semplice sapere "sapr")
 
+
+(def festeggiare
+  (add "festeggiare" "to celebrate"
+       {:cat :verb :infl :infinitive
+        :oct2011 true
+        :subj {:human true}}))
+
+
 ;; FIXME: should not need to specify english inflection
 ;; if it's regular (as it is with this verb).
 (add-infl "so" (list firstp sing present
@@ -868,6 +876,69 @@
    :number :singular
    :gender :fem
    :oct2011 true})
+
+(add "scontrino" "receipt"
+     {:cat :noun
+      :number :singular
+      :gender :masc
+      :oct2011 true})
+
+(add "capodanno" "new year"
+     {:cat :noun
+      :oct2011 true})
+
+(add "biglietto" "ticket"
+     {:cat :noun
+      :number :singular
+      :gender :masc
+      :oct2011 true})
+
+(add "coppia" "pair"
+     {:cat :noun
+      :number :singular
+      :gender :fem
+      :oct2011 true})
+
+
+;; logical terms
+(add "oppure" "or (not o)"
+  {:cat :logical
+   :oct2011 true})
+
+(add "dunque" "therefore"
+  {:cat :logical
+   :oct2011 true})
+
+(add "località" "resort"
+  {:cat :noun
+   :oct2011 true})
+
+(add "" ""
+  {:cat :noun
+   :oct2011 true})
+(add "" ""
+  {:cat :noun
+   :oct2011 true})
+
+
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+
+
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+;(add "" ""
+;  {:cat :noun
+;   :oct2011 true})
+
 
 (add "sereno" "sunny"
   {:cat :noun
