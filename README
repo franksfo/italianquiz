@@ -24,21 +24,16 @@ Apache HTTP Server Proxying:
 
 --->% begin http configuration --->%----
 
+    # LoadModule might not be necessary depending on your Apache installation.
+    # If it is necessary, module location may vary according to your Apache installation.
+    LoadModule proxy_module modules/mod_proxy.so
+
     ProxyPreserveHost on
 
     ProxyPass /italian http://localhost:3000
     ProxyPassReverse /italian http://localhost:3000
 
-    ProxyPass /quiz http://localhost:3000/quiz
-    ProxyPassReverse /quiz http://localhost:3000/quiz
-
     <Location /italian>
-     Options All
-     Order allow,deny
-     allow from all
-    </Location>
-
-    <Location /quiz>
      Options All
      Order allow,deny
      allow from all
