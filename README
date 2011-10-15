@@ -26,7 +26,9 @@ Apache HTTP Server Proxying:
 
     # LoadModule might not be necessary depending on your Apache installation.
     # If it is necessary, module location may vary according to your Apache installation.
-    LoadModule proxy_module modules/mod_proxy.so
+    # For example, you don't need this on Mac OS X because it's already loaded in
+    # /private/etc/apache2/httpd.conf
+    # LoadModule proxy_module modules/mod_proxy.so
 
     ProxyPreserveHost on
 
@@ -34,9 +36,9 @@ Apache HTTP Server Proxying:
     ProxyPassReverse /italian http://localhost:3000
 
     <Location /italian>
-     Options All
-     Order allow,deny
-     allow from all
+      Options All
+      Order allow,deny
+      allow from all
     </Location>
 
 --->% end http configuration --->%----
