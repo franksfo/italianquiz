@@ -953,6 +953,14 @@
   {:cat :noun
    :oct2011 true})
 
+(add "cenone" "dinner (not cena)"
+  {:cat :noun
+   :oct2011 true})
+
+(add "tacchino" "turkey"
+  {:cat :noun
+   :oct2011 true})
+
 
 ;(add "" ""
 ;  {:cat :noun
