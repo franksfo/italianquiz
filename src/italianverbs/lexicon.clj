@@ -913,17 +913,45 @@
   {:cat :noun
    :oct2011 true})
 
-(add "" ""
-  {:cat :noun
-   :oct2011 true})
-(add "" ""
+(add "scompartimento" "compartment"
   {:cat :noun
    :oct2011 true})
 
+(add "crociera" "cruise"
+  {:cat :noun
+   :oct2011 true})
 
-;(add "" ""
-;  {:cat :noun
-;   :oct2011 true})
+(add "valige" "bags"
+  {:cat :noun
+   :oct2011 true})
+
+(add "babagli" "baggage"
+  {:cat :noun
+   :oct2011 true})
+
+(add "nave" "ship"
+  {:cat :noun
+   :oct2011 true})
+
+(add "binario" "track"
+  {:cat :noun
+   :oct2011 true})
+
+(add "prenotazione" "reservation"
+  {:cat :noun
+   :oct2011 true})
+
+(add "tariffa" "rate"
+  {:cat :noun
+   :oct2011 true})
+
+(add "camera" "room"
+  {:cat :noun
+   :oct2011 true})
+
+(add "prezzo" "price"
+  {:cat :noun
+   :oct2011 true})
 
 
 ;(add "" ""
