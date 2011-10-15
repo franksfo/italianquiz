@@ -152,7 +152,7 @@
 
   ;; create a new question, store in backing store, and return question's english form
   ;; to pose question to user.
-  (GET "/guess/question/"
+  (GET "/quiz/question/"
        request
        {
         :body
@@ -172,31 +172,13 @@
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
         })
 
-  (POST "/evaluate/"
+  (POST "/quiz/evaluate/"
        request
        {
         :body
         (quiz/evaluate request "tr")
         :status 200
         :headers {"Content-type" "text/html;charset=ISO-8859-1"}
-        })
-
-  (GET "/evaluate/xml/"
-       request
-       {
-        :body
-        (quiz/evaluate request "xml")
-        :status 200
-        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
-        })
-
-  (GET "/evaluate/xmltr/"
-       request
-       {
-        :body
-        (quiz/evaluate request "xmltr")
-        :status 200
-        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
         })
 
   (GET "/quiz/"

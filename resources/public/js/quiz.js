@@ -27,7 +27,7 @@ function submit_user_response(form_input_id) {
         data: {guess: guess, qid: $("#question_id").val()},
         type: "POST",
         contentType: "application/x-www-form-urlencoded;charset=ISO-8859-1",
-        url: "/italian/evaluate/",
+        url: "/italian/quiz/evaluate/",
         success: function (content) {
             $("#quiz_table").prepend(content);
         }
@@ -41,7 +41,7 @@ function submit_user_response(form_input_id) {
 function get_next_question() {
     $.ajax({
         dataType: "html",
-        url: "/italian/guess/question/",
+        url: "/italian/quiz/question/",
         success: function (content) {
             $("#ajax_question").html(content);
         }
