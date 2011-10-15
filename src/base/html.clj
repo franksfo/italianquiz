@@ -109,7 +109,7 @@
   (html5
    [:head 
     [:meta  {:charset "ISO-8859-1"}]
-    [:title "Verbi italiani &#0187; " title]
+    [:title "Imparare l'italiano &#0187; " title]
     [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
     [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
     (include-css "/italian/css/style.css")
@@ -126,7 +126,7 @@
       "setTimeout('location.reload(true);',5000);"
       true "")}
     [:h1
-     [:a {:href "/italian/"} "Verbi italiani" ]
+     [:a {:href "/italian/"} "Imparare l'italiano" ]
       " &#0187;" title ]
 
     (if false
