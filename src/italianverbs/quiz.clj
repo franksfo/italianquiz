@@ -671,12 +671,21 @@
 (defn quiz-with-prefs [request]
   (basehtml/page "Quiz"
    (html
-    [:div {:class "quiz-elem"}
-     [:h2 "Quiz" ]
-     [:div#quiz_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz."]
-     ]
-    [:div#controls_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz controls."]
-     )
+     [:div {:class "quiz-elem"}
+      [:h2 "Quiz" ]
+      [:div#quiz_container
+       [:div#ajax_question " "
+        [:script "get_next_question()" ]
+        ]
+       [:input {:size "100" :id "guess_input" :type "text"}
+        [:script "clear_guess_input()" ]
+        ]
+       [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
+       [:table {:id "quiz_table"} " " ]
+       [:div {:style "display:none" :id "stripe_toggle"} "odd" ] ]]
+
+     [:div#controls_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz controls."] )
+
    request
    "ajax_quiz('quiz_container')"))
 

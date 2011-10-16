@@ -59,25 +59,7 @@ function remove_pluses(string) {
     return newstr;
 }
 
-function ajax_quiz(dom_id) {
-    var quiz_html = "<div id='ajax_quiz'>" +
-        "  <div id='ajax_question'><script>get_next_question();</script></div>" +
-        "  <input size='100' id='guess_input' type='text'><script>clear_guess_input();</script></input>" +
-        "  <button class='click' onclick='submit_user_response(\"guess_input\")'>Rispondi</button>" +
-        "  <table id='quiz_table'></table>" +
-        "  <div style='display:none' id='stripe_toggle'>odd</div>" +
-        "</div>";
-
-    var dom_node;
-    if (dom_id == undefined) {
-        // if no dom_id supplied, just use the body as the node.
-        dom_node = document.body;
-        document.body.innerHTML = quiz_html;
-    } else {
-        dom_node = $("#"+dom_id);
-        dom_node.html(quiz_html);
-    }
-
+function ajax_quiz() {
     clear_guess_input();
 
     // show quiz controls form.
