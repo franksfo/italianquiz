@@ -20,8 +20,6 @@ REPL: see comments at the top of src/italianverbs/repl.clj.
 
 Apache HTTP Server Proxying:
 
-(some of this is probably not needed):
-
 --->% begin http configuration --->%----
 
     # LoadModule might not be necessary depending on your Apache installation.
@@ -42,6 +40,8 @@ Apache HTTP Server Proxying:
     </Location>
 
 --->% end http configuration --->%----
+
+After restarting your HTTP server, you should be able to access : http://yourhost/italian/ .
 
 Ajax, Routes, and Page Structure
 
