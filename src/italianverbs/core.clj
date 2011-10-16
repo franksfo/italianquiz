@@ -30,24 +30,21 @@
 ; http://groups.google.com/group/compojure/browse_thread/thread/3c507da23540da6e
 ; http://brehaut.net/blog/2011/ring_introduction
   (GET "/" 
-       ;; request map: access it with (get request X),
-       ;; where X in {:session,:request-method,:uri,...}
        request
-
        ;; response map
-       {
-        :session (get request :session)
-        :side-effect (quiz/set-filters (session/request-to-session request) request)
-        :status 302
-        :headers {"Location" "/italian/quiz/"}
-       }
- )
+       {:status 302
+        :headers {"Location" "/italian/quiz/"}})
 
   (GET "/quiz/"
        request
        {:body (quiz/quiz-with-prefs request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/quiz"
+       request
+       {:status 302
+        :headers {"Location" "/italian/quiz/"}})
 
   (GET "/lexicon/" 
        request
