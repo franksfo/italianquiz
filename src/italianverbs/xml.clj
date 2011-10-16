@@ -4,7 +4,7 @@
    [clojure.contrib.str-utils2 :as str-utils]))
 
 (defn encoding []
-  (str "<?xml version='1.0' encoding='ISO-8859-1'?>"))
+  (str "<?xml version='1.0' encoding='utf-8'?>"))
 
 (defn content []
   "<xml/>")

@@ -70,15 +70,15 @@
 (add "dicembre" "december"
      {:month true})
 
-(add "lunedì" "monday"
+(add "lunedÃ¬" "monday"
      {:giorni-della-settimana true})
-(add "martedì" "tuesday"
+(add "martedÃ¬" "tuesday"
      {:giorni-della-settimana true})
-(add "mercoledì" "wednesday"
+(add "mercoledÃ¬" "wednesday"
      {:giorni-della-settimana true})
-(add "giovedì" "thursday"
+(add "giovedÃ¬" "thursday"
      {:giorni-della-settimana true})
-(add "venerdì" "friday"
+(add "venerdÃ¬" "friday"
      {:giorni-della-settimana true})
 (add "sabato" "saturday"
      {:giorni-della-settimana true})
@@ -556,7 +556,7 @@
 			 {:root potere}))
 (add-infl "possi" (list secondp sing present
 			{:root potere}))
-(add-infl "può" (list thirdp sing present
+(add-infl "puÃ²" (list thirdp sing present
 			 {:root potere}))
 (add-infl "possiamo" (list firstp plural sing present
 			 {:root potere}))
@@ -601,7 +601,7 @@
 			{:root fare}))
 (add-infl "fai" (list secondp sing present
 		      {:root fare}))
-(add-infl "fà" (list thirdp sing present
+(add-infl "fÃ " (list thirdp sing present
 		      {:root fare}))
 (add-infl "facciamo" (list firstp plural sing present
 			   {:root fare}))
@@ -669,7 +669,7 @@
 (add-infl "sei" (list secondp sing present
                       {:root essere
                        :english "are"}))
-(add-infl "è" (list thirdp sing present
+(add-infl "Ã¨" (list thirdp sing present
                     {:root essere
                      :english "is"}))
 (add-infl "siamo" (list firstp plural sing present
@@ -765,7 +765,7 @@
 (add-infl "dai" (list secondp sing present
                       {:root dare
                        :english "give"}))
-(add-infl "dà" (list thirdp sing present
+(add-infl "dÃ " (list thirdp sing present
                     {:root dare
                      :english "gives"}))
 
@@ -909,7 +909,7 @@
   {:cat :logical
    :oct2011 true})
 
-(add "località" "resort"
+(add "localitÃ " "resort"
   {:cat :noun
    :oct2011 true})
 

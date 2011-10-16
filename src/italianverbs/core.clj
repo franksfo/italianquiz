@@ -47,14 +47,14 @@
        request
        {:body (quiz/quiz-with-prefs request)
         :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}})
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/lexicon/" 
        request
        ;; response map
        {
         :session (get request :session)
-        :headers {"Content-type" "text/html"}
+        :headers {"Content-Type" "text/html"}
         :body
         (do ;"reload lexicon into mongodb and then render it as HTML."
           (load-file "src/italianverbs/lexicon.clj")
@@ -71,7 +71,7 @@
        {
         :session (get request :session)
         :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        :headers {"Content-Type" "text/html;charset=utf-8"}
         :body (quiz/ajax-controls (session/request-to-session request) "/italian/quiz/filter/")
         }
        )
@@ -99,7 +99,7 @@
   (GET "/test/" 
        request
        {
-        :headers {"Content-type" "text/html"}
+        :headers {"Content-Type" "text/html"}
         :session (get request :session)
         :body (page "test"
                     (test/run-tests)
@@ -110,7 +110,7 @@
        request
        {
         :session (get request :session)
-        :headers {"Content-type" "text/html"}
+        :headers {"Content-Type" "text/html"}
         :body (page "test" 
                     (map wrap-div 
                          test/tests)
@@ -152,7 +152,7 @@
               question (quiz/generate type)]
           (quiz/guess question request "xml"))
         :status 200
-        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
+        :headers {"Content-Type" "text/xml;charset=utf-8"}
         })
 
   (GET "/types/"
@@ -160,7 +160,7 @@
        {:body
         (quiz/types)
         :status 200
-        :headers {"Content-type" "text/xml;charset=ISO-8859-1"}
+        :headers {"Content-Type" "text/xml;charset=utf-8"}
         })
 
   ;; create a new question, store in backing store, and return question's english form
@@ -171,7 +171,7 @@
         :body
         (quiz/question request)
         :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        :headers {"Content-Type" "text/html;charset=utf-8"}
         })
 
   (GET "/guess/tr/"
@@ -182,7 +182,7 @@
               question (quiz/generate type)]
           (quiz/guess question request "tr"))
         :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        :headers {"Content-Type" "text/html;charset=utf-8"}
         })
 
   (POST "/quiz/evaluate/"
@@ -191,7 +191,7 @@
         :body
         (quiz/evaluate request "tr")
         :status 200
-        :headers {"Content-type" "text/html;charset=ISO-8859-1"}
+        :headers {"Content-Type" "text/html;charset=utf-8"}
         })
   
   (route/resources "/")

@@ -26,7 +26,7 @@ function submit_user_response(form_input_id) {
         dataType: "html",
         data: {guess: guess, qid: $("#question_id").val()},
         type: "POST",
-        contentType: "application/x-www-form-urlencoded;charset=ISO-8859-1",
+        contentType: "application/x-www-form-urlencoded;charset=utf-8",
         url: "/italian/quiz/evaluate/",
         success: function (content) {
             $("#quiz_table").prepend(content);
@@ -95,7 +95,7 @@ function submit_quiz_filters(container, form) {
         dataType: "html",
         data: $(form).serialize(),
         type: "POST",
-        contentType: "application/x-www-form-urlencoded;charset=ISO-8859-1",
+        contentType: "application/x-www-form-urlencoded;charset=utf-8",
         url: "/italian/quiz/filter/",
         success: function (content) {
             $(container).html(content);
@@ -103,9 +103,9 @@ function submit_quiz_filters(container, form) {
     });
 }
 
-function table_row(question_id, english_escaped, italian_escaped, perfect) {
-    var english =  unescape(english_escaped.replace(/\+/g, " "));
-    var italian = unescape(italian_escaped.replace(/\+/g, " "));
+function table_row(question_id, perfect) {
+    var english =  $("#"+question_id+"_en").html();
+    var italian =  $("#"+question_id+"_it").html();
     var rowspan = "1";
     var row_id = "tr_"+question_id+"_js"; // <-"_js" will go away.
     if (perfect == true) {rowspan = 1;} else {rowspan = 2;}
