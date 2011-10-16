@@ -10,6 +10,7 @@
      [italianverbs.html :as html]
      [italianverbs.xml :as xml]
      [italianverbs.quiz :as quiz]
+     [italianverbs.search :as search]
      ))
 
 (defn run-test [test-fn]
@@ -52,6 +53,7 @@
    :generate gen/test
    :lev lev/test
    :quiz quiz/test
+   :search search/test
    })
 
 ;; these tests run at load-time:
