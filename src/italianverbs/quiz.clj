@@ -13,7 +13,8 @@
               [base.html :as basehtml]
               [italianverbs.html :as html]
               [italianverbs.xml :as xml]
-              [italianverbs.generate :as gen]))
+              [italianverbs.generate :as gen]
+              [ring.util.codec :as url]))
 
 ;; to add a new question type:
 ;; 1. write a function (gen/mytype) that generates a random question for mytype.
@@ -619,14 +620,17 @@
         formatted-evaluation (format-evaluation evaluation 0)]
     ;; TODO: move HTML generation to javascript: just create a javascript call with the params:
     ;; {english,italian,formatted evaluation (itself html), debug info}.
-    (str
-     "<tbody style='display:none'  ><tr><td><div id='"  "tr_" row_id "_js_eval" "'>" formatted-evaluation  "</div></td></tr></tbody>"
-     "<tbody>"
-     ;; save html in an identified <div> element so it can be passed to javascript.
-
-     ;; TODO: escape english and italian (and the other js args too for that matter : (just use hiccup))
-     "<tbody><script>table_row('" row_id"','" english "','"  italian "','" perfect "');</script></tbody>"
-     )))
+    (let [js (str "table_row('" row_id"','" (url/url-encode english) "','"  (url/url-encode italian) "'," perfect ")")]
+      (html
+       [:tbody {:style "display:none"}
+        [:tr
+         [:td
+          [:div {:id (str "tr_" row_id "_js_eval")} formatted-evaluation ]
+          ]
+         ]
+        ]
+       [:tbody
+        [:script js]]))))
 
 (defn question [request]
   ;; create a new question, store in backing store, and return an HTML fragment with the question's english form

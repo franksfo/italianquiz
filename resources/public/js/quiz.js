@@ -53,6 +53,12 @@ function clear_guess_input() {
     $("#guess_input").focus();
 }
 
+function remove_pluses(string) {
+    var re = /\+/g;
+    var newstr = string.replace(re, " ");
+    return newstr;
+}
+
 function ajax_quiz(dom_id) {
     var quiz_html = "<div id='ajax_quiz'>" +
         "  <div id='ajax_question'><script>get_next_question();</script></div>" +
@@ -97,14 +103,16 @@ function submit_quiz_filters(container, form) {
     });
 }
 
-function table_row(question_id, english, italian, perfect) {
+function table_row(question_id, english_escaped, italian_escaped, perfect) {
+    var english =  unescape(english_escaped.replace(/\+/g, " "));
+    var italian = unescape(italian_escaped.replace(/\+/g, " "));
     var rowspan = "1";
     var row_id = "tr_"+question_id+"_js"; // <-"_js" will go away.
-    if (perfect == "true") {rowspan = 1;} else {rowspan = 2;}
+    if (perfect == true) {rowspan = 1;} else {rowspan = 2;}
     var english_td = "<td rowspan='" + rowspan + "'>" + english + "</td>";
     var evaluation = $("#"+row_id+"_eval").html();
     correct_td = "";
-    if (perfect == "true") {
+    if (perfect == true) {
         correct_td = "<td class='corr'> " + evaluation + "</td>";
     } else {
         correct_td = "<td>" + italian + "</td>";
@@ -112,7 +120,7 @@ function table_row(question_id, english, italian, perfect) {
     var stripe = $("#stripe_toggle").html();
 
     var eval_tr = "";
-    if (perfect != "true") {
+    if (perfect != true) {
         eval_tr = "<tr class='" + stripe + "'><td class='incorr'>" + evaluation + "</td></tr>";
     } else {
         eval_tr = ""; // no correction necessary: user's response was correct.
