@@ -3,14 +3,13 @@
 ; user=> (load "italianverbs/repl")
 ; user=> (ns italianverbs.generate)
 ; ;;;; namespace warnings about the 'test' symbol..
+; ;;; to use italianverbs.X, you must explicitly load "X" again:
+; italianverbs.generate=> (load "generate")
+; italianverbs.generate=> (ns italianverbs.generate)
 ; italianverbs.generate=> (random-futuro-semplice)
 ; {:root {:infl "infinitive", :cat "verb", :subj ...
 ; ..etc
-; ;;; to use italianverbs.generate/test, you must explicitly load "generate" again:
-; italianverbs.generate=> (load "generate")
-; italianverbs.generate=> (ns italianverbs.generate)
-; italianverbs.generate=> (test)
-; ..test output..
+
 
 (ns italianverbs.quiz
   (:use [somnium.congomongo])
