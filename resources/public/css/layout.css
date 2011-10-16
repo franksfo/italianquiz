@@ -87,19 +87,6 @@ div.history {
     right:0;
 }
 
-div#ajax_question {
-    width:70%;
-    float:left;
-    margin:0.25em;
-    margin-bottom: 1em;
-}
-
-div#ajax_question div {
-    padding:0.5em;
-    width:auto;
-    float:left;
-}
-
 #ajax_quiz {
     float:left;
     width:90%;
@@ -109,9 +96,17 @@ div#ajax_question div {
     margin:0.5em;
 }
 
-#quiz_table {
+table.quiz {
     margin-left:0.25em;
     width:70%;
+}
+
+table.quiz td.en {
+    width: 40em;
+}
+
+
+#quiz_table {
 }
 
 #quiz_table td.corr {

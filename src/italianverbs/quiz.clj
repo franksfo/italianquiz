@@ -654,34 +654,34 @@
        [:english (get stored :english)]
        [:italian (get stored :italian)]]))))
 
-;; a minimal, self-contained quiz applet.
-(defn minimal [request]
-  (str
-   (xml/encoding)
-   (html/showdoctype)
-   "<html>"
-   (html/head)
-   "<body onload='ajax_quiz(\"quiz_container\")'>"
-   "<div><h2>A very minimal quiz interface..</h2></div>"
-   "<div id='quiz_container'>quiz will go in here..</div>"
-   "</body>"
-   "</html>"))
-
-;; same as (minimal), but with checkboxes for quiz preferences.
 (defn quiz-with-prefs [request]
   (basehtml/page "Quiz"
    (html
      [:div {:class "quiz-elem"}
       [:h2 "Quiz" ]
       [:div#quiz_container
-       [:div#ajax_question " "
-        [:script "get_next_question()" ]
+
+       [:table {:class "quiz"} " "
+        [:tr
+         [:td {:class "en"}
+          [:div#ajax_question " "
+           [:script "get_next_question()" ]
+           ]
+          ]
+         [:td
+          [:input {:size "50" :id "guess_input" :type "text"}
+           [:script "clear_guess_input()" ]
+           ]
+          ]
+
+         [:td
+          [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
+          ]
+         ]
         ]
-       [:input {:size "100" :id "guess_input" :type "text"}
-        [:script "clear_guess_input()" ]
-        ]
-       [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
-       [:table {:id "quiz_table"} " " ]
+       
+
+       [:table {:id "quiz_table" :class "quiz"} " " ]
        [:div {:style "display:none" :id "stripe_toggle"} "odd" ] ]]
 
      [:div#controls_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz controls."] )
@@ -698,8 +698,7 @@
 
      {:comment "quiz inside a iframe."
       :test (html/iframe "/italian/quiz/?guess=foo")}
-;     {:comment "html-display a triple: input (english) user guess (italian), correct response (italian)"
-;      :test (html/iframe "/italian/guess/?input=you+know&guess=tu+sei")}
+
      {:comment "fs printing"
       :test (html/fs
              {:most-recent

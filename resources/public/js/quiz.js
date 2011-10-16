@@ -91,7 +91,7 @@ function table_row(question_id, perfect) {
     var rowspan = "1";
     var row_id = "tr_"+question_id+"_js"; // <-"_js" will go away.
     if (perfect == true) {rowspan = 1;} else {rowspan = 2;}
-    var english_td = "<td rowspan='" + rowspan + "'>" + english + "</td>";
+    var english_td = "<td class='en' rowspan='" + rowspan + "'>" + english + "</td>";
     var evaluation = $("#"+row_id+"_eval").html();
     correct_td = "";
     if (perfect == true) {
