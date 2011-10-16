@@ -1,4 +1,6 @@
 ;; probably can remove congomongo from here.
+;; TODO: move as much app-specific code out of here
+;; into italianverbs.html.
 (ns base.html
   (:use [hiccup core page-helpers]
         [somnium.congomongo])
@@ -109,7 +111,7 @@
   (html5
    [:head 
     [:meta  {:Content-Type "text/html; charset=UTF-8"}]
-    [:title "Imparare l'italiano &#0187; " title]
+    [:title "imparare l'italiano &#0187; " title]
     [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
     [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
     (include-css "/italian/css/style.css")
