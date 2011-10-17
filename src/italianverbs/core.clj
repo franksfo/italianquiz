@@ -1,7 +1,7 @@
 (ns italianverbs.core
   (:use [compojure.core]
         [somnium.congomongo]
-        [base.html])
+        [hiccup core page-helpers])
   (:require
    [clojure.string :as string]
    [compojure.route :as route]
@@ -10,7 +10,9 @@
    [italianverbs.generate :as gen]
    [italianverbs.lev :as lev]
    [italianverbs.xml :as xml]
+   [base.html :as html]
    [italianverbs.html :as ihtml]
+   [italianverbs.search :as search]
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
    ))
@@ -46,6 +48,12 @@
        {:status 302
         :headers {"Location" "/italian/quiz/"}})
 
+  (GET "/search/"
+       request
+       {:status 200
+        :body (html/page "Search" (search/search-ui request) request)
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
   (GET "/lexicon/" 
        request
        ;; response map
@@ -55,13 +63,11 @@
         :body
         (do ;"reload lexicon into mongodb and then render it as HTML."
           (load-file "src/italianverbs/lexicon.clj")
-          (page "Lexicon"
-                (string/join " "
-                             (map printlex
-                                  (fetch :lexicon :sort {"italian" 1})))
-                request))
-        }
-       )
+          (html/page "Lexicon"
+                     (string/join " "
+                                  (map printlex
+                                       (fetch :lexicon :sort {"italian" 1})))
+                     request))})
 
   (GET "/quiz/filter/"
        request
@@ -98,7 +104,7 @@
        {
         :headers {"Content-Type" "text/html"}
         :session (get request :session)
-        :body (page "test"
+        :body (html/page "test"
                     (test/run-tests)
                     request)
         })
@@ -108,7 +114,7 @@
        {
         :session (get request :session)
         :headers {"Content-Type" "text/html"}
-        :body (page "test" 
+        :body (html/page "test" 
                     (map wrap-div 
                          test/tests)
                     request)
@@ -193,7 +199,7 @@
   
   (route/resources "/")
 
-  (route/not-found (page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
+  (route/not-found (html/page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
 )
 
 

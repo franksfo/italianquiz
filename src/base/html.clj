@@ -35,8 +35,11 @@
      (if (= relative-url "/lexicon/") {:class "selected"})
      [:a {:href "/italian/lexicon/"} "Lexicon"  ] ] 
     [:div
+     (if (= relative-url "/search/") {:class "selected"})
+     [:a {:href "/italian/search/"} "Search"  ] ]
+    [:div
      (if (= relative-url "/test/") {:class "selected"})
-     [:a {:href "/italian/test/"} "Unit Tests"  ] ] 
+     [:a {:href "/italian/test/"} "Unit Tests"  ] ]
     ]))
 
 (defn powered-by [name link]
@@ -114,6 +117,7 @@
     [:title "imparare l'italiano &#0187; " title]
     [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
     [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
+    [:script {:type "text/javascript" :src "/italian/js/search.js"}]
     (include-css "/italian/css/style.css")
     (include-css "/italian/css/layout.css")
     (include-css "/italian/css/fs.css")

@@ -1,11 +1,24 @@
 (ns italianverbs.search
-    (:require [italianverbs.lexicon :as lexicon]
-              [italianverbs.lev :as lev]
-              [italianverbs.grammar :as gram]
-              [italianverbs.morphology :as morph]))
+  (:use [hiccup core page-helpers])
+  (:require
+   [italianverbs.html :as html]
+   [italianverbs.lexicon :as lexicon]
+   [italianverbs.lev :as lev]
+   [italianverbs.grammar :as gram]
+   [italianverbs.morphology :as morph]))
 
 (defn search [constraints]
   (gram/choose-lexeme constraints))
+
+(defn search-ui [request]
+  (html
+   [:div#search-ui
+    [:div#searchbar
+     [:input {:size "50" :id "search" :type "text"}]
+     [:button {:onclick "search()"} "Search"]]
+    
+    [:div#searchresults
+     (html/fs (gram/choose-lexeme nil))]]))
 
 (defn test []
   (list

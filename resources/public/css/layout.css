@@ -148,3 +148,25 @@ table.quiz td.en {
 #controls_container {
     float:left;
 }
+
+/* search */
+
+div#search-ui {
+    float:left;
+}
+
+div#searchbar {
+    width:100%;
+    margin-bottom:1em;
+    float:left;
+}
+
+div#searchbar button {
+    margin-left:1em;
+}
+
+div#searchresults {
+    width:100%;
+    padding:0.5em;
+    float:left;
+}

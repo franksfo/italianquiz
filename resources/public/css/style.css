@@ -143,7 +143,7 @@ table.fs {
     padding-right:1em;
     margin-right:1em;
     margin:3px;
-    border: 2px solid #cecece;
+    border: 2px solid lightgreen;
     border-collapse:collapse;
 }
 
@@ -151,7 +151,7 @@ table.fs th {
     text-align:center;
     padding:2px;
     padding-right:0.25em;
-    background: #cecece;
+    background: lightgreen;
 }
 
 table.fs td {
