@@ -10,6 +10,11 @@
 (defn search [constraints]
   (gram/choose-lexeme constraints))
 
+(defn searchq [search-exp]
+  "search with query."
+  (let [constraints {:italian search-exp}]
+    (html/fs (gram/choose-lexeme constraints))))
+
 (defn search-ui [request]
   (html
    [:div#search-ui
@@ -17,8 +22,8 @@
      [:input {:size "50" :id "search" :type "text"}]
      [:button {:onclick "search()"} "Search"]]
     
-    [:div#searchresults
-     (html/fs (gram/choose-lexeme nil))]]))
+    [:div#searchresults "" ]]))
+
 
 (defn test []
   (list

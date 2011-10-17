@@ -54,6 +54,12 @@
         :body (html/page "Search" (search/search-ui request) request)
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
+  (GET "/search/q/"
+       request
+       {:status 200
+        :body (search/searchq (get (get request :query-params) "search"))
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
   (GET "/lexicon/" 
        request
        ;; response map
