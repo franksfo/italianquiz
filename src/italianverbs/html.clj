@@ -184,15 +184,6 @@
 (defn iframe [url]
   (str "<iframe src=\""  url "\"></iframe>"))
 
-(defn head []
-  (str
-   "<head>"
-   "<title>imparare l'italiano/title>"
-   "<script src='/js/jquery-1.6.4.min.js' type='text/javascript'></script>"
-   "<script src='/js/quiz.js' type='text/javascript'></script><link href='/css/style.css' rel='stylesheet' type='text/css'>"
-   "<link href='/css/layout.css' rel='stylesheet' type='text/css'>"
-   "<link href='/css/fs.css' rel='stylesheet' type='text/css'></head>"))
-
 ;; TODO: look at hiccup.page-helpers/doctype
 (defn showdoctype [ & [type] ]
   (cond

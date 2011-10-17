@@ -605,7 +605,6 @@
     (if (= nil session) (/ 1 0)) ;; figure out how to throw exceptions in clojure.
     (if guess
       (let [result (update-question-by-id-with-guess guess qid session)]
-        (cond
          (= format "xml")
          (str
           (xml/encoding)
@@ -614,8 +613,6 @@
                "<correctanswer>" (get result :italian) "</correctanswer>"
                "<evaluation>" (get result :evaluation) "</evaluation>"
                "</container>"))
-         (= format "tr")
-         (table-row result)
          (= format "xmltr")
          (str
           (xml/encoding)
@@ -623,18 +620,8 @@
           (table-row result)
           "</xmltr>")
          true
-         (str ;; default: html.
-          (xml/encoding)
-          (html/showdoctype)
-          "<html>"
-          (html/head)
-          "<div style='width:100%;border-bottom:2px solid grey; float:left'><h1>params</h1>" (html/fs params) "</div>"
-          "<table class='test'>"
-          (table-row result)
-          "</table>"
-          "</div>"
-          "<div style='width:100%;float:left'><h1>question</h1>" (html/fs content) "</div>"
-          "</html>")))
+         (= format "tr") ; default: "tr".
+         (table-row result))
       (str "<error>no guess" guess "</error>"))))
 
 (defn guess [question request format]
@@ -706,14 +693,6 @@
                 (if (> (.size qs) 0)
                   (nth qs 0)
                   "(no questions yet.)"))})})))
-
-(defn iframe-controls [session action]
-  (str
-   (html/myhtml5)
-   "<html>"
-   (html/head)
-   (html [:body
-          (controls session action)])))
 
 (defn ajax-controls [session action]
   (html
