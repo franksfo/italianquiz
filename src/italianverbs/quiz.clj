@@ -403,7 +403,7 @@
         ]
        [:tr
         (checkbox-col "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
-        (checkbox-col "possessivi" :possessives session) ;; e.g. "il tuo cane"
+        (checkbox-col "possessives" :possessives session) ;; e.g. "il tuo cane"
         (checkbox-col "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
         ]
 
