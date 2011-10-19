@@ -335,11 +335,11 @@
          (let [fn gram/n-bar
                head (gram/choose-lexeme
                      {:cat :noun
-                      :common true
-                      :number :singular})
+                      :common true})
                comp (gram/choose-lexeme
                      {:cat :adj
                       :gender (get head :gender)
+                      :number (get head :number)
                       :possessive true})]
            (merge {:test "possessive NPs"}
                   (apply fn (list head comp))))

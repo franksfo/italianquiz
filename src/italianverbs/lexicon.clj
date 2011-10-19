@@ -1376,20 +1376,33 @@
       :furniture-prep true
       :obj {:furniture true}})
 
+(def possessive
+  {:possessive true
+   :cat :adj})
+
 (add "mio" "my"
-     {:cat :adj
-      :possessive true
-      :person :1st
+     (merge possessive
+     {:person :1st
       :gender :masc
-      :number :singular})
+      :number :singular}))
 
 (add "mia" "my"
-     {:cat :adj
-      :possessive true
-      :person :1st
+     (merge possessive
+     {:person :1st
       :gender :fem
-      :number :singular})
+      :number :singular}))
 
+(add "miei" "my"
+     (merge possessive
+     {:person :1st
+      :gender :masc
+      :number :plural}))
+
+(add "mie" "my"
+     (merge possessive
+     {:person :1st
+      :gender :fem
+      :number :plural}))
 
 (add "tuo" "your"
      {:cat :adj
@@ -1405,6 +1418,17 @@
       :gender :fem
       :number :singular})
 
+(add "tuoi" "your"
+     (merge possessive
+     {:person :2nd
+      :gender :masc
+      :number :plural}))
+
+(add "tue" "your"
+     (merge possessive
+     {:person :2nd
+      :gender :fem
+      :number :plural}))
 
 (add "suo" "his"
      {:cat :adj
@@ -1434,6 +1458,17 @@
       :gender :fem
       :number :singular})
 
+(add "loro" "their"
+     (merge possessive
+     {:person :3rd
+      :gender :masc
+      :number :plural}))
+
+(add "loro" "their"
+     (merge possessive
+     {:person :3rd
+      :gender :fem
+      :number :plural}))
 
 
 (add "piano" "pianoforte"
