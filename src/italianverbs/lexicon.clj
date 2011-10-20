@@ -1433,30 +1433,78 @@
 (add "suo" "his"
      {:cat :adj
       :possessive true
-      :person :1st
+      :person :3rd
       :gender :masc
       :number :singular})
 
 (add "suo" "her"
      {:cat :adj
       :possessive true
-      :person :1st
+      :person :3rd
       :gender :masc
       :number :singular})
 
 (add "sua" "his"
      {:cat :adj
       :possessive true
-      :person :1st
+      :person :3rd
       :gender :fem
       :number :singular})
 
 (add "sua" "her"
      {:cat :adj
       :possessive true
-      :person :1st
+      :person :3rd
       :gender :fem
       :number :singular})
+
+(add "nostro" "our"
+     (merge possessive
+     {:person :1st
+      :gender :masc
+      :number :singular}))
+
+(add "nostra" "our"
+     (merge possessive
+     {:person :1st
+      :gender :fem
+      :number :singular}))
+
+(add "nostri" "our"
+     (merge possessive
+     {:person :1st
+      :gender :masc
+      :number :plural}))
+
+(add "nostre" "our"
+     (merge possessive
+     {:person :1st
+      :gender :fem
+      :number :plural}))
+
+(add "vostro" "your all's"
+     (merge possessive
+     {:person :2nd
+      :gender :masc
+      :number :singular}))
+
+(add "vostra" "your all's"
+     (merge possessive
+     {:person :2nd
+      :gender :fem
+      :number :singular}))
+
+(add "vostri" "your all's"
+     (merge possessive
+     {:person :2nd
+      :gender :masc
+      :number :plural}))
+
+(add "vostre" "your all's"
+     (merge possessive
+     {:person :2nd
+      :gender :fem
+      :number :plural}))
 
 (add "loro" "their"
      (merge possessive

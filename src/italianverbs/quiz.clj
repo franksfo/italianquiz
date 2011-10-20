@@ -14,7 +14,8 @@
               [italianverbs.html :as html]
               [italianverbs.xml :as xml]
               [italianverbs.generate :as gen]
-              [ring.util.codec :as url]))
+              [ring.util.codec :as url]
+              [clojure.contrib.str-utils2 :as str-utils]))
 
 ;; to add a new question type:
 ;; 1. write a function (gen/mytype) that generates a random question for mytype.
@@ -29,7 +30,7 @@
   {"mobili" {:sym :mobili :desc "furniture sentences"},
    "mese" {:sym :mese :desc "months of the year"},
    "giorni" {:sym :giorni, :desc "days of the week"},
-   "possessivi" {:sym :possessives, :desc "possessive pronouns"},
+   "possessives" {:sym :possessives, :desc "possessive pronouns"},
    "partitivo" {:sym :partitivo, :desc "partitive pronouns (e.g. 'degli uomini')"},
    "ora" {:sym :ora, :desc "clock times"},
    "infinitivo" {:sym :infinitivo, :desc "infinitive verbs"},
@@ -330,6 +331,11 @@
    (= question-type :mobili)
    (gen/mobili)
    (= question-type :possessives)
+   ;; ----det [ num [1] gen [2] ]
+   ;; \
+   ;;  \---n'---- poss-adj [ num [1] gen [2] ]
+   ;;       \
+   ;;        \--- n [ num [1] gen [2] ]
    (let [fn gram/np-det-n-bar
          head
          (let [fn gram/n-bar
@@ -359,32 +365,22 @@
 (defn controls [session & [ form-action onclick ] ]
   (let [action (if form-action form-action "/italian/quiz/filter")
         onclick (if onclick onclick "submit()")
+        record (mongo/fetch-one :filter :where {:session session})
+        filters (if record
+                  (get record :form-params))
         checked (fn [session key]
                   "return 'checked' if checkbox with key _key_ is set to true according to user's preferences."
-                  (let [record (mongo/fetch-one :filter :where {:session session})
-                        filters (if record
-                                  (get record :form-params))]
-                    (if (get filters key)
-                      {:checked "checked"}
-                      {})))
-        checkbox-row (fn checkbox-row [name key session & [label display checkbox-disabled]]
-                       (let [label (if label label name)]
-                         (html
-                          [:tr {:style (if display (str "display:" display))}
-                           [:th
-                            [:input (merge {:onclick onclick :name name :type "checkbox"}
-                                           (if (= checkbox-disabled "disabled") {:disabled "disabled"} {})
-                                           (checked session key))]]
-                           [:td label ] ] )))
+                  (if (get filters key)
+                    {:checked "checked"}
+                    {}))
         checkbox-col (fn checkbox-col [name key session & [label display checkbox-disabled]]
                        (let [label (if label label name)]
                          (html
                           [:th
-                           ;; TODO: onclick should be parameterizable for use by AJAX.
                            [:input (merge {:onclick onclick :name name :type "checkbox"}
                                           (if (= checkbox-disabled "disabled") {:disabled "disabled"} {})
                                           (checked session key))]]
-                          [:td label ] )))]
+                          [:td label ])))]
     [:div {:id "controls" :class "controls quiz-elem"}
      [:h2 "I controlli"]
      ;; TODO: don't create a form if doing ajax (instead will use onclick(), where onclick() is
@@ -397,24 +393,20 @@
         (checkbox-col "mobili" :mobili session)
         ]
        [:tr
-        (checkbox-col "preposizioni" :preposizioni session "preposizioni" "none")
+;        (checkbox-col "preposizioni" :preposizioni session "preposizioni" "none")
         (checkbox-col "partitivo" :partitivo session "articoli determinativi e partivi")
         (checkbox-col "mese" :mese session "le mese")
         ]
        [:tr
-        (checkbox-col "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
+;        (checkbox-col "numeri" :numeri session "numeri" "" "disabled") ;; e.g. "6.458 => sililaquattrocentocinquantotto"
         (checkbox-col "possessives" :possessives session) ;; e.g. "il tuo cane"
         (checkbox-col "espressioni" :espressioni session "espressioni utili") ;; e.g. "il tuo cane"
         ]
-
        [:tr
         (checkbox-col "oct2011" :oct2011 session "oct2011")
         (checkbox-col "chetempo" :chetempo session "che tempo è?")
         ]
-
-
        ]
-
       [:div {:class "optiongroup"}
        [:h4 "Verbi"]
        [:table
@@ -426,9 +418,6 @@
          ]
         ]
        ]
-
-
-      
       ]
      
      ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
@@ -666,7 +655,6 @@
           ]
          ]
         ]
-       
 
        [:table {:id "quiz_table" :class "quiz"} " " ]
        [:div {:style "display:none" :id "stripe_toggle"} "odd" ] ]]
