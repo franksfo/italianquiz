@@ -689,7 +689,7 @@
      (stringc/join " "
                    (map (fn [key]
                           (if (get filters (keyword key))
-                            key))
+                            (str "<span class='qtype'>" key "</span>")))
                         (keys question-type-map))))))
 
 (defn ajax-controls [session params action]

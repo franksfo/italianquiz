@@ -7,6 +7,9 @@ div.selected {
 }
 
 div.major {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
     border:4px solid #caecae;
     margin-top:0.5em;
     margin-bottom:0.5em;
@@ -14,6 +17,9 @@ div.major {
 }
 
 div.quiz-elem {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
     padding:0;
     margin:0.5em;
    
@@ -383,7 +389,11 @@ table.test td {
 }
 
 div#ajax_question {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
     padding:0.25em;
+    margin:0.25em;
     float:left;
     border:1px solid #ddd;
     background:#66ffff;
@@ -405,3 +415,14 @@ div#question_text {
 #quiz_table {
 }
 
+span.qtype {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    font-size:small;
+    border:#00cc00;
+    background:lightblue;
+    padding:0.25em;
+    padding-top:0.125em;
+    padding-bottom:0.125em;
+}
