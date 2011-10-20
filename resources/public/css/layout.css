@@ -120,24 +120,24 @@ table.quiz td.en {
 
 #quiz_table {
     border-collapse:collapse;
-    width:50%;
+    width:95%;
     margin-top:0.5em;
 }
 
 #quiz_table tbody {
-    width:50%;
+    width:100%;
 }
 
 #quiz_table tr {
-    width:50%;
+    width:100%;
 }
 
 #quiz_table td {
-    width:25%;
+    width:25em;
 }
 
 #quiz_table th {
-    width:25%;
+    width:25em;
 }
 
 #quiz_container {
