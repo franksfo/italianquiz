@@ -645,7 +645,7 @@
   (basehtml/page "Quiz"
    (html
      [:div {:class "quiz-elem"}
-      [:h2 "Quiz" ]
+      [:h2#quizbanner [:script "show_question_types()" ]]
       [:div#quiz_container
 
        [:table {:class "quiz"} " "
@@ -694,6 +694,20 @@
                   (nth qs 0)
                   "(no questions yet.)"))})})))
 
-(defn ajax-controls [session action]
-  (html
-   (controls session nil "submit_quiz_filters('#controls_container','#controls_form');")))
+(defn- show-filters [session]
+  (let [record (mongo/fetch-one :filter :where {:session session})
+        filters (if record (get record :form-params))]
+    (str "Quiz: "
+     (stringc/join " "
+                   (map (fn [key]
+                          (if (get filters (keyword key))
+                            key))
+                        (keys question-type-map))))))
+
+(defn ajax-controls [session params action]
+  "format param set in quiz.js."
+  (cond (= (get params "format") "titlebar")
+        (show-filters session)
+        true
+        (html
+         (controls session nil "submit_quiz_filters('#controls_container','#controls_form');"))))

@@ -75,13 +75,15 @@
                                        (fetch :lexicon :sort {"italian" 1})))
                      request))})
 
+  ;; show user's quiz filter preferences. format param (in request) controls output's formatting:
+  ;; might be a comma-separated list of filters, a bunch of checkboxes, xml, json, etc.
   (GET "/quiz/filter/"
        request
        {
         :session (get request :session)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
-        :body (quiz/ajax-controls (session/request-to-session request) "/italian/quiz/filter/")
+        :body (quiz/ajax-controls (session/request-to-session request) (get request :query-params) "/italian/quiz/filter/")
         }
        )
 

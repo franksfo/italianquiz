@@ -62,6 +62,18 @@ function ajax_quiz() {
     });
 }
 
+function show_question_types() {
+    $.ajax({
+        dataType: "html",
+        type: "GET",
+        url: "/italian/quiz/filter/?format=titlebar",
+        success: function (content) {
+            $("#quizbanner").html(content);
+        }
+    });
+}
+          
+
 function submit_quiz_filters(container, form) {
     $.ajax({
         dataType: "html",
@@ -71,8 +83,14 @@ function submit_quiz_filters(container, form) {
         url: "/italian/quiz/filter/",
         success: function (content) {
             $(container).html(content);
+
+            // this should happen only in 'success' of POST to avoid 
+            // a race condition: don't query db for user's question types
+            // until user's updated preferences have made it into the database.
+            show_question_types();
         }
     });
+
 }
 
 function table_row(question_id, perfect) {
