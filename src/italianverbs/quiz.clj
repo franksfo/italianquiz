@@ -631,7 +631,6 @@
        [:italian (get stored :italian)]]))))
 
 (defn preferiti [request]
-  "preferences (moving out of quiz-with-prefs)"
   (basehtml/page "i tuoi preferiti"
                  (html
                   [:h2#quizbanner [:script "show_question_types()" ]]
@@ -639,7 +638,7 @@
                  request
                  "show_quiz_preferences()"))
 
-(defn quiz-with-prefs [request]
+(defn quiz [request]
   (basehtml/page "Quiz"
    (html
      [:div {:class "quiz-elem"}
@@ -654,7 +653,7 @@
            ]
           ]
          [:td
-          [:input {:size "50" :id "guess_input" :type "text"}
+          [:input {:size "15" :id "guess_input" :type "text"}
            [:script "clear_guess_input()" ]
            ]
           ]

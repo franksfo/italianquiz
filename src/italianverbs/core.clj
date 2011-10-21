@@ -51,7 +51,7 @@
 
   (GET "/quiz/"
        request
-       {:body (quiz/quiz-with-prefs request)
+       {:body (quiz/quiz request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
