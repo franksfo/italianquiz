@@ -55,9 +55,6 @@
     [:a {:href link}
      name ]]))
 
-(defn about []
-  (footer))
-
 (defn footer []
   (html
    [:div {:class "poweredbox major"}
@@ -82,6 +79,9 @@
       [:td {:colspan "1"}
        (powered-by "mongodb" "http://www.mongodb.org/")
        ]]]]))
+
+(defn about []
+  (footer))
 
 (defn req-tr [key-value-pair]
   (let [key (first key-value-pair)
