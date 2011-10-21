@@ -43,6 +43,12 @@
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
+  (GET "/about/"
+       request
+       {:body (html/page "About" (html/about) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
   (GET "/quiz/"
        request
        {:body (quiz/quiz-with-prefs request)

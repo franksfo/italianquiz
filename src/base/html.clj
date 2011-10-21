@@ -44,6 +44,9 @@
     [:div
      (if (= relative-url "/test/") {:class "selected"})
      [:a {:href "/italian/test/"} "Unit Tests"  ] ]
+    [:div
+     (if (= relative-url "/about/") {:class "selected"})
+     [:a {:href "/italian/about/"} "About"  ] ]
     ]))
 
 (defn powered-by [name link]
@@ -52,7 +55,10 @@
     [:a {:href link}
      name ]]))
 
-(defn footer [session-row]
+(defn about []
+  (footer))
+
+(defn footer []
   (html
    [:div {:class "poweredbox major"}
     [:h3 "Powered by"]
@@ -151,9 +157,6 @@
     
     [:div#content content]
 
-    (if request
-      (footer (session/get-session-row request)))
-    
     (if request
       [:div.reqdata
        (reqdata request)])]))
