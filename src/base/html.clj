@@ -126,6 +126,7 @@
     [:meta  {:Content-Type "text/html; charset=UTF-8"}]
     [:title "imparare l'italiano &#0187; " title]
     [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
+    [:script {:type "text/javascript" :src "/italian/js/autogrow.js"}]
     [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
     [:script {:type "text/javascript" :src "/italian/js/search.js"}]
     ; enable this 'reset.css' at some point.
