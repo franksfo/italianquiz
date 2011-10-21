@@ -51,8 +51,9 @@ function remove_pluses(string) {
 
 function ajax_quiz() {
     clear_guess_input();
+}
 
-    // show quiz controls form.
+function show_quiz_preferences() {
     $.ajax({
         dataType: "html",
         url: "/italian/quiz/filter/",

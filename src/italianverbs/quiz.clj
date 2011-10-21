@@ -630,6 +630,15 @@
        [:english (get stored :english)]
        [:italian (get stored :italian)]]))))
 
+(defn preferiti [request]
+  "preferences (moving out of quiz-with-prefs)"
+  (basehtml/page "i tuoi preferiti"
+                 (html
+                  [:h2#quizbanner [:script "show_question_types()" ]]
+                  [:div#controls_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz controls."] )
+                 request
+                 "show_quiz_preferences()"))
+
 (defn quiz-with-prefs [request]
   (basehtml/page "Quiz"
    (html
@@ -658,8 +667,7 @@
 
        [:table {:id "quiz_table" :class "quiz"} " " ]
        [:div {:style "display:none" :id "stripe_toggle"} "odd" ] ]]
-
-     [:div#controls_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz controls."] )
+     )
 
    request
    "ajax_quiz('quiz_container')"))
@@ -685,14 +693,13 @@
 (defn- show-filters [session]
   (let [record (mongo/fetch-one :filter :where {:session session})
         filters (if record (get record :form-params))]
-    (str "Quiz: "
-     (stringc/join " "
-                   (map (fn [key]
-                          (if (get filters (keyword key))
-                            (str "<span class='qtype'>" key "</span>")))
-                        (keys question-type-map))))))
+    (stringc/join " "
+                  (map (fn [key]
+                         (if (get filters (keyword key))
+                           (str "<span class='qtype'>" key "</span>")))
+                       (keys question-type-map)))))
 
-(defn ajax-controls [session params action]
+(defn ajax-controls [session params action header]
   "format param set in quiz.js."
   (cond (= (get params "format") "titlebar")
         (show-filters session)

@@ -37,6 +37,12 @@
        {:status 302
         :headers {"Location" "/italian/quiz/"}})
 
+  (GET "/preferiti/"
+       request
+       {:body (quiz/preferiti request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
   (GET "/quiz/"
        request
        {:body (quiz/quiz-with-prefs request)
@@ -83,7 +89,8 @@
         :session (get request :session)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
-        :body (quiz/ajax-controls (session/request-to-session request) (get request :query-params) "/italian/quiz/filter/")
+        :body (quiz/ajax-controls (session/request-to-session request)
+                                  (get request :query-params) "/italian/quiz/filter/" "Quiz")
         }
        )
 

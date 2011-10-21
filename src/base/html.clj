@@ -31,6 +31,10 @@
       [:div
        (if (= relative-url "/quiz/") {:class "selected"})
        [:a {:href "/italian/quiz/"} "Quiz"]])
+    (if session-row ;; only show quiz option if there's a session to save the quiz for.
+      [:div
+       (if (= relative-url "/preferiti/") {:class "selected"})
+       [:a {:href "/italian/preferiti/"} "i tuoi preferiti"]])
     [:div
      (if (= relative-url "/lexicon/") {:class "selected"})
      [:a {:href "/italian/lexicon/"} "Lexicon"  ] ] 
@@ -118,6 +122,8 @@
     [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
     [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
     [:script {:type "text/javascript" :src "/italian/js/search.js"}]
+    ; enable this 'reset.css' at some point.
+                                        ;    (include-css "/italian/css/reset.css")
     (include-css "/italian/css/style.css")
     (include-css "/italian/css/layout.css")
     (include-css "/italian/css/fs.css")
