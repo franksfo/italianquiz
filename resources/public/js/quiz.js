@@ -42,7 +42,7 @@ function clear_guess_input() {
     $("#guess_input").val('');
     $("#guess_input").focus();
     $("#guess_input").autoGrowInput({
-    comfortZone: 50,
+    comfortZone: 70,
     minWidth: 200,
     maxWidth: 2000
 });
