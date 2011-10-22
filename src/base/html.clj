@@ -149,8 +149,9 @@
         [:div {:class "welcome major"}
          (welcome (session/get-username request))]))
 
-    (menubar (session/get-session-row request)
-             (if request (get request :uri)))
+    [:div#top
+     (menubar (session/get-session-row request)
+              (if request (get request :uri)))]
     
     [:div#content content]
 
