@@ -615,6 +615,13 @@
                      :infl :passato-prossimo
                      :aux "avere"})
 
+(def rimanere (add "rimanere" "to stay"
+               {:cat :verb :infl :infinitive
+                :subj {:human true}
+                :adjunct adjunct-in-a-place}))
+(futuro-semplice rimanere "rimarr")
+
+
 (def essere (add "essere" "to be"
                      {:cat :verb :infl :infinitive
                       :obj {:cat :noun}}))
