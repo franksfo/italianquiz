@@ -22,7 +22,7 @@ div.major {
 }
 
 div#content {
-    width:100%;
+    width:auto;
     border:0px dashed blue;
     float:left;
 }
@@ -130,14 +130,6 @@ table.quiz td.en {
 
 #quiz_table tr {
     width:100%;
-}
-
-#quiz_table td {
-    width:25em;
-}
-
-#quiz_table th {
-    width:25em;
 }
 
 #quiz_container {

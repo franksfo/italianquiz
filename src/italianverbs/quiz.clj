@@ -590,9 +590,9 @@
       [:h2 "Quiz" [:span#quizbanner [:script "show_question_types()" ]]]
       [:div#quiz_container
 
-       [:table {:class "quiz"} " "
+       [:table {:class "question"} " "
         [:tr
-         [:td {:class "en"}
+         [:td
           [:div#ajax_question " "
            [:script "get_next_question()" ]
            ]

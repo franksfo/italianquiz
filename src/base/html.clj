@@ -144,10 +144,6 @@
       (= title "testx")
       "setTimeout('location.reload(true);',5000);"
       true "")}
-    [:h3 {:style "width:auto;float:left"}
-     [:a {:href "/italian/"} "Imparare l'italiano" ]
-      " &#0187;" title ]
-
     (if false
       (if request
         [:div {:class "welcome major"}
