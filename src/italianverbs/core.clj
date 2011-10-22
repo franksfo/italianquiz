@@ -95,7 +95,7 @@
         :session (get request :session)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
-        :body (quiz/ajax-controls (session/request-to-session request)
+        :body (quiz/show-controls (session/request-to-session request)
                                   (get request :query-params) "/italian/quiz/filter/" "Quiz")
         }
        )

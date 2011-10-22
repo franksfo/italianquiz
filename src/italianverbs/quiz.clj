@@ -362,7 +362,7 @@
    true
    (gram/sentence)))
 
-(defn controls [session & [ form-action onclick ] ]
+(defn- controls [session & [ form-action onclick ] ]
   (let [action (if form-action form-action "/italian/quiz/filter")
         onclick (if onclick onclick "submit()")
         record (mongo/fetch-one :filter :where {:session session})
@@ -643,7 +643,7 @@
                            (str "<span class='qtype'>" key "</span>")))
                        (keys question-type-map)))))
 
-(defn ajax-controls [session params action header]
+(defn show-controls [session params action header]
   "format param set in quiz.js."
   (cond (= (get params "format") "titlebar")
         (show-filters session)
