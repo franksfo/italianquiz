@@ -51,7 +51,7 @@
   "display all possible question types."
   (str
    (xml/encoding)
-   (html
+   (html ;; not html, but using this function to generate xml.
     [:types
      (map (fn [key]
             [:type {:key key} (str
@@ -640,7 +640,11 @@
     (stringc/join " "
                   (map (fn [key]
                          (if (get filters (keyword key))
-                           (str "<span class='qtype'>" key "</span>")))
+                           (html
+                            [:span {:class "qtype"} key ]
+                            ;; allow for turning off filters from here (eventually).
+                            ;; [:span {:class "qtype remove"} "x" ]
+                            )))
                        (keys question-type-map)))))
 
 (defn show-controls [session params action header]

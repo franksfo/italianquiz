@@ -426,3 +426,8 @@ span.qtype {
     padding-top:0.125em;
     padding-bottom:0.125em;
 }
+
+span.remove {
+    font-size:small;
+    font-weight:lighter;
+}
