@@ -124,8 +124,8 @@
   (str-utils/get string (- (.length string) 1)))
 
 (defn next-to-final-char-of [string]
-  (str-utils/get string (- (.length string) 2)))
-
+  (if (> (.length string) 1)
+    (str-utils/get string (- (.length string) 2))))
 
 (defn if-isco [verb]
   (if (= (get verb :isco) true)
