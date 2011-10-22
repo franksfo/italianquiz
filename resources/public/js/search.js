@@ -1,15 +1,14 @@
 function search() {
-    var search_exp = $("#search").val();
+    $("#searchresults").html("");
 
+    var search_exp = $("#search").val();
     $.ajax({
         dataType: "html",
-        url: "/italian/search/q/?search="+search_exp,
+        url: "/italian/search/q/?attrs=italian+english&search="+search_exp,
         success: function (content) {
-            $("#searchresults").html(content);
+            $("#searchresults").prepend(content);
             $("#search").focus();
         }
     });
-
-
-
 }
+

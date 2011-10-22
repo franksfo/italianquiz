@@ -69,7 +69,8 @@
   (GET "/search/q/"
        request
        {:status 200
-        :body (search/searchq (get (get request :query-params) "search"))
+        :body (search/searchq (get (get request :query-params) "search")
+                              (get (get request :query-params) "attrs"))
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/lexicon/" 
