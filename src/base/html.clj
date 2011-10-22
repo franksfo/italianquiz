@@ -58,7 +58,7 @@
 (defn footer []
   (html
    [:div {:class "poweredbox major"}
-    [:h3 "Powered by"]
+    [:h2 "imparere italiano è alimentato da .."]
     [:table
      [:tr
       [:td {:colspan "4"}

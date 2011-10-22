@@ -21,6 +21,12 @@ div.major {
     float:right;
 }
 
+div.major h2 {
+    padding:0.25em;
+    margin:0;
+    background: #caecae;
+}
+
 div#content {
     width:auto;
     border:0px dashed blue;
@@ -30,9 +36,6 @@ div#content {
 div.poweredbox {
     float:left;
     white-space:nowrap;
-    left:0%;
-    top:90%;
-    width:30%;
     text-align:center;
     display:block;
 }
