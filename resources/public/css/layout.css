@@ -9,7 +9,7 @@ h1 {
 
 div.menubar {
     width:auto;
-    float:right;
+    float:left;
 }
 
 div.menubar div {
@@ -18,7 +18,7 @@ div.menubar div {
 }
 
 div.major {
-    float:right;
+    float:left;
 }
 
 div.major h2 {
