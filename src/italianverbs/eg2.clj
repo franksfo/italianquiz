@@ -15,14 +15,19 @@
            (* 
             (do
               (println "start of bar.")
-              (let [result (+ 1 
-                              (do
-                                (println "start of baz.")
-                                (let [result 
-                                      (shift k
-                                             (k (k (k 7))))]
-                                  (println "end of baz: " result)
-                                  result)))]
+              (let
+                  [result (+ 1 
+                             (do
+                               (println "start of baz.")
+                               (let [result 
+                                     (shift k
+                                            ;; controls how many "end of baz"s are printed.
+                                            ;; (k (k 7))     : 2 'end of baz'
+                                            ;; (k (k (k 7))) : 3 'end of baz'
+                                            ;; .. etc.
+                                            (k (k (k 7))))]
+                                 (println "end of baz: " result)
+                                 result)))]
                 (println "end of bar:" result)
                 result))
             2))]
