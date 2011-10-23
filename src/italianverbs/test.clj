@@ -1,5 +1,6 @@
  (ns italianverbs.test
     (:use 
+     [clojure.test]
      [hiccup core page-helpers]
      [somnium.congomongo])
     (:require
