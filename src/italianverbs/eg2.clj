@@ -5,26 +5,34 @@
 
 ;; Ported from the Scala version presented at :
 ;; http://dcsobral.blogspot.com/2009/07/delimited-continuations-explained-in.html
-;;I believe that once I understand why (baz) => 70; i will understand delimited continuations.
+;;I believe that once I understand why (foo) => 70; i will understand delimited continuations.
 
-(defn baz []
+(defn foo []
   (do
-    (println "start of the baz2 function..")
-    (reset
-     (* 
-      (do
-        (println "start of the bar part.")
-        (let [result (+ 1 
-                        (do
-                          (println "start of the foo part.")
-                          (let [result 
-                                (shift k
-                                       (k (k (k 7))))]
-                            (println "calculated shift part: " result)
-                            result)))]
-          (println "bar result: " + result)
-          result))
-      2)))) ;; output of (baz) : 70
+    (println "start of foo.")
+    (let [result
+          (reset
+           (* 
+            (do
+              (println "start of bar.")
+              (let [result (+ 1 
+                              (do
+                                (println "start of baz.")
+                                (let [result 
+                                      (shift k
+                                             (k (k (k 7))))]
+                                  (println "end of baz: " result)
+                                  result)))]
+                (println "end of bar:" result)
+                result))
+            2))]
+      (println "end of foo:" result)
+      result)))
+;; output of (foo) :
+;; 1 k:  16
+;; 2 ks: 34
+;; 3 ks: 70
+;; 4 ks: 142
 
 
 
