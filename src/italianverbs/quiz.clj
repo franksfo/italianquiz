@@ -20,11 +20,12 @@
 ;; to add a new question type:
 ;; 1. write a function (gen/mytype) that generates a random question for mytype.
 ;; 2. register this function in the (generate) method below.
-;; 3. register :mytype with (controls) method below.
-;; 4. add :mytype to all-possible-question-types (immediately below).
-;; TODO: make 1-4 a macro.
+;; 3. register :mytype with the (controls) method below.
+;; 4. register :mytype with the question-type-map below.
+;; 5. add :mytype to all-possible-question-types (immediately below).
+;; TODO: make 1-5 a macro.
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo))
+  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
 
 (def question-type-map
   {"mobili" {:sym :mobili :desc "furniture sentences"},
@@ -39,7 +40,8 @@
    "presente" {:sym :presente, :desc "present tense verbs"},
    "espressioni" {:sym :espressioni, :desc "useful expressions"},
    "oct2011" {:sym :oct2011, :desc "recently-encountered vocabulary"},
-   "chetempo" {:sym :chetempo, :desc "weather-related terms"}})
+   "chetempo" {:sym :chetempo, :desc "weather-related terms"}
+   "cucina" {:sym :cucina, :desc "kitchen and food-related vocabulary"}})
 
 (defn question-type [params]
   (let [type-symbol (get params "type")]
@@ -291,11 +293,17 @@
 (defn che-tempo []
   (gram/choose-lexeme {:chetempo true}))
 
+(defn cucina []
+  (gram/np {:cucina true}
+           {:def :def}))
+
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    (= question-type :oct2011)
    (oct2011)
+   (= question-type :cucina)
+   (cucina)
    (= question-type :chetempo)
    (che-tempo)
    (= question-type :espressioni)
@@ -405,6 +413,7 @@
        [:tr
         (checkbox-col "oct2011" :oct2011 session "oct2011")
         (checkbox-col "chetempo" :chetempo session "che tempo è?")
+        (checkbox-col "cucina" :cucina session "cucina")
         ]
        ]
       [:div {:class "optiongroup"}

@@ -1556,3 +1556,85 @@
      {:cat :espressioni})
 (add "bisogna prendere un appuntamento" "do i have to make an appointment?"
      {:cat :espressioni})
+
+
+(def cucina
+  {:cat :noun
+   :det {:cat :det}
+   :number :singular
+   :cucina true})
+
+(def cucina-masc
+  (merge cucina
+  {:gender :masc}))
+
+(def cucina-masc-plural
+  (merge cucina-masc
+         {:number :plural}))
+
+(def cucina-fem
+  (merge cucina
+  {:gender :fem}))
+
+(def cucina-fem-plural
+  (merge cucina-fem
+         {:number :plural}))
+
+(add "latte" "milk"
+     cucina-masc)
+
+(add "pane" "bread"
+     cucina-masc)
+
+(add "caffè" "coffee"
+     cucina-masc)
+
+(add "miele" "honey"
+     cucina-masc)
+
+(add "biscotti" "cookies"
+     cucina-masc-plural)
+
+;; (closest english word that I know of is French)
+(add "cornetto" "croissant"
+     cucina-masc)
+
+; TODO : gender
+;(add "spremuta d'arancia" ""
+;     cucina-)
+
+(add "cereali" "cereal"
+     cucina-masc-plural)
+
+(add "caffelatte" "caffe latte"
+     cucina-masc)
+
+(add "burro" "butter"
+     cucina-masc)
+
+(add "fette biscotte" "rusks"
+     cucina-fem-plural)
+
+(add "pentola" "pot"
+     cucina-fem)
+
+(add "tegame" "pan"
+     cucina-masc)
+
+(add "cavatappi" "corkscrew"
+     cucina-masc)
+
+(add "colapasta" "collander"
+     cucina-masc)
+
+(add "grattugia" "grater"
+     cucina-fem)
+
+(add "tagliere" "cutting board"
+     cucina-masc)
+
+(add "pentola a pressione" "pressure cooker"
+     cucina-fem)
+
+(add "mestolo" "cooking spoon"
+     cucina-masc)

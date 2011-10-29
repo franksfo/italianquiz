@@ -25,10 +25,10 @@
 (defn search-ui [request]
   (html
    [:div#search-ui {:class "quiz-elem"}
-    [:h2 "cherca"]
+    [:h2 "cerca"]
     [:div#searchbar
      [:input {:size "50" :id "search" :type "text"}]
-     [:button {:onclick "search()"} "cherca"]]
+     [:button {:onclick "search()"} "cerca"]]
     [:div#searchresults "" ]]))
 
 (defn test []
