@@ -121,15 +121,16 @@
 (defn np [ & [fs determiner]]
   "'fs' puts pre-conditions on noun (head of the np)"
   (let [chosen-determiner determiner
-        noun (choose-lexeme (merge fs {:cat :noun
-                                       }))
+        noun (choose-lexeme (merge fs {:cat :noun}))
         determiner-search
         (if (not (= (get noun :det) nil))
           (merge
+           determiner
            (get noun :det)
            {:cat :det
             :gender (get noun :gender)
-            :number (get noun :number)}))
+            :number (get noun :number)})
+          determiner)
         determiner (if (not (= (get noun :det) nil))
                      (choose-lexeme determiner-search))]
     (if determiner
