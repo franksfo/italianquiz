@@ -13,16 +13,14 @@ div.map {
 table.map {
     margin:0.25em;
     border-collapse: collapse;
-    border: 2px solid lightblue;
 }
 
 table.map th {
-    background: lightblue;
     padding: 2px;
 }
 
 div.package {
-    border: 2px solid lightblue;
+    border: 2px dashed black;
     float:left;
     width:auto;
     margin:2px;
@@ -48,11 +46,9 @@ div.legend {
     width:95%;
     float:left;
     padding:2px;
-    border: 2px solid lightblue;
 }
 
 div.legend div.package-toc {
-    border:1px solid lightblue;
     margin-bottom:2px;
     float:right;
     width:95%;

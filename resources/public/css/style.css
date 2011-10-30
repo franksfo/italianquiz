@@ -431,3 +431,18 @@ span.remove {
     font-size:small;
     font-weight:lighter;
 }
+
+/* feature structures (from fs.css@ef61fc6) */
+table.map {
+    background: white;
+    border: 2px solid lightgreen;
+}
+
+table.map th {
+    background: lightgreen;
+    border: 2px solid lightgreen;
+}
+
+div.legend {
+    border: 2px solid lightblue;
+}
