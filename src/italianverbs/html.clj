@@ -83,6 +83,25 @@
                                                            (set (list :italian)))))))
            "</table>")))
 
+(defn static-page [body & [title]]
+  "create a self-contained html page (for use with file:/// urls)."
+  (html
+   [:html
+    [:head 
+     [:meta  {:Content-Type "text/html; charset=UTF-8"}]
+     [:title (str title
+                  (if (and title (not (= title "")))
+                    ": " "")
+                  "imparare l'italiano")]
+
+     (include-css "resources/public/css/style.css")
+     (include-css "resources/public/css/layout.css")
+     (include-css "resources/public/css/fs.css")]
+
+
+    [:body
+     body]]))
+
 ;; TODO: check _parent_ type: (string,symbol,list,map) should be enough to start.
 (defn tablize [arg]
   (cond
