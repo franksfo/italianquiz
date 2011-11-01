@@ -20,9 +20,8 @@
 
 ;; CRUD-like functions:
 (defn add-fs [fs]
-  (let [function-to-symbol fs]
-    (insert! :lexicon fs)
-    fs))
+  (insert! :lexicon fs)
+  fs)
 
 ;; italian and english are strings, featuremap is a map of key->values.
 (defn add [italian english & [featuremap types result]]
@@ -321,6 +320,20 @@
 (defn clear []
   (destroy! :lexicon {}))
 
+;;(map (fn [kv] (let [val (second kv)] (type val))) foo)
 
+(defn pathify [fs & [prefix]]
+  "transform a map into a map of paths/value pairs; e.g.:
+ {:foo {:bar 42, :baz 99}} =>  { {:foo/:bar 42}, {:foo/:baz 99} }
 
-  
+The idea is to map the :feature foo to the (recursive) result of pathify on :foo's value.
+
+"
+  (mapcat (fn [kv]
+            (let [key (first kv)
+                  val (second kv)]
+              (if (= (type val) clojure.lang.PersistentArrayMap)
+                (pathify val (str prefix key))
+                (list {(str prefix key)
+                       val}))))
+          fs))
