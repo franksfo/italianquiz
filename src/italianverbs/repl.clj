@@ -10,7 +10,6 @@
 ; {:root {:infl "infinitive", :cat "verb", :subj ...
 ; ..etc
 
-
 (ns italianverbs.generate
   (:use [somnium.congomongo]
         [hiccup core page-helpers])
@@ -19,6 +18,7 @@
    [italianverbs.lev :as lev]
    [italianverbs.grammar :as gram]
    [italianverbs.html :as html]
+   [italianverbs.lexiconfn :as lexfn]
    [italianverbs.config :as config]
    [clojure.string :as string])
   (:require [somnium.congomongo :as mongo]))

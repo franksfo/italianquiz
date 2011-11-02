@@ -1,5 +1,6 @@
 (ns italianverbs.lexiconfn
   (:use [hiccup core page-helpers]
+        [clojure.set]
         [somnium.congomongo])
   (:require
    [clojure.contrib.string :as stringc]
@@ -124,8 +125,6 @@
              :number :plural}
       :infl :futuro-semplice
       :root infinitive})
-    
-    
     (add
      (morph/conjugate-future-italian
       infinitive
@@ -138,8 +137,6 @@
              :number :plural}
       :infl :futuro-semplice
       :root infinitive})
-    
-    
     (add
      (morph/conjugate-future-italian
       infinitive
@@ -234,8 +231,7 @@
    (= gender :masc)
    (stringc/replace-re #"([oe])$" "i" singular)
    (= gender :fem)
-   (stringc/replace-re #"([a])$" "e" singular)
-   true (str "error: gender: " gender  " unknown.")))
+   (stringc/replace-re #"([a])$" "e" singular)))
 
 (defn english-pluralize [singular]
   (str (stringc/replace-re #"([sxz])$" "$1e" singular) "s"))
@@ -310,30 +306,109 @@
            {:cat :verb
             :root infinitive
             :infl :passato-prossimo
-            :aux aux}))
-    ))
+            :aux aux}))))
 
-
-(defn lookup [italian & [where ]]
+(defn lookup [italian & [where]]
   (fetch-one :lexicon :where (merge where {:italian italian})))
 
-(defn clear []
-  (destroy! :lexicon {}))
+(defn get-path [fs path]
+  (if (> (.size path) 0)
+    (get-path (get fs (first path))
+              (rest path))
+    fs))
 
-;;(map (fn [kv] (let [val (second kv)] (type val))) foo)
+;; for testing.
+(def mangiare (lookup "mangiare"))
 
-(defn pathify [fs & [prefix]]
-  "transform a map into a map of paths/value pairs; e.g.:
- {:foo {:bar 42, :baz 99}} =>  { {:foo/:bar 42}, {:foo/:baz 99} }
+;; looking for transitive verbs (:obj|:cat = noun)
+;; which happen in a place (:adjunct|:obj|:place = true).
+;; result should include mangiare.
+(def place-verbs
+  {:cat :verb
+   :obj {:cat :noun}
+   :adjunct {:cat :prep
+             :obj {:place true}}})
 
-The idea is to map the :feature foo to the (recursive) result of pathify on :foo's value.
+;;usage : (run-query (pathify place-verbs)))
 
-"
+;; transitive verbs only
+;; result should include mangiare.
+(def trans-verbs
+  {:cat :verb
+   :obj {:cat :noun}})
+
+;;usage : (run-query (pathify trans-verbs)))
+
+(defn pathify-r [fs & [prefix]]
+"Transform a map into a map of paths/value pairs,
+ where paths are lists of keywords, and values are atomic values.
+ e.g.:
+ {:foo {:bar 42, :baz 99}} =>  { { (:foo :bar) 42}, {(:foo :baz) 99} }
+The idea is to map the :feature foo to the (recursive) result of pathify on :foo's value."
   (mapcat (fn [kv]
             (let [key (first kv)
                   val (second kv)]
               (if (= (type val) clojure.lang.PersistentArrayMap)
-                (pathify val (str prefix key))
-                (list {(str prefix key)
+                (pathify-r val (concat prefix (list key)))
+                (list {(concat prefix (list key))
                        val}))))
           fs))
+
+;(defn pathify [fs]
+; (pv2m (pathify-r fs)))
+
+(defn pathify [fs]
+  "pv2m might not be useful for doing queries in this case."
+  (pathify-r fs))
+
+(defn pv-matches [lexical-entry path value]
+  "might need a more complicated equality predicate later."
+  (let [path-value (get-path lexical-entry path)]
+    (if (or (= path-value value)
+            (= (keyword path-value) value))
+      (list lexical-entry))))
+
+(defn run-query [path-value-pairs]
+  (if (> (.size path-value-pairs) 0)
+    (let [path (first (keys (first path-value-pairs)))
+          value (get (first path-value-pairs) path)
+          result (set (mapcat
+                       (fn [entry] (pv-matches entry path value))
+                       (fetch :lexicon)))]
+      (if (> (.size path-value-pairs) 1)
+        (intersection result (run-query (rest path-value-pairs)))
+        result))
+    #{})) ;; base case : return an empty set.
+
+;; test data for (run-query)
+;; (pathify transitive-verb) returns a list of path-value-pairs
+;; which can be passed to run-query (above). run-query
+;; does an intersection over the entire lexicon with each
+;; path-value-pair as a filter.
+(def tv {:cat "verb" :obj {:cat "noun"}})
+
+(defn myfn [fs] (= (get-path fs '(:obj :cat)) "noun"))
+
+;; How to map over (fetch :lexicon) results:
+;; 
+;; (get all lexical items with path=>value: :obj/:cat => "noun")
+;; 1. (defn myfn [fs] (= (get (get fs :obj) :cat) "noun"))
+;; 
+;; 2. (def results (mapcat (fn [fs] (if (myfn fs) (list fs))) (fetch :lexicon)))
+;;
+(defn clear []
+  (destroy! :lexicon {}))
+
+(defn pv2m [path-values]
+"Transform a map of paths/value pairs into a map.
+ e.g.:
+ { { (:foo :bar) 42}, {(:foo :baz) 99} } =>
+   {(:foo :bar :biff) 99, (:foo :biff) 44, (:foo :bar :baz) 42}"
+  (if (> (.size path-values) 0)
+    (let [path (first (first (first path-values)))
+          value (second (first (first path-values)))]
+      (merge
+       {path value}
+       (pv2m (rest path-values))))))
+
+

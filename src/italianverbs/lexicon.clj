@@ -88,15 +88,13 @@
 ;; prepotizioni (prepositions)
 (add "in" "to"
 	   {:cat :prep
-	    
-        :obj {:case {:$ne :nom}
+        :obj {:case {:NE :nom}
               :andare-in true}})
 
 (add "in" "in"
      {:cat :prep
       :action-occurring-in true
-      
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :english-in true
             :place true}})
 
@@ -104,60 +102,60 @@
      {:cat :prep
       :action-occurring-in true
       
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :english-at true
             :place true}})
 
 (add "a" "to"
 	   {:cat :prep
 	    
-        :obj {:case {:$ne :nom}
+        :obj {:case {:NE :nom}
               :andare-a true}})
 
 (add "a" "to"
 	   {:cat :prep
-        :obj {:case {:$ne :nom}
+        :obj {:case {:NE :nom}
               :andare-al true}})
 
 (add "di" "of"
 	   {:cat :prep
-        :obj {:case {:$ne :nom}}})
+        :obj {:case {:NE :nom}}})
 
 (add "da" "from"
 	   {:cat :prep
 	    
-        :obj {:case {:$ne :nom}
+        :obj {:case {:NE :nom}
               :place true}})
 
 (add "a" "to"
 	   {:cat :prep
 	    
-        :obj {:case {:$ne :nom}
+        :obj {:case {:NE :nom}
               :animate true}})
 
 (add "con" "with"
 	   {:cat :prep
 	    
-        :obj {:case {:$ne :nom}
+        :obj {:case {:NE :nom}
               :human true}})
 
 (add "per" "for"
      {:cat :prep
       :benefactive true
       
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :animate true}})
 
 (add "per" "for"
      {:cat :prep
       :benefactive true
       
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :human true}})
 
 (add "su" "on"
 	   {:cat :prep
-        :obj {:case {:$ne :nom}}})
+        :obj {:case {:NE :nom}}})
 
 ;; verbs
 (add "dimenticare" "to forget"
@@ -179,7 +177,7 @@
 ;; FIXME: should also allow "at".
 (def adjunct-in-a-place
   {:action-occurring-in true
-   :obj.place true})
+   :obj {:place true}})
 
 (add "agitare" "to shake"
            {:cat :verb :infl :infinitive
@@ -193,13 +191,13 @@
        :infl :infinitive
        :subj {:human true}
        :obj {:cat :noun}
-       :iobj {:obj.animate true}
+       :iobj {:obj {:animate true}}
        :adjunct adjunct-in-a-place}))
 
 (def dire (add "dire" "to say"
                      {:cat :verb :infl :infinitive
                       :obj {:cat :noun :sayable true}
-                      :iobj {:obj.animate true
+                      :iobj {:obj {:animate true}
                              :benefactive true}
                       :subj {:human true}
                       :adjunct adjunct-in-a-place}))
@@ -222,7 +220,7 @@
                     :subj {:human true}
                     :obj {:writable true
                           :cat :noun}
-                    :iobj {:obj.human true
+                    :iobj {:obj {:human true}
                            :benefactive true}
                     :adjunct adjunct-in-a-place}))
 
@@ -232,8 +230,8 @@
         :infl :infinitive
         :subj {:human true}
         :obj {:cat :noun :written true}
-        :iobj {:obj.case {:$ne :nom}
-               :obj.human true}
+        :iobj {:obj {:case {:NE :nom}
+                     :human true}}
         :adjunct adjunct-in-a-place}))
 
 (add "letto" "read (past)"
@@ -249,7 +247,7 @@
               :obj {:cat :noun
                     :edible true}
               :adjunct {:cat :prep
-                        :obj.place true}
+                        :obj {:place true}}
               :infl :infinitive})
  "mangiato" "ate" "avere")
 
@@ -258,7 +256,7 @@
       {:cat :verb
        :subj {:human true}
        :infl :infinitive
-       :iobj {:obj.human true}
+       :iobj {:obj {:human true}}
        :adjunct adjunct-in-a-place})
  "parlato" "spoke" "avere")
 
@@ -415,25 +413,25 @@
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "a"
-                             :obj.andare-a true}}))
+                             :obj {:andare-a true}}}))
 (add "andare" "to go"
            (merge andare
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "in"
-                             :obj.andare-in true}}))
+                             :obj {:andare-in true}}}))
 (add "andare" "to go"
            (merge andare
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "a"
-                             :obj.andare-al true}}))
+                             :obj {:andare-al true}}}))
 (add "andare" "to go"
            (merge andare
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "da"
-                             :obj.human true}}))
+                             :obj {:human true}}}))
 ;; </andare root variants>
 
 ;; <andare exceptions>
@@ -483,30 +481,30 @@
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "in"
-                             :obj.andare-in true}}))
+                             :obj {:andare-in true}}}))
 ;; come *to* a place.
 (add "venire" "to come"
            (merge venire
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "a"
-                             :obj.andare-a true}}))
+                             :obj {:andare-a true}}}))
 ;; come *from* a place.
 (add "venire" "to come"
            (merge venire
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "da"
-                             :obj.place true}}))
+                             :obj {:place true}}}))
 ;; come *to* a person.
 (add "venire" "to come"
            (merge venire
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "da"
-                             :obj.human true}}))
+                             :obj {:human true}}}))
 
-;; </venire adjunct variants>
+;; <|venire adjunct variants>
 
  ;; <venire exceptions>
 (add-infl "vengo" (list firstp sing present
@@ -592,7 +590,7 @@
                 :obj {:cat :noun
                       :artifact true}
                 :subj {:human true}
-                :iobj {:obj.animate true
+                :iobj {:obj {:animate true}
                        :benefactive true}
                 :adjunct adjunct-in-a-place}))
 (futuro-semplice fare "far")
@@ -618,6 +616,7 @@
 (def rimanere (add "rimanere" "to stay"
                {:cat :verb :infl :infinitive
                 :subj {:human true}
+;                :adjunct {:action-occuring-in true :obj|place true}}))
                 :adjunct adjunct-in-a-place}))
 (futuro-semplice rimanere "rimarr")
 
@@ -1308,32 +1307,32 @@
 (add "a destra de" "to the right of"
      {:cat :prep
       :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :furniture true}})
 
 (add "a sinistra de" "to the left of"
      {:cat :prep
       :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :furniture true}})
 
 (add "accanto a" "next to"
      {:cat :prep
       :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :furniture true}})
 
 (add "dentro" "inside"
      {:cat :prep
       :furniture-prep true
       :subj {:holdable true}
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :furniture true}})
 
 (add "dietro" "behind"
      {:cat :prep
       :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :furniture true}})
 
 (add "davanti a" "in front of"
@@ -1355,19 +1354,19 @@
 (add "sopra" "above"
      {:cat :prep
       :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :furniture true}})
 
 (add "sotto" "under"
      {:cat :prep
       :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :furniture true}})
 
 (add "su" "on"
      {:cat :prep
       :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :obj {:case {:NE :nom}
             :furniture true}})
 
 ;; TODO: doesn't work yet: :obj should be post-condition on NP.
@@ -1375,7 +1374,7 @@
 ;     {:cat :prep
 ;      :furniture-prep true
 ;      :obj {:plural true
-;            :case {:$ne :nom}
+;            :case {:NE :nom}
 ;            :furniture true}})
 
 (add "vicino a" "close to"
