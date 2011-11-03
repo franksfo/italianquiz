@@ -5,6 +5,9 @@
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]
    [italianverbs.config :as config]
+   [italianverbs.html :as html]
+   [italianverbs.lexiconfn :as lexfn]
+   [italianverbs.search :as search]
    [clojure.string :as string]
    [clojure.contrib.duck-streams :as duck]))
 
@@ -87,6 +90,9 @@
                :person person
                :number number})))
 
+;        obj (gram/np
+;             {:case {:$ne :nom}})
+        vp (gram/vp verb-inf)
         subj-constraints
         (merge
          {:cat :noun
@@ -105,6 +111,8 @@
      {:verb-inf verb-inf
       :verb-present verb-present
       :subject subject
+;      :object obj
+;      :vp vp
       :verb-constraints verb-present-constraints
       :subj-constraints subj-constraints
       :english (str (get subject :english) " "
@@ -112,7 +120,7 @@
                       (get verb-present :english)
                       (morph/conjugate-english-verb verb-inf subject {:infl :present})))
       :italian (str (get subject :italian) " " (get verb-present :italian))}
-    {:type-is-fs (set '(:verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
+         {:type-is-fs (set '(:vp :object :verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
 
 (defn random-infinitivo []
   (gram/choose-lexeme
@@ -190,6 +198,13 @@
                     (morph/conjugate-italian-verb verb-past subject))}
 
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
+
+(defn edible-vp []
+  (let [verbs (lexfn/query (lexfn/pathify {:cat :verb :obj {:edible true}}))
+        verb (nth verbs (rand-int (.size verbs)))
+        nouns (if verb (lexfn/query (lexfn/pathify (lexfn/get-path verb '(:obj)))))
+        noun (nth nouns (rand-int (.size nouns)))]
+    (gram/left verb (gram/np noun))))
 
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
