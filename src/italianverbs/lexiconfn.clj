@@ -337,6 +337,9 @@
   {:cat :verb
    :obj {:cat :noun}})
 
+(def verbs
+  {:cat :verb})
+
 ;;usage : (run-query (pathify trans-verbs)))
 
 (defn pathify-r [fs & [prefix]]
@@ -368,7 +371,7 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
             (= (keyword path-value) value))
       (list lexical-entry))))
 
-(defn run-query [path-value-pairs]
+(defn query [path-value-pairs]
   (if (> (.size path-value-pairs) 0)
     (let [path (first (keys (first path-value-pairs)))
           value (get (first path-value-pairs) path)
@@ -376,8 +379,8 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
                        (fn [entry] (pv-matches entry path value))
                        (fetch :lexicon)))]
       (if (> (.size path-value-pairs) 1)
-        (intersection result (run-query (rest path-value-pairs)))
-        result))
+        (intersection result (query (rest path-value-pairs)))
+        (seq result)))
     #{})) ;; base case : return an empty set.
 
 ;; test data for (run-query)
