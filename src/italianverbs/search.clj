@@ -21,17 +21,33 @@
 (defn search [constraints]
   (gram/choose-lexeme constraints))
 
+(def grammatical-terminology-term
+  {:transitive {:cat :verb
+                :obj {:cat :noun}}
+   :legible {:legible true}
+   :lit-verbs {:cat :verb
+              :obj {:legible true}}
+   :place-preps {:cat :prep
+                   :obj {:place true}}})
+
+
 (defn searchq [search-exp attrs]
   "search with query. attrs is converted into filtering attribute-value pairs in the feature structures."
   (if search-exp
     (string/join " "
-                 (map (fn [attr]
-                        (let [constraints {(keyword attr) search-exp}
-                              results (gram/choose-lexeme constraints)]
-                          (if (and results
-                                   (not (= (get results :cat) :error))) ;; currently 'no results found' is a {:cat :error}.
-                            (html/fs (gram/choose-lexeme constraints)))))
-                      (string/split (java.util.regex.Pattern/compile " ") (if attrs attrs "italian english"))))
+                 (concat
+                  (map (fn [attr]
+                         (let [constraints {(keyword attr) search-exp}
+                               results (gram/choose-lexeme constraints)]
+                           (if (and results
+                                    (not (= (get results :cat) :error))) ;; currently 'no results found' is a {:cat :error}.
+                             (html/fs (gram/choose-lexeme constraints)))))
+                       (string/split (java.util.regex.Pattern/compile " ") (if attrs attrs "italian english")))
+                  (mapcat (fn [search-term]
+                            (let [grammatical-terminology-term (get grammatical-terminology-term (keyword search-term))]
+                              (if grammatical-terminology-term
+                                (map (fn [fs] (html/fs fs)) (lexfn/query (lexfn/pathify grammatical-terminology-term))))))
+                          (string/split (java.util.regex.Pattern/compile " ") search-exp))))
     nil))
 
 (defn search-ui [request]
