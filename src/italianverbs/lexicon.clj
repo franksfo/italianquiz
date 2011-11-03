@@ -218,7 +218,7 @@
 (def scrivere (add "scrivere" "to write"
                    {:cat :verb :infl :infinitive
                     :subj {:human true}
-                    :obj {:writable true
+                    :obj {:legible true
                           :cat :noun}
                     :iobj {:obj {:human true}
                            :benefactive true}
@@ -229,7 +229,7 @@
        {:cat :verb
         :infl :infinitive
         :subj {:human true}
-        :obj {:cat :noun :written true}
+        :obj {:cat :noun :legible true}
         :iobj {:obj {:case {:NE :nom}
                      :human true}}
         :adjunct adjunct-in-a-place}))
@@ -349,7 +349,7 @@
      {:cat :verb
       :infl :infinitive
       :subj {:human true}
-      :obj {:cat :noun :written true}})
+      :obj {:cat :noun :legible true}})
 
 (def corrigere
   (add "correggere" "to correct"
@@ -1080,7 +1080,7 @@
       :number :singular
       :gender :masc
       :artifact true
-      :written true
+      :legible true
       :holdable true
       :roomable true
       :tableable true
@@ -1094,7 +1094,7 @@
       :number :singular
       :gender :masc
       :artifact true
-      :written true
+      :legible true
       :holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
       :furniture true
       :ruggable true
@@ -1119,7 +1119,7 @@
          :artifact true
          :holdable true
          :common true
-         :written true}
+         :legible true}
         (list noun))
 
 (add-with-plural "abito" "dress"
@@ -1132,7 +1132,7 @@
 
 (add-with-plural "parola" "word"
   {:sayable true
-   :writable true
+   :legible true
    :common true
    :gender :fem}
   (list noun)
