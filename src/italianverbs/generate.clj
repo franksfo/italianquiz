@@ -200,9 +200,25 @@
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
 
 (defn edible-vp []
-  (let [verbs (lexfn/query (lexfn/pathify {:cat :verb :obj {:edible true}}))
+  (let [verbs (seq
+               (lexfn/query
+                (lexfn/pathify {:cat :verb :obj {:edible true}})))
         verb (nth verbs (rand-int (.size verbs)))
-        nouns (if verb (lexfn/query (lexfn/pathify (lexfn/get-path verb '(:obj)))))
+        nouns (if verb
+                (seq
+                 (lexfn/query
+                  (lexfn/pathify (lexfn/get-path verb '(:obj))))))
+        noun (nth nouns (rand-int (.size nouns)))]
+    (gram/left verb (gram/np noun))))
+
+(defn legible-vp []
+  (let [verbs (seq (lexfn/query
+                    (lexfn/pathify {:cat :verb :obj {:legible true}})))
+        verb (nth verbs (rand-int (.size verbs)))
+        nouns (if verb
+                (seq
+                 (lexfn/query
+                  (lexfn/pathify (lexfn/get-path verb '(:obj))))))
         noun (nth nouns (rand-int (.size nouns)))]
     (gram/left verb (gram/np noun))))
 

@@ -329,7 +329,7 @@
    :adjunct {:cat :prep
              :obj {:place true}}})
 
-;;usage : (run-query (pathify place-verbs)))
+;;usage : (query (pathify place-verbs)))
 
 ;; transitive verbs only
 ;; result should include mangiare.
@@ -357,11 +357,7 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
                        val}))))
           fs))
 
-;(defn pathify [fs]
-; (pv2m (pathify-r fs)))
-
 (defn pathify [fs]
-  "pv2m might not be useful for doing queries in this case."
   (pathify-r fs))
 
 (defn pv-matches [lexical-entry path value]
@@ -371,6 +367,11 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
             (= (keyword path-value) value))
       (list lexical-entry))))
 
+;; http://stackoverflow.com/questions/2352020/debugging-in-clojure/2352280#2352280
+(defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
+
+;; TODO: use recur:
+;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
 (defn query [path-value-pairs]
   (if (> (.size path-value-pairs) 0)
     (let [path (first (keys (first path-value-pairs)))
@@ -380,7 +381,7 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
                        (fetch :lexicon)))]
       (if (> (.size path-value-pairs) 1)
         (intersection result (query (rest path-value-pairs)))
-        (seq result)))
+        result))
     #{})) ;; base case : return an empty set.
 
 ;; test data for (run-query)
