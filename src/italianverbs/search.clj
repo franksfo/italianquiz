@@ -43,12 +43,20 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
               (rest path))
     fs))
 
+(defn pv-not-matches [lexical-entry path value]
+  (let [path-value (get-path lexical-entry path)]
+    (if (not (or (= path-value value)
+                 (= (keyword path-value) value)))
+      (list lexical-entry))))
+
 (defn pv-matches [lexical-entry path value]
   "might need a more complicated equality predicate later."
-  (let [path-value (get-path lexical-entry path)]
-    (if (or (= path-value value)
-            (= (keyword path-value) value))
-      (list lexical-entry))))
+  (if (= (last path) :not)
+    (pv-not-matches lexical-entry (butlast path) value)
+    (let [path-value (get-path lexical-entry path)]
+      (if (or (= path-value value)
+              (= (keyword path-value) value))
+        (list lexical-entry)))))
 
 ;; http://stackoverflow.com/questions/2352020/debugging-in-clojure/2352280#2352280
 (defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
@@ -56,6 +64,13 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
 ;; TODO: use recur:
 ;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
 (defn query-r [path-value-pairs]
+  "
+      map(lexicon,<p1,v1>)  => S1 |
+      map(lexicon,<p2,v2>)  => S2 |
+       ...                        |=> intersection(s:S) => return value.
+       ...                        |
+      map(lexicon,<pn,vn>)  => Sn |
+  "
   (if (> (.size path-value-pairs) 0)
     (let [path (first (keys (first path-value-pairs)))
           value (get (first path-value-pairs) path)
@@ -67,8 +82,8 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
         result))
     #{})) ;; base case : return an empty set.
 
-(defn query [constraints]
-  (query-r (pathify constraints)))
+(defn query [& constraints]
+  (query-r (pathify (first constraints))))
 
 ;; test data for (run-query)
 ;; (pathify transitive-verb) returns a list of path-value-pairs
@@ -135,9 +150,18 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
      {:comment "show the first (database's choice) noun."
       :test (search {:cat :noun})}
      {:comment "show the first (database's choice) verb."
-      :test (search {:cat :verb})}))
-
-
-
-
-  
+      :test (search {:cat :verb})}
+     {:comment "simple query"
+      ;; :assert (> (.size results-of-query 0))
+      :test (nth (seq (query {:cat :noun})) 0)}
+     {:comment "2-conjuncts query"
+      ;; :assert (> (.size results-of-query 0))
+      :test (nth (seq (query {:cat :noun :case :nom})) 0)}
+     {:comment "2-conjuncts query, with negation"
+      ;; :assert (> (.size results-of-query 0)).
+      :test (nth (seq (query {:cat :noun :case {:not :nom}})) 0)}
+     {:comment "null set intersection of mutually-exclusive queries."
+      ;; :assert: should be empty set (= (.size results) 0).
+      :test (intersection (query {:cat :noun :case :nom}) (query {:cat :noun :case {:not :nom}}))}
+     {:comment "nested query"
+      :test (nth (seq (query {:cat :verb :obj {:edible true}})) 0)}))
