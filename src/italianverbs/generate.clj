@@ -222,6 +222,36 @@
         noun (nth nouns (rand-int (.size nouns)))]
     (gram/left verb (gram/np noun))))
 
+(defn random-noun [constraints]
+  (let [nouns (seq
+               (lexfn/query
+                (lexfn/pathify constraints)))]
+    (nth nouns (rand-int (.size nouns)))))
+
+;; cf. grammar/vp: this will replace that.
+(defn vp []
+  (let [verbs (seq (lexfn/query
+                    (lexfn/pathify {:cat :verb :obj {:cat :noun}})))
+        verb (nth verbs (rand-int (.size verbs)))]
+    (if verb
+      (let [noun (random-noun
+                  (lexfn/get-path verb '(:obj)))]
+        (gram/left verb (gram/np noun))))))
+
+;; cf. grammar/sentence: this will replace that.
+(defn sentence []
+  (let [vp (vp)
+        noun (random-noun
+              (merge
+               {:cat :noun}
+;               {:case {:$ne :acc}}
+               (get (morph/get-root-head vp) :subj)))]
+    (let [subject (gram/np noun)]
+      (if vp
+        (gram/combine vp subject gram/sv)
+        {:cat :error
+         :error "vp returned null."}))))
+
 (defn test []
   "this should contain a list of all the tests for the html package. each test can
   return a map or a list or a function. a function will be applied against an
