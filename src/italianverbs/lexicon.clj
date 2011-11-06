@@ -248,8 +248,8 @@
  (add "mangiare" "to eat"
              {:cat :verb
               :subj {:animate true}
-              :obj {:cat :noun
-                    :edible true}
+              :obj (merge object-of-transitive-verb
+                          {:edible true})
               :adjunct {:cat :prep
                         :obj {:place true}}
               :infl :infinitive})
@@ -960,17 +960,19 @@
    :oct2011 true})
 
 (add "prezzo" "price"
-  {:cat :noun
-   :oct2011 true})
+     {:cat :noun
+      :gender :masc
+      :oct2011 true})
 
 (add "cenone" "dinner (not cena)"
-  {:cat :noun
-   :oct2011 true})
+     {:cat :noun
+      :gender :masc
+      :oct2011 true})
 
 (add "tacchino" "turkey"
-  {:cat :noun
-   :oct2011 true})
-
+     {:cat :noun
+      :gender :masc
+      :oct2011 true})
 
 ;(add "" ""
 ;  {:cat :noun
