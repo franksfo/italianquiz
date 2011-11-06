@@ -1,14 +1,27 @@
 (ns italianverbs.lexiconfn
   (:use [hiccup core page-helpers]
-        [clojure.set]
-        [somnium.congomongo])
+        [clojure.set])
   (:require
+   [somnium.congomongo :as mongo]
    [clojure.contrib.string :as stringc]
    [italianverbs.morphology :as morph]))
 
-; global initializations go here, i guess..
-(mongo! :db "mydb")
-(make-connection "mydb" :host "localhost")
+;; begin db-specific stuff. for now, mongodb; might switch/parameterize later.
+(mongo/mongo! :db "mydb")
+(mongo/make-connection "mydb" :host "localhost")
+(defn fetch [& args]
+  (if args
+    (mongo/fetch :lexicon args)
+    (mongo/fetch :lexicon)))
+
+(defn clear [& args]
+  (mongo/destroy! :lexicon {}))
+
+(defn add-lexeme [fs]
+  (mongo/insert! :lexicon fs)
+  fs)
+
+;; end db-specific stuff.
 
 (defn italian [lexeme]
   (get (nth lexeme 1) :lexicon))
@@ -18,11 +31,6 @@
 
 (defn english [lexeme]
   (get (nth lexeme 1) :english))
-
-;; CRUD-like functions:
-(defn add-fs [fs]
-  (insert! :lexicon fs)
-  fs)
 
 ;; italian and english are strings, featuremap is a map of key->values.
 (defn add [italian english & [featuremap types result]]
@@ -39,7 +47,7 @@
                         (if english
                           (assoc {} :italian italian :english english)
                           (assoc {} :italian italian))))]
-      (add-fs featuremap))))
+      (add-lexeme featuremap))))
 
 ;; _italian is a string; _types is a list of symbols (each of which is a map of key-values);
 ;; _result is an accumulator which contains the merge of all of the maps
@@ -309,13 +317,7 @@
             :aux aux}))))
 
 (defn lookup [italian & [where]]
-  (fetch-one :lexicon :where (merge where {:italian italian})))
-
-(defn get-path [fs path]
-  (if (> (.size path) 0)
-    (get-path (get fs (first path))
-              (rest path))
-    fs))
+  (mongo/fetch-one :lexicon :where (merge where {:italian italian})))
 
 ;; for testing.
 (def mangiare (lookup "mangiare"))
@@ -341,78 +343,4 @@
   {:cat :verb})
 
 ;;usage : (run-query (pathify trans-verbs)))
-
-(defn pathify-r [fs & [prefix]]
-"Transform a map into a map of paths/value pairs,
- where paths are lists of keywords, and values are atomic values.
- e.g.:
- {:foo {:bar 42, :baz 99}} =>  { { (:foo :bar) 42}, {(:foo :baz) 99} }
-The idea is to map the :feature foo to the (recursive) result of pathify on :foo's value."
-  (mapcat (fn [kv]
-            (let [key (first kv)
-                  val (second kv)]
-              (if (= (type val) clojure.lang.PersistentArrayMap)
-                (pathify-r val (concat prefix (list key)))
-                (list {(concat prefix (list key))
-                       val}))))
-          fs))
-
-(defn pathify [fs]
-  (pathify-r fs))
-
-(defn pv-matches [lexical-entry path value]
-  "might need a more complicated equality predicate later."
-  (let [path-value (get-path lexical-entry path)]
-    (if (or (= path-value value)
-            (= (keyword path-value) value))
-      (list lexical-entry))))
-
-;; http://stackoverflow.com/questions/2352020/debugging-in-clojure/2352280#2352280
-(defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
-
-;; TODO: use recur:
-;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
-(defn query [path-value-pairs]
-  (if (> (.size path-value-pairs) 0)
-    (let [path (first (keys (first path-value-pairs)))
-          value (get (first path-value-pairs) path)
-          result (set (mapcat
-                       (fn [entry] (pv-matches entry path value))
-                       (fetch :lexicon)))]
-      (if (> (.size path-value-pairs) 1)
-        (intersection result (query (rest path-value-pairs)))
-        result))
-    #{})) ;; base case : return an empty set.
-
-;; test data for (run-query)
-;; (pathify transitive-verb) returns a list of path-value-pairs
-;; which can be passed to run-query (above). run-query
-;; does an intersection over the entire lexicon with each
-;; path-value-pair as a filter.
-(def tv {:cat "verb" :obj {:cat "noun"}})
-
-(defn myfn [fs] (= (get-path fs '(:obj :cat)) "noun"))
-
-;; How to map over (fetch :lexicon) results:
-;; 
-;; (get all lexical items with path=>value: :obj/:cat => "noun")
-;; 1. (defn myfn [fs] (= (get (get fs :obj) :cat) "noun"))
-;; 
-;; 2. (def results (mapcat (fn [fs] (if (myfn fs) (list fs))) (fetch :lexicon)))
-;;
-(defn clear []
-  (destroy! :lexicon {}))
-
-(defn pv2m [path-values]
-"Transform a map of paths/value pairs into a map.
- e.g.:
- { { (:foo :bar) 42}, {(:foo :baz) 99} } =>
-   {(:foo :bar :biff) 99, (:foo :biff) 44, (:foo :bar :baz) 42}"
-  (if (> (.size path-values) 0)
-    (let [path (first (first (first path-values)))
-          value (second (first (first path-values)))]
-      (merge
-       {path value}
-       (pv2m (rest path-values))))))
-
 

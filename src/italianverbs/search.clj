@@ -1,5 +1,6 @@
 (ns italianverbs.search
-  (:use [hiccup core page-helpers])
+  (:use [hiccup core page-helpers]
+        [clojure.set])
   (:require
    [clojure.contrib.string :as string]
    [italianverbs.html :as html]
@@ -18,6 +19,73 @@
 ;;      (html/static-page
 ;;            (str (html/fs lexfn/trans-verbs) (string/join " " (map (fn [fs] (html/fs fs)) (lexfn/query (lexfn/pathify lexfn/trans-verbs))))
 
+(defn pathify-r [fs & [prefix]]
+"Transform a map into a map of paths/value pairs,
+ where paths are lists of keywords, and values are atomic values.
+ e.g.:
+ {:foo {:bar 42, :baz 99}} =>  { { (:foo :bar) 42}, {(:foo :baz) 99} }
+The idea is to map the :feature foo to the (recursive) result of pathify on :foo's value."
+  (mapcat (fn [kv]
+            (let [key (first kv)
+                  val (second kv)]
+              (if (= (type val) clojure.lang.PersistentArrayMap)
+                (pathify-r val (concat prefix (list key)))
+                (list {(concat prefix (list key))
+                       val}))))
+          fs))
+
+(defn pathify [fs]
+  (pathify-r fs))
+
+(defn get-path [fs path]
+  (if (> (.size path) 0)
+    (get-path (get fs (first path))
+              (rest path))
+    fs))
+
+(defn pv-matches [lexical-entry path value]
+  "might need a more complicated equality predicate later."
+  (let [path-value (get-path lexical-entry path)]
+    (if (or (= path-value value)
+            (= (keyword path-value) value))
+      (list lexical-entry))))
+
+;; http://stackoverflow.com/questions/2352020/debugging-in-clojure/2352280#2352280
+(defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
+
+;; TODO: use recur:
+;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
+(defn query-r [path-value-pairs]
+  (if (> (.size path-value-pairs) 0)
+    (let [path (first (keys (first path-value-pairs)))
+          value (get (first path-value-pairs) path)
+          result (set (mapcat
+                       (fn [entry] (pv-matches entry path value))
+                       (lexfn/fetch)))]
+      (if (> (.size path-value-pairs) 1)
+        (intersection result (query-r (rest path-value-pairs)))
+        result))
+    #{})) ;; base case : return an empty set.
+
+(defn query [constraints]
+  (query-r (pathify constraints)))
+
+;; test data for (run-query)
+;; (pathify transitive-verb) returns a list of path-value-pairs
+;; which can be passed to run-query (above). run-query
+;; does an intersection over the entire lexicon with each
+;; path-value-pair as a filter.
+(def tv {:cat "verb" :obj {:cat "noun"}})
+
+(defn myfn [fs] (= (get-path fs '(:obj :cat)) "noun"))
+
+;; How to map over (fetch :lexicon) results:
+;; 
+;; (get all lexical items with path=>value: :obj/:cat => "noun")
+;; 1. (defn myfn [fs] (= (get (get fs :obj) :cat) "noun"))
+;; 
+;; 2. (def results (mapcat (fn [fs] (if (myfn fs) (list fs))) (fetch :lexicon)))
+;;
 (defn search [constraints]
   (gram/choose-lexeme constraints))
 
@@ -46,7 +114,7 @@
                   (mapcat (fn [search-term]
                             (let [grammatical-terminology-term (get grammatical-terminology-term (keyword search-term))]
                               (if grammatical-terminology-term
-                                (map (fn [fs] (html/fs fs)) (lexfn/query (lexfn/pathify grammatical-terminology-term))))))
+                                (map (fn [fs] (html/fs fs)) (query (pathify grammatical-terminology-term))))))
                           (string/split (java.util.regex.Pattern/compile " ") search-exp))))
     nil))
 

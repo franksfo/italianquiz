@@ -1,5 +1,6 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (purtroppo)
 (ns italianverbs.generate
+  (:use [clojure.stacktrace])
   (:require
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
@@ -199,49 +200,39 @@
 
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
 
+(defn random-lexeme [& constraints]
+  (let [constraints (first constraints)
+        lexemes (seq
+                 (search/query constraints))]
+    (if lexemes
+      (if (> (.size lexemes) 0)
+        (nth lexemes (rand-int (.size lexemes)))))))
+
 (defn edible-vp []
-  (let [verbs (seq
-               (lexfn/query
-                (lexfn/pathify {:cat :verb :obj {:edible true}})))
-        verb (nth verbs (rand-int (.size verbs)))
-        nouns (if verb
-                (seq
-                 (lexfn/query
-                  (lexfn/pathify (lexfn/get-path verb '(:obj))))))
-        noun (nth nouns (rand-int (.size nouns)))]
+  (let [verb (random-lexeme {:cat :verb :obj {:edible true}})
+        noun (random-lexeme (search/get-path verb '(:obj)))]
     (gram/left verb (gram/np noun))))
 
 (defn legible-vp []
-  (let [verbs (seq (lexfn/query
-                    (lexfn/pathify {:cat :verb :obj {:legible true}})))
-        verb (nth verbs (rand-int (.size verbs)))
-        nouns (if verb
-                (seq
-                 (lexfn/query
-                  (lexfn/pathify (lexfn/get-path verb '(:obj))))))
-        noun (nth nouns (rand-int (.size nouns)))]
+  (let [verb (random-lexeme {:cat :verb :obj {:legible true}})
+        noun (random-lexeme (search/get-path verb '(:obj)))]
     (gram/left verb (gram/np noun))))
-
-(defn random-noun [constraints]
-  (let [nouns (seq
-               (lexfn/query
-                (lexfn/pathify constraints)))]
-    (nth nouns (rand-int (.size nouns)))))
 
 ;; cf. grammar/vp: this will replace that.
 (defn vp []
-  (let [verbs (seq (lexfn/query
-                    (lexfn/pathify {:cat :verb :obj {:cat :noun}})))
-        verb (nth verbs (rand-int (.size verbs)))]
-    (if verb
-      (let [noun (random-noun
-                  (lexfn/get-path verb '(:obj)))]
-        (gram/left verb (gram/np noun))))))
+  (let [verb (random-lexeme {:cat :verb :infl :infinitive})
+        noun (if (search/get-path verb '(:obj))
+               (random-lexeme (search/get-path verb '(:obj))))]
+    (if noun
+      ;; transitive:
+      (gram/left verb (gram/np noun))
+      ;; else intransitive:
+    verb)))
 
 ;; cf. grammar/sentence: this will replace that.
 (defn sentence []
   (let [vp (vp)
-        noun (random-noun
+        noun (random-lexeme
               (merge
                {:cat :noun}
 ;               {:case {:$ne :acc}}
