@@ -235,7 +235,7 @@
         noun (random-lexeme
               (merge
                {:cat :noun}
-;               {:case {:$ne :acc}}
+               {:case {:not :acc}}
                (get (morph/get-root-head vp) :subj)))]
     (let [subject (gram/np noun)]
       (if vp

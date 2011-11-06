@@ -240,6 +240,10 @@
       :infl :passato-prossimo
       :aux "avere"})
 
+(def object-of-transitive-verb
+  {:cat :noun
+   :case {:not :acc}})
+
 (add-infl-reg
  (add "mangiare" "to eat"
              {:cat :verb
