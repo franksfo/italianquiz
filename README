@@ -82,6 +82,41 @@ ajax_quiz()
 \---> user checks a preference box ---> submit_quiz_filters() --> "POST /quiz/filter/ajax" ---(quiz/set-filters) 
                                                                                            |
                                                                                            \--> --302 GET /quiz/filter/ajax --HTML--> #prefs
+
+
+Dependencies:
+
+ generate
+  \
+   \---search
+        \
+         \---grammar
+          \
+           \---lexiconfn
+           |
+           |\--- (database API) (e.g. congomongo)
+           |
+            \--- morphology
+
+.........................
+.  .   .  .  .          .
+.  .   .  .  . generate .
+.  .   .  .  ............
+.  .   .  .  search     .
+.  .   .  ...............
+.  .   . grammar        .
+.  .   ..................
+.  .                    .
+.  .  lexiconfn         .
+.  ......................
+.                       .
+. morphology            .
+.........................
+
+Note that morphology does not have direct access to the lexicon for now: it should
+only be concerned with regular morphology rules, which excludes lexical information
+(or so we assume for now).
+
 License:
 
 -resources/public/js/jsquery-1.6.4.min.js 
