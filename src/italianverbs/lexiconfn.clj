@@ -11,12 +11,12 @@
 (mongo/make-connection "mydb" :host "localhost")
 (defn fetch [& where]
   (if where
-    (mongo/fetch :lexicon :where where)
+    (mongo/fetch :lexicon :where (first where))
     (mongo/fetch :lexicon)))
 
 (defn fetch-one [& where]
   (if where 
-    (mongo/fetch-one :lexicon :where where)
+    (mongo/fetch-one :lexicon :where (first where))
     (mongo/fetch-one :lexicon)))
 
 (defn clear [& args]
