@@ -1,7 +1,6 @@
 (ns italianverbs.html
   (:use
    [hiccup core page-helpers]
-   [somnium.congomongo]
    [ring.util.codec :as codec])
   (:require
    [clojure.set :as set]

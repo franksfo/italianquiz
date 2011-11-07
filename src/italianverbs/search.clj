@@ -102,7 +102,7 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
 ;; 2. (def results (mapcat (fn [fs] (if (myfn fs) (list fs))) (fetch :lexicon)))
 ;;
 (defn search [constraints]
-  (gram/choose-lexeme constraints))
+  (seq (query constraints)))
 
 (def grammatical-terminology-term
   {:transitive {:cat :verb
@@ -147,10 +147,10 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
 
 (defn test []
   (list
-     {:comment "show the first (database's choice) noun."
-      :test (search {:cat :noun})}
-     {:comment "show the first (database's choice) verb."
-      :test (search {:cat :verb})}
+     {:comment "show the count of nouns."
+      :test (.size (search {:cat :noun}))}
+     {:comment "show the count of verbs."
+      :test (.size (search {:cat :verb}))}
      {:comment "simple query"
       ;; :assert (> (.size results-of-query 0))
       :test (nth (seq (query {:cat :noun})) 0)}
@@ -160,8 +160,10 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
      {:comment "2-conjuncts query, with negation"
       ;; :assert (> (.size results-of-query 0)).
       :test (nth (seq (query {:cat :noun :case {:not :nom}})) 0)}
-     {:comment "null set intersection of mutually-exclusive queries."
-      ;; :assert: should be empty set (= (.size results) 0).
-      :test (intersection (query {:cat :noun :case :nom}) (query {:cat :noun :case {:not :nom}}))}
+     (let [test (intersection (query {:cat :noun :case :nom}) (query {:cat :noun :case {:not :nom}}))]
+       {:comment "null set intersection of mutually-exclusive queries."
+        ;; :assert: should be empty set (= (.size results) 0).
+        :test test
+        :result (= (.size test) 0)})
      {:comment "nested query"
       :test (nth (seq (query {:cat :verb :obj {:edible true}})) 0)}))

@@ -1,8 +1,9 @@
 ;; NO RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (must reload browser 2x though).
 (ns italianverbs.grammar
-  (:use [somnium.congomongo])
   (:require
+   [italianverbs.fs :as fs]
    [italianverbs.morphology :as morph]
+   [italianverbs.lexiconfn :as lexfn]
    [clojure.string :as string]))
 
 (defn right [head comp]
@@ -57,9 +58,7 @@
    (if (get comp :def)
      {:def (get comp :def)})))
 
-
-
-;; TODO: use (morph/get-head) instead.
+;; TODO: use (fs/get-head) instead.
 (defn gramhead [sign]
   (if (get sign :head)
     (get sign :head)
@@ -98,7 +97,7 @@
    dummy: ignored for compatibility with gram/np"
   ;; do a query based on the given struct,
   ;; and choose a random element that satisfies the query.
-  (let [results (fetch :lexicon :where struct)]
+  (let [results (lexfn/fetch struct)]
     (if (= (count results) 0)
       {:english "??" :italian "??"
        :cat :error :note (str "<tt>(choose-lexeme)</tt>: no results found. <p/>See <tt>:choose</tt> feature below for query.")
@@ -197,25 +196,27 @@
   (cond
    ;; unfortunately we have to check
    ;; for either the :-form or the quoted-string below:
-   (or (= (get (morph/get-head comp) :cat) :noun)
-       (= (get (morph/get-head comp) :cat) "noun")
-       (= (get (morph/get-head comp) :cat) :pronoun)
-       (= (get (morph/get-head comp) :cat) "pronoun"))
+   (or (= (get (fs/get-head comp) :cat) :noun)
+       (= (get (fs/get-head comp) :cat) "noun")
+       (= (get (fs/get-head comp) :cat) :pronoun)
+       (= (get (fs/get-head comp) :cat) "pronoun"))
 
    {:fn "verb-sv"
     :english
     (string/join " "
 		 (list 
 		  (get comp :english)
-		  (morph/conjugate-english-verb (morph/get-head head) comp)
+          ;; TODO: look up irregular rather than just passing nil.
+		  (morph/conjugate-english-verb (fs/get-head head) comp nil)
 		  (get (get head :comp) :english)))
     :italian
     (string/join " "
 		 (list
 		  (get comp :italian)
+          ;; TODO: look up irregular rather than just passing nil.
 		  (morph/conjugate-italian-verb head comp)
           (get (get head :comp) :italian)))}
-   (= (get (morph/get-head comp) :cat) "prep")
+   (= (get (fs/get-head comp) :cat) "prep")
    {:fn "verb-sv"
     :head head
     :comp comp
@@ -235,8 +236,29 @@
            "<tt><i>error: verb does not know what to do with this argument.</i>(<b>verb-sv</b> "
            "'" (get head :english) "','" (get comp :english) "'"
            ")</i>."
-           "<p>get-head comp :cat=" (get (morph/get-head comp) :cat) "</p>"
+           "<p>get-head comp :cat=" (get (fs/get-head comp) :cat) "</p>"
            "</tt>")}))
+
+(defn conjugate-italian-prep [preposition prep np]
+  (let [irregular nil] ;; no exceptional prepositions at least for now.
+    (if irregular irregular
+        (morph/conjugate-italian-prep preposition prep np))))
+
+(defn conjugate-english-verb [vp subject]
+  (morph/conjugate-english-verb vp subject))
+
+
+(defn conjugate-italian-verb [vp subject]
+  (let [irregular
+        (lexfn/fetch-one
+         {:cat :verb
+          :infl :present
+          :person (get subject :person)
+          :number (get subject :number)
+          :root.italian (get (fs/get-root-head vp) :italian)
+          })]
+    (if irregular irregular
+        (morph/conjugate-italian-verb vp subject))))
 
 (defn pp [ & [fs obj]]
   "generate a prepositional phrase.
@@ -253,18 +275,18 @@
 ;       {:given-an-obj (if obj true false)}
 ; ^^for debugging : comment-out if not needed.
        (combine prep np left)
-       {:italian (morph/conjugate-italian-prep prep np)}))))
+       {:italian (conjugate-italian-prep prep np)}))))
 
 (defn sv [vp subj]
   (merge
    (right vp subj)
    {:english (string/join " "
                           (list (get subj :english)
-                                (morph/conjugate-english-verb vp
-                                                              subj)))
+                                (conjugate-english-verb vp
+                                                        subj)))
     :italian (string/join " "
                           (list (get subj :italian)
-                                (morph/conjugate-italian-verb vp subj)))}))
+                                (conjugate-italian-verb vp subj)))}))
 
 (defn vo [head comp]
   (left head comp))
@@ -283,8 +305,8 @@
                  fs
                  {:cat :verb
                   :infl :infinitive})
-        verb (nth (fetch :lexicon :where verb-fs)
-                  (rand-int (count (fetch :lexicon :where verb-fs))))
+        verb (nth (lexfn/fetch verb-fs) ;; TODO: remove duplication.
+                  (rand-int (count (lexfn/fetch verb-fs))))
         object
         (cond
          (= (get (get verb :obj) :cat) "noun")
@@ -304,7 +326,7 @@
 (defn vp-with-adjunct-pp [ & [fs]]
   (let [vp (vp fs)]
     (combine vp
-             (pp (get (morph/get-head vp) :adjunct))
+             (pp (get (fs/get-head vp) :adjunct))
              vp-pp)))
 
 (defn sentence []
@@ -313,7 +335,7 @@
           (np
            (merge
             {:case {:$ne :acc}}
-            (get (morph/get-root-head vp) :subj)))]
+            (get (fs/get-root-head vp) :subj)))]
       (if vp
         (combine vp subject sv)
         {:cat :error

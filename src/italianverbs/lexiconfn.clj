@@ -9,10 +9,15 @@
 ;; begin db-specific stuff. for now, mongodb; might switch/parameterize later.
 (mongo/mongo! :db "mydb")
 (mongo/make-connection "mydb" :host "localhost")
-(defn fetch [& args]
-  (if args
-    (mongo/fetch :lexicon args)
+(defn fetch [& where]
+  (if where
+    (mongo/fetch :lexicon :where where)
     (mongo/fetch :lexicon)))
+
+(defn fetch-one [& where]
+  (if where 
+    (mongo/fetch-one :lexicon :where where)
+    (mongo/fetch-one :lexicon)))
 
 (defn clear [& args]
   (mongo/destroy! :lexicon {}))
@@ -73,6 +78,7 @@
   {:number :plural})
 (def present
   {:cat :verb :infl :present})
+
 
 (defn futuro-semplice [infinitive & [ prefix ]]
   "_infinitive_ should be a lexical entry."
@@ -157,6 +163,8 @@
              :number :plural}
       :infl :futuro-semplice
       :root infinitive})))
+
+
 
 ;; TODO: use a param map; this is getting unweildy: too many params.
 ;; right now, _fs_ is acting as the param map.
@@ -343,4 +351,5 @@
   {:cat :verb})
 
 ;;usage : (run-query (pathify trans-verbs)))
+
 

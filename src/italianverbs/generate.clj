@@ -5,6 +5,7 @@
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]
+   [italianverbs.fs :as fs]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
@@ -50,6 +51,17 @@
     (merge {:question-type :mobili}
            (apply fn (list head comp)))))
 
+(defn conjugate-italian-prep [preposition prep np]
+  (morph/conjugate-italian-prep preposition prep np))
+
+(defn conjugate-english-verb [vp subject]
+  ;; TODO: lookup irregular form (if any) using vp and subject.
+  (morph/conjugate-english-verb vp subject))
+
+(defn conjugate-italian-verb [vp subject]
+  ;; TODO: lookup irregular form (if any) using vp and subject.
+  (morph/conjugate-italian-verb vp subject))
+
 ;; TODO : factor out commonalities between random-present and random-passato-prossimo.
 (defn random-present []
   (let [;; choose a random verb in the infinitive form.
@@ -77,12 +89,11 @@
                             config/random-present-subj))
                   number (get pronoun :number)
                   person (get pronoun :person)]
-              {:italian (morph/conjugate-italian-verb-regular verb-inf
-                                                        {:person person
-                                                         :number number})
-
+              {:italian (conjugate-italian-verb verb-inf
+                                                {:person person
+                                                 :number number})
                                                 
-               :english (morph/conjugate-english-verb verb-inf
+               :english (conjugate-english-verb verb-inf
                                                 {:person person
                                                  :number number}
                                                 {:infl :present})
@@ -119,7 +130,7 @@
       :english (str (get subject :english) " "
                     (if (get verb-present :english)
                       (get verb-present :english)
-                      (morph/conjugate-english-verb verb-inf subject {:infl :present})))
+                      (conjugate-english-verb verb-inf subject {:infl :present})))
       :italian (str (get subject :italian) " " (get verb-present :italian))}
          {:type-is-fs (set '(:vp :object :verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
 
@@ -193,10 +204,10 @@
       :subject subject
       :subj-constraints subj-constraints
       :english (str (get subject :english) " "
-                    (morph/conjugate-english-verb verb-past subject) " ")
+                    (conjugate-english-verb verb-past subject) " ")
                     ;(get verb-past :english))
       :italian (str (get subject :italian) " " (get verb-aux :italian) " "
-                    (morph/conjugate-italian-verb verb-past subject))}
+                    (conjugate-italian-verb verb-past subject))}
 
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
 
@@ -229,6 +240,7 @@
       ;; else intransitive:
     verb)))
 
+
 ;; cf. grammar/sentence: this will replace that.
 (defn sentence []
   (let [vp (vp)
@@ -236,7 +248,7 @@
               (merge
                {:cat :noun}
                {:case {:not :acc}}
-               (get (morph/get-root-head vp) :subj)))]
+               (get (fs/get-root-head vp) :subj)))]
     (let [subject (gram/np noun)]
       (if vp
         (gram/combine vp subject gram/sv)

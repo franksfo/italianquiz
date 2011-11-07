@@ -1,18 +1,11 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (maybe not actually)
 (ns italianverbs.morphology
-  (:use [hiccup core page-helpers]
-        [somnium.congomongo])
+  (:use [hiccup core page-helpers])
   (:require
+   [italianverbs.fs :as fs]
    [clojure.string :as string]
-   [italianverbs.html :as html]
    [clojure.contrib.string :as stringc]
    [clojure.contrib.str-utils2 :as str-utils]))
-
-
-(defn get-head [sign]
-  (if (get sign :head)
-    (get-head (get sign :head))
-    sign))
 
 (defn remove-to [english-verb-phrase]
   (let [english (get english-verb-phrase :english)]
@@ -36,13 +29,6 @@
        {:add-s with-s}
        english-verb-phrase))))
 
-(defn fetch-criteria [vp subject verb-head]
-  {:cat :verb
-   :infl (get vp :infl)
-   :person (get (get-head subject) :person)
-   :number (get (get-head subject) :number)
-   :root.english (get (get-head verb-head) :english)})
-
 (defn conjugate-english-verb [verb-head subject & [conjugate-verb-as]]
   ;; conjugate verb based on subject and eventually verb's features (such as tense)
   (let [vp verb-head
@@ -50,16 +36,9 @@
                     (get verb-head :head)
                     verb-head)
         english (get verb-head :english)
-        remove-to (remove-to verb-head)
-        irregular ;; c.f.: (conjugate-italian-verb)
-        (fetch-one :lexicon
-                   :where (fetch-criteria vp subject verb-head))]
+        remove-to (remove-to verb-head)]
     (cond
-     (get irregular :english)
-     (str (get irregular :english) " "
-          (get (get vp :comp) :english))
-
-     (= (get (get-head verb-head) :english) "must")
+     (= (get (fs/get-head verb-head) :english) "must")
      (str
       (stringc/replace-re
        #"^must to"
@@ -68,7 +47,7 @@
       " "
       (get (get vp :comp) :english))
 
-     (= (get (get-head verb-head) :english) "to be able")
+     (= (get (fs/get-head verb-head) :english) "to be able")
      (str
       (stringc/replace-re
        #"^to be able( to)?"
@@ -77,22 +56,23 @@
       " "
       (get (get vp :comp) :english))
 
-     (= (get (get-head verb-head) :english) "to be named")
-     (str
-      ;; FIXME: should use (conjugate-english-verb) here, not (overly-lowlevel) (fetch-one)
-      (get (fetch-one :lexicon :where {:root.english "to be" :infl :present
-                                       :number (get subject :number)
-                                       :person (get subject :person)}) :english) " "
-      "named")
+;; move this to irregular param.
+;     (= (get (fs/get-head verb-head) :english) "to be named")
+;     (str
+;      ;; FIXME: should use (conjugate-english-verb) here, not (overly-lowlevel) (fetch-one)
+;      (get (lexfn/fetch-one {:root.english "to be" :infl :present
+;                             :number (get subject :number)
+;                             :person (get subject :person)}) :english) " "
+;                             "named")
      
-     (or (= (get (get-head subject) :person) "1st")
-         (= (get (get-head subject) :person) :1st))
+     (or (= (get (fs/get-head subject) :person) "1st")
+         (= (get (fs/get-head subject) :person) :1st))
      (str
       (get remove-to :remove-to) 
       (get (get vp :comp) :english))
 
-     (or (= (get (get-head subject) :person) "2nd")
-         (= (get (get-head subject) :person) :2nd))
+     (or (= (get (fs/get-head subject) :person) "2nd")
+         (= (get (fs/get-head subject) :person) :2nd))
      (str
       (get remove-to :remove-to)
       " "
@@ -100,11 +80,11 @@
       
 
      (and
-      (or (= (get (get-head subject) :person) "3rd")
-          (= (get (get-head subject) :person) :3rd))
-      (or (= (get (get-head subject) :number) "singular")
-          (= (get (get-head subject) :number) :singular))
-      (or (= (get (get-head verb-head) :infl) :present)
+      (or (= (get (fs/get-head subject) :person) "3rd")
+          (= (get (fs/get-head subject) :person) :3rd))
+      (or (= (get (fs/get-head subject) :number) "singular")
+          (= (get (fs/get-head subject) :number) :singular))
+      (or (= (get (fs/get-head verb-head) :infl) :present)
           (= (get conjugate-verb-as :infl) :present)))
      (str (get
            (add-s-to-first-word
@@ -220,13 +200,6 @@
      true
      (str "<tt><i>error: :person or :number value was not matched</i>. (<b>conjugate-italian-verb-regular</b> " (get verb-head :italian) ",(phrase with head:'" (get subject-head :italian) "'))</i></tt>"))))
 
-(defn get-root-head [sign]
-  (cond
-   (get sign :head)
-   (get-root-head (get sign :head))
-   true
-   sign))
-
 ;; TODO: figure out how to interpolate variables into regexps.
 (defn except-first-words [first-words words]
   (let [regex #"^[^ ]+[ ]?(.*)"]
@@ -285,33 +258,19 @@
    (conjugate-passato-prossimo verb-phrase subject)
    true
    (let [italian (get verb-phrase :italian)
-         italian-head (get (get-head verb-phrase) :italian)
+         italian-head (get (fs/get-head verb-phrase) :italian)
          ;; all we need is the head, which has the relevant grammatical information, not the whole subject
-         subject (get-head subject)] 
+         subject (fs/get-head subject)] 
      (let [italian (if italian-head italian italian)]
-       (let [irregular
-             (fetch-one :lexicon
-                        :where {:cat :verb
-                                :infl :present
-                                :person (get subject :person)
-                                :number (get subject :number)
-                                :root.italian (get (get-root-head verb-phrase) :italian)
-                                }
-                        )
-             except-first
+       (let [except-first
              (except-first-words
-              (get-head verb-phrase)
+              (fs/get-head verb-phrase)
               (get verb-phrase :italian))]
-         (if irregular
-           (string/join " "
-                        (list
-                         (get irregular :italian)
-                         except-first))
-           (string/join (list
-                         " "
-                         (conjugate-italian-verb-regular
-                          (get-head verb-phrase) subject)
-                         except-first))))))))
+         (string/join (list
+                       " "
+                       (conjugate-italian-verb-regular
+                        (fs/get-head verb-phrase) subject)
+                       except-first)))))))
 
 (defn conjugate-it [head]
   (cond (= (get head :cat) "noun")
