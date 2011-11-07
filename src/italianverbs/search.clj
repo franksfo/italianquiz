@@ -4,11 +4,9 @@
   (:require
    [clojure.contrib.string :as string]
    [italianverbs.html :as html]
-   [italianverbs.lexicon :as lexicon]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.lev :as lev]
    [italianverbs.grammar :as gram]
-   [italianverbs.morphology :as morph]
    [clojure.contrib.duck-streams :as duck]))
 
 ;;(duck/spit "verbs.html"
