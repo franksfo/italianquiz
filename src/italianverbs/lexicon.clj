@@ -1,5 +1,7 @@
 (ns italianverbs.lexicon
-  (:use [italianverbs.lexiconfn]))
+  (:use [italianverbs.lexiconfn])
+  (:require [italianverbs.fs :as fs]))
+
 ;; useful abbreviations
 (def noun
   {:cat :noun
@@ -22,7 +24,7 @@
 (def accusative
   {:case :acc})
 (def propernoun
-  (merge noun
+  (fs/merge noun
          {:det nil})) ;; propernouns also don't take a determiner.
 
 (def choose-vp-inf
@@ -33,10 +35,10 @@
 (def place
   {:place true})
 (def city
-  (merge place
+  (fs/merge place
          {:andare-a true}))
 (def region
-  (merge place
+  (fs/merge place
          {:andare-in true}))
 
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
@@ -244,12 +246,14 @@
   {:cat :noun
    :case {:not :acc}})
 
+(defn obj [arg] (fs/merge object-of-transitive-verb
+                       arg))
+
 (add-infl-reg
  (add "mangiare" "to eat"
              {:cat :verb
               :subj {:animate true}
-              :obj (merge object-of-transitive-verb
-                          {:edible true})
+              :obj (obj {:edible true})
               :adjunct {:cat :prep
                         :obj {:place true}}
               :infl :infinitive})
@@ -413,25 +417,25 @@
 
 ;; <andare adjunct variants> 
 (add "andare" "to go"
-           (merge andare
+           (fs/merge andare
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "a"
                              :obj {:andare-a true}}}))
 (add "andare" "to go"
-           (merge andare
+           (fs/merge andare
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "in"
                              :obj {:andare-in true}}}))
 (add "andare" "to go"
-           (merge andare
+           (fs/merge andare
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "a"
                              :obj {:andare-al true}}}))
 (add "andare" "to go"
-           (merge andare
+           (fs/merge andare
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "da"
@@ -481,28 +485,28 @@
 ;; not the string "venire".
 ;; come *to* a place or by means of something ("vengo in treno")
 (add "venire" "to come"
-           (merge venire
+           (fs/merge venire
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "in"
                              :obj {:andare-in true}}}))
 ;; come *to* a place.
 (add "venire" "to come"
-           (merge venire
+           (fs/merge venire
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "a"
                              :obj {:andare-a true}}}))
 ;; come *from* a place.
 (add "venire" "to come"
-           (merge venire
+           (fs/merge venire
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "da"
                              :obj {:place true}}}))
 ;; come *to* a person.
 (add "venire" "to come"
-           (merge venire
+           (fs/merge venire
                   {:infl :infinitive
                    :adjunct {:cat :prep
                              :italian "da"
@@ -1393,25 +1397,25 @@
    :cat :adj})
 
 (add "mio" "my"
-     (merge possessive
+     (fs/merge possessive
      {:person :1st
       :gender :masc
       :number :singular}))
 
 (add "mia" "my"
-     (merge possessive
+     (fs/merge possessive
      {:person :1st
       :gender :fem
       :number :singular}))
 
 (add "miei" "my"
-     (merge possessive
+     (fs/merge possessive
      {:person :1st
       :gender :masc
       :number :plural}))
 
 (add "mie" "my"
-     (merge possessive
+     (fs/merge possessive
      {:person :1st
       :gender :fem
       :number :plural}))
@@ -1431,13 +1435,13 @@
       :number :singular})
 
 (add "tuoi" "your"
-     (merge possessive
+     (fs/merge possessive
      {:person :2nd
       :gender :masc
       :number :plural}))
 
 (add "tue" "your"
-     (merge possessive
+     (fs/merge possessive
      {:person :2nd
       :gender :fem
       :number :plural}))
@@ -1471,61 +1475,61 @@
       :number :singular})
 
 (add "nostro" "our"
-     (merge possessive
+     (fs/merge possessive
      {:person :1st
       :gender :masc
       :number :singular}))
 
 (add "nostra" "our"
-     (merge possessive
+     (fs/merge possessive
      {:person :1st
       :gender :fem
       :number :singular}))
 
 (add "nostri" "our"
-     (merge possessive
+     (fs/merge possessive
      {:person :1st
       :gender :masc
       :number :plural}))
 
 (add "nostre" "our"
-     (merge possessive
+     (fs/merge possessive
      {:person :1st
       :gender :fem
       :number :plural}))
 
 (add "vostro" "your all's"
-     (merge possessive
+     (fs/merge possessive
      {:person :2nd
       :gender :masc
       :number :singular}))
 
 (add "vostra" "your all's"
-     (merge possessive
+     (fs/merge possessive
      {:person :2nd
       :gender :fem
       :number :singular}))
 
 (add "vostri" "your all's"
-     (merge possessive
+     (fs/merge possessive
      {:person :2nd
       :gender :masc
       :number :plural}))
 
 (add "vostre" "your all's"
-     (merge possessive
+     (fs/merge possessive
      {:person :2nd
       :gender :fem
       :number :plural}))
 
 (add "loro" "their"
-     (merge possessive
+     (fs/merge possessive
      {:person :3rd
       :gender :masc
       :number :plural}))
 
 (add "loro" "their"
-     (merge possessive
+     (fs/merge possessive
      {:person :3rd
       :gender :fem
       :number :plural}))
@@ -1570,19 +1574,19 @@
    :cucina true})
 
 (def cucina-masc
-  (merge cucina
+  (fs/merge cucina
   {:gender :masc}))
 
 (def cucina-masc-plural
-  (merge cucina-masc
+  (fs/merge cucina-masc
          {:number :plural}))
 
 (def cucina-fem
-  (merge cucina
+  (fs/merge cucina
   {:gender :fem}))
 
 (def cucina-fem-plural
-  (merge cucina-fem
+  (fs/merge cucina-fem
          {:number :plural}))
 
 (add "latte" "milk"

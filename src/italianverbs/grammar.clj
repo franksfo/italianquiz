@@ -6,6 +6,15 @@
    [italianverbs.lexiconfn :as lexfn]
    [clojure.string :as string]))
 
+(defn random-number []
+  (let [choose-from (list :singular :plural)]
+    (nth choose-from (rand-int (.size choose-from)))))
+
+(defn random-inflection []
+  "exclude infinitive."
+  (let [choose-from (list :present :passato-prossimo :futuro)] ;; TODO :imperfetto.
+    (nth choose-from (rand-int (.size choose-from)))))
+
 (defn right [head comp]
   {:head head
    :comp comp

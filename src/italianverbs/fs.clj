@@ -86,7 +86,7 @@
     (merge-r (collect-values maps keyset)
              (seq keyset))))
 
-(defn test []
+(defn fs-test []
   "this should contain a list of all the tests for the fs package. each test can
   return a map or a list or a function. a function will be applied against an
   empty argument list"

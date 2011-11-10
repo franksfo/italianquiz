@@ -3,6 +3,7 @@
         [clojure.set])
   (:require
    [clojure.contrib.string :as string]
+   [italianverbs.fs :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.lev :as lev]
@@ -35,23 +36,18 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
 (defn pathify [fs]
   (pathify-r fs))
 
-(defn get-path [fs path]
-  (if (> (.size path) 0)
-    (get-path (get fs (first path))
-              (rest path))
-    fs))
-
 (defn pv-not-matches [lexical-entry path value]
-  (let [path-value (get-path lexical-entry path)]
+  (let [path-value (fs/get-path lexical-entry path)]
     (if (not (or (= path-value value)
-                 (= (keyword path-value) value)))
+                 (and (not (= (keyword path-value) nil))
+                      (= (keyword path-value) value))))
       (list lexical-entry))))
 
 (defn pv-matches [lexical-entry path value]
   "might need a more complicated equality predicate later."
   (if (= (last path) :not)
     (pv-not-matches lexical-entry (butlast path) value)
-    (let [path-value (get-path lexical-entry path)]
+    (let [path-value (fs/get-path lexical-entry path)]
       (if (or (= path-value value)
               (= (keyword path-value) value))
         (list lexical-entry)))))
@@ -90,7 +86,7 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
 ;; path-value-pair as a filter.
 (def tv {:cat "verb" :obj {:cat "noun"}})
 
-(defn myfn [fs] (= (get-path fs '(:obj :cat)) "noun"))
+(defn myfn [fs] (= (fs/get-path fs '(:obj :cat)) "noun"))
 
 ;; How to map over (fetch :lexicon) results:
 ;; 

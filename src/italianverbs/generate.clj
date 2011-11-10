@@ -221,42 +221,70 @@
 
 (defn edible-vp []
   (let [verb (random-lexeme {:cat :verb :obj {:edible true}})
-        noun (random-lexeme (search/get-path verb '(:obj)))]
+        noun (random-lexeme (fs/get-path verb '(:obj)))]
     (gram/left verb (gram/np noun))))
 
 (defn legible-vp []
   (let [verb (random-lexeme {:cat :verb :obj {:legible true}})
-        noun (random-lexeme (search/get-path verb '(:obj)))]
+        noun (random-lexeme (fs/get-path verb '(:obj)))]
     (gram/left verb (gram/np noun))))
 
 ;; cf. grammar/vp: this will replace that.
-(defn vp []
-  (let [verb (random-lexeme {:cat :verb :infl :infinitive})
-        noun (if (search/get-path verb '(:obj))
-               (random-lexeme (search/get-path verb '(:obj))))]
-    (if noun
-      ;; transitive:
-      (gram/left verb (gram/np noun))
-      ;; else intransitive:
-    verb)))
+;(defn vp [ & verb noun]
+;  (let [verb (if verb (first verb) (random-lexeme {:cat :verb :infl :infinitive}))
+ ;       noun (if noun (first noun)
+;                 (if (search/get-path verb '(:obj))
+;                   (random-lexeme (search/get-path verb '(:obj)))))]
+;    (if noun
+;      ;; transitive:
+;      (gram/left verb (gram/np noun))
+;      ;; else intransitive:
+;    verb)))
 
+(defn inflect [verb complement]
+  "modify head based on complement: e.g. modify 'imparare la parola' => 'impara la parola' if
+   complement is {:person :3rd}."
+    (merge verb
+           {:italian (conjugate-italian-verb verb complement)
+            :english (conjugate-english-verb verb complement)}))
+
+(defn subj [verb]
+  "generate a lexical subject that's appropriate given a verb."
+  (random-lexeme
+   (merge
+    {:cat :noun}
+    {:case {:not :acc}}
+    (get verb :subj))))
+
+(defn random-verb [] (random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}}))
+
+(defn sentence1 []
+  (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}})
+        object (random-lexeme (get verb :obj))
+        subject (random-lexeme (merge {:case {:not :acc}} (get verb :subj)))]
+    (list verb object subject)))
 
 ;; cf. grammar/sentence: this will replace that.
 (defn sentence []
-  (let [vp (vp)
-        noun (random-lexeme
-              (merge
-               {:cat :noun}
-               {:case {:not :acc}}
-               (get (fs/get-root-head vp) :subj)))]
-    (let [subject (gram/np noun)]
-      (if vp
-        (gram/combine vp subject gram/sv)
-        {:cat :error
-         :error "vp returned null."}))))
+  (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}})
+        object (merge (random-lexeme (get verb :obj))
+                      {:number (gram/random-number)})
+        subject (merge (random-lexeme (get verb :subj))
+                       {:number (gram/random-number)})]
+    (list subject object verb)))
+;
+;
+;    (let [verb (conjugate-verb
+;                (merge verb
+;                       {:person (get subject :person)
+;                        :number (get subject :number)
+;                        :infl (gram/random-inflection)}))]
+;      (gram/combine
+;         (gram/combine verb (gram/np object) gram/vo)
+;         (gram/np subject) gram/sv)))))
 
 (defn test []
-  "this should contain a list of all the tests for the html package. each test can
+  "this should contain a list of all the tests for the generate package. each test can
   return a map or a list or a function. a function will be applied against an
   empty argument list"
   (list

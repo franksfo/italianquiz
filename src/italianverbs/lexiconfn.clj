@@ -2,9 +2,11 @@
   (:use [hiccup core page-helpers]
         [clojure.set])
   (:require
+   [clojure.core :as core]
    [somnium.congomongo :as mongo]
    [clojure.contrib.string :as stringc]
-   [italianverbs.morphology :as morph]))
+   [italianverbs.morphology :as morph]
+   [italianverbs.fs :as fs]))
 
 ;; begin db-specific stuff. for now, mongodb; might switch/parameterize later.
 (mongo/mongo! :db "mydb")
