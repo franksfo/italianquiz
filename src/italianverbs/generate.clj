@@ -283,6 +283,10 @@
 ;         (gram/combine verb (gram/np object) gram/vo)
 ;         (gram/np subject) gram/sv)))))
 
+(defmacro test2 []
+  `(let [result ~(random-passato-prossimo)]
+     result))
+
 (defn test []
   "this should contain a list of all the tests for the generate package. each test can
   return a map or a list or a function. a function will be applied against an
