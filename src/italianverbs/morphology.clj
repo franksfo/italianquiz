@@ -1,6 +1,7 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (maybe not actually)
 (ns italianverbs.morphology
-  (:use [hiccup core page-helpers])
+  (:use [hiccup core page-helpers]
+        [italianverbs.rdutest])
   (:require
    [italianverbs.fs :as fs]
    [clojure.string :as string]
@@ -473,8 +474,13 @@
      true
      "??")))
 
-(defn test []
+;(defn test []
+;  (list
+;   {:comment "stem verb for futuro semplice"
+;    :test (stem-per-futuro "tornare")}))
+(def tests
   (list
-   {:comment "stem verb for futuro semplice"
-    :test (stem-per-futuro "tornare")}))
-
+   (rdutest
+    "Stem verb for futuro semplice"
+    (stem-per-futuro "tornare")
+    (fn [future-stem] (= future-stem "torner")))))

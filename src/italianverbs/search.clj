@@ -178,6 +178,8 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
     (take 1 (lazy-query {:cat :verb :obj {:edible true}}))
     #(> (.size %) 0))))
 
-
+;; FIXME: move to test.clj.
+(def evaluate-testresults
+  (map (fn [result] {:comment (:comment result) :result (:assert-result result)})  testresults))
 
 

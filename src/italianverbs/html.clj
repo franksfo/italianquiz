@@ -1,7 +1,8 @@
 (ns italianverbs.html
   (:use
    [hiccup core page-helpers]
-   [ring.util.codec :as codec])
+   [ring.util.codec :as codec]
+   [italianverbs.rdutest])
   (:require
    [clojure.set :as set]
    [clojure.string :as string]
@@ -214,18 +215,30 @@
 (defn myhtml5 []
   "<!DOCTYPE html>")
 
-(defn test []
-  "this should contain a list of all the tests for the html package. each test can
-  return a map or a list or a function. a function will be applied against an
-  empty argument list"
+(def tests
   (list
-   {:comment "a simple feature structure"
-    :test (simple-fs)}
-   {:comment "showing nesting: where a value is itself a feature structure."
-    :test (nested-fs)}
-   {:comment "anchor"
-    :test (create-anchor "foo" "bar 'baz'")}
-   {:comment "iframe"
-    :test (iframe "/italian/guess/")}))
+   (rdutest
+    "A simple feature structure rendered as HTML."
+    (simple-fs)
+    #(not (= % "")))
+
+   (rdutest
+    "Showing nesting: where a value is itself a feature structure."
+    (nested-fs)
+    #(not (= % "")))
+
+   (rdutest
+    "Anchor"
+    (create-anchor "foo" "bar 'baz'")
+    #(not (= % "")))
+
+   (rdutest
+    "Iframe"
+    (iframe "/italian/guess/")
+    #(not (= % "")))
+
+   ))
+  
+
 
 

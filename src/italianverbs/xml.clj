@@ -1,4 +1,5 @@
 (ns italianverbs.xml
+  (:use [italianverbs.rdutest])
   (:require
    [clojure.string :as string]
    [clojure.contrib.str-utils2 :as str-utils]))
@@ -35,18 +36,27 @@
          "<italian>" italian "</italian>"
          "<english>" english "</english>"
          "</question>")))
-       
-(defn test []
-  "this should contain a list of all the tests for the html package. each test can
-  return a map or a list or a function. a function will be applied against an
-  empty argument list"
+
+;; new tests.
+(def testresults
   (list
-   {:comment "xml content"
-    :test (xml-str (content))}
-   {:comment "xml guess"
-    :test (xml-str (serialize
-                    {:italian "io sono stato"
-                     :english "i went"}))}))
+   (rdutest
+    "Sanity check: test rdutest itself by assuming that '+' is correct."
+    (+ 1 2)
+    #(= % 3))
+   (rdutest
+    "XML content escaped (so that it can be printed inside an HTML document)."
+    (xml-str (content))
+    #(= % "&lt;xml/&gt;"))
+   (rdutest
+    "Serialize a Clojure map."
+    (xml-str (serialize {:italian "io sono stato" :english "i went"}))
+    #(not (= % "")))))
+
+;; FIXME: move to test.clj.
+(def evaluate-testresults
+  (map (fn [result] {:comment (:comment result) :result (:assert-result result)})  testresults))
+
 
 
 

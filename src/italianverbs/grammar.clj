@@ -1,5 +1,6 @@
 ;; NO RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (must reload browser 2x though).
 (ns italianverbs.grammar
+  (:use [italianverbs.rdutest])
   (:require
    [italianverbs.fs :as fs]
    [italianverbs.morphology :as morph]
@@ -409,13 +410,16 @@
 (defn english-time [hour minute ampm]
   (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") "")))
 
-(defn test []
+(def tests
   (list
-   {:comment "universal (non-localized) time format."
-    :test (english-time 5 43 "pm")}
-   {:comment "choose a random lexeme with no restrictions."
-    :test (choose-lexeme {})}))
+   (rdutest
+    "Universal (non-localized) time format."
+    (english-time 5 43 "pm")
+    (fn [formatted-time] (= formatted-time "5:43")))
 
-
+   (rdutest
+    "Choose a random lexeme with no restrictions."
+    (choose-lexeme {})
+    (fn [lexeme] (not (= nil (:italian lexeme)))))))
 
 

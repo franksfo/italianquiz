@@ -1,6 +1,7 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (purtroppo)
 (ns italianverbs.generate
-  (:use [clojure.stacktrace])
+  (:use [clojure.stacktrace]
+        [italianverbs.rdutest])
   (:require
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
@@ -283,31 +284,38 @@
 ;         (gram/combine verb (gram/np object) gram/vo)
 ;         (gram/np subject) gram/sv)))))
 
-(defmacro test2 []
-  `(let [result ~(random-passato-prossimo)]
-     result))
+;(defmacro test2 []
+;  `(let [result ~(random-passato-prossimo)]
+;     result))
 
-(defn test []
-  "this should contain a list of all the tests for the generate package. each test can
-  return a map or a list or a function. a function will be applied against an
-  empty argument list"
+(def tests
   (list
-   {:comment "random 'passato prossimo' sentence."
-    :test (random-passato-prossimo)}
+   (rdutest
+    "Generate a sentence"
+    (sentence)
+    (fn [sentence] true))))
+     
+;(defn test []
+;  "this should contain a list of all the tests for the generate package. each test can
+;  return a map or a list or a function. a function will be applied against an
+;  empty argument list"
+;  (list
+;   {:comment "random 'passato prossimo' sentence."
+;    :test (random-passato-prossimo)};;
 
-   {:comment "random 'futuro semplice' sentence."
-    :test (random-futuro-semplice)}
+;   {:comment "random 'futuro semplice' sentence."
+;    :test (random-futuro-semplice)}
 
-   {:comment "sceglieremo (we will choose)"
-    :test (random-futuro-semplice {:italian "sceglieremo"})}
+;   {:comment "sceglieremo (we will choose)"
+;    :test (random-futuro-semplice {:italian "sceglieremo"})}
 
-   {:comment "testing english translation of future modal verbs e.g. 'dovere' (must)"
-    :test (random-futuro-semplice
-           {:italian "dovrai"})}
+;   {:comment "testing english translation of future modal verbs e.g. 'dovere' (must)"
+;    :test (random-futuro-semplice
+;           {:italian "dovrai"})}
 
-   {:comment "testing english translation of future modal verbs e.g. 'potere' (can)"
-    :test (random-futuro-semplice
-           {:italian "potrai"})}))
+;   {:comment "testing english translation of future modal verbs e.g. 'potere' (can)"
+;    :test (random-futuro-semplice
+;           {:italian "potrai"})}))
 
 
 
