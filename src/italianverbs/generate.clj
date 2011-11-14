@@ -9,6 +9,7 @@
    [italianverbs.fs :as fs]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
+   [italianverbs.lexicon :as lex]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.search :as search]
    [clojure.string :as string]

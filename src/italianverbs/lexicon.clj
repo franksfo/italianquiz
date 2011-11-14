@@ -259,11 +259,23 @@
               :infl :infinitive})
  "mangiato" "ate" "avere")
 
+;; no direct object "she spoke to him"
 (add-infl-reg
  (add "parlare" "to speak"
       {:cat :verb
        :subj {:human true}
        :infl :infinitive
+       :iobj {:obj {:human true}}
+       :adjunct adjunct-in-a-place})
+ "parlato" "spoke" "avere")
+
+;; direct object "he spoke some words to her"
+(add-infl-reg
+ (add "parlare" "to speak"
+      {:cat :verb
+       :subj {:human true}
+       :infl :infinitive
+       :obj (obj {:speakable true})
        :iobj {:obj {:human true}}
        :adjunct adjunct-in-a-place})
  "parlato" "spoke" "avere")
