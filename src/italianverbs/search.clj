@@ -1,8 +1,10 @@
 (ns italianverbs.search
   (:use [hiccup core page-helpers]
-        [clojure.set])
+        [clojure.set]
+        [italianverbs.rdutest])
   (:require
    [clojure.contrib.string :as string]
+   [clojure.contrib.repl-utils :as repl-utils]
    [italianverbs.fs :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
@@ -139,25 +141,43 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
        (if search-query
          (searchq search-query nil))]])))
 
-(defn test []
+;; example usage: (take 5 (lazy-query {:cat :verb}))
+(defn lazy-query [search]
+  (lazy-seq (query search)))
+
+(defn non-empty-set [set]
+  (> (.size set) 0))
+
+(defn empty-set [set]
+  (= (.size set) 0))
+
+(def testresults
   (list
-     {:comment "show the count of nouns."
-      :test (.size (search {:cat :noun}))}
-     {:comment "show the count of verbs."
-      :test (.size (search {:cat :verb}))}
-     {:comment "simple query"
-      ;; :assert (> (.size results-of-query 0))
-      :test (nth (seq (query {:cat :noun})) 0)}
-     {:comment "2-conjuncts query"
-      ;; :assert (> (.size results-of-query 0))
-      :test (nth (seq (query {:cat :noun :case :nom})) 0)}
-     {:comment "2-conjuncts query, with negation"
-      ;; :assert (> (.size results-of-query 0)).
-      :test (nth (seq (query {:cat :noun :case {:not :nom}})) 0)}
-     (let [test (intersection (query {:cat :noun :case :nom}) (query {:cat :noun :case {:not :nom}}))]
-       {:comment "null set intersection of mutually-exclusive queries."
-        ;; :assert: should be empty set (= (.size results) 0).
-        :test test
-        :result (= (.size test) 0)})
-     {:comment "nested query"
-      :test (nth (seq (query {:cat :verb :obj {:edible true}})) 0)}))
+   (rdutest
+    "Sanity check: test rdutest itself by assuming that '+' is correct."
+    (+ 1 2) 
+    #(= % 3))
+   (rdutest
+    "At least one verb is in the lexicon."
+    (take 1 (lazy-query {:cat :verb}))
+    #(> (.size %) 0))
+   (rdutest
+    "At least one noun is in the lexicon."
+    (take 1 (lazy-query {:cat :noun}))
+    #(> (.size %) 0))
+   (rdutest
+    "At least one nominative noun is in the lexicon (and that the conjunction of more than one predicate works."
+    (take 1 (lazy-query {:cat :noun :case :nom}))
+    #(> (.size %) 0))
+   (rdutest
+    "The intersection of mutually-exclusive queries is the null set (since a noun can't be both nominative and non-nominative)."
+    (intersection (query {:cat :noun :case :nom}) (query {:cat :noun :case {:not :nom}}))
+    #(= (.size %) 0))
+   (rdutest
+    "There's at least one verb that takes an edible object (a nested query works)."
+    (take 1 (lazy-query {:cat :verb :obj {:edible true}}))
+    #(> (.size %) 0))))
+
+
+
+

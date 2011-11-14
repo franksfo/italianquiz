@@ -13,6 +13,13 @@
      [italianverbs.search :as search]
      ))
 
+(defmacro run-testm [comment test eval-fn]
+  (let [actual `~test]
+    {:comment comment
+     :val actual
+     :result `(apply ~eval-fn (list ~actual))}))
+
+;; going away in favor of run-testm (above) which will be renamed to run-test.
 (defn run-test [test-fn]
   "run a single test and wrap an HTML string in a list.
    acts according to the type of test-fn which can be:
