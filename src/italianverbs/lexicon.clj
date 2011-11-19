@@ -162,19 +162,19 @@
 ;; verbs
 (add "dimenticare" "to forget"
            {:cat :verb :infl :infinitive
-            :subj {:animate true}
+            :subj (subj {:animate true})
             :obj {:cat :noun}})
 
 (add "giocare" "to play"
            {:cat :verb :infl :infinitive
-            :subj {:human true}
+            :subj (subj {:human true})
             :obj {:cat :noun
                   :musical true}})
 
 
 (add "chiamare" "to be named"
            {:cat :verb :infl :infinitive
-            :subj {:human true}})
+            :subj (subj {:human true})})
 
 ;; FIXME: should also allow "at".
 (def adjunct-in-a-place
@@ -183,7 +183,7 @@
 
 (add "agitare" "to shake"
            {:cat :verb :infl :infinitive
-            :subj {:animate true}
+            :subj (subj {:animate true})
             :obj {:cat :noun :holdable true}
             :adjunct adjunct-in-a-place})
 
@@ -191,7 +191,7 @@
  (add "mostrare" "to show"
       {:cat :verb
        :infl :infinitive
-       :subj {:human true}
+       :subj (subj {:human true})
        :obj {:cat :noun}
        :iobj {:obj {:animate true}}
        :adjunct adjunct-in-a-place}))
@@ -201,7 +201,7 @@
                       :obj {:cat :noun :sayable true}
                       :iobj {:obj {:animate true}
                              :benefactive true}
-                      :subj {:human true}
+                      :subj (subj {:human true})
                       :adjunct adjunct-in-a-place}))
 
 (add-infl "dico" (list firstp sing present
@@ -219,7 +219,7 @@
 
 (def scrivere (add "scrivere" "to write"
                    {:cat :verb :infl :infinitive
-                    :subj {:human true}
+                    :subj (subj {:human true})
                     :obj {:legible true
                           :cat :noun}
                     :iobj {:obj {:human true}
@@ -230,7 +230,7 @@
   (add "leggere" "to read"
        {:cat :verb
         :infl :infinitive
-        :subj {:human true}
+        :subj (subj {:human true})
         :obj {:cat :noun :legible true}
         :iobj {:obj {:case {:NE :nom}
                      :human true}}
@@ -255,7 +255,7 @@
 (add-infl-reg
  (add "mangiare" "to eat"
              {:cat :verb
-              :subj {:animate true}
+              :subj (subj {:animate true})
               :obj (obj {:edible true})
               :adjunct {:cat :prep
                         :obj {:place true}}
@@ -266,7 +266,7 @@
 (add-infl-reg
  (add "parlare" "to speak"
       {:cat :verb
-       :subj {:human true}
+       :subj (subj {:human true})
        :infl :infinitive
        :iobj {:obj {:human true}}
        :adjunct adjunct-in-a-place})
@@ -276,7 +276,7 @@
 (add-infl-reg
  (add "parlare" "to speak"
       {:cat :verb
-       :subj {:human true}
+       :subj (subj {:human true})
        :infl :infinitive
        :obj (obj {:speakable true})
        :iobj {:obj {:human true}}
@@ -286,7 +286,7 @@
 (add-infl-reg
  (add "lavorare" "to work"
       {:cat :verb
-       :subj {:human true}
+       :subj (subj {:human true})
        :infl :infinitive
        :adjunct adjunct-in-a-place})
  "lavorato" "worked" "avere")
@@ -294,7 +294,7 @@
 (add-infl-reg
  (add "scivolare" "to slip"
       {:cat :verb
-       :subj {:animate true}
+       :subj (subj {:animate true})
        :infl :infinitive
        :adjunct adjunct-in-a-place})
  "scivolarato" "slipped" "avere") ;; <- essere(?)
@@ -302,7 +302,7 @@
 (def ricevere
   (add "ricevere" "to receive"
        {:cat :verb
-        :subj {:human true}
+        :subj (subj {:human true})
        :obj {:cat :noun
              :artifact true}}))
 
@@ -315,7 +315,7 @@
 (def vendere
   (add "vendere" "to sell"
        {:cat :verb
-        :subj {:human true}
+        :subj (subj {:human true})
         :obj {:cat :noun
               :artifact true}}))
 
@@ -329,15 +329,15 @@
   "capire" "capito"
   "to understand" "understood"
   "avere"
-  {:subj {:human true}
+  {:subj (subj {:human true})
    :obj {:sayable true}
    :isco true})
 
-(add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj {:animate true}})
+(add-with-pass-pross "dormire" "dormito" "to sleep" "slept" "avere" {:subj (subj {:animate true})})
 
-(def tornare (get (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj {:animate true}})
+(def tornare (get (add-with-pass-pross "tornare" "tornato" "to return" "returned" "essere" {:subj (subj {:animate true})})
                   :root))
-(add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj {:animate true}})
+(add-with-pass-pross "entrare" "entrato" "to enter" "entered" "essere" {:subj (subj {:animate true})})
 
 (def partire (get
               (add-with-pass-pross "partire" "partito" "to leave" "left" "essere" {:subj {:animate true}})
@@ -371,13 +371,13 @@
 (add "imparare" "to learn"
      {:cat :verb
       :infl :infinitive
-      :subj {:human true}
+      :subj (subj {:human true})
       :obj {:cat :noun :legible true}})
 
 (def corrigere
   (add "correggere" "to correct"
        {:cat :verb :infl :infinitive
-        :subj {:human true}
+        :subj (subj {:human true})
         :obj {:cat :noun :human true}
         :adjunct adjunct-in-a-place}))
 
@@ -1186,6 +1186,8 @@
 
 (add "casa" "home"
            {:andare-a true
+            :person :3rd
+            :number :singular
             :cat :noun
             :english-at true
             :place true
