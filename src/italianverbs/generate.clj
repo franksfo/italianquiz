@@ -298,22 +298,31 @@
 
     {:five-sentences
      five-sentences
+
      :subjects-ok
      (rdutest
       "Make sure subjects are all real lexical entries by checking for non-null :italian feature"
       (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
       (fn [sentences]
-        (= 0 (.size (remove #(not (= nil %)) sentences)))))}))
+        (= 0 (.size (remove #(not (= nil %)) sentences)))))
+     
+     :subjects-have-nonfail-number
+     (rdutest
+      "Make sure subject's :number value is valid (non-:fail)."
+      (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
+      (fn [sentences]
+        (= (.size sentences)
+           (.size (remove #(not (= :fail (get (get % :subject) :number))) sentences)))))}))
 
 ;; diagnostic.
 (def verbs
   (map (fn [sentence]
-         {:verb (:italian (:verb sentence))})
+         {:verb (:verb sentence)})
        (:test-result (:five-sentences tests))))
 
 (def subjects
   (map (fn [sentence]
-         {:subject (:italian (:subject sentence))})
+         {:subject (:subject sentence)})
        (:test-result (:five-sentences tests))))
 
 (def objects
@@ -322,14 +331,16 @@
        (:test-result (:five-sentences tests))))
 
 (defn conjugate [verb subject]
-  "foo")
+  (morph/conjugate-italian-verb-regular verb subject))
 
 (def inflected
   (map (fn [sentence]
-         (fs/merge
-          (:verb sentence)
-          {:italian-inflected (conjugate (:verb sentence)
-                               (:subject sentence))}))
+         (let [merge
+               (fs/merge
+                (:verb sentence)
+                {:italian-inflected (conjugate (:verb sentence)
+                                               (:subject sentence))})]
+           {:italian (:italian-inflected merge)}))
        (:test-result (:five-sentences tests))))
 
 
