@@ -321,6 +321,17 @@
          {:obj (:italian (:object sentence))})
        (:test-result (:five-sentences tests))))
 
+(defn conjugate [verb subject]
+  "foo")
+
+(def inflected
+  (map (fn [sentence]
+         (fs/merge
+          (:verb sentence)
+          {:italian-inflected (conjugate (:verb sentence)
+                               (:subject sentence))}))
+       (:test-result (:five-sentences tests))))
+
 
 ;(defn test []
 ;  "this should contain a list of all the tests for the generate package. each test can
