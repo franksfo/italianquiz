@@ -15,14 +15,18 @@
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
   (let [test-text (str test)
         assert-text (str assert)
-        test-result `~test]
+        test-result `~test
+        testcomment (str testcomment)]
     `(let [assert# (apply ~assert (list ~test-result))]
+       (println ~(str "test started: " testcomment "."))
        {:test-text ~test-text
         :assert-text ~assert-text
         :test-result ~test-result
         :assert-result assert#
-        :comment ~testcomment
-        })))
+        :comment ~testcomment}
+       (println (str "test result : " assert#))
+       (println)
+       )))
 
 
   
