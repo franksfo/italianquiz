@@ -349,7 +349,7 @@
        (:test-result (:five-sentences tests))))
 
 (defn conjugate [verb subject]
-  (morph/conjugate-italian-verb-regular verb subject))
+  (morph/conjugate-italian-verb verb subject))
 
 (def inflected
   (map (fn [sentence]
