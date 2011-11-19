@@ -941,19 +941,29 @@
    :oct2011 true})
 
 (add "località" "resort"
-  {:cat :noun
-   :oct2011 true})
+     {:cat :noun
+      :number :singular
+      :gender :fem
+      :person :3rd
+      :oct2011 true})
 
 (add "scompartimento" "compartment"
   {:cat :noun
+   :number :singular
+   :gender :masc
+   :person :3rd
    :oct2011 true})
 
 (add "crociera" "cruise"
   {:cat :noun
+   :number :singular
+   :gender :fem
+   :person :3rd
    :oct2011 true})
 
 (add "valige" "bags"
      {:cat :noun
+      :gender :fem
       :number :plural
       :person :3rd
       :oct2011 true})
