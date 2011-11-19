@@ -277,8 +277,11 @@
                          {:number (gram/random-number)})
         ;; note that you currently can't use fs/merge, because if you use it,
         ;; atomic values fail when unified.
-        subject (merge (random-lexeme (:subj verb))
-                       {:number (gram/random-number)})]
+        subject (let [random-lexeme (random-lexeme (:subj verb))]
+                  (if (= nil (:number random-lexeme))
+                    (merge random-lexeme
+                           {:number (gram/random-number)})
+                    random-lexeme))]
     {:subject subject :object object :verb verb}))
 
 (defn n-sentences [n]
@@ -290,7 +293,7 @@
   (let [five-sentences
         (rdutest
          "Generate a bunch of subjects and make sure they all are really subjects (not something degenerate like {:number :singular}). having an :italian will be the test of subjecthood for now"
-         (n-sentences 5)
+         (n-sentences 10)
          (fn [sentences]
            (= 0 (.size (remove #(= true %)
                                (map (fn [sentence]
@@ -301,7 +304,7 @@
     {:five-sentences
      five-sentences
 
-     :subjects-ok
+     :subjects-exist
      (rdutest
       "Make sure subjects are all real lexical entries by checking for non-null :italian feature"
       (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
@@ -314,7 +317,20 @@
       (map (fn [sentence] (:subject sentence)) (:test-result five-sentences))
       (fn [subjects]
         (= (.size subjects)
-           (.size (remove (fn [subject] (= (:number subject) :fail)) subjects)))))}))
+           (.size (remove (fn [subject] (= (:number subject) :fail)) subjects)))))
+
+     :subjects-case
+     (rdutest
+      "Make sure subject's :case value is ok (non-:acc and non-:fail). nil is ok: common nouns (in italian
+       and english) don't have case."
+      (map (fn [sentence] (:case (:subject sentence))) (:test-result five-sentences))
+      (fn [cases]
+        (= (.size cases)
+           (.size (remove (fn [case] (or (= case :fail) (= case "acc"))) cases)))))
+     
+
+
+     }))
 
 ;; diagnostic.
 (def verbs
@@ -324,7 +340,7 @@
 
 (def subjects
   (map (fn [sentence]
-         {:subject (:subject sentence)})
+         (:subject sentence))
        (:test-result (:five-sentences tests))))
 
 (def objects
@@ -344,6 +360,16 @@
                                                (:subject sentence))})]
            {:italian (:italian-inflected merge)}))
        (:test-result (:five-sentences tests))))
+
+(def concatted
+  (map (fn [sentence]
+         (str
+          (:italian (:subject sentence))
+          " "
+          (conjugate (:verb sentence)
+                     (:subject sentence))))
+       (:test-result (:five-sentences tests))))
+  
 
 
 ;(defn test []
