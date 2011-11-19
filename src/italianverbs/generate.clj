@@ -266,14 +266,18 @@
         subject (random-lexeme (merge {:case {:not :acc}} (get verb :subj)))]
     (list verb object subject)))
 
+(defn np [constraints]
+  (let [article (random-lexeme {:cat :det})]
+    article))
+
 ;; cf. grammar/sentence: this will replace that.
 (defn sentence []
-  (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}})
-        object (merge (random-lexeme (get verb :obj))
+  (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:cat :noun}})
+        object (merge (random-lexeme (:obj verb))
                       {:number (gram/random-number)})
-        subject (merge (random-lexeme (get verb :subj))
+        subject (merge (random-lexeme (:subj verb))
                        {:number (gram/random-number)})]
-    (list subject object verb)))
+    {:subject subject :object object :verb verb}))
 ;
 ;
 ;    (let [verb (conjugate-verb
@@ -289,12 +293,34 @@
 ;  `(let [result ~(random-passato-prossimo)]
 ;     result))
 
+(defn times [n fn]
+  (loop [current n result nil]
+    (if (= current 1)
+      result
+      (recur (dec current) (cons (eval fn) result)))))
+
 (def tests
-  (list
-   (rdutest
-    "Generate a sentence"
-    (sentence)
-    (fn [sentence] true))))
+  (let [five-sentences
+;        nil
+        (rdutest
+         "Generate a bunch of subjects and make sure they all are really subjects (not something degenerate like {:number :singular}. having an :italian will be the test of subjecthood for now"
+         (times 5 (sentence))
+         (fn [sentences]
+           (= 0 (.size (remove #(= true %)
+                               (map (fn [sentence]
+                                      (let [subject (first sentence)]
+                                        (not (= nil (:italian subject)))))
+                                    sentences))))))]
+
+    {:five-sentences
+     five-sentences
+     :subjects-ok
+     (rdutest
+      "Make sure subjects are all real lexical entries by checking for non-null :italian feature"
+      (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
+      (fn [sentences]
+        (= 0 (.size (remove #(not (= nil %)) sentences)))))}))
+                                  
      
 ;(defn test []
 ;  "this should contain a list of all the tests for the generate package. each test can
