@@ -301,9 +301,20 @@
                                         (not (= nil (:italian (:subject sentence))))))
                                     sentences))))))]
 
-    {:five-sentences
+    {
+     :io-facio
+     (rdutest
+      "Conjugate 'io' + 'fare' => 'io  facio'"
+      (conjugate (lexfn/lookup "fare")
+                 (lexfn/lookup "io"))
+      (fn [string]
+        (= string " facio")))
+
+     :five-sentences
      five-sentences
 
+
+     
      :subjects-exist
      (rdutest
       "Make sure subjects are all real lexical entries by checking for non-null :italian feature"
