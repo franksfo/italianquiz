@@ -23,7 +23,7 @@
 (defn mobili []
   (let [fn gram/sv
         head
-        (merge
+        (fs/merge
          {:infl :present}
          (let [fn gram/vp-pp
                head (gram/choose-lexeme
@@ -31,7 +31,7 @@
                       :italian "essere"})
                comp
                (let [fn gram/pp
-                     head (merge
+                     head (fs/merge
                            {:already-looked-up true}
                            (gram/choose-lexeme
                             {:cat :prep
@@ -50,7 +50,7 @@
           {:furniture true}
           (defn mobili-np-filterfn2 [fs]
             (= (get fs :def) "def")))]
-    (merge {:question-type :mobili}
+    (fs/merge {:question-type :mobili}
            (apply fn (list head comp)))))
 
 (defn conjugate-italian-prep [preposition prep np]
@@ -68,13 +68,13 @@
 (defn random-present []
   (let [;; choose a random verb in the infinitive form.
         verb-inf (gram/choose-lexeme
-                  (merge {:cat :verb
+                  (fs/merge {:cat :verb
                           :infl :infinitive}
                          config/random-present-inf))
 
 
         verb-present-constraints
-        (merge 
+        (fs/merge 
          {:root.cat :verb :infl :present}
          {:root.italian (get verb-inf :italian)})
 
@@ -86,7 +86,7 @@
               ;; else, use a pronoun as a source of a random person/number pair,
               ;; and generate a present verb.
             (let [pronoun (gram/choose-lexeme
-                           (merge
+                           (fs/merge
                             {:pronoun true}
                             config/random-present-subj))
                   number (get pronoun :number)
@@ -108,7 +108,7 @@
 ;             {:case {:$ne :nom}})
         vp (gram/vp verb-inf)
         subj-constraints
-        (merge
+        (fs/merge
          {:cat :noun
           :case {:$ne :acc}}
          (get (get verb-present :root) :subj)
@@ -121,7 +121,7 @@
                  (gram/choose-lexeme subj-constraints)
                  true
                  (gram/np subj-constraints))]
-    (merge
+    (fs/merge
      {:verb-inf verb-inf
       :verb-present verb-present
       :subject subject
@@ -138,7 +138,7 @@
 
 (defn random-infinitivo []
   (gram/choose-lexeme
-   (merge {:cat :verb
+   (fs/merge {:cat :verb
            :infl :infinitive}
           config/random-infinitivo)))
 
@@ -150,7 +150,7 @@
   (let [
         ;; 1. choose a random verb in the passato-prossimo form.
         verb-future (gram/choose-lexeme
-                     (merge
+                     (fs/merge
                       (if constraints (first constraints) {})
                       {:infl :futuro-semplice}
                       config/futuro-semplice))]
@@ -160,7 +160,7 @@
   (let [
         ;; 1. choose a random verb in the passato-prossimo form.
         verb-past (gram/choose-lexeme
-                   (merge
+                   (fs/merge
                     {:root.cat :verb :infl :passato-prossimo}
                     config/random-passato-prossimo-verb-past))
 
@@ -172,7 +172,7 @@
         ;; 3. get the appropriate auxiliary for that verb.
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
         verb-aux (gram/choose-lexeme
-                  (merge
+                  (fs/merge
                    {:infl :present
                     :root.italian (get verb-inf :italian)}
                    (if (get verb-past :person)
@@ -183,7 +183,7 @@
                      {})))
         ;; 4. generate subject according to verb's constraints.
         subj-constraints
-        (merge
+        (fs/merge
          {:cat :noun
           :case {:$ne :acc}}
          (get verb-inf :subj)
@@ -199,7 +199,7 @@
                  (gram/choose-lexeme subj-constraints)
                  true ;; 3rd person: can be any NP (TODO: verify that gram/np will never generate a :person 1st or :person 2nd np).
                  (gram/np subj-constraints))]
-    (merge
+    (fs/merge
      {:verb-inf verb-inf
       :verb-aux verb-aux
       :verb-past verb-past
@@ -246,14 +246,14 @@
 (defn inflect [verb complement]
   "modify head based on complement: e.g. modify 'imparare la parola' => 'impara la parola' if
    complement is {:person :3rd}."
-    (merge verb
+    (fs/merge verb
            {:italian (conjugate-italian-verb verb complement)
             :english (conjugate-english-verb verb complement)}))
 
 (defn subj [verb]
   "generate a lexical subject that's appropriate given a verb."
   (random-lexeme
-   (merge
+   (fs/merge
     {:cat :noun}
     {:case {:not :acc}}
     (get verb :subj))))
@@ -263,7 +263,7 @@
 (defn sentence1 []
   (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}})
         object (random-lexeme (get verb :obj))
-        subject (random-lexeme (merge {:case {:not :acc}} (get verb :subj)))]
+        subject (random-lexeme (fs/merge {:case {:not :acc}} (get verb :subj)))]
     (list verb object subject)))
 
 (defn np [constraints]
@@ -278,20 +278,6 @@
         subject (fs/merge (random-lexeme (:subj verb))
                           {:number (gram/random-number)})]
     {:subject subject :object object :verb verb}))
-;
-;
-;    (let [verb (conjugate-verb
-;                (merge verb
-;                       {:person (get subject :person)
-;                        :number (get subject :number)
-;                        :infl (gram/random-inflection)}))]
-;      (gram/combine
-;         (gram/combine verb (gram/np object) gram/vo)
-;         (gram/np subject) gram/sv)))))
-
-;(defmacro test2 []
-;  `(let [result ~(random-passato-prossimo)]
-;     result))
 
 (defn n-sentences [n]
   (if (> n 0)
