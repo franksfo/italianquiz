@@ -953,11 +953,15 @@
    :oct2011 true})
 
 (add "valige" "bags"
-  {:cat :noun
-   :oct2011 true})
+     {:cat :noun
+      :number :plural
+      :person :3rd
+      :oct2011 true})
 
 (add "babagli" "baggage"
   {:cat :noun
+   :number :plural
+   :person :3rd
    :oct2011 true})
 
 (add "nave" "ship"
@@ -1197,6 +1201,8 @@
      {:andare-a true
       :english-in true
       :place true
+      :person :3rd
+      :number :singular
       :cat :noun
       :det nil})
 
@@ -1589,24 +1595,25 @@
 (def cucina
   {:cat :noun
    :det {:cat :det}
+   :person :3rd
    :number :singular
    :cucina true})
 
 (def cucina-masc
   (fs/merge cucina
-  {:gender :masc}))
+            {:gender :masc}))
 
 (def cucina-masc-plural
   (fs/merge cucina-masc
-         {:number :plural}))
+            {:number :plural}))
 
 (def cucina-fem
   (fs/merge cucina
-  {:gender :fem}))
+            {:gender :fem}))
 
 (def cucina-fem-plural
   (fs/merge cucina-fem
-         {:number :plural}))
+            {:number :plural}))
 
 (add "latte" "milk"
      cucina-masc)
