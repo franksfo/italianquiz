@@ -316,6 +316,12 @@
          {:subject (:italian (:subject sentence))})
        (:test-result (:five-sentences tests))))
 
+(def objects
+  (map (fn [sentence]
+         {:obj (:italian (:object sentence))})
+       (:test-result (:five-sentences tests))))
+
+
 ;(defn test []
 ;  "this should contain a list of all the tests for the generate package. each test can
 ;  return a map or a list or a function. a function will be applied against an
