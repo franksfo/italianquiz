@@ -308,7 +308,7 @@
          (fn [sentences]
            (= 0 (.size (remove #(= true %)
                                (map (fn [sentence]
-                                      (let [subject (first sentence)]
+                                      (let [subject (:subject  sentence)]
                                         (not (= nil (:italian subject)))))
                                     sentences))))))]
 
