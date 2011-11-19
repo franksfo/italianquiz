@@ -1,6 +1,7 @@
 (ns italianverbs.fs
   (:use [hiccup core page-helpers]
-        [clojure.set])
+        [clojure.set]
+        [italianverbs.rdutest])
   (:require
    [italianverbs.fs :as fs]
    [clojure.string :as string]
@@ -86,19 +87,31 @@
     (merge-r (collect-values maps keyset)
              (seq keyset))))
 
-(defn fs-test []
-  "this should contain a list of all the tests for the fs package. each test can
-  return a map or a list or a function. a function will be applied against an
-  empty argument list"
-  (list
-   {:comment "recursive merge."
-    :test (let [map1 {:foo {:bar 99}}
-                map2 {:foo {:baz 42}}
-                map3 {:biff 12}]
-            (merge map1 map2 map3))
-    :assert (= (let [map1 {:foo {:bar 99}}
-                     map2 {:foo {:baz 42}}
-                     map3 {:biff 12}]
-                 (merge map1 map2 map3))
-               {:foo {:baz 42, :bar 99}, :biff 12})}))
+(def tests
+  {:recursive-merge
+   (rdutest
+
+    "Recursive merge of 3 maps."
+    (let [map1 {:foo {:bar 99}}
+          map2 {:foo {:baz 42}}
+          map3 {:biff 12}]
+      (merge map1 map2 map3))
+    (fn [merge-result]
+      (and
+       (= (:bar (:foo merge-result)) 99)
+       (= (:baz (:foo merge-result)) 42)
+       (= (:biff merge-result) 12))))
+   
+   :recursive-merge-with-paths
+   (rdutest
+    "Recursive merge of 3 maps, tested with (get-path)"
+    (let [map1 {:foo {:bar 99}}
+          map2 {:foo {:baz 42}}
+          map3 {:biff 12}]
+      (merge map1 map2 map3))
+    (fn [merge-result]
+      (and
+       (= (get-path merge-result '(:foo :bar)) 99)
+       (= (get-path merge-result '(:foo :baz)) 42))))})
+
 
