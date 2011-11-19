@@ -19,13 +19,12 @@
         testcomment (str testcomment)]
     `(let [assert# (apply ~assert (list ~test-result))]
        (println ~(str "Test: '" testcomment "' started."))
+       (println (str "  Result: " assert# (if (= assert# false) " (FAILED).")))
        {:test-text ~test-text
         :assert-text ~assert-text
         :test-result ~test-result
         :assert-result assert#
         :comment ~testcomment}
-       (println (str "  Result: " assert#))
-       (println)
        )))
 
 
