@@ -199,7 +199,7 @@
                                                          true "o")
                                                         "no" space)))
      true
-     (str "<tt><i>error: :person or :number value was not matched</i>. (<b>conjugate-italian-verb-regular</b> " (get verb-head :italian) ",(phrase with head:'" (get subject-head :italian) "'))</i></tt>"))))
+     (str "Error: :person (" (get subject-head :person) ") or :number (" (get subject-head :number)  ")  value was not matched. (verb-head=" (get verb-head :italian) "),(subject=" (get subject-head :italian) ")"))))
 
 ;; TODO: figure out how to interpolate variables into regexps.
 (defn except-first-words [first-words words]
