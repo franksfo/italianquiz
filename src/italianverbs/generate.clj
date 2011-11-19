@@ -293,18 +293,16 @@
 ;  `(let [result ~(random-passato-prossimo)]
 ;     result))
 
-(defn times [n fn]
-  (loop [current n result nil]
-    (if (= current 1)
-      result
-      (recur (dec current) (cons (eval fn) result)))))
+(defn n-sentences [n]
+  (if (> n 0)
+    (cons (sentence)
+          (n-sentences (- n 1)))))
 
 (def tests
   (let [five-sentences
-;        nil
         (rdutest
-         "Generate a bunch of subjects and make sure they all are really subjects (not something degenerate like {:number :singular}. having an :italian will be the test of subjecthood for now"
-         (times 5 (sentence))
+         "Generate a bunch of subjects and make sure they all are really subjects (not something degenerate like {:number :singular}). having an :italian will be the test of subjecthood for now"
+         (n-sentences 5)
          (fn [sentences]
            (= 0 (.size (remove #(= true %)
                                (map (fn [sentence]
@@ -320,8 +318,14 @@
       (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
       (fn [sentences]
         (= 0 (.size (remove #(not (= nil %)) sentences)))))}))
-                                  
-     
+
+;; diagnostic.
+(def verbs
+  (map (fn [sentence]
+         {:verb (:italian (:verb sentence))})
+       (:test-result (:five-sentences tests))))
+
+
 ;(defn test []
 ;  "this should contain a list of all the tests for the generate package. each test can
 ;  return a map or a list or a function. a function will be applied against an
