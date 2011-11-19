@@ -325,6 +325,10 @@
          {:verb (:italian (:verb sentence))})
        (:test-result (:five-sentences tests))))
 
+(def subjects
+  (map (fn [sentence]
+         {:subject (:italian (:subject sentence))})
+       (:test-result (:five-sentences tests))))
 
 ;(defn test []
 ;  "this should contain a list of all the tests for the generate package. each test can
