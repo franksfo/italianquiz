@@ -275,8 +275,10 @@
   (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:cat :noun}})
         object (fs/merge (random-lexeme (:obj verb))
                          {:number (gram/random-number)})
-        subject (fs/merge (random-lexeme (:subj verb))
-                          {:number (gram/random-number)})]
+        ;; note that you currently can't use fs/merge, because if you use it,
+        ;; atomic values fail when unified.
+        subject (merge (random-lexeme (:subj verb))
+                       {:number (gram/random-number)})]
     {:subject subject :object object :verb verb}))
 
 (defn n-sentences [n]
@@ -309,10 +311,10 @@
      :subjects-have-nonfail-number
      (rdutest
       "Make sure subject's :number value is valid (non-:fail)."
-      (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
-      (fn [sentences]
-        (= (.size sentences)
-           (.size (remove #(not (= :fail (get (get % :subject) :number))) sentences)))))}))
+      (map (fn [sentence] (:subject sentence)) (:test-result five-sentences))
+      (fn [subjects]
+        (= (.size subjects)
+           (.size (remove (fn [subject] (= (:number subject) :fail)) subjects)))))}))
 
 ;; diagnostic.
 (def verbs
