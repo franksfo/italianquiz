@@ -273,10 +273,10 @@
 ;; cf. grammar/sentence: this will replace that.
 (defn sentence []
   (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:cat :noun}})
-        object (merge (random-lexeme (:obj verb))
-                      {:number (gram/random-number)})
-        subject (merge (random-lexeme (:subj verb))
-                       {:number (gram/random-number)})]
+        object (fs/merge (random-lexeme (:obj verb))
+                         {:number (gram/random-number)})
+        subject (fs/merge (random-lexeme (:subj verb))
+                          {:number (gram/random-number)})]
     {:subject subject :object object :verb verb}))
 ;
 ;
@@ -306,8 +306,8 @@
          (fn [sentences]
            (= 0 (.size (remove #(= true %)
                                (map (fn [sentence]
-                                      (let [subject (:subject  sentence)]
-                                        (not (= nil (:italian subject)))))
+                                      (let [subject (:subject sentence)]
+                                        (not (= nil (:italian (:subject sentence))))))
                                     sentences))))))]
 
     {:five-sentences
