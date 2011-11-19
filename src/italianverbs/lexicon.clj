@@ -248,6 +248,9 @@
 
 (defn obj [arg] (fs/merge object-of-transitive-verb
                        arg))
+(defn subj [arg] (fs/merge {:cat :noun
+                            :case {:not :acc}}
+                       arg))
 
 (add-infl-reg
  (add "mangiare" "to eat"
@@ -642,8 +645,9 @@
 
 
 (def essere (add "essere" "to be"
-                     {:cat :verb :infl :infinitive
-                      :obj {:cat :noun}}))
+                 {:subj (subj {})
+                  :cat :verb :infl :infinitive
+                  :obj {:cat :noun}}))
 
 (futuro-semplice essere "sar")
 
@@ -809,7 +813,8 @@
 
 
 (def avere (add "avere" "to have"
-                {:cat :verb :infl :infinitive
+                {:subj (subj {})
+                 :cat :verb :infl :infinitive
                  :obj {:cat :noun}}))
 (futuro-semplice avere "avr")
 
