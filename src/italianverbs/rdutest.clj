@@ -18,13 +18,13 @@
         test-result `~test
         testcomment (str testcomment)]
     `(let [assert# (apply ~assert (list ~test-result))]
-       (println ~(str "test started: " testcomment "."))
+       (println ~(str "Test: '" testcomment "' started."))
        {:test-text ~test-text
         :assert-text ~assert-text
         :test-result ~test-result
         :assert-result assert#
         :comment ~testcomment}
-       (println (str "test result : " assert#))
+       (println (str "  Result: " assert#))
        (println)
        )))
 
