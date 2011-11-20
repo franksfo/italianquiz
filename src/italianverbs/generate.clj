@@ -273,15 +273,8 @@
 ;; cf. grammar/sentence: this will replace that.
 (defn sentence []
   (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:cat :noun}})
-        object (fs/merge (random-lexeme (:obj verb))
-                         {:number (gram/random-number)})
-        ;; note that you currently can't use fs/merge, because if you use it,
-        ;; atomic values fail when unified.
-        subject (let [random-lexeme (random-lexeme (:subj verb))]
-                  (if (= nil (:number random-lexeme))
-                    (merge random-lexeme
-                           {:number (gram/random-number)})
-                    random-lexeme))]
+        object (random-lexeme (:obj verb))
+        subject (random-lexeme (:subj verb))]
     {:subject subject :object object :verb verb}))
 
 (defn n-sentences [n]
