@@ -408,18 +408,19 @@
       true (str " meno "(italian-number (- 60 minute)))))))
 
 (defn english-time [hour minute ampm]
-  (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") "")))
+  (string/trim (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") ""))))
 
 (def tests
-  (list
+  {:time-format
    (rdutest
     "Universal (non-localized) time format."
     (english-time 5 43 "pm")
     (fn [formatted-time] (= formatted-time "5:43")))
-
+   :random-lexeme
    (rdutest
     "Choose a random lexeme with no restrictions."
     (choose-lexeme {})
-    (fn [lexeme] (not (= nil (:italian lexeme)))))))
+    (fn [lexeme] (not (= nil (:italian lexeme)))))})
+
 
 

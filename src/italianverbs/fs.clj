@@ -156,8 +156,7 @@
     (merge-like-core {:foo 42} {:foo 43})
     (fn [result]
       (= (:foo result) 43)))
-  
-  )
+
 
 
 
