@@ -289,6 +289,9 @@
     (cons (sentence)
           (n-sentences (- n 1)))))
 
+(defn conjugate [verb subject]
+  (morph/conjugate-italian-verb verb subject))
+
 (def tests
   (let [five-sentences
         (rdutest
@@ -358,9 +361,6 @@
   (map (fn [sentence]
          {:obj (:italian (:object sentence))})
        (:test-result (:five-sentences tests))))
-
-(defn conjugate [verb subject]
-  (morph/conjugate-italian-verb verb subject))
 
 (def inflected
   (map (fn [sentence]

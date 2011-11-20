@@ -159,6 +159,16 @@
 	   {:cat :prep
         :obj {:case {:NE :nom}}})
 
+(def object-of-transitive-verb
+  {:cat :noun
+   :case {:not :acc}})
+
+(defn obj [arg] (fs/merge object-of-transitive-verb
+                       arg))
+(defn subj [arg] (fs/merge {:cat :noun
+                            :case {:not :acc}}
+                       arg))
+
 ;; verbs
 (add "dimenticare" "to forget"
            {:cat :verb :infl :infinitive
@@ -241,16 +251,6 @@
       :root leggere
       :infl :passato-prossimo
       :aux "avere"})
-
-(def object-of-transitive-verb
-  {:cat :noun
-   :case {:not :acc}})
-
-(defn obj [arg] (fs/merge object-of-transitive-verb
-                       arg))
-(defn subj [arg] (fs/merge {:cat :noun
-                            :case {:not :acc}}
-                       arg))
 
 (add-infl-reg
  (add "mangiare" "to eat"
