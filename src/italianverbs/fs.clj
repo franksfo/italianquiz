@@ -88,9 +88,10 @@
              (seq keyset))))
 
 (def tests
-  {:recursive-merge
-   (rdutest
+  {
 
+   :recursive-merge
+   (rdutest
     "Recursive merge of 3 maps."
     (let [map1 {:foo {:bar 99}}
           map2 {:foo {:baz 42}}
@@ -112,6 +113,17 @@
     (fn [merge-result]
       (and
        (= (get-path merge-result '(:foo :bar)) 99)
-       (= (get-path merge-result '(:foo :baz)) 42))))})
+       (= (get-path merge-result '(:foo :baz)) 42))))
+
+   :atomic-fail
+   (rdutest
+    "Testing that merge(v1,v2)=fail if v1 != v2."
+    (merge {:foo 42} {:foo 43})
+    (fn [result]
+      (= (:foo result) :fail)))
+   }
+
+  )
+
 
 
