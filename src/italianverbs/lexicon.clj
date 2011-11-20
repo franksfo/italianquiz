@@ -839,11 +839,8 @@
 
 
 ;; pronouns
-(add "io" "i" {
-               :person :1st :number :singular :cat :noun
-               } (list pronoun nominative))
-(add "mi" "me" {:person :1st :number :singular :cat :noun :case :acc}
-     (list pronoun))
+(add "io" "i" {:person :1st :number :singular :cat :noun} (list pronoun nominative))
+(add "mi" "me" {:person :1st :number :singular :cat :noun} (list pronoun accusative))
 (add "tu" "you" {:person :2nd :number :singular :cat :noun :case :nom}
            (list pronoun))
 (add "te" "you" {:person :2nd :number :singular :cat :noun :case :acc}
@@ -854,8 +851,6 @@
 (add "voi" "you all" {:person :2nd :number :plural :cat :noun} (list pronoun))
 (add "loro" "they" {:person :3rd :number :plural :cat :noun} (list pronoun nominative))
 
-(add "io" "me" {
-                :person :1st :number :singular :cat :noun} (list pronoun accusative))
 (add "lui" "him" {:person :3rd :number :singular :cat :noun :gender :masc} (list pronoun accusative))
 (add "lei" "her" {:person :3rd :number :singular :cat :noun :gender :fem} (list pronoun accusative))
 (add "noi" "us" {:person :1st :number :plural :cat :noun} (list pronoun accusative))
