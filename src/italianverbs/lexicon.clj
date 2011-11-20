@@ -910,8 +910,10 @@
       :oct2011 true}))
 
 (add "capodanno" "new year"
-     {:cat :noun
-      :oct2011 true})
+     (merge noun
+            {:number :singular
+             :gender :masc
+             :oct2011 true}))
 
 (add "biglietto" "ticket"
      (merge noun
