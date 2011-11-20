@@ -282,13 +282,13 @@
     (cons (sentence)
           (n-sentences (- n 1)))))
 
-(defn conjugate [verb subject]
+(defn conjugate [verb subject [& constraints]]
   (let [irregulars
-        (search/search (fs/merge {:root verb
-                                  :infl :present}
+        (search/search (fs/merge {:root verb}
                                  (select-keys
                                   subject
-                                  (list :person :number))))]
+                                  (list :person :number))
+                                 (first constraints)))]
     (if (first irregulars)
       (:italian (first irregulars))
       (string/trim (morph/conjugate-italian-verb verb subject)))))
@@ -342,7 +342,8 @@
      (rdutest
       "Conjugate 'io' + 'fare' => 'io  facio'"
       (conjugate (nth (search/search {:italian "fare" :infl :infinitive}) 0)
-                 (nth (search/search {:italian "io" :case :nom}) 0))
+                 (nth (search/search {:italian "io" :case :nom}) 0)
+                 (list {:infl :present}))
       (fn [conjugated]
         (= conjugated "facio")))
 
@@ -399,7 +400,8 @@
                (fs/merge
                 (:verb sentence)
                 {:italian-inflected (conjugate (:verb sentence)
-                                               (:subject sentence))})]
+                                               (:subject sentence)
+                                               (list {:infl :present}))})]
            {:italian (:italian-inflected merge)}))
        (:test-result (:five-sentences tests))))
 
@@ -408,8 +410,9 @@
          (str
           (:italian (:subject sentence))
           " "
-          (conjugate (:verb sentence)
-                     (:subject sentence))))
+          (string/trim (conjugate (:verb sentence)
+                                  (:subject sentence)
+                                  (list {:infl :infinitive})))))
        (:test-result (:five-sentences tests))))
   
 
