@@ -187,7 +187,17 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
    (rdutest
     "Looking up a verb by a root works."
     (search {:root {:italian "fare"}})
-    #(> (.size %) 0))})
+    #(> (.size %) 0))
+
+   :lookup-complex-root
+   (rdutest
+    "Looking up a verb by a root fs works."
+    (search {:root (first (search {:italian "fare" :cat :verb :infl :infinitive}))})
+    #(and (not (= % nil)) (> (.size %) 0)))
+
+
+
+   })
 
 ;; FIXME: move to test.clj.
 (def evaluate-testresults
