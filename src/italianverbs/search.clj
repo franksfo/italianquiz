@@ -192,10 +192,8 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
    :lookup-complex-root
    (rdutest
     "Looking up a verb by a root fs works."
-    (search {:root (first (search {:italian "fare" :cat :verb :infl :infinitive}))})
+    (search {:root (dissoc (first (search {:italian "fare" :cat :verb :infl :infinitive})) :_id)})
     #(and (not (= % nil)) (> (.size %) 0)))
-
-
 
    })
 
