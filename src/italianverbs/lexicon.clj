@@ -612,7 +612,7 @@
                {:cat :verb :infl :infinitive
                 :obj {:cat :noun
                       :artifact true}
-                :subj {:human true}
+                :subj (subj {:human true})
                 :iobj {:obj {:animate true}
                        :benefactive true}
                 :adjunct adjunct-in-a-place}))
@@ -898,32 +898,32 @@
 
 ;; nouns
 (add "natale" "christmas"
-  {:cat :noun
-   :number :singular
-   :gender :fem
-   :oct2011 true})
+     (merge noun
+     {:number :singular
+      :gender :fem
+      :oct2011 true}))
 
 (add "scontrino" "receipt"
-     {:cat :noun
-      :number :singular
+     (merge noun
+     {:number :singular
       :gender :masc
-      :oct2011 true})
+      :oct2011 true}))
 
 (add "capodanno" "new year"
      {:cat :noun
       :oct2011 true})
 
 (add "biglietto" "ticket"
-     {:cat :noun
-      :number :singular
+     (merge noun
+     {:number :singular
       :gender :masc
-      :oct2011 true})
+      :oct2011 true}))
 
 (add "coppia" "pair"
-     {:cat :noun
-      :number :singular
-      :gender :fem
-      :oct2011 true})
+     (merge noun
+            {:number :singular
+             :gender :fem
+             :oct2011 true}))
 
 
 ;; logical terms

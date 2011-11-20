@@ -290,8 +290,8 @@
                                   subject
                                   (list :person :number))))]
     (if (first irregulars)
-      (first irregulars)
-      (morph/conjugate-italian-verb verb subject))))
+      (:italian (first irregulars))
+      (string/trim (morph/conjugate-italian-verb verb subject)))))
 
 (def tests
   (let [five-sentences
@@ -341,10 +341,10 @@
      :io-facio
      (rdutest
       "Conjugate 'io' + 'fare' => 'io  facio'"
-      (conjugate (lexfn/lookup "fare")
-                 (lexfn/lookup "io"))
-      (fn [map]
-        (= (:italian map) "facio")))
+      (conjugate (nth (search/search {:italian "fare" :infl :infinitive}) 0)
+                 (nth (search/search {:italian "io" :case :nom}) 0))
+      (fn [conjugated]
+        (= conjugated "facio")))
 
      :five-sentences
      five-sentences
