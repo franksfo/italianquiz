@@ -155,7 +155,8 @@
     "Testing that merge-like-core(v1,v2)=v2."
     (merge-like-core {:foo 42} {:foo 43})
     (fn [result]
-      (= (:foo result) 43)))
+      (= (:foo result) 43)))})
+
 
 
 
