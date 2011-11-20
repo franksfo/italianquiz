@@ -20,19 +20,22 @@
 ;;      (html/static-page
 ;;            (str (html/fs lexfn/trans-verbs) (string/join " " (map (fn [fs] (html/fs fs)) (lexfn/query (lexfn/pathify lexfn/trans-verbs))))
 
+(def *exclude-keys* (set #{:_id}))
+
 (defn pathify-r [fs & [prefix]]
 "Transform a map into a map of paths/value pairs,
  where paths are lists of keywords, and values are atomic values.
  e.g.:
  {:foo {:bar 42, :baz 99}} =>  { { (:foo :bar) 42}, {(:foo :baz) 99} }
-The idea is to map the :feature foo to the (recursive) result of pathify on :foo's value."
+The idea is to map the key :foo to the (recursive) result of pathify on :foo's value."
   (mapcat (fn [kv]
             (let [key (first kv)
                   val (second kv)]
-              (if (= (type val) clojure.lang.PersistentArrayMap)
-                (pathify-r val (concat prefix (list key)))
-                (list {(concat prefix (list key))
-                       val}))))
+              (if (not (contains? *exclude-keys* key))
+                (if (= (type val) clojure.lang.PersistentArrayMap)
+                  (pathify-r val (concat prefix (list key)))
+                  (list {(concat prefix (list key))
+                         val})))))
           fs))
 
 (defn pathify [fs]
@@ -192,7 +195,7 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
    :lookup-complex-root
    (rdutest
     "Looking up a verb by a root fs works."
-    (search {:root (dissoc (first (search {:italian "fare" :cat :verb :infl :infinitive})) :_id)})
+    (search {:root (first (search {:italian "fare" :cat :verb :infl :infinitive}))})
     #(and (not (= % nil)) (> (.size %) 0)))
 
    })
