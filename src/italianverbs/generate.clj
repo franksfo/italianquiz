@@ -290,7 +290,15 @@
           (n-sentences (- n 1)))))
 
 (defn conjugate [verb subject]
-  (morph/conjugate-italian-verb verb subject))
+  (let [irregulars
+        (search/search (fs/merge {:root verb
+                                  :infl :present}
+                                 (select-keys
+                                  subject
+                                  (list :person :number))))]
+    (if (first irregulars)
+      (first irregulars)
+      (morph/conjugate-italian-verb verb subject))))
 
 (def tests
   (let [five-sentences
@@ -305,18 +313,48 @@
                                     sentences))))))]
 
     {
+     :first-sing-root-of-fare
+     (rdutest
+      "The 1st person singular present form of 'fare' should be findable."
+      (search/search {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))})
+      (fn [results]
+        (and (not (= nil results))
+             (not (= nil (first results))))))
+
+
+     :merged-fs
+     (rdutest
+      "Merged fs."
+      (fs/merge {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
+                {:infl :present}
+                (select-keys
+                 (first (search/search {:italian "io" :pronoun true}))
+                 (list :person :number)))
+      (fn [resulting-fs]
+        (> (count resulting-fs) 0)))
+     
+     :search-for-conjugation
+     (rdutest
+      "Look up an irregular verb by searching for a map created by a subject."
+      (search/search (fs/merge {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
+                               {:infl :present}
+                               (select-keys
+                                (first (search/search {:italian "io" :pronoun true}))
+                                (list :person :number))))
+      (fn [results]
+        (and (not (= nil results))
+             (not (= nil (first results))))))
+     
      :io-facio
      (rdutest
       "Conjugate 'io' + 'fare' => 'io  facio'"
       (conjugate (lexfn/lookup "fare")
                  (lexfn/lookup "io"))
-      (fn [string]
-        (= string " facio")))
+      (fn [map]
+        (= (:italian map) "facio")))
 
      :five-sentences
      five-sentences
-
-
      
      :subjects-exist
      (rdutest

@@ -109,6 +109,7 @@
     (merge-r (collect-values maps keyset)
              (seq keyset))))
 
+;; TODO: use merge-with http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/merge-with
 (defn merge-like-core [& maps]
   "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
   (let [keyset (union-keys maps)]
@@ -117,7 +118,6 @@
 
 (def tests
   {
-
    :recursive-merge
    (rdutest
     "Recursive merge of 3 maps."
@@ -156,8 +156,6 @@
     (merge-like-core {:foo 42} {:foo 43})
     (fn [result]
       (= (:foo result) 43)))
-
-   }
   
   )
 
