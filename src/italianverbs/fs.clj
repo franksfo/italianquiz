@@ -87,6 +87,20 @@
     (merge-r (collect-values maps keyset)
              (seq keyset))))
 
+(defn merge-like-core [& maps]
+  "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'merge-like-core' for usage.)"
+  (let [keyset (union-keys maps)]
+    (merge-r (collect-values maps keyset)
+             (seq keyset))))
+
+;   (rdutest
+;    "Testing that merge-like-core(v1,v2)=v2 (always)."
+;    (merge {:foo 42} {:foo 43})
+;    (fn [result]
+;      (= (:foo result) 43)))
+;   }
+
+
 (def tests
   {
 
@@ -121,8 +135,16 @@
     (merge {:foo 42} {:foo 43})
     (fn [result]
       (= (:foo result) :fail)))
-   }
 
+   :atomic-merge
+   (rdutest
+    "Testing that merge-like-core(v1,v2)=v2."
+    (merge {:foo 42} {:foo 43})
+    (fn [result]
+      (= (:foo result) 43)))
+
+   }
+  
   )
 
 
