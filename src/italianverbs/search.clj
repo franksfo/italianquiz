@@ -151,35 +151,46 @@ The idea is to map the :feature foo to the (recursive) result of pathify on :foo
 (defn empty-set [set]
   (= (.size set) 0))
 
-(def testresults
-  (list
+(def tests
+  {:sanity-check
    (rdutest
     "Sanity check: test rdutest itself by assuming that '+' is correct."
     (+ 1 2) 
     #(= % 3))
+   :one-verb
    (rdutest
     "At least one verb is in the lexicon."
     (take 1 (lazy-query {:cat :verb}))
     #(> (.size %) 0))
+   :one-noun
    (rdutest
     "At least one noun is in the lexicon."
     (take 1 (lazy-query {:cat :noun}))
     #(> (.size %) 0))
+   :one-nom-noun
    (rdutest
     "At least one nominative noun is in the lexicon (and that the conjunction of more than one predicate works."
     (take 1 (lazy-query {:cat :noun :case :nom}))
     #(> (.size %) 0))
+   :null-set
    (rdutest
     "The intersection of mutually-exclusive queries is the null set (since a noun can't be both nominative and non-nominative)."
     (intersection (query {:cat :noun :case :nom}) (query {:cat :noun :case {:not :nom}}))
     #(= (.size %) 0))
+   :verb-with-edible-object
    (rdutest
     "There's at least one verb that takes an edible object (a nested query works)."
     (take 1 (lazy-query {:cat :verb :obj {:edible true}}))
-    #(> (.size %) 0))))
+    #(> (.size %) 0))
+
+   :lookup-roots
+   (rdutest
+    "Looking up a verb by a root works."
+    (search {:root {:italian "fare"}})
+    #(> (.size %) 0))})
 
 ;; FIXME: move to test.clj.
 (def evaluate-testresults
-  (map (fn [result] {:comment (:comment result) :result (:assert-result result)})  testresults))
+  (map (fn [result] {:comment (:comment result) :result (:assert-result result)})  tests))
 
 
