@@ -62,6 +62,9 @@
           :fail)
         value))))
 
+(defn- merge-atomically-like-core [values]
+  (last values))
+
 (defn- merge-values [values]
   (let [value (first values)]
     (if value
@@ -70,6 +73,16 @@
          (first values)
          (merge-values (rest values)))
         (merge-atomically values))
+        {})))
+
+(defn- merge-values-like-core [values]
+  (let [value (first values)]
+    (if value
+      (if (= (type value) clojure.lang.PersistentArrayMap)
+        (merge
+         (first values)
+         (merge-values-like-core (rest values)))
+        (merge-atomically-like-core values))
         {})))
 
 (defn- merge-r [collected-map keys]
@@ -81,6 +94,15 @@
        (merge-r collected-map (rest keys)))
       {})))
 
+(defn- merge-r-like-core [collected-map keys]
+  "merge a map where each value is a list of values to be merged for that key."
+  (let [key (first keys)]
+    (if key
+      (merge
+       {key (merge-values-like-core (get collected-map key))}
+       (merge-r-like-core collected-map (rest keys)))
+      {})))
+
 (defn merge [& maps]
   "like clojure.core/merge, but works recursively."
   (let [keyset (union-keys maps)]
@@ -88,18 +110,10 @@
              (seq keyset))))
 
 (defn merge-like-core [& maps]
-  "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'merge-like-core' for usage.)"
+  "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
   (let [keyset (union-keys maps)]
-    (merge-r (collect-values maps keyset)
-             (seq keyset))))
-
-;   (rdutest
-;    "Testing that merge-like-core(v1,v2)=v2 (always)."
-;    (merge {:foo 42} {:foo 43})
-;    (fn [result]
-;      (= (:foo result) 43)))
-;   }
-
+    (merge-r-like-core (collect-values maps keyset)
+                       (seq keyset))))
 
 (def tests
   {
@@ -139,7 +153,7 @@
    :atomic-merge
    (rdutest
     "Testing that merge-like-core(v1,v2)=v2."
-    (merge {:foo 42} {:foo 43})
+    (merge-like-core {:foo 42} {:foo 43})
     (fn [result]
       (= (:foo result) 43)))
 
