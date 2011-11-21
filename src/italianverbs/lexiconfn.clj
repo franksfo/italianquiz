@@ -47,9 +47,9 @@
      english
      featuremap
      (rest types)
-     (merge (first types) result))
+     (fs/merge (first types) result))
     (let [featuremap
-          (merge featuremap
+          (fs/merge featuremap
                  (merge result
                         (if english
                           (assoc {} :italian italian :english english)
@@ -261,17 +261,19 @@
                           (get fs :gender)))
    (if english-plural english-plural
      (english-pluralize (get fs :english)))
-   (merge
-    fs 
+   (fs/merge
+    fs
+    {:det {:number :plural}}
     {:number :plural})
    types))
 
 (defn add-with-plural [italian english featuremap types & [italian-plural english-plural]]
   (add-plural
    (add italian english
-        (merge featuremap
-               {:number :singular})
-               types)
+        (fs/merge featuremap
+                  {:det {:number :singular}}
+                  {:number :singular})
+        types)
    types
    italian-plural english-plural))
 

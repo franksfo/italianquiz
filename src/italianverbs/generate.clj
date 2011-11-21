@@ -282,7 +282,7 @@
     (cons (sentence)
           (n-sentences (- n 1)))))
 
-(defn conjugate [verb subject [& constraints]]
+(defn conjugate-verb [verb subject [& constraints]]
   (let [irregulars
         (search/search (fs/merge {:root verb}
                                  (select-keys
@@ -292,6 +292,20 @@
     (if (first irregulars)
       (:italian (first irregulars))
       (string/trim (morph/conjugate-italian-verb verb subject)))))
+
+;; TODO: learn why string/join doesn't work for me:
+;; (string/join '("foo" "bar") " ")
+;; => " " (should be: "foo bar").
+
+(defn join [coll separator]
+  (apply str (interpose separator coll)))
+
+(defn conjugate-noun [noun constraints]
+  (let [search (search/search (fs/merge (:det noun) constraints))
+        article (nth search (rand-int (.size search)))]
+    {:italian (join (list (:italian article) (:italian noun)) " ")
+     :article article
+     :noun noun}))
 
 (def tests
   (let [five-sentences
@@ -303,7 +317,8 @@
                                (map (fn [sentence]
                                       (let [subject (:subject sentence)]
                                         (not (= nil (:italian (:subject sentence))))))
-                                    sentences))))))]
+                                    sentences)))))
+         :five-sentences)]
 
     {
      :first-sing-root-of-fare
@@ -312,7 +327,8 @@
       (search/search {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))})
       (fn [results]
         (and (not (= nil results))
-             (not (= nil (first results))))))
+             (not (= nil (first results)))))
+      :first-sing-root-of-fare)
 
 
      :merged-fs
@@ -324,7 +340,8 @@
                  (first (search/search {:italian "io" :pronoun true}))
                  (list :person :number)))
       (fn [resulting-fs]
-        (> (count resulting-fs) 0)))
+        (> (count resulting-fs) 0))
+      :merged-fs)
      
      :search-for-conjugation
      (rdutest
@@ -336,16 +353,18 @@
                                 (list :person :number))))
       (fn [results]
         (and (not (= nil results))
-             (not (= nil (first results))))))
+             (not (= nil (first results)))))
+      :search-for-conjugation)
      
      :io-facio
      (rdutest
       "Conjugate 'io' + 'fare' => 'io  facio'"
-      (conjugate (nth (search/search {:italian "fare" :infl :infinitive}) 0)
+      (conjugate-verb (nth (search/search {:italian "fare" :infl :infinitive}) 0)
                  (nth (search/search {:italian "io" :case :nom}) 0)
                  (list {:infl :present}))
       (fn [conjugated]
-        (= conjugated "facio")))
+        (= conjugated "facio"))
+      :io-facio)
 
      :five-sentences
      five-sentences
@@ -355,7 +374,8 @@
       "Make sure subjects are all real lexical entries by checking for non-null :italian feature"
       (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
       (fn [sentences]
-        (= 0 (.size (remove #(not (= nil %)) sentences)))))
+        (= 0 (.size (remove #(not (= nil %)) sentences))))
+      :subjects-exist)
      
      :subjects-have-nonfail-number
      (rdutest
@@ -363,7 +383,8 @@
       (map (fn [sentence] (:subject sentence)) (:test-result five-sentences))
       (fn [subjects]
         (= (.size subjects)
-           (.size (remove (fn [subject] (= (:number subject) :fail)) subjects)))))
+           (.size (remove (fn [subject] (= (:number subject) :fail)) subjects))))
+      :subjects-have-nonfail-number)
 
      :subjects-case
      (rdutest
@@ -372,8 +393,18 @@
       (map (fn [sentence] (:case (:subject sentence))) (:test-result five-sentences))
       (fn [cases]
         (= (.size cases)
-           (.size (remove (fn [case] (or (= case :fail) (= case "acc"))) cases)))))
+           (.size (remove (fn [case] (or (= case :fail) (= case "acc"))) cases))))
+      :subjects-case)
      
+
+     :il-libro
+     (rdutest
+      "Conjugate 'libro' + '{definite}' => 'il libro'."
+      (conjugate-noun (nth (search/search {:italian "libro" :cat :noun}) 0)
+                      {:def :def})
+      (fn [conjugated]
+        (= (:italian conjugated) "il libro"))
+      :il-libro)
 
 
      }))
@@ -399,9 +430,9 @@
          (let [merge
                (fs/merge
                 (:verb sentence)
-                {:italian-inflected (conjugate (:verb sentence)
-                                               (:subject sentence)
-                                               (list {:infl :present}))})]
+                {:italian-inflected (conjugate-verb (:verb sentence)
+                                                    (:subject sentence)
+                                                    (list {:infl :present}))})]
            {:italian (:italian-inflected merge)}))
        (:test-result (:five-sentences tests))))
 
@@ -410,9 +441,9 @@
          (str
           (:italian (:subject sentence))
           " "
-          (string/trim (conjugate (:verb sentence)
-                                  (:subject sentence)
-                                  (list {:infl :infinitive})))))
+          (string/trim (conjugate-verb (:verb sentence)
+                                       (:subject sentence)
+                                       (list {:infl :infinitive})))))
        (:test-result (:five-sentences tests))))
   
 
@@ -438,6 +469,5 @@
 ;   {:comment "testing english translation of future modal verbs e.g. 'potere' (can)"
 ;    :test (random-futuro-semplice
 ;           {:italian "potrai"})}))
-
 
 

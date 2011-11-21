@@ -11,14 +11,15 @@
 ;;
 
 ;; can't use just 'test' because I'm too stupid to understand Clojure namespaces.
-(defmacro rdutest [testcomment test assert]
+(defmacro rdutest [testcomment test assert sym]
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
   (let [test-text (str test)
         assert-text (str assert)
+        sym-text (str sym)
         test-result `~test
         testcomment (str testcomment)]
     `(let [assert# (apply ~assert (list ~test-result))]
-       (println ~(str "Test: '" testcomment "' started."))
+       (println ~(str "Test: " sym-text " '" testcomment "' started."))
        (println (str "  Result: " assert# (if (= assert# false) " (FAILED).")))
        {:test-text ~test-text
         :assert-text ~assert-text
@@ -27,7 +28,7 @@
         :comment ~testcomment}
        )))
 
-
-  
-
-
+;; TODO: lookup tests in its native namespace so we don't need the 2nd arg.
+(defn wtf [test-name tests]
+  "test-result of test with label test-name."
+  (:test-result (get tests test-name)))

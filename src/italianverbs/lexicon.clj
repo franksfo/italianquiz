@@ -1113,6 +1113,8 @@
          :holdable true}
         (list mass-noun noun))
 
+(def takes-masc-det {:det {:gender :masc}})
+
 (add-with-plural "libro" "book"
      {:cat :noun
       :number :singular
@@ -1125,7 +1127,7 @@
       :ruggable true
       :common true
       :person :3rd}
-     (list noun))
+     (list noun takes-masc-det))
 
 (add-with-plural "tavolo" "table"
      {:cat :noun
