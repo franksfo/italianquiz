@@ -317,6 +317,12 @@
      :verb-constraints constraints
      :object object}))
 
+
+(defn conjugate-sent [verb-phrase subject]
+  {:italian (join (list (:italian subject) (:italian verb-phrase)) " ")
+   :verb-phrase verb-phrase
+   :subject subject})
+
 (def tests
   (let [five-sentences
         (rdutest
@@ -418,7 +424,7 @@
 
      :leggo-il-libro
      (rdutest
-      "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo io libro'."
+      "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro'."
       (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
             object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
                                  {:def :def})]
@@ -431,6 +437,24 @@
       :leggo-il-libro)
      
 
+     :io-leggo-il-libro
+     (rdutest
+      "Conjugate 'io [leggere/[1st sing]-il-libro]' => 'io leggo il libro'."
+      (let [subject (nth (search/search {:italian "io" :case :nom}) 0)
+            vp (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
+                     object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
+                                          {:def :def})]
+                 (conjugate-vp root-verb
+                               subject
+                               object
+                               {:infl :present}))]
+        (conjugate-sent vp subject))
+      (fn [sentence]
+        (= (:italian sentence) "io leggo il libro"))
+      :io-leggo-il-libro)
+     
+
+     
      }))
 
 ;; diagnostic.
