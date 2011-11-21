@@ -415,12 +415,15 @@
    (rdutest
     "Universal (non-localized) time format."
     (english-time 5 43 "pm")
-    (fn [formatted-time] (= formatted-time "5:43")))
+    (fn [formatted-time] (= formatted-time "5:43"))
+    :time-format)
    :random-lexeme
    (rdutest
     "Choose a random lexeme with no restrictions."
     (choose-lexeme {})
-    (fn [lexeme] (not (= nil (:italian lexeme)))))})
+    (fn [lexeme] (not (= nil (:italian lexeme))))
+    :random-lexeme)})
+
 
 
 

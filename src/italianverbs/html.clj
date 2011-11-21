@@ -220,22 +220,26 @@
    (rdutest
     "A simple feature structure rendered as HTML."
     (simple-fs)
-    #(not (= % "")))
+    #(not (= % ""))
+    :simple-fs)
 
    (rdutest
     "Showing nesting: where a value is itself a feature structure."
     (nested-fs)
-    #(not (= % "")))
+    #(not (= % ""))
+    :nested-fs)
 
    (rdutest
     "Anchor"
     (create-anchor "foo" "bar 'baz'")
-    #(not (= % "")))
+    #(not (= % ""))
+    :create-fs)
 
    (rdutest
     "Iframe"
     (iframe "/italian/guess/")
-    #(not (= % "")))
+    #(not (= % ""))
+    :iframe)
 
    ))
   

@@ -129,7 +129,8 @@
       (and
        (= (:bar (:foo merge-result)) 99)
        (= (:baz (:foo merge-result)) 42)
-       (= (:biff merge-result) 12))))
+       (= (:biff merge-result) 12)))
+    :recursive-merge)
    
    :recursive-merge-with-paths
    (rdutest
@@ -141,21 +142,25 @@
     (fn [merge-result]
       (and
        (= (get-path merge-result '(:foo :bar)) 99)
-       (= (get-path merge-result '(:foo :baz)) 42))))
+       (= (get-path merge-result '(:foo :baz)) 42)))
+    :recursive-merge-with-paths)
 
    :atomic-fail
    (rdutest
     "Testing that merge(v1,v2)=fail if v1 != v2."
     (merge {:foo 42} {:foo 43})
     (fn [result]
-      (= (:foo result) :fail)))
+      (= (:foo result) :fail))
+    :atomic-fail)
 
    :atomic-merge
    (rdutest
     "Testing that merge-like-core(v1,v2)=v2."
     (merge-like-core {:foo 42} {:foo 43})
     (fn [result]
-      (= (:foo result) 43)))})
+      (= (:foo result) 43))
+    :atomic-merge)})
+
 
 
 

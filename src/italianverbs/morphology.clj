@@ -483,14 +483,16 @@
    (rdutest
     "Stem verb for futuro semplice"
     (stem-per-futuro "tornare")
-    (fn [future-stem] (= future-stem "torner")))
+    (fn [future-stem] (= future-stem "torner"))
+    :stem-for-futuro)
    :io-facio
    (rdutest
     "Conjugate 'io' + 'prefire' => 'io  preferisco'"
     (conjugate-italian-verb {:infl "infinitive", :cat "verb", :isco true :italian "preferire", :english "to prefer"}
                             {:italian "io", :english "i", :person :1st, :number :singular})
     (fn [string]
-      (= string " preferisco")))})
+      (= string " preferisco"))
+    :io-facio)})
 
 
 
