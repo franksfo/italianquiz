@@ -323,6 +323,20 @@
    :verb-phrase verb-phrase
    :subject subject})
 
+(defn random-svo []
+  (let [subjects (search/search {:cat :noun :case :nom})
+        subject (nth subjects (rand-int (.size subjects)))
+        vp (let [root-verbs (search/search {:cat :verb :infl :infinitive})
+                 root-verb (nth root-verbs (rand-int (.size root-verbs)))
+                 objects (search/search {:cat :noun})
+                 object (conjugate-np (nth objects (rand-int (.size objects)))
+                                      {:def :def})]
+             (conjugate-vp root-verb
+                           subject
+                           object
+                           {:infl :present}))]
+    (conjugate-sent vp subject)))
+
 (def tests
   (let [five-sentences
         (rdutest
