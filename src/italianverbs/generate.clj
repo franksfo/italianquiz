@@ -290,8 +290,9 @@
                                   (list :person :number))
                                  (first constraints)))]
     (if (first irregulars)
-      (:italian (first irregulars))
-      (string/trim (morph/conjugate-italian-verb verb subject)))))
+      (first irregulars)
+      (merge verb
+             {:italian (string/trim (morph/conjugate-italian-verb verb subject))}))))
 
 ;; TODO: learn why string/join doesn't work for me:
 ;; (string/join '("foo" "bar") " ")
@@ -300,12 +301,21 @@
 (defn join [coll separator]
   (apply str (interpose separator coll)))
 
-(defn conjugate-noun [noun constraints]
+(defn conjugate-np [noun constraints]
   (let [search (search/search (fs/merge (:det noun) constraints))
         article (nth search (rand-int (.size search)))]
     {:italian (join (list (:italian article) (:italian noun)) " ")
      :article article
      :noun noun}))
+
+(defn conjugate-vp [verb subject object constraints]
+  (let [conjugated-verb (conjugate-verb verb subject (list constraints))]
+    {:italian (join (list (:italian conjugated-verb) (:italian object)) " ")
+     :root-verb verb
+     :subject subject
+     :verb conjugated-verb
+     :verb-constraints constraints
+     :object object}))
 
 (def tests
   (let [five-sentences
@@ -360,10 +370,10 @@
      (rdutest
       "Conjugate 'io' + 'fare' => 'io  facio'"
       (conjugate-verb (nth (search/search {:italian "fare" :infl :infinitive}) 0)
-                 (nth (search/search {:italian "io" :case :nom}) 0)
-                 (list {:infl :present}))
+                      (nth (search/search {:italian "io" :case :nom}) 0)
+                      (list {:infl :present}))
       (fn [conjugated]
-        (= conjugated "facio"))
+        (= (:italian conjugated) "facio"))
       :io-facio)
 
      :five-sentences
@@ -400,12 +410,26 @@
      :il-libro
      (rdutest
       "Conjugate 'libro' + '{definite}' => 'il libro'."
-      (conjugate-noun (nth (search/search {:italian "libro" :cat :noun}) 0)
-                      {:def :def})
+      (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
+                    {:def :def})
       (fn [conjugated]
         (= (:italian conjugated) "il libro"))
       :il-libro)
 
+     :leggo-il-libro
+     (rdutest
+      "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo io libro'."
+      (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
+            object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
+                                 {:def :def})]
+        (conjugate-vp root-verb
+                      (nth (search/search {:italian "io" :case :nom}) 0)
+                      object
+                      {:infl :present}))
+      (fn [vp]
+        (= (:italian vp) "leggo il libro"))
+      :leggo-il-libro)
+     
 
      }))
 
