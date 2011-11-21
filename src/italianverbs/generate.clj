@@ -453,8 +453,21 @@
         (= (:italian sentence) "io leggo il libro"))
       :io-leggo-il-libro)
      
-
-     
+     :generic-svo
+     (rdutest
+      "Generate a random svo sentence."
+      (let [subject (nth (search/search {:cat :noun :case :nom}) 0)
+            vp (let [root-verb (nth (search/search {:cat :verb :infl :infinitive}) 0)
+                     object (conjugate-np (nth (search/search {:cat :noun}) 0)
+                                          {:def :def})]
+                 (conjugate-vp root-verb
+                               subject
+                               object
+                               {:infl :present}))]
+        (conjugate-sent vp subject))
+      (fn [sentence]
+        (not (= (:italian sentence) "")))
+      :generic-svo)
      }))
 
 ;; diagnostic.
