@@ -357,20 +357,32 @@
 (def verbs
   {:cat :verb})
 
-
+;; do: ((:3s tests) tests) to see test results.
+;; do (:test-result ((:3s tests) tests) to see "foobaziare" structure.
 (def tests
   {:third-singular-present-that-takes-human-subjects-and-artifact-objects
    (rdutest
-    "A complicated verb lexical entry the made up word: 'foobaziare'."
-    (let [complicated-verb (add "foobaziare" "to foobaz" {:cat :verb})]
+    "A complicated verb lexical entry the word: 'parlare'."
+    (let [complicated-verb (add "parlare" "to speak"
+
+                                {:cat :verb
+                                 :subj {:human true}
+                                 :obj {:speakable true}
+                                }
+
+                                )
+          ]
       complicated-verb)
     (fn [complicated-verb]
-      (= (:cat complicated-verb) :verb))
+      (and
+       (= (:cat complicated-verb) :verb)
+       (= (fs/get-path complicated-verb (list :subj :human)) true)))
     :third-singular-present-that-takes-human-subjects-and-artifact-objects)
    :3s ; alias
    :third-singular-present-that-takes-human-subjects-and-artifact-objects})
 
-         
+(def parlare
+  (:test-result ((:3s tests) tests)))
 
 ;;usage : (run-query (pathify trans-verbs)))
 
