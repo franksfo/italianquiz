@@ -363,25 +363,41 @@
   {:third-singular-present-that-takes-human-subjects-and-artifact-objects
    (rdutest
     "A complicated verb lexical entry the word: 'parlare'."
-    (let [complicated-verb (add "parlare" "to speak"
-
-                                {:cat :verb
-                                 :subj {:human true}
-                                 :obj {:speakable true}
-                                }
-
-                                )
-          ]
-      complicated-verb)
-    (fn [complicated-verb]
+    (let [verb {:cat :verb}
+          human-subj {:subj {:human true}}
+          third-sing {:subj {:number :singular :person :3rd}}
+          parlare (add "parlare" "to speak"
+                         (fs/merge
+                          verb
+                          human-subj
+                          {
+                           :obj {:speakable true}
+                           }))
+          parla (add "parla" "speaks"
+                     (fs/merge
+                      parlare
+                      third-sing
+                      {:root parlare}))]
+      
+      parla)
+    (fn [parla]
       (and
-       (= (:cat complicated-verb) :verb)
-       (= (fs/get-path complicated-verb (list :subj :human)) true)))
+       (= (:cat parla) :verb)
+       (= (fs/get-path parla (list :subj :human)) true)
+       (= (fs/get-path parla (list :root :subj :human)) true)
+       (= (fs/get-path parla (list :subj :number)) :singular)
+       (= (fs/get-path parla (list :subj :person)) :3rd)
+       (= (fs/get-path parla (list :obj :speakable)) true)
+       (= (:english parla) "speaks")
+       (= (:italian parla) "parla")
+       )
+      
+      )
     :third-singular-present-that-takes-human-subjects-and-artifact-objects)
    :3s ; alias
    :third-singular-present-that-takes-human-subjects-and-artifact-objects})
 
-(def parlare
+(def parla
   (:test-result ((:3s tests) tests)))
 
 ;;usage : (run-query (pathify trans-verbs)))
