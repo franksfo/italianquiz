@@ -1,6 +1,8 @@
 (ns italianverbs.lexiconfn
   (:use [hiccup core page-helpers]
-        [clojure.set])
+        [clojure.set]
+        [italianverbs.rdutest]        
+        )
   (:require
    [clojure.core :as core]
    [somnium.congomongo :as mongo]
@@ -261,19 +263,20 @@
                           (get fs :gender)))
    (if english-plural english-plural
      (english-pluralize (get fs :english)))
-   (fs/merge
+   (fs/merge-like-core
+    types
     fs
     {:det {:number :plural}}
-    {:number :plural})
-   types))
+    {:number :plural})))
 
 (defn add-with-plural [italian english featuremap types & [italian-plural english-plural]]
   (add-plural
    (add italian english
-        (fs/merge featuremap
+        (fs/merge-like-core
+                       types
+                       featuremap
                   {:det {:number :singular}}
-                  {:number :singular})
-        types)
+                  {:number :singular}))
    types
    italian-plural english-plural))
 
@@ -353,6 +356,21 @@
 
 (def verbs
   {:cat :verb})
+
+
+(def tests
+  {:third-singular-present-that-takes-human-subjects-and-artifact-objects
+   (rdutest
+    "A complicated verb lexical entry the made up word: 'foobaziare'."
+    (let [complicated-verb (add "foobaziare" "to foobaz" {:cat :verb})]
+      complicated-verb)
+    (fn [complicated-verb]
+      (= (:cat complicated-verb) :verb))
+    :third-singular-present-that-takes-human-subjects-and-artifact-objects)
+   :3s ; alias
+   :third-singular-present-that-takes-human-subjects-and-artifact-objects})
+
+         
 
 ;;usage : (run-query (pathify trans-verbs)))
 
