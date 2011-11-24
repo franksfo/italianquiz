@@ -154,6 +154,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn empty-set [set]
   (= (.size set) 0))
 
+
+;; TODO: move some of these lexically-related tests to lexicon.clj (e.g. the 'fare' (to do) test).
 (def tests
   {:sanity-check
    (rdutest
