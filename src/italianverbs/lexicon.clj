@@ -62,7 +62,7 @@
                     (fs/m
                      verb
                      {:subj (fs/m noun {:human true})
-                      :obj {:readable true}
+                      :obj (fs/m noun {:readable true})
                       }))
       
       mangiare (add "mangiare" "to eat"
