@@ -31,7 +31,35 @@
        {:month true})
 
   (let [noun {:person :3rd :cat :noun}]
-    (add "cane" "dog" noun))
+    (add "cane" "dog" noun)
+
+;    (let [foo (fs/mergec noun {:case :nom})] foo)
+    
+    (add "io" "i" 
+         (fs/merge-like-core
+          noun {:case :nom}))
+
+
+
+;    )
+
+  
+
+
+
+
+
+
+
+
+
+  ) ;; top-level (let).
+
+  
+  
+
+
+  
 ;  (let [noun {:person :3rd
 ;              :cat :noun}]
 ;    (add "cane" "dog"
