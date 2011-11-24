@@ -13,12 +13,12 @@
   (fs/merge-like-core args))
 
 (let [verb {:cat :verb}
-      human {:human true}
-      animate-subj {:subj {:animate true}}
-      human-subj (fs/m
-                  animate-subj
-                  {:subj human})
-      third-sing {:subj {:number :singular :person :3rd}}
+      animate {:animate true}
+      human (fs/m animate {:human true})
+      animate-subj {:subj animate}
+      human-subj {:subj human}
+      third-sing {:number :singular :person :3rd}
+      third-sing-subj {:subj third-sing}
 
       parlare (add "parlare" "to speak"
                    (fs/m
@@ -39,8 +39,9 @@
       parla (add "parla" "he speaks"
                  (fs/m
                   parlare
-                  third-sing
+                  third-sing-subj
                   {:root parlare}))
+
       parlo (add "parlo" "i speak"
                  (fs/m
                   parlare
@@ -51,12 +52,16 @@
                     {:month true})
 
       noun {:person :3rd :cat :noun}
-      cane (add "cane" "dog" (fs/m noun {:animate true}))
+      cane (add "cane" "dog"
+                (fs/m noun
+                      {:animate true}
+                      {:gender :masc}))
 
       io (add "io" "i" 
               (fs/m
                human
-               noun {:case :nom}))
+               noun
+               {:person :1st :number :singular :case :nom}))
 
       mi (add "mi" "me"
               (fs/m
