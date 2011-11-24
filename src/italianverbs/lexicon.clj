@@ -9,7 +9,9 @@
 
 (let [verb {:cat :verb}
       human-subj {:subj {:human true}}
+      animate-subj {:subj {:animate true}}
       third-sing {:subj {:number :singular :person :3rd}}
+
       parlare (add "parlare" "to speak"
                    (fs/merge-like-core
                     verb
@@ -17,15 +19,20 @@
                     {
                      :obj {:speakable true}
                      }))
-      merge (fs/merge-like-core
-             parlare
-             third-sing
-             {:root parlare})
-          parla (add "parla" "speaks"
-                     (fs/merge-like-core
-                      parlare
-                      third-sing
-                      {:root parlare}))]
+
+      mangiare (add "mangiare" "to eat"
+                    (fs/merge-like-core
+                     verb
+                     animate-subj
+                     {
+                      :obj {:edible true}
+                      }))
+
+      parla (add "parla" "speaks"
+                 (fs/merge-like-core
+                  parlare
+                  third-sing
+                  {:root parlare}))]
 
   (add "gennario" "january"
        {:month true})
@@ -38,6 +45,11 @@
     (add "io" "i" 
          (fs/merge-like-core
           noun {:case :nom}))
+
+    (add "mi" "me"
+         (fs/merge-like-core
+          noun
+          {:person :1st :number :singular :case :acc}))
 
 
 
