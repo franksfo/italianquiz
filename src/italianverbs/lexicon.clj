@@ -97,21 +97,6 @@
       
       ]
   ) ;; top-level (let).
-  
-;  (let [noun {:person :3rd
-;              :cat :noun}]
-;    (add "cane" "dog"
-;         (fs/mergec
-;          noun
-;          {:animate true}))))
-
-;    (add-with-plural "cane" "dog"
-;      (fs/mergec 
-;       noun
-;       {:number :singular
-;        :gender :masc
-;        :animate true
-;        :common true})))
 
 (add "gennario" "january"
      {:month true})
