@@ -3,6 +3,8 @@
         [italianverbs.rdutest])
   (:require [italianverbs.fs :as fs]))
 
+;; WARNING: clear blows away entire lexicon in backing store (mongodb).
+(clear)
 
 (let [verb {:cat :verb}
       human-subj {:subj {:human true}}
