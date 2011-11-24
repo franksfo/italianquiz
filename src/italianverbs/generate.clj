@@ -292,7 +292,8 @@
     (if (first irregulars)
       (first irregulars)
       (merge verb
-             {:italian (string/trim (morph/conjugate-italian-verb verb subject))}))))
+             {:italian (string/trim (morph/conjugate-italian-verb verb subject))
+              :english (string/trim (morph/conjugate-english-verb verb subject))}))))
 
 ;; TODO: learn why string/join doesn't work for me:
 ;; (string/join '("foo" "bar") " ")
@@ -305,37 +306,65 @@
   (let [search (search/search (fs/merge (:det noun) constraints))
         article (nth search (rand-int (.size search)))]
     {:italian (join (list (:italian article) (:italian noun)) " ")
+     :english (join (list (:english article) (:english noun)) " ")
      :article article
      :noun noun}))
 
 (defn conjugate-vp [verb subject object constraints]
   (let [conjugated-verb (conjugate-verb verb subject (list constraints))]
     {:italian (join (list (:italian conjugated-verb) (:italian object)) " ")
+     :english (join (list (:english conjugated-verb) (:english object)) " ")
      :root-verb verb
      :subject subject
      :verb conjugated-verb
      :verb-constraints constraints
      :object object}))
 
-
 (defn conjugate-sent [verb-phrase subject]
   {:italian (join (list (:italian subject) (:italian verb-phrase)) " ")
    :verb-phrase verb-phrase
    :subject subject})
 
-(defn random-svo []
-  (let [subjects (search/search {:cat :noun :case :nom})
+(defn rand-sv []
+  (let [subjects (search/search {:cat :noun :case {:not :nom}})
         subject (nth subjects (rand-int (.size subjects)))
-        vp (let [root-verbs (search/search {:cat :verb :infl :infinitive})
-                 root-verb (nth root-verbs (rand-int (.size root-verbs)))
-                 objects (search/search {:cat :noun})
-                 object (conjugate-np (nth objects (rand-int (.size objects)))
-                                      {:def :def})]
-             (conjugate-vp root-verb
-                           subject
-                           object
-                           {:infl :present}))]
-    (conjugate-sent vp subject)))
+        root-verbs (search/search {:cat :verb :infl :infinitive})
+        root-verb (nth root-verbs (rand-int (.size root-verbs)))
+        objects (search/search {:cat :noun :case {:not :acc}})
+        object (conjugate-np (nth objects (rand-int (.size objects)))
+                             {:def :def})]
+    (list subject root-verb object)))
+
+(defn random-svo []
+  (let [subjects (search/search {:cat :noun :case {:not :nom}})]
+    (if (> (.size subjects) 0)
+      (let [subject (nth subjects (rand-int (.size subjects)))
+            root-verbs (search/search {:cat :verb :infl :infinitive})]
+        (if (> (.size root-verbs) 0)
+          (let [root-verb (nth root-verbs (rand-int (.size root-verbs)))
+                objects (search/search {:cat :noun :case {:not :acc}})]
+            (if (> (.size objects) 0)
+              (let [object (conjugate-np (nth objects (rand-int (.size objects)))
+                                         {:def :def})]
+                "vp")
+                                        ;(conjugate-vp root-verb subject object {:infl :present}))
+              "no objects"))
+          "no root verbs"))
+      "no subjects")))
+;        
+                 
+;             root-verb)]
+;    vp))
+;                 objects (search/search {:cat :noun})
+;                 object (conjugate-np (nth objects (rand-int (.size objects)))
+;                                      {:def :def})]
+;             root-verb)]
+;    vp))
+;             (conjugate-vp root-verb
+;                           subject
+;                           object
+;                           {:infl :present}))]
+;    (conjugate-sent vp subject)))
 
 (def tests
   (let [five-sentences
@@ -467,21 +496,21 @@
         (= (:italian sentence) "io leggo il libro"))
       :io-leggo-il-libro)
      
-     :generic-svo
-     (rdutest
-      "Generate a random svo sentence."
-      (let [subject (nth (search/search {:cat :noun :case :nom}) 0)
-            vp (let [root-verb (nth (search/search {:cat :verb :infl :infinitive}) 0)
-                     object (conjugate-np (nth (search/search {:cat :noun}) 0)
-                                          {:def :def})]
-                 (conjugate-vp root-verb
-                               subject
-                               object
-                               {:infl :present}))]
-        (conjugate-sent vp subject))
-      (fn [sentence]
-        (not (= (:italian sentence) "")))
-      :generic-svo)
+;     :generic-svo
+;     (rdutest
+;      "Generate a random svo sentence."
+;      (let [subject (nth (search/search {:cat :noun :case :nom}) 0)
+;            vp (let [root-verb (nth (search/search {:cat :verb :infl :infinitive}) 0)
+;                     object (conjugate-np (nth (search/search {:cat :noun}) 0)
+;                                          {:def :def})]
+;                 (conjugate-vp root-verb
+;                               subject
+;                               object
+;                               {:infl :present}))]
+;        (conjugate-sent vp subject))
+;      (fn [sentence]
+;        (not (= (:italian sentence) "")))
+;      :generic-svo)
      }))
 
 ;; diagnostic.

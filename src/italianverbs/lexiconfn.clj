@@ -57,7 +57,7 @@
                           (assoc {} :italian italian :english english)
                           (assoc {} :italian italian))))]
       (add-lexeme featuremap))))
-
+    
 ;; _italian is a string; _types is a list of symbols (each of which is a map of key-values);
 ;; _result is an accumulator which contains the merge of all of the maps
 ;; in _types.
@@ -360,9 +360,9 @@
 ;; do: ((:3s tests) tests) to see test results.
 ;; do (:test-result ((:3s tests) tests) to see "foobaziare" structure.
 (def tests
-  {:third-singular-present-that-takes-human-subjects-and-artifact-objects
+  {:parla
    (rdutest
-    "A complicated verb lexical entry the word: 'parlare'."
+    "A lexical entry for the word: 'parlare'."
     (let [verb {:cat :verb}
           human-subj {:subj {:human true}}
           third-sing {:subj {:number :singular :person :3rd}}
@@ -393,12 +393,10 @@
        )
       
       )
-    :third-singular-present-that-takes-human-subjects-and-artifact-objects)
-   :3s ; alias
-   :third-singular-present-that-takes-human-subjects-and-artifact-objects})
+    :parla)})
 
-(def parla
-  (:test-result ((:3s tests) tests)))
+;(def parla
+;  (:test-result ((:3s tests) tests)))
 
 ;;usage : (run-query (pathify trans-verbs)))
 
