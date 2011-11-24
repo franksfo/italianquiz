@@ -285,9 +285,10 @@
 (defn conjugate-verb [verb subject [& constraints]]
   (let [irregulars
         (search/search (fs/merge {:root verb}
-                                 (select-keys
-                                  subject
-                                  (list :person :number))
+                                 {:subj
+                                  (select-keys
+                                   subject
+                                   (list :person :number))}
                                  (first constraints)))]
     (if (first irregulars)
       (first irregulars)
@@ -303,7 +304,7 @@
   (apply str (interpose separator coll)))
 
 (defn conjugate-np [noun constraints]
-  (let [search (search/search (fs/merge (:det noun) constraints))
+  (let [search (search/search (fs/merge {:gender (:gender noun)} constraints))
         article (nth search (rand-int (.size search)))]
     {:italian (join (list (:italian article) (:italian noun)) " ")
      :english (join (list (:english article) (:english noun)) " ")
@@ -379,8 +380,7 @@
                                     sentences)))))
          :five-sentences)]
 
-    {
-     :first-sing-root-of-fare
+    (list
      (rdutest
       "The 1st person singular present form of 'fare' should be findable."
       (search/search {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))})
@@ -390,7 +390,7 @@
       :first-sing-root-of-fare)
 
 
-     :merged-fs
+;     :merged-fs
      (rdutest
       "Merged fs."
       (fs/merge {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
@@ -402,7 +402,7 @@
         (> (count resulting-fs) 0))
       :merged-fs)
      
-     :search-for-conjugation
+;     :search-for-conjugation
      (rdutest
       "Look up an irregular verb by searching for a map created by a subject."
       (search/search (fs/merge {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
@@ -415,7 +415,7 @@
              (not (= nil (first results)))))
       :search-for-conjugation)
      
-     :io-facio
+;     :io-facio
      (rdutest
       "Conjugate 'io' + 'fare' => 'io  facio'"
       (conjugate-verb (nth (search/search {:italian "fare" :infl :infinitive}) 0)
@@ -425,10 +425,10 @@
         (= (:italian conjugated) "facio"))
       :io-facio)
 
-     :five-sentences
+;     :five-sentences
      five-sentences
      
-     :subjects-exist
+;     :subjects-exist
      (rdutest
       "Make sure subjects are all real lexical entries by checking for non-null :italian feature"
       (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
@@ -436,7 +436,7 @@
         (= 0 (.size (remove #(not (= nil %)) sentences))))
       :subjects-exist)
      
-     :subjects-have-nonfail-number
+;     :subjects-have-nonfail-number
      (rdutest
       "Make sure subject's :number value is valid (non-:fail)."
       (map (fn [sentence] (:subject sentence)) (:test-result five-sentences))
@@ -445,7 +445,7 @@
            (.size (remove (fn [subject] (= (:number subject) :fail)) subjects))))
       :subjects-have-nonfail-number)
 
-     :subjects-case
+;     :subjects-case
      (rdutest
       "Make sure subject's :case value is ok (non-:acc and non-:fail). nil is ok: common nouns (in italian
        and english) don't have case."
@@ -456,7 +456,7 @@
       :subjects-case)
      
 
-     :il-libro
+;     :il-libro
      (rdutest
       "Conjugate 'libro' + '{definite}' => 'il libro'."
       (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
@@ -465,22 +465,24 @@
         (= (:italian conjugated) "il libro"))
       :il-libro)
 
-     :leggo-il-libro
+;     :leggo-il-libro
      (rdutest
       "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro'."
       (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
             object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
                                  {:def :def})]
-        (conjugate-vp root-verb
-                      (nth (search/search {:italian "io" :case :nom}) 0)
-                      object
-                      {:infl :present}))
+        (if root-verb
+          (conjugate-vp root-verb
+                        (nth (search/search {:italian "io" :case :nom}) 0)
+                        object
+                        {:infl :present})
+          {:fail "verb 'leggere' not found."}))
       (fn [vp]
         (= (:italian vp) "leggo il libro"))
       :leggo-il-libro)
      
 
-     :io-leggo-il-libro
+;     :io-leggo-il-libro
      (rdutest
       "Conjugate 'io [leggere/[1st sing]-il-libro]' => 'io leggo il libro'."
       (let [subject (nth (search/search {:italian "io" :case :nom}) 0)
@@ -511,7 +513,8 @@
 ;      (fn [sentence]
 ;        (not (= (:italian sentence) "")))
 ;      :generic-svo)
-     }))
+    ; }
+    )))
 
 ;; diagnostic.
 (def verbs
