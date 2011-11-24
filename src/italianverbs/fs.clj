@@ -48,7 +48,8 @@
       (merge
        {key (mapcat (fn [eachmap]
                       (let [val (get eachmap key :notfound)]
-                        (if (not (= val :notfound))
+                        (if (and (not (= val :notfound))
+                                 (not (= val nil)))
                           (list val))))
                     maps)}
        (collect-values maps (rest keys))))))
@@ -112,17 +113,17 @@
 ;; TODO: use merge-with http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/merge-with
 (defn merge-like-core [& maps]
   "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
-  (let [keyset (union-keys maps)]
-    (merge-r-like-core (collect-values maps keyset)
-                       (seq keyset))))
+  (let [keyset (union-keys maps)
+        values (collect-values maps keyset)]
+    (merge-r-like-core values (seq keyset))))
 
 ;; EXACTLY THE SAME AS (mergec):
 ;; (until i learn to write wrappers).
 (defn m [& maps]
   "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
-  (let [keyset (union-keys maps)]
-    (merge-r-like-core (collect-values maps keyset)
-                       (seq keyset))))
+  (let [keyset (union-keys maps)
+        values (collect-values maps keyset)]
+    (merge-r-like-core values (seq keyset))))
 
 (defn mergec [& maps]
   (merge-like-core (list maps)))
@@ -166,11 +167,22 @@
 
    :atomic-merge
    (rdutest
-    "Testing that merge-like-core(v1,v2)=v2."
+    "Testing that merge-like-core(v1,v2)=v2 (overriding works)."
     (merge-like-core {:foo 42} {:foo 43})
     (fn [result]
       (= (:foo result) 43))
-    :atomic-merge)})
+    :atomic-merge)
+
+   :ignore-nil-values
+   (rdutest
+    "Ignore nils in values."
+    (merge-like-core {:foo true} {:foo nil})
+    (fn [result]
+      (= (:foo result) true))
+    :ignore-nil-values)
+   
+
+   })
 
 
 
