@@ -322,7 +322,6 @@
      :root-verb verb
      :subject subject
      :verb conjugated-verb
-     :verb-constraints constraints
      :object object}))
 
 (defn conjugate-sent [verb-phrase subject]
