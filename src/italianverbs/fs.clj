@@ -116,6 +116,9 @@
     (merge-r-like-core (collect-values maps keyset)
                        (seq keyset))))
 
+(defn mergec [& maps]
+  (merge-like-core (list maps)))
+
 (def tests
   {
    :recursive-merge
