@@ -116,6 +116,14 @@
     (merge-r-like-core (collect-values maps keyset)
                        (seq keyset))))
 
+;; EXACTLY THE SAME AS (mergec):
+;; (until i learn to write wrappers).
+(defn m [& maps]
+  "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
+  (let [keyset (union-keys maps)]
+    (merge-r-like-core (collect-values maps keyset)
+                       (seq keyset))))
+
 (defn mergec [& maps]
   (merge-like-core (list maps)))
 

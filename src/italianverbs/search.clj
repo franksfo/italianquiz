@@ -197,7 +197,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    :lookup-roots
    (rdutest
     "Looking up a verb by a root works."
-    (search {:root {:italian "fare"}})
+    (search {:root {:italian "parlare"}})
     #(and (not (= % nil)) (> (.size %) 0))
     :lookup-roots)
 

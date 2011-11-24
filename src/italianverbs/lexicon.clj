@@ -7,15 +7,20 @@
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear)
 
+;; this (merge) doesn't work: need to learn to write wrappers.
+;; until then, using fs/m below.
+(defn merge [& [args]]
+  (fs/merge-like-core args))
+
 (let [verb {:cat :verb}
       animate-subj {:subj {:animate true}}
-      human-subj (fs/merge-like-core
+      human-subj (fs/m
                   animate-subj
                   {:subj {:human true}})
       third-sing {:subj {:number :singular :person :3rd}}
 
       parlare (add "parlare" "to speak"
-                   (fs/merge-like-core
+                   (fs/m
                     verb
                     human-subj
                     {
@@ -23,7 +28,7 @@
                      }))
 
       mangiare (add "mangiare" "to eat"
-                    (fs/merge-like-core
+                    (fs/m
                      verb
                      animate-subj
                      {
@@ -31,7 +36,7 @@
                       }))
 
       parla (add "parla" "speaks"
-                 (fs/merge-like-core
+                 (fs/m
                   parlare
                   third-sing
                   {:root parlare}))]
@@ -42,14 +47,12 @@
   (let [noun {:person :3rd :cat :noun}]
     (add "cane" "dog" noun)
 
-;    (let [foo (fs/mergec noun {:case :nom})] foo)
-    
     (add "io" "i" 
-         (fs/merge-like-core
+         (fs/m
           noun {:case :nom}))
 
     (add "mi" "me"
-         (fs/merge-like-core
+         (fs/m
           noun
           {:person :1st :number :singular :case :acc}))
 
