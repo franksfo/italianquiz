@@ -8,8 +8,10 @@
 (clear)
 
 (let [verb {:cat :verb}
-      human-subj {:subj {:human true}}
       animate-subj {:subj {:animate true}}
+      human-subj (fs/merge-like-core
+                  animate-subj
+                  {:subj {:human true}})
       third-sing {:subj {:number :singular :person :3rd}}
 
       parlare (add "parlare" "to speak"
