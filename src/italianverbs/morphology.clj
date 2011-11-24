@@ -199,7 +199,7 @@
                                                          true "o")
                                                         "no" space)))
      true
-     (str "Error: :person (" (get subject-head :person) ") or :number (" (get subject-head :number)  ")  value was not matched. (verb-head=" (get verb-head :italian) "),(subject=" (get subject-head :italian) ")"))))
+     (str "conjugate-italian-verb-regular error: :person (" (get subject-head :person) ") or :number (" (get subject-head :number)  ")  value was not matched. (verb-head=" (get verb-head :italian) "),(subject-head=" (get subject-head :italian) ")"))))
 
 ;; TODO: figure out how to interpolate variables into regexps.
 (defn except-first-words [first-words words]
@@ -485,14 +485,28 @@
     (stem-per-futuro "tornare")
     (fn [future-stem] (= future-stem "torner"))
     :stem-for-futuro)
-   :io-facio
+
+   :io-mangio ; regular conjugation
+   (rdutest
+    "Conjugate 'io' + 'mangiare' => 'io mangio'"
+    (conjugate-italian-verb {:infl "infinitive", :cat "verb", :italian "mangiare", :english "to eat"}
+                            {:italian "io", :english "i", :person :1st, :number :singular})
+    (fn [string]
+      (= string " mangio"))
+    :io-mangio)
+
+   :io-preferisco ; -isco conjugation
    (rdutest
     "Conjugate 'io' + 'prefire' => 'io  preferisco'"
     (conjugate-italian-verb {:infl "infinitive", :cat "verb", :isco true :italian "preferire", :english "to prefer"}
                             {:italian "io", :english "i", :person :1st, :number :singular})
     (fn [string]
       (= string " preferisco"))
-    :io-facio)})
+    :io-facio)
+
+   })
+
+   
 
 
 

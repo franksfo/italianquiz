@@ -99,9 +99,12 @@
   "merge a map where each value is a list of values to be merged for that key."
   (let [key (first keys)]
     (if key
-      (merge
-       {key (merge-values-like-core (get collected-map key))}
-       (merge-r-like-core collected-map (rest keys)))
+      (let [merged-values (merge-values-like-core (get collected-map key))]
+        (if (not (= merged-values {}))
+          (merge
+           {key merged-values}
+           (merge-r-like-core collected-map (rest keys)))
+          (merge-r-like-core collected-map (rest keys))))
       {})))
 
 (defn merge [& maps]
@@ -180,7 +183,15 @@
     (fn [result]
       (= (:foo result) true))
     :ignore-nil-values)
-   
+
+   :ignore-nil-values-2
+   (rdutest
+    "Ignore nils in values."
+    (merge-like-core {:foo nil} {:foo nil})
+    (fn [result]
+      (= result {}))
+    :ignore-nil-values-2)
+
 
    })
 

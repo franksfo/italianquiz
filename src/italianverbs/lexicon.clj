@@ -12,21 +12,23 @@
 (defn merge [& [args]]
   (fs/merge-like-core args))
 
-(let [verb {:cat :verb :infl :infinitive}
+(let [verb {:cat :verb :infl :infinitive :subj {:case {:not :acc}}}
+      transitive {:obj {:case {:not :nom}}}
       present {:infl :present}
       animate {:animate true}
       noun {:cat :noun}
+      pronoun (fs/m noun) ;; these do not take a determiner.
       speakable (fs/m noun {:speakable true})
       edible (fs/m noun {:edible true})
       human (fs/m animate {:human true})
-      artifact (fs/m noun {:artifact true})
-      third-sing {:number :singular :person :3rd}
+      third-sing {:number :singular :person :3rd :cat :noun}
       third-sing-subj {:subj third-sing}
       noun {:cat :noun}
-      common-noun {:person :3rd :cat :noun}
-
+      common-noun (fs/m third-sing {:det true})
+      artifact (fs/m common-noun {:artifact true})
+      
       cane (add "cane" "dog"
-                (fs/m noun
+                (fs/m common-noun
                       {:animate true}
                       {:gender :masc}))
 
@@ -48,10 +50,14 @@
       il (add "il" "the" {:gender :masc :number :singular :cat :det
                        :def :def})
 
+      la (add "la" "the" {:gender :fem :number :singular :cat :det
+                       :def :def})
+
+      
       io (add "io" "i" 
               (fs/m
                human
-               noun
+               pronoun
                {:person :1st :number :singular :case :nom}))
 
       libro (add "libro" "book"
@@ -60,14 +66,14 @@
 
       leggere (add "leggere" "to read"
                     (fs/m
-                     verb
+                     transitive verb
                      {:subj (fs/m noun {:human true})
                       :obj (fs/m noun {:readable true})
                       }))
       
       mangiare (add "mangiare" "to eat"
                     (fs/m
-                     verb
+                     transitive verb
                      {:subj (fs/m noun {:animate true})
                       :obj edible
                       }))
@@ -81,6 +87,11 @@
                 (fs/m artifact
                       {:edible true
                        :gender :masc}))
+
+      pane (add "pasta" "pasta"
+                (fs/m artifact
+                      {:edible true
+                       :gender :fem}))
 
       parlare (add "parlare" "to speak"
                    (fs/m
