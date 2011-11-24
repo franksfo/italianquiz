@@ -51,7 +51,8 @@
      (rest types)
      (fs/merge (first types) result))
     (let [featuremap
-          (fs/merge featuremap
+          (fs/merge-like-core
+           featuremap
                  (merge result
                         (if english
                           (assoc {} :italian italian :english english)
@@ -367,32 +368,38 @@
           human-subj {:subj {:human true}}
           third-sing {:subj {:number :singular :person :3rd}}
           parlare (add "parlare" "to speak"
-                         (fs/merge
+                         (fs/merge-like-core
                           verb
                           human-subj
                           {
                            :obj {:speakable true}
                            }))
+          merge (fs/merge-like-core
+                 parlare
+                 third-sing
+                 {:root parlare})
           parla (add "parla" "speaks"
-                     (fs/merge
+                     (fs/merge-like-core
                       parlare
                       third-sing
                       {:root parlare}))]
       
-      parla)
-    (fn [parla]
-      (and
-       (= (:cat parla) :verb)
-       (= (fs/get-path parla (list :subj :human)) true)
-       (= (fs/get-path parla (list :root :subj :human)) true)
-       (= (fs/get-path parla (list :subj :number)) :singular)
-       (= (fs/get-path parla (list :subj :person)) :3rd)
-       (= (fs/get-path parla (list :obj :speakable)) true)
-       (= (:english parla) "speaks")
-       (= (:italian parla) "parla")
-       )
+      {:merge merge
+       :parla parla})
+    (fn [merge-and-parla]
+      (let [merge (:merge merge-and-parla)
+            parla (:parla merge-and-parla)]
+        (and
+         (= (:cat parla) :verb)
+         (= (fs/get-path parla (list :subj :human)) true)
+         (= (fs/get-path parla (list :root :subj :human)) true)
+         (= (fs/get-path parla (list :subj :number)) :singular)
+         (= (fs/get-path parla (list :subj :person)) :3rd)
+         (= (fs/get-path parla (list :obj :speakable)) true)
+         (= (:english parla) "speaks")
+         (= (:italian parla) "parla")
+         )))
       
-      )
     :parla)})
 
 ;(def parla
