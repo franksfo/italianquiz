@@ -1,7 +1,8 @@
 (ns italianverbs.lexicon
   (:use [italianverbs.lexiconfn]
         [italianverbs.rdutest])
-  (:require [italianverbs.fs :as fs]))
+  (:require [italianverbs.fs :as fs]
+            [italianverbs.search :as search]))
 
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear)
@@ -25,6 +26,11 @@
                       parlare
                       third-sing
                       {:root parlare}))]
+
+  (add "gennario" "january"
+       {:month true})
+
+
   )
 
 (def localtests ;; so as not to collide with lexiconfn/tests.
