@@ -28,6 +28,7 @@
       common-noun (fs/m third-sing {:det true})
       artifact (fs/m common-noun {:artifact true})
       masc {:gender :masc}
+      fem {:gender :fem}
 
       calcio (add "calcio" "soccer"
                   (fs/m common-noun masc
@@ -55,6 +56,14 @@
                   :obj artifact
                   }))
 
+      fa (add "fa" "makes"
+              (fs/m
+               fare
+               {:root fare}
+               present
+               {:subj {:number :singular
+                       :person :3rd}}))
+
       facio (add "facio" "make"
                  (fs/m
                   fare
@@ -63,6 +72,14 @@
                   {:subj {:number :singular
                           :person :1st}}))
 
+      facio (add "fai" "make"
+                 (fs/m
+                  fare
+                  {:root fare}
+                  present
+                  {:subj {:number :singular
+                          :person :2nd}}))
+      
       giocare (add "giocare" "to play"
                    (fs/m verb
                    {:subj human
@@ -83,8 +100,7 @@
                {:person :1st :number :singular :case :nom}))
 
       libro (add "libro" "book"
-                (fs/m artifact readable
-                      {:gender :masc}))
+                (fs/m artifact readable masc))
 
       leggere (add "leggere" "to read"
                     (fs/m
@@ -92,6 +108,17 @@
                      {:subj (fs/m noun {:human true})
                       :obj (fs/m noun {:readable true})
                       }))
+
+      lei (add "lei" "she" 
+              (fs/m
+               human pronoun fem
+               {:person :3rd :number :singular :case :nom }))
+
+      lui (add "lui" "he" 
+              (fs/m
+               human pronoun masc
+               {:person :3rd :number :singular :case :nom }))
+
       
       mangiare (add "mangiare" "to eat"
                     (fs/m
@@ -128,6 +155,13 @@
                        :speakable true
                        :gender :fem}))
 
+      tu (add "tu" "you" 
+              (fs/m
+               human
+               pronoun
+               {:person :2nd :number :singular :case :nom}))
+
+      
       
       ]
   ) ;; top-level (let).

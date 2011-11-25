@@ -282,6 +282,14 @@
     (cons (sentence)
           (n-sentences (- n 1)))))
 
+;;(map (fn [sent] (:english sent)) (n-random-trans 20))
+;; (map (fn [sent] (:italian sent)) (n-random-trans 20))
+(defn n-random-trans [n]
+  (if (> n 0)
+    (cons (random-transitive)
+          (n-random-trans (- n 1)))))
+
+
 (defn conjugate-verb [verb subject]
   (let [irregulars
         (search/search (fs/merge {:root (fs/m verb {:infl :infinitive})}
