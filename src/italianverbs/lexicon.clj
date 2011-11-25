@@ -27,11 +27,26 @@
       noun {:cat :noun}
       common-noun (fs/m third-sing {:det true})
       artifact (fs/m common-noun {:artifact true})
+      masc {:gender :masc}
+
+      calcio (add "calcio" "soccer"
+                  (fs/m common-noun masc
+                        {:sport true}))
       
       cane (add "cane" "dog"
                 (fs/m common-noun
                       {:animate true}
                       {:gender :masc}))
+
+;; needs supports for reflexive pronouns: "mi chiamo gino".
+;      (add "chiamare" "to be named"
+;           {:cat :verb :infl :infinitive
+;            :subj human})
+      
+      dimenticare (add "dimenticare" "to forget"
+                       (fs/m verb transitive
+                       {:subj animate
+                        :obj {:cat :noun}}))
 
       fare (add "fare" "to make"
                 (fs/m
@@ -40,14 +55,20 @@
                   :obj artifact
                   }))
 
-      facio (add "facio" "i make"
+      facio (add "facio" "make"
                  (fs/m
                   fare
                   {:root fare}
                   present
                   {:subj {:number :singular
                           :person :1st}}))
-     
+
+      giocare (add "giocare" "to play"
+                   (fs/m verb
+                   {:subj human
+                    :obj (fs/m common-noun
+                              {:sport true})}))
+      
       il (add "il" "the" {:gender :masc :number :singular :cat :det
                        :def :def})
 
@@ -102,8 +123,9 @@
                      }))
 
       parola (add "parola" "word"
-                (fs/m noun
-                      {:speakable true
+                (fs/m common-noun
+                      {:readable true
+                       :speakable true
                        :gender :fem}))
 
       
@@ -149,6 +171,80 @@
      {:giorni-della-settimana true})
 (add "domenica" "sunday"
      {:giorni-della-settimana true})
+
+;; prepotizioni (prepositions)
+(add "in" "to"
+	   {:cat :prep
+        :obj {:case {:not :nom}
+              :andare-in true}})
+
+(add "in" "in"
+     {:cat :prep
+      :action-occurring-in true
+      :obj {:case {:not :nom}
+            :english-in true
+            :place true}})
+
+(add "in" "at"
+     {:cat :prep
+      :action-occurring-in true
+      
+      :obj {:case {:not :nom}
+            :english-at true
+            :place true}})
+
+(add "a" "to"
+	   {:cat :prep
+	    
+        :obj {:case {:not :nom}
+              :andare-a true}})
+
+(add "a" "to"
+	   {:cat :prep
+        :obj {:case {:not :nom}
+              :andare-al true}})
+
+(add "di" "of"
+	   {:cat :prep
+        :obj {:case {:not :nom}}})
+
+(add "da" "from"
+	   {:cat :prep
+	    
+        :obj {:case {:not :nom}
+              :place true}})
+
+(add "a" "to"
+	   {:cat :prep
+	    
+        :obj {:case {:not :nom}
+              :animate true}})
+
+(add "con" "with"
+	   {:cat :prep
+	    
+        :obj {:case {:not :nom}
+              :human true}})
+
+(add "per" "for"
+     {:cat :prep
+      :benefactive true
+      
+      :obj {:case {:not :nom}
+            :animate true}})
+
+(add "per" "for"
+     {:cat :prep
+      :benefactive true
+      
+      :obj {:case {:not :nom}
+            :human true}})
+
+(add "su" "on"
+	   {:cat :prep
+        :obj {:case {:not :nom}}})
+
+
 
 (def localtests ;; so as not to collide with lexiconfn/tests.
   {:parlare

@@ -368,6 +368,44 @@
                            object))]
     (conjugate-sent vp (:subject vp))))
 
+(defn random-transitive []
+  (let [vp (let [verbs (search/search {:obj {:not nil} :cat :verb :infl :infinitive})
+                 root-verb (nth verbs (rand-int (.size verbs)))
+                 objects (search/search (fs/get-path root-verb '(:obj)))
+                 subjects (search/search (fs/get-path root-verb '(:subj)))
+                 object (conjugate-np (nth objects (rand-int (.size objects)))
+                                      {:def :def})
+                 subject (conjugate-np (nth subjects (rand-int (.size subjects)))
+                                       {})]
+             (conjugate-vp (fs/m root-verb
+                                 {:infl :present})
+                           subject
+                           object))]
+    (conjugate-sent vp (:subject vp))))
+
+(defn random-verb []
+  (let [verbs (search/search {:obj {:not nil} :cat :verb :infl :infinitive})]
+    (nth verbs (rand-int (.size verbs)))))
+
+(defn check-objs []
+  "check that every inf. verb has at least one satisfying object."
+  (let [verbs (search/search {:obj {:not nil} :cat :verb :infl :infinitive})
+        objs (map (fn [verb]
+                    (let [obj-feat (fs/get-path verb '(:obj))
+                          objs (search/search obj-feat)]
+                      {:italian (:italian verb) :objs (if objs (.size objs) 0)}))
+                  verbs)]
+    objs))
+    
+(defn n-vps [n]
+  (if (> n 0)
+    (let [random-verb (random-verb)
+          objects (search/search (fs/get-path random-verb '(:obj)))
+          object (conjugate-np (nth objects (rand-int (.size objects)))
+                               {:def :def})]
+      (cons (cons random-verb object)
+            (n-vps (- n 1))))))
+
 (defn random-svo []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})]
     (if (> (.size subjects) 0)
@@ -512,7 +550,14 @@
         (= (:italian vp) "leggo il libro"))
       :leggo-il-libro)
      
+     (rdutest
+      "Make sure every transitive verb has at least one noun that satisfies its :obj spec."
+      (check-objs)
+      (fn [pairs]
+        (not (some (fn [pair] (= (:objs pair) 0)) pairs)))
+      :every-trans-verb-has-a-possible-object)
 
+     
 ;     :io-leggo-il-libro
 
 ;     (rdutest
