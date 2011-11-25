@@ -354,6 +354,20 @@
                            object))]
     (conjugate-sent vp (:subject vp))))
 
+(defn random-leggere []
+  (let [vp (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
+                 objects (search/search (fs/get-path root-verb '(:obj)))
+                 subjects (search/search (fs/get-path root-verb '(:subj)))
+                 object (conjugate-np (nth objects (rand-int (.size objects)))
+                                      {:def :def})
+                 subject (conjugate-np (nth subjects (rand-int (.size subjects)))
+                                       {})]
+             (conjugate-vp (fs/m root-verb
+                                 {:infl :present})
+                           subject
+                           object))]
+    (conjugate-sent vp (:subject vp))))
+
 (defn random-svo []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})]
     (if (> (.size subjects) 0)

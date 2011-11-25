@@ -19,6 +19,7 @@
       noun {:cat :noun}
       pronoun (fs/m noun) ;; these do not take a determiner.
       speakable (fs/m noun {:speakable true})
+      readable (fs/m noun {:readable true})
       edible (fs/m noun {:edible true})
       human (fs/m animate {:human true})
       third-sing {:number :singular :person :3rd :cat :noun}
@@ -61,7 +62,7 @@
                {:person :1st :number :singular :case :nom}))
 
       libro (add "libro" "book"
-                (fs/m artifact
+                (fs/m artifact readable
                       {:gender :masc}))
 
       leggere (add "leggere" "to read"
