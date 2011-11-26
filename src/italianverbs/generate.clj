@@ -282,14 +282,6 @@
     (cons (sentence)
           (n-sentences (- n 1)))))
 
-;;(map (fn [sent] (:english sent)) (n-random-trans 20))
-;; (map (fn [sent] (:italian sent)) (n-random-trans 20))
-(defn n-random-trans [n]
-  (if (> n 0)
-    (cons (random-transitive)
-          (n-random-trans (- n 1)))))
-
-
 (defn conjugate-verb [verb subject]
   (let [irregulars
         (search/search (fs/merge {:root (fs/m verb {:infl :infinitive})}
@@ -310,8 +302,8 @@
 (defn join [coll separator]
   (apply str (interpose separator coll)))
 
-(defn conjugate-np [noun constraints]
-  (let [article-search (if (not (= (:det noun) nil)) (search/search (fs/m {:cat :det :gender (:gender noun)} constraints)))
+(defn conjugate-np [noun]
+  (let [article-search (if (not (= (:det noun) nil)) (search/search {:cat :det :gender (:gender noun)}))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
@@ -348,48 +340,25 @@
                              {:def :def})]
     (list subject root-verb object)))
 
-(defn random-mangiare []
-  (let [vp (let [root-verb (nth (search/search {:italian "mangiare" :cat :verb :infl :infinitive}) 0)
-                 objects (search/search (fs/get-path root-verb '(:obj)))
-                 subjects (search/search (fs/get-path root-verb '(:subj)))
-                 object (conjugate-np (nth objects (rand-int (.size objects)))
-                                      {:def :def})
-                 subject (conjugate-np (nth subjects (rand-int (.size subjects)))
-                                       {})]
-             (conjugate-vp (fs/m root-verb
-                                 {:infl :present})
-                           subject
-                           object))]
-    (conjugate-sent vp (:subject vp))))
-
-(defn random-leggere []
-  (let [vp (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
-                 objects (search/search (fs/get-path root-verb '(:obj)))
-                 subjects (search/search (fs/get-path root-verb '(:subj)))
-                 object (conjugate-np (nth objects (rand-int (.size objects)))
-                                      {:def :def})
-                 subject (conjugate-np (nth subjects (rand-int (.size subjects)))
-                                       {})]
-             (conjugate-vp (fs/m root-verb
-                                 {:infl :present})
-                           subject
-                           object))]
-    (conjugate-sent vp (:subject vp))))
-
 (defn random-transitive []
   (let [vp (let [verbs (search/search {:obj {:not nil} :cat :verb :infl :infinitive})
                  root-verb (nth verbs (rand-int (.size verbs)))
                  objects (search/search (fs/get-path root-verb '(:obj)))
                  subjects (search/search (fs/get-path root-verb '(:subj)))
-                 object (conjugate-np (nth objects (rand-int (.size objects)))
-                                      {:def :def})
-                 subject (conjugate-np (nth subjects (rand-int (.size subjects)))
-                                       {})]
+                 object (conjugate-np (fs/m (nth objects (rand-int (.size objects))) {:def :def}))
+                 subject (conjugate-np (nth subjects (rand-int (.size subjects))))]
              (conjugate-vp (fs/m root-verb
                                  {:infl :present})
                            subject
                            object))]
     (conjugate-sent vp (:subject vp))))
+
+;;(map (fn [sent] (:english sent)) (n-random-trans 20))
+;; (map (fn [sent] (:italian sent)) (n-random-trans 20))
+(defn n-random-trans [n]
+  (if (> n 0)
+    (cons (random-transitive)
+          (n-random-trans (- n 1)))))
 
 (defn random-verb []
   (let [verbs (search/search {:obj {:not nil} :cat :verb :infl :infinitive})]
@@ -409,8 +378,7 @@
   (if (> n 0)
     (let [random-verb (random-verb)
           objects (search/search (fs/get-path random-verb '(:obj)))
-          object (conjugate-np (nth objects (rand-int (.size objects)))
-                               {:def :def})]
+          object (conjugate-np (fs/m (nth objects (rand-int (.size objects))) {:def :def}))]
       (cons (cons random-verb object)
             (n-vps (- n 1))))))
 
@@ -423,8 +391,7 @@
           (let [root-verb (nth root-verbs (rand-int (.size root-verbs)))
                 objects (search/search {:cat :noun :case {:not :acc}})]
             (if (> (.size objects) 0)
-              (let [object (conjugate-np (nth objects (rand-int (.size objects)))
-                                         {:def :def})]
+              (let [object (conjugate-np (fs/m (nth objects (rand-int (.size objects))) {:def :def}))]
                 "vp")
                                         ;(conjugate-vp root-verb subject object {:infl :present}))
               "no objects"))
@@ -536,8 +503,7 @@
 ;     :il-libro
      (rdutest
       "Conjugate 'libro' + '{definite}' => 'il libro'."
-      (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
-                    {:def :def})
+      (conjugate-np (fs/m (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def}))
       (fn [conjugated]
         (= (:italian conjugated) "il libro"))
       :il-libro)
@@ -547,8 +513,7 @@
      (rdutest
       "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro'."
       (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
-            object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
-                                 {:def :def})]
+            object (conjugate-np (fs/m (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def}))]
         (if root-verb
           (conjugate-vp (fs/m root-verb {:infl :present})
                         (nth (search/search {:italian "io" :case :nom}) 0)
