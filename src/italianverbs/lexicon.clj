@@ -56,8 +56,48 @@
                         :obj {:cat :noun}})
 
       essere (add "essere" "to be"
-                  transitive)
-      
+                  transitive
+                  {:subj {:cat :noun}})
+
+      essere-conjugations (list
+                           (add "sono" "am"
+                                essere
+                                {:root essere}
+                                {:infl :present}
+                                {:subj {:number :singular
+                                        :person :1st}})
+                           (add "sei" "are"
+                                essere
+                                {:root essere}
+                                {:infl :present}
+                                {:subj {:number :singular
+                                        :person :2nd}})
+                           (add "è" "is"
+                                essere
+                                {:root essere}
+                                {:infl :present}
+                                {:subj {:number :singular
+                                        :person :3rd}})
+                           (add "siamo" "are"
+                                essere
+                                {:root essere}
+                                {:infl :present}
+                                {:subj {:number :plural
+                                        :person :1st}})
+                           (add "siete" "are"
+                                essere
+                                {:root essere}
+                                {:infl :present}
+                                {:subj {:number :plural
+                                        :person :2nd}})
+                           (add "sono" "are"
+                                essere
+                                {:root essere}
+                                {:infl :present}
+                                {:subj {:number :plural
+                                        :person :3rd}}))
+
+                           
       fare (add "fare" "to make"
                 verb
                 {:subj (fs/m noun {:human true})
@@ -70,6 +110,13 @@
               {:subj {:number :singular
                       :person :3rd}})
 
+      facciamo (add "facciamo" "make"
+                    fare
+                    {:root fare}
+                    present
+                    {:subj {:number :plural
+                            :person :1st}})
+      
       facio (add "facio" "make"
                  fare
                  {:root fare}
@@ -83,6 +130,20 @@
                  present
                  {:subj {:number :singular
                          :person :2nd}})
+
+      fanno (add "fanno" "make"
+                 fare
+                 {:root fare}
+                 present
+                 {:subj {:number :plural
+                         :person :3rd}})
+
+      fate (add "fate" "make"
+                fare
+                {:root fare}
+                present
+                {:subj {:number :plural
+                        :person :2nd}})
       
       giocare (add "giocare" "to play"
                    verb
@@ -115,6 +176,11 @@
                human pronoun fem
                {:person :3rd :number :singular :case :nom })
 
+      loro (add "loro" "they" 
+              human
+              pronoun
+              {:person :3rd :number :plural :case :nom})
+      
       lui (add "lui" "he" 
                human pronoun masc
                {:person :3rd :number :singular :case :nom })
@@ -128,7 +194,12 @@
       mi (add "mi" "me"
               noun
               {:person :1st :number :singular :case :acc})
-  
+
+      noi (add "noi" "we" 
+              human
+              pronoun
+              {:person :1st :number :plural :case :nom})
+      
       pane (add "pane" "bread"
                 artifact
                 {:edible true
@@ -167,6 +238,12 @@
       
       una (add "una" "a" {:gender :fem :number :singular :cat :det
                           :def :indef})
+
+      voi (add "voi" "you all" 
+              human
+              pronoun
+              {:person :2nd :number :plural :case :nom})
+
       
       
       ]
