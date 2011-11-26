@@ -13,32 +13,37 @@
   (fs/merge-like-core args))
 
 (let [verb {:cat :verb :infl :infinitive :subj {:case {:not :acc}}}
+      animate {:animate true}
+      det {:cat :det}
+      human (fs/m animate {:human true})
+      masc {:gender :masc}
       transitive {:obj {:case {:not :nom}}}
       present {:infl :present}
-      animate {:animate true}
+      singular {:number :singular}
+      plural {:number :plural}
+      
       noun {:cat :noun}
       pronoun (fs/m noun) ;; these do not take a determiner.
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
       edible (fs/m noun {:edible true})
-      human (fs/m animate {:human true})
+
       third-sing {:number :singular :person :3rd :cat :noun}
       third-sing-subj {:subj third-sing}
-      noun {:cat :noun}
       common-noun (fs/m third-sing {:det true})
       artifact (fs/m common-noun {:artifact true})
       masc {:gender :masc}
       fem {:gender :fem}
-      
+
       calcio (add "il calcio" "soccer"
-                  (fs/m common-noun masc
-                        {:det false
-                         :sport true}))
+                  common-noun masc
+                  {:det false
+                   :sport true})
       
       cane (add "cane" "dog"
-                (fs/m common-noun
-                      {:animate true
-                       :gender :masc}))
+                common-noun
+                {:animate true
+                 :gender :masc})
 
 ;; needs supports for reflexive pronouns: "mi chiamo gino".
 ;      (add "chiamare" "to be named"
@@ -46,122 +51,119 @@
 ;            :subj human})
       
       dimenticare (add "dimenticare" "to forget"
-                       (fs/m verb transitive
+                       verb transitive
                        {:subj animate
-                        :obj {:cat :noun}}))
-
+                        :obj {:cat :noun}})
+      
       fare (add "fare" "to make"
-                (fs/m
-                 verb
-                 {:subj (fs/m noun {:human true})
-                  :obj artifact
-                  }))
+                verb
+                {:subj (fs/m noun {:human true})
+                 :obj artifact})
 
       fa (add "fa" "makes"
-              (fs/m
-               fare
-               {:root fare}
-               present
-               {:subj {:number :singular
-                       :person :3rd}}))
+              fare
+              {:root fare}
+              present
+              {:subj {:number :singular
+                      :person :3rd}})
 
       facio (add "facio" "make"
-                 (fs/m
-                  fare
-                  {:root fare}
-                  present
-                  {:subj {:number :singular
-                          :person :1st}}))
+                 fare
+                 {:root fare}
+                 present
+                 {:subj {:number :singular
+                         :person :1st}})
 
       facio (add "fai" "make"
-                 (fs/m
-                  fare
-                  {:root fare}
-                  present
-                  {:subj {:number :singular
-                          :person :2nd}}))
+                 fare
+                 {:root fare}
+                 present
+                 {:subj {:number :singular
+                         :person :2nd}})
       
       giocare (add "giocare" "to play"
-                   (fs/m verb
+                   verb
                    {:subj human
                     :obj (fs/m noun
-                              {:sport true})}))
+                               {:sport true})})
       
       il (add "il" "the" {:gender :masc :number :singular :cat :det
-                       :def :def})
-
+                          :def :def})
+      
       la (add "la" "the" {:gender :fem :number :singular :cat :det
-                       :def :def})
+                          :def :def})
 
+      i (add "i" "the" masc plural det {:def :def})
       
       io (add "io" "i" 
-              (fs/m
-               human
-               pronoun
-               {:person :1st :number :singular :case :nom}))
+              human
+              pronoun
+              {:person :1st :number :singular :case :nom})
 
       libro (add "libro" "book"
-                (fs/m artifact readable masc))
+                 artifact readable masc)
 
       leggere (add "leggere" "to read"
-                    (fs/m
-                     transitive verb
-                     {:subj (fs/m noun {:human true})
-                      :obj (fs/m noun {:readable true})
-                      }))
+                   transitive verb
+                   {:subj (fs/m noun {:human true})
+                    :obj (fs/m noun {:readable true})})
 
       lei (add "lei" "she" 
-              (fs/m
                human pronoun fem
-               {:person :3rd :number :singular :case :nom }))
+               {:person :3rd :number :singular :case :nom })
 
       lui (add "lui" "he" 
-              (fs/m
                human pronoun masc
-               {:person :3rd :number :singular :case :nom }))
+               {:person :3rd :number :singular :case :nom })
 
       
       mangiare (add "mangiare" "to eat"
-                    (fs/m
-                     transitive verb
-                     {:subj (fs/m noun {:animate true})
-                      :obj edible
-                      }))
+                    transitive verb
+                    {:subj (fs/m noun {:animate true})
+                     :obj edible})
 
       mi (add "mi" "me"
-              (fs/m
-               noun
-               {:person :1st :number :singular :case :acc}))
+              noun
+              {:person :1st :number :singular :case :acc})
   
       pane (add "pane" "bread"
-                (fs/m artifact
-                      {:edible true
-                       :gender :masc}))
+                artifact
+                {:edible true
+                 :gender :masc})
 
       pane (add "pasta" "pasta"
-                (fs/m artifact
-                      {:edible true
-                       :gender :fem}))
+                artifact
+                {:edible true
+                 :gender :fem})
 
       parlare (add "parlare" "to speak"
-                   (fs/m
-                    verb
-                    {:subj (fs/m noun {:human true})
-                     :obj speakable
-                     }))
+                   verb
+                   {:subj (fs/m noun {:human true})
+                    :obj speakable})
 
       parola (add "parola" "word"
-                (fs/m common-noun
-                      {:readable true
-                       :speakable true
-                       :gender :fem}))
+                  common-noun
+                  {:readable true
+                   :speakable true
+                   :gender :fem})
 
+      tavolo (add "tavolo" "table"
+                  common-noun masc artifact
+                  {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
+                   :furniture true
+                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
+
+      
       tu (add "tu" "you" 
-              (fs/m
-               human
-               pronoun
-               {:person :2nd :number :singular :case :nom}))
+              human
+              pronoun
+              {:person :2nd :number :singular :case :nom})
 
+      un (add "un" "a" {:gender :masc :number :singular :cat :det
+                        :def :indef})
+      
+      una (add "una" "a" {:gender :fem :number :singular :cat :det
+                          :def :indef})
       
       
       ]
@@ -223,14 +225,12 @@
 (add "in" "at"
      {:cat :prep
       :action-occurring-in true
-      
       :obj {:case {:not :nom}
             :english-at true
             :place true}})
 
 (add "a" "to"
 	   {:cat :prep
-	    
         :obj {:case {:not :nom}
               :andare-a true}})
 
@@ -245,7 +245,6 @@
 
 (add "da" "from"
 	   {:cat :prep
-	    
         :obj {:case {:not :nom}
               :place true}})
 
@@ -264,14 +263,12 @@
 (add "per" "for"
      {:cat :prep
       :benefactive true
-      
       :obj {:case {:not :nom}
             :animate true}})
 
 (add "per" "for"
      {:cat :prep
       :benefactive true
-      
       :obj {:case {:not :nom}
             :human true}})
 
