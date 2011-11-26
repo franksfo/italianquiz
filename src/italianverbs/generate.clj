@@ -20,41 +20,28 @@
 ;  (let [filename "foo.html"]  ;; TODO: some conventional default if deriving from fs is too hard.
 ;    (duck/spit filename (html/static-page (html/tablize fs)))))
 
-(defn mobili []
-  (let [fn gram/sv
-        head
-        (fs/merge
-         {:infl :present}
-         (let [fn gram/vp-pp
-               head (gram/choose-lexeme
-                     {:cat :verb
-                      :italian "essere"})
-               comp
-               (let [fn gram/pp
-                     head (fs/merge
-                           {:already-looked-up true}
-                           (gram/choose-lexeme
-                            {:cat :prep
-                             :furniture-prep true}))
-                     comp (gram/np-with-post-conditions 
-                            (get head :obj)
-                            ;; note that fn name must be unique
-                            ;; to avoid a fatal runtime error
-                            ;; due to namespace collision.
-                            (defn mobili-np-filterfn1 [fs]
-                              (= (get fs :def) "def")))]
-                 (apply fn (list head comp)))]
-           (apply fn (list head comp))))
-        comp
-        (gram/np-with-post-conditions 
-          {:furniture true}
-          (defn mobili-np-filterfn2 [fs]
-            (= (get fs :def) "def")))]
-    (fs/merge {:question-type :mobili}
-           (apply fn (list head comp)))))
+(defn random-lexeme [& constraints]
+  (let [constraints (first constraints)
+        lexemes (seq
+                 (search/query constraints))]
+    (if lexemes
+      (if (> (.size lexemes) 0)
+        (nth lexemes (rand-int (.size lexemes)))))))
 
-(defn conjugate-italian-prep [preposition prep np]
-  (morph/conjugate-italian-prep preposition prep np))
+;; TODO: learn why string/join doesn't work for me:
+;; (string/join '("foo" "bar") " ")
+;; => " " (should be: "foo bar").
+(defn join [coll separator]
+  (apply str (interpose separator coll)))
+
+(defn conjugate-pp [preposition np]
+  {:english (join (list (:english preposition) (:english np)) " ")
+   :italian (conjugate-italian-prep preposition np)
+   :head preposition
+   :comp np})
+
+(defn conjugate-italian-prep [preposition np]
+  (morph/conjugate-italian-prep preposition np))
 
 (defn conjugate-english-verb [vp subject]
   ;; TODO: lookup irregular form (if any) using vp and subject.
@@ -213,14 +200,6 @@
 
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
 
-(defn random-lexeme [& constraints]
-  (let [constraints (first constraints)
-        lexemes (seq
-                 (search/query constraints))]
-    (if lexemes
-      (if (> (.size lexemes) 0)
-        (nth lexemes (rand-int (.size lexemes)))))))
-
 (defn edible-vp []
   (let [verb (random-lexeme {:cat :verb :obj {:edible true}})
         noun (random-lexeme (fs/get-path verb '(:obj)))]
@@ -295,13 +274,6 @@
              {:italian (string/trim (morph/conjugate-italian-verb verb subject))
               :english (string/trim (morph/conjugate-english-verb verb subject))}))))
 
-;; TODO: learn why string/join doesn't work for me:
-;; (string/join '("foo" "bar") " ")
-;; => " " (should be: "foo bar").
-
-(defn join [coll separator]
-  (apply str (interpose separator coll)))
-
 (defn conjugate-np [noun & [determiner]]
   "conjugate a noun with a determiner (if the noun takes a determiner ((:det noun) is not nil)) randomly chosen using the 'determiner' spec."
   (let [article-search (if (not (= (:det noun) nil)) (search/search (fs/m determiner {:cat :det :gender (:gender noun) :number (:number noun)})))
@@ -330,6 +302,13 @@
    :english (join (list (:english subject) (:english verb-phrase)) " ")
    :verb-phrase verb-phrase
    :subject subject})
+
+(defn mobili []
+  (let [prep (random-lexeme {:cat :prep :furniture true})
+        subject (conjugate-np (random-lexeme {:cat :noun :on {:ruggable true}}))
+        object (conjugate-np (random-lexeme {:cat :noun :furniture true :on (:on subject)}))]
+    (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
+                    subject)))
 
 (defn rand-sv []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})
@@ -549,40 +528,12 @@
         (= (:italian sentence) "voi siete un libro"))
       :io-sono-un-tavolo)
 
-     
-;     :io-leggo-il-libro
-
-;     (rdutest
-;      "Conjugate 'io [leggere/[1st sing]-il-libro]' => 'io leggo il libro'."
-;      (let [subject (nth (search/search {:italian "io" :case :nom}) 0)
-;            vp (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
-;                     object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0)
-;                                          {:def :def})]
-;                 (conjugate-vp root-verb
-;                               subject
-;                               object
-;                               (list {:infl :present})))]
-;        (conjugate-sent vp subject))
-;      (fn [sentence]
-;        (= (:italian sentence) "io leggo il libro"))
-;      :io-leggo-il-libro)
-     
-;     :generic-svo
-;     (rdutest
-;      "Generate a random svo sentence."
-;      (let [subject (nth (search/search {:cat :noun :case :nom}) 0)
-;            vp (let [root-verb (nth (search/search {:cat :verb :infl :infinitive}) 0)
-;                     object (conjugate-np (nth (search/search {:cat :noun}) 0)
-;                                          {:def :def})]
-;                 (conjugate-vp root-verb
-;                               subject
-;                               object
-;                               {:infl :present}))]
-;        (conjugate-sent vp subject))
-;      (fn [sentence]
-;        (not (= (:italian sentence) "")))
-;      :generic-svo)
-    ; }
+     (rdutest
+      "furniture sentence"
+      (mobili)
+      (fn [sentence]
+        (= (:furniture (:head (:object (:verb-phrase sentence)))) true))
+      :mobili)
     )))
 
 ;(defn test []

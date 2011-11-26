@@ -211,7 +211,8 @@
               {:person :1st :number :singular :case :nom})
 
       libro (add "libro" "book"
-                 artifact readable masc)
+                 artifact readable masc
+                 {:on {:ruggable true}})
 
       leggere (add "leggere" "to read"
                    transitive
@@ -399,11 +400,13 @@
             :human true}})
 
 (add "su" "on"
-	   {:cat :prep
-        :obj {:case {:not :nom}}})
+     {:cat :prep
+      :furniture true
+      :obj {:case {:not :nom}}})
 
 (add "proprio accanto a" "right next to"
      {:cat :prep
+      :furniture true
       :landscape-prep true}) ;; e.g. "the post office is right next to the bank".
 
 ;; furniture prepositions.
@@ -411,38 +414,38 @@
 
 (add "a destra de" "to the right of"
      {:cat :prep
-      :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :furniture true
+      :obj {:case {:not :nom}
             :furniture true}})
 
 (add "a sinistra de" "to the left of"
      {:cat :prep
-      :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :furniture true
+      :obj {:case {:not :nom}
             :furniture true}})
 
 (add "accanto a" "next to"
      {:cat :prep
-      :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :furniture true
+      :obj {:case {:not :nom}
             :furniture true}})
 
 (add "dentro" "inside"
      {:cat :prep
-      :furniture-prep true
+      :furniture true
       :subj {:holdable true}
-      :obj {:case {:$ne :nom}
+      :obj {:case {:not :nom}
             :furniture true}})
 
 (add "dietro" "behind"
      {:cat :prep
-      :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :furniture true
+      :obj {:case {:not :nom}
             :furniture true}})
 
 (add "davanti a" "in front of"
      {:cat :prep
-      :furniture-prep true
+      :furniture true
       :obj {:furniture true}})
 
 ;; "le sedie sono intorno al tavolino
@@ -450,7 +453,7 @@
 ;; TODO: doesn't work yet: :obj should be post-condition on NP.
 (add "intorno a" "around"
      {:cat :prep
-      :furniture-prep false
+      :furniture false
       :subj {:number :plural
              :furniture true}
       :obj {:number :sing
@@ -458,20 +461,20 @@
 
 (add "sopra" "above"
      {:cat :prep
-      :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :furniture true
+      :obj {:case {:not :nom}
             :furniture true}})
 
 (add "sotto" "under"
      {:cat :prep
-      :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :furniture true
+      :obj {:case {:not :nom}
             :furniture true}})
 
 (add "su" "on"
      {:cat :prep
-      :furniture-prep true
-      :obj {:case {:$ne :nom}
+      :furniture true
+      :obj {:case {:not :nom}
             :furniture true}})
 
 
