@@ -1,7 +1,8 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (purtroppo)
 (ns italianverbs.generate
   (:use [clojure.stacktrace]
-        [italianverbs.rdutest])
+        [italianverbs.rdutest]
+        [italianverbs.lexiconfn])
   (:require
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
@@ -10,7 +11,6 @@
    [italianverbs.config :as config]
    [italianverbs.html :as html]
    [italianverbs.lexicon :as lex]
-   [italianverbs.lexiconfn :as lexfn]
    [italianverbs.search :as search]
    [clojure.string :as string]
    [clojure.contrib.duck-streams :as duck]))
@@ -412,7 +412,7 @@
 ;                           {:infl :present}))]
 ;    (conjugate-sent vp subject)))
 
-(def tests
+(def generate-tests
   (let [five-sentences
         (rdutest
          "Generate a bunch of subjects and make sure they all are really subjects (not something degenerate like {:number :singular}). having an :italian will be the test of subjecthood for now"
@@ -565,44 +565,6 @@
 ;      :generic-svo)
     ; }
     )))
-
-;; diagnostic.
-(def verbs
-  (map (fn [sentence]
-         {:verb (:verb sentence)})
-       (:test-result (:five-sentences tests))))
-
-(def subjects
-  (map (fn [sentence]
-         (:subject sentence))
-       (:test-result (:five-sentences tests))))
-
-(def objects
-  (map (fn [sentence]
-         {:obj (:italian (:object sentence))})
-       (:test-result (:five-sentences tests))))
-
-(def inflected
-  (map (fn [sentence]
-         (let [merge
-               (fs/merge
-                (:verb sentence)
-                {:italian-inflected (conjugate-verb (fs/m (:verb sentence)
-                                                          {:infl :present})
-                                                    (:subject sentence))})]
-           {:italian (:italian-inflected merge)}))
-       (:test-result (:five-sentences tests))))
-
-(def concatted
-  (map (fn [sentence]
-         (str
-          (:italian (:subject sentence))
-          " "
-          (string/trim (conjugate-verb (fs/m (:verb sentence) {:infl :infinitive})
-                                       (:subject sentence)))))
-       (:test-result (:five-sentences tests))))
-  
-
 
 ;(defn test []
 ;  "this should contain a list of all the tests for the generate package. each test can
