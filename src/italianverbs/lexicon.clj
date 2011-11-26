@@ -35,6 +35,50 @@
       masc {:gender :masc}
       fem {:gender :fem}
 
+      avere
+      (let [avere (add "avere" "to have"
+                        transitive
+                        {:subj {:cat :noun :human true}
+                         :obj {:cat :noun}})]
+        (add "ho" "have"
+             avere
+             {:root avere}
+             {:infl :present}
+             {:subj {:number :singular
+                     :person :1st}})
+        (add "hai" "have"
+             avere
+             {:root avere}
+             {:infl :present}
+             {:subj {:number :singular
+                     :person :2nd}})
+        (add "ha" "has"
+             avere
+             {:root avere}
+             {:infl :present}
+             {:subj {:number :singular
+                     :person :3rd}})
+        (add "abbiamo" "have"
+             avere
+             {:root avere}
+             {:infl :present}
+             {:subj {:number :plural
+                     :person :1st}})
+        (add "avete" "have"
+             avere
+             {:root avere}
+             {:infl :present}
+             {:subj {:number :plural
+                     :person :2nd}})
+        (add "hanno" "have"
+             avere
+             {:root avere}
+             {:infl :present}
+             {:subj {:number :plural
+                     :person :3rd}}))
+
+
+      
       calcio (add "il calcio" "soccer"
                   common-noun masc
                   {:det false
@@ -55,95 +99,97 @@
                        {:subj animate
                         :obj {:cat :noun}})
 
-      essere (add "essere" "to be"
-                  transitive
-                  {:subj {:cat :noun}})
+      essere
+      (let [essere (add "essere" "to be"
+                        transitive
+                        {:subj {:cat :noun}
+                         :obj {:cat :noun}})]
+        (add "sono" "am"
+             essere
+             {:root essere}
+             {:infl :present}
+             {:subj {:number :singular
+                     :person :1st}})
+        (add "sei" "are"
+             essere
+             {:root essere}
+             {:infl :present}
+             {:subj {:number :singular
+                     :person :2nd}})
+        (add "è" "is"
+             essere
+             {:root essere}
+             {:infl :present}
+             {:subj {:number :singular
+                     :person :3rd}})
+        (add "siamo" "are"
+             essere
+             {:root essere}
+             {:infl :present}
+             {:subj {:number :plural
+                     :person :1st}})
+        (add "siete" "are"
+             essere
+             {:root essere}
+             {:infl :present}
+             {:subj {:number :plural
+                     :person :2nd}})
+        (add "sono" "are"
+             essere
+             {:root essere}
+             {:infl :present}
+             {:subj {:number :plural
+                     :person :3rd}}))
 
-      essere-conjugations (list
-                           (add "sono" "am"
-                                essere
-                                {:root essere}
-                                {:infl :present}
-                                {:subj {:number :singular
-                                        :person :1st}})
-                           (add "sei" "are"
-                                essere
-                                {:root essere}
-                                {:infl :present}
-                                {:subj {:number :singular
-                                        :person :2nd}})
-                           (add "è" "is"
-                                essere
-                                {:root essere}
-                                {:infl :present}
-                                {:subj {:number :singular
-                                        :person :3rd}})
-                           (add "siamo" "are"
-                                essere
-                                {:root essere}
-                                {:infl :present}
-                                {:subj {:number :plural
-                                        :person :1st}})
-                           (add "siete" "are"
-                                essere
-                                {:root essere}
-                                {:infl :present}
-                                {:subj {:number :plural
-                                        :person :2nd}})
-                           (add "sono" "are"
-                                essere
-                                {:root essere}
-                                {:infl :present}
-                                {:subj {:number :plural
-                                        :person :3rd}}))
+      fare (let [fare (add "fare" "to make"
+                           verb
+                           {:subj (fs/m noun {:human true})
+                            :obj artifact})]
+             
+             (add "facio" "make"
+                  fare
+                  {:root fare}
+                  present
+                  {:subj {:number :singular
+                          :person :1st}})
+                 
+             (add "fai" "make"
+                  fare
+                  {:root fare}
+                  present
+                  {:subj {:number :singular
+                          :person :2nd}})
+                 
+             (add "fa" "makes"
+                  fare
+                  {:root fare}
+                  present
+                  {:subj {:number :singular
+                          :person :3rd}})
+             
+             (add "facciamo" "make"
+                  fare
+                  {:root fare}
+                  present
+                  {:subj {:number :plural
+                          :person :1st}})
+             
+             (add "fate" "make"
+                  fare
+                  {:root fare}
+                  present
+                  {:subj {:number :plural
+                          :person :2nd}})
 
-                           
-      fare (add "fare" "to make"
-                verb
-                {:subj (fs/m noun {:human true})
-                 :obj artifact})
+             (add "fanno" "make"
+                  fare
+                  {:root fare}
+                  present
+                  {:subj {:number :plural
+                          :person :3rd}})
 
-      fa (add "fa" "makes"
-              fare
-              {:root fare}
-              present
-              {:subj {:number :singular
-                      :person :3rd}})
-
-      facciamo (add "facciamo" "make"
-                    fare
-                    {:root fare}
-                    present
-                    {:subj {:number :plural
-                            :person :1st}})
-      
-      facio (add "facio" "make"
-                 fare
-                 {:root fare}
-                 present
-                 {:subj {:number :singular
-                         :person :1st}})
-
-      facio (add "fai" "make"
-                 fare
-                 {:root fare}
-                 present
-                 {:subj {:number :singular
-                         :person :2nd}})
-
-      fanno (add "fanno" "make"
-                 fare
-                 {:root fare}
-                 present
-                 {:subj {:number :plural
-                         :person :3rd}})
-
-      fate (add "fate" "make"
-                fare
-                {:root fare}
-                present
-                {:subj {:number :plural
-                        :person :2nd}})
+             
+             )
       
       giocare (add "giocare" "to play"
                    verb
