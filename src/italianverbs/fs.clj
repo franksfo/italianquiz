@@ -35,12 +35,11 @@
     fs))
 
 (defn- union-keys [maps]
-  (let [map (first maps)]
-    (if map
-      (union
-       (set (keys map))
-       (union-keys (rest maps)))
-      {})))
+  (if (and maps (> (.size maps) 0))
+    (union
+     (set (keys (first maps)))
+     (union-keys (rest maps)))
+    {}))
 
 (defn- collect-values [maps keys]
   (let [key (first keys)]
