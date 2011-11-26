@@ -302,8 +302,9 @@
 (defn join [coll separator]
   (apply str (interpose separator coll)))
 
-(defn conjugate-np [noun]
-  (let [article-search (if (not (= (:det noun) nil)) (search/search {:cat :det :gender (:gender noun) :number (:number noun)}))
+(defn conjugate-np [noun & [determiner]]
+  "conjugate a noun with a determiner (if the noun takes a determiner ((:det noun) is not nil)) randomly chosen using the 'determiner' spec."
+  (let [article-search (if (not (= (:det noun) nil)) (search/search (fs/m determiner {:cat :det :gender (:gender noun) :number (:number noun)})))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
@@ -503,7 +504,7 @@
 ;     :il-libro
      (rdutest
       "Conjugate 'libro' + '{definite}' => 'il libro'."
-      (conjugate-np (fs/m (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def}))
+      (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})
       (fn [conjugated]
         (= (:italian conjugated) "il libro"))
       :il-libro)
@@ -513,7 +514,7 @@
      (rdutest
       "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro'."
       (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
-            object (conjugate-np (fs/m (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def}))]
+            object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})]
         (if root-verb
           (conjugate-vp (fs/m root-verb {:infl :present})
                         (nth (search/search {:italian "io" :case :nom}) 0)
