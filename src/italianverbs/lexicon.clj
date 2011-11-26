@@ -279,6 +279,77 @@
 	   {:cat :prep
         :obj {:case {:not :nom}}})
 
+(add "proprio accanto a" "right next to"
+     {:cat :prep
+      :landscape-prep true}) ;; e.g. "the post office is right next to the bank".
+
+;; furniture prepositions.
+;; note that the query language currently might not support nested constraints like [:obj [:furniture true]]
+
+(add "a destra de" "to the right of"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "a sinistra de" "to the left of"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "accanto a" "next to"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "dentro" "inside"
+     {:cat :prep
+      :furniture-prep true
+      :subj {:holdable true}
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "dietro" "behind"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "davanti a" "in front of"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:furniture true}})
+
+;; "le sedie sono intorno al tavolino
+;;  (the chairs are around the the table)"
+;; TODO: doesn't work yet: :obj should be post-condition on NP.
+(add "intorno a" "around"
+     {:cat :prep
+      :furniture-prep false
+      :subj {:number :plural
+             :furniture true}
+      :obj {:number :sing
+            :furniture true}})
+
+(add "sopra" "above"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "sotto" "under"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
+
+(add "su" "on"
+     {:cat :prep
+      :furniture-prep true
+      :obj {:case {:$ne :nom}
+            :furniture true}})
 
 
 (def localtests ;; so as not to collide with lexiconfn/tests.
