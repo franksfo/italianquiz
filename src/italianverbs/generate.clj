@@ -435,7 +435,6 @@
              (not (= nil (first results)))))
       :first-sing-root-of-fare)
 
-
 ;     :merged-fs
      (rdutest
       "Merged fs."
@@ -499,7 +498,6 @@
         (= (.size cases)
            (.size (remove (fn [case] (or (= case :fail) (= case "acc"))) cases))))
       :subjects-case)
-     
 
 ;     :il-libro
      (rdutest
@@ -510,7 +508,6 @@
       :il-libro)
 
 ;     :leggo-il-libro
-
      (rdutest
       "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro'."
       (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
@@ -530,6 +527,27 @@
       (fn [pairs]
         (not (some (fn [pair] (= (:objs pair) 0)) pairs)))
       :every-trans-verb-has-a-possible-object)
+
+     (rdutest
+      "essere vp"
+      (let [root-verb (lookup "essere")]
+        (conjugate-vp (fs/m root-verb {:infl :present})
+                      (lookup "io")
+                      (conjugate-np (lookup "libro") {:def :indef})))
+      (fn [vp]
+        (= (:italian vp) "sono un libro"))
+      :sono-un-tavolo)
+
+     (rdutest
+      "essere sentence"
+      (let [root-verb (lookup "essere")
+            vp (conjugate-vp (fs/m root-verb {:infl :present})
+                             (lookup "voi")
+                             (conjugate-np (lookup "libro") {:def :indef}))]
+        (conjugate-sent vp (:subject vp)))
+      (fn [sentence]
+        (= (:italian sentence) "voi siete un libro"))
+      :io-sono-un-tavolo)
 
      
 ;     :io-leggo-il-libro
