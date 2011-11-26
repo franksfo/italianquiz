@@ -303,7 +303,7 @@
   (apply str (interpose separator coll)))
 
 (defn conjugate-np [noun]
-  (let [article-search (if (not (= (:det noun) nil)) (search/search {:cat :det :gender (:gender noun)}))
+  (let [article-search (if (not (= (:det noun) nil)) (search/search {:cat :det :gender (:gender noun) :number (:number noun)}))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
