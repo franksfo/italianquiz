@@ -29,15 +29,16 @@
       artifact (fs/m common-noun {:artifact true})
       masc {:gender :masc}
       fem {:gender :fem}
-
-      calcio (add "calcio" "soccer"
+      
+      calcio (add "il calcio" "soccer"
                   (fs/m common-noun masc
-                        {:sport true}))
+                        {:det false
+                         :sport true}))
       
       cane (add "cane" "dog"
                 (fs/m common-noun
-                      {:animate true}
-                      {:gender :masc}))
+                      {:animate true
+                       :gender :masc}))
 
 ;; needs supports for reflexive pronouns: "mi chiamo gino".
 ;      (add "chiamare" "to be named"
@@ -83,7 +84,7 @@
       giocare (add "giocare" "to play"
                    (fs/m verb
                    {:subj human
-                    :obj (fs/m common-noun
+                    :obj (fs/m noun
                               {:sport true})}))
       
       il (add "il" "the" {:gender :masc :number :singular :cat :det
