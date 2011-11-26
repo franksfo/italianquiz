@@ -17,7 +17,7 @@
       det {:cat :det}
       human (fs/m animate {:human true})
       masc {:gender :masc}
-      transitive {:obj {:case {:not :nom}}}
+      transitive (fs/m verb {:obj {:case {:not :nom}}})
       present {:infl :present}
       singular {:number :singular}
       plural {:number :plural}
@@ -51,9 +51,12 @@
 ;            :subj human})
       
       dimenticare (add "dimenticare" "to forget"
-                       verb transitive
+                       transitive
                        {:subj animate
                         :obj {:cat :noun}})
+
+      essere (add "essere" "to be"
+                  transitive)
       
       fare (add "fare" "to make"
                 verb
@@ -104,7 +107,7 @@
                  artifact readable masc)
 
       leggere (add "leggere" "to read"
-                   transitive verb
+                   transitive
                    {:subj (fs/m noun {:human true})
                     :obj (fs/m noun {:readable true})})
 
@@ -118,7 +121,7 @@
 
       
       mangiare (add "mangiare" "to eat"
-                    transitive verb
+                    transitive
                     {:subj (fs/m noun {:animate true})
                      :obj edible})
 
