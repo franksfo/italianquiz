@@ -91,16 +91,6 @@
                 (get head :number) " != " (get arg :number))
      }))
 
-(defn noun-fn [head arg]  ;; e.g. "il libro"
-  (merge
-   (unify-np head arg)
-   {:english
-    (morph/conjugate-en head arg)
-    :italian
-    (string/join " "
-                 (list (get arg :italian)
-                       (morph/conjugate-it head)))}))
-
 (defn choose-lexeme [ & [struct dummy]]
   "Choose a random lexeme from the set of lexemes
    that match search criteria.
