@@ -21,9 +21,8 @@
 ;    (duck/spit filename (html/static-page (html/tablize fs)))))
 
 (defn random-lexeme [& constraints]
-  (let [constraints (first constraints)
-        lexemes (seq
-                 (search/query constraints))]
+  (let [lexemes (seq
+                 (apply search/query constraints))]
     (if lexemes
       (if (> (.size lexemes) 0)
         (nth lexemes (rand-int (.size lexemes)))))))

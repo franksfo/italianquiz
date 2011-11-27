@@ -82,7 +82,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     #{})) ;; base case : return an empty set.
 
 (defn query [& constraints]
-  (query-r (pathify (first constraints))))
+  (query-r (mapcat (fn [constraint]
+                     (pathify constraint))
+                   constraints)))
 
 ;; test data for (run-query)
 ;; (pathify transitive-verb) returns a list of path-value-pairs
@@ -196,8 +198,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
    :lookup-roots
    (rdutest
-    "Looking up a verb by a root works."
-    (search {:root {:italian "parlare"}})
+    "Looking up an irregular verb inflection by its root works."
+    (search {:root {:italian "fare"}})
     #(and (not (= % nil)) (> (.size %) 0))
     :lookup-roots)
 
