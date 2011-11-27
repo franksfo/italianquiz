@@ -224,6 +224,10 @@
                                                                             italian)))
                       (rest (stringc/split #"\s+" italian)))))
 
+(defn plural-en [english]
+  (if (re-find #"[hsx]$" english) (str english "es")
+      (str english "s")))
+
 (defn conjugate-passato-prossimo [verb-phrase subject]
   (cond
 
@@ -272,38 +276,6 @@
                        (conjugate-italian-verb-regular
                         (fs/get-head verb-phrase) subject)
                        except-first)))))))
-
-(defn conjugate-it [head]
-  (cond (= (get head :cat) "noun")
-	(cond (= (get head :gender) "masc")
-	      (cond (= (get head :number) "plural")
-		    (plural-masc (get head :italian))
-		    true
-		    (get head :italian))
-	      (= (get head :gender) "fem")
-	      (cond (= (get head :number) "plural")
-		    (plural-fem (get head :italian))
-		    true
-		    (get head :italian))
-	      true
-	      "??(not masc or fem)")
-	true
-	(str "??(cat != noun)"
-	     (get head :cat)
-	     (= (get head :cat) "noun"))))
-
-(defn conjugate-en [head arg]
-  (str (get arg :english)
-       " "
-       (cond (= (get head :cat) "noun")
-	     (cond (= (get head :number) "plural")
-		   (str (get head :english) "s")
-		   true
-		   (get head :english))
-	     true
-	     (str "??(cat != noun)"
-		  (get head :cat)
-		  (= (get head :cat) "noun")))))
 
 (defn italian-article [det noun]
   "do italian det/noun morphology e.g. [def :def] + studente => lo studente" 
@@ -504,6 +476,22 @@
       (= string " preferisco"))
     :io-facio)
 
+   :en-plural-1 ; english noun pluralization.
+   (rdutest
+    "Conjugate a noun to plural"
+    (plural-en "girl")
+    (fn [string]
+      (= string "girls"))
+    :en-plural-1)
+   
+   :en-plural-2 ; english noun pluralization.
+   (rdutest
+    "Conjugate another noun to plural"
+    (plural-en "box")
+    (fn [string]
+      (= string "boxes"))
+    :en-plural-2)
+   
    })
 
    

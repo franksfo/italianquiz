@@ -36,7 +36,7 @@
 
 (defn conjugate-pp [preposition np]
   {:english (join (list (:english preposition) (:english np)) " ")
-   :italian (conjugate-italian-prep preposition np)
+   :italian (morph/conjugate-italian-prep preposition np)
    :head preposition
    :comp np})
 
@@ -276,12 +276,26 @@
 
 (defn conjugate-np [noun & [determiner]]
   "conjugate a noun with a determiner (if the noun takes a determiner ((:det noun) is not nil)) randomly chosen using the 'determiner' spec."
-  (let [article-search (if (not (= (:det noun) nil)) (search/search (fs/m determiner {:cat :det :gender (:gender noun) :number (:number noun)})))
+  (let [plural-exception (if (= (:number noun) :plural)
+                           (let [search (search/search noun)] ;; search for plural exception.
+                             (if (and search (> (.size search) 0))
+                               (nth search 0))))
+        italian (if (= (:number noun) :plural)
+                  (if (and plural-exception (:italian plural-exception))
+                    (:italian plural-exception)
+                    (morph/plural-masc (:italian noun)))
+                  (:italian noun))
+        english (if (= (:number noun) :plural)
+                  (if (and plural-exception (:english plural-exception))
+                    (:english plural-exception)
+                    (morph/plural-en (:english noun)))
+                  (:english noun))
+        article-search (if (not (= (:det noun) nil)) (search/search (fs/m determiner {:cat :det :gender (:gender noun) :number (:number noun)})))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
-    {:italian (string/trim (join (list (:italian article) (:italian noun)) " "))
-     :english (string/trim (join (list (:english article) (:english noun)) " "))
+    {:italian (string/trim (join (list (:italian article) italian) " "))
+     :english (string/trim (join (list (:english article) english) " "))
      :article article
      :number (:number noun)
      :gender (:gender noun)
@@ -481,11 +495,19 @@
 ;     :il-libro
      (rdutest
       "Conjugate 'libro' + '{definite}' => 'il libro'."
-      (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})
+      (conjugate-np (lookup "libro") {:def :def})
       (fn [conjugated]
         (= (:italian conjugated) "il libro"))
       :il-libro)
 
+     (rdutest
+      "Conjugate 'libro' + '{definite,plural}' => 'i libri'."
+      (conjugate-np (fs/m (lookup "libro") {:number :plural}) {:def :def})
+      (fn [conjugated]
+        (= (:italian conjugated) "i libri"))
+      :il-libro)
+
+     
 ;     :leggo-il-libro
      (rdutest
       "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro'."
