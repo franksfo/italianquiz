@@ -27,6 +27,10 @@
       (if (> (.size lexemes) 0)
         (nth lexemes (rand-int (.size lexemes)))))))
 
+(defn random-symbol [& symbols]
+  (let [symbols (apply list symbols)]
+    (nth symbols (rand-int (.size symbols)))))
+
 ;; TODO: learn why string/join doesn't work for me:
 ;; (string/join '("foo" "bar") " ")
 ;; => " " (should be: "foo bar").
@@ -318,8 +322,8 @@
 
 (defn mobili []
   (let [prep (random-lexeme {:cat :prep :furniture true})
-        subject (conjugate-np (random-lexeme {:cat :noun :on {:ruggable true}}))
-        object (conjugate-np (random-lexeme {:cat :noun :furniture true :on (:on subject)}))]
+        subject (conjugate-np (fs/m (random-lexeme {:cat :noun :on {:ruggable true}}) {:number (random-symbol :singular :plural)}))
+        object (conjugate-np (fs/m (random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
 
