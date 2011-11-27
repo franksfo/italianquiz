@@ -203,6 +203,9 @@
       la (add "la" "the" {:gender :fem :number :singular :cat :det
                           :def :def})
 
+      le (add "le" "the" {:gender :fem :number :plural :cat :det
+                          :def :def})
+
       i (add "i" "the" masc plural det {:def :def})
       
       io (add "io" "i" 
@@ -473,10 +476,9 @@
 
 ;; "le sedie sono intorno al tavolino
 ;;  (the chairs are around the the table)"
-;; TODO: doesn't work yet: :obj should be post-condition on NP.
 (add "intorno a" "around"
      {:cat :prep
-      :furniture false
+      :furniture true
       :subj {:number :plural
              :furniture true}
       :obj {:number :sing

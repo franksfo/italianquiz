@@ -279,16 +279,20 @@
 
 (defn conjugate-np [noun & [determiner]]
   "conjugate a noun with a determiner (if the noun takes a determiner ((:det noun) is not nil)) randomly chosen using the 'determiner' spec."
-  (let [plural-exception (if (= (:number noun) :plural)
+  (let [plural-exception (if (or (= (:number noun) :plural) (= (:number noun) "plural"))
                            (let [search (search/search noun)] ;; search for plural exception.
                              (if (and search (> (.size search) 0))
                                (nth search 0))))
-        italian (if (= (:number noun) :plural)
+        italian (if (or (= (:number noun) :plural)
+                        (= (:number noun) "plural"))
                   (if (and plural-exception (:italian plural-exception))
                     (:italian plural-exception)
-                    (morph/plural-masc (:italian noun)))
+                    (if (or (= (:gender noun) "masc") (= (:gender noun) :masc))
+                      (morph/plural-masc (:italian noun))
+                      (morph/plural-fem (:italian noun))))
                   (:italian noun))
-        english (if (= (:number noun) :plural)
+        english (if (or (= (:number noun) :plural)
+                        (= (:number noun) "plural"))
                   (if (and plural-exception (:english plural-exception))
                     (:english plural-exception)
                     (morph/plural-en (:english noun)))
@@ -298,6 +302,7 @@
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
     {:italian (string/trim (join (list (:italian article) italian) " "))
+     :article-search (:det noun)
      :english (string/trim (join (list (:english article) english) " "))
      :article article
      :number (:number noun)
@@ -322,7 +327,7 @@
 
 (defn mobili []
   (let [prep (random-lexeme {:cat :prep :furniture true})
-        subject (conjugate-np (fs/m (random-lexeme {:cat :noun :on {:ruggable true}}) {:number (random-symbol :singular :plural)}))
+        subject (conjugate-np (fs/m (random-lexeme {:cat :noun :on {:ruggable true}}) {:number (random-symbol :singular :plural)} (:subj prep)))
         object (conjugate-np (fs/m (random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
@@ -509,6 +514,13 @@
       (fn [conjugated]
         (= (:italian conjugated) "i libri"))
       :il-libro)
+
+     (rdutest
+      "Conjugate 'sedia' + '{definite,plural}' => 'le sedie'."
+      (conjugate-np (fs/m (lookup "sedia") {:number :plural}) {:def :def})
+      (fn [conjugated]
+        (= (:italian conjugated) "le sedie"))
+      :le-sedie)
 
      
 ;     :leggo-il-libro
