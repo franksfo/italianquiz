@@ -275,13 +275,13 @@
                    :gender :fem})
 
       poltrona (add "poltrona" "easy chair"
-                  common-noun masc artifact
+                  common-noun fem artifact
                   {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
                    :furniture true
                    :ruggable true}) ;; ruggable: can be placed on top of a rug.
 
       sedia (add "sedia" "chair"
-                  common-noun masc artifact
+                  common-noun fem artifact
                   {:holdable true 
                    :furniture true
                    :ruggable true}) ;; ruggable: can be placed on top of a rug.
