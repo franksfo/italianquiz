@@ -1,5 +1,4 @@
 (ns italianverbs.xml
-  (:use [italianverbs.rdutest])
   (:require
    [clojure.string :as string]
    [clojure.contrib.str-utils2 :as str-utils]))
@@ -36,28 +35,20 @@
          "<italian>" italian "</italian>"
          "<english>" english "</english>"
          "</question>")))
-
-;; new tests.
-(def testresults
+       
+(def tests
   (list
    (rdutest
-    "Sanity check: test rdutest itself by assuming that '+' is correct."
-    (+ 1 2)
-    #(= % 3))
-   (rdutest
-    "XML content escaped (so that it can be printed inside an HTML document)."
+    "xml escaping"
     (xml-str (content))
-    #(= % "&lt;xml/&gt;"))
+    (fn [string]
+      (= "&lt;xml/&gt;" string))
+    :xml-escaping)
    (rdutest
-    "Serialize a Clojure map."
-    (xml-str (serialize {:italian "io sono stato" :english "i went"}))
-    #(not (= % "")))))
-
-;; FIXME: move to test.clj.
-(def evaluate-testresults
-  (map (fn [result] {:comment (:comment result) :result (:assert-result result)})  testresults))
-
-
-
-
+    "xml guess"
+    (xml-str (serialize {:italian "io sono stato"
+                         :english "i went"}))
+    (fn [string]
+      (= "&lt;?xml version='1.0' encoding='utf-8'?&gt;&lt;question&gt;&lt;method&gt;&lt;/method&gt;&lt;format&gt;&lt;/format&gt;&lt;input&gt;&lt;/input&gt;&lt;guess&gt;&lt;/guess&gt;&lt;italian&gt;io sono stato&lt;/italian&gt;&lt;english&gt;i went&lt;/english&gt;&lt;/question&gt;" string))
+    :xml-guess)))
 
