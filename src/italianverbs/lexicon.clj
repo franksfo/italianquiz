@@ -210,6 +210,12 @@
               pronoun
               {:person :1st :number :singular :case :nom})
 
+
+      letto (add "letto" "bed"
+                  common-noun masc artifact
+                  {:furniture true
+                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
+
       libro (add "libro" "book"
                  artifact readable masc
                  {:on {:ruggable true}})
@@ -268,12 +274,29 @@
                    :speakable true
                    :gender :fem})
 
+      poltrona (add "poltrona" "easy chair"
+                  common-noun masc artifact
+                  {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
+                   :furniture true
+                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
+
+      sedia (add "sedia" "chair"
+                  common-noun masc artifact
+                  {:holdable true 
+                   :furniture true
+                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
+      
       tavolo (add "tavolo" "table"
                   common-noun masc artifact
                   {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
                    :furniture true
                    :ruggable true}) ;; ruggable: can be placed on top of a rug.
 
+      tavolino (add "tavolino" "coffee table"
+                  common-noun masc artifact
+                  {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
+                   :furniture true
+                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
       
       tu (add "tu" "you" 
               human
