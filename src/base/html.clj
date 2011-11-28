@@ -150,7 +150,7 @@
          (welcome (session/get-username request))]))
 
     [:div#top
-     (menubar (session/get-session-row request)
+     (menubar (session/request-to-session request)
               (if request (get request :uri)))]
     
     [:div#content content]
