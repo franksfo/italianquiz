@@ -42,9 +42,6 @@
      (if (= relative-url "/search/") {:class "selected"})
      [:a {:href "/italian/search/"} "Search"  ] ]
     [:div
-     (if (= relative-url "/test/") {:class "selected"})
-     [:a {:href "/italian/test/"} "Unit Tests"  ] ]
-    [:div
      (if (= relative-url "/about/") {:class "selected"})
      [:a {:href "/italian/about/"} "About"  ] ]
     ]))
