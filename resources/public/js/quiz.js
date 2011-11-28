@@ -29,6 +29,7 @@ function submit_user_response(form_input_id) {
 }
 
 function get_next_question() {
+    $("#ajax_question").html("...");
     $.ajax({
         dataType: "html",
         url: "/italian/quiz/question/",
