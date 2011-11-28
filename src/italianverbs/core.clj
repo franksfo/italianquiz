@@ -4,9 +4,9 @@
         [hiccup core page-helpers])
   (:require
    [clojure.string :as string]
+   [clojure.contrib.logging :as log]
    [compojure.route :as route]
    [compojure.handler :as handler]
-   [italianverbs.test :as test]
    [italianverbs.generate :as gen]
    [italianverbs.lev :as lev]
    [italianverbs.xml :as xml]
@@ -51,10 +51,16 @@
 
   (GET "/quiz/"
        request
-       {:body (quiz/quiz request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
+       {:body (if (session/request-to-session request)
+                (quiz/quiz request))
+        :status (if (session/request-to-session request)
+                  200
+                  (do (log/info "no session found for this client: redirecting to /italian/session/set.")
+                      302))
+        :headers (if (session/request-to-session request)
+                   {"Content-Type" "text/html;charset=utf-8"}
+                   {"Location" "/italian/session/set/"})})
+  
   (GET "/quiz"
        request
        {:status 302
@@ -120,36 +126,15 @@
         :headers {"Location" "/quiz/"}
        }
        )
-
-  (GET "/test/" 
-       request
-       {
-        :headers {"Content-Type" "text/html"}
-        :session (get request :session)
-        :body (html/page "test"
-                    (test/run-tests)
-                    request)
-        })
-
-  (POST "/test/" 
-       request
-       {
-        :session (get request :session)
-        :headers {"Content-Type" "text/html"}
-        :body (html/page "test" 
-                    (map wrap-div 
-                         test/tests)
-                    request)
-        })
   
 ;; TODO: make this a POST with 'username' and 'password' params.
   (GET "/session/set/"  
        request
        {
-        :session (get request :session)
         :side-effect (session/register request)
+        :session (get request :session)
         :status 302
-        :headers {"Location" "/?msg=set"}
+        :headers {"Location" "/italian/?msg=set"}
         })
 
   (GET "/session/clear/" 
@@ -192,9 +177,7 @@
   ;; to pose question to user.
   (GET "/quiz/question/"
        request
-       {
-        :body
-        (quiz/question request)
+       {:body (quiz/question request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
         })
