@@ -1,4 +1,5 @@
 (ns italianverbs.xml
+  (:use [italianverbs.rdutest])
   (:require
    [clojure.string :as string]
    [clojure.contrib.str-utils2 :as str-utils]))
