@@ -5,6 +5,7 @@
 (ns italianverbs.quiz
     (:use [hiccup core page-helpers])
     (:require [clojure.contrib.string :as stringc]
+              [clojure.contrib.logging :as log]
               [somnium.congomongo :as mongo]
               [italianverbs.lexicon :as lexicon]
               [italianverbs.lev :as lev]
@@ -25,7 +26,8 @@
 ;; 5. add :mytype to all-possible-question-types (immediately below).
 ;; TODO: make 1-5 a macro.
 (def all-possible-question-types
-  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
+                                        ;  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
+    '(:mese :giorni))
 
 (def question-type-map
   {"mobili" {:sym :mobili :desc "furniture sentences"},
@@ -106,25 +108,17 @@
 		 (show-choice (dissoc lexicon (nth (keys lexicon) choice)) (- remaining 1)
 			answer show-true-before)))))))
 
-(defn get-next-question-id [request]
-  "get the question id for the next question for this user."
-  ;; TODO: improve: only return last question and get its _id.
-  (let [session (session/request-to-session request)]
-    (count (mongo/fetch :question :where {:session session}))))
-
 (defn normalize-whitespace [string]
   (stringc/replace-re #"[ ]+$" "" (stringc/replace-re #"^[ ]+" "" (stringc/replace-re #"[ ]+" " " string))))
 
-(defn store-question [question request last-guess]
+(defn store-question [question session-id last-guess]
+  {:pre [(not (= session-id nil))]}
   (mongo/insert! :question {:question (normalize-whitespace (get question :english))
                             :answer (normalize-whitespace (get question :italian))
-                            :id (get-next-question-id request)
-                            :cat (get question :cat)
                             :guess last-guess
-                            :gender (get question :gender)
                             :italian (get question :italian)
                             :english (get question :english)
-                            :session request}))
+                            :session session-id}))
 
 (defn clear-questions [session]
   (mongo/destroy! :question {:session session})
@@ -529,6 +523,7 @@
   (let [type (random-guess-type (session/request-to-session request))
         question (store-question (generate type)
                                  (session/request-to-session request) nil)]
+    (log/debug "stored question; outputting.")
     (str "<div id='question_text'>" (get question :question) "</div>"
          "<input id='question_id' value='" (get question :_id) "'/>")))
 
