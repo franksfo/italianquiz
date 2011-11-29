@@ -59,8 +59,8 @@
   (let [;; choose a random verb in the infinitive form.
         verb-inf (gram/choose-lexeme
                   (fs/merge {:cat :verb
-                          :infl :infinitive}
-                         config/random-present-inf))
+                             :infl :infinitive}
+                            config/random-present-inf))
 
 
         verb-present-constraints
@@ -536,6 +536,25 @@
       (fn [vp]
         (= (:italian vp) "leggo il libro"))
       :leggo-il-libro)
+
+
+;     :io-leggo-il-libro
+     (rdutest
+      "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro' / 'io' => 'io leggo il libro'."
+      (let [vp
+            (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
+                  object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})]
+              (if root-verb
+                (conjugate-vp (fs/m root-verb {:infl :present})
+                              (nth (search/search {:italian "io" :case :nom}) 0)
+                              object)
+                {:fail "verb 'leggere' not found."}))]
+        
+        vp)
+      (fn [vp]
+        (= (:italian vp) "io leggo il libro"))
+      :io-leggo-il-libro)
+
      
      (rdutest
       "Make sure every transitive verb has at least one noun that satisfies its :obj spec."
