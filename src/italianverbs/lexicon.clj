@@ -23,7 +23,7 @@
       plural {:number :plural}
       
       noun {:cat :noun}
-      pronoun (fs/m noun {:pronoun true :det false})
+      pronoun (fs/m noun {:pronoun true :det false :human true})
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
       edible (fs/m noun {:edible true})
@@ -248,7 +248,7 @@
                      :obj edible})
 
       mi (add "mi" "me"
-              noun
+              pronoun
               {:person :1st :number :singular :case :acc})
 
       noi (add "noi" "we" 
