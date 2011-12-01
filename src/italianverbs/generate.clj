@@ -444,7 +444,8 @@
     (list
      (rdutest
       "The 1st person singular present form of 'fare' should be findable."
-      (search/search {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))})
+      (search/search {:root {:infl :infinitive
+                             :italian "fare"}})
       (fn [results]
         (and (not (= nil results))
              (not (= nil (first results)))))
@@ -465,11 +466,12 @@
 ;     :search-for-conjugation
      (rdutest
       "Look up an irregular verb by searching for a map created by a subject."
-      (search/search (fs/merge {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
-                               {:infl :present}
-                               (select-keys
-                                (first (search/search {:italian "io" :pronoun true}))
-                                (list :person :number))))
+      (search/search {:root {:cat :verb
+                             :italian "fare"
+                             :infl :infinitive}
+                      :infl :present
+                      :subj {:person :1st
+                             :number :singular}})
       (fn [results]
         (and (not (= nil results))
              (not (= nil (first results)))))
