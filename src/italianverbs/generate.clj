@@ -606,7 +606,15 @@
       (fn [sentence]
         (= (:furniture (:head (:object (:verb-phrase sentence)))) true))
       :mobili)
-    )))
+
+     (rdutest
+      "random present svo sentence"
+      (random-present)
+      (fn [sentence]
+        (not (= (:case (:noun (:object (:verb-phrase sentence)))))))
+      :random-svo)
+
+     )))
 
 ;(defn test []
 ;  "this should contain a list of all the tests for the generate package. each test can
