@@ -466,6 +466,7 @@
 ;     :search-for-conjugation
      (rdutest
       "Look up an irregular verb by searching for a map created by a subject."
+      ;; Look up the first singular conjugation for "fare" (which is 'facio')
       (search/search {:root {:cat :verb
                              :italian "fare"
                              :infl :infinitive}
