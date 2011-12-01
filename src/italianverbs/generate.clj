@@ -55,7 +55,7 @@
   (morph/conjugate-italian-verb vp subject))
 
 ;; TODO : factor out commonalities between random-present and random-passato-prossimo.
-(defn random-present []
+(defn random-present-old []
   (let [;; choose a random verb in the infinitive form.
         verb-inf (gram/choose-lexeme
                   (fs/merge {:cat :verb
@@ -295,7 +295,9 @@
                         (= (:number noun) "plural"))
                   (if (and plural-exception (:english plural-exception))
                     (:english plural-exception)
-                    (morph/plural-en (:english noun)))
+                    (if (not (:pronoun noun)) ;; pronouns should not be pluralized: e.g. "we" doesn't become "wes".
+                      (morph/plural-en (:english noun))
+                      (:english noun)))
                   (:english noun))
         article-search (if (not (= (:det noun) nil)) (search/search (fs/m determiner {:cat :det :gender (:gender noun) :number (:number noun)})))
         article (if (and (not (= article-search nil))
@@ -331,6 +333,18 @@
         object (conjugate-np (fs/m (random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
+
+(defn random-present []
+  (let [vp
+        (let [root-verb (random-lexeme {:cat :verb :infl :infinitive})
+              subject (conjugate-np (fs/m (random-lexeme {:cat :noun}) {:number (random-symbol :singular :plural)} (:subj root-verb)))
+              object (conjugate-np (fs/m (random-lexeme {:cat :noun}) {:number (random-symbol :singular :plural)} (:obj root-verb)))]
+          (if root-verb
+            (conjugate-vp (fs/m root-verb {:infl :present})
+                          subject
+                          object)
+            {:fail "verb root not found."}))]
+    (conjugate-sent vp (:subject vp))))
 
 (defn rand-sv []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})
@@ -549,10 +563,9 @@
                               (nth (search/search {:italian "io" :case :nom}) 0)
                               object)
                 {:fail "verb 'leggere' not found."}))]
-        
-        vp)
-      (fn [vp]
-        (= (:italian vp) "io leggo il libro"))
+        (conjugate-sent vp (:subject vp)))
+      (fn [sentence]
+        (= (:italian sentence) "io leggo il libro"))
       :io-leggo-il-libro)
 
      

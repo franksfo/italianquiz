@@ -27,7 +27,7 @@
 ;; TODO: make 1-5 a macro.
 (def all-possible-question-types
                                         ;  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
-    '(:mese :giorni))
+    '(:mobili :mese :giorni :presente))
 
 (def question-type-map
   {"mobili" {:sym :mobili :desc "furniture sentences"},

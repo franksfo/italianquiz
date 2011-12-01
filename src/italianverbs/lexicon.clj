@@ -23,7 +23,7 @@
       plural {:number :plural}
       
       noun {:cat :noun}
-      pronoun (fs/m noun) ;; these do not take a determiner.
+      pronoun (fs/m noun {:pronoun true :det false})
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
       edible (fs/m noun {:edible true})
