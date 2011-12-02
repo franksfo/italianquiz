@@ -337,8 +337,10 @@
 (defn random-present []
   (let [vp
         (let [root-verb (random-lexeme {:cat :verb :infl :infinitive})
-              subject (conjugate-np (fs/m (random-lexeme {:cat :noun}) {:number (random-symbol :singular :plural)} (:subj root-verb)))
-              object (conjugate-np (fs/m (random-lexeme {:cat :noun}) {:number (random-symbol :singular :plural)} (:obj root-verb)))]
+              subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb))
+                                    {:number (random-symbol :singular :plural)})
+              object (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
+                                   {:number (random-symbol :singular :plural)})]
           (if root-verb
             (conjugate-vp (fs/m root-verb {:infl :present})
                           subject
@@ -611,7 +613,8 @@
       "random present svo sentence"
       (random-present)
       (fn [sentence]
-        (not (= (:case (:noun (:object (:verb-phrase sentence)))))))
+        (and (not (= (:case (:noun (:object (:verb-phrase sentence)))) :nom))
+             (not (= (:case (:noun (:subject (:verb-phrase sentence)))) :acc))))
       :random-svo)
 
      )))
