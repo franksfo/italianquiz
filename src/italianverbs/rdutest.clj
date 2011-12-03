@@ -32,3 +32,15 @@
 (defn wtf [test-name tests]
   "answers the question: 'wtf went wrong with that test??': (test-result of test with label test-name)"
   (:test-result (get tests test-name)))
+
+
+(def tests
+  {:simple-test-example ; test label
+   (rdutest
+    "Just a simple example showing how to write rdutests." ; comment
+    (+ 2 3)  ; expression to evaluate.
+    #(= % 5) ; function to be applied to the evaluated expression.
+    :simple-test-example)}) ; repeat of label (unfortunately)
+
+
+    
