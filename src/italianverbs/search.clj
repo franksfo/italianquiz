@@ -102,8 +102,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; 
 ;; 2. (def results (mapcat (fn [fs] (if (myfn fs) (list fs))) (fetch :lexicon)))
 ;;
-(defn search [constraints]
-  (seq (query constraints)))
+(defn search [& constraints]
+  (seq (apply query constraints)))
 
 (def grammatical-terminology-term
   {:transitive {:cat :verb
@@ -217,8 +217,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (search {:cat :noun} {:gender :fem} {:number :singular})
     #(and (not (= % nil)) (> (.size %) 0))
     :search-multiple-maps)
-   
-
    
    })
 
