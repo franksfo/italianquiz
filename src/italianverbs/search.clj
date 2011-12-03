@@ -205,11 +205,21 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
    :lookup-complex-root
    (rdutest
-    "Looking up a verb by a root fs works."
+    "Look up a word by its root: find a verb whose root is 'fare (to make)' (e.g. 'facio (i make)')."
     (search {:root (first (search {:italian "fare" :cat :verb :infl :infinitive}))})
     #(and (not (= % nil)) (> (.size %) 0))
     :lookup-complex-root)
 
+
+   :search-multiple-maps
+   (rdutest
+    "Search should take multiple parameters and merge them together."
+    (search {:cat :noun} {:gender :fem} {:number :singular})
+    #(and (not (= % nil)) (> (.size %) 0))
+    :search-multiple-maps)
+   
+
+   
    })
 
 ;; FIXME: move to test.clj.
