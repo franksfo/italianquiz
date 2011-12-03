@@ -30,5 +30,5 @@
 
 ;; TODO: lookup tests in its native namespace so we don't need the 2nd arg.
 (defn wtf [test-name tests]
-  "test-result of test with label test-name."
+  "answers the question: 'wtf went wrong with that test??': (test-result of test with label test-name)"
   (:test-result (get tests test-name)))
