@@ -335,8 +335,9 @@
                     subject)))
 
 (defn random-present [& svo-map]
-  (let [vp
-        (let [root-verb (random-lexeme {:cat :verb :infl :infinitive} {:obj (:obj svo-map)})
+  (let [svo-map (if svo-map svo-map (list {}))
+        vp
+        (let [root-verb (random-lexeme {:cat :verb :infl :infinitive} {:obj (apply :obj svo-map)})
               subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb))
                                     {:number (random-symbol :singular :plural)})
               object (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
@@ -348,8 +349,9 @@
             {:fail "verb root not found."}))]
     (conjugate-sent vp (:subject vp))))
 
-(defn random-sport-vp [& svo-map]
-  (random-lexeme {:cat :verb :infl :infinitive} {:obj (fs/merge (apply :obj svo-map))}))
+(defn random-verb-for-svo [& svo-map]
+  (let [svo-map (if svo-map svo-map (list {}))]
+    (random-lexeme {:cat :verb :infl :infinitive} {:obj (fs/merge (apply :obj svo-map))})))
 
 (defn rand-sv []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})
@@ -622,16 +624,17 @@
 
      (rdutest
       "sports-vp: select a verb whose object is {:sport true}"
-      (random-sport-vp {:obj {:sport true}})
-      (fn [vp]
-        (= (:sport (:obj vp)) true))
+      (random-verb-for-svo {:obj {:sport true}})
+      (fn [verb]
+        (= (:sport (:obj verb)) true))
       :sports-vp)
-     
+
      (rdutest
       "soccer does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
       (random-present {:obj {:sport true}}) ;; 'giocare' is the only +sport verb, and 'calcio' is the only +sport noun.
       (fn [sentence]
-        (= (:italian (:obj (:vp sentence))) "il calcio"))
+        (and (= (:italian (:object (:verb-phrase sentence))) "calcio")
+             (= (:english (:object (:verb-phrase sentence))) "soccer")))
       :soccer)
      
      )))

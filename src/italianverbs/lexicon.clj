@@ -76,12 +76,10 @@
              {:infl :present}
              {:subj {:number :plural
                      :person :3rd}}))
-
-
       
-      calcio (add "il calcio" "soccer"
+      calcio (add "calcio" "soccer"
                   common-noun masc
-                  {:det false
+                  {:mass true
                    :sport true})
       
       cane (add "cane" "dog"
@@ -259,6 +257,7 @@
       pane (add "pane" "bread"
                 artifact
                 {:edible true
+                 :mass true
                  :gender :masc})
 
       pane (add "pasta" "pasta"
