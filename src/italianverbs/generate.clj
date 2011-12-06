@@ -334,9 +334,9 @@
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
 
-(defn random-present []
+(defn random-present [& svo-map]
   (let [vp
-        (let [root-verb (random-lexeme {:cat :verb :infl :infinitive})
+        (let [root-verb (random-lexeme {:cat :verb :infl :infinitive} {:obj (:obj svo-map)})
               subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb))
                                     {:number (random-symbol :singular :plural)})
               object (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
@@ -347,6 +347,9 @@
                           object)
             {:fail "verb root not found."}))]
     (conjugate-sent vp (:subject vp))))
+
+(defn random-sport-vp [& svo-map]
+  (random-lexeme {:cat :verb :infl :infinitive} {:obj (fs/merge (apply :obj svo-map))}))
 
 (defn rand-sv []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})
@@ -618,10 +621,17 @@
       :random-svo)
 
      (rdutest
+      "sports-vp: select a verb whose object is {:sport true}"
+      (random-sport-vp {:obj {:sport true}})
+      (fn [vp]
+        (= (:sport (:obj vp)) true))
+      :sports-vp)
+     
+     (rdutest
       "soccer does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
-      (random-present :object {:italian "calcio"})
+      (random-present {:obj {:sport true}}) ;; 'giocare' is the only +sport verb, and 'calcio' is the only +sport noun.
       (fn [sentence]
-        (= (:italian (:obj (:vp sentence))) "calcio"))
+        (= (:italian (:obj (:vp sentence))) "il calcio"))
       :soccer)
      
      )))
