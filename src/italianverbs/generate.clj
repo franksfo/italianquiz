@@ -124,7 +124,7 @@
                       (get verb-present :english)
                       (conjugate-english-verb verb-inf subject {:infl :present})))
       :italian (str (get subject :italian) " " (get verb-present :italian))}
-         {:type-is-fs (set '(:vp :object :verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
+     {:type-is-fs (set '(:vp :object :verb-present :subject :verb-inf :subj-constraints :verb-constraints))})))
 
 (defn random-infinitivo []
   (gram/choose-lexeme
