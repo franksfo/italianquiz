@@ -44,7 +44,7 @@
 ;; italian and english are strings, featuremap is a map of key->values.
 (defn add [italian english & featuremaps]
   (add-lexeme
-   (apply fs/merge-like-core
+   (apply fs/merge-nil-override
           (concat featuremaps
                   (list {:english english}
                         {:italian italian})))))

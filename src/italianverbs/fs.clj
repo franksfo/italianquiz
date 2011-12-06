@@ -53,6 +53,17 @@
                     maps)}
        (collect-values maps (rest keys))))))
 
+(defn- collect-values-with-nil [maps keys]
+  (let [key (first keys)]
+    (if key
+      (merge
+       {key (mapcat (fn [eachmap]
+                      (let [val (get eachmap key :notfound)]
+                        (if (not (= val :notfound))
+                          (list val))))
+                    maps)}
+       (collect-values-with-nil maps (rest keys))))))
+
 (defn- merge-atomically [values]
   (let [value (first values)]
     (if value
@@ -113,10 +124,18 @@
              (seq keyset))))
 
 ;; TODO: use merge-with http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/merge-with
+;; TODO: it's misleading to say it's 'like core' when behavior differs w.r.t. nil."
+;;  (merge-nil-override is more 'like core' in this respect).
 (defn merge-like-core [& maps]
-  "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
+  "like clojure.core/merge, but works recursively, and works like it also in that the later values wins (see test 'atomic-merge' for usage.)"
   (let [keyset (union-keys maps)
         values (collect-values maps keyset)]
+    (merge-r-like-core values (seq keyset))))
+
+(defn merge-nil-override [& maps]
+  "like clojure.core/merge, but works recursively, and works like it also in that later values win (see test 'nil-should-override'), even if that value is nil."
+  (let [keyset (union-keys maps)
+        values (collect-values-with-nil maps keyset)]
     (merge-r-like-core values (seq keyset))))
 
 ;; EXACTLY THE SAME AS (mergec):
@@ -190,9 +209,16 @@
     (fn [result]
       (= result {}))
     :ignore-nil-values-2)
+   
+   :nil-should-override
+   (rdutest
+    "{:a b}{:a nil} => {:a nil}"
+    (apply fs/merge-nil-override (list {:a 42}{:a nil}))
+    (fn [map]
+      (= (:a map) nil))
+    :nil-should-override)})
 
 
-   })
 
 
 

@@ -248,9 +248,11 @@
         subject (random-lexeme (fs/merge {:case {:not :acc}} (get verb :subj)))]
     (list verb object subject)))
 
-(defn np [constraints]
-  (let [article (random-lexeme {:cat :det})]
-    article))
+(defn np [& constraints]
+  (let [det-value (:det (apply fs/merge-nil-override constraints))]
+    (let [article (if (or (= nil constraints) det-value )
+                    (random-lexeme {:cat :det}))]
+      article)))
 
 ;; cf. grammar/sentence: this will replace that.
 (defn sentence []
@@ -334,10 +336,17 @@
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
 
+(defn random-verb-for-svo [& svo-map]
+  (let [svo-map (if svo-map svo-map (list {}))]
+    (random-lexeme {:cat :verb :infl :infinitive} {:obj (fs/merge (apply :obj svo-map))})))
+
+(defn random-object-for-verb [verb]
+  (random-lexeme (:obj verb)))
+
 (defn random-present [& svo-map]
   (let [svo-map (if svo-map svo-map (list {}))
         vp
-        (let [root-verb (random-lexeme {:cat :verb :infl :infinitive} {:obj (apply :obj svo-map)})
+        (let [root-verb (random-verb-for-svo svo-map)
               subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb))
                                     {:number (random-symbol :singular :plural)})
               object (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
@@ -348,10 +357,6 @@
                           object)
             {:fail "verb root not found."}))]
     (conjugate-sent vp (:subject vp))))
-
-(defn random-verb-for-svo [& svo-map]
-  (let [svo-map (if svo-map svo-map (list {}))]
-    (random-lexeme {:cat :verb :infl :infinitive} {:obj (fs/merge (apply :obj svo-map))})))
 
 (defn rand-sv []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})
@@ -630,7 +635,7 @@
       :sports-vp)
 
      (rdutest
-      "soccer does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
+      "'soccer' does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
       (random-present {:obj {:sport true}}) ;; 'giocare' is the only +sport verb, and 'calcio' is the only +sport noun.
       (fn [sentence]
         (and (= (:italian (:object (:verb-phrase sentence))) "calcio")

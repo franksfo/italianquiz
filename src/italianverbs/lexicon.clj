@@ -80,6 +80,7 @@
       calcio (add "calcio" "soccer"
                   common-noun masc
                   {:mass true
+                   :det nil
                    :sport true})
       
       cane (add "cane" "dog"
@@ -509,7 +510,15 @@
     (lookup "parlare")
     (fn [parlare]
       (= (:italian parlare) "parlare"))
-    :parla)})
+    :parla)
+   :calcio
+   (rdutest
+    "calcio is kind of an interesting word."
+    (lookup "calcio")
+    (fn [calcio]
+      (= nil (:det calcio)))
+    :calcio)})
+
 
 
 
