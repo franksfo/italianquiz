@@ -34,7 +34,7 @@
   (:test-result (get tests test-name)))
 
 
-(def tests
+(def rdutests
   {:simple-test-example ; test label
    (rdutest
     "Just a simple example showing how to write rdutests." ; comment
