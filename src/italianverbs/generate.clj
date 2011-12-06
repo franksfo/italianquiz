@@ -617,6 +617,13 @@
              (not (= (:case (:noun (:subject (:verb-phrase sentence)))) :acc))))
       :random-svo)
 
+     (rdutest
+      "soccer does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
+      (random-present :object {:italian "calcio"})
+      (fn [sentence]
+        (= (:italian (:obj (:vp sentence))) "calcio"))
+      :soccer)
+     
      )))
 
 ;(defn test []
