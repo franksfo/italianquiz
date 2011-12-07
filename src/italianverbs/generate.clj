@@ -336,27 +336,25 @@
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
 
+(defn random-object-for-verb [verb]
+  (random-lexeme (:obj verb)))
+
 (defn random-verb-for-svo [& svo-map]
   (let [svo-map (if svo-map svo-map (list {}))]
     (random-lexeme {:cat :verb :infl :infinitive} {:obj (fs/merge (apply :obj svo-map))})))
 
-(defn random-object-for-verb [verb]
-  (random-lexeme (:obj verb)))
-
 (defn random-present [& svo-map]
   (let [svo-map (if svo-map svo-map (list {}))
-        vp
-        (let [root-verb (random-verb-for-svo svo-map)
-              subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb))
-                                    {:number (random-symbol :singular :plural)})
-              object (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
-                                   {:number (random-symbol :singular :plural)})]
-          (if root-verb
-            (conjugate-vp (fs/m root-verb {:infl :present})
-                          subject
-                          object)
-            {:fail "verb root not found."}))]
-    (conjugate-sent vp (:subject vp))))
+        root-verb (eval `(random-verb-for-svo ~@svo-map))]
+    (let [subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb)
+                                               {:number (random-symbol :singular :plural)}))
+          object (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
+                               {:number (random-symbol :singular :plural)})]
+      (let [svo {:subject subject
+                 :root-verb root-verb
+                 :object object
+                 :vp (conjugate-vp (fs/m root-verb {:infl :present}) subject object)}]
+        (conjugate-sent (:vp svo) (:subject svo))))))
 
 (defn rand-sv []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})
