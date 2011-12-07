@@ -98,6 +98,8 @@
                        {:subj animate
                         :obj {:cat :noun}})
 
+      donna (add "donna" "woman" common-noun masc human)
+      
       essere
       (let [essere (add "essere" "to be"
                         transitive
@@ -312,6 +314,8 @@
       una (add "una" "a" {:gender :fem :number :singular :cat :det
                           :def :indef})
 
+      uomo (add "uomo" "man" common-noun masc human)
+      
       voi (add "voi" "you all" 
               human
               pronoun
