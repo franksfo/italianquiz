@@ -34,7 +34,7 @@
               (rest path))
     fs))
 
-(defn- union-keys [maps]
+(defn union-keys [maps]
   (if (and maps (> (.size maps) 0))
     (union
      (set (keys (first maps)))
@@ -210,13 +210,25 @@
       (= result {}))
     :ignore-nil-values-2)
    
-   :nil-should-override
+   :nil-should-override-atomic
    (rdutest
-    "{:a b}{:a nil} => {:a nil}"
+    "{:a 42}{:a nil} => {:a nil}"
     (apply fs/merge-nil-override (list {:a 42}{:a nil}))
     (fn [map]
       (= (:a map) nil))
-    :nil-should-override)})
+    :nil-should-override-atomic)
+
+   :nil-should-override-map
+   (rdutest
+    "{:a {:foo 42}}{:a nil} => {:a nil}"
+    (apply fs/merge-nil-override (list {:a {:foo 42}} {:a nil}))
+    (fn [map]
+      (= (:a map) nil))
+    :nil-should-override)
+
+   
+
+   })
 
 
 
