@@ -27,7 +27,7 @@
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
       edible (fs/m noun {:edible true})
-
+      mass {:mass true :def {:not :indef}} ; you can say 'the pasta', but not 'a pasta'.
       third-sing {:number :singular :person :3rd :cat :noun}
       third-sing-subj {:subj third-sing}
       common-noun (fs/m third-sing {:det {:cat :det}})
@@ -78,9 +78,8 @@
                      :person :3rd}}))
       
       calcio (add "calcio" "soccer"
-                  common-noun masc
-                  {:mass true
-                   :det nil
+                  common-noun masc mass
+                  {:det nil
                    :sport true})
       
       cane (add "cane" "dog"
@@ -258,11 +257,9 @@
               {:person :1st :number :plural :case :nom})
       
       pane (add "pane" "bread"
-                artifact
+                artifact mass
                 {:edible true
-                 :mass true
-                 :gender :masc
-                 :det {:def {:not :indef}}})
+                 :gender :masc})
 
       parlare (add "parlare" "to speak"
                    verb
@@ -276,10 +273,9 @@
                    :gender :fem})
 
       pasta (add "pasta" "pasta"
-                artifact
+                artifact mass
                 {:edible true
-                 :gender :fem
-                 :det {:def {:not :indef}}})
+                 :gender :fem})
 
       poltrona (add "poltrona" "easy chair"
                   common-noun fem artifact
