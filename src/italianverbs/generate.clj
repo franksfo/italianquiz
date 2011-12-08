@@ -346,15 +346,17 @@
 
 (defn random-verb-for-svo [& svo-map]
   (let [svo-map (if svo-map svo-map (list {}))]
-    (random-lexeme {:cat :verb :infl :infinitive} {:obj (fs/merge (apply :obj svo-map))})))
+    (random-lexeme (fs/m (apply :verb svo-map) {:cat :verb :infl :infinitive}) {:obj (fs/merge (apply :obj svo-map))})))
 
 (defn random-present [& svo-map]
   (let [svo-map (if svo-map svo-map (list {}))
         root-verb (eval `(random-verb-for-svo ~@svo-map))]
     (let [subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb)
                                                {:number (random-symbol :singular :plural)}))
-          object (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
-                               {:number (random-symbol :singular :plural)})]
+          object
+          (if (:obj root-verb)
+            (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
+                          {:number (random-symbol :singular :plural)}))]
       (let [svo {:subject subject
                  :root-verb root-verb
                  :object object
@@ -652,7 +654,14 @@
         (and (not (= (:english np) "a pasta"))
              (not (= (:italian np) "una pasta"))))
       :mass-nouns)
-                  
+
+     (rdutest
+      "intransitive verbs (e.g. 'lavorare (to work)' have no object."
+      (random-present {:verb {:italian "lavorare"}})
+      (fn [sent]
+        (= (:obj sent) nil))
+      :intransitive)
+     
      
      )))
 
