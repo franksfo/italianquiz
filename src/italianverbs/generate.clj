@@ -304,7 +304,7 @@
         article-search (if (not (= (:det noun) nil))
                          (search/search
                           (fs/m determiner
-                                (:det noun) ; does not work yet.
+                                (:det noun)
                                 {:cat :det
                                  :gender (:gender noun) :number (:number noun)})))
         article (if (and (not (= article-search nil))
