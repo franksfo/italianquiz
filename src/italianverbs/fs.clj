@@ -53,7 +53,7 @@
                     maps)}
        (collect-values maps (rest keys))))))
 
-(defn- collect-values-with-nil [maps keys]
+(defn collect-values-with-nil [maps keys]
   (let [key (first keys)]
     (if key
       (merge
@@ -86,15 +86,30 @@
         (merge-atomically values))
         {})))
 
-(defn- merge-values-like-core [values]
+(defn merge-values-like-core [values]
   (let [value (first values)]
     (if value
       (if (= (type value) clojure.lang.PersistentArrayMap)
         (merge
-         (first values)
+         value
          (merge-values-like-core (rest values)))
         (merge-atomically-like-core values))
         {})))
+
+(defn merge-values-like-core-nil-override [values]
+  (let [value (first values)]
+    (if value
+      (if (= (type value) clojure.lang.PersistentArrayMap)
+        (let [rest-of (merge-values-like-core-nil-override (rest values))]
+          (if (= nil rest-of)
+            nil
+            (merge
+             value
+             rest-of)))
+        (merge-atomically-like-core values))
+      (if (and (= (.size values) 1)
+               (= value nil))
+        nil {}))))
 
 (defn- merge-r [collected-map keys]
   "merge a map where each value is a list of values to be merged for that key."
@@ -117,6 +132,18 @@
           (merge-r-like-core collected-map (rest keys))))
       {})))
 
+(defn- merge-r-like-core-nil-override [collected-map keys]
+  "merge a map where each value is a list of values to be merged for that key."
+  (let [key (first keys)]
+    (if key
+      (let [merged-values (merge-values-like-core-nil-override (get collected-map key))]
+        (if (not (= merged-values {}))
+          (merge
+           {key merged-values}
+           (merge-r-like-core-nil-override collected-map (rest keys)))
+          (merge-r-like-core-nil-override collected-map (rest keys))))
+      {})))
+
 (defn merge [& maps]
   "like clojure.core/merge, but works recursively."
   (let [keyset (union-keys maps)]
@@ -136,7 +163,7 @@
   "like clojure.core/merge, but works recursively, and works like it also in that later values win (see test 'nil-should-override'), even if that value is nil."
   (let [keyset (union-keys maps)
         values (collect-values-with-nil maps keyset)]
-    (merge-r-like-core values (seq keyset))))
+    (merge-r-like-core-nil-override values (seq keyset))))
 
 ;; EXACTLY THE SAME AS (mergec):
 ;; (until i learn to write wrappers).
