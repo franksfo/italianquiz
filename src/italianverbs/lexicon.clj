@@ -27,7 +27,7 @@
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
       edible (fs/m noun {:edible true})
-      mass {:mass true :def {:not :indef}} ; you can say 'the pasta', but not 'a pasta'.
+      mass {:mass true :det {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
       third-sing {:number :singular :person :3rd :cat :noun}
       third-sing-subj {:subj third-sing}
       common-noun (fs/m third-sing {:det {:cat :det}})
@@ -202,6 +202,11 @@
       
       la (add "la" "the" {:gender :fem :number :singular :cat :det
                           :def :def})
+
+      lavorare (add "lavorare" "to work"
+                    verb
+                    {:subj human})
+      
 
       le (add "le" "the" {:gender :fem :number :plural :cat :det
                           :def :def})
@@ -385,35 +390,33 @@
             :place true}})
 
 (add "a" "to"
-	   {:cat :prep
-        :obj {:case {:not :nom}
-              :andare-a true}})
+     {:cat :prep
+      :obj {:case {:not :nom}
+            :andare-a true}})
 
 (add "a" "to"
-	   {:cat :prep
-        :obj {:case {:not :nom}
-              :andare-al true}})
+     {:cat :prep
+      :obj {:case {:not :nom}
+            :andare-al true}})
 
 (add "di" "of"
-	   {:cat :prep
-        :obj {:case {:not :nom}}})
+     {:cat :prep
+      :obj {:case {:not :nom}}})
 
 (add "da" "from"
-	   {:cat :prep
-        :obj {:case {:not :nom}
-              :place true}})
+     {:cat :prep
+      :obj {:case {:not :nom}
+            :place true}})
 
 (add "a" "to"
-	   {:cat :prep
-	    
-        :obj {:case {:not :nom}
-              :animate true}})
+     {:cat :prep
+      :obj {:case {:not :nom}
+            :animate true}})
 
 (add "con" "with"
-	   {:cat :prep
-	    
-        :obj {:case {:not :nom}
-              :human true}})
+     {:cat :prep
+      :obj {:case {:not :nom}
+            :human true}})
 
 (add "per" "for"
      {:cat :prep
@@ -504,6 +507,9 @@
       :obj {:case {:not :nom}
             :furniture true}})
 
+;; end of lexicon.
+
+;; begin tests.
 
 (def localtests ;; so as not to collide with lexiconfn/tests.
   {:parlare
