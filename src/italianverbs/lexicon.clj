@@ -30,7 +30,7 @@
 
       third-sing {:number :singular :person :3rd :cat :noun}
       third-sing-subj {:subj third-sing}
-      common-noun (fs/m third-sing {:det true})
+      common-noun (fs/m third-sing {:det {:cat :det}})
       artifact (fs/m common-noun {:artifact true})
       masc {:gender :masc}
       fem {:gender :fem}
@@ -261,12 +261,8 @@
                 artifact
                 {:edible true
                  :mass true
-                 :gender :masc})
-
-      pane (add "pasta" "pasta"
-                artifact
-                {:edible true
-                 :gender :fem})
+                 :gender :masc
+                 :det {:def {:not :indef}}})
 
       parlare (add "parlare" "to speak"
                    verb
@@ -278,6 +274,12 @@
                   {:readable true
                    :speakable true
                    :gender :fem})
+
+      pasta (add "pasta" "pasta"
+                artifact
+                {:edible true
+                 :gender :fem
+                 :det {:def {:not :indef}}})
 
       poltrona (add "poltrona" "easy chair"
                   common-noun fem artifact

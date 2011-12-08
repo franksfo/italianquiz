@@ -282,7 +282,7 @@
 (defn conjugate-np [noun & [determiner]]
   "conjugate a noun with a determiner (if the noun takes a determiner ((:det noun) is not nil)) randomly chosen using the 'determiner' spec."
   (let [plural-exception (if (or (= (:number noun) :plural) (= (:number noun) "plural"))
-                           (let [search (search/search noun)] ;; search for plural exception.
+                           (let [search (search/search noun)] ;; search lexicon for plural exception.
                              (if (and search (> (.size search) 0))
                                (nth search 0))))
         italian (if (or (= (:number noun) :plural)
@@ -301,7 +301,12 @@
                       (morph/plural-en (:english noun))
                       (:english noun)))
                   (:english noun))
-        article-search (if (not (= (:det noun) nil)) (search/search (fs/m determiner {:cat :det :gender (:gender noun) :number (:number noun)})))
+        article-search (if (not (= (:det noun) nil))
+                         (search/search
+                          (fs/m determiner
+                                (:det noun) ; does not work yet.
+                                {:cat :det
+                                 :gender (:gender noun) :number (:number noun)})))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
@@ -633,12 +638,21 @@
       :sports-vp)
 
      (rdutest
-      "'soccer' does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
+      "the word 'soccer' does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
       (random-present {:obj {:sport true}}) ;; 'giocare' is the only +sport verb, and 'calcio' is the only +sport noun.
       (fn [sentence]
         (and (= (:italian (:object (:verb-phrase sentence))) "calcio")
              (= (:english (:object (:verb-phrase sentence))) "soccer")))
       :soccer)
+
+     (rdutest
+      "la parola 'pasta' prende solo un articolo definitivo, non un'indefinitivo."
+      (conjugate-np (random-lexeme {:italian "pasta"}))
+      (fn [np]
+        (and (not (= (:english np) "a pasta"))
+             (not (= (:italian np) "una pasta"))))
+      :mass-nouns)
+                  
      
      )))
 
