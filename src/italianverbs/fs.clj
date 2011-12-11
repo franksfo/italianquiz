@@ -176,6 +176,27 @@
 (defn mergec [& maps]
   (merge-like-core (list maps)))
 
+
+(defn merge-and-apply [& maps]
+  "merge maps, and then apply the function (:fn merged) to the merged map."
+  (let [merged
+        (eval `(fs/m ~@maps))
+        fn (:fn merged)
+        eval-fn (if (and fn (= (type fn) java.lang.String))
+                  (eval (symbol fn)) ;; string->fn (since a fn cannot (yet) be serialized in persistent db)
+                  fn)] ;; otherwise, assume it's a function.
+    (if (:fn merged)
+      (fs/m merged
+            (apply eval-fn
+                   (list merged)))
+      maps)))
+
+;;  needed below for :merge-and-apply-test-with-fn-as-string test.
+(defn myfn [map]
+  (fs/m map
+        {:a (+ 1 (:a map))
+         :foo "bar"}))
+
 (def tests
   {
    :recursive-merge
@@ -253,7 +274,28 @@
       (= (:a map) nil))
     :nil-should-override)
 
+   :merge-and-apply-test
+   (rdutest
+    "(apply the :fn function of a map on the result of running fs/m)"
+    (merge-and-apply {:a 42 :fn (fn [map]
+                                  (fs/m map
+                                        {:a (+ 1 (:a map)) :foo "bar"}))}
+                     {:b 99})
+    (fn [map]
+      (and (= (:foo map) "bar")
+           (= (:a 43))))
+    :merge-and-apply-test)
    
+   :merge-and-apply-test-with-fn-as-string
+   (rdutest
+    "(apply the :fn value (after converting from a string to a function) of a map on the result of running fs/m)"
+    (merge-and-apply {:a 42 :fn "myfn"}
+                     {:b 99})
+   (fn [map]
+      (and (= (:foo map) "bar")
+           (= (:a 43))))
+    :merge-and-apply-test-with-fn-as-string)
+
 
    })
 
