@@ -349,8 +349,7 @@
 (def verbs
   {:cat :verb})
 
-;; do: ((:3s tests) tests) to see test results.
-;; do (:test-result ((:3s tests) tests) to see "foobaziare" structure.
+;; do e.g. (:test-result (:parla tests)) to see results of the :parla test.
 (def tests
   {:parla
    (rdutest
