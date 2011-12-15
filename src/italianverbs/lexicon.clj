@@ -12,7 +12,8 @@
 (defn merge [& [args]]
   (fs/merge-like-core args))
 
-(let [verb {:cat :verb :infl :infinitive :subj {:case {:not :acc}}}
+(let [word {:morph "unspecified-morphology"}
+      verb {:cat :verb :infl :infinitive :subj {:case {:not :acc}} :passato-aux "avere"}
       animate {:animate true}
       det {:cat :det}
       human (fs/m animate {:human true})
@@ -23,14 +24,16 @@
       plural {:number :plural}
       
       noun {:cat :noun}
+      third-sing {:number :singular :person :3rd :cat :noun}
+      common-noun (fs/m third-sing {:det {:cat :det}} {:fn "take-article"} {:morph "morph-noun"} {:common true})
       pronoun (fs/m noun {:pronoun true :det false :human true})
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
       edible (fs/m noun {:edible true})
       mass {:mass true :det {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
-      third-sing {:number :singular :person :3rd :cat :noun}
+
       third-sing-subj {:subj third-sing}
-      common-noun (fs/m third-sing {:det {:cat :det}})
+
       artifact (fs/m common-noun {:artifact true})
       masc {:gender :masc}
       fem {:gender :fem}
@@ -84,7 +87,6 @@
       
       cane (add "cane" "dog"
                 common-noun
-                {:morph "morph-noun"}
                 {:animate true
                  :gender :masc})
 

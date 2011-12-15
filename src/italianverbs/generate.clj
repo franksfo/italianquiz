@@ -33,10 +33,19 @@
 (defn morph-noun [fs]
   ;; choose number randomly from {:singular,:plural}.
   (let [number (random-symbol :singular :plural)]
-    (fs/m fs
-          {:italian "i cani"
-           :number number ;; for temp debugging.
-           :english "the dogs"})))
+    (if (= number :singular)
+      ;;
+      fs ;; nothing needed to be done: we are assuming fs comes from lexicon and that singular is the canonical lexical form.
+      ;; else, plural
+      ;; TODO: check for exceptions in both :english and :italian side.
+      (fs/m fs
+            {:number :plural}
+            (if (= (:gender fs) :fem)
+              {:italian (morph/plural-fem (:italian fs))
+               :english (morph/plural-en (:english fs))}
+              ;; else, assume masculine.
+              {:italian (morph/plural-masc (:italian fs))
+               :english (morph/plural-en (:english fs))})))))
 
 (defn random-morph [& constraints]
   "apply the :morph function to the constraints."
@@ -689,37 +698,46 @@
         (= (:sport (:obj verb)) true))
       :sports-vp)
 
+     ;; TODO more random-morph tests.
      (rdutest
-      "the word 'soccer' does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
-      (random-present {:obj {:sport true}}) ;; 'giocare' is the only +sport verb, and 'calcio' is the only +sport noun.
-      (fn [sentence]
-        (and (= (:italian (:object (:verb-phrase sentence))) "calcio")
-             (= (:english (:object (:verb-phrase sentence))) "soccer")))
-      :soccer)
+      "random-morph: test for exceptions"
+      (random-morph (random-lexeme {:common true :italian "uomo"}))
+      (fn [noun]
+        (= (:english noun) "men"))
+      :random-morph)
+           
+     
+;     (rdutest
+;      "the word 'soccer' does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
+;      (random-present {:obj {:sport true}}) ;; 'giocare' is the only +sport verb, and 'calcio' is the only +sport noun.
+;      (fn [sentence]
+;        (and (= (:italian (:object (:verb-phrase sentence))) "calcio")
+;             (= (:english (:object (:verb-phrase sentence))) "soccer")))
+;      :soccer)
 
-     (rdutest
-      "la parola 'pasta' prende solo un articolo definitivo, non un'indefinitivo."
-      (conjugate-np (random-lexeme {:italian "pasta"}))
-      (fn [np]
-        (and (not (= (:english np) "a pasta"))
-             (not (= (:italian np) "una pasta"))))
-      :mass-nouns)
+;     (rdutest
+;      "la parola 'pasta' prende solo un articolo definitivo, non un'indefinitivo."
+;      (conjugate-np (random-lexeme {:italian "pasta"}))
+;      (fn [np]
+;        (and (not (= (:english np) "a pasta"))
+;             (not (= (:italian np) "una pasta"))))
+;      :mass-nouns)
 
-     (rdutest
-      "intransitive verbs (e.g. 'lavorare (to work)' have no object."
-      (random-present {:italian "lavorare"})
-      (fn [sent]
-        (= (:obj sent) nil))
-      :intransitive)
+;     (rdutest
+;      "intransitive verbs (e.g. 'lavorare (to work)' have no object."
+;      (random-present {:italian "lavorare"})
+;      (fn [sent]
+;        (= (:obj sent) nil))
+;      :intransitive)
 
-     (rdutest
-      "past tense conjugation"
-      (random-past {:root {:italian "lavorare"}
-                    :subj {:root "io"}
-                    :infl :passato-prossimo})
-      (fn [sent]
-        (= (:italian sent) "io ho lavorato"))
-      :lavorato)
+;     (rdutest
+;      "past tense conjugation"
+;      (random-past {:root {:italian "lavorare"}
+;                    :subj {:root "io"}
+;                    :infl :passato-prossimo})
+;      (fn [sent]
+;        (= (:italian sent) "io ho lavorato"))
+;      :lavorato)
      
      
      )))
