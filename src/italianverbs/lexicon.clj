@@ -84,6 +84,7 @@
       
       cane (add "cane" "dog"
                 common-noun
+                {:morph "morph-noun"}
                 {:animate true
                  :gender :masc})
 

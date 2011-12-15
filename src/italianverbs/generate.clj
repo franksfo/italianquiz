@@ -26,23 +26,26 @@
     (if lexemes
       (if (> (.size lexemes) 0)
         (nth lexemes (rand-int (.size lexemes)))))))
-
-(defn morph-noun [fs]
-  (fs/m fs
-        {:italian "i cani"
-         :english "the dogs"}))
-
-(defn random-morph [& constraints]
-  "apply the :morph function to the constraints."
-  (let [merged (apply fs/merge-nil-override constraints)
-        morph-fn (:morph merged)]
-    (if morph-fn
-      (fs/merge-and-apply (fs/m merged {:fn morph-fn}))
-      merged)))
-
 (defn random-symbol [& symbols]
   (let [symbols (apply list symbols)]
     (nth symbols (rand-int (.size symbols)))))
+
+(defn morph-noun [fs]
+  ;; choose number randomly from {:singular,:plural}.
+  (let [number (random-symbol :singular :plural)]
+    (fs/m fs
+          {:italian "i cani"
+           :number number ;; for temp debugging.
+           :english "the dogs"})))
+
+(defn random-morph [& constraints]
+  "apply the :morph function to the constraints."
+  ;; TODO: constantly switching between variable # of args and one-arg-which-is-a-list...be consistent in API.
+  (let [merged (apply fs/merge-nil-override constraints)
+        morph-fn (:morph merged)]
+    (if morph-fn
+      (fs/merge-and-apply (list (fs/m merged {:fn morph-fn})))
+      merged)))
 
 ;; TODO: learn why string/join doesn't work for me:
 ;; (string/join '("foo" "bar") " ")
