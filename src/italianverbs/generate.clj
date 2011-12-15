@@ -15,10 +15,10 @@
    [clojure.string :as string]
    [clojure.contrib.duck-streams :as duck]))
 
-;(defn print [fs]
+(defn printfs [fs]
 ;  "print a feature structure to a file. filename will be something easy to derive from the fs."
-;  (let [filename "foo.html"]  ;; TODO: some conventional default if deriving from fs is too hard.
-;    (duck/spit filename (html/static-page (html/tablize fs)))))
+  (let [filename "foo.html"]  ;; TODO: some conventional default if deriving from fs is too hard.
+    (duck/spit filename (html/static-page (html/tablize fs)))))
 
 (defn random-lexeme [& constraints]
   (let [lexemes (seq
@@ -26,6 +26,19 @@
     (if lexemes
       (if (> (.size lexemes) 0)
         (nth lexemes (rand-int (.size lexemes)))))))
+
+(defn morph-noun [fs]
+  (fs/m fs
+        {:italian "i cani"
+         :english "the dogs"}))
+
+(defn random-morph [& constraints]
+  "apply the :morph function to the constraints."
+  (let [merged (apply fs/merge-nil-override constraints)
+        morph-fn (:morph merged)]
+    (if morph-fn
+      (fs/merge-and-apply (fs/m merged {:fn morph-fn}))
+      merged)))
 
 (defn random-symbol [& symbols]
   (let [symbols (apply list symbols)]
@@ -266,13 +279,17 @@
     (cons (sentence)
           (n-sentences (- n 1)))))
 
+(defn mylookup [italian]
+  (random-lexeme {:italian italian}))
+
 (defn conjugate-verb [verb subject]
   (let [irregulars
-        (search/search (fs/merge {:root (fs/m verb {:infl :infinitive})}
-                                 {:subj
-                                  (select-keys
-                                   subject
-                                   (list :person :number))}))]
+        (search/search (fs/merge
+                        {:root (fs/m verb {:infl :infinitive})}
+                        {:subj
+                         (select-keys
+                          subject
+                          (list :person :number))}))]
     (if (first irregulars)
       (first irregulars)
       (merge verb
@@ -323,13 +340,13 @@
   (let [conjugated-verb (conjugate-verb verb subject)]
     {:italian (join (list (:italian conjugated-verb) (:italian object)) " ")
      :english (join (list (:english conjugated-verb) (:english object)) " ")
-     :root-verb verb
      :subject subject
      :verb conjugated-verb
      :object object}))
 
 (defn conjugate-sent [verb-phrase subject]
-  {:italian (join (list (:italian subject) (:italian verb-phrase)) " ")
+  {
+   :italian (join (list (:italian subject) (:italian verb-phrase)) " ")
    :english (join (list (:english subject) (:english verb-phrase)) " ")
    :verb-phrase verb-phrase
    :subject subject})
@@ -340,17 +357,42 @@
         object (conjugate-np (fs/m (random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
-
+                          
 (defn random-object-for-verb [verb]
   (random-lexeme (:obj verb)))
 
-(defn random-verb-for-svo [& svo-map]
-  (let [svo-map (if svo-map svo-map (list {}))]
-    (random-lexeme (fs/m (apply :verb svo-map) {:cat :verb :infl :infinitive}) {:obj (fs/merge (apply :obj svo-map))})))
+(defn random-verb-for-svo [& svo-maps]
+  (let [svo-maps (if svo-maps svo-maps (list {}))]
+    (random-lexeme (fs/m (apply :verb svo-maps)
+                         {:cat :verb :infl :infinitive
+                          :obj (fs/merge (apply :obj svo-maps))}))))
 
-(defn random-present [& svo-map]
-  (let [svo-map (if svo-map svo-map (list {}))
-        root-verb (eval `(random-verb-for-svo ~@svo-map))]
+(defn random-present [& svo-maps]
+  (let [root-verb (apply random-lexeme (list (fs/m {:cat :verb}
+                                                   svo-maps)))]
+    (let [subject (conjugate-np (fs/m (random-lexeme
+                                      (:subj root-verb)
+                                      {:number :plural}
+                                      )))
+
+; conjugate-np
+;                   (random-lexeme {:cat :noun} (:subj root-verb)
+;                                               {:number (random-symbol :singular :plural)}))
+          object
+          (if (:obj root-verb)
+            (conjugate-np (fs/m (random-lexeme {:cat :noun}) {:number :plural}) {:def :def}))]
+;            (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
+;                          {:number (random-symbol :singular :plural)}))]
+      (let [svo {:subject subject
+                 :object object
+                 :vp (conjugate-vp (fs/m root-verb {:infl :present}) subject object)}]
+        (fs/m svo
+              (conjugate-sent (:vp svo) subject))))))
+
+;; TODO: refactor with (random-present).
+(defn random-past [& svo-maps]
+  (let [svo-maps (if svo-maps svo-maps (list {}))
+        root-verb (eval `(random-verb-for-svo ~@svo-maps))]
     (let [subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb)
                                                {:number (random-symbol :singular :plural)}))
           object
@@ -358,11 +400,12 @@
             (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
                           {:number (random-symbol :singular :plural)}))]
       (let [svo {:subject subject
-                 :root-verb root-verb
+                 :aux (fs/m (random-lexeme {:italian (:passato-aux root-verb) :infl :infinitive})
+                            subject)
                  :object object
-                 :vp (conjugate-vp (fs/m root-verb {:infl :present}) subject object)}]
-        (conjugate-sent (:vp svo) (:subject svo))))))
-
+                 :vp (fs/m root-verb {:infl :passato-prossimo})}]
+         (conjugate-sent svo subject)))))
+    
 (defn rand-sv []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})
         subject (nth subjects (rand-int (.size subjects)))
@@ -384,7 +427,7 @@
                                  {:infl :present})
                            subject
                            object))]
-    (conjugate-sent vp (:subject vp))))
+    (conjugate-sent vp)))
 
 ;;(map (fn [sent] (:english sent)) (n-random-trans 20))
 ;; (map (fn [sent] (:italian sent)) (n-random-trans 20))
@@ -444,6 +487,10 @@
 ;                           object
 ;                           {:infl :present}))]
 ;    (conjugate-sent vp subject)))
+
+(defn take-article [map]
+  (fs/m map
+        {:take-article "taken"}))
 
 (def generate-tests
   (let [five-sentences
@@ -612,7 +659,7 @@
             vp (conjugate-vp (fs/m root-verb {:infl :present})
                              (lookup "voi")
                              (conjugate-np (lookup "libro") {:def :indef}))]
-        (conjugate-sent vp (:subject vp)))
+        (conjugate-sent vp (lookup "voi")))
       (fn [sentence]
         (= (:italian sentence) "voi siete un libro"))
       :io-sono-un-tavolo)
@@ -657,10 +704,19 @@
 
      (rdutest
       "intransitive verbs (e.g. 'lavorare (to work)' have no object."
-      (random-present {:verb {:italian "lavorare"}})
+      (random-present {:italian "lavorare"})
       (fn [sent]
         (= (:obj sent) nil))
       :intransitive)
+
+     (rdutest
+      "past tense conjugation"
+      (random-past {:root {:italian "lavorare"}
+                    :subj {:root "io"}
+                    :infl :passato-prossimo})
+      (fn [sent]
+        (= (:italian sent) "io ho lavorato"))
+      :lavorato)
      
      
      )))
