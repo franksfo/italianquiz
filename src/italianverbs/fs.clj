@@ -177,7 +177,7 @@
   (merge-like-core (list maps)))
 
 
-(defn merge-and-apply [& maps]
+(defn merge-and-apply [maps]
   "merge maps, and then apply the function (:fn merged) to the merged map."
   (let [merged
         (eval `(fs/m ~@maps))
@@ -205,8 +205,12 @@
     (let [map1 {:foo {:bar 99}}
           map2 {:foo {:baz 42}}
           map3 {:biff 12}]
-      (merge map1 map2 map3))
+      (m map1 map2 map3))
     (fn [merge-result]
+      ;; result should look like:
+      ;; {:foo {:bar 99
+      ;;        :baz 42}
+      ;;  :biff 12}}
       (and
        (= (:bar (:foo merge-result)) 99)
        (= (:baz (:foo merge-result)) 42)
@@ -277,10 +281,12 @@
    :merge-and-apply-test
    (rdutest
     "(apply the :fn function of a map on the result of running fs/m)"
-    (merge-and-apply {:a 42 :fn (fn [map]
-                                  (fs/m map
-                                        {:a (+ 1 (:a map)) :foo "bar"}))}
-                     {:b 99})
+    (merge-and-apply
+     (list 
+      {:a 42 :fn (fn [map]
+                   (fs/m map
+                         {:a (+ 1 (:a map)) :foo "bar"}))}
+      {:b 99}))
     (fn [map]
       (and (= (:foo map) "bar")
            (= (:a 43))))
@@ -289,8 +295,8 @@
    :merge-and-apply-test-with-fn-as-string
    (rdutest
     "(apply the :fn value (after converting from a string to a function) of a map on the result of running fs/m)"
-    (merge-and-apply {:a 42 :fn "myfn"}
-                     {:b 99})
+    (merge-and-apply (list {:a 42 :fn "myfn"}
+                           {:b 99}))
    (fn [map]
       (and (= (:foo map) "bar")
            (= (:a 43))))
