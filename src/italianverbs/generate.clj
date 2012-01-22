@@ -26,13 +26,30 @@
     (if lexemes
       (if (> (.size lexemes) 0)
         (nth lexemes (rand-int (.size lexemes)))))))
+
 (defn random-symbol [& symbols]
   (let [symbols (apply list symbols)]
     (nth symbols (rand-int (.size symbols)))))
 
+(defn lookup-exception [fs]
+  (let [spec
+        (dissoc
+         (dissoc
+          (dissoc
+           fs
+           :use-number)
+          :fn)
+         :morph)
+        exception
+        (random-lexeme {:root spec
+                        :number :plural})]
+    exception))
+
 (defn morph-noun [fs]
   ;; choose number randomly from {:singular,:plural}.
-  (let [number (random-symbol :singular :plural)]
+  (let [number (if (:use-number fs)
+                 (:use-number fs)
+                 (random-symbol :singular :plural))]
     (if (= number :singular)
       ;;
       fs ;; nothing needed to be done: we are assuming fs comes from lexicon and that singular is the canonical lexical form.
@@ -40,13 +57,16 @@
       ;; TODO: check for exceptions in both :english and :italian side.
       (fs/m fs
             {:number :plural}
-            (if (= (:gender fs) :fem)
-              {:italian (morph/plural-fem (:italian fs))
-               :english (morph/plural-en (:english fs))}
-              ;; else, assume masculine.
-              {:italian (morph/plural-masc (:italian fs))
-               :english (morph/plural-en (:english fs))})))))
-
+            (let [exception (lookup-exception fs)]
+              (if exception exception
+                  (if (= (:gender fs) :fem)
+                    {:italian (morph/plural-fem (:italian fs))
+                     :english (morph/plural-en (:english fs))}
+                    ;; else, assume masculine.
+                    {:checked-for {:root (dissoc (dissoc fs :_id) :use-number)}
+                     :italian (morph/plural-masc (:italian fs))
+                     :english (morph/plural-en (:english fs))})))))))
+    
 (defn random-morph [& constraints]
   "apply the :morph function to the constraints."
   ;; TODO: constantly switching between variable # of args and one-arg-which-is-a-list...be consistent in API.
@@ -698,14 +718,42 @@
         (= (:sport (:obj verb)) true))
       :sports-vp)
 
+     ;; random-lexeme seems to be hitting a limit of some kind..
+     (rdutest
+      "random-lexeme with a lot of stuff."
+      (random-lexeme {:root {:gender :masc :det {:cat :det} :animate true :common true :number :singular :italian "uomo" :person :3rd :english "man"}})
+      (fn [retval]
+        (not (= retval nil)))
+      :random-lexeme1)
+
+     (rdutest
+      "random-lexeme with even more stuff."
+      (random-lexeme {:root {:gender :masc :det {:cat :det} :animate true :common true
+                             :number :singular :italian "uomo" :person :3rd
+                             :english "man" :cat :noun}})
+      (fn [retval]
+        (not (= retval nil)))
+      :random-lexeme2)
+
+     
      ;; TODO more random-morph tests.
      (rdutest
-      "random-morph: test for exceptions"
-      (random-morph (random-lexeme {:common true :italian "uomo"}))
+      "random-morph: test for pluralization exceptions: uomo->uomini"
+      (random-morph (fs/m (random-lexeme {:common true :italian "uomo"}) {:use-number :plural}))
       (fn [noun]
-        (= (:english noun) "men"))
+        (and (= (:english noun) "men")
+             (= (:italian noun) "uomini")))
       :random-morph)
-           
+
+     ;; like the above, but only english is exceptional (women) : italian is regular (donne).
+     (rdutest
+      "random-morph: test for pluralization exceptions: donna->donne"
+      (random-morph (fs/m (random-lexeme {:common true :english "woman"}) {:use-number :plural}))
+      (fn [noun]
+        (and (= (:english noun) "women")
+             (= (:italian noun) "donne")))
+      :random-morph)
+     
      
 ;     (rdutest
 ;      "the word 'soccer' does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"

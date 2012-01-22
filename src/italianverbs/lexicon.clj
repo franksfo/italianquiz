@@ -101,6 +101,8 @@
                         :obj {:cat :noun}})
 
       donna (add "donna" "woman" common-noun masc human)
+      ;; add exception because of english: woman->women.
+      donne (add "donne" "women" donna plural {:root donna})
       
       essere
       (let [essere (add "essere" "to be"
@@ -321,6 +323,8 @@
                           :def :indef})
 
       uomo (add "uomo" "man" common-noun masc human)
+      ;; exception because in english man->men.
+      uomini (add "uomini" "men" uomo plural {:root uomo})
       
       voi (add "voi" "you all" 
               human
