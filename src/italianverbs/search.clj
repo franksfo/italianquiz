@@ -31,11 +31,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (mapcat (fn [kv]
             (let [key (first kv)
                   val (second kv)]
+;              (println (str "K:" key))
               (if (not (contains? *exclude-keys* key))
-                (if (= (type val) clojure.lang.PersistentArrayMap)
-                  (pathify-r val (concat prefix (list key)))
-                  (list {(concat prefix (list key))
-                         val})))))
+                (if (or (= (type val) clojure.lang.PersistentArrayMap)
+                        (= (type val) clojure.lang.PersistentHashMap))
+                  (do
+;                    (println (str "PAM"))
+                    (pathify-r val (concat prefix (list key))))
+                  (do
+;                    (println (str "not PAM" (type val)))
+                    (list {(concat prefix (list key))
+                           val}))))))
           fs))
 
 (defn pathify [fs]
@@ -217,6 +223,20 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (search {:cat :noun} {:gender :fem} {:number :singular})
     #(and (not (= % nil)) (> (.size %) 0))
     :search-multiple-maps)
+
+   :pathify-long-map-1
+   (rdutest
+    "Pathify a large map."
+    (pathify {:root {:gender :masc :human true :det {:cat :det} :animate true :morph "morph-noun" :common true :cat :noun :italian "uomo"}})
+    (fn [x] false)
+    :pathify-long-map-1)
+
+   :pathify-long-map-2
+   (rdutest
+    "Pathify a larger map."
+    (pathify {:root {:gender :masc :human true :det {:cat :det} :animate true :morph "morph-noun" :common true :cat :noun :italian "uomo" :person :3rd}})
+    (fn [x] false)
+    :pathify-long-map-2)
    
    })
 
