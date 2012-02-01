@@ -753,6 +753,19 @@
         (and (= (:english noun) "women")
              (= (:italian noun) "donne")))
       :random-morph)
+
+     (rdutest
+      "random-determiner: generate a random determiner (il,i,lo,le,..)"
+      (random-morph (random-lexeme {:cat :det}))
+      (fn [det]
+        (or 
+         (= (:italian det) "i")
+         (= (:italian det) "il")
+         (= (:italian det) "le")
+         (= (:italian det) "un")
+         (= (:italian det) "una")
+         (= (:italian det) "la")))
+      :random-det)
      
      
 ;     (rdutest

@@ -208,7 +208,7 @@
 
 (defn plural-masc [italian]
   (stringc/join " "
-                (cons (stringc/replace-re #"[o]$" "i" (first (stringc/split #"\s+"
+                (cons (stringc/replace-re #"[eo]$" "i" (first (stringc/split #"\s+"
                                                                           italian)))
                       (rest (stringc/split #"\s+" italian)))))
 
@@ -410,7 +410,14 @@
 (defn stem-per-futuro [infinitive]
   "_infinitive_ should be a string (italian verb infinitive form)"
   (str-utils/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
-  
+
+(defn stem-per-passato-prossimo [infinitive]
+  "_infinitive_ should be a string (italian verb infinitive form)"
+  (str-utils/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix))))
+
+(defn passato-prossimo [infinitive]
+  (str (stem-per-passato-prossimo infinitive) "ato"))
+
 (defn conjugate-future-italian [infinitive subject & [ stem ] ]
   (let [stem (if stem
                stem 
@@ -491,12 +498,22 @@
     (fn [string]
       (= string "boxes"))
     :en-plural-2)
+
+   :it-noun-pluralization-1 ;
+   (rdutest
+    "cane->cani"
+    (plural-masc "cane")
+    (fn [string]
+      (= string "cani"))
+    :it-noun-pluralization-1)
+
+   
+   :passato
+   (rdutest
+    "Regular passato-prossimo conjugation."
+    (passato-prossimo "lavorare")
+    (fn [verb]
+      (= verb "lavorato"))
+    :passato)
    
    })
-
-   
-
-
-
-
-      
