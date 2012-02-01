@@ -74,7 +74,8 @@
         morph-fn (:morph merged)]
     (if morph-fn
       (fs/merge-and-apply (list (fs/m merged {:fn morph-fn})))
-      merged)))
+      (fs/m {:random-morph :no-morph-fn-default-used}
+             merged))))
 
 ;; TODO: learn why string/join doesn't work for me:
 ;; (string/join '("foo" "bar") " ")
@@ -524,6 +525,13 @@
   (fs/m map
         {:take-article "taken"}))
 
+(defn random-phrase [head-constraints comp-constraints]
+  (let [head-c head-constraints
+        head (random-lexeme head-constraints)]
+    {:head-c head-c
+     :head head
+     :italian (str "un" " " (:italian head))}))
+
 (def generate-tests
   (let [five-sentences
         (rdutest
@@ -767,6 +775,13 @@
          (= (:italian det) "la")))
       :random-det)
      
+     ;; We constrain the generation sufficiently that only one italian expression matches it ('un cane')."
+     (rdutest
+      "random noun phrase composed of a determiner and a noun: 'un cane'."
+      (random-phrase (random-lexeme {:italian "cane"} {:number :singular}) {:def :indef})
+      (fn [np]
+        (= (:italian np) "un cane"))
+      :random-np)
      
 ;     (rdutest
 ;      "the word 'soccer' does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"

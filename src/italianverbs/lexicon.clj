@@ -12,7 +12,7 @@
 (defn merge [& [args]]
   (fs/merge-like-core args))
 
-(let [word {:morph "unspecified-morphology"}
+(let [word {:morph "unspecified-morphology"} ;; 'word' not used currently.
       verb {:cat :verb :infl :infinitive :subj {:case {:not :acc}} :passato-aux "avere"}
       animate {:animate true}
       det {:cat :det}
@@ -25,7 +25,7 @@
       
       noun {:cat :noun}
       third-sing {:number :singular :person :3rd :cat :noun}
-      common-noun (fs/m third-sing {:det {:cat :det}} {:fn "take-article"} {:morph "morph-noun"} {:common true})
+      common-noun (fs/m third-sing {:det {:cat :det}} {:fn "take-article"} {:morph "morph-noun"} {:common true}) ;; 'morph-noun' is defined in generate.clj.
       pronoun (fs/m noun {:pronoun true :det false :human true})
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
