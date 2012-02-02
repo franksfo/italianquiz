@@ -786,7 +786,8 @@
      (rdutest
       "Complement (determiner) must agree with its head (noun)."
       (let [head (random-lexeme {:italian "cane" :cat :noun})
-            comp (random-lexeme (fs/m (:det head) {:def :indef}))]
+            comp (random-lexeme (fs/m (:det head) {:def :indef}
+                                      ))]
         comp)
       (fn [comp]
         (= (:italian comp) "un"))
@@ -795,7 +796,10 @@
      ;; We constrain the generation sufficiently that only one italian expression matches it ('un cane')."
      (rdutest
       "random noun phrase composed of a determiner and a noun: 'un cane'."
-      (random-phrase (random-lexeme {:english "dog"} {:number :singular}) {:def :indef})
+      (let [head (random-lexeme {:english "dog"} {:number :singular})]
+        (random-phrase head
+                       (fs/m (:det head) 
+                             {:def :indef})))
       (fn [np]
         (= (:italian np) "un cane"))
       :random-np)
