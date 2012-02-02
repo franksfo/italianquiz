@@ -80,6 +80,9 @@
 ;; TODO: learn why string/join doesn't work for me:
 ;; (string/join '("foo" "bar") " ")
 ;; => " " (should be: "foo bar").
+
+;; note: italianverbs.generate> (string/join " " (list "foo" "bar"))
+;; ==> "foo bar" <-- works fine.
 (defn join [coll separator]
   (apply str (interpose separator coll)))
 
@@ -527,10 +530,14 @@
 
 (defn random-phrase [head-constraints comp-constraints]
   (let [head-c head-constraints
-        head (random-lexeme head-constraints)]
+        head (random-lexeme head-c)
+        comp-c comp-constraints
+        comp (random-lexeme comp-c)]
     {:head-c head-c
      :head head
-     :italian (str "un" " " (:italian head))}))
+     :comp-c comp-c
+     :comp comp
+     :italian (str (:italian comp) " " (:italian head))}))
 
 (def generate-tests
   (let [five-sentences
@@ -774,11 +781,21 @@
          (= (:italian det) "una")
          (= (:italian det) "la")))
       :random-det)
+
+     ;; generate a complement whose generation is constrained by a head.
+     (rdutest
+      "Complement (determiner) must agree with its head (noun)."
+      (let [head (random-lexeme {:italian "cane" :cat :noun})
+            comp (random-lexeme (fs/m (:det head) {:def :indef}))]
+        comp)
+      (fn [comp]
+        (= (:italian comp) "un"))
+      :det-agreement)
      
      ;; We constrain the generation sufficiently that only one italian expression matches it ('un cane')."
      (rdutest
       "random noun phrase composed of a determiner and a noun: 'un cane'."
-      (random-phrase (random-lexeme {:italian "cane"} {:number :singular}) {:def :indef})
+      (random-phrase (random-lexeme {:english "dog"} {:number :singular}) {:def :indef})
       (fn [np]
         (= (:italian np) "un cane"))
       :random-np)
