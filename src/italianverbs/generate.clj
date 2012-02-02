@@ -798,10 +798,12 @@
       "random noun phrase composed of a determiner and a noun: 'un cane'."
       (let [head (random-lexeme {:english "dog"} {:number :singular})]
         (random-phrase head
-                       (fs/m (:det head) 
-                             {:def :indef})))
+                       (:det head)))
       (fn [np]
-        (= (:italian np) "un cane"))
+        (or 
+         (= (:italian np) "un cane")
+         (= (:italian np) "il cane")))
+         
       :random-np)
      
 ;     (rdutest

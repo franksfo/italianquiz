@@ -27,7 +27,7 @@
       third-sing {:number :singular :person :3rd :cat :noun}
       ;; 'morph-noun' and 'take-article' are defined in generate.clj.
       common-noun (fs/m third-sing {:det {:cat :det}} {:take-complement "take-article"} {:morph "morph-noun"} {:common true})
-      takes-masc-determiner {:det {:gender :masc}}
+      takes-masc-sing-determiner {:det {:gender :masc :number :singular}}
       pronoun (fs/m noun {:pronoun true :det false :human true})
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
@@ -89,7 +89,7 @@
       
       cane (add "cane" "dog"
                 common-noun
-                takes-masc-determiner
+                takes-masc-sing-determiner
                 {:animate true
                  :gender :masc})
 
