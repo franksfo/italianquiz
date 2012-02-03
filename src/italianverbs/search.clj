@@ -224,18 +224,56 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     #(and (not (= % nil)) (> (.size %) 0))
     :search-multiple-maps)
 
+   ;; "pathifying" a map means (by example)
+   ;;
+   ;; {:root {:gender :masc
+   ;;         :human true
+   ;;         :det {:cat :det
+   ;;               :def true}
+   ;;         :animate true
+   ;;         :morph "morph-noun"
+   ;;         :common true
+   ;;         :cat :noun
+   ;;         :italian "uomo"}
+   ;;  :italian "uomini"
+   ;;  :number :plural}
+   ;;
+   ;; => ({(:root :gender) :masc}
+   ;;     {(:root :human) true}
+   ;;     {(:root :det :cat) :det}
+   ;;     {(:root :det :def) true}
+   ;;     {(:root :animate) true}
+   ;;     {(:root :morph) "morph-noun"}
+   ;;     {(:root :common) true}
+   ;;     {(:root :cat) :noun}
+   ;;     {(:root :italian) "uomo"}
+   ;;     {(:italian) "uomini"}
+   ;;     {(:number) :plural})
+   
    :pathify-long-map-1
    (rdutest
     "Pathify a large map."
-    (pathify {:root {:gender :masc :human true :det {:cat :det} :animate true :morph "morph-noun" :common true :cat :noun :italian "uomo"}})
-    (fn [x] false)
+    (pathify
+     {:root {:gender :masc
+             :human true
+             :det {:cat :det
+                   :def true}
+             :animate true
+             :morph "morph-noun"
+             :common true
+             :cat :noun
+             :italian "uomo"}
+      :italian "uomini"
+      :number :plural})
+
+    (fn [paths] (= (count paths) 11)) ;; TODO: write better test.
     :pathify-long-map-1)
 
    :pathify-long-map-2
    (rdutest
-    "Pathify a larger map."
+    "Pathify another map."
     (pathify {:root {:gender :masc :human true :det {:cat :det} :animate true :morph "morph-noun" :common true :cat :noun :italian "uomo" :person :3rd}})
-    (fn [x] false)
+    (fn [paths] (= (count paths) 9)) ;; TODO: write better test.
     :pathify-long-map-2)
    
    })
