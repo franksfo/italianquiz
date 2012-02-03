@@ -540,95 +540,78 @@
      :italian (str (:italian comp) " " (:italian head))}))
 
 (def generate-tests
-  (let [five-sentences
-        (rdutest
-         "Generate a bunch of subjects and make sure they all are really subjects (not something degenerate like {:number :singular}). having an :italian will be the test of subjecthood for now"
-         (n-sentences 10)
-         (fn [sentences]
-           (= 0 (.size (remove #(= true %)
-                               (map (fn [sentence]
-                                      (let [subject (:subject sentence)]
-                                        (not (= nil (:italian (:subject sentence))))))
-                                    sentences)))))
-         :five-sentences)]
-
-    (list
-     (rdutest
-      "The 1st person singular present form of 'fare' should be findable."
-      (search/search {:root {:infl :infinitive
-                             :italian "fare"}})
-      (fn [results]
-        (and (not (= nil results))
-             (not (= nil (first results)))))
-      :first-sing-root-of-fare)
-
-;     :merged-fs
-     (rdutest
-      "Merged fs."
-      (fs/merge {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
-                {:infl :present}
-                (select-keys
+  (list
+   (rdutest
+    "The 1st person singular present form of 'fare' should be findable."
+    (search/search {:root {:infl :infinitive
+                           :italian "fare"}})
+    (fn [results]
+      (and (not (= nil results))
+           (not (= nil (first results)))))
+    :first-sing-root-of-fare)
+   
+   (rdutest
+    "Merged fs."
+    (fs/merge {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
+              {:infl :present}
+              (select-keys
                  (first (search/search {:italian "io" :pronoun true}))
                  (list :person :number)))
       (fn [resulting-fs]
         (> (count resulting-fs) 0))
       :merged-fs)
      
-;     :search-for-conjugation
-     (rdutest
-      "Look up an irregular verb by searching for a map created by a subject."
-      ;; Look up the first singular conjugation for "fare" (which is 'facio')
-      (search/search {:root {:cat :verb
-                             :italian "fare"
-                             :infl :infinitive}
-                      :infl :present
-                      :subj {:person :1st
-                             :number :singular}})
-      (fn [results]
-        (and (not (= nil results))
-             (not (= nil (first results)))))
-      :search-for-conjugation)
-     
-;     :io-facio
-     (rdutest
-      "Conjugate 'io' + 'fare' => 'io  facio'"
-      (conjugate-verb (fs/m (nth (search/search {:italian "fare" :infl :infinitive}) 0) {:infl :present})
-                      (nth (search/search {:italian "io" :case :nom}) 0))
-      (fn [conjugated]
-        (= (:italian conjugated) "facio"))
-      :io-facio)
-
-;     :five-sentences
-     five-sentences
-     
-;     :subjects-exist
-     (rdutest
-      "Make sure subjects are all real lexical entries by checking for non-null :italian feature"
-      (map (fn [sentence] (:italian (:subject sentence))) (:test-result five-sentences))
-      (fn [sentences]
-        (= 0 (.size (remove #(not (= nil %)) sentences))))
-      :subjects-exist)
-     
-;     :subjects-have-nonfail-number
+   (rdutest
+    "Look up an irregular verb by searching for a map created by a subject."
+    ;; Look up the first singular conjugation for "fare" (which is 'facio')
+    (search/search {:root {:cat :verb
+                           :italian "fare"
+                           :infl :infinitive}
+                    :infl :present
+                    :subj {:person :1st
+                           :number :singular}})
+    (fn [results]
+      (and (not (= nil results))
+           (not (= nil (first results)))))
+    :search-for-conjugation)
+   
+   (rdutest
+    "Conjugate 'io' + 'fare' => 'io  facio'"
+    (conjugate-verb (fs/m (nth (search/search {:italian "fare" :infl :infinitive}) 0) {:infl :present})
+                    (nth (search/search {:italian "io" :case :nom}) 0))
+    (fn [conjugated]
+      (= (:italian conjugated) "facio"))
+    :io-facio)
+   
+   (rdutest
+    "Make sure subjects are all real lexical entries by checking for non-null :italian feature"
+    (map (fn [sentence] (:italian (:subject sentence)))
+         (n-sentences 10))
+    (fn [sentences]
+      (= 0 (.size (remove #(not (= nil %)) sentences))))
+    :subjects-exist)
+   
+     :subjects-have-nonfail-number
      (rdutest
       "Make sure subject's :number value is valid (non-:fail)."
-      (map (fn [sentence] (:subject sentence)) (:test-result five-sentences))
+      (map (fn [sentence] (:subject sentence))
+           (n-sentences 10))
       (fn [subjects]
         (= (.size subjects)
            (.size (remove (fn [subject] (= (:number subject) :fail)) subjects))))
       :subjects-have-nonfail-number)
 
-;     :subjects-case
      (rdutest
       "Make sure subject's :case value is ok (non-:acc and non-:fail). nil is ok: common nouns (in italian
        and english) don't have case."
-      (map (fn [sentence] (:case (:subject sentence))) (:test-result five-sentences))
+      (map (fn [sentence] (:case (:subject sentence)))
+           (n-sentences 10))
       (fn [cases]
         (= (.size cases)
            (.size (remove (fn [case] (or (= case :fail) (= case "acc"))) cases))))
       :subjects-case)
 
-;     :il-libro
+     :il-libro
      (rdutest
       "Conjugate 'libro' + '{definite}' => 'il libro'."
       (conjugate-np (lookup "libro") {:def :def})
@@ -786,11 +769,12 @@
      (rdutest
       "Complement (determiner) must agree with its head (noun)."
       (let [head (random-lexeme {:italian "cane" :cat :noun})
-            comp (random-lexeme (fs/m (:det head) {:def :indef}
-                                      ))]
+            comp (random-lexeme (:det head))]
         comp)
       (fn [comp]
-        (= (:italian comp) "un"))
+        (or
+         (= (:italian comp) "il")
+         (= (:italian comp) "un")))
       :det-agreement)
      
      ;; We constrain the generation sufficiently that only one italian expression matches it ('un cane')."
@@ -839,7 +823,7 @@
 ;      :lavorato)
      
      
-     )))
+     ))
 
 ;(defn test []
 ;  "this should contain a list of all the tests for the generate package. each test can
