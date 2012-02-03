@@ -351,7 +351,7 @@
 
 ;; do e.g. (:test-result (:parla tests)) to see results of the :parla test.
 (def tests
-  {:parla
+  {:test-parla
    (rdutest
     "A lexical entry for the word: 'parlare'."
     (let [verb {:cat :verb}
@@ -387,7 +387,7 @@
 ;         (= (:italian parla) "parla")
          )))
       
-    :parla)})
+    :test-parla)})
 
 ;(def parla
 ;  (:test-result ((:3s tests) tests)))

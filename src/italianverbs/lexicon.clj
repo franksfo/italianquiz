@@ -528,7 +528,7 @@
     (lookup "parlare")
     (fn [parlare]
       (= (:italian parlare) "parlare"))
-    :parla)
+    :test-lex-parla)
    :calcio
    (rdutest
     "calcio is kind of an interesting word."
