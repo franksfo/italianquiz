@@ -773,6 +773,7 @@
       (random-morph (random-lexeme {:cat :det}))
       (fn [det]
         (or 
+         (= (:italian det) "dei")
          (= (:italian det) "i")
          (= (:italian det) "il")
          (= (:italian det) "le")

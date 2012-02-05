@@ -97,6 +97,9 @@
 ;      (add "chiamare" "to be named"
 ;           {:cat :verb :infl :infinitive
 ;            :subj human})
+
+
+      dei (add "dei" "some" masc plural det {:def :indef})
       
       dimenticare (add "dimenticare" "to forget"
                        transitive
