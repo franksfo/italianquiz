@@ -55,6 +55,7 @@
   (:test-result (get tests test-name)))
 
 
+;; TODO: remove test label.
 (def rdutests
   {:simple-test-example ; test label
    (rdutest

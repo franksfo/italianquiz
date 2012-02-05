@@ -57,6 +57,9 @@
       ;; TODO: check for exceptions in both :english and :italian side.
       (fs/m fs
             {:number :plural}
+            {:comp (fs/m
+                    {:number :plural}
+                    (:comp (:comp fs)))}
             (let [exception (lookup-exception fs)]
               (if exception exception
                   (if (= (:gender fs) :fem)
@@ -529,16 +532,15 @@
   (fs/m map
         {:take-article "taken"}))
 
-(defn random-phrase [head-constraints comp-constraints]
-  (let [head-c head-constraints
-        head (random-lexeme head-c)
-        comp-c comp-constraints
-        comp (random-lexeme comp-c)]
-    {:head-c head-c
-     :head head
+(defn random-phrase [head & [comp-constraints]]
+  (let [comp-c comp-constraints
+        comp (random-lexeme (fs/m comp-c ;; TODO: should be random-phrase, not random-lexeme.
+                                  (:comp head)))]
+    ;; comp-c is only for debugging.
+    {:head head
      :comp-c comp-c
      :comp comp
-     :italian (str (:italian comp) " " (:italian head))}))
+     :italian (str (:italian comp) " " (:italian head))})) ;; TODO: abstract word order to (serialize) function.
 
 (def generate-tests
   (list
@@ -720,7 +722,14 @@
      ;; random-lexeme seems to be hitting a limit of some kind..
      (rdutest
       "random-lexeme with a lot of stuff."
-      (random-lexeme {:root {:gender :masc :comp {:cat :det} :animate true :common true :number :singular :italian "uomo" :person :3rd :english "man"}})
+      (random-lexeme {:root {:gender :masc
+                             :comp {:cat :det}
+                             :animate true
+                             :common true
+                             :number :singular
+                             :italian "uomo"
+                             :person :3rd
+                             :english "man"}})
       (fn [retval]
         (not (= retval nil)))
       :random-lexeme1)
@@ -787,15 +796,23 @@
      ;; We constrain the generation sufficiently that only one italian expression matches it ('un cane')."
      (rdutest
       "random noun phrase composed of a determiner and a noun: 'un cane'."
-      (let [head (random-lexeme {:english "dog"} {:number :singular})]
+      (let [head (random-morph (random-lexeme {:english "dog"}) {:use-number :singular})]
         (random-phrase head
-                       (:comp head)))
+                       {:def :def}))
+      (fn [np]
+        (= (:italian np) "il cane"))
+      :random-np-specify-complement)
+
+     (rdutest
+      "random phrase using default 2nd argument of (random-phrase). (the default 2nd argument used will be (:comp head)."
+      (let [head (random-morph (random-lexeme {:english "dog"}) {:use-number :singular})]
+        (random-phrase head))
       (fn [np]
         (or 
          (= (:italian np) "un cane")
          (= (:italian np) "il cane")))
-         
-      :random-np)
+      :random-np-default-complement)
+
      
 ;     (rdutest
 ;      "the word 'soccer' does not take an article in both english and italian (i.e. 'calcio', not 'il calcio')"
