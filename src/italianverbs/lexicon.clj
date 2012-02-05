@@ -26,13 +26,13 @@
       noun {:cat :noun}
       third-sing {:number :singular :person :3rd :cat :noun}
       ;; 'morph-noun' and 'take-article' are defined in generate.clj.
-      common-noun (fs/m third-sing {:det {:cat :det}} {:take-complement "take-article"} {:morph "morph-noun"} {:common true})
-      takes-masc-sing-determiner {:det {:gender :masc :number :singular}}
-      pronoun (fs/m noun {:pronoun true :det false :human true})
+      common-noun (fs/m third-sing {:comp {:cat :det}} {:morph "morph-noun"} {:common true})
+      takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
+      pronoun (fs/m noun {:pronoun true :comp nil :human true})
       speakable (fs/m noun {:speakable true})
       readable (fs/m noun {:readable true})
       edible (fs/m noun {:edible true})
-      mass {:mass true :det {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
+      mass {:mass true :comp {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
 
       third-sing-subj {:subj third-sing}
 
@@ -84,7 +84,7 @@
       
       calcio (add "calcio" "soccer"
                   common-noun masc mass
-                  {:det nil
+                  {:comp nil
                    :sport true})
       
       cane (add "cane" "dog"
@@ -531,10 +531,10 @@
     :test-lex-parla)
    :calcio
    (rdutest
-    "calcio is kind of an interesting word."
+    "calcio is a noun that does not take an article."
     (lookup "calcio")
     (fn [calcio]
-      (= nil (:det calcio)))
+      (= nil (:comp calcio)))
     :calcio)})
 
 

@@ -63,6 +63,7 @@
                     {:italian (morph/plural-fem (:italian fs))
                      :english (morph/plural-en (:english fs))}
                     ;; else, assume masculine.
+                    ;; :checked-for is for debugging only.
                     {:checked-for {:root (dissoc (dissoc fs :_id) :use-number)}
                      :italian (morph/plural-masc (:italian fs))
                      :english (morph/plural-en (:english fs))})))))))
@@ -298,7 +299,7 @@
     (list verb object subject)))
 
 (defn np [& constraints]
-  (let [det-value (:det (apply fs/merge-nil-override constraints))]
+  (let [det-value (:comp (apply fs/merge-nil-override constraints))]
     (let [article (if (or (= nil constraints) det-value )
                     (random-lexeme {:cat :det}))]
       article)))
@@ -333,7 +334,7 @@
               :english (string/trim (morph/conjugate-english-verb verb subject))}))))
 
 (defn conjugate-np [noun & [determiner]]
-  "conjugate a noun with a determiner (if the noun takes a determiner ((:det noun) is not nil)) randomly chosen using the 'determiner' spec."
+  "conjugate a noun with a determiner (if the noun takes a determiner (:comp is not nil)) randomly chosen using the 'determiner' spec."
   (let [plural-exception (if (or (= (:number noun) :plural) (= (:number noun) "plural"))
                            (let [search (search/search noun)] ;; search lexicon for plural exception.
                              (if (and search (> (.size search) 0))
@@ -354,17 +355,17 @@
                       (morph/plural-en (:english noun))
                       (:english noun)))
                   (:english noun))
-        article-search (if (not (= (:det noun) nil))
+        article-search (if (not (= (:comp noun) nil))
                          (search/search
                           (fs/m determiner
-                                (:det noun)
+                                (:comp noun)
                                 {:cat :det
                                  :gender (:gender noun) :number (:number noun)})))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
     {:italian (string/trim (join (list (:italian article) italian) " "))
-     :article-search (:det noun)
+     :article-search (:comp noun)
      :english (string/trim (join (list (:english article) english) " "))
      :article article
      :number (:number noun)
@@ -719,16 +720,22 @@
      ;; random-lexeme seems to be hitting a limit of some kind..
      (rdutest
       "random-lexeme with a lot of stuff."
-      (random-lexeme {:root {:gender :masc :det {:cat :det} :animate true :common true :number :singular :italian "uomo" :person :3rd :english "man"}})
+      (random-lexeme {:root {:gender :masc :comp {:cat :det} :animate true :common true :number :singular :italian "uomo" :person :3rd :english "man"}})
       (fn [retval]
         (not (= retval nil)))
       :random-lexeme1)
 
      (rdutest
       "random-lexeme with even more stuff."
-      (random-lexeme {:root {:gender :masc :det {:cat :det} :animate true :common true
-                             :number :singular :italian "uomo" :person :3rd
-                             :english "man" :cat :noun}})
+      (random-lexeme {:root {:gender :masc
+                             :comp {:cat :det}
+                             :animate true
+                             :common true
+                             :number :singular
+                             :italian "uomo"
+                             :person :3rd
+                             :english "man"
+                             :cat :noun}})
       (fn [retval]
         (not (= retval nil)))
       :random-lexeme2)
@@ -769,7 +776,7 @@
      (rdutest
       "Complement (determiner) must agree with its head (noun)."
       (let [head (random-lexeme {:italian "cane" :cat :noun})
-            comp (random-lexeme (:det head))]
+            comp (fs/m (random-lexeme (:comp head)))]
         comp)
       (fn [comp]
         (or
@@ -782,7 +789,7 @@
       "random noun phrase composed of a determiner and a noun: 'un cane'."
       (let [head (random-lexeme {:english "dog"} {:number :singular})]
         (random-phrase head
-                       (:det head)))
+                       (:comp head)))
       (fn [np]
         (or 
          (= (:italian np) "un cane")
