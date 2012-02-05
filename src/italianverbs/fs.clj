@@ -28,11 +28,21 @@
    true
    sign))
 
-(defn get-path [fs path]
-  (if (> (.size path) 0)
-    (get-path (get fs (first path))
-              (rest path))
-    fs))
+(defn get-path [fs path & [root]]
+  (let [root (if (nil? root) fs root)
+        feat (first path)
+        val (get fs (first path))
+        ref (if val (get val :ref))]
+    (if (not (= ref nil))
+      ;; a ref: resolve ref.
+      (get-path root ref root)
+
+      ;; else, not a ref.
+      (if (> (.size path) 0)
+        (get-path (get fs (first path))
+                  (rest path)
+                  root)
+        fs))))
 
 (defn union-keys [maps]
   (if (and maps (> (.size maps) 0))
@@ -191,7 +201,7 @@
                    (list merged)))
       maps)))
 
-;;  needed below for :merge-and-apply-test-with-fn-as-string test.
+;;  needed below (for testing only) for :merge-and-apply-test-with-fn-as-string test.
 (defn myfn [map]
   (fs/m map
         {:a (+ 1 (:a map))
@@ -291,12 +301,37 @@
       (and (= (:foo map) "bar")
            (= (:a 43))))
     :merge-and-apply-test-with-fn-as-string)
-))
 
+   (rdutest
+    "resolve :ref pointers: (:b :c) should be identical to (:a)."
+    {:a {:ref '(:b :c)}
+     :b {:c {:foo :bar}}}
+    (fn [map]
+      (= (get-path map '(:b :c))
+         (get-path map '(:a))))
+    :resolve-refs)
 
+   (rdutest
+    "ref chain: ref->ref1->val"
+    {:a {:ref '(:b :c)}
+     :b {:c {:ref '(:d :e)}}
+     :d {:e 42}}
+    (fn [map]
+      (= (get-path map '(:a))
+         42))
+    :double-ref)
 
+   ;; ref chain with referential equality: make sure (=) works as expected:
+   ;; if (= (get-path x (P1 :ref) P2)), then (= (get-path x P1) (get-path y P2))
+   (rdutest
+    "ref chain: ref->ref1->val"
+    {:a {:ref '(:b :c)}
+     :b {:c {:ref '(:d :e)}}
+     :d {:e {:f :g}}}
+    (fn [map]
+      (= (get-path map '(:a))
+         (get-path map '(:d :e))))
+    :ref-equality)
+      
 
-
-
-
-
+   ))
