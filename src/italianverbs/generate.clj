@@ -801,7 +801,7 @@
                        {:def :def}))
       (fn [np]
         (= (:italian np) "il cane"))
-      :random-np-specify-complement)
+      :random-np-specify-complement-singular)
 
      (rdutest
       "random phrase using default 2nd argument of (random-phrase). (the default 2nd argument used will be (:comp head)."
@@ -811,6 +811,17 @@
         (or 
          (= (:italian np) "un cane")
          (= (:italian np) "il cane")))
+      :random-np-default-complement-singular)
+
+     (rdutest
+      "random phrase using default 2nd argument of (random-phrase). (the default 2nd argument used will be (:comp head)."
+      (random-phrase (random-morph (random-lexeme {:english "dog"})))
+      (fn [np]
+        (or 
+         (= (:italian np) "un cane")
+         (= (:italian np) "il cane")
+         (= (:italian np) "dei cani")
+         (= (:italian np) "i cani")))
       :random-np-default-complement)
 
      
