@@ -198,8 +198,7 @@
          :foo "bar"}))
 
 (def tests
-  {
-   :recursive-merge
+  (list
    (rdutest
     "Recursive merge of 3 maps."
     (let [map1 {:foo {:bar 99}}
@@ -217,7 +216,6 @@
        (= (:biff merge-result) 12)))
     :recursive-merge)
    
-   :recursive-merge-with-paths
    (rdutest
     "Recursive merge of 3 maps, tested with (get-path)"
     (let [map1 {:foo {:bar 99}}
@@ -230,15 +228,13 @@
        (= (get-path merge-result '(:foo :baz)) 42)))
     :recursive-merge-with-paths)
 
-   :atomic-fail
    (rdutest
     "Testing that merge(v1,v2)=fail if v1 != v2."
     (merge {:foo 42} {:foo 43})
     (fn [result]
       (= (:foo result) :fail))
     :atomic-fail)
-
-   :atomic-merge
+   
    (rdutest
     "Testing that merge-like-core(v1,v2)=v2 (overriding works)."
     (merge-like-core {:foo 42} {:foo 43})
@@ -246,7 +242,6 @@
       (= (:foo result) 43))
     :atomic-merge)
 
-   :ignore-nil-values
    (rdutest
     "Ignore nils in values."
     (merge-like-core {:foo true} {:foo nil})
@@ -254,7 +249,6 @@
       (= (:foo result) true))
     :ignore-nil-values)
 
-   :ignore-nil-values-2
    (rdutest
     "Ignore nils in values."
     (merge-like-core {:foo nil} {:foo nil})
@@ -262,23 +256,20 @@
       (= result {}))
     :ignore-nil-values-2)
    
-   :nil-should-override-atomic
    (rdutest
     "{:a 42}{:a nil} => {:a nil}"
     (apply fs/merge-nil-override (list {:a 42}{:a nil}))
     (fn [map]
       (= (:a map) nil))
     :nil-should-override-atomic)
-
-   :nil-should-override-map
+   
    (rdutest
     "{:a {:foo 42}}{:a nil} => {:a nil}"
     (apply fs/merge-nil-override (list {:a {:foo 42}} {:a nil}))
     (fn [map]
       (= (:a map) nil))
     :nil-should-override)
-
-   :merge-and-apply-test
+   
    (rdutest
     "(apply the :fn function of a map on the result of running fs/m)"
     (merge-and-apply
@@ -292,18 +283,15 @@
            (= (:a 43))))
     :merge-and-apply-test)
    
-   :merge-and-apply-test-with-fn-as-string
    (rdutest
     "(apply the :fn value (after converting from a string to a function) of a map on the result of running fs/m)"
     (merge-and-apply (list {:a 42 :fn "myfn"}
                            {:b 99}))
-   (fn [map]
+    (fn [map]
       (and (= (:foo map) "bar")
            (= (:a 43))))
     :merge-and-apply-test-with-fn-as-string)
-
-
-   })
+))
 
 
 
