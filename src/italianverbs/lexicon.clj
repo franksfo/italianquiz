@@ -26,7 +26,12 @@
       noun {:cat :noun}
       third-sing {:number :singular :person :3rd :cat :noun}
       ;; 'morph-noun' and 'take-article' are defined in generate.clj.
-      common-noun (fs/m third-sing {:comp {:cat :det}} {:morph "morph-noun"} {:common true})
+      common-noun (fs/m third-sing
+                        {:comp {:cat :det
+;; doesn't work yet.
+                                :number {:ref '(:number)} ;; determiner must agree with number of noun.
+                                }}
+                        {:morph "morph-noun"} {:common true})
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
       pronoun (fs/m noun {:pronoun true :comp nil :human true})
       speakable (fs/m noun {:speakable true})

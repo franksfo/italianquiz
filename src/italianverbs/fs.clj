@@ -28,21 +28,24 @@
    true
    sign))
 
+;; similar to clojure core's get-in, but supports :ref as a special feature.
 (defn get-path [fs path & [root]]
-  (let [root (if (nil? root) fs root)
+  (let [root (if root root (if (:root fs) (:root fs) fs))
         feat (first path)
         val (get fs (first path))
         ref (if val (get val :ref))]
     (if (not (= ref nil))
       ;; a ref: resolve ref.
-      (get-path root ref root)
-
+      (get-path root (concat ref (rest path)))
       ;; else, not a ref.
       (if (> (.size path) 0)
         (get-path (get fs (first path))
                   (rest path)
                   root)
-        fs))))
+        (if (or (= (type fs) clojure.lang.PersistentArrayMap)
+                (= (type fs) clojure.lang.PersistentHashMap))
+          (m {:root root} fs)
+          fs)))))
 
 (defn union-keys [maps]
   (if (and maps (> (.size maps) 0))
@@ -89,7 +92,8 @@
 (defn- merge-values [values]
   (let [value (first values)]
     (if value
-      (if (= (type value) clojure.lang.PersistentArrayMap)
+      (if (or (= (type value) clojure.lang.PersistentArrayMap)
+              (= (type value) clojure.lang.PersistentHashMap))
         (merge
          (first values)
          (merge-values (rest values)))
@@ -99,7 +103,8 @@
 (defn merge-values-like-core [values]
   (let [value (first values)]
     (if value
-      (if (= (type value) clojure.lang.PersistentArrayMap)
+      (if (or (= (type value) clojure.lang.PersistentArrayMap)
+              (= (type value) clojure.lang.PersistentHashMap))
         (merge
          value
          (merge-values-like-core (rest values)))
@@ -109,7 +114,8 @@
 (defn merge-values-like-core-nil-override [values]
   (let [value (first values)]
     (if value
-      (if (= (type value) clojure.lang.PersistentArrayMap)
+      (if (or (= (type value) clojure.lang.PersistentArrayMap)
+              (= (type value) clojure.lang.PersistentHashMap))
         (let [rest-of (merge-values-like-core-nil-override (rest values))]
           (if (= nil rest-of)
             nil
@@ -327,11 +333,79 @@
     "ref chain: ref->ref1->val"
     {:a {:ref '(:b :c)}
      :b {:c {:ref '(:d :e)}}
-     :d {:e {:f :g}}}
+     :d {:e {:f 42}}}
     (fn [map]
       (= (get-path map '(:a))
          (get-path map '(:d :e))))
     :ref-equality)
-      
 
-   ))
+   ;; (same as previous path, but with end of path an atom)
+   (rdutest
+    "ref chain: ref->ref1->val"
+    {:a {:ref '(:b :c)}
+     :b {:c {:ref '(:d :e)}}
+     :d {:e {:f 42}}}
+    (fn [map]
+      (= (get-path map '(:a :f))
+         (get-path map '(:d :e :f))
+         42))
+    :ref-equality-atom)
+
+   ;; P1 = '(F1 F2) => (get-path P1) == (get-path (get-path F1) F2)
+   (rdutest
+    "(get-path (get-path))"
+    {:a {:ref '(:b :c)}
+     :b {:c {:ref '(:d :e)}}
+     :d {:e {:f 42}}}
+    (fn [map]
+      (= (get-path map '(:d :e))
+         (get-path (get-path map '(:b)) '(:c))))
+    :get-path-nested)
+
+   ;; P1 = '(F1 F2 F3) => (get-path P1) == (get-path (get-path (get-path F1) F2) F3)
+   (rdutest
+    "(get-path (get-path))"
+    {:a {:ref '(:b :c)}
+     :b {:c {:ref '(:d :e)}}
+     :d {:e {:f 42}}}
+    (fn [map]
+      (= (get-path map '(:d :e :f))
+         (get-path (get-path (get-path map '(:b)) '(:c)) '(:f))
+         42))
+    :get-path-nested-atom)
+
+   
+;   (rdutest
+;    "get-path must fix :refs."
+;    (get-path {:a {:b {:ref '(:a :c :d)}
+;                   :c {:d 42}}}
+;              '(:a))
+;    (fn [map]
+;      (= (get-path map '(:b))
+;         (get-path map '(:c :d))))
+;    :get-path-fix-refs)
+    
+;   (rdutest
+;    "merge refs: :ref attributes have to be reset on merging."
+;    (fs/merge
+;     {:a {:b {:ref '(:c)}}
+;      :c 42}
+;     (get-path
+;      {:e {:f 43
+;           :g {:ref '(:e :f)}}}
+;      '(:e)))
+;    (fn [map]
+;      ;; should look like:
+;      ;; {:a {:b [1]
+;      ;;  :c [1] 42
+;      ;;  :f [2] 43
+;      ;;  :g [2] }
+;      (and (= (get-path map '(:a :b))
+;              (get-path map '(:c)))
+;           (= (get-path map '(:f))
+;              (get-path map '(:g)))))
+;    :ref-merging)
+
+  ))
+
+   
