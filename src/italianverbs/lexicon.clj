@@ -25,14 +25,23 @@
       
       noun {:cat :noun}
       third-sing {:number :singular :person :3rd :cat :noun}
+
       ;; 'morph-noun' and 'take-article' are defined in generate.clj.
       common-noun (fs/m third-sing
                         {:comp {:cat :det
-;; doesn't work yet.
-                                :number {:ref '("number")} ;; determiner must agree with number of noun.
+                                :number (:number third-sing)
                                 }
                          :morph "morph-noun"
                          :common true})
+      third-sing-with-ref {:number (ref :singular) :person :3rd :cat :noun}
+      common-noun-with-ref (fs/m third-sing
+                        {:comp {:cat :det
+                                ;; doesn't work yet...
+                                :number (:number third-sing-with-ref) ;; determiner must agree with number of noun
+                                }
+                         :morph "morph-noun"
+                         :common true})
+
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
       pronoun (fs/m noun {:pronoun true :comp nil :human true})
       speakable (fs/m noun {:speakable true})
@@ -99,6 +108,12 @@
                 {:animate true
                  :gender :masc})
 
+      caneref (add "caneref" "dogref"
+                common-noun-with-ref
+                {:animate true
+                 :gender :masc})
+
+      
 ;; needs supports for reflexive pronouns: "mi chiamo gino".
 ;      (add "chiamare" "to be named"
 ;           {:cat :verb :infl :infinitive
@@ -548,10 +563,25 @@
     :calcio)
 
    :structure-sharing
+   ;;
+   ;; [:cat :noun
+   ;;  :number [1] :singular
+   ;;  :comp [:cat :det
+   ;;         :number [1] ] ]
+
    (rdutest
     "test that reentrances (graphs with vertices with more than one incoming node) work."
-    (let [third-sing {:number :singular :person :3rd :cat :noun}]
-      third-sing)
+    (let [third-sing {:number (ref :singular) :person :3rd :cat :noun}
+          common-noun (fs/m third-sing
+                            {:comp {:cat :det
+                                    :number (:number third-sing) ;; determiner must agree with number of noun.
+                                    }
+                            :morph "morph-noun"
+                            :common true})]
+      common-noun)
     (fn [fs]
-      (= (:number fs) :singular))
+      (and
+       (= @(:number fs) :singular)
+       (= @(:number (:comp fs)) :singular)
+       (= (:number fs) (:number (:comp fs)))))
     :structure-sharing)})
