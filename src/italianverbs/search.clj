@@ -20,7 +20,7 @@
 ;;      (html/static-page
 ;;            (str (html/fs lexfn/trans-verbs) (string/join " " (map (fn [fs] (html/fs fs)) (lexfn/query (lexfn/pathify lexfn/trans-verbs))))
 
-(def *exclude-keys* (set #{:_id}))
+(def *exclude-keys* (set #{:_id :ref :refmap}))
 
 (defn pathify-r [fs & [prefix]]
 "Transform a map into a map of paths/value pairs,
@@ -165,65 +165,68 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 ;; TODO: move some of these lexically-related tests to lexicon.clj (e.g. the 'fare' (to do) test).
 (def tests
-  {:sanity-check
+  (list
    (rdutest
     "Sanity check: test rdutest itself by assuming that '+' is correct."
     (+ 1 2) 
     #(= % 3)
-   :sanity-check)
-   :one-verb
+    :sanity-check)
+   
    (rdutest
     "At least one verb is in the lexicon."
     (take 1 (lazy-query {:cat :verb}))
     #(> (.size %) 0)
     :one-verb)
-   :one-noun
+   
    (rdutest
     "At least one noun is in the lexicon."
     (take 1 (lazy-query {:cat :noun}))
     #(> (.size %) 0)
     :one-noun)
-   :one-nom-noun
+   
    (rdutest
     "At least one nominative noun is in the lexicon (and that the conjunction of more than one predicate works."
     (take 1 (lazy-query {:cat :noun :case :nom}))
     #(> (.size %) 0)
     :one-nom-noun)
-   :null-set
+
+   (rdutest
+    "Features that should be ignored for lookup purposes are in fact ignored."
+    (take 1 (lazy-query {:cat :noun :case :nom :ref '("foo" "bar") :refmap {:baz 42}}))
+    #(> (.size %) 0)
+    :ignore-non-lookup-features)
+
+   
    (rdutest
     "The intersection of mutually-exclusive queries is the null set (since a noun can't be both nominative and non-nominative)."
     (intersection (query {:cat :noun :case :nom}) (query {:cat :noun :case {:not :nom}}))
     #(= (.size %) 0)
     :null-set)
-   :verb-with-edible-object
+   
    (rdutest
     "There's at least one verb that takes an edible object (a nested query works)."
     (take 1 (lazy-query {:cat :verb :obj {:edible true}}))
     #(> (.size %) 0)
     :verb-with-edible-object)
-
-   :lookup-roots
+   
    (rdutest
     "Looking up an irregular verb inflection by its root works."
     (search {:root {:italian "fare"}})
     #(and (not (= % nil)) (> (.size %) 0))
     :lookup-roots)
-
-   :lookup-complex-root
+   
    (rdutest
     "Look up a word by its root: find a verb whose root is 'fare (to make)' (e.g. 'facio (i make)')."
     (search {:root (first (search {:italian "fare" :cat :verb :infl :infinitive}))})
     #(and (not (= % nil)) (> (.size %) 0))
     :lookup-complex-root)
-
-
-   :search-multiple-maps
+   
    (rdutest
     "Search should take multiple parameters and merge them together."
     (search {:cat :noun} {:gender :fem} {:number :singular})
     #(and (not (= % nil)) (> (.size %) 0))
     :search-multiple-maps)
-
+   
    ;; "pathifying" a map means (by example)
    ;;
    ;; {:root {:gender :masc
@@ -249,8 +252,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    ;;     {(:root :italian) "uomo"}
    ;;     {(:italian) "uomini"}
    ;;     {(:number) :plural})
-   
-   :pathify-long-map-1
+
    (rdutest
     "Pathify a large map."
     (pathify
@@ -265,18 +267,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
              :italian "uomo"}
       :italian "uomini"
       :number :plural})
-
     (fn [paths] (= (count paths) 11)) ;; TODO: write better test.
     :pathify-long-map-1)
-
-   :pathify-long-map-2
+   
    (rdutest
     "Pathify another map."
     (pathify {:root {:gender :masc :human true :det {:cat :det} :animate true :morph "morph-noun" :common true :cat :noun :italian "uomo" :person :3rd}})
     (fn [paths] (= (count paths) 9)) ;; TODO: write better test.
     :pathify-long-map-2)
-   
-   })
+   ))
 
 ;; FIXME: move to test.clj.
 (def evaluate-testresults

@@ -29,9 +29,10 @@
       common-noun (fs/m third-sing
                         {:comp {:cat :det
 ;; doesn't work yet.
-                                :number {:ref '(:number)} ;; determiner must agree with number of noun.
-                                }}
-                        {:morph "morph-noun"} {:common true})
+                                :number {:ref '("number")} ;; determiner must agree with number of noun.
+                                }
+                         :morph "morph-noun"
+                         :common true})
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
       pronoun (fs/m noun {:pronoun true :comp nil :human true})
       speakable (fs/m noun {:speakable true})
@@ -160,7 +161,8 @@
       fare (let [fare (add "fare" "to make"
                            verb
                            {:subj (fs/m noun {:human true})
-                            :obj artifact})]
+                            :obj artifact}
+                           {:obj {:comp {:number {:ref '("obj" "number")}}}})]
              
              (add "facio" "make"
                   fare
