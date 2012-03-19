@@ -545,8 +545,13 @@
     (lookup "calcio")
     (fn [calcio]
       (= nil (:comp calcio)))
-    :calcio)})
+    :calcio)
 
-
-
-
+   :structure-sharing
+   (rdutest
+    "test that reentrances (graphs with vertices with more than one incoming node) work."
+    (let [third-sing {:number :singular :person :3rd :cat :noun}]
+      third-sing)
+    (fn [fs]
+      (= (:number fs) :singular))
+    :structure-sharing)})
