@@ -9,24 +9,30 @@
 ;; WARNING: test already refers to: #'clojure.core/test in namespace: user, being replaced by: #'italianverbs.rdutest/test
 ;; nil
 
-;; simple usage:
-;; user=> (test (+ 1 3) (fn [result] (= result 4)))
-;; {:test-text "(+ 1 3)", :assert-text "(fn [result] (= result 4))", :assert-result true, :test-result 4}
+;; simplest passing test:
 ;;
-;; running tests repeatedly:
+;;  (rdutest "trivial pass" true (fn [result] (= result true)) :trivial-pass)
+;;
+;; simplest failing test:
+;;
+;;  (rdutest "trivial fail" true (fn [result] (= result false)) :trivial-fail)
+;;
+;
+;; a bit less simple usage:
+;; (rdutest "addition" (+ 1 3) (fn [result] (= result 4)) :addition)
+;;
 ;; 
-;; user=> (rdutest
-;;    "Just a simple example showing how to write rdutests."
-;;    (+ 2 3)  ; expression to evaluate.
-;;    #(= % 5) ; function to be applied to the evaluated expression.
-;;    :simple-test-example)}) ; repeat of label (unfortunately)
-;; user=> (rdu-simple-test-example)
-;; 5
-;; user=> (repeatedly 3 #(rdu-simple-test-example))
-;; (5 5 5)
-;; 
+;; arguments:
+;;  1. string to be printed for humans
+;;  2. test to be run
+;;  3. function to apply to result of 2.
+;;  4. key (redundant with 1; needs to be removed.)
 
-;; can't use just 'test' because I'm too stupid to understand Clojure namespaces.
+;; running tests repeatedly:
+;; user=> (repeatedly 3 #(rdutest "trivial pass" true (fn [result] (= result true)) :trivial-pass))
+;; 
+;; TODO: figure out namespaces so I can just do: (defmacro test).
+;; 
 (defmacro rdutest [testcomment test assert sym]
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
   (let [test-text (str test)
