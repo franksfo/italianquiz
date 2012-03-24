@@ -28,25 +28,6 @@
    true
    sign))
 
-;; similar to clojure core's get-in, but supports :ref as a special feature.
-(defn get-path [fs path & [root]]
-  (let [root (if root root (if (:root fs) (:root fs) fs))
-        feat (first path)
-        val (get fs (first path))
-        ref (if val (get val :ref))]
-    (if (not (= ref nil))
-      ;; a ref: resolve ref.
-      (get-path root (concat ref (rest path)))
-      ;; else, not a ref.
-      (if (> (.size path) 0)
-        (get-path (get fs (first path))
-                  (rest path)
-                  root)
-        (if (or (= (type fs) clojure.lang.PersistentArrayMap)
-                (= (type fs) clojure.lang.PersistentHashMap))
-          (m {:root root} fs)
-          fs)))))
-
 (defn union-keys [maps]
   (if (and maps (> (.size maps) 0))
     (union
@@ -188,6 +169,24 @@
   (let [keyset (union-keys maps)
         values (collect-values maps keyset)]
     (merge-r-like-core values (seq keyset))))
+;; similar to clojure core's get-in, but supports :ref as a special feature.
+(defn get-path [fs path & [root]]
+  (let [root (if root root (if (:root fs) (:root fs) fs))
+        feat (first path)
+        val (get fs (first path))
+        ref (if val (get val :ref))]
+    (if (not (= ref nil))
+      ;; a ref: resolve ref.
+      (get-path root (concat ref (rest path)))
+      ;; else, not a ref.
+      (if (> (.size path) 0)
+        (get-path (get fs (first path))
+                  (rest path)
+                  root)
+        (if (or (= (type fs) clojure.lang.PersistentArrayMap)
+                (= (type fs) clojure.lang.PersistentHashMap))
+          (m {:root root} fs)
+          fs)))))
 
 (defn mergec [& maps]
   (merge-like-core (list maps)))
@@ -212,6 +211,10 @@
   (fs/m map
         {:a (+ 1 (:a map))
          :foo "bar"}))
+
+(defn ref-invert [map]
+  "turn a map<P,V> into an inverted map<V,[P]> where every V has a list of what paths P point to it."
+  {42 [[:foo] [:bar]]})
 
 (def tests
   (list
@@ -374,6 +377,38 @@
          42))
     :get-path-nested-atom)
 
+   ;; test ref serialization..
+   ;; foo and bar's value is a reference, whose value is an integer, 42.
+   ;; baz's value is an integer, which just so happens to be 42.
+   ;;[ foo [1] 42
+   ;;  bar [1]
+   ;;  baz     42 ] =>
+   ;; {42 [[:foo] [:bar]] }
+   ;;                               
+;   (rdutest
+;    "test ref serialization"
+;    (let [myref (ref 42)
+;          fs {:foo myref
+;              :bar myref
+;              :baz 42}]
+;      ))
+;      (ref-invert fs)))
+;      {:inverted inverted
+;       :myref myref
+;       :fs fs})
+;    (fn [inverted]
+;        (and
+;         (= (:baz fs) 42)
+;         (= @ref 42)
+;         (= (:foo fs) (:bar fs))
+;         (= (.size (first (vals inverted))) 2)
+;         (or (= (first (first (vals inverted))) [:foo])
+;             (= (first (first (vals inverted))) [:bar]))
+;         (or (= (first (first (vals inverted))) [:foo])
+;             (= (first (first (vals inverted))) [:bar]))))
+    
+ ;   :test-ref-serialization)
+))
    
 ;   (rdutest
 ;    "get-path must fix :refs."
@@ -406,6 +441,5 @@
 ;              (get-path map '(:g)))))
 ;    :ref-merging)
 
-  ))
 
    
