@@ -50,10 +50,10 @@
        )))
 
 ;; TODO: lookup tests in its native namespace so we don't need the 2nd arg.
+;; Not using this as of now.
 (defn wtf [test-name tests]
   "answers the question: 'wtf went wrong with that test??': (test-result of test with label test-name)"
   (:test-result (get tests test-name)))
-
 
 ;; TODO: remove test label.
 (def rdutests
