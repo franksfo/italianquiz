@@ -382,9 +382,29 @@
    ;; baz's value is an integer, which just so happens to be 42.
    ;;[ foo [1] 42
    ;;  bar [1]
-   ;;  baz     42 ] =>
+   ;;  baz     42 ]
+   ;; =>
+   ;;
    ;; {42 [[:foo] [:bar]] }
    ;;                               
+
+   (rdutest "test serialization"
+            (let [myref (ref 42)
+                  fs {:a myref}]
+              (ref-invert fs))
+            (fn [result]
+              (let [key 42
+                    value (get result key)]
+                (and ;; testing : 42 => [[:foo][:bar]]
+                 ;; (but [:foo] and [:bar] can be in either order).
+                 (or
+                  (= (.nth (get (ref-invert myfs) 42) 0) [:foo])
+                  (= (.nth (get (ref-invert myfs) 42) 1) [:foo]))
+                 (or
+                  (= (.nth (get (ref-invert myfs) 42) 0) [:bar])
+                  (= (.nth (get (ref-invert myfs) 42) 1) [:bar])))))
+            :ref-serialization)
+
 ;   (rdutest
 ;    "test ref serialization"
 ;    (let [myref (ref 42)
