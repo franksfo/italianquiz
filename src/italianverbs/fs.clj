@@ -212,10 +212,21 @@
         {:a (+ 1 (:a map))
          :foo "bar"}))
 
-(defn ref-invert [map]
+(defn ref-invert [input]
   "turn a map<P,V> into an inverted map<V,[P]> where every V has a list of what paths P point to it."
-  (let [keys (keys map)]
-    {42 [[:a] [:b]]}))
+  (let [keys (keys input)
+        vals (set (vals input))] ;; (set) makes vals distinct.
+    (let [inverted-list
+          (map (fn [val]
+                 (list val
+                       (mapcat (fn [key] 
+                                 (if (= (get input key)
+                                        val)
+                                   (list key)))
+                               keys)))
+               vals)]
+      (zipmap (map #'first inverted-list)
+              (map #'second inverted-list)))))
 
 (def tests
   (list
@@ -386,7 +397,8 @@
    ;;  :c     42 ]
    ;; =>
    ;;
-   ;; {42 [[:a] [:b]] }
+   ;; {#<Ref: 42> => (:a :b)
+   ;;  42         => (:c)}
    ;;                               
 
    (rdutest "test serialization"
@@ -396,17 +408,23 @@
                       :c 42}]
               (ref-invert fs))
             (fn [result]
-              (let [key 42
-                    value (get result key)]
-                (and ;; testing : 42 => [[:a][:b]]
-                 ;; (but [:foo] and [:bar] can be in either order).
-                 (= (.size value) 2)
-                 (or
-                  (= (.nth (get (ref-invert result) 42) 0) [:a])
-                  (= (.nth (get (ref-invert result) 42) 1) [:b]))
-                 (or
-                  (= (.nth (get (ref-invert result) 42) 0) [:a])
-                  (= (.nth (get (ref-invert result) 42) 1) [:b])))))
+              (let [keys (set (keys result))
+                    vals (vals result)]
+                    
+                (and (= (.size keys) 2)
+                     (or (= (first keys) 42)
+                         (= (second keys) 42))
+                     (or (= (set (first vals)) (set (list :a :b)))
+                         (= (set (second vals)) (set (list :a :b))))
+                     (or (= (first vals) (list :c))
+                         (= (second vals) (list :c)))
+                     (or (and (= (type (first keys))
+                                 clojure.lang.Ref)
+                              (= @(first keys) 42))
+                         (and (= (type (second keys))
+                                 clojure.lang.Ref)
+                              (= @(second keys) 42))))))
+
             :ref-serialization)
 
 ))
