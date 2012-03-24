@@ -214,7 +214,8 @@
 
 (defn ref-invert [map]
   "turn a map<P,V> into an inverted map<V,[P]> where every V has a list of what paths P point to it."
-  {42 [[:foo] [:bar]]})
+  (let [keys (keys map)]
+    {42 [[:a] [:b]]}))
 
 (def tests
   (list
@@ -378,32 +379,34 @@
     :get-path-nested-atom)
 
    ;; test ref serialization..
-   ;; foo and bar's value is a reference, whose value is an integer, 42.
-   ;; baz's value is an integer, which just so happens to be 42.
-   ;;[ foo [1] 42
-   ;;  bar [1]
-   ;;  baz     42 ]
+   ;; :a and :b's value is a reference, whose value is an integer, 42.
+   ;; :c's value is an integer, which just so happens to be 42.
+   ;;[ :a [1] 42
+   ;;  :b [1]
+   ;;  :c     42 ]
    ;; =>
    ;;
-   ;; {42 [[:foo] [:bar]] }
+   ;; {42 [[:a] [:b]] }
    ;;                               
 
    (rdutest "test serialization"
             (let [myref (ref 42)
-                  fs {:a myref}]
+                  fs {:a myref
+                      :b myref
+                      :c 42}]
               (ref-invert fs))
             (fn [result]
               (let [key 42
                     value (get result key)]
-                (and ;; testing : 42 => [[:foo][:bar]]
+                (and ;; testing : 42 => [[:a][:b]]
                  ;; (but [:foo] and [:bar] can be in either order).
                  (= (.size value) 2)
                  (or
-                  (= (.nth (get (ref-invert myfs) 42) 0) [:foo])
-                  (= (.nth (get (ref-invert myfs) 42) 1) [:foo]))
+                  (= (.nth (get (ref-invert result) 42) 0) [:a])
+                  (= (.nth (get (ref-invert result) 42) 1) [:b]))
                  (or
-                  (= (.nth (get (ref-invert myfs) 42) 0) [:bar])
-                  (= (.nth (get (ref-invert myfs) 42) 1) [:bar])))))
+                  (= (.nth (get (ref-invert result) 42) 0) [:a])
+                  (= (.nth (get (ref-invert result) 42) 1) [:b])))))
             :ref-serialization)
 
 ))
