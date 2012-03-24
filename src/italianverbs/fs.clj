@@ -389,7 +389,7 @@
          42))
     :get-path-nested-atom)
 
-   ;; test ref serialization..
+   ;; test ref serialization (1)
    ;; :a and :b's value is a reference, whose value is an integer, 42.
    ;; :c's value is an integer, which just so happens to be 42.
    ;;[ :a [1] 42
@@ -427,38 +427,39 @@
 
             :ref-serialization)
 
-))
-   
-;   (rdutest
-;    "get-path must fix :refs."
-;    (get-path {:a {:b {:ref '(:a :c :d)}
-;                   :c {:d 42}}}
-;              '(:a))
-;    (fn [map]
-;      (= (get-path map '(:b))
-;         (get-path map '(:c :d))))
-;    :get-path-fix-refs)
-    
-;   (rdutest
-;    "merge refs: :ref attributes have to be reset on merging."
-;    (fs/merge
-;     {:a {:b {:ref '(:c)}}
-;      :c 42}
-;     (get-path
-;      {:e {:f 43
-;           :g {:ref '(:e :f)}}}
-;      '(:e)))
-;    (fn [map]
-;      ;; should look like:
-;      ;; {:a {:b [1]
-;      ;;  :c [1] 42
-;      ;;  :f [2] 43
-;      ;;  :g [2] }
-;      (and (= (get-path map '(:a :b))
-;              (get-path map '(:c)))
-;           (= (get-path map '(:f))
-;              (get-path map '(:g)))))
-;    :ref-merging)
 
+   ;; test merge-with-append: create list out of all values for the same feature.
+   ;; {:a (:b :c :d)}
+   ;; {:a (:e :f :g)} =>
+   ;; {:a ((:b :c :d) (:e :f :g))}
+   (rdutest "test merge-with-append"
+            (let [mwa (fn [maps]
+                        {:a ((:b :c :d)(:e :f :g))})]
+              mwa)
+            (fn [result]
+              (not (nil? result)))
+            :merge-with-append)
+
+   
+   ;; test ref serialization (2)
+   ;; path (:a :b) points to a reference, whose value is an integer, 42.
+   ;; path (:c) also points to the same reference.
+   ;;
+   ;;[ :a  [:b [1] 42]
+   ;;  :c  [1]]
+   ;;
+   ;; => {#<Ref: 42> => ((:a :b) (:c))
+   ;;                               
+   (rdutest "test serialization with paths"
+            (let [myref (ref 42)
+                  fs {:a {:b myref}
+                      :c myref}]
+              (ref-invert fs))
+            (fn [result]
+              (not (nil? result))) ;; just stub test.
+            :ref-serialization-with-path)
+   ))
+
+   
 
    
