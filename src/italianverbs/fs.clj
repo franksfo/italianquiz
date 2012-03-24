@@ -406,29 +406,6 @@
                   (= (.nth (get (ref-invert myfs) 42) 1) [:bar])))))
             :ref-serialization)
 
-;   (rdutest
-;    "test ref serialization"
-;    (let [myref (ref 42)
-;          fs {:foo myref
-;              :bar myref
-;              :baz 42}]
-;      ))
-;      (ref-invert fs)))
-;      {:inverted inverted
-;       :myref myref
-;       :fs fs})
-;    (fn [inverted]
-;        (and
-;         (= (:baz fs) 42)
-;         (= @ref 42)
-;         (= (:foo fs) (:bar fs))
-;         (= (.size (first (vals inverted))) 2)
-;         (or (= (first (first (vals inverted))) [:foo])
-;             (= (first (first (vals inverted))) [:bar]))
-;         (or (= (first (first (vals inverted))) [:foo])
-;             (= (first (first (vals inverted))) [:bar]))))
-    
- ;   :test-ref-serialization)
 ))
    
 ;   (rdutest
