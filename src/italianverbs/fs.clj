@@ -1,7 +1,7 @@
 (ns italianverbs.fs
   (:use [hiccup core page-helpers]
         [clojure.set]
-        [italianverbs.rdutest])
+        [rdutest])
   (:require
    [italianverbs.fs :as fs]
    [clojure.string :as string]
