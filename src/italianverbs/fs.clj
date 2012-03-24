@@ -397,6 +397,7 @@
                     value (get result key)]
                 (and ;; testing : 42 => [[:foo][:bar]]
                  ;; (but [:foo] and [:bar] can be in either order).
+                 (= (.size value) 2)
                  (or
                   (= (.nth (get (ref-invert myfs) 42) 0) [:foo])
                   (= (.nth (get (ref-invert myfs) 42) 1) [:foo]))
