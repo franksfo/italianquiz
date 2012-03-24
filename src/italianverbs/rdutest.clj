@@ -1,13 +1,10 @@
-(ns italianverbs.rdutest
+(ns rdutest
   (:require
    [clojure.contrib.string :as stringc]))
 
 ;; to include in your namespace (e.g. "user")
-;; user=> (load "italianverbs/rdutest")
-;; user=> (ns user (:use [italianverbs.rdutest]))
-;; WARNING: test already refers to: #'clojure.core/test in namespace: italianverbs.rdutest, being replaced by: #'italianverbs.rdutest/test
-;; WARNING: test already refers to: #'clojure.core/test in namespace: user, being replaced by: #'italianverbs.rdutest/test
-;; nil
+;; user=> (load "rdutest")
+;; user=> (ns user (:use [rdutest]))
 
 ;; simplest passing test:
 ;;
@@ -68,7 +65,14 @@
     "Just a simple example showing how to write rdutests." ; comment
     (+ 2 3)  ; expression to evaluate.
     #(= % 5) ; function to be applied to the evaluated expression.
-    :simple-test-example)}) ; repeat of label (unfortunately)
+    ;; repeat of label (unfortunately)
+    :simple-test-example)
+   :simple-failing-example
+   (rdutest
+    "Just a simple example showing how to write rdutests." ; comment
+    (+ 2 3)  ; expression to evaluate.
+    #(= % 4) ; function to be applied to the evaluated expression.
+    :simple-failing-example)}) ; repeat of label (unfortunately)
 
 
     
