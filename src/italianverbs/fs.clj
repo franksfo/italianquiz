@@ -28,12 +28,6 @@
    true
    sign))
 
-(defn union-keys [maps]
-  (if (and maps (> (.size maps) 0))
-    (union
-     (set (keys (first maps)))
-     (union-keys (rest maps)))
-    {}))
 
 (defn- collect-values [maps keys]
   (let [key (first keys)]
@@ -58,28 +52,8 @@
                     maps)}
        (collect-values-with-nil maps (rest keys))))))
 
-(defn- merge-atomically [values]
-  (let [value (first values)]
-    (if value
-      (if (second values)
-        (if (= (first values) (second values))
-          (merge-atomically (rest values))
-          :fail)
-        value))))
-
 (defn- merge-atomically-like-core [values]
   (last values))
-
-(defn- merge-values [values]
-  (let [value (first values)]
-    (if value
-      (if (or (= (type value) clojure.lang.PersistentArrayMap)
-              (= (type value) clojure.lang.PersistentHashMap))
-        (merge
-         (first values)
-         (merge-values (rest values)))
-        (merge-atomically values))
-        {})))
 
 (defn merge-values-like-core [values]
   (let [value (first values)]
@@ -108,15 +82,6 @@
                (= value nil))
         nil {}))))
 
-(defn- merge-r [collected-map keys]
-  "merge a map where each value is a list of values to be merged for that key."
-  (let [key (first keys)]
-    (if key
-      (merge
-       {key (merge-values (get collected-map key))}
-       (merge-r collected-map (rest keys)))
-      {})))
-
 (defn- merge-r-like-core [collected-map keys]
   "merge a map where each value is a list of values to be merged for that key."
   (let [key (first keys)]
@@ -141,9 +106,38 @@
           (merge-r-like-core-nil-override collected-map (rest keys))))
       {})))
 
+(defn- merge-atomically [values]
+  (let [value (first values)]
+    (if value
+      (if (second values)
+        (if (= (first values) (second values))
+          (merge-atomically (rest values))
+          :fail)
+        value))))
+
+(defn- merge-values [values]
+  (let [value (first values)]
+    (if value
+      (if (or (= (type value) clojure.lang.PersistentArrayMap)
+              (= (type value) clojure.lang.PersistentHashMap))
+        (merge
+         (first values)
+         (merge-values (rest values)))
+        (merge-atomically values))
+        {})))
+
+(defn- merge-r [collected-map keys]
+  "merge a map where each value is a list of values to be merged for that key."
+  (let [key (first keys)]
+    (if key
+      (merge
+       {key (merge-values (get collected-map key))}
+       (merge-r collected-map (rest keys)))
+      {})))
+
 (defn merge [& maps]
-  "like clojure.core/merge, but works recursively."
-  (let [keyset (union-keys maps)]
+  "like clojure.core/merge, but works recursively. also lacks optimization, testing"
+  (let [keyset (set (mapcat #'keys maps))]  ;; the set of all keys in all of the maps.
     (merge-r (collect-values maps keyset)
              (seq keyset))))
 
