@@ -141,6 +141,7 @@
     (merge-r (collect-values maps keyset)
              (seq keyset))))
 
+
 ;; TODO: use merge-with http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/merge-with
 ;; TODO: it's misleading to say it's 'like core' when behavior differs w.r.t. nil."
 ;;  (merge-nil-override is more 'like core' in this respect).
@@ -163,6 +164,7 @@
   (let [keyset (union-keys maps)
         values (collect-values maps keyset)]
     (merge-r-like-core values (seq keyset))))
+
 ;; similar to clojure core's get-in, but supports :ref as a special feature.
 (defn get-path [fs path & [root]]
   (let [root (if root root (if (:root fs) (:root fs) fs))
@@ -221,6 +223,9 @@
                vals)]
       (zipmap (map #'first inverted-list)
               (map #'second inverted-list)))))
+
+(defn union-keys [maps]
+  (set (mapcat #'keys maps)))
 
 (def tests
   (list
@@ -440,7 +445,7 @@
             :merge-with-append)
 
    
-   ;; test ref serialization (2)
+   ;; test ref serialization with paths
    ;; path (:a :b) points to a reference, whose value is an integer, 42.
    ;; path (:c) also points to the same reference.
    ;;
