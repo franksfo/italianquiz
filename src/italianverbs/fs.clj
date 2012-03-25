@@ -212,19 +212,46 @@
 
 (defn ref-invert [input]
   "turn a map<P,V> into an inverted map<V,[P]> where every V has a list of what paths P point to it."
-  (let [keys (keys input)
-        vals (set (vals input))] ;; (set) makes vals distinct.
-    (let [inverted-list
-          (map (fn [val]
-                 (list val
-                       (mapcat (fn [key] 
-                                 (if (= (get input key)
-                                        val)
-                                   (list key)))
-                               keys)))
-               vals)]
-      (zipmap (map #'first inverted-list)
-              (map #'second inverted-list)))))
+  (let [input (map-pathify (pathify input))]
+    (let [keys (keys input)
+          vals (set (vals input))] ;; (set) makes vals distinct.
+      (let [inverted-list
+            (map (fn [val]
+                   (list val
+                         (set
+                          (mapcat (fn [key] 
+                                    (if (= (get input key)
+                                           val)
+                                      (list key)))
+                                  keys))))
+                 vals)]
+        (zipmap (map #'first inverted-list)
+                (map #'second inverted-list))))))
+
+(def *exclude-keys* #{:_id})
+
+(defn pathify [fs & [prefix]]
+"Transform a map into a map of paths/value pairs,
+ where paths are lists of keywords, and values are atomic values.
+ e.g.:
+ {:foo {:bar 42, :baz 99}} =>  { { (:foo :bar) 42}, {(:foo :baz) 99} }
+The idea is to map the key :foo to the (recursive) result of pathify on :foo's value."
+(mapcat (fn [kv]
+          (let [key (first kv)
+                val (second kv)]
+            (if (not (contains? *exclude-keys* key))
+              (if (or (= (type val) clojure.lang.PersistentArrayMap)
+                      (= (type val) clojure.lang.PersistentHashMap))
+                (pathify val (concat prefix (list key)))
+                (list (concat prefix (list key)) val)))))
+        fs))
+
+(defn map-pathify [pathified]
+  (let [first (first pathified)
+        second (second pathified)]
+    (if (and first second)
+      (merge {first second}
+             (map-pathify (rest (rest pathified)))))))
 
 (def tests
   (list
@@ -387,63 +414,6 @@
          42))
     :get-path-nested-atom)
 
-   ;; test ref serialization (1)
-   ;; :a and :b's value is a reference, whose value is an integer, 42.
-   ;; :c's value is an integer, which just so happens to be 42.
-   ;;[ :a [1] 42
-   ;;  :b [1]
-   ;;  :c     42 ]
-   ;; =>
-   ;;
-   ;; {#<Ref: 42> => (:a :b)
-   ;;  42         => (:c)}
-   ;;                               
-
-   (rdutest "test serialization"
-            (let [myref (ref 42)
-                  fs {:a myref
-                      :b myref
-                      :c 42}]
-              (ref-invert fs))
-            (fn [result]
-              (let [keys (set (keys result))
-                    vals (vals result)]
-                    
-                (and (= (.size keys) 2)
-                     (or (= (first keys) 42)
-                         (= (second keys) 42))
-                     (or (= (set (first vals)) (set (list :a :b)))
-                         (= (set (second vals)) (set (list :a :b))))
-                     (or (= (first vals) (list :c))
-                         (= (second vals) (list :c)))
-                     (or (and (= (type (first keys))
-                                 clojure.lang.Ref)
-                              (= @(first keys) 42))
-                         (and (= (type (second keys))
-                                 clojure.lang.Ref)
-                              (= @(second keys) 42))))))
-
-            :ref-serialization)
-
-
-   ;; test merge-with-append: create list out of all values for the same feature.
-   ;; {:a (:b :c :d)}
-   ;; {:a (:e :f :g)} =>
-   ;; {:a ((:b :c :d) (:e :f :g))}
-   (rdutest "test merge-with-append"
-            (let [mwa (fn [map1 map2]
-                        ;; (merge map1 map2)
-                        
-                        {:a ((:b :c :d)(:e :f :g))})]
-              (mwa
-               {:a (:b :c :d)}
-               {:a (:e :f :g)}))
-            (fn [result]
-              (= result
-                 {:a ((:b :c :d)(:e :f :g))}))
-            :merge-with-append)
-
-   
    ;; test ref serialization with paths
    ;; path (:a :b) points to a reference, whose value is an integer, 42.
    ;; path (:c) also points to the same reference.
@@ -451,7 +421,7 @@
    ;;[ :a  [:b [1] 42]
    ;;  :c  [1]]
    ;;
-   ;; => {#<Ref: 42> => ((:a :b) (:c))
+   ;; => {#<Ref: 42> => {(:a :b) (:c)}
    ;;                               
    (rdutest "test serialization with paths"
             (let [myref (ref 42)
@@ -459,10 +429,16 @@
                       :c myref}]
               (ref-invert fs))
             (fn [result]
-              (not (nil? result))) ;; just stub test.
-            :ref-serialization-with-path)
-   ))
-
-   
-
-   
+              (and (= (.size result) 1)
+                   (= (type (first (keys result)))
+                      clojure.lang.Ref)
+                   (= @(first (keys result))
+                      42)
+                   (= (.size (vals result)) 1)
+                   (= (.size (first (vals result))) 2)
+                   (or (= (first (first (vals result))) '(:a :b))
+                       (= (first (first (vals result))) '(:c)))
+                   (or (= (second (first (vals result))) '(:a :b))
+                       (= (second (first (vals result))) '(:c)))))
+            :ref-serialization-with-path)))
+ 
