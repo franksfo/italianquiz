@@ -141,6 +141,8 @@
     (merge-r (collect-values maps keyset)
              (seq keyset))))
 
+(defn union-keys [maps]
+  (set (mapcat #'keys maps)))
 
 ;; TODO: use merge-with http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/merge-with
 ;; TODO: it's misleading to say it's 'like core' when behavior differs w.r.t. nil."
@@ -223,9 +225,6 @@
                vals)]
       (zipmap (map #'first inverted-list)
               (map #'second inverted-list)))))
-
-(defn union-keys [maps]
-  (set (mapcat #'keys maps)))
 
 (def tests
   (list
