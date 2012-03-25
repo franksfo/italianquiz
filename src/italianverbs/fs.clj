@@ -433,11 +433,16 @@
    ;; {:a (:e :f :g)} =>
    ;; {:a ((:b :c :d) (:e :f :g))}
    (rdutest "test merge-with-append"
-            (let [mwa (fn [maps]
+            (let [mwa (fn [map1 map2]
+                        ;; (merge map1 map2)
+                        
                         {:a ((:b :c :d)(:e :f :g))})]
-              mwa)
+              (mwa
+               {:a (:b :c :d)}
+               {:a (:e :f :g)}))
             (fn [result]
-              (not (nil? result)))
+              (= result
+                 {:a ((:b :c :d)(:e :f :g))}))
             :merge-with-append)
 
    
