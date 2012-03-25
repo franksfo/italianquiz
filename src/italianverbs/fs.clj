@@ -210,6 +210,24 @@
         {:a (+ 1 (:a map))
          :foo "bar"}))
 
+(defn set-paths [fs paths val]
+  (let [path (first paths)]
+    (if path
+      (set-paths (assoc-in fs path val) (rest paths) val)
+      fs)))
+
+(defn encode-refs [fs inv-fs]
+   ;; for each (keys inv-fs)
+   ;; assoc-in fs path string-rep
+   (if (first inv-fs)
+     (let [ref (first (first inv-fs))
+           paths (second (first inv-fs))
+           encoded-ref (str ref)]
+       (encode-refs
+        (set-paths fs paths encoded-ref)
+        (rest inv-fs)))
+     fs))
+
 (defn ref-invert [input]
   "turn a map<P,V> into an inverted map<V,[P]> where every V has a list of what paths P point to it."
   (let [input (map-pathify (pathify input))]
@@ -414,7 +432,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          42))
     :get-path-nested-atom)
 
-   ;; test ref serialization with paths
+   ;; test map inversion
    ;; path (:a :b) points to a reference, whose value is an integer, 42.
    ;; path (:c) also points to the same reference.
    ;;
@@ -423,7 +441,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    ;;
    ;; => {#<Ref: 42> => {(:a :b) (:c)}
    ;;                               
-   (rdutest "test serialization with paths"
+   (rdutest "map inversion"
             (let [myref (ref 42)
                   fs {:a {:b myref}
                       :c myref}]
@@ -440,5 +458,20 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                        (= (first (first (vals result))) '(:c)))
                    (or (= (second (first (vals result))) '(:a :b))
                        (= (second (first (vals result))) '(:c)))))
-            :ref-serialization-with-path)))
- 
+            :map-inversion)
+
+   ;; 
+   (rdutest "serialization"
+            (let [myref (ref 42)
+                  fs {:a {:b myref}
+                      :c myref}
+                  inverted (ref-invert fs)]
+              (merge (encode-refs fs inverted)
+                     {:refs inverted}))
+            (fn [result]
+              (and 
+               (= (type (get-in result '(:a :b))) java.lang.String)
+               (= (type (get-in result '(:c))) java.lang.String)
+               (= (get-in result '(:a :b))
+                  (get-in result '(:c)))))
+            :serialization)))
