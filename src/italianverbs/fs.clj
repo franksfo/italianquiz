@@ -219,13 +219,16 @@
 (defn encode-refs [fs inv-fs]
    ;; for each (keys inv-fs)
    ;; assoc-in fs path string-rep
-   (if (first inv-fs)
-     (let [ref (first (first inv-fs))
-           paths (second (first inv-fs))
-           encoded-ref (str (first ref))]
+  (if (first inv-fs)
+    (let [ref-pair (first inv-fs)]
+      ;; ref-pair: <string-representation-of-ref,
+      ;;            <value, set-of-pairs-that-point-to-this-reference> >
+      (let [encoded-ref (first ref-pair)
+            value (first (second ref-pair))
+            paths (second (second ref-pair))]
        (encode-refs
         (set-paths fs paths encoded-ref)
-        (rest inv-fs)))
+        (rest inv-fs))))
      fs))
 
 (def *exclude-keys* #{:_id})
@@ -261,17 +264,21 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           vals (set (vals input))] ;; the set of all values pointed to by any path
       (let [inverted-list
             (map (fn [val] ;; for each val..
-                   (list (list (str val)
-                               (if (= (type val) clojure.lang.Ref) @val))
-                         (set 
-                          (mapcat (fn [key]  ;; ..find all paths that point to val.
-                                    (if (= (get input key)
-                                           val)
-                                      (list key)))
-                                  keys))))
+                   (if (= (type val) clojure.lang.Ref)
+                     (list (str val)
+                           (list @val
+                                 (set 
+                                  (mapcat (fn [key]  ;; ..find all paths that point to val.
+                                            (if (= (get input key)
+                                                   val)
+                                              (list key)))
+                                          keys))))))
                  vals)]
-        (zipmap (map #'first inverted-list)
-                (map #'second inverted-list))))))
+        (zipmap
+         (mapcat (fn [pair] (if (not (nil? (first pair))) (list (first pair))))
+                 inverted-list)
+         (mapcat (fn [pair] (if (not (nil? (second pair))) (list (second pair))))
+                 inverted-list))))))
 
 (defn serialize [fs]
   (let [inv (ref-invert fs)]
@@ -281,7 +288,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn deserialize [fs]
   (let [refs (get fs :refs)]
     refs))
-
 (def tests
   (list
    (rdutest
@@ -460,15 +466,16 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
             (fn [result]
               (and (= (.size result) 1)
                    (= (type (first (keys result)))
-                      clojure.lang.Ref)
-                   (= @(first (keys result))
+                      java.lang.String)
+                   (= (first (first (vals result)))
                       42)
                    (= (.size (vals result)) 1)
-                   (= (.size (first (vals result))) 2)
-                   (or (= (first (first (vals result))) '(:a :b))
-                       (= (first (first (vals result))) '(:c)))
-                   (or (= (second (first (vals result))) '(:a :b))
-                       (= (second (first (vals result))) '(:c)))))
+                   (let [paths (second (first (vals result)))]
+                     (and (= (.size paths) 2)
+                          (or (= (first paths) '(:a :b))
+                              (= (first paths) '(:c)))
+                          (or (= (second paths) '(:a :b))
+                              (= (second paths) '(:c)))))))
             :map-inversion)
 
    ;; 
