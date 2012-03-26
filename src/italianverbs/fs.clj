@@ -189,7 +189,6 @@
 (defn mergec [& maps]
   (merge-like-core (list maps)))
 
-
 (defn merge-and-apply [maps]
   "merge maps, and then apply the function (:fn merged) to the merged map."
   (let [merged
@@ -294,17 +293,18 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        val)
       fs)))
 
-(defn deserialize [fs refs]
+(defn deserialize [fs & [refs]]
   "apply refs as a list of references to be created in fs."
-  (let [the-ref (first refs)]
-    (if the-ref
-      (let [val (first the-ref)
-            paths (second the-ref)
-            shared-val (ref val)]
-        (deserialize
-         (set-all-paths fs paths shared-val)
-         (rest refs)))
-      (dissoc fs :refs)))) ;; finally, remove :ref key since it's no longer needed.
+  (let [refs (if refs refs (vals (:refs fs)))]
+    (let [the-ref (first refs)]
+      (if the-ref
+        (let [val (first the-ref)
+              paths (second the-ref)
+              shared-val (ref val)]
+          (deserialize
+           (set-all-paths fs paths shared-val)
+           (rest refs)))
+        (dissoc fs :refs))))) ;; finally, remove :ref key since it's no longer needed.
 
 (def tests
   (list
@@ -516,7 +516,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   fs {:a {:b myref}
                       :c myref}
                   serialized (serialize fs)]
-              (list fs (deserialize serialized (vals (:refs serialized)))))
+              (list fs (deserialize serialized)))
             (fn [result] ;; fs and our deserialized fs should be isomorphic.
               (let [original (first result)
                     copy (second result)]
