@@ -2,7 +2,7 @@
   (:use
    [hiccup core page-helpers]
    [ring.util.codec :as codec]
-   [italianverbs.rdutest])
+   [rdutest])
   (:require
    [clojure.set :as set]
    [clojure.string :as string]

@@ -1,6 +1,6 @@
 (ns italianverbs.lexicon
   (:use [italianverbs.lexiconfn]
-        [italianverbs.rdutest])
+        [rdutest])
   (:require [italianverbs.fs :as fs]
             [italianverbs.search :as search]))
 
@@ -571,10 +571,12 @@
 
    (rdutest
     "test that reentrances (graphs with vertices with more than one incoming node) work."
-    (let [third-sing {:number (ref :singular) :person :3rd :cat :noun}
+    ;; :number is shared by the paths (:number) and (:comp :number).
+    (let [grammatical-number-reference (ref :singular)
+          third-sing {:number grammatical-number-reference :person :3rd :cat :noun}
           common-noun (fs/m third-sing
                             {:comp {:cat :det
-                                    :number (:number third-sing) ;; determiner must agree with number of noun.
+                                    :number (:number grammatical-number-reference) ;; determiner must agree with number of noun.
                                     }
                             :morph "morph-noun"
                             :common true})]

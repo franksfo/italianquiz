@@ -1,7 +1,7 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (maybe not actually)
 (ns italianverbs.morphology
   (:use [hiccup core page-helpers]
-        [italianverbs.rdutest])
+        [rdutest])
   (:require
    [italianverbs.fs :as fs]
    [clojure.string :as string]

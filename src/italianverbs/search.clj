@@ -1,7 +1,7 @@
 (ns italianverbs.search
   (:use [hiccup core page-helpers]
         [clojure.set]
-        [italianverbs.rdutest])
+        [rdutest])
   (:require
    [clojure.contrib.string :as string]
    [clojure.contrib.repl-utils :as repl-utils]

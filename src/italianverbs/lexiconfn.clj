@@ -1,7 +1,7 @@
 (ns italianverbs.lexiconfn
   (:use [hiccup core page-helpers]
         [clojure.set]
-        [italianverbs.rdutest]        
+        [rdutest]        
         )
   (:require
    [clojure.core :as core]
@@ -27,7 +27,7 @@
   (mongo/destroy! :lexicon {}))
 
 (defn add-lexeme [fs]
-  (mongo/insert! :lexicon fs)
+  (mongo/insert! :lexicon (fs/serialize fs))
   fs)
 
 ;; end db-specific stuff.
