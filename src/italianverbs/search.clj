@@ -20,6 +20,8 @@
 ;;      (html/static-page
 ;;            (str (html/fs lexfn/trans-verbs) (string/join " " (map (fn [fs] (html/fs fs)) (lexfn/query (lexfn/pathify lexfn/trans-verbs))))
 
+
+;; TODO: remove *exclude-keys*,(pathify-r) and (pathify) in favor of fs's versions.
 (def *exclude-keys* (set #{:_id :ref :refmap}))
 
 (defn pathify-r [fs & [prefix]]

@@ -58,21 +58,20 @@
   "answers the question: 'wtf went wrong with that test??': (test-result of test with label test-name)"
   (:test-result (get tests test-name)))
 
-;; TODO: remove test label.
 (def rdutests
-  {:simple-test-example ; test label
+  (list
    (rdutest
     "Just a simple example showing how to write rdutests." ; comment
     (+ 2 3)  ; expression to evaluate.
     #(= % 5) ; function to be applied to the evaluated expression.
-    ;; repeat of label (unfortunately)
     :simple-test-example)
-   :simple-failing-example
    (rdutest
-    "Just a simple example showing how to write rdutests." ; comment
+    "Just a simple example showing how to write failing rdutests." ; comment
     (+ 2 3)  ; expression to evaluate.
     #(= % 4) ; function to be applied to the evaluated expression.
-    :simple-failing-example)}) ; repeat of label (unfortunately)
+    :simple-failing-example)))
+
+
 
 
     
