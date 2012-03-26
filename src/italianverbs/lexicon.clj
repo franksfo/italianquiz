@@ -33,15 +33,16 @@
                                 }
                          :morph "morph-noun"
                          :common true})
-      third-sing-with-ref {:number (ref :singular) :person :3rd :cat :noun}
-      common-noun-with-ref (fs/m third-sing
-                                 {:comp {:cat :det
-                                         ;; determiner must agree with number of noun:
-                                         :number (:number third-sing-with-ref)
-                                         }
-                                  :morph "morph-noun"
-                                  :common true
-                                  :number (:number third-sing-with-ref)})
+
+      common-noun-with-number-agreement (fs/m third-sing
+                                 (let [number-agreement (ref :singular)]
+                                   {:comp {:cat :det
+                                           ;; determiner must agree with number of noun:
+                                           :number number-agreement
+                                           }
+                                    :morph "morph-noun"
+                                    :common true
+                                    :number number-agreement}))
 
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
       pronoun (fs/m noun {:pronoun true :comp nil :human true})
@@ -104,7 +105,7 @@
                    :sport true})
       
       cane (add "cane" "dog"
-                common-noun-with-ref
+                common-noun-with-number-agreement
                 {:animate true
                  :gender :masc})
 
