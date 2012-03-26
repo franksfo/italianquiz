@@ -285,9 +285,27 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (merge (encode-refs fs (ref-invert fs))
            {:refs inv})))
 
-(defn deserialize [fs]
-  (let [refs (get fs :refs)]
-    refs))
+(defn set-all-paths [fs paths val]
+  (let [path (first paths)]
+    (if path
+      (set-all-paths
+       (assoc-in fs path val)
+       (rest paths)
+       val)
+      fs)))
+
+(defn deserialize [fs refs]
+  "apply refs as a list of references to be created in fs."
+  (let [the-ref (first refs)]
+    (if the-ref
+      (let [val (first the-ref)
+            paths (second the-ref)
+            shared-val (ref val)]
+        (deserialize
+         (set-all-paths fs paths shared-val)
+         (rest refs)))
+      (dissoc fs :refs)))) ;; finally, remove :ref key since it's no longer needed.
+
 (def tests
   (list
    (rdutest
@@ -497,10 +515,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
             (let [myref (ref 42)
                   fs {:a {:b myref}
                       :c myref}
-                  inverted (ref-invert fs)]
-              (list fs (deserialize (serialize fs))))
+                  serialized (serialize fs)]
+              (list fs (deserialize serialized (vals (:refs serialized)))))
             (fn [result] ;; fs and our deserialized fs should be isomorphic.
-              (not (nil? result)))
+              (let [original (first result)
+                    copy (second result)]
+                (and (= (get-in original '(:a :b))
+                        (get-in original '(:c)))
+                     (= (get-in copy '(:a :b))
+                        (get-in copy '(:c))))))
             :deserialization)))
 
 
