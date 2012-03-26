@@ -216,17 +216,13 @@
       fs)))
 
 (defn encode-refs [fs inv-fs]
-   ;; for each (keys inv-fs)
-   ;; assoc-in fs path string-rep
   (if (first inv-fs)
     (let [ref-pair (first inv-fs)]
-      ;; ref-pair: <string-representation-of-ref,
-      ;;            <value, set-of-pairs-that-point-to-this-reference> >
-      (let [encoded-ref (first ref-pair)
-            value (first (second ref-pair))
-            paths (second (second ref-pair))]
+      ;; ref-pair: <value, set-of-pairs-that-point-to-this-reference> >
+      (let [value (first ref-pair)
+            paths (second ref-pair)]
        (encode-refs
-        (set-paths fs paths encoded-ref)
+        (set-paths fs paths value)
         (rest inv-fs))))
      fs))
 
@@ -264,7 +260,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (let [inverted-list
             (map (fn [val] ;; for each val..
                    (if (= (type val) clojure.lang.Ref)
-                     (list (str val)
+                     (list @val
                            (list @val
                                  (set 
                                   (mapcat (fn [key]  ;; ..find all paths that point to val.
@@ -273,11 +269,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                               (list key)))
                                           keys))))))
                  vals)]
-        (zipmap
-         (mapcat (fn [pair] (if (not (nil? (first pair))) (list (first pair))))
-                 inverted-list)
          (mapcat (fn [pair] (if (not (nil? (second pair))) (list (second pair))))
-                 inverted-list))))))
+                 inverted-list)))))
+
+                                        ;        (zipmap
+;         (mapcat (fn [pair] (if (not (nil? (first pair))) (list (first pair))))
+;                 inverted-list)
+;         (mapcat (fn [pair] (if (not (nil? (second pair))) (list (second pair))))
+;                 inverted-list))))))
 
 (defn serialize [fs]
   (let [inv (ref-invert fs)]
@@ -295,7 +294,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn deserialize [fs & [refs]]
   "apply refs as a list of references to be created in fs."
-  (let [refs (if refs refs (vals (:refs fs)))]
+  (let [refs (if refs refs (:refs fs))]
     (let [the-ref (first refs)]
       (if the-ref
         (let [val (first the-ref)
@@ -483,12 +482,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
               (ref-invert fs))
             (fn [result]
               (and (= (.size result) 1)
-                   (= (type (first (keys result)))
-                      java.lang.String)
-                   (= (first (first (vals result)))
+                   (= (first (first result))
                       42)
-                   (= (.size (vals result)) 1)
-                   (let [paths (second (first (vals result)))]
+                   (let [paths (second (first result))]
                      (and (= (.size paths) 2)
                           (or (= (first paths) '(:a :b))
                               (= (first paths) '(:c)))
@@ -496,19 +492,25 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                               (= (second paths) '(:c)))))))
             :map-inversion)
 
-   ;; 
    (rdutest "serialization"
             (let [myref (ref 42)
                   fs {:a {:b myref}
-                      :c myref}
-                  inverted (ref-invert fs)]
-              (encode-refs fs inverted))
+                      :c myref}]
+              (serialize fs))
             (fn [result]
               (and 
-               (= (type (get-in result '(:a :b))) java.lang.String)
-               (= (type (get-in result '(:c))) java.lang.String)
-               (= (get-in result '(:a :b))
-                  (get-in result '(:c)))))
+               (= (get-in result '(:a :b)) 42)
+               (= (get-in result '(:c)) 42)
+               (not (nil? (:refs result)))
+               (= (.size (:refs result)) 1)
+               (= (first (first (:refs result))) 42)
+               (let [paths (second (first (:refs result)))]
+                 (and (= (.size paths) 2)
+                      (or (= (first paths) '(:a :b))
+                          (= (first paths) '(:c)))
+                      (or (= (second paths) '(:a :b))
+                          (= (second paths) '(:c)))))))
+
             :serialization)
 
       (rdutest "deserialization"
