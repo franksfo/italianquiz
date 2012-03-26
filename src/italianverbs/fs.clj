@@ -289,7 +289,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (let [path (first paths)]
     (if path
       (set-all-paths
-       (assoc-in fs path val)
+       (assoc-in fs (map #'keyword path) val)
        (rest paths)
        val)
       fs)))
