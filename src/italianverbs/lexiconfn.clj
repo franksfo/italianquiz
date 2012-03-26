@@ -324,7 +324,7 @@
             :aux aux}))))
 
 (defn lookup [italian & [where]]
-  (mongo/fetch-one :lexicon :where (merge where {:italian italian})))
+  (fs/deserialize (mongo/fetch-one :lexicon :where (merge where {:italian italian}))))0
 
 ;; for testing.
 (def mangiare (lookup "mangiare"))

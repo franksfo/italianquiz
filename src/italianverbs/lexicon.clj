@@ -35,12 +35,13 @@
                          :common true})
       third-sing-with-ref {:number (ref :singular) :person :3rd :cat :noun}
       common-noun-with-ref (fs/m third-sing
-                        {:comp {:cat :det
-                                ;; doesn't work yet...
-                                :number (:number third-sing-with-ref) ;; determiner must agree with number of noun
-                                }
-                         :morph "morph-noun"
-                         :common true})
+                                 {:comp {:cat :det
+                                         ;; determiner must agree with number of noun:
+                                         :number (:number third-sing-with-ref)
+                                         }
+                                  :morph "morph-noun"
+                                  :common true
+                                  :number (:number third-sing-with-ref)})
 
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
       pronoun (fs/m noun {:pronoun true :comp nil :human true})
@@ -103,12 +104,6 @@
                    :sport true})
       
       cane (add "cane" "dog"
-                common-noun
-                takes-masc-sing-determiner
-                {:animate true
-                 :gender :masc})
-
-      caneref (add "caneref" "dogref"
                 common-noun-with-ref
                 {:animate true
                  :gender :masc})
@@ -559,7 +554,7 @@
     "calcio is a noun that does not take an article."
     (lookup "calcio")
     (fn [calcio]
-      (= nil (:comp calcio)))
+      (= {} (:comp calcio)))
     :calcio)
 
    :structure-sharing
@@ -572,18 +567,10 @@
    (rdutest
     "test that reentrances (graphs with vertices with more than one incoming node) work."
     ;; :number is shared by the paths (:number) and (:comp :number).
-    (let [grammatical-number-reference (ref :singular)
-          third-sing {:number grammatical-number-reference :person :3rd :cat :noun}
-          common-noun (fs/m third-sing
-                            {:comp {:cat :det
-                                    :number (:number grammatical-number-reference) ;; determiner must agree with number of noun.
-                                    }
-                            :morph "morph-noun"
-                            :common true})]
-      common-noun)
-    (fn [fs]
+    (lookup "cane")
+    (fn [dog]
       (and
-       (= @(:number fs) :singular)
-       (= @(:number (:comp fs)) :singular)
-       (= (:number fs) (:number (:comp fs)))))
+       (not (nil? dog))
+       (= (get-in dog '(:number))
+          (get-in dog '(:comp :number)))))
     :structure-sharing)})
