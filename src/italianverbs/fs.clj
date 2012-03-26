@@ -272,16 +272,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (mapcat (fn [pair] (if (not (nil? (second pair))) (list (second pair))))
                  inverted-list)))))
 
-                                        ;        (zipmap
-;         (mapcat (fn [pair] (if (not (nil? (first pair))) (list (first pair))))
-;                 inverted-list)
-;         (mapcat (fn [pair] (if (not (nil? (second pair))) (list (second pair))))
-;                 inverted-list))))))
+(defn set-to-list [refs]
+  (let [ref (first refs)]
+    (if ref
+      (cons (list (first ref)
+                  (seq (second ref)))
+            (set-to-list (rest refs))))))
 
 (defn serialize [fs]
   (let [inv (ref-invert fs)]
-    (merge (encode-refs fs (ref-invert fs))
-           {:refs inv})))
+    (merge (encode-refs fs inv)
+           {:refs (set-to-list inv)})))
 
 (defn set-all-paths [fs paths val]
   (let [path (first paths)]
