@@ -168,6 +168,7 @@
     (merge-r-like-core values (seq keyset))))
 
 ;; similar to clojure core's get-in, but supports :ref as a special feature.
+;; TODO: :ref is obsolete: remove metions of it.
 (defn get-path [fs path & [root]]
   (let [root (if root root (if (:root fs) (:root fs) fs))
         feat (first path)
