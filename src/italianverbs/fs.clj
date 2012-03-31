@@ -52,6 +52,9 @@
                     maps)}
        (collect-values-with-nil maps (rest keys))))))
 
+;; TODO: 'atom' is confusing here because i mean it the sense of
+;; simple values like floats or integers, as opposed to sets, maps, or lists.
+;; use 'simple' here and elsewhere in this file.
 (defn- merge-atomically-like-core [values]
   (last values))
 
@@ -112,7 +115,9 @@
       (if (second values)
         (if (= (first values) (second values))
           (merge-atomically (rest values))
-          :fail)
+          (if (= (first values) :top)
+            (merge-atomically (rest values))
+          :fail))
         value))))
 
 (defn- merge-values [values]
@@ -163,9 +168,16 @@
 ;; (until i learn to write wrappers).
 (defn m [& maps]
   "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
-  (let [keyset (union-keys maps)
-        values (collect-values maps keyset)]
-    (merge-r-like-core values (seq keyset))))
+  (if (= (type (first maps)) java.lang.Integer)
+    ;; if first is an integer, assume the others are too.
+    (merge-atomically maps)
+    (if (= (type (first maps)) clojure.lang.Ref)
+      (let [do-sync (dosync (alter (first maps) (fn [x] (merge-values (cons @(first maps) (rest maps))))))]
+        (first maps))
+      ;; else assume all are really maps.
+      (let [keyset (union-keys maps)
+            values (collect-values maps keyset)]
+        (merge-r-like-core values (seq keyset))))))
 
 ;; similar to clojure core's get-in, but supports :ref as a special feature.
 ;; TODO: :ref is obsolete: remove metions of it.
@@ -522,12 +534,52 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   serialized (serialize fs)]
               (list fs (deserialize serialized)))
             (fn [result] ;; fs and our deserialized fs should be isomorphic.
+              ;; TODO: also test to make sure fs original and copy are distinct as well (not ref-equal)
               (let [original (first result)
                     copy (second result)]
                 (and (= (get-in original '(:a :b))
                         (get-in original '(:c)))
                      (= (get-in copy '(:a :b))
                         (get-in copy '(:c))))))
-            :deserialization)))
+            :deserialization)
+
+      (rdutest "merging atomic values: fails"
+               (merge-values (list 42 43))
+               (fn [result]
+                 (= result :fail))
+               :merge-atomic-values-fail)
+
+      (rdutest "merging atomic values: succeeds"
+               (merge-values (list 42 42))
+               (fn [result]
+                 (= result 42))
+               :merge-atomic-values-succeeds)
+
+      (rdutest "merging atomic values with references"
+               (let [myref (ref :top)
+                     val 42]
+                 (fs/m myref val))
+               (fn [result]
+                 (and
+                  (= (type result) clojure.lang.Ref)
+                  (= @result 42)))
+               :merge-atomic-with-refs)
+
+      (rdutest "merging with references"
+            (let [myref (ref :succeed)
+                  fs1 {:a myref :b myref}
+                  fs2 {:a 42}]
+              (fs/m fs1 fs2))
+            (fn [result]
+              true; stub
+              )
+;              (and (= (get-in result '(:a)) 42)
+;                   (= (get-in result '(:b)) 42)
+;                   (= (get-in result '(:a))
+;                      (get-in result '(:b)))))
+            :merge-with-refs)
+
+      ))
+
 
 
