@@ -60,14 +60,21 @@
 
 (defn merge-values-like-core [values]
   (let [value (first values)]
-    (if value
-      (if (or (= (type value) clojure.lang.PersistentArrayMap)
-              (= (type value) clojure.lang.PersistentHashMap))
-        (merge
-         value
-         (merge-values-like-core (rest values)))
-        (merge-atomically-like-core values))
-        {})))
+    (if (= (type value) clojure.lang.Ref)
+      ;; return the reference after setting it to the value of its merged values with
+      ;; the rest of the items to be merged.
+      (let [do-sync (dosync
+                     (alter value
+                            (fn [x] (merge-values-like-core (cons @value (rest values))))))]
+        (first values))
+      (if value
+        (if (or (= (type value) clojure.lang.PersistentArrayMap)
+                (= (type value) clojure.lang.PersistentHashMap))
+          (merge
+           value
+           (merge-values-like-core (rest values)))
+          (merge-atomically-like-core values))
+        {}))))
 
 (defn merge-values-like-core-nil-override [values]
   (let [value (first values)]
@@ -172,7 +179,11 @@
     ;; if first is an integer, assume the others are too.
     (merge-atomically maps)
     (if (= (type (first maps)) clojure.lang.Ref)
-      (let [do-sync (dosync (alter (first maps) (fn [x] (merge-values (cons @(first maps) (rest maps))))))]
+      ;; return the reference after setting it to the value of its merged values with
+      ;; the rest of the items to be merged.
+      (let [do-sync (dosync
+                     (alter (first maps)
+                            (fn [x] (merge-values (cons @(first maps) (rest maps))))))]
         (first maps))
       ;; else assume all are really maps.
       (let [keyset (union-keys maps)
@@ -565,18 +576,23 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   (= @result 42)))
                :merge-atomic-with-refs)
 
+      ;; {:a [1] :top
+      ;;  :b [1]     } ,
+      ;; {:a 42}
+      ;;        =>
+      ;; {:a [1] 42
+      ;;  :b [2] }
       (rdutest "merging with references"
-            (let [myref (ref :succeed)
+            (let [myref (ref :top)
                   fs1 {:a myref :b myref}
                   fs2 {:a 42}]
               (fs/m fs1 fs2))
             (fn [result]
-              true; stub
-              )
-;              (and (= (get-in result '(:a)) 42)
-;                   (= (get-in result '(:b)) 42)
-;                   (= (get-in result '(:a))
-;                      (get-in result '(:b)))))
+              (and
+               (= (type (:a result)) clojure.lang.Ref)
+               (= @(:a result) 42)
+               (= @(:b result) 42)
+               (= (:a result) (:b result))))
             :merge-with-refs)
 
       ))
