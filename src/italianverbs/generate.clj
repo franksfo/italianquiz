@@ -1,7 +1,7 @@
 ;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (purtroppo)
 (ns italianverbs.generate
   (:use [clojure.stacktrace]
-        [italianverbs.rdutest]
+        [rdutest]
         [italianverbs.lexiconfn])
   (:require
    [italianverbs.lev :as lev]
