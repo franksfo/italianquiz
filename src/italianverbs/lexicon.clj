@@ -34,7 +34,7 @@
                          :morph "morph-noun"
                          :common true})
 
-      common-noun-with-number-agreement
+      common-noun-with-agreement
       (fs/m third-sing
             (let [number-agreement (ref :top)
                   gender-agreement (ref :top)]
@@ -109,10 +109,9 @@
                    :sport true})
       
       cane (add "cane" "dog"
-                common-noun-with-number-agreement
+                common-noun-with-agreement masc
                 {:animate true
-                 :number :singular
-                 :gender :masc})
+                 :number :singular})
       
 ;; needs supports for reflexive pronouns: "mi chiamo gino".
 ;      (add "chiamare" "to be named"
@@ -127,7 +126,7 @@
                        {:subj animate
                         :obj {:cat :noun}})
 
-      donna (add "donna" "woman" common-noun fem human)
+      donna (add "donna" "woman" common-noun-with-agreement fem human)
       ;; add exception because of english: woman->women.
       donne (add "donne" "women" donna plural {:root donna})
       
@@ -350,9 +349,9 @@
       una (add "una" "a" {:gender :fem :number :singular :cat :det
                           :def :indef})
 
-;      uomo (add "uomo" "man" common-noun-with-number-agreement masc human)
+      uomo (add "uomo" "man" common-noun-with-agreement masc human)
       ;; exception because in english man->men.
-;      uomini (add "uomini" "men" uomo plural {:root uomo})
+      uomini (add "uomini" "men" uomo plural {:root uomo})
       
       voi (add "voi" "you all" 
               human
