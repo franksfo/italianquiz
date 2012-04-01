@@ -78,19 +78,26 @@
 
 (defn merge-values-like-core-nil-override [values]
   (let [value (first values)]
-    (if value
-      (if (or (= (type value) clojure.lang.PersistentArrayMap)
-              (= (type value) clojure.lang.PersistentHashMap))
-        (let [rest-of (merge-values-like-core-nil-override (rest values))]
-          (if (= nil rest-of)
-            nil
-            (merge
-             value
-             rest-of)))
-        (merge-atomically-like-core values))
-      (if (and (= (.size values) 1)
-               (= value nil))
-        nil {}))))
+    (if (= (type value) clojure.lang.Ref)
+      ;; return the reference after setting it to the value of its merged values with
+      ;; the rest of the items to be merged.
+      (let [do-sync (dosync
+                     (alter value
+                            (fn [x] (merge-values-like-core (cons @value (rest values))))))]
+        (first values))
+      (if value
+        (if (or (= (type value) clojure.lang.PersistentArrayMap)
+                (= (type value) clojure.lang.PersistentHashMap))
+          (let [rest-of (merge-values-like-core-nil-override (rest values))]
+            (if (= nil rest-of)
+              nil
+              (merge
+               value
+               rest-of)))
+          (merge-atomically-like-core values))
+        (if (and (= (.size values) 1)
+                 (= value nil))
+          nil {})))))
 
 (defn- merge-r-like-core [collected-map keys]
   "merge a map where each value is a list of values to be merged for that key."
@@ -595,6 +602,37 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                (= (:a result) (:b result))))
             :merge-with-refs)
 
+      ;; {:a [1] :top
+      ;;  :b [1]     } ,
+      ;; {:a 42}
+      ;;        =>
+      ;; {:a [1] 42
+      ;;  :b [2] }
+      (rdutest
+       "merging with references with nil-override family of functions (used by lexiconfn/add)"
+            (let [myref (ref :top)
+                  fs1 {:a myref :b myref}
+                  fs2 {:a 42}]
+              (fs/merge-nil-override fs1 fs2))
+            (fn [result]
+              (and
+               (= (type (:a result)) clojure.lang.Ref)
+               (= @(:a result) 42)
+               (= @(:b result) 42)
+               (= (:a result) (:b result))))
+            :merge-with-refs-with-nil-override)
+
+      (rdutest
+       "merging with references with nil-override family of functions (used by lexiconfn/add) (2)"
+            (let [myref (ref :top)
+                  fs1 {:a myref}
+                  fs2 {:a :foo}]
+              (fs/merge-nil-override fs1 fs2))
+            (fn [result]
+              (and
+               (= (type (:a result)) clojure.lang.Ref)
+               (= @(:a result) :foo)))
+            :merge-with-refs-with-nil-override-2)
       ))
 
 
