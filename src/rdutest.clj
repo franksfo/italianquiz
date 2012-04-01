@@ -30,7 +30,7 @@
 ;; 
 ;; TODO: figure out namespaces so I can just do: (defmacro test).
 ;; 
-(defmacro rdutest [testcomment test assert sym]
+(defmacro rdutest [testcomment test assert sym & [supress-output]]
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
   (let [test-text (str test)
         assert-text (str assert)
@@ -40,10 +40,13 @@
         ;; TODO: this is ugly to be generating strings and then evaluating (with load-string below).
         ;; TODO: figure out how to defn within a namespace qualifier (e.g. "test/foo").
         defn (str "(defn rdu-" sym-text-no-colon " " [] " " test-text ")")
+        supress-output `~supress-output
         testcomment (str testcomment)]
     `(let [assert# (apply ~assert (list ~test-result))]
-       (println ~(str "Test: " sym-text " '" testcomment "' started."))
-       (println (str "  Result: " assert# (if (= assert# false) " (FAILED).")))
+       (if (not (= ~supress-output true))
+         (println ~(str "Test: " sym-text " '" testcomment "' started.")))
+       (if (not (= ~supress-output true))
+         (println (str "  Result: " assert# (if (= assert# false) " (FAILED)."))))
        (load-string ~defn)
        {:test-text ~test-text
         :assert-text ~assert-text
@@ -66,12 +69,15 @@
     #(= % 5) ; function to be applied to the evaluated expression.
     :simple-test-example)
    (rdutest
-    "Just a simple example showing how to write failing rdutests." ; comment
-    (+ 2 3)  ; expression to evaluate.
-    #(= % 4) ; function to be applied to the evaluated expression.
+    "Just a simple example showing how to write failing rdutests:" ; comment
+    (let [failing-test
+          (rdutest
+           "failing test..."
+           (+ 2 3)
+           #(= % 4)
+           :failing-test
+           true)]
+      (:assert-result failing-test))
+    #(= % false) ;; test that the test failed: that the return value is false.
     :simple-failing-example)))
-
-
-
-
     
