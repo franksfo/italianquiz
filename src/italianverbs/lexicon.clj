@@ -34,15 +34,19 @@
                          :morph "morph-noun"
                          :common true})
 
-      common-noun-with-number-agreement (fs/m third-sing
-                                 (let [number-agreement (ref :singular)]
-                                   {:comp {:cat :det
-                                           ;; determiner must agree with number of noun:
-                                           :number number-agreement
-                                           }
-                                    :morph "morph-noun"
-                                    :common true
-                                    :number number-agreement}))
+      common-noun-with-number-agreement
+      (fs/m third-sing
+            (let [number-agreement (ref :top)
+                  gender-agreement (ref :top)]
+              {:comp {:cat :det
+                      ;; determiner must agree with number of noun:
+                      :number number-agreement
+                      :gender gender-agreement
+                      }
+               :morph "morph-noun"
+               :common true
+               :gender gender-agreement
+               :number number-agreement}))
 
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
       pronoun (fs/m noun {:pronoun true :comp nil :human true})
@@ -107,8 +111,8 @@
       cane (add "cane" "dog"
                 common-noun-with-number-agreement
                 {:animate true
+                 :number :singular
                  :gender :masc})
-
       
 ;; needs supports for reflexive pronouns: "mi chiamo gino".
 ;      (add "chiamare" "to be named"
@@ -123,7 +127,7 @@
                        {:subj animate
                         :obj {:cat :noun}})
 
-      donna (add "donna" "woman" common-noun masc human)
+      donna (add "donna" "woman" common-noun fem human)
       ;; add exception because of english: woman->women.
       donne (add "donne" "women" donna plural {:root donna})
       
@@ -346,9 +350,9 @@
       una (add "una" "a" {:gender :fem :number :singular :cat :det
                           :def :indef})
 
-      uomo (add "uomo" "man" common-noun masc human)
+;      uomo (add "uomo" "man" common-noun-with-number-agreement masc human)
       ;; exception because in english man->men.
-      uomini (add "uomini" "men" uomo plural {:root uomo})
+;      uomini (add "uomini" "men" uomo plural {:root uomo})
       
       voi (add "voi" "you all" 
               human
@@ -572,6 +576,8 @@
     (fn [dog]
       (and
        (not (nil? dog))
+       (= (type (get-in dog '(:number))) clojure.lang.Ref))
+       ;; test referential equality:
        (= (get-in dog '(:number))
-          (get-in dog '(:comp :number)))))
+          (get-in dog '(:comp :number))))
     :structure-sharing)})
