@@ -178,6 +178,9 @@
         values (collect-values-with-nil maps keyset)]
     (merge-r-like-core-nil-override values (seq keyset))))
 
+(defn copy [map]
+  (deserialize (serialize map)))
+
 ;; EXACTLY THE SAME AS (mergec):
 ;; (until i learn to write wrappers).
 (defn m [& maps]

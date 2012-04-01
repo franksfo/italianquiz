@@ -109,7 +109,7 @@
                    :sport true})
       
       cane (add "cane" "dog"
-                common-noun-with-agreement masc
+                (fs/copy common-noun-with-agreement) masc
                 {:animate true
                  :number :singular})
       
@@ -126,10 +126,11 @@
                        {:subj animate
                         :obj {:cat :noun}})
 
-      donna (add "donna" "woman" common-noun-with-agreement fem human)
+      donna (add "donna" "woman" (fs/copy common-noun-with-agreement) fem human singular)
+
       ;; add exception because of english: woman->women.
       donne (add "donne" "women" donna plural {:root donna})
-      
+
       essere
       (let [essere (add "essere" "to be"
                         transitive
@@ -349,7 +350,7 @@
       una (add "una" "a" {:gender :fem :number :singular :cat :det
                           :def :indef})
 
-      uomo (add "uomo" "man" common-noun-with-agreement masc human)
+      uomo (add "uomo" "man" (fs/copy common-noun-with-agreement) masc human singular)
       ;; exception because in english man->men.
       uomini (add "uomini" "men" uomo plural {:root uomo})
       
