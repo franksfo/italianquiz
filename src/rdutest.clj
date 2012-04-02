@@ -44,7 +44,7 @@
         testcomment (str testcomment)]
     `(let [assert# (apply ~assert (list ~test-result))]
        (if (not (= ~supress-output true))
-         (println ~(str "Test: " sym-text " '" testcomment "' started.")))
+         (println ~(str *ns* "" sym-text " '" testcomment "' started.")))
        (if (not (= ~supress-output true))
          (println (str "  Result: " assert# (if (= assert# false) " (FAILED)."))))
        (load-string ~defn)
