@@ -581,7 +581,7 @@
    ;;         :number [1] ] ]
 
    (rdutest
-    "test that reentrances (vertices with more than one incoming node) work."
+    "test that number and gender agreement of nouns, as implemented using references, works."
     ;; :number is shared by the paths (:number) and (:comp :number).
     (lookup "cane")
     (fn [dog]
@@ -593,14 +593,14 @@
        ;; since lexicon.clj uses keywords for symbols.
        ;; But for now, we have to test for "det" because of
        ;; database serialization.
-       (or (= (get-in dog (list :comp :cat))
-              :det)
-           (= (get-in dog (list :comp :cat))
-              "det"))
        (or (= (get-in dog (list :cat))
               :noun)
            (= (get-in dog (list :cat))
               "noun"))
+       (or (= (get-in dog (list :comp :cat))
+              :det)
+           (= (get-in dog (list :comp :cat))
+              "det"))
 
        ;; test referential equality:
        (= (type (get-in dog '(:number))) clojure.lang.Ref)
@@ -612,6 +612,44 @@
        (or (= @(get-in dog '(:number)) :singular)
            (= @(get-in dog '(:number)) "singular"))))
 
-    :structure-sharing)))
+    :noun-agreement)
+
+   (rdutest
+    "test that number and gender agreement of verbs, as implemented using references, works."
+    ;; :number is shared by the paths (:number) and (:comp :number).
+    (lookup "avere")
+    (fn [to-have]
+      (and
+
+       ;; sanity checks: not related to reentrances.
+       (not (nil? to-have))
+       ;; Ideally these subtests would work for the keyword,
+       ;; since lexicon.clj uses keywords for symbols.
+       ;; But for now, we have to test for "det" because of
+       ;; database serialization.
+       (or (= (get-in to-have (list :cat))
+              :verb)
+           (= (get-in to-have (list :cat))
+              "verb"))
+       (or (= (get-in to-have (list :obj :cat))
+              :noun)
+           (= (get-in to-have (list :obj :cat))
+              "noun"))
+
+       ;; test referential equality:
+;       (= (type (get-in to-have '(:number))) clojure.lang.Ref)
+
+;       (= (get-in to-have '(:number))
+;          (get-in to-have '(:comp :number)))
+
+       ;; as above with respect to keyword vs string.
+;       (or (= @(get-in to-have '(:number)) :singular)
+;           (= @(get-in to-have '(:number)) "singular"))))
+))
+    :verb-agreement)
+)
+
+  )
+
 
 
