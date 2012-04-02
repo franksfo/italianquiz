@@ -615,8 +615,9 @@
     :noun-agreement)
 
    (rdutest
-    "test that number and gender agreement of verbs, as implemented using references, works."
+    "test that number and person agreement of verbs, as implemented using references, works."
     ;; :number is shared by the paths (:number) and (:comp :number).
+    ;; :person is shared by the paths (:person) and (:comp :person).
     (lookup "avere")
     (fn [to-have]
       (and
@@ -637,19 +638,22 @@
               "noun"))
 
        ;; test referential equality:
-;       (= (type (get-in to-have '(:number))) clojure.lang.Ref)
+       (= (type (get-in to-have '(:number))) clojure.lang.Ref)
 
-;       (= (get-in to-have '(:number))
-;          (get-in to-have '(:comp :number)))
+       (= (get-in to-have '(:number))
+          (get-in to-have '(:subj :number)))
 
-       ;; as above with respect to keyword vs string.
-;       (or (= @(get-in to-have '(:number)) :singular)
-;           (= @(get-in to-have '(:number)) "singular"))))
-))
-    :verb-agreement)
-)
+       ;; subject and verb must agree in person..
+       (= (get-in to-have '(:person))
+          (get-in to-have '(:subj :person)))
 
-  )
+       ;;.. and number.
+       (= (get-in to-have '(:number))
+          (get-in to-have '(:subj :number)))))
+       :verb-agreement)
+
+   ))
+
 
 
 
