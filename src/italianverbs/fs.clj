@@ -647,6 +647,48 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
             :merge-with-refs-with-nil-override-2)
 
       (rdutest
+       "merging with inner reference:keyset"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}
+             maps (list fs1 fs2)]
+         (seq (set (mapcat #'keys maps)))) ;; mapcat->set->seq removes duplicates.
+       (fn [result]
+         (= result '(:b)))
+       :merge-values-inner-references-keyset)
+
+      (rdutest
+       "merging with inner reference:collect-values: result should be: {:b (42 <Ref>)} (map with one key, :b, whose value is a list of two elements: 42 and a <Ref> (in either order)"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}
+             maps (list fs1 fs2)]
+         (collect-values maps (set (mapcat #'keys maps))))
+       (fn [result]
+         (and (not (nil? (:b result)))
+              (= (.size (:b result)) 2)
+              (or (= 42
+                     (first (:b result)))
+                  (= 42
+                     (second (:b result))))
+              (or (= clojure.lang.Ref
+                     (type (first (:b result))))
+                  (= clojure.lang.Ref
+                     (type (second (:b result)))))))
+       :merge-values-inner-references-collect-values)
+
+      (rdutest
+       "merging with inner reference:mno"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}
+             maps (list fs1 fs2)
+             collect-values (collect-values maps (set (mapcat #'keys maps)))]
+         (merge-r-like-core collect-values (set (mapcat #'keys maps))))
+       (fn [result]
+         (and (not (nil? (:b result)))
+              (= (type (:b result)) clojure.lang.Ref)
+              (= @(:b result) 42)))
+       :merge-values-inner-references-mno)
+
+      (rdutest
        "merging with inner reference"
        (let [fs1 {:b (ref :top)}
              fs2 {:b 42}]
