@@ -591,7 +591,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       ;; {:a 42}
       ;;        =>
       ;; {:a [1] 42
-      ;;  :b [2] }
+      ;;  :b [1] }
       (rdutest "merging with references"
             (let [myref (ref :top)
                   fs1 {:a myref :b myref}
@@ -605,12 +605,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                (= (:a result) (:b result))))
             :merge-with-refs)
 
-      ;; {:a [1] :top
+      ;; {:a [1] :top    {:a 42}
       ;;  :b [1]     } ,
-      ;; {:a 42}
+      ;; 
       ;;        =>
       ;; {:a [1] 42
-      ;;  :b [2] }
+      ;;  :b [1] }
       (rdutest
        "merging with references with nil-override family of functions (used by lexiconfn/add)"
             (let [myref (ref :top)
