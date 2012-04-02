@@ -340,6 +340,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn copy [map]
   (deserialize (serialize map)))
 
+;; TODO: getting this on initial C-c C-k.
+;;Unknown location:
+;;  error: java.lang.StackOverflowError (fs.clj:352)
+
+;;Unknown location:
+;;  error: java.lang.StackOverflowError
+
+;;Compilation failed.
+
 (def tests
   (list
    (rdutest
@@ -636,6 +645,31 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                (= (type (:a result)) clojure.lang.Ref)
                (= @(:a result) :foo)))
             :merge-with-refs-with-nil-override-2)
+
+      (rdutest
+       "merging with inner reference"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}]
+         (fs/merge-values-like-core (list fs1 fs2)))
+       (fn [result]
+         (and (= (type (:b result)) clojure.lang.Ref)
+              (= @(:b (:a result)) 42)))
+       :merge-values-like-core-with-reference)
+      
+      
+      ;; {:a {:b [1] :top}} ,  {:a {:b 42}}
+      ;;        =>
+      ;; {:a {:b [1] 42  }}
+;      (rdutest
+;       "merging with inner reference"
+;       (let [fs1 {:a {:b (ref :top)}}
+;             fs2 {:a {:b 42}}]
+;         (fs/m fs1 fs2))
+;       (fn [result]
+;         (and (= (type (:b (:a result))) clojure.lang.Ref)
+;              (= @(:b (:a result)) 42)))
+;       :merge-with-inner-reference)
+
       ))
 
 
