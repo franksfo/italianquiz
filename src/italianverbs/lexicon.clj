@@ -13,7 +13,16 @@
   (fs/merge-like-core args))
 
 (let [word {:morph "unspecified-morphology"} ;; 'word' not used currently.
-      verb {:cat :verb :infl :infinitive :subj {:case {:not :acc}} :passato-aux "avere"}
+      verb
+      (let [number-agreement (ref :top)
+            person-agreement (ref :top)]
+        {:cat :verb :infl :infinitive
+         :number number-agreement
+         :person person-agreement
+         :subj {:number number-agreement
+                :person person-agreement
+                :case {:not :acc}}
+         :passato-aux "avere"})
       animate {:animate true}
       det {:cat :det}
       human (fs/m animate {:human true})
@@ -66,12 +75,15 @@
                         transitive
                         {:subj {:cat :noun :human true}
                          :obj {:cat :noun}})]
-        (add "ho" "have"
-             avere
-             {:root avere}
-             {:infl :present}
-             {:subj {:number :singular
-                     :person :1st}})
+        (let [number-agreement (ref :top)
+              person-agreement (ref :top)]
+          (add "ho" "have"
+               (fs/copy avere)
+               {:root avere}
+               {:subj (get avere :subj)}
+               {:infl :present}
+               {:subj {:number :singular
+                       :person :1st}}))
         (add "hai" "have"
              avere
              {:root avere}
@@ -547,7 +559,7 @@
 ;; begin tests.
 
 (def localtests ;; so as not to collide with lexiconfn/tests.
-  {:parlare
+  (list
    (rdutest
     "A lexical entry for the word: 'parlare'."
     (lookup "parlare")
@@ -562,7 +574,6 @@
       (= {} (:comp calcio)))
     :calcio)
 
-   :structure-sharing
    ;;
    ;; [:cat :noun
    ;;  :number [1] :singular
@@ -570,14 +581,37 @@
    ;;         :number [1] ] ]
 
    (rdutest
-    "test that reentrances (graphs with vertices with more than one incoming node) work."
+    "test that reentrances (vertices with more than one incoming node) work."
     ;; :number is shared by the paths (:number) and (:comp :number).
     (lookup "cane")
     (fn [dog]
       (and
+
+       ;; sanity checks: not related to reentrances.
        (not (nil? dog))
-       (= (type (get-in dog '(:number))) clojure.lang.Ref))
+       ;; Ideally these subtests would work for the keyword,
+       ;; since lexicon.clj uses keywords for symbols.
+       ;; But for now, we have to test for "det" because of
+       ;; database serialization.
+       (or (= (get-in dog (list :comp :cat))
+              :det)
+           (= (get-in dog (list :comp :cat))
+              "det"))
+       (or (= (get-in dog (list :cat))
+              :noun)
+           (= (get-in dog (list :cat))
+              "noun"))
+
        ;; test referential equality:
+       (= (type (get-in dog '(:number))) clojure.lang.Ref)
+
        (= (get-in dog '(:number))
-          (get-in dog '(:comp :number))))
-    :structure-sharing)})
+          (get-in dog '(:comp :number)))
+
+       ;; as above with respect to keyword vs string.
+       (or (= @(get-in dog '(:number)) :singular)
+           (= @(get-in dog '(:number)) "singular"))))
+
+    :structure-sharing)))
+
+
