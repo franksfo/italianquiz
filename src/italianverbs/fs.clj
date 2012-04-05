@@ -58,6 +58,9 @@
 (defn- merge-atomically-like-core [values]
   (last values))
 
+;; forward declaration:
+(declare merge-r-like-core)
+
 (defn merge-values-like-core [values]
   (let [value (first values)]
     (if (= (type value) clojure.lang.Ref)
@@ -70,9 +73,10 @@
       (if value
         (if (or (= (type value) clojure.lang.PersistentArrayMap)
                 (= (type value) clojure.lang.PersistentHashMap))
-          (merge
-           value
-           (merge-values-like-core (rest values)))
+          (let [maps values
+                keys (set (mapcat #'keys maps))
+                collect-values (collect-values maps keys)]
+            (merge-r-like-core collect-values keys))
           (merge-atomically-like-core values))
         {}))))
 
@@ -91,9 +95,10 @@
           (let [rest-of (merge-values-like-core-nil-override (rest values))]
             (if (= nil rest-of)
               nil
-              (merge
-               value
-               rest-of)))
+              (let [maps values
+                    keys (set (mapcat #'keys maps))
+                    collect-values (collect-values maps keys)]
+                (merge-r-like-core collect-values keys))))
           (merge-atomically-like-core values))
         (if (and (= (.size values) 1)
                  (= value nil))
@@ -676,7 +681,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        :merge-values-inner-references-collect-values)
 
       (rdutest
-       "merging with inner reference:mno"
+       "merging with inner reference:merge-r-like-core"
        (let [fs1 {:b (ref :top)}
              fs2 {:b 42}
              maps (list fs1 fs2)
@@ -686,32 +691,42 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (and (not (nil? (:b result)))
               (= (type (:b result)) clojure.lang.Ref)
               (= @(:b result) 42)))
-       :merge-values-inner-references-mno)
+       :merge-values-inner-references-merge-r-like-core)
 
+      ;; [b [1] top], [b 42] => [b [1] 42]
       (rdutest
-       "merging with inner reference"
+       "merging with reference"
        (let [fs1 {:b (ref :top)}
              fs2 {:b 42}]
          (fs/merge-values-like-core (list fs1 fs2)))
        (fn [result]
          (and (= (type (:b result)) clojure.lang.Ref)
-              (= @(:b (:a result)) 42)))
+              (= @(:b result)) 42))
        :merge-values-like-core-with-reference)
-      
-      
-      ;; {:a {:b [1] :top}} ,  {:a {:b 42}}
-      ;;        =>
-      ;; {:a {:b [1] 42  }}
-;      (rdutest
-;       "merging with inner reference"
-;       (let [fs1 {:a {:b (ref :top)}}
-;             fs2 {:a {:b 42}}]
-;         (fs/m fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:b (:a result))) clojure.lang.Ref)
-;              (= @(:b (:a result)) 42)))
-;       :merge-with-inner-reference)
 
+      ;; [b [1] top], [b 42] => [b [1] 42]
+      (rdutest
+       "merging with merge-nil-override with reference"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}]
+         (fs/merge-nil-override fs1 fs2))
+       (fn [result]
+         (and (= (type (:b result)) clojure.lang.Ref)
+              (= @(:b result)) 42))
+       :merge-nil-override-with-reference)
+
+      ;; [a [b [1] top]], [a [b 42]] => [a [b [1] 42]]
+      (rdutest
+       "merging with merge-nil-override with inner reference"
+       (let [fs1 {:a {:b (ref :top)}}
+             fs2 {:a {:b 42}}]
+         (fs/merge-nil-override fs1 fs2))
+       (fn [result]
+         (and (= (type (:b (:a result))) clojure.lang.Ref)
+              (= @(:b (:a result))) 42))
+       :merge-nil-override-with-inner-reference)
+
+      
       ))
 
 

@@ -80,7 +80,6 @@
           (add "ho" "have"
                (fs/copy avere)
                {:root avere}
-               {:subj (get avere :subj)}
                {:infl :present}
                {:subj {:number :singular
                        :person :1st}}))
