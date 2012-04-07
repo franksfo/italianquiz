@@ -43,7 +43,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   (do
 ;                    (println (str "not PAM" (type val)))
                     (list {(concat prefix (list key))
-                           val}))))))
+                           (if (= (type val) clojure.lang.Ref) @val ;; simply resolve references rather than trying to search for graph isomorphism.
+                               val)}))))))
           fs))
 
 (defn pathify [fs]
@@ -111,7 +112,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; 2. (def results (mapcat (fn [fs] (if (myfn fs) (list fs))) (fetch :lexicon)))
 ;;
 (defn search [& constraints]
-  (seq (apply query constraints)))
+  (seq (map fs/deserialize (apply query constraints))))
 
 (def grammatical-terminology-term
   {:transitive {:cat :verb
@@ -216,7 +217,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (search {:root {:italian "fare"}})
     #(and (not (= % nil)) (> (.size %) 0))
     :lookup-roots)
-   
+
    (rdutest
     "Look up a word by its root: find a verb whose root is 'fare (to make)' (e.g. 'facio (i make)')."
     (search {:root (first (search {:italian "fare" :cat :verb :infl :infinitive}))})
