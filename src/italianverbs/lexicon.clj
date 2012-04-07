@@ -187,8 +187,8 @@
       fare (let [fare (add "fare" "to make"
                            verb
                            {:subj (fs/m noun {:human true})
-                            :obj artifact}
-                           {:obj {:comp {:number {:ref '("obj" "number")}}}})]
+                            :obj artifact})]
+
              
              (add "facio" "make"
                   fare
