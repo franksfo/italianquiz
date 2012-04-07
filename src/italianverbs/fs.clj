@@ -1,6 +1,5 @@
 (ns italianverbs.fs
-  (:use [hiccup core page-helpers]
-        [clojure.set]
+  (:use [clojure.set]
         [rdutest])
   (:require
    [italianverbs.fs :as fs]
@@ -58,8 +57,9 @@
 (defn- merge-atomically-like-core [values]
   (last values))
 
-;; forward declaration:
+;; forward declarations:
 (declare merge-r-like-core)
+(declare merge-r-like-core-nil-override)
 
 (defn merge-values-like-core [values]
   (let [value (first values)]
@@ -92,13 +92,17 @@
       (if value
         (if (or (= (type value) clojure.lang.PersistentArrayMap)
                 (= (type value) clojure.lang.PersistentHashMap))
-          (let [rest-of (merge-values-like-core-nil-override (rest values))]
-            (if (= nil rest-of)
+          (let [rest-of (if (> (.size (rest values)) 0)
+                          (merge-values-like-core-nil-override (rest values))
+                          :empty-list)]
+            (if
+                (or (= nil rest-of)
+                    (= {} rest-of)) ;; this canonicalizes {} to nil (so {} and nil are treated the same, but nil is the canonical representation).
               nil
               (let [maps values
                     keys (set (mapcat #'keys maps))
                     collect-values (collect-values maps keys)]
-                (merge-r-like-core collect-values keys))))
+                (merge-r-like-core-nil-override collect-values keys))))
           (merge-atomically-like-core values))
         (if (and (= (.size values) 1)
                  (= value nil))
@@ -426,6 +430,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (fn [map]
       (= (:a map) nil))
     :nil-should-override)
+
+   (rdutest
+    "{:a {:foo 42}}{:a {}} => {:a nil}"
+    (apply fs/merge-nil-override (list {:a {:foo 42}} {:a {}}))
+    (fn [map]
+      (= (:a map) nil))
+    :emptymap-is-as-good-as-nil-for-override)
+
    
    (rdutest
     "(apply the :fn function of a map on the result of running fs/m)"
