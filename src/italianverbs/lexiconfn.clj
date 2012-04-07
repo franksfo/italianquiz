@@ -1,8 +1,7 @@
 (ns italianverbs.lexiconfn
   (:use [hiccup core page-helpers]
         [clojure.set]
-        [rdutest]        
-        )
+        [rdutest])
   (:require
    [clojure.core :as core]
    [somnium.congomongo :as mongo]
@@ -45,7 +44,7 @@
 (defn add [italian english & featuremaps]
   (add-lexeme
    (apply fs/merge-nil-override
-          (concat featuremaps
+          (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
                   (list {:english english}
                         {:italian italian})))))
 
@@ -349,9 +348,9 @@
 (def verbs
   {:cat :verb})
 
-;; do e.g. (:test-result (:parla tests)) to see results of the :parla test.
+;; do e.g. (:test-result (first tests)) to see results of the first test.
 (def tests
-  {:test-parla
+  (list
    (rdutest
     "A lexical entry for the word: 'parlare'."
     (let [verb {:cat :verb}
@@ -379,15 +378,35 @@
         (and
          (= (:cat parla) :verb)
          (= (fs/get-path parla (list :subj :human)) true)
-;         (= (fs/get-path parla (list :root :subj :human)) true)
-;         (= (fs/get-path parla (list :subj :number)) :singular)
-;         (= (fs/get-path parla (list :subj :person)) :3rd)
-;         (= (fs/get-path parla (list :obj :speakable)) true)
-;         (= (:english parla) "speaks")
-;         (= (:italian parla) "parla")
+                                        ;         (= (fs/get-path parla (list :root :subj :human)) true)
+                                        ;         (= (fs/get-path parla (list :subj :number)) :singular)
+                                        ;         (= (fs/get-path parla (list :subj :person)) :3rd)
+                                        ;         (= (fs/get-path parla (list :obj :speakable)) true)
+                                        ;         (= (:english parla) "speaks")
+                                        ;         (= (:italian parla) "parla")
          )))
-      
-    :test-parla)})
+    :parla)
+   (rdutest
+    "calcio (no complement for this noun)"
+    (let [third-sing {:number :singular
+                      :person :3rd
+                      :cat :noun}
+          common-noun {:comp {:cat :det
+                              :number (:number third-sing);; TODO: use reference.
+                              }
+                       }
+          masc {:gender :masc}
+          mass {:mass true :comp {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
+          nil-complement {:comp nil :sport true}
+          featuremaps (list common-noun masc mass nil-complement)]
+      {
+       :copied-list (concat (map #'fs/copy featuremaps))
+       :with-apply (apply fs/merge-nil-override
+                     (concat (map #'fs/copy featuremaps)))
+       })
+    (fn [result]
+      (nil? (:comp result)))
+    :lexiconfn-calcio)))
 
 ;(def parla
 ;  (:test-result ((:3s tests) tests)))
