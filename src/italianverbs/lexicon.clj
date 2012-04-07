@@ -1,8 +1,8 @@
 (ns italianverbs.lexicon
   (:use [italianverbs.lexiconfn]
         [rdutest])
-  (:require [italianverbs.fs :as fs]
-            [italianverbs.search :as search]))
+  (:require
+   [italianverbs.fs :as fs]))
 
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear)
@@ -38,7 +38,7 @@
       ;; 'morph-noun' and 'take-article' are defined in generate.clj.
       common-noun (fs/m third-sing
                         {:comp {:cat :det
-                                :number (:number third-sing)
+                                :number (:number third-sing) ;; TODO: use reference here.
                                 }
                          :morph "morph-noun"
                          :common true})
@@ -78,7 +78,7 @@
         (let [number-agreement (ref :top)
               person-agreement (ref :top)]
           (add "ho" "have"
-               (fs/copy avere)
+               avere
                {:root avere}
                {:infl :present}
                {:subj {:number :singular
