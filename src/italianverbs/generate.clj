@@ -485,9 +485,10 @@
   "check that every inf. verb has at least one satisfying object."
   (let [verbs (search/search {:obj {:not nil} :cat :verb :infl :infinitive})
         objs (map (fn [verb]
-                    (let [obj-feat (fs/get-path verb '(:obj))
+                    (let [obj-feat (get-in verb '(:obj))
                           objs (search/search obj-feat)]
-                      {:italian (:italian verb) :objs (if objs (.size objs) 0)}))
+                      {:italian (:italian verb)
+                       :objs (if objs (.size objs) 0)}))
                   verbs)]
     objs))
     
