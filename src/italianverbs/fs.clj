@@ -208,6 +208,8 @@
 
 ;; similar to clojure core's get-in, but supports :ref as a special feature.
 ;; TODO: :ref is obsolete: remove metions of it.
+;; TODO: don't use this method, it doesn't make sense because it appends a :root
+;; to all return values for unknown reasons. Instead, just use clojure's (get-in).
 (defn get-path [fs path & [root]]
   (let [root (if root root (if (:root fs) (:root fs) fs))
         feat (first path)
