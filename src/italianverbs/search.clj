@@ -40,11 +40,16 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   (do
 ;                    (println (str "PAM"))
                     (pathify-r val (concat prefix (list key))))
+                  (if (and (= (type val) clojure.lang.Ref)
+                           (let [val @val]
+                             (or (= (type val) clojure.lang.PersistentArrayMap)
+                                 (= (type val) clojure.lang.PersistentHashMap))))
+                    (pathify-r @val (concat prefix (list key)))
                   (do
 ;                    (println (str "not PAM" (type val)))
                     (list {(concat prefix (list key))
                            (if (= (type val) clojure.lang.Ref) @val ;; simply resolve references rather than trying to search for graph isomorphism.
-                               val)}))))))
+                               val)})))))))
           fs))
 
 (defn pathify [fs]
@@ -281,6 +286,40 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (pathify {:root {:gender :masc :human true :det {:cat :det} :animate true :morph "morph-noun" :common true :cat :noun :italian "uomo" :person :3rd}})
     (fn [paths] (= (count paths) 9)) ;; TODO: write better test.
     :pathify-long-map-2)
+
+   (rdutest
+    "Pathify, no reference."
+    (pathify {:a 42})
+    (fn [paths]
+      (= (get (first paths) (list :a)) 42))
+    :pathify-no-reference)
+
+   (rdutest
+    "Pathify with reference."
+    (pathify {:a (ref 42)})
+    (fn [paths]
+      (= (get (first paths) (list :a)) 42))
+    :pathify-with-reference)
+
+   ;; {:a {:b 42}} => {(:a :b) 42}
+   (rdutest
+    "Pathify with inner map, no reference."
+    (pathify {:a {:b 42}})
+    (fn [paths]
+      (and (= (first (keys (first paths))) (list :a :b))
+           (= (first (vals (first paths))) 42)))
+    :pathify-with-inner-map)
+
+   ;; {:a (ref {:b 42})} => {(:a :b) 42}
+   (rdutest
+    "Pathify with inner map with reference."
+    (pathify {:a (ref {:b 42})})
+    (fn [paths]
+      (and (= (first (keys (first paths))) (list :a :b))
+           (= (first (vals (first paths))) 42)))
+    :pathify-with-inner-map-with-reference)
+
+
    ))
 
 ;; FIXME: move to test.clj.
