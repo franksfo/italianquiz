@@ -412,9 +412,7 @@
   (let [root-verb (apply random-lexeme (list (fs/m {:cat :verb}
                                                    svo-maps)))]
     (let [subject (conjugate-np (fs/m (random-lexeme
-                                      (:subj root-verb)
-                                      {:number :plural}
-                                      )))
+                                       (:subj root-verb))))
 
 ; conjugate-np
 ;                   (random-lexeme {:cat :noun} (:subj root-verb)
@@ -715,6 +713,18 @@
         (= (:furniture (:head (:object (:verb-phrase sentence)))) true))
       :mobili)
 
+     (rdutest
+      "random-present-related test part 1: get a random infinitive verb."
+      (apply random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))
+      (fn [verb]
+        (and (or (= (:cat verb) :verb)
+                 (= (:cat verb) "verb"))
+             (or (= (:infl verb) :infinitive)
+                 (= (:infl verb) "infinitive"))))
+        
+      :get-root-verb)
+      
+     
 ;     (rdutest
 ;      "random present svo sentence"
 ;      (random-present)
