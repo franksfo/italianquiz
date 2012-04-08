@@ -63,7 +63,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (pv-not-matches lexical-entry (butlast path) value)
     (let [path-value (fs/get-path lexical-entry path)]
       (if (or (= path-value value)
-              (= (keyword path-value) value))
+              (= (keyword path-value) value)
+              (and (not (nil? (fs/get-path lexical-entry path)))
+                   (or (= value :top) ; searching for :top means: find any entry that has any value at all for the path (but it must have _some_ value).
+                       (= value "top"))))  ; TODO: should not need to check for "top" (string): should only have to check for :top.
         (list lexical-entry)))))
 
 ;; http://stackoverflow.com/questions/2352020/debugging-in-clojure/2352280#2352280
