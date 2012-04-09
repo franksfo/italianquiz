@@ -62,14 +62,17 @@
 (declare merge-r-like-core-nil-override)
 
 (defn merge-values-like-core [values]
-  (let [value (first values)]
-    (if (= (type value) clojure.lang.Ref)
+  (let [value (first values)
+        refs (keep (fn [val] (if (= (type val) clojure.lang.Ref) val)) values)
+        nonrefs (keep (fn [val] (if (= (type val) clojure.lang.Ref) nil val)) values)]
+    (if (> (.size refs) 0)
       ;; return the reference after setting it to the value of its merged values with
       ;; the rest of the items to be merged.
+      ;; TODO: all the refs are ignored except first: should point the others (rest refs) to the first.
       (let [do-sync (dosync
-                     (alter value
-                            (fn [x] (merge-values-like-core (cons @value (rest values))))))]
-        (first values))
+                     (alter (first refs)
+                            (fn [x] (merge-values-like-core (cons @(first refs) nonrefs)))))]
+        (first refs))
       (if value
         (if (or (= (type value) clojure.lang.PersistentArrayMap)
                 (= (type value) clojure.lang.PersistentHashMap))
@@ -189,10 +192,12 @@
 
 ;; EXACTLY THE SAME AS (mergec):
 ;; (until i learn to write wrappers).
+;; TODO: eliminate in favor of merge-values-like-core.
 (defn m [& maps]
   "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
   (if (= (type (first maps)) java.lang.Integer)
     ;; if first is an integer, assume the others are too.
+    ;; TODO: use (keep) as above with merge-values-like-core.
     (merge-atomically maps)
     (if (= (type (first maps)) clojure.lang.Ref)
       ;; return the reference after setting it to the value of its merged values with
