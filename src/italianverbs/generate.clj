@@ -721,9 +721,16 @@
                  (= (:cat verb) "verb"))
              (or (= (:infl verb) :infinitive)
                  (= (:infl verb) "infinitive"))))
-        
       :get-root-verb)
-      
+
+     (rdutest
+      "random-present-related test part 1: get a random infinitive verb."
+      (let [infinitive (apply random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))]
+        (random-lexeme (:subj infinitive)))
+      (fn [subject]
+        (and (not (= (get subject :case) "acc"))
+             (not (= (get subject :case) :acc))))
+      :get-subject)
      
 ;     (rdutest
 ;      "random present svo sentence"
