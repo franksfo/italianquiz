@@ -85,33 +85,25 @@ ajax_quiz()
 
 
 Dependencies:
-
- generate
-  \
-   \---search
-        \
-         \---grammar
-          \
-           \---lexiconfn
-           |
-           |\--- (database API) (e.g. congomongo)
-           |
-            \--- morphology
-
-.........................
-.  .   .  .  .          .
-.  .   .  .  . generate .
-.  .   .  .  ............
-.  .   .  .  search     .
-.  .   .  ...............
-.  .   . grammar        .
-.  .   ..................
-.  .                    .
-.  .  lexiconfn         .
-.  ......................
-.                       .
-. morphology            .
-.........................
+...................................
+.  .   .  .  .   .                .
+.  .   .  .  .   . quiz           .
+.  .   .  .  .   ..................
+.  .   .  .  .          .         .
+.  .   .  .  . generate . html    . 
+.  .   .  .  ......................
+.  .   .  .             .         .
+.  .   .  .  search     .         .
+.  .   .  ...............         .
+.  .   .                .         .
+.  .   . grammar        . lexicon .
+.  .   ............................ 
+.  .                              .
+.  .  lexiconfn                   .
+.  ................................
+.                                 .
+. morphology                      .
+...................................
 
 Note that morphology does not have direct access to the lexicon for now: it should
 only be concerned with regular morphology rules, which excludes lexical information
