@@ -28,7 +28,7 @@
    sign))
 
 
-(defn- collect-values [maps keys]
+(defn collect-values [maps keys]
   (let [key (first keys)]
     (if key
       (merge
