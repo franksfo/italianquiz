@@ -5,7 +5,7 @@
                  [slice "0.4.0-SNAPSHOT"]
                  [org.apache.lucene/lucene-core "3.0.2"]
                  [compojure "0.6.0-RC3"]
-                 [congomongo "0.1.7-SNAPSHOT"]
+                 [congomongo "0.1.9-SNAPSHOT"]
                  [net.defn.ring/ring-jetty-adapter "0.2.0"]
                  [ring/ring-core "0.3.0"]                   
                  [ring/ring-jetty-adapter "0.2.0"]    
