@@ -343,11 +343,19 @@
                            (let [search (search/search noun)] ;; search lexicon for plural exception.
                              (if (and search (> (.size search) 0))
                                (nth search 0))))
+        ;; TODO: make these long plural- and masc- checking conditionals much shorter.
         italian (if (or (= (:number noun) :plural)
-                        (= (:number noun) "plural"))
+                        (= (:number noun) "plural")
+                        (and (= (type (:number noun)) clojure.lang.Ref)
+                             (or (= @(:number noun) :plural)
+                                 (= @(:number noun) "plural"))))
                   (if (and plural-exception (:italian plural-exception))
                     (:italian plural-exception)
-                    (if (or (= (:gender noun) "masc") (= (:gender noun) :masc))
+                    (if (or (= (:gender noun) "masc")
+                            (= (:gender noun) :masc)
+                            (and (= (type (:gender noun)) clojure.lang.Ref)
+                                 (or (= @(:gender noun) :masc)
+                                     (= @(:gender noun) "masc"))))
                       (morph/plural-masc (:italian noun))
                       (morph/plural-fem (:italian noun))))
                   (:italian noun))
@@ -362,9 +370,7 @@
         article-search (if (not (= (:comp noun) nil))
                          (search/search
                           (fs/m determiner
-                                (:comp noun)
-                                {:cat :det
-                                 :gender (:gender noun) :number (:number noun)})))
+                                (:comp noun))))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
@@ -547,10 +553,13 @@
    (rdutest
     "The 1st person singular present form of 'fare' should be findable."
     (search/search {:root {:infl :infinitive
-                           :italian "fare"}})
+                           :italian "fare"}
+                    :person :1st
+                    :number :singular})
     (fn [results]
       (and (not (= nil results))
-           (not (= nil (first results)))))
+           (not (= nil (first results)))
+           (= (:italian (first results)) "facio")))
     :first-sing-root-of-fare)
    
    (rdutest
@@ -603,180 +612,172 @@
       (= 0 (.size (remove #(not (= nil %)) sentences))))
     :subjects-exist)
    
-     :subjects-have-nonfail-number
-     (rdutest
-      "Make sure subject's :number value is valid (non-:fail)."
-      (map (fn [sentence] (:subject sentence))
-           (n-sentences 10))
+   (rdutest
+    "Make sure subject's :number value is valid (non-:fail)."
+    (map (fn [sentence] (:subject sentence))
+         (n-sentences 10))
       (fn [subjects]
         (= (.size subjects)
            (.size (remove (fn [subject] (= (:number subject) :fail)) subjects))))
       :subjects-have-nonfail-number)
 
-     (rdutest
-      "Make sure subject's :case value is ok (non-:acc and non-:fail). nil is ok: common nouns (in italian
+   (rdutest
+    "Make sure subject's :case value is ok (non-:acc and non-:fail). nil is ok: common nouns (in italian
        and english) don't have case."
-      (map (fn [sentence] (:case (:subject sentence)))
-           (n-sentences 10))
-      (fn [cases]
-        (= (.size cases)
-           (.size (remove (fn [case] (or (= case :fail) (= case "acc"))) cases))))
-      :subjects-case)
+    (map (fn [sentence] (:case (:subject sentence)))
+         (n-sentences 10))
+    (fn [cases]
+      (= (.size cases)
+         (.size (remove (fn [case] (or (= case :fail) (= case "acc"))) cases))))
+    :subjects-case)
 
-     :il-libro
-     (rdutest
-      "Conjugate 'libro' + '{definite}' => 'il libro'."
-      (conjugate-np (lookup "libro") {:def :def})
-      (fn [conjugated]
-        (= (:italian conjugated) "il libro"))
-      :il-libro)
+   (rdutest
+    "Conjugate 'libro' + '{definite}' => 'il libro'."
+    (conjugate-np (lookup "libro") {:def :def})
+    (fn [conjugated]
+      (= (:italian conjugated) "il libro"))
+    :il-libro)
 
-     (rdutest
-      "Conjugate 'libro' + '{definite,plural}' => 'i libri'."
-      (conjugate-np (fs/m (lookup "libro") {:number :plural}) {:def :def})
-      (fn [conjugated]
-        (= (:italian conjugated) "i libri"))
-      :il-libro)
+   (rdutest
+    "Conjugate 'libro' + '{definite,plural}' => 'i libri'."
+    (conjugate-np (fs/m (lookup "libro") {:number :plural}) {:def :def})
+    (fn [conjugated]
+      (= (:italian conjugated) "i libri"))
+    :il-libro)
 
-     (rdutest
-      "Conjugate 'sedia' + '{definite,plural}' => 'le sedie'."
-      (conjugate-np (fs/m (lookup "sedia") {:number :plural}) {:def :def})
-      (fn [conjugated]
-        (= (:italian conjugated) "le sedie"))
-      :le-sedie)
+   (rdutest
+    "Conjugate 'sedia' + '{definite,plural}' => 'le sedie'."
+    (conjugate-np (fs/m (lookup "sedia") {:number :plural}) {:def :def})
+    (fn [conjugated]
+      (= (:italian conjugated) "le sedie"))
+    :le-sedie)
 
-     
-;     :leggo-il-libro
-     (rdutest
-      "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro'."
-      (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
-            object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})]
-        (if root-verb
-          (conjugate-vp (fs/m root-verb {:infl :present})
-                        (nth (search/search {:italian "io" :case :nom}) 0)
-                        object)
-          {:fail "verb 'leggere' not found."}))
-      (fn [vp]
-        (= (:italian vp) "leggo il libro"))
-      :leggo-il-libro)
-
-
-;     :io-leggo-il-libro
-     (rdutest
-      "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro' / 'io' => 'io leggo il libro'."
-      (let [vp
-            (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
-                  object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})]
-              (if root-verb
-                (conjugate-vp (fs/m root-verb {:infl :present})
-                              (nth (search/search {:italian "io" :case :nom}) 0)
-                              object)
-                {:fail "verb 'leggere' not found."}))]
-        (conjugate-sent vp (:subject vp)))
-      (fn [sentence]
-        (= (:italian sentence) "io leggo il libro"))
-      :io-leggo-il-libro)
-
-     
-     (rdutest
-      "Make sure every transitive verb has at least one noun that satisfies its :obj spec."
-      (check-objs)
-      (fn [pairs]
-        (not (some (fn [pair] (= (:objs pair) 0)) pairs)))
-      :every-trans-verb-has-a-possible-object)
-
-     (rdutest
-      "essere vp"
-      (let [root-verb (lookup "essere")]
+   (rdutest
+    "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro'."
+    (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
+          object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})]
+      (if root-verb
         (conjugate-vp (fs/m root-verb {:infl :present})
-                      (lookup "io")
-                      (conjugate-np (lookup "libro") {:def :indef})))
-      (fn [vp]
-        (= (:italian vp) "sono un libro"))
-      :sono-un-tavolo)
+                      (nth (search/search {:italian "io" :case :nom}) 0)
+                      object)
+        {:fail "verb 'leggere' not found."}))
+    (fn [vp]
+      (= (:italian vp) "leggo il libro"))
+    :leggo-il-libro)
 
-     (rdutest
-      "essere sentence"
-      (let [root-verb (lookup "essere")
-            vp (conjugate-vp (fs/m root-verb {:infl :present})
-                             (lookup "voi")
-                             (conjugate-np (lookup "libro") {:def :indef}))]
-        (conjugate-sent vp (lookup "voi")))
-      (fn [sentence]
-        (= (:italian sentence) "voi siete un libro"))
-      :io-sono-un-tavolo)
+   (rdutest
+    "Conjugate 'leggere/[1st sing]-il-libro' => 'leggo il libro' / 'io' => 'io leggo il libro'."
+    (let [vp
+          (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
+                object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})]
+            (if root-verb
+              (conjugate-vp (fs/m root-verb {:infl :present})
+                            (nth (search/search {:italian "io" :case :nom}) 0)
+                            object)
+              {:fail "verb 'leggere' not found."}))]
+      (conjugate-sent vp (:subject vp)))
+    (fn [sentence]
+      (= (:italian sentence) "io leggo il libro"))
+    :io-leggo-il-libro)
 
-     (rdutest
-      "furniture sentence"
-      (mobili)
-      (fn [sentence]
-        (= (:furniture (:head (:object (:verb-phrase sentence)))) true))
-      :mobili)
+   (rdutest
+    "Make sure every transitive verb has at least one noun that satisfies its :obj spec."
+    (check-objs)
+    (fn [pairs]
+      (not (some (fn [pair] (= (:objs pair) 0)) pairs)))
+    :every-trans-verb-has-a-possible-object)
 
-     (rdutest
-      "random-present-related test part 1: get a random infinitive verb."
-      (apply random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))
-      (fn [verb]
-        (and (or (= (:cat verb) :verb)
-                 (= (:cat verb) "verb"))
-             (or (= (:infl verb) :infinitive)
-                 (= (:infl verb) "infinitive"))))
-      :get-root-verb)
+   (rdutest
+    "essere vp"
+    (let [root-verb (lookup "essere")]
+      (conjugate-vp (fs/m root-verb {:infl :present})
+                    (lookup "io")
+                    (conjugate-np (lookup "libro") {:def :indef})))
+    (fn [vp]
+      (= (:italian vp) "sono un libro"))
+    :sono-un-tavolo)
 
-     (rdutest
-      "random-present-related test part 1: get a random infinitive verb."
-      (let [infinitive (apply random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))]
-        (random-lexeme (:subj infinitive)))
-      (fn [subject]
-        (and (not (= (get subject :case) "acc"))
-             (not (= (get subject :case) :acc))))
-      :get-subject)
-     
-;     (rdutest
-;      "random present svo sentence"
-;      (random-present)
-;      (fn [sentence]
-;        (and (not (= (:case (:noun (:object (:verb-phrase sentence)))) :nom))
-;             (not (= (:case (:noun (:subject (:verb-phrase sentence)))) :acc))))
-;      :random-svo)
+   (rdutest
+    "essere sentence"
+    (let [root-verb (lookup "essere")
+          vp (conjugate-vp (fs/m root-verb {:infl :present})
+                           (lookup "voi")
+                           (conjugate-np (lookup "libro") {:def :indef}))]
+      (conjugate-sent vp (lookup "voi")))
+    (fn [sentence]
+      (= (:italian sentence) "voi siete un libro"))
+    :io-sono-un-tavolo)
 
-     (rdutest
-      "sports-vp: select a verb whose object is {:sport true}"
-      (random-verb-for-svo {:obj {:sport true}})
-      (fn [verb]
-        (= (:sport (:obj verb)) true))
-      :sports-vp)
+   (rdutest
+    "furniture sentence"
+    (mobili)
+    (fn [sentence]
+      (= (:furniture (:head (:object (:verb-phrase sentence)))) true))
+    :mobili)
 
-     ;; random-lexeme seems to be hitting a limit of some kind..
-     (rdutest
-      "random-lexeme with a lot of stuff."
-      (random-lexeme {:root {:gender :masc
-                             :comp {:cat :det}
-                             :animate true
-                             :common true
-                             :number :singular
-                             :italian "uomo"
-                             :person :3rd
-                             :english "man"}})
-      (fn [retval]
-        (not (= retval nil)))
-      :random-lexeme1)
+   (rdutest
+    "random-present-related test part 1: get a random infinitive verb."
+    (apply random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))
+    (fn [verb]
+      (and (or (= (:cat verb) :verb)
+               (= (:cat verb) "verb"))
+           (or (= (:infl verb) :infinitive)
+               (= (:infl verb) "infinitive"))))
+    :get-root-verb)
 
-     (rdutest
-      "random-lexeme with even more stuff."
-      (random-lexeme {:root {:gender :masc
-                             :comp {:cat :det}
-                             :animate true
-                             :common true
-                             :number :singular
-                             :italian "uomo"
-                             :person :3rd
-                             :english "man"
-                             :cat :noun}})
-      (fn [retval]
-        (not (= retval nil)))
-      :random-lexeme2)
+   (rdutest
+    "random-present-related test part 1: get a random infinitive verb."
+    (let [infinitive (apply random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))]
+      (random-lexeme (:subj infinitive)))
+    (fn [subject]
+      (and (not (= (get subject :case) "acc"))
+           (not (= (get subject :case) :acc))))
+    :get-subject)
 
+                                        ;     (rdutest
+                                        ;      "random present svo sentence"
+                                        ;      (random-present)
+                                        ;      (fn [sentence]
+                                        ;        (and (not (= (:case (:noun (:object (:verb-phrase sentence)))) :nom))
+                                        ;             (not (= (:case (:noun (:subject (:verb-phrase sentence)))) :acc))))
+                                        ;      :random-svo)
+
+   (rdutest
+    "sports-vp: select a verb whose object is {:sport true}"
+    (random-verb-for-svo {:obj {:sport true}})
+    (fn [verb]
+      (= (:sport (:obj verb)) true))
+    :sports-vp)
+
+   ;; random-lexeme seems to be hitting a limit of some kind..
+   (rdutest
+    "random-lexeme with a lot of stuff."
+    (random-lexeme {:root {:gender :masc
+                           :comp {:cat :det}
+                           :animate true
+                           :common true
+                           :number :singular
+                           :italian "uomo"
+                           :person :3rd
+                           :english "man"}})
+    (fn [retval]
+      (not (= retval nil)))
+    :random-lexeme1)
+
+   (rdutest
+    "random-lexeme with even more stuff."
+    (random-lexeme {:root {:gender :masc
+                           :comp {:cat :det}
+                           :animate true
+                           :common true
+                           :number :singular
+                           :italian "uomo"
+                           :person :3rd
+                           :english "man"
+                           :cat :noun}})
+    (fn [retval]
+      (not (= retval nil)))
+    :random-lexeme2)
      
      ;; TODO more random-morph tests.
 ;     (rdutest
