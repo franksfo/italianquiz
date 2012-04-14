@@ -27,7 +27,6 @@
    true
    sign))
 
-
 (defn collect-values [maps keys]
   (let [key (first keys)]
     (if key
@@ -55,7 +54,12 @@
 ;; simple values like floats or integers, as opposed to sets, maps, or lists.
 ;; use 'simple' here and elsewhere in this file.
 (defn- merge-atomically-like-core [values]
-  (last values))
+  (if (> (.size values) 1)
+    (let [do-rest (merge-atomically-like-core (rest values))]
+      (if (= do-rest :top)
+        (first values)
+        do-rest))
+    (first values)))
 
 ;; forward declarations:
 (declare merge-r-like-core)
@@ -84,14 +88,17 @@
         {}))))
 
 (defn merge-values-like-core-nil-override [values]
-  (let [value (first values)]
-    (if (= (type value) clojure.lang.Ref)
+  (let [value (first values)
+        refs (keep (fn [val] (if (= (type val) clojure.lang.Ref) val)) values)
+        nonrefs (keep (fn [val] (if (= (type val) clojure.lang.Ref) nil val)) values)]
+    (if (> (.size refs) 0)
       ;; return the reference after setting it to the value of its merged values with
       ;; the rest of the items to be merged.
+      ;; TODO: all the refs are ignored except first: should point the others (rest refs) to the first.
       (let [do-sync (dosync
-                     (alter value
-                            (fn [x] (merge-values-like-core (cons @value (rest values))))))]
-        (first values))
+                     (alter (first refs)
+                            (fn [x] (merge-values-like-core-nil-override (cons @(first refs) nonrefs)))))]
+        (first refs))
       (if value
         (if (or (= (type value) clojure.lang.PersistentArrayMap)
                 (= (type value) clojure.lang.PersistentHashMap))
@@ -745,6 +752,45 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
               (= @(:b (:a result))) 42))
        :merge-nil-override-with-inner-reference)
 
+
+      ;; [a [b [1] top]], [a [b 42]] => [a [b [1] 42]]
+      (rdutest
+       "merging with merge-nil-override with inner reference, second position"
+       (let [fs1 {:a {:b 42}}
+             fs2 {:a {:b (ref :top)}}]
+         (fs/merge-nil-override fs1 fs2))
+       (fn [result]
+         (and (= (type (:b (:a result))) clojure.lang.Ref)
+              (= @(:b (:a result))) 42))
+       :merge-nil-override-with-inner-reference-second-position)
+
+      (rdutest
+       "merge-values-like-core-nil-override with reference, second position"
+       (let [values (list :masc (ref :top))]
+         (merge-values-like-core-nil-override values))
+       (fn [result]
+         (and (= (type result) clojure.lang.Ref)
+              (= @result :masc)))
+       :merge-values-like-core-nil-override-with-reference-second-position)
+
+      (rdutest
+       "merge-r-like-core-nil-override with reference, second position"
+       (let [values (collect-values-with-nil (list {:a :masc} {:a (ref :top)}) #{:a})]
+         (merge-r-like-core-nil-override values '(:a)))
+       (fn [result]
+         (and (= (type (:a result)) clojure.lang.Ref)
+              (= @(:a result) :masc)))
+       :merge-r-like-core-nil-override-with-reference-second-position)
+
+      (rdutest
+       "merging with merge-nil-override with reference, second position"
+       (let [fs1 {:a 42}
+             fs2 {:a (ref :top)}]
+         (fs/merge-nil-override fs1 fs2))
+       (fn [result]
+         (and (= (type (:a result)) clojure.lang.Ref)
+              (= @(:a result) 42)))
+       :merge-nil-override-with-reference-second-position)
       
       ))
 
