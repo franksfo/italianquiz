@@ -33,18 +33,12 @@
       plural {:number :plural}
       
       noun {:cat :noun}
-      third-sing {:number :singular :person :3rd :cat :noun}
+      third-person {:person :3rd :cat :noun}
+      third-sing (fs/m third-person {:number :singular})
 
       ;; 'morph-noun' and 'take-article' are defined in generate.clj.
-      common-noun (fs/m third-sing
-                        {:comp {:cat :det
-                                :number (:number third-sing) ;; TODO: use reference here.
-                                }
-                         :morph "morph-noun"
-                         :common true})
-
-      common-noun-with-agreement
-      (fs/m third-sing
+      common-noun
+      (fs/m third-person
             (let [number-agreement (ref :top)
                   gender-agreement (ref :top)]
               {:comp {:cat :det
@@ -59,9 +53,9 @@
 
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
       pronoun (fs/m noun {:pronoun true :comp nil :human true})
-      speakable (fs/m noun {:speakable true})
-      readable (fs/m noun {:readable true})
-      edible (fs/m noun {:edible true})
+      speakable (fs/m common-noun {:speakable true})
+      readable (fs/m common-noun {:readable true})
+      edible (fs/m common-noun {:edible true})
       mass {:mass true :comp {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
 
       third-sing-subj {:subj third-sing}
@@ -115,12 +109,12 @@
                      :person :3rd}}))
       
       calcio (add "calcio" "soccer"
-                  common-noun masc mass
+                  third-sing masc mass
                   {:comp nil
                    :sport true})
       
       cane (add "cane" "dog"
-                (fs/copy common-noun-with-agreement) masc
+                common-noun masc
                 {:animate true
                  :number :singular})
       
@@ -137,7 +131,7 @@
                        {:subj animate
                         :obj {:cat :noun}})
 
-      donna (add "donna" "woman" (fs/copy common-noun-with-agreement) fem human singular)
+      donna (add "donna" "woman" (fs/copy common-noun) fem human singular)
 
       ;; add exception because of english: woman->women.
       donne (add "donne" "women" donna plural {:root donna})
@@ -188,7 +182,6 @@
                            verb
                            {:subj (fs/m noun {:human true})
                             :obj artifact})]
-
              
              (add "facio" "make"
                   fare
@@ -264,9 +257,9 @@
 
 
       letto (add "letto" "bed"
-                  common-noun masc artifact
-                  {:furniture true
-                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
+                 artifact masc
+                 {:furniture true
+                  :ruggable true}) ;; ruggable: can be placed on top of a rug.
 
       libro (add "libro" "book"
                  artifact readable masc
@@ -327,25 +320,25 @@
                  :gender :fem})
 
       poltrona (add "poltrona" "easy chair"
-                  common-noun fem artifact
+                  fem artifact
                   {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
                    :furniture true
                    :ruggable true}) ;; ruggable: can be placed on top of a rug.
 
       sedia (add "sedia" "chair"
-                  common-noun fem artifact
+                  fem artifact
                   {:holdable true 
                    :furniture true
                    :ruggable true}) ;; ruggable: can be placed on top of a rug.
       
       tavolo (add "tavolo" "table"
-                  common-noun masc artifact
+                  masc artifact
                   {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
                    :furniture true
                    :ruggable true}) ;; ruggable: can be placed on top of a rug.
 
       tavolino (add "tavolino" "coffee table"
-                  common-noun masc artifact
+                  masc artifact
                   {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
                    :furniture true
                    :ruggable true}) ;; ruggable: can be placed on top of a rug.
@@ -361,7 +354,7 @@
       una (add "una" "a" {:gender :fem :number :singular :cat :det
                           :def :indef})
 
-      uomo (add "uomo" "man" (fs/copy common-noun-with-agreement) masc human singular)
+      uomo (add "uomo" "man" (fs/copy common-noun) masc human)
       ;; exception because in english man->men.
       uomini (add "uomini" "men" uomo plural {:root uomo})
       
