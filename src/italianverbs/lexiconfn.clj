@@ -40,13 +40,28 @@
 (defn english [lexeme]
   (get (nth lexeme 1) :english))
 
+(defn implied [map]
+  "things to be added to lexical entries based on what's implied about them in order to canonicalize them."
+  ;; for example, if a lexical entry is a noun with no :number value, or
+  ;; the :number value equal to :top, then set it to :singular, because
+  ;; a noun is canonically singular.
+  (if (and (= (:cat map) :noun)
+           (or (= (:number map :notfound) :notfound)
+               (and (= (type (:number map)) clojure.lang.Ref)
+                    (= @(:number map) :top))))
+    (implied (fs/m map
+                   {:number :singular}))
+    map))
+
+
 ;; italian and english are strings, featuremap is a map of key->values.
 (defn add [italian english & featuremaps]
-  (add-lexeme
-   (apply fs/merge-nil-override
-          (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
-                  (list {:english english}
-                        {:italian italian})))))
+  (let [merged
+        (apply fs/merge-nil-override
+               (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
+                       (list {:english english}
+                             {:italian italian})))]
+    (add-lexeme (implied merged))))
 
 
 ;; _italian is a string; _types is a list of symbols (each of which is a map of key-values);
@@ -406,7 +421,20 @@
        })
     (fn [result]
       (nil? (:comp result)))
-    :lexiconfn-calcio)))
+    :lexiconfn-calcio)
+
+   (rdutest
+    "order of arguments containing references should not matter."
+    (let [agr (ref :top)]
+      (add "letto1" "bed1"
+           {:gender :masc}
+           {:gender agr}))
+    (fn [result]
+      (and (= (type (:gender result)) clojure.lang.Ref)
+           (= @(:gender result) :masc)))
+    :argument-order-of-add)
+
+))
 
 ;(def parla
 ;  (:test-result ((:3s tests) tests)))
