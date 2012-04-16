@@ -20,14 +20,6 @@
   (let [filename "foo.html"]  ;; TODO: some conventional default if deriving from fs is too hard.
     (duck/spit filename (html/static-page (html/tablize fs)))))
 
-(defn random-lexeme [& constraints]
-  (let [lexemes (seq
-                 (map fs/deserialize
-                      (apply search/query constraints)))]
-    (if lexemes
-      (if (> (.size lexemes) 0)
-        (nth lexemes (rand-int (.size lexemes)))))))
-
 (defn random-symbol [& symbols]
   (let [symbols (apply list symbols)]
     (nth symbols (rand-int (.size symbols)))))
@@ -42,8 +34,8 @@
           :fn)
          :morph)
         exception
-        (random-lexeme {:root spec
-                        :number :plural})]
+        (search/random-lexeme {:root spec
+                               :number :plural})]
     exception))
 
 (defn morph-noun [fs]
@@ -258,21 +250,21 @@
     {:type-is-fs (set '(:verb-past :subject :verb-inf :subj-constraints :verb-aux))})))
 
 (defn edible-vp []
-  (let [verb (random-lexeme {:cat :verb :obj {:edible true}})
-        noun (random-lexeme (fs/get-path verb '(:obj)))]
+  (let [verb (search/random-lexeme {:cat :verb :obj {:edible true}})
+        noun (search/random-lexeme (fs/get-path verb '(:obj)))]
     (gram/left verb (gram/np noun))))
 
 (defn legible-vp []
-  (let [verb (random-lexeme {:cat :verb :obj {:legible true}})
-        noun (random-lexeme (fs/get-path verb '(:obj)))]
+  (let [verb (search/random-lexeme {:cat :verb :obj {:legible true}})
+        noun (search/random-lexeme (fs/get-path verb '(:obj)))]
     (gram/left verb (gram/np noun))))
 
 ;; cf. grammar/vp: this will replace that.
 ;(defn vp [ & verb noun]
-;  (let [verb (if verb (first verb) (random-lexeme {:cat :verb :infl :infinitive}))
+;  (let [verb (if verb (first verb) (search/random-lexeme {:cat :verb :infl :infinitive}))
  ;       noun (if noun (first noun)
 ;                 (if (search/get-path verb '(:obj))
-;                   (random-lexeme (search/get-path verb '(:obj)))))]
+;                   (search/random-lexeme (search/get-path verb '(:obj)))))]
 ;    (if noun
 ;      ;; transitive:
 ;      (gram/left verb (gram/np noun))
@@ -288,31 +280,31 @@
 
 (defn subj [verb]
   "generate a lexical subject that's appropriate given a verb."
-  (random-lexeme
+  (search/random-lexeme
    (fs/merge
     {:cat :noun}
     {:case {:not :acc}}
     (get verb :subj))))
 
-(defn random-verb [] (random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}}))
+(defn random-verb [] (search/random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}}))
 
 (defn sentence1 []
-  (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}})
-        object (random-lexeme (get verb :obj))
-        subject (random-lexeme (fs/merge {:case {:not :acc}} (get verb :subj)))]
+  (let [verb (search/random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}})
+        object (search/random-lexeme (get verb :obj))
+        subject (search/random-lexeme (fs/merge {:case {:not :acc}} (get verb :subj)))]
     (list verb object subject)))
 
 (defn np [& constraints]
   (let [det-value (:comp (apply fs/merge-nil-override constraints))]
     (let [article (if (or (= nil constraints) det-value )
-                    (random-lexeme {:cat :det}))]
+                    (search/random-lexeme {:cat :det}))]
       article)))
 
 ;; cf. grammar/sentence: this will replace that.
 (defn sentence []
-  (let [verb (random-lexeme {:cat :verb :infl :infinitive :obj {:cat :noun}})
-        object (random-lexeme (:obj verb))
-        subject (random-lexeme (:subj verb))]
+  (let [verb (search/random-lexeme {:cat :verb :infl :infinitive :obj {:cat :noun}})
+        object (search/random-lexeme (:obj verb))
+        subject (search/random-lexeme (:subj verb))]
     {:subject subject :object object :verb verb}))
 
 (defn n-sentences [n]
@@ -321,7 +313,7 @@
           (n-sentences (- n 1)))))
 
 (defn mylookup [italian]
-  (random-lexeme {:italian italian}))
+  (search/random-lexeme {:italian italian}))
 
 (defn conjugate-verb [verb subject]
   (let [irregulars
@@ -399,34 +391,34 @@
    :subject subject})
 
 (defn mobili []
-  (let [prep (random-lexeme {:cat :prep :furniture true})
-        subject (conjugate-np (fs/m (random-lexeme {:cat :noun :on {:ruggable true}}) {:number (random-symbol :singular :plural)} (:subj prep)))
-        object (conjugate-np (fs/m (random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
+  (let [prep (search/random-lexeme {:cat :prep :furniture true})
+        subject (conjugate-np (fs/m (search/random-lexeme {:cat :noun :on {:ruggable true}}) {:number (random-symbol :singular :plural)} (:subj prep)))
+        object (conjugate-np (fs/m (search/random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
                           
 (defn random-object-for-verb [verb]
-  (random-lexeme (:obj verb)))
+  (search/random-lexeme (:obj verb)))
 
 (defn random-verb-for-svo [& svo-maps]
   (let [svo-maps (if svo-maps svo-maps (list {}))]
-    (random-lexeme (fs/m (apply :verb svo-maps)
+    (search/random-lexeme (fs/m (apply :verb svo-maps)
                          {:cat :verb :infl :infinitive
                           :obj (fs/merge (apply :obj svo-maps))}))))
 
 (defn random-present [& svo-maps]
-  (let [root-verb (apply random-lexeme (list (fs/m {:cat :verb}
+  (let [root-verb (apply search/random-lexeme (list (fs/m {:cat :verb}
                                                    svo-maps)))]
-    (let [subject (conjugate-np (fs/m (random-lexeme
+    (let [subject (conjugate-np (fs/m (search/random-lexeme
                                        (:subj root-verb))))
 
 ; conjugate-np
-;                   (random-lexeme {:cat :noun} (:subj root-verb)
+;                   (search/random-lexeme {:cat :noun} (:subj root-verb)
 ;                                               {:number (random-symbol :singular :plural)}))
           object
           (if (:obj root-verb)
-            (conjugate-np (fs/m (random-lexeme {:cat :noun}) {:number :plural}) {:def :def}))]
-;            (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
+            (conjugate-np (fs/m (search/random-lexeme {:cat :noun}) {:number :plural}) {:def :def}))]
+;            (conjugate-np (search/random-lexeme {:cat :noun} (:obj root-verb))
 ;                          {:number (random-symbol :singular :plural)}))]
       (let [svo {:subject subject
                  :object object
@@ -438,14 +430,14 @@
 (defn random-past [& svo-maps]
   (let [svo-maps (if svo-maps svo-maps (list {}))
         root-verb (eval `(random-verb-for-svo ~@svo-maps))]
-    (let [subject (conjugate-np (random-lexeme {:cat :noun} (:subj root-verb)
+    (let [subject (conjugate-np (search/random-lexeme {:cat :noun} (:subj root-verb)
                                                {:number (random-symbol :singular :plural)}))
           object
           (if (:obj root-verb)
-            (conjugate-np (random-lexeme {:cat :noun} (:obj root-verb))
+            (conjugate-np (search/random-lexeme {:cat :noun} (:obj root-verb))
                           {:number (random-symbol :singular :plural)}))]
       (let [svo {:subject subject
-                 :aux (fs/m (random-lexeme {:italian (:passato-aux root-verb) :infl :infinitive})
+                 :aux (fs/m (search/random-lexeme {:italian (:passato-aux root-verb) :infl :infinitive})
                             subject)
                  :object object
                  :vp (fs/m root-verb {:infl :passato-prossimo})}]
@@ -540,7 +532,7 @@
 
 (defn random-phrase [head & [comp-constraints]]
   (let [comp-c comp-constraints
-        comp (random-lexeme (fs/m comp-c ;; TODO: should be random-phrase, not random-lexeme.
+        comp (search/random-lexeme (fs/m comp-c ;; TODO: should be random-phrase, not random-lexeme.
                                   (:comp head)))]
     ;; comp-c is only for debugging.
     {:head head
@@ -597,7 +589,7 @@
 
    (rdutest
     "Random noun, chosen with 'top' as its number value."
-    (random-lexeme {:number :top :cat :noun})
+    (search/random-lexeme {:number :top :cat :noun})
     (fn [noun]
       (and (not (= noun nil))
            (not (= (:number noun) nil))
@@ -717,7 +709,7 @@
 
    (rdutest
     "random-present-related test part 1: get a random infinitive verb."
-    (apply random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))
+    (apply search/random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))
     (fn [verb]
       (and (or (= (:cat verb) :verb)
                (= (:cat verb) "verb"))
@@ -727,8 +719,8 @@
 
    (rdutest
     "random-present-related test part 1: get a random infinitive verb."
-    (let [infinitive (apply random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))]
-      (random-lexeme (:subj infinitive)))
+    (let [infinitive (apply search/random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))]
+      (search/random-lexeme (:subj infinitive)))
     (fn [subject]
       (and (not (= (get subject :case) "acc"))
            (not (= (get subject :case) :acc))))
@@ -752,7 +744,7 @@
    ;; random-lexeme seems to be hitting a limit of some kind..
    (rdutest
     "random-lexeme with a lot of stuff."
-    (random-lexeme {:root {:gender :masc
+    (search/random-lexeme {:root {:gender :masc
                            :comp {:cat :det}
                            :animate true
                            :common true
@@ -766,7 +758,7 @@
 
    (rdutest
     "random-lexeme with even more stuff."
-    (random-lexeme {:root {:gender :masc
+    (search/random-lexeme {:root {:gender :masc
                            :comp {:cat :det}
                            :animate true
                            :common true
@@ -782,7 +774,7 @@
      ;; TODO more random-morph tests.
 ;     (rdutest
 ;      "random-morph: test for pluralization exceptions: uomo->uomini"
-;      (random-morph (fs/m (random-lexeme {:common true :italian "uomo"}) {:use-number :plural}))
+;      (random-morph (fs/m (search/random-lexeme {:common true :italian "uomo"}) {:use-number :plural}))
 ;      (fn [noun]
 ;        (and (= (:english noun) "men")
 ;             (= (:italian noun) "uomini")))
@@ -791,7 +783,7 @@
      ;; like the above, but only english is exceptional (women) : italian is regular (donne).
 ;     (rdutest
 ;      "random-morph: test for pluralization exceptions: donna->donne"
-;      (random-morph (fs/m (random-lexeme {:common true :english "woman"}) {:use-number :plural}))
+;      (random-morph (fs/m (search/random-lexeme {:common true :english "woman"}) {:use-number :plural}))
 ;      (fn [noun]
 ;        (and (= (:english noun) "women")
 ;             (= (:italian noun) "donne")))
@@ -799,7 +791,7 @@
 
 ;     (rdutest
 ;      "random-determiner: generate a random determiner (il,i,lo,le,..)"
-;      (random-morph (random-lexeme {:cat :det}))
+;      (random-morph (search/random-lexeme {:cat :det}))
 ;      (fn [det]
 ;        (or 
 ;         (= (:italian det) "dei")
@@ -814,8 +806,8 @@
      ;; generate a complement whose generation is constrained by a head.
 ;     (rdutest
 ;      "Complement (determiner) must agree with its head (noun)."
-;      (let [head (random-lexeme {:italian "cane" :cat :noun})
-;            comp (fs/m (random-lexeme (:comp head)))]
+;      (let [head (search/random-lexeme {:italian "cane" :cat :noun})
+;            comp (fs/m (search/random-lexeme (:comp head)))]
 ;        comp)
 ;      (fn [comp]
 ;        (or
@@ -826,7 +818,7 @@
      ;; We constrain the generation sufficiently that only one italian expression matches it ('un cane')."
 ;     (rdutest
 ;      "random noun phrase composed of a determiner and a noun: 'un cane'."
-;     (let [head (random-morph (random-lexeme {:english "dog"}) {:use-number :singular})]
+;     (let [head (random-morph (search/random-lexeme {:english "dog"}) {:use-number :singular})]
 ;       (random-phrase head
 ;                      {:def :def}))
 ;     (fn [np]
@@ -835,7 +827,7 @@
 
 ;     (rdutest
 ;      "random phrase using default 2nd argument of (random-phrase). (the default 2nd argument used will be (:comp head)."
-;      (let [head (random-morph (random-lexeme {:english "dog"}) {:use-number :singular})]
+;      (let [head (random-morph (search/random-lexeme {:english "dog"}) {:use-number :singular})]
 ;        (random-phrase head))
 ;      (fn [np]
 ;        (or 
@@ -845,7 +837,7 @@
 
 ;     (rdutest
 ;      "random phrase using default 2nd argument of (random-phrase). (the default 2nd argument used will be (:comp head)."
-;      (random-phrase (random-morph (random-lexeme {:english "dog"})))
+;      (random-phrase (random-morph (search/random-lexeme {:english "dog"})))
 ;      (fn [np]
 ;        (or 
 ;         (= (:italian np) "un cane")
@@ -865,7 +857,7 @@
 
 ;     (rdutest
 ;      "la parola 'pasta' prende solo un articolo definitivo, non un'indefinitivo."
-;      (conjugate-np (random-lexeme {:italian "pasta"}))
+;      (conjugate-np (search/random-lexeme {:italian "pasta"}))
 ;      (fn [np]
 ;        (and (not (= (:english np) "a pasta"))
 ;             (not (= (:italian np) "una pasta"))))

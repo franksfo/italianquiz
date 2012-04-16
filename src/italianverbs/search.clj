@@ -173,6 +173,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn empty-set [set]
   (= (.size set) 0))
 
+;; TODO: remove generate.clj version.
+(defn random-lexeme [& constraints]
+  (let [lexemes (seq
+                 (map fs/deserialize
+                      (apply query constraints)))]
+    (if lexemes
+      (if (> (.size lexemes) 0)
+        (nth lexemes (rand-int (.size lexemes)))))))
 
 ;; TODO: move some of these lexically-related tests to lexicon.clj (e.g. the 'fare' (to do) test).
 (def tests
@@ -319,10 +327,28 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
            (= (first (vals (first paths))) 42)))
     :pathify-with-inner-map-with-reference)
 
+   (rdutest
+    "noun-agreement via merge (1)."
+    (let [cane (lexfn/lookup "cane")
+          determiner (random-lexeme (fs/m {:cat :det}
+                                          (get-in cane '(:comp))))]
+      (fs/m cane {:comp determiner}))
+    (fn [np]
+      (and (not (nil? np))
+           (= (type (get-in np '(:number))) clojure.lang.Ref)
+           (or (= @(get-in np '(:number)) "singular")
+               (= @(get-in np '(:number)) :singular))
+           (= (type (get-in np '(:gender))) clojure.lang.Ref)
+           (or (= @(get-in np '(:gender)) "masc")
+               (= @(get-in np '(:gender)) :masc))
+           (= (get-in np '(:gender))
+              (get-in np '(:comp :gender)))
+           (= (get-in np '(:number))
+              (get-in np '(:comp :number)))))
+    :noun-agreement
+   )))
 
-   ))
-
-;; FIXME: move to test.clj.
+;; FIXME: graduate to test.clj.
 (def evaluate-testresults
   (map (fn [result] {:comment (:comment result) :result (:assert-result result)})  tests))
 
