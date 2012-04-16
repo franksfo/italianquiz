@@ -69,14 +69,12 @@
                         transitive
                         {:subj {:cat :noun :human true}
                          :obj {:cat :noun}})]
-        (let [number-agreement (ref :top)
-              person-agreement (ref :top)]
-          (add "ho" "have"
-               avere
-               {:root avere}
-               {:infl :present}
-               {:subj {:number :singular
-                       :person :1st}}))
+        (add "ho" "have"
+             avere
+             {:root avere}
+             {:infl :present}
+             {:subj {:number :singular
+                     :person :1st}})
         (add "hai" "have"
              avere
              {:root avere}
@@ -643,7 +641,6 @@
        (= (get-in to-have '(:number))
           (get-in to-have '(:subj :number)))))
        :verb-agreement)
-
    ))
 
 
