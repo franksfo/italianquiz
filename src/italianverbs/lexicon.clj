@@ -32,6 +32,7 @@
       singular {:number :singular}
       plural {:number :plural}
       
+      ;; TODO: graduate common-noun content into noun.
       noun {:cat :noun}
       third-person {:person :3rd :cat :noun}
       third-sing (fs/m third-person {:number :singular})
@@ -322,6 +323,10 @@
                   {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
                    :furniture true
                    :ruggable true}) ;; ruggable: can be placed on top of a rug.
+
+      ragazza (add "ragazza" "girl" (fs/copy common-noun) fem human)
+
+      ragazzo (add "ragazzo" "guy" (fs/copy common-noun) masc human)
 
       sedia (add "sedia" "chair"
                   fem artifact
