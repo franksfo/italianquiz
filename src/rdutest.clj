@@ -30,11 +30,11 @@
 ;; 
 ;; TODO: figure out namespaces so I can just do: (defmacro test).
 ;; 
-(defmacro rdutest [testcomment test assert sym & [supress-output]]
+(defmacro rdutest [testcomment test assert & [sym supress-output]]
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
   (let [test-text (str test)
         assert-text (str assert)
-        sym-text (str sym)
+        sym-text (if sym (str sym) (str (gensym)))
         sym-text-no-colon (stringc/tail (- (.length sym-text) 1) sym-text)
         test-result `~test
         ;; TODO: this is ugly to be generating strings and then evaluating (with load-string below).
@@ -44,9 +44,9 @@
         testcomment (str testcomment)]
     `(let [assert# (apply ~assert (list ~test-result))]
        (if (not (= ~supress-output true))
-         (println ~(str *ns* "" sym-text " '" testcomment "' started.")))
+         (println ~(str *ns* ": '" testcomment "' started.")))
        (if (not (= ~supress-output true))
-         (println (str "  Result: " assert# (if (= assert# false) " (FAILED)."))))
+         (println (str ":  Result: " assert# (if (= assert# false) " (FAILED)."))))
        (load-string ~defn)
        {:test-text ~test-text
         :assert-text ~assert-text
@@ -63,11 +63,12 @@
 
 (def rdutests
   (list
+
    (rdutest
     "Just a simple example showing how to write rdutests." ; comment
     (+ 2 3)  ; expression to evaluate.
-    #(= % 5) ; function to be applied to the evaluated expression.
-    :simple-test-example)
+    #(= % 5)) ; function to be applied to the evaluated expression.
+
    (rdutest
     "Just a simple example showing how to write failing rdutests:" ; comment
     (let [failing-test
@@ -78,6 +79,4 @@
            :failing-test
            true)]
       (:assert-result failing-test))
-    #(= % false) ;; test that the test failed: that the return value is false.
-    :simple-failing-example)))
-    
+    #(= % false)))) ;; test that the test failed: that the return value is false.
