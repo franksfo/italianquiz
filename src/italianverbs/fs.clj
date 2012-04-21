@@ -68,6 +68,7 @@
     (first values)))
 
 ;; forward declarations:
+(declare merge)
 (declare merge-r-like-core)
 (declare merge-r-like-core-nil-override)
 
