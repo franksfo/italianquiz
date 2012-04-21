@@ -749,8 +749,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        "merging with merge-nil-override with reference, second position"
        (let [fs1 {:a 42}
              fs2 {:a (ref :top)}]
-         (fs/merge-nil-override {:a 42} {:a 42}))
-                                        ;        (fs/merge-nil-override fs1 fs2))
+         (fs/merge-nil-override (fs/merge-nil-override fs1 fs2)))
        (fn [result]
          (and (= (type (:a result)) clojure.lang.Ref)
               (= @(:a result) 42))))
