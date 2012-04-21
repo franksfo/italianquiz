@@ -345,8 +345,50 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
               (get-in np '(:comp :gender)))
            (= (get-in np '(:number))
               (get-in np '(:comp :number)))))
-    :noun-agreement
-   )))
+    :noun-agreement)
+
+   (rdutest
+    "verb-agreement via merge (1)."
+    (let [avere (lexfn/lookup "avere")
+          subject (random-lexeme (get-in avere '(:subj)))]
+      (fs/m avere {:comp subject}))
+    (fn [avere]
+      (and (not (nil? avere))
+           (= (type (get-in avere '(:number))) clojure.lang.Ref)
+           (or (= @(get-in avere '(:number)) "singular")
+               (= @(get-in avere '(:number)) :singular))
+           (= (type (get-in avere '(:gender))) clojure.lang.Ref)
+           (or (= @(get-in avere '(:gender)) "masc")
+               (= @(get-in avere '(:gender)) :masc))
+           (= (get-in avere '(:gender))
+              (get-in avere '(:comp :gender)))
+           (= (get-in avere '(:number))
+              (get-in avere '(:comp :number)))))
+    :verb-agreement)
+
+   (rdutest
+    "verb-agreement via merge (2)."
+    (let [hanno (lexfn/lookup "hanno")
+          subject (random-lexeme (get-in hanno '(:subj)))]
+      (fs/m hanno {:comp subject}))
+    (fn [hanno]
+      (and (not (nil? hanno))
+           (= (type (get-in hanno '(:number))) clojure.lang.Ref)
+           (or (= @(get-in hanno '(:number)) "plural")
+               (= @(get-in hanno '(:number)) :plural))
+
+           (= (type (get-in hanno '(:person))) clojure.lang.Ref)
+           (or (= @(get-in hanno '(:person)) "3rd")
+               (= @(get-in hanno '(:person)) :3rd))
+
+           (= (get-in hanno '(:person))
+              (get-in hanno '(:comp :person)))
+           (= (get-in hanno '(:gender))
+              (get-in hanno '(:comp :gender)))
+           (= (get-in hanno '(:number))
+              (get-in hanno '(:comp :number)))))
+    :verb-agreement)
+   ))
 
 ;; FIXME: graduate to test.clj.
 (def evaluate-testresults
