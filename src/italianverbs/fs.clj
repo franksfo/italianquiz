@@ -138,20 +138,19 @@
           ;; handle nils the same as non-nils.
           (conj
            {key merged-values}
-           (merge-r-like-core collected-map (rest keys))))))
-      {}))
+           (merge-r-like-core collected-map (rest keys))))))))
 
 (defn- merge-r-like-core-nil-override [collected-map keys]
   "merge a map where each value is a list of values to be merged for that key."
-  (let [key (first keys)]
-    (if key
-      (let [merged-values (merge-values-like-core-nil-override (get collected-map key))]
-        (if (not (= merged-values {}))
-          (merge
-           {key merged-values}
-           (merge-r-like-core-nil-override collected-map (rest keys)))
-          (merge-r-like-core-nil-override collected-map (rest keys))))
-      {})))
+  (if (and (not (nil? keys)) (> (.size keys) 0))
+    (let [key (first keys)]
+      (if key
+        (let [merged-values (merge-values-like-core-nil-override (get collected-map key))]
+          (if (not (= merged-values {}))
+            (merge
+             {key merged-values}
+             (merge-r-like-core-nil-override collected-map (rest keys)))
+            (merge-r-like-core-nil-override collected-map (rest keys))))))))
 
 (defn- merge-atomically [values]
   (let [value (first values)]
@@ -489,99 +488,41 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     "{:a 42}{:a nil} -merge-nil-override-> {:a nil}"
     (apply fs/merge-nil-override (list {:a 42}{:a nil}))
     (fn [map]
-      (= (:a map) nil)))
+      (or (= (:a map) nil)
+          (= (:a map) {}))))
+
+   (rdutest
+    "{:a {:foo 42}}{:a nil} => {:a nil}"
+    (apply fs/merge-nil-override (list {:a {:foo 42}} {:a nil}))
+    (fn [map]
+      (or (= (:a map) nil)
+          (= (:a map) {}))))
+   (rdutest
+    "{:a {:foo 42}}{:a {}} => {:a nil}"
+    (apply fs/merge-nil-override (list {:a {:foo 42}} {:a {}}))
+    (fn [map]
+      (or (= (:a map) nil)
+          (= (:a map) {}))))
    
-;   (rdutest
-;    "{:a {:foo 42}}{:a nil} => {:a nil}"
-;    (apply fs/merge-nil-override (list {:a {:foo 42}} {:a nil}))
-;   (fn [map]
-;     (= (:a map) nil)))
-
-;   (rdutest
-;    "{:a {:foo 42}}{:a {}} => {:a nil}"
-;    (apply fs/merge-nil-override (list {:a {:foo 42}} {:a {}}))
-;    (fn [map]
-;      (= (:a map) nil)))
+   (rdutest
+    "(apply the :fn function of a map on the result of running fs/m)"
+    (merge-and-apply
+     (list
+      {:a 42 :fn (fn [map]
+                   (fs/m map
+                         {:a (+ 1 (:a map)) :foo "bar"}))}
+      {:b 99}))
+    (fn [map]
+      (and (= (:foo map) "bar")
+           (= (:a 43)))))
    
-;   (rdutest
-;    "(apply the :fn function of a map on the result of running fs/m)"
-;    (merge-and-apply
-;     (list 
-;      {:a 42 :fn (fn [map]
-;                   (fs/m map
-;                         {:a (+ 1 (:a map)) :foo "bar"}))}
-;     {:b 99}))
-;   (fn [map]
-;      (and (= (:foo map) "bar")
-;           (= (:a 43)))))
-   
-;   (rdutest
-;    "(apply the :fn value (after converting from a string to a function) of a map on the result of running fs/m)"
-;    (merge-and-apply (list {:a 42 :fn "myfn"}
-;                           {:b 99}))
-;    (fn [map]
-;      (and (= (:foo map) "bar")
-;           (= (:a 43)))))
-
-;   (rdutest
-;    "resolve :ref pointers: (:b :c) should be identical to (:a)."
-;    {:a {:ref '(:b :c)}
-;     :b {:c {:foo :bar}}}
-;    (fn [map]
-;      (= (get-path map '(:b :c))
-;         (get-path map '(:a)))))
-
-;   (rdutest
-;    "ref chain: ref->ref1->val"
-;    {:a {:ref '(:b :c)}
-;     :b {:c {:ref '(:d :e)}}
-;     :d {:e 42}}
-;    (fn [map]
-;      (= (get-path map '(:a))
-;         42)))
-
-   ;; ref chain with referential equality: make sure (=) works as expected:
-   ;; if (= (get-path x (P1 :ref) P2)), then (= (get-path x P1) (get-path y P2))
-;   (rdutest
-;    "ref chain: ref->ref1->val"
-;    {:a {:ref '(:b :c)}
-;     :b {:c {:ref '(:d :e)}}
-;     :d {:e {:f 42}}}
-;    (fn [map]
-;      (= (get-path map '(:a))
-;         (get-path map '(:d :e)))))
-
-   ;; (same as previous path, but with end of path an atom)
-;   (rdutest
-;    "ref chain: ref->ref1->val"
-;    {:a {:ref '(:b :c)}
-;     :b {:c {:ref '(:d :e)}}
-;     :d {:e {:f 42}}}
-;    (fn [map]
-;      (= (get-path map '(:a :f))
-;         (get-path map '(:d :e :f))
-;         42)))
-
-   ;; P1 = '(F1 F2) => (get-path P1) == (get-path (get-path F1) F2)
-;   (rdutest
-;    "(get-path (get-path))"
-;    {:a {:ref '(:b :c)}
-;     :b {:c {:ref '(:d :e)}}
-;     :d {:e {:f 42}}}
-;    (fn [map]
-;      (= (get-path map '(:d :e))
-;         (get-path (get-path map '(:b)) '(:c)))))
-
-   ;; P1 = '(F1 F2 F3) => (get-path P1) == (get-path (get-path (get-path F1) F2) F3)
-;   (rdutest
-;    "(get-path (get-path))"
-;    {:a {:ref '(:b :c)}
-;     :b {:c {:ref '(:d :e)}}
-;     :d {:e {:f 42}}}
-;    (fn [map]
-;      (= (get-path map '(:d :e :f))
-;         (get-path (get-path (get-path map '(:b)) '(:c)) '(:f))
-;         42)))
+   (rdutest
+    "(apply the :fn value (after converting from a string to a function) of a map on the result of running fs/m)"
+    (merge-and-apply (list {:a 42 :fn "myfn"}
+                           {:b 99}))
+    (fn [map]
+      (and (= (:foo map) "bar")
+           (= (:a 43)))))
 
    ;; test map inversion
    ;; path (:a :b) points to a reference, whose value is an integer, 42.
@@ -592,74 +533,74 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    ;;
    ;; => {#<Ref: 42> => {(:a :b) (:c)}
    ;;                               
-;   (rdutest "map inversion"
-;            (let [myref (ref 42)
-;                  fs {:a {:b myref}
-;                      :c myref}]
-;              (ref-invert fs))
-;            (fn [result]
-;              (and (= (.size result) 1)
-;                   (= (first (first result))
-;                      42)
-;                   (let [paths (second (first result))]
-;                     (and (= (.size paths) 2)
-;                          (or (= (first paths) '(:a :b))
-;                              (= (first paths) '(:c)))
-;                          (or (= (second paths) '(:a :b))
-;                              (= (second paths) '(:c))))))))
+   (rdutest "map inversion"
+            (let [myref (ref 42)
+                  fs {:a {:b myref}
+                      :c myref}]
+              (ref-invert fs))
+            (fn [result]
+              (and (= (.size result) 1)
+                   (= (first (first result))
+                      42)
+                   (let [paths (second (first result))]
+                     (and (= (.size paths) 2)
+                          (or (= (first paths) '(:a :b))
+                              (= (first paths) '(:c)))
+                          (or (= (second paths) '(:a :b))
+                              (= (second paths) '(:c))))))))
 
-;   (rdutest "serialization"
-;            (let [myref (ref 42)
-;                  fs {:a {:b myref}
-;                      :c myref}]
-;              (serialize fs))
-;            (fn [result]
-;              (and 
-;               (= (get-in result '(:a :b)) 42)
-;               (= (get-in result '(:c)) 42)
-;               (not (nil? (:refs result)))
-;               (= (.size (:refs result)) 1)
-;               (= (first (first (:refs result))) 42)
-;               (let [paths (second (first (:refs result)))]
-;                 (and (= (.size paths) 2)
-;                      (or (= (first paths) '(:a :b))
-;                          (= (first paths) '(:c)))
-;                      (or (= (second paths) '(:a :b))
-;                          (= (second paths) '(:c))))))))
+   (rdutest "serialization"
+            (let [myref (ref 42)
+                  fs {:a {:b myref}
+                      :c myref}]
+              (serialize fs))
+            (fn [result]
+              (and
+               (= (get-in result '(:a :b)) 42)
+               (= (get-in result '(:c)) 42)
+               (not (nil? (:refs result)))
+               (= (.size (:refs result)) 1)
+               (= (first (first (:refs result))) 42)
+               (let [paths (second (first (:refs result)))]
+                 (and (= (.size paths) 2)
+                      (or (= (first paths) '(:a :b))
+                          (= (first paths) '(:c)))
+                      (or (= (second paths) '(:a :b))
+                          (= (second paths) '(:c))))))))
 
-;      (rdutest "deserialization"
-;            (let [myref (ref 42)
-;                  fs {:a {:b myref}
-;                      :c myref}
-;                  serialized (serialize fs)]
-;              (list fs (deserialize serialized)))
-;            (fn [result] ;; fs and our deserialized fs should be isomorphic.
-;              ;; TODO: also test to make sure fs original and copy are distinct as well (not ref-equal)
-;              (let [original (first result)
-;                    copy (second result)]
-;                (and (= (get-in original '(:a :b))
-;                        (get-in original '(:c)))
-;                     (= (get-in copy '(:a :b))
-;                        (get-in copy '(:c)))))))
+      (rdutest "deserialization"
+            (let [myref (ref 42)
+                  fs {:a {:b myref}
+                      :c myref}
+                  serialized (serialize fs)]
+              (list fs (deserialize serialized)))
+            (fn [result] ;; fs and our deserialized fs should be isomorphic.
+              ;; TODO: also test to make sure fs original and copy are distinct as well (not ref-equal)
+              (let [original (first result)
+                    copy (second result)]
+                (and (= (get-in original '(:a :b))
+                        (get-in original '(:c)))
+                     (= (get-in copy '(:a :b))
+                        (get-in copy '(:c)))))))
 
-;      (rdutest "merging atomic values: fails"
-;               (merge-values (list 42 43))
-;               (fn [result]
-;                 (= result :fail)))
+      (rdutest "merging atomic values: fails"
+               (merge-values (list 42 43))
+               (fn [result]
+                 (= result :fail)))
 
-;      (rdutest "merging atomic values: succeeds"
-;               (merge-values (list 42 42))
-;               (fn [result]
-;                 (= result 42)))
+      (rdutest "merging atomic values: succeeds"
+               (merge-values (list 42 42))
+               (fn [result]
+                 (= result 42)))
 
-;      (rdutest "merging atomic values with references"
-;               (let [myref (ref :top)
-;                     val 42]
-;                 (fs/m myref val))
-;               (fn [result]
-;                 (and
-;                  (= (type result) clojure.lang.Ref)
-;                  (= @result 42))))
+      (rdutest "merging atomic values with references"
+               (let [myref (ref :top)
+                     val 42]
+                 (fs/m myref val))
+               (fn [result]
+                 (and
+                  (= (type result) clojure.lang.Ref)
+                  (= @result 42))))
 
       ;; {:a [1] :top
       ;;  :b [1]     } ,
@@ -667,17 +608,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       ;;        =>
       ;; {:a [1] 42
       ;;  :b [1] }
-;      (rdutest "merging with references"
-;            (let [myref (ref :top)
-;                  fs1 {:a myref :b myref}
-;                  fs2 {:a 42}]
-;              (fs/m fs1 fs2))
-;            (fn [result]
-;              (and
-;               (= (type (:a result)) clojure.lang.Ref)
-;               (= @(:a result) 42)
-;               (= @(:b result) 42)
-;               (= (:a result) (:b result)))))
+      (rdutest "merging with references"
+            (let [myref (ref :top)
+                  fs1 {:a myref :b myref}
+                  fs2 {:a 42}]
+              (fs/m fs1 fs2))
+            (fn [result]
+              (and
+               (= (type (:a result)) clojure.lang.Ref)
+               (= @(:a result) 42)
+               (= @(:b result) 42)
+               (= (:a result) (:b result)))))
 
       ;; {:a [1] :top    {:a 42}
       ;;  :b [1]     } ,
@@ -685,134 +626,134 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       ;;        =>
       ;; {:a [1] 42
       ;;  :b [1] }
-;      (rdutest
-;       "merging with references with nil-override family of functions (used by lexiconfn/add)"
-;            (let [myref (ref :top)
-;                  fs1 {:a myref :b myref}
-;                  fs2 {:a 42}]
-;              (fs/merge-nil-override fs1 fs2))
-;           (fn [result]
-;             (and
-;               (= (type (:a result)) clojure.lang.Ref)
-;               (= @(:a result) 42)
-;               (= @(:b result) 42)
-;               (= (:a result) (:b result)))))
+      (rdutest
+       "merging with references with nil-override family of functions (used by lexiconfn/add)"
+            (let [myref (ref :top)
+                  fs1 {:a myref :b myref}
+                  fs2 {:a 42}]
+              (fs/merge-nil-override fs1 fs2))
+           (fn [result]
+             (and
+               (= (type (:a result)) clojure.lang.Ref)
+               (= @(:a result) 42)
+               (= @(:b result) 42)
+               (= (:a result) (:b result)))))
 
-;      (rdutest
-;       "merging with references with nil-override family of functions (used by lexiconfn/add) (2)"
-;            (let [myref (ref :top)
-;                  fs1 {:a myref}
-;                  fs2 {:a :foo}]
-;              (fs/merge-nil-override fs1 fs2))
-;           (fn [result]
-;              (and
-;               (= (type (:a result)) clojure.lang.Ref)
-;               (= @(:a result) :foo))))
+      (rdutest
+       "merging with references with nil-override family of functions (used by lexiconfn/add) (2)"
+            (let [myref (ref :top)
+                  fs1 {:a myref}
+                  fs2 {:a :foo}]
+              (fs/merge-nil-override fs1 fs2))
+           (fn [result]
+              (and
+               (= (type (:a result)) clojure.lang.Ref)
+               (= @(:a result) :foo))))
 
-;      (rdutest
-;       "merging with inner reference:keyset"
-;       (let [fs1 {:b (ref :top)}
-;             fs2 {:b 42}
-;            maps (list fs1 fs2)]
-;         (seq (set (mapcat #'keys maps)))) ;; mapcat->set->seq removes duplicates.
-;       (fn [result]
-;         (= result '(:b))))
+      (rdutest
+       "merging with inner reference:keyset"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}
+            maps (list fs1 fs2)]
+         (seq (set (mapcat #'keys maps)))) ;; mapcat->set->seq removes duplicates.
+       (fn [result]
+         (= result '(:b))))
 
-;      (rdutest
-;       "merging with inner reference:collect-values: result should be: {:b (42 <Ref>)} (map with one key, :b, whose value is a list of two elements: 42 and a <Ref> (in either order)"
-;       (let [fs1 {:b (ref :top)}
-;             fs2 {:b 42}
-;             maps (list fs1 fs2)]
-;        (collect-values maps (set (mapcat #'keys maps))))
-;       (fn [result]
-;         (and (not (nil? (:b result)))
-;              (= (.size (:b result)) 2)
-;              (or (= 42
-;                     (first (:b result)))
-;                  (= 42
-;                     (second (:b result))))
-;              (or (= clojure.lang.Ref
-;                     (type (first (:b result))))
-;                  (= clojure.lang.Ref
-;                     (type (second (:b result))))))))
+      (rdutest
+       "merging with inner reference:collect-values: result should be: {:b (42 <Ref>)} (map with one key, :b, whose value is a list of two elements: 42 and a <Ref> (in either order)"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}
+             maps (list fs1 fs2)]
+        (collect-values maps (set (mapcat #'keys maps))))
+       (fn [result]
+         (and (not (nil? (:b result)))
+              (= (.size (:b result)) 2)
+              (or (= 42
+                     (first (:b result)))
+                  (= 42
+                     (second (:b result))))
+              (or (= clojure.lang.Ref
+                     (type (first (:b result))))
+                  (= clojure.lang.Ref
+                     (type (second (:b result))))))))
 
-;      (rdutest
-;       "merging with inner reference:merge-r-like-core"
-;       (let [fs1 {:b (ref :top)}
-;             fs2 {:b 42}
-;             maps (list fs1 fs2)
-;             collect-values (collect-values maps (set (mapcat #'keys maps)))]
-;         (merge-r-like-core collect-values (set (mapcat #'keys maps))))
-;       (fn [result]
-;         (and (not (nil? (:b result)))
-;              (= (type (:b result)) clojure.lang.Ref))
-;              (= @(:b result) 42)))
-
-      ;; [b [1] top], [b 42] => [b [1] 42]
-;      (rdutest
-;       "merging with reference"
-;       (let [fs1 {:b (ref :top)}
-;             fs2 {:b 42}]
-;         (fs/merge-values-like-core (list fs1 fs2)))
-;       (fn [result]
-;         (and (= (type (:b result)) clojure.lang.Ref)
-;              (= @(:b result)) 42)))
+      (rdutest
+       "merging with inner reference:merge-r-like-core"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}
+             maps (list fs1 fs2)
+             collect-values (collect-values maps (set (mapcat #'keys maps)))]
+         (merge-r-like-core collect-values (set (mapcat #'keys maps))))
+       (fn [result]
+         (and (not (nil? (:b result)))
+              (= (type (:b result)) clojure.lang.Ref))
+              (= @(:b result) 42)))
 
       ;; [b [1] top], [b 42] => [b [1] 42]
-;      (rdutest
-;       "merging with merge-nil-override with reference"
-;       (let [fs1 {:b (ref :top)}
-;             fs2 {:b 42}]
-;         (fs/merge-nil-override fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:b result)) clojure.lang.Ref)
-;              (= @(:b result)) 42)))
+      (rdutest
+       "merging with reference"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}]
+         (fs/merge-values-like-core (list fs1 fs2)))
+       (fn [result]
+         (and (= (type (:b result)) clojure.lang.Ref)
+              (= @(:b result)) 42)))
+
+      ;; [b [1] top], [b 42] => [b [1] 42]
+      (rdutest
+       "merging with merge-nil-override with reference"
+       (let [fs1 {:b (ref :top)}
+             fs2 {:b 42}]
+         (fs/merge-nil-override fs1 fs2))
+       (fn [result]
+         (and (= (type (:b result)) clojure.lang.Ref)
+              (= @(:b result)) 42)))
 
       ;; [a [b [1] top]], [a [b 42]] => [a [b [1] 42]]
-;      (rdutest
-;       "merging with merge-nil-override with inner reference"
-;       (let [fs1 {:a {:b (ref :top)}}
-;             fs2 {:a {:b 42}}]
-;         (fs/merge-nil-override fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:b (:a result))) clojure.lang.Ref)
-;              (= @(:b (:a result))) 42)))
+      (rdutest
+       "merging with merge-nil-override with inner reference"
+       (let [fs1 {:a {:b (ref :top)}}
+             fs2 {:a {:b 42}}]
+         (fs/merge-nil-override fs1 fs2))
+       (fn [result]
+         (and (= (type (:b (:a result))) clojure.lang.Ref)
+              (= @(:b (:a result))) 42)))
 
       ;; [a [b [1] top]], [a [b 42]] => [a [b [1] 42]]
-;      (rdutest
-;       "merging with merge-nil-override with inner reference, second position"
-;       (let [fs1 {:a {:b 42}}
-;             fs2 {:a {:b (ref :top)}}]
-;         (fs/merge-nil-override fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:b (:a result))) clojure.lang.Ref)
-;              (= @(:b (:a result))) 42)))
+      (rdutest
+       "merging with merge-nil-override with inner reference, second position"
+       (let [fs1 {:a {:b 42}}
+             fs2 {:a {:b (ref :top)}}]
+         (fs/merge-nil-override fs1 fs2))
+       (fn [result]
+         (and (= (type (:b (:a result))) clojure.lang.Ref)
+              (= @(:b (:a result))) 42)))
 
-;      (rdutest
-;       "merge-values-like-core-nil-override with reference, second position"
-;       (let [values (list :masc (ref :top))]
-;         (merge-values-like-core-nil-override values))
-;       (fn [result]
-;         (and (= (type result) clojure.lang.Ref)
-;              (= @result :masc))))
+      (rdutest
+       "merge-values-like-core-nil-override with reference, second position"
+       (let [values (list :masc (ref :top))]
+         (merge-values-like-core-nil-override values))
+       (fn [result]
+         (and (= (type result) clojure.lang.Ref)
+              (= @result :masc))))
 
-;      (rdutest
-;       "merge-r-like-core-nil-override with reference, second position"
-;       (let [values (collect-values-with-nil (list {:a :masc} {:a (ref :top)}) #{:a})]
-;         (merge-r-like-core-nil-override values '(:a)))
-;       (fn [result]
-;         (and (= (type (:a result)) clojure.lang.Ref)
-;              (= @(:a result) :masc))))
+      (rdutest
+       "merge-r-like-core-nil-override with reference, second position"
+       (let [values (collect-values-with-nil (list {:a :masc} {:a (ref :top)}) #{:a})]
+         (merge-r-like-core-nil-override values '(:a)))
+       (fn [result]
+         (and (= (type (:a result)) clojure.lang.Ref)
+              (= @(:a result) :masc))))
 
-;      (rdutest
-;       "merging with merge-nil-override with reference, second position"
-;       (let [fs1 {:a 42}
-;             fs2 {:a (ref :top)}]
-;         (fs/merge-nil-override {:a 42} {:a 42}))
-;                                        ;        (fs/merge-nil-override fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:a result)) clojure.lang.Ref)
-;              (= @(:a result) 42))))
+      (rdutest
+       "merging with merge-nil-override with reference, second position"
+       (let [fs1 {:a 42}
+             fs2 {:a (ref :top)}]
+         (fs/merge-nil-override {:a 42} {:a 42}))
+                                        ;        (fs/merge-nil-override fs1 fs2))
+       (fn [result]
+         (and (= (type (:a result)) clojure.lang.Ref)
+              (= @(:a result) 42))))
 
 ;      (rdutest
 ;       "test merging with ':not' (special feature) (succeed atomic)"
