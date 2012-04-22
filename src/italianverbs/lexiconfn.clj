@@ -420,7 +420,8 @@
                      (concat (map #'fs/copy featuremaps)))
        })
     (fn [result]
-      (nil? (:comp result)))
+      (or (nil? (:comp result))
+          (= {} (:comp result))))
     :lexiconfn-calcio)
 
    (rdutest
