@@ -28,11 +28,10 @@
    sign))
 
 (defn collect-values [maps keys]
-  (if (> (.size keys) 0)
+  (if (and (not (nil? keys)) (> (.size keys) 0))
     (let [key (first keys)]
       (conj
        {key
-
         (let [do-mapcat
               (mapcat (fn [eachmap]
                         (let [val (get eachmap key :notfound)]
@@ -144,7 +143,7 @@
 
 (defn- merge-r-like-core-nil-override [collected-map keys]
   "merge a map where each value is a list of values to be merged for that key."
-  (if (and (not (nil? keys)) (> (.size keys) 0))
+  (if (and (not (nil? collected-map)) (not (= collected-map {})) (not (nil? keys)) (> (.size keys) 0))
     (let [key (first keys)]
       (if key
         (let [merged-values (merge-values-like-core-nil-override (get collected-map key))]
@@ -204,7 +203,7 @@
 
 (defn- merge-r [collected-map keys]
   "merge a map where each value is a list of values to be merged for that key."
-  (if (> (.size keys) 0)
+  (if (and (not (nil? keys))(> (.size keys) 0))
     (let [key (first keys)]
       (if key
         (conj
@@ -811,6 +810,21 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        (merge {:foo 42} {:foo {:not 43}})
        (fn [result]
          (= result {:foo 42})))
+
+      (rdutest
+       "merge-nil-override with {}."
+       (let [values
+             (list {:number :singular, :cat :det} {:def {:not :indef}} {})]
+         (merge-values-like-core-nil-override values))
+       (fn [result]
+         (or (nil? result)
+             (= result {}))))
+
+      (rdutest
+       "complicated merge-nil-override."
+       (let [mycon (list {:comp {:number :singular, :cat :det}} {:gender :masc} {:comp {:def {:not :indef}}, :mass true} {:comp {}, :sport true})]
+         (apply merge-nil-override mycon))
+       (fn [result] true))
 
 ;      (rdutest
 ;       "test merging with ':not' (special feature) (combine negation)"
