@@ -157,39 +157,39 @@
 (defn- merge-atomically [values]
   (let [value (first values)
         second-value (second values)]
-    (if value
-      (if second-value
-        (if (= value second-value)
-          (merge-atomically (rest values))
-          (if (= value :top)
-            (merge-atomically (rest values))
-            ;; 1st and 2nd value exist but are not =.
-            (if (and (or (= (type value) clojure.lang.PersistentArrayMap)
-                         (= (type value) clojure.lang.PersistentHashMap))
-                     (= (.size value) 1)
-                     (not (nil? (:not value))))
-              (if (> (.size (rest values)) 0)
-                (let [inverse-result (merge-atomically (cons (:not value)
-                                                             (rest values)))]
-                  (if (= inverse-result :fail)
-                    (if (rest values)
-                      (merge-atomically (rest values))
-                      value)
-                    :fail))
-                value)
-              (if (and (or (= (type second-value) clojure.lang.PersistentArrayMap)
-                           (= (type second-value) clojure.lang.PersistentHashMap))
-                       (= (.size second-value) 1)
-                       (not (nil? (:not second-value))))
-                (let [inverse-result (merge-atomically (list value (:not second-value)))]
-                  (if (= inverse-result :fail)
-                    (if (rest (rest values))
-                      (merge-atomically (rest (rest values)))
-                      value) ;; value is not a :not, but second-value is, so use value.
-                    value))
-                :fail))))
-        value)
-      value)))
+    (cond
+     (nil? second-value) value
+     (and (not (nil? value))
+               (not (nil? second-value))
+               (= value second-value))
+     (merge-atomically (rest values))
+     (= value :top)
+     (merge-atomically (rest values))
+     (and (or (= (type value) clojure.lang.PersistentArrayMap)
+              (= (type value) clojure.lang.PersistentHashMap))
+          (= (.size value) 1)
+          (not (nil? (:not value))))
+     (if (> (.size (rest values)) 0)
+       (let [inverse-result (merge-atomically (cons (:not value)
+                                                    (rest values)))]
+         (if (= inverse-result :fail)
+           (if (> (.size (rest values)) 0)
+             (merge-atomically (rest values))
+             value)
+           :fail))
+       value)
+     (and (or (= (type second-value) clojure.lang.PersistentArrayMap)
+              (= (type second-value) clojure.lang.PersistentHashMap))
+          (= (.size second-value) 1)
+          (not (nil? (:not second-value))))
+     (let [inverse-result (merge-atomically (list value (:not second-value)))]
+       (if (= inverse-result :fail)
+         (if (> (.size (rest (rest values))) 0)
+           (merge-atomically (rest (rest values)))
+           value)
+         :fail))
+     :else
+     :fail)))
 
 (defn- merge-values [values]
   (let [value (first values)]
@@ -783,19 +783,25 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
               (= @(:a result) 42))))
 
       (rdutest
-       "test atom merging with ':not' (special feature) (first in list)"
+       "test atom merging with ':not' (special feature) (first in list; succeed)"
        (merge-atomically (list {:not 43} 42))
        (fn [result]
          (= result 42)))
 
       (rdutest
-       "test atom merging with ':not' (special feature) (second in list)"
+       "test atom merging with ':not' (special feature) (first in list; fail)"
+       (merge-atomically (list {:not 42} 42))
+       (fn [result]
+         (= result :fail)))
+
+      (rdutest
+       "test atom merging with ':not' (special feature) (second in list; succeed)"
        (merge-atomically (list 42 {:not 43}))
        (fn [result]
          (= result 42)))
-      
+
       (rdutest
-       "test atom merging with ':not' (special feature)"
+       "test atom merging with ':not' (special feature) (second in list; fail)"
        (merge-atomically (list 42 {:not 42}))
        (fn [result]
          :fail))
@@ -804,13 +810,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        "test merging with ':not' (special feature)"
        (merge {:foo 42} {:foo {:not 43}})
        (fn [result]
-         (= result 42)))
-
-;      (rdutest
-;       "test merging with ':not' (special feature)"
-;       (m (merge-values-like-core '(42 {:not 42})))
-;       (fn [result]
-;         (= result :fail)))
+         (= result {:foo 42})))
 
 ;      (rdutest
 ;       "test merging with ':not' (special feature) (combine negation)"
