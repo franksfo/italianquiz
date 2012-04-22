@@ -46,15 +46,16 @@
        (collect-values maps (rest keys))))))
 
 (defn collect-values-with-nil [maps keys]
-  (let [key (first keys)]
-    (if key
-      (merge
-       {key (mapcat (fn [eachmap]
-                      (let [val (get eachmap key :notfound)]
-                        (if (not (= val :notfound))
-                          (list val))))
-                    maps)}
-       (collect-values-with-nil maps (rest keys))))))
+  (if (and keys (> (.size keys) 0))
+    (let [key (first keys)]
+      (if key
+        (conj
+         {key (mapcat (fn [eachmap]
+                        (let [val (get eachmap key :notfound)]
+                          (if (not (= val :notfound))
+                            (list val))))
+                      maps)}
+         (collect-values-with-nil maps (rest keys)))))))
 
 ;; TODO: 'atom' is confusing here because i mean it the sense of
 ;; simple values like floats or integers, as opposed to sets, maps, or lists.
@@ -154,15 +155,41 @@
             (merge-r-like-core-nil-override collected-map (rest keys))))))))
 
 (defn- merge-atomically [values]
-  (let [value (first values)]
+  (let [value (first values)
+        second-value (second values)]
     (if value
-      (if (second values)
-        (if (= (first values) (second values))
+      (if second-value
+        (if (= value second-value)
           (merge-atomically (rest values))
-          (if (= (first values) :top)
+          (if (= value :top)
             (merge-atomically (rest values))
-          :fail))
-        value))))
+            ;; 1st and 2nd value exist but are not =.
+            (if (and (or (= (type value) clojure.lang.PersistentArrayMap)
+                         (= (type value) clojure.lang.PersistentHashMap))
+                     (= (.size value) 1)
+                     (not (nil? (:not value))))
+              (if (> (.size (rest values)) 0)
+                (let [inverse-result (merge-atomically (cons (:not value)
+                                                             (rest values)))]
+                  (if (= inverse-result :fail)
+                    (if (rest values)
+                      (merge-atomically (rest values))
+                      value)
+                    :fail))
+                value)
+              (if (and (or (= (type second-value) clojure.lang.PersistentArrayMap)
+                           (= (type second-value) clojure.lang.PersistentHashMap))
+                       (= (.size second-value) 1)
+                       (not (nil? (:not second-value))))
+                (let [inverse-result (merge-atomically (list value (:not second-value)))]
+                  (if (= inverse-result :fail)
+                    (if (rest (rest values))
+                      (merge-atomically (rest (rest values)))
+                      value) ;; value is not a :not, but second-value is, so use value.
+                    value))
+                :fail))))
+        value)
+      value)))
 
 (defn- merge-values [values]
   (let [value (first values)]
@@ -755,14 +782,32 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (and (= (type (:a result)) clojure.lang.Ref)
               (= @(:a result) 42))))
 
-;      (rdutest
-;       "test merging with ':not' (special feature) (succeed atomic)"
-;       (m (merge-values-like-core '(42 {:not 43})))
-;       (fn [result]
-;         (= result 42)))
+      (rdutest
+       "test atom merging with ':not' (special feature) (first in list)"
+       (merge-atomically (list {:not 43} 42))
+       (fn [result]
+         (= result 42)))
+
+      (rdutest
+       "test atom merging with ':not' (special feature) (second in list)"
+       (merge-atomically (list 42 {:not 43}))
+       (fn [result]
+         (= result 42)))
+      
+      (rdutest
+       "test atom merging with ':not' (special feature)"
+       (merge-atomically (list 42 {:not 42}))
+       (fn [result]
+         :fail))
+
+      (rdutest
+       "test merging with ':not' (special feature)"
+       (merge {:foo 42} {:foo {:not 43}})
+       (fn [result]
+         (= result 42)))
 
 ;      (rdutest
-;       "test merging with ':not' (special feature) (fail atomic)"
+;       "test merging with ':not' (special feature)"
 ;       (m (merge-values-like-core '(42 {:not 42})))
 ;       (fn [result]
 ;         (= result :fail)))
