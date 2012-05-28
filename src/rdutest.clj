@@ -28,7 +28,7 @@
 ;; running tests repeatedly:
 ;; user=> (repeatedly 3 #(rdutest "trivial pass" true (fn [result] (= result true)) :trivial-pass))
 ;; 
-;; TODO: figure out namespaces so I can just do: (defmacro test).
+;; TODO: figure out namespaces so I can just do: (defmacro test), rather than needing to do (defmacro rdutest).
 ;; 
 (defmacro rdutest [testcomment test assert & [sym supress-output]]
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
@@ -46,7 +46,7 @@
        (if (not (= ~supress-output true))
          (println ~(str *ns* ": '" testcomment "' started.")))
        (if (not (= ~supress-output true))
-         (println (str ":  Result: " assert# (if (= assert# false) " (FAILED)."))))
+         (println (str ":  Result: " assert# (if (= assert# false) " (FAILED)." " (PASSED)."))))
        (load-string ~defn)
        {:test-text ~test-text
         :assert-text ~assert-text
@@ -79,4 +79,20 @@
            :failing-test
            true)]
       (:assert-result failing-test))
-    #(= % false)))) ;; test that the test failed: that the return value is false.
+    #(= % false)) ;; test that the test failed: that the return value is false.
+
+   (rdutest
+    "test a passing rdutest using rdutest."
+    (let [test-result (rdutest "sample test pass" (+ 2 2) (fn [result] (= result 4)))]
+      test-result)
+    #(= (:assert-result %) true))
+
+   (rdutest
+    "test a failing rdutest using rdutest."
+    (rdutest "sample test fail" (+ 2 2) (fn [result] (= result 5)))
+    (fn [the-retval-of-the-test]
+      (let [result-of-running-test (:assert-result the-retval-of-the-test)]
+      #(= result-of-running-test false))))
+   
+   ))
+
