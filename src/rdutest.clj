@@ -30,10 +30,11 @@
 ;; 
 ;; TODO: figure out namespaces so I can just do: (defmacro test), rather than needing to do (defmacro rdutest).
 ;; 
-(defmacro rdutest [testcomment test assert & [sym supress-output]]
+(defmacro rdutest [testcomment test assert & [sym supress-output result-failed-text]]
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
   (let [test-text (str test)
         assert-text (str assert)
+        result-failed-text (if result-failed-text (str result-failed-text) "(FAILED)")
         sym-text (if sym (str sym) (str (gensym)))
         sym-text-no-colon (stringc/tail (- (.length sym-text) 1) sym-text)
         test-result `~test
@@ -46,7 +47,7 @@
        (if (not (= ~supress-output true))
          (println ~(str *ns* ": '" testcomment "' started.")))
        (if (not (= ~supress-output true))
-         (println (str ":  Result: " assert# (if (= assert# false) " (FAILED)." " (PASSED)."))))
+         (println (str ":  Result: " assert# (if (= assert# false) (str " (" ~result-failed-text ").") " (PASSED)."))))
        (load-string ~defn)
        {:test-text ~test-text
         :assert-text ~assert-text
@@ -89,10 +90,12 @@
 
    (rdutest
     "test a failing rdutest using rdutest."
-    (rdutest "sample test fail" (+ 2 2) (fn [result] (= result 5)))
-    (fn [the-retval-of-the-test]
-      (let [result-of-running-test (:assert-result the-retval-of-the-test)]
-      #(= result-of-running-test false))))
+    ;; default text "FAILED" is distracting and misleading in this case, so override with "IGNORE TEST RESULT".
+    '(rdutest "sample test fail" (+ 2 2) (fn [result] (= result 5)) nil nil "IGNORE TEST RESULT")
+    (fn [test-text]
+      (let [the-retval-of-the-test (eval test-text)]
+        (let [result-of-running-test (:assert-result the-retval-of-the-test)]
+          #(= result-of-running-test false)))))
    
    ))
 
