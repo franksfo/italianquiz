@@ -68,7 +68,7 @@
     (first values)))
 
 ;; forward declarations:
-(declare merge)
+;(declare merge)
 (declare merge-r-like-core)
 (declare merge-r-like-core-nil-override)
 
@@ -86,8 +86,9 @@
                               (fn [x] (merge-values-like-core (cons @(first refs) nonrefs)))))]
           (first refs))
         (if value
-          (if (or (= (type value) clojure.lang.PersistentArrayMap)
-                  (= (type value) clojure.lang.PersistentHashMap))
+          (if (and (or (= (type value) clojure.lang.PersistentArrayMap)
+                       (= (type value) clojure.lang.PersistentHashMap))
+                   (= (get value :not :notfound) :notfound))
             (let [maps values
                   keys (set (mapcat #'keys maps))
                   collect-values (collect-values maps keys)]
@@ -109,8 +110,9 @@
                             (fn [x] (merge-values-like-core-nil-override (cons @(first refs) nonrefs)))))]
         (first refs))
       (if value
-        (if (or (= (type value) clojure.lang.PersistentArrayMap)
-                (= (type value) clojure.lang.PersistentHashMap))
+        (if (and (or (= (type value) clojure.lang.PersistentArrayMap)
+                     (= (type value) clojure.lang.PersistentHashMap))
+                 (= (get value :not :notfound) :notfound))
           (let [rest-of (if (> (.size (rest values)) 0)
                           (merge-values-like-core-nil-override (rest values))
                           :empty-list)]
@@ -127,7 +129,7 @@
                  (= value nil))
           nil {})))))
 
-(defn- merge-r-like-core [collected-map keys]
+(defn merge-r-like-core [collected-map keys]
   "merge a map where each value is a list of values to be merged for that key."
   (if (and (not (nil? keys)) (> (.size keys) 0))
     (let [key (first keys)]
@@ -153,7 +155,7 @@
              (merge-r-like-core-nil-override collected-map (rest keys)))
             (merge-r-like-core-nil-override collected-map (rest keys))))))))
 
-(defn- merge-atomically [values]
+(defn merge-atomically [values]
   (let [value (first values)
         second-value (second values)]
     (cond
@@ -164,6 +166,11 @@
      (merge-atomically (rest values))
      (= value :top)
      (merge-atomically (rest values))
+     (= (type value) clojure.lang.Ref)
+     (let [do-sync (dosync
+                    (alter value
+                           (fn [x] (merge-atomically (cons @value (rest values))))))]
+       value)
      (and (or (= (type value) clojure.lang.PersistentArrayMap)
               (= (type value) clojure.lang.PersistentHashMap))
           (= (.size value) 1)
@@ -190,18 +197,19 @@
      :else
      :fail)))
 
-(defn- merge-values [values]
+(defn merge-values [values]
   (let [value (first values)]
     (if value
-      (if (or (= (type value) clojure.lang.PersistentArrayMap)
-              (= (type value) clojure.lang.PersistentHashMap))
+      (if (and (or (= (type value) clojure.lang.PersistentArrayMap)
+                   (= (type value) clojure.lang.PersistentHashMap))
+               (= (get value :not :notfound) :notfound))
         (merge
          (first values)
          (merge-values (rest values)))
         (merge-atomically values))
         {})))
 
-(defn- merge-r [collected-map keys]
+(defn merge-r [collected-map keys]
   "merge a map where each value is a list of values to be merged for that key."
   (if (and (not (nil? keys))(> (.size keys) 0))
     (let [key (first keys)]
@@ -212,11 +220,26 @@
         {}))
     {}))
 
-(defn merge [& maps]
-  "like clojure.core/merge, but works recursively. also lacks optimization, testing"
-  (let [keyset (set (mapcat #'keys maps))]  ;; the set of all keys in all of the maps.
-    (merge-r (collect-values maps keyset)
-             (seq keyset))))
+(defn unify [& maps]
+  (let [val1 (first maps)
+        val2 (second maps)]
+    (cond (and (or (= (type val1) clojure.lang.PersistentArrayMap)
+                   (= (type val1) clojure.lang.PersistentHashMap))
+               (or (= (type val2) clojure.lang.PersistentArrayMap)
+                   (= (type val2) clojure.lang.PersistentHashMap)))
+          (reduce #(merge-with unify %1 %2) maps)
+          (not (nil? (:not val1)))
+          (let [result (unify (:not val1) val2)]
+            (if (= result :fail)
+              val2
+              :fail))
+          (not (nil? (:not val2)))
+          (let [result (unify val1 (:not val2))]
+            (if (= result :fail)
+              val1
+              :fail))
+          (= val1 val2) val1
+          :else :fail)))
 
 (defn union-keys [maps]
   ;; TODO: check that maps is a list (prevent 'evaluation aborted' messages).
@@ -257,28 +280,6 @@
       (let [keyset (union-keys maps)
             values (collect-values maps keyset)]
         (merge-r-like-core values (seq keyset))))))
-
-;; similar to clojure core's get-in, but supports :ref as a special feature.
-;; TODO: :ref is obsolete: remove metions of it.
-;; TODO: don't use this method, it doesn't make sense because it appends a :root
-;; to all return values for unknown reasons. Instead, just use clojure's (get-in).
-(defn get-path [fs path & [root]]
-  (let [root (if root root (if (:root fs) (:root fs) fs))
-        feat (first path)
-        val (get fs (first path))
-        ref (if val (get val :ref))]
-    (if (not (= ref nil))
-      ;; a ref: resolve ref.
-      (get-path root (concat ref (rest path)))
-      ;; else, not a ref.
-      (if (> (.size path) 0)
-        (get-path (get fs (first path))
-                  (rest path)
-                  root)
-        (if (or (= (type fs) clojure.lang.PersistentArrayMap)
-                (= (type fs) clojure.lang.PersistentHashMap))
-          (m {:root root} fs)
-          fs)))))
 
 (defn mergec [& maps]
   (merge-like-core (list maps)))
@@ -403,6 +404,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn copy [map]
   (deserialize (serialize map)))
 
+(defn merge-wb [map1 map2]
+  (m map1 map2))
+
+(defn unify-wb [map1 map2]
+  (unify map1 map2))
+
 ;; TODO: getting this on initial C-c C-k.
 ;;Unknown location:
 ;;  error: java.lang.StackOverflowError (fs.clj:352)
@@ -435,7 +442,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           keyset (union-keys maps)
           values (collect-values maps keyset)]
       (merge-values-like-core (get values (first keyset))))
-    (fn [result]
+   (fn [result]
       (= result 99)))
    
    (rdutest
@@ -471,19 +478,19 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        (= (:biff merge-result) 12))))
    
    (rdutest
-    "Recursive merge of 3 maps, tested with (get-path)"
+    "Recursive merge of 3 maps, tested with (get-in)"
     (let [map1 {:foo {:bar 99}}
           map2 {:foo {:baz 42}}
           map3 {:biff 12}]
       (m map1 map2 map3))
     (fn [merge-result]
       (and
-       (= (get-path merge-result '(:foo :bar)) 99)
-       (= (get-path merge-result '(:foo :baz)) 42))))
+       (= (get-in merge-result '(:foo :bar)) 99)
+       (= (get-in merge-result '(:foo :baz)) 42))))
 
    (rdutest
-    "Testing that merge(v1,v2)=fail if v1 != v2."
-    (merge {:foo 42} {:foo 43})
+    "Testing that unify(v1,v2)=fail if v1 != v2."
+    (unify {:foo 42} {:foo 43})
     (fn [result]
       (= (:foo result) :fail)))
    
@@ -524,6 +531,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (fn [map]
       (or (= (:a map) nil)
           (= (:a map) {}))))
+
    (rdutest
     "{:a {:foo 42}}{:a {}} => {:a nil}"
     (apply fs/merge-nil-override (list {:a {:foo 42}} {:a {}}))
@@ -620,7 +628,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                (fn [result]
                  (= result 42)))
 
-      (rdutest "merging atomic values with references"
+      (rdutest "merging atomic values with references (m)"
                (let [myref (ref :top)
                      val 42]
                  (fs/m myref val))
@@ -629,13 +637,23 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   (= (type result) clojure.lang.Ref)
                   (= @result 42))))
 
+      (rdutest "merging atomic values with references (merge-atomically)"
+               (let [myref (ref :top)
+                     val 42]
+                 (merge-atomically (list myref val)))
+               (fn [result]
+                 (and
+                  (= (type result) clojure.lang.Ref)
+                  (= @result 42))))
+
+      
       ;; {:a [1] :top
       ;;  :b [1]     } ,
       ;; {:a 42}
       ;;        =>
       ;; {:a [1] 42
       ;;  :b [1] }
-      (rdutest "merging with references"
+      (rdutest "merging references with :top and atomic values."
             (let [myref (ref :top)
                   fs1 {:a myref :b myref}
                   fs2 {:a 42}]
@@ -782,6 +800,21 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
               (= @(:a result) 42))))
 
       (rdutest
+       "merging with fs/m with reference, second position"
+       (let [fs1 {:a 42}
+             fs2 {:a (ref :top)}]
+         (fs/m fs1 fs2))
+       (fn [result]
+         (and (= (type (:a result)) clojure.lang.Ref)
+              (= @(:a result) 42))))
+      
+      (rdutest
+       "test merge-values with ':not' (special feature) (first in list; succeed)"
+       (merge-values (list {:not 43} 42))
+       (fn [result]
+         (= result 42)))
+
+      (rdutest
        "test atom merging with ':not' (special feature) (first in list; succeed)"
        (merge-atomically (list {:not 43} 42))
        (fn [result]
@@ -807,7 +840,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
       (rdutest
        "test merging with ':not' (special feature)"
-       (merge {:foo 42} {:foo {:not 43}})
+       (unify {:foo 42} {:foo {:not 43}})
        (fn [result]
          (= result {:foo 42})))
 
@@ -826,6 +859,48 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (apply merge-nil-override mycon))
        (fn [result] true))
 
+      (rdutest
+       "atomic vals: merge"
+       (merge-wb 5 5)
+       (fn [result] (= 5 5)))
+
+      (rdutest
+       "atomic vals: unify"
+       (unify-wb 5 5)
+       (fn [result] (= 5 5)))
+
+      (rdutest
+       "atomic vals: unify fail"
+       (unify-wb 5 4)
+       (fn [result] (= result :fail)))
+
+      (rdutest
+       "maps: merge"
+       (merge-wb '{:a 42} '{:b 43})
+       (fn [result]
+         (and (= (:a result) 42)
+              (= (:b result) 43))))
+                 
+
+      (rdutest
+       "maps: unify"
+       (unify-wb '{:a 42} '{:b 43})
+       (fn [result]
+         (and (= (:a result) 42)
+              (= (:b result) 43))))
+
+      (rdutest
+       "maps: merge (override)"
+       (merge-wb '{:a 42} '{:a 43})
+       (fn [result]
+         (= (:a result) 43)))
+      
+      (rdutest
+       "maps: unify fail"
+       (unify-wb '{:a 42} '{:a 43})
+       (fn [result]
+         (= (:a result) :fail)))
+      
 ;      (rdutest
 ;       "test merging with ':not' (special feature) (combine negation)"
 ;       (m (merge-values-like-core '({:not 41} {:not 42})))
@@ -840,6 +915,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;         (= (:key result) "bar"))
 ;       :test-not-merge)
       ))
+
 
 
 
