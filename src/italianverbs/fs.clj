@@ -4,6 +4,7 @@
   (:require
    [italianverbs.fs :as fs]
    [clojure.string :as string]
+   [clojure.core :as core]
    [clojure.contrib.string :as stringc]
    [clojure.contrib.str-utils2 :as str-utils]))
 
@@ -68,7 +69,6 @@
     (first values)))
 
 ;; forward declarations:
-;(declare merge)
 (declare merge-r-like-core)
 (declare merge-r-like-core-nil-override)
 
@@ -348,9 +348,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (let [first (first pathified)
         second (second pathified)]
     (if (and first second)
-      (merge {first second}
-             (map-pathify (rest (rest pathified)))))))
-
+      (core/merge {first second}
+                  (map-pathify (rest (rest pathified)))))))
 
 (defn ref-invert [input]
   "turn a map<P,V> into an inverted map<V,[P]> where every V has a list of what paths P point to it."
@@ -381,8 +380,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn serialize [fs]
   (let [inv (ref-invert fs)]
-    (merge (encode-refs fs inv)
-           {:refs (set-to-list inv)})))
+    (core/merge (encode-refs fs inv)
+                {:refs (set-to-list inv)})))
 
 (defn set-all-paths [fs paths val]
   (let [path (first paths)]
@@ -860,7 +859,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
       (rdutest
        "atomic vals: merge"
-       (merge-wb 5 5)
+       (m 5 5)
        (fn [result] (= 5 5)))
 
       (rdutest
