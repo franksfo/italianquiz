@@ -101,3 +101,6 @@
    
    ))
 
+;; provides a way to no-op failing tests for isolation.
+(defmacro rdutestno [testcomment test assert & [sym supress-output result-failed-text]]
+  nil)
