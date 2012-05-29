@@ -34,7 +34,7 @@
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
   (let [test-text (str test)
         assert-text (str assert)
-        result-failed-text (if result-failed-text (str result-failed-text) "(FAILED)")
+        result-failed-text (if result-failed-text (str result-failed-text) "FAILED")
         sym-text (if sym (str sym) (str (gensym)))
         sym-text-no-colon (stringc/tail (- (.length sym-text) 1) sym-text)
         test-result `~test
@@ -84,13 +84,15 @@
 
    (rdutest
     "test a passing rdutest using rdutest."
-    (let [test-result (rdutest "sample test pass" (+ 2 2) (fn [result] (= result 4)))]
-      test-result)
-    #(= (:assert-result %) true))
+    '(rdutest "sample test pass" (+ 2 2) (fn [result] (= result 4)))
+    #(= (:assert-result (eval %)) true))
 
    (rdutest
     "test a failing rdutest using rdutest."
-    ;; default text "FAILED" is distracting and misleading in this case, so override with "IGNORE TEST RESULT".
+    ;; -We use a quoted string for the next argument to prevent it being evaluated more than once and cluttering
+    ;; the output.
+    ;; 
+    ;; -Default text "FAILED" is distracting and misleading in this case, so override with "IGNORE TEST RESULT".
     '(rdutest "sample test fail" (+ 2 2) (fn [result] (= result 5)) nil nil "IGNORE TEST RESULT")
     (fn [test-text]
       (let [the-retval-of-the-test (eval test-text)]
