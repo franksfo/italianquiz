@@ -238,6 +238,11 @@
             (if (= result :fail)
               val1
               :fail))
+          (or (= val1 :fail)
+              (= val2 :fail))
+              :fail
+          (= val1 :top) val2
+          (= val2 :top) val1
           (= val1 val2) val1
           :else :fail)))
 
@@ -403,12 +408,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn copy [map]
   (deserialize (serialize map)))
-
-(defn merge-wb [map1 map2]
-  (m map1 map2))
-
-(defn unify-wb [map1 map2]
-  (unify map1 map2))
 
 ;; TODO: getting this on initial C-c C-k.
 ;;Unknown location:
@@ -866,17 +865,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
       (rdutest
        "atomic vals: unify"
-       (unify-wb 5 5)
+       (unify 5 5)
        (fn [result] (= 5 5)))
 
       (rdutest
        "atomic vals: unify fail"
-       (unify-wb 5 4)
+       (unify 5 4)
        (fn [result] (= result :fail)))
 
       (rdutest
        "maps: merge"
-       (merge-wb '{:a 42} '{:b 43})
+       (m '{:a 42} '{:b 43})
        (fn [result]
          (and (= (:a result) 42)
               (= (:b result) 43))))
@@ -884,20 +883,20 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
       (rdutest
        "maps: unify"
-       (unify-wb '{:a 42} '{:b 43})
+       (unify '{:a 42} '{:b 43})
        (fn [result]
          (and (= (:a result) 42)
               (= (:b result) 43))))
 
       (rdutest
        "maps: merge (override)"
-       (merge-wb '{:a 42} '{:a 43})
+       (m '{:a 42} '{:a 43})
        (fn [result]
          (= (:a result) 43)))
       
       (rdutest
        "maps: unify fail"
-       (unify-wb '{:a 42} '{:a 43})
+       (unify '{:a 42} '{:a 43})
        (fn [result]
          (= (:a result) :fail)))
       
