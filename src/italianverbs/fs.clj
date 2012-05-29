@@ -246,18 +246,36 @@
           (= val1 val2) val1
           :else :fail)))
 
+(defn merge [& maps]
+  (let [val1 (first maps)
+        val2 (second maps)]
+    (cond (and (or (= (type val1) clojure.lang.PersistentArrayMap)
+                   (= (type val1) clojure.lang.PersistentHashMap))
+               (or (= (type val2) clojure.lang.PersistentArrayMap)
+                   (= (type val2) clojure.lang.PersistentHashMap)))
+          (reduce #(merge-with merge %1 %2) maps)
+          (not (nil? (:not val1)))
+          (let [result (merge (:not val1) val2)]
+            (if (= result :fail)
+              val2
+              :fail))
+          (not (nil? (:not val2)))
+          (let [result (merge val1 (:not val2))]
+            (if (= result :fail)
+              val1
+              :fail))
+          (or (= val1 :fail)
+              (= val2 :fail))
+              :fail
+          (= val1 :top) val2
+          (= val2 :top) val1
+          (= val1 nil) val2
+          (= val2 nil) val1
+          :else val2)))
+
 (defn union-keys [maps]
   ;; TODO: check that maps is a list (prevent 'evaluation aborted' messages).
   (set (mapcat #'keys maps)))
-
-;; TODO: use merge-with http://clojure.github.com/clojure/clojure.core-api.html#clojure.core/merge-with
-;; TODO: it's misleading to say it's 'like core' when behavior differs w.r.t. nil."
-;;  (merge-nil-override is more 'like core' in this respect).
-(defn merge-like-core [& maps]
-  "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
-  (let [keyset (union-keys maps)
-        values (collect-values maps keyset)]
-    (merge-r-like-core values (seq keyset))))
 
 (defn merge-nil-override [& maps]
   "like clojure.core/merge, but works recursively, and works like it also in that later values win (see test 'nil-should-override'), even if that value is nil."
@@ -265,8 +283,6 @@
         values (collect-values-with-nil maps keyset)]
     (merge-r-like-core-nil-override values (seq keyset))))
 
-;; EXACTLY THE SAME AS (mergec):
-;; (until i learn to write wrappers).
 ;; TODO: eliminate in favor of merge-values-like-core.
 (defn m [& maps]
   "like clojure.core/merge, but works recursively, and works like it also in that the last value wins (see test 'atomic-merge' for usage.)"
@@ -285,9 +301,6 @@
       (let [keyset (union-keys maps)
             values (collect-values maps keyset)]
         (merge-r-like-core values (seq keyset))))))
-
-(defn mergec [& maps]
-  (merge-like-core (list maps)))
 
 (defn merge-and-apply [maps]
   "merge maps, and then apply the function (:fn merged) to the merged map."
@@ -454,17 +467,24 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   
    (rdutest
     "simple merge test."
-    (m {:foo 99} {:bar 42})
+    (merge {:foo 99} {:bar 42})
     (fn [result]
       (and (= (:foo result) 99)
            (= (:bar result) 42))))
-         
+
+   (rdutest
+    "simple unify test."
+    (unify {:foo 99} {:bar 42})
+    (fn [result]
+      (and (= (:foo result) 99)
+           (= (:bar result) 42))))
+   
    (rdutest
     "Recursive merge of 3 maps."
     (let [map1 {:foo {:bar 99}}
           map2 {:foo {:baz 42}}
           map3 {:biff 12}]
-      (m map1 map2 map3))
+      (merge map1 map2 map3))
     (fn [merge-result]
       ;; test that result looks like:
       ;; {:foo {:bar 99
@@ -480,7 +500,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (let [map1 {:foo {:bar 99}}
           map2 {:foo {:baz 42}}
           map3 {:biff 12}]
-      (m map1 map2 map3))
+      (merge map1 map2 map3))
     (fn [merge-result]
       (and
        (= (get-in merge-result '(:foo :bar)) 99)
@@ -493,26 +513,26 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (= (:foo result) :fail)))
    
    (rdutest
-    "Testing that merge-like-core(v1,v2)=v2 (overriding works)."
-    (merge-like-core {:foo 42} {:foo 43})
+    "Testing that merge(v1,v2)=v2 (overriding works)."
+    (merge {:foo 42} {:foo 43})
     (fn [result]
       (= (:foo result) 43)))
  
   (rdutest
     "Ignore nils in values (true,nil)."
-    (merge-like-core {:foo true} {:foo nil})
+    (merge {:foo true} {:foo nil})
     (fn [result]
       (= (:foo result) true)))
 
   (rdutest
-    "{} (unlike with nil) overrides true in merge-like-core."
-    (merge-like-core {:foo true} {:foo {}})
+    "{} (unlike with nil) overrides true in merge."
+    (merge {:foo true} {:foo {}})
     (fn [result]
       (= (:foo result) {})))
   
    (rdutest
     "Ignore nils in values (nil,nil)."
-    (merge-like-core {:foo nil} {:foo nil})
+    (merge {:foo nil} {:foo nil})
     (fn [result]
       (= result {:foo nil})))
    
