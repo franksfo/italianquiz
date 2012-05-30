@@ -49,15 +49,15 @@
            (or (= (:number map :notfound) :notfound)
                (and (= (type (:number map)) clojure.lang.Ref)
                     (= @(:number map) :top))))
-    (implied (fs/m map
-                   {:number :singular}))
+    (implied (fs/merge map
+                       {:number :singular}))
     map))
 
 
 ;; italian and english are strings, featuremap is a map of key->values.
 (defn add [italian english & featuremaps]
   (let [merged
-        (apply fs/merge-nil-override
+        (apply fs/merge
                (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
                        (list {:english english}
                              {:italian italian})))]
@@ -269,7 +269,7 @@
                           (get fs :gender)))
    (if english-plural english-plural
      (english-pluralize (get fs :english)))
-   (fs/merge-like-core
+   (fs/merge
     types
     fs
     {:det {:number :plural}}
@@ -278,11 +278,11 @@
 (defn add-with-plural [italian english featuremap types & [italian-plural english-plural]]
   (add-plural
    (add italian english
-        (fs/merge-like-core
-                       types
-                       featuremap
-                  {:det {:number :singular}}
-                  {:number :singular}))
+        (fs/merge
+         types
+         featuremap
+         {:det {:number :singular}}
+         {:number :singular}))
    types
    italian-plural english-plural))
 
@@ -377,7 +377,7 @@
                        {
                         :obj {:speakable true}
                         })
-          merge (fs/merge-like-core
+          merge (fs/merge
                  parlare
                  third-sing
                  {:root parlare})
@@ -392,7 +392,7 @@
             parla (:parla merge-and-parla)]
         (and
          (= (:cat parla) :verb)
-         (= (fs/get-path parla (list :subj :human)) true)
+         (= (get-in parla (list :subj :human)) true)
                                         ;         (= (fs/get-path parla (list :root :subj :human)) true)
                                         ;         (= (fs/get-path parla (list :subj :number)) :singular)
                                         ;         (= (fs/get-path parla (list :subj :person)) :3rd)
@@ -412,11 +412,11 @@
                        }
           masc {:gender :masc}
           mass {:mass true :comp {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
-          nil-complement {:comp nil :sport true}
+          nil-complement {:comp :nil! :sport true}
           featuremaps (list common-noun masc mass nil-complement)]
       {
        :copied-list (concat (map #'fs/copy featuremaps))
-       :with-apply (apply fs/merge-nil-override
+       :with-apply (apply fs/merge
                      (concat (map #'fs/copy featuremaps)))
        })
     (fn [result]
