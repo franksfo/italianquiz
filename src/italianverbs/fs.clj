@@ -220,65 +220,150 @@
         {}))
     {}))
 
-(defn unify [& maps]
-  (let [val1 (first maps)
-        val2 (second maps)]
-    (cond (and (or (= (type val1) clojure.lang.PersistentArrayMap)
-                   (= (type val1) clojure.lang.PersistentHashMap))
-               (or (= (type val2) clojure.lang.PersistentArrayMap)
-                   (= (type val2) clojure.lang.PersistentHashMap)))
-          (reduce #(merge-with unify %1 %2) maps)
-          (not (nil? (:not val1)))
-          (let [result (unify (:not val1) val2)]
-            (if (= result :fail)
-              val2
-              :fail))
-          (not (nil? (:not val2)))
-          (let [result (unify val1 (:not val2))]
-            (if (= result :fail)
-              val1
-              :fail))
-          (or (= val1 :fail)
-              (= val2 :fail))
-              :fail
-          (= val1 :top) val2
-          (= val2 :top) val1
-          (= val1 val2) val1
-          :else :fail)))
+(defn unify [& args]
+  (let [val1 (first args)
+        val2 (second args)]
+    (cond
 
-(defn merge [& maps]
-  (let [val1 (first maps)
-        val2 (second maps)]
-    (cond (and (or (= (type val1) clojure.lang.PersistentArrayMap)
-                   (= (type val1) clojure.lang.PersistentHashMap))
-               (or (= (type val2) clojure.lang.PersistentArrayMap)
-                   (= (type val2) clojure.lang.PersistentHashMap)))
-          (reduce #(merge-with merge %1 %2) maps)
-          (not (nil? (:not val1)))
-          (let [result (merge (:not val1) val2)]
-            (if (= result :fail)
-              val2
-              :fail))
-          (not (nil? (:not val2)))
-          (let [result (merge val1 (:not val2))]
-            (if (= result :fail)
-              val1
-              :fail))
-          (or (= val1 :fail)
-              (= val2 :fail))
-              :fail
-          (= val1 :top) val2
-          (= val2 :top) val1
-          (= val1 nil) val2
-          (= val2 nil) val1
-          :else val2)))
+     (= (.count args) 1)
+     (first args)
+     
+     (and (or (= (type val1) clojure.lang.PersistentArrayMap)
+              (= (type val1) clojure.lang.PersistentHashMap))
+          (or (= (type val2) clojure.lang.PersistentArrayMap)
+              (= (type val2) clojure.lang.PersistentHashMap)))
+     (reduce #(merge-with unify %1 %2) args)
+
+     (and 
+      (= (type val1) clojure.lang.Ref)
+      (not (= (type val2) clojure.lang.Ref)))
+     (do (dosync
+          (alter val1
+                 (fn [x] (unify @val1 val2))))
+         val1)
+
+     (and 
+      (= (type val2) clojure.lang.Ref)
+      (not (= (type val1) clojure.lang.Ref)))
+     (do (dosync
+          (alter val2
+                 (fn [x] (unify val1 @val2))))
+         val2)
+
+     (and 
+      (= (type val1) clojure.lang.Ref)
+      (= (type val2) clojure.lang.Ref))
+      (do (dosync
+           (alter val1
+                  (fn [x] (unify @val1 @val2))))
+          (dosync
+           (alter val2
+                  (fn [x] val1)))
+       val1)
+     
+     (not (= :notfound (:not val1 :notfound)))
+     (let [result (unify (:not val1) val2)]
+       (if (= result :fail)
+         val2
+         :fail))
+
+     (not (= :notfound (:not val2 :notfound)))
+     (let [result (unify val1 (:not val2))]
+       (if (= result :fail)
+         val1
+         :fail))
+
+     (or (= val1 :fail)
+         (= val2 :fail))
+     :fail
+
+     (= val1 :top) val2
+
+     (= val2 :top) val1
+
+     (= val1 val2) val1
+
+     :else :fail)))
+
+(defn merge [& args]
+  (let [val1 (first args)
+        val2 (second args)]
+    (cond
+
+     (= (.count args) 1)
+     (first args)
+
+     (and (or (= (type val1) clojure.lang.PersistentArrayMap)
+              (= (type val1) clojure.lang.PersistentHashMap))
+          (or (= (type val2) clojure.lang.PersistentArrayMap)
+              (= (type val2) clojure.lang.PersistentHashMap)))
+     (reduce #(merge-with merge %1 %2) args)
+
+     (and 
+      (= (type val1) clojure.lang.Ref)
+      (not (= (type val2) clojure.lang.Ref)))
+     (do (dosync
+          (alter val1
+                 (fn [x] (merge @val1 val2))))
+         val1)
+
+     (and 
+      (= (type val2) clojure.lang.Ref)
+      (not (= (type val1) clojure.lang.Ref)))
+     (do (dosync
+          (alter val2
+                 (fn [x] (merge val1 @val2))))
+         val2)
+
+     (and 
+      (= (type val1) clojure.lang.Ref)
+      (= (type val2) clojure.lang.Ref))
+      (do (dosync
+           (alter val1
+                  (fn [x] (merge @val1 @val2))))
+          (dosync
+           (alter val2
+                  (fn [x] val1)))
+       val1)
+
+     (not (= :notfound (:not val1 :notfound)))
+     (let [result (unify (:not val1) val2)]
+       (if (= result :fail)
+         val2
+         :fail))
+
+     (not (= :notfound (:not val2 :notfound)))
+     (let [result (unify val1 (:not val2))]
+       (if (= result :fail)
+         val1
+         :fail))
+
+     (or (= val1 :fail)
+         (= val2 :fail))
+     :fail
+
+     (= val1 :top) val2
+     (= val2 :top) val1
+     (= val1 nil) val2
+
+     ;; note difference in behavior between nil and :nil!:
+     ;; (nil is ignored, while :nil! is not).
+     ;; (merge 42 nil) => 42
+     ;; (merge 42 :nil!) => :nil!
+     (= val2 nil) val1
+     (= val2 :nil!) val2
+
+     (= val1 val2) val1
+
+     :else ;override with remainder of arguments, like core/merge.
+     (apply merge (rest args)))))
 
 (defn union-keys [maps]
   ;; TODO: check that maps is a list (prevent 'evaluation aborted' messages).
   (set (mapcat #'keys maps)))
 
 (defn merge-nil-override [& maps]
-  "like clojure.core/merge, but works recursively, and works like it also in that later values win (see test 'nil-should-override'), even if that value is nil."
+  "like clojure.core/merge, but works recursively, and works like it also in that later values win, even if that value is nil (see 'nil-should-override' comment below)."
   (let [keyset (union-keys maps)
         values (collect-values-with-nil maps keyset)]
     (merge-r-like-core-nil-override values (seq keyset))))
@@ -536,9 +621,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (fn [result]
       (= result {:foo nil})))
    
+   ;; nil-should-override
    (rdutest
     "{:a 42}{:a nil} -merge-nil-override-> {:a nil}"
-    (apply fs/merge-nil-override (list {:a 42}{:a nil}))
+    (apply merge-nil-override (list {:a 42}{:a nil}))
     (fn [map]
       (or (= (:a map) nil)
           (= (:a map) {}))))
@@ -655,6 +741,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   (= (type result) clojure.lang.Ref)
                   (= @result 42))))
 
+      (rdutest "unify atomic values with references (m)"
+               (let [myref (ref :top)
+                     val 42]
+                 (unify myref val))
+               (fn [result]
+                 (and
+                  (= (type result) clojure.lang.Ref)
+                  (= @result 42))))
+      
       (rdutest "merging atomic values with references (merge-atomically)"
                (let [myref (ref :top)
                      val 42]
@@ -762,7 +857,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (and (= (type (:b result)) clojure.lang.Ref)
               (= @(:b result)) 42)))
 
-      ;; [b [1] top], [b 42] => [b [1] 42]
+      ;; [b [1] :top], [b 42] => [b [1] 42]
       (rdutest
        "merging with merge-nil-override with reference"
        (let [fs1 {:b (ref :top)}
@@ -772,7 +867,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (and (= (type (:b result)) clojure.lang.Ref)
               (= @(:b result)) 42)))
 
-      ;; [a [b [1] top]], [a [b 42]] => [a [b [1] 42]]
+      ;; [a [b [1] :top]], [a [b 42]] => [a [b [1] 42]]
       (rdutest
        "merging with merge-nil-override with inner reference"
        (let [fs1 {:a {:b (ref :top)}}
@@ -898,7 +993,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        (fn [result]
          (and (= (:a result) 42)
               (= (:b result) 43))))
-                 
 
       (rdutest
        "maps: unify"
