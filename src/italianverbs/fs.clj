@@ -255,22 +255,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn copy [map]
   (deserialize (serialize map)))
 
-(defn mergec [& args]
-  (apply merge (map copy args)))
-
-(defn unifyc [& args]
-  (apply unify (map copy args)))
-
-
-;; TODO: getting this on initial C-c C-k.
-;;Unknown location:
-;;  error: java.lang.StackOverflowError (fs.clj:352)
-
-;;Unknown location:
-;;  error: java.lang.StackOverflowError
-
-;;Compilation failed.
-
 (def tests
   (list
   
