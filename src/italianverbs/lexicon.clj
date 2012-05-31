@@ -562,7 +562,8 @@
     "calcio is a noun that does not take an article."
     (lookup "calcio")
     (fn [calcio]
-      (= {} (:comp calcio)))
+      (or (= :nil! (:comp calcio))
+          (= "nil!" (:comp calcio))))
     :calcio)
 
    ;;
