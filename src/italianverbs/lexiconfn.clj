@@ -53,6 +53,22 @@
                        {:number :singular}))
     map))
 
+(defn intermed3 [italian english & featuremaps]
+  featuremaps)
+
+(defn intermed2 [italian english & featuremaps]
+  (map #'fs/copy featuremaps))
+
+(defn intermed1 [italian english & featuremaps]
+  (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
+          (list {:english english}
+                {:italian italian})))
+
+(defn intermed [italian english & featuremaps]
+  (apply fs/merge
+         (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
+                 (list {:english english}
+                       {:italian italian}))))
 
 ;; italian and english are strings, featuremap is a map of key->values.
 (defn add [italian english & featuremaps]

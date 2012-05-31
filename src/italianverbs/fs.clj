@@ -321,10 +321,7 @@
       (do (dosync
            (alter val1
                   (fn [x] (merge @val1 @val2))))
-          (dosync
-           (alter val2
-                  (fn [x] val1)))
-       val1)
+          val1)
 
      (not (= :notfound (:not val1 :notfound)))
      (let [result (unify (:not val1) val2)]
@@ -352,6 +349,7 @@
      ;; (merge 42 :nil!) => :nil!
      (= val2 nil) val1
      (= val2 :nil!) val2
+     (= val2 "nil!") val2 ;; needed because of translation error from mongod to clojure.
 
      (= val1 val2) val1
 
@@ -505,6 +503,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn copy [map]
   (deserialize (serialize map)))
+
+(defn mergec [& args]
+  (apply merge (map copy args)))
+
+(defn unifyc [& args]
+  (apply unify (map copy args)))
+
 
 ;; TODO: getting this on initial C-c C-k.
 ;;Unknown location:

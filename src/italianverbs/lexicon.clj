@@ -7,11 +7,6 @@
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear)
 
-;; this (merge) doesn't work: need to learn to write wrappers.
-;; until then, using fs/m below.
-(defn merge [& [args]]
-  (fs/merge-like-core args))
-
 (let [word {:morph "unspecified-morphology"} ;; 'word' not used currently.
       verb
       (let [number-agreement (ref :top)
@@ -25,21 +20,21 @@
          :passato-aux "avere"})
       animate {:animate true}
       det {:cat :det}
-      human (fs/m animate {:human true})
+      human (fs/mergec animate {:human true})
       masc {:gender :masc}
-      transitive (fs/m verb {:obj {:case {:not :nom}}})
+      transitive (fs/mergec verb {:obj {:case {:not :nom}}})
       present {:infl :present}
       singular {:number :singular}
       plural {:number :plural}
-      
+
       ;; TODO: graduate common-noun content into noun.
       noun {:cat :noun}
       third-person {:person :3rd :cat :noun}
-      third-sing (fs/m third-person {:number :singular})
+      third-sing (fs/mergec third-person {:number :singular})
 
       ;; 'morph-noun' and 'take-article' are defined in generate.clj.
       common-noun
-      (fs/m third-person
+      (fs/mergec third-person
             (let [number-agreement (ref :top)
                   gender-agreement (ref :top)]
               {:comp {:cat :det
@@ -53,15 +48,16 @@
                :number number-agreement}))
 
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
-      pronoun (fs/m noun {:pronoun true :comp nil :human true})
-      speakable (fs/m common-noun {:speakable true})
-      readable (fs/m common-noun {:readable true})
-      edible (fs/m common-noun {:edible true})
+
+      pronoun (fs/mergec noun {:pronoun true :comp nil :human true})
+      speakable (fs/mergec common-noun {:speakable true})
+      readable (fs/mergec common-noun {:readable true})
+      edible (fs/mergec common-noun {:edible true})
       mass {:mass true :comp {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
 
       third-sing-subj {:subj third-sing}
 
-      artifact (fs/m common-noun {:artifact true})
+      artifact (fs/mergec common-noun {:artifact true})
       masc {:gender :masc}
       fem {:gender :fem}
 
@@ -106,17 +102,17 @@
              {:infl :present}
              {:subj {:number :plural
                      :person :3rd}}))
-      
+
       calcio (add "calcio" "soccer"
                   third-sing masc mass
-                  {:comp nil
+                  {:comp :nil!
                    :sport true})
       
       cane (add "cane" "dog"
                 common-noun masc
                 {:animate true
                  :number :singular})
-      
+
 ;; needs supports for reflexive pronouns: "mi chiamo gino".
 ;      (add "chiamare" "to be named"
 ;           {:cat :verb :infl :infinitive
@@ -177,9 +173,10 @@
              {:subj {:number :plural
                      :person :3rd}}))
 
+
       fare (let [fare (add "fare" "to make"
                            verb
-                           {:subj (fs/m noun {:human true})
+                           {:subj (fs/mergec noun {:human true})
                             :obj artifact})]
              
              (add "facio" "make"
@@ -195,7 +192,7 @@
                   present
                   {:subj {:number :singular
                           :person :2nd}})
-                 
+                
              (add "fa" "makes"
                   fare
                   {:root fare}
@@ -226,86 +223,83 @@
 
              
              )
-      
-      giocare (add "giocare" "to play"
+
+     giocare (add "giocare" "to play"
+                  verb
+                  {:subj human
+                   :obj (fs/mergec noun
+                              {:sport true})})
+     
+     il (add "il" "the" {:gender :masc :number :singular :cat :det
+                         :def :def})
+     i (add "i" "the" masc plural det {:def :def})
+     
+     io (add "io" "i" 
+             human
+             pronoun
+             {:person :1st :number :singular :case :nom})
+
+     
+     la (add "la" "the" {:gender :fem :number :singular :cat :det
+                         :def :def})
+
+     lavorare (add "lavorare" "to work"
                    verb
-                   {:subj human
-                    :obj (fs/m noun
-                               {:sport true})})
-      
-      il (add "il" "the" {:gender :masc :number :singular :cat :det
-                          :def :def})
-      
-      la (add "la" "the" {:gender :fem :number :singular :cat :det
-                          :def :def})
+                   {:subj human})
+     
 
-      lavorare (add "lavorare" "to work"
-                    verb
-                    {:subj human})
-      
+     le (add "le" "the" {:gender :fem :number :plural :cat :det
+                         :def :def})
+     
+     letto (add "letto" "bed"
+                artifact masc
+                {:furniture true
+                 :ruggable true}) ;; ruggable: can be placed on top of a rug.
 
-      le (add "le" "the" {:gender :fem :number :plural :cat :det
-                          :def :def})
+     libro (add "libro" "book"
+                artifact readable masc)
 
-      i (add "i" "the" masc plural det {:def :def})
-      
-      io (add "io" "i" 
-              human
-              pronoun
-              {:person :1st :number :singular :case :nom})
+     leggere (add "leggere" "to read"
+                  transitive
+                  {:subj (fs/mergec noun {:human true})
+                   :obj (fs/mergec noun {:readable true})})
 
+     lei (add "lei" "she" 
+              human pronoun fem
+              {:person :3rd :number :singular :case :nom })
 
-      letto (add "letto" "bed"
-                 artifact masc
-                 {:furniture true
-                  :ruggable true}) ;; ruggable: can be placed on top of a rug.
-
-      libro (add "libro" "book"
-                 artifact readable masc
-                 {:on {:ruggable true}})
-
-      leggere (add "leggere" "to read"
+     loro (add "loro" "they" 
+             human
+             pronoun
+             {:person :3rd :number :plural :case :nom})
+     
+     lui (add "lui" "he" 
+              human pronoun masc
+              {:person :3rd :number :singular :case :nom })
+     
+     mangiare (add "mangiare" "to eat"
                    transitive
-                   {:subj (fs/m noun {:human true})
-                    :obj (fs/m noun {:readable true})})
+                   {:subj (fs/mergec noun {:animate true})
+                    :obj edible}) 
+     mi (add "mi" "me"
+             pronoun
+             {:person :1st :number :singular :case :acc})
 
-      lei (add "lei" "she" 
-               human pronoun fem
-               {:person :3rd :number :singular :case :nom })
-
-      loro (add "loro" "they" 
-              human
-              pronoun
-              {:person :3rd :number :plural :case :nom})
-      
-      lui (add "lui" "he" 
-               human pronoun masc
-               {:person :3rd :number :singular :case :nom })
-
-      
-      mangiare (add "mangiare" "to eat"
-                    transitive
-                    {:subj (fs/m noun {:animate true})
-                     :obj edible})
-
-      mi (add "mi" "me"
-              pronoun
-              {:person :1st :number :singular :case :acc})
-
-      noi (add "noi" "we" 
-              human
-              pronoun
-              {:person :1st :number :plural :case :nom})
-      
+     noi (add "noi" "we" 
+             human
+             pronoun
+             {:person :1st :number :plural :case :nom})
+     
       pane (add "pane" "bread"
-                artifact mass
-                {:edible true
-                 :gender :masc})
-
+               artifact mass
+               {:edible true
+                :gender :masc})
+      
       parlare (add "parlare" "to speak"
-                   verb
+                    verb
                    {:subj (fs/m noun {:human true})
                     :obj speakable})
+
 
       parola (add "parola" "word"
                   common-noun
@@ -327,7 +321,6 @@
       ragazza (add "ragazza" "girl" (fs/copy common-noun) fem human)
 
       ragazzo (add "ragazzo" "guy" (fs/copy common-noun) masc human)
-
       sedia (add "sedia" "chair"
                   fem artifact
                   {:holdable true 
@@ -365,14 +358,18 @@
               human
               pronoun
               {:person :2nd :number :plural :case :nom})
-
-      
       
       ]
-  ) ;; top-level (let).
+  (def variables
+    {:common-noun common-noun :takes-masc-sing-determiner takes-masc-sing-determiner :hanno (lookup "hanno")
+     :calcio (lookup "calcio") :fanno (lookup "fanno")
+     :artifact artifact :masc masc :readable readable
+     :letto letto :libro libro}))
 
 (add "gennario" "january"
      {:month true})
+
+
 (add "febbraio" "february"
      {:month true})
 (add "marzo" "march"
@@ -550,7 +547,6 @@
             :furniture true}})
 
 ;; end of lexicon.
-
 ;; begin tests.
 
 (def localtests ;; so as not to collide with lexiconfn/tests.
@@ -647,7 +643,4 @@
           (get-in to-have '(:subj :number)))))
        :verb-agreement)
    ))
-
-
-
 
