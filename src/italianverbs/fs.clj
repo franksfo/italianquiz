@@ -28,29 +28,6 @@
    true
    sign))
 
-(defn collect-values-with-nil [maps keys]
-  (if (and keys (> (.size keys) 0))
-    (let [key (first keys)]
-      (if key
-        (conj
-         {key (mapcat (fn [eachmap]
-                        (let [val (get eachmap key :notfound)]
-                          (if (not (= val :notfound))
-                            (list val))))
-                      maps)}
-         (collect-values-with-nil maps (rest keys)))))))
-
-;; TODO: 'atom' is confusing here because i mean it the sense of
-;; simple values like floats or integers, as opposed to sets, maps, or lists.
-;; use 'simple' here and elsewhere in this file.
-(defn- merge-atomically-like-core [values]
-  (if (> (.size values) 1)
-    (let [do-rest (merge-atomically-like-core (rest values))]
-      (if (= do-rest :top)
-        (first values)
-        do-rest))
-    (first values)))
-
 (defn merge-atomically [values]
   (let [value (first values)
         second-value (second values)]
@@ -92,29 +69,6 @@
          :fail))
      :else
      :fail)))
-
-(defn merge-values [values]
-  (let [value (first values)]
-    (if value
-      (if (and (or (= (type value) clojure.lang.PersistentArrayMap)
-                   (= (type value) clojure.lang.PersistentHashMap))
-               (= (get value :not :notfound) :notfound))
-        (merge
-         (first values)
-         (merge-values (rest values)))
-        (merge-atomically values))
-        {})))
-
-(defn merge-r [collected-map keys]
-  "merge a map where each value is a list of values to be merged for that key."
-  (if (and (not (nil? keys))(> (.size keys) 0))
-    (let [key (first keys)]
-      (if key
-        (conj
-         {key (merge-values (get collected-map key))}
-         (merge-r collected-map (rest keys)))
-        {}))
-    {}))
 
 (defn unify [& args]
   (let [val1 (first args)
@@ -510,17 +464,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                      (= (get-in copy '(:a :b))
                         (get-in copy '(:c)))))))
 
-      (rdutest "merging atomic values: fails"
-               (merge-values (list 42 43))
-               (fn [result]
-                 (= result :fail)))
-
-      (rdutest "merging atomic values: succeeds"
-               (merge-values (list 42 42))
-               (fn [result]
-                 (= result 42)))
-
-      (rdutest "unify atomic values with references (m)"
+      (rdutest "unify atomic values with references."
                (let [myref (ref :top)
                      val 42]
                  (unify myref val))
@@ -643,12 +587,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        (fn [result]
          (and (= (type (:a result)) clojure.lang.Ref)
               (= @(:a result) 42))))
-      
-      (rdutest
-       "test merge-values with ':not' (special feature) (first in list; succeed)"
-       (merge-values (list {:not 43} 42))
-       (fn [result]
-         (= result 42)))
 
       (rdutest
        "test atom merging with ':not' (special feature) (first in list; succeed)"
