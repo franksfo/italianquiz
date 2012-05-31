@@ -330,9 +330,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (rdutest
     "noun-agreement via merge (1)."
     (let [cane (lexfn/lookup "cane")
-          determiner (random-lexeme (fs/m {:cat :det}
-                                          (get-in cane '(:comp))))]
-      (fs/m cane {:comp determiner}))
+          determiner (random-lexeme (fs/merge {:cat :det}
+                                              (get-in cane '(:comp))))]
+      (fs/merge cane {:comp determiner}))
     (fn [np]
       (and (not (nil? np))
            (= (type (get-in np '(:number))) clojure.lang.Ref)
