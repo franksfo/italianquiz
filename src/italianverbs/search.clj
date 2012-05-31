@@ -56,7 +56,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (pathify-r fs))
 
 (defn pv-not-matches [lexical-entry path value]
-  (let [path-value (fs/get-path lexical-entry path)]
+  (let [path-value (get-in lexical-entry path)]
     (if (not (or (= path-value value)
                  (and (not (= (keyword path-value) nil))
                       (= (keyword path-value) value))))
@@ -66,10 +66,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   "might need a more complicated equality predicate later."
   (if (= (last path) :not)
     (pv-not-matches lexical-entry (butlast path) value)
-    (let [path-value (fs/get-path lexical-entry path)]
+    (let [path-value (get-in lexical-entry path)]
       (if (or (= path-value value)
               (= (keyword path-value) value)
-              (and (not (nil? (fs/get-path lexical-entry path)))
+              (and (not (nil? (get-in lexical-entry path)))
                    (or (= value :top) ; searching for :top means: find any entry that has any value at all for the path (but it must have _some_ value).
                        (= value "top"))))  ; TODO: should not need to check for "top" (string): should only have to check for :top.
         (list lexical-entry)))))
@@ -110,7 +110,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; path-value-pair as a filter.
 (def tv {:cat "verb" :obj {:cat "noun"}})
 
-(defn myfn [fs] (= (fs/get-path fs '(:obj :cat)) "noun"))
+(defn myfn [fs] (= (get-in fs '(:obj :cat)) "noun"))
 
 ;; How to map over (fetch :lexicon) results:
 ;; 
@@ -350,44 +350,39 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (rdutest
     "verb-agreement via merge (1)."
     (let [avere (lexfn/lookup "avere")
-          subject (random-lexeme (get-in avere '(:subj)))]
-      (fs/m avere {:comp subject}))
-    (fn [avere]
-      (and (not (nil? avere))
-           (= (type (get-in avere '(:number))) clojure.lang.Ref)
-           (or (= @(get-in avere '(:number)) "singular")
-               (= @(get-in avere '(:number)) :singular))
-           (= (type (get-in avere '(:gender))) clojure.lang.Ref)
-           (or (= @(get-in avere '(:gender)) "masc")
-               (= @(get-in avere '(:gender)) :masc))
-           (= (get-in avere '(:gender))
-              (get-in avere '(:comp :gender)))
-           (= (get-in avere '(:number))
-              (get-in avere '(:comp :number)))))
-    :verb-agreement)
+          subject (random-lexeme (:subj avere))]
+      (fs/merge avere {:subj subject}))
+    (fn [result]
+      (and (not (nil? result))
+           (= (type (get-in result '(:number))) clojure.lang.Ref)
+           (= (get-in result '(:number))
+              (get-in result '(:subj :number)))
+           (= (type (get-in result '(:person))) clojure.lang.Ref)
+           (= (get-in result '(:person))
+              (get-in result '(:subj :person))))))
 
-   (rdutest
-    "verb-agreement via merge (2)."
-    (let [hanno (lexfn/lookup "hanno")
-          subject (random-lexeme (get-in hanno '(:subj)))]
-      (fs/m hanno {:comp subject}))
-    (fn [hanno]
-      (and (not (nil? hanno))
-           (= (type (get-in hanno '(:number))) clojure.lang.Ref)
-           (or (= @(get-in hanno '(:number)) "plural")
-               (= @(get-in hanno '(:number)) :plural))
+;   (rdutest
+;    "verb-agreement via merge (2)."
+;    (let [hanno (lexfn/lookup "hanno")
+;          subject (random-lexeme (get-in hanno '(:subj)))]
+;      (fs/m hanno {:subj subject}))
+;    (fn [hanno]
+;      (and (not (nil? hanno))
+;           (= (type (get-in hanno '(:number))) clojure.lang.Ref)
+;           (or (= @(get-in hanno '(:number)) "plural")
+;               (= @(get-in hanno '(:number)) :plural))
 
-           (= (type (get-in hanno '(:person))) clojure.lang.Ref)
-           (or (= @(get-in hanno '(:person)) "3rd")
-               (= @(get-in hanno '(:person)) :3rd))
+;           (= (type (get-in hanno '(:person))) clojure.lang.Ref)
+;           (or (= @(get-in hanno '(:person)) "3rd")
+;               (= @(get-in hanno '(:person)) :3rd))
 
-           (= (get-in hanno '(:person))
-              (get-in hanno '(:comp :person)))
-           (= (get-in hanno '(:gender))
-              (get-in hanno '(:comp :gender)))
-           (= (get-in hanno '(:number))
-              (get-in hanno '(:comp :number)))))
-    :verb-agreement)
+;           (= (get-in hanno '(:person))
+;              (get-in hanno '(:comp :person)))
+;           (= (get-in hanno '(:gender))
+;              (get-in hanno '(:comp :gender)))
+;           (= (get-in hanno '(:number))
+;              (get-in hanno '(:comp :number))))))
+
    ))
 
 ;; FIXME: graduate to test.clj.
