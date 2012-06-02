@@ -370,13 +370,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (let [hanno (lexfn/lookup "hanno")
           subject (random-lexeme (get-in hanno '(:subj)))]
       (fs/unify hanno {:subj subject}))
-    (fn [hanno]
-      (and (not (nil? hanno))
-           (= (type (get-in hanno '(:number))) clojure.lang.Ref)
-           (or (= @(get-in hanno '(:number)) "plural")
-               (= @(get-in hanno '(:number)) :plural)))))
-
-
+    (fn [result]
+      (and (not (nil? result))
+           (= (type (get-in result '(:number))) clojure.lang.Ref)
+           (not (= @(get-in result '(:number)) :fail))
+           (or (= @(get-in result '(:number)) "plural")
+               (= @(get-in result '(:number)) :plural)))))
 
    (rdutest
     "lookup subjects based on verb constraints."
