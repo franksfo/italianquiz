@@ -318,7 +318,7 @@
 (defn conjugate-verb [verb subject]
   (let [irregulars
         (search/search (fs/unify
-                        {:root (fs/unify verb {:infl :infinitive})}
+                        {:root (fs/merge verb {:infl :infinitive})}
                         {:subj
                          (select-keys
                           subject
@@ -581,7 +581,8 @@
    
    (rdutest
     "Conjugate 'io' + 'fare' => 'io  facio'"
-    (conjugate-verb (fs/unify (nth (search/search {:italian "fare" :infl :infinitive}) 0) {:infl :present})
+    (conjugate-verb (fs/merge (nth (search/search {:italian "fare" :infl :infinitive}) 0)
+                              {:infl :present})
                     (nth (search/search {:italian "io" :case :nom}) 0))
     (fn [conjugated]
       (= (:italian conjugated) "facio"))
@@ -632,14 +633,14 @@
 
    (rdutest
     "Conjugate 'libro' + '{definite,plural}' => 'i libri'."
-    (conjugate-np (fs/unify (lookup "libro") {:number :plural}) {:def :def})
+    (conjugate-np (fs/merge (lookup "libro") {:number :plural}) {:def :def})
     (fn [conjugated]
       (= (:italian conjugated) "i libri"))
     :il-libro)
 
    (rdutest
     "Conjugate 'sedia' + '{definite,plural}' => 'le sedie'."
-    (conjugate-np (fs/unify (lookup "sedia") {:number :plural}) {:def :def})
+    (conjugate-np (fs/merge (lookup "sedia") {:number :plural}) {:def :def})
     (fn [conjugated]
       (= (:italian conjugated) "le sedie"))
     :le-sedie)
@@ -682,7 +683,7 @@
    (rdutest
     "essere vp"
     (let [root-verb (lookup "essere")]
-      (conjugate-vp (fs/unify root-verb {:infl :present})
+      (conjugate-vp (fs/merge root-verb {:infl :present})
                     (lookup "io")
                     (conjugate-np (lookup "libro") {:def :indef})))
     (fn [vp]
@@ -692,7 +693,7 @@
    (rdutest
     "essere sentence"
     (let [root-verb (lookup "essere")
-          vp (conjugate-vp (fs/unify root-verb {:infl :present})
+          vp (conjugate-vp (fs/merge root-verb {:infl :present})
                            (lookup "voi")
                            (conjugate-np (lookup "libro") {:def :indef}))]
       (conjugate-sent vp (lookup "voi")))
