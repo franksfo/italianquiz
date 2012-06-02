@@ -328,13 +328,16 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     :pathify-with-inner-map-with-reference)
 
    (rdutest
-    "noun-agreement via merge (1)."
+    "noun-agreement via unify (1)."
     (let [cane (lexfn/lookup "cane")
-          determiner (random-lexeme (fs/merge {:cat :det}
+          determiner (random-lexeme (fs/unify {:cat :det}
                                               (get-in cane '(:comp))))]
-      (fs/merge cane {:comp determiner}))
+      (fs/unify cane {:comp determiner}))
     (fn [np]
       (and (not (nil? np))
+           (not (= (get-in np '(:comp)) :fail))
+           (or (= (get-in np '(:comp :italian)) "il")
+               (= (get-in np '(:comp :italian)) "un"))
            (= (type (get-in np '(:number))) clojure.lang.Ref)
            (or (= @(get-in np '(:number)) "singular")
                (= @(get-in np '(:number)) :singular))
@@ -348,10 +351,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     :noun-agreement)
 
    (rdutest
-    "verb-agreement via merge (1)."
+    "verb-agreement via unify (1)."
     (let [avere (lexfn/lookup "avere")
           subject (random-lexeme (:subj avere))]
-      (fs/merge avere {:subj subject}))
+      (fs/unify avere {:subj subject}))
     (fn [result]
       (and (not (nil? result))
            (= (type (get-in result '(:number))) clojure.lang.Ref)
@@ -361,16 +364,25 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
            (= (get-in result '(:person))
               (get-in result '(:subj :person))))))
 
-;   (rdutest
-;    "verb-agreement via merge (2)."
-;    (let [hanno (lexfn/lookup "hanno")
-;          subject (random-lexeme (get-in hanno '(:subj)))]
-;      (fs/m hanno {:subj subject}))
-;    (fn [hanno]
-;      (and (not (nil? hanno))
-;           (= (type (get-in hanno '(:number))) clojure.lang.Ref)
-;           (or (= @(get-in hanno '(:number)) "plural")
-;               (= @(get-in hanno '(:number)) :plural))
+   (rdutest
+    "verb-agreement via unify (2)."
+    (let [hanno (lexfn/lookup "hanno")
+          subject (random-lexeme (get-in hanno '(:subj)))]
+      (fs/unify hanno {:subj subject}))
+    (fn [hanno]
+      (and (not (nil? hanno))
+           (= (type (get-in hanno '(:number))) clojure.lang.Ref)
+           (or (= @(get-in hanno '(:number)) "plural")
+               (= @(get-in hanno '(:number)) :plural)))))
+
+
+
+   (rdutest
+    "lookup subjects based on verb constraints."
+    (let [hanno (lexfn/lookup "hanno")]
+      (fs/unify hanno {:subj (random-lexeme (:subj hanno))}))
+    (fn [unified]
+      (not (nil? unified))))
 
 ;           (= (type (get-in hanno '(:person))) clojure.lang.Ref)
 ;           (or (= @(get-in hanno '(:person)) "3rd")
