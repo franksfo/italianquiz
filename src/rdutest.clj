@@ -32,15 +32,14 @@
 ;; 
 (defmacro rdutest [testcomment test assert & [sym supress-output result-failed-text]]
   "takes a test function and an assert function (should return boolean). test function will be evaluated and applied to the assert function."
-  (let [test-text (str test)
+  (let [test-text (str "(try " test " (catch Exception ex (prn (str \"Test caused exception :\" ex)))  )" )
         assert-text (str assert)
         result-failed-text (if result-failed-text (str result-failed-text) "FAILED")
         sym-text (if sym (str sym) (str (gensym)))
         sym-text-no-colon (stringc/tail (- (.length sym-text) 1) sym-text)
-        test-result `~test
+        test-result `(load-string ~test-text)
         ;; TODO: this is ugly to be generating strings and then evaluating (with load-string below).
         ;; TODO: figure out how to defn within a namespace qualifier (e.g. "test/foo").
-        defn (str "(defn rdu-" sym-text-no-colon " " [] " " test-text ")")
         supress-output `~supress-output
         testcomment (str testcomment)]
     `(let [assert# (apply ~assert (list ~test-result))]
@@ -48,7 +47,6 @@
          (println ~(str *ns* ": '" testcomment "' started.")))
        (if (not (= ~supress-output true))
          (println (str ":  Result: " assert# (if (= assert# false) (str " (" ~result-failed-text ").") " (PASSED)."))))
-       (load-string ~defn)
        {:test-text ~test-text
         :assert-text ~assert-text
         :test-result ~test-result
