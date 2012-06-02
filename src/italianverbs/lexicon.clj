@@ -20,9 +20,9 @@
          :passato-aux "avere"})
       animate {:animate true}
       det {:cat :det}
-      human (fs/mergec animate {:human true})
+      human (fs/merge animate {:human true})
       masc {:gender :masc}
-      transitive (fs/mergec verb {:obj {:case {:not :nom}}})
+      transitive (fs/merge verb {:obj {:case {:not :nom}}})
       present {:infl :present}
       singular {:number :singular}
       plural {:number :plural}
@@ -30,11 +30,11 @@
       ;; TODO: graduate common-noun content into noun.
       noun {:cat :noun}
       third-person {:person :3rd :cat :noun}
-      third-sing (fs/mergec third-person {:number :singular})
+      third-sing (fs/merge third-person {:number :singular})
 
       ;; 'morph-noun' and 'take-article' are defined in generate.clj.
       common-noun
-      (fs/mergec third-person
+      (fs/merge third-person
             (let [number-agreement (ref :top)
                   gender-agreement (ref :top)]
               {:comp {:cat :det
@@ -49,15 +49,15 @@
 
       takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
 
-      pronoun (fs/mergec noun {:pronoun true :comp nil :human true})
-      speakable (fs/mergec common-noun {:speakable true})
-      readable (fs/mergec common-noun {:readable true})
-      edible (fs/mergec common-noun {:edible true})
+      pronoun (fs/merge noun {:pronoun true :comp nil :human true})
+      speakable (fs/merge common-noun {:speakable true})
+      readable (fs/merge common-noun {:readable true})
+      edible (fs/merge common-noun {:edible true})
       mass {:mass true :comp {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
 
       third-sing-subj {:subj third-sing}
 
-      artifact (fs/mergec common-noun {:artifact true})
+      artifact (fs/merge common-noun {:artifact true})
       masc {:gender :masc}
       fem {:gender :fem}
 
@@ -176,7 +176,7 @@
 
       fare (let [fare (add "fare" "to make"
                            verb
-                           {:subj (fs/mergec noun {:human true})
+                           {:subj (fs/merge noun {:human true})
                             :obj artifact})]
              
              (add "facio" "make"
@@ -227,7 +227,7 @@
      giocare (add "giocare" "to play"
                   verb
                   {:subj human
-                   :obj (fs/mergec noun
+                   :obj (fs/merge noun
                               {:sport true})})
      
      il (add "il" "the" {:gender :masc :number :singular :cat :det
@@ -261,8 +261,8 @@
 
      leggere (add "leggere" "to read"
                   transitive
-                  {:subj (fs/mergec noun {:human true})
-                   :obj (fs/mergec noun {:readable true})})
+                  {:subj (fs/merge noun {:human true})
+                   :obj (fs/merge noun {:readable true})})
 
      lei (add "lei" "she" 
               human pronoun fem
@@ -279,7 +279,7 @@
      
      mangiare (add "mangiare" "to eat"
                    transitive
-                   {:subj (fs/mergec noun {:animate true})
+                   {:subj (fs/merge noun {:animate true})
                     :obj edible}) 
      mi (add "mi" "me"
              pronoun
@@ -297,7 +297,7 @@
       
       parlare (add "parlare" "to speak"
                     verb
-                   {:subj (fs/m noun {:human true})
+                   {:subj (fs/merge noun {:human true})
                     :obj speakable})
 
 
