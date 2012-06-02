@@ -48,9 +48,9 @@
       fs ;; nothing needed to be done: we are assuming fs comes from lexicon and that singular is the canonical lexical form.
       ;; else, plural
       ;; TODO: check for exceptions in both :english and :italian side.
-      (fs/m fs
+      (fs/unify fs
             {:number :plural}
-            {:comp (fs/m
+            {:comp (fs/unify
                     {:number :plural}
                     (:comp (:comp fs)))}
             (let [exception (lookup-exception fs)]
@@ -67,11 +67,11 @@
 (defn random-morph [& constraints]
   "apply the :morph function to the constraints."
   ;; TODO: constantly switching between variable # of args and one-arg-which-is-a-list...be consistent in API.
-  (let [merged (apply fs/merge-nil-override constraints)
+  (let [merged (apply fs/unify constraints)
         morph-fn (:morph merged)]
     (if morph-fn
-      (fs/merge-and-apply (list (fs/m merged {:fn morph-fn})))
-      (fs/m {:random-morph :no-morph-fn-default-used}
+      (fs/unify-and-apply (list (fs/unify merged {:fn morph-fn})))
+      (fs/unify {:random-morph :no-morph-fn-default-used}
              merged))))
 
 ;; TODO: learn why string/join doesn't work for me:
@@ -104,13 +104,13 @@
 (defn random-present-old []
   (let [;; choose a random verb in the infinitive form.
         verb-inf (gram/choose-lexeme
-                  (fs/merge {:cat :verb
+                  (fs/unify {:cat :verb
                              :infl :infinitive}
                             config/random-present-inf))
 
 
         verb-present-constraints
-        (fs/merge 
+        (fs/unify 
          {:root.cat :verb :infl :present}
          {:root.italian (get verb-inf :italian)})
 
@@ -122,7 +122,7 @@
               ;; else, use a pronoun as a source of a random person/number pair,
               ;; and generate a present verb.
             (let [pronoun (gram/choose-lexeme
-                           (fs/merge
+                           (fs/unify
                             {:pronoun true}
                             config/random-present-subj))
                   number (get pronoun :number)
@@ -144,7 +144,7 @@
 ;             {:case {:$ne :nom}})
         vp (gram/vp verb-inf)
         subj-constraints
-        (fs/merge
+        (fs/unify
          {:cat :noun
           :case {:$ne :acc}}
          (get (get verb-present :root) :subj)
@@ -157,7 +157,7 @@
                  (gram/choose-lexeme subj-constraints)
                  true
                  (gram/np subj-constraints))]
-    (fs/merge
+    (fs/unify
      {:verb-inf verb-inf
       :verb-present verb-present
       :subject subject
@@ -174,7 +174,7 @@
 
 (defn random-infinitivo []
   (gram/choose-lexeme
-   (fs/merge {:cat :verb
+   (fs/unify {:cat :verb
            :infl :infinitive}
           config/random-infinitivo)))
 
@@ -186,7 +186,7 @@
   (let [
         ;; 1. choose a random verb in the passato-prossimo form.
         verb-future (gram/choose-lexeme
-                     (fs/merge
+                     (fs/unify
                       (if constraints (first constraints) {})
                       {:infl :futuro-semplice}
                       config/futuro-semplice))]
@@ -196,7 +196,7 @@
   (let [
         ;; 1. choose a random verb in the passato-prossimo form.
         verb-past (gram/choose-lexeme
-                   (fs/merge
+                   (fs/unify
                     {:root.cat :verb :infl :passato-prossimo}
                     config/random-passato-prossimo-verb-past))
 
@@ -208,7 +208,7 @@
         ;; 3. get the appropriate auxiliary for that verb.
         ;; TODO: more complicated matching: i.e. {:root verb-inf}
         verb-aux (gram/choose-lexeme
-                  (fs/merge
+                  (fs/unify
                    {:infl :present
                     :root.italian (get verb-inf :italian)}
                    (if (get verb-past :person)
@@ -219,7 +219,7 @@
                      {})))
         ;; 4. generate subject according to verb's constraints.
         subj-constraints
-        (fs/merge
+        (fs/unify
          {:cat :noun
           :case {:$ne :acc}}
          (get verb-inf :subj)
@@ -235,7 +235,7 @@
                  (gram/choose-lexeme subj-constraints)
                  true ;; 3rd person: can be any NP (TODO: verify that gram/np will never generate a :person 1st or :person 2nd np).
                  (gram/np subj-constraints))]
-    (fs/merge
+    (fs/unify
      {:verb-inf verb-inf
       :verb-aux verb-aux
       :verb-past verb-past
@@ -251,12 +251,12 @@
 
 (defn edible-vp []
   (let [verb (search/random-lexeme {:cat :verb :obj {:edible true}})
-        noun (search/random-lexeme (fs/get-path verb '(:obj)))]
+        noun (search/random-lexeme (get-in verb '(:obj)))]
     (gram/left verb (gram/np noun))))
 
 (defn legible-vp []
   (let [verb (search/random-lexeme {:cat :verb :obj {:legible true}})
-        noun (search/random-lexeme (fs/get-path verb '(:obj)))]
+        noun (search/random-lexeme (get-in verb '(:obj)))]
     (gram/left verb (gram/np noun))))
 
 ;; cf. grammar/vp: this will replace that.
@@ -274,14 +274,14 @@
 (defn inflect [verb complement]
   "modify head based on complement: e.g. modify 'imparare la parola' => 'impara la parola' if
    complement is {:person :3rd}."
-    (fs/merge verb
+    (fs/unify verb
            {:italian (conjugate-italian-verb verb complement)
             :english (conjugate-english-verb verb complement)}))
 
 (defn subj [verb]
   "generate a lexical subject that's appropriate given a verb."
   (search/random-lexeme
-   (fs/merge
+   (fs/unify
     {:cat :noun}
     {:case {:not :acc}}
     (get verb :subj))))
@@ -291,11 +291,11 @@
 (defn sentence1 []
   (let [verb (search/random-lexeme {:cat :verb :infl :infinitive :obj {:not nil}})
         object (search/random-lexeme (get verb :obj))
-        subject (search/random-lexeme (fs/merge {:case {:not :acc}} (get verb :subj)))]
+        subject (search/random-lexeme (fs/unify {:case {:not :acc}} (get verb :subj)))]
     (list verb object subject)))
 
 (defn np [& constraints]
-  (let [det-value (:comp (apply fs/merge-nil-override constraints))]
+  (let [det-value (:comp (apply fs/unify constraints))]
     (let [article (if (or (= nil constraints) det-value )
                     (search/random-lexeme {:cat :det}))]
       article)))
@@ -317,8 +317,8 @@
 
 (defn conjugate-verb [verb subject]
   (let [irregulars
-        (search/search (fs/merge
-                        {:root (fs/m verb {:infl :infinitive})}
+        (search/search (fs/unify
+                        {:root (fs/unify verb {:infl :infinitive})}
                         {:subj
                          (select-keys
                           subject
@@ -361,7 +361,7 @@
                   (:english noun))
         article-search (if (not (= (:comp noun) nil))
                          (search/search
-                          (fs/m determiner
+                          (fs/unify determiner
                                 (:comp noun))))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
@@ -392,8 +392,8 @@
 
 (defn mobili []
   (let [prep (search/random-lexeme {:cat :prep :furniture true})
-        subject (conjugate-np (fs/m (search/random-lexeme {:cat :noun :on {:ruggable true}}) {:number (random-symbol :singular :plural)} (:subj prep)))
-        object (conjugate-np (fs/m (search/random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
+        subject (conjugate-np (fs/unify (search/random-lexeme {:cat :noun :on {:ruggable true}}) {:number (random-symbol :singular :plural)} (:subj prep)))
+        object (conjugate-np (fs/unify (search/random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
                           
@@ -402,14 +402,14 @@
 
 (defn random-verb-for-svo [& svo-maps]
   (let [svo-maps (if svo-maps svo-maps (list {}))]
-    (search/random-lexeme (fs/m (apply :verb svo-maps)
+    (search/random-lexeme (fs/unify (apply :verb svo-maps)
                          {:cat :verb :infl :infinitive
-                          :obj (fs/merge (apply :obj svo-maps))}))))
+                          :obj (fs/unify (apply :obj svo-maps))}))))
 
 (defn random-present [& svo-maps]
-  (let [root-verb (apply search/random-lexeme (list (fs/m {:cat :verb}
+  (let [root-verb (apply search/random-lexeme (list (fs/unify {:cat :verb}
                                                    svo-maps)))]
-    (let [subject (conjugate-np (fs/m (search/random-lexeme
+    (let [subject (conjugate-np (fs/unify (search/random-lexeme
                                        (:subj root-verb))))
 
 ; conjugate-np
@@ -417,13 +417,13 @@
 ;                                               {:number (random-symbol :singular :plural)}))
           object
           (if (:obj root-verb)
-            (conjugate-np (fs/m (search/random-lexeme {:cat :noun}) {:number :plural}) {:def :def}))]
+            (conjugate-np (fs/unify (search/random-lexeme {:cat :noun}) {:number :plural}) {:def :def}))]
 ;            (conjugate-np (search/random-lexeme {:cat :noun} (:obj root-verb))
 ;                          {:number (random-symbol :singular :plural)}))]
       (let [svo {:subject subject
                  :object object
-                 :vp (conjugate-vp (fs/m root-verb {:infl :present}) subject object)}]
-        (fs/m svo
+                 :vp (conjugate-vp (fs/unify root-verb {:infl :present}) subject object)}]
+        (fs/unify svo
               (conjugate-sent (:vp svo) subject))))))
 
 ;; TODO: refactor with (random-present).
@@ -437,10 +437,10 @@
             (conjugate-np (search/random-lexeme {:cat :noun} (:obj root-verb))
                           {:number (random-symbol :singular :plural)}))]
       (let [svo {:subject subject
-                 :aux (fs/m (search/random-lexeme {:italian (:passato-aux root-verb) :infl :infinitive})
+                 :aux (fs/unify (search/random-lexeme {:italian (:passato-aux root-verb) :infl :infinitive})
                             subject)
                  :object object
-                 :vp (fs/m root-verb {:infl :passato-prossimo})}]
+                 :vp (fs/unify root-verb {:infl :passato-prossimo})}]
          (conjugate-sent svo subject)))))
     
 (defn rand-sv []
@@ -456,11 +456,11 @@
 (defn random-transitive []
   (let [vp (let [verbs (search/search {:obj {:not nil} :cat :verb :infl :infinitive})
                  root-verb (nth verbs (rand-int (.size verbs)))
-                 objects (search/search (fs/get-path root-verb '(:obj)))
-                 subjects (search/search (fs/get-path root-verb '(:subj)))
-                 object (conjugate-np (fs/m (nth objects (rand-int (.size objects))) {:def :def}))
+                 objects (search/search (get-in root-verb '(:obj)))
+                 subjects (search/search (get-in root-verb '(:subj)))
+                 object (conjugate-np (fs/unify (nth objects (rand-int (.size objects))) {:def :def}))
                  subject (conjugate-np (nth subjects (rand-int (.size subjects))))]
-             (conjugate-vp (fs/m root-verb
+             (conjugate-vp (fs/unify root-verb
                                  {:infl :present})
                            subject
                            object))]
@@ -491,8 +491,8 @@
 (defn n-vps [n]
   (if (> n 0)
     (let [random-verb (random-verb)
-          objects (search/search (fs/get-path random-verb '(:obj)))
-          object (conjugate-np (fs/m (nth objects (rand-int (.size objects))) {:def :def}))]
+          objects (search/search (get-in random-verb '(:obj)))
+          object (conjugate-np (fs/unify (nth objects (rand-int (.size objects))) {:def :def}))]
       (cons (cons random-verb object)
             (n-vps (- n 1))))))
 
@@ -505,7 +505,7 @@
           (let [root-verb (nth root-verbs (rand-int (.size root-verbs)))
                 objects (search/search {:cat :noun :case {:not :acc}})]
             (if (> (.size objects) 0)
-              (let [object (conjugate-np (fs/m (nth objects (rand-int (.size objects))) {:def :def}))]
+              (let [object (conjugate-np (fs/unify (nth objects (rand-int (.size objects))) {:def :def}))]
                 "vp")
                                         ;(conjugate-vp root-verb subject object {:infl :present}))
               "no objects"))
@@ -527,12 +527,12 @@
 ;    (conjugate-sent vp subject)))
 
 (defn take-article [map]
-  (fs/m map
+  (fs/unify map
         {:take-article "taken"}))
 
 (defn random-phrase [head & [comp-constraints]]
   (let [comp-c comp-constraints
-        comp (search/random-lexeme (fs/m comp-c ;; TODO: should be random-phrase, not random-lexeme.
+        comp (search/random-lexeme (fs/unify comp-c ;; TODO: should be random-phrase, not random-lexeme.
                                   (:comp head)))]
     ;; comp-c is only for debugging.
     {:head head
@@ -556,7 +556,7 @@
    
    (rdutest
     "Merged fs."
-    (fs/merge {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
+    (fs/unify {:root (first (search/search {:cat :verb :italian "fare" :infl :infinitive}))}
               {:infl :present}
               (select-keys
                  (first (search/search {:italian "io" :pronoun true}))
@@ -581,7 +581,7 @@
    
    (rdutest
     "Conjugate 'io' + 'fare' => 'io  facio'"
-    (conjugate-verb (fs/m (nth (search/search {:italian "fare" :infl :infinitive}) 0) {:infl :present})
+    (conjugate-verb (fs/unify (nth (search/search {:italian "fare" :infl :infinitive}) 0) {:infl :present})
                     (nth (search/search {:italian "io" :case :nom}) 0))
     (fn [conjugated]
       (= (:italian conjugated) "facio"))
@@ -632,14 +632,14 @@
 
    (rdutest
     "Conjugate 'libro' + '{definite,plural}' => 'i libri'."
-    (conjugate-np (fs/m (lookup "libro") {:number :plural}) {:def :def})
+    (conjugate-np (fs/unify (lookup "libro") {:number :plural}) {:def :def})
     (fn [conjugated]
       (= (:italian conjugated) "i libri"))
     :il-libro)
 
    (rdutest
     "Conjugate 'sedia' + '{definite,plural}' => 'le sedie'."
-    (conjugate-np (fs/m (lookup "sedia") {:number :plural}) {:def :def})
+    (conjugate-np (fs/unify (lookup "sedia") {:number :plural}) {:def :def})
     (fn [conjugated]
       (= (:italian conjugated) "le sedie"))
     :le-sedie)
@@ -649,7 +649,7 @@
     (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
           object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})]
       (if root-verb
-        (conjugate-vp (fs/m root-verb {:infl :present})
+        (conjugate-vp (fs/unify root-verb {:infl :present})
                       (nth (search/search {:italian "io" :case :nom}) 0)
                       object)
         {:fail "verb 'leggere' not found."}))
@@ -663,7 +663,7 @@
           (let [root-verb (nth (search/search {:italian "leggere" :cat :verb :infl :infinitive}) 0)
                 object (conjugate-np (nth (search/search {:italian "libro" :cat :noun}) 0) {:def :def})]
             (if root-verb
-              (conjugate-vp (fs/m root-verb {:infl :present})
+              (conjugate-vp (fs/unify root-verb {:infl :present})
                             (nth (search/search {:italian "io" :case :nom}) 0)
                             object)
               {:fail "verb 'leggere' not found."}))]
@@ -682,7 +682,7 @@
    (rdutest
     "essere vp"
     (let [root-verb (lookup "essere")]
-      (conjugate-vp (fs/m root-verb {:infl :present})
+      (conjugate-vp (fs/unify root-verb {:infl :present})
                     (lookup "io")
                     (conjugate-np (lookup "libro") {:def :indef})))
     (fn [vp]
@@ -692,7 +692,7 @@
    (rdutest
     "essere sentence"
     (let [root-verb (lookup "essere")
-          vp (conjugate-vp (fs/m root-verb {:infl :present})
+          vp (conjugate-vp (fs/unify root-verb {:infl :present})
                            (lookup "voi")
                            (conjugate-np (lookup "libro") {:def :indef}))]
       (conjugate-sent vp (lookup "voi")))
@@ -709,7 +709,7 @@
 
    (rdutest
     "random-present-related test part 1: get a random infinitive verb."
-    (apply search/random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))
+    (apply search/random-lexeme (list (fs/unify {:cat :verb :infl :infinitive} nil)))
     (fn [verb]
       (and (or (= (:cat verb) :verb)
                (= (:cat verb) "verb"))
@@ -719,7 +719,7 @@
 
    (rdutest
     "random-present-related test part 1: get a random infinitive verb."
-    (let [infinitive (apply search/random-lexeme (list (fs/m {:cat :verb :infl :infinitive} nil)))]
+    (let [infinitive (apply search/random-lexeme (list (fs/unify {:cat :verb :infl :infinitive} nil)))]
       (search/random-lexeme (:subj infinitive)))
     (fn [subject]
       (and (not (= (get subject :case) "acc"))
@@ -774,7 +774,7 @@
      ;; TODO more random-morph tests.
 ;     (rdutest
 ;      "random-morph: test for pluralization exceptions: uomo->uomini"
-;      (random-morph (fs/m (search/random-lexeme {:common true :italian "uomo"}) {:use-number :plural}))
+;      (random-morph (fs/unify (search/random-lexeme {:common true :italian "uomo"}) {:use-number :plural}))
 ;      (fn [noun]
 ;        (and (= (:english noun) "men")
 ;             (= (:italian noun) "uomini")))
@@ -783,7 +783,7 @@
      ;; like the above, but only english is exceptional (women) : italian is regular (donne).
 ;     (rdutest
 ;      "random-morph: test for pluralization exceptions: donna->donne"
-;      (random-morph (fs/m (search/random-lexeme {:common true :english "woman"}) {:use-number :plural}))
+;      (random-morph (fs/unify (search/random-lexeme {:common true :english "woman"}) {:use-number :plural}))
 ;      (fn [noun]
 ;        (and (= (:english noun) "women")
 ;             (= (:italian noun) "donne")))
@@ -807,7 +807,7 @@
 ;     (rdutest
 ;      "Complement (determiner) must agree with its head (noun)."
 ;      (let [head (search/random-lexeme {:italian "cane" :cat :noun})
-;            comp (fs/m (search/random-lexeme (:comp head)))]
+;            comp (fs/unify (search/random-lexeme (:comp head)))]
 ;        comp)
 ;      (fn [comp]
 ;        (or
