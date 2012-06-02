@@ -3,20 +3,20 @@
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the mongo/fetch's :where clause.
 (ns italianverbs.quiz
-    (:use [hiccup core page-helpers])
-    (:require [clojure.contrib.string :as stringc]
-              [clojure.contrib.logging :as log]
-              [somnium.congomongo :as mongo]
-              [italianverbs.lexicon :as lexicon]
-              [italianverbs.lev :as lev]
-              [italianverbs.session :as session]
-              [italianverbs.grammar :as gram]
-              [base.html :as basehtml]
-              [italianverbs.html :as html]
-              [italianverbs.xml :as xml]
-              [italianverbs.generate :as gen]
-              [ring.util.codec :as url]
-              [clojure.contrib.str-utils2 :as str-utils]))
+  (:use [hiccup core page-helpers]
+        [rdutest])
+  (:require [clojure.contrib.string :as stringc]
+            [clojure.contrib.logging :as log]
+            [somnium.congomongo :as mongo]
+            [italianverbs.lev :as lev]
+            [italianverbs.session :as session]
+            [italianverbs.grammar :as gram]
+            [base.html :as basehtml]
+            [italianverbs.html :as html]
+            [italianverbs.xml :as xml]
+            [italianverbs.generate :as gen]
+            [ring.util.codec :as url]
+            [clojure.contrib.str-utils2 :as str-utils]))
 
 ;; to add a new question type:
 ;; 1. write a function (gen/mytype) that generates a random question for mytype.
