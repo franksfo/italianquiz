@@ -347,8 +347,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
            (= (get-in np '(:gender))
               (get-in np '(:comp :gender)))
            (= (get-in np '(:number))
-              (get-in np '(:comp :number)))))
-    :noun-agreement)
+              (get-in np '(:comp :number))))))
 
    (rdutest
     "verb-agreement via unify (1)."
