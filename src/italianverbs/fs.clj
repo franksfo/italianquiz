@@ -81,6 +81,18 @@
 
      (= val2 :top) val1
 
+     ;; :foo,"foo" => :foo
+     (and (= (type val1) clojure.lang.Keyword)
+          (= (type val2) java.lang.String)
+          (= (string/replace-first (str val1) ":" "") val2))
+     val1
+
+     ;; "foo",:foo => :foo
+     (and (= (type val2) clojure.lang.Keyword)
+          (= (type val1) java.lang.String)
+          (= (string/replace-first (str val2) ":" "") val1))
+     val2
+
      (= val1 val2) val1
 
      :else :fail)))
@@ -527,6 +539,36 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (= result {:foo 42})))
 
       (rdutest
+       "test atom unifying with ':not' (special feature) (first in list; fail)"
+       (unify {:not 42} 42)
+       (fn [result]
+         (= result :fail)))
+
+      (rdutest
+       "test atom unifying with ':not' (special feature) (second in list; succeed)"
+       (unify 42 {:not 43})
+       (fn [result]
+         (= result 42)))
+
+      (rdutest
+       "test atom unifying with ':not' (special feature) (second in list; fail)"
+       (unify (list 42 {:not 42}))
+       (fn [result]
+         :fail))
+
+      (rdutest
+       "test unifying with ':not' (special feature)"
+       (unify {:foo 42} {:foo {:not 43}})
+       (fn [result]
+         (= result {:foo 42})))
+
+      (rdutest
+       "keywords and strings are equivalent for unification (due to mongo serialization), but canonicalize to keyword."
+       (unify :foo "foo")
+       (fn [result]
+         (= result :foo)))
+      
+      (rdutest
        "complicated merge."
        (let [mycon (list {:comp {:number :singular, :cat :det}} {:gender :masc} {:comp {:def {:not :indef}}, :mass true} {:comp {}, :sport true})]
          (apply merge mycon))
@@ -574,18 +616,18 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (= (:a result) :fail)))
       
 ;      (rdutest
-;       "test merging with ':not' (special feature) (combine negation)"
-;       (m (merge-values-like-core '({:not 41} {:not 42})))
+;       "merge should union :not-values"
+;       (merge {:not 41} {:not 42})
 ;       (fn [result]
 ;         (= (set (:not result)) (set 41 42)))
-;       :test-merge-not-with-combine-not)
-      
+
+;      
 ;      (rdutest
-;       "test merging with ':not' (special feature) (4)"
-;       (m {:key {:not "foo"} } {:key "bar"})
+;       "unify should union :not-values"
+;       (unify {:not 41} {:not 42})
 ;       (fn [result]
-;         (= (:key result) "bar"))
-;       :test-not-merge)
+;         (= (set (:not result)) (set 41 42)))
+      
       ))
 
 
