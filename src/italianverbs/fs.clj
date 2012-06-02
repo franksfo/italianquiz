@@ -78,9 +78,12 @@
      :fail
 
      (= val1 :top) val2
-
      (= val2 :top) val1
 
+     ;; these two rules are unfortunately necessary because of mongo/clojure storage of keywords as strings.
+     (= val1 "top") val2
+     (= val2 "top") val1
+     
      ;; :foo,"foo" => :foo
      (and (= (type val1) clojure.lang.Keyword)
           (= (type val2) java.lang.String)
@@ -627,6 +630,34 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;       (unify {:not 41} {:not 42})
 ;       (fn [result]
 ;         (= (set (:not result)) (set 41 42)))
+
+      (rdutest
+       "'top' and :top are equivalent when unifying with keyword."
+       (unify "top" :foo)
+       (fn [result]
+         (= result :foo)))
+
+      (rdutest
+       "'top' and :top are equivalent when unifying with reference to keyword."
+       (unify "top" (ref :foo))
+       (fn [result]
+         (and (= (type result) clojure.lang.Ref)
+              (= @result :foo))))
+
+      (rdutest
+       "@'top' and @:top are equivalent when unifying with reference to keyword."
+       (unify (ref "top") :foo)
+       (fn [result]
+         (and (= (type result) clojure.lang.Ref)
+              (= @result :foo))))
+
+      (rdutest
+       "@'top' and @:top are equivalent when unifying with reference to keyword."
+       (unify (ref "top") "foo")
+       (fn [result]
+         (and (= (type result) clojure.lang.Ref)
+              (= @result "foo"))))
+
       
       ))
 

@@ -358,6 +358,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (fn [result]
       (and (not (nil? result))
            (= (type (get-in result '(:number))) clojure.lang.Ref)
+           (not (= @(get-in result '(:number)) :fail))
            (= (get-in result '(:number))
               (get-in result '(:subj :number)))
            (= (type (get-in result '(:person))) clojure.lang.Ref)
