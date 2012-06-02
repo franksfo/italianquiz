@@ -352,7 +352,10 @@
                       (morph/plural-fem (:italian noun))))
                   (:italian noun))
         english (if (or (= (:number noun) :plural)
-                        (= (:number noun) "plural"))
+                        (= (:number noun) "plural")
+                        (and (= (type (:number noun)) clojure.lang.Ref)
+                             (or (= @(:number noun) :plural)
+                                 (= @(:number noun) "plural"))))
                   (if (and plural-exception (:english plural-exception))
                     (:english plural-exception)
                     (if (not (:pronoun noun)) ;; pronouns should not be pluralized: e.g. "we" doesn't become "wes".
@@ -361,8 +364,8 @@
                   (:english noun))
         article-search (if (not (= (:comp noun) nil))
                          (search/search
-                          (fs/unify determiner
-                                (:comp noun))))
+                          (fs/unify (if determiner determiner {:cat :det})
+                                    (:comp noun))))
         article (if (and (not (= article-search nil))
                          (not (= (.size article-search) 0)))
                   (nth article-search (rand-int (.size article-search))))]
@@ -392,8 +395,8 @@
 
 (defn mobili []
   (let [prep (search/random-lexeme {:cat :prep :furniture true})
-        subject (conjugate-np (fs/unify (search/random-lexeme {:cat :noun :on {:ruggable true}}) {:number (random-symbol :singular :plural)} (:subj prep)))
-        object (conjugate-np (fs/unify (search/random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
+        subject (conjugate-np (fs/merge (search/random-lexeme {:cat :noun :ruggable true}) {:number (random-symbol :singular :plural)} (:subj prep)))
+        object (conjugate-np (fs/merge (search/random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
     (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
                     subject)))
                           
@@ -402,15 +405,15 @@
 
 (defn random-verb-for-svo [& svo-maps]
   (let [svo-maps (if svo-maps svo-maps (list {}))]
-    (search/random-lexeme (fs/unify (apply :verb svo-maps)
-                         {:cat :verb :infl :infinitive
-                          :obj (fs/unify (apply :obj svo-maps))}))))
+    (search/random-lexeme (fs/merge (apply :verb svo-maps)
+                                    {:cat :verb :infl :infinitive
+                                     :obj (fs/merge (apply :obj svo-maps))}))))
 
 (defn random-present [& svo-maps]
-  (let [root-verb (apply search/random-lexeme (list (fs/unify {:cat :verb}
-                                                   svo-maps)))]
+  (let [root-verb (apply search/random-lexeme (list (fs/merge {:cat :verb}
+                                                              svo-maps)))]
     (let [subject (conjugate-np (fs/unify (search/random-lexeme
-                                       (:subj root-verb))))
+                                           (:subj root-verb))))
 
 ; conjugate-np
 ;                   (search/random-lexeme {:cat :noun} (:subj root-verb)
@@ -702,6 +705,12 @@
     :io-sono-un-tavolo)
 
    (rdutest
+    "ruggable noun: find a noun for a thing that can sit on a rug (e.g. a table)"
+    (search/random-lexeme {:cat :noun :ruggable true})
+    (fn [noun]
+      (not (nil? noun))))
+
+   (rdutest
     "furniture sentence"
     (mobili)
     (fn [sentence]
@@ -710,7 +719,7 @@
 
    (rdutest
     "random-present-related test part 1: get a random infinitive verb."
-    (apply search/random-lexeme (list (fs/unify {:cat :verb :infl :infinitive} nil)))
+    (search/random-lexeme {:cat :verb :infl :infinitive})
     (fn [verb]
       (and (or (= (:cat verb) :verb)
                (= (:cat verb) "verb"))
@@ -720,7 +729,7 @@
 
    (rdutest
     "random-present-related test part 1: get a random infinitive verb."
-    (let [infinitive (apply search/random-lexeme (list (fs/unify {:cat :verb :infl :infinitive} nil)))]
+    (let [infinitive (search/random-lexeme {:cat :verb :infl :infinitive})]
       (search/random-lexeme (:subj infinitive)))
     (fn [subject]
       (and (not (= (get subject :case) "acc"))
