@@ -83,7 +83,7 @@
      ;; these two rules are unfortunately necessary because of mongo/clojure storage of keywords as strings.
      (= val1 "top") val2
      (= val2 "top") val1
-     
+
      ;; :foo,"foo" => :foo
      (and (= (type val1) clojure.lang.Keyword)
           (= (type val2) java.lang.String)
