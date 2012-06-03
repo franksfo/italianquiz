@@ -1,5 +1,5 @@
 (ns italianverbs.search
-  (:use [hiccup core page-helpers]
+  (:use [hiccup core]
         [clojure.set]
         [rdutest])
   (:require

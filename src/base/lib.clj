@@ -1,5 +1,5 @@
 (ns base.lib
-  (:use [hiccup core page-helpers])
+  (:use [hiccup core])
   (:require
    [clojure.set :as set]
    [clojure.string :as string]))

@@ -1,7 +1,7 @@
 (ns italianverbs.core
   (:use [compojure.core]
         [somnium.congomongo]
-        [hiccup core page-helpers])
+        [hiccup core])
   (:require
    [clojure.string :as string]
    [clojure.contrib.logging :as log]

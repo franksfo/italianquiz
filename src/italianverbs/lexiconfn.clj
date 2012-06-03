@@ -1,6 +1,5 @@
 (ns italianverbs.lexiconfn
-  (:use [hiccup core page-helpers]
-        [clojure.set]
+  (:use [clojure.set]
         [rdutest])
   (:require
    [clojure.core :as core]

@@ -1,6 +1,6 @@
 (ns italianverbs.session
     (:use 
-    [hiccup core page-helpers]
+    [hiccup core]
     [somnium.congomongo])
     (:require [italianverbs.lexicon :as lexicon]
               [somnium.congomongo :as congomongo]

@@ -12,7 +12,7 @@
 
 (ns italianverbs.generate
   (:use [somnium.congomongo]
-        [hiccup core page-helpers])
+        [hiccup core])
   (:require
    [italianverbs.morphology :as morph]
    [italianverbs.lev :as lev]

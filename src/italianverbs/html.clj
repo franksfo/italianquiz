@@ -1,6 +1,6 @@
 (ns italianverbs.html
   (:use
-   [hiccup core page-helpers]
+   [hiccup core page]
    [ring.util.codec :as codec]
    [rdutest])
   (:require

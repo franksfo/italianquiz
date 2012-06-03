@@ -1,6 +1,6 @@
  (ns italianverbs.test
     (:use 
-     [hiccup core page-helpers]
+     [hiccup core]
      [somnium.congomongo])
     (:require
      [italianverbs.generate :as gen]

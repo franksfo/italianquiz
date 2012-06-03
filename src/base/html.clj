@@ -2,7 +2,7 @@
 ;; TODO: move as much app-specific code out of here
 ;; into italianverbs.html.
 (ns base.html
-  (:use [hiccup core page-helpers]
+  (:use [hiccup core page]
         [somnium.congomongo])
   (:require [base.lib :as baselib]
             [clojure.set :as set]
