@@ -331,7 +331,11 @@
 
 (defn conjugate-np [noun & [determiner]]
   "conjugate a noun with a determiner (if the noun takes a determiner (:comp is not nil)) randomly chosen using the 'determiner' spec."
-  (let [plural-exception (if (or (= (:number noun) :plural) (= (:number noun) "plural"))
+  (let [plural-exception (if (or
+                              (= (:number noun) :plural) (= (:number noun) "plural")
+                              (and (= (type (:number noun)) clojure.lang.Ref)
+                                   (or (= @(:number noun) :plural)
+                                       (= @(:number noun) "plural"))))
                            (let [search (search/search noun)] ;; search lexicon for plural exception.
                              (if (and search (> (.size search) 0))
                                (nth search 0))))
@@ -359,7 +363,7 @@
                   (if (and plural-exception (:english plural-exception))
                     (:english plural-exception)
                     (if (not (:pronoun noun)) ;; pronouns should not be pluralized: e.g. "we" doesn't become "wes".
-                      (morph/plural-en (:english noun))
+                      (str "wtf" (morph/plural-en (:english noun)))
                       (:english noun)))
                   (:english noun))
         article-search (if (not (= (:comp noun) nil))
@@ -410,13 +414,13 @@
                                      :obj (fs/merge (apply :obj svo-maps))}))))
 
 (defn random-present [& svo-maps]
-  (let [root-verb (apply search/random-lexeme (list (fs/merge {:cat :verb}
+  (let [root-verb (apply search/random-lexeme (list (fs/merge {:cat :verb :infl :infinitive}
                                                               svo-maps)))]
-    (let [subject (conjugate-np (fs/unify (search/random-lexeme
-                                           (:subj root-verb))))
+    (let [subject (conjugate-np (search/random-lexeme
+                                 (:subj root-verb)))
           object
           (if (:obj root-verb)
-            (conjugate-np (fs/merge (search/random-lexeme (:obj root-verb)) {:number :plural} {:def :def})))]
+            (conjugate-np (search/random-lexeme (:obj root-verb))))]
       (let [svo {:subject subject
                  :object object
                  :vp (conjugate-vp (fs/merge root-verb {:infl :present}) subject object)}]
