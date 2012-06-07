@@ -414,18 +414,12 @@
                                                               svo-maps)))]
     (let [subject (conjugate-np (fs/unify (search/random-lexeme
                                            (:subj root-verb))))
-
-; conjugate-np
-;                   (search/random-lexeme {:cat :noun} (:subj root-verb)
-;                                               {:number (random-symbol :singular :plural)}))
           object
           (if (:obj root-verb)
-            (conjugate-np (fs/unify (search/random-lexeme {:cat :noun}) {:number :plural}) {:def :def}))]
-;            (conjugate-np (search/random-lexeme {:cat :noun} (:obj root-verb))
-;                          {:number (random-symbol :singular :plural)}))]
+            (conjugate-np (fs/merge (search/random-lexeme (:obj root-verb)) {:number :plural} {:def :def})))]
       (let [svo {:subject subject
                  :object object
-                 :vp (conjugate-vp (fs/unify root-verb {:infl :present}) subject object)}]
+                 :vp (conjugate-vp (fs/merge root-verb {:infl :present}) subject object)}]
         (fs/unify svo
               (conjugate-sent (:vp svo) subject))))))
 
