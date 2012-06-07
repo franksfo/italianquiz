@@ -363,7 +363,7 @@
                   (if (and plural-exception (:english plural-exception))
                     (:english plural-exception)
                     (if (not (:pronoun noun)) ;; pronouns should not be pluralized: e.g. "we" doesn't become "wes".
-                      (str "wtf" (morph/plural-en (:english noun)))
+                      (morph/plural-en (:english noun))
                       (:english noun)))
                   (:english noun))
         article-search (if (not (= (:comp noun) nil))
