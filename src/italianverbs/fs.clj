@@ -58,7 +58,7 @@
                   (fn [x] (unify @val1 @val2))))
           (dosync
            (alter val2
-                  (fn [x] val1)))
+                  (fn [x] @val1)))
        val1)
      
      (not (= :notfound (:not val1 :notfound)))
@@ -659,22 +659,75 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
               (= @result :foo))))
 
       (rdutest
-       "@'top' and @:top are equivalent when unifying with reference to keyword."
+       "@'top' and @:top are equivalent when unifying to a keyword."
        (unify (ref "top") :foo)
        (fn [result]
          (and (= (type result) clojure.lang.Ref)
               (= @result :foo))))
 
       (rdutest
-       "@'top' and @:top are equivalent when unifying with reference to keyword."
+       "@'top' and @:top are equivalent when unifying to a string."
        (unify (ref "top") "foo")
        (fn [result]
          (and (= (type result) clojure.lang.Ref)
               (= @result "foo"))))
 
+      (rdutest
+       "create a map with a reference."
+       (let [fs1 {:a (ref 42)}
+             fs2 {:b (get fs1 :a)}]
+         (unify fs1 fs2))
+       (fn [result]
+         (and (= (type (:a result)) clojure.lang.Ref)
+              (= (type (:b result)) clojure.lang.Ref)
+              (= (:a result) (:b result)))))
+
+      (rdutest
+       "unifying two maps, one with references."
+       (let [fs1 {:a (ref :top)}
+             fs2 {:b (get fs1 :a)}
+             fs3 (fs/unify fs1 fs2)
+             fs4 {:a 42}]
+         (unify fs3 fs4))
+       (fn [result]
+         (and (= (type (:a result)) clojure.lang.Ref)
+              (= (type (:b result)) clojure.lang.Ref)
+              (= (:a result) (:b result))
+              (= @(:a result) 42))))
+
+      (rdutest
+       "unifying two maps, both with references, same features"
+       (let [fs1 {:a (ref 42)}
+             fs2 {:b (get fs1 :a)}
+             fs3 (unify fs1 fs2)
+             fs4 {:a (ref 42)}
+             fs5 {:b (get fs4 :a)}
+             fs6 (unify fs4 fs5)]
+         (unify fs3 fs6))
+       (fn [result]
+         (and
+          (= (type (:a result)) clojure.lang.Ref)
+          (= (type (:b result)) clojure.lang.Ref)
+          (= (:a result) (:b result))
+          (= @(:a result) 42))))
+
+;      (rdutest
+;       "unifying two maps, both with references, overlapping features"
+;       (let [fs1 {:a (ref 42)}
+;             fs2 {:b (get fs1 :a)}
+;             fs3 (unify fs1 fs2)
+;             fs4 {:b (ref 42)}
+;             fs5 {:c (get fs4 :b)}
+;             fs6 (unify fs4 fs5)]
+;         (unify fs3 fs6))
+;       (fn [result]
+;         (and (= (type (:a result)) clojure.lang.Ref)
+;              (= (type (:b result)) clojure.lang.Ref)
+;              (= (type (:c result)) clojure.lang.Ref)
+;              (= (:a result) (:b result))
+;              (= (:b result) (:c result))
+;              (= @(:a result) 42))))
+
+      
       
       ))
-
-
-
-
