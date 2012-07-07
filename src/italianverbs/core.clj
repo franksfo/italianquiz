@@ -109,11 +109,11 @@
         :session (get request :session)
         :headers {"Content-Type" "text/html"}
         :body
-        (do (log/info (str "core.clj: request: " request))
+        (do 
             (html/pagemacro "Unit Tests: Sentence Generation"
                             (string/join " "
-                                         (map (fn [test] (:test-result test))
-                                              generate/generate-tests))
+                                         (map (fn [test] (first (:test-result test)))
+                                              gen/generate-tests))
                             {:foo 42
                              :remote-addr (:remote-addr request)
                              } ;; for some reason we can't pass along request here.
