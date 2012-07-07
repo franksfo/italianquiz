@@ -49,13 +49,14 @@
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
+  ;; TODO: a lot of repeated request-to-session looking-up going on here.
   (GET "/quiz/"
        request
        {:body (if (session/request-to-session request)
                 (quiz/quiz request))
         :status (if (session/request-to-session request)
                   200
-                  (do (log/info "no session found for this client: redirecting to /italian/session/set.")
+                  (do (log/info "No existing session - you must be new here. Redirecting to /italian/session/set.")
                       302))
         :headers (if (session/request-to-session request)
                    {"Content-Type" "text/html;charset=utf-8"}
@@ -204,6 +205,15 @@
   
   (route/resources "/")
 
+  ;; workaround for 'lein ring server' which opens
+  ;; browser at http://localhost:3000/italian/quiz:
+  ;; Assuming that Apache Server Proxying is set
+  ;; up (see README), redirect to http://localhost/italian/
+  (GET "/italian/quiz/"
+       request
+       {:status 302
+        :headers {"Location" "http://localhost/italian/"}})
+  
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
 )
 
