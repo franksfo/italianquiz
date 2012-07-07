@@ -122,6 +122,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn search [& constraints]
   (seq (map fs/deserialize (apply query constraints))))
 
+;; convenience function.
+(defn search-first [& constraints]
+  (first (apply search constraints)))
+
 (def grammatical-terminology-term
   {:transitive {:cat :verb
                 :obj {:cat :noun}}

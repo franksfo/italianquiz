@@ -5,6 +5,8 @@
   (:use [hiccup core page]
         [somnium.congomongo])
   (:require [base.lib :as baselib]
+            [clojure.contrib.logging :as log]
+            [hiccup.page :as hpage]
             [clojure.set :as set]
             [italianverbs.session :as session]
             [clojure.string :as string]))
@@ -159,16 +161,26 @@
       [:div.reqdata
        (reqdata request)])]))
 
+;; TODO: replace (page) with this once (eval) works right.
 (defmacro pagemacro [title & [content request onload]]
   (let [error-english "Sorry, there was an internal problem with this site that prevented your content from being displayed."
         error-italian "Scusi, che è stato una errore che ha preventato questo site. Purtroppo è non possibile guardare il tuo contento."]
-  (try (let [content (eval content)]
-         (page title content request onload))
-       (catch Exception e (page "Exception caught"
-                                (str "<div class='error'>"
-                                     "<div class='english'>" error-english "</div>"
-                                     "<div class='italian'>" error-italian "</div>"
-                                     "<div class='code'>" e "</div></div>"))))))
+    (try
+      (let [evaluated-content (eval content)]
+        (log/info (str "html.clj: request: " request))
+        (page title evaluated-content request onload))
+      (catch Exception e
+        (page "Exception caught"
+              (str "<div class='error'>"
+                   "  <div class='english'>" error-english "</div>"
+                   "  <div class='italian'>" error-italian "</div>"
+                   "  <div class='code'>" e "</div>"
+                   "</div>")
+              request
+              ;; still allow the onload even for caught exceptions(?) possible security risk?
+              ;;nil)))))
+              onload)))))
+
 
 
 

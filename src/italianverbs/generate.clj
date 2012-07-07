@@ -582,9 +582,9 @@
    
    (rdutest
     "Conjugate 'io' + 'fare' => 'io  facio'"
-    (conjugate-verb (fs/merge (nth (search/search {:italian "fare" :infl :infinitive}) 0)
+    (conjugate-verb (fs/merge (search/search-first {:italian "fare" :infl :infinitive})
                               {:infl :present})
-                    (nth (search/search {:italian "io" :case :nom}) 0))
+                    (search/search-first {:italian "io" :case :nom}))
     (fn [conjugated]
       (= (:italian conjugated) "facio"))
     :io-facio)

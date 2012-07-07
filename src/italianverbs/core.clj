@@ -67,6 +67,11 @@
        {:status 302
         :headers {"Location" "/italian/quiz/"}})
 
+  (GET "/search"
+       request
+       {:status 302
+        :headers {"Location" "/italian/search/"}})
+
   (GET "/search/"
        request
        {:status 200
@@ -95,6 +100,31 @@
                                        (fetch :lexicon :sort {"italian" 1})))
                      request))})
 
+
+  ;; show all the results of the sentence generation unit tests.
+  (GET "/generate/" 
+       request
+       ;; response map
+       {
+        :session (get request :session)
+        :headers {"Content-Type" "text/html"}
+        :body
+        (do (log/info (str "core.clj: request: " request))
+            (html/pagemacro "Unit Tests: Sentence Generation"
+                            (string/join " "
+                                         (map (fn [test] (:test-result test))
+                                              generate/generate-tests))
+                            {:foo 42
+                             :remote-addr (:remote-addr request)
+                             } ;; for some reason we can't pass along request here.
+
+                            onload
+                            )
+            )
+        })
+
+
+  
   ;; show user's quiz filter preferences. format param (in request) controls output's formatting:
   ;; might be a comma-separated list of filters, a bunch of checkboxes, xml, json, etc.
   (GET "/quiz/filter/"
@@ -214,6 +244,7 @@
        {:status 302
         :headers {"Location" "http://localhost/italian/"}})
   
+  ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
 )
 

@@ -446,3 +446,16 @@ table.map th {
 div.legend {
     border: 2px solid lightblue;
 }
+
+div.error {
+    border: 2px solid lightred;
+    width:90%;
+}
+
+div.code {
+    background:#eee;
+    font-family:monospace;
+    border:1%;
+    padding:1%;
+    width:100%;
+}
