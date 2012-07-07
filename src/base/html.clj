@@ -158,7 +158,19 @@
     (if request
       [:div.reqdata
        (reqdata request)])]))
-   
+
+(defmacro pagemacro [title & [content request onload]]
+  (let [error-english "Sorry, there was an internal problem with this site that prevented your content from being displayed."
+        error-italian "Scusi, che è stato una errore che ha preventato questo site. Purtroppo è non possibile guardare il tuo contento."]
+  (try (let [content (eval content)]
+         (page title content request onload))
+       (catch Exception e (page "Exception caught"
+                                (str "<div class='error'>"
+                                     "<div class='english'>" error-english "</div>"
+                                     "<div class='italian'>" error-italian "</div>"
+                                     "<div class='code'>" e "</div></div>"))))))
+
+
 
 
 
