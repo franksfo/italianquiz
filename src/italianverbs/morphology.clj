@@ -3,6 +3,7 @@
   (:use [rdutest])
   (:require
    [italianverbs.fs :as fs]
+   [clojure.contrib.logging :as log]
    [clojure.string :as string]
    [clojure.contrib.string :as stringc]
    [clojure.contrib.str-utils2 :as str-utils]))
@@ -115,6 +116,8 @@
 (defn conjugate-italian-verb-regular [verb-head subject-head]
   (let [root-form (get verb-head :italian)
         regex #"^([^ ]*)([aei])re[ ]*$"]
+    (log/info (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
+    (println (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
     (cond
 
      (and (or (= (get subject-head :person) "1st")
