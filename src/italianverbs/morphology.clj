@@ -79,14 +79,13 @@
       " "
       (get (get vp :comp) :english))
       
-
      (and
-      (or (= (get (fs/get-head subject) :person) "3rd")
-          (= (get (fs/get-head subject) :person) :3rd))
-      (or (= (get (fs/get-head subject) :number) "singular")
-          (= (get (fs/get-head subject) :number) :singular))
-      (or (= (get (fs/get-head verb-head) :infl) :present)
-          (= (get conjugate-verb-as :infl) :present)))
+      (or (= (fs/get-in-r (fs/get-head subject) '(:person)) "3rd")
+          (= (fs/get-in-r (fs/get-head subject) '(:person)) :3rd))
+      (or (= (fs/get-in-r (fs/get-head subject) '(:number)) "singular")
+          (= (fs/get-in-r (fs/get-head subject) '(:number)) :singular))
+      (or (= (fs/get-in-r (fs/get-head verb-head) '(:infl)) :present)
+          (= (fs/get-in-r conjugate-verb-as '(:infl)) :present)))
      (str (get
            (add-s-to-first-word
             (merge
@@ -114,26 +113,26 @@
     ""))
 
 (defn conjugate-italian-verb-regular [verb-head subject-head]
-  (let [root-form (get verb-head :italian)
+  (let [root-form (fs/get-in-r verb-head '(:italian))
         regex #"^([^ ]*)([aei])re[ ]*$"]
     (log/info (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
     (println (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
     (cond
 
-     (and (or (= (get subject-head :person) "1st")
-              (= (get subject-head :person) :1st))
-          (or (= (get subject-head :number) "singular")
-              (= (get subject-head :number) :singular)))
+     (and (or (= (fs/get-in-r subject-head '(:person)) "1st")
+              (= (fs/get-in-r subject-head '(:person)) :1st))
+          (or (= (fs/get-in-r subject-head '(:number)) "singular")
+              (= (fs/get-in-r subject-head '(:number)) :singular)))
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
                                                         "o"
                                                         space)))
 
-     (and (or (= (get subject-head :person) "1st")
-              (= (get subject-head :person) :1st))
-          (or (= (get subject-head :number) "plural")
-              (= (get subject-head :number) :plural)))
+     (and (or (= (fs/get-in-r subject-head '(:person)) "1st")
+              (= (fs/get-in-r subject-head '(:person)) :1st))
+          (or (= (fs/get-in-r subject-head '(:number)) "plural")
+              (= (fs/get-in-r subject-head '(:number)) :plural)))
      (str-utils/replace root-form regex
                         (fn [[_ stem i space]] (str stem
                                                     (if-isco verb-head)
@@ -150,10 +149,10 @@
                                                     
                                                     "amo" space)))
 
-     (and (or (= (get subject-head :person) "2nd")
-              (= (get subject-head :person) :2nd))
-          (or (= (get subject-head :number) :singular)
-              (= (get subject-head :number) "singular")))
+     (and (or (= (fs/get-in-r subject-head '(:person)) "2nd")
+              (= (fs/get-in-r subject-head '(:person)) :2nd))
+          (or (= (fs/get-in-r subject-head '(:number)) :singular)
+              (= (fs/get-in-r subject-head '(:number)) "singular")))
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
@@ -166,19 +165,19 @@
                                                         (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
                                                         space)))
 
-     (and (or (= (get subject-head :person) "2nd")
-              (= (get subject-head :person) :2nd))
-          (or (= (get subject-head :number) "plural")
-              (= (get subject-head :number) :plural)))
+     (and (or (= (fs/get-in-r subject-head '(:person)) "2nd")
+              (= (fs/get-in-r subject-head '(:person)) :2nd))
+          (or (= (fs/get-in-r subject-head '(:number)) "plural")
+              (= (fs/get-in-r subject-head '(:number)) :plural)))
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
                                                         vowel "te" space)))
 
-     (and (or (= (get subject-head :person) "3rd")
-              (= (get subject-head :person) :3rd))
-          (or (= (get subject-head :number) "singular")
-              (= (get subject-head :number) :singular)))
+     (and (or (= (fs/get-in-r subject-head '(:person)) "3rd")
+              (= (fs/get-in-r subject-head '(:person)) :3rd))
+          (or (= (fs/get-in-r subject-head '(:number)) "singular")
+              (= (fs/get-in-r subject-head '(:number)) :singular)))
      ;; TODO: this works for -ire verbs like aprire->aprie but not
      ;; -ire verbs like finire->finisco.
      (str-utils/replace root-form regex
@@ -189,10 +188,10 @@
                                                          true "e")
                                                         space)))
 
-     (and (or (= (get subject-head :person) "3rd")
-              (= (get subject-head :person) :3rd))
-          (or (= (get subject-head :number) "plural")
-              (= (get subject-head :number) :plural)))
+     (and (or (= (fs/get-in-r subject-head '(:person)) "3rd")
+              (= (fs/get-in-r subject-head '(:person)) :3rd))
+          (or (= (fs/get-in-r subject-head '(:number)) "plural")
+              (= (fs/get-in-r subject-head '(:number)) :plural)))
      (str-utils/replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
@@ -201,7 +200,8 @@
                                                          true "o")
                                                         "no" space)))
      true
-     (str "conjugate-italian-verb-regular error: :person (" (get subject-head :person) ") or :number (" (get subject-head :number)  ")  value was not matched. (verb-head=" (get verb-head :italian) "),(subject-head=" (get subject-head :italian) ")"))))
+     (str "conjugate-italian-verb-regular error: :person (" (get subject-head :person) ") or :number (" (get subject-head :number) ") "
+          " value was not matched. (verb-head=" (get verb-head :italian) "),(subject-head=" (get subject-head :italian) ")"))))
 
 ;; TODO: figure out how to interpolate variables into regexps.
 (defn except-first-words [first-words words]

@@ -13,6 +13,20 @@
     (get-head (get sign :head))
     sign))
 
+;; TODO: need tests.
+(defn get-in-r [map keys]
+  "same as clojure.core (get-in), but it resolves references if need be."
+  (let [result 
+        (if (first keys)
+          (let [result (get map (first keys))]
+            (if (= (type result) clojure.lang.Ref)
+              (get-in-r @result (rest keys))
+              (get-in-r result (rest keys))))
+          map)]
+    (if (= (type result) clojure.lang.Ref)
+      @result
+      result)))
+  
 (defn get-root-head [sign]
   (cond
    (get sign :head)
