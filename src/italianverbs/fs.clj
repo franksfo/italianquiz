@@ -286,59 +286,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (def tests
   (list
-  
-   (rdutest
-    "simple merge test."
-    (merge {:foo 99} {:bar 42})
-    (fn [result]
-      (and (= (:foo result) 99)
-           (= (:bar result) 42))))
-
-   (rdutest
-    "simple unify test."
-    (unify {:foo 99} {:bar 42})
-    (fn [result]
-      (and (= (:foo result) 99)
-           (= (:bar result) 42))))
    
-   (rdutest
-    "Recursive merge of 3 maps."
-    (let [map1 {:foo {:bar 99}}
-          map2 {:foo {:baz 42}}
-          map3 {:biff 12}]
-      (merge map1 map2 map3))
-    (fn [merge-result]
-      ;; test that result looks like:
-      ;; {:foo {:bar 99
-      ;;        :baz 42}
-      ;;  :biff 12}}
-      (and
-       (= (:bar (:foo merge-result)) 99)
-       (= (:baz (:foo merge-result)) 42)
-       (= (:biff merge-result) 12))))
-   
-   (rdutest
-    "Recursive merge of 3 maps, tested with (get-in)"
-    (let [map1 {:foo {:bar 99}}
-          map2 {:foo {:baz 42}}
-          map3 {:biff 12}]
-      (merge map1 map2 map3))
-    (fn [merge-result]
-      (and
-       (= (get-in merge-result '(:foo :bar)) 99)
-       (= (get-in merge-result '(:foo :baz)) 42))))
-
-   (rdutest
-    "Testing that unify(v1,v2)=fail if v1 != v2."
-    (unify {:foo 42} {:foo 43})
-    (fn [result]
-      (= (:foo result) :fail)))
-   
-   (rdutest
-    "Testing that merge(v1,v2)=v2 (overriding works)."
-    (merge {:foo 42} {:foo 43})
-    (fn [result]
-      (= (:foo result) 43)))
  
   (rdutest
     "Ignore nils in values (true,nil)."
