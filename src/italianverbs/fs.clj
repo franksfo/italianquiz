@@ -286,13 +286,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (def tests
   (list
-   
- 
-  (rdutest
-    "Ignore nils in values (true,nil)."
-    (merge {:foo true} {:foo nil})
-    (fn [result]
-      (= (:foo result) true)))
 
   (rdutest
     "{} (unlike with nil) overrides true in merge."

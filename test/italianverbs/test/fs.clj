@@ -39,7 +39,8 @@
   (let [result (merge {:foo 42} {:foo 43})]
     (is (= (:foo result) 43))))
 
-
-
-
+(deftest ignore-nils-in-values
+  "Ignore nils in values (true,nil)."
+  (let [result (merge {:foo true} {:foo nil})]
+    (is (= (:foo result) true))))
 

@@ -3,6 +3,7 @@
         [clojure.set]
         [rdutest])
   (:require
+   [clojure.contrib.logging :as log]
    [clojure.contrib.string :as string]
    [clojure.contrib.repl-utils :as repl-utils]
    [italianverbs.fs :as fs]
@@ -120,7 +121,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; 2. (def results (mapcat (fn [fs] (if (myfn fs) (list fs))) (fetch :lexicon)))
 ;;
 (defn search [& constraints]
-  (seq (map fs/deserialize (apply query constraints))))
+  ;; TODO: figure out how to get log/info to print to console in REPL.
+  (log/info (str "searching with constraints : " constraints))
+  (println  (str "searching with constraints : " constraints))
+  (if (= (first constraints) :fail)
+    (list :fail)
+    (seq (map fs/deserialize (apply query constraints)))))
 
 ;; convenience function:search-one: find the first lexeme that matches constraints.
 (defn search-one [& constraints]
@@ -185,6 +191,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (if lexemes
       (if (> (.size lexemes) 0)
         (nth lexemes (rand-int (.size lexemes)))))))
+
+;; convenience fn for preceding fn.
+(defn random [& constraints]
+  (apply random-lexeme constraints))
 
 ;; TODO: move some of these lexically-related tests to lexicon.clj (e.g. the 'fare' (to do) test).
 (def tests
