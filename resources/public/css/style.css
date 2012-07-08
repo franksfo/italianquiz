@@ -453,6 +453,7 @@ div.error {
 }
 
 div.code {
+    text-align:left;
     background:#eee;
     font-family:monospace;
     border:1%;

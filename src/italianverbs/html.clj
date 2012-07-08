@@ -65,6 +65,13 @@
                                                   (= key :subj)(= key :obj)
                                                   (= key :det)
                                                   (= key :question)
+                                                  (= key :noun)
+                                                  ;(= key :article-search)
+                                                  (= key :article)
+                                                  ;(= key :subject)
+                                                  ;(= key :object)
+                                        ;(= key :verb-phrase)
+                                        ;(= key :verb)
                                                   (= key :most-recent)
                                                   (= key :head)(= key :comp)
                                                   (= key :notefs) ;; the following set is used for debugging.

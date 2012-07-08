@@ -59,3 +59,15 @@ div.legend h3 {
     text-align:right;
     float:right;
 }
+
+table.generate th {
+    vertical-align:top;
+}
+
+table.generate div.result {
+    border:1px dashed black;
+    padding:1%;
+    float:left;
+    margin-bottom:1%;
+    margin-right:1%;
+}

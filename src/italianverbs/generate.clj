@@ -541,6 +541,28 @@
      :comp comp
      :italian (str (:italian comp) " " (:italian head))})) ;; TODO: abstract word order to (serialize) function.
 
+(def examples
+  (list {:label "fare: 1st singular"
+         :value
+         (search/search-one {:root {:infl :infinitive
+                                    :italian "fare"}
+                             :person :1st
+                             :number :singular})}))
+
+(defn generate-signs []
+  (str "<table class='generate'>"
+       (string/join ""
+             (map
+              (fn [html]
+                (str "<tr>" "<td>"
+                     "<div class='result'>" html "</div>"
+                     "</td>" "</tr>"))
+              (map
+               (fn [fs]
+                 (html/fs (:value fs)))
+               examples)))
+       "</table>"))
+
 (def generate-tests
   (list
    (rdutest
@@ -582,9 +604,9 @@
    
    (rdutest
     "Conjugate 'io' + 'fare' => 'io  facio'"
-    (conjugate-verb (fs/merge (search/search-first {:italian "fare" :infl :infinitive})
+    (conjugate-verb (fs/merge (search/search-one {:italian "fare" :infl :infinitive})
                               {:infl :present})
-                    (search/search-first {:italian "io" :case :nom}))
+                    (search/search-one {:italian "io" :case :nom}))
     (fn [conjugated]
       (= (:italian conjugated) "facio"))
     :io-facio)

@@ -109,18 +109,8 @@
         :session (get request :session)
         :headers {"Content-Type" "text/html"}
         :body
-        (do 
-            (html/pagemacro "Unit Tests: Sentence Generation"
-                            (string/join " "
-                                         (map (fn [test] (first (:test-result test)))
-                                              gen/generate-tests))
-                            {:foo 42
-                             :remote-addr (:remote-addr request)
-                             } ;; for some reason we can't pass along request here.
-
-                            onload
-                            )
-            )
+        (html/pagemacro "Sentence Generation"
+                        (gen/generate-signs))
         })
 
 
