@@ -66,18 +66,18 @@
 ;                             :person (get subject :person)}) :english) " "
 ;                             "named")
      
-     (or (= (get (fs/get-head subject) :person) "1st")
-         (= (get (fs/get-head subject) :person) :1st))
+     (or (= (fs/get-r (fs/get-head subject) :person) "1st")
+         (= (fs/get-r (fs/get-head subject) :person) :1st))
      (str
-      (get remove-to :remove-to) 
-      (get (get vp :comp) :english))
+      (fs/get-r remove-to :remove-to) 
+      (fs/get-r (fs/get-r vp :comp) :english))
 
-     (or (= (get (fs/get-head subject) :person) "2nd")
-         (= (get (fs/get-head subject) :person) :2nd))
+     (or (= (fs/get-r (fs/get-head subject) :person) "2nd")
+         (= (fs/get-r (fs/get-head subject) :person) :2nd))
      (str
-      (get remove-to :remove-to)
+      (fs/get-r remove-to :remove-to)
       " "
-      (get (get vp :comp) :english))
+      (fs/get-r (fs/get-r vp :comp) :english))
       
      (and
       (or (= (fs/get-in-r (fs/get-head subject) '(:person)) "3rd")
@@ -90,15 +90,15 @@
            (add-s-to-first-word
             (merge
              remove-to
-             {:english (get remove-to :remove-to)}))
+             {:english (fs/get-r remove-to :remove-to)}))
            :add-s)
           " "
-          (get (get vp :comp) :english))
+          (fs/get-r (fs/get-r vp :comp) :english))
 
      true ;; 3rd plural
-     (str (get remove-to :remove-to)
+     (str (fs/get-r remove-to :remove-to)
           " "
-          (get (get vp :comp) :english)))))
+          (fs/get-r (fs/get-r vp :comp) :english)))))
 
 (defn final-char-of [string]
   (str-utils/get string (- (.length string) 1)))
@@ -233,28 +233,28 @@
 (defn conjugate-passato-prossimo [verb-phrase subject]
   (cond
 
-   (and (= (get verb-phrase :aux) "essere")
-        (or (= (get subject :gender) :fem)
-            (= (get subject :gender) "fem"))
-        (or (= (get subject :number) :singular)
-            (= (get subject :number) "singular")))
-   (single-fem (get verb-phrase :italian))
+   (and (= (fs/get-r verb-phrase :aux) "essere")
+        (or (= (fs/get-r subject :gender) :fem)
+            (= (fs/get-r subject :gender) "fem"))
+        (or (= (fs/get-r subject :number) :singular)
+            (= (fs/get-r subject :number) "singular")))
+   (single-fem (fs/get-r verb-phrase :italian))
 
-   (and (= (get verb-phrase :aux) "essere")
-        (or (= (get subject :gender) :masc)
-            (= (get subject :gender) "masc")
-            (not (get subject :gender)))
-        (or (= (get subject :number) :plural)
-            (= (get subject :number) "plural")))
-   (plural-masc (get verb-phrase :italian))
+   (and (= (fs/get-r verb-phrase :aux) "essere")
+        (or (= (fs/get-r subject :gender) :masc)
+            (= (fs/get-r subject :gender) "masc")
+            (not (fs/get-r subject :gender)))
+        (or (= (fs/get-r subject :number) :plural)
+            (= (fs/get-r subject :number) "plural")))
+   (plural-masc (fs/get-r verb-phrase :italian))
 
-   (and (= (get verb-phrase :aux) "essere")
-        (or (= (get subject :gender) :fem)
-            (= (get subject :gender) "fem"))
-        (or (= (get subject :number) :plural)
-            (= (get subject :number) "plural")))
-   (plural-fem (get verb-phrase :italian))
-   true (get verb-phrase :italian)))
+   (and (= (fs/get-r verb-phrase :aux) "essere")
+        (or (= (fs/get-r subject :gender) :fem)
+            (= (fs/get-r subject :gender) "fem"))
+        (or (= (fs/get-r subject :number) :plural)
+            (= (fs/get-r subject :number) "plural")))
+   (plural-fem (fs/get-r verb-phrase :italian))
+   true (fs/get-r verb-phrase :italian)))
 
 (defn conjugate-italian-verb [verb-phrase subject]
   ;; conjugate verb based on subject and eventually verb's features (such as tense)
