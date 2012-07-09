@@ -140,163 +140,126 @@
     (is (= (type (:a result)) clojure.lang.Ref))
     (is (= @(:a result) :foo))))
 
-;      (deftest
-;       "merging with inner reference:keyset"
-;       (let [fs1 {:b (ref :top)}
-;             fs2 {:b 42}
-;            maps (list fs1 fs2)]
-;         (seq (set (mapcat #'keys maps)))) ;; mapcat->set->seq removes duplicates.
-;       (fn [result]
-;         (= result '(:b))))
+(deftest merging-with-inner-reference-keyset
+  (let [fs1 {:b (ref :top)}
+        fs2 {:b 42}
+        maps (list fs1 fs2)
+        result (seq (set (mapcat #'keys maps)))] ;; mapcat->set->seq removes duplicates.
+    (is (= result '(:b)))))
 
       ;; [b [1] :top], [b 42] => [b [1] 42]
-;      (deftest
-;       "merging with reference"
-;       (let [fs1 {:b (ref :top)}
-;             fs2 {:b 42}]
-;         (fs/merge fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:b result)) clojure.lang.Ref)
-;              (= @(:b result)) 42)))
+(deftest merging-with-reference
+  "merging with reference"
+  (let [fs1 {:b (ref :top)}
+        fs2 {:b 42}
+        result (merge fs1 fs2)]
+    (is (= (type (:b result)) clojure.lang.Ref))
+    (is (= @(:b result)) 42)))
 
-      ;; [a [b [1] :top]], [a [b 42]] => [a [b [1] 42]]
-;      (deftest
-;       "merging with inner reference"
-;       (let [fs1 {:a {:b (ref :top)}}
-;             fs2 {:a {:b 42}}]
-;         (fs/merge fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:b (:a result))) clojure.lang.Ref)
-;              (= @(:b (:a result))) 42)))
+;; [a [b [1] :top]], [a [b 42]] => [a [b [1] 42]]
+(deftest merging-with-inner-reference
+  "merging with inner reference"
+  (let [fs1 {:a {:b (ref :top)}}
+        fs2 {:a {:b 42}}
+        result (merge fs1 fs2)]
+    (is (= (type (:b (:a result))) clojure.lang.Ref))
+    (is (= @(:b (:a result))) 42)))
 
-      ;; [a [b [1] top]], [a [b 42]] => [a [b [1] 42]]
-;      (deftest
-;       "merging with inner reference, second position"
-;       (let [fs1 {:a {:b 42}}
-;             fs2 {:a {:b (ref :top)}}]
-;         (fs/merge fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:b (:a result))) clojure.lang.Ref)
-;              (= @(:b (:a result))) 42)))
+;; [a [b [1] top]], [a [b 42]] => [a [b [1] 42]]
+(deftest merging-with-inner-reference-second-position
+  (let [fs1 {:a {:b 42}}
+        fs2 {:a {:b (ref :top)}}
+        result (merge fs1 fs2)]
+    (is (= (type (:b (:a result))) clojure.lang.Ref))
+    (is (= @(:b (:a result))) 42)))
 
-;      (deftest
-;       "merging with reference, second position"
-;       (let [fs1 {:a 42}
-;             fs2 {:a (ref :top)}]
-;         (fs/merge fs1 fs2))
-;      (fn [result]
-;         (and (= (type (:a result)) clojure.lang.Ref)
-;              (= @(:a result) 42))))
+(deftest merging-with-reference-second-position
+  "merging with reference, second position"
+  (let [fs1 {:a 42}
+        fs2 {:a (ref :top)}
+        result (merge fs1 fs2)]
+    (is (= (type (:a result)) clojure.lang.Ref))
+    (is (= @(:a result) 42))))
 
-;      (deftest
-;       "merging with reference, second position"
-;       (let [fs1 {:a 42}
-;             fs2 {:a (ref :top)}]
-;         (fs/merge fs1 fs2))
-;       (fn [result]
-;         (and (= (type (:a result)) clojure.lang.Ref)
-;              (= @(:a result) 42))))
+(deftest merging-fail-with-not-1
+  "test atom merging with ':not' (special feature) (first in list; fail)"
+  (let [result (merge {:not 42} 42)]
+    (is (= result :fail))))
 
-;      (deftest
-;       "test atom merging with ':not' (special feature) (first in list; fail)"
-;       (merge {:not 42} 42)
-;       (fn [result]
-;         (= result :fail)))
+(deftest merging-succeed-with-not
+  "test atom merging with ':not' (special feature) (first in list; fail)"
+  (let [result (merge 42 {:not 43})]
+    (is (= result 42))))
 
-;      (deftest
-;       "test atom merging with ':not' (special feature) (second in list; succeed)"
-;      (merge 42 {:not 43})
-;       (fn [result]
-;         (= result 42)))
+(deftest merging-fail-with-not-2
+  "test atom merging with ':not' (special feature) (second in list; fail)"
+  (let [result (merge 42 {:not 42})]
+    (is (= result :fail))))
 
-;      (deftest
-;       "test atom merging with ':not' (special feature) (second in list; fail)"
-;       (merge (list 42 {:not 42}))
-;       (fn [result]
-;         :fail))
+(deftest unify-with-not
+  (let [result (unify {:foo 42} {:foo {:not 43}})]
+    (is (= result {:foo 42}))))
 
-;      (deftest
-;       "test merging with ':not' (special feature)"
-;       (unify {:foo 42} {:foo {:not 43}})
-;       (fn [result]
-;         (= result {:foo 42})))
+(deftest unify-fail-with-not
+  "test atom unifying with ':not' (special feature) (first in list; fail)"
+  (let [result (unify {:not 42} 42)]
+    (is (= result :fail))))
 
-;      (deftest
-;       "test atom unifying with ':not' (special feature) (first in list; fail)"
-;       (unify {:not 42} 42)
-;       (fn [result]
-;         (= result :fail)))
+(deftest unify-succeed-with-not
+  "test atom unifying with ':not' (special feature) (second in list; succeed)"
+  (let [result (unify 42 {:not 43})]
+    (is (= result 42))))
 
-;      (deftest
-;       "test atom unifying with ':not' (special feature) (second in list; succeed)"
-;       (unify 42 {:not 43})
-;       (fn [result]
-;         (= result 42)))
-;
-;      (deftest
-;       "test atom unifying with ':not' (special feature) (second in list; fail)"
-;       (unify (list 42 {:not 42}))
-;       (fn [result]
-;         :fail))
+(deftest unify-fail-with-not-2
+  "test atom unifying with ':not' (special feature) (second in list; fail)"
+  (let [result (unify 42 {:not 42})]
+    (is (= result :fail))))
 
-;      (deftest
-;       "test unifying with ':not' (special feature)"
-;       (unify {:foo 42} {:foo {:not 43}})
-;       (fn [result]
-;         (= result {:foo 42})))
+(deftest unify-nested-not
+  "test unifying with ':not' (special feature)"
+  (let [result (unify {:foo 42} {:foo {:not 43}})]
+    (is (= result {:foo 42}))))
 
-;      (deftest
-;       "keywords and strings are equivalent for unification (due to mongo serialization), but canonicalize to keyword."
-;       (unify :foo "foo")
-;       (fn [result]
-;        (= result :foo)))
+(deftest keywords-and-strings-equiv
+  "keywords and strings are equivalent for unification (due to accomodating mongo serialization), but canonicalize to keyword."
+  (let [result (unify :foo "foo")]
+    (is (= result :foo))))
       
-;      (deftest
-;       "complicated merge."
-;       (let [mycon (list {:comp {:number :singular, :cat :det}} {:gender :masc} {:comp {:def {:not :indef}}, :mass true} {:comp {}, :sport true})]
-;         (apply merge mycon))
-;       (fn [result] true))
+(deftest complicated-merge
+  (let [mycon (list {:comp {:number :singular, :cat :det}} {:gender :masc} {:comp {:def {:not :indef}}, :mass true} {:comp {}, :sport true})
+        result (apply merge mycon)]
+    (is (= (get-in result '(:comp :number)) :singular))))
 
-;      (deftest
-;       "atomic vals: merge"
-;       (merge 5 5)
-;       (fn [result] (= 5 5)))
+(deftest merge-atomic-vals
+  (let [result (merge 5 5)]
+    (is (= result 5))))
 
-;      (deftest
-;       "atomic vals: unify"
-;       (unify 5 5)
-;       (fn [result] (= 5 5)))
+(deftest unify-atomic-vals
+  (let [result (unify 5 5)]
+    (is (= result 5))))
 
-;      (deftest
-;       "atomic vals: unify fail"
-;       (unify 5 4)
-;       (fn [result] (= result :fail)))
+(deftest unify-atomic-vals-fail
+  (let [result (unify 5 4)]
+    (is (= result :fail))))
 
-;      (deftest
-;       "maps: merge"
-;       (merge '{:a 42} '{:b 43})
-;       (fn [result]
-;         (and (= (:a result) 42)
-;              (= (:b result) 43))))
+(deftest maps-merge
+  (let [result (merge '{:a 42} '{:b 43})]
+    (is (= (:a result) 42)
+        (= (:b result) 43))))
 
-;      (deftest
-;       "maps: unify"
-;       (unify '{:a 42} '{:b 43})
-;       (fn [result]
-;         (and (= (:a result) 42)
-;              (= (:b result) 43))))
+(deftest maps-unify
+  (let [result (unify '{:a 42} '{:b 43})]
+    (is (= (:a result) 42)
+        (= (:b result) 43))))
 
-;      (deftest
-;       "maps: merge (override)"
-;       (merge '{:a 42} '{:a 43})
-;       (fn [result]
-;         (= (:a result) 43)))
-      
-;      (deftest
-;       "maps: unify fail"
-;       (unify '{:a 42} '{:a 43})
-;       (fn [result]
-;         (= (:a result) :fail)))
+(deftest merge-override
+  (let [result (merge '{:a 42} '{:a 43})]
+    (is (= (:a result) 43))))
+
+(deftest unify-override
+  (let [result (unify '{:a 42} '{:a 43})]
+    (is (= (:a result) :fail))))
+
       
 ;;      (deftest
 ;;       "merge should union :not-values"
@@ -311,71 +274,62 @@
 ;;       (fn [result]
 ;;         (= (set (:not result)) (set 41 42)))
 
-;      (deftest
-;       "'top' and :top are equivalent when unifying with keyword."
-;       (unify "top" :foo)
-;       (fn [result]
-;         (= result :foo)))
+(deftest unify-with-top
+  "'top' and :top are equivalent when unifying with keyword."
+  (let [result (unify "top" :foo)]
+    (is (= result :foo))))
 
-;      (deftest
-;       "'top' and :top are equivalent when unifying with reference to keyword."
-;       (unify "top" (ref :foo))
-;       (fn [result]
-;         (and (= (type result) clojure.lang.Ref)
-;              (= @result :foo))))
+(deftest top-string-and-keyword-equiv
+  "'top' and :top are equivalent when unifying with reference to keyword."
+  (let [result (unify "top" (ref :foo))]
+    (is (= (type result) clojure.lang.Ref))
+    (is (= @result :foo))))
 
-;      (deftest
-;       "@'top' and @:top are equivalent when unifying to a keyword."
-;       (unify (ref "top") :foo)
-;       (fn [result]
-;         (and (= (type result) clojure.lang.Ref)
-;             (= @result :foo))))
+(deftest top-ref
+  "@'top' and @:top are equivalent when unifying to a keyword."
+  (let [result (unify (ref "top") :foo)]
+    (is (= (type result) clojure.lang.Ref))
+    (is (= @result :foo))))
 
-;      (deftest
-;       "@'top' and @:top are equivalent when unifying to a string."
-;       (unify (ref "top") "foo")
-;       (fn [result]
-;         (and (= (type result) clojure.lang.Ref)
-;              (= @result "foo"))))
+(deftest top-ref-2
+  "@'top' and @:top are equivalent when unifying to a string."
+  (let [result (unify (ref "top") "foo")]
+    (is (= (type result) clojure.lang.Ref))
+    (is (= @result "foo"))))
 
-;      (deftest
-;       "create a map with a reference."
-;       (let [fs1 {:a (ref 42)}
- ;            fs2 {:b (get fs1 :a)}]
- ;        (unify fs1 fs2))
- ;      (fn [result]
-;         (and (= (type (:a result)) clojure.lang.Ref)
-;              (= (type (:b result)) clojure.lang.Ref)
-;              (= (:a result) (:b result)))))
+(deftest map-with-reference
+  (let [fs1 {:a (ref 42)}
+        fs2 {:b (get fs1 :a)}
+        result (unify fs1 fs2)]
+    (is (= (type (:a result)) clojure.lang.Ref))
+    (is (= (type (:b result)) clojure.lang.Ref))
+    (is (= (:a result) (:b result)))))
 
-;      (deftest
-;       "unifying two maps, one with references."
-;       (let [fs1 {:a (ref :top)}
-;             fs2 {:b (get fs1 :a)}
-;             fs3 (fs/unify fs1 fs2)
-;             fs4 {:a 42}]
-;         (unify fs3 fs4))
-;       (fn [result]
-;         (and (= (type (:a result)) clojure.lang.Ref)
-;              (= (type (:b result)) clojure.lang.Ref)
-;              (= (:a result) (:b result))
-;              (= @(:a result) 42))))
+(deftest unify-two-maps-one-with-references
+  "unifying two maps, one with references."
+  (let [fs1 {:a (ref :top)}
+        fs2 {:b (get fs1 :a)}
+        fs3 (unify fs1 fs2)
+        fs4 {:a 42}
+        result (unify fs3 fs4)]
+    (is (= (type (:a result)) clojure.lang.Ref))
+    (is (= (type (:b result)) clojure.lang.Ref))
+    (is (= (:a result) (:b result)))
+    (is (= @(:a result) 42))))
 
-;      (deftest
-;       "unifying two maps, both with references, same features"
-;       (let [fs1 {:a (ref 42)}
-;             fs2 {:b (get fs1 :a)}
-;             fs3 (unify fs1 fs2)
-;             fs4 {:a (ref 42)}
-;             fs5 {:b (get fs4 :a)}
-;             fs6 (unify fs4 fs5)]
-;         (unify fs3 fs6))
-;       (fn [result]
-;         (and
-;          (= (type (:a result)) clojure.lang.Ref)
-;          (= (type (:b result)) clojure.lang.Ref)
-;          (= (:a result) (:b result))
-;          (= @(:a result) 42))))
+(deftest unify-two-maps-with-references
+  "unifying two maps, both with references, same features"
+  (let [fs1 {:a (ref 42)}
+        fs2 {:b (get fs1 :a)}
+        fs3 (unify fs1 fs2)
+        fs4 {:a (ref 42)}
+        fs5 {:b (get fs4 :a)}
+        fs6 (unify fs4 fs5)
+        result (unify fs3 fs6)]
+    (is (= (type (:a result)) clojure.lang.Ref))
+    (is (= (type (:b result)) clojure.lang.Ref))
+    (is (= (:a result) (:b result)))
+    (is (= @(:a result) 42))))
 
 ;;      (deftest
 ;;       "unifying two maps, both with references, overlapping features"
