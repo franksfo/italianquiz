@@ -17,13 +17,11 @@
          :subj {:number number-agreement
                 :person person-agreement
                 :case {:not :acc}}
-         ;; TODO: get rid of passato-aux; rename passato-aux2 to passato-aux.
          :passato-aux2
          {:root {:italian "avere"
                  :cat :verb}
           :number number-agreement
-          :person person-agreement}
-         :passato-aux "avere"})
+          :person person-agreement}})
       animate {:animate true}
       det {:cat :det}
       human (fs/merge animate {:human true})

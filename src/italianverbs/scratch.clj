@@ -25,9 +25,11 @@
         object (conjugate-np (search/random (:obj root-verb)))
         subject (conjugate-np (search/random (:subj root-verb)))
         unified-with-subject (fs/unify root-verb {:subj subject})
-        aux-verb (search/random (:passato-aux2 unified-with-subject))
+        aux-verb (search/random (:passato-aux unified-with-subject))
         ;; search+regular inflection rules
-        past-verb (search/random (fs/unify unified-with-subject {:infl :passato-prossimo}))]
+        past-verb-search (fs/merge unified-with-subject {:infl :passato-prossimo})
+        past-verb "(cyclic dependency)" ;(morph/conjugate past-verb-search)
+        ]
     {:subject subject
      :object object
      :unified-with-subject unified-with-subject
@@ -35,10 +37,13 @@
      :aux-verb aux-verb
      :italian (str (:italian subject) " "
                    (:italian aux-verb) " "
-                   (:italian past-verb))
+                   (:italian past-verb) " "
+                   (:italian object))
      :english (str (:english subject) " "
                    (:english aux-verb) " "
-                   (:english past-verb))}))
+                   (:english past-verb) " " 
+                   (:english object))}))
+
 
 
 

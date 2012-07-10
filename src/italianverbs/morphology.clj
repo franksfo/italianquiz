@@ -420,6 +420,14 @@
 (defn passato-prossimo [infinitive]
   (str (stem-per-passato-prossimo infinitive) "ato"))
 
+;cyclic
+;(defn conjugate [map]
+;  (let [irregular (search/search-one map)]
+;    (if irregular irregular
+;        ;; else, regular.
+;        (fs/merge map {:italian (passato-prossimo (:italian map))
+;                       :english (str (:remove-to (remove-to map)) "en")}))))
+
 (defn conjugate-future-italian [infinitive subject & [ stem ] ]
   (let [stem (if stem
                stem 

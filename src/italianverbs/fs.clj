@@ -1,6 +1,5 @@
 (ns italianverbs.fs
-  (:use [clojure.set]
-        [rdutest])
+  (:use [clojure.set])
   (:require
    [italianverbs.fs :as fs]
    [clojure.string :as string]
