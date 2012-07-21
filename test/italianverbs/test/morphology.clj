@@ -12,68 +12,35 @@
 ;   {:comment "stem verb for futuro semplice"
 ;    :test (stem-per-futuro "tornare")}))
 
-(deftest stem-for-futuro
+(deftest future-stem
   (let [future-stem (stem-per-futuro "tornare")]
     (is (= future-stem "torner"))))
 
-(def tests
-  {:stem-for-futuro
-   (rdutest
-    "Stem verb for futuro semplice"
-    (stem-per-futuro "tornare")
-    (fn [future-stem] (= future-stem "torner"))
-    :stem-for-futuro)
+(deftest io-mangio
+  (let [io-mangio ;; Conjugate 'io' + 'mangiare' => ' mangio'
+        (conjugate-italian-verb {:infl "infinitive", :cat "verb", :italian "mangiare", :english "to eat"}
+                                {:italian "io", :english "i", :person :1st, :number :singular})]
+    (is (= io-mangio " mangio")))) ;; TODO: conjugate-italian-verb should strip whitespace.
 
-   :io-mangio ; regular conjugation
-   (rdutest
-    "Conjugate 'io' + 'mangiare' => 'io mangio'"
-    (conjugate-italian-verb {:infl "infinitive", :cat "verb", :italian "mangiare", :english "to eat"}
-                            {:italian "io", :english "i", :person :1st, :number :singular})
-    (fn [string]
-      (= string " mangio"))
-    :io-mangio)
+(deftest io-preferisco
+  (let [io-preferisco ;; -isco conjugation: 'io' + 'preferire' => ' preferisco'
+        (conjugate-italian-verb {:infl "infinitive", :cat "verb", :isco true :italian "preferire", :english "to prefer"}
+                                {:italian "io", :english "i", :person :1st, :number :singular})]
+    (is 
+     (= io-preferisco " preferisco"))))  ;; TODO: conjugate-italian-verb should strip whitespace.
 
-   :io-preferisco ; -isco conjugation
-   (rdutest
-    "Conjugate 'io' + 'prefire' => 'io  preferisco'"
-    (conjugate-italian-verb {:infl "infinitive", :cat "verb", :isco true :italian "preferire", :english "to prefer"}
-                            {:italian "io", :english "i", :person :1st, :number :singular})
-    (fn [string]
-      (= string " preferisco"))
-    :io-facio)
+(deftest en-plural-1 ;; english noun pluralization.
+  (let [result (plural-en "girl")]
+    (is (= result "girls"))))
 
-   :en-plural-1 ; english noun pluralization.
-   (rdutest
-    "Conjugate a noun to plural"
-    (plural-en "girl")
-    (fn [string]
-      (= string "girls"))
-    :en-plural-1)
-   
-   :en-plural-2 ; english noun pluralization.
-   (rdutest
-    "Conjugate another noun to plural"
-    (plural-en "box")
-    (fn [string]
-      (= string "boxes"))
-    :en-plural-2)
+(deftest en-plural-2 ;; english noun pluralization: x -> xes
+  (let [result (plural-en "box")]
+    (is (= result "boxes"))))
 
-   :it-noun-pluralization-1 ;
-   (rdutest
-    "cane->cani"
-    (plural-masc "cane")
-    (fn [string]
-      (= string "cani"))
-    :it-noun-pluralization-1)
+(deftest italian-plural
+  (let [result (plural-masc "cane")]
+    (is (= result "cani"))))
 
-   
-   :passato
-   (rdutest
-    "Regular passato-prossimo conjugation."
-    (passato-prossimo "lavorare")
-    (fn [verb]
-      (= verb "lavorato"))
-    :passato)
-   
-   })
-
+(deftest passato ;; Regular passato-prossimo conjugation
+  (let [result (passato-prossimo "lavorare")]
+    (is (= result "lavorato"))))
