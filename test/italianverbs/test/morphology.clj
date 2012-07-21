@@ -1,8 +1,7 @@
-;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (maybe not actually)
-(ns italianverbs.morphology
-  (:use [rdutest])
+(ns italianverbs.test.morphology
+  (:use [clojure.test])
+  (:use [italianverbs.morphology])
   (:require
-   [italianverbs.fs :as fs]
    [clojure.contrib.logging :as log]
    [clojure.string :as string]
    [clojure.contrib.string :as stringc]
@@ -12,6 +11,11 @@
 ;  (list
 ;   {:comment "stem verb for futuro semplice"
 ;    :test (stem-per-futuro "tornare")}))
+
+(deftest stem-for-futuro
+  (let [future-stem (stem-per-futuro "tornare")]
+    (is (= future-stem "torner"))))
+
 (def tests
   {:stem-for-futuro
    (rdutest
@@ -72,3 +76,4 @@
     :passato)
    
    })
+
