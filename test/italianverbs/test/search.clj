@@ -126,36 +126,32 @@
   (let [result (pathify {:a (ref 42)})]
     (is (= (get (first result) (list :a)) 42))))
 
+;; {:a {:b 42}} => {(:a :b) 42}
 (deftest pathify-inner-map-no-refs
   (let [result
         (pathify {:a {:b 42}})]
     (is (= (first (keys (first result))) (list :a :b)))
     (is (= (first (vals (first result))) 42))))
 
-(def tests
-  (list
+;; {:a (ref {:b 42})} => {(:a :b) 42} (same as with no refs)
+(deftest pathify-inner-map-with-refs
+  (let [result
+        (pathify {:a (ref {:b 42})})]
+    (is (= (first (keys (first result))) (list :a :b)))
+    (is (= (first (vals (first result))) 42))))
 
-   ;; {:a (ref {:b 42})} => {(:a :b) 42}
-   (rdutest
-    "Pathify with inner map with reference."
-    (pathify {:a (ref {:b 42})})
-    (fn [paths]
-      (and (= (first (keys (first paths))) (list :a :b))
-           (= (first (vals (first paths))) 42)))
-    :pathify-with-inner-map-with-reference)
-
-   (rdutest
-    "noun-agreement via unify (1)."
+(deftest noun-agreement-via-unify-1
+  (let [np
     (let [cane (lexfn/lookup "cane")
           determiner (random-lexeme (fs/unify {:cat :det}
                                               (get-in cane '(:comp))))]
-      (fs/unify cane {:comp determiner}))
-    (fn [np]
-      (and (not (nil? np))
-           (not (= (get-in np '(:comp)) :fail))
-           (or (= (get-in np '(:comp :italian)) "il")
-               (= (get-in np '(:comp :italian)) "un"))
-           (= (type (get-in np '(:number))) clojure.lang.Ref)
+      (fs/unify cane {:comp determiner}))]
+    (is (not (nil? np)))
+    (is (not (= (get-in np '(:comp)) :fail)))
+    (is (and
+          (or (= (get-in np '(:comp :italian)) "il")
+              (= (get-in np '(:comp :italian)) "un"))
+          (= (type (get-in np '(:number))) clojure.lang.Ref)
            (or (= @(get-in np '(:number)) "singular")
                (= @(get-in np '(:number)) :singular))
            (= (type (get-in np '(:gender))) clojure.lang.Ref)
@@ -164,7 +160,10 @@
            (= (get-in np '(:gender))
               (get-in np '(:comp :gender)))
            (= (get-in np '(:number))
-              (get-in np '(:comp :number))))))
+              (get-in np '(:comp :number)))))))
+
+(def tests
+  (list
 
    (rdutest
     "verb-agreement via unify (1)."
