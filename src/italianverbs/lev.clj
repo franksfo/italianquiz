@@ -310,11 +310,11 @@
     (get matrix :path)))
 
 ;; TODO: make this a list of tests.
-;(defn test []
+;(defn lev-test []
 ;  (matrix "un'uomo va in Roma"
 ;          "gli uomini vanno a Roma"))
 
-(defn test []
+(defn lev-test []
   (list
    {:comment "'le finestre sono a sinistra delle poltrone' vs 'le finestre sono a sinistra alle poltroni'"
     :test (let [test
