@@ -1,6 +1,5 @@
 (ns italianverbs.test.search
   (:use [clojure.test]
-        [rdutest]
         [italianverbs.search]
         [clojure.set])
   (:require
@@ -187,16 +186,12 @@
     (is (= (type (get-in result '(:number))) clojure.lang.Ref))
     (is (not (= @(get-in result '(:number)) :fail)))
     (is (or (= @(get-in result '(:number)) "plural") (= @(get-in result '(:number)) :plural)))))
-    
-(def tests
-  (list
 
-   (rdutest
-    "lookup subjects based on verb constraints."
-    (let [hanno (lexfn/lookup "hanno")]
-      (fs/unify hanno {:subj (random-lexeme (:subj hanno))}))
-    (fn [unified]
-      (not (nil? unified))))
+(deftest subjects-based-on-verb-constraints
+  (let [unified
+        (let [hanno (lexfn/lookup "hanno")]
+          (fs/unify hanno {:subj (random-lexeme (:subj hanno))}))]
+    (is (not (nil? unified)))))
 
 ;           (= (type (get-in hanno '(:person))) clojure.lang.Ref)
 ;           (or (= @(get-in hanno '(:person)) "3rd")
@@ -208,8 +203,6 @@
 ;              (get-in hanno '(:comp :gender)))
 ;           (= (get-in hanno '(:number))
 ;              (get-in hanno '(:comp :number))))))
-
-   ))
 
 
 
