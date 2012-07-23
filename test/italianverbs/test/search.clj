@@ -169,45 +169,27 @@
   (let [vp
         (let [avere (lexfn/lookup "avere")
               subject (random-lexeme (:subj avere))]
-          (fs/unify avere {:subj subject}))]
-    (and (not (nil? vp))
-         (= (type (get-in vp '(:number))) clojure.lang.Ref)
-         (not (= @(get-in vp '(:number)) :fail))
-         (= (get-in vp '(:number))
-            (get-in vp '(:subj :number)))
-         (= (type (get-in vp '(:person))) clojure.lang.Ref)
-         (= (get-in vp '(:person))
-            (get-in vp '(:subj :person))))))
 
+          (fs/unify avere {:subj subject}))]
+    (is (not (nil? vp)))
+    (is (= (type (get-in vp '(:number))) clojure.lang.Ref))
+    (is (not (= @(get-in vp '(:number)) :fail)))
+    (is (= (get-in vp '(:number)) (get-in vp '(:subj :number))))
+    (is (= (type (get-in vp '(:person))) clojure.lang.Ref))
+    (is (= (get-in vp '(:person)) (get-in vp '(:subj :person))))))
+
+(deftest verb-agreement-via-unify-2
+  (let [result
+        (let [hanno (lexfn/lookup "hanno")
+              subject (random-lexeme (get-in hanno '(:subj)))]
+          (fs/unify hanno {:subj subject}))]
+    (is (not (nil? result)))
+    (is (= (type (get-in result '(:number))) clojure.lang.Ref))
+    (is (not (= @(get-in result '(:number)) :fail)))
+    (is (or (= @(get-in result '(:number)) "plural") (= @(get-in result '(:number)) :plural)))))
+    
 (def tests
   (list
-
-   (rdutest
-    "verb-agreement via unify (1)."
-    (let [avere (lexfn/lookup "avere")
-          subject (random-lexeme (:subj avere))]
-      (fs/unify avere {:subj subject}))
-    (fn [result]
-      (and (not (nil? result))
-           (= (type (get-in result '(:number))) clojure.lang.Ref)
-           (not (= @(get-in result '(:number)) :fail))
-           (= (get-in result '(:number))
-              (get-in result '(:subj :number)))
-           (= (type (get-in result '(:person))) clojure.lang.Ref)
-           (= (get-in result '(:person))
-              (get-in result '(:subj :person))))))
-
-   (rdutest
-    "verb-agreement via unify (2)."
-    (let [hanno (lexfn/lookup "hanno")
-          subject (random-lexeme (get-in hanno '(:subj)))]
-      (fs/unify hanno {:subj subject}))
-    (fn [result]
-      (and (not (nil? result))
-           (= (type (get-in result '(:number))) clojure.lang.Ref)
-           (not (= @(get-in result '(:number)) :fail))
-           (or (= @(get-in result '(:number)) "plural")
-               (= @(get-in result '(:number)) :plural)))))
 
    (rdutest
     "lookup subjects based on verb constraints."
