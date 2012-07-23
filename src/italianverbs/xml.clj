@@ -1,5 +1,4 @@
 (ns italianverbs.xml
-  (:use [rdutest])
   (:require
    [clojure.string :as string]
    [clojure.contrib.str-utils2 :as str-utils]))
@@ -13,7 +12,7 @@
 (defn response [title & [content request]]
   (str (encoding) "<test title='" title "'" ">" content "</test>"))
 
-(defn- xml-str
+(defn xml-str
  "Like clojure.core/str but escapes < > and &."
  [x]
   (-> x str (.replace "&" "&amp;") (.replace "<" "&lt;") (.replace ">" "&gt;")))
@@ -36,20 +35,3 @@
          "<italian>" italian "</italian>"
          "<english>" english "</english>"
          "</question>")))
-       
-(def tests
-  (list
-   (rdutest
-    "xml escaping"
-    (xml-str (content))
-    (fn [string]
-      (= "&lt;xml/&gt;" string))
-    :xml-escaping)
-   (rdutest
-    "xml guess"
-    (xml-str (serialize {:italian "io sono stato"
-                         :english "i went"}))
-    (fn [string]
-      (= "&lt;?xml version='1.0' encoding='utf-8'?&gt;&lt;question&gt;&lt;method&gt;&lt;/method&gt;&lt;format&gt;&lt;/format&gt;&lt;input&gt;&lt;/input&gt;&lt;guess&gt;&lt;/guess&gt;&lt;italian&gt;io sono stato&lt;/italian&gt;&lt;english&gt;i went&lt;/english&gt;&lt;/question&gt;" string))
-    :xml-guess)))
-
