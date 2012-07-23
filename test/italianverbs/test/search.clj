@@ -165,6 +165,20 @@
     (is (= (get-in np '(:number))
            (get-in np '(:comp :number))))))
 
+(deftest verb-agreement-via-unify-1
+  (let [vp
+        (let [avere (lexfn/lookup "avere")
+              subject (random-lexeme (:subj avere))]
+          (fs/unify avere {:subj subject}))]
+    (and (not (nil? vp))
+         (= (type (get-in vp '(:number))) clojure.lang.Ref)
+         (not (= @(get-in vp '(:number)) :fail))
+         (= (get-in vp '(:number))
+            (get-in vp '(:subj :number)))
+         (= (type (get-in vp '(:person))) clojure.lang.Ref)
+         (= (get-in vp '(:person))
+            (get-in vp '(:subj :person))))))
+
 (def tests
   (list
 
