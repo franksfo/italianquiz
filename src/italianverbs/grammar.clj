@@ -1,6 +1,5 @@
 ;; NO RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (must reload browser 2x though).
 (ns italianverbs.grammar
-  (:use [rdutest])
   (:require
    [italianverbs.fs :as fs]
    [italianverbs.morphology :as morph]

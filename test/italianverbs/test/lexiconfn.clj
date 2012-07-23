@@ -1,6 +1,5 @@
 (ns italianverbs.test.lexiconfn
-  (:use [rdutest] ;; transitional
-        [clojure.test]
+  (:use [clojure.test]
         [italianverbs.lexiconfn])
   (:require
    [italianverbs.fs :as fs]))

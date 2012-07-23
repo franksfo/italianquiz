@@ -1,8 +1,7 @@
 (ns italianverbs.html
   (:use
    [hiccup core page]
-   [ring.util.codec :as codec]
-   [rdutest])
+   [ring.util.codec :as codec])
   (:require
    [clojure.set :as set]
    [clojure.string :as string]
@@ -221,35 +220,4 @@
 
 (defn myhtml5 []
   "<!DOCTYPE html>")
-
-(def tests
-  (list
-   (rdutest
-    "A simple feature structure rendered as HTML."
-    (simple-fs)
-    #(not (= % ""))
-    :simple-fs)
-
-   (rdutest
-    "Showing nesting: where a value is itself a feature structure."
-    (nested-fs)
-    #(not (= % ""))
-    :nested-fs)
-
-   (rdutest
-    "Anchor"
-    (create-anchor "foo" "bar 'baz'")
-    #(not (= % ""))
-    :create-fs)
-
-   (rdutest
-    "Iframe"
-    (iframe "/italian/guess/")
-    #(not (= % ""))
-    :iframe)
-
-   ))
-  
-
-
 
