@@ -148,19 +148,22 @@
       (fs/unify cane {:comp determiner}))]
     (is (not (nil? np)))
     (is (not (= (get-in np '(:comp)) :fail)))
-    (is (and
-          (or (= (get-in np '(:comp :italian)) "il")
-              (= (get-in np '(:comp :italian)) "un"))
-          (= (type (get-in np '(:number))) clojure.lang.Ref)
-           (or (= @(get-in np '(:number)) "singular")
-               (= @(get-in np '(:number)) :singular))
-           (= (type (get-in np '(:gender))) clojure.lang.Ref)
-           (or (= @(get-in np '(:gender)) "masc")
-               (= @(get-in np '(:gender)) :masc))
-           (= (get-in np '(:gender))
-              (get-in np '(:comp :gender)))
-           (= (get-in np '(:number))
-              (get-in np '(:comp :number)))))))
+    (is (or (= (get-in np '(:comp :italian)) "il")
+            (= (get-in np '(:comp :italian)) "un")))
+
+    (is (= (type (get-in np '(:number))) clojure.lang.Ref))
+    (is (or (= @(get-in np '(:number)) "singular")
+            (= @(get-in np '(:number)) :singular)))
+
+    (is (= (type (get-in np '(:gender))) clojure.lang.Ref))
+
+    (is (or (= @(get-in np '(:gender)) "masc")
+            (= @(get-in np '(:gender)) :masc)))
+
+    (is (= (get-in np '(:gender))
+           (get-in np '(:comp :gender))))
+    (is (= (get-in np '(:number))
+           (get-in np '(:comp :number))))))
 
 (def tests
   (list
