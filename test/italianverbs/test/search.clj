@@ -104,38 +104,36 @@
     ;; TODO: write better test with more detailed tests.
     (is (= (count result) 11)))) 
 
+(deftest pathify-2 ;; Pathify another map.
+  (let [result 
+        (pathify {:root
+                  {:gender
+                   :masc
+                   :human true
+                   :det {:cat :det}
+                   :animate true
+                   :morph "morph-noun"
+                   :common true :cat
+                   :noun :italian "uomo"
+                   :person :3rd}})]
+    (is (= (count result) 9)))) ;; TODO: write better test as preceding.
+
+(deftest pathify-no-refs
+  (let [result (pathify {:a 42})]
+    (is (= (get (first result) (list :a)) 42))))
+
+(deftest pathify-with-ref
+  (let [result (pathify {:a (ref 42)})]
+    (is (= (get (first result) (list :a)) 42))))
+
+(deftest pathify-inner-map-no-refs
+  (let [result
+        (pathify {:a {:b 42}})]
+    (is (= (first (keys (first result))) (list :a :b)))
+    (is (= (first (vals (first result))) 42))))
+
 (def tests
   (list
-
-   
-   (rdutest
-    "Pathify another map."
-    (pathify {:root {:gender :masc :human true :det {:cat :det} :animate true :morph "morph-noun" :common true :cat :noun :italian "uomo" :person :3rd}})
-    (fn [paths] (= (count paths) 9)) ;; TODO: write better test.
-    :pathify-long-map-2)
-
-   (rdutest
-    "Pathify, no reference."
-    (pathify {:a 42})
-    (fn [paths]
-      (= (get (first paths) (list :a)) 42))
-    :pathify-no-reference)
-
-   (rdutest
-    "Pathify with reference."
-    (pathify {:a (ref 42)})
-    (fn [paths]
-      (= (get (first paths) (list :a)) 42))
-    :pathify-with-reference)
-
-   ;; {:a {:b 42}} => {(:a :b) 42}
-   (rdutest
-    "Pathify with inner map, no reference."
-    (pathify {:a {:b 42}})
-    (fn [paths]
-      (and (= (first (keys (first paths))) (list :a :b))
-           (= (first (vals (first paths))) 42)))
-    :pathify-with-inner-map)
 
    ;; {:a (ref {:b 42})} => {(:a :b) 42}
    (rdutest
