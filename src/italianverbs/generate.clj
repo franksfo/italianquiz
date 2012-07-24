@@ -3,6 +3,7 @@
   (:use [clojure.stacktrace]
         [italianverbs.lexiconfn])
   (:require
+   [clojure.contrib.logging :as log]
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]
@@ -330,6 +331,7 @@
 
 (defn conjugate-np [noun & [determiner]]
   "conjugate a noun with a determiner (if the noun takes a determiner (:comp is not nil)) randomly chosen using the 'determiner' spec."
+  (log/info (str "(conjugate-np: " noun "," determiner ")"))
   (let [plural-exception (if (or
                               (= (:number noun) :plural) (= (:number noun) "plural")
                               (and (= (type (:number noun)) clojure.lang.Ref)
