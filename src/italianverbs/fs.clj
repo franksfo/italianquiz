@@ -247,8 +247,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (core/merge {first second}
                   (map-pathify (rest (rest pathified)))))))
 
+;; This returns a list of key-value pairs <R,[P]>, not a map (despite what annotation below says.)
+;; TODO: return a map.
 (defn ref-invert [input]
-  "turn a map<P,V> into an inverted map<V,[P]> where every V has a list of what paths P point to it."
+  "turn a map<P,R> into an inverted map<R,[P]> where every ref R has a list of what paths P point to it."
   (let [input (map-pathify (pathify input))]
     (let [keys (keys input) ;; the set of all paths that point to any value.
           vals (set (vals input))] ;; the set of all values pointed to by any path

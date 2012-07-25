@@ -17,11 +17,11 @@
          :subj {:number number-agreement
                 :person person-agreement
                 :case {:not :acc}}
-         :passato-aux2
-         {:root {:italian "avere"
-                 :cat :verb}
-          :number number-agreement
-          :person person-agreement}})
+         :passato
+         {:spec
+          {:root {:italian "avere"}
+           :number number-agreement
+           :person person-agreement}}})
       animate {:animate true}
       det {:cat :det}
       human (fs/merge animate {:human true})
@@ -139,7 +139,8 @@
       (let [essere (add "essere" "to be"
                         transitive
                         {:subj {:cat :noun}
-                         :obj {:cat :noun}})]
+                         :obj {:cat :noun}
+                         :passato {:spec {:root {:italian "essere"}}}})]
         (add "sono" "am"
              essere
              {:root essere}
@@ -175,7 +176,13 @@
              {:root essere}
              {:infl :present}
              {:subj {:number :plural
-                     :person :3rd}}))
+                     :person :3rd}})
+
+        (add "stato" "was"
+             essere
+             {:infl :passato-prossimo
+              :root essere})
+        )
 
 
       fare (let [fare (add "fare" "to make"
@@ -225,7 +232,11 @@
                   {:subj {:number :plural
                           :person :3rd}})
 
-             
+             (add "fatto" "made"
+                  fare
+                  {:infl :passato-prossimo
+                   :root fare})
+            
              )
 
      giocare (add "giocare" "to play"
@@ -300,10 +311,9 @@
                 :gender :masc})
       
       parlare (add "parlare" "to speak"
-                    verb
+                   verb
                    {:subj (fs/merge noun {:human true})
                     :obj speakable})
-
 
       parola (add "parola" "word"
                   common-noun
@@ -552,7 +562,33 @@
 
 ;; end of lexicon.
 
-;; These tests currently don't run.
+;; beginning of grammar
+(add "it-PP" "en-PP"
+     {:head {:root {:italian "avere"}}
+      :comp {:infl :passato-prossimo}})
+
+;(add "x1" "x2"
+;     (let [ref1 (ref :top)
+;           ref2 (ref {:infl :infinitive
+;                      :foo 42})
+;                      :italian ref1})
+;           ref3 (ref :top)
+;           ref4 (ref :top)]
+;       {:a ref2}))
+
+                                        ;
+;{:a ref2
+;        :b {:spec {:a ref2}
+;            :root {:infl :infinitive
+;                   :italian ref4}
+;            :italian {:fn :passato-prossimo
+;                      :arg1 ref4}}
+;        :italian {:fn concat
+;                  :arg1 ref1
+;                  :arg2 ref3}}))
+
+;; These tests currently don't run since they're not
+;; in the right namespace: they need to be in italianverbs.test.lexicon.
 ;; A lexical entry for the word: 'parlare' exists.
 (deftest parlare
   (let [result (lookup "parlare")]

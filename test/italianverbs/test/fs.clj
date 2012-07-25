@@ -60,8 +60,14 @@
 ;;[ :a  [:b [1] 42]
 ;;  :c  [1]]
 ;;
-;; => {#<Ref: 42> => {(:a :b) (:c)}
-;;                               
+;; =>
+;;
+;;key    | value
+;;-------+------                               
+;;42      (a b),(c)
+;;
+;;(actually ref-invert returns an array of kv pairs,
+;; but illustrating as map makes it more clear).
 (deftest map-inversion
   (let [myref (ref 42)
         fs {:a {:b myref}
@@ -76,6 +82,34 @@
                    (= (first paths) '(:c)))
                (or (= (second paths) '(:a :b))
                    (= (second paths) '(:c))))))))
+
+;; {:a [2] {:c [1] 42}
+;;  :b [2]
+;;  :d [1] }
+;;
+;; =>
+;;
+;; key    | value
+;; -------+------
+;;{:c 42} | (a),(b)
+;;  42    | (a c),(d)
+        
+(deftest map-inversion-nested
+  (let [ref1 (ref 42)
+        ref2 (ref {:c ref1})
+        mymap {:a ref2
+               :b ref2
+               :d ref1}
+        result (ref-invert mymap)
+        ;; see TODO in fs.clj:(ref-invert)
+        resultmap (zipmap (vec (map (fn [x] (first x)) result))
+                          (vec (map (fn [x] (second x)) result)))]
+    (is (not (nil? resultmap)))
+    (is (not (nil? (get resultmap 42))))
+    (is (not (nil? (get resultmap {:c 42}))))))
+    
+
+
 
 (deftest serialization
   (let [myref (ref 42)
@@ -93,6 +127,11 @@
               (= (first paths) '(:c))))
       (is (or (= (second paths) '(:a :b))
               (= (second paths) '(:c)))))))
+
+(deftest serialization2
+  (let [fs {:a (ref {:b (ref 42)})}
+        result (serialize fs)]
+    (is (not (nil? (:refs result))))))
 
 (deftest deserialization
   (let [myref (ref 42)

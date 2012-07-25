@@ -1,6 +1,7 @@
 (ns italianverbs.lexiconfn
   (:use [clojure.set])
   (:require
+   [clojure.contrib.logging :as log]
    [clojure.core :as core]
    [somnium.congomongo :as mongo]
    [clojure.contrib.string :as stringc]
@@ -58,6 +59,7 @@
                (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
                        (list {:english english}
                              {:italian italian})))]
+;    (println (str "(add " merged ")"))
     (add-lexeme (implied merged))))
 
 
