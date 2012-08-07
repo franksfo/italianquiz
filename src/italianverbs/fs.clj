@@ -322,6 +322,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                 {:refs (set-to-list inv)})))
 
 (defn set-all-paths [fs paths val]
+  "for each path in paths, set that path to point to val (so that all such paths will share val)."
   (let [path (first paths)]
     (if path
       (set-all-paths
