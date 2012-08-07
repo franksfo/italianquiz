@@ -2,8 +2,6 @@
   (:use [italianverbs.fs])
   (:use [clojure.test]))
 
-(if true
-  (do
 (deftest simple-merge-test
   (let [result (merge {:foo 99} {:bar 42})]
     (is (= (:foo result) 99))
@@ -401,6 +399,12 @@
     (is (= (:a result) (:b result)))
     (is (= @(:a result) 42))))
 
+(deftest pathify-no-references
+  "a simple test of pathify with no structure-sharing."
+  (let [mymap {:a {:c 42}, :b {:c 42}, :c 42}
+        pathify (pathify mymap)]
+    (is (= pathify '((:a :c) 42 (:b :c) 42 (:c) 42)))))
+
 ;;      (deftest
 ;;       "unifying two maps, both with references, overlapping features"
 ;;       (let [fs1 {:a (ref 42)}
@@ -419,4 +423,3 @@
 ;;              (= @(:a result) 42))))
 
       
-))
