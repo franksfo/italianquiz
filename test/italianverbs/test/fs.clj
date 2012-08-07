@@ -64,10 +64,12 @@
 ;;
 ;;key    | value
 ;;-------+------                               
-;;42      (a b),(c)
+;;42     | (a b),(c)
 ;;
 ;;(actually ref-invert returns an array of kv pairs,
-;; but illustrating as map makes it more clear).
+;; but illustrating as returning a map makes it
+;; more clear hopefully).
+;; TODO: it should actually return a map.
 (deftest map-inversion
   (let [myref (ref 42)
         fs {:a {:b myref}
@@ -92,11 +94,37 @@
 ;; key    | value
 ;; -------+------
 ;;{:c 42} | (a),(b)
-;;  42    | (a c),(d)
+;;  42    | (a c),(c)
         
-(deftest map-inversion-nested
+(deftest map-inversion-nested-1
   (let [ref1 (ref 42)
         ref2 (ref {:c ref1})
+        mymap {:a ref2
+               :b ref2
+               :c ref1}
+        result (ref-invert mymap)
+        ;; see TODO in fs.clj:(ref-invert)
+        resultmap (zipmap (vec (map (fn [x] (first x)) result))
+                          (vec (map (fn [x] (second x)) result)))]
+    (is (not (nil? resultmap)))
+    (is (not (nil? (get resultmap 42))))
+    (is (not (nil? (get resultmap {:c 42}))))))
+    
+;; {:a [2] {:c {:e [1] 42} }
+;;  :b [2]
+;;  :d [1] }
+;;
+;; =>
+;;
+;; key          | value
+;; -------------+------
+;;{:c {:e 42} } | (a),(d)
+;;  42          | (a c),(d)
+
+        
+(deftest map-inversion-nested-2
+  (let [ref1 (ref 42)
+        ref2 (ref {:c {:e ref1}})
         mymap {:a ref2
                :b ref2
                :d ref1}
@@ -106,9 +134,7 @@
                           (vec (map (fn [x] (second x)) result)))]
     (is (not (nil? resultmap)))
     (is (not (nil? (get resultmap 42))))
-    (is (not (nil? (get resultmap {:c 42}))))))
-    
-
+    (is (not (nil? (get resultmap {:c {:e 42}}))))))
 
 
 (deftest serialization

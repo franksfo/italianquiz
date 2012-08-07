@@ -224,20 +224,60 @@
 
 (def *exclude-keys* #{:_id})
 
+(defn deref-map [input]
+  input)
+                                        ;  {:foo input})
+
 (defn pathify [fs & [prefix]]
 "Transform a map into a map of paths/value pairs,
  where paths are lists of keywords, and values are atomic values.
  e.g.:
  {:foo {:bar 42, :baz 99}} =>  { { (:foo :bar) 42}, {(:foo :baz) 99} }
 The idea is to map the key :foo to the (recursive) result of pathify on :foo's value."
+(println (str "pathify with: " fs))
+
 (mapcat (fn [kv]
           (let [key (first kv)
                 val (second kv)]
+            (println (str "key: " key))
+            (println (str "val: " val))
+            (println (str "val type: " (type val)))
             (if (not (contains? *exclude-keys* key))
               (if (or (= (type val) clojure.lang.PersistentArrayMap)
                       (= (type val) clojure.lang.PersistentHashMap))
-                (pathify val (concat prefix (list key)))
-                (list (concat prefix (list key)) val)))))
+                (do
+                  (println (str "first if with val: " val))
+                  (println (str "returning: " (pathify val (concat prefix (list key)))))
+                  (pathify val (concat prefix (list key))))
+                (do
+                  (println (str "first else with val: " val))
+                  (println (str "cond: " (and
+                                          true
+                                          (= (type val) clojure.lang.Ref)
+                                          (or (= (type @val) clojure.lang.PersistentArrayMap)
+                                              (= (type @val) clojure.lang.PersistentHashMap)))))
+                  (if (and
+                     false
+                     (= (type val) clojure.lang.Ref)
+                     (or (= (type @val) clojure.lang.PersistentArrayMap)
+                         (= (type @val) clojure.lang.PersistentHashMap)))
+                  (do
+                    (println (str "(2)key: " key))
+                    (println (str "(2)val: " val))
+                    (println (str "(2)@val: " @val))
+;                    (list (concat prefix (list key)) (pathify @val)))
+                    (map (fn [kv]
+                           (println (str "KV: " (seq kv)))
+                            (concat (concat prefix (list key)) kv))
+                         (list (pathify @val))))
+                                    
+                    
+                  (if (and false (= (type val) clojure.lang.Ref))
+                    (do
+                      (println (str "just dereffing and returning:"
+                                    (list (concat prefix (list key)) @val)))
+                      (list (concat prefix (list key)) @val))
+                    (list (concat prefix (list key)) val))))))))
         fs))
 
 (defn map-pathify [pathified]
@@ -305,10 +345,3 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn copy [map]
   (deserialize (serialize map)))
-
-(def tests
-  (list
-
-
-      
-      ))
