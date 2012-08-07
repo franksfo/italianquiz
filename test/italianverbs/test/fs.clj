@@ -2,6 +2,8 @@
   (:use [italianverbs.fs])
   (:use [clojure.test]))
 
+(if true
+  (do
 (deftest simple-merge-test
   (let [result (merge {:foo 99} {:bar 42})]
     (is (= (:foo result) 99))
@@ -417,3 +419,4 @@
 ;;              (= @(:a result) 42))))
 
       
+))
