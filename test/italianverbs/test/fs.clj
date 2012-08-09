@@ -53,8 +53,6 @@
   (let [result (merge {:foo nil} {:foo nil})]
     (is (= result {:foo nil}))))
 
-
-
 ;; test map inversion
 ;; path (:a :b) points to a reference, whose value is an integer, 42.
 ;; path (:c) also points to the same reference.
@@ -140,42 +138,42 @@
     (is (not (nil? (get resultmap {:c {:e 42}})))))))
 
 
-(deftest serialization
-  (let [myref (ref 42)
-        fs {:a {:b myref}
-            :c myref}
-        result (serialize fs)]
-    (is (= (get-in result '(:a :b)) 42))
-    (is (= (get-in result '(:c)) 42))
-    (is (not (nil? (:refs result))))
-    (is (= (.size (:refs result)) 1))
-    (is (= (first (first (:refs result))) 42))
-    (let [paths (second (first (:refs result)))]
-      (is (= (.size paths) 2))
-      (is (or (= (first paths) '(:a :b))
-              (= (first paths) '(:c))))
-      (is (or (= (second paths) '(:a :b))
-              (= (second paths) '(:c)))))))
+;(deftest serialization
+;  (let [myref (ref 42)
+;        fs {:a {:b myref}
+;            :c myref}
+;        result (serialize fs)]
+;    (is (= (get-in result '(:a :b)) 42))
+;    (is (= (get-in result '(:c)) 42))
+;    (is (not (nil? (:refs result))))
+;    (is (= (.size (:refs result)) 1))
+;    (is (= (first (first (:refs result))) 42))
+;    (let [paths (second (first (:refs result)))]
+;      (is (= (.size paths) 2))
+;      (is (or (= (first paths) '(:a :b))
+;              (= (first paths) '(:c))))
+;      (is (or (= (second paths) '(:a :b))
+;              (= (second paths) '(:c)))))))
 
-(deftest serialization2
-  (let [fs {:a (ref {:b (ref 42)})}
-        result (serialize fs)]
-    (is (not (nil? (:refs result))))))
+;(deftest serialization2
+;  (let [fs {:a (ref {:b (ref 42)})}
+;        result (serialize fs)]
+;    (is (not (nil? (:refs result))))))
 
-(deftest deserialization
-  (let [myref (ref 42)
-        fs {:a {:b myref}
-            :c myref}
-        serialized (serialize fs)
-        result (list fs (deserialize serialized))]
-    (fn [result] ;; fs and our deserialized fs should be isomorphic.
-      ;; TODO: also test to make sure fs original and copy are distinct as well (not ref-equal)
-      (let [original (first result)
-            copy (second result)]
-        (is (= (get-in original '(:a :b))
-               (get-in original '(:c))))
-        (is (= (get-in copy '(:a :b))
-               (get-in copy '(:c))))))))
+;(deftest deserialization
+;  (let [myref (ref 42)
+;        fs {:a {:b myref}
+;            :c myref}
+;        serialized (serialize fs)
+;        result (list fs (deserialize serialized))]
+;    (fn [result] ;; fs and our deserialized fs should be isomorphic.
+;      ;; TODO: also test to make sure fs original and copy are distinct as well (not ref-equal)
+;      (let [original (first result)
+;            copy (second result)]
+;        (is (= (get-in original '(:a :b))
+;               (get-in original '(:c))))
+;        (is (= (get-in copy '(:a :b))
+;               (get-in copy '(:c))))))))
 
 (deftest unify-atomic-values-with-references
   (let [myref (ref :top)
@@ -399,11 +397,33 @@
     (is (= (:a result) (:b result)))
     (is (= @(:a result) 42))))
 
-(deftest pathify-no-references
-  "a simple test of pathify with no structure-sharing."
-  (let [mymap {:a {:c 42}, :b {:c 42}, :c 42}
-        pathify (pathify mymap)]
-    (is (= pathify '((:a :c) 42 (:b :c) 42 (:c) 42)))))
+;(deftest pathify-no-references
+;  "a simple test of pathify with no structure-sharing."
+;  (let [mymap {:a {:c 42}, :b {:c 42}, :c 42}
+;        pathify (pathify mymap)]
+;    (is (= pathify '((:a :c) 42 (:b :c) 42 (:c) 42)))))
+
+(deftest get-vals
+  (let [ref1 (ref 42)
+        mymap {:a ref1 :b ref1}
+        get-vals (uniq (vals-r mymap))]
+    (is (= get-vals (list ref1)))))
+  
+
+(deftest ref-to-rfv-1
+  "a simple test of mapping references to reference-free-values"
+  (let [ref1 (ref 42)
+        mymap {:a ref1 :b ref1}
+        rfv (rfv mymap)]
+    (is (not (nil? rfv)))
+    (is (= rfv {ref1 42}))))
+
+;(if false (deftest pathify-one-atomic-reference
+;  "a map with one atom (42) shared"
+;  (let [ref1 (ref 42)
+;        mymap {:a ref1 :b ref1}
+;        pathify (pathify mymap)]
+;    (is (= pathify '((:a) 42 (:b) 42))))))
 
 ;;      (deftest
 ;;       "unifying two maps, both with references, overlapping features"
