@@ -413,9 +413,9 @@
   "test path-to-value, which returns a list of all ways of reaching
 a given value in a given map."
   (let [ref1 (ref 42)
-        mymap {:a ref1, :b ref1}
-        ptf (paths-to-value mymap ref1)]
-    (is (= ptf '((a)(b))))))
+        mymap {:a ref1 :b ref1}
+        ptf (paths-to-value mymap ref1 nil)]
+    (is (= ptf '((:a)(:b))))))
 
 (deftest ref-to-rfv-1
   "a simple test of mapping references to reference-free-values (i.e. skeletons)"
@@ -427,7 +427,7 @@ a given value in a given map."
         mymap {:a ref1, :b ref1}
         rfv (rfv mymap)]
     (is (not (nil? rfv)))
-    (is (= rfv {ref1 '((a)(b)), nil {:a :ph :b :ph}}))))
+    (is (= rfv {ref1 '((:a)(:b)), nil {:a :ph :b :ph}}))))
 
 ;(deftest ref-to-rfv-2
 ;  "another test of mapping references to reference-free-values"

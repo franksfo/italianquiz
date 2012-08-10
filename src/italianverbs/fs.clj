@@ -254,14 +254,22 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
             (filter (fn [otherval] (not (= otherval val)))
                     (rest vals))))))
 
-(defn paths-to-value [map value]
-  "given a map and a value, find all the paths that point to that value."
-  '((a)(b)))
+(defn paths-to-value [map value path]
+  (let [kv (first map)]
+    (if kv
+      (let [key (first kv)
+            val (second kv)]
+        (if (= val value)
+          (cons (concat path (list key)) (paths-to-value (rest map) value path))
+          (if (or (= (type val) clojure.lang.PersistentArrayMap)
+                  (= (type val) clojure.lang.PersistentHashMap))
+            (flatten (cons (paths-to-value val value (concat path (list key)))
+                           (paths-to-value (rest map) value path)))))))))
 
 (defn rfv [map]
   (let [keys (keys map)
         refs (uniq (vals-r map))]
-    {(first refs) (paths-to-value map (first refs))
+    {(first refs) (paths-to-value map (first refs) nil)
      nil {:a :ph :b :ph}}))
 
 ;(mapcat (fn [kv]
