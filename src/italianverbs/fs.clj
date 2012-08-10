@@ -254,12 +254,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
             (filter (fn [otherval] (not (= otherval val)))
                     (rest vals))))))
 
+(defn paths-to-value [map value]
+  "given a map and a value, find all the paths that point to that value."
+  '((a)(b)))
+
 (defn rfv [map]
   (let [keys (keys map)
         refs (uniq (vals-r map))]
-    {(first refs) '((a)(b))
+    {(first refs) (paths-to-value map (first refs))
      nil {:a :ph :b :ph}}))
-;    {(:a map) @(:a map)}))
 
 ;(mapcat (fn [kv]
 ;          (let [key (first kv)
