@@ -409,6 +409,14 @@
         get-vals (uniq (vals-r mymap))]
     (is (= get-vals (list ref1)))))
 
+(deftest ptv-1
+  "test path-to-value, which returns a list of all ways of reaching
+a given value in a given map."
+  (let [ref1 (ref 42)
+        mymap {:a ref1, :b ref1}
+        ptf (paths-to-value mymap ref1)]
+    (is (= ptf '((a)(b))))))
+
 (deftest ref-to-rfv-1
   "a simple test of mapping references to reference-free-values (i.e. skeletons)"
   ;; 1.':ph' means 'PlaceHolder'
