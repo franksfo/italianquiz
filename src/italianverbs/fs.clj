@@ -257,7 +257,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn rfv [map]
   (let [keys (keys map)
         refs (uniq (vals-r map))]
-    {(:a map) @(:a map)}))
+    {(first refs) '((a)(b))
+     nil {:a :ph :b :ph}}))
+;    {(:a map) @(:a map)}))
 
 ;(mapcat (fn [kv]
 ;          (let [key (first kv)

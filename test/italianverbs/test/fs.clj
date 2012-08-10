@@ -408,15 +408,29 @@
         mymap {:a ref1 :b ref1}
         get-vals (uniq (vals-r mymap))]
     (is (= get-vals (list ref1)))))
-  
 
 (deftest ref-to-rfv-1
-  "a simple test of mapping references to reference-free-values"
+  "a simple test of mapping references to reference-free-values (i.e. skeletons)"
+  ;; 1.':ph' means 'PlaceHolder'
+  ;; 2. nil  simply maps to the outermost skeleton of the map.
+  ;; {:a [1] 42, :b [1] } => 
+  ;;       {[1] 42 => ((a)(b)), nil => {:a :ph, :b :ph}}
   (let [ref1 (ref 42)
-        mymap {:a ref1 :b ref1}
+        mymap {:a ref1, :b ref1}
         rfv (rfv mymap)]
     (is (not (nil? rfv)))
-    (is (= rfv {ref1 42}))))
+    (is (= rfv {ref1 '((a)(b)), nil {:a :ph :b :ph}}))))
+
+;(deftest ref-to-rfv-2
+;  "another test of mapping references to reference-free-values"
+;  ;; {:a [1] {:b 42}, :c [1] } => 
+;  ;; ([1]),{[1] => {:b 42}, {} => {:a 1}}
+;  (let [ref1 (ref {:b 42})
+;        mymap {:a ref1 :b ref1}
+;        rfv (reflist-ref mymap)]
+;    (is (not (nil? rfv)))
+;    (is (= rfv {ref1 42}))))
+
 
 ;(if false (deftest pathify-one-atomic-reference
 ;  "a map with one atom (42) shared"
