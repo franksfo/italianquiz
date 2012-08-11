@@ -427,7 +427,18 @@ a given value in a given map."
         mymap {:a ref1, :b ref1}
         rfv (rfv mymap)]
     (is (not (nil? rfv)))
-    (is (= rfv {ref1 '((:a)(:b)), nil {:a :ph :b :ph}}))))
+    (is (= rfv
+           {ref1 '((:a)(:b)), nil {:a :ph :b :ph}}))))
+
+(deftest ser-1
+  (let [ref1 (ref 42)
+        mymap {:a ref1, :b ref1}
+        ser (ser mymap)]
+    (is (= ser
+           {:top-level {:a :PH
+                        :b :PH}
+            {:ref ref1
+             :skel 42}  '((:a)(:b))}))))
 
 ;(deftest ref-to-rfv-2
 ;  "another test of mapping references to reference-free-values"
