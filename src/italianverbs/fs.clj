@@ -278,12 +278,22 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           :b :PH}
      ref1 @ref1}))
 
-(defn ser [map]
-  (let [ref1 (:a map)
-        skels (skels map)]
-    {:top-level (get skels nil)
+(defn get-refs [map]
+  (list (:a map)))
+
+(defn ref-skel-map [map refs skels]
+  (let [ref1 (first refs)]
+    {
      {:ref ref1
-      :skel (get skels ref1)} (paths-to-value map ref1 nil)}))
+      :skel (get skels ref1)} (paths-to-value map ref1 nil)
+      }))
+
+(defn ser [map]
+  (let [refs (get-refs map)
+        skels (skels map)]
+    (core/merge
+     {:top-level (get skels nil)}
+     (ref-skel-map map refs skels))))
 
 ;(mapcat (fn [kv]
 ;          (let [key (first kv)
