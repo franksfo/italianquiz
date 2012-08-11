@@ -272,10 +272,20 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     {(first refs) (paths-to-value map (first refs) nil)
      nil {:a :ph :b :ph}}))
 
+(defn map-to-skel [input-map]
+  (zipmap (keys input-map)
+          (map (fn [val]
+                 (if (= (type val) clojure.lang.Ref)
+                   :PH
+                   (if (or (= (type val) clojure.lang.PersistentArrayMap)
+                           (= (type val) clojure.lang.PersistentHashMap))
+                     (map-to-skel val)
+                     val)))
+               (vals input-map))))
+
 (defn skels [map]
   (let [ref1 (:a map)]
-    {nil {:a :PH
-          :b :PH}
+    {nil (map-to-skel map)
      ref1 @ref1}))
 
 (defn get-refs [map]
