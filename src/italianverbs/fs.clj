@@ -279,7 +279,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
      ref1 @ref1}))
 
 (defn get-refs [map]
-  (list (:a map)))
+  (uniq (vals-r map)))
 
 (defn ref-skel-map [map refs skels]
   (if (> (.size refs) 0)
