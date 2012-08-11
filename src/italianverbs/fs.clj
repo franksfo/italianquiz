@@ -282,11 +282,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (list (:a map)))
 
 (defn ref-skel-map [map refs skels]
-  (let [ref1 (first refs)]
-    {
-     {:ref ref1
-      :skel (get skels ref1)} (paths-to-value map ref1 nil)
-      }))
+  (if (> (.size refs) 0)
+    (let [ref1 (first refs)]
+      (core/merge
+       {
+        {:ref ref1
+         :skel (get skels ref1)} (paths-to-value map ref1 nil)
+         }
+       (ref-skel-map map (rest refs) skels)))
+    {}))
 
 (defn ser [map]
   (let [refs (get-refs map)
