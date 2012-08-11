@@ -245,13 +245,16 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
              val))
          vals)))
 
+;; TODO: very inefficient due to recursive uniq call:
+;; instead, sort first and then remove (adjacent) dups.
+;; most know how to order references.
 (defn uniq [vals]
   "remove duplicate values from vals."
   (let [val (first vals)]
     (if val
       (cons val
             (filter (fn [otherval] (not (= otherval val)))
-                    (rest vals))))))
+                    (uniq (rest vals)))))))
 
 (defn paths-to-value [map value path]
   (let [kv (first map)]
@@ -278,7 +281,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
             (all-refs @input))
       (if (or (= (type input) clojure.lang.PersistentArrayMap)
               (= (type input) clojure.lang.PersistentHashMap))
-        (all-refs (vals input))
+        ;; TODO: fix bug here: vals resolves @'s
+        (concat
+         (mapcat (fn [key]
+                   (let [val (get input key)]
+                     (if (= (type input) clojure.lang.Ref)
+                       (list val))))
+                 input)
+         (all-refs (vals input)))
         (if (and (seq? input)
                  (first input))
           (concat

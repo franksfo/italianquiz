@@ -459,6 +459,15 @@ a given value in a given map."
         refs (uniq (flatten (all-refs mymap)))]
     (is (= refs (list ref1)))))
 
+(deftest get-refs5
+  (let [ref2 (ref 42)
+        ref1 (ref {:c ref2})
+        mymap {:a ref1 :b ref1 :d ref2}
+        refs (uniq (flatten (all-refs mymap)))]
+    (is (or (= refs (list ref1 ref2))
+            (= refs (list ref2 ref1))))))
+
+
 (deftest ser-1
   (let [ref1 (ref 42)
         mymap {:a ref1, :b ref1}
