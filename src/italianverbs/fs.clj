@@ -226,7 +226,6 @@
 
 (defn deref-map [input]
   input)
-                                        ;  {:foo input})
 
 (defn pathify [fs & [prefix]]
 "Transform a map into a map of paths/value pairs,
@@ -272,6 +271,20 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     {(first refs) (paths-to-value map (first refs) nil)
      nil {:a :ph :b :ph}}))
 
+(defn all-refs [input]
+  (if input
+    (if (= (type input) clojure.lang.Ref)
+      (cons input
+            (all-refs @input))
+      (if (or (= (type input) clojure.lang.PersistentArrayMap)
+              (= (type input) clojure.lang.PersistentHashMap))
+        (all-refs (vals input))
+        (if (and (seq? input)
+                 (first input))
+          (concat
+           (all-refs (first input))
+           (all-refs (rest input))))))))
+  
 (defn map-to-skel [input-map]
   (zipmap (keys input-map)
           (map (fn [val]
@@ -283,30 +296,40 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                      val)))
                (vals input-map))))
 
+;; TODO s/map/input-map/
 (defn skels [map]
+  "create map from reference to their skeletons."
   (let [ref1 (:a map)]
-    {nil (map-to-skel map)
-     ref1 @ref1}))
+    {ref1 @ref1}))
 
+;; TODO s/map/input-map/
+;; TODO: merge or distinguish from all-refs (above)
 (defn get-refs [map]
   (uniq (vals-r map)))
 
+;; TODO s/map/input-map/
 (defn ref-skel-map [map refs skels]
+  "create map from (ref=>skel) to paths to that ref."
   (if (> (.size refs) 0)
     (let [ref1 (first refs)]
       (core/merge
        {
-        {:ref ref1
-         :skel (get skels ref1)} (paths-to-value map ref1 nil)
-         }
+        {
+         :ref ref1
+         :skel (get skels ref1)
+        }
+        (paths-to-value map ref1 nil)
+       }
        (ref-skel-map map (rest refs) skels)))
     {}))
 
+;; TODO s/map/input-map/
 (defn ser [map]
   (let [refs (get-refs map)
-        skels (skels map)]
+        skels (skels map)
+        top-level (map-to-skel map)]
     (core/merge
-     {:top-level (get skels nil)}
+     {:top-level top-level}
      (ref-skel-map map refs skels))))
 
 ;(mapcat (fn [kv]
