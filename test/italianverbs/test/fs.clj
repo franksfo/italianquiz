@@ -535,9 +535,11 @@ a given value in a given map."
         mymap {:a ref1, :b ref1}
         ser (ser mymap)]
     (is (= ser
-           {
-            '((:a) (:b))             42,
-            nil                      {:b :PH, :a :PH}}))))
+
+           '((nil {:b :PH :a :PH})
+
+             ;; TODO: could be '((:b)(:a))
+             (((:a)(:b)) 42))))))
 
 (deftest ser-2
   (let [ref2 (ref 42)
@@ -545,10 +547,14 @@ a given value in a given map."
         mymap {:a ref1, :b ref1 :d ref2}
         ser (ser mymap)]
     (is (= ser
-           {
-            nil                      {:d :PH, :b :PH, :a :PH}
-            '((:a) (:b))             {:c :PH}
-            '((:a :c) (:b :c) (:d))  42}))))
+
+           '((nil {:d :PH, :b :PH, :a :PH})
+
+             ;; TODO: could be '((:b)(:a))
+             (((:a) (:b)) {:c :PH})
+
+             ;; TODO: could be '((:b :c)(:a c)..etc
+             (((:a :c) (:b :c) (:d)) 42))))))
 
 ;(if false (deftest pathify-one-atomic-reference
 ;  "a map with one atom (42) shared"
