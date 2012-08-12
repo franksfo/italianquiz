@@ -257,16 +257,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                     (uniq (rest vals)))))))
 
 (defn paths-to-value [map value path]
-  (let [kv (first map)]
-    (if kv
-      (let [key (first kv)
-            val (second kv)]
-        (if (= val value)
-          (cons (concat path (list key)) (paths-to-value (rest map) value path))
-          (if (or (= (type val) clojure.lang.PersistentArrayMap)
-                  (= (type val) clojure.lang.PersistentHashMap))
-            (flatten (cons (paths-to-value val value (concat path (list key)))
-                           (paths-to-value (rest map) value path)))))))))
+  (if (= map value) (list path)
+      (if (= (type map) clojure.lang.Ref)
+        (paths-to-value @map value path)
+        (if (or (= (type map) clojure.lang.PersistentArrayMap)
+                (= (type map) clojure.lang.PersistentHashMap))
+          (mapcat (fn [key]
+                    (paths-to-value (get map key) value (concat path (list key))))
+                  (keys map))))))
 
 (defn rfv [map]
   (let [keys (keys map)
@@ -295,52 +293,65 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
            (all-refs (first input))
            (all-refs (rest input))))))))
   
-(defn map-to-skel [input-map]
-  (zipmap (keys input-map)
-          (map (fn [val]
-                 (if (= (type val) clojure.lang.Ref)
-                   :PH
-                   (if (or (= (type val) clojure.lang.PersistentArrayMap)
-                           (= (type val) clojure.lang.PersistentHashMap))
-                     (map-to-skel val)
-                     val)))
-               (vals input-map))))
-
-;; TODO s/map/input-map/
-(defn skels [map]
-  "create map from reference to their skeletons."
-  (let [ref1 (:a map)]
-    {ref1 @ref1}))
+(defn skeletize [input-val]
+  (if (or (= (type input-val) clojure.lang.PersistentArrayMap)
+          (= (type input-val) clojure.lang.PersistentHashMap))
+    (zipmap (keys input-val)
+            (map (fn [val]
+                   (if (= (type val) clojure.lang.Ref)
+                     :PH
+                     (if (or (= (type val) clojure.lang.PersistentArrayMap)
+                             (= (type val) clojure.lang.PersistentHashMap))
+                       (skeletize val)
+                       val)))
+                 (vals input-val)))
+    input-val))
 
 ;; TODO s/map/input-map/
 ;; TODO: merge or distinguish from all-refs (above)
-(defn get-refs [map]
-  (uniq (vals-r map)))
+(defn get-refs [input-map]
+  (uniq (vals-r input-map)))
 
 ;; TODO s/map/input-map/
-(defn ref-skel-map [map refs skels]
+(defn skels [input-map]
+  "create map from reference to their skeletons."
+  (let [refs (get-refs input-map)]
+    (zipmap
+     refs
+     (map (fn [ref]
+            (skeletize @ref))
+          refs))))
+          
+(defn ref-skel-map [input-map]
   "create map from (ref=>skel) to paths to that ref."
-  (if (> (.size refs) 0)
-    (let [ref1 (first refs)]
-      (core/merge
-       {
-        {
-         :ref ref1
-         :skel (get skels ref1)
-        }
-        (paths-to-value map ref1 nil)
-       }
-       (ref-skel-map map (rest refs) skels)))
-    {}))
+  (let [refs (get-refs input-map)
+        skels (skels input-map)]
+    (zipmap
+     (map (fn [ref]
+            {:ref ref
+             :skel (get skels ref)})
+          refs)
+     (map (fn [eachref]
+            (paths-to-value input-map eachref nil))
+          refs))))
 
-;; TODO s/map/input-map/
-(defn ser [map]
-  (let [refs (get-refs map)
-        skels (skels map)
-        top-level (map-to-skel map)]
-    (core/merge
-     {:top-level top-level}
-     (ref-skel-map map refs skels))))
+(defn ser-db [input-map]
+  (let [refs (get-refs input-map)
+        skels (skels input-map)]
+    (ref-skel-map input-map)))
+
+(defn ser [input-map]
+  (let [top-level (skeletize input-map)
+        rsk (ref-skel-map input-map)
+        sk (map (fn [ref-skel]
+                  (:skel ref-skel))
+                (keys rsk))]
+    (merge
+     {nil (skeletize input-map)}
+     (zipmap
+      (vals rsk)
+      sk))))     
+
 
 ;(mapcat (fn [kv]
 ;          (let [key (first kv)

@@ -417,6 +417,28 @@ a given value in a given map."
         ptf (paths-to-value mymap ref1 nil)]
     (is (= ptf '((:a)(:b))))))
 
+(deftest paths-to-values-2
+  "test path-to-value, which returns a list of all ways of reaching
+a given value in a given map."
+  (let [ref2 (ref 42)
+        ref1 (ref {:c ref2})
+        mymap {:a ref1
+               :b ref1
+               :d ref2}
+        paths-to-ref1 (paths-to-value mymap ref1 nil)]
+    (is (= paths-to-ref1 '((:a)(:b))))))
+
+(deftest paths-to-values-3
+  "test path-to-value, which returns a list of all ways of reaching
+a given value in a given map."
+  (let [ref2 (ref 42)
+        ref1 (ref {:c ref2})
+        mymap {:a ref1
+               :b ref1
+               :d ref2}
+        paths-to-ref2 (paths-to-value mymap ref2 nil)]
+    (is (= paths-to-ref2 '((:a :c)(:b :c)(:d))))))
+
 (deftest ref-to-rfv-1
   "a simple test of mapping references to reference-free-values (i.e. skeletons)"
   ;; 1.':ph' means 'PlaceHolder'
@@ -444,7 +466,6 @@ a given value in a given map."
     (is (or (= refs (list ref1 ref2))
             (= refs (list ref2 ref1))))))
 
-
 (deftest get-refs3
   (let [ref1 (ref 42)
         ref2 (ref 43)
@@ -467,27 +488,67 @@ a given value in a given map."
     (is (or (= refs (list ref1 ref2))
             (= refs (list ref2 ref1))))))
 
+(deftest skeletize-1
+  (let [mymap {:a 42}]
+    (is (= (skeletize mymap) mymap))))
+
+(deftest skeletize-2
+  (let [ref1 (ref 42)
+        mymap {:a 42 :b ref1}]
+    (is (= (skeletize mymap) {:a 42 :b :PH}))))
+
+(deftest skeletize-3
+  (let [ref1 (ref 42)
+        ref2 (ref 43)
+        mymap {:a ref1 :b ref2}]
+    (is (= (skeletize mymap) {:a :PH :b :PH}))))
+
+(deftest ser-db-1
+  (let [ref1 (ref 42)
+        mymap {:a ref1, :b ref1}
+        ser (ser-db mymap)]
+    (is (= ser
+           {
+            {:ref ref1
+             :skel 42} '((:a)(:b))}))))
+
+;; TODO: this test is unnecessarily strict: see below for specifics
+(deftest ser-db-2
+  (let [ref2 (ref 42)
+        ref1 (ref {:c ref2})
+        mymap {:a ref1 :b ref1 :d ref2}
+        ser (ser-db mymap)]
+    (is (=
+         ser
+         {
+          {:ref ref1
+           ;; TODO: could also be '((:b)(:a)).
+           :skel {:c :PH}} '((:a)(:b))
+          {:ref ref2
+           ;; TODO: could also be '((:b :c)(:a :c)(:d))
+           ;; (or other possible orderings).
+           :skel 42} '((:a :c)(:b :c)(:d))
+          }))))
 
 (deftest ser-1
   (let [ref1 (ref 42)
         mymap {:a ref1, :b ref1}
         ser (ser mymap)]
     (is (= ser
-           {:top-level {:a :PH
-                        :b :PH}
-            {:ref ref1
-             :skel 42}  '((:a)(:b))}))))
+           {
+            '((:a) (:b))             42,
+            nil                      {:b :PH, :a :PH}}))))
 
-;(deftest ref-to-rfv-2
-;  "another test of mapping references to reference-free-values"
-;  ;; {:a [1] {:b 42}, :c [1] } => 
-;  ;; ([1]),{[1] => {:b 42}, {} => {:a 1}}
-;  (let [ref1 (ref {:b 42})
-;        mymap {:a ref1 :b ref1}
-;        rfv (reflist-ref mymap)]
-;    (is (not (nil? rfv)))
-;    (is (= rfv {ref1 42}))))
-
+(deftest ser-2
+  (let [ref2 (ref 42)
+        ref1 (ref {:c ref2})
+        mymap {:a ref1, :b ref1 :d ref2}
+        ser (ser mymap)]
+    (is (= ser
+           {
+            nil                      {:d :PH, :b :PH, :a :PH}
+            '((:a) (:b))             {:c :PH}
+            '((:a :c) (:b :c) (:d))  42}))))
 
 ;(if false (deftest pathify-one-atomic-reference
 ;  "a map with one atom (42) shared"
