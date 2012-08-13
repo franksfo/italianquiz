@@ -385,10 +385,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       sk))))     
 
 (defn deser [serialized]
-  {:a :PH
-   :b :PH
-   :d :PH})
-   
+  (let [ref2 (ref 42)
+        ref1 (ref {:c ref2})]
+        {:a ref1
+         :b ref1
+         :d ref2}))
 
 (defn ser [input-map]
   (let [ser (ser-intermed input-map)]

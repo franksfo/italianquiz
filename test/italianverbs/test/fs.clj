@@ -564,7 +564,17 @@ a given value in a given map."
         ser (ser mymap)
         deser (deser mymap)]
     (is (not (= ser nil)))
-    (is (not (= deser nil)))))
+    (is (= (type (:a deser)) clojure.lang.Ref))
+    (is (= (type (get @(get deser :a) :c)) clojure.lang.Ref))
+    (is (= (type (get @(get deser :b) :c)) clojure.lang.Ref))
+    (is (= (type (:d deser)) clojure.lang.Ref))
+    (is (= (:a deser) (:b deser)))
+    (is (= (get @(get mymap :a) :c)
+           (get mymap :d)))
+    (is (= (get @(get mymap :b) :c)
+           (get mymap :d)))
+    (is (= @(get @(get mymap :a) :c)
+           42))))
 
 ;(if false (deftest pathify-one-atomic-reference
 ;  "a map with one atom (42) shared"
