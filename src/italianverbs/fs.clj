@@ -384,12 +384,33 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (vals rsk)
       sk))))     
 
+;(defn deser-1 [pathset value]
+;  "for all paths in pathset, set them to the value."
+;  {}
+;  )
+
+;(defn deser-r [serialized]
+;  (if (first serialized)
+;    (merge
+;     (deser-1 (first serialized))
+;     (deser-r (rest serialized)))))
+
+(defn create-shared-values [serialized]
+  (map (fn [paths-vals]
+         (let [val (second paths-vals)]
+           (ref val)))
+       serialized))
+
 (defn deser [serialized]
   (let [ref2 (ref 42)
-        ref1 (ref {:c ref2})]
-        {:a ref1
-         :b ref1
-         :d ref2}))
+        ref1 (ref {:c ref2})
+        base (second (first serialized))
+        new-shared-values (create-shared-values serialized)]
+    (merge
+     base
+     {:a ref1
+      :b ref1
+      :d ref2})))
 
 (defn ser [input-map]
   (let [ser (ser-intermed input-map)]
