@@ -561,21 +561,25 @@ a given value in a given map."
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
         mymap {:a ref1, :b ref1 :d ref2}
-        ser (ser mymap)
-        deser (deser mymap)]
-    (is (not (= ser nil)))
-    (is (= (type (:a deser)) clojure.lang.Ref))
-    (is (= (type (get @(get deser :a) :c)) clojure.lang.Ref))
-    (is (= (type (get @(get deser :b) :c)) clojure.lang.Ref))
-    (is (= (type (:d deser)) clojure.lang.Ref))
-    (is (= (:a deser) (:b deser)))
+        my-ser (ser mymap)
+        my-deser (deser my-ser)]
+    (is (not (= my-ser nil)))
+    (is (= (type (:a my-deser)) clojure.lang.Ref))
+    (is (= (type (:a my-deser)) clojure.lang.Ref))
+    
+    (is (= (type (get @(get my-deser :a) :c)) clojure.lang.Ref))
+    (is (= (type (get @(get my-deser :b) :c)) clojure.lang.Ref))
+    (is (= (type (:d my-deser)) clojure.lang.Ref))
+    (is (= (:a my-deser) (:b my-deser)))
     (is (= (get @(get mymap :a) :c)
            (get mymap :d)))
     (is (= (get @(get mymap :b) :c)
            (get mymap :d)))
     (is (= @(get @(get mymap :a) :c)
-           42))))
+           42))
+))
 
+    
 ;(if false (deftest pathify-one-atomic-reference
 ;  "a map with one atom (42) shared"
 ;  (let [ref1 (ref 42)
