@@ -398,7 +398,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;  {:a {:b {:c {:d {:e value}}}}})
 
 
-(defn deser [serialized]
+(defn deserialize [serialized]
   (let [base (second (first serialized))]
     (apply merge
            (cons base
@@ -411,9 +411,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                 paths)))
                        (rest serialized)))))))
 
-(defn ser [input-map]
+(defn serialize [input-map]
   (let [ser (ser-intermed input-map)]
     (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))
 
 (defn copy [map]
-  (deser (ser map)))
+  (deserialize (serialize map)))

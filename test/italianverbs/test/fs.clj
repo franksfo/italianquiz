@@ -392,7 +392,7 @@ a given value in a given map."
 (deftest ser-1
   (let [ref1 (ref 42)
         mymap {:a ref1, :b ref1}
-        ser (ser mymap)]
+        ser (serialize mymap)]
     (is (= ser
 
            '((nil {:b :PH :a :PH})
@@ -404,7 +404,7 @@ a given value in a given map."
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
         mymap {:a ref1, :b ref1 :d ref2}
-        ser (ser mymap)]
+        ser (serialize mymap)]
     (is (= ser
 
            '((nil {:d :PH, :b :PH, :a :PH})
@@ -417,13 +417,13 @@ a given value in a given map."
 
 (deftest ser-3
   (let [mymap {:a 42 :b (ref 43)}]
-    (is (not (nil? (ser mymap))))))
+    (is (not (nil? (serialize mymap))))))
 
 (deftest create-shared-values-1
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
         mymap {:a ref1, :b ref1 :d ref2}
-        my-ser (ser mymap)
+        my-ser (serialize mymap)
         create-shared-vals (create-shared-values my-ser)
         types (map (fn [val]
                      (type val))
@@ -457,8 +457,8 @@ a given value in a given map."
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
         mymap {:a ref1, :b ref1 :d ref2}
-        my-ser (ser mymap)
-        my-deser (deser my-ser)]
+        my-ser (serialize mymap)
+        my-deser (deserialize my-ser)]
     (is (not (= my-ser nil)))
     (is (= (type (:a my-deser)) clojure.lang.Ref))
     (is (= (type (:a my-deser)) clojure.lang.Ref))
@@ -488,7 +488,7 @@ a given value in a given map."
             :italian {:a ref3
                       :b ref2}
             :infl :infinitive}
-        myser (ser vp)
+        myser (serialize vp)
         ]
     (not (nil? vp))
     (not (nil? myser))))
