@@ -412,17 +412,20 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     value))
        
 ;  {:a {:b {:c {:d {:e value}}}}})
-  
+
+
 (defn deser [serialized]
-  (let [ref2 (ref 42)
-        ref1 (ref {:c ref2})
-        base (second (first serialized))
-        new-shared-values (create-shared-values serialized)]
-    (merge
-     base
-     {:a ref1
-      :b ref1
-      :d ref2})))
+  (let [base (second (first serialized))]
+    (apply merge
+           (cons base
+                 (flatten
+                  (map (fn [paths-val]
+                         (let [paths (first paths-val)
+                               val (ref (second paths-val))]
+                           (map (fn [path]
+                                  (create-path-in path val))
+                                paths)))
+                       (rest serialized)))))))
 
 (defn ser [input-map]
   (let [ser (ser-intermed input-map)]

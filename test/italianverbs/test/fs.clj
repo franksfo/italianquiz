@@ -588,7 +588,6 @@ a given value in a given map."
         val 43
         result (create-path-in path val)]
     (is (= (get-in result path) val))))
-            
 
 ;; deserialize a map's serialized form
 (deftest deser-1
