@@ -584,10 +584,9 @@ a given value in a given map."
                   clojure.lang.Ref)))))
 
 (deftest create-path-in-1
-  (let [mymap {:a 42}
-        path '(:b :c :d)
+  (let [path '(:a :b :c :d :e)
         val 43
-        result (create-path-in mymap path val)]
+        result (create-path-in path val)]
     (is (= (get-in result path) val))))
             
 
