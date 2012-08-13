@@ -564,7 +564,17 @@ a given value in a given map."
         create-shared-vals (create-shared-values my-ser)
         types (map (fn [val]
                      (type val))
-                   create-shared-vals)]
+                   create-shared-vals)
+        derefs (map (fn [val]
+                      @val)
+                    create-shared-vals)]
+    (is (= (first derefs)
+           {:d :PH
+            :b :PH
+            :a :PH}))
+    (is (= (second derefs)
+           {:c :PH}))
+           
     (is (= types (list
                   clojure.lang.Ref
                   clojure.lang.Ref
