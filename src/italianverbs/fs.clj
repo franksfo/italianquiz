@@ -398,6 +398,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn create-shared-values [serialized]
   (map (fn [paths-vals]
          (let [val (second paths-vals)]
+           ;; TODO: why/why not do copy val rather than just val(?)
            (ref val)))
        serialized))
 

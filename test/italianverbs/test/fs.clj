@@ -556,6 +556,20 @@ a given value in a given map."
              ;; TODO: could be '((:b :c)(:a c)..etc
              (((:a :c) (:b :c) (:d)) 42))))))
 
+(deftest create-shared-values-1
+  (let [ref2 (ref 42)
+        ref1 (ref {:c ref2})
+        mymap {:a ref1, :b ref1 :d ref2}
+        my-ser (ser mymap)
+        create-shared-vals (create-shared-values my-ser)
+        types (map (fn [val]
+                     (type val))
+                   create-shared-vals)]
+    (is (= types (list
+                  clojure.lang.Ref
+                  clojure.lang.Ref
+                  clojure.lang.Ref)))))
+
 ;; deserialize a map's serialized form
 (deftest deser-1
   (let [ref2 (ref 42)
@@ -579,7 +593,6 @@ a given value in a given map."
            42))
 ))
 
-    
 ;(if false (deftest pathify-one-atomic-reference
 ;  "a map with one atom (42) shared"
 ;  (let [ref1 (ref 42)
