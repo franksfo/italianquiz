@@ -583,6 +583,14 @@ a given value in a given map."
                   clojure.lang.Ref
                   clojure.lang.Ref)))))
 
+(deftest create-path-in-1
+  (let [mymap {:a 42}
+        path '(:b :c :d)
+        val 43
+        result (create-path-in mymap path val)]
+    (is (= (get-in result path) val))))
+            
+
 ;; deserialize a map's serialized form
 (deftest deser-1
   (let [ref2 (ref 42)

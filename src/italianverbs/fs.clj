@@ -402,6 +402,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
            (ref val)))
        serialized))
 
+(defn create-path-in [map path value]
+  "create a path starting at map through all keys in map."
+  {:a {:b 42}
+   :b {:c {:d value}}})
+  
 (defn deser [serialized]
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
