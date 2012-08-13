@@ -384,6 +384,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (vals rsk)
       sk))))     
 
+(defn deser [serialized]
+  {:a :PH
+   :b :PH
+   :d :PH})
+   
+
 (defn ser [input-map]
   (let [ser (ser-intermed input-map)]
     (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))

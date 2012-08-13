@@ -556,6 +556,16 @@ a given value in a given map."
              ;; TODO: could be '((:b :c)(:a c)..etc
              (((:a :c) (:b :c) (:d)) 42))))))
 
+;; deserialize a map's serialized form
+(deftest deser-1
+  (let [ref2 (ref 42)
+        ref1 (ref {:c ref2})
+        mymap {:a ref1, :b ref1 :d ref2}
+        ser (ser mymap)
+        deser (deser mymap)]
+    (is (not (= ser nil)))
+    (is (not (= deser nil)))))
+
 ;(if false (deftest pathify-one-atomic-reference
 ;  "a map with one atom (42) shared"
 ;  (let [ref1 (ref 42)
