@@ -235,16 +235,6 @@
 The idea is to map the key :foo to the (recursive) result of pathify on :foo's value."
 (println (str "pathify with: " fs)))
 
-(defn vals-r [map]
-  "return all non-map values from a map, recursively"
-  (let [vals (vals map)]
-    (map (fn [val]
-           (if (or (= (type val) clojure.lang.PersistentArrayMap)
-                   (= (type val) clojure.lang.PersistentHashMap))
-             (flatten (vals-r val))
-             val))
-         vals)))
-
 ;; TODO: very inefficient due to recursive uniq call:
 ;; instead, sort first and then remove (adjacent) dups.
 ;; most know how to order references.
@@ -265,12 +255,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           (mapcat (fn [key]
                     (paths-to-value (get map key) value (concat path (list key))))
                   (keys map))))))
-
-(defn rfv [map]
-  (let [keys (keys map)
-        refs (uniq (vals-r map))]
-    {(first refs) (paths-to-value map (first refs) nil)
-     nil {:a :ph :b :ph}}))
 
 (defn all-refs [input]
   (if input

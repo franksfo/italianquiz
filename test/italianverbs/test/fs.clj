@@ -403,12 +403,6 @@
 ;        pathify (pathify mymap)]
 ;    (is (= pathify '((:a :c) 42 (:b :c) 42 (:c) 42)))))
 
-(deftest get-vals
-  (let [ref1 (ref 42)
-        mymap {:a ref1 :b ref1}
-        get-vals (uniq (vals-r mymap))]
-    (is (= get-vals (list ref1)))))
-
 (deftest paths-to-values-1
   "test path-to-value, which returns a list of all ways of reaching
 a given value in a given map."
@@ -439,26 +433,13 @@ a given value in a given map."
         paths-to-ref2 (paths-to-value mymap ref2 nil)]
     (is (= paths-to-ref2 '((:a :c)(:b :c)(:d))))))
 
-(deftest ref-to-rfv-1
-  "a simple test of mapping references to reference-free-values (i.e. skeletons)"
-  ;; 1.':ph' means 'PlaceHolder'
-  ;; 2. nil  simply maps to the outermost skeleton of the map.
-  ;; {:a [1] 42, :b [1] } => 
-  ;;       {[1] 42 => ((a)(b)), nil => {:a :ph, :b :ph}}
-  (let [ref1 (ref 42)
-        mymap {:a ref1, :b ref1}
-        rfv (rfv mymap)]
-    (is (not (nil? rfv)))
-    (is (= rfv
-           {ref1 '((:a)(:b)), nil {:a :ph :b :ph}}))))
-
-(deftest get-refs1
+(deftest all-refs1
   (let [ref1 (ref 42)
         mymap {:a ref1, :b ref1}
         refs (uniq (flatten (all-refs mymap)))]
     (is (= refs (list ref1)))))
 
-(deftest get-refs2
+(deftest all-refs2
   (let [ref1 (ref 42)
         ref2 (ref 43)
         mymap {:a ref1, :b ref2}
@@ -466,7 +447,7 @@ a given value in a given map."
     (is (or (= refs (list ref1 ref2))
             (= refs (list ref2 ref1))))))
 
-(deftest get-refs3
+(deftest all-refs3
   (let [ref1 (ref 42)
         ref2 (ref 43)
         mymap {:a ref1 :b {:c ref2}}
@@ -474,13 +455,13 @@ a given value in a given map."
     (is (or (= refs (list ref1 ref2))
             (= refs (list ref2 ref1))))))
 
-(deftest get-refs4
+(deftest all-refs4
   (let [ref1 (ref 42)
         mymap {:a ref1 :b {:c ref1}}
         refs (uniq (flatten (all-refs mymap)))]
     (is (= refs (list ref1)))))
 
-(deftest get-refs5
+(deftest all-refs5
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
         mymap {:a ref1 :b ref1 :d ref2}
