@@ -574,7 +574,10 @@ a given value in a given map."
             :a :PH}))
     (is (= (second derefs)
            {:c :PH}))
-           
+
+    (is (= (nth derefs 2)
+           42))
+    
     (is (= types (list
                   clojure.lang.Ref
                   clojure.lang.Ref
