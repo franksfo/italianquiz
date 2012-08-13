@@ -556,6 +556,10 @@ a given value in a given map."
              ;; TODO: could be '((:b :c)(:a c)..etc
              (((:a :c) (:b :c) (:d)) 42))))))
 
+(deftest ser-3
+  (let [mymap {:a 42 :b (ref 43)}]
+    (is (not (nil? (ser mymap))))))
+
 (deftest create-shared-values-1
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
@@ -611,6 +615,24 @@ a given value in a given map."
     (is (= @(get @(get mymap :a) :c)
            42))
 ))
+
+(deftest deser-2
+  (let [ref3 (ref "avere")
+        ref2 (ref {:italian "fatto"})
+        ref1 (ref {:infl :infinitive
+                   :italian ref3})
+        vp {:a ref1
+            :b {:italian ref2
+                :root {:infl :infinitive
+                       :pass-prossimo ref2
+                       :pass-prossimo-aux ref1}}
+            :italian {:a ref3
+                      :b ref2}
+            :infl :infinitive}
+        myser (ser vp)
+        ]
+    (not (nil? vp))
+    (not (nil? myser))))
 
 ;(if false (deftest pathify-one-atomic-reference
 ;  "a map with one atom (42) shared"

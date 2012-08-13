@@ -310,7 +310,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; TODO s/map/input-map/
 ;; TODO: merge or distinguish from all-refs (above)
 (defn get-refs [input-map]
-  (uniq (vals-r input-map)))
+  (uniq (all-refs input-map)))
 
 ;; TODO s/map/input-map/
 (defn skels [input-map]
