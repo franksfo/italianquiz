@@ -389,7 +389,7 @@ a given value in a given map."
            :skel 42} '((:a :c)(:b :c)(:d))
           }))))
 
-(deftest ser-1
+(deftest serialize-1
   (let [ref1 (ref 42)
         mymap {:a ref1, :b ref1}
         ser (serialize mymap)]
@@ -400,7 +400,7 @@ a given value in a given map."
              ;; TODO: could be '((:b)(:a))
              (((:a)(:b)) 42))))))
 
-(deftest ser-2
+(deftest serialize-2
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
         mymap {:a ref1, :b ref1 :d ref2}
@@ -415,9 +415,28 @@ a given value in a given map."
              ;; TODO: could be '((:b :c)(:a c)..etc
              (((:a :c) (:b :c) (:d)) 42))))))
 
-(deftest ser-3
+(deftest serialize-3
   (let [mymap {:a 42 :b (ref 43)}]
     (is (not (nil? (serialize mymap))))))
+
+(deftest serialize-4
+  (let [ref3 (ref "avere")
+        ref2 (ref {:italian "fatto"})
+        ref1 (ref {:infl :infinitive
+                   :italian ref3})
+        vp {:a ref1
+            :b {:italian ref2
+                :root {:infl :infinitive
+                       :pass-prossimo ref2
+                       :pass-prossimo-aux ref1}}
+            :italian {:a ref3
+                      :b ref2}
+            :infl :infinitive}
+        serialized (serialize vp)
+        ]
+    (not (nil? vp))
+    (not (nil? serialized))
+    (= (.size serialized) 4)))
 
 (deftest create-shared-values-1
   (let [ref2 (ref 42)

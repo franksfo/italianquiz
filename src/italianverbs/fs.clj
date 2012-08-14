@@ -368,6 +368,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (vals rsk)
       sk))))     
 
+(defn ser-intermed-2 [input-map]
+  (let [top-level (skeletize input-map)
+        rsk (ref-skel-map input-map)
+        sk (map (fn [ref-skel]
+                  (:skel ref-skel))
+                (keys rsk))]
+    (merge
+     (skeletize input-map)
+     {:ref-paths (vals rsk)
+      :ref-vals sk})))
+
 ;(defn deser-1 [pathset value]
 ;  "for all paths in pathset, set them to the value."
 ;  {}
@@ -387,16 +398,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        serialized))
 
 (defn create-path-in [path value]
-  "create a path starting at map through all keys in map."
+  "create a path starting at map through all keys in map:
+   (create-path-in '(a b c d e) value) => {:a {:b {:c {:d {:e value}}}}})"
   (if (first path)
     (if (rest path)
       (let [assigned (create-path-in (rest path) value)]
         {(first path) assigned})
       {(first path) value})
     value))
-       
-;  {:a {:b {:c {:d {:e value}}}}})
-
 
 (defn deserialize [serialized]
   (let [base (second (first serialized))]
