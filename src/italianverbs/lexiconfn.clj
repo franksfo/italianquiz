@@ -21,11 +21,11 @@
     (mongo/fetch-one :lexicon :where (first where))
     (mongo/fetch-one :lexicon)))
 
-(defn clear [& args]
+(defn clear! [& args]
   (mongo/destroy! :lexicon {}))
 
 (defn add-lexeme [fs]
-  (mongo/insert! :lexicon (fs/serialize fs))
+  (mongo/insert! :lexicon {:entry (fs/serialize fs)})
   fs)
 
 ;; end db-specific stuff.
