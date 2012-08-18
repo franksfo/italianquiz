@@ -15,6 +15,26 @@
 ;              third-sing {:subj {:number :singular :person :3rd}}])]
 ;   (= (is true true))))
 
+(deftest minimal-insert-and-deserialize
+  (let [testmap {:a 42}]
+    (clear!)
+    (add-lexeme testmap)
+    (let [deserialized (fs/deserialize (:entry (mongo/fetch-one :lexicon)))]
+      (is (not (nil? deserialized)))
+      (is (= deserialized {:a 42}))
+      (is (= deserialized testmap)))))
+
+(deftest insert-and-deserialize-with-shared
+  (let [ref1 (ref 42)
+        testmap {:a ref1}]
+    (clear!)
+    (add-lexeme testmap)
+    (let [deserialized (fs/deserialize (:entry (mongo/fetch-one :lexicon)))
+          deserialized-ref (get deserialized :a)]
+      (is (= (type deserialized-ref) clojure.lang.Ref))
+      (let [dereferenced @deserialized-ref]
+        (is (= dereferenced 42))))))
+
 (deftest fatto
   (let [ref3 (ref "avere")
         ref2 (ref {:italian "fatto"})
@@ -40,4 +60,12 @@
     (is (= (get (get deserialized "italian") "a")
            (get @(get deserialized "a") "italian")))))
 
-
+(deftest compiti
+  (let [compiti {:italian "compiti"
+                 :english "homework"}
+        add-lexical-entry (add-lexeme compiti)
+        lookup-lexicon (mongo/fetch-one :lexicon)
+        deserialized (fs/deserialize (:entry lookup-lexicon))]
+  (is (not (nil? add-lexical-entry)))
+  (is (not (nil? lookup-lexicon)))
+  (is (not (nil? deserialized)))))

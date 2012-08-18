@@ -92,7 +92,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           value (get (first path-value-pairs) path)
           result (set (mapcat
                        (fn [entry] (pv-matches entry path value))
-                       (lexfn/fetch)))]
+                       (lexfn/fetch)))] ;; <- fetch the entire lexicon once per path-value (!)
       (if (> (.size path-value-pairs) 1)
         (intersection result (query-r (rest path-value-pairs)))
         result))

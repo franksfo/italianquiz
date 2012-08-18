@@ -407,6 +407,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       {(first path) value})
     value))
 
+;; Serialization format is:
+;; (
+;;  paths1 => map1 <= 'base'
+;;  paths2 => map2
+;;  ..
+;; )
+;; 'base' is the outermost map 'skeleton' (
+;; a 'skeleton' is a map with the dummy placeholder
+;; value :PH).
 (defn deserialize [serialized]
   (let [base (second (first serialized))]
     (apply merge

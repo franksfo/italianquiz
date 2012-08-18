@@ -11,6 +11,25 @@
 ;; begin db-specific stuff. for now, mongodb; might switch/parameterize later.
 (mongo/mongo! :db "mydb")
 (mongo/make-connection "mydb" :host "localhost")
+
+(defn encode-where-query [& where]
+  "encode a query as a set of index queries."
+  where)
+
+(defn fetch2 [& where]
+  (let [where (encode-where-query where)]
+    (mapcat (fn [entry]
+              (let [deserialized (fs/deserialize (:entry entry))]
+                (if (not (= (fs/unify deserialized where) :fail))
+                  (list deserialized))))
+            (mongo/fetch :lexicon))))
+
+(defn fetch-all []
+  (mapcat (fn [entry]
+            (let [deserialized (fs/deserialize (:entry entry))]
+              (list deserialized)))
+          (mongo/fetch :lexicon)))
+
 (defn fetch [& where]
   (if where
     (mongo/fetch :lexicon :where (first where))
