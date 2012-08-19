@@ -431,6 +431,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn serialize [input-map]
   (let [ser (ser-intermed input-map)]
+    ;; ser is a intermediate (but fully-serialized) representation
+    ;; as a map:
+    ;; { path1 => value1
+    ;;   path2 => value2
+    ;;   nil   => skeleton}
+    ;;
+    ;; The skeleton immediately above is the input map but with the
+    ;; dummy placeholder value :PH substituted for each occurance of a
+    ;; reference in the input map.
     (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))
 
 (defn copy [map]
