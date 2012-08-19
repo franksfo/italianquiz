@@ -472,13 +472,13 @@ a given value in a given map."
     (is (= (get-in result path) val))))
 
 (deftest deser-with-ref
-  (let [deserialized [[nil {:a "PH"}] [[["a"]] 42]]]
+  (let [serialized [[nil {:a "PH"}] [[["a"]] 42]]
+        deserialized (deserialize serialized)]
     (is (not (nil? deserialized)))
     (is (= (type (:a deserialized)) clojure.lang.Ref))
     (is (= @(:a deserialized) 42))))
 
 ;; deserialize a map's serialized form
-(if false
 (deftest deser-1
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
@@ -498,7 +498,7 @@ a given value in a given map."
     (is (= (get @(get mymap :b) :c)
            (get mymap :d)))
     (is (= @(get @(get mymap :a) :c)
-           42)))))
+           42))))
 
 (deftest deser-2
   (let [ref3 (ref "avere")
