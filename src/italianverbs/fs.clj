@@ -403,11 +403,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (if (first path)
     (if (rest path)
       (let [assigned (create-path-in (rest path) value)]
-        {(first path) assigned})
+        {(keyword (first path)) assigned})
       {(first path) value})
     value))
 
-;; Serialization format is:
+;; Serialization format is a sequence:
 ;; (
 ;;  paths1 => map1 <= 'base'
 ;;  paths2 => map2
@@ -416,6 +416,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; 'base' is the outermost map 'skeleton' (
 ;; a 'skeleton' is a map with the dummy placeholder
 ;; value :PH).
+;;
+;; Note that (deserialize) should be able to cope with
+;; both lists and arrays (i.e. just assume a sequence).
 (defn deserialize [serialized]
   (let [base (second (first serialized))]
     (apply merge
