@@ -57,8 +57,8 @@
     (is (not (nil? add-lexical-entry)))
     (is (not (nil? lookup-lexicon)))
     (is (not (nil? deserialized)))
-    (is (= (get (get deserialized "italian") "a")
-           (get @(get deserialized "a") "italian")))))
+    (is (= (get (get deserialized :italian) :a)
+           (get @(get deserialized :a) :italian)))))
 
 (deftest compiti
   (let [compiti {:italian "compiti"
