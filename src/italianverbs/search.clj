@@ -2,6 +2,7 @@
   (:use [hiccup core]
         [clojure.set])
   (:require
+   [somnium.congomongo :as mongo]
    [clojure.contrib.logging :as log]
    [clojure.contrib.string :as string]
    [clojure.contrib.repl-utils :as repl-utils]
@@ -90,9 +91,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (if (> (.size path-value-pairs) 0)
     (let [path (first (keys (first path-value-pairs)))
           value (get (first path-value-pairs) path)
-          result (set (mapcat
-                       (fn [entry] (pv-matches entry path value))
-                       (lexfn/fetch)))] ;; <- fetch the entire lexicon once per path-value (!)
+          result (set ;; <- removes duplicates
+                  (mapcat
+                   (fn [entry] (pv-matches entry path value))
+                   (map (fn [entry]
+                          (fs/deserialize (:entry entry)))
+                        (lexfn/fetch))))] ;; <- fetch the entire lexicon once per path-value (!)
       (if (> (.size path-value-pairs) 1)
         (intersection result (query-r (rest path-value-pairs)))
         result))
@@ -125,7 +129,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (println  (str "searching with constraints : " constraints))
   (if (= (first constraints) :fail)
     (list :fail)
-    (seq (map fs/deserialize (apply query constraints)))))
+;; TODO: s/query/create-query/
+    (seq (apply query constraints))))
 
 ;; convenience function:search-one: find the first lexeme that matches constraints.
 (defn search-one [& constraints]
