@@ -78,7 +78,6 @@
                (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
                        (list {:english english}
                              {:italian italian})))]
-;    (println (str "(add " merged ")"))
     (add-lexeme (implied merged))))
 
 
@@ -355,28 +354,3 @@
             :infl :passato-prossimo
             :aux aux}))))
 
-(defn lookup [italian & [where]]
-  (fs/deserialize (mongo/fetch-one :lexicon :where (merge where {:italian italian}))))
-
-;; for testing.
-(def mangiare (lookup "mangiare"))
-
-;; looking for transitive verbs (:obj|:cat = noun)
-;; which happen in a place (:adjunct|:obj|:place = true).
-;; result should include mangiare.
-(def place-verbs
-  {:cat :verb
-   :obj {:cat :noun}
-   :adjunct {:cat :prep
-             :obj {:place true}}})
-
-;;usage : (query (pathify place-verbs)))
-
-;; transitive verbs only
-;; result should include mangiare.
-(def trans-verbs
-  {:cat :verb
-   :obj {:cat :noun}})
-
-(def verbs
-  {:cat :verb})

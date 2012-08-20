@@ -2,10 +2,11 @@
   (:use [italianverbs.lexiconfn]
         [clojure.test])
   (:require
-   [italianverbs.fs :as fs]))
+   [italianverbs.fs :as fs]
+   [italianverbs.search :as search]))
 
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
-(clear)
+(clear!)
 
 (let [word {:morph "unspecified-morphology"} ;; 'word' not used currently.
       verb
@@ -375,8 +376,8 @@
       
       ]
   (def variables
-    {:common-noun common-noun :takes-masc-sing-determiner takes-masc-sing-determiner :hanno (lookup "hanno")
-     :calcio (lookup "calcio") :fanno (lookup "fanno")
+    {:common-noun common-noun :takes-masc-sing-determiner takes-masc-sing-determiner :hanno (search/lookup "hanno")
+     :calcio (search/lookup "calcio") :fanno (search/lookup "fanno")
      :artifact artifact :masc masc :readable readable
      :letto letto :libro libro}))
 
@@ -591,11 +592,11 @@
 ;; in the right namespace: they need to be in italianverbs.test.lexicon.
 ;; A lexical entry for the word: 'parlare' exists.
 (deftest parlare
-  (let [result (lookup "parlare")]
+  (let [result (search/lookup "parlare")]
     (is (= (:italian parlare) "parlare"))))
 
 (deftest calcio
-  (let [calcio (lookup "calcio")]
+  (let [calcio (search/lookup "calcio")]
     (is (or (= :nil! (:comp calcio))
             (= "nil!" (:comp calcio))))))
 
@@ -607,7 +608,7 @@
 ;;  :comp [:cat :det
 ;;         :number [1] ] ]
 (deftest cane
-  (let [dog (lookup "cane")]
+  (let [dog (search/lookup "cane")]
     (is
      (and
       
@@ -637,7 +638,7 @@
           (= @(get-in dog '(:number)) "singular"))))))
 
 (deftest avere
-  (let [to-have (lookup "avere")]
+  (let [to-have (search/lookup "avere")]
     ;; sanity checks: not related to reentrances.
     (is (not (nil? to-have)))
     ;; Ideally these subtests would work for the keyword,

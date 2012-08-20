@@ -189,9 +189,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 ;; TODO: remove generate.clj version.
 (defn random-lexeme [& constraints]
-  (let [lexemes (seq
-                 (map fs/deserialize
-                      (apply query constraints)))]
+  (let [lexemes (seq (apply query constraints))]
     (if lexemes
       (if (> (.size lexemes) 0)
         (nth lexemes (rand-int (.size lexemes)))))))
@@ -200,4 +198,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn random [& constraints]
   (apply random-lexeme constraints))
 
+(defn lookup [italian & [where]]
+  (first (search {:italian italian})))
 
