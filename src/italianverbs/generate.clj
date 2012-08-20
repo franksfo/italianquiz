@@ -402,7 +402,7 @@
   (let [prep (search/random-lexeme {:cat :prep :furniture true})
         subject (conjugate-np (fs/merge (search/random-lexeme {:cat :noun :ruggable true}) {:number (random-symbol :singular :plural)} (:subj prep)))
         object (conjugate-np (fs/merge (search/random-lexeme {:cat :noun :furniture true :on (:on subject)}) {:number (random-symbol :singular :plural)}))]
-    (conjugate-sent (conjugate-vp (lookup "essere") subject (conjugate-pp prep object))
+    (conjugate-sent (conjugate-vp (search/lookup "essere") subject (conjugate-pp prep object))
                     subject)))
                           
 (defn random-object-for-verb [verb]

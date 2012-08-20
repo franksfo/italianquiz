@@ -189,7 +189,10 @@
       fare (let [fare (add "fare" "to make"
                            verb
                            {:subj (fs/merge noun {:human true})
-                            :obj artifact})]
+                            :obj artifact
+                            :passo-prossimo-auxiliary {:italian "avere"}
+                            :passo-prossimo {:italian "fatto"}
+                            })]
              
              (add "facio" "make"
                   fare

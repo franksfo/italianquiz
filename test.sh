@@ -12,3 +12,7 @@ if [ $? != 0 ]; then exit; fi
 
 lein test italianverbs.test.lexicon
 if [ $? != 0 ]; then exit; fi
+
+lein test italianverbs.test.generate
+if [ $? != 0 ]; then exit; fi
+
