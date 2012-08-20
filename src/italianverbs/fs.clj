@@ -12,19 +12,23 @@
     (get-head (get sign :head))
     sign))
 
-;; TODO: need tests.
-(defn get-in-r [map keys]
+;; TODO: need tests: some tests use (get-in), but need more dedicated tests for it alone.
+(defn get-in [map keys]
   "same as clojure.core (get-in), but it resolves references if need be."
   (let [result 
         (if (first keys)
           (let [result (get map (first keys))]
             (if (= (type result) clojure.lang.Ref)
-              (get-in-r @result (rest keys))
-              (get-in-r result (rest keys))))
+              (get-in @result (rest keys))
+              (get-in result (rest keys))))
           map)]
     (if (= (type result) clojure.lang.Ref)
       @result
       result)))
+
+;; following is deprecated in favor of just (get-in) (above).
+(defn get-in-r [map keys]
+  (get-in map keys))
 
 (defn get-r [map key]
   "same as clojure.core (get), but it resolves references if need be."
@@ -449,3 +453,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn copy [map]
   (deserialize (serialize map)))
+
+(defn print [map]
+  "print a map in a user-friendly way that shows references as bracketed indexes e.g. [1] for readability, instead of e.g. #<Ref@7d582674>"
+  "writeme")

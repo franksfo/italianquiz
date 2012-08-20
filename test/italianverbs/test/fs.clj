@@ -488,16 +488,28 @@ a given value in a given map."
     (is (not (= my-ser nil)))
     (is (= (type (:a my-deser)) clojure.lang.Ref))
     (is (= (type (:a my-deser)) clojure.lang.Ref))
-    
+
+    ;; a)
     (is (= (type (get @(get my-deser :a) :c)) clojure.lang.Ref))
     (is (= (type (get @(get my-deser :b) :c)) clojure.lang.Ref))
     (is (= (type (:d my-deser)) clojure.lang.Ref))
     (is (= (:a my-deser) (:b my-deser)))
-    (is (= (get @(get mymap :a) :c)
-           (get mymap :d)))
-    (is (= (get @(get mymap :b) :c)
-           (get mymap :d)))
-    (is (= @(get @(get mymap :a) :c)
+    (is (= (get @(get my-deser :a) :c)
+           (get my-deser :d)))
+    (is (= (get @(get my-deser :b) :c)
+           (get my-deser :d)))
+    (is (= @(get @(get my-deser :a) :c)
+           42))
+
+    ;; similar tests as a) above, but using fs/get-in
+    (is (= (type (get-in my-deser '(:a :c))) java.lang.Integer))
+    (is (= (type (get-in my-deser '(:b :c))) java.lang.Integer))
+    (is (= (type (get-in my-deser '(:d))) java.lang.Integer))
+    (is (= (get-in my-deser '(:a :c))
+           (get-in my-deser '(:d))))
+    (is (= (get-in my-deser '(:b :c))
+           (get-in my-deser '(:d))))
+    (is (= (get-in my-deser '(:a :c))
            42))))
 
 (deftest deser-2
