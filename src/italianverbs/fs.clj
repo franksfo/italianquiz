@@ -283,7 +283,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (zipmap (keys input-val)
             (map (fn [val]
                    (if (= (type val) clojure.lang.Ref)
-                     :PH
+                     :top
                      (if (or (= (type val) clojure.lang.PersistentArrayMap)
                              (= (type val) clojure.lang.PersistentHashMap))
                        (skeletize val)
@@ -422,15 +422,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn deserialize [serialized]
   (let [base (second (first serialized))]
     (apply merge
-           (cons base
-                 (flatten
-                  (map (fn [paths-val]
-                         (let [paths (first paths-val)
-                               val (ref (second paths-val))]
-                           (map (fn [path]
-                                  (create-path-in path val))
-                                paths)))
-                       (rest serialized)))))))
+           (let [all
+                 (cons base
+                       (flatten
+                        (map (fn [paths-val]
+                               (let [paths (first paths-val)
+                                     val (ref (second paths-val))]
+                                 (map (fn [path]
+                                        (create-path-in path val))
+                                      paths)))
+                             (rest serialized))))]
+             all))))
 
 (defn serialize [input-map]
   (let [ser (ser-intermed input-map)]

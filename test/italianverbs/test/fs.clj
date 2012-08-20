@@ -354,13 +354,13 @@ a given value in a given map."
 (deftest skeletize-2
   (let [ref1 (ref 42)
         mymap {:a 42 :b ref1}]
-    (is (= (skeletize mymap) {:a 42 :b :PH}))))
+    (is (= (skeletize mymap) {:a 42 :b :top}))))
 
 (deftest skeletize-3
   (let [ref1 (ref 42)
         ref2 (ref 43)
         mymap {:a ref1 :b ref2}]
-    (is (= (skeletize mymap) {:a :PH :b :PH}))))
+    (is (= (skeletize mymap) {:a :top :b :top}))))
 
 (deftest ser-db-1
   (let [ref1 (ref 42)
@@ -382,7 +382,7 @@ a given value in a given map."
          {
           {:ref ref1
            ;; TODO: could also be '((:b)(:a)).
-           :skel {:c :PH}} '((:a)(:b))
+           :skel {:c :top}} '((:a)(:b))
           {:ref ref2
            ;; TODO: could also be '((:b :c)(:a :c)(:d))
            ;; (or other possible orderings).
@@ -395,7 +395,7 @@ a given value in a given map."
         ser (serialize mymap)]
     (is (= ser
 
-           '((nil {:b :PH :a :PH})
+           '((nil {:b :top :a :top})
 
              ;; TODO: could be '((:b)(:a))
              (((:a)(:b)) 42))))))
@@ -407,10 +407,10 @@ a given value in a given map."
         ser (serialize mymap)]
     (is (= ser
 
-           '((nil {:d :PH, :b :PH, :a :PH})
+           '((nil {:d :top, :b :top, :a :top})
 
              ;; TODO: could be '((:b)(:a))
-             (((:a) (:b)) {:c :PH})
+             (((:a) (:b)) {:c :top})
 
              ;; TODO: could be '((:b :c)(:a c)..etc
              (((:a :c) (:b :c) (:d)) 42))))))
@@ -451,11 +451,11 @@ a given value in a given map."
                       @val)
                     create-shared-vals)]
     (is (= (first derefs)
-           {:d :PH
-            :b :PH
-            :a :PH}))
+           {:d :top
+            :b :top
+            :a :top}))
     (is (= (second derefs)
-           {:c :PH}))
+           {:c :top}))
 
     (is (= (nth derefs 2)
            42))
