@@ -1,6 +1,9 @@
 (ns italianverbs.test.generate
-  (:use [italianverbs.fs])
-  (:use [clojure.test]))
+  (:use [clojure.test]
+        [italianverbs.generate])
+  (:require
+   [somnium.congomongo :as mongo]
+   [italianverbs.fs :as fs]))
 
 (deftest t1
   (let [ref3 (ref :top)
@@ -26,8 +29,14 @@
          :italian "fare"
          :passato-prossimo-aux {:infl :infinitive
                                 :italian "avere"}
-         :passato-prossimo {:italian "fatto"}}]
-    (is (= true true))))
+         :passato-prossimo {:italian "fatto"}}
+
+        unified
+        (fs/unify irreg-vp
+                  {:b {:root fare}})]
+
+    ;; TODO: more tests.
+    (is (= (fs/get-in unified '(:a :italian)) "avere"))))
 
 (deftest t2
   (let [ref3 (ref :top)
@@ -54,8 +63,12 @@
         {:infl :infinitive
          :italian "lavorare"
          :passato-prossimo-aux {:infl :infinitive
-                                :italian "avere"}}]
-    (is (= true true))))
+                                :italian "avere"}}
 
-         
+        unified
+        (fs/unify reg-vp
+                  {:b {:root lavorare}})]
+    ;; TODO: more tests.
+    (is (= (fs/get-in unified '(:a :italian)) "avere"))))
+
         
