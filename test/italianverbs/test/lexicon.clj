@@ -75,3 +75,83 @@
 
 (def verbs
   {:cat :verb})
+
+;; A lexical entry for the word: 'parlare' exists.
+(deftest parlare-test
+  (let [parlare (search/lookup "parlare")]
+    (is (= (:italian parlare) "parlare"))))
+
+(deftest calcio-test
+  (let [calcio (search/lookup "calcio")]
+    (is (or (= :nil! (:comp calcio))
+            (= "nil!" (:comp calcio))))))
+
+;; Test that number and gender agreement of nouns, as implemented using references, works."
+;; :number is shared by the paths (:number) and (:comp :number).
+;;
+;; [:cat :noun
+;;  :number [1] :singular
+;;  :comp [:cat :det
+;;         :number [1] ] ]
+(deftest cane-test
+  (let [dog (search/lookup "cane")]
+    (is
+     (and
+      ;; sanity checks: not related to reentrances.
+      (not (nil? dog))
+      ;; Ideally these subtests would work for the keyword,
+      ;; since lexicon.clj uses keywords for symbols.
+      ;; But for now, we have to test for "det" because of
+      ;; database serialization.
+      (or (= (get-in dog (list :cat))
+             :noun)
+          (= (get-in dog (list :cat))
+             "noun"))
+      (or (= (get-in dog (list :comp :cat))
+             :det)
+          (= (get-in dog (list :comp :cat))
+             "det"))
+      
+      ;; test referential equality:
+      (= (type (get-in dog '(:number))) clojure.lang.Ref)
+      
+      (= (get-in dog '(:number))
+         (get-in dog '(:comp :number)))
+      
+      ;; as above with respect to keyword vs string.
+      (or (= @(get-in dog '(:number)) :singular)
+          (= @(get-in dog '(:number)) "singular"))))))
+
+(deftest avere-test
+  (let [to-have (search/lookup "avere")]
+    ;; sanity checks: not related to reentrances.
+    (is (not (nil? to-have)))
+    ;; Ideally these subtests would work for the keyword,
+    ;; since lexicon.clj uses keywords for symbols.
+    ;; But for now, we have to test for "det" because of
+    ;; database serialization.
+    (is 
+     (or (= (get-in to-have (list :cat))
+            :verb)
+         (= (get-in to-have (list :cat))
+            "verb")))
+    (is
+     (or (= (get-in to-have (list :obj :cat))
+            :noun)
+         (= (get-in to-have (list :obj :cat))
+            "noun")))
+
+    ;; test referential equality:
+    (is (= (type (get-in to-have '(:number))) clojure.lang.Ref))
+
+    (is (= (get-in to-have '(:number))
+           (get-in to-have '(:subj :number))))
+
+    ;; subject and verb must agree in person..
+    (is (= (get-in to-have '(:person))
+           (get-in to-have '(:subj :person))))
+
+    ;;.. and number.
+    (is (= (get-in to-have '(:number))
+           (get-in to-have '(:subj :number))))))
+
