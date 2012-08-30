@@ -15,9 +15,9 @@
    [clojure.string :as string]
    [clojure.contrib.duck-streams :as duck]))
 
-(defn printfs [fs]
-;  "print a feature structure to a file. filename will be something easy to derive from the fs."
-  (let [filename "foo.html"]  ;; TODO: some conventional default if deriving from fs is too hard.
+(defn printfs [fs & filename]
+  "print a feature structure to a file. filename will be something easy to derive from the fs."
+  (let [filename (if filename (first filename) "foo.html")]  ;; TODO: some conventional default if deriving from fs is too hard.
     (duck/spit filename (html/static-page (html/tablize fs)))))
 
 (defn random-symbol [& symbols]
