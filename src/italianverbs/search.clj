@@ -80,7 +80,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 ;; TODO: use recur:
 ;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
-(defn query-r [path-value-pairs]
+(defn query-r [path-value-pairs lexicon]
   "
       map(lexicon,<p1,v1>)  => S1 |
       map(lexicon,<p2,v2>)  => S2 |
@@ -93,28 +93,29 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           value (get (first path-value-pairs) path)
           result (set ;; <- removes duplicates
                   (mapcat
-                   (fn [entry] (pv-matches entry path value))
-                   (map (fn [entry]
-                          (fs/deserialize (:entry entry)))
-                        (lexfn/fetch))))] ;; <- fetch the entire lexicon once per path-value (!)
+                   (fn [entry]
+                     (pv-matches entry path value))
+                   lexicon))]
       (if (> (.size path-value-pairs) 1)
-        (intersection result (query-r (rest path-value-pairs)))
+        (intersection result (query-r (rest path-value-pairs) lexicon))
         result))
     #{})) ;; base case : return an empty set.
 
 (defn query [& constraints]
   (query-r (mapcat (fn [constraint]
                      (pathify constraint))
-                   constraints)))
+                   constraints)
+           (map (fn [entry]
+                  (fs/deserialize (:entry entry)))
+                (lexfn/fetch)))) ;; <- fetch the entire lexicon (!)
 
-;; test data for (run-query)
-;; (pathify transitive-verb) returns a list of path-value-pairs
-;; which can be passed to run-query (above). run-query
-;; does an intersection over the entire lexicon with each
-;; path-value-pair as a filter.
-(def tv {:cat "verb" :obj {:cat "noun"}})
-
-(defn myfn [fs] (= (get-in fs '(:obj :cat)) "noun"))
+(defn query-with-lexicon [lexicon constraints]
+  (let [pathified
+        (mapcat (fn [constraint]
+                  (pathify constraint))
+                constraints)]
+    (println (str "pathified:" (seq pathified)))
+    (query-r pathified lexicon)))
 
 ;; How to map over (fetch :lexicon) results:
 ;; 
