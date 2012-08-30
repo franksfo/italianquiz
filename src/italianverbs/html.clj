@@ -4,6 +4,7 @@
    [ring.util.codec :as codec])
   (:require
    [clojure.set :as set]
+   [italianverbs.fs :as fs]
    [clojure.string :as string]
    [clojure.contrib.str-utils2 :as str-utils]))
 
@@ -109,93 +110,96 @@
      body]]))
 
 ;; TODO: check _parent_ type: (string,symbol,list,map) should be enough to start.
-(defn tablize [arg]
-  (cond
-   (= (type arg) clojure.lang.LazySeq)
-   (str
-    (clojure.string/join ""
-                         (map tablize arg)))
-   (= (type arg) clojure.lang.PersistentList)
-   (str
-    (clojure.string/join ""
-                         (map tablize arg)))
-   (= (type arg) clojure.lang.Cons)
-   (str
-    (clojure.string/join ""
-                         (map tablize arg)))
-   (and (= (type arg) clojure.lang.PersistentArrayMap)
-        (= nil (get arg :children)))
-   (str
-    "<div class='map'><table class='map'>"
-    (clojure.string/join ""
-                         (map (fn [tr]
-                                (str "<tr"
-                                     (cond
-                                      ;; use a custom CSS class for :comment.
-                                      (= (first tr) :comment)
-                                      " class='comment'"
-
-                                      ;; ..handle other keywords that need a custom CSS class..
-
-                                      ;; default: no custom CSS class.
-                                      true "")
-                                     ">"
-                                     "<th>"
-                                     (str (first tr))
-                                     "</th>"
-                                     "<td>"
-                                     (tablize (second tr))
-                                     "</td></tr>"))
-                              arg))
-    "</table></div>")
-   (= (type arg) clojure.lang.PersistentHashSet)
-   (str
-    "{"
-    (clojure.string/join ","
-                         (map (fn [member]
-                                (tablize member))
-                              arg))
-    "}")
-   (= (type arg) clojure.lang.PersistentHashMap)
-   (fs arg)
-   (and (= (type arg) clojure.lang.PersistentArrayMap)
-        (not (= nil (get arg :children))))
-   (let
-       [children (get arg :children)]
+(defn tablize [arg & [path serialized]]
+  (let [serialized (if (nil? serialized)
+                     (fs/serialize arg)
+                     serialized)]
+    (cond
+     (= (type arg) clojure.lang.LazySeq)
      (str
-      "<div class='syntax'><table class='syntax'>"
-      "<tr><td style='padding-left:5%;width:90%' colspan='" (count children) "'>"
-      (fs arg)
-      "</td></tr>"
-      "<tr>"
-      ;; now show syntactic children for this parent.
-      (string/join " " (map (fn [child] (str "<td>"
-                                             (cond (string? child)
-                                                   child
-                                                   (get child :children)
-                                                   (tablize child)
-                                                   true
-                                                   (fs child))
-                                             "</td>")) children))
-      "</tr>"
-      "</table></div>"))
-   (= nil arg)
-   (str "<div class='atom'><i>nil</i></div>")
-   (or (= (type arg)
-          java.lang.String)
-       (= (type arg)
-          java.lang.Integer)
-       (= (type arg)
-          java.lang.Double)
-       (= (type arg)
-          clojure.lang.Keyword)
-       (= (type arg)
-          org.bson.types.ObjectId)
-       (= (type arg)
-          java.lang.Boolean))
-   (str "<span class='atom'>" arg "</div>")
-   true
-   (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>")))
+      (clojure.string/join ""
+                           (map tablize arg)))
+     (= (type arg) clojure.lang.PersistentList)
+     (str
+      (clojure.string/join ""
+                           (map tablize arg)))
+     (= (type arg) clojure.lang.Cons)
+     (str
+      (clojure.string/join ""
+                           (map tablize arg)))
+     (and (= (type arg) clojure.lang.PersistentArrayMap)
+          (= nil (get arg :children)))
+     (str
+      "<div class='map'><table class='map'>"
+      (clojure.string/join ""
+                           (map (fn [tr]
+                                  (str "<tr"
+                                       (cond
+                                        ;; use a custom CSS class for :comment.
+                                        (= (first tr) :comment)
+                                        " class='comment'"
+                                        ;; ..handle other keywords that need a custom CSS class..
+                                        ;; default: no custom CSS class.
+                                        true "")
+                                       ">"
+                                       "<th>"
+                                       (str (first tr))
+                                       "</th>"
+                                       "<td>"
+                                       (tablize (second tr) (concat path (list (first tr))) serialized)
+                                       "</td></tr>"))
+                                (into (sorted-map) arg)))
+      "</table></div>")
+     (= (type arg) clojure.lang.PersistentHashSet)
+     (str
+      "{"
+      (clojure.string/join ","
+                           (map (fn [member]
+                                  (tablize member (concat path (list (first member))) serialized))
+                                arg))
+      "}")
+     (= (type arg) clojure.lang.PersistentHashMap)
+     (fs arg)
+     (and (= (type arg) clojure.lang.PersistentArrayMap)
+          (not (= nil (get arg :children))))
+     (let
+         [children (get arg :children)]
+       (str
+        "<div class='syntax'><table class='syntax'>"
+        "<tr><td style='padding-left:5%;width:90%' colspan='" (count children) "'>"
+        (fs arg)
+        "</td></tr>"
+        "<tr>"
+        ;; now show syntactic children for this parent.
+        (string/join " " (map (fn [child] (str "<td>"
+                                               (cond (string? child)
+                                                     child
+                                                     (get child :children)
+                                                     (tablize child) ;; path serialized
+                                                     true
+                                                     (fs child))
+                                               "</td>")) children))
+        "</tr>"
+        "</table></div>"))
+     (= nil arg)
+     (str "<div class='atom'><i>nil</i></div>")
+     (or (= (type arg)
+            java.lang.String)
+         (= (type arg)
+            java.lang.Integer)
+         (= (type arg)
+            java.lang.Double)
+         (= (type arg)
+            clojure.lang.Keyword)
+         (= (type arg)
+            org.bson.types.ObjectId)
+         (= (type arg)
+            java.lang.Boolean))
+     (str "<span class='atom'>" arg "</div>")
+     (= (type arg) clojure.lang.Ref)
+     (str "<div class='ref'>" (fs/path-to-ref-index serialized path 0) "</div>" (tablize @arg path serialized))
+     true
+     (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>"))))
 
 (defn simple-fs []
   {:foo "bar"})
