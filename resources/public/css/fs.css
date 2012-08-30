@@ -71,3 +71,11 @@ table.generate div.result {
     margin-bottom:1%;
     margin-right:1%;
 }
+
+div.ref {
+    float:left;
+    width:auto;
+    border:2px solid black;
+    padding:2px;
+    margin:2px;
+}
