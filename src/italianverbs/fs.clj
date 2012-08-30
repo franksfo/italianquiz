@@ -419,7 +419,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; )
 ;; 'base' is the outermost map 'skeleton' (
 ;; a 'skeleton' is a map with the dummy placeholder
-;; value :PH).
+;; value :top).
 ;;
 ;; Note that (deserialize) should be able to cope with
 ;; both lists and arrays (i.e. just assume a sequence).
@@ -447,13 +447,26 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     ;;   nil   => skeleton}
     ;;
     ;; The skeleton immediately above is the input map but with the
-    ;; dummy placeholder value :PH substituted for each occurance of a
+    ;; dummy placeholder value :top substituted for each occurance of a
     ;; reference in the input map.
     (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))
 
 (defn copy [map]
   (deserialize (serialize map)))
 
-(defn print [map]
-  "print a map in a user-friendly way that shows references as bracketed indexes e.g. [1] for readability, instead of e.g. #<Ref@7d582674>"
-  "writeme")
+(defn has-path [path paths]
+  (if (first paths)
+    (if (= (first paths) path)
+      true
+      (has-path path (rest paths)))))
+
+(defn path-to-ref-index [serialized path n]
+  (if (first serialized)
+    (let [paths (butlast (first serialized))
+          has-path (has-path path (first paths))]
+      (if (not (nil? has-path))
+        n
+        (path-to-ref-index (rest serialized) path (+ n 1))))))
+
+
+
