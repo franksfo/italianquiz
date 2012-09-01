@@ -112,11 +112,11 @@
                (fs/get-in expression '(:b))))))
 
 (defn generate-np [rules lexicon head]
-  (let [rules ;; filter for np rules
+  (let [rules ;; filter for rules for NPs.
         (filter (fn [rule] (= (fs/get-in rule '(:head :cat)) :noun))
                 rules)]
     (let [rule (nth rules (rand-int (.size rules)))]
-      (let [head-lexemes
+      (let [head-lexemes ;; filter for lexemes that can be a head of a NP.
             (if (not (nil? head)) (list head)
                 (seq (search/query-with-lexicon (set lexicon) (list {:subcat :top}))))]
         (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
@@ -149,10 +149,13 @@
    np-1-rules
    (let [cat (ref :verb)
          comp (ref {:cat :top})
+         subcat1 (ref {:cat :top})
          head (ref {:cat cat
-                    :subcat comp})]
+                    :subcat comp
+                    :subcat1 subcat1})]
      (list
       {:cat cat
+       :subcat subcat1
        :head head
        :comp comp
        :a head
@@ -165,25 +168,33 @@
     {:cat :verb
      :italian "fare"
      :english "do"
-     :subcat {:cat :noun}})))
+     :subcat {:cat :noun}
+     :subcat1 {:human true
+               :cat :noun}})))
 
-(defn generate-vp [rules lexicon]
-  (let [rule (first (filter (fn [rule] (= (fs/get-in rule '(:head :cat)) :verb))
-                            rules))]
-    (let [head-lexemes
-          (seq (search/query-with-lexicon (set lexicon)
-                 (list (fs/get-in rule '(:head)))))]
-      (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
-        (let [lexical-comps
-              (seq (search/query-with-lexicon (set lexicon)
-                     (list (fs/get-in head '(:subcat)))))
-              lexical-comp
-              (nth lexical-comps (rand-int (.size lexical-comps)))]
-          (let [np (generate-np vp-1-rules lexicon lexical-comp)
-                unified
-                (fs/unify
-                 (fs/copy rule) {:head head :comp np})]
-            unified))))))
+(defn generate-vp [rules lexicon head]
+  (let [rules ;; filter for rules for VPs.
+        (filter (fn [rule] (= (fs/get-in rule '(:head :cat)) :verb))
+                rules)]
+    (let [rule (nth rules (rand-int (.size rules)))]
+      (let [head-lexemes ;; filter by both rule's :head and head param (either may be nil)
+            (seq (search/query-with-lexicon (set lexicon)
+                   (concat
+                    (list (fs/get-in rule '(:head)))
+                    (list head))))]
+        (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
+          (let [lexical-comps
+                (seq (search/query-with-lexicon (set lexicon)
+                       (list (fs/get-in head '(:subcat)))))
+                lexical-comp
+                (nth lexical-comps (rand-int (.size lexical-comps)))]
+            (let [np (generate-np vp-1-rules lexicon lexical-comp)
+                  unified
+                  (fs/unify
+                   (fs/copy rule) {:head head :comp np})]
+            (merge
+             {:italian (join (flatten (read-off-italian unified)) " ")}
+             unified))))))))
 
 (deftest vp-1
   "generate a vp (transitive verb+np)"
@@ -211,6 +222,56 @@
                              (merge
                               {:italian (join (flatten (read-off-italian unified)) " ")}
                               unified)) "vp-1.html"))))))))
+
+(def sentence-rules
+  (concat
+   vp-1-rules
+   (let [cat (ref :verb)
+         comp (ref {:cat :top})
+         head (ref {:cat cat
+                    :subcat comp})]
+     (list
+      {:cat cat
+       :subcat :nil!
+       :head head
+       :comp comp
+       :a comp
+       :b head}))))
+   
+(def sentence-lexicon
+  (concat
+   vp-1-lexicon
+   (list {:cat :noun
+          :human true
+          :subcat :nil!
+          :italian "io"
+          :english "i"})))
+
+(deftest sentence-1
+  "generate a sentence (subject+vp)"
+  (let [rules sentence-rules
+        lexicon sentence-lexicon]
+    (let [rule (first (filter (fn [rule] (= (fs/get-in rule '(:subcat)) :nil!))
+                              rules))]
+      (is (not (nil? rule)))
+      (let [head-lexemes
+            (seq (search/query-with-lexicon (set lexicon)
+                   (list (fs/get-in rule '(:head)))))]
+        (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
+          (is (not (nil? head)))
+          (let [vp (generate-vp vp-1-rules vp-1-lexicon head)
+                subjects
+                (seq (search/query-with-lexicon (set lexicon)
+                       (list (fs/get-in vp '(:subcat)))))]
+            (is (not (nil? subjects)))
+            (is (> (.size subjects) 0))
+            (let [subject (nth subjects (rand-int (.size subjects)))
+                  unified (fs/unify
+                           (fs/copy rule) {:head vp :comp subject})]
+              (printfs (list rule head vp
+                             (merge
+                              {:italian (join (flatten (read-off-italian unified)) " ")}
+                              unified)) "sentence-1.html"))))))))
 
 (deftest t3
   (let [rules
