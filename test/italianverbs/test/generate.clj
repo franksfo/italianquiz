@@ -77,6 +77,51 @@
     (is (= (fs/get-in unified '(:a :italian)) "avere"))
     (printfs (list reg-vp {:b {:root lavorare}} unified) "lavorare.html")))
 
+(def np-1-lexicon
+  (let [compito
+        {:cat :noun
+         :subcat {:cat :det}
+         :italian "compito"
+         :english "homework"}
+        il
+        (let []
+          {:cat :det
+           :italian "il"
+           :english "the"})]
+    (list compito il)))
+
+(def np-1-rules
+  (let [np
+        (let [head (ref {:subcat :top})
+              comp (ref :top)]
+          {:head head
+           :comp comp
+           :a comp
+           :b head})]
+    (list np)))
+
+(deftest np-1
+  "generate a noun phrase."
+  (let [rules np-1-rules
+        lexicon np-1-lexicon]
+    (let [rule (nth rules (rand-int (.size rules)))]
+      (is (not (nil? rule)))
+      (let [head-lexemes (seq (search/query-with-lexicon (set lexicon) (list {:subcat :top})))]
+        (is (not (nil? head-lexemes)))
+        (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
+          (is (not (nil? head)))
+          (let [comps (seq (search/query-with-lexicon (set lexicon) (list (fs/get-in head '(:subcat)))))]
+            (is (not (nil? comps)))
+            (is (> (.size comps) 0))
+            (let [comp (nth comps (rand-int (.size comps)))]
+              (is (not (nil? comp)))
+              (let [unified (fs/unify (fs/copy rule) {:comp comp :head head})
+                    read-off-italian
+                    (map (fn [child]
+                           (fs/get-in child '(:italian)))
+                         (list (fs/get-in unified '(:a))
+                               (fs/get-in unified '(:b))))]
+                (= read-off-italian '("il" "compito"))))))))))
 
 (deftest t3
   (let [rules
