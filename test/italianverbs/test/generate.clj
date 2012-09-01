@@ -92,13 +92,38 @@
 
 (def np-1-rules
   (let [np
-        (let [head (ref {:subcat :top})
+        (let [cat (ref :noun)
+              head (ref {:cat cat
+                         :subcat :top})
               comp (ref :top)]
           {:head head
            :comp comp
+           :cat cat
            :a comp
            :b head})]
     (list np)))
+
+(defn read-off-italian [expression]
+  (if (not (nil? (fs/get-in expression '(:italian))))
+    (fs/get-in expression '(:italian))
+    (map (fn [child]
+           (read-off-italian child))
+         (list (fs/get-in expression '(:a))
+               (fs/get-in expression '(:b))))))
+
+(defn generate-np [rules lexicon head]
+  (let [rules ;; filter for np rules
+        (filter (fn [rule] (= (fs/get-in rule '(:head :cat)) :noun))
+                rules)]
+    (let [rule (nth rules (rand-int (.size rules)))]
+      (let [head-lexemes
+            (if (not (nil? head)) (list head)
+                (seq (search/query-with-lexicon (set lexicon) (list {:subcat :top}))))]
+        (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
+          (let [comps (seq (search/query-with-lexicon (set lexicon)
+                             (list (fs/get-in head '(:subcat)))))]
+            (let [comp (nth comps (rand-int (.size comps)))]
+              (fs/unify (fs/copy rule) {:comp comp :head head}))))))))
 
 (deftest np-1
   "generate a noun phrase."
@@ -115,13 +140,77 @@
             (is (> (.size comps) 0))
             (let [comp (nth comps (rand-int (.size comps)))]
               (is (not (nil? comp)))
-              (let [unified (fs/unify (fs/copy rule) {:comp comp :head head})
-                    read-off-italian
-                    (map (fn [child]
-                           (fs/get-in child '(:italian)))
-                         (list (fs/get-in unified '(:a))
-                               (fs/get-in unified '(:b))))]
-                (= read-off-italian '("il" "compito"))))))))))
+              (let [unified (fs/unify (fs/copy rule) {:comp comp :head head})]
+                (= (read-off-italian unified) '("il" "compito"))
+                (printfs (list head comp unified) "np-1.html")))))))))
+
+(def vp-1-rules
+  (concat
+   np-1-rules
+   (let [cat (ref :verb)
+         comp (ref {:cat :top})
+         head (ref {:cat cat
+                    :subcat comp})]
+     (list
+      {:cat cat
+       :head head
+       :comp comp
+       :a head
+       :b comp}))))
+
+(def vp-1-lexicon
+  (concat
+   np-1-lexicon
+   (list
+    {:cat :verb
+     :italian "fare"
+     :english "do"
+     :subcat {:cat :noun}})))
+
+(defn generate-vp [rules lexicon]
+  (let [rule (first (filter (fn [rule] (= (fs/get-in rule '(:head :cat)) :verb))
+                            rules))]
+    (let [head-lexemes
+          (seq (search/query-with-lexicon (set lexicon)
+                 (list (fs/get-in rule '(:head)))))]
+      (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
+        (let [lexical-comps
+              (seq (search/query-with-lexicon (set lexicon)
+                     (list (fs/get-in head '(:subcat)))))
+              lexical-comp
+              (nth lexical-comps (rand-int (.size lexical-comps)))]
+          (let [np (generate-np vp-1-rules lexicon lexical-comp)
+                unified
+                (fs/unify
+                 (fs/copy rule) {:head head :comp np})]
+            unified))))))
+
+(deftest vp-1
+  "generate a vp (transitive verb+np)"
+  (let [rules vp-1-rules
+        lexicon vp-1-lexicon]
+    (let [rule (first (filter (fn [rule] (= (fs/get-in rule '(:head :cat)) :verb))
+                              rules))]
+      (= (not (nil? rule)))
+      (let [head-lexemes
+            (seq (search/query-with-lexicon (set lexicon)
+                   (list (fs/get-in rule '(:head)))))]
+        (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
+          (= (not (nil? head)))
+          (let [lexical-comps
+                (seq (search/query-with-lexicon (set lexicon)
+                       (list (fs/get-in head '(:subcat)))))
+                lexical-comp
+                (nth lexical-comps (rand-int (.size lexical-comps)))]
+            (let [np (generate-np np-1-rules lexicon lexical-comp)
+                  unified
+                  (fs/unify
+                   (fs/copy rule) {:head head :comp np})]
+              (is (= (read-off-italian unified) '("fare" ("il" "compito"))))
+              (printfs (list rule head np
+                             (merge
+                              {:italian (join (flatten (read-off-italian unified)) " ")}
+                              unified)) "vp-1.html"))))))))
 
 (deftest t3
   (let [rules
