@@ -178,12 +178,16 @@
   (concat
    np-1-lexicon
    (list
-    {:cat :verb
-     :italian "fare"
-     :english "do"
-     :subcat {:cat :noun}
-     :subj {:human true
-            :cat :noun}})))
+    (let [subj (ref {:human true
+                     :cat :noun})]
+      {:cat :verb
+       :italian "fare"
+       :english "do"
+                                        ;       :italian-conjugation subj
+       :subcat {:cat :noun}
+                                        ;       :subj subj}))))
+       :subj {:human true
+              :cat :noun}}))))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb))
@@ -202,15 +206,29 @@
     (fs/unify
      (fs/copy rule) {:head head :comp np})))
 
-(deftest vp-1
-  "generate a vp (transitive verb+np)"
-  (let [unified (generate-vp vp-1-rules vp-1-lexicon nil)]
-    (is (= (read-off-italian unified) '("fare" ("il" "compito"))))
-    (printfs
-     (merge
-      {:italian (join (flatten (read-off-italian unified)) " ")}
-      unified)
-     "vp-1.html")))
+(deftest vp-rules
+  "find a suitable vp rule."
+  (let [rule (random-rule vp-1-rules '((:head :cat) :verb))]
+    (is (not (nil? rule)))))
+
+(deftest vp-find-head
+  "find a lexeme that can be the head of a verb-phrase."
+  (let [rule (random-rule vp-1-rules '((:head :cat) :verb))]
+    (let [head
+          (random ;; filter by both rule's :head and head param (either may be nil)
+           (seq (search/query-with-lexicon (set vp-1-lexicon)
+                  (list (fs/get-in rule '(:head))))))]
+      (is (not (nil? head))))))
+
+;(deftest vp-1
+;  "generate a vp (transitive verb+np)"
+;  (let [unified (generate-vp vp-1-rules vp-1-lexicon nil)]
+;    (is (= (read-off-italian unified) '("fare" ("il" "compito"))))
+;    (printfs
+;     (merge
+;      {:italian (join (flatten (read-off-italian unified)) " ")}
+;      unified)
+;     "vp-1.html")))
 
 (def sentence-rules
   (concat
@@ -232,6 +250,8 @@
    vp-1-lexicon
    (list {:cat :noun
           :human true
+          :person :1st
+          :number :sing
           :subcat :nil!
           :italian "io"
           :english "i"})))
@@ -254,13 +274,13 @@
                          (fs/copy rule) {:head vp :comp subject})]
             unified))))))
 
-(deftest sentence-1
-  "generate a sentence (subject+vp)"
-  (let [unified (generate-sentence sentence-rules sentence-lexicon)]
-    (is (= (read-off-italian unified) '("io" ("fare" ("il" "compito")))))
-    (printfs (merge
-              {:italian (join (flatten (read-off-italian unified)) " ")}
-              unified)) "sentence-1.html"))
+;(deftest sentence-1
+;  "generate a sentence (subject+vp)"
+;  (let [unified (generate-sentence sentence-rules sentence-lexicon)]
+;    (is (= (read-off-italian unified) '("io" ("fare" ("il" "compito")))))
+;    (printfs (merge
+;              {:italian (join (flatten (read-off-italian unified)) " ")}
+;              unified)) "sentence-1.html"))
 
 (deftest t3
   (let [rules
