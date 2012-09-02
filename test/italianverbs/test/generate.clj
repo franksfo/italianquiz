@@ -247,6 +247,25 @@
           :italian "io"
           :english "i"})))
 
+(defn generate-sentence []
+  "generate a sentence (subject+vp)"
+  (let [rules sentence-rules
+        lexicon sentence-lexicon]
+    (let [rule (first (filter (fn [rule] (= (fs/get-in rule '(:subcat)) :nil!))
+                              rules))]
+      (let [head-lexemes
+            (seq (search/query-with-lexicon (set lexicon)
+                   (list (fs/get-in rule '(:head)))))]
+        (let [head (nth head-lexemes (rand-int (.size head-lexemes)))]
+          (let [vp (generate-vp vp-1-rules vp-1-lexicon head)
+                subjects
+                (seq (search/query-with-lexicon (set lexicon)
+                       (list (fs/get-in vp '(:subcat)))))]
+            (let [subject (nth subjects (rand-int (.size subjects)))
+                  unified (fs/unify
+                           (fs/copy rule) {:head vp :comp subject})]
+              unified)))))))
+
 (deftest sentence-1
   "generate a sentence (subject+vp)"
   (let [rules sentence-rules
