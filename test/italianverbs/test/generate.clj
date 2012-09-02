@@ -162,13 +162,13 @@
    np-1-rules
    (let [cat (ref :verb)
          comp (ref {:cat :top})
-         subcat1 (ref {:cat :top})
+         subj (ref {:cat :top})
          head (ref {:cat cat
                     :subcat comp
-                    :subcat1 subcat1})]
+                    :subj subj})]
      (list
       {:cat cat ;; VP -> Head Comp
-       :subcat subcat1
+       :subcat subj ;; now that we have an object, subject is the new subcat.
        :head head
        :comp comp
        :a head
@@ -182,8 +182,8 @@
      :italian "fare"
      :english "do"
      :subcat {:cat :noun}
-     :subcat1 {:human true
-               :cat :noun}})))
+     :subj {:human true
+            :cat :noun}})))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb))
