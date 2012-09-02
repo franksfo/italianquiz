@@ -133,25 +133,32 @@
       "<div class='map'><table class='map'>"
       (clojure.string/join ""
                            (map (fn [tr]
-                                  (str "<tr"
-                                       (cond
-                                        ;; use a custom CSS class for :comment.
-                                        (= (first tr) :comment)
-                                        " class='comment'"
-                                        ;; ..handle other keywords that need a custom CSS class..
-                                        ;; default: no custom CSS class.
-                                        true "")
-                                       ">"
-                                       "<th>"
+                                  (str
+                                   "<tr"
+                                   (cond
+                                    ;; use a custom CSS class for :comment.
+                                    (= (first tr) :comment)
+                                    " class='comment'"
+                                    ;; ..handle other keywords that need a custom CSS class..
+                                    ;; default: no custom CSS class.
+                                    true "")
+                                   ">"
+                                     "<th>"
                                        (str (first tr))
-                                       "</th>"
-                                       "<td class='ref'>"
-                                       (if (= (type (second tr)) clojure.lang.Ref)
-                                         (str
-                                          "<div class='ref'>"(fs/path-to-ref-index serialized (concat path (list (first tr))) 0) "</div>"
-                                          "</td><td>"))
+                                     "</th>"
+                                     (if (= (type (second tr)) clojure.lang.Ref)
+                                       (str
+                                     "<td class='ref'>"
+                                       "<div class='ref'>"
+                                         (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
+                                       "</div>"
+                                     "</td>"
+                                     "<td>")
+                                     "<td class='ref' colspan='2'>")
                                        (tablize (second tr) (concat path (list (first tr))) serialized)
-                                       "</td></tr>"))
+                                     "</td>"
+                                   "</tr>"))
+                                 ;; sorts the argument list in _arg__ by key name:
                                 (into (sorted-map) arg)))
       "</table></div>")
      (= (type arg) clojure.lang.PersistentHashSet)
@@ -209,7 +216,6 @@
                                       (fs/path-to-ref-index serialized path 0))]
        (str (if (= is-first true)
               (tablize @arg path serialized (merge {arg true})))))
-;              (fs/first-path serialized path 0 (fs/path-to-ref-index serialized path 0)))))
      true
      (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>"))))
 
