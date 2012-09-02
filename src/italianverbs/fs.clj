@@ -468,5 +468,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         n
         (path-to-ref-index (rest serialized) path (+ n 1))))))
 
-
+(defn is-first-path [serialized path n index]
+  (let [lookup (nth serialized index)
+        firstpath (seq (first (seq (first (butlast lookup)))))]
+    (= path firstpath)))
 

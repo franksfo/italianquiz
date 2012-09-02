@@ -197,7 +197,12 @@
             java.lang.Boolean))
      (str "<span class='atom'>" arg "</div>")
      (= (type arg) clojure.lang.Ref)
-     (str "<div class='ref'>" (fs/path-to-ref-index serialized path 0) "</div>" (tablize @arg path serialized))
+     (let [is-first (fs/is-first-path serialized path 0
+                                      (fs/path-to-ref-index serialized path 0))]
+       (str "<div class='ref'>" (fs/path-to-ref-index serialized path 0) "</div>"
+            (if (= is-first true)
+              (tablize @arg path serialized (merge {arg true}))
+              "")))
      true
      (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>"))))
 
