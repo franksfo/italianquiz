@@ -200,8 +200,10 @@
   "generate a vp (transitive verb+np)"
   (let [rules vp-1-rules
         lexicon vp-1-lexicon]
-    (let [rule (first (filter (fn [rule] (= (fs/get-in rule '(:head :cat)) :verb))
-                              rules))]
+    (let [rules (filter (fn [rule]
+                          (= (fs/get-in rule '(:head :cat)) :verb))
+                        rules)
+          rule (nth rules (rand-int (.size rules)))]
       (= (not (nil? rule)))
       (let [head-lexemes
             (seq (search/query-with-lexicon (set lexicon)
@@ -251,8 +253,9 @@
   "generate a sentence (subject+vp)"
   (let [rules sentence-rules
         lexicon sentence-lexicon]
-    (let [rule (first (filter (fn [rule] (= (fs/get-in rule '(:subcat)) :nil!))
-                              rules))]
+    (let [rules (filter (fn [rule] (= (fs/get-in rule '(:subcat)) :nil!))
+                              rules)
+          rule (nth rules (.size rules))]
       (let [head-lexemes
             (seq (search/query-with-lexicon (set lexicon)
                    (list (fs/get-in rule '(:head)))))]
@@ -270,8 +273,9 @@
   "generate a sentence (subject+vp)"
   (let [rules sentence-rules
         lexicon sentence-lexicon]
-    (let [rule (first (filter (fn [rule] (= (fs/get-in rule '(:subcat)) :nil!))
-                              rules))]
+    (let [rules (filter (fn [rule] (= (fs/get-in rule '(:subcat)) :nil!))
+                              rules)
+          rule (nth rules (rand-int (.size rules)))]
       (is (not (nil? rule)))
       (let [head-lexemes
             (seq (search/query-with-lexicon (set lexicon)
