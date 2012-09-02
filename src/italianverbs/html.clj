@@ -145,7 +145,11 @@
                                        "<th>"
                                        (str (first tr))
                                        "</th>"
-                                       "<td>"
+                                       "<td class='ref'>"
+                                       (if (= (type (second tr)) clojure.lang.Ref)
+                                         (str
+                                          "<div class='ref'>"(fs/path-to-ref-index serialized (concat path (list (first tr))) 0) "</div>"
+                                          "</td><td>"))
                                        (tablize (second tr) (concat path (list (first tr))) serialized)
                                        "</td></tr>"))
                                 (into (sorted-map) arg)))
@@ -183,26 +187,29 @@
         "</table></div>"))
      (= nil arg)
      (str "<div class='atom'><i>nil</i></div>")
-     (or (= (type arg)
-            java.lang.String)
+     (= (type arg)
+        java.lang.String)
+     (str "<span class='string'>" arg "</span>")
+     (= (type arg)
+        clojure.lang.Keyword)
+     (str "<span class='keyword'>" arg "</span>")
+
+     (or
          (= (type arg)
             java.lang.Integer)
          (= (type arg)
             java.lang.Double)
          (= (type arg)
-            clojure.lang.Keyword)
-         (= (type arg)
             org.bson.types.ObjectId)
          (= (type arg)
             java.lang.Boolean))
-     (str "<span class='atom'>" arg "</div>")
+     (str "<span class='atom'>" arg "</span>")
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
                                       (fs/path-to-ref-index serialized path 0))]
-       (str "<div class='ref'>" (fs/path-to-ref-index serialized path 0) "</div>"
-            (if (= is-first true)
-              (tablize @arg path serialized (merge {arg true}))
-              "")))
+       (str (if (= is-first true)
+              (tablize @arg path serialized (merge {arg true})))))
+;              (fs/first-path serialized path 0 (fs/path-to-ref-index serialized path 0)))))
      true
      (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>"))))
 

@@ -20,7 +20,7 @@ table.map th {
 }
 
 table.map td {
-    /* vertical-align:middle;*/
+    vertical-align:middle;
 }
 
 div.package {
@@ -68,6 +68,10 @@ table.generate th {
     vertical-align:top;
 }
 
+td {
+    padding-right:3px;
+}
+
 table.generate div.result {
     border:1px dashed black;
     padding:1%;
@@ -76,9 +80,23 @@ table.generate div.result {
     margin-right:1%;
 }
 
+td.ref {
+    text-align:right;
+}
+
+span.string {
+    font-family:serif;
+    font-style:italic;
+}
+
+span.keyword {
+    font-weight:bold;
+}
+
+
 div.ref {
     vertical-align:middle;
-    float:left;
+    float:right;
     width:auto;
     border:2px solid black;
     padding:2px;
