@@ -69,6 +69,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (pv-not-matches lexical-entry (butlast path) value)
     (let [path-value (get-in lexical-entry path)]
       (if (or (= path-value value)
+              (and (= (type path-value) clojure.lang.Ref)
+                   (= value @path-value))
               (= (keyword path-value) value)
               (and (not (nil? (get-in lexical-entry path)))
                    (or (= value :top) ; searching for :top means: find any entry that has any value at all for the path (but it must have _some_ value).
@@ -119,7 +121,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (println (str "pathified:" (seq pathified)))
     ;; TODO: Find out: does calling (set) on (already) a set have
     ;; a penalty?
-    (query-r pathified (set lexicon))))
+    (query-r pathified lexicon)))
 
 ;; How to map over (fetch :lexicon) results:
 ;; 

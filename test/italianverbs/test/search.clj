@@ -233,7 +233,10 @@
 
     ))
 
+(deftest test-query-with-lexicon-which-contains-refs
+  (let [myref (ref 42)
+        lexicon (list {:a myref})]
+    (is (= 1 (.size (query-with-lexicon lexicon
+                      '{:a 42}))))))
 
-;; TODO
-(deftest test-query-with-lexicon-with-query-with-refs
-  (is (= true true)))
+
