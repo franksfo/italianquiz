@@ -240,3 +240,18 @@
                       '{:a 42}))))))
 
 
+(deftest test-query-with-lexicon-which-contains-refs-2
+  (let [myref (ref 42)
+        lexicon (list {:b {:a myref}})]
+    (is (= 1 (.size (query-with-lexicon lexicon
+                      '{:b {:a 42}}))))))
+
+
+(deftest test-query-with-lexicon-which-contains-refs-3
+  (let [myref (ref {:foo 42})
+        lexicon (list {:b {:a myref}})]
+    (is (= 1 (.size (query-with-lexicon lexicon
+                      '{:b {:a {:foo 42}}}))))))
+
+
+
