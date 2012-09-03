@@ -178,15 +178,15 @@
   (concat
    np-1-lexicon
    (list
-    (let [subj (ref {:human true
-                     :cat :noun})]
+    (let [person (ref :top)
+          number (ref :top)]
       {:cat :verb
        :italian "fare"
        :english "do"
-       :italian-conjugation subj
        :subcat {:cat :noun}
-                                        ;       :subj subj}))))
        :subj {:human true
+              :person person
+              :number number
               :cat :noun}}))))
 
 (defn generate-vp [rules lexicon head]
@@ -255,8 +255,7 @@
           :person :1st
           :number :sing
           :subcat :nil!
-          :italian "io"
-          :english "i"})))
+          :italian "io"})))
 
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
@@ -282,7 +281,7 @@
     (is (= (read-off-italian unified) '("io" ("fare" ("il" "compito")))))
     (printfs (merge
               {:italian (join (flatten (read-off-italian unified)) " ")}
-              unified)) "sentence-1.html"))
+              unified) "sentence-1.html")))
 
 (deftest t3
   (let [rules
@@ -347,3 +346,4 @@
       (printfs
        (list rule random-lexeme-a random-lexeme-b)
        "random.html"))))
+
