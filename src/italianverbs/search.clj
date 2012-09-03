@@ -64,7 +64,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (list lexical-entry))))
 
 (defn pv-matches [lexical-entry path value]
-  "might need a more complicated equality predicate later."
+  "if lexical-entry has path, and the path's value is _value_, return a list containing _lexical-entry_. otherwise, return nil."
+  ;; might need a more complicated equality predicate later.
   (if (= (last path) :not)
     (pv-not-matches lexical-entry (butlast path) value)
     (let [path-value (fs/get-in lexical-entry path)]
