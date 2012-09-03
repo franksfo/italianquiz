@@ -123,7 +123,7 @@
                     (seq (search/query-with-lexicon lexicon {:subcat :top}))))
           comp (random (seq (search/query-with-lexicon lexicon
                               (fs/get-in head '(:subcat)))))]
-      (fs/unify (fs/copy rule) {:comp comp :head head}))))
+      (fs/unify (fs/copy rule) (fs/copy {:comp comp :head head})))))
 
 (def np-1-rules 
   (let [np ;; NP -> Comp Head
