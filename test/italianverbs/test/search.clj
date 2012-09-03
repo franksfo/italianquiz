@@ -212,9 +212,27 @@
 
 ))
 
-;; TODO
 (deftest test-query-with-lexicon
-  (is (= true true)))
+  (let [lexicon (list {:a 42 :b 43} {:a 99 :b {:c 100} :d :foo})]
+    (is (= 1
+           (.size (query-with-lexicon lexicon
+                    {:a 42}))))
+    (is (= 0
+           (.size (query-with-lexicon lexicon
+                    {:a 43}))))
+
+    ;; search with two maps
+    (is (= 1
+           (.size (query-with-lexicon lexicon
+                    {:a 99} {:b {:c 100}}))))
+
+    ;; same semantics as above, but in only one map
+    (is (= 1
+           (.size (query-with-lexicon lexicon
+                    {:a 99 :b {:c 100}}))))
+
+    ))
+
 
 ;; TODO
 (deftest test-query-with-lexicon-with-query-with-refs

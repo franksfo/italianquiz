@@ -109,13 +109,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   (fs/deserialize (:entry entry)))
                 (lexfn/fetch)))) ;; <- fetch the entire lexicon (!)
 
-(defn query-with-lexicon [lexicon constraints]
-  (let [pathified
+(defn query-with-lexicon [lexicon & constraints]
+  "search the supplied lexicon for entries matching constraints."
+  (let [lexicon (set lexicon) ;; hopefully O(1) if _lexicon_ is already a set.
+        pathified
         (mapcat (fn [constraint]
                   (pathify constraint))
                 constraints)]
     (println (str "pathified:" (seq pathified)))
-    (query-r pathified lexicon)))
+    ;; TODO: Find out: does calling (set) on (already) a set have
+    ;; a penalty?
+    (query-r pathified (set lexicon))))
 
 ;; How to map over (fetch :lexicon) results:
 ;; 
