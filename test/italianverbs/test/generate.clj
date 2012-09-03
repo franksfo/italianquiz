@@ -183,7 +183,7 @@
       {:cat :verb
        :italian "fare"
        :english "do"
-                                        ;       :italian-conjugation subj
+       :italian-conjugation subj
        :subcat {:cat :noun}
                                         ;       :subj subj}))))
        :subj {:human true
