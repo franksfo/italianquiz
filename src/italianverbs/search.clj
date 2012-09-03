@@ -98,9 +98,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                    (fn [entry]
                      (pv-matches entry path value))
                    lexicon))]
-      (if (> (.size path-value-pairs) 1)
-        (intersection result (query-r (rest path-value-pairs) lexicon))
-        result))
+      (if (= (.size result) 0)
+        ;; no results for _path_:_value_: short-circuit: return emptyset without trying remaining path-value-pairs,
+        ;; since ultimate result will be emptyset regardless of remaining path-value-pairs.
+        result
+        (if (> (.size path-value-pairs) 1)
+          (intersection result (query-r (rest path-value-pairs) lexicon))
+          result)))
     #{})) ;; base case : return an empty set.
 
 (defn query [& constraints]
