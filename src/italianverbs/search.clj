@@ -67,7 +67,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   "might need a more complicated equality predicate later."
   (if (= (last path) :not)
     (pv-not-matches lexical-entry (butlast path) value)
-    (let [path-value (get-in lexical-entry path)]
+    (let [path-value (fs/get-in lexical-entry path)]
       (if (or (= path-value value)
               (and (= (type path-value) clojure.lang.Ref)
                    (= value @path-value))
