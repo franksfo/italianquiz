@@ -206,7 +206,7 @@
         (nth lexical-comps (rand-int (.size lexical-comps)))
         np (generate-np vp-1-rules lexicon lexical-comp)]
     (fs/unify
-     (fs/copy rule) {:head head :comp np})))
+     (fs/copy rule) {:head (fs/copy head) :comp np})))
 
 (deftest vp-rules
   "find a suitable vp rule."
