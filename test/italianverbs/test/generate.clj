@@ -151,11 +151,11 @@
            :english "the"})]
     (list compito il)))
 
-;(deftest np-1
-;  "generate a noun phrase."
-;  (let [np (generate-np np-1-rules np-1-lexicon nil)]
-;    (= (read-off-italian np) '("il" "compito"))
-;    (printfs np "np-1.html")))
+(deftest np-1
+  "generate a noun phrase."
+  (let [np (generate-np np-1-rules np-1-lexicon nil)]
+    (= (read-off-italian np) '("il" "compito"))
+    (printfs np "np-1.html")))
 
 (def vp-1-rules
   (concat
@@ -225,13 +225,12 @@
 (deftest vp-1
   "generate a vp (transitive verb+np)"
   (let [unified (generate-vp vp-1-rules vp-1-lexicon nil)]
-;    (is (= (read-off-italian unified) '("fare" ("il" "compito"))))
-;    (printfs
-;     (merge
-;      {:italian (join (flatten (read-off-italian unified)) " ")}
-;      unified)
-;     "vp-1.html")))
-    ))
+    (is (= (read-off-italian unified) '("fare" ("il" "compito"))))
+    (printfs
+     (merge
+      {:italian (join (flatten (read-off-italian unified)) " ")}
+      unified)
+     "vp-1.html")))
 
 (def sentence-rules
   (concat
