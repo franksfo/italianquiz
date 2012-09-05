@@ -89,7 +89,7 @@ span.string {
     font-style:italic;
 }
 
-span.keyword {
+span.keyword,span.boolean {
     font-weight:bold;
 }
 

@@ -200,6 +200,9 @@
      (= (type arg)
         clojure.lang.Keyword)
      (str "<span class='keyword'>" arg "</span>")
+     (= (type arg)
+        java.lang.Boolean)
+     (str "<span class='boolean'>" arg "</span>")
 
      (or
          (= (type arg)
@@ -214,7 +217,7 @@
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
                                       (fs/path-to-ref-index serialized path 0))]
-       (str (if (= is-first true)
+       (str (if (or false (= is-first true))
               (tablize @arg path serialized (merge {arg true})))))
      true
      (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>"))))
