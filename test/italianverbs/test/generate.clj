@@ -36,7 +36,7 @@
          :infl ref4}
 
         ;; an irregular infinitive verb.
-        facio 
+        fare
         {:infl :infinitive
          :italian "fare"
          :passato-prossimo-aux {:infl :infinitive
@@ -45,11 +45,11 @@
 
         unified
         (fs/unify (fs/copy irreg-vp)
-                  {:b {:root (fs/copy facio)}})]
+                  {:b {:root (fs/copy fare)}})]
 
     ;; TODO: more tests.
     (is (= (fs/get-in unified '(:a :italian)) "avere"))
-    (printfs (list irreg-vp {:b {:root facio}} unified) "fare.html")))
+    (printfs (list irreg-vp {:b {:root fare}} unified) "fare.html")))
 
 (deftest t2
   (let [ref3 (ref :top)
