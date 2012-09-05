@@ -36,7 +36,7 @@
          :infl ref4}
 
         ;; an irregular infinitive verb.
-        fare 
+        facio 
         {:infl :infinitive
          :italian "fare"
          :passato-prossimo-aux {:infl :infinitive
@@ -45,11 +45,11 @@
 
         unified
         (fs/unify (fs/copy irreg-vp)
-                  {:b {:root (fs/copy fare)}})]
+                  {:b {:root (fs/copy facio)}})]
 
     ;; TODO: more tests.
     (is (= (fs/get-in unified '(:a :italian)) "avere"))
-    (printfs (list irreg-vp {:b {:root fare}} unified) "fare.html")))
+    (printfs (list irreg-vp {:b {:root facio}} unified) "fare.html")))
 
 (deftest t2
   (let [ref3 (ref :top)
@@ -181,7 +181,8 @@
     (let [person (ref :top)
           number (ref :top)]
       {:cat :verb
-       :italian "fare"
+       :italian "facio"
+       :root {:italian "fare"}
        :english "do"
        :subcat {:cat :noun}
        :subj {:human true
@@ -225,7 +226,7 @@
 (deftest vp-1
   "generate a vp (transitive verb+np)"
   (let [unified (generate-vp vp-1-rules vp-1-lexicon nil)]
-    (is (= (read-off-italian unified) '("fare" ("il" "compito"))))
+    (is (= (read-off-italian unified) '("facio" ("il" "compito"))))
     (printfs
      (merge
       {:italian (join (flatten (read-off-italian unified)) " ")}
@@ -278,10 +279,29 @@
 (deftest sentence-1
   "generate a sentence (subject+vp)"
   (let [unified (generate-sentence sentence-rules sentence-lexicon)]
-    (is (= (read-off-italian unified) '("io" ("fare" ("il" "compito")))))
+    (is (= (read-off-italian unified) '("io" ("facio" ("il" "compito")))))
     (printfs (merge
               {:italian (join (flatten (read-off-italian unified)) " ")}
               unified) "sentence-1.html")))
+
+(def sentence-lexicon-with-exceptions
+  (concat
+   sentence-lexicon))
+
+(deftest inflection-via-unification-exception
+  "implement inflection via unification - exceptional case: e.g. 'io facio'"
+  (let [lexicon sentence-lexicon-with-exceptions
+        facio (first (search/query-with-lexicon lexicon
+                      '{:italian "facio"}))]
+    (is (= (fs/get-in facio '(:italian)) "facio"))
+    (is (= (fs/get-in facio '(:root :italian)) "fare"))))
+
+(deftest inflection-via-unification-regular
+  "implement inflection via unification - exceptional case: e.g. 'io parlo'"
+  (let [lexicon sentence-lexicon]
+    (is true)))
+
+
 
 (deftest t3
   (let [rules
@@ -314,18 +334,18 @@
                      :infl ref3}
                  :b {:italian ref2}})]
           (list passato-regular passato-irregular vp)) ;; end of rules
-        lexicon (let [fare {:infl :infinitive
-                            :italian "fare"
+        lexicon (let [facio {:infl :infinitive
+                            :italian "facio"
                             :passato-prossimo-aux {:infl :infinitive
                                                    :italian "avere"}}]
                   (list
                    {:infl :infinitive
                     :italian "avere"}
-                   fare
+                   facio
                    (let [ref (ref {:italian "fatto"})]
                      {:italian ref
                       :root (fs/merge
-                             fare
+                             facio
                              {:passato-prossimo ref})})
                    {:infl :infinitive
                     :italian "lavorare"
