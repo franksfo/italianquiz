@@ -178,17 +178,15 @@
   (concat
    np-1-lexicon
    (list
-    (let [person (ref :top)
-          number (ref :top)]
-      {:cat :verb
-       :italian "facio"
-       :root {:italian "fare"}
-       :english "do"
-       :subcat {:cat :noun}
-       :subj {:human true
-              :person person
-              :number number
-              :cat :noun}}))))
+    {:cat :verb
+     :italian "facio"
+     :root {:italian "fare"}
+     :english "do"
+     :subcat {:cat :noun}
+     :subj {:human true
+            :person :1st
+            :number :sing
+            :cat :noun}})))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb))
@@ -300,8 +298,6 @@
   "implement inflection via unification - exceptional case: e.g. 'io parlo'"
   (let [lexicon sentence-lexicon]
     (is true)))
-
-
 
 (deftest t3
   (let [rules
