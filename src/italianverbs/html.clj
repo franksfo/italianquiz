@@ -148,7 +148,9 @@
                                      "</th>"
                                      (if (= (type (second tr)) clojure.lang.Ref)
                                        (str
-                                     "<td class='ref'>"
+                                        "<td class='ref'>"
+                                        ;; show ref id for debuggging if desired:
+                                        (if false (str "(" (second tr) ")"))
                                        "<div class='ref'>"
                                          (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
                                        "</div>"
