@@ -2,10 +2,11 @@
   (:use [clojure.set])
   (:require
    [italianverbs.fs :as fs] ;; needed maybe by the (eval fs/..) stuff below.
-   [clojure.string :as string]
+   [clojure.contrib.logging :as log]
    [clojure.core :as core]
    [clojure.contrib.string :as stringc]
-   [clojure.contrib.str-utils2 :as str-utils]))
+   [clojure.contrib.str-utils2 :as str-utils]
+   [clojure.string :as string]))
 
 (defn get-head [sign]
   (if (get sign :head)
@@ -77,13 +78,22 @@
      (and 
       (= (type val1) clojure.lang.Ref)
       (= (type val2) clojure.lang.Ref))
-      (do (dosync
-           (alter val1
-                  (fn [x] (unify @val1 @val2))))
-          (dosync
-           (alter val2
-                  (fn [x] @val1)))
-       val1)
+     (do
+       (if (or (= val1 val2) ;; same reference.
+               (= val1 @val2)) ;; val1 <- val2
+         val1
+         (if (= @val1 val2) ;; val1 -> val2
+           val2
+           (do
+             (log/debug (str "unifying two refs: " val1 " and " val2))
+             (dosync
+              (alter val1
+                     (fn [x] (unify @val1 @val2))))
+             (dosync
+              (alter val2
+                     (fn [x] val1))) ;; note that now val2 is a ref to a ref.
+             (log/info (str "returning ref: " val1))
+             val1))))
      
      (not (= :notfound (:not val1 :notfound)))
      (let [result (unify (:not val1) val2)]
