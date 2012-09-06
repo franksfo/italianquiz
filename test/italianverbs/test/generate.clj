@@ -128,9 +128,9 @@
 (def np-1-rules 
   (let [np ;; NP -> Comp Head
         (let [cat (ref :noun)
+              comp (ref :top)
               head (ref {:cat cat
-                         :subcat :top})
-              comp (ref :top)]
+                         :subcat comp})]
           {:head head
            :comp comp
            :cat cat
@@ -139,14 +139,18 @@
     (list np)))
 
 (def np-1-lexicon
-  (let [compito
+  (let [masc (ref :masc)
+        compito
         {:cat :noun
-         :subcat {:cat :det}
+         :gender masc
+         :subcat {:cat :det
+                  :gender masc}
          :italian "compito"
          :english "homework"}
         il
         (let []
           {:cat :det
+           :gender :masc
            :italian "il"
            :english "the"})]
     (list compito il)))
