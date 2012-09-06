@@ -123,7 +123,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         (mapcat (fn [constraint]
                   (pathify constraint))
                 constraints)]
-    (println (str "pathified:" (seq pathified)))
     ;; TODO: Find out: does calling (set) on (already) a set have
     ;; a penalty?
     (query-r pathified lexicon)))
