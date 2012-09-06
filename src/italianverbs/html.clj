@@ -210,9 +210,7 @@
          (= (type arg)
             java.lang.Double)
          (= (type arg)
-            org.bson.types.ObjectId)
-         (= (type arg)
-            java.lang.Boolean))
+            org.bson.types.ObjectId))
      (str "<span class='atom'>" arg "</span>")
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
