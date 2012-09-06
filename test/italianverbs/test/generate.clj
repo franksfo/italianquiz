@@ -129,20 +129,26 @@
   (let [np ;; NP -> Comp Head
         (let [cat (ref :noun)
               comp (ref :top)
+              artifact (ref :top)
               head (ref {:cat cat
+                         :artifact artifact
                          :subcat comp})]
           {:head head
            :comp comp
            :cat cat
+           :artifact artifact
            :a comp
            :b head})]
     (list np)))
 
 (def np-1-lexicon
   (let [masc (ref :masc)
+        sing (ref :sing)
         compito
         {:cat :noun
+         :number sing
          :gender masc
+         :artifact true
          :subcat {:cat :det
                   :gender masc}
          :italian "compito"
@@ -151,6 +157,7 @@
         (let []
           {:cat :det
            :gender :masc
+           :number :sing
            :italian "il"
            :english "the"})]
     (list compito il)))
@@ -186,7 +193,8 @@
      :italian "facio"
      :root {:italian "fare"}
      :english "do"
-     :subcat {:cat :noun}
+     :subcat {:cat :noun
+              :artifact true}
      :subj {:human true
             :person :1st
             :number :sing
