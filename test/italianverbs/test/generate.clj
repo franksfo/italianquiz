@@ -217,6 +217,7 @@
      np-1-lexicon
      (list
       fare
+      ;; too much copying going on here: figure out minimal amount of copying needed.
       (fs/merge {:root (fs/copy fare)}
                 (fs/copy inflected)
                 (fs/copy present)
@@ -344,6 +345,7 @@
                        :result (generate-sentence sentence-rules sentence-lexicon)})
                     (range 0 5))]
     (printfs sentence-lexicon "sentence-lexicon.html")
+    (printfs sentence-rules "sentence-rules.html")
     (println
      (map (fn [trial]
             (let [num (:trial trial)
