@@ -57,7 +57,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (pathify-r fs))
 
 (defn pv-not-matches [lexical-entry path value]
-  (let [path-value (get-in lexical-entry path)]
+  (let [path-value (fs/get-in lexical-entry path)]
     (if (not (or (= path-value value)
                  (and (not (= (keyword path-value) nil))
                       (= (keyword path-value) value))))
@@ -68,15 +68,20 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   ;; might need a more complicated equality predicate later.
   (if (= (last path) :not)
     (pv-not-matches lexical-entry (butlast path) value)
-    (let [path-value (fs/get-in lexical-entry path)]
+    (let [;debug (println (str "pv-matches: " lexical-entry " , " path " , " value))
+          ;debug (println (str "result:" (fs/get-in lexical-entry path)))
+          path-value (fs/get-in lexical-entry path)]
       (if (or (= path-value value)
               (and (= (type path-value) clojure.lang.Ref)
                    (= value @path-value))
               (= (keyword path-value) value)
-              (and (not (nil? (get-in lexical-entry path)))
+              (and (not (nil? (fs/get-in lexical-entry path)))
                    (or (= value :top) ; searching for :top means: find any entry that has any value at all for the path (but it must have _some_ value).
                        (= value "top"))))  ; TODO: should not need to check for "top" (string): should only have to check for :top.
-        (list lexical-entry)))))
+        (list lexical-entry)
+        (do
+;          (println (str "FAILED TO MATCH: " path-value " and " value))
+          nil)))))
 
 ;; http://stackoverflow.com/questions/2352020/debugging-in-clojure/2352280#2352280
 (defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
@@ -94,6 +99,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (if (> (.size path-value-pairs) 0)
     (let [path (first (keys (first path-value-pairs)))
           value (get (first path-value-pairs) path)
+          debug (println (str "path=" (seq path) "; value=" value))
           result (set ;; <- removes duplicates
                   (mapcat
                    (fn [entry]
@@ -119,13 +125,23 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn query-with-lexicon [lexicon & constraints]
   "search the supplied lexicon for entries matching constraints."
   (let [lexicon (set lexicon) ;; hopefully O(1) if _lexicon_ is already a set.
+        ;; TODO: Find out: does calling (set) on (already) a set have
+        ;; a penalty?
         pathified
         (mapcat (fn [constraint]
                   (pathify constraint))
                 constraints)]
-    ;; TODO: Find out: does calling (set) on (already) a set have
-    ;; a penalty?
-    (query-r pathified lexicon)))
+    (println (str "query-with-lexicon: " (seq pathified)))
+    (log/debug (str "query-with-lexicon: " (seq pathified)))
+    (let [result
+          (query-r pathified lexicon)]
+      (if (nil? result)
+        (do
+  (println  (str "searching with constraints : " constraints))
+  (println  (str "searching with constraints : " constraints))
+          (log/info "(returned null)")
+          result)
+        result))))
 
 ;; How to map over (fetch :lexicon) results:
 ;; 
@@ -137,7 +153,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn search [& constraints]
   ;; TODO: figure out how to get log/info to print to console in REPL.
   (log/info (str "searching with constraints : " constraints))
-  (println  (str "searching with constraints : " constraints))
   (if (= (first constraints) :fail)
     (list :fail)
 ;; TODO: s/query/create-query/
