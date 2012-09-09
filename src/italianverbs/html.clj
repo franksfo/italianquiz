@@ -127,6 +127,8 @@
      (str
       (clojure.string/join ""
                            (map tablize arg)))
+
+     ;; the most interesting case of displaying a map.
      (and (= (type arg) clojure.lang.PersistentArrayMap)
           (= nil (get arg :children)))
      (str
@@ -149,8 +151,10 @@
                                      (if (= (type (second tr)) clojure.lang.Ref)
                                        (str
                                         "<td class='ref'>"
-                                        ;; show ref id for debuggging if desired:
-                                        (if false (str "(" (second tr) ")"))
+                                        ;; show ref id for debugging if desired:
+                                        (if false (str
+                                                  "(" (second tr) ")"
+                                                  "[ " (type @(second tr)) " ]"))
                                        "<div class='ref'>"
                                          (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
                                        "</div>"
