@@ -131,13 +131,16 @@
         (let [cat (ref :noun)
               comp (ref :top)
               artifact (ref :top)
+              number (ref :top)
               head (ref {:cat cat
+                         :number number
                          :artifact artifact
                          :subcat comp})]
           {:head head
            :comp comp
            :cat cat
            :artifact artifact
+           :number number
            :a comp
            :b head})]
     (list np)))
