@@ -290,7 +290,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           (concat
            (all-refs (first input))
            (all-refs (rest input))))))))
-  
+
 (defn skeletize [input-val]
   (if (or (= (type input-val) clojure.lang.PersistentArrayMap)
           (= (type input-val) clojure.lang.PersistentHashMap))
@@ -456,9 +456,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     ;;   path2 => value2
     ;;   nil   => skeleton}
     ;;
-    ;; The skeleton immediately above is the input map but with the
-    ;; dummy placeholder value :top substituted for each occurance of a
-    ;; reference in the input map.
+    ;; The skeleton (immediately above) is the _input-map_, but with
+    ;; the dummy placeholder value :top substituted for each occurance
+    ;; of a reference in _input-map_.
     (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))
 
 (defn copy [map]
