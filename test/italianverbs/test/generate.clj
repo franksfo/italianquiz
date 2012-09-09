@@ -366,7 +366,17 @@
                 {:italian (join (flatten (read-off-italian result)) " ")}
                 result)
                (str "sentence-1-" num ".html"))))
-          trials))))
+          trials))
+    (println
+     (printfs
+      (map (fn [trial]
+             (let [num (:trial trial)
+                   result (:result trial)]
+               (merge
+                {:italian (join (flatten (read-off-italian result)) " ")}
+                result)))
+           trials)
+      (str "sentences.html")))))
 
 (def sentence-lexicon-with-exceptions
   (concat
