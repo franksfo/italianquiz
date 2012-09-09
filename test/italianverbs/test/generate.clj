@@ -88,13 +88,15 @@
     (printfs (list reg-vp {:b {:root lavorare}} unified) "lavorare.html")))
 
 (defn read-off-italian [expression]
-  (if (not (nil? (fs/get-in expression '(:italian))))
-    (fs/get-in expression '(:italian))
-    (map (fn [child]
-           (read-off-italian child))
-         (list (fs/get-in expression '(:a))
-               (fs/get-in expression '(:b))))))
-
+  (let [debug (if false (println (str "read-off-italian: " expression)))]
+    (if (not (nil? (fs/get-in expression '(:italian))))
+      (fs/get-in expression '(:italian))
+      (if (not (nil? (fs/get-in expression '(:a))))
+        (map (fn [child]
+               (read-off-italian child))
+             (list (fs/get-in expression '(:a))
+                   (fs/get-in expression '(:b))))))))
+  
 (defn random [members]
   "return a randomly-selected member of the set members."
   (nth members (rand-int (.size members))))
@@ -340,7 +342,12 @@
               subjects
               (seq (search/query-with-lexicon lexicon
                      (fs/get-in vp '(:subcat))))]
-          (let [subject (nth subjects (rand-int (.size subjects)))
+          (let [subject
+                (if (and (not (nil? subjects)) (> (.size subjects) 0))
+                  (nth subjects (rand-int (.size subjects)))
+                  (do
+                    (log/warn (str "no matching subjects found: searched for: " (fs/get-in vp '(:subcat))))
+                    nil))
                 unified (fs/unify
                          (fs/copy rule) {:head vp :comp subject})]
             unified))))))
