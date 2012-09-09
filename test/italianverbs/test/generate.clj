@@ -16,7 +16,8 @@
 ;; e.g. (generate-np), (generate-vp), etc.
 ;;
 
-(def numtrials 5)
+(def numtrials 10)
+(def numtrials-printable 2)
 
 ;; see: http://richhickey.github.com/clojure/clojure.test-api.html
 (deftest t1
@@ -140,14 +141,17 @@
               artifact (ref :top)
               number (ref :top)
               gender (ref :top)
+              person (ref :top)
               head (ref {:cat cat
                          :number number
+;                         :person person
                          :gender gender
                          :artifact artifact
                          :subcat comp})]
           {:head head
            :comp comp
            :cat cat
+;           :person person
            :artifact artifact
            :number number
            :gender gender
@@ -156,39 +160,73 @@
     (list np)))
 
 (def np-1-lexicon
-  (let [masc (ref :masc)
-        sing (ref :sing)
-        compito
-        {:cat :noun
-         :number sing
-         :gender masc
-         :artifact true
-         :subcat {:cat :det
-                  :number sing
-                  :gender masc}
-         :italian "compito"
-         :english "homework"}
-        il
-        (let []
-          {:cat :det
-           :gender :masc
-           :number :sing
-           :italian "il"
-           :english "the"})]
-    (list compito il
-          {:cat :noun
-           :number :sing
-           :gender :masc
-           :human true
-           :italian "uomo"
-           :english "man"}
-          )))
+  (list
+   (let [masc (ref :masc)
+         sing (ref :sing)]
+     {:cat :noun
+      :number sing
+      :gender masc
+      :artifact true
+      :person :3rd
+      :subcat {:cat :det
+               :number sing
+               :gender masc}
+          :italian "compito"
+      :english "homework"})
+   (let [masc (ref :masc)
+         sing (ref :sing)]
+     {:cat :noun
+      :number sing
+      :gender masc
+      :human true
+      :artifact false
+      :person :3rd
+      :subcat {:cat :det
+               :number sing
+               :gender masc}
+          :italian "ragazzo"
+      :english "guy"})
+   {:cat :det
+    :gender :masc
+    :number :sing
+    :italian "il"
+    :english "the"}))
 
 (deftest np-1
-  "generate a noun phrase."
-  (let [np (generate-np np-1-rules np-1-lexicon nil)]
-    (= (read-off-italian np) '("il" "compito"))
-    (printfs np "np-1.html")))
+  "generate some random noun phrases."
+  (let [trials (map (fn [num]
+                      {:trial num
+                       :result (generate-np np-1-rules np-1-lexicon nil)})
+                                        ;                    (range 0 numtrials))]
+                    (range 0 numtrials))]
+    (println
+     (map (fn [trial]
+            (let [result (:result trial)
+                  italian (join (flatten (read-off-italian result)) " ")]
+              (is
+               (or
+                (= italian "il compito")
+                (= italian "il ragazzo")
+                ))))
+          trials))
+
+    (println
+     (printfs
+      (map (fn [trial]
+             (let [num (:trial trial)
+                   result (:result trial)]
+               {:trial num
+                :italian (join (flatten (read-off-italian result)) " ")
+                :result result}))
+           (map (fn [num]
+                  (nth trials num))
+                (range 0 numtrials-printable)))
+      "nps.html"))))
+
+
+;  (let [np (generate-np np-1-rules np-1-lexicon nil)]
+;    (= (read-off-italian np) '("il" "compito"))
+;    (printfs np "np-1.html")))
 
 (def vp-1-rules
   (concat
@@ -243,22 +281,17 @@
       (fs/merge {:root (fs/copy fare)}
                 (fs/copy inflected)
                 (fs/copy present)
-                (fs/copy {:italian "fa"
-                          :english "does"
-                          :subj {:person :3rd}}))
-      
-;                (fs/copy {:italian "fa"
-;                          :english "does"
-;                          :subj {:person :3rd
-;                                 :number :sing}}))
+                (fs/copy {:italian "fai"
+                          :english "do"
+                          :subj {:person :2nd
+                                 :number :sing}}))
 
       (fs/merge {:root (fs/copy fare)}
                 (fs/copy inflected)
                 (fs/copy present)
-                (fs/copy {:italian "fai"
-                          :english "do"
-                          :subj {:person :2nd
-                                 :number :sing}}))))))
+                (fs/copy {:italian "fa"
+                          :english "does"
+                          :subj {:person :3rd}}))))))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb) '((:head :infl) :present))
@@ -299,7 +332,7 @@
   (let [trials (map (fn [num]
                       {:trial num
                        :result (generate-vp vp-1-rules vp-1-lexicon nil)})
-                    (range 0 5))]
+                    (range 0 numtrials))]
     (printfs vp-1-lexicon "vp-1-lexicon.html")
     (println
      (map (fn [unified]
@@ -310,13 +343,20 @@
               (is (or
                    (= (read-off-italian unified) '("facio" ("il" "compito")))
                    (= (read-off-italian unified) '("fa" ("il" "compito")))
-                   (= (read-off-italian unified) '("fai" ("il" "compito")))))
-              (printfs
-               (merge
-                {:italian (join (flatten (read-off-italian unified)) " ")}
-                unified)
-               (str "vp-1-" num ".html"))))
-          trials))))
+                   (= (read-off-italian unified) '("fai" ("il" "compito")))))))
+          trials))
+    (println
+     (printfs
+      (map (fn [trial]
+             (let [num (:trial trial)
+                   result (:result trial)]
+               {:trial num
+                :italian (join (flatten (read-off-italian result)) " ")
+                :result result}))
+           (map (fn [num]
+                  (nth trials num))
+                (range 0 numtrials-printable)))
+      "vps.html"))))
     
 (def sentence-rules
   (concat
@@ -391,6 +431,7 @@
      (map (fn [trial]
             (let [result (:result trial)
                   italian (join (flatten (read-off-italian result)) " ")]
+              (println (str "testing output: " italian))
               (is
                (or
                 (= italian "io facio il compito")
@@ -411,7 +452,7 @@
                 :result result}))
            (map (fn [num]
                   (nth trials num))
-                (range 0 numtrials)))
+                (range 0 numtrials-printable)))
       "sentences.html"))))
   
 (def sentence-lexicon-with-exceptions
