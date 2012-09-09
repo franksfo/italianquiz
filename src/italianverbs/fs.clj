@@ -92,7 +92,7 @@
              (dosync
               (alter val2
                      (fn [x] val1))) ;; note that now val2 is a ref to a ref.
-             (log/info (str "returning ref: " val1))
+             (log/debug (str "returning ref: " val1))
              val1))))
      
      (not (= :notfound (:not val1 :notfound)))
@@ -249,16 +249,16 @@
 The idea is to map the key :foo to the (recursive) result of pathify on :foo's value."
 (println (str "pathify with: " fs)))
 
-;; TODO: very inefficient due to recursive uniq call:
-;; instead, sort first and then remove (adjacent) dups.
-;; most know how to order references.
-(defn uniq [vals]
-  "remove duplicate values from vals."
-  (let [val (first vals)]
-    (if val
-      (cons val
-            (filter (fn [otherval] (not (= otherval val)))
-                    (uniq (rest vals)))))))
+(defn uniq [sorted-vals]
+  (let [first-val (first sorted-vals)]
+    (if first-val
+      (let [second-val (second sorted-vals)]
+        (if second-val
+          (if (= first-val second-val)
+            (uniq (rest sorted-vals))
+            (cons first-val
+                  (uniq (rest sorted-vals))))
+          (list first-val))))))
 
 (defn paths-to-value [map value path]
   (if (= map value) (list path)
@@ -334,7 +334,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; TODO s/map/input-map/
 ;; TODO: merge or distinguish from all-refs (above)
 (defn get-refs [input-map]
-  (uniq (all-refs input-map)))
+                                        ;  (uniq (all-refs input-map)))
+  (uniq (sort (all-refs input-map))))
 
 ;; TODO s/map/input-map/
 (defn skels [input-map refs]
@@ -462,7 +463,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
              all))))
 
 (defn serialize [input-map]
-  (let [ser (ser-intermed input-map)]
+  (let [;debug (println (str "SERIALIZING: " input-map))
+        ser (ser-intermed input-map)]
     ;; ser is a intermediate (but fully-serialized) representation
     ;; as a map:
     ;; { path1 => value1
@@ -516,7 +518,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn is-first-path [serialized path n index]
   (let [lookup (nth serialized index)
         firstpath (seq (first (sorted-paths serialized path n index)))]
-    (or false (= path firstpath))))
+    (= path firstpath)))
 
 (defn first-path [serialized path n index]
   (let [lookup (nth serialized index)
