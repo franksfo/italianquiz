@@ -291,7 +291,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                        (if (= (type input) clojure.lang.Ref)
                          (list val))))
                    input)
-           (all-refs (vals input)))
+           (all-refs
+            (map (fn [val]
+                   ;; disabled for now: do not dereference
+                   ;; double-references to get list of refs.
+                   ;; Still thinking about what to do here.
+                   (if (and false
+                            (= (type val) clojure.lang.Ref)
+                            (= (type @val) clojure.lang.Ref))
+                     @val
+                     val))
+                 (vals input))))
           (if (and (seq? input)
                    (first input))
             (concat
