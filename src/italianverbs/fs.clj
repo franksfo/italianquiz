@@ -272,24 +272,31 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn all-refs [input]
   (if input
-    (if (= (type input) clojure.lang.Ref)
-      (cons input
-            (all-refs @input))
-      (if (or (= (type input) clojure.lang.PersistentArrayMap)
-              (= (type input) clojure.lang.PersistentHashMap))
-        ;; TODO: fix bug here: vals resolves @'s
-        (concat
-         (mapcat (fn [key]
-                   (let [val (get input key)]
-                     (if (= (type input) clojure.lang.Ref)
-                       (list val))))
-                 input)
-         (all-refs (vals input)))
-        (if (and (seq? input)
-                 (first input))
+    (do
+      (if false ;; debug instrumentation
+        (do (println "")
+            (println (str "input: " input))
+            (if (= (type input) clojure.lang.Ref)
+              (println (str "@input: " @input)))
+            (println "")))
+      (if (= (type input) clojure.lang.Ref)
+        (cons input
+              (all-refs @input))
+        (if (or (= (type input) clojure.lang.PersistentArrayMap)
+                (= (type input) clojure.lang.PersistentHashMap))
+          ;; TODO: fix bug here: vals resolves @'s
           (concat
-           (all-refs (first input))
-           (all-refs (rest input))))))))
+           (mapcat (fn [key]
+                     (let [val (get input key)]
+                       (if (= (type input) clojure.lang.Ref)
+                         (list val))))
+                   input)
+           (all-refs (vals input)))
+          (if (and (seq? input)
+                   (first input))
+            (concat
+             (all-refs (first input))
+             (all-refs (rest input)))))))))
 
 (defn skeletize [input-val]
   (if (or (= (type input-val) clojure.lang.PersistentArrayMap)
@@ -471,6 +478,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (has-path path (rest paths)))))
 
 (defn path-to-ref-index [serialized path n]
+  "given serialized form of a map, find the index for _path_. Start with 0."
   (if (first serialized)
     (let [paths (butlast (first serialized))
           has-path (has-path path (first paths))]
