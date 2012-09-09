@@ -16,6 +16,8 @@
 ;; e.g. (generate-np), (generate-vp), etc.
 ;;
 
+(def numtrials 5)
+
 ;; see: http://richhickey.github.com/clojure/clojure.test-api.html
 (deftest t1
   (let [ref3 (ref :top)
@@ -88,14 +90,17 @@
     (printfs (list reg-vp {:b {:root lavorare}} unified) "lavorare.html")))
 
 (defn read-off-italian [expression]
-  (let [debug (if false (println (str "read-off-italian: " expression)))]
-    (if (not (nil? (fs/get-in expression '(:italian))))
-      (fs/get-in expression '(:italian))
+  (let [debug (if false (println (str "read-off-italian: " (type expression))))]
+    (if (and (not (nil? expression)) (not (nil? (fs/get-in expression '(:italian)))))
+      (let [retval (fs/get-in expression '(:italian))]
+        (if false (println (str "<= " retval)))
+        retval)
       (if (not (nil? (fs/get-in expression '(:a))))
         (map (fn [child]
                (read-off-italian child))
              (list (fs/get-in expression '(:a))
-                   (fs/get-in expression '(:b))))))))
+                   (fs/get-in expression '(:b))))
+        ""))))
   
 (defn random [members]
   "return a randomly-selected member of the set members."
@@ -381,14 +386,16 @@
   (let [trials (map (fn [num]
                       {:trial num
                        :result (generate-sentence sentence-rules sentence-lexicon)})
-                    (range 0 20))]
+                    (range 0 numtrials))]
     (println
      (map (fn [trial]
-            (let [result (:result trial)]
+            (let [result (:result trial)
+                  italian (join (flatten (read-off-italian result)) " ")]
               (is
-               (or (= (read-off-italian result) '("io" ("facio" ("il" "compito"))))
-                   (= (read-off-italian result) '("lei" ("fa" ("il" "compito"))))
-                   (= (read-off-italian result) '("tu" ("fai" ("il" "compito"))))))))
+               (or
+                (= italian "io facio il compito")
+                (= italian "lei fa il compito")
+                (= italian "tu fai il compito")))))
           trials))
 
     (printfs sentence-lexicon "sentence-lexicon.html")
@@ -399,14 +406,12 @@
       (map (fn [trial]
              (let [num (:trial trial)
                    result (:result trial)]
-                                        ;result))
                {:trial num
-                :italian (join (flatten (read-off-italian result)) " ")}))
-;               (merge
-;                {:italian "foo"}
-;                 ;(join (flatten (read-off-italian result)) " ")}
-;                result)))
-           trials)
+                :italian (join (flatten (read-off-italian result)) " ")
+                :result result}))
+           (map (fn [num]
+                  (nth trials num))
+                (range 0 numtrials)))
       "sentences.html"))))
   
 (def sentence-lexicon-with-exceptions
