@@ -234,13 +234,26 @@
                           :english "do"
                           :subj {:person :1st
                                  :number :sing}}))
+
       (fs/merge {:root (fs/copy fare)}
-                 inflected
-                 present
-                 {:italian "fai"
-                  :english "do"
-                  :subj {:person :2nd
-                         :number :sing}})))))
+                (fs/copy inflected)
+                (fs/copy present)
+                (fs/copy {:italian "fa"
+                          :english "does"
+                          :subj {:person :3rd}}))
+      
+;                (fs/copy {:italian "fa"
+;                          :english "does"
+;                          :subj {:person :3rd
+;                                 :number :sing}}))
+
+      (fs/merge {:root (fs/copy fare)}
+                (fs/copy inflected)
+                (fs/copy present)
+                (fs/copy {:italian "fai"
+                          :english "do"
+                          :subj {:person :2nd
+                                 :number :sing}}))))))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb) '((:head :infl) :present))
@@ -288,8 +301,10 @@
             (let [num (:trial unified)
                   unified (:result unified)]
               (log/info (str "DOING NUM: " num))
+              (println (str "read-off-italian: " (seq (read-off-italian unified))))
               (is (or
                    (= (read-off-italian unified) '("facio" ("il" "compito")))
+                   (= (read-off-italian unified) '("fa" ("il" "compito")))
                    (= (read-off-italian unified) '("fai" ("il" "compito")))))
               (printfs
                (merge
@@ -327,7 +342,16 @@
           :person :2nd
           :number :sing
           :subcat :nil!
-          :italian "tu"})))
+          :italian "tu"}
+         {:cat :noun
+          :human true
+          :person :3rd
+          :number :sing
+          :subcat :nil!
+          :italian "lei"}
+
+         
+         )))
 
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
@@ -357,34 +381,34 @@
   (let [trials (map (fn [num]
                       {:trial num
                        :result (generate-sentence sentence-rules sentence-lexicon)})
-                    (range 0 5))]
-    (printfs sentence-lexicon "sentence-lexicon.html")
-    (printfs sentence-rules "sentence-rules.html")
+                    (range 0 20))]
     (println
      (map (fn [trial]
-            (let [num (:trial trial)
-                  result (:result trial)]
-              (println (str "sentence-1 result: " (seq (read-off-italian result))))
+            (let [result (:result trial)]
               (is
                (or (= (read-off-italian result) '("io" ("facio" ("il" "compito"))))
-                   (= (read-off-italian result) '("tu" ("fai" ("il" "compito"))))))
-              (printfs
-               (merge
-                {:italian (join (flatten (read-off-italian result)) " ")}
-                result)
-               (str "sentence-1-" num ".html"))))
+                   (= (read-off-italian result) '("lei" ("fa" ("il" "compito"))))
+                   (= (read-off-italian result) '("tu" ("fai" ("il" "compito"))))))))
           trials))
+
+    (printfs sentence-lexicon "sentence-lexicon.html")
+    (printfs sentence-rules "sentence-rules.html")
+
     (println
      (printfs
       (map (fn [trial]
              (let [num (:trial trial)
                    result (:result trial)]
-               (merge
-                {:italian (join (flatten (read-off-italian result)) " ")}
-                result)))
+                                        ;result))
+               {:trial num
+                :italian (join (flatten (read-off-italian result)) " ")}))
+;               (merge
+;                {:italian "foo"}
+;                 ;(join (flatten (read-off-italian result)) " ")}
+;                result)))
            trials)
-      (str "sentences.html")))))
-
+      "sentences.html"))))
+  
 (def sentence-lexicon-with-exceptions
   (concat
    sentence-lexicon))
