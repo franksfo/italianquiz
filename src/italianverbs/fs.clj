@@ -289,7 +289,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
            (mapcat (fn [key]
                      (let [val (get input key)]
                        (if (= (type input) clojure.lang.Ref)
-                         (list val))))
+                         (if (= (type @val) clojure.lang.Ref)
+                           (list @val)
+                           (list val)))))
                    input)
            (all-refs
             (map (fn [val]
@@ -328,9 +330,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (uniq (all-refs input-map)))
 
 ;; TODO s/map/input-map/
-(defn skels [input-map]
+(defn skels [input-map refs]
   "create map from reference to their skeletons."
-  (let [refs (get-refs input-map)]
+  (let [
+        refs (get-refs input-map)
+        ]
     (zipmap
      refs
      (map (fn [ref]
@@ -338,21 +342,28 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           refs))))
           
 (defn ref-skel-map [input-map]
-  "create map from (ref=>skel) to paths to that ref."
+  "associate each reference in _input-map_ with:
+   1. its skeleton
+   2. all paths to point to it."
   (let [refs (get-refs input-map)
-        skels (skels input-map)]
+        ;; skels returns a map from a reference to its skeleton.
+        skels (skels input-map refs)]
     (zipmap
+     ;; associate each ref with its skeleton.
      (map (fn [ref]
             {:ref ref
              :skel (get skels ref)})
           refs)
+
+     ;; list of all paths that point to each ref in _input-map_.
      (map (fn [eachref]
             (paths-to-value input-map eachref nil))
           refs))))
 
+;; only used for testing: move to test.fs.
 (defn ser-db [input-map]
   (let [refs (get-refs input-map)
-        skels (skels input-map)]
+        skels (skels input-map refs)]
     (ref-skel-map input-map)))
 
 ;; (((:a :c) (:b :c) (:d))
@@ -398,17 +409,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
      (zipmap
       (vals rsk)
       sk))))     
-
-;(defn deser-1 [pathset value]
-;  "for all paths in pathset, set them to the value."
-;  {}
-;  )
-
-;(defn deser-r [serialized]
-;  (if (first serialized)
-;    (merge
-;     (deser-1 (first serialized))
-;     (deser-r (rest serialized)))))
 
 (defn create-shared-values [serialized]
   (map (fn [paths-vals]
@@ -470,6 +470,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     ;; during de-serialization, all assignments will happen in this
     ;; same correct order.
     (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))
+
+(defn optimized-ser [input-map]
+  "generate a better serialized form that removes intermediate refs (refs to other refs)"
+  (let [serialized (serialize input-map)]
+    serialized))
 
 (defn copy [map]
   (deserialize (serialize map)))
