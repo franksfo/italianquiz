@@ -99,7 +99,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (if (> (.size path-value-pairs) 0)
     (let [path (first (keys (first path-value-pairs)))
           value (get (first path-value-pairs) path)
-          debug (println (str "path=" (seq path) "; value=" value))
+;          debug (println (str "path=" (seq path) "; value=" value))
           result (set ;; <- removes duplicates
                   (mapcat
                    (fn [entry]
@@ -131,14 +131,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         (mapcat (fn [constraint]
                   (pathify constraint))
                 constraints)]
-    (println (str "query-with-lexicon: " (seq pathified)))
+;    (println (str "query-with-lexicon: " (seq pathified)))
     (log/debug (str "query-with-lexicon: " (seq pathified)))
     (let [result
           (query-r pathified lexicon)]
       (if (nil? result)
         (do
-  (println  (str "searching with constraints : " constraints))
-  (println  (str "searching with constraints : " constraints))
+;          (println  (str "searching with constraints : " constraints))
+;          (println  (str "searching with constraints : " constraints))
           (log/info "(returned null)")
           result)
         result))))
