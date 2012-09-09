@@ -389,17 +389,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (vals rsk)
       sk))))     
 
-(defn ser-intermed-2 [input-map]
-  (let [top-level (skeletize input-map)
-        rsk (ref-skel-map input-map)
-        sk (map (fn [ref-skel]
-                  (:skel ref-skel))
-                (keys rsk))]
-    (merge
-     (skeletize input-map)
-     {:ref-paths (vals rsk)
-      :ref-vals sk})))
-
 ;(defn deser-1 [pathset value]
 ;  "for all paths in pathset, set them to the value."
 ;  {}
@@ -466,6 +455,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     ;; The skeleton (immediately above) is the _input-map_, but with
     ;; the dummy placeholder value :top substituted for each occurance
     ;; of a reference in _input-map_.
+    ;;
+    ;; We now sort _ser_ in a shortest-path-first order, so that,
+    ;; during de-serialization, all assignments will happen in this
+    ;; same correct order.
     (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))
 
 (defn copy [map]
