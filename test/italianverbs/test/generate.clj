@@ -132,8 +132,10 @@
               comp (ref :top)
               artifact (ref :top)
               number (ref :top)
+              gender (ref :top)
               head (ref {:cat cat
                          :number number
+                         :gender gender
                          :artifact artifact
                          :subcat comp})]
           {:head head
@@ -141,6 +143,7 @@
            :cat cat
            :artifact artifact
            :number number
+           :gender gender
            :a comp
            :b head})]
     (list np)))
@@ -154,6 +157,7 @@
          :gender masc
          :artifact true
          :subcat {:cat :det
+                  :number sing
                   :gender masc}
          :italian "compito"
          :english "homework"}
