@@ -280,8 +280,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
               (println (str "@input: " @input)))
             (println "")))
       (if (= (type input) clojure.lang.Ref)
-        (cons input
-              (all-refs @input))
+        (cons
+         (if (= (type @input) clojure.lang.Ref)
+           ;; dereference double-references (references to another reference) :
+           (do
+;             (println (str "double ref(i): " input " -> " @input " -> " @@input))
+           @input)
+           ;; a simple reference: reference to a non-reference (e.g. a map, boolean, etc):
+           input)
+         (all-refs @input))
         (if (or (= (type input) clojure.lang.PersistentArrayMap)
                 (= (type input) clojure.lang.PersistentHashMap))
           ;; TODO: fix bug here: vals resolves @'s
@@ -295,13 +302,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                    input)
            (all-refs
             (map (fn [val]
-                   ;; disabled for now: do not dereference
-                   ;; double-references to get list of refs.
-                   ;; Still thinking about what to do here.
-                   (if (and false
-                            (= (type val) clojure.lang.Ref)
+                   ;; dereference double-references (references to another reference) :
+                   (if (and (= (type val) clojure.lang.Ref)
                             (= (type @val) clojure.lang.Ref))
-                     @val
+                     (do
+;                       (println (str "double ref: " val " -> " @val " -> " @@val))
+                       @val)
+                     ;; a simple reference: reference to a non-reference (e.g. a map, boolean, etc):
                      val))
                  (vals input))))
           (if (and (seq? input)
