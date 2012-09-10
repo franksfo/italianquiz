@@ -138,7 +138,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (if (nil? result)
         (do
 ;          (println  (str "searching with constraints : " constraints))
-;          (println  (str "searching with constraints : " constraints))
           (log/info "(returned null)")
           result)
         result))))
