@@ -336,14 +336,14 @@ a given value in a given map."
 (deftest all-refs4
   (let [ref1 (ref 42)
         mymap {:a ref1 :b {:c ref1}}
-        refs (uniq (flatten (all-refs mymap)))]
+        refs (uniq (sort (all-refs mymap)))]
     (is (= refs (list ref1)))))
 
 (deftest all-refs5
   (let [ref2 (ref 42)
         ref1 (ref {:c ref2})
         mymap {:a ref1 :b ref1 :d ref2}
-        refs (uniq (flatten (all-refs mymap)))]
+        refs (uniq (sort (all-refs mymap)))]
     (is (or (= refs (list ref1 ref2))
             (= refs (list ref2 ref1))))))
 
