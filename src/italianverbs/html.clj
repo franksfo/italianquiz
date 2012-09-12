@@ -49,46 +49,51 @@
 
 (defn fs [feature-structure]
   "Format a feature structure as an  HTML table."
-  (if (= java.lang.String (type feature-structure)) feature-structure
-      (str "<table class='fs'>"
-           (if (get feature-structure :italian)
-             (str "<tr><th colspan='2' class='fs'>"
-                  (google-translate (get feature-structure :italian))
-                  "</th></tr>"))
-           (string/join " " (seq (map fs-tr
-                                      (map (fn [key]
-                                             (cond
-                                              (= key :_id) nil
-                                              (= key :children) nil
-                                              ;; features whose values are nested feature structures.
-                                              (or (= key :head-debug) (= key :comp-debug)
-                                                  (= key :subj)(= key :obj)
-                                                  (= key :det)
-                                                  (= key :question)
-                                                  (= key :noun)
-                                                  ;(= key :article-search)
-                                                  (= key :article)
-                                                  ;(= key :subject)
-                                                  ;(= key :object)
+  (cond
+   (nil? feature-structure)
+   "NIL.."
+   (= java.lang.String (type feature-structure)) feature-structure
+   (= clojure.lang.Keyword (type feature-structure)) feature-structure
+   true
+   (str "<table class='fs'>"
+        (if (get feature-structure :italian)
+          (str "<tr><th colspan='2' class='fs'>"
+               (google-translate (get feature-structure :italian))
+               "</th></tr>"))
+        (string/join " " (seq (map fs-tr
+                                   (map (fn [key]
+                                          (cond
+                                           (= key :_id) nil
+                                           (= key :children) nil
+                                           ;; features whose values are nested feature structures.
+                                           (or (= key :head-debug) (= key :comp-debug)
+                                               (= key :subj)(= key :obj)
+                                               (= key :det)
+                                               (= key :question)
+                                               (= key :noun)
+                                        ;(= key :article-search)
+                                               (= key :article)
+                                        ;(= key :subject)
+                                        ;(= key :object)
                                         ;(= key :verb-phrase)
                                         ;(= key :verb)
-                                                  (= key :most-recent)
-                                                  (= key :head)(= key :comp)
-                                                  (= key :notefs) ;; the following set is used for debugging.
-                                                  (= key :adjunct)(= key :iobj)
-                                                  (= key :choose)(= key :root)
-                                                  (contains? (get feature-structure :type-is-fs) key)
-                                                  (= key :choose-comp)(= key :choose-head))
-                                              (list key
-                                                    (fs (get feature-structure key)))
-                                              (= key :comp) nil
-                                              (= key :type-is-fs) nil
-                                              true
-                                              (list key
-                                                    (get feature-structure key))))
-                                           (set/difference (set (keys feature-structure))
-                                                           (set (list :italian)))))))
-           "</table>")))
+                                               (= key :most-recent)
+                                               (= key :head)(= key :comp)
+                                               (= key :notefs) ;; the following set is used for debugging.
+                                               (= key :adjunct)(= key :iobj)
+                                               (= key :choose)(= key :root)
+                                               (contains? (get feature-structure :type-is-fs) key)
+                                               (= key :choose-comp)(= key :choose-head))
+                                           (list key
+                                                 (fs (fs/get-in feature-structure (list key))))
+                                           (= key :comp) nil
+                                           (= key :type-is-fs) nil
+                                           true
+                                           (list key
+                                                 (get feature-structure key))))
+                                        (set/difference (set (keys feature-structure))
+                                                        (set (list :italian)))))))
+        "</table>")))
 
 (defn static-page [body & [title]]
   "create a self-contained html page (for use with file:/// urls)."
@@ -118,7 +123,7 @@
      (= (type arg) clojure.lang.LazySeq)
      (str
       (clojure.string/join ""
-                           (map tablize arg)))
+                           (map tablize (seq arg))))
      (= (type arg) clojure.lang.PersistentList)
      (str
       (clojure.string/join ""
@@ -218,6 +223,12 @@
          (= (type arg)
             org.bson.types.ObjectId))
      (str "<span class='atom'>" arg "</span>")
+
+; TODO: remove this commented-out code when sure it's not needed.
+;     (and (= (type arg) clojure.lang.Ref)
+;          (= @arg nil))
+;     (str "NIL.")
+
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
                                       (fs/path-to-ref-index serialized path 0))]
