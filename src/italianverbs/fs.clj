@@ -334,7 +334,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; TODO s/map/input-map/
 ;; TODO: merge or distinguish from all-refs (above)
 (defn get-refs [input-map]
-                                        ;  (uniq (all-refs input-map)))
   (uniq (sort (all-refs input-map))))
 
 ;; TODO s/map/input-map/
