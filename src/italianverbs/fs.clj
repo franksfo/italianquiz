@@ -515,9 +515,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 
 (defn is-first-path [serialized path n index]
-  (let [lookup (nth serialized index)
-        firstpath (seq (first (sorted-paths serialized path n index)))]
-    (= path firstpath)))
+  (if (nil? index)
+    (do (println (str "UHOH, INDEX IS NIL:" index)) ;;TODO: should be log.warn.
+        false)
+    (let [lookup (nth serialized index)
+          firstpath (seq (first (sorted-paths serialized path n index)))]
+      (= path firstpath))))
 
 (defn first-path [serialized path n index]
   (let [lookup (nth serialized index)
