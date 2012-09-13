@@ -224,10 +224,9 @@
             org.bson.types.ObjectId))
      (str "<span class='atom'>" arg "</span>")
 
-; TODO: remove this commented-out code when sure it's not needed.
-;     (and (= (type arg) clojure.lang.Ref)
-;          (= @arg nil))
-;     (str "NIL.")
+     (and (= (type arg) clojure.lang.Ref)
+          (= @arg nil))
+     (str "NIL.")
 
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
