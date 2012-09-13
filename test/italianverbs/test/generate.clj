@@ -135,16 +135,15 @@
   "pick a rule at random from the subset of rules that matches the provided filters."
   (random (get-rules rules filters-of-path-value)))
 
-(defn generate-np [rules lexicon head]
+(defn generate-np [rules lexicon head-spec]
   "generate a noun phrase from the supplied rules, lexicon,
    and optional _head_:a filter on the lexicon to find the head noun."
-  (let [rule (random (if (not (nil? head))
-                       (get-rules-that-match-head rules head)
-                       rules))]
-    (let [head
-          (if (not (nil? head)) head
-              (random
-               (seq (search/query-with-lexicon lexicon (fs/get-in rule '(:head))))))
+  (let [rule (random (if (not (nil? head-spec))
+                       (get-rules-that-match-head rules head-spec)
+                       rules))
+        debug (println (str "USING RULE: " rule))]
+    (let [head (random
+                (seq (search/query-with-lexicon lexicon (fs/get-in rule '(:head)))))
           comp
           (if (not (= (fs/get-in rule '(:head :subcat)) :nil!))
             (random (seq (search/query-with-lexicon lexicon
@@ -367,7 +366,8 @@
                  (fs/get-in head '(:subcat))))
           lexical-comp
           (nth lexical-comps (rand-int (.size lexical-comps)))
-          np (generate-np vp-1-rules lexicon lexical-comp)]
+          debug (println (str "LEXICAL-COMP: " lexical-comp))
+          np (generate-np rules lexicon {:subcat (fs/get-in lexical-comp '(:subcat))})]
       (fs/unify
        (fs/copy rule) {:head (fs/copy head) :comp np}))))
 
