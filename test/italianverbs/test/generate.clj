@@ -158,91 +158,71 @@
 
 (def np-1-rules 
   (let [np-rule-1 ;; NP -> Comp Head
-        (let [cat (ref :noun)
-              comp (ref {:cat :top})
-              artifact (ref :top)
-              number (ref :top)
-              gender (ref :top)
-              person (ref :top)
-              head (ref {:cat cat
-                         :number number
-                         :person person
-                         :gender gender
-                         :artifact artifact
-                         :subcat comp})]
+        (let [comp-synsem (ref {:cat :top})
+              comp (ref {:synsem comp-synsem})
+              head-synsem (ref :top)
+
+              head (ref {:synsem head-synsem
+                         :subcat comp-synsem})]
           {:head head
+           :synsem head-synsem
            :comp comp
-           :cat cat
-           :person person
-           :artifact artifact
-           :number number
-           :gender gender
            :a comp
            :b head})
 
         np-rule-2 ;; NP -> Pronoun
-        (let [cat (ref :noun)
-              number (ref :top)
-              artifact (ref :top)
-              gender (ref :top)
-              person (ref :top)
-              subcat (ref :nil!)
-              head (ref {:cat cat
-                         :subcat subcat
-                         :number number
-                         :person person
-                         :gender gender
-                         :artifact artifact})]
+        (let [head-synsem (ref :top)
+              head (ref {:synsem head-synsem
+                         :subcat :nil!})]
           {:head head
-           :a head
-           :person person
-           :gender gender
-           :artifact artifact
-           :subcat subcat
-           :cat cat})]
+           :synsem head-synsem
+           :a head})]
     (list np-rule-1
           np-rule-2)))
 
 (def np-1-lexicon
+  (let [gender (ref :top)
+        number (ref :top)
+        agreement {:synsem {:gender gender
+                            :number number}
+                   :subcat {:gender gender
+                            :number number}}]
   (list
-   (let [masc (ref :masc)
-         sing (ref :sing)]
-     {:cat :noun
-      :number sing
-      :gender masc
-      :artifact true
-      :person :3rd
-      :subcat {:cat :det
-               :number sing
-               :gender masc}
-      :italian "compito"
-      :english "homework"})
-   (let [masc (ref :masc)
-         sing (ref :sing)]
-     {:cat :noun
-      :number sing
-      :gender masc
-      :human true
-      :artifact false
-      :person :3rd
-      :subcat {:cat :det
-               :number sing
-               :gender masc}
-      :italian "ragazzo"
-      :english "guy"})
-   {:cat :det
-    :gender :masc
-    :number :sing
+   (fs/unify (fs/copy agreement)
+             {:synsem {:cat :noun
+                       :number :sing
+                       :gender :masc
+                       :artifact true
+                       :person :3rd}
+              :subcat {:cat :det}
+              :italian "compito"
+              :english "homework"})
+
+   (fs/unify (fs/copy agreement)
+             {:synsem {:cat :noun
+                       :number :sing
+                       :gender :masc
+                       :artifact false
+                       :human true
+                       :person :3rd}
+              :subcat {:cat :det}
+              :italian "ragazzo"
+              :english "guy"})
+
+   {:synsem {:cat :det
+             :gender :masc
+             :number :sing}
     :italian "il"
     :english "the"}
-   {:cat :noun
-    :human true
-    :gender :fem
-    :person :3rd
-    :number :sing
+   {:synsem {:cat :noun
+             :human true
+             :gender :fem
+             :person :3rd
+             :artifact :false
+             :number :sing}
     :subcat :nil!
     :italian "lei"
-    :artifact :false}))
+    :artifact :false})))
 
 (deftest get-rules-that-match-head-test
   "find the subset of _rules_ where each rule's head unifies with head."
@@ -257,7 +237,8 @@
   (let [trials (map (fn [num]
                       {:trial num
                        :result (generate-np np-1-rules np-1-lexicon nil)})
-                    (range 0 numtrials))]
+                    (range 0 numtrials))
+        debug (println (str "TRIALS: " trials))]
     (println ;; seems to be the only way to get tests to run in slime.
      (map (fn [trial]
             (let [result (:result trial)
