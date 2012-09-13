@@ -209,10 +209,26 @@
               :italian "ragazzo"
               :english "guy"})
 
+   (fs/unify (fs/copy agreement)
+             {:synsem {:cat :noun
+                       :number :sing
+                       :gender :fem
+                       :artifact false
+                       :human true
+                       :person :3rd}
+              :subcat {:cat :det}
+              :italian "ragazza"
+              :english "girl"})
+
    {:synsem {:cat :det
              :gender :masc
              :number :sing}
     :italian "il"
+    :english "the"}
+   {:synsem {:cat :det
+             :gender :fem
+             :number :sing}
+    :italian "la"
     :english "the"}
    {:synsem {:cat :noun
              :human true
@@ -247,6 +263,7 @@
                (or
                 (= italian "il compito")
                 (= italian "il ragazzo")
+                (= italian "la ragazza")
                 (= italian "lei")))))
           trials))
 
