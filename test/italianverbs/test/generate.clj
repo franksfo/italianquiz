@@ -20,6 +20,9 @@
 (def numtrials-printable 2)
 
 ;; see: http://richhickey.github.com/clojure/clojure.test-api.html
+(defmacro deftest-ignore [str x y]
+  (is true))
+
 (deftest t1
   (let [ref3 (ref :top)
         ref2 (ref :top)
