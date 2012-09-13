@@ -5,6 +5,7 @@
    [clojure.contrib.logging :as log]
    [clojure.string :as string]
    [somnium.congomongo :as mongo]
+   ;; TODO: graduate italianverbs.fs to :use.
    [italianverbs.fs :as fs]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.search :as search]))
@@ -144,11 +145,12 @@
         debug (println (str "USING RULE: " rule))]
     (let [head (random
                 (seq (search/query-with-lexicon lexicon (fs/get-in rule '(:head)))))
-          comp
-          (if (not (= (fs/get-in rule '(:head :subcat)) :nil!))
-            (random (seq (search/query-with-lexicon lexicon
-                           (fs/get-in head '(:subcat))))))]
-      (fs/unify
+          debug (println (str "GOT HEAD FROM LEXICON: " head))
+          comp ;; should return nil if using rule with no comp.
+          (random (seq (search/query-with-lexicon lexicon
+                         {:synsem (fs/get-in head '(:subcat))})))
+          debug (println (str "GOT COMP FROM LEXICON: " comp))]
+    (fs/unify
        (fs/copy rule)
        (if (not (nil? comp))
          (fs/copy {:comp comp :head head})
