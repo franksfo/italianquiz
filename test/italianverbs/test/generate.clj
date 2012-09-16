@@ -288,67 +288,74 @@
 (def vp-1-rules
   (concat
    np-1-rules
-   (let [cat (ref :verb)
-         comp (ref {:cat :top})
-         subj (ref {:cat :top})
-         head (ref {:cat cat
-                    :infl :present
-                    :subcat comp
-                    :subj subj})]
-     (list
-      {:cat cat ;; VP -> Head Comp
-       :subcat subj ;; now that we have an object, subject is the new subcat.
-       :head head
-       :comp comp
-       :a head
-       :b comp}))))
+   (let [vp-rule-1 ;; VP -> Head Comp
+         (let [comp-synsem (ref {:cat :top})
+               comp (ref {:synsem comp-synsem})
+               head-synsem (ref :top)
+               subj (ref :top)
+               head (ref {:synsem head-synsem
+                          :subcat comp-synsem})]
+           {:head head
+            :subj subj
+            :synsem head-synsem
+            :comp comp
+            :a head
+            :b comp})])))
 
 (def vp-1-lexicon
-  (let [fare {:cat :verb
-              :infl :infinitive
-              :italian "fare"
-              :english "to do"
-              :subcat {:cat :noun
-                       :artifact true}
-              :subj {:human true
-                     :cat :noun}}
-        root-subcat (ref :top)
-        root-subject (ref :top)
-        root-cat (ref :top)
-        inflected {:root {:cat root-cat
-                          :subcat root-subcat
-                          :subj root-subject}
-                   :cat root-cat
-                   :subcat root-subcat
-                   :subj root-subject}
-        present {:infl :present}]
+  (let [number (ref :top)
+        person (ref :top)
+        sv-agreement {:subj {:number number
+                             :person person}
+                      :synsem {:number number
+                               :person person}}
+        root-sharing
+        (let [subj (ref :top)
+              cat (ref :top)
+              subcat (ref :top)]
+          {:subj subj
+           :synsem {:cat cat}
+           :subcat subcat
+           :root {:subj subj
+                  :subcat subcat
+                  :synsem {:cat cat}}})
+        finite
+        (fs/unify
+         (fs/copy sv-agreement)
+         (fs/copy root-sharing)
+         {:synsem {:infl :present}})]
     (concat
      np-1-lexicon
-     (list
-      fare
-      ;; too much copying going on here: figure out minimal amount of copying needed.
-      (fs/merge {:root (fs/copy fare)}
-                (fs/copy inflected)
-                (fs/copy present)
-                (fs/copy {:italian "facio"
-                          :english "do"
-                          :subj {:person :1st
-                                 :number :sing}}))
-
-      (fs/merge {:root (fs/copy fare)}
-                (fs/copy inflected)
-                (fs/copy present)
-                (fs/copy {:italian "fai"
-                          :english "do"
-                          :subj {:person :2nd
-                                 :number :sing}}))
-
-      (fs/merge {:root (fs/copy fare)}
-                (fs/copy inflected)
-                (fs/copy present)
-                (fs/copy {:italian "fa"
-                          :english "does"
-                          :subj {:person :3rd}}))))))
+     (let [fare
+           (fs/unify
+            (fs/copy sv-agreement)
+            {:italian "fare"
+             :english "to do"
+             :synsem {:cat :verb
+                      :infl :infinitive}
+             :subcat {:cat :noun
+                      :artifact true}
+             :subj {:human true
+                    :cat :noun}})]
+       (list fare
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "facio"
+               :subj {:person :1st
+                      :number :sing}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "fai"
+               :subj {:person :2nd
+                      :number :sing}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "fa"
+               :subj {:person :3rd
+                      :number :sing}}))))))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb) '((:head :infl) :present))
