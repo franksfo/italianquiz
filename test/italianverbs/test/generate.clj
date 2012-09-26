@@ -288,28 +288,24 @@
 (def vp-1-rules
   (concat
    np-1-rules
-   (let [vp-rule-1 ;; VP -> Head Comp
-         (let [comp-synsem (ref {:cat :top})
-               comp (ref {:synsem comp-synsem})
-               head-synsem (ref :top)
-               subj (ref :top)
-               head (ref {:synsem head-synsem
-                          :subcat comp-synsem})]
-           {:head head
-            :subj subj
-            :synsem head-synsem
-            :comp comp
-            :a head
-            :b comp})])))
-
+   (list
+    (let [vp-rule-1 ;; VP -> Head Comp
+          (let [comp-synsem (ref {:cat :top})
+                comp (ref {:synsem comp-synsem})
+                head-synsem (ref :top)
+                subj (ref :top)
+                head (ref {:synsem head-synsem
+                           :subcat comp-synsem})]
+            {:head head
+             :subj subj
+             :synsem head-synsem
+             :comp comp
+             :a head
+             :b comp})]
+      vp-rule-1))))
+  
 (def vp-1-lexicon
-  (let [number (ref :top)
-        person (ref :top)
-        sv-agreement {:subj {:number number
-                             :person person}
-                      :synsem {:number number
-                               :person person}}
-        root-sharing
+  (let [root-sharing
         (let [subj (ref :top)
               cat (ref :top)
               subcat (ref :top)]
@@ -321,14 +317,12 @@
                   :synsem {:cat cat}}})
         finite
         (fs/unify
-         (fs/copy sv-agreement)
          (fs/copy root-sharing)
          {:synsem {:infl :present}})]
     (concat
      np-1-lexicon
      (let [fare
            (fs/unify
-            (fs/copy sv-agreement)
             {:italian "fare"
              :english "to do"
              :synsem {:cat :verb
@@ -355,7 +349,26 @@
               {:root (fs/copy fare)
                :italian "fa"
                :subj {:person :3rd
-                      :number :sing}}))))))
+                      :number :sing}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "facciamo"
+               :subj {:person :1st
+                      :number :plural}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "fate"
+               :subj {:person :2nd
+                      :number :plural}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "fanno"
+               :subj {:person :3rd
+                      :number :plural}})
+             )))))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb) '((:head :infl) :present))
@@ -378,12 +391,12 @@
       (fs/unify
        (fs/copy rule) {:head (fs/copy head) :comp np}))))
 
-(deftest vp-rules
+(deftest-ignore vp-rules
   "find a suitable vp rule."
   (let [rule (random-rule vp-1-rules '((:head :cat) :verb))]
     (is (not (nil? rule)))))
 
-(deftest vp-find-head
+(deftest-ignore vp-find-head
   "find a lexeme that can be the head of a verb-phrase."
   (let [rule (random-rule vp-1-rules '((:head :cat) :verb))]
     (let [head
