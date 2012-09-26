@@ -64,14 +64,17 @@
       (not (= (type val2) clojure.lang.Ref)))
      (do (dosync
           (alter val1
+                 ;; not tested yet:
+                 ;;                 (fn [x] (unify (fs/copy @val1) val2))))
                  (fn [x] (unify @val1 val2))))
          val1)
-
      (and 
       (= (type val2) clojure.lang.Ref)
       (not (= (type val1) clojure.lang.Ref)))
      (do (dosync
           (alter val2
+                 ;; not tested yet:
+                 ;;                 (fn [x] (unify val1 (fs/copy @val2)))))
                  (fn [x] (unify val1 @val2))))
          val2)
 
