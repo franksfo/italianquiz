@@ -498,6 +498,7 @@
              (if (nil? result1) result2 result1))
            (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
                              (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
+      (printfs unify-with-rules "facio-vp.html")
       (is (not (nil? unify-with-rules))))))
 
 (defn generate-sentence [rules lexicon]
