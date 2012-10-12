@@ -503,6 +503,83 @@
       (printfs unify-with-rules "facio-vp.html")
       (is (not (nil? unify-with-rules))))))
 
+(deftest create-np
+  "create a vp based on a head like in the test above."
+  (let [verb
+        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
+                                                            :subj :top
+                                                            :synsem {:infl :present}
+                                                            :italian "facio"}))]
+    (is (not (nil? verb)))
+    (let [vp-step1
+          (reduce
+           (fn [result1 result2]
+             (if (nil? result1) result2 result1))
+           (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
+                             (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
+      (is (not (nil? vp-step1)))
+      (let [subcat-criteria
+            (fs/get-in vp-step1 '(:comp))
+            noun-head
+            (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
+        (printfs subcat-criteria "subcat-criteria.html")
+        (is (not (nil? noun-head)))
+        (printfs noun-head "noun-head.html")
+        (let [np-step1
+              (reduce
+               (fn [result1 result2]
+                 (if (nil? result1) result2 result1))
+               (map (fn [rule] (if (= (:comment rule) "np -> det noun")
+                                 (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
+                    sentence-rules))]
+          (is (not (nil? np-step1)))
+          (printfs np-step1 "np-step1.html")
+          (let [det
+                (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
+            (is (not (nil? det)))
+            (printfs det "det.html")
+            (let [np-step2
+                  (fs/unify (fs/copy np-step1) (fs/copy {:comp det}))]
+              (printfs np-step2 "np-step2.html"))))))))
+
+(deftest create-vp-step2
+  "create a vp based on a head like in create-vp-step1 and complement like create-np above."
+  (let [verb
+        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
+                                                            :subj :top
+                                                            :synsem {:infl :present}
+                                                            :italian "facio"}))]
+    (is (not (nil? verb)))
+    (let [vp-step1
+          (reduce
+           (fn [result1 result2]
+             (if (nil? result1) result2 result1))
+           (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
+                             (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
+      (is (not (nil? vp-step1)))
+      (let [subcat-criteria
+            (fs/get-in vp-step1 '(:comp))
+            noun-head
+            (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
+        (is (not (nil? noun-head)))
+        (let [np-step1
+              (reduce
+               (fn [result1 result2]
+                 (if (nil? result1) result2 result1))
+               (map (fn [rule] (if (= (:comment rule) "np -> det noun")
+                                 (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
+                    sentence-rules))]
+          (is (not (nil? np-step1)))
+          (let [det
+                (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
+            (is (not (nil? det)))
+            (printfs det "det.html")
+            (let [np-step2
+                  (fs/unify (fs/copy np-step1) (fs/copy {:comp det}))]
+              (let [vp-step2
+                    (fs/unify (fs/copy vp-step1) {:comp (fs/copy np-step2)})]
+                (printfs vp-step2 "vp-step2.html")))))))))
+
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
   ;; sentential rule: one whose subcat is nil!: meaning it takes no
