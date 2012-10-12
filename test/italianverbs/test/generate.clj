@@ -296,7 +296,8 @@
                 comp (ref {:synsem comp-synsem})
                 head-synsem (ref :top)
                 subj (ref :top)
-                head (ref {:synsem head-synsem
+                head (ref {:subj subj
+                           :synsem head-synsem
                            :subcat comp-synsem})]
             {:comment "vp -> head comp"
              :head head
