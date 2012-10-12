@@ -164,7 +164,8 @@
 
               head (ref {:synsem head-synsem
                          :subcat comp-synsem})]
-          {:head head
+          {:comment "np -> det noun"
+           :head head
            :synsem head-synsem
            :comp comp
            :a comp
@@ -174,7 +175,8 @@
         (let [head-synsem (ref :top)
               head (ref {:synsem head-synsem
                          :subcat :nil!})]
-          {:head head
+          {:comment "np -> pronoun"
+           :head head
            :synsem head-synsem
            :a head})]
     (list np-rule-1
@@ -289,14 +291,15 @@
   (concat
    np-1-rules
    (list
-    (let [vp-rule-1 ;; VP -> Head Comp
+    (let [vp-rule-1
           (let [comp-synsem (ref {:cat :top})
                 comp (ref {:synsem comp-synsem})
                 head-synsem (ref :top)
                 subj (ref :top)
                 head (ref {:synsem head-synsem
                            :subcat comp-synsem})]
-            {:head head
+            {:comment "vp -> head comp"
+             :head head
              :subj subj
              :synsem head-synsem
              :comp comp
@@ -445,6 +448,7 @@
                     :subcat comp})]
      (list
       {:cat cat
+       :comment "s->np vp"
        :subcat :nil!
        :head head
        :comp comp
@@ -467,6 +471,34 @@
           :subcat :nil!
           :italian "tu"}
          )))
+
+(deftest get-sentence-rules
+  "get a top-level sentence rule"
+  (random-rule sentence-rules '((:subcat) :nil!)))
+
+(deftest get-verb-head
+  "get a verb that can be the head of a vp."
+  (let [verb
+        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
+                                                     :subj :top
+                                                     :synsem {:infl :present}}))]
+    (is (not (nil? verb)))))
+
+(deftest create-vp
+  "create a vp based on a head like in the test above."
+  (let [verb
+        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
+                                                            :subj :top
+                                                            :synsem {:infl :present}
+                                                            :italian "facio"}))]
+    (is (not (nil? verb)))
+    (let [unify-with-rules
+          (reduce
+           (fn [result1 result2]
+             (if (nil? result1) result2 result1))
+           (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
+                             (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
+      (is (not (nil? unify-with-rules))))))
 
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
