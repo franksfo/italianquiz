@@ -449,7 +449,7 @@
                     :subcat comp})]
      (list
       {:cat cat
-       :comment "s->np vp"
+       :comment "s -> np vp"
        :subcat :nil!
        :head head
        :comp comp
@@ -579,6 +579,63 @@
               (let [vp-step2
                     (fs/unify (fs/copy vp-step1) {:comp (fs/copy np-step2)})]
                 (printfs vp-step2 "vp-step2.html")))))))))
+
+(deftest create-sentence
+  "create a sentence"
+  (let [verb
+        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
+                                                            :subj :top
+                                                            :synsem {:infl :present}
+                                                            :italian "facio"}))]
+    (is (not (nil? verb)))
+    (let [vp-step1
+          (reduce
+           (fn [result1 result2]
+             (if (nil? result1) result2 result1))
+           (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
+                             (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
+      (is (not (nil? vp-step1)))
+      (let [subcat-criteria
+            (fs/get-in vp-step1 '(:comp))
+            noun-head
+            (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
+        (is (not (nil? noun-head)))
+        (let [np-step1
+              (reduce
+               (fn [result1 result2]
+                 (if (nil? result1) result2 result1))
+               (map (fn [rule] (if (= (:comment rule) "np -> det noun")
+                                 (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
+                    sentence-rules))]
+          (is (not (nil? np-step1)))
+          (let [det
+                (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
+            (is (not (nil? det)))
+            (let [np-step2
+                  (fs/unify (fs/copy np-step1) (fs/copy {:comp det}))]
+              (let [vp-step2
+                    (fs/unify (fs/copy vp-step1) {:comp (fs/copy np-step2)})]
+                (let [subj-criteria
+                      (fs/get-in vp-step2 '(:subj))
+                      subj-head
+                      (first (search/query-with-lexicon sentence-lexicon subj-criteria))]
+                  (is (not (nil? subj-head)))
+                  (printfs subj-head "subj.html")
+                  (let [sentence-step1
+                        (reduce
+                         (fn [result1 result2]
+                           (if (nil? result1) result2 result1))
+                         (map (fn [rule] (if (= (:comment rule) "s -> np vp")
+                                           (fs/unify (fs/copy rule) (fs/copy {:comp subj-head}))))
+                              sentence-rules))]
+                    (is (not (nil? sentence-step1)))
+                    (printfs sentence-step1 "sentence-step1.html")
+                    (let [sentence-step2
+                          (fs/unify (fs/copy sentence-step1) {:head (fs/copy vp-step2)})]
+                      (is (not (nil? sentence-step2)))
+                      (printfs sentence-step2 "sentence-step2.html"))))))))))))
+                      
+                         
 
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
