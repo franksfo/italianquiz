@@ -111,7 +111,7 @@
 (defn random [members]
   "return a randomly-selected member of the set members."
   (if (nil? members) nil
-      (nth members (rand-int (.size members)))))
+      (nth (seq members) (rand-int (.size members)))))
 
 (defn get-rules [rules filters-of-path-value]
   (if (> (.size filters-of-path-value) 0)
@@ -471,6 +471,38 @@
           :number :sing
           :subcat :nil!
           :italian "tu"}
+         {:cat :noun
+          :human true
+          :person :3rd
+          :gender :masc
+          :number :sing
+          :subcat :nil!
+          :italian "lui"}
+         {:cat :noun
+          :human true
+          :person :3rd
+          :gender :fem
+          :number :sing
+          :subcat :nil!
+          :italian "lei"}
+         {:cat :noun
+          :human true
+          :person :1st
+          :number :plural
+          :subcat :nil!
+          :italian "noi"}
+         {:cat :noun
+          :human true
+          :person :2nd
+          :number :plural
+          :subcat :nil!
+          :italian "voi"}
+         {:cat :noun
+          :human true
+          :person :3rd
+          :number :plural
+          :subcat :nil!
+          :italian "loro"}
          )))
 
 (deftest get-sentence-rules
@@ -479,162 +511,121 @@
 
 (deftest get-verb-head
   "get a verb that can be the head of a vp."
+  (printfs sentence-lexicon "sentence-lexicon.html")
+  (printfs sentence-rules "sentence-rules.html")
   (let [verb
         (first (search/query-with-lexicon sentence-lexicon {:subcat :top
                                                      :subj :top
                                                      :synsem {:infl :present}}))]
     (is (not (nil? verb)))))
 
-(deftest create-vp
+(defn create-vp-step1 [head]
   "create a vp based on a head like in the test above."
-  (let [verb
-        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
-                                                            :subj :top
-                                                            :synsem {:infl :present}
-                                                            :italian "facio"}))]
-    (is (not (nil? verb)))
-    (let [unify-with-rules
+  (let [head (if (nil? head)
+               (random (search/query-with-lexicon sentence-lexicon {:subcat :top
+                                                                    :subj :top
+                                                                    :synsem {:infl :present}})))]
+    (let [vp
           (reduce
            (fn [result1 result2]
              (if (nil? result1) result2 result1))
            (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
-                             (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
-      (printfs sentence-rules "sentence-rules.html")
-      (printfs unify-with-rules "facio-vp.html")
-      (is (not (nil? unify-with-rules))))))
+                             (fs/unify (fs/copy rule) (fs/copy {:head head})))) sentence-rules))]
+      (printfs vp "vp-step1.html")
+      vp)))
 
-(deftest create-np
+(deftest create-vp-test
   "create a vp based on a head like in the test above."
-  (let [verb
-        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
-                                                            :subj :top
-                                                            :synsem {:infl :present}
-                                                            :italian "facio"}))]
-    (is (not (nil? verb)))
-    (let [vp-step1
-          (reduce
-           (fn [result1 result2]
-             (if (nil? result1) result2 result1))
-           (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
-                             (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
-      (is (not (nil? vp-step1)))
-      (let [subcat-criteria
-            (fs/get-in vp-step1 '(:comp))
-            noun-head
-            (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
-        (printfs subcat-criteria "subcat-criteria.html")
-        (is (not (nil? noun-head)))
-        (printfs noun-head "noun-head.html")
-        (let [np-step1
-              (reduce
-               (fn [result1 result2]
-                 (if (nil? result1) result2 result1))
-               (map (fn [rule] (if (= (:comment rule) "np -> det noun")
-                                 (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
-                    sentence-rules))]
-          (is (not (nil? np-step1)))
-          (printfs np-step1 "np-step1.html")
-          (let [det
-                (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
-            (is (not (nil? det)))
-            (printfs det "det.html")
-            (let [np-step2
-                  (fs/unify (fs/copy np-step1) (fs/copy {:comp det}))]
-              (printfs np-step2 "np-step2.html"))))))))
+  (let [vp (create-vp-step1 nil)]
+    (let [verb (fs/get-in vp '(:head))]
+      (is (not (nil? vp)))
+      (is (not (nil? verb))))))
+
+(defn np-step1 [noun-head]
+  (let [np
+        (reduce
+         (fn [result1 result2]
+           (if (nil? result1) result2 result1))
+         (map (fn [rule] (if (= (:comment rule) "np -> det noun")
+                           (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
+              sentence-rules))]
+    np))
+
+(deftest create-np-test
+  "create a vp based on a head like in the test above."
+  (let [vp-step1 (create-vp-step1 nil)]
+    (is (not (nil? vp-step1)))
+    (let [subcat-criteria
+          (fs/get-in vp-step1 '(:comp))
+          noun-head
+          (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
+      (printfs subcat-criteria "subcat-criteria.html")
+      (is (not (nil? noun-head)))
+      (printfs noun-head "noun-head.html")
+      (let [np-step1 (np-step1 noun-head)]
+        (printfs np-step1 "np-step1.html")
+        (let [det
+              (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
+          (is (not (nil? det)))
+          (printfs det "det.html")
+          (let [np-step2
+                (fs/unify (fs/copy np-step1) (fs/copy {:comp det}))]
+            (printfs np-step2 "np-step2.html")))))))
+
+(defn create-np [noun-head]
+  (let [np-step1 (np-step1 noun-head)]
+    (let [det
+          (random (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
+      (fs/unify (fs/copy np-step1) (fs/copy {:comp det})))))
+
+(defn create-vp [verb-head]
+  (let [vp-step1 (create-vp-step1 verb-head)]
+    (is (not (nil? vp-step1)))
+    (let [subcat-criteria
+          (fs/get-in vp-step1 '(:comp))
+          noun-head
+          (random (search/query-with-lexicon sentence-lexicon subcat-criteria))]
+      (let [np-step2 (create-np noun-head)]
+        (fs/unify (fs/copy vp-step1) {:comp (fs/copy np-step2)})))))
 
 (deftest create-vp-step2
   "create a vp based on a head like in create-vp-step1 and complement like create-np above."
-  (let [verb
-        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
-                                                            :subj :top
-                                                            :synsem {:infl :present}
-                                                            :italian "facio"}))]
-    (is (not (nil? verb)))
-    (let [vp-step1
-          (reduce
-           (fn [result1 result2]
-             (if (nil? result1) result2 result1))
-           (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
-                             (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
-      (is (not (nil? vp-step1)))
-      (let [subcat-criteria
-            (fs/get-in vp-step1 '(:comp))
-            noun-head
-            (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
-        (is (not (nil? noun-head)))
-        (let [np-step1
-              (reduce
-               (fn [result1 result2]
-                 (if (nil? result1) result2 result1))
-               (map (fn [rule] (if (= (:comment rule) "np -> det noun")
-                                 (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
-                    sentence-rules))]
-          (is (not (nil? np-step1)))
-          (let [det
-                (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
-            (is (not (nil? det)))
-            (printfs det "det.html")
-            (let [np-step2
-                  (fs/unify (fs/copy np-step1) (fs/copy {:comp det}))]
-              (let [vp-step2
-                    (fs/unify (fs/copy vp-step1) {:comp (fs/copy np-step2)})]
-                (printfs vp-step2 "vp-step2.html")))))))))
+  (let [vp-step2 (create-vp nil)]
+    (is (not (nil? vp-step2)))
+    (printfs vp-step2 "vp-step2.html")))
+
+(defn is-fs [fs]
+  (is (or (= (type fs)
+             clojure.lang.PersistentArrayMap)
+          (= (type fs)
+             clojure.lang.PersistentHashMap))))
 
 (deftest create-sentence
   "create a sentence"
-  (let [verb
-        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
-                                                            :subj :top
-                                                            :synsem {:infl :present}
-                                                            :italian "facio"}))]
-    (is (not (nil? verb)))
-    (let [vp-step1
-          (reduce
-           (fn [result1 result2]
-             (if (nil? result1) result2 result1))
-           (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
-                             (fs/unify (fs/copy rule) (fs/copy {:head verb})))) sentence-rules))]
-      (is (not (nil? vp-step1)))
-      (let [subcat-criteria
-            (fs/get-in vp-step1 '(:comp))
-            noun-head
-            (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
-        (is (not (nil? noun-head)))
-        (let [np-step1
+  (let [vp-step2 (create-vp nil)]
+    (printfs vp-step2 "vp-step2s.html")
+    (let [subj-criteria
+          (fs/get-in vp-step2 '(:subj))
+          ]
+      (printfs subj-criteria "subj-criteria.html")
+      (is-fs subj-criteria)
+      (let [subj-head
+            (random (search/query-with-lexicon sentence-lexicon subj-criteria))]
+        (is-fs subj-head)
+        (printfs subj-head "subj.html")
+        (let [sentence-step1
               (reduce
                (fn [result1 result2]
                  (if (nil? result1) result2 result1))
-               (map (fn [rule] (if (= (:comment rule) "np -> det noun")
-                                 (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
+               (map (fn [rule] (if (= (:comment rule) "s -> np vp")
+                                 (fs/unify (fs/copy rule) (fs/copy {:comp subj-head}))))
                     sentence-rules))]
-          (is (not (nil? np-step1)))
-          (let [det
-                (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
-            (is (not (nil? det)))
-            (let [np-step2
-                  (fs/unify (fs/copy np-step1) (fs/copy {:comp det}))]
-              (let [vp-step2
-                    (fs/unify (fs/copy vp-step1) {:comp (fs/copy np-step2)})]
-                (let [subj-criteria
-                      (fs/get-in vp-step2 '(:subj))
-                      subj-head
-                      (first (search/query-with-lexicon sentence-lexicon subj-criteria))]
-                  (is (not (nil? subj-head)))
-                  (printfs subj-head "subj.html")
-                  (let [sentence-step1
-                        (reduce
-                         (fn [result1 result2]
-                           (if (nil? result1) result2 result1))
-                         (map (fn [rule] (if (= (:comment rule) "s -> np vp")
-                                           (fs/unify (fs/copy rule) (fs/copy {:comp subj-head}))))
-                              sentence-rules))]
-                    (is (not (nil? sentence-step1)))
-                    (printfs sentence-step1 "sentence-step1.html")
-                    (let [sentence-step2
-                          (fs/unify (fs/copy sentence-step1) {:head (fs/copy vp-step2)})]
-                      (is (not (nil? sentence-step2)))
-                      (printfs sentence-step2 "sentence-step2.html"))))))))))))
-                      
+          (is-fs sentence-step1)
+          (printfs sentence-step1 "sentence-step1.html")
+          (let [sentence-step2
+                (fs/unify (fs/copy sentence-step1) {:head (fs/copy vp-step2)})]
+            (is-fs sentence-step2)
+            (printfs sentence-step2 "sentence-step2.html")))))))
                          
 
 (defn generate-sentence [rules lexicon]
