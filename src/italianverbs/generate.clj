@@ -18,7 +18,7 @@
 (defn printfs [fs & filename]
   "print a feature structure to a file. filename will be something easy to derive from the fs."
   (let [filename (if filename (first filename) "foo.html")]  ;; TODO: some conventional default if deriving from fs is too hard.
-    (duck/spit filename (html/static-page (html/tablize fs)))))
+    (duck/spit filename (html/static-page (html/tablize fs) filename))))
 
 (defn random-symbol [& symbols]
   (let [symbols (apply list symbols)]

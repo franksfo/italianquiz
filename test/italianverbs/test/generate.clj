@@ -158,7 +158,7 @@
 
 (def np-1-rules 
   (let [np-rule-1 ;; NP -> Comp Head
-        (let [comp-synsem (ref {:cat :top})
+        (let [comp-synsem (ref :top)
               comp (ref {:synsem comp-synsem})
               head-synsem (ref :top)
 
@@ -248,7 +248,8 @@
         head {:head {:subcat :nil!}}]
     (let [matching-rules
           (get-rules-that-match-head np-1-rules head)]
-      (is (= (.size matching-rules) 1)))))
+      (printfs matching-rules "matching-rules.html")
+      (is (= (.size matching-rules) 2)))))
 
 (deftest np-1
   "generate some random noun phrases."
@@ -292,16 +293,16 @@
    np-1-rules
    (list
     (let [vp-rule-1
-          (let [comp-synsem (ref {:cat :top})
+          (let [comp-synsem (ref :top)
                 comp (ref {:synsem comp-synsem})
                 head-synsem (ref :top)
                 subj (ref :top)
-                head (ref {:subj subj
-                           :synsem head-synsem
-                           :subcat comp-synsem})]
+                head (ref {:synsem head-synsem
+                           :subcat {:a comp-synsem
+                                    :b subj}})]
             {:comment "vp -> head comp"
              :head head
-             :subj subj
+             :subcat subj
              :synsem head-synsem
              :comp comp
              :a head
@@ -310,14 +311,11 @@
   
 (def vp-1-lexicon
   (let [root-sharing
-        (let [subj (ref :top)
-              cat (ref :top)
+        (let [cat (ref :top)
               subcat (ref :top)]
-          {:subj subj
-           :synsem {:cat cat}
+          {:synsem {:cat cat}
            :subcat subcat
-           :root {:subj subj
-                  :subcat subcat
+           :root {:subcat subcat
                   :synsem {:cat cat}}})
         finite
         (fs/unify
@@ -331,48 +329,47 @@
              :english "to do"
              :synsem {:cat :verb
                       :infl :infinitive}
-             :subcat {:cat :noun
-                      :artifact true}
-             :subj {:human true
-                    :cat :noun}})]
+             :subcat {:a {:cat :noun
+                          :artifact true}
+                      :b {:human true
+                          :cat :noun}}})]
        (list fare
              (fs/unify
               (fs/copy finite)
               {:root (fs/copy fare)
                :italian "facio"
-               :subj {:person :1st
-                      :number :sing}})
-;             (fs/unify
-;              (fs/copy finite)
-;              {:root (fs/copy fare)
-;               :italian "fai"
-;               :subj {:person :2nd
-;                      :number :sing}})
-;             (fs/unify
-;              (fs/copy finite)
-;              {:root (fs/copy fare)
-;               :italian "fa"
-;               :subj {:person :3rd
-;                      :number :sing}})
-;             (fs/unify
-;              (fs/copy finite)
-;              {:root (fs/copy fare)
-;               :italian "facciamo"
-;               :subj {:person :1st
-;                      :number :plural}})
-;             (fs/unify
-;              (fs/copy finite)
-;              {:root (fs/copy fare)
-;               :italian "fate"
-;               :subj {:person :2nd
-;                      :number :plural}})
-;             (fs/unify
-;              (fs/copy finite)
-;              {:root (fs/copy fare)
-;               :italian "fanno"
-;               :subj {:person :3rd
-;                      :number :plural}})
-             )))))
+               :subcat {:b {:person :1st
+                            :number :sing}}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "fai"
+               :subcat {:b {:person :2nd
+                            :number :sing}}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "fa"
+               :subcat {:b {:person :3rd
+                            :number :sing}}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "facciamo"
+               :subcat {:b {:person :1st
+                            :number :plur}}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "fate"
+               :subcat {:b {:person :2nd
+                            :number :plur}}})
+             (fs/unify
+              (fs/copy finite)
+              {:root (fs/copy fare)
+               :italian "fanno"
+               :subcat {:b {:person :3rd
+                            :number :plur}}}))))))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb) '((:head :infl) :present))
@@ -443,12 +440,11 @@
 (def sentence-rules
   (concat
    vp-1-rules
-   (let [cat (ref :verb)
-         comp (ref {:cat :top})
-         head (ref {:cat cat})]
+   (let [subcatted (ref :top)
+         comp (ref {:synsem subcatted})
+         head (ref {:subcat subcatted})]
      (list
-      {:cat cat
-       :comment "s -> np vp"
+      {:comment "s -> np vp"
        :subcat :nil!
        :head head
        :comp comp
@@ -464,49 +460,56 @@
                    :number :sing}
           :subcat :nil!
           :italian "io"}
-         {:cat :noun
-          :human true
-          :person :2nd
-          :number :sing
+         {:synsem {:cat :noun
+                   :human true
+                   :person :2nd
+                   :number :sing}
           :subcat :nil!
           :italian "tu"}
-         {:cat :noun
-          :human true
-          :person :3rd
-          :gender :masc
-          :number :sing
+         {:synsem {:cat :noun
+                   :human true
+                   :person :3rd
+                   :gender :masc
+                   :number :sing}
           :subcat :nil!
           :italian "lui"}
-         {:cat :noun
-          :human true
-          :person :3rd
-          :gender :fem
-          :number :sing
+         {:synsem {:cat :noun
+                   :human true
+                   :person :3rd
+                   :gender :fem
+                   :number :sing}
           :subcat :nil!
           :italian "lei"}
-         {:cat :noun
-          :human true
-          :person :1st
-          :number :plural
+         {:synsem {:cat :noun
+                   :human true
+                   :person :1st
+                   :number :plur}
           :subcat :nil!
           :italian "noi"}
-         {:cat :noun
-          :human true
-          :person :2nd
-          :number :plural
+
+         {:synsem {:cat :noun
+                   :human true
+                   :person :2nd
+                   :number :plur}
           :subcat :nil!
           :italian "voi"}
-         {:cat :noun
-          :human true
-          :person :3rd
-          :number :plural
+
+         {:synsem {:cat :noun
+                   :human true
+                   :person :3rd
+                   :number :plur}
           :subcat :nil!
-          :italian "loro"}
-         )))
+          :italian "loro"})))
+
+(defn fs? [fs]
+  (or (= (type fs)
+         clojure.lang.PersistentArrayMap)
+      (= (type fs)
+         clojure.lang.PersistentHashMap)))
 
 (deftest get-sentence-rules
   "get a top-level sentence rule"
-  (random-rule sentence-rules '((:subcat) :nil!)))
+  (is (fs? (random-rule sentence-rules '((:subcat) :nil!)))))
 
 (deftest get-verb-head
   "get a verb that can be the head of a vp."
@@ -514,15 +517,13 @@
   (printfs sentence-rules "sentence-rules.html")
   (let [verb
         (first (search/query-with-lexicon sentence-lexicon {:subcat :top
-                                                     :subj :top
-                                                     :synsem {:infl :present}}))]
-    (is (not (nil? verb)))))
+                                                            :synsem {:infl :present}}))]
+    (is (fs? verb))))
 
 (defn create-vp-step1 [head]
   "create a vp based on a head like in the test above."
   (let [head (if (nil? head)
                (random (search/query-with-lexicon sentence-lexicon {:subcat :top
-                                                                    :subj :top
                                                                     :synsem {:infl :present}})))]
     (let [vp
           (reduce
@@ -553,19 +554,20 @@
 (deftest create-np-test
   "create a vp based on a head like in the test above."
   (let [vp-step1 (create-vp-step1 nil)]
-    (is (not (nil? vp-step1)))
+    (printfs vp-step1 "vp-step1.html")
+    (is (fs? vp-step1))
     (let [subcat-criteria
           (fs/get-in vp-step1 '(:comp))
           noun-head
           (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
       (printfs subcat-criteria "subcat-criteria.html")
-      (is (not (nil? noun-head)))
+      (is (fs? noun-head))
       (printfs noun-head "noun-head.html")
       (let [np-step1 (np-step1 noun-head)]
         (printfs np-step1 "np-step1.html")
         (let [det
               (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
-          (is (not (nil? det)))
+          (is (fs? det))
           (printfs det "det.html")
           (let [np-step2
                 (fs/unify (fs/copy np-step1) (fs/copy {:comp det}))]
@@ -593,25 +595,18 @@
     (is (not (nil? vp-step2)))
     (printfs vp-step2 "vp-step2.html")))
 
-(defn is-fs [fs]
-  (log/info (str "checking: " fs))
-  (is (or (= (type fs)
-             clojure.lang.PersistentArrayMap)
-          (= (type fs)
-             clojure.lang.PersistentHashMap))))
-
 (deftest create-sentence
   "create a sentence"
-  (let [vp-step2 (create-vp nil)]
-    (printfs vp-step2 "vp-step2s.html")
+  (let [vp (create-vp nil)]
+    (printfs vp "vps.html")
     (let [subj-criteria
-          {:synsem (fs/get-in vp-step2 '(:subj))}
+          {:synsem (fs/get-in vp '(:subcat))}
           ]
       (printfs subj-criteria "subj-criteria.html")
-      (is-fs subj-criteria)
+      (is (fs? subj-criteria))
       (let [subj-head
             (random (search/query-with-lexicon sentence-lexicon subj-criteria))]
-        (is-fs subj-head)
+        (is (fs? subj-head))
         (printfs subj-head "subj.html")
         (let [sentence-step1
               (reduce
@@ -620,13 +615,17 @@
                (map (fn [rule] (if (= (:comment rule) "s -> np vp")
                                  (fs/unify (fs/copy rule) (fs/copy {:comp subj-head}))))
                     sentence-rules))]
-          (is-fs sentence-step1)
+          (is (fs? sentence-step1))
           (printfs sentence-step1 "sentence-step1.html")
-          (let [sentence-step2
-                (fs/unify (fs/copy sentence-step1) {:head (fs/copy vp-step2)})]
-            (is-fs sentence-step2)
-            (printfs sentence-step2 "sentence-step2.html")))))))
-                         
+          (let [sentence
+                (fs/unify (fs/copy sentence-step1) {:head (fs/copy vp)})]
+            (is (fs? sentence))
+            ;; subject/verb agreement
+            (is (= (fs/get-in sentence '(:head :subcat)) (fs/get-in sentence '(:comp :synsem))))
+            (printfs sentence "sentence.html")
+            (printfs (list vp subj-head sentence) "sentence-derivation.html")))))))
+
+
 
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
