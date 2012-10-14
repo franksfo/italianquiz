@@ -342,36 +342,36 @@
                :italian "facio"
                :subj {:person :1st
                       :number :sing}})
-             (fs/unify
-              (fs/copy finite)
-              {:root (fs/copy fare)
-               :italian "fai"
-               :subj {:person :2nd
-                      :number :sing}})
-             (fs/unify
-              (fs/copy finite)
-              {:root (fs/copy fare)
-               :italian "fa"
-               :subj {:person :3rd
-                      :number :sing}})
-             (fs/unify
-              (fs/copy finite)
-              {:root (fs/copy fare)
-               :italian "facciamo"
-               :subj {:person :1st
-                      :number :plural}})
-             (fs/unify
-              (fs/copy finite)
-              {:root (fs/copy fare)
-               :italian "fate"
-               :subj {:person :2nd
-                      :number :plural}})
-             (fs/unify
-              (fs/copy finite)
-              {:root (fs/copy fare)
-               :italian "fanno"
-               :subj {:person :3rd
-                      :number :plural}})
+;             (fs/unify
+;              (fs/copy finite)
+;              {:root (fs/copy fare)
+;               :italian "fai"
+;               :subj {:person :2nd
+;                      :number :sing}})
+;             (fs/unify
+;              (fs/copy finite)
+;              {:root (fs/copy fare)
+;               :italian "fa"
+;               :subj {:person :3rd
+;                      :number :sing}})
+;             (fs/unify
+;              (fs/copy finite)
+;              {:root (fs/copy fare)
+;               :italian "facciamo"
+;               :subj {:person :1st
+;                      :number :plural}})
+;             (fs/unify
+;              (fs/copy finite)
+;              {:root (fs/copy fare)
+;               :italian "fate"
+;               :subj {:person :2nd
+;                      :number :plural}})
+;             (fs/unify
+;              (fs/copy finite)
+;              {:root (fs/copy fare)
+;               :italian "fanno"
+;               :subj {:person :3rd
+;                      :number :plural}})
              )))))
 
 (defn generate-vp [rules lexicon head]
@@ -445,8 +445,7 @@
    vp-1-rules
    (let [cat (ref :verb)
          comp (ref {:cat :top})
-         head (ref {:cat cat
-                    :subcat comp})]
+         head (ref {:cat cat})]
      (list
       {:cat cat
        :comment "s -> np vp"
@@ -459,10 +458,10 @@
 (def sentence-lexicon
   (concat
    vp-1-lexicon
-   (list {:cat :noun
-          :human true
-          :person :1st
-          :number :sing
+   (list {:synsem {:cat :noun
+                   :human true
+                   :person :1st
+                   :number :sing}
           :subcat :nil!
           :italian "io"}
          {:cat :noun
@@ -595,6 +594,7 @@
     (printfs vp-step2 "vp-step2.html")))
 
 (defn is-fs [fs]
+  (log/info (str "checking: " fs))
   (is (or (= (type fs)
              clojure.lang.PersistentArrayMap)
           (= (type fs)
@@ -605,7 +605,7 @@
   (let [vp-step2 (create-vp nil)]
     (printfs vp-step2 "vp-step2s.html")
     (let [subj-criteria
-          (fs/get-in vp-step2 '(:subj))
+          {:synsem (fs/get-in vp-step2 '(:subj))}
           ]
       (printfs subj-criteria "subj-criteria.html")
       (is-fs subj-criteria)
