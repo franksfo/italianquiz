@@ -158,10 +158,9 @@
 
 (def np-1-rules 
   (let [np-rule-1 ;; NP -> Comp Head
-        (let [comp-synsem (ref :top)
+        (let [comp-synsem (ref {:cat :det})
               comp (ref {:synsem comp-synsem})
-              head-synsem (ref :top)
-
+              head-synsem (ref {:cat :noun})
               head (ref {:synsem head-synsem
                          :subcat comp-synsem})]
           {:comment "np -> det noun"
@@ -172,7 +171,7 @@
            :b head})
 
         np-rule-2 ;; NP -> Pronoun
-        (let [head-synsem (ref :top)
+        (let [head-synsem (ref {:cat :noun})
               head (ref {:synsem head-synsem
                          :subcat :nil!})]
           {:comment "np -> pronoun"
@@ -239,8 +238,7 @@
              :artifact :false
              :number :sing}
     :subcat :nil!
-    :italian "lei"
-    :artifact :false})))
+    :italian "lei"})))
 
 (deftest get-rules-that-match-head-test
   "find the subset of _rules_ where each rule's head unifies with head."
@@ -249,7 +247,7 @@
     (let [matching-rules
           (get-rules-that-match-head np-1-rules head)]
       (printfs matching-rules "matching-rules.html")
-      (is (= (.size matching-rules) 2)))))
+      (is (= (.size matching-rules) 1)))))
 
 (deftest np-1
   "generate some random noun phrases."
@@ -295,7 +293,7 @@
     (let [vp-rule-1
           (let [comp-synsem (ref :top)
                 comp (ref {:synsem comp-synsem})
-                head-synsem (ref :top)
+                head-synsem (ref {:cat :verb})
                 subj (ref :top)
                 head (ref {:synsem head-synsem
                            :subcat {:a comp-synsem
@@ -310,21 +308,31 @@
       vp-rule-1))))
   
 (def vp-1-lexicon
-  (let [root-sharing
+  (let [verb-with-root
         (let [cat (ref :top)
               subcat (ref :top)]
           {:synsem {:cat cat}
            :subcat subcat
            :root {:subcat subcat
                   :synsem {:cat cat}}})
+        transitive
+        (let [subj (ref :top)
+              obj (ref :top)]
+          {:synsem {:subj subj
+                    :obj obj}
+           :subcat {:a obj
+                    :b subj}
+           :root {:synsem {:subj subj
+                           :obj obj}}})
         finite
         (fs/unify
-         (fs/copy root-sharing)
+         (fs/copy verb-with-root)
          {:synsem {:infl :present}})]
     (concat
      np-1-lexicon
      (let [fare
            (fs/unify
+            transitive
             {:italian "fare"
              :english "to do"
              :synsem {:cat :verb
@@ -336,36 +344,42 @@
        (list fare
              (fs/unify
               (fs/copy finite)
+              (fs/copy transitive)
               {:root (fs/copy fare)
                :italian "facio"
                :subcat {:b {:person :1st
                             :number :sing}}})
              (fs/unify
               (fs/copy finite)
+              (fs/copy transitive)
               {:root (fs/copy fare)
                :italian "fai"
                :subcat {:b {:person :2nd
                             :number :sing}}})
              (fs/unify
               (fs/copy finite)
+              (fs/copy transitive)
               {:root (fs/copy fare)
                :italian "fa"
                :subcat {:b {:person :3rd
                             :number :sing}}})
              (fs/unify
               (fs/copy finite)
+              (fs/copy transitive)
               {:root (fs/copy fare)
                :italian "facciamo"
                :subcat {:b {:person :1st
                             :number :plur}}})
              (fs/unify
               (fs/copy finite)
+              (fs/copy transitive)
               {:root (fs/copy fare)
                :italian "fate"
                :subcat {:b {:person :2nd
                             :number :plur}}})
              (fs/unify
               (fs/copy finite)
+              (fs/copy transitive)
               {:root (fs/copy fare)
                :italian "fanno"
                :subcat {:b {:person :3rd
@@ -441,15 +455,19 @@
   (concat
    vp-1-rules
    (let [subcatted (ref :top)
+         head-synsem (ref {:cat :verb})
          comp (ref {:synsem subcatted})
-         head (ref {:subcat subcatted})]
+         head (ref {:synsem head-synsem
+                    :subcat subcatted})]
      (list
       {:comment "s -> np vp"
        :subcat :nil!
        :head head
        :comp comp
        :a comp
-       :b head}))))
+       :b head
+       :synsem head-synsem
+       }))))
    
 (def sentence-lexicon
   (concat
@@ -486,14 +504,12 @@
                    :number :plur}
           :subcat :nil!
           :italian "noi"}
-
          {:synsem {:cat :noun
                    :human true
                    :person :2nd
                    :number :plur}
           :subcat :nil!
           :italian "voi"}
-
          {:synsem {:cat :noun
                    :human true
                    :person :3rd
@@ -516,8 +532,8 @@
   (printfs sentence-lexicon "sentence-lexicon.html")
   (printfs sentence-rules "sentence-rules.html")
   (let [verb
-        (first (search/query-with-lexicon sentence-lexicon {:subcat :top
-                                                            :synsem {:infl :present}}))]
+        (random (search/query-with-lexicon sentence-lexicon {:subcat :top
+                                                             :synsem {:infl :present}}))]
     (is (fs? verb))))
 
 (defn create-vp-step1 [head]
@@ -541,13 +557,46 @@
       (is (not (nil? vp)))
       (is (not (nil? verb))))))
 
+(defn nps-of-head [noun-head]
+  "try all rules for generating a noun phrase from a head."
+  (map (fn [rule]
+         (fs/unify (fs/copy rule)
+                   (fs/copy {:head noun-head})))
+       sentence-rules))
+
+(defn map-rules-and-lexicon [head]
+  (printfs
+   (concat
+    (list head)
+    (list nil)
+    sentence-rules
+    (list nil)
+    (nps-of-head head)
+    (list nil)
+    (mapcat (fn [rule]
+              (map (fn [lexeme]
+                     (fs/unify {:head (fs/copy lexeme)}
+                               (fs/copy rule)))
+                   sentence-lexicon))
+            (nps-of-head head)))
+   "map-head.html"))
+
+(deftest map-rules-and-lexicon-test
+  (map-rules-and-lexicon
+   {:synsem
+    {:number :plur
+     :person :3rd
+     :cat :noun
+     :human true}}))
+
 (defn np-step1 [noun-head]
   (let [np
         (reduce
          (fn [result1 result2]
            (if (nil? result1) result2 result1))
-         (map (fn [rule] (if (= (:comment rule) "np -> det noun")
-                           (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
+         (map (fn [rule]
+                (if (= (fs/get-in rule '(:head :synsem :cat)) :noun)
+                  (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
               sentence-rules))]
     np))
 
@@ -559,14 +608,13 @@
     (let [subcat-criteria
           (fs/get-in vp-step1 '(:comp))
           noun-head
-          (first (search/query-with-lexicon sentence-lexicon subcat-criteria))]
+          (random (search/query-with-lexicon sentence-lexicon subcat-criteria))]
       (printfs subcat-criteria "subcat-criteria.html")
       (is (fs? noun-head))
       (printfs noun-head "noun-head.html")
       (let [np-step1 (np-step1 noun-head)]
         (printfs np-step1 "np-step1.html")
-        (let [det
-              (first (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
+        (let [det (random (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
           (is (fs? det))
           (printfs det "det.html")
           (let [np-step2
@@ -575,17 +623,14 @@
 
 (defn create-np [noun-head]
   (let [np-step1 (np-step1 noun-head)]
-    (let [det
-          (random (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
+    (let [det (random (search/query-with-lexicon sentence-lexicon (fs/get-in np-step1 '(:comp))))]
       (fs/unify (fs/copy np-step1) (fs/copy {:comp det})))))
 
 (defn create-vp [verb-head]
   (let [vp-step1 (create-vp-step1 verb-head)]
     (is (not (nil? vp-step1)))
-    (let [subcat-criteria
-          (fs/get-in vp-step1 '(:comp))
-          noun-head
-          (random (search/query-with-lexicon sentence-lexicon subcat-criteria))]
+    (let [subcat-criteria (fs/get-in vp-step1 '(:comp))
+          noun-head (random (search/query-with-lexicon sentence-lexicon subcat-criteria))]
       (let [np-step2 (create-np noun-head)]
         (fs/unify (fs/copy vp-step1) {:comp (fs/copy np-step2)})))))
 
@@ -599,13 +644,12 @@
   "create a sentence"
   (let [vp (create-vp nil)]
     (printfs vp "vps.html")
-    (let [subj-criteria
-          {:synsem (fs/get-in vp '(:subcat))}
-          ]
+    (let [subj-criteria {:synsem (fs/get-in vp '(:subcat))}]
       (printfs subj-criteria "subj-criteria.html")
       (is (fs? subj-criteria))
       (let [subj-head
-            (random (search/query-with-lexicon sentence-lexicon subj-criteria))]
+            (create-np subj-criteria)]
+                                        ;            (random (search/query-with-lexicon sentence-lexicon subj-criteria))]
         (is (fs? subj-head))
         (printfs subj-head "subj.html")
         (let [sentence-step1
@@ -624,8 +668,6 @@
             (is (= (fs/get-in sentence '(:head :subcat)) (fs/get-in sentence '(:comp :synsem))))
             (printfs sentence "sentence.html")
             (printfs (list vp subj-head sentence) "sentence-derivation.html")))))))
-
-
 
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
