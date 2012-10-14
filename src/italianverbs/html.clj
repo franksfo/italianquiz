@@ -120,6 +120,7 @@
                      (fs/serialize arg)
                      serialized)]
     (cond
+     (nil? arg) (str "<hr/>")
      (= (type arg) clojure.lang.LazySeq)
      (str
       (clojure.string/join ""
@@ -208,6 +209,8 @@
      (= (type arg)
         java.lang.String)
      (str "<span class='string'>" arg "</span>")
+     (= arg :fail)
+     (str "<span class='keyword fail'>" arg "</span>")
      (= (type arg)
         clojure.lang.Keyword)
      (str "<span class='keyword'>" arg "</span>")

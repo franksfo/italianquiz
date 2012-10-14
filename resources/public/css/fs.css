@@ -1,3 +1,13 @@
+hr {
+    width:100%;
+    float:left;
+}
+
+span.fail {
+    padding:2px;
+    background:red;
+}
+
 span.atom {
 }
 
