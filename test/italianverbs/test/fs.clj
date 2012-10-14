@@ -275,6 +275,17 @@
     (is (= (:a result) (:b result)))
     (is (= @(:a result) 42))))
 
+(deftest detect-unify-fail
+  "test that, (fail? fs) <=> true if at least one of fs's path's value is :fail."
+  (let [fs1 {:a 42}
+        fs2 {:a :fail}]
+    (is (= (fail? fs1) false))
+    (is (= (fail? fs2) true))
+    (is (= (fail? {:a (ref :fail)}) true))
+    (is (= (fail? {:a (ref 42)}) false)))
+    (is (= (fail? {:a (ref {:b :fail})}) true)))
+
+
 ;(deftest pathify-no-references
 ;  "a simple test of pathify with no structure-sharing."
 ;  (let [mymap {:a {:c 42}, :b {:c 42}, :c 42}

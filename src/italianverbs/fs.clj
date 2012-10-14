@@ -527,3 +527,25 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (let [lookup (nth serialized index)
         firstpath (seq (first (sorted-paths serialized path n index)))]
     firstpath))
+
+
+;; TODO: use multi-methods.
+;; TODO: keep list of already-seen references to avoid
+;; cost of traversing substructures more than once.
+(defn fail? [fs]
+  "(fail? fs) <=> true if at least one of fs's path's value is :fail."
+  (defn failr? [fs keys]
+    (if (> (.size keys) 0)
+      (if (= (fail? (get-in fs (list (first keys)))) true)
+        true
+        (failr? fs (rest keys)))
+      false))
+  (cond (= fs :fail) true
+        (or (= (type fs) clojure.lang.PersistentArrayMap)
+            (= (type fs) clojure.lang.PersistentHashMap))
+        (failr? fs (keys fs))
+        (= (type fs) clojure.lang.Ref)
+        (fail? @fs)
+        :else false))
+
+
