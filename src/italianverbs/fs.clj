@@ -383,13 +383,16 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;;  nil                    => 0
 ;; }
 (defn max-lengths [serialization]
-  (let [keys (keys serialization)]
-    (zipmap
-     keys
-     (map (fn [paths]
-            (if (nil? paths) 0
-                (apply max (map (fn [path] (if (nil? path) 0 (.size path))) paths))))
-          keys))))
+  ;; check type (TODO: use multimethods instead)
+  (if (= (first (first serialization)) ())
+    (throw (Exception. (str "Serialization was badly formed: " serialization ". This is known to happen when a key's value is a sequence: for now, only maps and atoms are supported as values of keys.")))
+    (let [keys (keys serialization)]
+      (zipmap
+       keys
+       (map (fn [paths]
+              (if (nil? paths) 0
+                  (apply max (map (fn [path] (if (nil? path) 0 (.size path))) paths))))
+            keys)))))
 
 (defn sort-by-max-lengths [serialization]
   (let [max-lengths (max-lengths serialization)]
