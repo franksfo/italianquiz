@@ -238,7 +238,7 @@
        (str (if (or false (= is-first true))
               (tablize @arg path serialized (merge {arg true})))))
      true
-     (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) ")</b>"  arg "</div>"))))
+     (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) "</b>;value=<b>"  arg "</b>)</div>"))))
 
 (defn simple-fs []
   {:foo "bar"})
