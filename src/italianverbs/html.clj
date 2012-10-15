@@ -181,6 +181,7 @@
                                   (tablize member (concat path (list (first member))) serialized))
                                 arg))
       "}")
+     ;; TODO: clarify different treatment of PersistentHashMap vs PersistentArrayMap.
      (= (type arg) clojure.lang.PersistentHashMap)
      (fs arg)
      (and (= (type arg) clojure.lang.PersistentArrayMap)
