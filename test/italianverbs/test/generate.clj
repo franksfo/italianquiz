@@ -7,6 +7,7 @@
    [somnium.congomongo :as mongo]
    ;; TODO: graduate italianverbs.fs to :use.
    [italianverbs.fs :as fs]
+   [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.search :as search]))
 
@@ -564,41 +565,69 @@
                    (fs/copy {:head noun-head})))
        sentence-rules))
 
-(defn map-rules-and-lexicon [head]
-  (printfs
-   (concat
-    (list head)
-    (list nil)
-    sentence-rules
-    (list nil)
-    (nps-of-head head)
-    (list nil)
-    (mapcat (fn [rule]
-              (map (fn [lexeme]
-                     (fs/unify {:head (fs/copy lexeme)}
-                               (fs/copy rule)))
-                   sentence-lexicon))
-            (nps-of-head head)))
-   "map-head.html"))
-
+(defn map-rules-and-lexicon-and-debug [head]
+  (concat
+   (list {:comment "head (search param)"
+          :head head})
+   (list nil)
+   (list {:comment "phrase structure rules"
+          :rules (html/tablize sentence-rules)})
+   (list nil)
+   (list {:comment "headified rules: phrase structure rules, unified with head=(search param)"
+          :rules (html/tablize (nps-of-head head))})
+   (list nil)
+   (list {:comment "non-failing headified rules: same as above, but unification failures removed."
+          :rules (html/tablize (mapcat
+                                (fn [phrase]
+                                  (if (not (fs/fail? phrase))
+                                    (list phrase)))
+                                (nps-of-head head)))})
+   (list nil)
+   (let [rules-by-lexicon
+         (mapcat (fn [rule]
+                   (map (fn [lexeme]
+                          (fs/unify {:head (fs/copy lexeme)}
+                                    (fs/copy rule)))
+                        sentence-lexicon))
+                 (nps-of-head head))]
+     (concat
+      (list
+       {:comment "cartesian join of 1) non-failing headified rules and 2) lexicon"
+        :joined-rules
+        (html/tablize rules-by-lexicon)})
+      (list nil)
+      (list
+       {:comment "same as above, but failing results removed."
+        :joined-rules-with-no-fails
+        (html/tablize
+         (mapcat (fn [result]
+                   (if (not (fs/fail? result))
+                     (list result)))
+                 rules-by-lexicon))})))))
+  
 (deftest map-rules-and-lexicon-test
-  (map-rules-and-lexicon
-   {:synsem
-    {:number :plur
-     :person :3rd
-     :cat :noun
-     :human true}}))
+  (printfs
+   (map-rules-and-lexicon-and-debug
+    {:synsem
+     {:number :plur
+      :person :3rd
+      :cat :noun
+      :human true}})
+   "map-rules-and-lexicon-test.html"))
+
+(defn map-rules-and-lexicon [head]
+  (mapcat (fn [rule]
+            (mapcat (fn [lexeme]
+                      (let [result
+                            (fs/unify {:head (fs/copy lexeme)}
+                                      (fs/copy rule))]
+                        (if (not (fs/fail? result))
+                          (list result))))
+                    sentence-lexicon))
+          (nps-of-head head)))
 
 (defn np-step1 [noun-head]
-  (let [np
-        (reduce
-         (fn [result1 result2]
-           (if (nil? result1) result2 result1))
-         (map (fn [rule]
-                (if (= (fs/get-in rule '(:head :synsem :cat)) :noun)
-                  (fs/unify (fs/copy rule) (fs/copy {:head noun-head}))))
-              sentence-rules))]
-    np))
+  (random (map-rules-and-lexicon noun-head)))
 
 (deftest create-np-test
   "create a vp based on a head like in the test above."
@@ -649,7 +678,6 @@
       (is (fs? subj-criteria))
       (let [subj-head
             (create-np subj-criteria)]
-                                        ;            (random (search/query-with-lexicon sentence-lexicon subj-criteria))]
         (is (fs? subj-head))
         (printfs subj-head "subj.html")
         (let [sentence-step1
@@ -665,7 +693,8 @@
                 (fs/unify (fs/copy sentence-step1) {:head (fs/copy vp)})]
             (is (fs? sentence))
             ;; subject/verb agreement
-            (is (= (fs/get-in sentence '(:head :subcat)) (fs/get-in sentence '(:comp :synsem))))
+            (is (= (fs/get-in sentence '(:head :subcat))
+                   (fs/get-in sentence '(:comp :synsem))))
             (printfs sentence "sentence.html")
             (printfs (list vp subj-head sentence) "sentence-derivation.html")))))))
 
