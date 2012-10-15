@@ -558,11 +558,11 @@
       (is (not (nil? vp)))
       (is (not (nil? verb))))))
 
-(defn nps-of-head [noun-head]
+(defn map-head-over-rules [head]
   "try all rules for generating a noun phrase from a head."
   (map (fn [rule]
          (fs/unify (fs/copy rule)
-                   (fs/copy {:head noun-head})))
+                   (fs/copy {:head head})))
        sentence-rules))
 
 (defn map-rules-and-lexicon-and-debug [head]
@@ -574,14 +574,14 @@
           :rules (html/tablize sentence-rules)})
    (list nil)
    (list {:comment "headified rules: phrase structure rules, unified with head=(search param)"
-          :rules (html/tablize (nps-of-head head))})
+          :rules (html/tablize (map-head-over-rules head))})
    (list nil)
    (list {:comment "non-failing headified rules: same as above, but unification failures removed."
           :rules (html/tablize (mapcat
                                 (fn [phrase]
                                   (if (not (fs/fail? phrase))
                                     (list phrase)))
-                                (nps-of-head head)))})
+                                (map-head-over-rules head)))})
    (list nil)
    (let [rules-by-lexicon
          (mapcat (fn [rule]
@@ -589,7 +589,7 @@
                           (fs/unify {:head (fs/copy lexeme)}
                                     (fs/copy rule)))
                         sentence-lexicon))
-                 (nps-of-head head))]
+                 (map-head-over-rules head))]
      (concat
       (list
        {:comment "cartesian join of 1) non-failing headified rules and 2) lexicon"
@@ -605,7 +605,7 @@
                      (list result)))
                  rules-by-lexicon))})))))
   
-(deftest map-rules-and-lexicon-test
+(deftest map-rules-and-lexicon-test-noun-third-plural
   (printfs
    (map-rules-and-lexicon-and-debug
     {:synsem
@@ -613,7 +613,17 @@
       :person :3rd
       :cat :noun
       :human true}})
-   "map-rules-and-lexicon-test.html"))
+   "map-rules-and-lexicon-noun-third-plural.html"))
+
+(deftest map-rules-and-lexicon-test-noun-third-sing
+  (printfs
+   (map-rules-and-lexicon-and-debug
+    {:synsem
+     {:number :sing
+      :person :3rd
+      :cat :noun
+      :human true}})
+   "map-rules-and-lexicon-noun-third-sing.html"))
 
 (defn map-rules-and-lexicon [head]
   (mapcat (fn [rule]
@@ -624,7 +634,7 @@
                         (if (not (fs/fail? result))
                           (list result))))
                     sentence-lexicon))
-          (nps-of-head head)))
+          (map-head-over-rules head)))
 
 (defn np-step1 [noun-head]
   (random (map-rules-and-lexicon noun-head)))
