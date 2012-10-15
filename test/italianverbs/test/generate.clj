@@ -589,7 +589,18 @@
                           (fs/unify {:head (fs/copy lexeme)}
                                     (fs/copy rule)))
                         sentence-lexicon))
-                 (map-head-over-rules head))]
+                 (map-head-over-rules head))
+
+
+         with-complements
+         (mapcat (fn [rule]
+                   (map (fn [lexeme]
+                          (fs/unify {:head (fs/copy lexeme)}
+                                    (fs/copy rule)))
+                        sentence-lexicon))
+                 rules-by-lexicon)
+         
+         ]
      (concat
       (list
        {:comment "cartesian join of 1) non-failing headified rules and 2) lexicon"
@@ -603,7 +614,17 @@
          (mapcat (fn [result]
                    (if (not (fs/fail? result))
                      (list result)))
-                 rules-by-lexicon))})))))
+                 rules-by-lexicon))})
+      (list nil)
+      (list
+       {:comment "add complement to each of the above."
+        :with-complement
+        (html/tablize
+         (mapcat (fn [result]
+                   (if (not (fs/fail? result))
+                     (list result)))
+                 with-complements))})
+      (list nil)))))
   
 (deftest map-rules-and-lexicon-test-noun-third-plural
   (printfs
