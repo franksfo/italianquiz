@@ -615,6 +615,17 @@
       :human true}})
    "map-rules-and-lexicon-noun-third-plural.html"))
 
+(deftest map-rules-and-lexicon-test-noun-third-plural
+  (printfs
+   (map-rules-and-lexicon-and-debug
+    {:synsem
+     {:infl :present
+      :cat :verb
+      :subj {:number :plur
+             :person :3rd}}})
+   "map-rules-and-lexicon-verb-third-plural.html"))
+
+
 (deftest map-rules-and-lexicon-test-noun-third-sing
   (printfs
    (map-rules-and-lexicon-and-debug
