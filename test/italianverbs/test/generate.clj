@@ -236,7 +236,6 @@
              :human true
              :gender :fem
              :person :3rd
-             :artifact :false
              :number :sing}
     :subcat :nil!
     :italian "lei"})))
@@ -301,7 +300,7 @@
                                     :b subj}})]
             {:comment "vp -> head comp"
              :head head
-             :subcat subj
+             :subcat {:a subj}
              :synsem head-synsem
              :comp comp
              :a head
@@ -455,11 +454,11 @@
 (def sentence-rules
   (concat
    vp-1-rules
-   (let [subcatted (ref :top)
+   (let [subcatted (ref {:cat :noun})
          head-synsem (ref {:cat :verb})
          comp (ref {:synsem subcatted})
          head (ref {:synsem head-synsem
-                    :subcat subcatted})]
+                    :subcat {:a subcatted}})]
      (list
       {:comment "s -> np vp"
        :subcat :nil!
@@ -475,6 +474,7 @@
    vp-1-lexicon
    (list {:synsem {:cat :noun
                    :human true
+                   :artifact false ;; <- :human true => artifact :false
                    :person :1st
                    :number :sing}
           :subcat :nil!
@@ -565,97 +565,115 @@
                    (fs/copy {:head head})))
        sentence-rules))
 
-(defn map-rules-and-lexicon-and-debug [head]
-  (concat
-   (list {:comment "head (search param)"
-          :head head})
-   (list nil)
-   (list {:comment "phrase structure rules"
-          :rules (html/tablize sentence-rules)})
-   (list nil)
-   (list {:comment "headified rules: phrase structure rules, unified with head=(search param)"
-          :rules (html/tablize (map-head-over-rules head))})
-   (list nil)
-   (list {:comment "non-failing headified rules: same as above, but unification failures removed."
-          :rules (html/tablize (mapcat
-                                (fn [phrase]
-                                  (if (not (fs/fail? phrase))
-                                    (list phrase)))
-                                (map-head-over-rules head)))})
-   (list nil)
-   (let [rules-by-lexicon
-         (mapcat (fn [rule]
-                   (map (fn [lexeme]
-                          (fs/unify {:head (fs/copy lexeme)}
-                                    (fs/copy rule)))
-                        sentence-lexicon))
-                 (map-head-over-rules head))
+(defn workbook [head]
+  (let [rules sentence-rules
+        lexicon sentence-lexicon
+        
+        headified-rules (map (fn [rule]
+                               (fs/unify (fs/copy rule)
+                                         (fs/copy {:head head})))
+                             rules)
 
+        nofail-phrases (mapcat (fn [phrase]
+                                 (if (not (fs/fail? phrase))
+                                   (list phrase)))
+                               headified-rules)
 
-         with-complements
-         (mapcat (fn [rule]
-                   (map (fn [lexeme]
-                          (fs/unify {:head (fs/copy lexeme)}
-                                    (fs/copy rule)))
-                        sentence-lexicon))
-                 rules-by-lexicon)
-         
-         ]
-     (concat
-      (list
-       {:comment "cartesian join of 1) non-failing headified rules and 2) lexicon"
-        :joined-rules
-        (html/tablize rules-by-lexicon)})
-      (list nil)
-      (list
-       {:comment "same as above, but failing results removed."
-        :joined-rules-with-no-fails
-        (html/tablize
-         (mapcat (fn [result]
-                   (if (not (fs/fail? result))
-                     (list result)))
-                 rules-by-lexicon))})
-      (list nil)
-      (list
-       {:comment "add complement to each of the above."
-        :with-complement
-        (html/tablize
-         (mapcat (fn [result]
-                   (if (not (fs/fail? result))
-                     (list result)))
-                 with-complements))})
-      (list nil)))))
+        nofail-phrases (mapcat (fn [phrase]
+                                 (if (not (fs/fail? phrase))
+                                   (list phrase)))
+                               headified-rules)
+
+        with-head (mapcat (fn [phrase]
+                            (map (fn [lexeme]
+                                   (fs/unify (fs/copy phrase)
+                                             (fs/copy {:head lexeme})))
+                                 lexicon))
+                          nofail-phrases)
+
+        with-head-nofail (mapcat (fn [phrase]
+                                   (if (not (fs/fail? phrase))
+                                     (list phrase)))
+                                 with-head)
+
+        no-complements (mapcat (fn [phrase]
+                                 (if (nil? (fs/get-in phrase '(:comp)))
+                                   (list phrase)))
+                               with-head-nofail)
+
+        with-complement (mapcat (fn [phrase]
+                                  (if (not (nil? (fs/get-in phrase '(:comp))))
+                                    (map (fn [lexeme]
+                                           (fs/unify (fs/copy phrase)
+                                                     {:comp (fs/copy lexeme)}))
+                                         lexicon)))
+                                with-head-nofail)
+        
+        with-complement-nofail (mapcat (fn [phrase]
+                                         (if (not (fs/fail? phrase))
+                                           (list phrase)))
+                                       with-complement)
+
+        successful-phrases (concat no-complements with-complement-nofail)
+        
+        pages (list
+               {:comment "ps rules"
+                :content rules}
+               {:comment "headified rules"
+                :content headified-rules}
+               {:comment "nofail phrases"
+                :content nofail-phrases}
+               {:comment "phrases with head"
+                :content with-head}
+               {:comment "phrases with head, nofail"
+                :content with-head-nofail}
+               {:comment "phrases with complement"
+                :content with-complement}
+               {:comment "phrases without complements"
+                :content no-complements}
+               {:comment "phrases with complement, nofail"
+                :content with-complement-nofail}
+               {:comment "successful phrases"
+                :content successful-phrases}
+               
+               )]
+    (mapcat (fn [page]
+              (list
+               {:comment (:comment page)
+                :content (html/tablize (:content page))}
+               nil))
+            pages)))
   
 (deftest map-rules-and-lexicon-test-noun-third-plural
   (printfs
-   (map-rules-and-lexicon-and-debug
+   (workbook
     {:synsem
      {:number :plur
       :person :3rd
       :cat :noun
       :human true}})
-   "map-rules-and-lexicon-noun-third-plural.html"))
+   "workbook1.html"))
 
 (deftest map-rules-and-lexicon-test-noun-third-plural
   (printfs
-   (map-rules-and-lexicon-and-debug
+   (workbook
     {:synsem
      {:infl :present
       :cat :verb
+      :obj {:cat :noun}
       :subj {:number :plur
              :person :3rd}}})
-   "map-rules-and-lexicon-verb-third-plural.html"))
-
+   "workbook2.html"))
 
 (deftest map-rules-and-lexicon-test-noun-third-sing
   (printfs
-   (map-rules-and-lexicon-and-debug
+   (workbook
     {:synsem
      {:number :sing
       :person :3rd
       :cat :noun
       :human true}})
-   "map-rules-and-lexicon-noun-third-sing.html"))
+   "workbook3.html"))
 
 (defn map-rules-and-lexicon [head]
   (mapcat (fn [rule]
