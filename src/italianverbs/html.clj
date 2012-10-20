@@ -114,15 +114,22 @@
     [:body
      body]]))
 
-;; TODO: check _parent_ type: (string,symbol,list,map) should be enough to start.
-(defn tablize [arg & [path serialized]]
+;; TODO: use multimethod based on arg's type.
+(defn tablize [arg & [path serialized opts]]
+  ;; set defaults.
   (let [serialized (if (nil? serialized)
                      (fs/serialize arg)
-                     serialized)]
+                     serialized)
+        opts (if (nil? opts)
+               {:as-tree true})
+        ]
     (cond
      (nil? arg) (str "<hr/>")
      (= (type arg) clojure.lang.LazySeq)
      (str
+      ;; TODO: pass along additional args (path,serialized,opts)
+      ;; to recursive tablize call. (TODO applies to all 3 of the
+      ;; following conditional disjuncts).
       (clojure.string/join ""
                            (map tablize (seq arg))))
      (= (type arg) clojure.lang.PersistentList)
@@ -134,77 +141,117 @@
       (clojure.string/join ""
                            (map tablize arg)))
 
-     ;; the most interesting case of displaying a map.
-     (and (= (type arg) clojure.lang.PersistentArrayMap)
-          (= nil (get arg :children)))
+     ;; displaying a phrase structure tree (2 children)
+     (and
+      false
+      (not (nil? opts))
+      (= true (:as-tree opts))
+      (or (= (type arg) clojure.lang.PersistentArrayMap)
+          (= (type arg) clojure.lang.PersistentHashMap)
+          (= (type arg) clojure.lang.PersistentTreeMap))
+      (not (= :none (:a arg :none)))
+      (not (= :none (:b arg :none))))
      (str
-      "<div class='map'><table class='map'>"
-      (clojure.string/join ""
-                           (map (fn [tr]
-                                  (str
-                                   "<tr"
-                                   (cond
-                                    ;; use a custom CSS class for :comment.
-                                    (= (first tr) :comment)
-                                    " class='comment'"
-                                    ;; ..handle other keywords that need a custom CSS class..
-                                    ;; default: no custom CSS class.
-                                    true "")
-                                   ">"
-                                     "<th>"
-                                       (str (first tr))
-                                     "</th>"
-                                     (if (= (type (second tr)) clojure.lang.Ref)
-                                       (str
-                                        "<td class='ref'>"
-                                        ;; show ref id for debugging if desired:
-                                        (if false (str
-                                                  "(" (second tr) ")"
-                                                  "[ " (type @(second tr)) " ]"))
-                                       "<div class='ref'>"
-                                         (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
-                                       "</div>"
-                                     "</td>"
-                                     "<td>")
-                                     "<td class='ref' colspan='2'>")
-                                       (tablize (second tr) (concat path (list (first tr))) serialized)
-                                     "</td>"
-                                   "</tr>"))
-                                 ;; sorts the argument list in _arg__ by key name:
-                                (into (sorted-map) arg)))
-      "</table></div>")
+      "<div class='phrase'>"
+      "  <table class='phrase'>"
+      "    <tr>"
+      "      <td class='parent2child' colspan='2'>" (tablize (dissoc (dissoc arg :a) :b) path serialized opts)
+      "      </td>"
+      "    </tr>"
+      "    <tr>"
+      "      <td>" (tablize (if (= (type (:a arg)) clojure.lang.Ref) @(:a arg) (:a arg))) "</td>"
+      "      <td>" (tablize (if (= (type (:b arg)) clojure.lang.Ref) @(:b arg) (:b arg))) "</td>"
+      "    </tr>"
+      "  </table>"
+      "</div>")
+     
+    ;; displaying a phrase structure tree (1 child)
+     (and
+      false
+      (not (nil? opts))
+      (= true (:as-tree opts))
+      (or (= (type arg) clojure.lang.PersistentArrayMap)
+          (= (type arg) clojure.lang.PersistentHashMap)
+          (= (type arg) clojure.lang.PersistentTreeMap))
+      (not (= :none (:a arg :none)))
+      (= :none (:b arg :none)))
+     (str
+      "<div class='phrase'>"
+      "  <table class='phrase'>"
+      "    <tr>"
+      "      <td class='parent1child'>" (tablize (dissoc (dissoc arg :a) :b) path serialized {:as-tree false}) "</td>"
+      "    </tr>"
+      "    <tr>"
+      "      <td>" (tablize (if (= (type (:a arg)) clojure.lang.Ref) @(:a arg) (:a arg)) path serialized opts) "</td>"
+      "    </tr>"
+      "  </table>"
+      "</div>")
+     
+    
+     ;; displaying a feature structure.
+     (or (= (type arg) clojure.lang.PersistentArrayMap)
+         (= (type arg) clojure.lang.PersistentHashMap)
+         (= (type arg) clojure.lang.PersistentTreeMap))
+     (str
+      "<div class='map'>"
+      "  <table class='map'>"
+      (clojure.string/join
+       ""
+       (map
+        (fn [tr]
+          (str
+           "<tr"
+           (cond
+            ;; use a custom CSS class for :comment.
+            (= (first tr) :comment)
+            " class='comment'"
+            ;; ..handle other keywords that need a custom CSS class..
+            ;; default: no custom CSS class.
+            true "")
+           ">"
+           "   <th>"
+           (str (first tr))
+           "   </th>"
+           (if (= (type (second tr)) clojure.lang.Ref)
+             (str
+              "<td class='ref'>"
+              ;; show ref id for debugging if desired:
+              (if false (str
+                         "(" (second tr) ")"
+                         "[ " (type @(second tr)) " ]"))
+              "  <div class='ref'>"
+              (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
+              "  </div>"
+              "</td>"
+              "<td>")
+             " <td class='ref' colspan='2'>")
+           (tablize (second tr)
+                    ;; set 'path' param for recursive call to tablize.
+                    ;; Path' = Path . current_feature
+                    (concat path (list (first tr)))
+                    serialized
+                    {:as-tree false}
+                    )
+           "   </td>"
+           "</tr>"))
+        ;; sorts the argument list in _arg__ by key name:
+        (into (sorted-map) arg)))
+      "  </table>"
+      "</div>")
      (= (type arg) clojure.lang.PersistentHashSet)
      (str
       "{"
       (clojure.string/join ","
                            (map (fn [member]
-                                  (tablize member (concat path (list (first member))) serialized))
+                                  (tablize member
+                                           ;; set 'path' param for recursive call to tablize.
+                                           ;; Path' = Path . current_feature
+                                           (concat path (list (first member)))
+                                           serialized
+                                           {:as-tree false}
+                                           ))
                                 arg))
       "}")
-     ;; TODO: clarify different treatment of PersistentHashMap vs PersistentArrayMap.
-     (= (type arg) clojure.lang.PersistentHashMap)
-     (fs arg)
-     (and (= (type arg) clojure.lang.PersistentArrayMap)
-          (not (= nil (get arg :children))))
-     (let
-         [children (get arg :children)]
-       (str
-        "<div class='syntax'><table class='syntax'>"
-        "<tr><td style='padding-left:5%;width:90%' colspan='" (count children) "'>"
-        (fs arg)
-        "</td></tr>"
-        "<tr>"
-        ;; now show syntactic children for this parent.
-        (string/join " " (map (fn [child] (str "<td>"
-                                               (cond (string? child)
-                                                     child
-                                                     (get child :children)
-                                                     (tablize child) ;; path serialized
-                                                     true
-                                                     (fs child))
-                                               "</td>")) children))
-        "</tr>"
-        "</table></div>"))
      (= nil arg)
      (str "<div class='atom'><i>nil</i></div>")
      (= (type arg)
@@ -235,10 +282,11 @@
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
                                       (fs/path-to-ref-index serialized path 0))]
+       ;; TODO: or-falsed this and then forgot what it does: explain.
        (str (if (or false (= is-first true))
-              (tablize @arg path serialized (merge {arg true})))))
+              (tablize @arg path serialized (merge {arg true}) {:as-tree false}))))
      true
-     (str "<div class='unknown'>" "<b>don't know how to format this object : (type:" (type arg) "</b>;value=<b>"  arg "</b>)</div>"))))
+     (str "<div class='unknown'>" "<b>don't know how to tablize this object : (type:" (type arg) "</b>;value=<b>"  arg "</b>)</div>"))))
 
 (defn simple-fs []
   {:foo "bar"})

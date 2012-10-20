@@ -517,7 +517,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         allpaths (seq (first (butlast lookup)))]
     (sorted-paths-1 allpaths)))
 
-
 (defn is-first-path [serialized path n index]
   (if (nil? index)
     (do (println (str "UHOH, INDEX IS NIL:" index)) ;;TODO: should be log.warn.

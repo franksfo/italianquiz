@@ -112,3 +112,12 @@ div.ref {
     padding:2px;
     margin:2px;
 }
+
+td.parent2child {
+    padding-left:10%;
+}
+
+div.phrase {
+    border:1px dashed black;
+    margin:1em;
+}
