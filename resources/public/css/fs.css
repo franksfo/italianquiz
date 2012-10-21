@@ -106,7 +106,7 @@ span.keyword,span.boolean {
 
 div.ref {
     vertical-align:middle;
-    float:right;
+    float:left;
     width:auto;
     border:2px solid black;
     padding:2px;

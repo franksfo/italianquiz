@@ -143,7 +143,7 @@
 
      ;; displaying a phrase structure tree (2 children)
      (and
-      false
+      true
       (not (nil? opts))
       (= true (:as-tree opts))
       (or (= (type arg) clojure.lang.PersistentArrayMap)
@@ -159,15 +159,35 @@
       "      </td>"
       "    </tr>"
       "    <tr>"
-      "      <td>" (tablize (if (= (type (:a arg)) clojure.lang.Ref) @(:a arg) (:a arg))) "</td>"
-      "      <td>" (tablize (if (= (type (:b arg)) clojure.lang.Ref) @(:b arg) (:b arg))) "</td>"
+      "      <td>"
+      (if (= (type (:a arg)) clojure.lang.Ref)
+        (str
+         "    <div class='ref'>"
+         (fs/path-to-ref-index serialized (concat path '(:a)) 0)
+         "    </div>"))
+      (tablize (if (= (type (:a arg)) clojure.lang.Ref)
+                 @(:a arg)
+                 (:a arg))
+               (concat path '(:a)) serialized opts)
+      "      </td>"
+      "      <td>"
+      (if (= (type (:b arg)) clojure.lang.Ref)
+        (str
+         "    <div class='ref'>"
+         (fs/path-to-ref-index serialized (concat path '(:b)) 0)
+         "    </div>"))
+      (tablize (if (= (type (:b arg)) clojure.lang.Ref)
+                 @(:b arg)
+                 (:b arg))
+               (concat path '(:b)) serialized opts)
+      "      </td>"
       "    </tr>"
       "  </table>"
       "</div>")
      
     ;; displaying a phrase structure tree (1 child)
      (and
-      false
+      true
       (not (nil? opts))
       (= true (:as-tree opts))
       (or (= (type arg) clojure.lang.PersistentArrayMap)
@@ -182,7 +202,17 @@
       "      <td class='parent1child'>" (tablize (dissoc (dissoc arg :a) :b) path serialized {:as-tree false}) "</td>"
       "    </tr>"
       "    <tr>"
-      "      <td>" (tablize (if (= (type (:a arg)) clojure.lang.Ref) @(:a arg) (:a arg)) path serialized opts) "</td>"
+      "      <td>"
+      (if (= (type (:a arg)) clojure.lang.Ref)
+        (str
+         "    <div class='ref'>"
+         (fs/path-to-ref-index serialized (concat path '(:a)) 0)
+         "    </div>"))
+      (tablize (if (= (type (:a arg)) clojure.lang.Ref)
+                 @(:a arg) (:a arg))
+               (concat path (list :a))
+               serialized opts)
+      "      </td>"
       "    </tr>"
       "  </table>"
       "</div>")
