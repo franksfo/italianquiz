@@ -231,14 +231,7 @@
              :gender :fem
              :number :sing}
     :italian "la"
-    :english "the"}
-   {:synsem {:cat :noun
-             :human true
-             :gender :fem
-             :person :3rd
-             :number :sing}
-    :subcat :nil!
-    :italian "lei"})))
+    :english "the"})))
 
 (deftest get-rules-that-match-head-test
   "find the subset of _rules_ where each rule's head unifies with head."
@@ -291,10 +284,12 @@
    np-1-rules
    (list
     (let [vp-rule-1
-          (let [comp-synsem (ref :top)
+          (let [comp-synsem (ref {:cat :noun})
                 comp (ref {:synsem comp-synsem})
-                head-synsem (ref {:cat :verb})
-                subj (ref :top)
+                subj (ref {:cat :noun})
+                head-synsem (ref {:cat :verb
+                                  :subj subj
+                                  :obj comp-synsem})
                 head (ref {:synsem head-synsem
                            :subcat {:a comp-synsem
                                     :b subj}})]
@@ -331,16 +326,20 @@
     (concat
      np-1-lexicon
      (let [fare
-           (fs/unify
-            transitive
-            {:italian "fare"
-             :english "to do"
-             :synsem {:cat :verb
-                      :infl :infinitive}
-             :subcat {:a {:cat :noun
-                          :artifact true}
-                      :b {:human true
-                          :cat :noun}}})]
+           (let [subj {:cat :noun
+                       :human true}
+                 obj {:cat :noun
+                      :artifact true}]
+             (fs/unify
+              transitive
+              {:italian "fare"
+               :english "to do"
+               :synsem {:cat :verb
+                        :subj subj
+                        :obj obj
+                        :infl :infinitive}
+               :subcat {:a obj
+                        :b subj}}))]
        (list fare
              (fs/unify
               (fs/copy finite)
@@ -455,7 +454,9 @@
   (concat
    vp-1-rules
    (let [subcatted (ref {:cat :noun})
-         head-synsem (ref {:cat :verb})
+         head-synsem (ref {:cat :verb
+                           :subj subcatted
+                           })
          comp (ref {:synsem subcatted})
          head (ref {:synsem head-synsem
                     :subcat {:a subcatted}})]
@@ -481,12 +482,14 @@
           :italian "io"}
          {:synsem {:cat :noun
                    :human true
+                   :artifact false ;; <- :human true => artifact :false
                    :person :2nd
                    :number :sing}
           :subcat :nil!
           :italian "tu"}
          {:synsem {:cat :noun
                    :human true
+                   :artifact false ;; <- :human true => artifact :false
                    :person :3rd
                    :gender :masc
                    :number :sing}
@@ -494,6 +497,7 @@
           :italian "lui"}
          {:synsem {:cat :noun
                    :human true
+                   :artifact false ;; <- :human true => artifact :false
                    :person :3rd
                    :gender :fem
                    :number :sing}
@@ -501,18 +505,21 @@
           :italian "lei"}
          {:synsem {:cat :noun
                    :human true
+                   :artifact false ;; <- :human true => artifact :false
                    :person :1st
                    :number :plur}
           :subcat :nil!
           :italian "noi"}
          {:synsem {:cat :noun
                    :human true
+                   :artifact false ;; <- :human true => artifact :false
                    :person :2nd
                    :number :plur}
           :subcat :nil!
           :italian "voi"}
          {:synsem {:cat :noun
                    :human true
+                   :artifact false ;; <- :human true => artifact :false
                    :person :3rd
                    :number :plur}
           :subcat :nil!
@@ -566,14 +573,27 @@
        sentence-rules))
 
 (defn workbook [head]
-  (let [rules sentence-rules
-        lexicon sentence-lexicon
+  (let [rules (map (fn [rule]
+                     (fs/copy rule))
+                   sentence-rules)
+        lexicon (map (fn [lexeme]
+                       (fs/copy lexeme))
+                     sentence-lexicon)
         
         headified-rules (map (fn [rule]
                                (fs/unify (fs/copy rule)
                                          (fs/copy {:head head})))
                              rules)
 
+        debug-hr (map (fn [rule]
+                        {:rule (fs/copy rule)
+                         :head-of-rule (:head (fs/copy rule))
+                         :rulename (:comment rule)
+                         :input-head head
+                         :unified-head (fs/unify (fs/copy (:head rule))
+                                                 (fs/copy head))})
+                      rules)
+        
         nofail-phrases (mapcat (fn [phrase]
                                  (if (not (fs/fail? phrase))
                                    (list phrase)))
@@ -621,6 +641,8 @@
                 :content rules}
                {:comment "headified rules"
                 :content headified-rules}
+               {:comment "headified rules debug"
+                :content debug-hr}
                {:comment "nofail phrases"
                 :content nofail-phrases}
                {:comment "phrases with head"
