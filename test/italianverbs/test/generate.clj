@@ -199,7 +199,29 @@
               :subcat {:cat :det}
               :italian "compito"
               :english "homework"})
+   (fs/unify (fs/copy agreement)
+             {:synsem {:cat :noun
+                       :number :sing
+                       :gender :masc
+                       :edible true
+                       :artifact true
+                       :person :3rd}
+              :subcat {:cat :det}
+              :italian "pane"
+              :english "bread"})
+   (fs/unify (fs/copy agreement)
+             {:synsem {:cat :noun
+                       :number :sing
+                       :gender :fem
+                       :edible true
+                       :artifact true
+                       :person :3rd}
+              :subcat {:cat :det}
+              :italian "pasta"
+              :english "pasta"})
 
+
+   
    (fs/unify (fs/copy agreement)
              {:synsem {:cat :noun
                        :number :sing
@@ -284,9 +306,9 @@
    np-1-rules
    (list
     (let [vp-rule-1
-          (let [comp-synsem (ref {:cat :noun})
-                comp (ref {:synsem comp-synsem})
-                subj (ref {:cat :noun})
+          (let [comp-synsem (ref {:cat :noun :case :acc})
+                comp (ref {:synsem comp-synsem :subcat :nil!})
+                subj (ref {:cat :noun :case :nom})
                 head-synsem (ref {:cat :verb
                                   :subj subj
                                   :obj comp-synsem})
@@ -327,8 +349,10 @@
      np-1-lexicon
      (let [fare
            (let [subj {:cat :noun
+                       :artifact false
                        :human true}
                  obj {:cat :noun
+                      :human false
                       :artifact true}]
              (fs/unify
               transitive
@@ -474,6 +498,7 @@
   (concat
    vp-1-lexicon
    (list {:synsem {:cat :noun
+                   :case :nom
                    :human true
                    :artifact false ;; <- :human true => artifact :false
                    :person :1st
@@ -481,6 +506,7 @@
           :subcat :nil!
           :italian "io"}
          {:synsem {:cat :noun
+                   :case :nom
                    :human true
                    :artifact false ;; <- :human true => artifact :false
                    :person :2nd
@@ -488,6 +514,7 @@
           :subcat :nil!
           :italian "tu"}
          {:synsem {:cat :noun
+                   :case :nom
                    :human true
                    :artifact false ;; <- :human true => artifact :false
                    :person :3rd
@@ -496,6 +523,7 @@
           :subcat :nil!
           :italian "lui"}
          {:synsem {:cat :noun
+                   :case :nom
                    :human true
                    :artifact false ;; <- :human true => artifact :false
                    :person :3rd
@@ -504,6 +532,7 @@
           :subcat :nil!
           :italian "lei"}
          {:synsem {:cat :noun
+                   :case :nom
                    :human true
                    :artifact false ;; <- :human true => artifact :false
                    :person :1st
@@ -511,6 +540,7 @@
           :subcat :nil!
           :italian "noi"}
          {:synsem {:cat :noun
+                   :case :nom
                    :human true
                    :artifact false ;; <- :human true => artifact :false
                    :person :2nd
@@ -518,6 +548,7 @@
           :subcat :nil!
           :italian "voi"}
          {:synsem {:cat :noun
+                   :case :nom
                    :human true
                    :artifact false ;; <- :human true => artifact :false
                    :person :3rd
@@ -572,7 +603,7 @@
                    (fs/copy {:head head})))
        sentence-rules))
 
-(defn workbook [head]
+(defn workbook-generate [head]
   (let [rules (map (fn [rule]
                      (fs/copy rule))
                    sentence-rules)
@@ -621,23 +652,36 @@
                                    (list phrase)))
                                with-head-nofail)
 
-        with-complement (mapcat (fn [phrase]
-                                  (if (not (nil? (fs/get-in phrase '(:comp))))
-                                    (map (fn [lexeme]
-                                           (fs/unify (fs/copy phrase)
-                                                     {:comp (fs/copy lexeme)}))
-                                         lexicon)))
-                                with-head-nofail)
+        with-lexical-complement (mapcat (fn [phrase]
+                                           (if (not (nil? (fs/get-in phrase '(:comp))))
+                                             (map (fn [lexeme]
+                                                    (fs/unify (fs/copy phrase)
+                                                              {:comp (fs/copy lexeme)}))
+                                                  lexicon)))
+                                         with-head-nofail)
+        
+        with-phrasal-complement (mapcat (fn [phrase]
+                                          (if (not (nil? (fs/get-in phrase '(:comp))))
+                                            (map (fn [phrase-c]
+                                                   (fs/unify (fs/copy phrase)
+                                                             {:comp
+                                                              (fs/copy phrase-c)}))
+                                                 ;; (last (workbook-generate)) is always the workbook's successful-phrases.
+                                                 (:content (last (workbook-generate
+                                                                  (dissoc
+                                                                   (fs/get-in phrase '(:comp))
+                                                                   :subcat)))))))
+                                        with-head-nofail)
         
         with-complement-nofail (mapcat (fn [phrase]
                                          (if (not (fs/fail? phrase))
                                            (list phrase)))
-                                       with-complement)
+                                       (concat with-lexical-complement with-phrasal-complement))
 
         successful-phrases (concat no-complements with-complement-nofail)
-        
+  
         pages (list
-               {:comment "ps rules"
+               {:comment "phrase rules"
                 :content rules}
                {:comment "headified rules"
                 :content headified-rules}
@@ -649,8 +693,10 @@
                 :content with-head}
                {:comment "phrases with head, nofail"
                 :content with-head-nofail}
-               {:comment "phrases with complement"
-                :content with-complement}
+               {:comment "phrases with lexical complement"
+                :content with-lexical-complement}
+               {:comment "phrases with phrasal complement"
+                :content with-phrasal-complement}
                {:comment "phrases without complements"
                 :content no-complements}
                {:comment "phrases with complement, nofail"
@@ -659,6 +705,10 @@
                 :content successful-phrases}
                
                )]
+    pages))
+
+(defn workbook [head]
+  (let [pages (workbook-generate head)]
     (mapcat (fn [page]
               (list
                {:comment (:comment page)
