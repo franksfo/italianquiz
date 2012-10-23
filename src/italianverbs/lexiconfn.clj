@@ -272,12 +272,12 @@
 (defn italian-pluralize [singular gender]
   (cond
    (= gender :masc)
-   (stringc/replace-re #"([oe])$" "i" singular)
+   (replace #"([oe])$" "i" singular)
    (= gender :fem)
-   (stringc/replace-re #"([a])$" "e" singular)))
+   (replace #"([a])$" "e" singular)))
 
 (defn english-pluralize [singular]
-  (str (stringc/replace-re #"([sxz])$" "$1e" singular) "s"))
+  (str (replace #"([sxz])$" "$1e" singular) "s"))
 
 (defn add-plural [fs types & [italian-plural english-plural]]
   (add
