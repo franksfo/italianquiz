@@ -3,15 +3,14 @@
         [clojure.set])
   (:require
    [somnium.congomongo :as mongo]
-;   [clojure.contrib.logging :as log]
+   [clojure.tools.logging :as log]
    [clojure.string :as string]
 ;   [clojure.contrib.repl-utils :as repl-utils]
    [italianverbs.fs :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.lev :as lev]
-   [italianverbs.grammar :as gram]
-   [clojure.contrib.duck-streams :as duck]))
+   [italianverbs.grammar :as gram]))
 
 ;;(duck/spit "verbs.html"
 ;;      (html/static-page
