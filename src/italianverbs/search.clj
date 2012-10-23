@@ -4,8 +4,8 @@
   (:require
    [somnium.congomongo :as mongo]
 ;   [clojure.contrib.logging :as log]
-;   [clojure.contrib.string :as string]
-   [clojure.contrib.repl-utils :as repl-utils]
+   [clojure.string :as string]
+;   [clojure.contrib.repl-utils :as repl-utils]
    [italianverbs.fs :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
