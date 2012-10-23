@@ -2,7 +2,7 @@
   (:use [clojure.test]
         [italianverbs.generate])
   (:require
-   [clojure.contrib.logging :as log]
+;   [clojure.contrib.logging :as log]
    [clojure.string :as string]
    [somnium.congomongo :as mongo]
    ;; TODO: graduate italianverbs.fs to :use.
@@ -625,11 +625,6 @@
                                                  (fs/copy head))})
                       rules)
         
-        nofail-phrases (mapcat (fn [phrase]
-                                 (if (not (fs/fail? phrase))
-                                   (list phrase)))
-                               headified-rules)
-
         nofail-phrases (mapcat (fn [phrase]
                                  (if (not (fs/fail? phrase))
                                    (list phrase)))

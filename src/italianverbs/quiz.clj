@@ -4,8 +4,8 @@
 ;; (see update-question-by-id-with-guess) where this is enforced by the mongo/fetch's :where clause.
 (ns italianverbs.quiz
   (:use [hiccup core page])
-  (:require [clojure.contrib.string :as stringc]
-            [clojure.contrib.logging :as log]
+  (:require ;[clojure.contrib.string :as stringc]
+;            [clojure.contrib.logging :as log]
             [somnium.congomongo :as mongo]
             [italianverbs.lev :as lev]
             [italianverbs.session :as session]

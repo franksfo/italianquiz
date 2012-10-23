@@ -1,6 +1,6 @@
 (ns italianverbs.lev
   (:require
-   [clojure.contrib.string :as string]
+;   [clojure.contrib.string :as string]
    [italianverbs.html :as html]))
 
 (defn create-matrix [matrix j y horiz-char-list vert-char-list]

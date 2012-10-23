@@ -1,7 +1,8 @@
 (ns italianverbs.xml
   (:require
    [clojure.string :as string]
-   [clojure.contrib.str-utils2 :as str-utils]))
+   ;[clojure.contrib.str-utils2 :as str-utils]
+   ))
 
 (defn encoding []
   (str "<?xml version='1.0' encoding='utf-8'?>"))

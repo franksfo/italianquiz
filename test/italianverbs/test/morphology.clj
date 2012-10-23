@@ -2,10 +2,11 @@
   (:use [clojure.test])
   (:use [italianverbs.morphology])
   (:require
-   [clojure.contrib.logging :as log]
+;   [clojure.contrib.logging :as log]
    [clojure.string :as string]
-   [clojure.contrib.string :as stringc]
-   [clojure.contrib.str-utils2 :as str-utils]))
+;   [clojure.contrib.string :as stringc]
+;   [clojure.contrib.str-utils2 :as str-utils]
+   ))
 
 ;(defn test []
 ;  (list

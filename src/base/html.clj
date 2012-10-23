@@ -5,7 +5,7 @@
   (:use [hiccup core page]
         [somnium.congomongo])
   (:require [base.lib :as baselib]
-            [clojure.contrib.logging :as log]
+;            [clojure.contrib.logging :as log]
             [hiccup.page :as hpage]
             [clojure.set :as set]
             [italianverbs.session :as session]

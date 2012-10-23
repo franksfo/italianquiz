@@ -3,7 +3,7 @@
   (:use [clojure.stacktrace]
         [italianverbs.lexiconfn])
   (:require
-   [clojure.contrib.logging :as log]
+;   [clojure.contrib.logging :as log]
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]

@@ -513,9 +513,9 @@ a given value in a given map."
            42))
 
     ;; similar tests as a) above, but using fs/get-in
-    (is (= (type (get-in my-deser '(:a :c))) java.lang.Integer))
-    (is (= (type (get-in my-deser '(:b :c))) java.lang.Integer))
-    (is (= (type (get-in my-deser '(:d))) java.lang.Integer))
+    (is (= (type (get-in my-deser '(:a :c))) java.lang.Long))
+    (is (= (type (get-in my-deser '(:b :c))) java.lang.Long))
+    (is (= (type (get-in my-deser '(:d))) java.lang.Long))
     (is (= (get-in my-deser '(:a :c))
            (get-in my-deser '(:d))))
     (is (= (get-in my-deser '(:b :c))

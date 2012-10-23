@@ -1,10 +1,10 @@
 (ns italianverbs.lexiconfn
   (:use [clojure.set])
   (:require
-   [clojure.contrib.logging :as log]
+;   [clojure.contrib.logging :as log]
    [clojure.core :as core]
    [somnium.congomongo :as mongo]
-   [clojure.contrib.string :as stringc]
+;   [clojure.contrib.string :as stringc]
    [italianverbs.morphology :as morph]
    [italianverbs.fs :as fs]))
 

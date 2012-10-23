@@ -4,7 +4,7 @@
     [somnium.congomongo])
     (:require [italianverbs.lexicon :as lexicon]
               [somnium.congomongo :as congomongo]
-              [clojure.contrib.string :as stringc]
+;              [clojure.contrib.string :as stringc]
               [base.lib :as lib])
     (:import (java.security 
               NoSuchAlgorithmException

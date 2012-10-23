@@ -2,16 +2,17 @@
 (ns italianverbs.morphology
   (:require
    [italianverbs.fs :as fs]
-   [clojure.contrib.logging :as log]
+   [clojure.tools.logging :as log]
    [clojure.string :as string]
-   [clojure.contrib.string :as stringc]
-   [clojure.contrib.str-utils2 :as str-utils]))
+;   [clojure.contrib.string :as stringc]
+;   [clojure.contrib.str-utils2 :as str-utils]
+   ))
 
 (defn remove-to [english-verb-phrase]
   (let [english (get english-verb-phrase :english)]
     (let [regex #"^to[ ]+(.*)"]
       (let [string
-            (str-utils/replace english regex (fn [[_ rest]] (str rest)))]
+            (replace english regex (fn [[_ rest]] (str rest)))]
         (merge
          {:remove-to string}
          english-verb-phrase)))))
@@ -20,7 +21,7 @@
   (let [english-verb-string (get english-verb-phrase :english)]
     (let [regex #"^[ ]*([^ ]+)[ ]*(.*)"
           with-s
-          (str-utils/replace
+          (replace
            english-verb-string
            regex
            (fn [[_ first-word rest]]
@@ -40,7 +41,7 @@
     (cond
      (= (get (fs/get-head verb-head) :english) "must")
      (str
-      (stringc/replace-re
+      (replace
        #"^must to"
        "must"
        (get verb-head :english))
@@ -49,7 +50,7 @@
 
      (= (get (fs/get-head verb-head) :english) "to be able")
      (str
-      (stringc/replace-re
+      (replace
        #"^to be able( to)?"
        "can"
        (get verb-head :english))
@@ -100,11 +101,11 @@
           (fs/get-r (fs/get-r vp :comp) :english)))))
 
 (defn final-char-of [string]
-  (str-utils/get string (- (.length string) 1)))
+  (get string (- (.length string) 1)))
 
 (defn next-to-final-char-of [string]
   (if (> (.length string) 1)
-    (str-utils/get string (- (.length string) 2))))
+    (get string (- (.length string) 2))))
 
 (defn if-isco [verb]
   (if (= (get verb :isco) true)
@@ -122,7 +123,7 @@
               (= (fs/get-in-r subject-head '(:person)) :1st))
           (or (= (fs/get-in-r subject-head '(:number)) "singular")
               (= (fs/get-in-r subject-head '(:number)) :singular)))
-     (str-utils/replace root-form regex
+     (replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
                                                         "o"
@@ -132,7 +133,7 @@
               (= (fs/get-in-r subject-head '(:person)) :1st))
           (or (= (fs/get-in-r subject-head '(:number)) "plural")
               (= (fs/get-in-r subject-head '(:number)) :plural)))
-     (str-utils/replace root-form regex
+     (replace root-form regex
                         (fn [[_ stem i space]] (str stem
                                                     (if-isco verb-head)
                                                     
@@ -152,7 +153,7 @@
               (= (fs/get-in-r subject-head '(:person)) :2nd))
           (or (= (fs/get-in-r subject-head '(:number)) :singular)
               (= (fs/get-in-r subject-head '(:number)) "singular")))
-     (str-utils/replace root-form regex
+     (replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
 
@@ -168,7 +169,7 @@
               (= (fs/get-in-r subject-head '(:person)) :2nd))
           (or (= (fs/get-in-r subject-head '(:number)) "plural")
               (= (fs/get-in-r subject-head '(:number)) :plural)))
-     (str-utils/replace root-form regex
+     (replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
                                                         vowel "te" space)))
@@ -179,7 +180,7 @@
               (= (fs/get-in-r subject-head '(:number)) :singular)))
      ;; TODO: this works for -ire verbs like aprire->aprie but not
      ;; -ire verbs like finire->finisco.
-     (str-utils/replace root-form regex
+     (replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
                                                         (cond
@@ -191,7 +192,7 @@
               (= (fs/get-in-r subject-head '(:person)) :3rd))
           (or (= (fs/get-in-r subject-head '(:number)) "plural")
               (= (fs/get-in-r subject-head '(:number)) :plural)))
-     (str-utils/replace root-form regex
+     (replace root-form regex
                         (fn [[_ stem vowel space]] (str stem
                                                         (if-isco verb-head)
                                                         (cond
@@ -205,25 +206,25 @@
 ;; TODO: figure out how to interpolate variables into regexps.
 (defn except-first-words [first-words words]
   (let [regex #"^[^ ]+[ ]?(.*)"]
-    (str-utils/replace words regex (fn [[_ rest]] rest))))
+    (replace words regex (fn [[_ rest]] rest))))
 
 (defn plural-masc [italian]
-  (stringc/join " "
-                (cons (stringc/replace-re #"[eo]$" "i" (first (stringc/split #"\s+"
-                                                                          italian)))
-                      (rest (stringc/split #"\s+" italian)))))
+  (string/join " "
+                (cons (replace #"[eo]$" "i" (first (string/split #"\s+"
+                                                          italian)))
+                      (rest (string/split #"\s+" italian)))))
 
 (defn plural-fem [italian]
-  (stringc/join " "
-                (cons (stringc/replace-re #"[oa]$" "e" (first (stringc/split #"\s+"
-                                                                          italian)))
-                      (rest (stringc/split #"\s+" italian)))))
+  (string/join " "
+                (cons (replace #"[oa]$" "e" (first (string/split #"\s+"
+                                                          italian)))
+                      (rest (string/split #"\s+" italian)))))
 
 (defn single-fem [italian]
-  (stringc/join " "
-                (cons (stringc/replace-re #"[o]$" "a" (first (stringc/split #"\s+"
-                                                                            italian)))
-                      (rest (stringc/split #"\s+" italian)))))
+  (string/join " "
+                (cons (replace #"[o]$" "a" (first (string/split #"\s+"
+                                                                    italian)))
+                      (rest (string/split #"\s+" italian)))))
 
 (defn plural-en [english]
   (if (re-find #"[hsx]$" english) (str english "es")
@@ -346,7 +347,7 @@
     (let [regexp-pair (first regexp-list)
           regexp-from (first regexp-pair)
           regexp-to (second regexp-pair)
-          result (stringc/replace-re regexp-from regexp-to target)]
+          result (replace regexp-from regexp-to target)]
       (if (= result target)
         (replace-from-list (rest regexp-list) target)
         result))
@@ -410,11 +411,11 @@
 
 (defn stem-per-futuro [infinitive]
   "_infinitive_ should be a string (italian verb infinitive form)"
-  (str-utils/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
+  (replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
 
 (defn stem-per-passato-prossimo [infinitive]
   "_infinitive_ should be a string (italian verb infinitive form)"
-  (str-utils/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix))))
+  (replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix))))
 
 (defn passato-prossimo [infinitive]
   (str (stem-per-passato-prossimo infinitive) "ato"))

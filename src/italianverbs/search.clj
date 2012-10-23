@@ -3,8 +3,8 @@
         [clojure.set])
   (:require
    [somnium.congomongo :as mongo]
-   [clojure.contrib.logging :as log]
-   [clojure.contrib.string :as string]
+;   [clojure.contrib.logging :as log]
+;   [clojure.contrib.string :as string]
    [clojure.contrib.repl-utils :as repl-utils]
    [italianverbs.fs :as fs]
    [italianverbs.html :as html]
