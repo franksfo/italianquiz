@@ -4,7 +4,6 @@
         [hiccup core])
   (:require
    [clojure.string :as string]
-;   [clojure.contrib.logging :as log]
    [compojure.route :as route]
    [compojure.handler :as handler]
    [italianverbs.generate :as gen]

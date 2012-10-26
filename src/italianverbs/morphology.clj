@@ -3,10 +3,7 @@
   (:require
    [italianverbs.fs :as fs]
    [clojure.tools.logging :as log]
-   [clojure.string :as string]
-;   [clojure.contrib.string :as stringc]
-;   [clojure.contrib.str-utils2 :as str-utils]
-   ))
+   [clojure.string :as string]))
 
 (defn remove-to [english-verb-phrase]
   (let [english (get english-verb-phrase :english)]

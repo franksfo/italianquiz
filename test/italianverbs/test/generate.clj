@@ -2,7 +2,7 @@
   (:use [clojure.test]
         [italianverbs.generate])
   (:require
-;   [clojure.contrib.logging :as log]
+   [clojure.tools.logging :as log]
    [clojure.string :as string]
    [somnium.congomongo :as mongo]
    ;; TODO: graduate italianverbs.fs to :use.

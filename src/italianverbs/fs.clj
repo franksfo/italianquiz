@@ -5,10 +5,7 @@
   (:require
    [clojure.tools.logging :as log]
    [italianverbs.fs :as fs] ;; needed maybe by the (eval fs/..) stuff below.
-;   [clojure.contrib.logging :as log]
    [clojure.core :as core]
-;   [clojure.contrib.string :as stringc]
-;   [clojure.contrib.str-utils2 :as str-utils]
    [clojure.string :as string]))
 
 (defn get-head [sign]
