@@ -721,7 +721,7 @@
       :human true}})
    "workbook1.html"))
 
-(deftest map-rules-and-lexicon-test-noun-third-plural
+(deftest map-rules-and-lexicon-test-verb-third-plural
   (printfs
    (workbook
     {:synsem
