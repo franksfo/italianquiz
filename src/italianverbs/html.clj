@@ -142,9 +142,8 @@
 
      ;; displaying a phrase structure tree (2 children)
      (and
-      true
       (or true (not (nil? opts)))
-      (or true (= true (:as-tree opts)))
+      (or true (:as-tree opts))
       (or (= (type arg) clojure.lang.PersistentArrayMap)
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
@@ -154,7 +153,7 @@
       "<div class='phrase'>"
       "  <table class='phrase'>"
       "    <tr>"
-      "      <td class='parent2child' colspan='2'>" (tablize (dissoc (dissoc arg :a) :b) path serialized opts)
+      "      <td class='parent2child' colspan='4'>" (tablize (dissoc (dissoc arg :a) :b) path serialized opts)
       "      </td>"
       "    </tr>"
       "    <tr>"
@@ -164,6 +163,8 @@
          "    <div class='ref'>"
          (fs/path-to-ref-index serialized (concat path '(:a)) 0)
          "    </div>"))
+      "      </td>"
+      "      <td>"
       (tablize (if (= (type (:a arg)) clojure.lang.Ref)
                  @(:a arg)
                  (:a arg))
@@ -175,6 +176,8 @@
          "    <div class='ref'>"
          (fs/path-to-ref-index serialized (concat path '(:b)) 0)
          "    </div>"))
+         "      </td>"
+         "      <td>"
       (tablize (if (= (type (:b arg)) clojure.lang.Ref)
                  @(:b arg)
                  (:b arg))
@@ -198,7 +201,7 @@
       "<div class='phrase'>"
       "  <table class='phrase'>"
       "    <tr>"
-      "      <td class='parent1child'>" (tablize (dissoc (dissoc arg :a) :b) path serialized {:as-tree false}) "</td>"
+      "      <td colspan="2" class='parent1child'>" (tablize (dissoc (dissoc arg :a) :b) path serialized {:as-tree false}) "</td>"
       "    </tr>"
       "    <tr>"
       "      <td>"
@@ -207,6 +210,8 @@
          "    <div class='ref'>"
          (fs/path-to-ref-index serialized (concat path '(:a)) 0)
          "    </div>"))
+         "      </td>"
+         "      <td>"
       (tablize (if (= (type (:a arg)) clojure.lang.Ref)
                  @(:a arg) (:a arg))
                (concat path (list :a))
