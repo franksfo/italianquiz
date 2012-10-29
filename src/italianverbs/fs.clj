@@ -507,9 +507,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         (path-to-ref-index (rest serialized) path (+ n 1))))))
 
 (defn sorted-paths-1 [paths]
-  (sort (fn [x y] (if (< (.size x) (.size y))
-                    true
-                    false))
+  (sort (fn [x y] (< (.size x) (.size y)))
         paths))
 
 (defn sorted-paths [serialized path n index]
