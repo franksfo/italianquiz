@@ -199,8 +199,8 @@
      
     ;; displaying a phrase structure tree (1 child)
      (and
-      (not (nil? opts))
-      (= true (:as-tree opts))
+      (or true (not (nil? opts)))
+      (or true (= true (:as-tree opts)))
       (or (= (type arg) clojure.lang.PersistentArrayMap)
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
