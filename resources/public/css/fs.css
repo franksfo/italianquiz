@@ -79,7 +79,8 @@ table.generate th {
 }
 
 td {
-    padding-right:3px;
+    border:0px dashed black;
+    padding-right:0px;
 }
 
 table.generate div.result {
@@ -118,12 +119,11 @@ td.parent2child {
     border-bottom:1px solid green;
 }
 
-td.parent1child {
-    text-align:center;
-    border-bottom:1px solid green;
-}
-
 div.phrase {
     border:0px dashed black;
     margin:1em;
+}
+
+div.phrase table {
+    border-collapse:collapse;
 }

@@ -130,39 +130,49 @@
       ;; to recursive tablize call. (TODO applies to all 3 of the
       ;; following conditional disjuncts).
       (clojure.string/join ""
-                           (map tablize (seq arg))))
+                           (map (fn [each-arg]
+                                  (tablize each-arg path (fs/serialize each-arg) opts))
+                                (seq arg))))
      (= (type arg) clojure.lang.PersistentList)
      (str
       (clojure.string/join ""
-                           (map tablize arg)))
+                           (map (fn [each-arg]
+                                  (tablize each-arg path (fs/serialize each-arg) opts))
+                                arg)))
      (= (type arg) clojure.lang.Cons)
      (str
       (clojure.string/join ""
-                           (map tablize arg)))
+                           (map (fn [each-arg]
+                                  (tablize each-arg path (fs/serialize each-arg) opts))
+                                arg)))
 
      ;; displaying a phrase structure tree (2 children)
      (and
       (or true (not (nil? opts)))
-      (or true (:as-tree opts))
+      (or
+;       (println (str "OPTS: " opts))
+       true (:as-tree opts))
       (or (= (type arg) clojure.lang.PersistentArrayMap)
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
+      (not (= :subcat (last path)))
       (not (= :none (:a arg :none)))
       (not (= :none (:b arg :none))))
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
       "    <tr>"
-      "      <td class='parent2child' colspan='4'>" (tablize (dissoc (dissoc arg :a) :b) path serialized opts)
-      "      </td>"
+      "      <td class='parent2child'>&nbsp;</td><td class='parent2child' colspan='2'>"
+      (tablize (dissoc (dissoc arg :a) :b) path serialized opts)
+      "      </td><td class='parent2child'>&nbsp;</td>"
       "    </tr>"
       "    <tr>"
       "      <td>"
       (if (= (type (:a arg)) clojure.lang.Ref)
         (str
-         "    <div class='ref'>"
+         "     <div class='ref'>"
          (fs/path-to-ref-index serialized (concat path '(:a)) 0)
-         "    </div>"))
+         "     </div>"))
       "      </td>"
       "      <td>"
       (tablize (if (= (type (:a arg)) clojure.lang.Ref)
@@ -189,12 +199,12 @@
      
     ;; displaying a phrase structure tree (1 child)
      (and
-      true
       (not (nil? opts))
       (= true (:as-tree opts))
       (or (= (type arg) clojure.lang.PersistentArrayMap)
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
+      (not (= :subcat (last path)))
       (not (= :none (:a arg :none)))
       (= :none (:b arg :none)))
      (str
@@ -257,7 +267,8 @@
               (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
               "  </div>"
               "</td>"
-              "<td>")
+              "<td>"
+              )
              " <td class='ref' colspan='2'>")
            (tablize (second tr)
                     ;; set 'path' param for recursive call to tablize.
@@ -316,9 +327,12 @@
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
                                       (fs/path-to-ref-index serialized path 0))]
-       ;; TODO: or-falsed this and then forgot what it does: explain.
-       (str (if (or false (= is-first true))
-              (tablize @arg path serialized (merge {arg true}) {:as-tree false}))))
+       (str (if (and (or (= (last path) :subcat)
+                         (= is-first true))
+                     (not (= (last path) :head))
+                     (not (= (last path) :comp)))
+              (tablize @arg path serialized
+                       (merge opts {:as-tree false})))))
      true
      (str "<div class='unknown'>" "<b>don't know how to tablize this object : (type:" (type arg) "</b>;value=<b>"  arg "</b>)</div>"))))
 
