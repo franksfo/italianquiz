@@ -521,7 +521,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         false)
     (let [lookup (nth serialized index)
           firstpath (seq (first (sorted-paths serialized path n index)))]
-      (= path firstpath))))
+      (= (.size path) (.size firstpath)))))
 
 (defn first-path [serialized path n index]
   (let [lookup (nth serialized index)

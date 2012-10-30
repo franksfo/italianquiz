@@ -80,7 +80,7 @@ table.generate th {
 
 td {
     border:0px dashed black;
-    padding-right:0px;
+    padding-right:2px;
 }
 
 table.generate div.result {
@@ -117,6 +117,18 @@ div.ref {
 td.parent2child {
     text-align:center;
     border-bottom:1px solid green;
+}
+
+td.parent {
+}
+
+td.parent > div {
+    margin-left:20%;
+}
+
+td.ref {
+    text-align:right;
+    width:5%;
 }
 
 div.phrase {

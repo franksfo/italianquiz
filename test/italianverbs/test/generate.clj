@@ -149,7 +149,7 @@
           debug (println (str "GOT HEAD FROM LEXICON: " head))
           comp ;; should return nil if using rule with no comp.
           (random (seq (search/query-with-lexicon lexicon
-                         {:synsem (fs/get-in head '(:subcat))})))
+                         {:synsem (fs/get-in head '(:subcat :a))})))
           debug (println (str "GOT COMP FROM LEXICON: " comp))]
     (fs/unify
        (fs/copy rule)
@@ -163,32 +163,23 @@
               comp (ref {:synsem comp-synsem})
               head-synsem (ref {:cat :noun})
               head (ref {:synsem head-synsem
-                         :subcat comp-synsem})]
+                         :subcat {:a comp-synsem}})]
           {:comment "np -> det noun"
            :head head
+           :subcat :nil!
            :synsem head-synsem
            :comp comp
            :a comp
-           :b head})
-
-        np-rule-2 ;; NP -> Pronoun
-        (let [head-synsem (ref {:cat :noun})
-              head (ref {:synsem head-synsem
-                         :subcat :nil!})]
-          {:comment "np -> pronoun"
-           :head head
-           :synsem head-synsem
-           :a head})]
-    (list np-rule-1
-          np-rule-2)))
+           :b head})]
+    (list np-rule-1)))
 
 (def np-1-lexicon
   (let [gender (ref :top)
         number (ref :top)
         agreement {:synsem {:gender gender
                             :number number}
-                   :subcat {:gender gender
-                            :number number}}]
+                   :subcat {:a {:gender gender
+                                :number number}}}]
   (list
    (fs/unify (fs/copy agreement)
              {:synsem {:cat :noun
@@ -196,7 +187,7 @@
                        :gender :masc
                        :artifact true
                        :person :3rd}
-              :subcat {:cat :det}
+              :subcat {:a {:cat :det}}
               :italian "compito"
               :english "homework"})
    (fs/unify (fs/copy agreement)
@@ -206,7 +197,7 @@
                        :edible true
                        :artifact true
                        :person :3rd}
-              :subcat {:cat :det}
+              :subcat {:a {:cat :det}}
               :italian "pane"
               :english "bread"})
    (fs/unify (fs/copy agreement)
@@ -216,7 +207,7 @@
                        :edible true
                        :artifact true
                        :person :3rd}
-              :subcat {:cat :det}
+              :subcat {:a {:cat :det}}
               :italian "pasta"
               :english "pasta"})
 
@@ -229,7 +220,7 @@
                        :artifact false
                        :human true
                        :person :3rd}
-              :subcat {:cat :det}
+              :subcat {:a {:cat :det}}
               :italian "ragazzo"
               :english "guy"})
 
@@ -240,7 +231,7 @@
                        :artifact false
                        :human true
                        :person :3rd}
-              :subcat {:cat :det}
+              :subcat {:a {:cat :det}}
               :italian "ragazza"
               :english "girl"})
 
@@ -253,7 +244,18 @@
              :gender :fem
              :number :sing}
     :italian "la"
+    :english "the"}
+   {:synsem {:cat :det
+             :gender :masc
+             :number :plur}
+    :italian "i"
+    :english "the"}
+   {:synsem {:cat :det
+             :gender :fem
+             :number :plur}
+    :italian "le"
     :english "the"})))
+   
 
 (deftest get-rules-that-match-head-test
   "find the subset of _rules_ where each rule's head unifies with head."
@@ -310,6 +312,7 @@
                 comp (ref {:synsem comp-synsem :subcat :nil!})
                 subj (ref {:cat :noun :case :nom})
                 head-synsem (ref {:cat :verb
+                                  :infl {:not :infinitive}
                                   :subj subj
                                   :obj comp-synsem})
                 head (ref {:synsem head-synsem
@@ -481,7 +484,7 @@
          head-synsem (ref {:cat :verb
                            :subj subcatted
                            })
-         comp (ref {:synsem subcatted})
+         comp (ref {:synsem subcatted :subcat :nil!})
          head (ref {:synsem head-synsem
                     :subcat {:a subcatted}})]
      (list
@@ -603,143 +606,81 @@
                    (fs/copy {:head head})))
        sentence-rules))
 
-(defn workbook-generate [head]
-  (let [rules (map (fn [rule]
-                     (fs/copy rule))
-                   sentence-rules)
-        lexicon (map (fn [lexeme]
-                       (fs/copy lexeme))
-                     sentence-lexicon)
-        
-        headified-rules (map (fn [rule]
-                               (fs/unify (fs/copy rule)
-                                         (fs/copy {:head head})))
-                             rules)
+(defn combine [a-rules b-rules lexicon halt]
+  (println (str "a-rules: " (if (not (nil? a-rules)) (.size a-rules) "")))
+  (println (str "b-rules: " (if (not (nil? b-rules)) (.size b-rules) "")))
+  (println (str "lexicon: " (if (not (nil? lexicon)) (.size lexicon) "")))
+  (println "")
 
-        debug-hr (map (fn [rule]
-                        {:rule (fs/copy rule)
-                         :head-of-rule (:head (fs/copy rule))
-                         :rulename (:comment rule)
-                         :input-head head
-                         :unified-head (fs/unify (fs/copy (:head rule))
-                                                 (fs/copy head))})
-                      rules)
-        
-        nofail-phrases (mapcat (fn [phrase]
-                                 (if (not (fs/fail? phrase))
-                                   (list phrase)))
-                               headified-rules)
+  (let [new-a-rules (remove fs/fail? (mapcat (fn [rule]
+                                               (remove fs/fail?
+                                                       (map (fn [item]
+                                                              (fs/unify (fs/copy rule)
+                                                                        {:a (fs/copy item)}))
+                                                            lexicon)))
+                                             a-rules))
 
-        with-head (mapcat (fn [phrase]
-                            (map (fn [lexeme]
-                                   (fs/unify (fs/copy phrase)
-                                             (fs/copy {:head lexeme})))
-                                 lexicon))
-                          nofail-phrases)
+        new-b-rules (remove fs/fail? (mapcat (fn [rule]
+                                               (remove fs/fail?
+                                                       (map (fn [item]
+                                                              (if (not (nil? (:b rule)))
+                                                                (fs/unify (fs/copy rule)
+                                                                          {:b (fs/copy item)})
+                                                                :fail))
+                                                            lexicon)))
+                                             b-rules))
+        new-lexicon (concat sentence-lexicon new-b-rules)
+        nil-b-rules (nil? b-rules)
+        cond1 (not nil-b-rules)
+        cond2 (= (.size lexicon) (.size new-lexicon))]
+    (if (and halt cond1 cond2)
+      {:a-rules new-a-rules
+       :b-rules new-b-rules}
+      (time (combine a-rules new-a-rules new-lexicon
+                 (and cond1 cond2))))))
 
-        with-head-nofail (mapcat (fn [phrase]
-                                   (if (not (fs/fail? phrase))
-                                     (list phrase)))
-                                 with-head)
+(defn workbook [head filename]
+  (let [result (combine sentence-rules
+                        nil
+                        (remove fs/fail? (map (fn [lexeme] (fs/unify (fs/copy lexeme)
+                                                                     (fs/copy head)))
+                                              sentence-lexicon))
+                        false)]
+    (printfs {:a-rules (html/tablize (:a-rules result))
+              :b-rules (html/tablize (:b-rules result))}
+             filename)))
 
-        no-complements (mapcat (fn [phrase]
-                                 (if (nil? (fs/get-in phrase '(:comp)))
-                                   (list phrase)))
-                               with-head-nofail)
-
-        with-lexical-complement (mapcat (fn [phrase]
-                                           (if (not (nil? (fs/get-in phrase '(:comp))))
-                                             (map (fn [lexeme]
-                                                    (fs/unify (fs/copy phrase)
-                                                              {:comp (fs/copy lexeme)}))
-                                                  lexicon)))
-                                         with-head-nofail)
-        
-        with-phrasal-complement (mapcat (fn [phrase]
-                                          (if (not (nil? (fs/get-in phrase '(:comp))))
-                                            (map (fn [phrase-c]
-                                                   (fs/unify (fs/copy phrase)
-                                                             {:comp
-                                                              (fs/copy phrase-c)}))
-                                                 ;; (last (workbook-generate)) is always the workbook's successful-phrases.
-                                                 (:content (last (workbook-generate
-                                                                  (dissoc
-                                                                   (fs/get-in phrase '(:comp))
-                                                                   :subcat)))))))
-                                        with-head-nofail)
-        
-        with-complement-nofail (mapcat (fn [phrase]
-                                         (if (not (fs/fail? phrase))
-                                           (list phrase)))
-                                       (concat with-lexical-complement with-phrasal-complement))
-
-        successful-phrases (concat no-complements with-complement-nofail)
-  
-        pages (list
-               {:comment "phrase rules"
-                :content rules}
-               {:comment "headified rules"
-                :content headified-rules}
-               {:comment "headified rules debug"
-                :content debug-hr}
-               {:comment "nofail phrases"
-                :content nofail-phrases}
-               {:comment "phrases with head"
-                :content with-head}
-               {:comment "phrases with head, nofail"
-                :content with-head-nofail}
-               {:comment "phrases with lexical complement"
-                :content with-lexical-complement}
-               {:comment "phrases with phrasal complement"
-                :content with-phrasal-complement}
-               {:comment "phrases without complements"
-                :content no-complements}
-               {:comment "phrases with complement, nofail"
-                :content with-complement-nofail}
-               {:comment "successful phrases"
-                :content successful-phrases}
-               
-               )]
-    pages))
-
-(defn workbook [head]
-  (let [pages (workbook-generate head)]
-    (mapcat (fn [page]
-              (list
-               {:comment (:comment page)
-                :content (html/tablize (:content page))}
-               nil))
-            pages)))
-  
-(deftest map-rules-and-lexicon-test-noun-third-plural
-  (printfs
-   (workbook
-    {:synsem
-     {:number :plur
-      :person :3rd
-      :cat :noun
-      :human true}})
-   "workbook1.html"))
+(deftest map-rules-and-lexicon-test-fare-sentence
+  (workbook '{:synsem {:cat :verb :root {:italian "fare"}}} "workbook4.html"))
 
 (deftest map-rules-and-lexicon-test-verb-third-plural
-  (printfs
-   (workbook
-    {:synsem
-     {:infl :present
-      :cat :verb
-      :obj {:cat :noun}
-      :subj {:number :plur
-             :person :3rd}}})
+  (workbook
+   {:synsem
+    {:infl :present
+     :cat :verb
+     :obj {:cat :noun}
+     :subj {:number :plur
+            :person :3rd}}}
    "workbook2.html"))
 
+(deftest map-rules-and-lexicon-test-subj-third-plural
+  (workbook
+   {:synsem
+    {:artifact false
+     :case :nom
+     :cat :noun
+     :human true
+     :number :plur
+     :person :3rd}}
+  "subj.html"))
+
 (deftest map-rules-and-lexicon-test-noun-third-sing
-  (printfs
-   (workbook
-    {:synsem
-     {:number :sing
-      :person :3rd
-      :cat :noun
-      :human true}})
+  (workbook
+   {:synsem
+    {:number :sing
+     :person :3rd
+     :cat :noun
+     :human true}}
    "workbook3.html"))
 
 (defn map-rules-and-lexicon [head]

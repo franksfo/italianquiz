@@ -162,12 +162,12 @@
       "<div class='phrase'>"
       "  <table class='phrase'>"
       "    <tr>"
-      "      <td class='parent2child'>&nbsp;</td><td class='parent2child' colspan='2'>"
+      "      <td class='parent2child'>&nbsp;</td><td class='parent2child parent' colspan='3'>"
       (tablize (dissoc (dissoc arg :a) :b) path serialized opts)
       "      </td><td class='parent2child'>&nbsp;</td>"
       "    </tr>"
       "    <tr>"
-      "      <td>"
+      "      <td class='ref'>"
       (if (= (type (:a arg)) clojure.lang.Ref)
         (str
          "     <div class='ref'>"
@@ -180,7 +180,7 @@
                  (:a arg))
                (concat path '(:a)) serialized opts)
       "      </td>"
-      "      <td>"
+      "      <td class='ref'>"
       (if (= (type (:b arg)) clojure.lang.Ref)
         (str
          "    <div class='ref'>"
@@ -192,7 +192,7 @@
                  @(:b arg)
                  (:b arg))
                (concat path '(:b)) serialized opts)
-      "      </td>"
+      "      </td><td>&nbsp;</td>"
       "    </tr>"
       "  </table>"
       "</div>")
@@ -329,8 +329,8 @@
                                       (fs/path-to-ref-index serialized path 0))]
        (str (if (and (or (= (last path) :subcat)
                          (= is-first true))
-                     (not (= (last path) :head))
-                     (not (= (last path) :comp)))
+                     (or false (not (= (last path) :head)))
+                     (or false (not (= (last path) :comp))))
               (tablize @arg path serialized
                        (merge opts {:as-tree false})))))
      true
