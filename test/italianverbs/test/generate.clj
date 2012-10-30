@@ -607,48 +607,52 @@
        sentence-rules))
 
 (defn combine [a-rules b-rules lexicon halt]
+  (println "")
   (println (str "a-rules: " (if (not (nil? a-rules)) (.size a-rules) "")))
   (println (str "b-rules: " (if (not (nil? b-rules)) (.size b-rules) "")))
   (println (str "lexicon: " (if (not (nil? lexicon)) (.size lexicon) "")))
-  (println "")
 
-  (let [new-a-rules (remove fs/fail? (mapcat (fn [rule]
-                                               (remove fs/fail?
-                                                       (map (fn [item]
-                                                              (fs/unify (fs/copy rule)
-                                                                        {:a (fs/copy item)}))
-                                                            lexicon)))
-                                             a-rules))
+  (let [new-a-rules-with-fail (mapcat (fn [rule]
+                                        (map (fn [item]
+                                               (fs/unify (fs/copy rule)
+                                                         {:a (fs/copy item)}))
+                                             lexicon))
+                                      a-rules)
+        new-a-rules (remove fs/fail? new-a-rules-with-fail)
 
-        new-b-rules (remove fs/fail? (mapcat (fn [rule]
-                                               (remove fs/fail?
-                                                       (map (fn [item]
-                                                              (if (not (nil? (:b rule)))
-                                                                (fs/unify (fs/copy rule)
-                                                                          {:b (fs/copy item)})
-                                                                :fail))
-                                                            lexicon)))
-                                             b-rules))
+        new-b-rules-with-fail (mapcat (fn [rule]
+                                        (map (fn [item]
+                                               (fs/unify (fs/copy rule)
+                                                         {:b (fs/copy item)}))
+                                             lexicon))
+                                      b-rules)
+        new-b-rules (remove fs/fail? new-b-rules-with-fail)
         new-lexicon (concat sentence-lexicon new-b-rules)
         nil-b-rules (nil? b-rules)
         cond1 (not nil-b-rules)
-        cond2 (= (.size lexicon) (.size new-lexicon))]
+        cond2 (= (.size lexicon) (.size new-lexicon))
+        debug (do
+                (println (str "a succeed ratio: " (.size new-a-rules) "/" (.size new-a-rules-with-fail)))
+                (println (str "b succeed ratio: " (.size new-b-rules) "/" (.size new-b-rules-with-fail)))
+                (println (str "new-a-rules: " (.size new-a-rules))))
+        ]
     (if (and halt cond1 cond2)
       {:a-rules new-a-rules
        :b-rules new-b-rules}
-      (time (combine a-rules new-a-rules new-lexicon
-                 (and cond1 cond2))))))
+      (combine a-rules new-a-rules new-lexicon
+               (and cond1 cond2)))))
 
 (defn workbook [head filename]
   (let [result (combine sentence-rules
                         nil
-                        (remove fs/fail? (map (fn [lexeme] (fs/unify (fs/copy lexeme)
-                                                                     (fs/copy head)))
-                                              sentence-lexicon))
+                        sentence-lexicon
                         false)]
-    (printfs {:a-rules (html/tablize (:a-rules result))
-              :b-rules (html/tablize (:b-rules result))}
-             filename)))
+    (printfs
+     (html/tablize (:b-rules result))
+                                        ;     {:a-rules (html/tablize (:a-rules result))
+                                        ;      :b-rules (html/tablize (:b-rules result))}
+     filename)
+    result))
 
 (deftest map-rules-and-lexicon-test-fare-sentence
   (workbook '{:synsem {:cat :verb :root {:italian "fare"}}} "workbook4.html"))

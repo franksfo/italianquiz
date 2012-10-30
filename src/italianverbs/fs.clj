@@ -45,6 +45,27 @@
    true
    sign))
 
+;; TODO: use multi-methods.
+;; TODO: keep list of already-seen references to avoid
+;; cost of traversing substructures more than once.
+(defn fail? [fs]
+  "(fail? fs) <=> true if at least one of fs's path's value is :fail."
+  (if (= fs :fail) true
+      (do
+      (defn failr? [fs keys]
+    (if (> (.size keys) 0)
+      (if (= (fail? (get-in fs (list (first keys)))) true)
+        true
+        (failr? fs (rest keys)))
+      false))
+  (cond (= fs :fail) true
+        (or (= (type fs) clojure.lang.PersistentArrayMap)
+            (= (type fs) clojure.lang.PersistentHashMap))
+        (failr? fs (keys fs))
+        (= (type fs) clojure.lang.Ref)
+        (fail? @fs)
+        :else false))))
+
 (defn unify [& args]
   (let [val1 (first args)
         val2 (second args)]
@@ -52,13 +73,23 @@
 
      (= (.count args) 1)
      (first args)
+
+     (= :fail (first args))
+     :fail
      
+     (= :fail (second args))
+     :fail
+
      (and (or (= (type val1) clojure.lang.PersistentArrayMap)
               (= (type val1) clojure.lang.PersistentHashMap))
           (or (= (type val2) clojure.lang.PersistentArrayMap)
               (= (type val2) clojure.lang.PersistentHashMap)))
-     (reduce #(merge-with unify %1 %2) args)
-
+     (let [tmp-result
+           (reduce #(merge-with unify %1 %2) args)]
+       (if (not (nil? (some #{:fail} (vals tmp-result))))
+         :fail
+         (do ;(println (str "no fail in: " vals))
+             tmp-result)))
      (and 
       (= (type val1) clojure.lang.Ref)
       (not (= (type val2) clojure.lang.Ref)))
@@ -66,7 +97,8 @@
           (alter val1
                  (fn [x] (unify @val1 val2))))
          ;; alternative to the above (not tested yet):  (fn [x] (unify (fs/copy @val1) val2))))
-         val1)
+         (if (fail? @val1) :fail
+         val1))
      (and 
       (= (type val2) clojure.lang.Ref)
       (not (= (type val1) clojure.lang.Ref)))
@@ -74,7 +106,8 @@
           (alter val2
                  (fn [x] (unify val1 @val2))))
          ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
-         val2)
+         (if (fail? @val2) :fail
+         val2))
 
      (and 
       (= (type val1) clojure.lang.Ref)
@@ -94,7 +127,8 @@
               (alter val2
                      (fn [x] val1))) ;; note that now val2 is a ref to a ref.
              (log/debug (str "returning ref: " val1))
-             val1))))
+             (if (fail? @val1) :fail
+             val1)))))
      
      (not (= :notfound (:not val1 :notfound)))
      (let [result (unify (:not val1) val2)]
@@ -527,25 +561,5 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (let [lookup (nth serialized index)
         firstpath (seq (first (sorted-paths serialized path n index)))]
     firstpath))
-
-
-;; TODO: use multi-methods.
-;; TODO: keep list of already-seen references to avoid
-;; cost of traversing substructures more than once.
-(defn fail? [fs]
-  "(fail? fs) <=> true if at least one of fs's path's value is :fail."
-  (defn failr? [fs keys]
-    (if (> (.size keys) 0)
-      (if (= (fail? (get-in fs (list (first keys)))) true)
-        true
-        (failr? fs (rest keys)))
-      false))
-  (cond (= fs :fail) true
-        (or (= (type fs) clojure.lang.PersistentArrayMap)
-            (= (type fs) clojure.lang.PersistentHashMap))
-        (failr? fs (keys fs))
-        (= (type fs) clojure.lang.Ref)
-        (fail? @fs)
-        :else false))
 
 
