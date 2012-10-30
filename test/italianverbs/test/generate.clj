@@ -613,18 +613,24 @@
   (println (str "lexicon: " (if (not (nil? lexicon)) (.size lexicon) "")))
 
   (let [new-a-rules-with-fail (mapcat (fn [rule]
-                                        (map (fn [item]
-                                               (fs/unify (fs/copy rule)
-                                                         {:a (fs/copy item)}))
-                                             lexicon))
+                                        (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
+                                          (mapcat (fn [item]
+                                                    (let [item-cat (fs/get-in item '(:synsem :cat))]
+                                                      (if (not (fs/fail? (fs/unify rule-cat item-cat)))
+                                                        (list (fs/unify (fs/copy rule)
+                                                                        {:a (fs/copy item)})))))
+                                                  lexicon)))
                                       a-rules)
         new-a-rules (remove fs/fail? new-a-rules-with-fail)
 
         new-b-rules-with-fail (mapcat (fn [rule]
-                                        (map (fn [item]
-                                               (fs/unify (fs/copy rule)
-                                                         {:b (fs/copy item)}))
-                                             lexicon))
+                                        (let [rule-cat (fs/get-in rule '(:b :synsem :cat))]
+                                          (mapcat (fn [item]
+                                                    (let [item-cat (fs/get-in item '(:synsem :cat))]
+                                                      (if (not (fs/fail? (fs/unify rule-cat item-cat)))
+                                                        (list (fs/unify (fs/copy rule)
+                                                                        {:b (fs/copy item)})))))
+                                                  lexicon)))
                                       b-rules)
         new-b-rules (remove fs/fail? new-b-rules-with-fail)
         new-lexicon (concat sentence-lexicon new-b-rules)
