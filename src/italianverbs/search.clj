@@ -21,7 +21,7 @@
 
 
 ;; TODO: remove *exclude-keys*,(pathify-r) and (pathify) in favor of fs's versions.
-(def *exclude-keys* (set #{:_id :ref :refmap}))
+(def ^:dynamic *exclude-keys* (set #{:_id :ref :refmap}))
 
 (defn pathify-r [fs & [prefix]]
 "Transform a map into a map of paths/value pairs,
