@@ -52,7 +52,7 @@
          :passato-prossimo-aux {:infl :infinitive
                                 :italian "avere"}
          :passato-prossimo {:italian "fatto"}}
-
+        
         unified
         (fs/unify (fs/copy irreg-vp)
                   {:b {:root (fs/copy fare)}})]
@@ -373,6 +373,7 @@
               (fs/copy transitive)
               {:root (fs/copy fare)
                :italian "facio"
+               :english "make" ;; regular: TODO: use regular english morphology for this and others below
                :subcat {:b {:person :1st
                             :number :sing}}})
              (fs/unify
@@ -606,6 +607,73 @@
                    (fs/copy {:head head})))
        sentence-rules))
 
+(defn set-rules-to-a-rules [rules lexicon]
+  (if (> (.size rules) 0)
+    (let [rule (first rules)]
+      (assoc
+          (set-rules-to-a-rules (rest rules) lexicon)
+        rule
+        (remove fs/fail?
+                (map (fn [item]
+                       (fs/unify (fs/copy rule)
+                                 {:a (fs/copy item)}))
+                     lexicon))))
+    {}))
+
+(def rules-to-a-rules (set-rules-to-a-rules sentence-rules sentence-lexicon))
+
+(defn path-to-map [path child]
+  "_path_ (:x :y :z),_child_ =>  {:x {:y {:z child}}}"
+  (if (= (.size path) 0)
+    child
+    {(first path)
+     (path-to-map (rest path) child)}))
+
+(defn find-first-in [query collection]
+  "find the first member of the collection that unifies with query successfully."
+  (if (= (.size collection) 0)
+    nil
+    (let [result (fs/unify query (first collection))]
+      (if (not (fs/fail? result))
+        result
+        (find-first-in query (rest collection))))))
+
+(defn find-lex [query]
+  (find-first-in query sentence-lexicon))
+
+(defn find-rule [query]
+  (find-first-in query sentence-rules))
+
+(defn map-over-children [parent children path]
+  (let [parent-cat (fs/get-in parent (concat path '(:synsem :cat)))]
+    (mapcat (fn [child]
+              (let [cat-of-child (fs/get-in child '(:synsem :cat))]
+                (if (not (fs/fail? (fs/unify parent-cat cat-of-child)))
+                  (list (fs/unify (fs/copy parent)
+                                  (path-to-map path (fs/copy child)))))))
+            children)))
+
+(defn map-over-children-test []
+  (let [rule (find-rule {:a {:cat :det} :b {:cat :noun}})]
+    (map-over-children rule sentence-lexicon '(:a))))
+
+(def rules-started-with-each-lexeme
+  "create lookup table: rule => list (starts of rule with each lexeme)"
+  (let [keys sentence-rules
+        vals (map (fn [rule]
+                    (map-over-children rule sentence-lexicon '(:a)))
+                  sentence-rules)]
+    (zipmap keys vals)))
+
+(def rules-finished-with-each-lexeme
+  "create lookup table: rule => list (starts of rule with each lexeme)"
+  (let [keys sentence-rules
+        vals (map (fn [rule]
+                    (map-over-children rule sentence-lexicon '(:b)))
+                  sentence-rules)]
+    (zipmap keys vals)))
+
+
 (defn combine [a-rules b-rules lexicon halt]
   (println "")
   (println (str "a-rules: " (if (not (nil? a-rules)) (.size a-rules) "")))
@@ -614,11 +682,11 @@
 
   (let [new-a-rules-with-fail (mapcat (fn [rule]
                                         (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
-                                          (mapcat (fn [item]
-                                                    (let [item-cat (fs/get-in item '(:synsem :cat))]
-                                                      (if (not (fs/fail? (fs/unify rule-cat item-cat)))
+                                          (mapcat (fn [lexeme]
+                                                    (let [cat-of-lexeme (fs/get-in lexeme '(:synsem :cat))]
+                                                      (if (not (fs/fail? (fs/unify rule-cat cat-of-lexeme)))
                                                         (list (fs/unify (fs/copy rule)
-                                                                        {:a (fs/copy item)})))))
+                                                                        {:a (fs/copy lexeme)})))))
                                                   lexicon)))
                                       a-rules)
         new-a-rules (remove fs/fail? new-a-rules-with-fail)
@@ -647,6 +715,26 @@
        :b-rules new-b-rules}
       (combine a-rules new-a-rules new-lexicon
                (and cond1 cond2)))))
+
+(defn generate-all [filename]
+  (let [result (combine sentence-rules
+                        nil
+                        sentence-lexicon
+                        false)]
+    (printfs
+     (html/tablize (:b-rules result))
+                                        ;     {:a-rules (html/tablize (:a-rules result))
+                                        ;      :b-rules (html/tablize (:b-rules result))}
+     filename)
+    result))
+
+(defn demo [] (generate-all "demo.html"))
+
+(defn print-first [rule html]
+  (printfs rule html))
+
+(deftest print-with-complex-keys
+  (html/tablize rules-finished-with-each-lexeme))
 
 (defn workbook [head filename]
   (let [result (combine sentence-rules
