@@ -113,6 +113,12 @@
     [:body
      body]]))
 
+;; TODO: fold into tablize
+(defn tablize-with-complex-keys [arg]
+  (let [keys (keys arg)]
+    keys))
+
+
 ;; TODO: use multimethod based on arg's type.
 (defn tablize [arg & [path serialized opts]]
   ;; set defaults.
