@@ -144,26 +144,6 @@ div.stats {
     display:none;
 }
 
-table.fs {
-    float:left;
-    padding-right:1em;
-    margin-right:1em;
-    margin:3px;
-    border: 2px solid lightgreen;
-    border-collapse:collapse;
-}
-
-table.fs th {
-    text-align:center;
-    padding:2px;
-    padding-right:0.25em;
-    background: lightgreen;
-}
-
-table.fs td {
-    padding-right:1em;
-}
-
 div.utterance {
     font-style:italic;
 }
@@ -430,17 +410,6 @@ span.qtype {
 span.remove {
     font-size:small;
     font-weight:lighter;
-}
-
-/* feature structures (from fs.css@ef61fc6) */
-table.map {
-    background: white;
-    border: 2px solid lightgreen;
-}
-
-table.map th {
-    background: lightgreen;
-    border: 2px solid lightgreen;
 }
 
 div.legend {

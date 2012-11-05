@@ -1,3 +1,39 @@
+table.fs {
+    float:left;
+    padding-right:1em;
+    margin-right:1em;
+    margin:3px;
+    border: 2px solid lightgreen;
+    border-collapse:collapse;
+}
+
+th {
+    background: blue;
+}
+
+/* feature structures (from fs.css@ef61fc6) */
+table.map {
+    background: white;
+    border: 2px solid lightgreen;
+}
+
+table.map th {
+    max-width:5em;
+    background: lightgreen;
+    border: 2px solid lightgreen;
+}
+
+table.fs th {
+    text-align:center;
+    padding:2px;
+    padding-right:0.25em;
+    background: lightgreen;
+}
+
+table.fs td {
+    padding-right:1em;
+}
+
 hr {
     width:100%;
     float:left;
@@ -30,6 +66,7 @@ table.map th {
 }
 
 table.map td {
+    border-top:1px dashed lightgreen;
     vertical-align:middle;
 }
 
@@ -160,4 +197,10 @@ td.complex {
 
 td.each {
     border-left:1px dashed green;
+}
+
+th {
+    background:blue;
+    width:5%;
+    max-width:10%;
 }
