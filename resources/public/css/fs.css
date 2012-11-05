@@ -139,3 +139,25 @@ div.phrase {
 div.phrase table {
     border-collapse:collapse;
 }
+
+table.dashed td, table.dashed th {
+    border: 1px dashed green;
+}
+
+table.complex {
+    border-collapse: nocollapse;
+}
+
+
+th.complex {
+    border-bottom: 1px solid green;
+    border-right: 1px solid green;
+}
+
+td.complex {
+    border-bottom: 1px solid green;
+}
+
+td.each {
+    border-top:1px dashed green;
+}

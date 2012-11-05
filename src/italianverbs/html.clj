@@ -113,12 +113,6 @@
     [:body
      body]]))
 
-;; TODO: fold into tablize
-(defn tablize-with-complex-keys [arg]
-  (let [keys (keys arg)]
-    keys))
-
-
 ;; TODO: use multimethod based on arg's type.
 (defn tablize [arg & [path serialized opts]]
   ;; set defaults.
@@ -308,6 +302,9 @@
      (= (type arg)
         java.lang.String)
      (str "<span class='string'>" arg "</span>")
+     (= (type arg)
+        java.lang.Long)
+     (str "<span class='atom'>" arg "</span>")
      (= arg :fail)
      (str "<span class='keyword fail'>" arg "</span>")
      (= (type arg)
@@ -341,6 +338,36 @@
                        (merge opts {:as-tree false})))))
      true
      (str "<div class='unknown'>" "<b>don't know how to tablize this object : (type:" (type arg) "</b>;value=<b>"  arg "</b>)</div>"))))
+
+(defn tablize-key-row [key val]
+  (str
+   "<tr>"
+   (str "<th class='complex'>" (tablize key) "</th>")
+   (str "<td class='complex'>"
+        "<table class='list'>"
+        "<tr><td>"
+        (string/join "</td></tr></tr><td class='each'>"
+                     (map (fn [each-val]
+                            (tablize each-val))
+                          val))
+        "</td></tr>"
+        "</table>"
+        "</td>")
+   "</tr>"))
+
+;; TODO: fold into tablize
+(defn tablize-with-complex-keys [arg]
+  (let [keys (keys arg)
+        tablized-keys (map (fn [key]
+                             (tablize key))
+                           keys)]
+    (str
+     "<table class='complex'>"
+     (string/join ""
+           (map (fn [key]
+                  (tablize-key-row key (get arg key)))
+                keys))
+     "</table>")))
 
 (defn simple-fs []
   {:foo "bar"})

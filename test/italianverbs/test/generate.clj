@@ -647,21 +647,40 @@
 (defn map-over-children [parent children path]
   (let [parent-cat (fs/get-in parent (concat path '(:synsem :cat)))]
     (mapcat (fn [child]
-              (let [cat-of-child (fs/get-in child '(:synsem :cat))]
-                (if (not (fs/fail? (fs/unify parent-cat cat-of-child)))
-                  (list (fs/unify (fs/copy parent)
-                                  (path-to-map path (fs/copy child)))))))
+              (let [cat-of-child (fs/get-in child '(:synsem :cat))
+                    path-to-map (path-to-map path (fs/copy child))]
+                (if (not (fs/fail? (fs/unify (fs/copy parent-cat) (fs/copy cat-of-child))))
+                  (let [unif
+                        (fs/unify (fs/copy parent)
+;                                  (path-to-map path (fs/copy child)))]
+                                  {:a (fs/copy child)})]
+                    (if (not (fs/fail? unif))
+                    (list unif))))))
+            children)))
+
+(defn map-over-children-a [parent children path]
+  (let [parent-cat (fs/get-in parent (concat path '(:synsem :cat)))]
+    (mapcat (fn [child]
+              (let [cat-of-child (fs/get-in child '(:synsem :cat))
+                    path-to-map (path-to-map path (fs/copy child))]
+                (if (not (fs/fail? (fs/unify (fs/copy parent-cat) (fs/copy cat-of-child))))
+                  (let [unif
+                        (fs/unify (fs/copy parent)
+;                                  (path-to-map path (fs/copy child)))]
+                                  {:a (fs/copy child)})]
+                    (if (not (fs/fail? unif))
+                    (list unif))))))
             children)))
 
 (defn map-over-children-test []
   (let [rule (find-rule {:a {:cat :det} :b {:cat :noun}})]
-    (map-over-children rule sentence-lexicon '(:a))))
+    (map-over-children-a rule sentence-lexicon '(:a))))
 
 (def rules-started-with-each-lexeme
   "create lookup table: rule => list (starts of rule with each lexeme)"
   (let [keys sentence-rules
         vals (map (fn [rule]
-                    (map-over-children rule sentence-lexicon '(:a)))
+                    (map-over-children-a rule sentence-lexicon '(:a)))
                   sentence-rules)]
     (zipmap keys vals)))
 
