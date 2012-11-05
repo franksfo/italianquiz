@@ -679,11 +679,11 @@
     (zipmap keys vals)))
 
 
-(defn combine [a-rules b-rules lexicon halt real-lexicon]
+(defn combine [a-rules b-rules complete-signs halt real-lexicon]
   (println "")
   (println (str "a-rules: " (if (not (nil? a-rules)) (.size a-rules) "")))
   (println (str "b-rules: " (if (not (nil? b-rules)) (.size b-rules) "")))
-  (println (str "lexicon: " (if (not (nil? lexicon)) (.size lexicon) "")))
+  (println (str "complete-signs: " (if (not (nil? complete-signs)) (.size complete-signs) "")))
 
   (let [new-a-rules-with-fail (mapcat (fn [rule]
                                         (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
@@ -692,7 +692,7 @@
                                                       (if (not (fs/fail? (fs/unify rule-cat cat-of-lexeme)))
                                                         (list (fs/unify (fs/copy rule)
                                                                         {:a (fs/copy lexeme)})))))
-                                                  lexicon)))
+                                                  complete-signs)))
                                       a-rules)
         new-a-rules (remove fs/fail? new-a-rules-with-fail)
 
@@ -703,13 +703,13 @@
                                                       (if (not (fs/fail? (fs/unify rule-cat item-cat)))
                                                         (list (fs/unify (fs/copy rule)
                                                                         {:b (fs/copy item)})))))
-                                                  lexicon)))
+                                                  complete-signs)))
                                       b-rules)
         new-b-rules (remove fs/fail? new-b-rules-with-fail)
-        new-lexicon (concat sentence-lexicon new-b-rules)
+        new-completed (concat sentence-lexicon new-b-rules)
         nil-b-rules (nil? b-rules)
         cond1 (not nil-b-rules)
-        cond2 (= (.size lexicon) (.size new-lexicon))
+        cond2 (= (.size complete-signs) (.size new-completed))
         debug (do
                 (println (str "a succeed ratio: " (.size new-a-rules) "/" (.size new-a-rules-with-fail)))
                 (println (str "b succeed ratio: " (.size new-b-rules) "/" (.size new-b-rules-with-fail)))
@@ -717,9 +717,9 @@
         ]
     (if (and halt cond1 cond2)
       {:a-rules new-a-rules
-       :b-rules new-b-rules
+       :completed new-completed
        :lexicon real-lexicon}
-      (combine a-rules new-a-rules new-lexicon
+      (combine a-rules new-a-rules new-completed
                (and cond1 cond2) real-lexicon))))
 
 (defn generate-all [filename]
@@ -730,12 +730,9 @@
                         sentence-lexicon
                         )]
     (printfs
-     {:b-rules (html/tablize (:b-rules result))
-      :a-rules (html/tablize (:a-rules result))
+     {:completed (html/tablize (:completed result))
+      :partial (html/tablize (:a-rules result))
       :lexicon (html/tablize (:lexicon result))}
-     
-                                        ;     {:a-rules (html/tablize (:a-rules result))
-                                        ;      :b-rules (html/tablize (:b-rules result))}
      filename)
     result))
 
