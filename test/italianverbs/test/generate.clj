@@ -679,7 +679,7 @@
     (zipmap keys vals)))
 
 
-(defn combine [a-rules b-rules lexicon halt]
+(defn combine [a-rules b-rules lexicon halt real-lexicon]
   (println "")
   (println (str "a-rules: " (if (not (nil? a-rules)) (.size a-rules) "")))
   (println (str "b-rules: " (if (not (nil? b-rules)) (.size b-rules) "")))
@@ -717,17 +717,23 @@
         ]
     (if (and halt cond1 cond2)
       {:a-rules new-a-rules
-       :b-rules new-b-rules}
+       :b-rules new-b-rules
+       :lexicon real-lexicon}
       (combine a-rules new-a-rules new-lexicon
-               (and cond1 cond2)))))
+               (and cond1 cond2) real-lexicon))))
 
 (defn generate-all [filename]
   (let [result (combine sentence-rules
                         nil
                         sentence-lexicon
-                        false)]
+                        false
+                        sentence-lexicon
+                        )]
     (printfs
-     (html/tablize (:b-rules result))
+     {:b-rules (html/tablize (:b-rules result))
+      :a-rules (html/tablize (:a-rules result))
+      :lexicon (html/tablize (:lexicon result))}
+     
                                         ;     {:a-rules (html/tablize (:a-rules result))
                                         ;      :b-rules (html/tablize (:b-rules result))}
      filename)
@@ -745,7 +751,9 @@
   (let [result (combine sentence-rules
                         nil
                         sentence-lexicon
-                        false)]
+                        false
+                        sentence-lexicon
+                        )]
     (printfs
      (html/tablize (:b-rules result))
                                         ;     {:a-rules (html/tablize (:a-rules result))
