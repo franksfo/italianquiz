@@ -346,7 +346,9 @@
    (str "<td class='complex'>"
         "<table class='list'>"
         "<tr><td>"
-        (string/join "</td></tr></tr><td class='each'>"
+        (string/join
+         "</td><td class='each'>"
+                                        ;"</td></tr><tr><td class='each'>"
                      (map (fn [each-val]
                             (tablize each-val))
                           val))
