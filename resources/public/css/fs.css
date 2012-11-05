@@ -8,7 +8,6 @@ table.fs {
 }
 
 th {
-    background: blue;
 }
 
 /* feature structures (from fs.css@ef61fc6) */
@@ -187,12 +186,12 @@ table.complex {
 
 
 th.complex {
-    border-bottom: 1px solid green;
-    border-right: 1px solid green;
+    border-bottom: 2px solid green;
+    border-right: 2px solid green;
 }
 
 td.complex {
-    border-bottom: 1px solid green;
+    border-bottom: 2px solid green;
 }
 
 td.each {

@@ -663,7 +663,7 @@
     (map-over-children rule sentence-lexicon '(:a))))
 
 (def rules-started-with-each-lexeme
-  "create lookup table: rule => list (starts of rule with each lexeme)"
+  "create map of rule => list (starts of rule over all lexemes)"
   (let [keys sentence-rules
         vals (map (fn [rule]
                     (map-over-children rule sentence-lexicon '(:a)))
@@ -709,7 +709,7 @@
         new-completed (concat sentence-lexicon new-b-rules)
         nil-b-rules (nil? b-rules)
         cond1 (not nil-b-rules)
-        cond2 (= (.size complete-signs) (.size new-completed))
+        cond2 (and (not (nil? complete-signs)) (= (.size complete-signs) (.size new-completed)))
         debug (do
                 (println (str "a succeed ratio: " (.size new-a-rules) "/" (.size new-a-rules-with-fail)))
                 (println (str "b succeed ratio: " (.size new-b-rules) "/" (.size new-b-rules-with-fail)))
@@ -725,7 +725,7 @@
 (defn generate-all [filename]
   (let [result (combine sentence-rules
                         nil
-                        sentence-lexicon
+                        nil
                         false
                         sentence-lexicon
                         )]
@@ -737,6 +737,12 @@
     result))
 
 (defn demo [] (generate-all "demo.html"))
+
+(defn demo-start-rules []
+  (printfs (html/tablize-with-complex-keys rules-started-with-each-lexeme) "startedrules.html"))
+
+(defn demo-finish-rules []
+  (printfs (html/tablize-with-complex-keys rules-finished-with-each-lexeme) "finishedrules.html"))
 
 (defn print-first [rule html]
   (printfs rule html))
