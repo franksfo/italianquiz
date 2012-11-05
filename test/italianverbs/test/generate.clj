@@ -679,24 +679,13 @@
     (zipmap keys vals)))
 
 
-(defn combine [a-rules b-rules complete-signs halt real-lexicon]
+(defn combine [rules b-rules complete-signs halt real-lexicon]
   (println "")
-  (println (str "a-rules: " (if (not (nil? a-rules)) (.size a-rules) "")))
-  (println (str "b-rules: " (if (not (nil? b-rules)) (.size b-rules) "")))
-  (println (str "complete-signs: " (if (not (nil? complete-signs)) (.size complete-signs) "")))
+  (println (str "rules: " (if (not (nil? rules)) (.size rules) "0")))
+  (println (str "b-rules: " (if (not (nil? b-rules)) (.size b-rules) "0")))
+  (println (str "complete-signs: " (if (not (nil? complete-signs)) (.size complete-signs) "0")))
 
-  (let [new-a-rules-with-fail (mapcat (fn [rule]
-                                        (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
-                                          (mapcat (fn [lexeme]
-                                                    (let [cat-of-lexeme (fs/get-in lexeme '(:synsem :cat))]
-                                                      (if (not (fs/fail? (fs/unify rule-cat cat-of-lexeme)))
-                                                        (list (fs/unify (fs/copy rule)
-                                                                        {:a (fs/copy lexeme)})))))
-                                                  complete-signs)))
-                                      a-rules)
-        new-a-rules (remove fs/fail? new-a-rules-with-fail)
-
-        new-b-rules-with-fail (mapcat (fn [rule]
+  (let [new-b-rules-with-fail (mapcat (fn [rule]
                                         (let [rule-cat (fs/get-in rule '(:b :synsem :cat))]
                                           (mapcat (fn [item]
                                                     (let [item-cat (fs/get-in item '(:synsem :cat))]
@@ -706,21 +695,29 @@
                                                   complete-signs)))
                                       b-rules)
         new-b-rules (remove fs/fail? new-b-rules-with-fail)
-        new-completed (concat sentence-lexicon new-b-rules)
+        new-completed (concat real-lexicon new-b-rules)
+
         nil-b-rules (nil? b-rules)
         cond1 (not nil-b-rules)
         cond2 (and (not (nil? complete-signs)) (= (.size complete-signs) (.size new-completed)))
         debug (do
-                (println (str "a succeed ratio: " (.size new-a-rules) "/" (.size new-a-rules-with-fail)))
-                (println (str "b succeed ratio: " (.size new-b-rules) "/" (.size new-b-rules-with-fail)))
-                (println (str "new-a-rules: " (.size new-a-rules))))
-        ]
+                (println (str "b succeed ratio: " (.size new-b-rules) "/" (.size new-b-rules-with-fail))))]
     (if (and halt cond1 cond2)
-      {:a-rules new-a-rules
-       :completed new-completed
-       :lexicon real-lexicon}
-      (combine a-rules new-a-rules new-completed
-               (and cond1 cond2) real-lexicon))))
+      {:completed new-completed}
+      (combine rules
+               (remove fs/fail?
+                       (mapcat (fn [rule]
+                                 (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
+                                   (mapcat (fn [lexeme]
+                                             (let [cat-of-lexeme (fs/get-in lexeme '(:synsem :cat))]
+                                               (if (not (fs/fail? (fs/unify rule-cat cat-of-lexeme)))
+                                                 (list (fs/unify (fs/copy rule)
+                                                                 {:a (fs/copy lexeme)})))))
+                                           complete-signs)))
+                               rules))
+               new-completed
+               (and cond1 cond2)
+               real-lexicon))))
 
 (defn generate-all [filename]
   (let [result (combine sentence-rules
