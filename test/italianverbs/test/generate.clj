@@ -664,7 +664,9 @@
 
 (def rules-started-with-each-lexeme
   "create map of rule => list (starts of rule over all lexemes)"
-  (let [keys sentence-rules
+  (let [keys (map (fn [rule]
+                    (:comment rule))
+                  sentence-rules)
         vals (map (fn [rule]
                     (map-over-children rule sentence-lexicon '(:a)))
                   sentence-rules)]
@@ -672,64 +674,77 @@
 
 (def rules-finished-with-each-lexeme
   "create lookup table: rule => list (starts of rule with each lexeme)"
-  (let [keys sentence-rules
+  (let [keys (map (fn [rule] (:comment rule)) sentence-rules)
         vals (map (fn [rule]
                     (map-over-children rule sentence-lexicon '(:b)))
                   sentence-rules)]
     (zipmap keys vals)))
 
 
-(defn combine [rules b-rules complete-signs halt real-lexicon]
+(defn combine [rules b-rules complete-signs halt]
   (println "")
   (println (str "rules: " (if (not (nil? rules)) (.size rules) "0")))
   (println (str "b-rules: " (if (not (nil? b-rules)) (.size b-rules) "0")))
   (println (str "complete-signs: " (if (not (nil? complete-signs)) (.size complete-signs) "0")))
 
-  (let [new-b-rules-with-fail (mapcat (fn [rule]
-                                        (let [rule-cat (fs/get-in rule '(:b :synsem :cat))]
-                                          (mapcat (fn [item]
-                                                    (let [item-cat (fs/get-in item '(:synsem :cat))]
-                                                      (if (not (fs/fail? (fs/unify rule-cat item-cat)))
-                                                        (list (fs/unify (fs/copy rule)
-                                                                        {:b (fs/copy item)})))))
-                                                  complete-signs)))
-                                      b-rules)
-        new-b-rules (remove fs/fail? new-b-rules-with-fail)
-        new-completed (concat real-lexicon new-b-rules)
-
+  (let [new-completed-with-fail
+        (concat
+         (mapcat (fn [rule]
+                   (let [rule-cat (fs/get-in rule '(:b :synsem :cat))]
+                     (mapcat (fn [item]
+                               (let [item-cat (fs/get-in item '(:synsem :cat))]
+                                 (if (not (fs/fail? (fs/unify rule-cat item-cat)))
+                                   (list (fs/unify (fs/copy rule)
+                                                   {:b (fs/copy item)})))))
+                             complete-signs)))
+                 b-rules)
+         (mapcat (fn [b-rule]
+                   (mapcat (fn [item]
+                             (list (fs/unify (fs/copy b-rule)
+                                             (fs/copy item))))
+                           (get rules-finished-with-each-lexeme (get b-rule :comment))))
+                 b-rules))
+        new-completed (remove fs/fail? new-completed-with-fail)
+        
         nil-b-rules (nil? b-rules)
         cond1 (not nil-b-rules)
         cond2 (and (not (nil? complete-signs)) (= (.size complete-signs) (.size new-completed)))
         debug (do
-                (println (str "b succeed ratio: " (.size new-b-rules) "/" (.size new-b-rules-with-fail))))]
+                (println (str "b-side succeed ratio: " (.size new-completed) "/" (.size new-completed-with-fail))))]
     (if (and halt cond1 cond2)
-      {:completed new-completed}
+      {:completed new-completed
+       :b-rules b-rules
+       }
       (combine rules
-               (remove fs/fail?
-                       (mapcat (fn [rule]
-                                 (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
-                                   (mapcat (fn [lexeme]
-                                             (let [cat-of-lexeme (fs/get-in lexeme '(:synsem :cat))]
-                                               (if (not (fs/fail? (fs/unify rule-cat cat-of-lexeme)))
-                                                 (list (fs/unify (fs/copy rule)
-                                                                 {:a (fs/copy lexeme)})))))
+               (concat
+                (mapcat (fn [rule]
+                          (get rules-started-with-each-lexeme (get rule :comment)))
+                        rules)
+
+                (remove fs/fail?
+                        (mapcat (fn [rule]
+                                  (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
+                                    (mapcat (fn [lexeme]
+                                              (let [cat-of-lexeme (fs/get-in lexeme '(:synsem :cat))]
+                                                (if (not (fs/fail? (fs/unify rule-cat cat-of-lexeme)))
+                                                  (list (fs/unify (fs/copy rule)
+                                                                  {:a (fs/copy lexeme)})))))
                                            complete-signs)))
-                               rules))
+                                rules)))
                new-completed
-               (and cond1 cond2)
-               real-lexicon))))
+               (and cond1 cond2)))))
 
 (defn generate-all [filename]
   (let [result (combine sentence-rules
                         nil
                         nil
                         false
-                        sentence-lexicon
                         )]
     (printfs
      {:completed (html/tablize (:completed result))
-      :partial (html/tablize (:a-rules result))
-      :lexicon (html/tablize (:lexicon result))}
+                                        ;      :partial (html/tablize (:b-rules result))
+                                        ;      :lexicon (html/tablize (:lexicon result))
+      }
      filename)
     result))
 
@@ -751,9 +766,7 @@
   (let [result (combine sentence-rules
                         nil
                         sentence-lexicon
-                        false
-                        sentence-lexicon
-                        )]
+                        false)]
     (printfs
      (html/tablize (:b-rules result))
                                         ;     {:a-rules (html/tablize (:a-rules result))

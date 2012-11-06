@@ -17,7 +17,6 @@ table.map {
 }
 
 table.map th {
-    max-width:5em;
     background: lightgreen;
     border: 2px solid lightgreen;
 }
