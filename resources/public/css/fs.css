@@ -64,7 +64,6 @@ table.map th {
 }
 
 table.map td {
-    border-top:1px dashed lightgreen;
     vertical-align:middle;
 }
 
@@ -151,7 +150,7 @@ div.ref {
 
 td.parent2child {
     text-align:center;
-    border-bottom:1px solid green;
+    border-bottom:1px solid lightgreen;
 }
 
 td.parent {
@@ -167,8 +166,9 @@ td.ref {
 }
 
 div.phrase {
-    border:0px dashed black;
-    margin:1em;
+    float:left;
+    border:1px solid lightgreen;
+    margin:1.5em;
 }
 
 div.phrase table {
@@ -194,7 +194,7 @@ td.complex {
 }
 
 td.each {
-    border-left:1px dashed green;
+    border:1px dashed blue;
 }
 
 table {
