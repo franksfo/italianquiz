@@ -109,7 +109,10 @@
              (list (fs/get-in expression '(:a))
                    (fs/get-in expression '(:b))))
         ""))))
-  
+
+(defn read-off-italian-2 [expression]
+  (join (flatten (seq (read-off-italian expression))) " "))
+
 (defn random [members]
   "return a randomly-selected member of the set members."
   (if (nil? members) nil
@@ -727,9 +730,21 @@
                    (let [rule-cat (fs/get-in b-rule '(:b :synsem :cat))]
                      (mapcat (fn [sign]
                                (let [sign-cat (fs/get-in sign '(:synsem :cat))]
-                                 (if (and true (not (fs/fail? (fs/unify rule-cat sign-cat))))
-                                   (list (fs/unify (fs/copy b-rule)
-                                                   {:b (fs/copy sign)})))))
+                                 (if (and
+                                      (not (= (:comment sign) (:comment b-rule))) ;; don't allow RHS child to be same rule as parent.
+                                      (not (fs/fail? (fs/unify rule-cat sign-cat))))
+                                   (let [result (fs/unify (fs/copy b-rule)
+                                                     {:b (fs/copy sign)})]
+                                     (if false
+                                       (println (str (:comment b-rule)
+                                                     " \"" (read-off-italian-2 b-rule) "\""
+                                                     "; " (:comment sign) " "
+                                                     " \"" (read-off-italian-2 sign) "\""
+                                                     " => "
+                                                     (if (not (= result :fail))
+                                                       (str "\"" (read-off-italian-2 result) "\"")))))
+                                     (if (not (= result :fail))
+                                       (list result))))))
                              complete-signs)))
                  b-rules)
          (mapcat (fn [b-rule]
