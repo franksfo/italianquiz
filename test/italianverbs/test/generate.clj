@@ -689,20 +689,23 @@
 
   (let [new-completed-with-fail
         (concat
-         (mapcat (fn [rule]
-                   (let [rule-cat (fs/get-in rule '(:b :synsem :cat))]
+         (mapcat (fn [b-rule]
+                   (let [rule-cat (fs/get-in b-rule '(:b :synsem :cat))]
                      (mapcat (fn [item]
                                (let [item-cat (fs/get-in item '(:synsem :cat))]
                                  (if (not (fs/fail? (fs/unify rule-cat item-cat)))
-                                   (list (fs/unify (fs/copy rule)
+                                   (list (fs/unify (fs/copy b-rule)
                                                    {:b (fs/copy item)})))))
                              complete-signs)))
                  b-rules)
          (mapcat (fn [b-rule]
-                   (mapcat (fn [item]
-                             (list (fs/unify (fs/copy b-rule)
-                                             (fs/copy item))))
-                           (get rules-finished-with-each-lexeme (get b-rule :comment))))
+                   (let [rule-cat (fs/get-in b-rule '(:b :synsem :cat))]
+                     (mapcat (fn [item]
+                               (let [item-cat (fs/get-in item '(:b :synsem :cat))]
+                                 (if (not (fs/fail? (fs/unify rule-cat item-cat)))
+                                   (list (fs/unify (fs/copy b-rule)
+                                                   (fs/copy item))))))
+                             (get rules-finished-with-each-lexeme (get b-rule :comment)))))
                  b-rules))
         new-completed (remove fs/fail? new-completed-with-fail)
         
@@ -713,22 +716,32 @@
                 (println (str "b-side succeed ratio: " (.size new-completed) "/" (.size new-completed-with-fail))))]
     (if (and halt cond1 cond2)
       {:completed new-completed
-       :b-rules b-rules
-       }
+       :b-rules b-rules}
       (combine rules
                (concat
-                (mapcat (fn [rule]
-                          (get rules-started-with-each-lexeme (get rule :comment)))
-                        rules)
+                (mapcat (fn [starts]
+                          starts)
+                          (vals rules-started-with-each-lexeme))
 
                 (remove fs/fail?
                         (mapcat (fn [rule]
                                   (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
-                                    (mapcat (fn [lexeme]
-                                              (let [cat-of-lexeme (fs/get-in lexeme '(:synsem :cat))]
-                                                (if (not (fs/fail? (fs/unify rule-cat cat-of-lexeme)))
-                                                  (list (fs/unify (fs/copy rule)
-                                                                  {:a (fs/copy lexeme)})))))
+                                    (mapcat (fn [complete-sign]
+                                              (let [cat-of-sign (fs/get-in complete-sign '(:synsem :cat))
+                                                    debug
+                                                    (do
+;                                                      (println (str "[" (:comment rule) "] -a-> [" (:comment complete-sign) "]"))
+                                                      )]
+                                                (if (and
+                                                     (not (= (:comment rule) (:comment complete-sign)))
+                                                     (not (fs/fail? (fs/unify rule-cat cat-of-sign))))
+                                                  (do
+;                                                    (println " (succeed)")
+                                                    (list (fs/unify (fs/copy rule)
+                                                                    {:a (fs/copy complete-sign)})))
+                                                  (do
+ ;                                                   (println " (fail)")
+                                                    nil))))
                                            complete-signs)))
                                 rules)))
                new-completed
@@ -746,7 +759,7 @@
                                         ;      :lexicon (html/tablize (:lexicon result))
       }
      filename)
-    result))
+    (:completed result)))
 
 (defn demo [] (generate-all "demo.html"))
 
