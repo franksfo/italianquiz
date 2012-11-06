@@ -4,6 +4,7 @@
   (:require
    [clojure.tools.logging :as log]
    [clojure.string :as string]
+   [clojure.set :as set]
    [somnium.congomongo :as mongo]
    ;; TODO: graduate italianverbs.fs to :use.
    [italianverbs.fs :as fs]
@@ -680,31 +681,64 @@
                   sentence-rules)]
     (zipmap keys vals)))
 
+(def total-size-of-started-rule-map
+  (reduce (fn [x y] (+ x y))
+          (map (fn [ruleset]
+                 (if (nil? ruleset) 0 (.size ruleset)))
+               (vals rules-started-with-each-lexeme))))
 
-(defn combine [rules b-rules complete-signs halt]
+(def total-size-of-finished-rule-map
+  (reduce (fn [x y] (+ x y))
+          (map (fn [ruleset]
+                 (if (nil? ruleset) 0 (.size ruleset)))
+               (vals rules-finished-with-each-lexeme))))
+
+;; (combine): build trees based on rules.
+;; b-rules are partial trees where the a-side is completed, but the b-side is not.
+;; They are looking for b-sides that can complete them.
+;;
+;; complete-signs is the list of complete rules - they started as b-rules and found
+;; a b-side match.
+;;
+;; halt: boolean: whether to halt at end of this call.
+(defn combine [b-rules complete-signs halt]
   (println "")
-  (println (str "rules: " (if (not (nil? rules)) (.size rules) "0")))
-  (println (str "b-rules: " (if (not (nil? b-rules)) (.size b-rules) "0")))
+  (println (str "incoming b-rules: " (if (not (nil? b-rules)) (.size b-rules) "0")))
   (println (str "complete-signs: " (if (not (nil? complete-signs)) (.size complete-signs) "0")))
+  (println (str "start-rules-with-lexemes: " total-size-of-started-rule-map))
+  (println (str "new-completed sum: " (+ (* (if (not (nil? b-rules)) (.size b-rules) 0)
+                                            (if (not (nil? complete-signs)) (.size complete-signs) 0))
+                                         (* (if (not (nil? b-rules)) (.size b-rules) 0)
+                                            total-size-of-finished-rule-map))))
 
+  
+  ;; join the b-rules with:
+  ;; 1) complete-signs 
+  ;; 2) rules-finished-with-each-lexeme
+  ;;
+  ;;    i.e.: new-completed-with-fail = (b_rules * complete_signs) + (b_rules * rules_finished_with_each_lexeme)
+  ;;
+  ;; rules-finished-with-each-lexeme is a pre-computed join of the rules over the lexicon, where we
+  ;; try to put each lexeme as the b-side (i.e. the finishing side) of each rule.
+  ;; 
   (let [new-completed-with-fail
         (concat
          (mapcat (fn [b-rule]
                    (let [rule-cat (fs/get-in b-rule '(:b :synsem :cat))]
-                     (mapcat (fn [item]
-                               (let [item-cat (fs/get-in item '(:synsem :cat))]
-                                 (if (not (fs/fail? (fs/unify rule-cat item-cat)))
+                     (mapcat (fn [sign]
+                               (let [sign-cat (fs/get-in sign '(:synsem :cat))]
+                                 (if (and true (not (fs/fail? (fs/unify rule-cat sign-cat))))
                                    (list (fs/unify (fs/copy b-rule)
-                                                   {:b (fs/copy item)})))))
+                                                   {:b (fs/copy sign)})))))
                              complete-signs)))
                  b-rules)
          (mapcat (fn [b-rule]
                    (let [rule-cat (fs/get-in b-rule '(:b :synsem :cat))]
-                     (mapcat (fn [item]
-                               (let [item-cat (fs/get-in item '(:b :synsem :cat))]
-                                 (if (not (fs/fail? (fs/unify rule-cat item-cat)))
+                     (mapcat (fn [sign]
+                               (let [sign-cat (fs/get-in sign '(:b :synsem :cat))]
+                                 (if (and true (not (fs/fail? (fs/unify rule-cat sign-cat))))
                                    (list (fs/unify (fs/copy b-rule)
-                                                   (fs/copy item))))))
+                                                   (fs/copy sign))))))
                              (get rules-finished-with-each-lexeme (get b-rule :comment)))))
                  b-rules))
         new-completed (remove fs/fail? new-completed-with-fail)
@@ -713,43 +747,51 @@
         cond1 (not nil-b-rules)
         cond2 (and (not (nil? complete-signs)) (= (.size complete-signs) (.size new-completed)))
         debug (do
-                (println (str "b-side succeed ratio: " (.size new-completed) "/" (.size new-completed-with-fail))))]
+                (println (str "new-completed succeed ratio: " (.size new-completed) "/" (.size new-completed-with-fail))))]
     (if (and halt cond1 cond2)
       {:completed new-completed
        :b-rules b-rules}
-      (combine rules
-               (concat
-                (mapcat (fn [starts]
-                          starts)
-                          (vals rules-started-with-each-lexeme))
-
-                (remove fs/fail?
-                        (mapcat (fn [rule]
-                                  (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
-                                    (mapcat (fn [complete-sign]
-                                              (let [cat-of-sign (fs/get-in complete-sign '(:synsem :cat))
-                                                    debug
-                                                    (do
-;                                                      (println (str "[" (:comment rule) "] -a-> [" (:comment complete-sign) "]"))
-                                                      )]
-                                                (if (and
-                                                     (not (= (:comment rule) (:comment complete-sign)))
-                                                     (not (fs/fail? (fs/unify rule-cat cat-of-sign))))
-                                                  (do
-;                                                    (println " (succeed)")
-                                                    (list (fs/unify (fs/copy rule)
-                                                                    {:a (fs/copy complete-sign)})))
-                                                  (do
- ;                                                   (println " (fail)")
-                                                    nil))))
+      (combine
+        ;; new b-rules = rules-started-with-each-lexeme + ( sentence-rules * complete-signs)
+       (seq (set/difference
+             (set
+              (concat
+               (mapcat (fn [starts]
+                         starts)
+                       (vals rules-started-with-each-lexeme))
+               (remove fs/fail?
+                       (mapcat (fn [rule]
+                                 (let [rule-cat (fs/get-in rule '(:a :synsem :cat))]
+                                   (mapcat (fn [complete-sign]
+                                             (let [cat-of-sign (fs/get-in complete-sign '(:synsem :cat))
+                                                   debug
+                                                   (do
+                                        ;                                                      (println (str "[" (:comment rule) "] -a-> [" (:comment complete-sign) "]"))
+                                                     )]
+                                               (if (and
+                                                    ;; don't allow left recursive branching of rules (e.g. S -> S VP)
+                                                    (not (= (:comment rule) (:comment complete-sign)))
+                                                    (not (fs/fail? (fs/unify rule-cat cat-of-sign))))
+                                                 (do
+                                        ;                                                    (println " (succeed)")
+                                                   (list (fs/unify (fs/copy rule)
+                                                                   {:a (fs/copy complete-sign)})))
+                                                 (do
+                                        ;                                                   (println " (fail)")
+                                                   nil))))
                                            complete-signs)))
-                                rules)))
-               new-completed
-               (and cond1 cond2)))))
+                               sentence-rules))))
+             nil))
+                                        ;             (set b-rules)))
+            
+
+       ;; new complete-signs
+       new-completed 
+       ;; halt after next recursive call is done?
+       (and cond1 cond2)))))
 
 (defn generate-all [filename]
-  (let [result (combine sentence-rules
-                        nil
+  (let [result (combine nil
                         nil
                         false
                         )]
@@ -776,9 +818,8 @@
   (html/tablize rules-finished-with-each-lexeme))
 
 (defn workbook [head filename]
-  (let [result (combine sentence-rules
+  (let [result (combine nil
                         nil
-                        sentence-lexicon
                         false)]
     (printfs
      (html/tablize (:b-rules result))
