@@ -183,57 +183,64 @@
         agreement {:synsem {:gender gender
                             :number number}
                    :subcat {:a {:gender gender
-                                :number number}}}]
-  (list
-   (fs/unify (fs/copy agreement)
-             {:synsem {:cat :noun
-                       :number :sing
-                       :gender :masc
-                       :artifact true
-                       :person :3rd}
-              :subcat {:a {:cat :det}}
-              :italian "compito"
-              :english "homework"})
-   (fs/unify (fs/copy agreement)
-             {:synsem {:cat :noun
-                       :number :sing
-                       :gender :masc
-                       :edible true
-                       :artifact true
-                       :person :3rd}
-              :subcat {:a {:cat :det}}
-              :italian "pane"
-              :english "bread"})
-   (fs/unify (fs/copy agreement)
-             {:synsem {:cat :noun
-                       :number :sing
-                       :gender :fem
-                       :edible true
-                       :artifact true
-                       :person :3rd}
-              :subcat {:a {:cat :det}}
-              :italian "pasta"
-              :english "pasta"})
+                                :number number}}}
+        human {:human true
+               :artifact false
+               :edible false
+               :animate true}
+        animal {:artifact false
+                :animate true}
 
+        artifact {:artifact true
+                  :animate false}]
 
+    (list
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
+                         :gender :masc
+                         :edible false
+                         :artifact true
+                         :person :3rd}
+                :subcat {:a {:cat :det}}
+                :italian "compito"
+                :english "homework"})
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
+                         :gender :masc
+                         :edible true
+                         :artifact true
+                         :person :3rd}
+                :subcat {:a {:cat :det}}
+                :italian "pane"
+                :english "bread"})
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
+                         :gender :fem
+                         :edible true
+                         :artifact true
+                         :person :3rd}
+                :subcat {:a {:cat :det}}
+                :italian "pasta"
+                :english "pasta"})
    
    (fs/unify (fs/copy agreement)
+             (fs/copy human)
              {:synsem {:cat :noun
                        :number :sing
                        :gender :masc
-                       :artifact false
-                       :human true
                        :person :3rd}
               :subcat {:a {:cat :det}}
               :italian "ragazzo"
               :english "guy"})
 
    (fs/unify (fs/copy agreement)
+             (fs/copy human)
              {:synsem {:cat :noun
                        :number :sing
                        :gender :fem
-                       :artifact false
-                       :human true
                        :person :3rd}
               :subcat {:a {:cat :det}}
               :italian "ragazza"
@@ -330,7 +337,38 @@
              :a head
              :b comp})]
       vp-rule-1))))
-  
+
+(def debug-lex
+  (let [verb-with-root
+        (let [cat (ref :top)
+              subcat (ref :top)]
+          {:synsem {:cat cat}
+           :subcat subcat
+           :root {:subcat subcat
+                  :synsem {:cat cat}}})
+        transitive
+        (let [subj (ref :top)
+              obj (ref :top)]
+          {:synsem {:subj subj
+                    :obj obj}
+           :subcat {:a obj
+                    :b subj}
+           :root {:synsem {:subj subj
+                           :obj obj}}})
+        finite
+        (fs/unify
+         (fs/copy verb-with-root)
+         {:synsem {:infl :present}})
+        
+        regular-verb-inflection
+        (let [agreement (ref {:person :top
+                              :number :top})]
+          {:italian {:morph agreement}
+           :subcat {:b agreement}
+           :cat :verb})
+        ]
+    (list verb-with-root transitive finite regular-verb-inflection)))
+
 (def vp-1-lexicon
   (let [verb-with-root
         (let [cat (ref :top)
@@ -351,7 +389,16 @@
         finite
         (fs/unify
          (fs/copy verb-with-root)
-         {:synsem {:infl :present}})]
+         {:synsem {:infl :present}})
+        
+        regular-verb-inflection
+        (let [agreement {:person :top
+                         :number :top}]
+          {:italian {:morph agreement}
+           :subcat {:b agreement}
+           :cat :verb})
+
+        ]
     (concat
      np-1-lexicon
      (let [fare
@@ -362,24 +409,63 @@
                       :human false
                       :artifact true}]
              (fs/unify
-              transitive
+              (fs/copy transitive)
               {:italian "fare"
                :english "to do"
+               :synsem {:cat :verb
+                        :morph :irreg
+                        :subj subj
+                        :obj obj
+                        :infl :infinitive}
+               :subcat {:a obj
+                        :b subj}}))
+           mangiare
+           (let [subj {:cat :noun
+                       :artifact false
+                       :animate true}
+                 obj {:cat :noun
+                      :edible true}]
+             
+             (fs/unify
+              (fs/copy transitive)
+              (fs/copy regular-verb-inflection)
+              {:italian "mangiare"
+               :english "to eat"
                :synsem {:cat :verb
                         :subj subj
                         :obj obj
                         :infl :infinitive}
                :subcat {:a obj
                         :b subj}}))]
+
        (list fare
+             mangiare
              (fs/unify
               (fs/copy finite)
               (fs/copy transitive)
               {:root (fs/copy fare)
                :italian "facio"
-               :english "make" ;; regular: TODO: use regular english morphology for this and others below
                :subcat {:b {:person :1st
                             :number :sing}}})
+
+             (fs/unify
+              (fs/copy finite)
+              (fs/copy transitive)
+              (let [agreement {:person :1st
+                               :number :sing}]
+                {:italian {:morph agreement}
+                 :root (fs/copy mangiare)
+                 :subcat {:b agreement}}))
+
+             (fs/unify
+              (fs/copy finite)
+              (fs/copy transitive)
+              (let [agreement {:person :2nd
+                               :number :sing}]
+              {:italian {:morph agreement}
+               :root (fs/copy mangiare)
+               :subcat {:b agreement}}))
+
              (fs/unify
               (fs/copy finite)
               (fs/copy transitive)
@@ -705,6 +791,7 @@
 ;;
 ;; halt: boolean: whether to halt at end of this call.
 (defn combine [b-rules complete-signs halt]
+
   (println "")
   (println (str "incoming b-rules: " (if (not (nil? b-rules)) (.size b-rules) "0")))
   (println (str "complete-signs: " (if (not (nil? complete-signs)) (.size complete-signs) "0")))
@@ -815,8 +902,8 @@
                                         ;      :partial (html/tablize (:b-rules result))
                                         ;      :lexicon (html/tablize (:lexicon result))
       }
-     filename)
-    (:completed result)))
+     filename)))
+;    (:completed result)))
 
 (defn demo [] (generate-all "demo.html"))
 
