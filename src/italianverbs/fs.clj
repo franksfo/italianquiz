@@ -284,15 +284,32 @@
 The idea is to map the key :foo to the (recursive) result of pathify on :foo's value."
 (println (str "pathify with: " fs)))
 
+(def uniq-using-recur
+  (fn [sorted-vals]
+    (loop [sv sorted-vals result nil]
+      (let [first-val (first sv)]
+      (if (nil? (first sv))
+        result
+        (let [second-val (second sv)]
+          (if (= first-val second-val)
+            (recur (rest sv)
+                   result)
+            (recur (rest sv)
+                   (cons first-val result)))))))))
+
 (defn uniq [sorted-vals]
+  (reverse (uniq-using-recur sorted-vals)))
+
+;; by comparison (causes stack overflow on large lists):
+(defn uniq-recursive [sorted-vals]
   (let [first-val (first sorted-vals)]
     (if first-val
       (let [second-val (second sorted-vals)]
         (if second-val
           (if (= first-val second-val)
-            (uniq (rest sorted-vals))
+            (uniq-recursive (rest sorted-vals))
             (cons first-val
-                  (uniq (rest sorted-vals))))
+                  (uniq-recursive (rest sorted-vals))))
           (list first-val))))))
 
 (defn paths-to-value [map value path]
