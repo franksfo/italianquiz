@@ -177,6 +177,16 @@
            :b head})]
     (list np-rule-1)))
 
+(def human {:human true
+            :artifact false
+            :edible false ;; sorry, cannibals..
+            :animate true})
+(def animal {:artifact false
+             :animate true})
+(def artifact {:artifact true
+               :animate false})
+             
+
 (def np-1-lexicon
   (let [gender (ref :top)
         number (ref :top)
@@ -339,14 +349,14 @@
       vp-rule-1))))
 
 (def debug-lex
-  (let [verb-with-root
+  (let [verb-with-root ;; a verb and its root share the same cat and subcat.
         (let [cat (ref :top)
               subcat (ref :top)]
           {:synsem {:cat cat}
            :subcat subcat
            :root {:subcat subcat
                   :synsem {:cat cat}}})
-        transitive
+        transitive ;; for transitive verbs, (subcat a) is the object and (subcat b) is the subject.
         (let [subj (ref :top)
               obj (ref :top)]
           {:synsem {:subj subj
@@ -355,19 +365,34 @@
                     :b subj}
            :root {:synsem {:subj subj
                            :obj obj}}})
-        finite
+        finite ;; simply verb-with-root but present tense.
         (fs/unify
          (fs/copy verb-with-root)
          {:synsem {:infl :present}})
         
-        regular-verb-inflection
+        regular-verb-inflection ;; regular verbs' italian is determined by their subjects' person and number.
         (let [agreement (ref {:person :top
                               :number :top})]
           {:italian {:morph agreement}
            :subcat {:b agreement}
-           :cat :verb})
+           :root {:synsem {:cat :verb}}})
+          
         ]
     (list verb-with-root transitive finite regular-verb-inflection)))
+
+(def regular-lexicon
+  (let [mangiare {:italian "mangiare" :synsem {:subj {:animate true} :obj {:edible true}}}
+        leggere {:italian "leggere" :synsem {:subj human :obj {:legible true}}}
+        regular (fs/unify (nth debug-lex 0) (nth debug-lex 1) (nth debug-lex 2)  (nth debug-lex 3))]
+    (list
+     (fs/unify (fs/copy regular) (fs/copy {:root mangiare}) {:synsem {:subj {:person :1st :number :sing}}}) ;; mangio
+     (fs/unify (fs/copy regular) (fs/copy {:root mangiare}) {:synsem {:subj {:person :2nd :number :sing}}}) ;; mangi
+     (fs/unify (fs/copy regular) (fs/copy {:root mangiare}) {:synsem {:subj {:person :3rd :number :sing}}}) ;; mangia
+
+     (fs/unify (fs/copy regular) (fs/copy {:root leggere}) {:synsem {:subj {:person :1st :number :sing}}}) ;; leggo
+     (fs/unify (fs/copy regular) (fs/copy {:root leggere}) {:synsem {:subj {:person :2nd :number :sing}}}) ;; leggi
+     (fs/unify (fs/copy regular) (fs/copy {:root leggere}) {:synsem {:subj {:person :3rd :number :sing}}})))) ;; leggia
+
 
 (def vp-1-lexicon
   (let [verb-with-root
@@ -396,9 +421,7 @@
                          :number :top}]
           {:italian {:morph agreement}
            :subcat {:b agreement}
-           :cat :verb})
-
-        ]
+           :root {:synsem {:cat :verb}}})]
     (concat
      np-1-lexicon
      (let [fare
