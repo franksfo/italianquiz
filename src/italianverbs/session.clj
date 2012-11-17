@@ -3,6 +3,7 @@
     [hiccup core]
     [somnium.congomongo])
     (:require [italianverbs.lexicon :as lexicon]
+              [clojure.string :as string]
               [somnium.congomongo :as congomongo]
               [base.lib :as lib])
     (:import (java.security 
@@ -33,7 +34,7 @@
 
 (defn register [request] ;; create a new session for the given user.
   "register session from database keyed on request; return session record from db."
-  (let [username (str "eugene-" (stringc/take 5 (lib/get-session-key request)))
+  (let [username (str "eugene-" (subs (lib/get-session-key request) 0 5))
         newuser (find-or-insert-user username)
         newsession
         (do (last-activity username)

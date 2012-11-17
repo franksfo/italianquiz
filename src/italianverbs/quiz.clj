@@ -5,6 +5,7 @@
 (ns italianverbs.quiz
   (:use [hiccup core page])
   (:require [somnium.congomongo :as mongo]
+            [clojure.tools.logging :as log]
             [italianverbs.lev :as lev]
             [italianverbs.session :as session]
             [italianverbs.grammar :as gram]
@@ -13,7 +14,7 @@
             [italianverbs.xml :as xml]
             [italianverbs.generate :as gen]
             [ring.util.codec :as url]
-            [clojure.contrib.str-utils2 :as str-utils]))
+            [clojure.string :as string]))
 
 ;; to add a new question type:
 ;; 1. write a function (gen/mytype) that generates a random question for mytype.
@@ -106,7 +107,7 @@
 			answer show-true-before)))))))
 
 (defn normalize-whitespace [string]
-  (stringc/replace-re #"[ ]+$" "" (stringc/replace-re #"^[ ]+" "" (stringc/replace-re #"[ ]+" " " string))))
+  (string/replace #"[ ]+$" "" (string/replace #"^[ ]+" "" (string/replace #"[ ]+" " " string))))
 
 (defn store-question [question session-id last-guess]
   {:pre [(not (= session-id nil))]}
@@ -638,7 +639,7 @@
 (defn- show-filters [session]
   (let [record (mongo/fetch-one :filter :where {:session session})
         filters (if record (get record :form-params))]
-    (stringc/join " "
+    (string/join " "
                   (map (fn [key]
                          (if (get filters (keyword key))
                            (html
