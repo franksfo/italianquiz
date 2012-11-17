@@ -168,25 +168,31 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    :place-preps {:cat :prep
                    :obj {:place true}}})
 
-
 (defn searchq [search-exp attrs]
   "search with query. attrs is converted into filtering attribute-value pairs in the feature structures."
-  (if search-exp
-    (string/join " "
-                 (concat
-                  (map (fn [attr]
-                         (let [constraints {(keyword attr) search-exp}
-                               results (gram/choose-lexeme constraints)]
-                           (if (and results
-                                    (not (= (get results :cat) :error))) ;; currently 'no results found' is a {:cat :error}.
-                             (html/fs (gram/choose-lexeme constraints)))))
-                       (string/split (java.util.regex.Pattern/compile " ") (if attrs attrs "italian english")))
-                  (mapcat (fn [search-term]
-                            (let [grammatical-terminology-term (get grammatical-terminology-term (keyword search-term))]
-                              (if grammatical-terminology-term
-                                (map (fn [fs] (html/fs fs)) (query (pathify grammatical-terminology-term))))))
-                          (string/split (java.util.regex.Pattern/compile " ") search-exp))))
-    nil))
+  (do
+    (log/info (str "searchq: searching with search-exp: " search-exp " and attrs: " attrs))
+    (if search-exp
+      (string/join " "
+                   (concat
+                    (map (fn [attr]
+                           (let [constraints {(keyword attr) search-exp}
+                                 results (gram/choose-lexeme constraints)]
+                             (if (and results
+                                      (not (= (get results :cat) :error))) ;; currently 'no results found' is a {:cat :error}.
+                               (html/fs (gram/choose-lexeme constraints)))))
+                         (string/split (if attrs attrs "italian english") #"[ ]+"))
+                    (mapcat (fn [search-term]
+                              (let [grammatical-terminology-term (get
+                                                                  grammatical-terminology-term
+                                                                  (keyword search-term))]
+                                (log/info (str "searchq: gtt: " grammatical-terminology-term))
+                                (if grammatical-terminology-term
+                                  (map (fn [fs]
+                                         (html/fs fs))
+                                       (query (pathify grammatical-terminology-term))))))
+                            (string/split search-exp #"[ ]+"))))
+      nil)))
 
 (defn search-ui [request]
   (let [search-query (get (get request :query-params) "search")]
@@ -195,7 +201,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       [:h2 "cerca"]
       [:div#searchbar
        [:input {:size "50" :id "search" :type "text"  :value search-query }]
-       [:button {:onclick "search()"} "cerca"]]
+       [:button {:onclick "search()"} "cerca.."]]
       [:div#searchresults
        (if search-query
          (searchq search-query nil))]])))
