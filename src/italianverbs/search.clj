@@ -189,9 +189,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                 (log/info (str "searchq: gtt: " grammatical-terminology-term))
                                 (if grammatical-terminology-term
                                   (map (fn [fs]
-                                         (html/fs fs))
+                                         (str
+                                          (html/fs fs)))
                                        (query (pathify grammatical-terminology-term))))))
-                            (string/split search-exp #"[ ]+"))))
+                            (string/split search-exp #"[ ]+"))
+                    (let [loaded
+                          (try
+                            (load-string search-exp) ;; SECURITY: clean search-exp before evaluating.
+                            (catch Exception e
+                              (log/error (str "failed to load-string: " search-exp))))]
+                      (if (= (type loaded) clojure.lang.PersistentArrayMap)
+                        (list (html/fs loaded))))))
       nil)))
 
 (defn search-ui [request]
