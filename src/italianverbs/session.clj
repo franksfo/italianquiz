@@ -34,7 +34,12 @@
 
 (defn register [request] ;; create a new session for the given user.
   "register session from database keyed on request; return session record from db."
-  (let [username (str "eugene-" (subs (lib/get-session-key request) 0 5))
+  (let [username (str "eugene-" (subs
+                                 (if (not (nil?
+                                           (lib/get-session-key request)))
+                                   (lib/get-session-key request)
+                                   "<nilsession>")
+                                 0 5))
         newuser (find-or-insert-user username)
         newsession
         (do (last-activity username)

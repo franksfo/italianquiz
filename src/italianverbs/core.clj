@@ -35,7 +35,7 @@
        request
        ;; response map
        {:status 302
-        :headers {"Location" "http://localhost:3000/italian/quiz/"}})
+        :headers {"Location" "/italian/quiz/"}})
 
   (GET "/preferiti/"
        request
@@ -232,7 +232,7 @@
   (GET "/italian/quiz/"
        request
        {:status 302
-        :headers {"Location" "http://localhost:3000/italian/"}})
+        :headers {"Location" "http://eugenes-macbook-pro.local/italian/"}})
   
   ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
