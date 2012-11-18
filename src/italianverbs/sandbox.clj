@@ -11,6 +11,13 @@
 (def artifact {:artifact true
                :animate false})
 
+(def edible {:edible true
+             :human false}) ;; sorry again, cannibals..
+
+(def infinitive-verb
+  {:synsem {:cat :verb
+            :infl :infinitive}})
+
 (def np-1-lexicon
   (let [gender (ref :top)
         number (ref :top)
@@ -118,13 +125,16 @@
           {:synsem {:subj subj
                     :obj obj}
            :subcat {:a obj
-                    :b subj}
-           :root {:synsem {:subj subj
-                           :obj obj}}})
-        finite
-        (fs/unify
-         (fs/copy verb-with-root)
-         {:synsem {:infl :present}})
+                    :b subj}})
+
+        finite-transitive
+        (let [subj (ref :top)
+              obj (ref :top)]
+          (fs/unify
+           (fs/copy verb-with-root)
+           {:synsem {:infl :present}
+            :root {:synsem {:subj subj
+                            :obj obj}}}))
         
         regular-verb-inflection
         (let [agreement {:person :top
@@ -134,11 +144,9 @@
            :root {:synsem {:cat :verb}}})
 
         fare
-        (let [subj {:cat :noun
-                    :artifact false
+        (let [subj {:artifact false
                     :human true}
-              obj {:cat :noun
-                   :human false
+              obj {:human false
                    :artifact true}]
           (fs/unify
            (fs/copy transitive)
@@ -155,49 +163,52 @@
      np-1-lexicon
      (list
       fare
+      (fs/unify {:italian "test0"}
+                (fs/copy finite-transitive))
+
       (fs/unify
-       (fs/copy finite)
        (fs/copy transitive)
+       (fs/copy infinitive-verb)
        {:italian "mangiare"
         :synsem {:subj {:animate true}
-                 :obj {:edible true}}})
+                 :obj edible}})
       (fs/unify
-       (fs/copy finite)
+       (fs/copy finite-transitive)
        (fs/copy transitive)
        {:root (fs/copy fare)
         :italian "facio"
         :subcat {:b {:person :1st
                      :number :sing}}})
       (fs/unify
-       (fs/copy finite)
+       (fs/copy finite-transitive)
        (fs/copy transitive)
        {:root (fs/copy fare)
         :italian "fai"
         :subcat {:b {:person :2nd
                      :number :sing}}})
       (fs/unify
-       (fs/copy finite)
+       (fs/copy finite-transitive)
        (fs/copy transitive)
        {:root (fs/copy fare)
         :italian "fa"
         :subcat {:b {:person :3rd
                      :number :sing}}})
       (fs/unify
-       (fs/copy finite)
+       (fs/copy finite-transitive)
        (fs/copy transitive)
        {:root (fs/copy fare)
         :italian "facciamo"
         :subcat {:b {:person :1st
                      :number :plur}}})
       (fs/unify
-       (fs/copy finite)
+       (fs/copy finite-transitive)
        (fs/copy transitive)
        {:root (fs/copy fare)
         :italian "fate"
         :subcat {:b {:person :2nd
                      :number :plur}}})
       (fs/unify
-       (fs/copy finite)
+       (fs/copy finite-transitive)
        (fs/copy transitive)
        {:root (fs/copy fare)
         :italian "fanno"
