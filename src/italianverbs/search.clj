@@ -285,7 +285,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
      [:div#workbook-ui {:class "quiz-elem"}
       [:h2 "Workbook"]
       [:div#searchbar
-       [:textarea {:cols 50 :rows 4 :id "workbookq" }
+       [:textarea {:cols 120 :rows 4 :id "workbookq" }
         search-query]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka

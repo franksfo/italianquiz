@@ -334,9 +334,13 @@
                 (fs/copy arg))
               args)))
 
-(defn over [parent child as]
+(defn over [parent child]
+  (let [as (if (nil?
+                (fs/get-in parent '(:a :italian)))
+             :a
+             :b)]
   (unify parent
-         {as child}))
+         {as child})))
 
 (defn it [italian]
   (lookup {:italian italian}))
