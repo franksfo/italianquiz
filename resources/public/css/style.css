@@ -21,8 +21,14 @@ div.quiz-elem {
     -moz-border-radius: 5px;
     border-radius: 5px;
     padding:0;
-    margin:0;
-   
+    margin:0;   
+}
+
+div#workbooka {
+    width:99%;
+    float:left;
+    padding-left:3px;
+    padding-right:3px;
 }
 
 div.quiz-elem form {
