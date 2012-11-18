@@ -140,5 +140,8 @@
                 (fs/copy arg))
               args)))
 
+(defn over [parent child as]
+  (unify parent
+         {as child}))
 
 
