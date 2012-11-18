@@ -338,4 +338,8 @@
   (unify parent
          {as child}))
 
+(defn it [italian]
+  (lookup {:italian italian}))
 
+(defn en [english]
+  (lookup {:english english}))
