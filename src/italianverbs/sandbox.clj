@@ -315,6 +315,11 @@
 (def lexicon (concat np-1-lexicon vp-1-lexicon sentence-lexicon))
 (def rules (concat np-1-rules vp-1-rules sentence-rules))
 
+(def np (nth rules 0))
+(def vp (nth rules 1))
+(def s (nth rules 2))
+
+
 (defn find-first-in [query collection]
   "find the first member of the collection that unifies with query successfully."
   (if (= (.size collection) 0)
@@ -334,16 +339,30 @@
                 (fs/copy arg))
               args)))
 
+(defn it [italian]
+  (lookup {:italian italian}))
+
 (defn over [parent child]
   (let [as (if (nil?
                 (fs/get-in parent '(:a :italian)))
              :a
              :b)]
-  (unify parent
-         {as child})))
+    (unify parent
+           {as
+            (if (= (type child) java.lang.String)
+              (it child)
+              child)})))
 
-(defn it [italian]
-  (lookup {:italian italian}))
+(defn under [parent child]
+  (let [as (if (nil?
+                (fs/get-in parent '(:a :italian)))
+             :a
+             :b)]
+    (unify parent
+           {as
+            (if (= (type child) java.lang.String)
+              (it child)
+              child)})))
 
 (defn en [english]
   (lookup {:english english}))
