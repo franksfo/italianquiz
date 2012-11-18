@@ -296,22 +296,6 @@
       :synsem head-synsem
       })))
 
-(def lexicon (concat np-1-lexicon vp-1-lexicon sentence-lexicon))
-(def rules (concat np-1-rules vp-1-rules sentence-rules))
-
-(defn find-first-in [query collection]
-  "find the first member of the collection that unifies with query successfully."
-  (if (= (.size collection) 0)
-    nil
-    (let [result (fs/unify query (first collection))]
-      (if (not (fs/fail? result))
-        result
-        (find-first-in query (rest collection))))))
-
-
-(defn lookup [query]
-  (find-first-in query lexicon))
-
 (def np-1-rules 
   (let [np-rule-1 ;; NP -> Comp Head
         (let [comp-synsem (ref {:cat :det})
@@ -327,6 +311,22 @@
            :a comp
            :b head})]
     (list np-rule-1)))
+
+(def lexicon (concat np-1-lexicon vp-1-lexicon sentence-lexicon))
+(def rules (concat np-1-rules vp-1-rules sentence-rules))
+
+(defn find-first-in [query collection]
+  "find the first member of the collection that unifies with query successfully."
+  (if (= (.size collection) 0)
+    nil
+    (let [result (fs/unify query (first collection))]
+      (if (not (fs/fail? result))
+        result
+        (find-first-in query (rest collection))))))
+
+
+(defn lookup [query]
+  (find-first-in query lexicon))
 
 (defn unify [& args]
   (apply fs/unify
