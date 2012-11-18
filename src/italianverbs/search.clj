@@ -9,7 +9,8 @@
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.lev :as lev]
-   [italianverbs.grammar :as gram]))
+   [italianverbs.grammar :as gram]
+   [italianverbs.sandbox :as sandbox]))
 
 ;;(duck/spit "verbs.html"
 ;;      (html/static-page
@@ -168,6 +169,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    :place-preps {:cat :prep
                    :obj {:place true}}})
 
+(defn cleanup [expression]
+  "cleanup expression and wrap in sandboxed namespace"
+  (str
+   "(ns italianverbs.sandbox)"
+   expression))
+
 (defn workbookq [search-exp attrs]
   (do
     (log/info (str "searchq: searching with search-exp: " search-exp " and attrs: " attrs))
@@ -191,11 +198,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                           (html/tablize fs)))
                                        (query (pathify grammatical-terminology-term))))))
                             (string/split search-exp #"[ ]+"))
-                    (let [loaded
+                    (let [cleaned
+                          (cleanup search-exp)
+                          loaded
                           (try
-                            (load-string search-exp) ;; SECURITY: clean search-exp before evaluating.
+                            (load-string cleaned)
                             (catch Exception e
-                              (log/error (str "failed to load-string: " search-exp))))]
+                              (log/error (str "failed to load-string: " cleaned))
+                              (str e)))]
                       (list
                        (str
                         "<div class='evalinput'>"
@@ -274,7 +284,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       [:h2 "workbook"]
       [:div#searchbar
        [:input {:size "50" :id "workbookq" :type "text"  :value search-query }]
-       [:button {:onclick "workbook()"} "cerca.."]]
+       [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
          (searchq search-query nil))]])))
