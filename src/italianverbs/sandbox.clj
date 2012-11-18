@@ -104,6 +104,201 @@
       :italian "le"
       :english "the"})))
 
+(def vp-1-lexicon
+  (let [verb-with-root
+        (let [cat (ref :top)
+              subcat (ref :top)]
+          {:synsem {:cat cat}
+           :subcat subcat
+           :root {:subcat subcat
+                  :synsem {:cat cat}}})
+        transitive
+        (let [subj (ref :top)
+              obj (ref :top)]
+          {:synsem {:subj subj
+                    :obj obj}
+           :subcat {:a obj
+                    :b subj}
+           :root {:synsem {:subj subj
+                           :obj obj}}})
+        finite
+        (fs/unify
+         (fs/copy verb-with-root)
+         {:synsem {:infl :present}})
+        
+        regular-verb-inflection
+        (let [agreement {:person :top
+                         :number :top}]
+          {:italian {:morph agreement}
+           :subcat {:b agreement}
+           :root {:synsem {:cat :verb}}})]
+    (concat
+     np-1-lexicon
+     (let [fare
+           (let [subj {:cat :noun
+                       :artifact false
+                       :human true}
+                 obj {:cat :noun
+                      :human false
+                      :artifact true}]
+             (fs/unify
+              (fs/copy transitive)
+              {:italian "fare"
+               :english "to do"
+               :synsem {:cat :verb
+                        :morph :irreg
+                        :subj subj
+                        :obj obj
+                        :infl :infinitive}
+               :subcat {:a obj
+                        :b subj}}))]
+       (list 
+             (fs/unify
+              (fs/copy finite)
+              (fs/copy transitive)
+              {:root (fs/copy fare)
+               :italian "facio"
+               :subcat {:b {:person :1st
+                            :number :sing}}})
+             (fs/unify
+              (fs/copy finite)
+              (fs/copy transitive)
+              {:root (fs/copy fare)
+               :italian "fai"
+               :subcat {:b {:person :2nd
+                            :number :sing}}})
+             (fs/unify
+              (fs/copy finite)
+              (fs/copy transitive)
+              {:root (fs/copy fare)
+               :italian "fa"
+               :subcat {:b {:person :3rd
+                            :number :sing}}})
+             (fs/unify
+              (fs/copy finite)
+              (fs/copy transitive)
+              {:root (fs/copy fare)
+               :italian "facciamo"
+               :subcat {:b {:person :1st
+                            :number :plur}}})
+             (fs/unify
+              (fs/copy finite)
+              (fs/copy transitive)
+              {:root (fs/copy fare)
+               :italian "fate"
+               :subcat {:b {:person :2nd
+                            :number :plur}}})
+             (fs/unify
+              (fs/copy finite)
+              (fs/copy transitive)
+              {:root (fs/copy fare)
+               :italian "fanno"
+               :subcat {:b {:person :3rd
+                            :number :plur}}}))))))
+
+(def vp-1-rules
+  (list
+   (let [vp-rule-1
+         (let [comp-synsem (ref {:cat :noun :case :acc})
+               comp (ref {:synsem comp-synsem :subcat :nil!})
+               subj (ref {:cat :noun :case :nom})
+               head-synsem (ref {:cat :verb
+                                 :infl {:not :infinitive}
+                                 :subj subj
+                                 :obj comp-synsem})
+               head (ref {:synsem head-synsem
+                          :subcat {:a comp-synsem
+                                   :b subj}})]
+           {:comment "vp -> head comp"
+            :head head
+            :subcat {:a subj}
+            :synsem head-synsem
+            :comp comp
+            :a head
+            :b comp})]
+     vp-rule-1)))
+
+(def sentence-lexicon
+  (list {:synsem {:cat :noun
+                  :case :nom
+                  :human true
+                  :artifact false ;; <- :human true => artifact :false
+                  :person :1st
+                  :number :sing}
+         :subcat :nil!
+         :italian "io"}
+        {:synsem {:cat :noun
+                  :case :nom
+                  :human true
+                  :artifact false ;; <- :human true => artifact :false
+                  :person :2nd
+                  :number :sing}
+         :subcat :nil!
+         :italian "tu"}
+        {:synsem {:cat :noun
+                  :case :nom
+                  :human true
+                  :artifact false ;; <- :human true => artifact :false
+                  :person :3rd
+                  :gender :masc
+                  :number :sing}
+         :subcat :nil!
+         :italian "lui"}
+        {:synsem {:cat :noun
+                  :case :nom
+                  :human true
+                  :artifact false ;; <- :human true => artifact :false
+                  :person :3rd
+                  :gender :fem
+                  :number :sing}
+         :subcat :nil!
+         :italian "lei"}
+        {:synsem {:cat :noun
+                  :case :nom
+                  :human true
+                  :artifact false ;; <- :human true => artifact :false
+                  :person :1st
+                  :number :plur}
+         :subcat :nil!
+         :italian "noi"}
+        {:synsem {:cat :noun
+                  :case :nom
+                  :human true
+                  :artifact false ;; <- :human true => artifact :false
+                  :person :2nd
+                  :number :plur}
+         :subcat :nil!
+         :italian "voi"}
+        {:synsem {:cat :noun
+                  :case :nom
+                  :human true
+                  :artifact false ;; <- :human true => artifact :false
+                  :person :3rd
+                  :number :plur}
+         :subcat :nil!
+         :italian "loro"}))
+
+(def sentence-rules
+  (let [subcatted (ref {:cat :noun})
+        head-synsem (ref {:cat :verb
+                          :subj subcatted
+                          })
+        comp (ref {:synsem subcatted :subcat :nil!})
+        head (ref {:synsem head-synsem
+                   :subcat {:a subcatted}})]
+    (list
+     {:comment "s -> np vp"
+      :subcat :nil!
+      :head head
+      :comp comp
+      :a comp
+      :b head
+      :synsem head-synsem
+      })))
+
+(def lexicon (concat np-1-lexicon vp-1-lexicon sentence-lexicon))
+(def rules (concat np-1-rules vp-1-rules sentence-rules))
+
 (defn find-first-in [query collection]
   "find the first member of the collection that unifies with query successfully."
   (if (= (.size collection) 0)
@@ -113,7 +308,6 @@
         result
         (find-first-in query (rest collection))))))
 
-(def lexicon np-1-lexicon)
 
 (defn lookup [query]
   (find-first-in query lexicon))

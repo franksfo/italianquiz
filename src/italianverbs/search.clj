@@ -177,59 +177,49 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn workbookq [search-exp attrs]
   (do
-    (log/info (str "workbookq: searching with search-exp: " search-exp " and attrs: " attrs))
+    (log/info (str "workbookq: searching with search-exp: " search-exp))
     (if search-exp
       (string/join " "
-                   (concat
-                    (map (fn [attr]
-                           (let [constraints {(keyword attr) search-exp}
-                                 results (gram/choose-lexeme constraints)]
-                             (if (and results
-                                      (not (= (get results :cat) :error))) ;; currently 'no results found' is a {:cat :error}.
-                               (html/fs (gram/choose-lexeme constraints)))))
-                         (string/split (if attrs attrs "italian english") #"[ ]+"))
-                    (mapcat (fn [search-term]
-                              (let [grammatical-terminology-term (get
-                                                                  grammatical-terminology-term
-                                                                  (keyword search-term))]
-                                (if grammatical-terminology-term
-                                  (map (fn [fs]
-                                         (str
-                                          (html/tablize fs)))
-                                       (query (pathify grammatical-terminology-term))))))
-                            (string/split search-exp #"[ ]+"))
-                    (let [cleaned
-                          (cleanup search-exp)
-                          loaded
-                          (try
-                            (load-string cleaned)
-                            (catch Exception e
-                              (log/error (str "failed to load-string: " cleaned))
-                              (str e)))]
-                      (list
-                       (str
-                        "<div class='evalinput'>"
-                        search-exp
-                        "</div>"
-                        "<div class='evalresult'>"
-                        (cond
-                         (= (type loaded)
-                            clojure.lang.PersistentList)
-                         (string/join " "
-                                      (map (fn [elem]
-                                             (html/tablize elem))
-                                           loaded))
-                         (= (type loaded) clojure.lang.Var)
-                         (str (eval loaded))
-                         (or
-                          (= (type loaded) clojure.lang.PersistentArrayMap)
-                          (= (type loaded) clojure.lang.PersistentHashMap))
-                         (html/tablize loaded)
-                         :else
-                         ;; nothing formattable: just stringify result of
-                         ;; evaluation.
-                         (str "<div style='font-family:monospace'>" "<b>" (type loaded) "</b>:" loaded "</div>"))
-                        "</div>")))))
+                   (let [cleaned
+                         (cleanup search-exp)
+                         loaded
+                         (try
+                           (load-string cleaned)
+                           (catch Exception e
+                             (log/error (str "failed to load-string: " cleaned))
+                             (str e)))]
+                     (list
+                      (str
+                       "<div class='evalinput'>"
+                       search-exp
+                       "</div>"
+                       "<div class='evalresult'>"
+                       (cond
+                        (= (type loaded)
+                           clojure.lang.PersistentList)
+                        (string/join " "
+                                     (map (fn [elem]
+                                            (html/tablize elem))
+                                          loaded))
+
+                        (= (type loaded)
+                           clojure.lang.LazySeq)
+                        (string/join " "
+                                     (map (fn [elem]
+                                            (html/tablize elem))
+                                          (seq loaded)))
+
+                        (= (type loaded) clojure.lang.Var)
+                        (str (eval loaded))
+                        (or
+                         (= (type loaded) clojure.lang.PersistentArrayMap)
+                         (= (type loaded) clojure.lang.PersistentHashMap))
+                        (html/tablize loaded)
+                        :else
+                        ;; nothing formattable: just stringify result of
+                        ;; evaluation.
+                        (str "<div style='font-family:monospace'>" "<b>" (type loaded) "</b>:" loaded "</div>"))
+                       "</div>"))))
       nil)))
 
 (defn searchq [search-exp attrs]
