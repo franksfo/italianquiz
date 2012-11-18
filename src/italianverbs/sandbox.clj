@@ -29,6 +29,7 @@
                 :subcat {:a {:cat :det}}
                 :italian "compito"
                 :english "homework"})
+
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
                          :number :sing
@@ -39,6 +40,7 @@
                 :subcat {:a {:cat :det}}
                 :italian "pane"
                 :english "bread"})
+
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
                          :number :sing
@@ -49,48 +51,58 @@
                 :subcat {:a {:cat :det}}
                 :italian "pasta"
                 :english "pasta"})
-   
-   (fs/unify (fs/copy agreement)
-             (fs/copy human)
-             {:synsem {:cat :noun
-                       :number :sing
-                       :gender :masc
-                       :person :3rd}
-              :subcat {:a {:cat :det}}
-              :italian "ragazzo"
-              :english "guy"})
 
-   (fs/unify (fs/copy agreement)
-             (fs/copy human)
-             {:synsem {:cat :noun
-                       :number :sing
-                       :gender :fem
-                       :person :3rd}
-              :subcat {:a {:cat :det}}
-              :italian "ragazza"
-              :english "girl"})
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
+                         :gender :masc
+                         :person :3rd
+                         }}
+               {:synsem (fs/copy human)}
+               {:subcat {:a {:cat :det}}
+                :italian "ragazzo"
+                :english "guy"})
 
-   {:synsem {:cat :det
-             :gender :masc
-             :number :sing}
-    :italian "il"
-    :english "the"}
-   {:synsem {:cat :det
-             :gender :fem
-             :number :sing}
-    :italian "la"
-    :english "the"}
-   {:synsem {:cat :det
-             :gender :masc
-             :number :plur}
-    :italian "i"
-    :english "the"}
-   {:synsem {:cat :det
-             :gender :fem
-             :number :plur}
-    :italian "le"
-    :english "the"})))
-   
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
+                         :gender :fem
+                         :person :3rd}}
+               {:synsem (fs/copy human)
+                :subcat {:a {:cat :det}}
+                :italian "ragazza"
+                :english "girl"})
+
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
+                         :gender :masc
+                         :person :3rd}}
+               {:synsem (fs/copy animal)
+                :subcat {:a {:cat :det}}
+                :italian "cane"
+                :english "dog"})
+     
+     {:synsem {:cat :det
+               :gender :masc
+               :number :sing}
+      :italian "il"
+      :english "the"}
+     {:synsem {:cat :det
+               :gender :fem
+               :number :sing}
+      :italian "la"
+      :english "the"}
+     {:synsem {:cat :det
+               :gender :masc
+               :number :plur}
+      :italian "i"
+      :english "the"}
+     {:synsem {:cat :det
+               :gender :fem
+               :number :plur}
+      :italian "le"
+      :english "the"})))
 
 (defn find-first-in [query collection]
   "find the first member of the collection that unifies with query successfully."
