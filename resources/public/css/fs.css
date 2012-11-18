@@ -200,3 +200,33 @@ td.each {
 table {
     float:left;
 }
+
+div.evalresult {
+    margin-bottom:0.5em;
+    background:#eff;
+    padding-top:0.5em;
+    padding-bottom:0.5em;
+    padding-left:0.5em;
+    padding-right:0.5em;
+    width:80%;
+    float:right;
+    border:3px solid lightblue;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
+}
+
+div.evalinput {
+    margin-bottom:0.5em;
+    background:white;
+    padding-top:0.5em;
+    padding-bottom:0.5em;
+    padding-left:0.5em;
+    padding-right:0.5em;
+    width:40%;
+    float:left;
+    font-family:monospace;
+    font-size: larger;
+    border:3px solid lightblue;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
+}

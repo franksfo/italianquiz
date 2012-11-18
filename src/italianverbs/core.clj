@@ -85,6 +85,27 @@
                               (get (get request :query-params) "attrs"))
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
+  ;; <workbook>
+  (GET "/workbook"
+       request
+       {:status 302
+        :headers {"Location" "/italian/workbook/"}})
+
+  (GET "/workbook/"
+       request
+       {:status 200
+        :body (html/page "Search" (search/workbook-ui request) request)
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/workbook/q/"
+       request
+       {:status 200
+        :body (search/workbookq (get (get request :query-params) "search")
+                                (get (get request :query-params) "attrs"))
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  ;; </workbook>
+
+  
   (GET "/lexicon/" 
        request
        ;; response map

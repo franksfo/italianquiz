@@ -44,6 +44,10 @@
      (if (= relative-url "/search/") {:class "selected"})
      [:a {:href "/italian/search/"} "Search"  ] ]
     [:div
+     (if (= relative-url "/workbook/") {:class "selected"})
+     [:a {:href "/italian/workbook/"} "Workbook"  ] ]
+
+    [:div
      (if (= relative-url "/about/") {:class "selected"})
      [:a {:href "/italian/about/"} "About"  ] ]
     ]))
@@ -130,6 +134,7 @@
     [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
     [:script {:type "text/javascript" :src "/italian/js/autogrow.js"}]
     [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
+    [:script {:type "text/javascript" :src "/italian/js/workbook.js"}]
     [:script {:type "text/javascript" :src "/italian/js/search.js"}]
     ; enable this 'reset.css' at some point.
                                         ;    (include-css "/italian/css/reset.css")
