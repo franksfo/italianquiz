@@ -97,7 +97,7 @@
           (alter val1
                  (fn [x] (unify @val1 val2))))
          ;; alternative to the above (not tested yet):  (fn [x] (unify (fs/copy @val1) val2))))
-         (if (fail? @val1) :fail
+         (if (and false (fail? @val1)) :fail
          val1))
      (and 
       (= (type val2) clojure.lang.Ref)
@@ -106,7 +106,7 @@
           (alter val2
                  (fn [x] (unify val1 @val2))))
          ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
-         (if (fail? @val2) :fail
+         (if (and false (fail? @val2)) :fail
          val2))
 
      (and 
@@ -127,7 +127,7 @@
               (alter val2
                      (fn [x] val1))) ;; note that now val2 is a ref to a ref.
              (log/debug (str "returning ref: " val1))
-             (if (fail? @val1) :fail
+             (if (and false (fail? @val1)) :fail
              val1)))))
      
      (not (= :notfound (:not val1 :notfound)))
