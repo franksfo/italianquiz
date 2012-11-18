@@ -186,7 +186,6 @@
 (def artifact {:artifact true
                :animate false})
              
-
 (def np-1-lexicon
   (let [gender (ref :top)
         number (ref :top)

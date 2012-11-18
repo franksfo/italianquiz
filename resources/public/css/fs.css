@@ -224,6 +224,7 @@ div.evalinput {
     padding-right:0.5em;
     width:40%;
     float:left;
+    font-style:italic;
     font-family:monospace;
     font-size: larger;
     border:3px solid lightblue;

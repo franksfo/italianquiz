@@ -170,14 +170,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                    :obj {:place true}}})
 
 (defn cleanup [expression]
-  "cleanup expression and wrap in sandboxed namespace"
+  "cleanup expression and wrap in sandboxed namespace. Important: do not allow any '(ns ...)' forms in _expression_."
   (str
    "(ns italianverbs.sandbox)"
    expression))
 
 (defn workbookq [search-exp attrs]
   (do
-    (log/info (str "searchq: searching with search-exp: " search-exp " and attrs: " attrs))
+    (log/info (str "workbookq: searching with search-exp: " search-exp " and attrs: " attrs))
     (if search-exp
       (string/join " "
                    (concat
@@ -212,11 +212,23 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                         search-exp
                         "</div>"
                         "<div class='evalresult'>"
-                        (if (= (type loaded) clojure.lang.PersistentArrayMap)
-                          (html/tablize loaded)
-                          ;; not a map: just stringify result of
-                          ;; evaluation.
-                          (str "<div style='font-family:monospace'>" loaded "</div>"))
+                        (cond
+                         (= (type loaded)
+                            clojure.lang.PersistentList)
+                         (string/join " "
+                                      (map (fn [elem]
+                                             (html/tablize elem))
+                                           loaded))
+                         (= (type loaded) clojure.lang.Var)
+                         (str (eval loaded))
+                         (or
+                          (= (type loaded) clojure.lang.PersistentArrayMap)
+                          (= (type loaded) clojure.lang.PersistentHashMap))
+                         (html/tablize loaded)
+                         :else
+                         ;; nothing formattable: just stringify result of
+                         ;; evaluation.
+                         (str "<div style='font-family:monospace'>" "<b>" (type loaded) "</b>:" loaded "</div>"))
                         "</div>")))))
       nil)))
 
@@ -281,13 +293,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (let [search-query (get (get request :query-params) "search")]
     (html
      [:div#workbook-ui {:class "quiz-elem"}
-      [:h2 "workbook"]
+      [:h2 "Workbook"]
       [:div#searchbar
        [:input {:size "50" :id "workbookq" :type "text"  :value search-query }]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
-         (searchq search-query nil))]])))
+         (workbookq search-query nil))]])))
 
 ;; example usage: (take 5 (lazy-query {:cat :verb}))
 (defn lazy-query [search]
