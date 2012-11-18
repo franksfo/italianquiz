@@ -106,7 +106,7 @@
 
 (def vp-1-lexicon
   (let [verb-with-root
-        (let [cat (ref :top)
+        (let [cat (ref :verb)
               subcat (ref :top)]
           {:synsem {:cat cat}
            :subcat subcat
@@ -131,70 +131,78 @@
                          :number :top}]
           {:italian {:morph agreement}
            :subcat {:b agreement}
-           :root {:synsem {:cat :verb}}})]
+           :root {:synsem {:cat :verb}}})
+
+        fare
+        (let [subj {:cat :noun
+                    :artifact false
+                    :human true}
+              obj {:cat :noun
+                   :human false
+                   :artifact true}]
+          (fs/unify
+           (fs/copy transitive)
+           {:italian "fare"
+            :english "to do"
+            :synsem {:cat :verb
+                     :morph :irreg
+                     :subj subj
+                     :obj obj
+                     :infl :infinitive}
+            :subcat {:a obj
+                     :b subj}}))]
     (concat
      np-1-lexicon
-     (let [fare
-           (let [subj {:cat :noun
-                       :artifact false
-                       :human true}
-                 obj {:cat :noun
-                      :human false
-                      :artifact true}]
-             (fs/unify
-              (fs/copy transitive)
-              {:italian "fare"
-               :english "to do"
-               :synsem {:cat :verb
-                        :morph :irreg
-                        :subj subj
-                        :obj obj
-                        :infl :infinitive}
-               :subcat {:a obj
-                        :b subj}}))]
-       (list 
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "facio"
-               :subcat {:b {:person :1st
-                            :number :sing}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "fai"
-               :subcat {:b {:person :2nd
-                            :number :sing}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "fa"
-               :subcat {:b {:person :3rd
-                            :number :sing}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "facciamo"
-               :subcat {:b {:person :1st
-                            :number :plur}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "fate"
-               :subcat {:b {:person :2nd
-                            :number :plur}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "fanno"
-               :subcat {:b {:person :3rd
-                            :number :plur}}}))))))
+     (list
+      fare
+      (fs/unify
+       (fs/copy finite)
+       (fs/copy transitive)
+       {:italian "mangiare"
+        :synsem {:subj {:animate true}
+                 :obj {:edible true}}})
+      (fs/unify
+       (fs/copy finite)
+       (fs/copy transitive)
+       {:root (fs/copy fare)
+        :italian "facio"
+        :subcat {:b {:person :1st
+                     :number :sing}}})
+      (fs/unify
+       (fs/copy finite)
+       (fs/copy transitive)
+       {:root (fs/copy fare)
+        :italian "fai"
+        :subcat {:b {:person :2nd
+                     :number :sing}}})
+      (fs/unify
+       (fs/copy finite)
+       (fs/copy transitive)
+       {:root (fs/copy fare)
+        :italian "fa"
+        :subcat {:b {:person :3rd
+                     :number :sing}}})
+      (fs/unify
+       (fs/copy finite)
+       (fs/copy transitive)
+       {:root (fs/copy fare)
+        :italian "facciamo"
+        :subcat {:b {:person :1st
+                     :number :plur}}})
+      (fs/unify
+       (fs/copy finite)
+       (fs/copy transitive)
+       {:root (fs/copy fare)
+        :italian "fate"
+        :subcat {:b {:person :2nd
+                     :number :plur}}})
+      (fs/unify
+       (fs/copy finite)
+       (fs/copy transitive)
+       {:root (fs/copy fare)
+        :italian "fanno"
+        :subcat {:b {:person :3rd
+                     :number :plur}}})))))
 
 (def vp-1-rules
   (list
@@ -313,6 +321,7 @@
     (list np-rule-1)))
 
 (def lexicon (concat np-1-lexicon vp-1-lexicon sentence-lexicon))
+
 (def rules (concat np-1-rules vp-1-rules sentence-rules))
 
 (def np (nth rules 0))
