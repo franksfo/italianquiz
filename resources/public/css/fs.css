@@ -213,6 +213,7 @@ div.evalresult {
     border:3px solid lightblue;
     -moz-border-radius: 25px;
     border-radius: 25px;
+    overflow:auto;
 }
 
 div.evalinput {
