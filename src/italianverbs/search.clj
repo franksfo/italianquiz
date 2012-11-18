@@ -215,6 +215,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                          (= (type loaded) clojure.lang.PersistentArrayMap)
                          (= (type loaded) clojure.lang.PersistentHashMap))
                         (html/tablize loaded)
+                        (= (type loaded) nil)
+                        (str "<b>nil</b>")
                         :else
                         ;; nothing formattable: just stringify result of
                         ;; evaluation.
