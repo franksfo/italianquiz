@@ -1,6 +1,7 @@
 (ns italianverbs.sandbox
   (:require
-   [italianverbs.fs :as fs]))
+   [italianverbs.fs :as fs]
+   [clojure.string :as string]))
 
 (def human {:human true
             :artifact false
@@ -363,31 +364,36 @@
 (defn it [italian]
   (lookup {:italian italian}))
 
-(defn over [parent child]
-  (let [as (if (nil?
-                (fs/get-in parent '(:a :italian)))
-             :a
-             :b)]
-    (unify parent
-           {as
-            (if (= (type child) java.lang.String)
-              (it child)
-              child)})))
-
 (defn under [parent child]
-  (let [as (if (nil?
+  (let [child (if (= (type child) java.lang.String)
+                (it child)
+                child)
+        as (if (nil?
                 (fs/get-in parent '(:a :italian)))
              :a
-             :b)]
-    (unify parent
-           {as
-            (if (= (type child) java.lang.String)
-              (it child)
-              child)})))
+             :b)
+        italian
+        (string/join " "
+              (if (= as :a)
+                (list
+                 (fs/get-in child '(:italian))
+                 (fs/get-in parent '(:b :italian)))
+                (list
+                 (fs/get-in parent '(:a :italian))
+                 (fs/get-in child '(:italian)))))]
+    (merge
+     (unify parent
+            {as
+             child})
+     {:italian italian})))
+     
+            
+
+(defn over [parent child] ;; synonym for (under) (above).
+  (under parent child))
 
 (defn en [english]
   (lookup {:english english}))
-
 
 ;; eventually take as second arg, the number and person.
 (defn regular-verb [infinitive morph]
@@ -409,6 +415,7 @@
     (fs/unify
      finite-transitive
      {:root infinitive
-      :morph morph})))
+      :morph morph
+      :italian "mangio"})))
 
                 
