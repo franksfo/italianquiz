@@ -170,6 +170,7 @@
        (fs/copy transitive)
        (fs/copy infinitive-verb)
        {:italian "mangiare"
+        :english "to eat"
         :synsem {:subj {:animate true}
                  :obj edible}})
       (fs/unify
@@ -386,3 +387,28 @@
 
 (defn en [english]
   (lookup {:english english}))
+
+
+;; eventually take as second arg, the number and person.
+(defn regular-verb [infinitive morph]
+  (let [verb-with-root
+        (let [cat (ref :verb)
+              subcat (ref :top)]
+          {:synsem {:cat cat}
+           :subcat subcat
+           :root {:subcat subcat
+                  :synsem {:cat cat}}})
+        finite-transitive
+        (let [subj (ref :top)
+              obj (ref :top)]
+          (fs/unify
+           (fs/copy verb-with-root)
+           {:synsem {:infl :present}
+            :root {:synsem {:subj subj
+                            :obj obj}}}))]
+    (fs/unify
+     finite-transitive
+     {:root infinitive
+      :morph morph})))
+
+                
