@@ -175,13 +175,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    "(ns italianverbs.sandbox)"
    expression))
 
-(defn workbookq [search-exp attrs]
+(defn workbookq [expr attrs]
   (do
-    (log/info (str "workbookq: searching with search-exp: " search-exp))
-    (if search-exp
+    (log/info (str "workbookq: evaluating expression: " expr))
+    (if expr
       (string/join " "
                    (let [cleaned
-                         (cleanup search-exp)
+                         (cleanup expr)
                          loaded
                          (try
                            (load-string cleaned)
@@ -191,7 +191,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                      (list
                       (str
                        "<div class='evalinput'>"
-                       search-exp
+                       expr
                        "</div>"
                        "<div class='evalresult'>"
                        (cond
@@ -287,7 +287,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
      [:div#workbook-ui {:class "quiz-elem"}
       [:h2 "Workbook"]
       [:div#searchbar
-       [:textarea {:cols 120 :rows 4 :id "workbookq" }
+       [:textarea {:cols 80 :rows 4 :id "workbookq" }
         search-query]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
