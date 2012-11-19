@@ -341,7 +341,6 @@
 (def vp (nth rules 1))
 (def s (nth rules 2))
 
-
 (defn find-first-in [query collection]
   "find the first member of the collection that unifies with query successfully."
   (if (= (.size collection) 0)
@@ -395,27 +394,79 @@
 (defn en [english]
   (lookup {:english english}))
 
-;; eventually take as second arg, the number and person.
-(defn regular-verb [infinitive morph]
-  (let [verb-with-root
-        (let [cat (ref :verb)
-              subcat (ref :top)]
-          {:synsem {:cat cat}
-           :subcat subcat
-           :root {:subcat subcat
-                  :synsem {:cat cat}}})
-        finite-transitive
-        (let [subj (ref :top)
-              obj (ref :top)]
-          (fs/unify
-           (fs/copy verb-with-root)
-           {:synsem {:infl :present}
-            :root {:synsem {:subj subj
-                            :obj obj}}}))]
-    (fs/unify
-     finite-transitive
-     {:root infinitive
-      :morph morph
-      :italian "mangio"})))
+(defn regular-verb [infinitive subject]
+  (let [subj (ref (unify subject (fs/get-in infinitive '(:synsem :subj))))
+        obj (ref (fs/get-in infinitive '(:synsem :obj)))
+        cat (ref (fs/get-in infinitive '(:synsem :cat)))
+        subcat (ref (fs/get-in infinitive '(:subcat)))
+        root-form (ref (fs/get-in infinitive '(:italian)))]
+    (unify
+     {:root infinitive}
+     {:subcat subcat
+      :synsem {:subj subj
+               :obj obj
+               :cat cat
+               :infl :present}
+      :root {:subcat subcat
+             :italian root-form
+             :synsem {:subj subj
+                      :cat cat
+                      :obj obj}}}
+     {:italian {:morph subj
+                :root root-form}})))
 
-                
+
+(def sandbox                
+  (unify {:root (it "mangiare")}
+         (let [obj (ref :top)
+               subj (ref :top)
+               italian-infinitive (ref :top)]
+           {:root
+            {:italian italian-infinitive
+             :subcat {:a obj
+                      :b subj}}
+            :subcat {:a obj
+                     :b subj }
+            :synsem {:subj subj
+                     :obj obj}
+            :italian {:agr subj
+                      :root italian-infinitive}})))
+
+
+
+(def finitizer
+  (unify (let [obj (ref :top)
+               subj (ref :top)
+               italian-infinitive (ref :top)
+               cat (ref :top)]
+           {:root
+            {:italian italian-infinitive
+             :subcat {:a obj
+                      :b subj}
+             :synsem {:cat cat}}
+            :subcat {:a obj
+                     :b subj }
+            :synsem {:subj subj
+                     :obj obj
+                     :cat cat
+                     :infl :present}
+            :italian {:agr subj
+                      :root italian-infinitive}})
+         (let [subj (ref :top)]
+           {:italian
+            {:agr subj}})))
+
+(def mangiare-finite
+  (unify {:root (it "mangiare")}
+         finitizer))
+
+(defn get-in [map path]
+  (fs/get-in map path))
+
+(def regular-sentence
+  (do
+    (def ilragazzo (under (under np "il") "ragazzo"))
+    (def lapasta (under (under np "la") "pasta"))
+    (def mfvp (under (under vp mangiare-finite) lapasta))
+    (def sentence (under (under s ilragazzo) mfvp))
+    sentence))
