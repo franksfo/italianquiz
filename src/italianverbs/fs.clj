@@ -13,15 +13,19 @@
     (get-head (get sign :head))
     sign))
 
+(defn resolve [arg]
+  "if arg is not a ref, return arg. if is a ref, return (resolve @arg)"
+  (if (= (type arg) clojure.lang.Ref)
+    (resolve @arg)
+    arg))
+
 ;; TODO: need tests: some tests use (get-in), but need more dedicated tests for it alone.
 (defn get-in [map keys]
   "same as clojure.core (get-in), but it resolves references if need be."
   (let [result 
         (if (first keys)
           (let [result (get map (first keys))]
-            (if (= (type result) clojure.lang.Ref)
-              (get-in @result (rest keys))
-              (get-in result (rest keys))))
+            (get-in (resolve result) (rest keys)))
           map)]
     (if (= (type result) clojure.lang.Ref)
       @result
