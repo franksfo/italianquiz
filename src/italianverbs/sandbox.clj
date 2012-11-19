@@ -363,6 +363,31 @@
 (defn it [italian]
   (lookup {:italian italian}))
 
+(defn conjugate [arg]
+  (cond (nil? arg) ""
+        (= (type arg) java.lang.String)
+        arg
+        :else
+        ;; assume a map.
+        (let [root (fs/get-in arg '(:root))
+              person (fs/get-in arg '(:agr :person))
+              number (fs/get-in arg '(:agr :number))
+              stem (string/replace root #"[ioa]re$" "")]
+          (cond
+           (and (= person :1st) (= number :sing))
+           (str stem "o")
+           (and (= person :2nd) (= number :sing))
+           (str stem "")
+           (and (= person :3rd) (= number :sing))
+           (str stem "a")
+           (and (= person :1st) (= number :plur))
+           (str stem "amo")
+           (and (= person :2nd) (= number :plur))
+           (str stem "ate")
+           (and (= person :3rd) (= number :plur))
+           (str stem "anno")
+           :else arg))))
+
 (defn under [parent child]
   (let [child (if (= (type child) java.lang.String)
                 (it child)
@@ -375,64 +400,22 @@
         (string/join " "
               (if (= as :a)
                 (list
-                 (fs/get-in child '(:italian))
-                 (fs/get-in parent '(:b :italian)))
+                 (conjugate (fs/get-in child '(:italian)))
+                 (conjugate (fs/get-in parent '(:b :italian))))
                 (list
-                 (fs/get-in parent '(:a :italian))
-                 (fs/get-in child '(:italian)))))]
+                 (conjugate (fs/get-in parent '(:a :italian)))
+                 (conjugate (fs/get-in child '(:italian))))))]
     (merge
      (unify parent
             {as
              child})
      {:italian italian})))
-     
-            
 
 (defn over [parent child] ;; synonym for (under) (above).
   (under parent child))
 
 (defn en [english]
   (lookup {:english english}))
-
-(defn regular-verb [infinitive subject]
-  (let [subj (ref (unify subject (fs/get-in infinitive '(:synsem :subj))))
-        obj (ref (fs/get-in infinitive '(:synsem :obj)))
-        cat (ref (fs/get-in infinitive '(:synsem :cat)))
-        subcat (ref (fs/get-in infinitive '(:subcat)))
-        root-form (ref (fs/get-in infinitive '(:italian)))]
-    (unify
-     {:root infinitive}
-     {:subcat subcat
-      :synsem {:subj subj
-               :obj obj
-               :cat cat
-               :infl :present}
-      :root {:subcat subcat
-             :italian root-form
-             :synsem {:subj subj
-                      :cat cat
-                      :obj obj}}}
-     {:italian {:morph subj
-                :root root-form}})))
-
-
-(def sandbox                
-  (unify {:root (it "mangiare")}
-         (let [obj (ref :top)
-               subj (ref :top)
-               italian-infinitive (ref :top)]
-           {:root
-            {:italian italian-infinitive
-             :subcat {:a obj
-                      :b subj}}
-            :subcat {:a obj
-                     :b subj }
-            :synsem {:subj subj
-                     :obj obj}
-            :italian {:agr subj
-                      :root italian-infinitive}})))
-
-
 
 (def finitizer
   (unify (let [obj (ref :top)
@@ -470,3 +453,5 @@
     (def mfvp (under (under vp mangiare-finite) lapasta))
     (def sentence (under (under s ilragazzo) mfvp))
     sentence))
+
+       
