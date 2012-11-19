@@ -35,7 +35,7 @@
        request
        ;; response map
        {:status 302
-        :headers {"Location" "/italian/quiz/"}})
+        :headers {"Location" "/italian/workbook/"}})
 
   (GET "/preferiti/"
        request
@@ -251,6 +251,10 @@
   ;; Assuming that Apache Server Proxying is set
   ;; up (see README), redirect to http://localhost/italian/
   (GET "/italian/quiz/"
+       request
+       {:status 302
+        :headers {"Location" "http://eugenes-macbook-pro.local/italian/"}})
+  (GET "/italian/workbook/"
        request
        {:status 302
         :headers {"Location" "http://eugenes-macbook-pro.local/italian/"}})
