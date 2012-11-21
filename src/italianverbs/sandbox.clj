@@ -60,6 +60,19 @@
                 :italian "pasta"
                 :english "pasta"})
 
+
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
+                         :gender :fem
+                         :edible false
+                         :artifact true
+                         :person :3rd}
+                :subcat {:a {:cat :det}}
+                :italian "scala"
+                :english "ladder"})
+
+     
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
                          :number :sing
@@ -161,11 +174,7 @@
             :subcat {:a obj
                      :b subj}}))]
     (concat
-     np-1-lexicon
      (list
-      fare
-      (fs/unify {:italian "test0"}
-                (fs/copy finite-transitive))
 
       (fs/unify
        (fs/copy transitive)
@@ -174,6 +183,10 @@
         :english "to eat"
         :synsem {:subj {:animate true}
                  :obj edible}})
+
+
+      fare
+
       (fs/unify
        (fs/copy finite-transitive)
        (fs/copy transitive)
@@ -224,7 +237,6 @@
                comp (ref {:synsem comp-synsem :subcat :nil!})
                subj (ref {:cat :noun :case :nom})
                head-synsem (ref {:cat :verb
-                                 :infl {:not :infinitive}
                                  :subj subj
                                  :obj comp-synsem})
                head (ref {:synsem head-synsem
@@ -239,7 +251,7 @@
             :b comp})]
      vp-rule-1)))
 
-(def sentence-lexicon
+(def pronouns
   (list {:synsem {:cat :noun
                   :case :nom
                   :human true
@@ -302,6 +314,7 @@
 (def sentence-rules
   (let [subcatted (ref {:cat :noun})
         head-synsem (ref {:cat :verb
+                          :infl {:not :infinitive}
                           :subj subcatted
                           })
         comp (ref {:synsem subcatted :subcat :nil!})
@@ -333,7 +346,7 @@
            :b head})]
     (list np-rule-1)))
 
-(def lexicon (concat np-1-lexicon vp-1-lexicon sentence-lexicon))
+(def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
 
 (def rules (concat np-1-rules vp-1-rules sentence-rules))
 
@@ -349,7 +362,6 @@
       (if (not (fs/fail? result))
         result
         (find-first-in query (rest collection))))))
-
 
 (defn lookup [query]
   (find-first-in query lexicon))
@@ -411,9 +423,6 @@
              child})
      {:italian italian})))
 
-(defn over [parent child] ;; synonym for (under) (above).
-  (under parent child))
-
 (defn en [english]
   (lookup {:english english}))
 
@@ -439,6 +448,10 @@
            {:italian
             {:agr subj}})))
 
+(defn finitize [infinitive]
+  (unify {:root infinitive}
+         finitizer))
+
 (def mangiare-finite
   (unify {:root (it "mangiare")}
          finitizer))
@@ -453,5 +466,19 @@
     (def mfvp (under (under vp mangiare-finite) lapasta))
     (def sentence (under (under s ilragazzo) mfvp))
     sentence))
-
        
+(defn over [x y]
+  (if (or (= (type x) clojure.lang.LazySeq)
+          (= (type x) clojure.lang.PersistentList))
+    (mapcat (fn [each-x]
+              (over each-x y))
+            x)
+    (if (or (= (type y) clojure.lang.LazySeq)
+            (= (type y) clojure.lang.PersistentList))
+      (remove fs/fail?
+              (map (fn [each-y]
+                     (under x each-y))
+                   y))
+      (let [result (under x y)]
+        (if (not (fs/fail? result))
+          (list result))))))
