@@ -549,45 +549,48 @@
 (defn get-in [map path]
   (fs/get-in map path))
 
-(defn over [x y]
-  (if (or (= (type x) clojure.lang.LazySeq)
-          (= (type x) clojure.lang.PersistentList))
-    (mapcat (fn [each-x]
-              (over each-x y))
-            x)
-    (if (or (= (type y) clojure.lang.LazySeq)
-            (= (type y) clojure.lang.PersistentList))
-      (remove (fn [result]
-                (or (fs/fail? result)
-                    (nil? result)))
-              (map (fn [each-y]
-                     (let [parent x
-                           child each-y]
-                       (over parent child)))
-                   y))
-        (let [under (fn [parent child]
-                (let [child (if (= (type child) java.lang.String)
-                              (first (it child))
-                              child)
-                      as (if (nil?
-                              (fs/get-in parent '(:a :italian)))
-                           :a
-                           :b)
-                      
-                      unified (unify parent
-                                     {as child})
-                      
-                      italian
-                      (get-italian
-                       (fs/get-in unified '(:a :italian))
-                       (fs/get-in unified '(:b :italian)))
-                      ]
-                  (merge ;; use merge so that we overwrite the value for :italian.
-                   unified
-                   {:italian italian})))]
-          (let [result (under x y)]
-            (if (not (fs/fail? result))
-              (list result)))))))
+(defn over [parent child]
+  (cond
+   (or (= (type parent) clojure.lang.LazySeq)
+       (= (type parent) clojure.lang.PersistentList))
+   (mapcat (fn [each-parent]
+             (over each-parent child))
+           parent)
+   (or (= (type child) clojure.lang.LazySeq)
+       (= (type child) clojure.lang.PersistentList))
+   (remove (fn [result]
+             (or (fs/fail? result)
+                 (nil? result)))
+           (map (fn [each-child]
+                  (let [parent parent
+                        child each-child]
+                    (over parent child)))
+                child))
+   :else ; both parent and child are non-lists.
+   (let [result
+         (let [child (if (= (type child) java.lang.String)
+                       (first (it child))
+                       child)
+
+               ;; "as": find where to attach child (:a or :b), depending on value of current left child (:a)'s :italian.
+               ;; if (:a :italian) is nil, the parent has no :a-child, so attach new child there at :a.
+               ;; Otherwise, an :a-child exists for the parent, so attach new child at :b.
+               as (if (nil?
+                       (fs/get-in parent '(:a :italian)))
+                    :a
+                    :b)
+               unified (unify parent
+                              {as child})
+               italian
+               (get-italian
+                (fs/get-in unified '(:a :italian))
+                (fs/get-in unified '(:b :italian)))
+               ]
+           (merge ;; use merge so that we overwrite the value for :italian.
+            unified
+            {:italian italian}))]
+     (if (not (fs/fail? result))
+       (list result)))))
 
 (defn regular-sentence []
   (let [ilragazzo (over (over np "il") "ragazzo")
