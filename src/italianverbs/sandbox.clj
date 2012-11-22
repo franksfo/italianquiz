@@ -60,6 +60,8 @@
                          :number :sing
                          :gender :masc
                          :edible false
+                         :human false
+                         :animate false
                          :artifact true
                          :person :3rd}
                 :subcat {:a {:cat :det}}
@@ -72,6 +74,8 @@
                          :gender :masc
                          :edible true
                          :legible false
+                         :animate false
+                         :human false
                          :artifact true
                          :person :3rd}
                 :subcat {:a {:cat :det}}
@@ -600,3 +604,18 @@
     sentence))
 
 
+(defn lots-of-sentences-1 []
+  (over
+   (over s
+         lexicon)
+   (over
+    (over vp lexicon)
+    (over (over np lexicon) lexicon))))
+
+(defn lots-of-sentences-2 []
+  (over
+   (over s
+         (over (over np lexicon) lexicon))
+   (over
+    (over vp lexicon)
+    (over (over np lexicon) lexicon))))
