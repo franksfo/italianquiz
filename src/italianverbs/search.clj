@@ -230,7 +230,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                         :else
                         ;; nothing formattable: just stringify result of
                         ;; evaluation.
-                        (str "<div style='font-family:monospace'>" "<b>" (type loaded) "</b>:" loaded "</div>"))
+                        (str "<div style='font-family:monospace'>" loaded " (<b>" (type loaded) "</b>)" "</div>"))
                        "</div>"))))
       nil)))
 
