@@ -30,14 +30,17 @@
 
 (def human {:human true
             :artifact false
+            :legible false
             :edible false ;; sorry, cannibals..
             :animate true})
 (def animal {:artifact false
+             :legible false
              :animate true})
 (def artifact {:artifact true
                :animate false})
 
 (def edible {:edible true
+             :legible false
              :human false}) ;; sorry again, cannibals..
 
 (def infinitive-verb
@@ -68,6 +71,7 @@
                          :number :sing
                          :gender :masc
                          :edible true
+                         :legible false
                          :artifact true
                          :person :3rd}
                 :subcat {:a {:cat :det}}
@@ -78,6 +82,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :fem
+                         :legible false
                          :edible true
                          :artifact true
                          :person :3rd}
@@ -90,6 +95,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :fem
+                         :legible false
                          :edible false
                          :artifact true
                          :person :3rd}
