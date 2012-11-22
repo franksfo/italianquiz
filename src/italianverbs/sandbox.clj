@@ -3,6 +3,24 @@
    [italianverbs.fs :as fs]
    [clojure.string :as string]))
 
+(defn find-first-in [query collection]
+  "find the first member of the collection that unifies with query successfully."
+  (if (= (.size collection) 0)
+    nil
+    (let [result (fs/unify query (first collection))]
+      (if (not (fs/fail? result))
+        result
+        (find-first-in query (rest collection))))))
+
+(defn find [query collection]
+  "find all members of the collection that unifies with query successfully."
+  (if (= (.size collection) 0)
+    nil
+    (let [result (fs/unify query (first collection))]
+      (if (not (fs/fail? result))
+        (cons result (find query (rest collection)))
+        (find query (rest collection))))))
+
 (def human {:human true
             :artifact false
             :edible false ;; sorry, cannibals..
@@ -96,6 +114,19 @@
 
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
+                         :human false
+                         :number :sing
+                         :gender :masc
+                         :person :3rd}}
+               {:synsem {:legible true}
+                :subcat {:a {:cat :det}}
+                :italian "libro"
+                :english "book"})
+
+     
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :human false
                          :number :sing
                          :gender :masc
                          :person :3rd}}
@@ -124,6 +155,34 @@
                :number :plur}
       :italian "le"
       :english "the"})))
+
+(defn unify [& args]
+  (apply fs/unify
+         (map (fn [arg]
+                (fs/copy arg))
+              args)))
+
+(def finitizer
+  (unify (let [obj (ref :top)
+               subj (ref :top)
+               italian-infinitive (ref :top)
+               cat (ref :top)]
+           {:root
+            {:italian italian-infinitive
+             :subcat {:a obj
+                      :b subj}
+             :synsem {:cat cat}}
+            :subcat {:a obj
+                     :b subj }
+            :synsem {:subj subj
+                     :obj obj
+                     :cat cat
+                     :infl :present}
+            :italian {:agr subj
+                      :root italian-infinitive}})
+         (let [subj (ref :top)]
+           {:italian
+            {:agr subj}})))
 
 (def vp-1-lexicon
   (let [verb-with-root
@@ -172,21 +231,41 @@
                      :obj obj
                      :infl :infinitive}
             :subcat {:a obj
-                     :b subj}}))]
+                     :b subj}}))
+
+        mangiare
+        (fs/unify
+         (fs/copy transitive)
+         (fs/copy infinitive-verb)
+         {:italian "mangiare"
+          :english "to eat"
+          :synsem {:subj {:animate true}
+                   :obj edible}})
+        
+        leggere
+        (fs/unify
+         (fs/copy transitive)
+         (fs/copy infinitive-verb)
+         {:italian "leggere"
+          :english "to read"
+          :synsem {:subj {:human true}
+                   :obj {:legible true}}})
+
+
+        ]
     (concat
      (list
 
-      (fs/unify
-       (fs/copy transitive)
-       (fs/copy infinitive-verb)
-       {:italian "mangiare"
-        :english "to eat"
-        :synsem {:subj {:animate true}
-                 :obj edible}})
+      mangiare
+      (unify {:root leggere}
+             mangiare)
 
+      leggere
+      (unify {:root leggere}
+             finitizer)
 
       fare
-
+      ;; irregular forms of fare.
       (fs/unify
        (fs/copy finite-transitive)
        (fs/copy transitive)
@@ -285,6 +364,7 @@
                   :gender :fem
                   :number :sing}
          :subcat :nil!
+         :english "she"
          :italian "lei"}
         {:synsem {:cat :noun
                   :case :nom
@@ -293,6 +373,7 @@
                   :person :1st
                   :number :plur}
          :subcat :nil!
+         :english "we"
          :italian "noi"}
         {:synsem {:cat :noun
                   :case :nom
@@ -348,32 +429,20 @@
 
 (def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
 
+(defn lookup [query]
+  (find-first-in query lexicon))
+
+(defn lookupa [query]
+  (find query lexicon))
+
+(defn it [italian]
+  (lookup {:italian italian}))
+
 (def rules (concat np-1-rules vp-1-rules sentence-rules))
 
 (def np (nth rules 0))
 (def vp (nth rules 1))
 (def s (nth rules 2))
-
-(defn find-first-in [query collection]
-  "find the first member of the collection that unifies with query successfully."
-  (if (= (.size collection) 0)
-    nil
-    (let [result (fs/unify query (first collection))]
-      (if (not (fs/fail? result))
-        result
-        (find-first-in query (rest collection))))))
-
-(defn lookup [query]
-  (find-first-in query lexicon))
-
-(defn unify [& args]
-  (apply fs/unify
-         (map (fn [arg]
-                (fs/copy arg))
-              args)))
-
-(defn it [italian]
-  (lookup {:italian italian}))
 
 (defn conjugate [arg]
   (cond (nil? arg) ""
@@ -425,28 +494,6 @@
 
 (defn en [english]
   (lookup {:english english}))
-
-(def finitizer
-  (unify (let [obj (ref :top)
-               subj (ref :top)
-               italian-infinitive (ref :top)
-               cat (ref :top)]
-           {:root
-            {:italian italian-infinitive
-             :subcat {:a obj
-                      :b subj}
-             :synsem {:cat cat}}
-            :subcat {:a obj
-                     :b subj }
-            :synsem {:subj subj
-                     :obj obj
-                     :cat cat
-                     :infl :present}
-            :italian {:agr subj
-                      :root italian-infinitive}})
-         (let [subj (ref :top)]
-           {:italian
-            {:agr subj}})))
 
 (defn finitize [infinitive]
   (unify {:root infinitive}
