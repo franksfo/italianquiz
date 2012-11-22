@@ -3,6 +3,13 @@
    [italianverbs.fs :as fs]
    [clojure.string :as string]))
 
+(defn unify [& args]
+  "like fs/unify, but fs/copy each argument before unifying."
+  (apply fs/unify
+         (map (fn [arg]
+                (fs/copy arg))
+              args)))
+
 (defn find-first-in [query collection]
   "find the first member of the collection that unifies with query successfully."
   (if (= (.size collection) 0)
@@ -16,7 +23,7 @@
   "find all members of the collection that unifies with query successfully."
   (if (= (.size collection) 0)
     nil
-    (let [result (fs/unify query (first collection))]
+    (let [result (unify query (first collection))]
       (if (not (fs/fail? result))
         (cons result (find query (rest collection)))
         (find query (rest collection))))))
@@ -156,13 +163,7 @@
       :italian "le"
       :english "the"})))
 
-(defn unify [& args]
-  (apply fs/unify
-         (map (fn [arg]
-                (fs/copy arg))
-              args)))
-
-(def finitizer
+(def trans-finitizer
   (unify (let [obj (ref :top)
                subj (ref :top)
                italian-infinitive (ref :top)
@@ -176,6 +177,25 @@
                      :b subj }
             :synsem {:subj subj
                      :obj obj
+                     :cat cat
+                     :infl :present}
+            :italian {:agr subj
+                       :root italian-infinitive}})
+         (let [subj (ref :top)]
+           {:italian
+            {:agr subj}})))
+
+(def intrans-finitizer
+  (unify (let [obj (ref :top)
+               subj (ref :top)
+               italian-infinitive (ref :top)
+               cat (ref :top)]
+           {:root
+            {:italian italian-infinitive
+             :subcat {:a subj}
+             :synsem {:cat cat}}
+            :subcat {:a subj }
+            :synsem {:subj subj
                      :cat cat
                      :infl :present}
             :italian {:agr subj
@@ -199,6 +219,11 @@
                     :obj obj}
            :subcat {:a obj
                     :b subj}})
+
+        intransitive
+        (let [subj (ref :top)]
+          {:synsem {:subj subj}
+           :subcat {:a subj}})
 
         finite-transitive
         (let [subj (ref :top)
@@ -232,6 +257,13 @@
                      :infl :infinitive}
             :subcat {:a obj
                      :b subj}}))
+        dormire
+        (fs/unify
+         (fs/copy intransitive)
+         (fs/copy infinitive-verb)
+         {:italian "dormire"
+          :english "to sleep"
+          :synsem {:subj {:animate true}}})
 
         mangiare
         (fs/unify
@@ -256,13 +288,17 @@
     (concat
      (list
 
-      mangiare
-      (unify {:root leggere}
-             mangiare)
+      dormire
+      (unify {:root dormire}
+             intrans-finitizer)
 
       leggere
       (unify {:root leggere}
-             finitizer)
+             trans-finitizer)
+
+      mangiare
+      (unify {:root mangiare}
+             trans-finitizer)
 
       fare
       ;; irregular forms of fare.
@@ -316,6 +352,7 @@
                comp (ref {:synsem comp-synsem :subcat :nil!})
                subj (ref {:cat :noun :case :nom})
                head-synsem (ref {:cat :verb
+                                 :infl :present
                                  :subj subj
                                  :obj comp-synsem})
                head (ref {:synsem head-synsem
@@ -400,7 +437,9 @@
                           })
         comp (ref {:synsem subcatted :subcat :nil!})
         head (ref {:synsem head-synsem
-                   :subcat {:a subcatted}})]
+                   :subcat {:a subcatted
+                            :b :nil!
+                            }})]
     (list
      {:comment "s -> np vp"
       :subcat :nil!
@@ -448,17 +487,28 @@
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
+        (and (= (type arg)
+                clojure.lang.PersistentArrayMap)
+             (contains? (set (keys arg)) :1)
+             (contains? (set (keys arg)) :2))
+        (let [result1 (conjugate (:1 arg))
+              result2 (conjugate (:2 arg))]
+          (if (and (= (type result1) java.lang.String)
+                   (= (type result2) java.lang.String))
+            (string/join " " (list result1 result2))
+            {:1 result1
+             :2 result2}))
         :else
-        ;; assume a map.
+        ;; assume a map with keys (:root and :arg).
         (let [root (fs/get-in arg '(:root))
               person (fs/get-in arg '(:agr :person))
               number (fs/get-in arg '(:agr :number))
-              stem (string/replace root #"[ioa]re$" "")]
+              stem (string/replace root #"[iae]re$" "")]
           (cond
            (and (= person :1st) (= number :sing))
            (str stem "o")
            (and (= person :2nd) (= number :sing))
-           (str stem "")
+           (str stem "i")
            (and (= person :3rd) (= number :sing))
            (str stem "a")
            (and (= person :1st) (= number :plur))
@@ -469,6 +519,16 @@
            (str stem "anno")
            :else arg))))
 
+(defn get-italian [a b]
+  (let [conjugated-a (conjugate a)
+        conjugated-b (conjugate b)]
+    (if (and
+         (= (type conjugated-a) java.lang.String)
+         (= (type conjugated-b) java.lang.String))
+      (str conjugated-a " " conjugated-b)
+      {:1 conjugated-a
+       :2 conjugated-b})))
+
 (defn under [parent child]
   (let [child (if (= (type child) java.lang.String)
                 (it child)
@@ -477,19 +537,17 @@
                 (fs/get-in parent '(:a :italian)))
              :a
              :b)
+
+        unified (unify parent
+                       {as child})
+
         italian
-        (string/join " "
-              (if (= as :a)
-                (list
-                 (conjugate (fs/get-in child '(:italian)))
-                 (conjugate (fs/get-in parent '(:b :italian))))
-                (list
-                 (conjugate (fs/get-in parent '(:a :italian)))
-                 (conjugate (fs/get-in child '(:italian))))))]
-    (merge
-     (unify parent
-            {as
-             child})
+        (get-italian
+         (fs/get-in unified '(:a :italian))
+         (fs/get-in unified '(:b :italian)))
+        ]
+    (merge ;; use merge so that we overwrite the value for :italian.
+     unified
      {:italian italian})))
 
 (defn en [english]
@@ -497,11 +555,11 @@
 
 (defn finitize [infinitive]
   (unify {:root infinitive}
-         finitizer))
+         trans-finitizer))
 
 (def mangiare-finite
   (unify {:root (it "mangiare")}
-         finitizer))
+         trans-finitizer))
 
 (defn get-in [map path]
   (fs/get-in map path))
