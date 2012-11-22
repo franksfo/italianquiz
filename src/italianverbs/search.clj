@@ -195,6 +195,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                        "</div>"
                        "<div class='evalresult'>"
                        (cond
+
+
+                        ;; TODO: collapse (PersistentList,Cons,LazySeq) into one case.
                         (= (type loaded)
                            clojure.lang.PersistentList)
                         (string/join " "
@@ -202,6 +205,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                             (html/tablize elem))
                                           loaded))
 
+                        (= (type loaded)
+                           clojure.lang.Cons)
+                        (string/join " "
+                                     (map (fn [elem]
+                                            (html/tablize elem))
+                                          loaded))
+                        
                         (= (type loaded)
                            clojure.lang.LazySeq)
                         (string/join " "
