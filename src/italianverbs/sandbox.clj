@@ -474,10 +474,10 @@
 
 (def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
 
-(defn lookup [query]
-  (find-first-in query lexicon))
+;(defn lookup [query]
+;  (find-first-in query lexicon))
 
-(defn lookupa [query]
+(defn lookup [query]
   (find query lexicon))
 
 (defn it [italian]
@@ -535,27 +535,6 @@
       {:1 conjugated-a
        :2 conjugated-b})))
 
-(defn under [parent child]
-  (let [child (if (= (type child) java.lang.String)
-                (it child)
-                child)
-        as (if (nil?
-                (fs/get-in parent '(:a :italian)))
-             :a
-             :b)
-
-        unified (unify parent
-                       {as child})
-
-        italian
-        (get-italian
-         (fs/get-in unified '(:a :italian))
-         (fs/get-in unified '(:b :italian)))
-        ]
-    (merge ;; use merge so that we overwrite the value for :italian.
-     unified
-     {:italian italian})))
-
 (defn en [english]
   (lookup {:english english}))
 
@@ -564,20 +543,12 @@
          trans-finitizer))
 
 (def mangiare-finite
-  (unify {:root (it "mangiare")}
+  (unify {:root (first (it "mangiare"))}
          trans-finitizer))
 
 (defn get-in [map path]
   (fs/get-in map path))
 
-(def regular-sentence
-  (do
-    (def ilragazzo (under (under np "il") "ragazzo"))
-    (def lapasta (under (under np "la") "pasta"))
-    (def mfvp (under (under vp mangiare-finite) lapasta))
-    (def sentence (under (under s ilragazzo) mfvp))
-    sentence))
-       
 (defn over [x y]
   (if (or (= (type x) clojure.lang.LazySeq)
           (= (type x) clojure.lang.PersistentList))
@@ -586,10 +557,43 @@
             x)
     (if (or (= (type y) clojure.lang.LazySeq)
             (= (type y) clojure.lang.PersistentList))
-      (remove fs/fail?
+      (remove (fn [result]
+                (or (fs/fail? result)
+                    (nil? result)))
               (map (fn [each-y]
-                     (under x each-y))
+                     (let [parent x
+                           child each-y]
+                       (over parent child)))
                    y))
-      (let [result (under x y)]
-        (if (not (fs/fail? result))
-          (list result))))))
+        (let [under (fn [parent child]
+                (let [child (if (= (type child) java.lang.String)
+                              (first (it child))
+                              child)
+                      as (if (nil?
+                              (fs/get-in parent '(:a :italian)))
+                           :a
+                           :b)
+                      
+                      unified (unify parent
+                                     {as child})
+                      
+                      italian
+                      (get-italian
+                       (fs/get-in unified '(:a :italian))
+                       (fs/get-in unified '(:b :italian)))
+                      ]
+                  (merge ;; use merge so that we overwrite the value for :italian.
+                   unified
+                   {:italian italian})))]
+          (let [result (under x y)]
+            (if (not (fs/fail? result))
+              (list result)))))))
+
+(defn regular-sentence []
+  (let [ilragazzo (over (over np "il") "ragazzo")
+        lapasta (over (over np "la") "pasta")
+        myvp (over (over vp mangiare-finite) lapasta)
+        sentence (over (over s ilragazzo) myvp)]
+    sentence))
+
+
