@@ -190,7 +190,7 @@
                      :cat cat
                      :infl :present}
             :italian {:agr subj
-                       :root italian-infinitive}})
+                      :infinitive italian-infinitive}})
          (let [subj (ref :top)]
            {:italian
             {:agr subj}})))
@@ -209,7 +209,7 @@
                      :cat cat
                      :infl :present}
             :italian {:agr subj
-                      :root italian-infinitive}})
+                      :infinitive italian-infinitive}})
          (let [subj (ref :top)]
            {:italian
             {:agr subj}})))
@@ -252,21 +252,22 @@
            :root {:synsem {:cat :verb}}})
 
         fare
-        (let [subj {:artifact false
-                    :human true}
-              obj {:human false
-                   :artifact true}]
-          (fs/unify
-           (fs/copy transitive)
-           {:italian "fare"
-            :english "to do"
-            :synsem {:cat :verb
-                     :morph :irreg
-                     :subj subj
-                     :obj obj
-                     :infl :infinitive}
-            :subcat {:a obj
-                     :b subj}}))
+        (fs/unify
+         (fs/copy transitive)
+         {:italian {:infinitive "fare"
+                    :present {:1sing "facio"
+                              :2sing "fai"
+                              :3sing "fa"
+                              :1plur "facciamo"
+                              :2plur "fate"
+                              :3plur "fanno"}}
+          :english "to do"
+          :synsem {:cat :verb
+                   :morph :irreg
+                   :infl :infinitive
+                   :subj {:human true}
+                   :obj {:artifact true}}})
+
         dormire
         (fs/unify
          (fs/copy intransitive)
@@ -301,59 +302,16 @@
       dormire
       (unify {:root dormire}
              intrans-finitizer)
-
+      fare
+      (unify {:root fare}
+             trans-finitizer)
       leggere
       (unify {:root leggere}
              trans-finitizer)
-
       mangiare
       (unify {:root mangiare}
-             trans-finitizer)
+             trans-finitizer)))))
 
-      fare
-      ;; irregular forms of fare.
-      (fs/unify
-       (fs/copy finite-transitive)
-       (fs/copy transitive)
-       {:root (fs/copy fare)
-        :italian "facio"
-        :subcat {:b {:person :1st
-                     :number :sing}}})
-      (fs/unify
-       (fs/copy finite-transitive)
-       (fs/copy transitive)
-       {:root (fs/copy fare)
-        :italian "fai"
-        :subcat {:b {:person :2nd
-                     :number :sing}}})
-      (fs/unify
-       (fs/copy finite-transitive)
-       (fs/copy transitive)
-       {:root (fs/copy fare)
-        :italian "fa"
-        :subcat {:b {:person :3rd
-                     :number :sing}}})
-      (fs/unify
-       (fs/copy finite-transitive)
-       (fs/copy transitive)
-       {:root (fs/copy fare)
-        :italian "facciamo"
-        :subcat {:b {:person :1st
-                     :number :plur}}})
-      (fs/unify
-       (fs/copy finite-transitive)
-       (fs/copy transitive)
-       {:root (fs/copy fare)
-        :italian "fate"
-        :subcat {:b {:person :2nd
-                     :number :plur}}})
-      (fs/unify
-       (fs/copy finite-transitive)
-       (fs/copy transitive)
-       {:root (fs/copy fare)
-        :italian "fanno"
-        :subcat {:b {:person :3rd
-                     :number :plur}}})))))
 
 (def vp-1-rules
   (list
@@ -497,8 +455,10 @@
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
-        (and (= (type arg)
-                clojure.lang.PersistentArrayMap)
+        (and (or (= (type arg)
+                    clojure.lang.PersistentArrayMap)
+                 (= (type arg)
+                    clojure.lang.PersistentHashMap))
              (contains? (set (keys arg)) :1)
              (contains? (set (keys arg)) :2))
         (let [result1 (conjugate (:1 arg))
@@ -508,9 +468,42 @@
             (string/join " " (list result1 result2))
             {:1 result1
              :2 result2}))
+
+        (and (or (= (type arg)
+                    clojure.lang.PersistentArrayMap)
+                 (= (type arg)
+                    clojure.lang.PersistentHashMap))
+             (contains? (set (keys arg)) :agr)
+             (contains? (set (keys arg)) :present))
+        ;; irregular present-tense (e.g. "fare")
+        (let [root (fs/get-in arg '(:infinitive))
+              person (fs/get-in arg '(:agr :person))
+              number (fs/get-in arg '(:agr :number))]
+          (cond
+           (and (= person :1st)
+                (= number :sing))
+           (fs/get-in arg '(:present :1sing))
+           (and (= person :2nd)
+                (= number :sing))
+           (fs/get-in arg '(:present :2sing))
+           (and (= person :3rd)
+                (= number :sing))
+           (fs/get-in arg '(:present :3sing))
+           (and (= person :1st)
+                (= number :plur))
+           (fs/get-in arg '(:present :1plur))
+           (and (= person :2nd)
+                (= number :plur))
+           (fs/get-in arg '(:present :2plur))
+           (and (= person :3rd)
+                (= number :plur))
+           (fs/get-in arg '(:present :3plur))
+           :else (str "unknown conjugation:person=" person ";number=" number)))
+
+        
         :else
-        ;; assume a map with keys (:root and :arg).
-        (let [root (fs/get-in arg '(:root))
+        ;; assume a map with keys (:root and :agr).
+        (let [root (fs/get-in arg '(:infinitive))
               person (fs/get-in arg '(:agr :person))
               number (fs/get-in arg '(:agr :number))
               stem (string/replace root #"[iae]re$" "")]
