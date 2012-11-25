@@ -156,42 +156,42 @@
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
       (not (= :subcat (last path)))
-      (not (= :none (:a arg :none)))
-      (not (= :none (:b arg :none))))
+      (not (= :none (:1 arg :none)))
+      (not (= :none (:2 arg :none))))
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
       "    <tr>"
       "      <td class='parent2child'>&nbsp;</td><td class='parent2child parent' colspan='3'>"
-      (tablize (dissoc (dissoc arg :a) :b) path serialized opts)
+      (tablize (dissoc (dissoc arg :1) :2) path serialized opts)
       "      </td><td class='parent2child'>&nbsp;</td>"
       "    </tr>"
       "    <tr>"
       "      <td class='ref'>"
-      (if (= (type (:a arg)) clojure.lang.Ref)
+      (if (= (type (:1 arg)) clojure.lang.Ref)
         (str
          "     <div class='ref'>"
-         (fs/path-to-ref-index serialized (concat path '(:a)) 0)
+         (fs/path-to-ref-index serialized (concat path '(:1)) 0)
          "     </div>"))
       "      </td>"
       "      <td>"
-      (tablize (if (= (type (:a arg)) clojure.lang.Ref)
-                 @(:a arg)
-                 (:a arg))
-               (concat path '(:a)) serialized opts)
+      (tablize (if (= (type (:1 arg)) clojure.lang.Ref)
+                 @(:1 arg)
+                 (:1 arg))
+               (concat path '(:1)) serialized opts)
       "      </td>"
       "      <td class='ref'>"
-      (if (= (type (:b arg)) clojure.lang.Ref)
+      (if (= (type (:2 arg)) clojure.lang.Ref)
         (str
          "    <div class='ref'>"
-         (fs/path-to-ref-index serialized (concat path '(:b)) 0)
+         (fs/path-to-ref-index serialized (concat path '(:2)) 0)
          "    </div>"))
          "      </td>"
          "      <td>"
-      (tablize (if (= (type (:b arg)) clojure.lang.Ref)
-                 @(:b arg)
-                 (:b arg))
-               (concat path '(:b)) serialized opts)
+      (tablize (if (= (type (:2 arg)) clojure.lang.Ref)
+                 @(:2 arg)
+                 (:2 arg))
+               (concat path '(:2)) serialized opts)
       "      </td><td>&nbsp;</td>"
       "    </tr>"
       "  </table>"
@@ -205,26 +205,26 @@
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
       (not (= :subcat (last path)))
-      (not (= :none (:a arg :none)))
-      (= :none (:b arg :none)))
+      (not (= :none (:1 arg :none)))
+      (= :none (:2 arg :none)))
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
       "    <tr>"
-      "      <td colspan="2" class='parent1child'>" (tablize (dissoc (dissoc arg :a) :b) path serialized {:as-tree false}) "</td>"
+      "      <td colspan="2" class='parent1child'>" (tablize (dissoc (dissoc arg :1) :2) path serialized {:as-tree false}) "</td>"
       "    </tr>"
       "    <tr>"
       "      <td>"
-      (if (= (type (:a arg)) clojure.lang.Ref)
+      (if (= (type (:1 arg)) clojure.lang.Ref)
         (str
          "    <div class='ref'>"
-         (fs/path-to-ref-index serialized (concat path '(:a)) 0)
+         (fs/path-to-ref-index serialized (concat path '(:1)) 0)
          "    </div>"))
          "      </td>"
          "      <td>"
-      (tablize (if (= (type (:a arg)) clojure.lang.Ref)
-                 @(:a arg) (:a arg))
-               (concat path (list :a))
+      (tablize (if (= (type (:1 arg)) clojure.lang.Ref)
+                 @(:1 arg) (:1 arg))
+               (concat path (list :1))
                serialized opts)
       "      </td>"
       "    </tr>"

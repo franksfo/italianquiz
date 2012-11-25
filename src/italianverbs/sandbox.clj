@@ -34,7 +34,7 @@
         number (ref :top)
         agreement {:synsem {:gender gender
                             :number number}
-                   :subcat {:a {:gender gender
+                   :subcat {:1 {:gender gender
                                 :number number}}}]
     (list
      (fs/unify (fs/copy agreement)
@@ -46,7 +46,7 @@
                          :animate false
                          :artifact true
                          :person :3rd}
-                :subcat {:a {:cat :det}}
+                :subcat {:1 {:cat :det}}
                 :italian "compito"
                 :english "homework"})
 
@@ -60,7 +60,7 @@
                          :human false
                          :artifact true
                          :person :3rd}
-                :subcat {:a {:cat :det}}
+                :subcat {:1 {:cat :det}}
                 :italian "pane"
                 :english "bread"})
 
@@ -72,7 +72,7 @@
                          :edible true
                          :artifact true
                          :person :3rd}
-                :subcat {:a {:cat :det}}
+                :subcat {:1 {:cat :det}}
                 :italian "pasta"
                 :english "pasta"})
 
@@ -85,7 +85,7 @@
                          :edible false
                          :artifact true
                          :person :3rd}
-                :subcat {:a {:cat :det}}
+                :subcat {:1 {:cat :det}}
                 :italian "scala"
                 :english "ladder"})
 
@@ -97,7 +97,7 @@
                          :person :3rd
                          }}
                {:synsem (fs/copy human)}
-               {:subcat {:a {:cat :det}}
+               {:subcat {:1 {:cat :det}}
                 :italian "ragazzo"
                 :english "guy"})
 
@@ -107,7 +107,7 @@
                          :gender :fem
                          :person :3rd}}
                {:synsem (fs/copy human)
-                :subcat {:a {:cat :det}}
+                :subcat {:1 {:cat :det}}
                 :italian "ragazza"
                 :english "girl"})
 
@@ -116,9 +116,10 @@
                          :human false
                          :number :sing
                          :gender :masc
+                         :artifact true
                          :person :3rd}}
                {:synsem {:legible true}
-                :subcat {:a {:cat :det}}
+                :subcat {:1 {:cat :det}}
                 :italian "libro"
                 :english "book"})
 
@@ -130,7 +131,7 @@
                          :gender :masc
                          :person :3rd}}
                {:synsem (fs/copy animal)
-                :subcat {:a {:cat :det}}
+                :subcat {:1 {:cat :det}}
                 :italian "cane"
                 :english "dog"})
      
@@ -162,11 +163,11 @@
                cat (ref :top)]
            {:root
             {:italian italian-infinitive
-             :subcat {:a obj
-                      :b subj}
+             :subcat {:1 obj
+                      :2 subj}
              :synsem {:cat cat}}
-            :subcat {:a obj
-                     :b subj }
+            :subcat {:1 obj
+                     :2 subj }
             :synsem {:subj subj
                      :obj obj
                      :cat cat
@@ -184,9 +185,9 @@
                cat (ref :top)]
            {:root
             {:italian italian-infinitive
-             :subcat {:a subj}
+             :subcat {:1 subj}
              :synsem {:cat cat}}
-            :subcat {:a subj }
+            :subcat {:1 subj }
             :synsem {:subj subj
                      :cat cat
                      :infl :present}
@@ -209,13 +210,14 @@
               obj (ref :top)]
           {:synsem {:subj subj
                     :obj obj}
-           :subcat {:a obj
-                    :b subj}})
+           :subcat {:1 obj
+                    :2 subj}})
 
         intransitive
         (let [subj (ref :top)]
           {:synsem {:subj subj}
-           :subcat {:a subj}})
+           :subcat {:1 subj
+                    :2 :nil!}})
 
         finite-transitive
         (let [subj (ref :top)
@@ -230,7 +232,7 @@
         (let [agreement {:person :top
                          :number :top}]
           {:italian {:morph agreement}
-           :subcat {:b agreement}
+           :subcat {:2 agreement}
            :root {:synsem {:cat :verb}}})
 
         fare
@@ -306,15 +308,15 @@
                                  :subj subj
                                  :obj comp-synsem})
                head (ref {:synsem head-synsem
-                          :subcat {:a comp-synsem
-                                   :b subj}})]
+                          :subcat {:1 comp-synsem
+                                   :2 subj}})]
            {:comment "vp -> head comp"
             :head head
-            :subcat {:a subj}
+            :subcat {:1 subj}
             :synsem head-synsem
             :comp comp
-            :a head
-            :b comp})]
+            :1 head
+            :2 comp})]
      vp-rule-1)))
 
 (def pronouns
@@ -387,16 +389,16 @@
                           })
         comp (ref {:synsem subcatted :subcat :nil!})
         head (ref {:synsem head-synsem
-                   :subcat {:a subcatted
-                            :b :nil!
+                   :subcat {:1 subcatted
+                            :2 :nil!
                             }})]
     (list
      {:comment "s -> np vp"
       :subcat :nil!
       :head head
       :comp comp
-      :a comp
-      :b head
+      :1 comp
+      :2 head
       :synsem head-synsem
       })))
 
@@ -406,14 +408,14 @@
               comp (ref {:synsem comp-synsem})
               head-synsem (ref {:cat :noun})
               head (ref {:synsem head-synsem
-                         :subcat {:a comp-synsem}})]
+                         :subcat {:1 comp-synsem}})]
           {:comment "np -> det noun"
            :head head
            :subcat :nil!
            :synsem head-synsem
            :comp comp
-           :a comp
-           :b head})]
+           :1 comp
+           :2 head})]
     (list np-rule-1)))
 
 (def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
@@ -487,7 +489,6 @@
                 (= number :plur))
            (fs/get-in arg '(:present :3plur))
            :else (str "unknown conjugation:person=" person ";number=" number)))
-
         
         :else
         ;; assume a map with keys (:root and :agr).
@@ -500,8 +501,11 @@
            (str stem "o")
            (and (= person :2nd) (= number :sing))
            (str stem "i")
-           (and (= person :3rd) (= number :sing))
-           (str stem "a")
+           (and (= person :3rd) (= number :sing)
+                (re-find #"[ie]re$" root))  ;; -ire and -ere
+           (str stem "e")
+           (and (= person :3rd) (= number :sing)) ;; -are
+           (str stem "a") 
            (and (= person :1st) (= number :plur))
            (str stem "amo")
            (and (= person :2nd) (= number :plur))
@@ -536,11 +540,16 @@
 
 (defn over [parent child]
   (cond
+
+   (= (type child) java.lang.String)
+   (over parent (it child))
+   
    (or (= (type parent) clojure.lang.LazySeq)
        (= (type parent) clojure.lang.PersistentList))
    (mapcat (fn [each-parent]
              (over each-parent child))
            parent)
+
    (or (= (type child) clojure.lang.LazySeq)
        (= (type child) clojure.lang.PersistentList))
    (remove (fn [result]
@@ -551,25 +560,23 @@
                         child each-child]
                     (over parent child)))
                 child))
+
    :else ; both parent and child are non-lists.
    (let [result
-         (let [child (if (= (type child) java.lang.String)
-                       (first (it child))
-                       child)
-
-               ;; "as": find where to attach child (:a or :b), depending on value of current left child (:a)'s :italian.
-               ;; if (:a :italian) is nil, the parent has no :a-child, so attach new child there at :a.
+         (let [
+               ;; "as": find where to attach child (:1 or :b), depending on value of current left child (:a)'s :italian.
+               ;; if (:1 :italian) is nil, the parent has no :a-child, so attach new child there at :a.
                ;; Otherwise, an :a-child exists for the parent, so attach new child at :b.
                as (if (nil?
-                       (fs/get-in parent '(:a :italian)))
-                    :a
-                    :b)
+                       (fs/get-in parent '(:1 :italian)))
+                    :1
+                    :2)
                unified (unify parent
                               {as child})
                italian
                (get-italian
-                (fs/get-in unified '(:a :italian))
-                (fs/get-in unified '(:b :italian)))
+                (fs/get-in unified '(:1 :italian))
+                (fs/get-in unified '(:2 :italian)))
                ]
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
@@ -583,7 +590,6 @@
         myvp (over (over vp mangiare-finite) lapasta)
         sentence (over (over s ilragazzo) myvp)]
     sentence))
-
 
 (defn lots-of-sentences-1 []
   (over
