@@ -108,6 +108,28 @@
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
                          :number :sing
+                         :gender :masc
+                         :person :3rd
+                         }}
+               {:synsem (fs/copy human)}
+               {:subcat {:1 {:cat :det}}
+                :italian "dottore"
+                :english "doctor"})
+
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
+                         :gender :fem
+                         :person :3rd
+                         }}
+               {:synsem (fs/copy human)}
+               {:subcat {:1 {:cat :det}}
+                :italian "professoressa"
+                :english "professor"})
+
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :number :sing
                          :gender :fem
                          :person :3rd}}
                {:synsem (fs/copy human)
@@ -139,6 +161,17 @@
                 :subcat {:1 {:cat :det}}
                 :italian "cane"
                 :english "dog"})
+
+     (fs/unify (fs/copy agreement)
+               {:synsem {:cat :noun
+                         :human false
+                         :number :sing
+                         :gender :masc
+                         :person :3rd}}
+               {:synsem (fs/copy animal)
+                :subcat {:1 {:cat :det}}
+                :italian "gatto"
+                :english "cat"})
      
      {:synsem {:cat :det
                :def :def
@@ -330,7 +363,7 @@
                comp (ref {:synsem comp-synsem :subcat :nil!})
                subj (ref {:cat :noun :case :nom})
                head-synsem (ref {:cat :verb
-                                 :infl :present
+                                 :infl {:not :infinitive}
                                  :subj subj
                                  :obj comp-synsem})
                head (ref {:synsem head-synsem
@@ -610,7 +643,8 @@
               (over each-parent child))
             parent))
    (or (= (type child) clojure.lang.LazySeq)
-       (= (type child) clojure.lang.PersistentList))
+       (= (type child) clojure.lang.PersistentList)
+       (= (type child) clojure.lang.Cons))
       (remove (fn [result]
              (or (fs/fail? result)
                  (nil? result)))
