@@ -141,25 +141,45 @@
                 :english "dog"})
      
      {:synsem {:cat :det
+               :def :def
                :gender :masc
                :number :sing}
       :italian "il"
       :english "the"}
      {:synsem {:cat :det
+               :def :indef
+               :gender :masc
+               :number :sing}
+      :italian "un"
+      :english "a"}
+
+     {:synsem {:cat :det
+               :def :def
                :gender :fem
                :number :sing}
       :italian "la"
       :english "the"}
      {:synsem {:cat :det
+               :def :def
+               :gender :fem
+               :number :sing}
+      :italian "una"
+      :english "a"}
+
+     {:synsem {:cat :det
+               :def :def
                :gender :masc
                :number :plur}
       :italian "i"
       :english "the"}
      {:synsem {:cat :det
+               :def :def
                :gender :fem
                :number :plur}
       :italian "le"
-      :english "the"})))
+      :english "the"}
+
+     )))
 
 (def trans-finitizer
   (unify (let [obj (ref :top)
@@ -477,8 +497,6 @@
               person (fs/get-in arg '(:agr :person))
               number (fs/get-in arg '(:agr :number))
               present (fs/get-in arg '(:infinitive :irregular :present))]
-          (println (str "irregular: person: " (fs/get-in arg '(:agr :person))))
-          (println (str "1sing form: " (fs/get-in arg '(:infinitive :irregular :present :1sing))))
           (cond
            (and (= person :1st)
                 (= number :sing))
@@ -505,8 +523,6 @@
         
         :else
         ;; assume a map with keys (:root and :agr).
-        (do
-          (println (type arg))
         (let [root (fs/get-in arg '(:infinitive))
               root (if (nil? root) "(nil)" root)
               root (if (not (= (type root) java.lang.String))
@@ -555,7 +571,7 @@
 
            (and (= person :3rd) (= number :plur))
            (str stem "ano")
-           :else arg)))))
+           :else arg))))
 
 (defn get-italian [a b]
   (let [conjugated-a (conjugate a)
