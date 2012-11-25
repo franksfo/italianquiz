@@ -212,6 +212,23 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                             (html/tablize elem))
                                           loaded))
                         
+                        (and (= (type loaded)
+                                clojure.lang.LazySeq)
+                             (= 0
+                                (.size
+                                 (remove
+                                  (fn [each]
+                                    (= each java.lang.String))
+                                  (map (fn [each]
+                                         (type each))
+                                       loaded)))))
+                        (str "<ul>"
+                             (string/join " "
+                                          (map (fn [elem]
+                                                 (str "<li>" (html/tablize elem) "</li>"))
+                                               (seq loaded)))
+                             "</ul>")
+
                         (= (type loaded)
                            clojure.lang.LazySeq)
                         (string/join " "
