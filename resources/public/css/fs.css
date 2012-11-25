@@ -232,3 +232,7 @@ div.evalinput {
     -moz-border-radius: 25px;
     border-radius: 25px;
 }
+
+div.evalresult ul {
+    list-style-type:none;
+}
