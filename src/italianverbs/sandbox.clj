@@ -10,24 +10,6 @@
                 (fs/copy arg))
               args)))
 
-(defn find-first-in [query collection]
-  "find the first member of the collection that unifies with query successfully."
-  (if (= (.size collection) 0)
-    nil
-    (let [result (fs/unify query (first collection))]
-      (if (not (fs/fail? result))
-        result
-        (find-first-in query (rest collection))))))
-
-(defn find [query collection]
-  "find all members of the collection that unifies with query successfully."
-  (if (= (.size collection) 0)
-    nil
-    (let [result (unify query (first collection))]
-      (if (not (fs/fail? result))
-        (cons result (find query (rest collection)))
-        (find query (rest collection))))))
-
 (def human {:human true
             :artifact false
             :legible false
@@ -436,11 +418,17 @@
 
 (def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
 
-;(defn lookup [query]
-;  (find-first-in query lexicon))
+(defn lookup-in [query collection]
+  "find all members of the collection that matches with query successfully."
+  (if (= (.size collection) 0)
+    nil
+    (let [result (fs/match query (fs/copy (first collection)))]
+      (if (not (fs/fail? result))
+        (cons (first collection) (lookup-in query (rest collection)))
+        (lookup-in query (rest collection))))))
 
 (defn lookup [query]
-  (find query lexicon))
+  (lookup-in query lexicon))
 
 (defn it [italian]
   (lookup {:italian italian}))
