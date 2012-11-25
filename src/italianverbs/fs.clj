@@ -1,7 +1,6 @@
 (ns italianverbs.fs
   (:use [clojure.set]
         [clojure.tools.logging])
-
   (:require
    [clojure.tools.logging :as log]
    [italianverbs.fs :as fs] ;; needed maybe by the (eval fs/..) stuff below.
