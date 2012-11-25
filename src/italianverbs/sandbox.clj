@@ -1,7 +1,8 @@
 (ns italianverbs.sandbox
   (:require
    [italianverbs.fs :as fs]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [clojure.tools.logging :as log]))
 
 (defn unify [& args]
   "like fs/unify, but fs/copy each argument before unifying."
@@ -69,6 +70,8 @@
                          :number :sing
                          :gender :fem
                          :legible false
+                         :animate false
+                         :human false
                          :edible true
                          :artifact true
                          :person :3rd}
@@ -81,6 +84,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :fem
+                         :human false
                          :legible false
                          :edible false
                          :artifact true
@@ -116,6 +120,7 @@
                          :human false
                          :number :sing
                          :gender :masc
+                         :animate false
                          :artifact true
                          :person :3rd}}
                {:synsem {:legible true}
@@ -239,12 +244,13 @@
         (fs/unify
          (fs/copy transitive)
          {:italian {:infinitive "fare"
-                    :present {:1sing "facio"
-                              :2sing "fai"
-                              :3sing "fa"
-                              :1plur "facciamo"
-                              :2plur "fate"
-                              :3plur "fanno"}}
+                    :irregular {
+                                :present {:1sing "facio"
+                                          :2sing "fai"
+                                          :3sing "fa"
+                                          :1plur "facciamo"
+                                          :2plur "fate"
+                                          :3plur "fanno"}}}
           :english "to do"
           :synsem {:cat :verb
                    :morph :irreg
@@ -464,63 +470,100 @@
                  (= (type arg)
                     clojure.lang.PersistentHashMap))
              (contains? (set (keys arg)) :agr)
-             (contains? (set (keys arg)) :present))
+             (contains? (set (keys arg)) :infinitive)
+             (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
         ;; irregular present-tense (e.g. "fare")
         (let [root (fs/get-in arg '(:infinitive))
               person (fs/get-in arg '(:agr :person))
-              number (fs/get-in arg '(:agr :number))]
+              number (fs/get-in arg '(:agr :number))
+              present (fs/get-in arg '(:infinitive :irregular :present))]
+          (println (str "irregular: person: " (fs/get-in arg '(:agr :person))))
+          (println (str "1sing form: " (fs/get-in arg '(:infinitive :irregular :present :1sing))))
           (cond
            (and (= person :1st)
                 (= number :sing))
-           (fs/get-in arg '(:present :1sing))
+           (fs/get-in present '(:1sing))
            (and (= person :2nd)
                 (= number :sing))
-           (fs/get-in arg '(:present :2sing))
+           (fs/get-in present '(:2sing))
            (and (= person :3rd)
                 (= number :sing))
-           (fs/get-in arg '(:present :3sing))
+           (fs/get-in present '(:3sing))
            (and (= person :1st)
                 (= number :plur))
-           (fs/get-in arg '(:present :1plur))
+           (fs/get-in present '(:1plur))
            (and (= person :2nd)
                 (= number :plur))
-           (fs/get-in arg '(:present :2plur))
+           (fs/get-in present '(:2plur))
            (and (= person :3rd)
                 (= number :plur))
-           (fs/get-in arg '(:present :3plur))
-           :else (str "unknown conjugation:person=" person ";number=" number)))
+           (fs/get-in present '(:3plur))
+           :else arg))  ;(str "[unknown conjugation:root=" root ";person=" person ";number=" number "]:" root)))
+
+        (= (type arg) clojure.lang.Keyword)
+        (str "cannot conjugate: " arg)
         
         :else
         ;; assume a map with keys (:root and :agr).
+        (do
+          (println (type arg))
         (let [root (fs/get-in arg '(:infinitive))
+              root (if (nil? root) "(nil)" root)
+              root (if (not (= (type root) java.lang.String))
+                      (fs/get-in arg '(:infinitive :infinitive))
+                      root)
               person (fs/get-in arg '(:agr :person))
               number (fs/get-in arg '(:agr :number))
-              stem (string/replace root #"[iae]re$" "")]
+              stem (string/replace root #"[iae]re$" "")
+              are-type (re-find #"are$" root)
+              ere-type (re-find #"ere$" root)
+              ire-type (re-find #"ire$" root)
+              last-stem-char-is-i (re-find #"i$" stem)]
           (cond
+
            (and (= person :1st) (= number :sing))
            (str stem "o")
+
+           (and (= person :2nd) (= number :sing)
+                last-stem-char-is-i)
+           (str stem)
+
            (and (= person :2nd) (= number :sing))
            (str stem "i")
-           (and (= person :3rd) (= number :sing)
-                (re-find #"[ie]re$" root))  ;; -ire and -ere
+
+           (and (= person :3rd) (= number :sing) (or ire-type ere-type))
            (str stem "e")
-           (and (= person :3rd) (= number :sing)) ;; -are
+
+           (and (= person :3rd) (= number :sing) are-type)
            (str stem "a") 
-           (and (= person :1st) (= number :plur))
+
+           (and (= person :1st) (= number :plur)
+                last-stem-char-is-i)
            (str stem "amo")
-           (and (= person :2nd) (= number :plur))
+
+           (and (= person :1st) (= number :plur))
+           (str stem "iamo")
+
+           (and (= person :2nd) (= number :plur) are-type)
            (str stem "ate")
+
+           (and (= person :2nd) (= number :plur) ere-type)
+           (str stem "ete")
+
+           (and (= person :2nd) (= number :plur) ire-type)
+           (str stem "ite")
+
            (and (= person :3rd) (= number :plur))
-           (str stem "anno")
-           :else arg))))
+           (str stem "ano")
+           :else arg)))))
 
 (defn get-italian [a b]
   (let [conjugated-a (conjugate a)
-        conjugated-b (conjugate b)]
+        conjugated-b (if (not (nil? b)) (conjugate b) "")]
     (if (and
          (= (type conjugated-a) java.lang.String)
          (= (type conjugated-b) java.lang.String))
-      (str conjugated-a " " conjugated-b)
+      (string/trim (str conjugated-a " " conjugated-b))
       {:1 conjugated-a
        :2 conjugated-b})))
 
@@ -546,20 +589,21 @@
    
    (or (= (type parent) clojure.lang.LazySeq)
        (= (type parent) clojure.lang.PersistentList))
-   (mapcat (fn [each-parent]
-             (over each-parent child))
-           parent)
-
+   (flatten
+    (mapcat (fn [each-parent]
+              (over each-parent child))
+            parent))
    (or (= (type child) clojure.lang.LazySeq)
        (= (type child) clojure.lang.PersistentList))
-   (remove (fn [result]
+      (remove (fn [result]
              (or (fs/fail? result)
                  (nil? result)))
-           (map (fn [each-child]
-                  (let [parent parent
-                        child each-child]
-                    (over parent child)))
-                child))
+              (flatten
+               (map (fn [each-child]
+                      (let [parent parent
+                            child each-child]
+                        (over parent child)))
+                    child)))
 
    :else ; both parent and child are non-lists.
    (let [result
@@ -582,7 +626,7 @@
             unified
             {:italian italian}))]
      (if (not (fs/fail? result))
-       (list result)))))
+       (flatten (list result))))))
 
 (defn regular-sentence []
   (let [ilragazzo (over (over np "il") "ragazzo")
@@ -606,3 +650,43 @@
    (over
     (over vp lexicon)
     (over (over np lexicon) lexicon))))
+
+(defn lots-of-sentences []
+  (concat
+   (lots-of-sentences-1)
+   (lots-of-sentences-2)))
+
+(defn formattare [expressions]
+;; "format a bunch of expressions (feature-structures) showing just the italian."
+  (map (fn [expr] (string/capitalize
+                   (string/trim
+                    (str
+                     (get-italian
+                      (let [italian (fs/get-in expr '(:italian))]
+                        (cond
+                         (and (or (= (type italian)
+                                     clojure.lang.PersistentArrayMap)
+                                  (= (type italian)
+                                     clojure.lang.PersistentHashMap))
+                              (not (nil? (fs/get-in italian '(:irregular)))))
+                         (str (fs/get-in italian '(:infinitive)) " (finite)")
+
+                         (and (or (= (type italian)
+                                     clojure.lang.PersistentArrayMap)
+                                  (= (type italian)
+                                     clojure.lang.PersistentHashMap))
+                              (not (nil? (fs/get-in italian '(:infinitive))))
+                              (= java.lang.String (type (fs/get-in italian '(:infinitive)))))
+                         (str (fs/get-in italian '(:infinitive)) " (finite)")
+
+                         (and (or (= (type italian)
+                                     clojure.lang.PersistentArrayMap)
+                                  (= (type italian)
+                                     clojure.lang.PersistentHashMap))
+                              (not (nil? (fs/get-in italian '(:infinitive)))))
+                         (fs/get-in italian '(:infinitive :infinitive))
+
+                         :else
+                         italian))
+                      "") "."))))
+       expressions))
