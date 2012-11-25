@@ -222,12 +222,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                   (map (fn [each]
                                          (type each))
                                        loaded)))))
-                        (str "<ul>"
+                        (str "<ol>"
                              (string/join " "
                                           (map (fn [elem]
                                                  (str "<li>" (html/tablize elem) "</li>"))
                                                (seq loaded)))
-                             "</ul>")
+                             "</il>")
 
                         (= (type loaded)
                            clojure.lang.LazySeq)

@@ -674,35 +674,64 @@
 
 (defn formattare [expressions]
 ;; "format a bunch of expressions (feature-structures) showing just the italian."
-  (map (fn [expr] (string/capitalize
-                   (string/trim
-                    (str
-                     (get-italian
-                      (let [italian (fs/get-in expr '(:italian))]
-                        (cond
-                         (and (or (= (type italian)
-                                     clojure.lang.PersistentArrayMap)
-                                  (= (type italian)
-                                     clojure.lang.PersistentHashMap))
-                              (not (nil? (fs/get-in italian '(:irregular)))))
-                         (str (fs/get-in italian '(:infinitive)) " (finite)")
-
-                         (and (or (= (type italian)
-                                     clojure.lang.PersistentArrayMap)
-                                  (= (type italian)
-                                     clojure.lang.PersistentHashMap))
-                              (not (nil? (fs/get-in italian '(:infinitive))))
-                              (= java.lang.String (type (fs/get-in italian '(:infinitive)))))
-                         (str (fs/get-in italian '(:infinitive)) " (finite)")
-
-                         (and (or (= (type italian)
-                                     clojure.lang.PersistentArrayMap)
-                                  (= (type italian)
-                                     clojure.lang.PersistentHashMap))
-                              (not (nil? (fs/get-in italian '(:infinitive)))))
-                         (fs/get-in italian '(:infinitive :infinitive))
-
-                         :else
-                         italian))
-                      "") "."))))
-       expressions))
+  (if (or (= (type expressions) clojure.lang.PersistentArrayMap)
+          (= (type expressions) clojure.lang.PersistentHashMap)
+          (= (type expressions) clojure.lang.PersistentTreeMap))
+    (formattare (list expressions))
+    
+    (map (fn [expr] (string/capitalize
+                     (string/trim
+                      (str
+                       (string/trim
+                        (get-italian
+                         (let [italian (fs/get-in expr '(:italian))]
+                           (cond
+                            
+                            (and (or (= (type italian)
+                                        clojure.lang.PersistentArrayMap)
+                                     (= (type italian)
+                                        clojure.lang.PersistentHashMap))
+                                 (not (nil? (fs/get-in italian '(:1 :infinitive :infinitive)))))
+                            (string/join " " (list (fs/get-in italian '(:1 :infinitive :infinitive))
+                                                   "(finite)"
+                                                   (get-italian (fs/get-in italian '(:2)) "")))
+                            
+                            (and (or (= (type italian)
+                                        clojure.lang.PersistentArrayMap)
+                                     (= (type italian)
+                                        clojure.lang.PersistentHashMap))
+                                 (not (nil? (fs/get-in italian '(:1 :infinitive)))))
+                            (string/join " " (list (get-italian (fs/get-in italian '(:1 :infinitive)) "")
+                                                   "(finite)"
+                                                   (get-italian (fs/get-in italian '(:2)) "")))
+                            
+                            
+                            
+                            (and (or (= (type italian)
+                                        clojure.lang.PersistentArrayMap)
+                                     (= (type italian)
+                                        clojure.lang.PersistentHashMap))
+                                 (not (nil? (fs/get-in italian '(:irregular)))))
+                            (str (fs/get-in italian '(:infinitive)) " (finite)")
+                            
+                            (and (or (= (type italian)
+                                        clojure.lang.PersistentArrayMap)
+                                     (= (type italian)
+                                        clojure.lang.PersistentHashMap))
+                                 (not (nil? (fs/get-in italian '(:infinitive))))
+                                 (= java.lang.String (type (fs/get-in italian '(:infinitive)))))
+                            (str (fs/get-in italian '(:infinitive)) " (finite)")
+                            
+                            (and (or (= (type italian)
+                                        clojure.lang.PersistentArrayMap)
+                                     (= (type italian)
+                                        clojure.lang.PersistentHashMap))
+                                 (not (nil? (fs/get-in italian '(:infinitive)))))
+                            (fs/get-in italian '(:infinitive :infinitive))
+                           
+                           :else
+                           italian))
+                         ""))
+                       "."
+                       (if (fs/get-in expr '(:comment)) (str " (" (fs/get-in expr '(:comment)) ")"))))))
+         expressions)))
