@@ -337,6 +337,14 @@
           :synsem {:subj {:human true}
                    :obj {:legible true}}})
 
+        scrivere
+        (fs/unify
+         (fs/copy transitive)
+         (fs/copy infinitive-verb)
+         {:italian "scrivere"
+          :english "to write"
+          :synsem {:subj {:human true}
+                   :obj {:legible true}}})
 
         ]
     (concat
@@ -353,8 +361,11 @@
              trans-finitizer)
       mangiare
       (unify {:root mangiare}
-             trans-finitizer)))))
+             trans-finitizer)
 
+      scrivere
+      (unify {:root scrivere}
+             trans-finitizer)))))
 
 (def vp-1-rules
   (list
