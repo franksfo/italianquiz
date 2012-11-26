@@ -669,9 +669,9 @@
    :else ; both parent and child are non-lists.
    (let [result
          (let [
-               ;; "as": find where to attach child (:1 or :b), depending on value of current left child (:a)'s :italian.
-               ;; if (:1 :italian) is nil, the parent has no :a-child, so attach new child there at :a.
-               ;; Otherwise, an :a-child exists for the parent, so attach new child at :b.
+               ;; "as": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
+               ;; if (:1 :italian) is nil, the parent has no :1-child, so attach new child there at :1.
+               ;; Otherwise, a :1-child exists for the parent, so attach new child at :2.
                as (if (nil?
                        (fs/get-in parent '(:1 :italian)))
                     :1
@@ -717,8 +717,11 @@
    (lots-of-sentences-1)
    (lots-of-sentences-2)))
 
+
+;; e.g.:
+;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
 (defn formattare [expressions]
-;; "format a bunch of expressions (feature-structures) showing just the italian."
+  "format a bunch of expressions (feature-structures) showing just the italian."
   (if (or (= (type expressions) clojure.lang.PersistentArrayMap)
           (= (type expressions) clojure.lang.PersistentHashMap)
           (= (type expressions) clojure.lang.PersistentTreeMap))
