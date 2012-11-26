@@ -676,7 +676,7 @@
             unified
             {:italian italian}))]
      (if (not (fs/fail? result))
-       (flatten (list result))))))
+       result))))
 
 (defn regular-sentence []
   (let [ilragazzo (over (over np "il") "ragazzo")
