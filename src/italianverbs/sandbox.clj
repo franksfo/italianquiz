@@ -641,17 +641,17 @@
 (defn get-in [map path]
   (fs/get-in map path))
 
-(defn over [parent child]
+(defn over-parent-child [parent child]
   (cond
 
    (= (type child) java.lang.String)
-   (over parent (it child))
+   (over-parent-child parent (it child))
    
    (or (= (type parent) clojure.lang.LazySeq)
        (= (type parent) clojure.lang.PersistentList))
    (flatten
     (mapcat (fn [each-parent]
-              (over each-parent child))
+              (over-parent-child each-parent child))
             parent))
    (or (= (type child) clojure.lang.LazySeq)
        (= (type child) clojure.lang.PersistentList)
@@ -663,7 +663,7 @@
                (map (fn [each-child]
                       (let [parent parent
                             child each-child]
-                        (over parent child)))
+                        (over-parent-child parent child)))
                     child)))
 
    :else ; both parent and child are non-lists.
@@ -688,6 +688,15 @@
             {:italian italian}))]
      (if (not (fs/fail? result))
        result))))
+
+(defn over [& args]
+  "usage: (over parent child) or (over parent child1 child2)"
+  (let [parent (first args)
+        child1 (second args)
+        child2 (if (> (.size args) 2) (nth args 2))]
+    (if (not (nil? child2))
+      (over-parent-child (over-parent-child parent child1) child2)
+      (over-parent-child parent child1))))
 
 (defn regular-sentence []
   (let [ilragazzo (over (over np "il") "ragazzo")
