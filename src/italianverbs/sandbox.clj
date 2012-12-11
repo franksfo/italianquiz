@@ -693,6 +693,10 @@
        result))))
 
 (defn over [& args]
+    (if (not (nil? child2))
+      (over-parent-child (over-parent-child parent child1) child2)
+      (over-parent-child parent child1))))
+
   "usage: (over parent child) or (over parent child1 child2)"
   (let [parent (first args)
         child1 (second args)
