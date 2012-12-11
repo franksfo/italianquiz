@@ -658,12 +658,12 @@
    (remove (fn [result]
              (or (fs/fail? result)
                  (nil? result)))
-              (flatten
-               (map (fn [each-child]
-                      (let [parent parent
-                            child each-child]
-                        (over-parent-child parent child)))
-                    child)))
+           (flatten
+            (map (fn [each-child]
+                   (let [parent parent
+                         child each-child]
+                     (over-parent-child parent child)))
+                 child)))
 
    :else ; both parent and child are non-lists.
    (let [result
@@ -689,14 +689,14 @@
        result))))
 
 (defn over [& args]
-    (if (not (nil? child2))
-      (over-parent-child (over-parent-child parent child1) child2)
-      (over-parent-child parent child1))))
-
   "usage: (over parent child) or (over parent child1 child2)"
   (let [parent (first args)
         child1 (second args)
         child2 (if (> (.size args) 2) (nth args 2))]
+    (if (not (nil? child2))
+      (over-parent-child (over-parent-child parent child1) child2)
+      (over-parent-child parent child1))))
+
 (defn overa [& args]
   "try all rules as parents for the args as children."
   (let [child1 (first args)
