@@ -673,8 +673,8 @@
    (let [result
          (let [
                ;; "as": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
-               ;; if (:1 :italian) is nil, the parent has no :1-child, so attach new child there at :1.
-               ;; Otherwise, a :1-child exists for the parent, so attach new child at :2.
+               ;; if (:1 :italian) is nil, the parent has no child at :1 yet, so attach new child there at :1.
+               ;; Otherwise, a :child exists at :1, so attach new child at :2.
                as (if (nil?
                        (fs/get-in parent '(:1 :italian)))
                     :1
@@ -704,10 +704,6 @@
     (if (not (nil? child2))
       (over-parent-child (over-parent-child rules child1) child2)
       (over-parent-child rules child1))))
-
-    (if (not (nil? child2))
-      (over-parent-child (over-parent-child parent child1) child2)
-      (over-parent-child parent child1))))
 
 (defn regular-sentence []
   (let [ilragazzo (over (over np "il") "ragazzo")
