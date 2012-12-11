@@ -697,6 +697,14 @@
   (let [parent (first args)
         child1 (second args)
         child2 (if (> (.size args) 2) (nth args 2))]
+(defn overa [& args]
+  "try all rules as parents for the args as children."
+  (let [child1 (first args)
+        child2 (if (> (.size args) 1) (nth args 1))]
+    (if (not (nil? child2))
+      (over-parent-child (over-parent-child rules child1) child2)
+      (over-parent-child rules child1))))
+
     (if (not (nil? child2))
       (over-parent-child (over-parent-child parent child1) child2)
       (over-parent-child parent child1))))
