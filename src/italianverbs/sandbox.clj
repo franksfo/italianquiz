@@ -1,8 +1,9 @@
 (ns italianverbs.sandbox
-  (:require
+  [:use [clojure.core :exclude [find]]]
+  [:require
    [italianverbs.fs :as fs]
    [clojure.string :as string]
-   [clojure.tools.logging :as log]))
+   [clojure.tools.logging :as log]])
 
 (defn unify [& args]
   "like fs/unify, but fs/copy each argument before unifying."
@@ -501,6 +502,11 @@
 
 (defn lookup [query]
   (lookup-in query lexicon))
+
+;;synonym
+(defn find [query]
+  (lookup query))
+
 
 (defn it [italian]
   (lookup {:italian italian}))
