@@ -15,17 +15,13 @@
 (def human {:human true
             :artifact false
             :legible false
-            :edible false ;; sorry, cannibals..
             :animate true})
 (def animal {:artifact false
-             :legible false
              :animate true})
 (def artifact {:artifact true
                :animate false})
 
-(def edible {:edible true
-             :legible false
-             :human false}) ;; sorry again, cannibals..
+(def edible {:edible true})
 
 (def infinitive-verb
   {:synsem {:cat :verb
@@ -40,13 +36,10 @@
                                 :number number}}}]
     (list
      (fs/unify (fs/copy agreement)
+               (fs/copy {:synsem artifact})
                {:synsem {:cat :noun
                          :number :sing
                          :gender :masc
-                         :edible false
-                         :human false
-                         :animate false
-                         :artifact true
                          :person :3rd}
                 :subcat {:1 {:cat :det}}
                 :italian "compito"
