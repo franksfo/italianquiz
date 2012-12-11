@@ -38,6 +38,7 @@
      (fs/unify (fs/copy agreement)
                (fs/copy {:synsem artifact})
                {:synsem {:cat :noun
+                         :meaning :compito
                          :number :sing
                          :gender :masc
                          :person :3rd}
@@ -125,6 +126,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :fem
+                         :meaning :ragazza
                          :person :3rd}}
                {:synsem (fs/copy human)
                 :subcat {:1 {:cat :det}}
@@ -136,6 +138,7 @@
                          :human false
                          :number :sing
                          :gender :masc
+                         :meaning :libro
                          :animate false
                          :artifact true
                          :person :3rd}}
