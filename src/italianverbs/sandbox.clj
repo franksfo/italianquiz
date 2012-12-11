@@ -653,16 +653,13 @@
    (= (type child) java.lang.String)
    (over-parent-child parent (it child))
    
-   (or (= (type parent) clojure.lang.LazySeq)
-       (= (type parent) clojure.lang.PersistentList))
+   (seq? parent)
    (flatten
     (mapcat (fn [each-parent]
               (over-parent-child each-parent child))
             parent))
-   (or (= (type child) clojure.lang.LazySeq)
-       (= (type child) clojure.lang.PersistentList)
-       (= (type child) clojure.lang.Cons))
-      (remove (fn [result]
+   (seq? child)
+   (remove (fn [result]
              (or (fs/fail? result)
                  (nil? result)))
               (flatten
