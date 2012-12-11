@@ -8,7 +8,15 @@ table.fs {
 }
 
 th {
+    overflow:hidden;
+    width:6em;
 }
+
+td {
+    overflow:hidden;
+    width:6em;
+}
+
 
 /* feature structures (from fs.css@ef61fc6) */
 table.map {
