@@ -12,16 +12,9 @@
                 (fs/copy arg))
               args)))
 
-(def human {:human true
-            :artifact false
-            :legible false
-            :animate true})
-(def animal {:artifact false
-             :animate true})
-(def artifact {:artifact true
-               :animate false})
-
-(def edible {:edible true})
+(def human {:sem {:human true
+                  :animate true}})
+(def animal {:sem {:animate true}})
 
 (def infinitive-verb
   {:synsem {:cat :verb
@@ -36,9 +29,9 @@
                                 :number number}}}]
     (list
      (fs/unify (fs/copy agreement)
-               (fs/copy {:synsem artifact})
                {:synsem {:cat :noun
-                         :meaning :compito
+                         :sem {:meaning :compito
+                               :artifact true}
                          :number :sing
                          :gender :masc
                          :person :3rd}
@@ -50,11 +43,9 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :masc
-                         :edible true
-                         :legible false
-                         :animate false
-                         :human false
-                         :artifact true
+                         :sem {:meaning :pane
+                               :edible true
+                               :artifact true}
                          :person :3rd}
                 :subcat {:1 {:cat :det}}
                 :italian "pane"
@@ -64,11 +55,8 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :fem
-                         :legible false
-                         :animate false
-                         :human false
-                         :edible true
-                         :artifact true
+                         :sem {:edible true
+                               :artifact true}
                          :person :3rd}
                 :subcat {:1 {:cat :det}}
                 :italian "pasta"
@@ -79,10 +67,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :fem
-                         :human false
-                         :legible false
-                         :edible false
-                         :artifact true
+                         :sem {:artifact true}
                          :person :3rd}
                 :subcat {:1 {:cat :det}}
                 :italian "scala"
@@ -135,22 +120,19 @@
 
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
-                         :human false
                          :number :sing
                          :gender :masc
-                         :meaning :libro
-                         :animate false
-                         :artifact true
+                         :sem {:meaning :libro
+                               :legible true
+                               :artifact true}
                          :person :3rd}}
-               {:synsem {:legible true}
-                :subcat {:1 {:cat :det}}
+               {:subcat {:1 {:cat :det}}
                 :italian "libro"
                 :english "book"})
 
      
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
-                         :human false
                          :number :sing
                          :gender :masc
                          :person :3rd}}
@@ -161,7 +143,6 @@
 
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
-                         :human false
                          :number :sing
                          :gender :masc
                          :person :3rd}}
@@ -294,19 +275,25 @@
         (fs/unify
          (fs/copy transitive)
          {:italian {:infinitive "fare"
-                    :irregular {
-                                :present {:1sing "facio"
+                    :irregular {:present {:1sing "facio"
                                           :2sing "fai"
                                           :3sing "fa"
                                           :1plur "facciamo"
                                           :2plur "fate"
                                           :3plur "fanno"}}}
-          :english "to do"
+          :english {:infinitive "to do"
+                    :irregular {:present {:1sing "do"
+                                          :2sing "do"
+                                          :3sing "does"
+                                          :1plur "do"
+                                          :2plur "do"
+                                          :3plur "do"}}}
+                                
           :synsem {:cat :verb
                    :morph :irreg
                    :infl :infinitive
-                   :subj {:human true}
-                   :obj {:artifact true}}})
+                   :subj {:sem {:human true}}
+                   :obj {:sem {:artifact true}}}})
 
         dormire
         (fs/unify
@@ -314,7 +301,7 @@
          (fs/copy infinitive-verb)
          {:italian "dormire"
           :english "to sleep"
-          :synsem {:subj {:animate true}}})
+          :synsem {:subj {:sem {:animate true}}}})
 
         mangiare
         (fs/unify
@@ -322,8 +309,8 @@
          (fs/copy infinitive-verb)
          {:italian "mangiare"
           :english "to eat"
-          :synsem {:subj {:animate true}
-                   :obj edible}})
+          :synsem {:subj {:sem {:animate true}}
+                   :obj {:sem {:edible true}}}})
         
         leggere
         (fs/unify
@@ -331,8 +318,8 @@
          (fs/copy infinitive-verb)
          {:italian "leggere"
           :english "to read"
-          :synsem {:subj {:human true}
-                   :obj {:legible true}}})
+          :synsem {:subj {:sem {:human true}}
+                   :obj {:sem {:legible true}}}})
 
         scrivere
         (fs/unify
@@ -340,8 +327,8 @@
          (fs/copy infinitive-verb)
          {:italian "scrivere"
           :english "to write"
-          :synsem {:subj {:human true}
-                   :obj {:legible true}}})
+          :synsem {:subj {:sem {:human true}}
+                   :obj {:sem {:legible true}}}})
 
         ]
     (concat
@@ -367,9 +354,9 @@
 (def vp-1-rules
   (list
    (let [vp-rule-1
-         (let [comp-synsem (ref {:cat :noun :case :acc})
+         (let [comp-synsem (ref {:cat :noun :case {:not :nom}})
                comp (ref {:synsem comp-synsem :subcat :nil!})
-               subj (ref {:cat :noun :case :nom})
+               subj (ref {:cat :noun :case {:not :acc}})
                head-synsem (ref {:cat :verb
                                  :infl {:not :infinitive}
                                  :subj subj
@@ -389,24 +376,21 @@
 (def pronouns
   (list {:synsem {:cat :noun
                   :case :nom
-                  :human true
-                  :artifact false ;; <- :human true => artifact :false
+                  :sem {:human true}
                   :person :1st
                   :number :sing}
          :subcat :nil!
          :italian "io"}
         {:synsem {:cat :noun
                   :case :nom
-                  :human true
-                  :artifact false ;; <- :human true => artifact :false
+                  :sem {:human true}
                   :person :2nd
                   :number :sing}
          :subcat :nil!
          :italian "tu"}
         {:synsem {:cat :noun
                   :case :nom
-                  :human true
-                  :artifact false ;; <- :human true => artifact :false
+                  :sem {:human true}
                   :person :3rd
                   :gender :masc
                   :number :sing}
@@ -414,8 +398,7 @@
          :italian "lui"}
         {:synsem {:cat :noun
                   :case :nom
-                  :human true
-                  :artifact false ;; <- :human true => artifact :false
+                  :sem {:human true}
                   :person :3rd
                   :gender :fem
                   :number :sing}
@@ -424,8 +407,7 @@
          :italian "lei"}
         {:synsem {:cat :noun
                   :case :nom
-                  :human true
-                  :artifact false ;; <- :human true => artifact :false
+                  :sem {:human true}
                   :person :1st
                   :number :plur}
          :subcat :nil!
@@ -433,16 +415,14 @@
          :italian "noi"}
         {:synsem {:cat :noun
                   :case :nom
-                  :human true
-                  :artifact false ;; <- :human true => artifact :false
+                  :sem {:human true}
                   :person :2nd
                   :number :plur}
          :subcat :nil!
          :italian "voi"}
         {:synsem {:cat :noun
                   :case :nom
-                  :human true
-                  :artifact false ;; <- :human true => artifact :false
+                  :sem {:human true}
                   :person :3rd
                   :number :plur}
          :subcat :nil!
@@ -651,9 +631,9 @@
    
    (seq? parent)
    (flatten
-    (mapcat (fn [each-parent]
-              (over-parent-child each-parent child))
-            parent))
+    (map (fn [each-parent]
+           (over-parent-child each-parent child))
+         parent))
    (seq? child)
    (remove (fn [result]
              (or (fs/fail? result)
@@ -666,27 +646,44 @@
                  child)))
 
    :else ; both parent and child are non-lists.
-   (let [result
-         (let [
-               ;; "as": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
-               ;; if (:1 :italian) is nil, the parent has no child at :1 yet, so attach new child there at :1.
-               ;; Otherwise, a :child exists at :1, so attach new child at :2.
-               as (if (nil?
-                       (fs/get-in parent '(:1 :italian)))
-                    :1
-                    :2)
-               unified (unify parent
-                              {as child})
-               italian
-               (get-italian
-                (fs/get-in unified '(:1 :italian))
-                (fs/get-in unified '(:2 :italian)))
-               ]
+   ;; First, check to make sure complement matches head's (:synsem :sem) value; otherwise, fail.
+   (let [
+         ;; "add-child-where": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
+         ;; if (:1 :italian) is nil, the parent has no child at :1 yet, so attach new child there at :1.
+         ;; Otherwise, a :child exists at :1, so attach new child at :2.
+         add-child-where (if (nil?
+                              (fs/get-in parent '(:1 :italian)))
+                           :1
+                           :2)
+         head-is-where (if (= (fs/get-in parent '(:head))
+                              (fs/get-in parent '(:1)))
+                         :1
+                         :2)
+         child-is-head (= head-is-where add-child-where)
+         comp (if child-is-head
+                (fs/get-in parent '(:comp))
+                child)
+         head (if child-is-head
+                child
+                (fs/get-in parent '(:head)))
+         sem-filter (fs/get-in head '(:subcat :1 :sem))
+         comp-sem (fs/get-in comp '(:synsem :sem))
+         do-match
+         (if (and (not (nil? sem-filter))
+                  (not (nil? comp-sem)))
+           (fs/match {:synsem (fs/copy sem-filter)}
+                     (fs/copy {:synsem (fs/copy comp-sem)})))]
+     (if (= do-match :fail)
+       :fail
+       (let [unified (unify parent
+                            {add-child-where child})]
+         (if (not (fs/fail? unified))
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
-            {:italian italian}))]
-     (if (not (fs/fail? result))
-       result))))
+            {:italian (get-italian
+                       (fs/get-in unified '(:1 :italian))
+                       (fs/get-in unified '(:2 :italian)))})
+           :fail))))))
 
 (defn over [& args]
   "usage: (over parent child) or (over parent child1 child2)"
