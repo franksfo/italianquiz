@@ -200,82 +200,80 @@
            :fail
            (do ;(println (str "no fail in: " vals))
              tmp-result)))
-       (and
-        (= (type val1) clojure.lang.Ref)
-        (not (= (type val2) clojure.lang.Ref)))
-       (do (dosync
-            (alter val1
-                   (fn [x] (match @val1 val2))))
-           (if (and false (fail? @val1)) :fail
-               val1))
-       (and
-        (= (type val2) clojure.lang.Ref)
-        (not (= (type val1) clojure.lang.Ref)))
-       (do (dosync
-            (alter val2
-                   (fn [x] (match val1 @val2))))
-           (if (and false (fail? @val2)) :fail
-               val2))
-
-       (and
-        (= (type val1) clojure.lang.Ref)
-        (= (type val2) clojure.lang.Ref))
-       (do
-         (if (or (= val1 val2) ;; same reference.
-                 (= val1 @val2)) ;; val1 <- val2
-           val1
-           (if (= @val1 val2) ;; val1 -> val2
-             val2
-             (do
-               (log/debug (str "unifying two refs: " val1 " and " val2))
-               (dosync
-                (alter val1
-                       (fn [x] (match @val1 @val2))))
-               (dosync
-                (alter val2
-                       (fn [x] val1))) ;; note that now val2 is a ref to a ref.
-               (log/debug (str "returning ref: " val1))
-               (if (and false (fail? @val1)) :fail
-                   val1)))))
-
-       (not (= :notfound (:not val1 :notfound)))
-       (let [result (match (:not val1) val2)]
-         (if (= result :fail)
+     (and
+      (= (type val1) clojure.lang.Ref)
+      (not (= (type val2) clojure.lang.Ref)))
+     (do (dosync
+          (alter val1
+                 (fn [x] (match @val1 val2))))
+         (if (and false (fail? @val1)) :fail
+             val1))
+     (and
+      (= (type val2) clojure.lang.Ref)
+      (not (= (type val1) clojure.lang.Ref)))
+     (do (dosync
+          (alter val2
+                 (fn [x] (match val1 @val2))))
+         (if (and false (fail? @val2)) :fail
+             val2))
+     (and
+      (= (type val1) clojure.lang.Ref)
+      (= (type val2) clojure.lang.Ref))
+     (do
+       (if (or (= val1 val2) ;; same reference.
+               (= val1 @val2)) ;; val1 <- val2
+         val1
+         (if (= @val1 val2) ;; val1 -> val2
            val2
-           :fail))
+           (do
+             (log/debug (str "unifying two refs: " val1 " and " val2))
+             (dosync
+              (alter val1
+                     (fn [x] (match @val1 @val2))))
+             (dosync
+              (alter val2
+                     (fn [x] val1))) ;; note that now val2 is a ref to a ref.
+             (log/debug (str "returning ref: " val1))
+             (if (and false (fail? @val1)) :fail
+                 val1)))))
 
-       (not (= :notfound (:not val2 :notfound)))
-       (let [result (match val1 (:not val2))]
-         (if (= result :fail)
-           val1
-           :fail))
+     (not (= :notfound (:not val1 :notfound)))
+     (let [result (match (:not val1) val2)]
+       (if (= result :fail)
+         val2
+         :fail))
 
-       (or (= val1 :fail)
-           (= val2 :fail))
-       :fail
+     (not (= :notfound (:not val2 :notfound)))
+     (let [result (match val1 (:not val2))]
+       (if (= result :fail)
+         val1
+         :fail))
 
-       (= val1 :top) val2
-       (= val2 :top) val1
+     (or (= val1 :fail)
+         (= val2 :fail))
+     :fail
+     (= val1 :top) val2
+     (= val2 :top) val1
 
-       ;; these two rules are unfortunately necessary because of mongo/clojure storage of keywords as strings.
-       (= val1 "top") val2
-       (= val2 "top") val1
+     ;; these two rules are unfortunately necessary because of mongo/clojure storage of keywords as strings.
+     (= val1 "top") val2
+     (= val2 "top") val1
 
-       ;; :foo,"foo" => :foo
-       (and (= (type val1) clojure.lang.Keyword)
-            (= (type val2) java.lang.String)
-            (= (string/replace-first (str val1) ":" "") val2))
-       val1
+     ;; :foo,"foo" => :foo
+     (and (= (type val1) clojure.lang.Keyword)
+          (= (type val2) java.lang.String)
+          (= (string/replace-first (str val1) ":" "") val2))
+     val1
 
-       ;; "foo",:foo => :foo
-       (and (= (type val2) clojure.lang.Keyword)
-            (= (type val1) java.lang.String)
-            (= (string/replace-first (str val2) ":" "") val1))
-       val2
+     ;; "foo",:foo => :foo
+     (and (= (type val2) clojure.lang.Keyword)
+          (= (type val1) java.lang.String)
+          (= (string/replace-first (str val2) ":" "") val1))
+     val2
 
-       (= val1 val2) val1
+     (= val1 val2) val1
 
-       :else :fail)))
+     :else :fail)))
 
 (defn merge [& args]
   (let [val1 (first args)
