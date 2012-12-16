@@ -55,16 +55,15 @@
   "(fail? fs) <=> true if at least one of fs's path's value is :fail."
   (if (= fs :fail) true
       (do
-      (defn failr? [fs keys]
-    (if (> (.size keys) 0)
-      (if (= (fail? (get-in fs (list (first keys)))) true)
-        true
-        (failr? fs (rest keys)))
-      false))
-  (cond (= fs :fail) true
-        (or (= (type fs) clojure.lang.PersistentArrayMap)
-            (= (type fs) clojure.lang.PersistentHashMap))
-        (failr? fs (keys fs))
+        (defn failr? [fs keys]
+          (if (> (.size keys) 0)
+            (if (= (fail? (get-in fs (list (first keys)))) true)
+              true
+              (failr? fs (rest keys)))
+            false))
+        (cond (= fs :fail) true
+              (map? fs)
+              (failr? fs (keys fs))
         (= (type fs) clojure.lang.Ref)
         (fail? @fs)
         :else false))))
@@ -186,20 +185,18 @@
      (= :fail (second args))
      :fail
 
-     (and (or (= (type val1) clojure.lang.PersistentArrayMap)
-              (= (type val1) clojure.lang.PersistentHashMap))
-          (or (= (type val2) clojure.lang.PersistentArrayMap)
-              (= (type val2) clojure.lang.PersistentHashMap))
+     ;; if keys(val1) is not a subset of keys(val2), then fail.
+     ;; same set is ok, since a set is a subset of itself.
+     (and (map? val1)
+          (map? val2)
           (not (subset? (set (keys val1)) (set (keys val2)))))
-       :fail
+     :fail
 
-       (and (or (= (type val1) clojure.lang.PersistentArrayMap)
-              (= (type val1) clojure.lang.PersistentHashMap))
-            (or (= (type val2) clojure.lang.PersistentArrayMap)
-                (= (type val2) clojure.lang.PersistentHashMap)))
-       (let [tmp-result
-             (reduce #(merge-with match %1 %2) args)]
-         (if (not (nil? (some #{:fail} (vals tmp-result))))
+     (and (map? val1)
+          (map? val2))
+     (let [tmp-result
+           (reduce #(merge-with match %1 %2) args)]
+       (if (not (nil? (some #{:fail} (vals tmp-result))))
            :fail
            (do ;(println (str "no fail in: " vals))
              tmp-result)))
