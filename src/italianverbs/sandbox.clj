@@ -2,6 +2,7 @@
   [:use [clojure.core :exclude [find]]]
   [:require
    [italianverbs.fs :as fs]
+   [clojure.set :as set]
    [clojure.string :as string]
    [clojure.tools.logging :as log]])
 
@@ -485,7 +486,9 @@
 
 
 (defn it [italian]
-  (lookup {:italian italian}))
+  (set/union
+   (lookup {:italian italian})
+   (lookup {:italian {:infinitive italian}})))
 
 (def rules (concat np-1-rules vp-1-rules sentence-rules))
 
