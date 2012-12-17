@@ -13,9 +13,9 @@
                 (fs/copy arg))
               args)))
 
-(def human {:sem {:human true
-                  :animate true}})
-(def animal {:sem {:animate true}})
+(def human {:human true
+            :animate true})
+(def animal {:animate true})
 
 (def infinitive-verb
   {:synsem {:cat :verb
@@ -81,7 +81,7 @@
                          :gender :masc
                          :person :3rd
                          }}
-               {:synsem (fs/copy human)}
+               {:synsem {:sem human}}
                {:subcat {:1 {:cat :det}}
                 :italian "ragazzo"
                 :english "guy"})
@@ -92,7 +92,7 @@
                          :gender :masc
                          :person :3rd
                          }}
-               {:synsem (fs/copy human)}
+               {:synsem {:sem human}}
                {:subcat {:1 {:cat :det}}
                 :italian "dottore"
                 :english "doctor"})
@@ -103,7 +103,7 @@
                          :gender :fem
                          :person :3rd
                          }}
-               {:synsem (fs/copy human)}
+               {:synsem {:sem human}}
                {:subcat {:1 {:cat :det}}
                 :italian "professoressa"
                 :english "professor"})
@@ -114,7 +114,7 @@
                          :gender :fem
                          :meaning :ragazza
                          :person :3rd}}
-               {:synsem (fs/copy human)
+               {:synsem {:sem human}
                 :subcat {:1 {:cat :det}}
                 :italian "ragazza"
                 :english "girl"})
@@ -293,7 +293,7 @@
           :synsem {:cat :verb
                    :morph :irreg
                    :infl :infinitive
-                   :subj {:sem {:human true}}
+                   :subj {:sem human}
                    :obj {:sem {:artifact true}}}})
 
         dormire
@@ -302,7 +302,7 @@
          (fs/copy infinitive-verb)
          {:italian "dormire"
           :english "to sleep"
-          :synsem {:subj {:sem {:animate true}}}})
+          :synsem {:sem {:subj {:animate true}}}})
 
         mangiare
         (fs/unify
@@ -319,7 +319,7 @@
          (fs/copy infinitive-verb)
          {:italian "leggere"
           :english "to read"
-          :synsem {:subj {:sem {:human true}}
+          :synsem {:subj {:sem human}
                    :obj {:sem {:legible true}}}})
 
         scrivere
@@ -328,7 +328,7 @@
          (fs/copy infinitive-verb)
          {:italian "scrivere"
           :english "to write"
-          :synsem {:subj {:sem {:human true}}
+          :synsem {:subj {:sem human}
                    :obj {:sem {:legible true}}}})
 
         ]
@@ -377,21 +377,21 @@
 (def pronouns
   (list {:synsem {:cat :noun
                   :case :nom
-                  :sem {:human true}
+                  :sem human
                   :person :1st
                   :number :sing}
          :subcat :nil!
          :italian "io"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem {:human true}
+                  :sem human
                   :person :2nd
                   :number :sing}
          :subcat :nil!
          :italian "tu"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem {:human true}
+                  :sem human
                   :person :3rd
                   :gender :masc
                   :number :sing}
@@ -399,7 +399,7 @@
          :italian "lui"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem {:human true}
+                  :sem human
                   :person :3rd
                   :gender :fem
                   :number :sing}
@@ -408,7 +408,7 @@
          :italian "lei"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem {:human true}
+                  :sem human
                   :person :1st
                   :number :plur}
          :subcat :nil!
@@ -416,14 +416,14 @@
          :italian "noi"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem {:human true}
+                  :sem human
                   :person :2nd
                   :number :plur}
          :subcat :nil!
          :italian "voi"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem {:human true}
+                  :sem human
                   :person :3rd
                   :number :plur}
          :subcat :nil!
@@ -637,6 +637,7 @@
     (map (fn [each-parent]
            (over-parent-child each-parent child))
          parent))
+
    (seq? child)
    (remove (fn [result]
              (or (fs/fail? result)
