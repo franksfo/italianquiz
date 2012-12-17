@@ -205,7 +205,8 @@
              :synsem {:cat cat}}
             :subcat {:1 obj
                      :2 subj }
-            :synsem {:subj subj
+            :synsem {
+                     :subj subj
                      :obj obj
                      :cat cat
                      :infl :present}
@@ -216,23 +217,21 @@
             {:agr subj}})))
 
 (def intrans-finitizer
-  (unify (let [obj (ref :top)
-               subj (ref :top)
-               italian-infinitive (ref :top)
-               cat (ref :top)]
-           {:root
-            {:italian italian-infinitive
-             :subcat {:1 subj}
-             :synsem {:cat cat}}
-            :subcat {:1 subj }
-            :synsem {:subj subj
-                     :cat cat
-                     :infl :present}
-            :italian {:agr subj
-                      :infinitive italian-infinitive}})
-         (let [subj (ref :top)]
-           {:italian
-            {:agr subj}})))
+  (let [obj (ref :top)
+        subj-sem (ref :top)
+        subj (ref {:sem subj-sem})
+        italian-infinitive (ref :top)
+        cat (ref :verb)]
+    {:root
+     {:italian italian-infinitive
+      :subcat {:1 subj}
+      :synsem {:cat cat}}
+     :subcat {:1 subj}
+     :synsem {:sem {:subj subj-sem}
+              :cat cat
+              :infl :present}
+     :italian {:agr subj
+               :infinitive italian-infinitive}}))
 
 (def vp-1-lexicon
   (let [verb-with-root
@@ -251,8 +250,9 @@
                     :2 subj}})
 
         intransitive
-        (let [subj (ref :top)]
-          {:synsem {:subj subj}
+        (let [subj-sem (ref :top)
+              subj {:sem (ref subj-sem)}]
+          {:synsem {:sem {:subj subj-sem}}
            :subcat {:1 subj
                     :2 :nil!}})
 
@@ -430,16 +430,16 @@
          :italian "loro"}))
 
 (def sentence-rules
-  (let [subcatted (ref {:cat :noun})
+  (let [subj-sem (ref :top)
+        subcatted (ref {:cat :noun
+                        :sem subj-sem})
         head-synsem (ref {:cat :verb
                           :infl {:not :infinitive}
-                          :subj subcatted
-                          })
+                          :sem {:subj subj-sem}})
         comp (ref {:synsem subcatted :subcat :nil!})
         head (ref {:synsem head-synsem
                    :subcat {:1 subcatted
-                            :2 :nil!
-                            }})]
+                            :2 :nil!}})]
     (list
      {:comment "s -> np vp"
       :subcat :nil!
