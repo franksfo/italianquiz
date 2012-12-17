@@ -217,17 +217,20 @@
             {:agr subj}})))
 
 (def intrans-finitizer
-  (let [obj (ref :top)
-        subj-sem (ref :top)
+  (let [subj-sem (ref :top)
+        root-sem (ref
+                  {:subj subj-sem})
         subj (ref {:sem subj-sem})
+        subcat (ref {:1 subj})
         italian-infinitive (ref :top)
         cat (ref :verb)]
     {:root
      {:italian italian-infinitive
-      :subcat {:1 subj}
-      :synsem {:cat cat}}
-     :subcat {:1 subj}
-     :synsem {:sem {:subj subj-sem}
+      :subcat subcat
+      :synsem {:cat cat
+               :sem root-sem}}
+     :subcat subcat
+     :synsem {:sem root-sem
               :cat cat
               :infl :present}
      :italian {:agr subj
@@ -302,7 +305,8 @@
          (fs/copy infinitive-verb)
          {:italian "dormire"
           :english "to sleep"
-          :synsem {:sem {:subj {:animate true}}}})
+          :synsem {:sem {:subj {:animate true}
+                         :pred :dormire}}})
 
         mangiare
         (fs/unify
