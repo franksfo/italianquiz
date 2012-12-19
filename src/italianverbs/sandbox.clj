@@ -137,7 +137,7 @@
                          :number :sing
                          :gender :masc
                          :person :3rd}}
-               {:synsem (fs/copy animal)
+               {:synsem {:sem (fs/copy animal)}
                 :subcat {:1 {:cat :det}}
                 :italian "cane"
                 :english "dog"})
@@ -147,7 +147,7 @@
                          :number :sing
                          :gender :masc
                          :person :3rd}}
-               {:synsem (fs/copy animal)
+               {:synsem {:sem (fs/copy animal)}
                 :subcat {:1 {:cat :det}}
                 :italian "gatto"
                 :english "cat"})
