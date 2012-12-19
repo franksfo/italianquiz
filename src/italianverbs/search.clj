@@ -313,7 +313,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))")]
+          "(formattare (over (over s (over (over np lexicon) (lookup {:synsem {:sem {:human true}}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))")]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
