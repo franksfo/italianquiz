@@ -194,20 +194,23 @@
      )))
 
 (def trans-finitizer
-  (unify (let [obj (ref :top)
-               subj (ref :top)
+  (unify (let [subj-sem (ref :top)
+               obj-sem (ref :top)
+               root-sem (ref {:subj subj-sem
+                              :obj obj-sem})
+               subj (ref {:sem subj-sem})
+               obj (ref {:sem obj-sem})
                italian-infinitive (ref :top)
                cat (ref :top)]
            {:root
             {:italian italian-infinitive
              :subcat {:1 obj
                       :2 subj}
-             :synsem {:cat cat}}
+             :synsem {:cat cat
+                      :sem root-sem}}
             :subcat {:1 obj
                      :2 subj }
-            :synsem {
-                     :subj subj
-                     :obj obj
+            :synsem {:sem root-sem
                      :cat cat
                      :infl :present}
             :italian {:agr subj
@@ -218,18 +221,18 @@
 
 (def intrans-finitizer
   (let [subj-sem (ref :top)
-        root-sem (ref
-                  {:subj subj-sem})
+        root-sem (ref {:subj subj-sem})
         subj (ref {:sem subj-sem})
-        subcat (ref {:1 subj})
         italian-infinitive (ref :top)
         cat (ref :verb)]
     {:root
      {:italian italian-infinitive
-      :subcat subcat
+      :subcat {:1 subj
+               :2 :nil!}
       :synsem {:cat cat
                :sem root-sem}}
-     :subcat subcat
+     :subcat {:1 subj
+              :2 :nil!}
      :synsem {:sem root-sem
               :cat cat
               :infl :present}
@@ -244,17 +247,20 @@
            :subcat subcat
            :root {:subcat subcat
                   :synsem {:cat cat}}})
+
         transitive
-        (let [subj (ref :top)
-              obj (ref :top)]
-          {:synsem {:subj subj
-                    :obj obj}
+        (let [subj-sem (ref :top)
+              subj (ref {:sem subj-sem})
+              obj-sem (ref :top)
+              obj (ref {:sem obj-sem})]
+          {:synsem {:sem {:subj subj-sem
+                          :obj obj-sem}}
            :subcat {:1 obj
                     :2 subj}})
 
         intransitive
         (let [subj-sem (ref :top)
-              subj {:sem (ref subj-sem)}]
+              subj (ref {:sem subj-sem})]
           {:synsem {:sem {:subj subj-sem}}
            :subcat {:1 subj
                     :2 :nil!}})
@@ -296,8 +302,9 @@
           :synsem {:cat :verb
                    :morph :irreg
                    :infl :infinitive
-                   :subj {:sem human}
-                   :obj {:sem {:artifact true}}}})
+                   :sem {:pred :fare
+                         :subj human
+                         :obj {:artifact true}}}})
 
         dormire
         (fs/unify
@@ -359,13 +366,15 @@
 (def vp-1-rules
   (list
    (let [vp-rule-1
-         (let [comp-synsem (ref {:cat :noun :case {:not :nom}})
+         (let [comp-sem (ref :top)
+               comp-synsem (ref {:cat :noun :case {:not :nom} :sem comp-sem})
                comp (ref {:synsem comp-synsem :subcat :nil!})
-               subj (ref {:cat :noun :case {:not :acc}})
+               subj-sem (ref :top)
+               subj (ref {:cat :noun :case {:not :acc} :sem subj-sem})
                head-synsem (ref {:cat :verb
                                  :infl {:not :infinitive}
-                                 :subj subj
-                                 :obj comp-synsem})
+                                 :sem {:subj subj-sem
+                                       :obj comp-sem}})
                head (ref {:synsem head-synsem
                           :subcat {:1 comp-synsem
                                    :2 subj}})]
