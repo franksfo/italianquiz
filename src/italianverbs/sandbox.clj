@@ -79,9 +79,9 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :masc
-                         :person :3rd
-                         }}
+                         :person :3rd}}
                {:synsem {:sem human}}
+               {:synsem {:sem {:meaning :ragazzo}}}
                {:subcat {:1 {:cat :det}}
                 :italian "ragazzo"
                 :english "guy"})
