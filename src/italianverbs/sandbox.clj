@@ -31,7 +31,7 @@
     (list
      (fs/unify (fs/copy agreement)
                {:synsem {:cat :noun
-                         :sem {:meaning :compito
+                         :sem {:pred :compito
                                :artifact true}
                          :number :sing
                          :gender :masc
@@ -44,7 +44,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :masc
-                         :sem {:meaning :pane
+                         :sem {:pred :pane
                                :edible true
                                :artifact true}
                          :person :3rd}
@@ -81,7 +81,7 @@
                          :gender :masc
                          :person :3rd}}
                {:synsem {:sem human}}
-               {:synsem {:sem {:meaning :ragazzo}}}
+               {:synsem {:sem {:pred :ragazzo}}}
                {:subcat {:1 {:cat :det}}
                 :italian "ragazzo"
                 :english "guy"})
@@ -112,7 +112,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :fem
-                         :meaning :ragazza
+                         :pred :ragazza
                          :person :3rd}}
                {:synsem {:sem human}
                 :subcat {:1 {:cat :det}}
@@ -123,7 +123,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :masc
-                         :sem {:meaning :libro
+                         :sem {:pred :libro
                                :legible true
                                :artifact true}
                          :person :3rd}}
@@ -390,7 +390,7 @@
 (def pronouns
   (list {:synsem {:cat :noun
                   :case :nom
-                  :sem human
+                  :sem (fs/unify human {:pred :io})
                   :person :1st
                   :number :sing}
          :subcat :nil!
