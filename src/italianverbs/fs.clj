@@ -71,6 +71,8 @@
 (defn unify [& args]
   (let [val1 (first args)
         val2 (second args)]
+;    (println (str "unify val1: " val1))
+;    (println (str "      val2: " val2))
     (cond
 
      (= (.count args) 1)
@@ -171,9 +173,18 @@
 
      :else :fail)))
 
+
+;; (fs/match {:a 42} {:a 42 :b 43})
+;; => {:b 43, :a 42} ; ok: val2 specializes val1.
+
+;; (fs/match {:a 42 :b 43} {:a 42})
+;; => :fail          ; fail: val2 does not specialize val1.
+
+
 (defn match [val1 val2]
-  "match: like unify, but requires that every path in val2 must be in val1."
+  "match: like unify, but requires that every path in val1 must be in val2: in other words, val2 matches, or is a specialization, of val1."
   (let [args (list val1 val2)]
+ ;   (println (str "match(" val1 "," val2 ")"))
     (cond
 
      (= (.count args) 1)
@@ -190,15 +201,19 @@
      (and (map? val1)
           (map? val2)
           (not (subset? (set (keys val1)) (set (keys val2)))))
-     :fail
+     (do
+;       (println (str "SUBSET FAIL: " (keys val1) " is not a subset of:" (keys val2)))
+     :fail)
 
      (and (map? val1)
           (map? val2))
      (let [tmp-result
            (reduce #(merge-with match %1 %2) args)]
        (if (not (nil? (some #{:fail} (vals tmp-result))))
-           :fail
-           (do ;(println (str "no fail in: " vals))
+         (do
+;           (println (str "found fail amongst: " (vals tmp-result)))
+            :fail)
+         (do ;(println (str "no fail in: " vals))
              tmp-result)))
      (and
       (= (type val1) clojure.lang.Ref)
