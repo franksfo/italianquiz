@@ -233,22 +233,27 @@
      :root {:subcat subcat
             :synsem {:cat cat}}}))
 
-(def transitive
+;; "itive": a generalization of intransitive and transitive (they both have a subject)
+(def itive
   (let [subj-sem (ref :top)
-        subj (ref {:sem subj-sem})
-        obj-sem (ref :top)
-        obj (ref {:sem obj-sem})]
-    {:synsem {:sem {:subj subj-sem
-                    :obj obj-sem}}
-     :subcat {:1 subj
-              :2 obj}}))
+        subj (ref {:sem subj-sem
+                   :cat :noun
+                   :case {:not :acc}})]
+    {:synsem {:sem {:subj subj-sem}}
+     :subcat {:1 subj}}))
 
 (def intransitive
-  (let [subj-sem (ref :top)
-        subj (ref {:sem subj-sem})]
-    {:synsem {:sem {:subj subj-sem}}
-     :subcat {:1 subj
-              :2 :nil!}}))
+  (unify itive
+         {:subcat {:2 :nil!}}))
+
+(def transitive
+  (unify itive
+         (let [obj-sem (ref :top)
+               obj (ref {:sem obj-sem
+                         :cat :noun
+                         :case {:not :nom}})]
+           {:synsem {:obj obj-sem}
+            :subcat {:2 obj}})))
 
 (def fare
   (unify
@@ -337,10 +342,10 @@
   (list
    (let [vp-rule-1
          (let [comp-sem (ref :top)
-               comp-synsem (ref {:cat :noun :case {:not :nom} :sem comp-sem})
+               comp-synsem (ref {:sem comp-sem})
                comp (ref {:synsem comp-synsem :subcat :nil!})
                subj-sem (ref :top)
-               subj-synsem (ref {:cat :noun :case {:not :acc} :sem subj-sem})
+               subj-synsem (ref {:sem subj-sem})
                head-synsem (ref {:cat :verb
                                  :infl {:not :infinitive}
                                  :sem {:subj subj-sem
@@ -780,3 +785,23 @@
                        (if (fs/get-in expr '(:comment)) (str " (" (fs/get-in expr '(:comment)) ")"))))))
          expressions)))
 
+(def sentence-skeleton-1
+  (unify s {:comp np :head (unify vp {:comp np})}))
+
+(def mp (first (lookup {:root {:italian "mangiare"}})))
+
+(def mangiare-sentence (unify sentence-skeleton-1 {:head {:head mp}}))
+
+(def random-sentence
+  (let [head-specification (fs/get-in sentence-skeleton-1 '(:head :head))
+        matching-lexical-heads (mapcat (fn [lexeme]
+                                         (let [do-match
+                                               (fs/match (fs/copy (fs/get-in sentence-skeleton-1 '(:head :head)))
+                                                         (fs/copy lexeme))]
+                                           (if (not (fs/fail? do-match))
+                                             (list lexeme))))
+                                       lexicon)
+;        random-lexical-head (nth matching-lexical-heads (rand-int (count matching-lexical-heads)))
+        ]
+;    (unify sentence-skeleton-1 {:head {:head random-lexical-head}})))
+    matching-lexical-heads))
