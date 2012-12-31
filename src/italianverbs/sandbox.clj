@@ -463,6 +463,7 @@
              :2 head}))))
 
 (def np-1-rules 
+  ;; TODO: combine (case,person,number,gender) into a single map labeled :agr for ease of notation
   (let [np-rule-1 ;; NP -> Comp Head
         (unify head-principle subcat-1-principle
                (let [case (ref :top)
@@ -813,7 +814,8 @@
                            italian))
                          ""))
                        "."
-                       (if (fs/get-in expr '(:comment)) (str " (" (fs/get-in expr '(:comment)) ")"))))))
+                       ;; anding with false: disabling comments for now.
+                       (if (and false (fs/get-in expr '(:comment))) (str " (" (fs/get-in expr '(:comment)) ")"))))))
          expressions)))
 
 (def sentence-skeleton-1
@@ -872,6 +874,24 @@
 (def subject-np (random-np {:synsem (unify subj-spec
                                            {:subcat {:1 {:cat :det}}})}))
 
+(defn random-subject-np [head-spec]
+  (let [rand (rand-int 2)]
+    (if (= rand 0)
+      (random-np {:synsem
+                  (unify
+                   head-spec
+                   {:subcat {:1 {:cat :det}}})})
+      (let [matching (filter-by-match
+                      {:synsem
+                       (unify
+                        head-spec
+                        {:cat :noun
+                         :case :nom
+                         :subcat :nil!})}
+                      lexicon)]
+        (if (> (.size matching) 0)
+          (nth matching (rand-int (.size matching))))))))
+
 (defn random-sentence []
   (let [head-specification ;(get-terminal-head-in sentence-skeleton-1)
         (get-terminal-head-in vp)
@@ -884,8 +904,7 @@
         (random-np (unify {:synsem (unify obj-spec
                                           {:subcat {:1 {:cat :det}}})}))
         subj-spec (fs/get-in random-lexical-head '(:synsem :subcat :1))
-        subject-np (random-np {:synsem (unify subj-spec
-                                              {:subcat {:1 {:cat :det}}})})]
+        subject-np (random-subject-np subj-spec)]
     (let [unified (unify sentence-skeleton-1
                          {:head
                           (let [unified
