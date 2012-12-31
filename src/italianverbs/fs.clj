@@ -134,17 +134,24 @@
              (if (and false (fail? @val1)) :fail
              val1)))))
      
+     ;; convoluted way of expressing: "if val1 has the form: {:not X}, then .."
      (not (= :notfound (:not val1 :notfound)))
-     (let [result (unify (:not val1) val2)]
-       (if (= result :fail)
-         val2
-         :fail))
+     (if (= val2 :top)
+       :top ;; special case: (unify :top {:not X}) => :top
+       ;; else
+       (let [result (unify (:not val1) val2)]
+         (if (= result :fail)
+           val2
+           :fail)))
 
+     ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
      (not (= :notfound (:not val2 :notfound)))
-     (let [result (unify val1 (:not val2))]
-       (if (= result :fail)
-         val1
-         :fail))
+     (if (= val1 :top)
+       :top ;; special case mentioned above in comments preceding this function.
+       (let [result (unify val1 (:not val2))]
+         (if (= result :fail)
+           val1
+           :fail)))
 
      (or (= val1 :fail)
          (= val2 :fail))
@@ -180,11 +187,14 @@
 ;; (fs/match {:a 42 :b 43} {:a 42})
 ;; => :fail          ; fail: val2 does not specialize val1.
 
+;; special cases:
+;; (fs/match {:not X} :top)
+;; => :top
 
 (defn match [val1 val2]
   "match: like unify, but requires that every path in val1 must be in val2: in other words, val2 matches, or is a specialization, of val1."
   (let [args (list val1 val2)]
- ;   (println (str "match(" val1 "," val2 ")"))
+;    (println (str "match(" val1 "," val2 ")"))
     (cond
 
      (= (.count args) 1)
@@ -252,12 +262,17 @@
              (if (and false (fail? @val1)) :fail
                  val1)))))
 
+     ;; convoluted way of expressing: "if val1 has the form: {:not X}, then .."
      (not (= :notfound (:not val1 :notfound)))
-     (let [result (match (:not val1) val2)]
-       (if (= result :fail)
-         val2
-         :fail))
+     (if (= val2 :top)
+       :top ;; special case mentioned above in comments preceding this function.
+       ;; else, (if val2 is not :top)..
+       (let [result (match (:not val1) val2)]
+         (if (= result :fail)
+           val2
+           :fail)))
 
+     ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
      (not (= :notfound (:not val2 :notfound)))
      (let [result (match val1 (:not val2))]
        (if (= result :fail)
