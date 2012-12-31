@@ -468,10 +468,18 @@
                (let [case (ref :top)
                      comp (ref {:synsem {:cat :det}})
                      person (ref :top)
+                     number (ref :top)
+                     gender (ref :top)
                      head (ref {:synsem {:cat :noun
+                                         :person person
+                                         :number number
+                                         :gender gender
                                          :case case}})]
                  {:comment "np -> det noun"
-                  :synsem {:case case}
+                  :synsem {:case case
+                           :person person
+                           :number number
+                           :gender gender}
                   :head head
                   :comp comp
                   :1 comp
@@ -850,7 +858,8 @@
            unified)
           unified)))))
 
-(def head-specification (get-terminal-head-in sentence-skeleton-1))
+                                        ;(def head-specification (get-terminal-head-in sentence-skeleton-1))
+(def head-specification (get-terminal-head-in vp))
 (def matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
                                     (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lexicon)))
 (def random-lexical-head (if (> (.size matching-lexical-heads) 0)
@@ -864,7 +873,8 @@
                                            {:subcat {:1 {:cat :det}}})}))
 
 (defn random-sentence []
-  (let [head-specification (get-terminal-head-in sentence-skeleton-1)
+  (let [head-specification ;(get-terminal-head-in sentence-skeleton-1)
+        (get-terminal-head-in vp)
         matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
                                        (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lexicon))
         random-lexical-head (if (> (.size matching-lexical-heads) 0)
