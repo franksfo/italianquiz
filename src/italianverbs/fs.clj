@@ -147,7 +147,7 @@
      ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
      (not (= :notfound (:not val2 :notfound)))
      (if (= val1 :top)
-       :top ;; special case mentioned above in comments preceding this function.
+       val1 ;; special case mentioned above in comments preceding this function.
        (let [result (unify val1 (:not val2))]
          (if (= result :fail)
            val1
@@ -274,10 +274,11 @@
 
      ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
      (not (= :notfound (:not val2 :notfound)))
-     (let [result (match val1 (:not val2))]
-       (if (= result :fail)
-         val1
-         :fail))
+     (if (= val1 :top) val1 ;; another special case: (match :top {:not X}) => :top
+         (let [result (match val1 (:not val2))]
+           (if (= result :fail)
+             val1
+             :fail)))
 
      (or (= val1 :fail)
          (= val2 :fail))
