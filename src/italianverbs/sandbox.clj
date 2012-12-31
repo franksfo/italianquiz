@@ -193,175 +193,145 @@
 
      )))
 
-(def trans-finitizer
-  (unify (let [subj-sem (ref :top)
-               obj-sem (ref :top)
-               root-sem (ref {:subj subj-sem
-                              :obj obj-sem})
-               subj (ref {:sem subj-sem})
-               obj (ref {:sem obj-sem})
-               italian-infinitive (ref :top)
-               cat (ref :top)]
-           {:root
-            {:italian italian-infinitive
-             :subcat {:1 obj
-                      :2 subj}
-             :synsem {:cat cat
-                      :sem root-sem}}
-            :subcat {:1 obj
-                     :2 subj }
-            :synsem {:sem root-sem
-                     :cat cat
-                     :infl :present}
-            :italian {:agr subj
-                      :infinitive italian-infinitive}})
-         (let [subj (ref :top)]
-           {:italian
-            {:agr subj}})))
-
-(def intrans-finitizer
+(def finitizer
   (let [subj-sem (ref :top)
         root-sem (ref {:subj subj-sem})
         subj (ref {:sem subj-sem})
-        italian-infinitive (ref :top)
-        cat (ref :verb)]
-    {:root
-     {:italian italian-infinitive
-      :subcat {:1 subj
-               :2 :nil!}
-      :synsem {:cat cat
-               :sem root-sem}}
+        subcat (ref {:1 subj})
+        cat (ref :verb)
+        italian-infinitive (ref :top)]
+     {:root
+      {:italian italian-infinitive
+       :synsem {:cat cat
+                :sem root-sem}
+       :subcat subcat}
+      :subcat subcat
+      :synsem {:sem root-sem
+               :cat cat
+               :infl :present}
+      :italian {:agr subj
+                :infinitive italian-infinitive}}))
+
+(def trans-finitizer
+  (unify finitizer
+         (let [obj-sem (ref :top)
+               obj (ref {:sem obj-sem})]
+           {:root
+            {:subcat {:2 obj}}
+            :synsem {:sem {:obj obj-sem}}})))
+
+(def intrans-finitizer
+  (unify finitizer
+         {:root
+          {:subcat {:2 :nil!}}}))
+
+(def verb-with-root
+  (let [cat (ref :verb)
+        subcat (ref :top)]
+    {:synsem {:cat cat}
+     :subcat subcat
+     :root {:subcat subcat
+            :synsem {:cat cat}}}))
+
+(def transitive
+  (let [subj-sem (ref :top)
+        subj (ref {:sem subj-sem})
+        obj-sem (ref :top)
+        obj (ref {:sem obj-sem})]
+    {:synsem {:sem {:subj subj-sem
+                    :obj obj-sem}}
      :subcat {:1 subj
-              :2 :nil!}
-     :synsem {:sem root-sem
-              :cat cat
-              :infl :present}
-     :italian {:agr subj
-               :infinitive italian-infinitive}}))
+              :2 obj}}))
+
+(def intransitive
+  (let [subj-sem (ref :top)
+        subj (ref {:sem subj-sem})]
+    {:synsem {:sem {:subj subj-sem}}
+     :subcat {:1 subj
+              :2 :nil!}}))
+
+(def fare
+  (unify
+   transitive
+   {:italian {:infinitive "fare"
+              :irregular {:present {:1sing "facio"
+                                    :2sing "fai"
+                                    :3sing "fa"
+                                    :1plur "facciamo"
+                                    :2plur "fate"
+                                    :3plur "fanno"}}}
+    :english {:infinitive "to do"
+              :irregular {:present {:1sing "do"
+                                    :2sing "do"
+                                    :3sing "does"
+                                    :1plur "do"
+                                    :2plur "do"
+                                    :3plur "do"}}}
+    
+    :synsem {:cat :verb
+             :morph :irreg
+             :infl :infinitive
+             :sem {:pred :fare
+                   :subj human
+                   :obj {:artifact true}}}}))
+
+(def dormire
+  (unify
+   intransitive
+   infinitive-verb
+   {:italian "dormire"
+    :english "to sleep"
+    :synsem {:sem {:subj {:animate true}
+                   :pred :dormire}}}))
+
+(def mangiare
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "mangiare"
+    :english "to eat"
+    :synsem {:sem {:subj {:sem {:animate true}}
+                   :obj {:sem {:edible true}}}}}))
+
+
+(def leggere
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "leggere"
+    :english "to read"
+    :synsem {:sem {:subj {:sem human}
+                   :obj {:sem {:legible true}}}}}))
+  
+(def scrivere
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "scrivere"
+    :english "to write"
+    :synsem {:sem {:subj {:sem human}
+                   :obj {:sem {:legible true}}}}}))
 
 (def vp-1-lexicon
-  (let [verb-with-root
-        (let [cat (ref :verb)
-              subcat (ref :top)]
-          {:synsem {:cat cat}
-           :subcat subcat
-           :root {:subcat subcat
-                  :synsem {:cat cat}}})
+  (concat
+   (list
+    dormire
+    (unify {:root dormire}
+           intrans-finitizer)
+    fare
+    (unify {:root fare}
+           trans-finitizer)
+    leggere
+    (unify {:root leggere}
+           trans-finitizer)
+    mangiare
+    (unify {:root mangiare}
+           trans-finitizer)
+    
+    scrivere
+    (unify {:root scrivere}
+           trans-finitizer))))
 
-        transitive
-        (let [subj-sem (ref :top)
-              subj (ref {:sem subj-sem})
-              obj-sem (ref :top)
-              obj (ref {:sem obj-sem})]
-          {:synsem {:sem {:subj subj-sem
-                          :obj obj-sem}}
-           :subcat {:1 obj
-                    :2 subj}})
-
-        intransitive
-        (let [subj-sem (ref :top)
-              subj (ref {:sem subj-sem})]
-          {:synsem {:sem {:subj subj-sem}}
-           :subcat {:1 subj
-                    :2 :nil!}})
-
-        finite-transitive
-        (let [subj (ref :top)
-              obj (ref :top)]
-          (fs/unify
-           (fs/copy verb-with-root)
-           {:synsem {:infl :present}
-            :root {:synsem {:subj subj
-                            :obj obj}}}))
-        
-        regular-verb-inflection
-        (let [agreement {:person :top
-                         :number :top}]
-          {:italian {:morph agreement}
-           :subcat {:2 agreement}
-           :root {:synsem {:cat :verb}}})
-
-        fare
-        (fs/unify
-         (fs/copy transitive)
-         {:italian {:infinitive "fare"
-                    :irregular {:present {:1sing "facio"
-                                          :2sing "fai"
-                                          :3sing "fa"
-                                          :1plur "facciamo"
-                                          :2plur "fate"
-                                          :3plur "fanno"}}}
-          :english {:infinitive "to do"
-                    :irregular {:present {:1sing "do"
-                                          :2sing "do"
-                                          :3sing "does"
-                                          :1plur "do"
-                                          :2plur "do"
-                                          :3plur "do"}}}
-                                
-          :synsem {:cat :verb
-                   :morph :irreg
-                   :infl :infinitive
-                   :sem {:pred :fare
-                         :subj human
-                         :obj {:artifact true}}}})
-
-        dormire
-        (fs/unify
-         (fs/copy intransitive)
-         (fs/copy infinitive-verb)
-         {:italian "dormire"
-          :english "to sleep"
-          :synsem {:sem {:subj {:animate true}
-                         :pred :dormire}}})
-
-        mangiare
-        (fs/unify
-         (fs/copy transitive)
-         (fs/copy infinitive-verb)
-         {:italian "mangiare"
-          :english "to eat"
-          :synsem {:subj {:sem {:animate true}}
-                   :obj {:sem {:edible true}}}})
-        
-        leggere
-        (fs/unify
-         (fs/copy transitive)
-         (fs/copy infinitive-verb)
-         {:italian "leggere"
-          :english "to read"
-          :synsem {:subj {:sem human}
-                   :obj {:sem {:legible true}}}})
-
-        scrivere
-        (fs/unify
-         (fs/copy transitive)
-         (fs/copy infinitive-verb)
-         {:italian "scrivere"
-          :english "to write"
-          :synsem {:subj {:sem human}
-                   :obj {:sem {:legible true}}}})
-
-        ]
-    (concat
-     (list
-
-      dormire
-      (unify {:root dormire}
-             intrans-finitizer)
-      fare
-      (unify {:root fare}
-             trans-finitizer)
-      leggere
-      (unify {:root leggere}
-             trans-finitizer)
-      mangiare
-      (unify {:root mangiare}
-             trans-finitizer)
-
-      scrivere
-      (unify {:root scrivere}
-             trans-finitizer)))))
 
 (def vp-1-rules
   (list
@@ -370,27 +340,28 @@
                comp-synsem (ref {:cat :noun :case {:not :nom} :sem comp-sem})
                comp (ref {:synsem comp-synsem :subcat :nil!})
                subj-sem (ref :top)
-               subj (ref {:cat :noun :case {:not :acc} :sem subj-sem})
+               subj-synsem (ref {:cat :noun :case {:not :acc} :sem subj-sem})
                head-synsem (ref {:cat :verb
                                  :infl {:not :infinitive}
                                  :sem {:subj subj-sem
                                        :obj comp-sem}})
                head (ref {:synsem head-synsem
-                          :subcat {:1 comp-synsem
-                                   :2 subj}})]
+                          :subcat {:1 subj-synsem
+                                   :2 comp-synsem}})]
            {:comment "vp -> head comp"
             :head head
-            :subcat {:1 subj}
+            :subcat {:1 subj-synsem}
             :synsem head-synsem
             :comp comp
             :1 head
             :2 comp})]
      vp-rule-1)))
 
+
 (def pronouns
   (list {:synsem {:cat :noun
                   :case :nom
-                  :sem (fs/unify human {:pred :io})
+                  :sem (unify human {:pred :io})
                   :person :1st
                   :number :sing}
          :subcat :nil!
@@ -441,7 +412,7 @@
                   :number :plur}
          :subcat :nil!
          :italian "loro"}))
-
+    
 (def sentence-rules
   (let [subj-sem (ref :top)
         subcatted (ref {:cat :noun
@@ -478,7 +449,7 @@
            :1 comp
            :2 head})]
     (list np-rule-1)))
-
+   
 (def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
 
 (defn lookup-in [query collection]
@@ -493,7 +464,7 @@
 (defn lookup [query]
   (lookup-in query lexicon))
 
-;;synonym
+;;;synonym
 (defn find [query]
   (lookup query))
 
@@ -557,7 +528,7 @@
            (fs/get-in present '(:2plur))
            (and (= person :3rd)
                 (= number :plur))
-           (fs/get-in present '(:3plur))
+          (fs/get-in present '(:3plur))
            :else arg))  ;(str "[unknown conjugation:root=" root ";person=" person ";number=" number "]:" root)))
 
         (= (type arg) clojure.lang.Keyword)
@@ -627,15 +598,7 @@
 
 (defn en [english]
   (lookup {:english english}))
-
-(defn finitize [infinitive]
-  (unify {:root infinitive}
-         trans-finitizer))
-
-(def mangiare-finite
-  (unify {:root (first (it "mangiare"))}
-         trans-finitizer))
-
+;
 (defn get-in [map path]
   (fs/get-in map path))
 
@@ -683,7 +646,7 @@
          head (if child-is-head
                 child
                 (fs/get-in parent '(:head)))
-         sem-filter (fs/get-in head '(:subcat :1 :sem))
+         sem-filter (fs/get-in head '(:subcat :2 :sem)) ;; :1 VERSUS :2 : make this more explicit about what we are searching for.
          comp-sem (fs/get-in comp '(:synsem :sem))
          do-match
          (if (and (not (nil? sem-filter))
@@ -719,6 +682,10 @@
       (over-parent-child (over-parent-child rules child1) child2)
       (over-parent-child rules child1))))
 
+(def mangiare-finite
+  (unify {:root (first (it "mangiare"))}
+         trans-finitizer))
+
 (defn regular-sentence []
   (let [ilragazzo (over (over np "il") "ragazzo")
         lapasta (over (over np "la") "pasta")
@@ -746,10 +713,9 @@
   (concat
    (lots-of-sentences-1)
    (lots-of-sentences-2)))
-
-
-;; e.g.:
-;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
+ 
+;;; e.g.:
+;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian."
   (if (or (= (type expressions) clojure.lang.PersistentArrayMap)
@@ -813,3 +779,4 @@
                        "."
                        (if (fs/get-in expr '(:comment)) (str " (" (fs/get-in expr '(:comment)) ")"))))))
          expressions)))
+
