@@ -27,130 +27,127 @@
         agreement {:synsem {:gender gender
                             :number number}
                    :subcat {:1 {:gender gender
-                                :number number}}}]
+                                :number number}}}
+        common-noun {:synsem {:cat :noun
+                              :person :3rd
+                              :case :top}}]
+    ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
+    ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
     (list
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :sem {:pred :compito
+     (unify agreement
+               common-noun
+               {:synsem {:sem {:pred :compito
                                :artifact true}
                          :number :sing
-                         :gender :masc
-                         :person :3rd}
+                         :gender :masc}
                 :subcat {:1 {:cat :det}}
                 :italian "compito"
                 :english "homework"})
 
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
+     (unify agreement
+               common-noun
+               {:synsem {:number :sing
                          :gender :masc
                          :sem {:pred :pane
                                :edible true
-                               :artifact true}
-                         :person :3rd}
+                               :artifact true}}
                 :subcat {:1 {:cat :det}}
                 :italian "pane"
                 :english "bread"})
 
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :fem
-                         :sem {:edible true
-                               :artifact true}
-                         :person :3rd}
-                :subcat {:1 {:cat :det}}
+     (unify agreement
+            common-noun
+            {:synsem {:number :sing
+                      :gender :fem
+                      :sem {:pred :pasta
+                            :edible true
+                            :artifact true}}
+             :subcat {:1 {:cat :det}}
                 :italian "pasta"
                 :english "pasta"})
 
-
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :fem
-                         :sem {:artifact true}
-                         :person :3rd}
-                :subcat {:1 {:cat :det}}
-                :italian "scala"
-                :english "ladder"})
-
+     (unify agreement
+            common-noun
+            {:synsem {:number :sing
+                      :gender :fem
+                      :sem {:artifact true
+                            :pred :scala}}
+             :subcat {:1 {:cat :det}}
+             :italian "scala"
+             :english "ladder"})
      
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :masc
-                         :person :3rd}}
-               {:synsem {:sem human}}
-               {:synsem {:sem {:pred :ragazzo}}}
-               {:subcat {:1 {:cat :det}}
-                :italian "ragazzo"
-                :english "guy"})
+     (unify agreement
+            common-noun
+            {:synsem {:number :sing
+                      :gender :masc}}
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :ragazzo}}}
+            {:subcat {:1 {:cat :det}}
+             :italian "ragazzo"
+             :english "guy"})
 
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :masc
-                         :person :3rd
-                         }}
-               {:synsem {:sem human}}
-               {:subcat {:1 {:cat :det}}
-                :italian "dottore"
-                :english "doctor"})
+     (unify agreement
+            common-noun
+            {:synsem {:number :sing
+                      :gender :masc}}
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :dottore}}}
+            {:subcat {:1 {:cat :det}}
+             :italian "dottore"
+             :english "doctor"})
 
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :fem
-                         :person :3rd
-                         }}
-               {:synsem {:sem human}}
-               {:subcat {:1 {:cat :det}}
-                :italian "professoressa"
-                :english "professor"})
+     (unify agreement
+            common-noun
+            {:synsem {:number :sing
+                      :gender :fem}}
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :professoressa}}}
+            {:subcat {:1 {:cat :det}}
+             :italian "professoressa"
+             :english "professor"})
 
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :fem
-                         :pred :ragazza
-                         :person :3rd}}
-               {:synsem {:sem human}
-                :subcat {:1 {:cat :det}}
+     (unify agreement
+            common-noun
+            {:synsem {:number :sing
+                      :gender :fem}}
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :ragazza}}}
+            {:subcat {:1 {:cat :det}}
                 :italian "ragazza"
-                :english "girl"})
+             :english "girl"})
 
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :masc
-                         :sem {:pred :libro
-                               :legible true
-                               :artifact true}
-                         :person :3rd}}
-               {:subcat {:1 {:cat :det}}
-                :italian "libro"
-                :english "book"})
+     (unify agreement
+            common-noun
+            {:synsem {:cat :noun
+                      :number :sing
+                      :gender :masc
+                      :sem {:pred :libro
+                            :legible true
+                            :artifact true}
+                      :person :3rd}}
+            {:subcat {:1 {:cat :det}}
+             :italian "libro"
+             :english "book"})
 
      
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :masc
-                         :person :3rd}}
-               {:synsem {:sem (fs/copy animal)}
+     (unify agreement
+               common-noun
+               {:synsem {:number :sing
+                         :gender :masc}}
+               {:synsem {:sem (unify animal {:pred :cane})}
                 :subcat {:1 {:cat :det}}
                 :italian "cane"
                 :english "dog"})
 
-     (fs/unify (fs/copy agreement)
-               {:synsem {:cat :noun
-                         :number :sing
-                         :gender :masc
-                         :person :3rd}}
-               {:synsem {:sem (fs/copy animal)}
-                :subcat {:1 {:cat :det}}
-                :italian "gatto"
-                :english "cat"})
+     (unify agreement
+            common-noun
+            {:synsem {:number :sing
+                      :gender :masc
+                      :person :3rd}}
+            {:synsem {:sem (unify animal {:pred :gatto})}
+             :subcat {:1 {:cat :det}}
+             :italian "gatto"
+             :english "cat"})
      
      {:synsem {:cat :det
                :def :def
@@ -233,8 +230,8 @@
      :root {:subcat subcat
             :synsem {:cat cat}}}))
 
-;; "itive": a generalization of intransitive and transitive (they both have a subject)
-(def itive
+;; "x-itive": a generalization of intransitive and transitive (they both have a subject)
+(def x-itive
   (let [subj-sem (ref :top)
         subj (ref {:sem subj-sem
                    :cat :noun
@@ -243,11 +240,11 @@
      :subcat {:1 subj}}))
 
 (def intransitive
-  (unify itive
+  (unify x-itive
          {:subcat {:2 :nil!}}))
 
 (def transitive
-  (unify itive
+  (unify x-itive
          (let [obj-sem (ref :top)
                obj (ref {:sem obj-sem
                          :cat :noun
@@ -277,7 +274,7 @@
              :morph :irreg
              :infl :infinitive
              :sem {:pred :fare
-                   :subj human
+                   :subj {:human true}
                    :obj {:artifact true}}}}))
 
 (def dormire
@@ -295,8 +292,9 @@
    infinitive-verb
    {:italian "mangiare"
     :english "to eat"
-    :synsem {:sem {:subj {:sem {:animate true}}
-                   :obj {:sem {:edible true}}}}}))
+    :synsem {:sem {:pred :mangiare
+                   :subj {:animate true}
+                   :obj {:edible true}}}}))
 
 
 (def leggere
@@ -305,17 +303,28 @@
    infinitive-verb
    {:italian "leggere"
     :english "to read"
-    :synsem {:sem {:subj {:sem human}
-                   :obj {:sem {:legible true}}}}}))
-  
+    :synsem {:sem {:pred :leggere
+                   :subj {:human true}
+                   :obj {:legible true}}}}))
+
+(def vedere
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "vedere"
+    :english "to see"
+    :synsem {:sem {:pred :vedere
+                   :subj {:animate true}}}}))
+
 (def scrivere
   (unify
    transitive
    infinitive-verb
    {:italian "scrivere"
     :english "to write"
-    :synsem {:sem {:subj {:sem human}
-                   :obj {:sem {:legible true}}}}}))
+    :synsem {:sem {:pred :scrivere
+                   :subj {:human true}
+                   :obj {:legible true}}}}))
 
 (def vp-1-lexicon
   (concat
@@ -335,33 +344,54 @@
     
     scrivere
     (unify {:root scrivere}
+           trans-finitizer)
+
+    vedere
+    (unify {:root vedere}
            trans-finitizer))))
 
+;;    [1]
+;;   /   \
+;;  /     \
+;; H[1]    C
+(def head-principle
+  (let [head-synsem (ref :top)]
+    {:synsem head-synsem
+     :head {:synsem head-synsem}}))
+
+;;     subcat<>
+;;     /      \
+;;    /        \
+;; H subcat<1>  C[1]
+(def subcat-1-principle
+  (let [comp-synsem (ref :top)]
+    {:subcat :nil!
+     :head {:subcat {:1 comp-synsem}}
+     :comp {:synsem comp-synsem}}))
 
 (def vp-1-rules
   (list
    (let [vp-rule-1
-         (let [comp-sem (ref :top)
-               comp-synsem (ref {:sem comp-sem})
-               comp (ref {:synsem comp-synsem :subcat :nil!})
+         (let [obj-sem (ref :top)
+               obj-synsem (ref {:sem obj-sem})
+               obj (ref {:synsem obj-synsem :subcat :nil!})
                subj-sem (ref :top)
                subj-synsem (ref {:sem subj-sem})
                head-synsem (ref {:cat :verb
                                  :infl {:not :infinitive}
                                  :sem {:subj subj-sem
-                                       :obj comp-sem}})
+                                       :obj obj-sem}})
                head (ref {:synsem head-synsem
                           :subcat {:1 subj-synsem
-                                   :2 comp-synsem}})]
-           {:comment "vp -> head comp"
-            :head head
-            :subcat {:1 subj-synsem}
-            :synsem head-synsem
-            :comp comp
-            :1 head
-            :2 comp})]
+                                   :2 obj-synsem}})]
+           (unify head-principle
+                  {:comment "vp -> head comp"
+                   :head head
+                   :subcat {:1 subj-synsem}
+                   :comp obj
+                   :1 head
+                   :2 obj}))]
      vp-rule-1)))
-
 
 (def pronouns
   (list {:synsem {:cat :noun
@@ -373,14 +403,14 @@
          :italian "io"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem human
+                  :sem (unify human {:pred :tu})
                   :person :2nd
                   :number :sing}
          :subcat :nil!
          :italian "tu"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem human
+                  :sem (unify human {:pred :lui})
                   :person :3rd
                   :gender :masc
                   :number :sing}
@@ -388,7 +418,7 @@
          :italian "lui"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem human
+                  :sem (unify human {:pred :lei})
                   :person :3rd
                   :gender :fem
                   :number :sing}
@@ -397,7 +427,7 @@
          :italian "lei"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem human
+                  :sem (unify human {:pred :noi})
                   :person :1st
                   :number :plur}
          :subcat :nil!
@@ -405,14 +435,14 @@
          :italian "noi"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem human
+                  :sem (unify human {:pred :voi})
                   :person :2nd
                   :number :plur}
          :subcat :nil!
          :italian "voi"}
         {:synsem {:cat :noun
                   :case :nom
-                  :sem human
+                  :sem (unify human {:pred :loro})
                   :person :3rd
                   :number :plur}
          :subcat :nil!
@@ -427,32 +457,25 @@
                           :sem {:subj subj-sem}})
         comp (ref {:synsem subcatted :subcat :nil!})
         head (ref {:synsem head-synsem
-                   :subcat {:1 subcatted
-                            :2 :nil!}})]
+                   :subcat {:1 subcatted}})]
     (list
-     {:comment "s -> np vp"
-      :subcat :nil!
-      :head head
-      :comp comp
-      :1 comp
-      :2 head
-      :synsem head-synsem
-      })))
+     (unify head-principle subcat-1-principle
+            {:comment "s -> np vp"
+             :head head
+             :comp comp
+             :1 comp
+             :2 head}))))
 
 (def np-1-rules 
   (let [np-rule-1 ;; NP -> Comp Head
-        (let [comp-synsem (ref {:cat :det})
-              comp (ref {:synsem comp-synsem})
-              head-synsem (ref {:cat :noun})
-              head (ref {:synsem head-synsem
-                         :subcat {:1 comp-synsem}})]
-          {:comment "np -> det noun"
-           :head head
-           :subcat :nil!
-           :synsem head-synsem
-           :comp comp
-           :1 comp
-           :2 head})]
+        (unify head-principle subcat-1-principle
+               (let [comp (ref {:synsem {:cat :det}})
+                     head (ref {:synsem {:cat :noun}})]
+                 {:comment "np -> det noun"
+                  :head head
+                  :comp comp
+                  :1 comp
+                  :2 head}))]
     (list np-rule-1)))
    
 (def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
@@ -788,20 +811,58 @@
 (def sentence-skeleton-1
   (unify s {:comp np :head (unify vp {:comp np})}))
 
-(def mp (first (lookup {:root {:italian "mangiare"}})))
+(defn get-terminal-head-in [phrase-structure]
+  (let [local-head (fs/get-in phrase-structure '(:head))]
+    (if (not (nil? local-head))
+      (get-terminal-head-in local-head)
+      phrase-structure)))
 
-(def mangiare-sentence (unify sentence-skeleton-1 {:head {:head mp}}))
+(defn random-np-random-lexical-head [head-spec]
+  (let [skeleton np
+        head-specification (unify head-spec (get-terminal-head-in skeleton))
+        matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
+                                       (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lexicon))]
+    (if (> (.size matching-lexical-heads) 0)
+      (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))))
 
-(def random-sentence
-  (let [head-specification (fs/get-in sentence-skeleton-1 '(:head :head))
-        matching-lexical-heads (mapcat (fn [lexeme]
-                                         (let [do-match
-                                               (fs/match (fs/copy (fs/get-in sentence-skeleton-1 '(:head :head)))
-                                                         (fs/copy lexeme))]
-                                           (if (not (fs/fail? do-match))
-                                             (list lexeme))))
-                                       lexicon)
-;        random-lexical-head (nth matching-lexical-heads (rand-int (count matching-lexical-heads)))
-        ]
-;    (unify sentence-skeleton-1 {:head {:head random-lexical-head}})))
-    matching-lexical-heads))
+(defn filter-by-match [spec lexicon]
+  (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
+          (map (fn [lexeme] (fs/match (fs/copy spec) (fs/copy lexeme))) lexicon)))
+  
+(defn random-np [head-spec]
+  (let [matching-lexical-heads (filter-by-match head-spec lexicon)
+        random-lexical-head (if (> (.size matching-lexical-heads) 0)
+                              (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))]
+    (println (str "random-np: skel:" np))
+    (println (str "np head-spec   :" head-spec))
+    (println (str "random-np: rlh :" random-lexical-head))
+    (let [unif (unify np {:head random-lexical-head})]
+;      (println (str "unif: " unif))
+      unif)))
+
+(def head-specification (get-terminal-head-in sentence-skeleton-1))
+(def matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
+                                    (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lexicon)))
+(def random-lexical-head (if (> (.size matching-lexical-heads) 0)
+                           (nth matching-lexical-heads (rand-int (.size matching-lexical-heads)))))
+(def obj-spec (fs/get-in random-lexical-head '(:subcat :2)))
+
+(def object-np (random-np {:synsem obj-spec}))
+
+(defn random-sentence []
+  (let [head-specification (get-terminal-head-in sentence-skeleton-1)
+        matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
+                                       (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lexicon))
+        random-lexical-head (if (> (.size matching-lexical-heads) 0)
+                              (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))
+        obj-spec (fs/get-in random-lexical-head '(:subcat :2))
+        object-np (random-np {:synsem obj-spec
+                              :subcat {:1 {:cat :det}}})
+
+        subj-spec (fs/get-in random-lexical-head '(:subcat :1))
+        subject-np (random-np {:synsem subj-spec
+                               :subcat {:1 {:cat :det}}})]
+    (unify sentence-skeleton-1
+           {:head {:head random-lexical-head
+                   :comp object-np}}
+           {:comp subject-np})))
