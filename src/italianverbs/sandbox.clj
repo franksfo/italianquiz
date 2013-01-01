@@ -23,130 +23,123 @@
 
 (def np-1-lexicon
   (let [gender (ref :top)
-        number (ref :top)
-        agreement {:synsem {:gender gender
-                            :number number
+        number (ref :sing) ;; make this :top to underspecify number: number selection (:sing or :plur) is deferred until later.
+        case (ref :top)
+        person (ref :top)
+        agreement {:synsem {:agr {:person person
+                                  :number number
+                                  :case case
+                                  :gender gender}
                             :subcat {:1 {:gender gender
                                          :number number}}}}
-        common-noun {:synsem {:cat :noun
-                              :person :3rd
-                              :case :top}}]
+        common-noun
+        {:synsem {:cat :noun
+                  :agr {:person :3rd}
+                  :subcat {:1 {:cat :det}}}}
+
+        masculine {:synsem {:agr {:gender :masc}}}
+        feminine {:synsem {:agr {:gender :fem}}}
+
+        ]
     ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
     ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
     (list
      (unify agreement
             common-noun
+            masculine
             {:synsem {:sem {:pred :compito
                             :legible true
-                            :artifact true}
-                      :number :sing
-                      :gender :masc
-                      :subcat {:1 {:cat :det}}}
+                            :artifact true}}
              :italian "compito"
              :english "homework"})
 
      (unify agreement
             common-noun
-            {:synsem {:number :sing
-                      :gender :masc
-                      :sem {:pred :pane
+            masculine
+            {:synsem {:sem {:pred :pane
                             :edible true
-                            :artifact true}
-                      :subcat {:1 {:cat :det}}}
+                            :artifact true}}
              :italian "pane"
              :english "bread"})
 
      (unify agreement
             common-noun
-            {:synsem {:number :sing
-                      :gender :fem
-                      :sem {:pred :pasta
+            feminine
+            {:synsem {:sem {:pred :pasta
                             :edible true
-                            :artifact true}
-                      :subcat {:1 {:cat :det}}}
+                            :artifact true}}
              :italian "pasta"
              :english "pasta"})
 
      (unify agreement
             common-noun
-            {:synsem {:number :sing
-                      :gender :fem
-                      :sem {:artifact true
-                            :pred :scala}
-                      :subcat {:1 {:cat :det}}}
+            feminine
+            {:synsem {:sem {:pred :pizza
+                            :edible true
+                            :artifact true}}
+             :italian "pizza"
+             :english "pizza"})
+     
+     (unify agreement
+            common-noun
+            feminine
+            {:synsem {:sem {:artifact true
+                            :pred :scala}}
              :italian "scala"
              :english "ladder"})
      
      (unify agreement
             common-noun
-            {:synsem {:number :sing
-                      :gender :masc}}
+            masculine
             {:synsem {:sem human}}
-            {:synsem {:sem {:pred :ragazzo}}}
-            {:synsem {:subcat {:1 {:cat :det}}}
+            {:synsem {:sem {:pred :ragazzo}}
              :italian "ragazzo"
              :english "guy"})
 
      (unify agreement
             common-noun
-            {:synsem {:number :sing
-                      :gender :masc}}
+            masculine
             {:synsem {:sem human}}
-            {:synsem {:sem {:pred :dottore}}}
-            {:synsem {:subcat {:1 {:cat :det}}}
+            {:synsem {:sem {:pred :dottore}}
              :italian "dottore"
              :english "doctor"})
 
      (unify agreement
             common-noun
-            {:synsem {:number :sing
-                      :gender :fem}}
+            feminine
             {:synsem {:sem human}}
             {:synsem {:sem {:pred :professoressa}}}
-            {:synsem {:subcat {:1 {:cat :det}}}
-             :italian "professoressa"
+            {:italian "professoressa"
              :english "professor"})
 
      (unify agreement
             common-noun
-            {:synsem {:number :sing
-                      :gender :fem}}
+            feminine
             {:synsem {:sem human}}
             {:synsem {:sem {:pred :ragazza}}}
-            {:synsem {:subcat {:1 {:cat :det}}}
-             :italian "ragazza"
+            {:italian "ragazza"
              :english "girl"})
 
      (unify agreement
             common-noun
-            {:synsem {:cat :noun
-                      :number :sing
-                      :gender :masc
-                      :sem {:pred :libro
+            masculine
+            {:synsem {:sem {:pred :libro
                             :legible true
-                            :artifact true}
-                      :person :3rd}}
-            {:synsem {:subcat {:1 {:cat :det}}}
+                            :artifact true}}
              :italian "libro"
              :english "book"})
-
      
      (unify agreement
-               common-noun
-               {:synsem {:number :sing
-                         :gender :masc}}
-               {:synsem {:sem (unify animal {:pred :cane})
-                         :subcat {:1 {:cat :det}}}
-                :italian "cane"
-                :english "dog"})
+            common-noun
+            masculine
+            {:synsem {:sem (unify animal {:pred :cane})}
+             :italian "cane"
+             :english "dog"})
 
      (unify agreement
             common-noun
-            {:synsem {:number :sing
-                      :gender :masc
-                      :person :3rd}}
-            {:synsem {:sem (unify animal {:pred :gatto})
-                      :subcat {:1 {:cat :det}}}
+            masculine
+            {:synsem {:sem (unify animal {:pred :gatto})}
              :italian "gatto"
              :english "cat"})
      
@@ -194,12 +187,16 @@
 (def finitizer
   (let [subj-sem (ref :top)
         root-sem (ref {:subj subj-sem})
-        subj (ref {:sem subj-sem})
+        subj-agr (ref :top)
+        subj (ref {:sem subj-sem
+                   :agr subj-agr})
         subcat (ref {:1 subj})
         cat (ref :verb)
+        english-infinitive (ref :top)
         italian-infinitive (ref :top)]
      {:root
       {:italian italian-infinitive
+       :english english-infinitive
        :synsem {:cat cat
                 :sem root-sem
                 :subcat subcat}}
@@ -207,8 +204,10 @@
                :cat cat
                :subcat subcat
                :infl :present}
-      :italian {:agr subj
-                :infinitive italian-infinitive}}))
+      :italian {:agr subj-agr
+                :infinitive italian-infinitive}
+      :english {:agr subj-agr
+                :infinitive english-infinitive}}))
 
 (def trans-finitizer
   (unify finitizer
@@ -228,7 +227,7 @@
   (let [subj-sem (ref :top)
         subj (ref {:sem subj-sem
                    :cat :noun
-                   :case {:not :acc}})]
+                   :agr {:case {:not :acc}}})]
     {:synsem {:sem {:subj subj-sem}
               :subcat {:1 subj}}}))
 
@@ -242,7 +241,7 @@
          (let [obj-sem (ref :top)
                obj (ref {:sem obj-sem
                          :cat :noun
-                         :case {:not :nom}})]
+                         :agr {:case {:not :nom}}})]
            {:synsem {:sem {:obj obj-sem}
                      :subcat {:2 obj}}})))
 
@@ -391,58 +390,63 @@
 
 (def pronouns
   (list {:synsem {:cat :noun
-                  :case :nom
+                  :agr {:case :nom
+                        :person :1st
+                        :number :sing}
                   :sem (unify human {:pred :io})
-                  :person :1st
-                  :number :sing
                   :subcat :nil!}
+         :english "i"
          :italian "io"}
         {:synsem {:cat :noun
-                  :case :nom
+                  :agr {:case :nom
+                        :person :2nd
+                        :number :sing}
                   :sem (unify human {:pred :tu})
-                  :person :2nd
-                  :number :sing
                   :subcat :nil!}
+         :english "you"
          :italian "tu"}
         {:synsem {:cat :noun
-                  :case :nom
+                  :agr {:case :nom
+                        :person :3rd
+                        :gender :masc
+                        :number :sing}
                   :sem (unify human {:pred :lui})
-                  :person :3rd
-                  :gender :masc
-                  :number :sing
                   :subcat :nil!}
+         :english "he"
          :italian "lui"}
         {:synsem {:cat :noun
-                  :case :nom
+                  :agr {:case :nom
+                        :person :3rd
+                        :gender :fem
+                        :number :sing}
                   :sem (unify human {:pred :lei})
-                  :person :3rd
-                  :gender :fem
-                  :number :sing
                   :subcat :nil!}
          :english "she"
          :italian "lei"}
         {:synsem {:cat :noun
-                  :case :nom
+                  :agr {:case :nom
+                        :person :1st
+                        :number :plur}
                   :sem (unify human {:pred :noi})
-                  :person :1st
-                  :number :plur
                   :subcat :nil!}
          :english "we"
          :italian "noi"}
         {:synsem {:cat :noun
-                  :case :nom
+                  :agr {:case :nom
+                        :person :2nd
+                        :number :plur}
                   :sem (unify human {:pred :voi})
-                  :person :2nd
-                  :number :plur
                   :subcat :nil!}
-         :italian "voi"}
+         :italian "voi"
+         :english "you all"}
         {:synsem {:cat :noun
-                  :case :nom
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :plur}
                   :sem (unify human {:pred :loro})
-                  :person :3rd
-                  :number :plur
                   :subcat :nil!}
-         :italian "loro"}))
+         :italian "loro"
+         :english "they"}))
     
 (def sentence-rules
   (let [subj-sem (ref :top)
@@ -471,16 +475,11 @@
                      person (ref :top)
                      number (ref :top)
                      gender (ref :top)
+                     agr (ref :top)
                      head (ref {:synsem {:cat :noun
-                                         :person person
-                                         :number number
-                                         :gender gender
-                                         :case case}})]
+                                         :agr agr}})]
                  {:comment "np -> det noun"
-                  :synsem {:case case
-                           :person person
-                           :number number
-                           :gender gender}
+                  :synsem {:agr agr}
                   :head head
                   :comp comp
                   :1 comp
@@ -521,10 +520,7 @@
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
-        (and (or (= (type arg)
-                    clojure.lang.PersistentArrayMap)
-                 (= (type arg)
-                    clojure.lang.PersistentHashMap))
+        (and (map? arg)
              (contains? (set (keys arg)) :1)
              (contains? (set (keys arg)) :2))
         (let [result1 (conjugate (:1 arg))
@@ -535,10 +531,7 @@
             {:1 result1
              :2 result2}))
 
-        (and (or (= (type arg)
-                    clojure.lang.PersistentArrayMap)
-                 (= (type arg)
-                    clojure.lang.PersistentHashMap))
+        (and (map? arg)
              (contains? (set (keys arg)) :agr)
              (contains? (set (keys arg)) :infinitive)
              (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
@@ -623,9 +616,99 @@
            (str stem "ano")
            :else arg))))
 
+(defn conjugate-en [arg]
+  (cond (nil? arg) ""
+        (= (type arg) java.lang.String)
+        arg
+        (and (map? arg)
+             (contains? (set (keys arg)) :1)
+             (contains? (set (keys arg)) :2))
+        (let [result1 (conjugate-en (:1 arg))
+              result2 (conjugate-en (:2 arg))]
+          (if (and (= (type result1) java.lang.String)
+                   (= (type result2) java.lang.String))
+            (string/join " " (list result1 result2))
+            {:1 result1
+             :2 result2}))
+
+        (and (map? arg)
+             (contains? (set (keys arg)) :agr)
+             (contains? (set (keys arg)) :infinitive)
+             (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
+        ;; irregular present-tense (e.g. "fare")
+        (let [root (fs/get-in arg '(:infinitive))
+              person (fs/get-in arg '(:agr :person))
+              number (fs/get-in arg '(:agr :number))
+              present (fs/get-in arg '(:infinitive :irregular :present))]
+          (cond
+           (and (= person :1st)
+                (= number :sing))
+           (fs/get-in present '(:1sing))
+           (and (= person :2nd)
+                (= number :sing))
+           (fs/get-in present '(:2sing))
+           (and (= person :3rd)
+                (= number :sing))
+           (fs/get-in present '(:3sing))
+           (and (= person :1st)
+                (= number :plur))
+           (fs/get-in present '(:1plur))
+           (and (= person :2nd)
+                (= number :plur))
+           (fs/get-in present '(:2plur))
+           (and (= person :3rd)
+                (= number :plur))
+          (fs/get-in present '(:3plur))
+           :else arg))  ;(str "[unknown conjugation:root=" root ";person=" person ";number=" number "]:" root)))
+
+        (= (type arg) clojure.lang.Keyword)
+        (str "cannot conjugate: " arg)
+        
+        :else
+        ;; assume a map with keys (:root and :agr).
+        (let [root (fs/get-in arg '(:infinitive))
+              root (if (nil? root) "(nil)" root)
+              root (if (not (= (type root) java.lang.String))
+                      (fs/get-in arg '(:infinitive :infinitive))
+                      root)
+              person (fs/get-in arg '(:agr :person))
+              number (fs/get-in arg '(:agr :number))
+              stem (string/replace root #"^to " "")
+              last-stem-char-is-e (re-find #"e$" stem)]
+          (cond
+
+           (and (= person :1st) (= number :sing))
+           (str stem "")
+
+           (and (= person :2nd) (= number :sing))
+           (str stem "")
+
+           (and (= person :3rd) (= number :sing))
+           (str stem "s")
+
+           (and (= person :1st) (= number :plur))
+           (str stem "")
+
+           (and (= person :2nd) (= number :plur))
+           (str stem "")
+
+           (and (= person :3rd) (= number :plur))
+           (str stem "")
+           :else arg))))
+
 (defn get-italian [a b]
   (let [conjugated-a (conjugate a)
         conjugated-b (if (not (nil? b)) (conjugate b) "")]
+    (if (and
+         (= (type conjugated-a) java.lang.String)
+         (= (type conjugated-b) java.lang.String))
+      (string/trim (str conjugated-a " " conjugated-b))
+      {:1 conjugated-a
+       :2 conjugated-b})))
+
+(defn get-english [a b]
+  (let [conjugated-a (conjugate-en a)
+        conjugated-b (if (not (nil? b)) (conjugate-en b) "")]
     (if (and
          (= (type conjugated-a) java.lang.String)
          (= (type conjugated-b) java.lang.String))
@@ -843,9 +926,9 @@
   (let [matching-lexical-heads (filter-by-match head-spec lexicon)
         random-lexical-head (if (> (.size matching-lexical-heads) 0)
                               (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))]
-    (println (str "random-np: skel:" np))
-    (println (str "np head-spec   :" head-spec))
-    (println (str "random-np: rlh :" random-lexical-head))
+;    (println (str "random-np: skel:" np))
+;    (println (str "np head-spec   :" head-spec))
+;    (println (str "random-np: rlh :" random-lexical-head))
     (let [matching-lexical-comps (filter-by-match {:synsem (fs/get-in random-lexical-head '(:synsem :subcat :1))}
                                                   lexicon)
           random-lexical-comp (if (> (.size matching-lexical-comps) 0)
@@ -856,7 +939,10 @@
           (merge
            {:italian (get-italian
                       (fs/get-in unified '(:1 :italian))
-                      (fs/get-in unified '(:2 :italian)))}
+                      (fs/get-in unified '(:2 :italian)))
+            :english (get-english
+                      (fs/get-in unified '(:1 :english))
+                      (fs/get-in unified '(:2 :english)))}
            unified)
           unified)))))
 
@@ -886,7 +972,7 @@
                        (unify
                         head-spec
                         {:cat :noun
-                         :case :nom
+                         :agr {:case :nom}
                          :subcat :nil!})}
                       lexicon)]
         (if (> (.size matching) 0)
@@ -916,13 +1002,23 @@
                              {:italian
                               (get-italian
                                (fs/get-in unified '(:1 :italian))
-                               (fs/get-in unified '(:2 :italian)))}
+                               (fs/get-in unified '(:2 :italian)))
+                              :english
+                              (get-english
+                               (fs/get-in unified '(:1 :english))
+                               (fs/get-in unified '(:2 :english)))}
                              unified))}
                          {:comp subject-np})]
       (if (not (fs/fail? unified))
         (merge
          {:italian (get-italian
                     (fs/get-in unified '(:1 :italian))
-                    (fs/get-in unified '(:2 :italian)))}
+                    (fs/get-in unified '(:2 :italian)))
+          :english (get-english
+                    (fs/get-in unified '(:1 :english))
+                    (fs/get-in unified '(:2 :english)))}
          unified)
         unified))))
+
+(defn random-sentences [n]
+  (repeatedly n (fn [] (random-sentence))))
