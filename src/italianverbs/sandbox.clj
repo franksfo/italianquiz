@@ -23,7 +23,7 @@
 
 (def np-1-lexicon
   (let [gender (ref :top)
-        number (ref :sing) ;; make this :top to underspecify number: number selection (:sing or :plur) is deferred until later.
+        number (ref :top) ;; make this :top to underspecify number: number selection (:sing or :plur) is deferred until later.
         case (ref :top)
         person (ref :top)
         agreement {:synsem {:agr {:person person
@@ -67,7 +67,8 @@
             feminine
             {:synsem {:sem {:pred :pasta
                             :edible true
-                            :artifact true}}
+                            :artifact true
+                            :agr {:num :sing}}} ;; pasta, as a mass noun, cannot be pluralized.
              :italian "pasta"
              :english "pasta"})
 
@@ -184,44 +185,6 @@
 
      )))
 
-(def finitizer
-  (let [subj-sem (ref :top)
-        root-sem (ref {:subj subj-sem})
-        subj-agr (ref :top)
-        subj (ref {:sem subj-sem
-                   :agr subj-agr})
-        subcat (ref {:1 subj})
-        cat (ref :verb)
-        english-infinitive (ref :top)
-        italian-infinitive (ref :top)]
-     {:root
-      {:italian italian-infinitive
-       :english english-infinitive
-       :synsem {:cat cat
-                :sem root-sem
-                :subcat subcat}}
-      :synsem {:sem root-sem
-               :cat cat
-               :subcat subcat
-               :infl :present}
-      :italian {:agr subj-agr
-                :infinitive italian-infinitive}
-      :english {:agr subj-agr
-                :infinitive english-infinitive}}))
-
-(def trans-finitizer
-  (unify finitizer
-         (let [obj-sem (ref :top)
-               obj (ref {:sem obj-sem})]
-           {:root
-            {:synsem {:subcat {:2 obj}}}
-            :synsem {:sem {:obj obj-sem}}})))
-
-(def intrans-finitizer
-  (unify finitizer
-         {:root {:synsem
-                 {:subcat {:2 :nil!}}}}))
-
 ;; "x-itive": a generalization of intransitive and transitive (they both have a subject)
 (def x-itive
   (let [subj-sem (ref :top)
@@ -231,11 +194,13 @@
     {:synsem {:sem {:subj subj-sem}
               :subcat {:1 subj}}}))
 
+;; intransitive: has subject but no object.
 (def intransitive
   (unify x-itive
          {:synsem
           {:subcat {:2 :nil!}}}))
 
+;; intransitive: has both subject and object.
 (def transitive
   (unify x-itive
          (let [obj-sem (ref :top)
@@ -289,7 +254,6 @@
                    :subj {:animate true}
                    :obj {:edible true}}}}))
 
-
 (def leggere
   (unify
    transitive
@@ -318,6 +282,44 @@
     :synsem {:sem {:pred :scrivere
                    :subj {:human true}
                    :obj {:legible true}}}}))
+
+(def finitizer
+  (let [subj-sem (ref :top)
+        root-sem (ref {:subj subj-sem})
+        subj-agr (ref :top)
+        subj (ref {:sem subj-sem
+                   :agr subj-agr})
+        subcat (ref {:1 subj})
+        cat (ref :verb)
+        english-infinitive (ref :top)
+        italian-infinitive (ref :top)]
+     {:root
+      {:italian italian-infinitive
+       :english english-infinitive
+       :synsem {:cat cat
+                :sem root-sem
+                :subcat subcat}}
+      :synsem {:sem root-sem
+               :cat cat
+               :subcat subcat
+               :infl :present}
+      :italian {:agr subj-agr
+                :infinitive italian-infinitive}
+      :english {:agr subj-agr
+                :infinitive english-infinitive}}))
+
+(def trans-finitizer
+  (unify finitizer
+         (let [obj-sem (ref :top)
+               obj (ref {:sem obj-sem})]
+           {:root
+            {:synsem {:subcat {:2 obj}}}
+            :synsem {:sem {:obj obj-sem}}})))
+
+(def intrans-finitizer
+  (unify finitizer
+         {:root {:synsem
+                 {:subcat {:2 :nil!}}}}))
 
 (def vp-1-lexicon
   (concat
