@@ -784,7 +784,11 @@
             unified
             {:italian (get-italian
                        (fs/get-in unified '(:1 :italian))
-                       (fs/get-in unified '(:2 :italian)))})
+                       (fs/get-in unified '(:2 :italian)))
+             :english (get-english
+                       (fs/get-in unified '(:1 :english))
+                       (fs/get-in unified '(:2 :english)))})
+
            :fail))))))
 
 (defn over [& args]
