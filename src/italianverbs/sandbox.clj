@@ -21,6 +21,24 @@
   {:synsem {:cat :verb
             :infl :infinitive}})
 
+(def noun-conjugator
+  (let [italian-root (ref :top)
+        english-root (ref :top)
+        synsem (ref :top)
+        agr (ref :top)]
+    (unify
+     {:root {:synsem synsem}
+      :synsem synsem}
+     {:root
+      {:italian italian-root
+       :english english-root
+       :synsem {:agr agr}}
+      :italian {:root italian-root
+                :agr agr}
+      :english {:root english-root
+                :agr agr}
+      :synsem {:agr agr}})))
+
 (def np-1-lexicon
   (let [gender (ref :top)
         number (ref :top) ;; make this :top to underspecify number: number selection (:sing or :plur) is deferred until later.
@@ -44,105 +62,118 @@
     ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
     ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
     (list
-     (unify agreement
-            common-noun
-            masculine
-            {:synsem {:sem {:pred :compito
-                            :legible true
-                            :artifact true}}
-             :italian "compito"
-             :english "homework"})
 
-     (unify agreement
-            common-noun
-            masculine
-            {:synsem {:sem {:pred :pane
-                            :edible true
-                            :artifact true}}
-             :italian "pane"
-             :english "bread"})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :compito
+                                          :legible true
+                                          :artifact true}}
+                           :italian "compito"
+                           :english "homework assignment"})})
 
-     (unify agreement
-            common-noun
-            feminine
-            {:synsem {:sem {:pred :pasta
-                            :edible true
-                            :artifact true
-                            :agr {:num :sing}}} ;; pasta, as a mass noun, cannot be pluralized.
-             :italian "pasta"
-             :english "pasta"})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :pane
+                                          :edible true
+                                          :artifact true}}
+                           :italian "pane"
+                           :english "bread"})})
 
-     (unify agreement
-            common-noun
-            feminine
-            {:synsem {:sem {:pred :pizza
-                            :edible true
-                            :artifact true}}
-             :italian "pizza"
-             :english "pizza"})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem {:pred :pasta
+                                          :edible true
+                                          :artifact true
+                                          :agr {:num :sing}}} ;; pasta, as a mass noun, cannot be pluralized.
+                           :italian "pasta"
+                           :english "pasta"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem {:pred :pizza
+                                          :edible true
+                                          :artifact true}}
+                           :italian "pizza"
+                           :english "pizza"})})
      
-     (unify agreement
-            common-noun
-            feminine
-            {:synsem {:sem {:artifact true
-                            :pred :scala}}
-             :italian "scala"
-             :english "ladder"})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem {:artifact true
+                                          :pred :scala}}
+                           :italian "scala"
+                           :english "ladder"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :ragazzo}}
+                           :italian "ragazzo"
+                           :english "guy"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :dottore}}
+                           :italian "dottore"
+                           :english "doctor"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :professoressa}}}
+                          {:italian "professoressa"
+                           :english "professor"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :ragazza}}}
+                          {:italian "ragazza"
+                           :english "girl"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :libro
+                                          :legible true
+                                          :artifact true}}
+                           :italian "libro"
+                           :english "book"})})
      
-     (unify agreement
-            common-noun
-            masculine
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :ragazzo}}
-             :italian "ragazzo"
-             :english "guy"})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem (unify animal {:pred :cane})}
+                           :italian "cane"
+                           :english "dog"})})
 
-     (unify agreement
-            common-noun
-            masculine
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :dottore}}
-             :italian "dottore"
-             :english "doctor"})
-
-     (unify agreement
-            common-noun
-            feminine
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :professoressa}}}
-            {:italian "professoressa"
-             :english "professor"})
-
-     (unify agreement
-            common-noun
-            feminine
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :ragazza}}}
-            {:italian "ragazza"
-             :english "girl"})
-
-     (unify agreement
-            common-noun
-            masculine
-            {:synsem {:sem {:pred :libro
-                            :legible true
-                            :artifact true}}
-             :italian "libro"
-             :english "book"})
-     
-     (unify agreement
-            common-noun
-            masculine
-            {:synsem {:sem (unify animal {:pred :cane})}
-             :italian "cane"
-             :english "dog"})
-
-     (unify agreement
-            common-noun
-            masculine
-            {:synsem {:sem (unify animal {:pred :gatto})}
-             :italian "gatto"
-             :english "cat"})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem (unify animal {:pred :gatto})}
+                           :italian "gatto"
+                           :english "cat"})})
      
      {:synsem {:cat :det
                :def :def
@@ -510,7 +541,8 @@
 (defn it [italian]
   (set/union
    (lookup {:italian italian})
-   (lookup {:italian {:infinitive italian}})))
+   (lookup {:italian {:infinitive italian}})
+   (lookup {:root {:italian italian}})))
 
 (def rules (concat np-1-rules vp-1-rules sentence-rules))
 
@@ -518,15 +550,16 @@
 (def vp (nth rules 1))
 (def s (nth rules 2))
 
-(defn conjugate [arg]
+(defn conjugate-it [arg]
+  "conjugate an italian expression."
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
         (and (map? arg)
              (contains? (set (keys arg)) :1)
              (contains? (set (keys arg)) :2))
-        (let [result1 (conjugate (:1 arg))
-              result2 (conjugate (:2 arg))]
+        (let [result1 (conjugate-it (:1 arg))
+              result2 (conjugate-it (:2 arg))]
           (if (and (= (type result1) java.lang.String)
                    (= (type result2) java.lang.String))
             (string/join " " (list result1 result2))
@@ -565,6 +598,38 @@
 
         (= (type arg) clojure.lang.Keyword)
         (str "cannot conjugate: " arg)
+
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:root))
+
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:root))
+        
+        ;; feminine noun pluralization
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:root))
+                        #"a$" "e")
+
+        ;; masculine noun pluralization
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:root))
+                        #"o$" "i")
         
         :else
         ;; assume a map with keys (:root and :agr).
@@ -665,11 +730,23 @@
 
         (= (type arg) clojure.lang.Keyword)
         (str "cannot conjugate: " arg)
+
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (str (fs/get-in arg '(:root)))
+
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (str (fs/get-in arg '(:root)) "s")
         
         :else
         ;; assume a map with keys (:root and :agr).
         (let [root (fs/get-in arg '(:infinitive))
-              root (if (nil? root) "(nil)" root)
+              root (if (nil? root) "(nilroot)" root)
               root (if (not (= (type root) java.lang.String))
                       (fs/get-in arg '(:infinitive :infinitive))
                       root)
@@ -699,8 +776,8 @@
            :else arg))))
 
 (defn get-italian [a b]
-  (let [conjugated-a (conjugate a)
-        conjugated-b (if (not (nil? b)) (conjugate b) "")]
+  (let [conjugated-a (conjugate-it a)
+        conjugated-b (if (not (nil? b)) (conjugate-it b) "")]
     (if (and
          (= (type conjugated-a) java.lang.String)
          (= (type conjugated-b) java.lang.String))
