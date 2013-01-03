@@ -788,9 +788,24 @@
   (let [conjugated-a (conjugate-it a)
         conjugated-b (if (not (nil? b)) (conjugate-it b) "")]
     (if (and
-         (= (type conjugated-a) java.lang.String)
-         (= (type conjugated-b) java.lang.String))
-      (string/trim (str conjugated-a " " conjugated-b))
+         (string? conjugated-a)
+         (string? conjugated-b))
+      (string/trim
+       (cond
+        (and (= conjugated-a "il")
+             (re-find #"^s[t]" conjugated-b))
+        (str "lo " conjugated-b)
+        (and (= conjugated-a "i")
+             (re-find #"^[aeiou]" conjugated-b))
+        (str "gli " conjugated-b)
+        (and (= conjugated-a "il")
+             (re-find #"^[aeiou]" conjugated-b))
+        (str "l'" conjugated-b)
+        (and (= conjugated-a "la")
+             (re-find #"^[aeiou]" conjugated-b))
+        (str "l'" conjugated-b)
+        true
+        (string/trim (str conjugated-a " " conjugated-b))))
       {:1 conjugated-a
        :2 conjugated-b})))
 
