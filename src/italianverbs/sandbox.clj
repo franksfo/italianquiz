@@ -41,8 +41,15 @@
 
 (def np-1-lexicon
   (let [gender (ref :top)
-        number (ref :top) ;; make this :top to underspecify number: number selection (:sing or :plur) is deferred until later.
+
+        ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
+        ;; (except for mass nouns which are only singular)
+        number (ref :top)
+
+        ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
+        ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
         case (ref :top)
+
         person (ref :top)
         agreement {:synsem {:agr {:person person
                                   :number number
@@ -59,9 +66,16 @@
         feminine {:synsem {:agr {:gender :fem}}}
 
         ]
-    ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
-    ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
     (list
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :amico
+                                          :human :true}}
+                           :italian "amico"
+                           :english "friend"})})
 
      (unify noun-conjugator
             {:root (unify agreement
@@ -69,7 +83,8 @@
                           masculine
                           {:synsem {:sem {:pred :compito
                                           :legible true
-                                          :artifact true}}
+                                          :artifact true
+                                          :activity true}}
                            :italian "compito"
                            :english "homework assignment"})})
 
@@ -81,7 +96,10 @@
                                           :edible true
                                           :artifact true}}
                            :italian "pane"
-                           :english "bread"})})
+                           :english "bread"}
+                          {:synsem {:subcat {:1 {:cat :det
+                                                 :number :sing
+                                                 :def :def}}}})})
 
      (unify noun-conjugator
             {:root (unify agreement
@@ -89,10 +107,13 @@
                           feminine
                           {:synsem {:sem {:pred :pasta
                                           :edible true
-                                          :artifact true
-                                          :agr {:num :sing}}} ;; pasta, as a mass noun, cannot be pluralized.
+                                          :artifact true}}
                            :italian "pasta"
-                           :english "pasta"})})
+                           :english "pasta"}
+                          {:synsem {:subcat {:1 {:cat :det
+                                                 :number :sing
+                                                 :def :def}}}})})
+
 
      (unify noun-conjugator
             {:root (unify agreement
@@ -153,6 +174,15 @@
             {:root (unify agreement
                           common-noun
                           masculine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :ragazza}}}
+                          {:italian "studente"
+                           :english "student"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
                           {:synsem {:sem {:pred :libro
                                           :legible true
                                           :artifact true}}
@@ -194,8 +224,9 @@
                :number :sing}
       :italian "la"
       :english "the"}
+
      {:synsem {:cat :det
-               :def :def
+               :def :indef
                :gender :fem
                :number :sing}
       :italian "una"
@@ -402,6 +433,10 @@
     scrivere
     (unify {:root scrivere}
            trans-finitizer)
+
+    sognare
+    (unify {:root sognare}
+           intrans-finitizer)
 
     vedere
     (unify {:root vedere}
@@ -660,7 +695,7 @@
              (= (fs/get-in arg '(:agr :gender)) :masc)
              (= (fs/get-in arg '(:agr :number)) :plur))
         (string/replace (fs/get-in arg '(:root))
-                        #"o$" "i")
+                        #"[eo]$" "i") ;; dottore => dottori; medico => medici
         
         :else
         ;; assume a map with keys (:root and :agr).
