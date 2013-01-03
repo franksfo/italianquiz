@@ -1049,22 +1049,22 @@
 (defn random-sentence []
   (let [head-specification ;(get-terminal-head-in sentence-skeleton-1)
         (get-terminal-head-in vp)
-        matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
-                                       (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lexicon))
-        random-lexical-head (if (> (.size matching-lexical-heads) 0)
+        matching-lexical-verb-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
+                                            (map (fn [lexeme] (fs/match head-specification lexeme)) lexicon))
+        random-verb (if (> (.size matching-lexical-heads) 0)
                               (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))
-        obj-spec (fs/get-in random-lexical-head '(:synsem :subcat :2))
+        obj-spec (fs/get-in random-verb '(:synsem :subcat :2))
         object-np
         (random-np (unify {:synsem (unify obj-spec
                                           {:subcat {:1 {:cat :det}}})}))
-        subj-spec (fs/get-in random-lexical-head '(:synsem :subcat :1))
+        subj-spec (fs/get-in random-verb '(:synsem :subcat :1))
         subject-np (random-subject-np subj-spec)]
     (let [unified (unify sentence-skeleton-1
                          {:head
                           (let [unified
                                 (unify
                                  (fs/get-in sentence-skeleton-1 '(:head))
-                                 {:head random-lexical-head
+                                 {:head random-verb
                                   :comp object-np})]
                             (fs/merge
                              {:italian
