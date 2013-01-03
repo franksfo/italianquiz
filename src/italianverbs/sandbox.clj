@@ -314,6 +314,15 @@
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
+(def sognare
+  (unify
+   intransitive
+   infinitive-verb
+   {:italian "sognare"
+    :english "to dream"
+    :synsem {:sem {:subj {:animate true}
+                   :pred :sognare}}}))
+
 (def finitizer
   (let [subj-sem (ref :top)
         root-sem (ref {:subj subj-sem})
