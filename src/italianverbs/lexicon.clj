@@ -2,592 +2,554 @@
   (:use [italianverbs.lexiconfn]
         [clojure.test])
   (:require
-   [italianverbs.fs :as fs]
-   [italianverbs.search :as search]))
+   [italianverbs.fs :as fs]))
 
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear!)
 
-(let [word {:morph "unspecified-morphology"} ;; 'word' not used currently.
-      verb
-      (let [number-agreement (ref :top)
-            person-agreement (ref :top)]
-        {:cat :verb :infl :infinitive
-         :number number-agreement
-         :person person-agreement
-         :subj {:number number-agreement
-                :person person-agreement
-                :case {:not :acc}}
-         :passato
-         {:spec
-          {:root {:italian "avere"}
-           :number number-agreement
-           :person person-agreement}}})
-      animate {:animate true}
-      det {:cat :det}
-      human (fs/merge animate {:human true})
-      masc {:gender :masc}
-      transitive (fs/merge verb {:obj {:case {:not :nom}}})
-      present {:infl :present}
-      singular {:number :singular}
-      plural {:number :plural}
+(def human {:human true
+            :animate true})
+(def animal {:animate true})
 
-      ;; TODO: graduate common-noun content into noun.
-      noun {:cat :noun}
-      third-person {:person :3rd :cat :noun}
-      third-sing (fs/merge third-person {:number :singular})
+(def infinitive-verb
+  {:synsem {:cat :verb
+            :infl :infinitive}})
 
-      ;; 'morph-noun' and 'take-article' are defined in generate.clj.
-      common-noun
-      (fs/merge third-person
-            (let [number-agreement (ref :top)
-                  gender-agreement (ref :top)]
-              {:comp {:cat :det
-                      ;; determiner must agree with number of noun:
-                      :number number-agreement
-                      :gender gender-agreement
-                      }
-               :morph "morph-noun"
-               :common true
-               :gender gender-agreement
-               :number number-agreement}))
+(def noun-conjugator
+  (let [italian-root (ref :top)
+        english-root (ref :top)
+        synsem (ref :top)
+        agr (ref :top)]
+    (unify
+     {:root {:synsem synsem}
+      :synsem synsem}
+     {:root
+      {:italian italian-root
+       :english english-root
+       :synsem {:agr agr}}
+      :italian {:root italian-root
+                :agr agr}
+      :english {:root english-root
+                :agr agr}
+      :synsem {:agr agr}})))
 
-      takes-masc-sing-determiner {:comp {:gender :masc :number :singular}}
+(def np-1-lexicon
+  (let [gender (ref :top)
 
-      pronoun (fs/merge noun {:pronoun true :comp nil :human true})
-      speakable (fs/merge common-noun {:speakable true})
-      readable (fs/merge common-noun {:readable true})
-      edible (fs/merge common-noun {:edible true})
-      mass {:mass true :comp {:def {:not :indef}}} ; you can say 'the pasta', but not 'a pasta'.
+        ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
+        ;; (except for mass nouns which are only singular)
+        number (ref :top)
 
-      third-sing-subj {:subj third-sing}
+        ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
+        ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
+        case (ref :top)
 
-      artifact (fs/merge common-noun {:artifact true})
-      masc {:gender :masc}
-      fem {:gender :fem}
+        person (ref :top)
+        agreement {:synsem {:agr {:person person
+                                  :number number
+                                  :case case
+                                  :gender gender}
+                            :subcat {:1 {:gender gender
+                                         :number number}}}}
+        common-noun
+        {:synsem {:cat :noun
+                  :agr {:person :3rd}
+                  :subcat {:1 {:cat :det}}}}
 
-      avere
-      (let [avere (add "avere" "to have"
-                        transitive
-                        {:subj {:cat :noun :human true}
-                         :obj {:cat :noun}})]
-        (add "ho" "have"
-             avere
-             {:root avere}
-             {:infl :present}
-             {:subj {:number :singular
-                     :person :1st}})
-        (add "hai" "have"
-             avere
-             {:root avere}
-             {:infl :present}
-             {:subj {:number :singular
-                     :person :2nd}})
-        (add "ha" "has"
-             avere
-             {:root avere}
-             {:infl :present}
-             {:subj {:number :singular
-                     :person :3rd}})
-        (add "abbiamo" "have"
-             avere
-             {:root avere}
-             {:infl :present}
-             {:subj {:number :plural
-                     :person :1st}})
-        (add "avete" "have"
-             avere
-             {:root avere}
-             {:infl :present}
-             {:subj {:number :plural
-                     :person :2nd}})
-        (add "hanno" "have"
-             avere
-             {:root avere}
-             {:infl :present}
-             {:subj {:number :plural
-                     :person :3rd}}))
+        masculine {:synsem {:agr {:gender :masc}}}
+        feminine {:synsem {:agr {:gender :fem}}}
 
-      calcio (add "calcio" "soccer"
-                  third-sing masc mass
-                  {:comp :nil!
-                   :sport true})
-      
-      cane (add "cane" "dog"
-                common-noun masc
-                {:animate true
-                 :number :singular})
+        ]
+    (list
 
-;; needs supports for reflexive pronouns: "mi chiamo gino".
-;      (add "chiamare" "to be named"
-;           {:cat :verb :infl :infinitive
-;            :subj human})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :amico
+                                          :human :true}}
+                           :italian "amico"
+                           :english "friend"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :compito
+                                          :legible true
+                                          :artifact true
+                                          :activity true}}
+                           :italian "compito"
+                           :english "homework assignment"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :pane
+                                          :edible true
+                                          :artifact true}}
+                           :italian "pane"
+                           :english "bread"}
+                          {:synsem {:subcat {:1 {:cat :det
+                                                 :number :sing
+                                                 :def :def}}}})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem {:pred :pasta
+                                          :edible true
+                                          :artifact true}}
+                           :italian "pasta"
+                           :english "pasta"}
+                          {:synsem {:subcat {:1 {:cat :det
+                                                 :number :sing
+                                                 :def :def}}}})})
 
 
-      dei (add "dei" "some" masc plural det {:def :indef})
-      
-      dimenticare (add "dimenticare" "to forget"
-                       transitive
-                       {:subj animate
-                        :obj {:cat :noun}})
-
-      donna (add "donna" "woman" (fs/copy common-noun) fem human singular)
-
-      ;; add exception because of english: woman->women.
-      donne (add "donne" "women" donna plural {:root donna})
-
-      essere
-      (let [essere (add "essere" "to be"
-                        transitive
-                        {:subj {:cat :noun}
-                         :obj {:cat :noun}
-                         :passato {:spec {:root {:italian "essere"}}}})]
-        (add "sono" "am"
-             essere
-             {:root essere}
-             {:infl :present}
-             {:subj {:number :singular
-                     :person :1st}})
-        (add "sei" "are"
-             essere
-             {:root essere}
-             {:infl :present}
-             {:subj {:number :singular
-                     :person :2nd}})
-        (add "è" "is"
-             essere
-             {:root essere}
-             {:infl :present}
-             {:subj {:number :singular
-                     :person :3rd}})
-        (add "siamo" "are"
-             essere
-             {:root essere}
-             {:infl :present}
-             {:subj {:number :plural
-                     :person :1st}})
-        (add "siete" "are"
-             essere
-             {:root essere}
-             {:infl :present}
-             {:subj {:number :plural
-                     :person :2nd}})
-        (add "sono" "are"
-             essere
-             {:root essere}
-             {:infl :present}
-             {:subj {:number :plural
-                     :person :3rd}})
-
-        (add "stato" "was"
-             essere
-             {:infl :passato-prossimo
-              :root essere})
-        )
-
-
-      fare (let [fare (add "fare" "to make"
-                           verb
-                           {:subj (fs/merge noun {:human true})
-                            :obj artifact
-                            :passo-prossimo-auxiliary {:italian "avere"}
-                            :passo-prossimo {:italian "fatto"}
-                            })]
-             
-             (add "facio" "make"
-                  fare
-                  {:root fare}
-                  present
-                  {:subj {:number :singular
-                          :person :1st}})
-                 
-             (add "fai" "make"
-                  fare
-                  {:root fare}
-                  present
-                  {:subj {:number :singular
-                          :person :2nd}})
-                
-             (add "fa" "makes"
-                  fare
-                  {:root fare}
-                  present
-                  {:subj {:number :singular
-                          :person :3rd}})
-             
-             (add "facciamo" "make"
-                  fare
-                  {:root fare}
-                  present
-                  {:subj {:number :plural
-                          :person :1st}})
-             
-             (add "fate" "make"
-                  fare
-                  {:root fare}
-                  present
-                  {:subj {:number :plural
-                          :person :2nd}})
-
-             (add "fanno" "make"
-                  fare
-                  {:root fare}
-                  present
-                  {:subj {:number :plural
-                          :person :3rd}})
-
-             (add "fatto" "made"
-                  fare
-                  {:infl :passato-prossimo
-                   :root fare})
-            
-             )
-
-     giocare (add "giocare" "to play"
-                  verb
-                  {:subj human
-                   :obj (fs/merge noun
-                              {:sport true})})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem {:pred :pizza
+                                          :edible true
+                                          :artifact true}}
+                           :italian "pizza"
+                           :english "pizza"})})
      
-     il (add "il" "the" {:gender :masc :number :singular :cat :det
-                         :def :def})
-     i (add "i" "the" masc plural det {:def :def})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem {:artifact true
+                                          :pred :scala}}
+                           :italian "scala"
+                           :english "ladder"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :ragazzo}}
+                           :italian "ragazzo"
+                           :english "guy"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :dottore}}
+                           :italian "dottore"
+                           :english "doctor"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :professoressa}}}
+                          {:italian "professoressa"
+                           :english "professor"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :ragazza}}}
+                          {:italian "ragazza"
+                           :english "girl"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :ragazza}}}
+                          {:italian "studente"
+                           :english "student"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :libro
+                                          :legible true
+                                          :artifact true}}
+                           :italian "libro"
+                           :english "book"})})
      
-     io (add "io" "i" 
-             human
-             pronoun
-             {:person :1st :number :singular :case :nom})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem (unify animal {:pred :cane})}
+                           :italian "cane"
+                           :english "dog"})})
 
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem (unify animal {:pred :gatto})}
+                           :italian "gatto"
+                           :english "cat"})})
      
-     la (add "la" "the" {:gender :fem :number :singular :cat :det
-                         :def :def})
+     {:synsem {:cat :det
+               :def :def
+               :gender :masc
+               :number :sing}
+      :italian "il"
+      :english "the"}
+     {:synsem {:cat :det
+               :def :indef
+               :gender :masc
+               :number :sing}
+      :italian "un"
+      :english "a"}
 
-     lavorare (add "lavorare" "to work"
-                   verb
-                   {:subj human})
-     
+     {:synsem {:cat :det
+               :def :def
+               :gender :fem
+               :number :sing}
+      :italian "la"
+      :english "the"}
 
-     le (add "le" "the" {:gender :fem :number :plural :cat :det
-                         :def :def})
-     
-     letto (add "letto" "bed"
-                artifact masc
-                {:furniture true
-                 :ruggable true}) ;; ruggable: can be placed on top of a rug.
+     {:synsem {:cat :det
+               :def :indef
+               :gender :fem
+               :number :sing}
+      :italian "una"
+      :english "a"}
 
-     libro (add "libro" "book"
-                artifact readable masc)
+     {:synsem {:cat :det
+               :def :def
+               :gender :masc
+               :number :plur}
+      :italian "i"
+      :english "the"}
+     {:synsem {:cat :det
+               :def :def
+               :gender :fem
+               :number :plur}
+      :italian "le"
+      :english "the"}
 
-     leggere (add "leggere" "to read"
-                  transitive
-                  {:subj (fs/merge noun {:human true})
-                   :obj (fs/merge noun {:readable true})})
+     )))
 
-     lei (add "lei" "she" 
-              human pronoun fem
-              {:person :3rd :number :singular :case :nom })
+;; "x-itive": a generalization of intransitive and transitive (they both have a subject)
+(def x-itive
+  (let [subj-sem (ref :top)
+        subj (ref {:sem subj-sem
+                   :cat :noun
+                   :agr {:case {:not :acc}}})]
+    {:synsem {:sem {:subj subj-sem}
+              :subcat {:1 subj}}}))
 
-     loro (add "loro" "they" 
-             human
-             pronoun
-             {:person :3rd :number :plural :case :nom})
-     
-     lui (add "lui" "he" 
-              human pronoun masc
-              {:person :3rd :number :singular :case :nom })
-     
-     mangiare (add "mangiare" "to eat"
-                   transitive
-                   {:subj (fs/merge noun {:animate true})
-                    :obj edible}) 
-     mi (add "mi" "me"
-             pronoun
-             {:person :1st :number :singular :case :acc})
+;; intransitive: has subject but no object.
+(def intransitive
+  (unify x-itive
+         {:synsem
+          {:subcat {:2 :nil!}}}))
 
-     noi (add "noi" "we" 
-             human
-             pronoun
-             {:person :1st :number :plural :case :nom})
-     
-      pane (add "pane" "bread"
-               artifact mass
-               {:edible true
-                :gender :masc})
-      
-      parlare (add "parlare" "to speak"
-                   verb
-                   {:subj (fs/merge noun {:human true})
-                    :obj speakable})
+;; intransitive: has both subject and object.
+(def transitive
+  (unify x-itive
+         (let [obj-sem (ref :top)
+               obj (ref {:sem obj-sem
+                         :cat :noun
+                         :agr {:case {:not :nom}}})]
+           {:synsem {:sem {:obj obj-sem}
+                     :subcat {:2 obj}}})))
 
-      parola (add "parola" "word"
-                  common-noun
-                  {:readable true
-                   :speakable true
-                   :gender :fem})
+(def fare1
+  (unify
+   transitive
+   {:italian {:infinitive "fare"
+              :irregular {:present {:1sing "facio"
+                                    :2sing "fai"
+                                    :3sing "fa"
+                                    :1plur "facciamo"
+                                    :2plur "fate"
+                                    :3plur "fanno"}}}
+    :english {:infinitive "to do"
+              :irregular {:present {:1sing "do"
+                                    :2sing "do"
+                                    :3sing "does"
+                                    :1plur "do"
+                                    :2plur "do"
+                                    :3plur "do"}}}
+    
+    :synsem {:cat :verb
+             :morph :irreg
+             :infl :infinitive
+             :sem {:pred :fare
+                   :subj {:human true}
+                   :obj {:activity true}}}}))
 
-      pasta (add "pasta" "pasta"
-                artifact mass
-                {:edible true
-                 :gender :fem})
-
-      poltrona (add "poltrona" "easy chair"
-                  fem artifact
-                  {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
-                   :furniture true
-                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
-
-      ragazza (add "ragazza" "girl" (fs/copy common-noun) fem human)
-
-      ragazzo (add "ragazzo" "guy" (fs/copy common-noun) masc human)
-      sedia (add "sedia" "chair"
-                  fem artifact
-                  {:holdable true 
-                   :furniture true
-                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
-      
-      tavolo (add "tavolo" "table"
-                  masc artifact
-                  {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
-                   :furniture true
-                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
-
-      tavolino (add "tavolino" "coffee table"
-                  masc artifact
-                  {:holdable true ;; barely holdable (if you're strong or there's more than one of you) :)
-                   :furniture true
-                   :ruggable true}) ;; ruggable: can be placed on top of a rug.
-      
-      tu (add "tu" "you" 
-              human
-              pronoun
-              {:person :2nd :number :singular :case :nom})
-
-      un (add "un" "a" {:gender :masc :number :singular :cat :det
-                        :def :indef})
-      
-      una (add "una" "a" {:gender :fem :number :singular :cat :det
-                          :def :indef})
-
-      uomo (add "uomo" "man" (fs/copy common-noun) masc human)
-      ;; exception because in english man->men.
-      uomini (add "uomini" "men" uomo plural {:root uomo})
-      
-      voi (add "voi" "you all" 
-              human
-              pronoun
-              {:person :2nd :number :plural :case :nom})
-      
-      ]
-  (def variables
-    {:common-noun common-noun :takes-masc-sing-determiner takes-masc-sing-determiner :hanno (search/lookup "hanno")
-     :calcio (search/lookup "calcio") :fanno (search/lookup "fanno")
-     :artifact artifact :masc masc :readable readable
-     :letto letto :libro libro}))
-
-(add "gennario" "january"
-     {:month true})
+(def fare2
+  (unify
+   transitive
+   {:italian {:infinitive "fare"
+              :irregular {:present {:1sing "facio"
+                                    :2sing "fai"
+                                    :3sing "fa"
+                                    :1plur "facciamo"
+                                    :2plur "fate"
+                                    :3plur "fanno"}}}
+    :english "to make"
+    :synsem {:cat :verb
+             :morph :irreg
+             :infl :infinitive
+             :sem {:pred :fare
+                   :subj {:human true}
+                   :obj {:artifact true}}}}))
 
 
-(add "febbraio" "february"
-     {:month true})
-(add "marzo" "march"
-     {:month true})
-(add "aprile" "april"
-     {:month true})
-(add "maggio" "may"
-     {:month true})
-(add "giugno" "june"
-     {:month true})
-(add "luglio" "july"
-     {:month true})
-(add "agosto" "august"
-     {:month true})
-(add "settembre" "september"
-     {:month true})
-(add "ottobre" "october"
-     {:month true})
-(add "novembre" "november"
-     {:month true})
-(add "dicembre" "december"
-     {:month true})
+(def dormire
+  (unify
+   intransitive
+   infinitive-verb
+   {:italian "dormire"
+    :english "to sleep"
+    :synsem {:sem {:subj {:animate true}
+                   :pred :dormire}}}))
 
-(add "lunedì" "monday"
-     {:giorni-della-settimana true})
-(add "martedì" "tuesday"
-     {:giorni-della-settimana true})
-(add "mercoledì" "wednesday"
-     {:giorni-della-settimana true})
-(add "giovedì" "thursday"
-     {:giorni-della-settimana true})
-(add "venerdì" "friday"
-     {:giorni-della-settimana true})
-(add "sabato" "saturday"
-     {:giorni-della-settimana true})
-(add "domenica" "sunday"
-     {:giorni-della-settimana true})
+(def mangiare
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "mangiare"
+    :english "to eat"
+    :synsem {:sem {:pred :mangiare
+                   :subj {:animate true}
+                   :obj {:edible true}}}}))
 
-;; prepotizioni (prepositions)
-(add "in" "to"
-	   {:cat :prep
-        :obj {:case {:not :nom}
-              :andare-in true}})
+(def leggere
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "leggere"
+    :english "to read"
+    :synsem {:sem {:pred :leggere
+                   :subj {:human true}
+                   :obj {:legible true}}}}))
 
-(add "in" "in"
-     {:cat :prep
-      :action-occurring-in true
-      :obj {:case {:not :nom}
-            :english-in true
-            :place true}})
+(def vedere
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "vedere"
+    :english "to see"
+    :synsem {:sem {:pred :vedere
+                   :subj {:animate true}}}}))
 
-(add "in" "at"
-     {:cat :prep
-      :action-occurring-in true
-      :obj {:case {:not :nom}
-            :english-at true
-            :place true}})
+(def scrivere
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "scrivere"
+    :english "to write"
+    :synsem {:sem {:pred :scrivere
+                   :subj {:human true}
+                   :obj {:legible true}}}}))
 
-(add "a" "to"
-     {:cat :prep
-      :obj {:case {:not :nom}
-            :andare-a true}})
+(def sognare
+  (unify
+   intransitive
+   infinitive-verb
+   {:italian "sognare"
+    :english "to dream"
+    :synsem {:sem {:subj {:animate true}
+                   :pred :sognare}}}))
 
-(add "a" "to"
-     {:cat :prep
-      :obj {:case {:not :nom}
-            :andare-al true}})
+(def finitizer
+  (let [subj-sem (ref :top)
+        root-sem (ref {:subj subj-sem})
+        subj-agr (ref :top)
+        subj (ref {:sem subj-sem
+                   :agr subj-agr})
+        subcat (ref {:1 subj})
+        cat (ref :verb)
+        english-infinitive (ref :top)
+        italian-infinitive (ref :top)]
+     {:root
+      {:italian italian-infinitive
+       :english english-infinitive
+       :synsem {:cat cat
+                :sem root-sem
+                :subcat subcat}}
+      :synsem {:sem root-sem
+               :cat cat
+               :subcat subcat
+               :infl :present}
+      :italian {:agr subj-agr
+                :infinitive italian-infinitive}
+      :english {:agr subj-agr
+                :infinitive english-infinitive}}))
 
-(add "di" "of"
-     {:cat :prep
-      :obj {:case {:not :nom}}})
+(def trans-finitizer
+  (unify finitizer
+         (let [obj-sem (ref :top)
+               obj (ref {:sem obj-sem})]
+           {:root
+            {:synsem {:subcat {:2 obj}}}
+            :synsem {:sem {:obj obj-sem}}})))
 
-(add "da" "from"
-     {:cat :prep
-      :obj {:case {:not :nom}
-            :place true}})
+(def intrans-finitizer
+  (unify finitizer
+         {:root {:synsem
+                 {:subcat {:2 :nil!}}}}))
 
-(add "a" "to"
-     {:cat :prep
-      :obj {:case {:not :nom}
-            :animate true}})
+(def vp-1-lexicon
+  (concat
+   (list
+    dormire
+    (unify {:root dormire}
+           intrans-finitizer)
+    fare1
+    (unify {:root fare1}
+           trans-finitizer)
+    fare2
+    (unify {:root fare2}
+           trans-finitizer)
+    leggere
+    (unify {:root leggere}
+           trans-finitizer)
+    mangiare
+    (unify {:root mangiare}
+           trans-finitizer)
+    
+    scrivere
+    (unify {:root scrivere}
+           trans-finitizer)
 
-(add "con" "with"
-     {:cat :prep
-      :obj {:case {:not :nom}
-            :human true}})
+    sognare
+    (unify {:root sognare}
+           intrans-finitizer)
 
-(add "per" "for"
-     {:cat :prep
-      :benefactive true
-      :obj {:case {:not :nom}
-            :animate true}})
+    vedere
+    (unify {:root vedere}
+           trans-finitizer))))
 
-(add "per" "for"
-     {:cat :prep
-      :benefactive true
-      :obj {:case {:not :nom}
-            :human true}})
+;;    [1]
+;;   /   \
+;;  /     \
+;; H[1]    C
+(def head-principle
+  (let [head-cat (ref :top)
+        head-sem (ref :top)]
+    {:synsem {:cat head-cat
+              :sem head-sem}
+     :head {:synsem {:cat head-cat
+                     :sem head-sem}}}))
 
-(add "su" "on"
-     {:cat :prep
-      :furniture true
-      :obj {:case {:not :nom}}})
+;;     subcat<>
+;;     /      \
+;;    /        \
+;; H subcat<1>  C[1]
+(def subcat-1-principle
+  (let [comp-synsem (ref :top)]
+    {:head {:synsem {:subcat {:1 comp-synsem}}}
+     :comp {:synsem comp-synsem}}))
 
-(add "proprio accanto a" "right next to"
-     {:cat :prep
-      :furniture true
-      :landscape-prep true}) ;; e.g. "the post office is right next to the bank".
+(def vp-1-rules
+  (list
+   (let [vp-rule-1
+         (let [obj-sem (ref :top)
+               obj-synsem (ref {:sem obj-sem})
+               obj (ref {:synsem obj-synsem})
+               subj-sem (ref :top)
+               subj-synsem (ref {:sem subj-sem})
+               head-synsem (ref {:cat :verb
+                                 :infl {:not :infinitive}
+                                 :sem {:subj subj-sem
+                                       :obj obj-sem}
+                                 :subcat {:1 subj-synsem
+                                          :2 obj-synsem}})
+               head (ref {:synsem head-synsem})]
+           (unify head-principle
+                  {:comment "vp -> head comp"
+                   :head head
+                   :synsem {:subcat {:1 subj-synsem}}
+                   :comp obj
+                   :1 head
+                   :2 obj}))]
+     vp-rule-1)))
 
-;; furniture prepositions.
-;; note that the query language currently might not support nested constraints like [:obj [:furniture true]]
+(def pronouns
+  (list {:synsem {:cat :noun
+                  :agr {:case :nom
+                        :person :1st
+                        :number :sing}
+                  :sem (unify human {:pred :io})
+                  :subcat :nil!}
+         :english "i"
+         :italian "io"}
+        {:synsem {:cat :noun
+                  :agr {:case :nom
+                        :person :2nd
+                        :number :sing}
+                  :sem (unify human {:pred :tu})
+                  :subcat :nil!}
+         :english "you"
+         :italian "tu"}
+        {:synsem {:cat :noun
+                  :agr {:case :nom
+                        :person :3rd
+                        :gender :masc
+                        :number :sing}
+                  :sem (unify human {:pred :lui})
+                  :subcat :nil!}
+         :english "he"
+         :italian "lui"}
+        {:synsem {:cat :noun
+                  :agr {:case :nom
+                        :person :3rd
+                        :gender :fem
+                        :number :sing}
+                  :sem (unify human {:pred :lei})
+                  :subcat :nil!}
+         :english "she"
+         :italian "lei"}
+        {:synsem {:cat :noun
+                  :agr {:case :nom
+                        :person :1st
+                        :number :plur}
+                  :sem (unify human {:pred :noi})
+                  :subcat :nil!}
+         :english "we"
+         :italian "noi"}
+        {:synsem {:cat :noun
+                  :agr {:case :nom
+                        :person :2nd
+                        :number :plur}
+                  :sem (unify human {:pred :voi})
+                  :subcat :nil!}
+         :italian "voi"
+         :english "you all"}
+        {:synsem {:cat :noun
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :plur}
+                  :sem (unify human {:pred :loro})
+                  :subcat :nil!}
+         :italian "loro"
+         :english "they"}))
+    
+(def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
 
-(add "a destra de" "to the right of"
-     {:cat :prep
-      :furniture true
-      :obj {:case {:not :nom}
-            :furniture true}})
+(map (fn [lexeme]
+       (let [italian (:italian lexeme)
+             english (:english lexeme)]
+         (add italian english
+              lexeme)))
+     lexicon)
 
-(add "a sinistra de" "to the left of"
-     {:cat :prep
-      :furniture true
-      :obj {:case {:not :nom}
-            :furniture true}})
 
-(add "accanto a" "next to"
-     {:cat :prep
-      :furniture true
-      :obj {:case {:not :nom}
-            :furniture true}})
-
-(add "dentro" "inside"
-     {:cat :prep
-      :furniture true
-      :subj {:holdable true}
-      :obj {:case {:not :nom}
-            :furniture true}})
-
-(add "dietro" "behind"
-     {:cat :prep
-      :furniture true
-      :obj {:case {:not :nom}
-            :furniture true}})
-
-(add "davanti a" "in front of"
-     {:cat :prep
-      :furniture true
-      :obj {:furniture true}})
-
-;; "le sedie sono intorno al tavolino
-;;  (the chairs are around the the table)"
-(add "intorno a" "around"
-     {:cat :prep
-      :furniture true
-      :subj {:number :plural
-             :furniture true}
-      :obj {:number :sing
-            :furniture true}})
-
-(add "sopra" "above"
-     {:cat :prep
-      :furniture true
-      :obj {:case {:not :nom}
-            :furniture true}})
-
-(add "sotto" "under"
-     {:cat :prep
-      :furniture true
-      :obj {:case {:not :nom}
-            :furniture true}})
-
-(add "su" "on"
-     {:cat :prep
-      :furniture true
-      :obj {:case {:not :nom}
-            :furniture true}})
-
-;; end of lexicon.
-
-;; beginning of grammar
-(add "it-PP" "en-PP"
-     {:head {:root {:italian "avere"}}
-      :comp {:infl :passato-prossimo}})
-
-;(add "x1" "x2"
-;     (let [ref1 (ref :top)
-;           ref2 (ref {:infl :infinitive
-;                      :foo 42})
-;                      :italian ref1})
-;           ref3 (ref :top)
-;           ref4 (ref :top)]
-;       {:a ref2}))
-
-                                        ;
-;{:a ref2
-;        :b {:spec {:a ref2}
-;            :root {:infl :infinitive
-;                   :italian ref4}
-;            :italian {:fn :passato-prossimo
-;                      :arg1 ref4}}
-;        :italian {:fn concat
-;                  :arg1 ref1
-;                  :arg2 ref3}}))
-
+           
+                       
