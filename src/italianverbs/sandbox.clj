@@ -241,7 +241,7 @@
            {:synsem {:sem {:obj obj-sem}
                      :subcat {:2 obj}}})))
 
-(def fare
+(def fare1
   (unify
    transitive
    {:italian {:infinitive "fare"
@@ -264,7 +264,26 @@
              :infl :infinitive
              :sem {:pred :fare
                    :subj {:human true}
+                   :obj {:activity true}}}}))
+
+(def fare2
+  (unify
+   transitive
+   {:italian {:infinitive "fare"
+              :irregular {:present {:1sing "facio"
+                                    :2sing "fai"
+                                    :3sing "fa"
+                                    :1plur "facciamo"
+                                    :2plur "fate"
+                                    :3plur "fanno"}}}
+    :english "to make"
+    :synsem {:cat :verb
+             :morph :irreg
+             :infl :infinitive
+             :sem {:pred :fare
+                   :subj {:human true}
                    :obj {:artifact true}}}}))
+
 
 (def dormire
   (unify
@@ -367,8 +386,11 @@
     dormire
     (unify {:root dormire}
            intrans-finitizer)
-    fare
-    (unify {:root fare}
+    fare1
+    (unify {:root fare1}
+           trans-finitizer)
+    fare2
+    (unify {:root fare2}
            trans-finitizer)
     leggere
     (unify {:root leggere}
