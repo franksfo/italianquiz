@@ -218,7 +218,7 @@
 (defn explode [string]
   "abc => (\"a\" \"b\" \"c\")"
   (if string
-    (rest (string/split (java.util.regex.Pattern/compile "") string))
+    (rest (seq (string/split string #"")))
     '()))
   
 (defn matrix [word1 word2]
