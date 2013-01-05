@@ -8,9 +8,7 @@
    [italianverbs.fs :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
-   [italianverbs.lev :as lev]
-   [italianverbs.grammar :as gram]
-   [italianverbs.sandbox :as sandbox]))
+   [italianverbs.lev :as lev]))
 
 ;;(duck/spit "verbs.html"
 ;;      (html/static-page
@@ -67,7 +65,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   ;; might need a more complicated equality predicate later.
   (if (= (last path) :not)
     (pv-not-matches lexical-entry (butlast path) value)
-    (let [;debug (println (str "pv-matches: " lexical-entry " , " path " , " value))
+    (let [;debug (println (str "pv-matches: " lexical-entry " , " (seq path) " , " value))
           ;debug (println (str "result:" (fs/get-in lexical-entry path)))
           path-value (fs/get-in lexical-entry path)]
       (if (or (= path-value value)
@@ -169,84 +167,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    :place-preps {:cat :prep
                    :obj {:place true}}})
 
-(defn cleanup [expression]
-  "cleanup expression and wrap in sandboxed namespace. Important: do not allow any '(ns ...)' forms in _expression_."
-  (str
-   "(ns italianverbs.sandbox)"
-   expression))
-
-(defn workbookq [expr attrs]
-  (do
-    (log/info (str "workbookq: evaluating expression: " expr))
-    (if expr
-      (let [output
-            (string/join " "
-                         (let [cleaned
-                               (cleanup expr)
-                               loaded
-                               (try
-                                 (load-string cleaned)
-                                 (catch Exception e
-                                   (log/error (str "failed to load-string: " cleaned))
-                                   (str e)))]
-                           (list
-                            (str
-                             "<div class='evalinput'>"
-                             expr
-                             "</div>"
-                             "<div class='evalresult'>"
-                             (cond
-                              ;; TODO: collapse (PersistentList,Cons,LazySeq) into one case.
-                              (= (type loaded)
-                                 clojure.lang.PersistentList)
-                              (string/join " "
-                                           (map (fn [elem]
-                                                  (html/tablize elem))
-                                                loaded))
-                              (= (type loaded)
-                                 clojure.lang.Cons)
-                              (string/join " "
-                                           (map (fn [elem]
-                                                  (html/tablize elem))
-                                                loaded))
-                              (and (= (type loaded)
-                                      clojure.lang.LazySeq)
-                                   (= 0
-                                      (.size
-                                       (remove
-                                        (fn [each]
-                                          (= each java.lang.String))
-                                        (map (fn [each]
-                                               (type each))
-                                             loaded)))))
-                              (str "<ol>"
-                                   (string/join " "
-                                                (map (fn [elem]
-                                                       (str "<li>" (html/tablize elem) "</li>"))
-                                                     (seq loaded)))
-                                   "</il>")
-                              (= (type loaded)
-                                 clojure.lang.LazySeq)
-                              (string/join " "
-                                           (map (fn [elem]
-                                                  (html/tablize elem))
-                                                (seq loaded)))
-                              (= (type loaded) clojure.lang.Var)
-                              (str (eval loaded))
-                              (or
-                               (= (type loaded) clojure.lang.PersistentArrayMap)
-                               (= (type loaded) clojure.lang.PersistentHashMap))
-                              (html/tablize loaded)
-                              (= (type loaded) nil)
-                              (str "<b>nil</b>")
-                              :else
-                              ;; nothing formattable: just stringify result of
-                              ;; evaluation.
-                              (str "<div style='font-family:monospace'>" loaded " (<b>" (type loaded) "</b>)" "</div>"))
-                             "</div>"))))]
-        (log/info (str "workbookq: done evaluating: " expr))
-        output))))
-
 (defn searchq [search-exp attrs]
   "search with query. attrs is converted into filtering attribute-value pairs in the feature structures."
   (do
@@ -256,10 +176,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                    (concat
                     (map (fn [attr]
                            (let [constraints {(keyword attr) search-exp}
-                                 results (gram/choose-lexeme constraints)]
+                                 results (lexfn/choose-lexeme constraints)]
                              (if (and results
                                       (not (= (get results :cat) :error))) ;; currently 'no results found' is a {:cat :error}.
-                               (html/fs (gram/choose-lexeme constraints)))))
+                               (html/fs (lexfn/choose-lexeme constraints)))))
                          (string/split (if attrs attrs "italian english") #"[ ]+"))
                     (mapcat (fn [search-term]
                               (let [grammatical-terminology-term (get
@@ -303,21 +223,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        (if search-query
          (searchq search-query nil))]])))
 
-
-(defn workbook-ui [request]
-  (let [search-query (get (get request :query-params) "search")]
-    (html
-     [:div#workbook-ui {:class "quiz-elem"}
-      [:h2 "Workbook"]
-      [:div#searchbar
-       [:textarea {:cols 80 :rows 4 :id "workbookq" }
-        (if search-query
-          search-query
-          "(formattare (over (over s (over (over np lexicon) (lookup {:synsem {:sem {:human true}}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))")]
-       [:button {:onclick "workbook()"} "evaluate"]]
-      [:div#workbooka
-       (if search-query
-         (workbookq search-query nil))]])))
 
 ;; example usage: (take 5 (lazy-query {:cat :verb}))
 (defn lazy-query [search]

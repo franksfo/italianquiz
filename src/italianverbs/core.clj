@@ -13,6 +13,8 @@
    [base.html :as html]
    [italianverbs.html :as ihtml]
    [italianverbs.search :as search]
+   [italianverbs.workbook :as workbook]
+   [italianverbs.sandbox :as sandbox]
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
    ))
@@ -94,13 +96,13 @@
   (GET "/workbook/"
        request
        {:status 200
-        :body (html/page "Workbook" (search/workbook-ui request) request)
+        :body (html/page "Workbook" (workbook/workbook-ui request) request)
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/workbook/q/"
        request
        {:status 200
-        :body (search/workbookq (get (get request :query-params) "search")
+        :body (workbook/workbookq (get (get request :query-params) "search")
                                 (get (get request :query-params) "attrs"))
         :headers {"Content-Type" "text/html;charset=utf-8"}})
   ;; </workbook>
@@ -253,11 +255,12 @@
   (GET "/italian/quiz/"
        request
        {:status 302
-        :headers {"Location" "http://eugenes-macbook-pro.local/italian/"}})
+                                        ;        :headers {"Location" "http://eugenes-macbook-pro.local/italian/"}})
+        :headers {"Location" "http://localhost/italian/"}})
   (GET "/italian/workbook/"
        request
        {:status 302
-        :headers {"Location" "http://eugenes-macbook-pro.local/italian/"}})
+        :headers {"Location" "http://localhost/italian/"}})
   
   ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
