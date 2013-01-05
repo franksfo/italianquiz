@@ -29,14 +29,12 @@
   (html
    [:div {:class "menubar major"}
 ;    "URL:" relative-url
-    (if session-row ;; only show quiz option if there's a session to save the quiz for.
-      [:div
-       (if (= relative-url "/quiz/") {:class "selected"})
-       [:a {:href "/italian/quiz/"} "Quiz"]])
-    (if session-row ;; only show quiz option if there's a session to save the quiz for.
-      [:div
-       (if (= relative-url "/preferiti/") {:class "selected"})
-       [:a {:href "/italian/preferiti/"} "i tuoi preferiti"]])
+    [:div
+     (if (= relative-url "/quiz/") {:class "selected"})
+     [:a {:href "/italian/quiz/"} "Quiz"]]
+    [:div
+     (if (= relative-url "/preferiti/") {:class "selected"})
+     [:a {:href "/italian/preferiti/"} "i tuoi preferiti"]]
     [:div
      (if (= relative-url "/lexicon/") {:class "selected"})
      [:a {:href "/italian/lexicon/"} "Lexicon"  ] ] 
