@@ -679,6 +679,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn copy [map]
   (deserialize (serialize map)))
 
+(defn unifyc [& args]
+  "like fs/unify, but fs/copy each argument before unifying."
+  (apply fs/unify
+         (map (fn [arg]
+                (copy arg))
+              args)))
+
 (defn has-path [path paths]
   (if (first paths)
     (if (= (first paths) path)

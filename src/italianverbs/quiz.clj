@@ -285,40 +285,21 @@
 (defn che-tempo []
   (gram/choose-lexeme {:chetempo true}))
 
-(defn cucina []
-  (gram/np {:cucina true}
-           {:def :def}))
-
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    (= question-type :oct2011)
    (oct2011)
-   (= question-type :cucina)
-   (cucina)
    (= question-type :chetempo)
    (che-tempo)
    (= question-type :espressioni)
    (gen/espressioni)
    (= question-type :infinitivo)
    (gen/random-infinitivo)
-   (= question-type :passato)
-   (gen/random-passato-prossimo)
    (= question-type :futuro)
    (gen/random-futuro-semplice)
    (= question-type :presente)
    (gen/random-present)
-   (= question-type :pp)
-   (gram/pp
-    {:$or [ {:italian "a"}, {:italian "di" }, {:italian "da"},
-            {:italian "in" :english "in"}, {:italian "su"} ]}
-    (gram/np-with-post-conditions
-     {}
-     gram/np-with-common-noun-and-definite-pronoun))
-   (= question-type :partitivo)
-   (gram/np {:number :plural
-             :pronoun {:$ne true}}
-            (gram/choose-lexeme {:def :part}))
    (= question-type :ora)
    (let [hour (rand-int 12)
          minute (* (rand-int 12) 5)
@@ -330,37 +311,10 @@
      :italian (gram/italian-time hour minute ampm)})
    (= question-type :mobili)
    (gen/mobili)
-   (= question-type :possessives)
-   ;; ----det [ num [1] gen [2] ]
-   ;; \
-   ;;  \---n'---- poss-adj [ num [1] gen [2] ]
-   ;;       \
-   ;;        \--- n [ num [1] gen [2] ]
-   (let [fn gram/np-det-n-bar
-         head
-         (let [fn gram/n-bar
-               head (gram/choose-lexeme
-                     {:cat :noun
-                      :common true})
-               comp (gram/choose-lexeme
-                     {:cat :adj
-                      :gender (get head :gender)
-                      :number (get head :number)
-                      :possessive true})]
-           (merge {:test "possessive NPs"}
-                  (apply fn (list head comp))))
-         comp (gram/choose-lexeme
-               {:cat :det
-                :gender (get head :gender)
-                :number (get head :number)
-                :def :def})]
-     (apply fn (list head comp)))
    (= question-type :mese)
    (gram/choose-lexeme {:month true})
    (= question-type :giorni)
-   (gram/choose-lexeme {:giorni-della-settimana true})
-   true
-   (gram/sentence)))
+   (gram/choose-lexeme {:giorni-della-settimana true})))
 
 (defn- controls [session & [ form-action onclick ] ]
   (let [action (if form-action form-action "/italian/quiz/filter")

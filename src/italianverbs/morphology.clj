@@ -5,6 +5,266 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
+(defn conjugate-it [arg]
+  "conjugate an italian expression."
+  (cond (nil? arg) ""
+        (= (type arg) java.lang.String)
+        arg
+        (and (map? arg)
+             (contains? (set (keys arg)) :1)
+             (contains? (set (keys arg)) :2))
+        (let [result1 (conjugate-it (:1 arg))
+              result2 (conjugate-it (:2 arg))]
+          (if (and (= (type result1) java.lang.String)
+                   (= (type result2) java.lang.String))
+            (string/join " " (list result1 result2))
+            {:1 result1
+             :2 result2}))
+
+        (and (map? arg)
+             (contains? (set (keys arg)) :agr)
+             (contains? (set (keys arg)) :infinitive)
+             (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
+        ;; irregular present-tense (e.g. "fare")
+        (let [root (fs/get-in arg '(:infinitive))
+              person (fs/get-in arg '(:agr :person))
+              number (fs/get-in arg '(:agr :number))
+              present (fs/get-in arg '(:infinitive :irregular :present))]
+          (cond
+           (and (= person :1st)
+                (= number :sing))
+           (fs/get-in present '(:1sing))
+           (and (= person :2nd)
+                (= number :sing))
+           (fs/get-in present '(:2sing))
+           (and (= person :3rd)
+                (= number :sing))
+           (fs/get-in present '(:3sing))
+           (and (= person :1st)
+                (= number :plur))
+           (fs/get-in present '(:1plur))
+           (and (= person :2nd)
+                (= number :plur))
+           (fs/get-in present '(:2plur))
+           (and (= person :3rd)
+                (= number :plur))
+          (fs/get-in present '(:3plur))
+           :else arg))  ;(str "[unknown conjugation:root=" root ";person=" person ";number=" number "]:" root)))
+
+        (= (type arg) clojure.lang.Keyword)
+        (str "cannot conjugate: " arg)
+
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:root))
+
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:root))
+        
+        ;; feminine noun pluralization
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:root))
+                        #"a$" "e")
+
+        ;; masculine noun pluralization
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:root))
+                        #"[eo]$" "i") ;; dottore => dottori; medico => medici
+        
+        :else
+        ;; assume a map with keys (:root and :agr).
+        (let [root (fs/get-in arg '(:infinitive))
+              root (if (nil? root) "(nil)" root)
+              root (if (not (= (type root) java.lang.String))
+                      (fs/get-in arg '(:infinitive :infinitive))
+                      root)
+              person (fs/get-in arg '(:agr :person))
+              number (fs/get-in arg '(:agr :number))
+              stem (string/replace root #"[iae]re$" "")
+              are-type (re-find #"are$" root)
+              ere-type (re-find #"ere$" root)
+              ire-type (re-find #"ire$" root)
+              last-stem-char-is-i (re-find #"i$" stem)]
+          (cond
+
+           (and (= person :1st) (= number :sing))
+           (str stem "o")
+
+           (and (= person :2nd) (= number :sing)
+                last-stem-char-is-i)
+           (str stem)
+
+           (and (= person :2nd) (= number :sing))
+           (str stem "i")
+
+           (and (= person :3rd) (= number :sing) (or ire-type ere-type))
+           (str stem "e")
+
+           (and (= person :3rd) (= number :sing) are-type)
+           (str stem "a") 
+
+           (and (= person :1st) (= number :plur)
+                last-stem-char-is-i)
+           (str stem "amo")
+
+           (and (= person :1st) (= number :plur))
+           (str stem "iamo")
+
+           (and (= person :2nd) (= number :plur) are-type)
+           (str stem "ate")
+
+           (and (= person :2nd) (= number :plur) ere-type)
+           (str stem "ete")
+
+           (and (= person :2nd) (= number :plur) ire-type)
+           (str stem "ite")
+
+           (and (= person :3rd) (= number :plur))
+           (str stem "ano")
+           :else arg))))
+
+(defn conjugate-en [arg]
+  (cond (nil? arg) ""
+        (= (type arg) java.lang.String)
+        arg
+        (and (map? arg)
+             (contains? (set (keys arg)) :1)
+             (contains? (set (keys arg)) :2))
+        (let [result1 (conjugate-en (:1 arg))
+              result2 (conjugate-en (:2 arg))]
+          (if (and (= (type result1) java.lang.String)
+                   (= (type result2) java.lang.String))
+            (string/join " " (list result1 result2))
+            {:1 result1
+             :2 result2}))
+
+        (and (map? arg)
+             (contains? (set (keys arg)) :agr)
+             (contains? (set (keys arg)) :infinitive)
+             (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
+        ;; irregular present-tense (e.g. "fare")
+        (let [root (fs/get-in arg '(:infinitive))
+              person (fs/get-in arg '(:agr :person))
+              number (fs/get-in arg '(:agr :number))
+              present (fs/get-in arg '(:infinitive :irregular :present))]
+          (cond
+           (and (= person :1st)
+                (= number :sing))
+           (fs/get-in present '(:1sing))
+           (and (= person :2nd)
+                (= number :sing))
+           (fs/get-in present '(:2sing))
+           (and (= person :3rd)
+                (= number :sing))
+           (fs/get-in present '(:3sing))
+           (and (= person :1st)
+                (= number :plur))
+           (fs/get-in present '(:1plur))
+           (and (= person :2nd)
+                (= number :plur))
+           (fs/get-in present '(:2plur))
+           (and (= person :3rd)
+                (= number :plur))
+          (fs/get-in present '(:3plur))
+           :else arg))  ;(str "[unknown conjugation:root=" root ";person=" person ";number=" number "]:" root)))
+
+        (= (type arg) clojure.lang.Keyword)
+        (str "cannot conjugate: " arg)
+
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (str (fs/get-in arg '(:root)))
+
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (str (fs/get-in arg '(:root)) "s")
+        
+        :else
+        ;; assume a map with keys (:root and :agr).
+        (let [root (fs/get-in arg '(:infinitive))
+              root (if (nil? root) "(nilroot)" root)
+              root (if (not (= (type root) java.lang.String))
+                      (fs/get-in arg '(:infinitive :infinitive))
+                      root)
+              person (fs/get-in arg '(:agr :person))
+              number (fs/get-in arg '(:agr :number))
+              stem (string/replace root #"^to " "")
+              last-stem-char-is-e (re-find #"e$" stem)]
+          (cond
+
+           (and (= person :1st) (= number :sing))
+           (str stem "")
+
+           (and (= person :2nd) (= number :sing))
+           (str stem "")
+
+           (and (= person :3rd) (= number :sing))
+           (str stem "s")
+
+           (and (= person :1st) (= number :plur))
+           (str stem "")
+
+           (and (= person :2nd) (= number :plur))
+           (str stem "")
+
+           (and (= person :3rd) (= number :plur))
+           (str stem "")
+           :else arg))))
+
+(defn get-italian [a b]
+  (let [conjugated-a (conjugate-it a)
+        conjugated-b (if (not (nil? b)) (conjugate-it b) "")]
+    (if (and
+         (string? conjugated-a)
+         (string? conjugated-b))
+      (string/trim
+       (cond
+        (and (= conjugated-a "il")
+             (re-find #"^s[t]" conjugated-b))
+        (str "lo " conjugated-b)
+        (and (= conjugated-a "i")
+             (re-find #"^[aeiou]" conjugated-b))
+        (str "gli " conjugated-b)
+        (and (= conjugated-a "il")
+             (re-find #"^[aeiou]" conjugated-b))
+        (str "l'" conjugated-b)
+        (and (= conjugated-a "la")
+             (re-find #"^[aeiou]" conjugated-b))
+        (str "l'" conjugated-b)
+        true
+        (string/trim (str conjugated-a " " conjugated-b))))
+      {:1 conjugated-a
+       :2 conjugated-b})))
+
+(defn get-english [a b]
+  (let [conjugated-a (conjugate-en a)
+        conjugated-b (if (not (nil? b)) (conjugate-en b) "")]
+    (if (and
+         (= (type conjugated-a) java.lang.String)
+         (= (type conjugated-b) java.lang.String))
+      (string/trim (str conjugated-a " " conjugated-b))
+      {:1 conjugated-a
+       :2 conjugated-b})))
+
 (defn remove-to [english-verb-phrase]
   (let [english (get english-verb-phrase :english)]
     (let [regex #"^to[ ]+(.*)"]
@@ -459,3 +719,4 @@
            true "??")
      true
      "??")))
+

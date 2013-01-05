@@ -2,7 +2,8 @@
   (:use [italianverbs.lexiconfn]
         [clojure.test])
   (:require
-   [italianverbs.fs :as fs]))
+   [italianverbs.fs :as fs]
+   [clojure.set :as set]))
 
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear!)
@@ -169,7 +170,7 @@
                           common-noun
                           masculine
                           {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :ragazza}}}
+                          {:synsem {:sem {:pred :studente}}}
                           {:italian "studente"
                            :english "student"})})
 
@@ -436,50 +437,6 @@
     (unify {:root vedere}
            trans-finitizer))))
 
-;;    [1]
-;;   /   \
-;;  /     \
-;; H[1]    C
-(def head-principle
-  (let [head-cat (ref :top)
-        head-sem (ref :top)]
-    {:synsem {:cat head-cat
-              :sem head-sem}
-     :head {:synsem {:cat head-cat
-                     :sem head-sem}}}))
-
-;;     subcat<>
-;;     /      \
-;;    /        \
-;; H subcat<1>  C[1]
-(def subcat-1-principle
-  (let [comp-synsem (ref :top)]
-    {:head {:synsem {:subcat {:1 comp-synsem}}}
-     :comp {:synsem comp-synsem}}))
-
-(def vp-1-rules
-  (list
-   (let [vp-rule-1
-         (let [obj-sem (ref :top)
-               obj-synsem (ref {:sem obj-sem})
-               obj (ref {:synsem obj-synsem})
-               subj-sem (ref :top)
-               subj-synsem (ref {:sem subj-sem})
-               head-synsem (ref {:cat :verb
-                                 :infl {:not :infinitive}
-                                 :sem {:subj subj-sem
-                                       :obj obj-sem}
-                                 :subcat {:1 subj-synsem
-                                          :2 obj-synsem}})
-               head (ref {:synsem head-synsem})]
-           (unify head-principle
-                  {:comment "vp -> head comp"
-                   :head head
-                   :synsem {:subcat {:1 subj-synsem}}
-                   :comp obj
-                   :1 head
-                   :2 obj}))]
-     vp-rule-1)))
 
 (def pronouns
   (list {:synsem {:cat :noun
@@ -550,6 +507,24 @@
               lexeme)))
      lexicon)
 
+"TODO: rewrite more efficiently (rather than recurring)"
+(defn lookup-in [query collection]
+  "find all members of the collection that matches with query successfully."
+  (if (= (.size collection) 0)
+    nil
+    (let [result (fs/match query (fs/copy (first collection)))]
+      (if (not (fs/fail? result))
+        (cons (first collection) (lookup-in query (rest collection)))
+        (lookup-in query (rest collection))))))
 
-           
-                       
+(defn lookup [query]
+  (lookup-in query lexicon))
+
+(defn it [italian]
+  (set/union
+   (lookup {:italian italian})
+   (lookup {:italian {:infinitive italian}})
+   (lookup {:root {:italian italian}})))
+
+(defn en [english]
+  (lookup {:english english}))
