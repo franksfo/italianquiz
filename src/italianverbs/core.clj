@@ -19,6 +19,8 @@
    [italianverbs.quiz :as quiz]
    ))
 
+(def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
+
 (defn title [request]
   (let [username (session/get-username request)]
     (str "Welcome to Italian Verbs" (if username (str ", " username)) ".")))
@@ -255,12 +257,11 @@
   (GET "/italian/quiz/"
        request
        {:status 302
-                                        ;        :headers {"Location" "http://eugenes-macbook-pro.local/italian/"}})
-        :headers {"Location" "http://localhost/italian/"}})
+        :headers {"Location" (str "http://" server-hostname "/italian/")}})
   (GET "/italian/workbook/"
        request
        {:status 302
-        :headers {"Location" "http://localhost/italian/"}})
+        :headers {"Location" (str "http://" server-hostname "/italian/")}})
   
   ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
