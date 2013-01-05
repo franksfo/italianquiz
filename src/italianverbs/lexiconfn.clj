@@ -359,3 +359,16 @@
             :infl :passato-prossimo
             :aux aux}))))
 
+(defn choose-lexeme [ & [struct dummy]]
+  "Choose a random lexeme from the set of lexemes
+   that match search criteria.
+   dummy: ignored for compatibility with gram/np"
+  ;; do a query based on the given struct,
+  ;; and choose a random element that satisfies the query.
+  (let [results (fetch struct)]
+    (if (= (count results) 0)
+      {:english "??" :italian "??"
+       :cat :error :note (str "<tt>(choose-lexeme)</tt>: no results found. <p/>See <tt>:choose</tt> feature below for query.")
+       :choose struct
+       }
+      (nth results (rand-int (count results))))))

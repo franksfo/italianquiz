@@ -9,6 +9,7 @@
             [italianverbs.lev :as lev]
             [italianverbs.session :as session]
             [italianverbs.grammar :as gram]
+            [italianverbs.lexiconfn :as lexfn]
             [base.html :as basehtml]
             [italianverbs.html :as html]
             [italianverbs.xml :as xml]
@@ -280,10 +281,10 @@
                           question))))
 
 (defn oct2011 []
-  (gram/choose-lexeme {:oct2011 true}))
+  (lexfn/choose-lexeme {:oct2011 true}))
 
 (defn che-tempo []
-  (gram/choose-lexeme {:chetempo true}))
+  (lexfn/choose-lexeme {:chetempo true}))
 
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
@@ -298,8 +299,6 @@
    (gen/random-infinitivo)
    (= question-type :futuro)
    (gen/random-futuro-semplice)
-   (= question-type :presente)
-   (gen/random-present)
    (= question-type :ora)
    (let [hour (rand-int 12)
          minute (* (rand-int 12) 5)
@@ -309,12 +308,10 @@
          hour (if (= hour 0) 12 hour)]
     {:english (gram/english-time hour minute ampm)
      :italian (gram/italian-time hour minute ampm)})
-   (= question-type :mobili)
-   (gen/mobili)
    (= question-type :mese)
-   (gram/choose-lexeme {:month true})
+   (lexfn/choose-lexeme {:month true})
    (= question-type :giorni)
-   (gram/choose-lexeme {:giorni-della-settimana true})))
+   (lexfn/choose-lexeme {:giorni-della-settimana true})))
 
 (defn- controls [session & [ form-action onclick ] ]
   (let [action (if form-action form-action "/italian/quiz/filter")
