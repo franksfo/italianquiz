@@ -18,11 +18,11 @@
             [clojure.string :as string]))
 
 ;; to add a new question type:
-;; 1. write a function (gen/mytype) that generates a random question for mytype.
+;; 1. write a function (gen/my-new-question-type) that generates a question.
 ;; 2. register this function in the (generate) method below.
-;; 3. register :mytype with the (controls) method below.
-;; 4. register :mytype with the question-type-map below.
-;; 5. add :mytype to all-possible-question-types (immediately below).
+;; 3. register :my-new-question-type with the (controls) method below.
+;; 4. register :my-new-question-type with the question-type-map below.
+;; 5. add :my-new-question-type to all-possible-question-types (immediately below).
 ;; TODO: make 1-5 a macro.
 (def all-possible-question-types
                                         ;  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
@@ -108,7 +108,8 @@
 			answer show-true-before)))))))
 
 (defn normalize-whitespace [string]
-  (string/replace #"[ ]+$" "" (string/replace #"^[ ]+" "" (string/replace #"[ ]+" " " string))))
+  string)
+                                        ;  (string/replace #"[ ]+$" "" (string/replace #"^[ ]+" "" (string/replace #"[ ]+" " " string))))
 
 (defn store-question [question session-id last-guess]
   {:pre [(not (= session-id nil))]}
@@ -289,6 +290,8 @@
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
+   true
+   (gen/random-sentence)
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)
@@ -545,7 +548,7 @@
 
        [:table {:class "question"} " "
         [:tr
-         [:td
+         [:td {:class "question_text"}
           [:div#ajax_question " "
            [:script "get_next_question()" ]
            ]

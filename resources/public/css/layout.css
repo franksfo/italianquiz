@@ -177,3 +177,7 @@ div#searchresults {
     padding:0.5em;
     float:left;
 }
+
+table.question td.question_text {
+    width:15em;
+}
