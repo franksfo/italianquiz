@@ -109,6 +109,20 @@
                                                  :number :sing
                                                  :def :def}}}})})
 
+     ;; inherently plural.
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem {:pred :notizie
+                                          :legible true}}
+                           :italian "notizie"
+                           :english "new"} ;; "news" (will be pluralized by (morphology/conjugate-en)
+                          {:synsem {:subcat {:1 {:cat :det
+                                                 :number :plur
+                                                 :def :def}}}})})
+
+
 
      (unify noun-conjugator
             {:root (unify agreement
