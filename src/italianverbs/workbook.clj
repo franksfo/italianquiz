@@ -107,7 +107,7 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(formattare (over (over s (over (over np lexicon) (lookup {:synsem {:sem {:human true}}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))")]
+          "(formattare (random-sentence))")]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
