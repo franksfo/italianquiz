@@ -32,15 +32,15 @@
     [:div
      (if (= relative-url "/quiz/") {:class "selected"})
      [:a {:href "/italian/quiz/"} "Quiz"]]
-    [:div
-     (if (= relative-url "/preferiti/") {:class "selected"})
-     [:a {:href "/italian/preferiti/"} "i tuoi preferiti"]]
-    [:div
-     (if (= relative-url "/lexicon/") {:class "selected"})
-     [:a {:href "/italian/lexicon/"} "Lexicon"  ] ] 
-    [:div
-     (if (= relative-url "/search/") {:class "selected"})
-     [:a {:href "/italian/search/"} "Search"  ] ]
+;    [:div
+;     (if (= relative-url "/preferiti/") {:class "selected"})
+;     [:a {:href "/italian/preferiti/"} "i tuoi preferiti"]]
+;    [:div
+;     (if (= relative-url "/lexicon/") {:class "selected"})
+;     [:a {:href "/italian/lexicon/"} "Lexicon"  ] ] 
+;    [:div
+;     (if (= relative-url "/search/") {:class "selected"})
+;     [:a {:href "/italian/search/"} "Search"  ] ]
     [:div
      (if (= relative-url "/workbook/") {:class "selected"})
      [:a {:href "/italian/workbook/"} "Workbook"  ] ]
