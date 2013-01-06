@@ -124,7 +124,8 @@
   (if (map? expressions)
     (formattare (list expressions))
     (map (fn [expr]
-           (let [english (string/capitalize (fs/get-in expr '(:english)))
+           (let [english (fs/get-in expr '(:english))
+                 english (string/capitalize (if english english ""))
                  comment (fs/get-in expr '(:comment))]
              (string/trim
               (str
