@@ -54,7 +54,7 @@
            (get-in np '(:comp :number))))))
 
 
-(def mangiare (search/lookup "mangiare"))
+(def mangiare-search (search/lookup "mangiare"))
 
 ;; looking for transitive verbs (:obj|:cat = noun)
 ;; which happen in a place (:adjunct|:obj|:place = true).

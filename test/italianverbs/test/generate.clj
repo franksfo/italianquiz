@@ -141,7 +141,7 @@
   "pick a rule at random from the subset of rules that matches the provided filters."
   (random (get-rules rules filters-of-path-value)))
 
-(defn generate-np [rules lexicon head-spec]
+(defn generate-np-test [rules lexicon head-spec]
   "generate a noun phrase from the supplied rules, lexicon,
    and optional _head_:a filter on the lexicon to find the head noun."
   (let [rule (random (if (not (nil? head-spec))
