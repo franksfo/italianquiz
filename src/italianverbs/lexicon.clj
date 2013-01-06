@@ -9,8 +9,12 @@
 (clear!)
 
 (def human {:human true
-            :animate true})
+            :animate true
+            :buyable false})
 (def animal {:animate true})
+
+(def food {:edible true
+           :buyable true})
 
 (def infinitive-verb
   {:synsem {:cat :verb
@@ -78,11 +82,13 @@
                           masculine
                           {:synsem {:sem {:pred :compito
                                           :legible true
+                                          :buyable false
                                           :artifact true
                                           :activity true}}
                            :italian "compito"
                            :english "homework assignment"})})
 
+     ;; inherently singular.
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
@@ -96,12 +102,13 @@
                                                  :number :sing
                                                  :def :def}}}})})
 
+     ;; inherently singular.
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
                           feminine
+                          food
                           {:synsem {:sem {:pred :pasta
-                                          :edible true
                                           :artifact true}}
                            :italian "pasta"
                            :english "pasta"}
@@ -115,9 +122,11 @@
                           common-noun
                           feminine
                           {:synsem {:sem {:pred :notizie
+                                          :buyable false
                                           :legible true}}
+                           ;; "notizia" would work also: would be pluralized by (morphology/conjugate-it) to "notizie".
                            :italian "notizie"
-                           :english "new"} ;; "news" (will be pluralized by (morphology/conjugate-en)
+                           :english "new"} ;; "news" (will be pluralized by (morphology/conjugate-en) to "news".
                           {:synsem {:subcat {:1 {:cat :det
                                                  :number :plur
                                                  :def :def}}}})})
@@ -128,8 +137,8 @@
             {:root (unify agreement
                           common-noun
                           feminine
+                          food
                           {:synsem {:sem {:pred :pizza
-                                          :edible true
                                           :artifact true}}
                            :italian "pizza"
                            :english "pizza"})})
@@ -324,6 +333,15 @@
                    :subj {:human true}
                    :obj {:artifact true}}}}))
 
+(def comprare
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "comprare"
+    :english "to buy"
+    :synsem {:sem {:pred :comprare
+                   :subj {:human true}
+                   :obj {:artifact true}}}}))
 
 (def dormire
   (unify
@@ -423,6 +441,9 @@
 (def vp-1-lexicon
   (concat
    (list
+    comprare
+    (unify {:root comprare}
+           trans-finitizer)
     dormire
     (unify {:root dormire}
            intrans-finitizer)
