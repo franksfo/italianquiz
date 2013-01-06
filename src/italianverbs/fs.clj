@@ -84,10 +84,8 @@
      (= :fail (second args))
      :fail
 
-     (and (or (= (type val1) clojure.lang.PersistentArrayMap)
-              (= (type val1) clojure.lang.PersistentHashMap))
-          (or (= (type val2) clojure.lang.PersistentArrayMap)
-              (= (type val2) clojure.lang.PersistentHashMap)))
+     (and (map? val1)
+          (map? val2))
      (let [tmp-result
            (reduce #(merge-with unify %1 %2) args)]
        (if (not (nil? (some #{:fail} (vals tmp-result))))
