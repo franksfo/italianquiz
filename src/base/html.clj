@@ -59,7 +59,7 @@
 (defn footer []
   (html
    [:div {:class "poweredbox major"}
-    [:h2 "imparere italiano è alimentato da .."]
+    [:h2 [:i "imparare Italiano"] " è alimentato da .."]
     [:table
      [:tr
       [:td {:colspan "4"}
