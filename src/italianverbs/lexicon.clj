@@ -116,6 +116,20 @@
                                                  :number :sing
                                                  :def :def}}}})})
 
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :fiore
+                                          :animate false
+                                          :artifact false}}
+                           :italian "fiore"
+                           :english "flower"}
+                          {:synsem {:subcat {:1 {:cat :det}}}})})
+
+
+
+     
      ;; inherently plural.
      (unify noun-conjugator
             {:root (unify agreement
