@@ -341,7 +341,7 @@
     :english "to buy"
     :synsem {:sem {:pred :comprare
                    :subj {:human true}
-                   :obj {:artifact true}}}}))
+                   :obj {:buyable true}}}}))
 
 (def dormire
   (unify
