@@ -554,7 +554,7 @@
            ]
           ]
          [:td
-          [:input {:size "15" :id "guess_input" :type "text"}
+          [:input {:size "25" :id "guess_input" :type "text"}
            [:script "clear_guess_input()" ]
            ]
           ]
