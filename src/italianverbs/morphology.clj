@@ -238,21 +238,29 @@
          (string? conjugated-b))
       (string/trim
        (cond
+
         (and (= conjugated-a "il")
              (re-find #"^s[t]" conjugated-b))
         (str "lo " conjugated-b)
+
         (and (= conjugated-a "un")
              (re-find #"^s[t]" conjugated-b))
         (str "uno " conjugated-b)
+
         (and (= conjugated-a "i")
              (re-find #"^[aeiou]" conjugated-b))
         (str "gli " conjugated-b)
+        (and (= conjugated-a "i")
+             (re-find #"^s[t]" conjugated-b))
+        (str "gli " conjugated-b)
+
         (and (= conjugated-a "il")
              (re-find #"^[aeiou]" conjugated-b))
         (str "l'" conjugated-b)
         (and (= conjugated-a "la")
              (re-find #"^[aeiou]" conjugated-b))
         (str "l'" conjugated-b)
+
         true
         (string/trim (str conjugated-a " " conjugated-b))))
       {:1 conjugated-a
