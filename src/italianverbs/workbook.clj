@@ -7,24 +7,9 @@
    [clojure.string :as string]
    [italianverbs.fs :as fs]
    [italianverbs.html :as html]
+   [italianverbs.sandbox :as sandbox]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.lev :as lev]))
-
-(defn cleanup [expression]
-  "cleanup expression and wrap in sandboxed namespace. Important: do not allow any '(ns ...)' forms in _expression_."
-  (str
-   "(ns italianverbs.sandbox
-      [:use [clojure.core :exclude [find]]
-            [italianverbs.lexiconfn]
-            [italianverbs.lexicon]
-            [italianverbs.morphology]
-            [italianverbs.generate]]
-  [:require
-   [italianverbs.fs :as fs]
-   [clojure.set :as set]
-   [clojure.string :as string]
-   [clojure.tools.logging :as log]])"
-   expression))
 
 (defn workbookq [expr attrs]
   (do
@@ -32,13 +17,11 @@
     (if expr
       (let [output
             (string/join " "
-                         (let [cleaned
-                               (cleanup expr)
-                               loaded
+                         (let [loaded
                                (try
-                                 (load-string cleaned)
+                                 (sandbox/sandbox-load-string expr)
                                  (catch Exception e
-                                   (log/error (str "failed to load-string: " cleaned))
+                                   (log/error (str "failed to sandbox-load-string: " expr))
                                    (str e)))]
                            (list
                             (str
