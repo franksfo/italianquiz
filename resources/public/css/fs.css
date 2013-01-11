@@ -165,6 +165,7 @@ td.parent {
 }
 
 td.parent > div {
+    maximum-width:50%;
     margin-left:20%;
 }
 
