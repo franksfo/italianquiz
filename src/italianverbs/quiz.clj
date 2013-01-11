@@ -270,15 +270,20 @@
 
 ;;  "update question with guess - a rewrite of (format-evaluation)."
 (defn update-question-with-guess [guess question]
+  (log/info (str "update-question-with-guess: " guess))
   (let [guess
-        (normalize-whitespace guess)]
+        (normalize-whitespace guess)
+        answer (get question :answer)]
+    (if (nil? guess)
+      (throw (Exception. (str "Guess was null."))))
+    (if (nil? answer)
+      (throw (Exception. (str "Answer was null."))))
+    (log/info (str "update question: guess: " guess))
+    (log/info (str "update question: answer: " answer))
     (mongo/update! :question question
                    (merge {:guess guess
                            :evaluation ;; evaluate the user's guess against the correct response.
-                           (if (and guess
-                                    (> (.length guess) 0))
-                             (lev/get-green2 (get question :answer)
-                                             guess))}
+                           (lev/get-green2 answer guess)}
                           question))))
 
 (defn oct2011 []
