@@ -257,10 +257,38 @@
         (and (= conjugated-a "il")
              (re-find #"^[aeiou]" conjugated-b))
         (str "l'" conjugated-b)
+
         (and (= conjugated-a "la")
              (re-find #"^[aeiou]" conjugated-b))
         (str "l'" conjugated-b)
 
+
+        ;; partitivi
+        (and (= conjugated-a "di il")
+             (re-find #"^s[t]" conjugated-b))
+        (str "dello " conjugated-b)
+
+        (and (= conjugated-a "di i")
+             (re-find #"^s[t]" conjugated-b))
+        (str "degli " conjugated-b)
+
+        (and (= conjugated-a "di la")
+             (re-find #"^[aeiou]" conjugated-b))
+        (str "del'" conjugated-b)
+
+
+        
+        (= conjugated-a "di il")
+        (str "del " conjugated-b)
+        (= conjugated-a "di la")
+        (str "della " conjugated-b)
+        
+        (= conjugated-a "di i")
+        (str "dei " conjugated-b)
+        (= conjugated-a "di le")
+        (str "delle " conjugated-b)
+
+        
         true
         (string/trim (str conjugated-a " " conjugated-b))))
       {:1 conjugated-a

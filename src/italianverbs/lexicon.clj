@@ -13,8 +13,8 @@
             :buyable false})
 (def animal {:animate true})
 
-(def food {:edible true
-           :buyable true})
+(def food {:synsem {:sem {:edible true
+                          :buyable true}}})
 
 (def infinitive-verb
   {:synsem {:cat :verb
@@ -67,6 +67,22 @@
         ]
     (list
 
+
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :acqua
+                                          :number :sing
+                                          :drinkable true
+                                          :buyable true}}
+                           :italian "acqua"
+                           :english "water"}
+                          {:synsem {:subcat {:1 {:cat :det
+                                                 :number :sing
+                                                 :def :def}}}})})
+
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
@@ -95,6 +111,7 @@
                           masculine
                           {:synsem {:sem {:pred :pane
                                           :edible true
+                                          :buyable true
                                           :artifact true}}
                            :italian "pane"
                            :english "bread"}
@@ -122,6 +139,7 @@
                           masculine
                           {:synsem {:sem {:pred :fiore
                                           :animate false
+                                          :buyable true
                                           :artifact false}}
                            :italian "fiore"
                            :english "flower"}
@@ -236,6 +254,20 @@
                           {:synsem {:sem (unify animal {:pred :gatto})}
                            :italian "gatto"
                            :english "cat"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :vino
+                                          :number :sing
+                                          :drinkable true
+                                          :buyable true}}
+                           :italian "vino"
+                           :english "wine"}
+                          {:synsem {:subcat {:1 {:cat :det
+                                                 :number :sing
+                                                 :def :def}}}})})
      
      {:synsem {:cat :det
                :def :def
@@ -270,6 +302,7 @@
                :number :plur}
       :italian "i"
       :english "the"}
+
      {:synsem {:cat :det
                :def :def
                :gender :fem
@@ -277,6 +310,36 @@
       :italian "le"
       :english "the"}
 
+     {:synsem {:cat :det
+               :def :partitivo
+               :number :sing
+               :gender :masc}
+      :italian "di il"
+      :english "some"}
+
+     {:synsem {:cat :det
+               :def :partitivo
+               :number :sing
+               :gender :fem}
+      :italian "di la"
+      :english "some"}
+
+     {:synsem {:cat :det
+               :def :partitivo
+               :number :plur
+               :gender :masc}
+      :italian "di i"
+      :english "some"}
+
+     {:synsem {:cat :det
+               :def :partitivo
+               :number :plur
+               :gender :fem}
+      :italian "di le"
+      :english "some"}
+    
+
+     
      )))
 
 ;; "x-itive": a generalization of intransitive and transitive (they both have a subject)
@@ -303,6 +366,16 @@
                          :agr {:case {:not :nom}}})]
            {:synsem {:sem {:obj obj-sem}
                      :subcat {:2 obj}}})))
+
+(def bevere
+  (unify
+   transitive
+   infinitive-verb
+   {:italian "bevere"
+    :english "to drink"
+    :synsem {:sem {:pred :bevere
+                   :subj {:animate true}
+                   :obj {:drinkable true}}}}))
 
 (def fare1
   (unify
@@ -455,6 +528,9 @@
 (def vp-1-lexicon
   (concat
    (list
+    bevere
+    (unify {:root bevere}
+           trans-finitizer)
     comprare
     (unify {:root comprare}
            trans-finitizer)
