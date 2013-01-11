@@ -288,6 +288,11 @@
         (= conjugated-a "di le")
         (str "delle " conjugated-b)
 
+
+        ;; prepositions
+        (and (= conjugated-a "a")
+             (re-find #"^il " conjugated-b))
+        (str "al " (string/replace conjugated-b #"^il " ""))
         
         true
         (string/trim (str conjugated-a " " conjugated-b))))

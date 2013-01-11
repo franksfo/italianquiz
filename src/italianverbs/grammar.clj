@@ -27,7 +27,7 @@
     {:head {:synsem {:subcat {:1 comp-synsem}}}
      :comp {:synsem comp-synsem}}))
 
-(def vp-1-rules
+(def vp-rules
   (list
    (let [obj-sem (ref :top)
          obj-synsem (ref {:sem obj-sem})
@@ -67,26 +67,36 @@
                 :1 comp
                 :2 head}))))
 
-(def np-1-rules 
-  (let [np-rule-1 ;; NP -> Comp Head
-        (fs/unifyc head-principle subcat-1-principle
-                   (let [case (ref :top)
-                         comp (ref {:synsem {:cat :det}})
-                         person (ref :top)
-                         number (ref :top)
-                         gender (ref :top)
-                         agr (ref :top)
-                         head (ref {:synsem {:cat :noun
-                                             :agr agr}})]
-                     {:comment "np -> det noun"
-                      :synsem {:agr agr}
-                      :head head
-                      :comp comp
-                      :1 comp
-                      :2 head}))]
-    (list np-rule-1)))
+(def np-rules 
+  (list
+   (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
+              (let [case (ref :top)
+                    comp (ref {:synsem {:cat :det}})
+                    person (ref :top)
+                    number (ref :top)
+                    gender (ref :top)
+                    agr (ref :top)
+                    head (ref {:synsem {:cat :noun
+                                        :agr agr}})]
+                {:comment "np -> det noun"
+                 :synsem {:agr agr}
+                 :head head
+                 :comp comp
+                 :1 comp
+                 :2 head}))))
 
-(def rules (concat np-1-rules vp-1-rules sentence-rules))
+(def prep-phrase
+  (let [head (ref {:synsem {:cat :prep}})
+        comp (ref :top)]
+    (fs/unifyc head-principle
+               subcat-1-principle
+               {:head head
+                :comp comp
+                :1 head
+                :2 comp})))
+             
+
+(def rules (concat np-rules vp-rules sentence-rules))
 
 (def np (nth rules 0))
 (def vp (nth rules 1))

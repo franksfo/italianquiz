@@ -17,6 +17,11 @@
 (def sentence-skeleton-1
   (unify gram/s {:comp gram/np :head (unify gram/vp {:comp gram/np})}))
 
+(def sentence-skeleton-2
+  (unify gram/s {:head gram/s
+                 :comp gram/prep-phrase}))
+
+
 (defn get-terminal-head-in [phrase-structure]
   (let [local-head (fs/get-in phrase-structure '(:head))]
     (if (not (nil? local-head))
@@ -637,4 +642,4 @@
                  :1 head
                  :2 obj}))))
 
-(def myrules (concat gram/np-1-rules my-vp-rules gram/sentence-rules))
+(def myrules (concat gram/np-rules my-vp-rules gram/sentence-rules))

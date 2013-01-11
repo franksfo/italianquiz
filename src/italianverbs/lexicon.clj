@@ -38,7 +38,7 @@
                 :agr agr}
       :synsem {:agr agr}})))
 
-(def np-1-lexicon
+(def nouns
   (let [gender (ref :top)
 
         ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
@@ -104,6 +104,19 @@
                            :italian "compito"
                            :english "homework assignment"})})
 
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :mare
+                                          :place true}}
+                           :italian "mare"
+                           :english "seaside"}
+                          {:synsem {:subcat {:1 {:cat :det
+                                                 :number :sing
+                                                 :def :def}}}})})
+
+     
      ;; inherently singular.
      (unify noun-conjugator
             {:root (unify agreement
@@ -622,8 +635,16 @@
                   :subcat :nil!}
          :italian "loro"
          :english "they"}))
-    
-(def lexicon (concat vp-1-lexicon np-1-lexicon pronouns))
+
+(def prepositions
+  (list {:synsem {:cat :prep
+                  :subcat {:1 {:cat :noun
+                               :sem {:place true}
+                               :subcat :nil!}}}
+         :italian "a"
+         :english "at"}))
+
+(def lexicon (concat vp-1-lexicon nouns pronouns prepositions))
 
 (map (fn [lexeme]
        (let [italian (:italian lexeme)
