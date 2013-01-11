@@ -1,6 +1,7 @@
 (ns italianverbs.lev
   (:require
    [clojure.string :as string]
+   [clojure.tools.logging :as log]
    [italianverbs.html :as html]))
 
 (defn create-matrix [matrix j y horiz-char-list vert-char-list]
@@ -305,9 +306,13 @@
 
 (defn get-green2 [word1 word2]
   "convenient function for external usage."
-  (let [matrix
-        (matrix word1 word2)]
-    (get matrix :path)))
+  (let [word1 (if (nil? word1) "nullword1" word1)
+        word2 (if (nil? word2) "nullword2" word2)]
+    (log/info (str "get-green2:word1: " word1))
+    (log/info (str "get-green2:word2: " word2))
+    (let [matrix
+          (matrix word1 word2)]
+      (get matrix :path))))
 
 ;; TODO: make this a list of tests.
 ;(defn lev-test []
