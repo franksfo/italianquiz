@@ -19,8 +19,14 @@
 
                        (conj
                         clojail.testers/secure-tester-without-def
-                        (blacklist-nses '[clojure.java.io
-                                          java.net
+                        ;; taken from: http://docs.oracle.com/javase/6/docs/api/overview-summary.html
+                        ;; http://richhickey.github.com/clojure/api-index.html#
+                        (blacklist-nses '[clojure
+                                          java
+                                          javax
+                                          org.omg
+                                          org.w3c
+                                          org.xml
                                           ]))
                        :timeout 5000
                        :namespace 'italianverbs.sandbox))
