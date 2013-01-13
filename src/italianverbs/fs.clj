@@ -423,14 +423,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (fn [sorted-vals]
     (loop [sv sorted-vals result nil]
       (let [first-val (first sv)]
-      (if (nil? (first sv))
-        result
-        (let [second-val (second sv)]
-          (if (= first-val second-val)
-            (recur (rest sv)
-                   result)
-            (recur (rest sv)
-                   (cons first-val result)))))))))
+        (if (nil? (first sv))
+          result
+          (let [second-val (second sv)]
+            (if (= first-val second-val)
+              (recur (rest sv)
+                     result)
+              (recur (rest sv)
+                     (cons first-val result)))))))))
 
 (defn uniq [sorted-vals]
   (reverse (uniq-using-recur sorted-vals)))
