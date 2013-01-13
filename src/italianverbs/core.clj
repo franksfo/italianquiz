@@ -39,7 +39,7 @@
        request
        ;; response map
        {:status 302
-        :headers {"Location" "/italian/workbook/"}})
+        :headers {"Location" "/italian/quiz/"}})
 
   (GET "/preferiti/"
        request
