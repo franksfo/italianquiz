@@ -21,7 +21,6 @@
   (unify gram/s {:head gram/s
                  :comp gram/prep-phrase}))
 
-
 (defn get-terminal-head-in [phrase-structure]
   (let [local-head (fs/get-in phrase-structure '(:head))]
     (if (not (nil? local-head))
@@ -576,50 +575,6 @@
    (lots-of-sentences-1)
    (lots-of-sentences-2)))
 
-;;; e.g.:
-;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
-(defn formattare [expressions]
-  "format a bunch of expressions (feature-structures) showing just the italian."
-  (if (map? expressions)
-    (formattare (list expressions))
-    (map (fn [expr]
-           (let [english (fs/get-in expr '(:english))
-                 english (string/capitalize (if english english ""))
-                 comment (fs/get-in expr '(:comment))]
-             (string/trim
-              (str
-               (string/trim
-                (string/capitalize
-                 (morph/get-italian
-                  (let [italian (fs/get-in expr '(:italian))]
-                    (cond
-                     (and (map? italian)
-                          (not (nil? (fs/get-in italian '(:1 :infinitive :infinitive)))))
-                     (string/join " " (list (fs/get-in italian '(:1 :infinitive :infinitive))
-                                            "(finite)"
-                                            (morph/get-italian (fs/get-in italian '(:2)) "")))
-                     (and (map? italian)
-                          (not (nil? (fs/get-in italian '(:1 :infinitive)))))
-                     (string/join " " (list (morph/get-italian (fs/get-in italian '(:1 :infinitive)) "")
-                                            "(finite)"
-                                            (morph/get-italian (fs/get-in italian '(:2)) "")))
-                     (and (map? italian)
-                          (not (nil? (fs/get-in italian '(:irregular)))))
-                     (str (fs/get-in italian '(:infinitive)) " (finite)")
-                     (and (map? italian)
-                          (not (nil? (fs/get-in italian '(:infinitive))))
-                          (= java.lang.String (type (fs/get-in italian '(:infinitive)))))
-                     (str (fs/get-in italian '(:infinitive)) " (finite)")
-                     (and (map? italian)
-                          (not (nil? (fs/get-in italian '(:infinitive)))))
-                     (fs/get-in italian '(:infinitive :infinitive))
-                     :else
-                     italian))
-                  "")))
-                " (" english ")" "."))))
-         expressions)))
-
-
 (def my-vp-rules
   (list
    (let [obj-sem (ref :top)
@@ -642,4 +597,80 @@
                  :1 head
                  :2 obj}))))
 
+
 (def myrules (concat gram/np-rules my-vp-rules gram/sentence-rules))
+
+(defn get-morph [expr morph-fn]
+  (morph-fn
+   (cond
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:1 :infinitive :infinitive)))))
+    (string/join " " (list (fs/get-in expr '(:1 :infinitive :infinitive))
+                           "(finite)"
+                           (morph-fn (fs/get-in expr '(:2)) "")))
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:1 :infinitive)))))
+    (string/join " " (list (morph-fn (fs/get-in expr '(:1 :infinitive)) "")
+                           "(finite)"
+                           (morph-fn (fs/get-in expr '(:2)) "")))
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:irregular)))))
+    (str (fs/get-in expr '(:infinitive)) " (finite)")
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:infinitive))))
+         (= java.lang.String (type (fs/get-in expr '(:infinitive)))))
+    (str (fs/get-in expr '(:infinitive)) " (finite)")
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:infinitive)))))
+    (fs/get-in expr '(:infinitive :infinitive))
+    :else
+    expr)
+   ""))
+
+;;; e.g.:
+;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
+(defn formattare [expressions]
+  "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
+  (if (map? expressions)
+    ;; wrap this single expression in a list and re-call.
+    (formattare (list expressions))
+
+    ;; show the italian and english for each expression.
+    (map (fn [expr]
+           (let [english
+                 (string/capitalize
+                  (get-morph (fs/get-in expr '(:english))
+                             morph/get-english))
+                 italian
+                 (string/capitalize
+                  (get-morph (fs/get-in expr '(:italian))
+                             morph/get-italian))]
+             (string/trim
+              (str italian " (" english ")."))))
+         expressions)))
+
+(defn subject-spec [verb]
+  {:synsem (fs/get-in (nth (lex/it verb) 0)
+                      '(:synsem :subcat :1))})
+
+(defn object-spec [verb]
+  {:synsem (fs/get-in (nth (lex/it verb) 0)
+                      '(:synsem :subcat :2))})
+
+(defn args1 [head]
+  "lookup lexical entries that can satisfy the first subcat position of the given head."
+  (lex/lookup {:synsem (fs/get-in (nth (lex/it head) 0)
+                                  '(:synsem :subcat :1))}))
+
+(defn args2 [head]
+  "lookup lexical entries that can satisfy the second subcat position of the given head."
+  (lex/lookup {:synsem (fs/get-in (nth (lex/it head) 0)
+                                  '(:synsem :subcat :2))}))
+
+(defn subjects [verb]
+  "lookup lexical entries that can be subjects of the given verb."
+  (args1 verb))
+
+(defn objects [verb]
+  "lookup lexical entries that can be objects of the given verb."
+  (args2 verb))
