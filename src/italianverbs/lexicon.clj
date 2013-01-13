@@ -64,24 +64,35 @@
         masculine {:synsem {:agr {:gender :masc}}}
         feminine {:synsem {:agr {:gender :fem}}}
 
+        mass-noun
+        {:synsem {:subcat {:1 {:cat :det
+                               :number :sing
+                               :def :def}}}}
+
+        drinkable
+        (unify noun-conjugator
+               mass-noun
+               {:root (unify agreement
+                             common-noun
+                             {:synsem {:sem {:number :sing
+                                             :drinkable true
+                                             :buyable true}}})})
         ]
     (list
 
 
+     (unify drinkable
+            feminine
+            {:root {:italian "acqua"
+                    :english "water"
+                    :synsem {:sem {:pred :acqua}}}})
 
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          masculine
-                          {:synsem {:sem {:pred :acqua
-                                          :number :sing
-                                          :drinkable true
-                                          :buyable true}}
-                           :italian "acqua"
-                           :english "water"}
-                          {:synsem {:subcat {:1 {:cat :det
-                                                 :number :sing
-                                                 :def :def}}}})})
+     (unify drinkable
+            feminine
+            {:root {:italian "birra"
+                    :english "beer"
+                    :synsem {:sem {:pred :birra
+                                   :artifact true}}}})
 
      (unify noun-conjugator
             {:root (unify agreement
@@ -268,19 +279,13 @@
                            :italian "gatto"
                            :english "cat"})})
 
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          masculine
-                          {:synsem {:sem {:pred :vino
-                                          :number :sing
-                                          :drinkable true
-                                          :buyable true}}
-                           :italian "vino"
-                           :english "wine"}
-                          {:synsem {:subcat {:1 {:cat :det
-                                                 :number :sing
-                                                 :def :def}}}})})
+     (unify drinkable
+            masculine
+            {:root {:italian "vino"
+                    :english "wine"
+                    :synsem {:sem {:pred :vino
+                                   :artifact true}}}})
+     ;; articles
      
      {:synsem {:cat :det
                :def :def
