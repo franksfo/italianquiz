@@ -653,15 +653,19 @@
               lexeme)))
      lexicon)
 
-"TODO: rewrite more efficiently (rather than recurring)"
-(defn lookup-in [query collection]
+(def lookup-in
   "find all members of the collection that matches with query successfully."
-  (if (= (.size collection) 0)
-    nil
-    (let [result (fs/match query (fs/copy (first collection)))]
-      (if (not (fs/fail? result))
-        (cons (first collection) (lookup-in query (rest collection)))
-        (lookup-in query (rest collection))))))
+  (fn [query collection]
+    (loop [coll collection matches nil]
+      (let [first-val (first coll)]
+        (if (nil? first-val)
+          matches
+          (let [result (fs/match (fs/copy query) (fs/copy first-val))]
+            (if (not (fs/fail? result))
+              (recur (rest coll)
+                     (cons first-val matches))
+              (recur (rest coll)
+                     matches))))))))
 
 (defn lookup [query]
   (lookup-in query lexicon))
