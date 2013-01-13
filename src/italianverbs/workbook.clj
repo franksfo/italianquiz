@@ -67,9 +67,10 @@
                                                 (seq loaded)))
                               (= (type loaded) clojure.lang.Var)
                               (str (eval loaded))
-                              (or
-                               (= (type loaded) clojure.lang.PersistentArrayMap)
-                               (= (type loaded) clojure.lang.PersistentHashMap))
+                              (and (map? loaded)
+                                   (= (keys loaded) '(:plain)))
+                              (str "<div style='font-family:monospace'>" (:plain loaded) "</div>")
+                              (map? loaded)
                               (html/tablize loaded)
                               (= (type loaded) nil)
                               (str "<b>nil</b>")
@@ -95,4 +96,3 @@
       [:div#workbooka
        (if search-query
          (workbookq search-query nil))]])))
-
