@@ -62,11 +62,13 @@
     [:h2 [:i "imparare Italiano"] " è alimentato da .."]
     [:table
      [:tr
-      [:td {:colspan "4"}
+      [:td {:colspan "5"}
        (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz/tree/italian")]]
      [:tr
       [:td {:colspan "2"}
        (powered-by "compojure" "https://github.com/weavjester/compojure")]
+      [:td {:rowspan "2" :colspan "1"}
+       (powered-by "clojail" "https://github.com/flatland/clojail")]
       [:td {:rowspan "2" :colspan "2"}
        (powered-by "congomongo" "https://github.com/somnium/congomongo")]]
       [:tr
@@ -75,7 +77,7 @@
      [:tr
       [:td 
        (powered-by "jetty" "http://jetty.codehaus.org/jetty/")]
-      [:td {:colspan "2"}
+      [:td {:colspan "3"}
        (powered-by "clojure" "http://clojure.org/")]
       [:td {:colspan "1"}
        (powered-by "mongodb" "http://www.mongodb.org/")
