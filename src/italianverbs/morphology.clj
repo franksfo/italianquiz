@@ -85,6 +85,13 @@
              (= (fs/get-in arg '(:agr :number)) :plur))
         (string/replace (fs/get-in arg '(:root))
                         #"[eo]$" "i") ;; dottore => dottori; medico => medici
+
+
+        ;; number not specified: use root form by default.
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr))
+        (str (fs/get-in arg '(:root)))
         
         :else
         ;; assume a map with keys (:root and :agr).
@@ -197,9 +204,15 @@
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :plur))
         (str (fs/get-in arg '(:root)) "s")
+
+        ;; number not specified: use root form by default.
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr))
+        (str (fs/get-in arg '(:root)))
         
         :else
-        ;; assume a map with keys (:root and :agr).
+        ;; assume a map with keys (:infintive and :agr).
         (let [root (fs/get-in arg '(:infinitive))
               root (if (nil? root) "(nilroot)" root)
               root (if (not (= (type root) java.lang.String))
