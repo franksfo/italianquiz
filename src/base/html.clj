@@ -63,7 +63,7 @@
     [:table
      [:tr
       [:td {:colspan "5"}
-       (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz/tree/italian")]]
+       (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz")]]
      [:tr
       [:td {:colspan "2"}
        (powered-by "compojure" "https://github.com/weavjester/compojure")]
