@@ -644,8 +644,7 @@
 (def prepositions
   (list {:synsem {:cat :prep
                   :subcat {:1 {:cat :noun
-                               :sem {:place true}
-                               :subcat :nil!}}}
+                               :sem {:place true}}}}
          :italian "a"
          :english "at"}))
 
