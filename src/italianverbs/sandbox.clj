@@ -43,3 +43,7 @@
 
 (defn sandbox-load-string [expression]
   (workbook-sandbox (read-string expression)))
+
+                                        ;
+
+;(dotimes [n 10] (def foo (time (args1-cached "mangiare"))))

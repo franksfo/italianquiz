@@ -95,51 +95,6 @@
         (if (> (.size matching) 0)
           (nth matching (rand-int (.size matching))))))))
 
-(defn random-sentence []
-  (let [head-specification
-        (get-terminal-head-in gram/vp)
-        matching-lexical-verb-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
-                                            (map (fn [lexeme] (fs/match head-specification lexeme)) lex/lexicon))
-        random-verb (if (> (.size matching-lexical-heads) 0)
-                              (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))
-        obj-spec (fs/get-in random-verb '(:synsem :subcat :2))
-        object-np
-        (random-np (unify {:synsem (unify obj-spec
-                                          {:subcat {:1 {:cat :det}}})}))
-        subj-spec (fs/get-in random-verb '(:synsem :subcat :1))
-        subject-np (random-subject-np subj-spec)]
-    (let [unified (unify sentence-skeleton-1
-                         {:head
-                          (let [unified
-                                (unify
-                                 (fs/get-in sentence-skeleton-1 '(:head))
-                                 {:head random-verb
-                                  :comp object-np})]
-                            (fs/merge
-                             {:italian
-                              (morph/get-italian
-                               (fs/get-in unified '(:1 :italian))
-                               (fs/get-in unified '(:2 :italian)))
-                              :english
-                              (morph/get-english
-                               (fs/get-in unified '(:1 :english))
-                               (fs/get-in unified '(:2 :english)))}
-                             unified))}
-                         {:comp subject-np})]
-      (if (not (fs/fail? unified))
-        (merge
-         {:italian (morph/get-italian
-                    (fs/get-in unified '(:1 :italian))
-                    (fs/get-in unified '(:2 :italian)))
-          :english (morph/get-english
-                    (fs/get-in unified '(:1 :english))
-                    (fs/get-in unified '(:2 :english)))}
-         unified)
-        unified))))
-
-(defn random-sentences [n]
-  (repeatedly n (fn [] (random-sentence))))
-
 (defn printfs [fs & filename]
   "print a feature structure to a file. filename will be something easy to derive from the fs."
   (let [filename (if filename (first filename) "foo.html")]  ;; TODO: some conventional default if deriving from fs is too hard.
@@ -659,8 +614,23 @@
 
 (defn args1 [head]
   "lookup lexical entries that can satisfy the first subcat position of the given head."
-  (lex/lookup {:synsem (fs/get-in (nth (lex/it head) 0)
-                                  '(:synsem :subcat :1))}))
+  (let [head-fs
+        (if (map? head) head
+            ;; assume string:
+            (first (lex/it head)))]
+    (lex/lookup {:synsem (fs/get-in head-fs
+                                  '(:synsem :subcat :1))})))
+
+(def arg1-index
+  (zipmap lex/lexicon (map (fn [lexeme] (args1 lexeme)) lex/lexicon)))
+
+(defn args1-cached [head]
+  "lookup lexical entries that can satisfy the first subcat position of the given head."
+  (let [head-fs
+        (if (map? head) head
+            ;; assume string:
+            (first (lex/it head)))]
+    (get arg1-index head-fs)))
 
 (defn args2 [head]
   "lookup lexical entries that can satisfy the second subcat position of the given head."
@@ -674,3 +644,48 @@
 (defn objects [verb]
   "lookup lexical entries that can be objects of the given verb."
   (args2 verb))
+
+(defn random-sentence []
+  (let [head-specification
+        (get-terminal-head-in gram/vp)
+        matching-lexical-verb-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
+                                            (map (fn [lexeme] (fs/match head-specification lexeme)) lex/lexicon))
+        random-verb (if (> (.size matching-lexical-heads) 0)
+                              (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))
+        obj-spec (fs/get-in random-verb '(:synsem :subcat :2))
+        object-np
+        (random-np (unify {:synsem (unify obj-spec
+                                          {:subcat {:1 {:cat :det}}})}))
+        subj-spec (fs/get-in random-verb '(:synsem :subcat :1))
+        subject-np (random-subject-np subj-spec)]
+    (let [unified (unify sentence-skeleton-1
+                         {:head
+                          (let [unified
+                                (unify
+                                 (fs/get-in sentence-skeleton-1 '(:head))
+                                 {:head random-verb
+                                  :comp object-np})]
+                            (fs/merge
+                             {:italian
+                              (morph/get-italian
+                               (fs/get-in unified '(:1 :italian))
+                               (fs/get-in unified '(:2 :italian)))
+                              :english
+                              (morph/get-english
+                               (fs/get-in unified '(:1 :english))
+                               (fs/get-in unified '(:2 :english)))}
+                             unified))}
+                         {:comp subject-np})]
+      (if (not (fs/fail? unified))
+        (merge
+         {:italian (morph/get-italian
+                    (fs/get-in unified '(:1 :italian))
+                    (fs/get-in unified '(:2 :italian)))
+          :english (morph/get-english
+                    (fs/get-in unified '(:1 :english))
+                    (fs/get-in unified '(:2 :english)))}
+         unified)
+        unified))))
+
+(defn random-sentences [n]
+  (repeatedly n (fn [] (random-sentence))))
