@@ -48,6 +48,28 @@
                  :1 head
                  :2 obj}))))
 
+(def vp-rules-save
+  (list
+   (let [obj-sem (ref :top)
+         obj-synsem (ref {:sem obj-sem})
+         obj (ref {:synsem obj-synsem})
+         subj-sem (ref :top)
+         subj-synsem (ref {:sem subj-sem})
+         head-synsem (ref {:cat :verb
+                           :infl {:not :infinitive}
+                           :sem {:subj subj-sem
+                                 :obj obj-sem}
+                           :subcat {:1 subj-synsem
+                                    :2 obj-synsem}})
+         head (ref {:synsem head-synsem})]
+     (fs/unifyc head-principle
+                {:comment "vp -> head comp"
+                 :head head
+                 :synsem {:subcat {:1 subj-synsem}}
+                 :comp obj
+                 :1 head
+                 :2 obj}))))
+
 (def sentence-rules
   (let [subj-sem (ref :top)
         subcatted (ref {:cat :noun
@@ -99,6 +121,7 @@
 
 (def np (nth rules 0))
 (def vp (nth rules 1))
+(def vp-save (nth vp-rules-save 0))
 (def s (nth rules 2))
 
 ;; TODO: move to lexicon (maybe).
