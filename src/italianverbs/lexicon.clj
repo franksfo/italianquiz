@@ -438,6 +438,31 @@
                    :subj {:human true}
                    :obj {:artifact true}}}}))
 
+
+(def avere1
+  (unify
+   transitive
+   {:italian {:infinitive "avere"
+              :irregular {:present {:1sing "ho"
+                                    :2sing "hai"
+                                    :3sing "ha"
+                                    :1plur "abbiamo"
+                                    :2plur "avete"
+                                    :3plur "hanno"}}}
+    :english {:inifinitive "to have"
+              :irregular {:present {:1sing "have"
+                                    :2sing "have"
+                                    :3sing "has"
+                                    :1plur "have"
+                                    :2plur "have"
+                                    :3plur "have"}}}
+    :synsem {:cat :verb
+             :morph :irreg
+             :infl :infinitive
+             :sem {:pred :fare
+                   :subj {:human true}
+                   :obj {:buyable true}}}}))
+
 (def comprare
   (unify
    transitive
@@ -546,6 +571,10 @@
 (def vp-1-lexicon
   (concat
    (list
+    avere1
+    (unify {:root avere1}
+           trans-finitizer)
+
     bevere
     (unify {:root bevere}
            trans-finitizer)
