@@ -19,12 +19,13 @@
     arg))
 
 ;; TODO: need tests: some tests use (get-in), but need more dedicated tests for it alone.
-(defn get-in [map keys]
+(defn get-in [map path & [not-found]]
   "same as clojure.core (get-in), but it resolves references if need be."
   (let [result 
-        (if (first keys)
-          (let [result (get map (first keys))]
-            (get-in (resolve result) (rest keys)))
+        (if (first path)
+          (let [result (get map (first path) not-found)]
+            (if (= result not-found) not-found
+                (get-in (resolve result) (rest path) not-found)))
           map)]
     (if (= (type result) clojure.lang.Ref)
       @result
