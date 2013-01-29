@@ -393,16 +393,6 @@
   (fs/unify map
         {:take-article "taken"}))
 
-(defn random-phrase [head & [comp-constraints]]
-  (let [comp-c comp-constraints
-        comp (search/random-lexeme (fs/unify comp-c ;; TODO: should be random-phrase, not random-lexeme.
-                                  (:comp head)))]
-    ;; comp-c is only for debugging.
-    {:head head
-     :comp-c comp-c
-     :comp comp
-     :italian (str (:italian comp) " " (:italian head))})) ;; TODO: abstract word order to (serialize) function.
-
 (def examples
   (list {:label "fare: 1st singular"
          :value
@@ -645,11 +635,64 @@
   "lookup lexical entries that can be objects of the given verb."
   (args2 verb))
 
+(def vp-head-spec
+  (fs/get-in gram/vp-save '(:head)))
+
+(defn rp1 [& head-spec]
+  (let [head-spec
+        (if (not (nil? head-spec))
+          head-spec
+          vp-head-spec)]
+    (let [heads (filterv
+                 (fn [lexeme]
+                   (not (fs/fail?
+                         (fs/match (fs/copy head-spec)
+                                   (fs/copy lexeme)))))
+                 lex/lexicon)
+          ;; choose one of the above heads at random:
+          head (if (> (.length heads) 0)
+                 (nth heads (rand-int (.length heads))))]
+      head)))
+
+(defn random-phrase [& head-spec]
+  (let [head-spec (first head-spec)
+        head-spec (if (not (nil? head-spec))
+                    head-spec
+                    vp-head-spec)]
+    (let [heads (if (string? head-spec)
+                  (vec (lex/it head-spec))
+                  (filterv
+                   (fn [lexeme]
+                     (not (fs/fail?
+                           (fs/match (fs/copy head-spec)
+                                     (fs/copy lexeme)))))
+                   lex/lexicon))
+          ;; choose one of the above heads at random:
+          head (if (> (.length heads) 0)
+                 (nth heads (rand-int (.length heads))))
+          comp2 (let [subcat (fs/get-in head '(:synsem :subcat :2) :none)]
+                  (if (not (= subcat :none))
+                    (random-phrase {:synsem subcat})))
+          comp1 (let [subcat (fs/get-in head '(:synsem :subcat :1) :none)]
+                  (if (not (= subcat :none))
+                  (random-phrase {:synsem subcat})))]
+      (conj
+       (if head
+         {:head head}
+         {})
+       (if (not (nil? comp1))
+         {:comp1 comp1}
+         {})
+       (if (not (nil? comp2))
+         {:comp2 comp2}
+         {})))))
+
 (defn random-sentence []
   (let [head-specification
         (get-terminal-head-in gram/vp)
-        matching-lexical-verb-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
-                                            (map (fn [lexeme] (fs/match head-specification lexeme)) lex/lexicon))
+        matching-lexical-verb-heads
+        (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
+                (map (fn [lexeme] (fs/match head-specification lexeme)) lex/lexicon))
         random-verb (if (> (.size matching-lexical-heads) 0)
                               (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))
         obj-spec (fs/get-in random-verb '(:synsem :subcat :2))
