@@ -449,7 +449,7 @@
                                     :1plur "abbiamo"
                                     :2plur "avete"
                                     :3plur "hanno"}}}
-    :english {:inifinitive "to have"
+    :english {:infinitive "to have"
               :irregular {:present {:1sing "have"
                                     :2sing "have"
                                     :3sing "has"
@@ -530,7 +530,8 @@
     :synsem {:sem {:subj {:animate true}
                    :pred :sognare}}}))
 
-(def finitizer
+
+(def finite-verb
   (let [subj-sem (ref :top)
         root-sem (ref {:subj subj-sem})
         subj-agr (ref :top)
@@ -548,23 +549,38 @@
                 :subcat subcat}}
       :synsem {:sem root-sem
                :cat cat
-               :subcat subcat
-               :infl :present}
+               :subcat subcat}
       :italian {:agr subj-agr
                 :infinitive italian-infinitive}
       :english {:agr subj-agr
                 :infinitive english-infinitive}}))
 
-(def trans-finitizer
-  (unify finitizer
+(def present-tense-verb
+  (unify finite-verb
+         {:synsem {:infl :present}}))
+
+(def past-tense-verb
+  (unify finite-verb
+         {:synsem {:infl :past}}))
+
+(def trans-present-tense-verb
+  (unify present-tense-verb
          (let [obj-sem (ref :top)
                obj (ref {:sem obj-sem})]
            {:root
             {:synsem {:subcat {:2 obj}}}
             :synsem {:sem {:obj obj-sem}}})))
 
-(def intrans-finitizer
-  (unify finitizer
+(def trans-past-tense-verb
+  (unify past-tense-verb
+         (let [obj-sem (ref :top)
+               obj (ref {:sem obj-sem})]
+           {:root
+            {:synsem {:subcat {:2 obj}}}
+            :synsem {:sem {:obj obj-sem}}})))
+
+(def intrans-present-tense-verb
+  (unify present-tense-verb
          {:root {:synsem
                  {:subcat {:2 :nil!}}}}))
 
@@ -573,41 +589,44 @@
    (list
     avere1
     (unify {:root avere1}
-           trans-finitizer)
+           trans-present-tense-verb)
 
     bevere
     (unify {:root bevere}
-           trans-finitizer)
+           trans-present-tense-verb)
     comprare
     (unify {:root comprare}
-           trans-finitizer)
+           trans-present-tense-verb)
     dormire
     (unify {:root dormire}
-           intrans-finitizer)
+           intrans-present-tense-verb)
     fare1
     (unify {:root fare1}
-           trans-finitizer)
+           trans-present-tense-verb)
     fare2
     (unify {:root fare2}
-           trans-finitizer)
+           trans-present-tense-verb)
     leggere
     (unify {:root leggere}
-           trans-finitizer)
+           trans-present-tense-verb)
+    (unify {:root leggere}
+           trans-past-tense-verb)
+
     mangiare
     (unify {:root mangiare}
-           trans-finitizer)
+           trans-present-tense-verb)
     
     scrivere
     (unify {:root scrivere}
-           trans-finitizer)
+           trans-present-tense-verb)
 
     sognare
     (unify {:root sognare}
-           intrans-finitizer)
+           intrans-present-tense-verb)
 
     vedere
     (unify {:root vedere}
-           trans-finitizer))))
+           trans-present-tense-verb))))
 
 
 (def pronouns
@@ -703,6 +722,12 @@
 (defn lookup [query]
   (lookup-in query lexicon))
 
+;; note: seems to have duplicates
+;; (e.g. finite form of italian has both
+;;  {:italian {:infinitive "leggere"}} and
+;;  {:root {:italian "leggere"}})
+;; apparently I'm not understanding how to use
+;; set/union correctly to avoid the duplication.
 (defn it [italian]
   (set/union
    (lookup {:italian italian})

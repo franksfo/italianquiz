@@ -11,10 +11,13 @@
 ;; H[1]    C
 (def head-principle
   (let [head-cat (ref :top)
-        head-sem (ref :top)]
+        head-sem (ref :top)
+        head-infl (ref :top)]
     {:synsem {:cat head-cat
-              :sem head-sem}
+              :sem head-sem
+              :infl head-infl}
      :head {:synsem {:cat head-cat
+                     :infl head-infl
                      :sem head-sem}}}))
 
 ;;     subcat<>
@@ -27,55 +30,44 @@
      :comp {:synsem comp-synsem}}))
 
 (def vp-rules
-  (list
-   (let [obj-sem (ref :top)
-         obj-synsem (ref {:sem obj-sem})
-         obj (ref {:synsem obj-synsem})
-         subj-sem (ref :top)
-         subj-synsem (ref {:sem subj-sem})
-         head-synsem (ref {:cat :verb
-                           :infl {:not :infinitive}
-                           :sem {:subj subj-sem
-                                 :obj obj-sem}
-                           :subcat {:1 subj-synsem
-                                    :2 obj-synsem}})
-         head (ref {:synsem head-synsem})]
+  (let [obj-sem (ref :top)
+        obj-synsem (ref {:sem obj-sem})
+        obj (ref {:synsem obj-synsem})
+        subj-sem (ref :top)
+        subj-synsem (ref {:sem subj-sem})
+        head-synsem (ref {:cat :verb
+                          :sem {:subj subj-sem
+                                :obj obj-sem}
+                          :subcat {:1 subj-synsem
+                                   :2 obj-synsem}})
+        head (ref {:synsem head-synsem})]
+    (list
      (fs/unifyc head-principle
                 {:comment "vp -> head comp"
                  :head head
-                 :synsem {:subcat {:1 subj-synsem}}
+                 :synsem {:subcat {:1 subj-synsem}
+                          :infl :present}
+                 :comp obj
+                 :1 head
+                 :2 obj})
+     (fs/unifyc head-principle
+                {:comment "vp[past] -> head comp"
+                 :head head
+                 :synsem {:subcat {:1 subj-synsem}
+                          :infl :past}
                  :comp obj
                  :1 head
                  :2 obj}))))
 
 (def vp-rules-save
-  (list
-   (let [obj-sem (ref :top)
-         obj-synsem (ref {:sem obj-sem})
-         obj (ref {:synsem obj-synsem})
-         subj-sem (ref :top)
-         subj-synsem (ref {:sem subj-sem})
-         head-synsem (ref {:cat :verb
-                           :infl {:not :infinitive}
-                           :sem {:subj subj-sem
-                                 :obj obj-sem}
-                           :subcat {:1 subj-synsem
-                                    :2 obj-synsem}})
-         head (ref {:synsem head-synsem})]
-     (fs/unifyc head-principle
-                {:comment "vp -> head comp"
-                 :head head
-                 :synsem {:subcat {:1 subj-synsem}}
-                 :comp obj
-                 :1 head
-                 :2 obj}))))
+  (map fs/copy vp-rules))
 
 (def sentence-rules
   (let [subj-sem (ref :top)
         subcatted (ref {:cat :noun
                         :sem subj-sem})
         head-synsem (ref {:cat :verb
-                          :infl {:not :infinitive}
+                          :infl :present
                           :sem {:subj subj-sem}
                           :subcat {:1 subcatted}})
         comp (ref {:synsem subcatted})
@@ -117,12 +109,12 @@
                 :2 comp})))
              
 
-(def rules (concat np-rules vp-rules sentence-rules))
+(def rules (concat np-rules vp-rules-save sentence-rules))
 
 (def np (nth rules 0))
 (def vp (nth rules 1))
 (def vp-save (nth vp-rules-save 0))
-(def s (nth rules 2))
+(def s (nth rules 3))
 
 ;; TODO: move to lexicon (maybe).
 (defn italian-number [number]
