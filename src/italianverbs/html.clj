@@ -155,9 +155,13 @@
       (or (= (type arg) clojure.lang.PersistentArrayMap)
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
-      (not (= :subcat (last path)))
+
+      (and (not (= :subcat (last path)))
+           (not (= :italian (last path)))
+           (not (= :english (last path))))
       (not (= :none (:1 arg :none)))
       (not (= :none (:2 arg :none))))
+
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
