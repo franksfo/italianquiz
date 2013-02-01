@@ -5,7 +5,6 @@
    [somnium.congomongo :as mongo]
    [clojure.tools.logging :as log]
    [clojure.string :as string]
-   [italianverbs.fs :as fs]
    [italianverbs.html :as html]
    [italianverbs.sandbox :as sandbox]
    [italianverbs.lexiconfn :as lexfn]
