@@ -3,7 +3,8 @@
    [clojure.core :exclude [find]]
    [italianverbs.lexiconfn]
    [italianverbs.lexicon]
-   [italianverbs.generate]
+   ;; prohibit generate/printfs because attacker could DOS server by filling up filesystem.
+   [italianverbs.generate :exclude [printfs]]
    [italianverbs.grammar]
    [italianverbs.morphology]
    [clojail.core :only [sandbox]]
