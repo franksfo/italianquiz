@@ -689,7 +689,7 @@
 
 (defn random-sentence []
   (let [head-specification
-        (get-terminal-head-in gram/vp)
+        (fs/copy (get-terminal-head-in gram/vp))
         matching-lexical-verb-heads
         (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
                 (map (fn [lexeme] (fs/match head-specification lexeme)) lex/lexicon))
