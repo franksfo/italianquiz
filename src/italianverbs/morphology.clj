@@ -7,6 +7,7 @@
 
 (defn conjugate-it [arg]
   "conjugate an italian expression."
+;  (pprint (str "conjugating: " arg))
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
@@ -24,6 +25,8 @@
         (and (map? arg)
              (contains? (set (keys arg)) :agr)
              (contains? (set (keys arg)) :infinitive)
+             ;; TODO: check (= :present) rather than (not (= :past)).
+             (not (= :past (fs/get-in arg '(:infl) :notfound)))
              (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
         ;; irregular present-tense (e.g. "fare")
         (let [root (fs/get-in arg '(:infinitive))
@@ -87,14 +90,23 @@
                         #"[eo]$" "i") ;; dottore => dottori; medico => medici
 
 
+        ;; has a :root and :agr, therefore noun, and
         ;; number not specified: use root form by default.
         (and (map? arg)
              (contains? arg :root)
              (contains? arg :agr))
         (str (fs/get-in arg '(:root)))
+
+        ;; irregular passato prossimo.
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past)
+             (not (= (fs/get-in arg '(:infinitive :irregular :passato) :notfound)
+                     :notfound)))
+        (str (fs/get-in arg '(:infinitive :irregular :passato)))
         
         :else
-        ;; assume a map with keys (:root and :agr).
+        ;; assume present tense verb with map with keys (:root and :agr).
         (let [root (fs/get-in arg '(:infinitive))
               root (if (nil? root) "(nil)" root)
               root (if (not (= (type root) java.lang.String))
@@ -143,7 +155,8 @@
 
            (and (= person :3rd) (= number :plur))
            (str stem "ano")
-           :else arg))))
+           :else
+           arg))))
 
 (defn conjugate-en [arg]
   (cond (nil? arg) ""
@@ -163,6 +176,8 @@
         (and (map? arg)
              (contains? (set (keys arg)) :agr)
              (contains? (set (keys arg)) :infinitive)
+             ;; TODO: check (= :present) rather than (not (= :past)).
+             (not (= :past (fs/get-in arg '(:infl) :notfound)))
              (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
         ;; irregular present-tense (e.g. "fare")
         (let [root (fs/get-in arg '(:infinitive))
@@ -210,6 +225,14 @@
              (contains? arg :root)
              (contains? arg :agr))
         (str (fs/get-in arg '(:root)))
+
+        ;; irregular past.
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past)
+             (not (= (fs/get-in arg '(:infinitive :irregular :past) :notfound)
+                     :notfound)))
+        (str (fs/get-in arg '(:infinitive :irregular :past)))
         
         :else
         ;; assume a map with keys (:infintive and :agr).
@@ -288,8 +311,6 @@
         (and (= conjugated-a "di la")
              (re-find #"^[aeiou]" conjugated-b))
         (str "del'" conjugated-b)
-
-
         
         (= conjugated-a "di il")
         (str "del " conjugated-b)

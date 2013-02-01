@@ -360,8 +360,9 @@
      
      )))
 
-;; "x-itive": a generalization of intransitive and transitive (they both have a subject)
-(def x-itive
+;; A generalization of intransitive and transitive:
+;; they both have a subject, thus "subjective".
+(def subjective
   (let [subj-sem (ref :top)
         subj (ref {:sem subj-sem
                    :cat :noun
@@ -371,13 +372,13 @@
 
 ;; intransitive: has subject but no object.
 (def intransitive
-  (unify x-itive
+  (unify subjective
          {:synsem
           {:subcat {:2 :nil!}}}))
 
 ;; intransitive: has both subject and object.
 (def transitive
-  (unify x-itive
+  (unify subjective
          (let [obj-sem (ref :top)
                obj (ref {:sem obj-sem
                          :cat :noun
@@ -459,9 +460,35 @@
     :synsem {:cat :verb
              :morph :irreg
              :infl :infinitive
-             :sem {:pred :fare
+             :sem {:pred :avere
                    :subj {:human true}
                    :obj {:buyable true}}}}))
+
+(def avere-aux
+  (let [v-past-pred (ref :top)]
+    (unify
+     subjective
+     {:synsem {:subcat {:2 {:cat :verb
+                            :sem {:pred v-past-pred}
+                            :infl :past}}}}
+     {:italian {:infinitive "avere"
+                :irregular {:present {:1sing "ho"
+                                      :2sing "hai"
+                                      :3sing "ha"
+                                      :1plur "abbiamo"
+                                      :2plur "avete"
+                                      :3plur "hanno"}}}
+      :english {:infinitive "to have"
+                :irregular {:present {:1sing "have"
+                                      :2sing "have"
+                                      :3sing "has"
+                                      :1plur "have"
+                                      :2plur "have"
+                                      :3plur "have"}}}
+      :synsem {:cat :verb
+               :morph :irreg
+               :infl :infinitive
+               :sem {:pred v-past-pred}}})))
 
 (def comprare
   (unify
@@ -496,8 +523,10 @@
   (unify
    transitive
    infinitive-verb
-   {:italian "leggere"
-    :english "to read"
+   {:italian {:infinitive "leggere"
+              :irregular {:passato "letto"}}
+    :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
+              :irregular {:past "read"}} ;; spelled "read" but pronounced like "red".
     :synsem {:sem {:pred :leggere
                    :subj {:human true}
                    :obj {:legible true}}}}))
@@ -559,9 +588,13 @@
   (unify finite-verb
          {:synsem {:infl :present}}))
 
+;; TODO: all verbs should have :infl information (not just past verbs)
 (def past-tense-verb
-  (unify finite-verb
-         {:synsem {:infl :past}}))
+  (let [past (ref :past)]
+    (unify finite-verb
+           {:synsem {:infl past}
+            :english {:infl past}
+            :italian {:infl past}})))
 
 (def trans-present-tense-verb
   (unify present-tense-verb
@@ -590,6 +623,10 @@
     avere1
     (unify {:root avere1}
            trans-present-tense-verb)
+
+    avere-aux
+    (unify {:root avere-aux}
+           present-tense-verb)
 
     bevere
     (unify {:root bevere}

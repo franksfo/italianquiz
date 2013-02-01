@@ -29,6 +29,12 @@
     {:head {:synsem {:subcat {:1 comp-synsem}}}
      :comp {:synsem comp-synsem}}))
 
+(def verb-inflection-morphology
+  (let [infl (ref :top)]
+    {:italian {:infl infl}
+     :english {:infl infl}
+     :head {:synsem {:infl infl}}}))
+
 (def vp-rules
   (let [obj-sem (ref :top)
         obj-synsem (ref {:sem obj-sem})
@@ -43,6 +49,7 @@
         head (ref {:synsem head-synsem})]
     (list
      (fs/unifyc head-principle
+                verb-inflection-morphology
                 {:comment "vp -> head comp"
                  :head head
                  :synsem {:subcat {:1 subj-synsem}
@@ -51,6 +58,7 @@
                  :1 head
                  :2 obj})
      (fs/unifyc head-principle
+                verb-inflection-morphology
                 {:comment "vp[past] -> head comp"
                  :head head
                  :synsem {:subcat {:1 subj-synsem}
