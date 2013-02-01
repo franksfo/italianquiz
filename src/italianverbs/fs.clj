@@ -177,8 +177,10 @@
 
      (= val1 val2) val1
 
-     :else :fail)))
-
+     :else
+     (do
+       (println (str val1 " , " val2 " => :fail"))
+       :fail))))
 
 ;; (fs/match {:a 42} {:a 42 :b 43})
 ;; => {:b 43, :a 42} ; ok: val2 specializes val1.
