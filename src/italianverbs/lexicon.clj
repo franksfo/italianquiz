@@ -701,7 +701,7 @@
    (list avere-aux-trans
          (let [do-def
                (def avere-present-aux-trans
-                 (unify {:root avere-aux-trans}
+                 (unify {:root (fs/copy avere-aux-trans)}
                         present-tense-aux-past-verb))]
            avere-present-aux-trans))
    (list
