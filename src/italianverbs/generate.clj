@@ -427,7 +427,7 @@
            (over-parent-child each-parent child))
          parent))
 
-   (seq? child)
+   (or (set? child) (seq? child))
    (remove (fn [result]
              (or (fs/fail? result)
                  (nil? result)))
@@ -469,7 +469,13 @@
      (if (= do-match :fail)
        :fail
        (let [unified (unify parent
-                            {add-child-where child})]
+                            {add-child-where
+                             (unify
+                              (let [sem (fs/get-in child '(:synsem :sem) :notfound)]
+                                (if (not (= sem :notfound))
+                                  {:synsem {:sem (lex/sem-impl sem)}}
+                                  {}))
+                             child)})]
          (if (not (fs/fail? unified))
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
@@ -636,7 +642,7 @@
   (args2 verb))
 
 (def vp-head-spec
-  (fs/get-in gram/vp-save '(:head)))
+  (fs/get-in (nth gram/vp-rules 0) '(:head)))
 
 (defn rp1 [& head-spec]
   (let [head-spec
