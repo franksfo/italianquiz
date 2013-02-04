@@ -17,6 +17,13 @@ td {
     width:6em;
 }
 
+div.map h2 {
+    background:white;
+    margin:0;
+    padding:0;
+    margin-left:10%;
+    margin-top:0.5em;
+}
 
 /* feature structures (from fs.css@ef61fc6) */
 table.map {

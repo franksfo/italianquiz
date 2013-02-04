@@ -50,4 +50,50 @@
 (defn sandbox-load-string [expression]
   (workbook-sandbox (read-string expression)))
 
-;(dotimes [n 10] (def foo (time (args1-cached "mangiare"))))
+(defn show-lexicon []
+  (map (fn [entry]
+         (let [inflection
+               (fs/get-in entry '(:synsem :infl))
+               italian
+               (fs/get-in entry '(:italian))
+               italian-infinitive
+               (fs/get-in entry '(:italian :infinitive))
+               italian-infinitive-infinitive
+               (fs/get-in entry
+                          '(:italian :infinitive :infinitive))]
+           (merge entry
+                  {:header
+                   (cond
+                    (= inflection :present)
+                    (str
+                     (if (string? italian-infinitive)
+                       italian-infinitive
+                       italian-infinitive-infinitive)
+                     " (present)")
+                    italian-infinitive
+                    (str italian-infinitive " (infinitive)")
+                    italian-infinitive-infinitive
+                    (str italian-infinitive-infinitive " (present)")
+                    :else italian)})))
+       lexicon))
+
+;;;workbook examples:
+
+;;;(dotimes [n 10] (def foo (time (args1-cached "mangiare"))))
+
+(if false
+  (map (fn [x] {:it (fs/get-in x '(:italian))
+                :it-inf (fs/get-in x '(:italian :infinitive))})
+       lexicon)
+
+  )
+
+(take-last 3 (take 3 (show-lexicon)))
+(take-last 3 (take 6 (show-lexicon)))
+(take-last 3 (take 9 (show-lexicon)))
+
+;;
+;;
+
+(take-last 3 (take 60 (show-lexicon)))
+(take-last 3 (take 63 (show-lexicon)))
