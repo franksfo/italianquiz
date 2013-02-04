@@ -41,12 +41,13 @@
                         clojure.lang.Reflector
                         clojure.lang.Namespace
                         clojure.lang.Var clojure.lang.RT]))
+   ;; TODO: make this configurable:
+   ;;   might want to have a value for production usage lower/higher than
+   ;;   for development usage.
    :timeout 5000
    :namespace 'italianverbs.sandbox))
 
 (defn sandbox-load-string [expression]
   (workbook-sandbox (read-string expression)))
-
-                                        ;
 
 ;(dotimes [n 10] (def foo (time (args1-cached "mangiare"))))
