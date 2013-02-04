@@ -52,6 +52,7 @@
                                                 (seq loaded)))
 
                               (or (list? loaded)
+                                  (= (type loaded) clojure.lang.Cons)
                                   (set? loaded))
                               (string/join " "
                                            (map (fn [elem]

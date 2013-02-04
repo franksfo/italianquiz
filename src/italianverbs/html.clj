@@ -137,7 +137,8 @@
      (set? arg)
      (tablize (first arg) path serialized opts)
      (or (set? arg)
-         (list? arg))
+         (list? arg)
+         (= (type arg) clojure.lang.Cons))
      (str
       (clojure.string/join ""
                            (map (fn [each-arg]
