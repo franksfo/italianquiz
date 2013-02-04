@@ -123,7 +123,8 @@
                {:as-tree true})
         ]
     (cond
-     (nil? arg) (str "<hr/>")
+     (nil? arg) (str "<i>nil</i>")
+     (= arg '()) (str "<i>&lt;&nbsp;&gt;</i>")
      (= (type arg) clojure.lang.LazySeq)
      (str
       ;; TODO: pass along additional args (path,serialized,opts)
@@ -133,13 +134,10 @@
                            (map (fn [each-arg]
                                   (tablize each-arg path (fs/serialize each-arg) opts))
                                 (seq arg))))
-     (= (type arg) clojure.lang.PersistentList)
-     (str
-      (clojure.string/join ""
-                           (map (fn [each-arg]
-                                  (tablize each-arg path (fs/serialize each-arg) opts))
-                                arg)))
-     (= (type arg) clojure.lang.Cons)
+     (set? arg)
+     (tablize (first arg) path serialized opts)
+     (or (set? arg)
+         (list? arg))
      (str
       (clojure.string/join ""
                            (map (fn [each-arg]
