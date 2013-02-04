@@ -26,9 +26,25 @@
 ;; H subcat<1>  C[1]
 (def subcat-1-principle
   (let [comp-synsem (ref :top)]
-    {:head {:synsem {:subcat {:1 comp-synsem}}}
+    {:subcat '()
+     :head {:synsem {:subcat {:1 comp-synsem}}}
      :comp {:synsem comp-synsem}}))
 
+;;     subcat<1>
+;;     /      \
+;;    /        \
+;; H subcat<1,2>  C[2]
+(def subcat-2-principle
+  (let [comp-synsem (ref :top)
+        parent-subcat (ref :top)]
+    {:synsem {:subcat {:1 parent-subcat}}
+     :head {:synsem {:subcat {:1 parent-subcat
+                              :2 comp-synsem}}}
+     :comp {:synsem comp-synsem}}))
+
+
+;; a language's morphological inflection is
+;; identical to its head's SYNSEM|INFL value.
 (def verb-inflection-morphology
   (let [infl (ref :top)]
     {:italian {:infl infl}
@@ -36,50 +52,32 @@
      :head {:synsem {:infl infl}}}))
 
 (def vp-rules
-  (let [obj-sem (ref :top)
-        obj-synsem (ref {:sem obj-sem})
-        obj (ref {:synsem obj-synsem})
-        subj-sem (ref :top)
-        subj-synsem (ref {:sem subj-sem})
-        head-synsem (ref {:cat :verb
-                          :sem {:subj subj-sem
-                                :obj obj-sem}
-                          :subcat {:1 subj-synsem
-                                   :2 obj-synsem}})
-        head (ref {:synsem head-synsem})]
-    (list
-     (fs/unifyc head-principle
-                verb-inflection-morphology
-                {:comment "vp -> head comp"
-                 :head head
-                 :synsem {:subcat {:1 subj-synsem}
-                          :infl :present}
-                 :comp obj
-                 :1 head
-                 :2 obj})
-     (fs/unifyc head-principle
-                verb-inflection-morphology
-                {:comment "vp[past] -> head comp"
-                 :head head
-                 :synsem {:subcat {:1 subj-synsem}
-                          :infl :past}
-                 :comp obj
-                 :1 head
-                 :2 obj}))))
-
-(def vp-rules-save
-  (map fs/copy vp-rules))
+  (let [head (ref :top)
+        comp (ref :top)]
+    (def vp1
+      (fs/unifyc head-principle
+                 subcat-2-principle
+                 verb-inflection-morphology
+                 {:head {:synsem {:cat :verb
+                                  :infl :present}}}
+                 {:comment "vp -> head comp"
+                  :head head
+                  :comp comp
+                  :1 head
+                  :2 comp}))
+    (list vp1)))
 
 (def sentence-rules
   (let [subj-sem (ref :top)
         subcatted (ref {:cat :noun
+                        :subcat '()
                         :sem subj-sem})
-        head-synsem (ref {:cat :verb
-                          :infl :present
-                          :sem {:subj subj-sem}
-                          :subcat {:1 subcatted}})
         comp (ref {:synsem subcatted})
-        head (ref {:synsem head-synsem})]
+        head (ref {:synsem {:cat :verb
+                            :infl :present
+                            :sem {:subj subj-sem}
+                            :subcat {:1 subcatted
+                                     :2 '()}}})]
     (list
      (fs/unifyc head-principle subcat-1-principle
                {:comment "s -> np vp"
@@ -117,12 +115,11 @@
                 :2 comp})))
              
 
-(def rules (concat np-rules vp-rules-save sentence-rules))
+(def rules (concat np-rules vp-rules sentence-rules))
 
-(def np (nth rules 0))
-(def vp (nth rules 1))
-(def vp-save (nth vp-rules-save 0))
-(def s (nth rules 3))
+(def np (nth np-rules 0))
+(def vp (nth vp-rules 0))
+(def s (nth sentence-rules 0))
 
 ;; TODO: move to lexicon (maybe).
 (defn italian-number [number]
