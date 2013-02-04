@@ -3,7 +3,8 @@
    [clojure.core :exclude [find]]
    [italianverbs.lexiconfn]
    [italianverbs.lexicon]
-   ;; prohibit generate/printfs because attacker could DOS server by filling up filesystem.
+   ;; Prohibit generate/printfs because it writes directly to the filesystem:
+   ;; attacker could DOS server by filling up filesystem.
    [italianverbs.generate :exclude [printfs]]
    [italianverbs.grammar]
    [italianverbs.morphology]
@@ -12,6 +13,7 @@
    ]
   [:require
    [italianverbs.fs :as fs]
+   [italianverbs.html :as html]
    [clojure.set :as set]
    [clojure.string :as string]
    [clojure.tools.logging :as log]])
