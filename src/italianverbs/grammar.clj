@@ -66,7 +66,9 @@
                   :1 head
                   :2 comp
                   :extend {:a {:1 'lexicon
-                               :2 'np}}}))
+                               :2 'np}
+                           :b {:1 'lexicon
+                               :2 'lexicon}}}))
     (list vp1)))
 
 (def sentence-rules
@@ -109,7 +111,9 @@
                  :head head
                  :comp comp
                  :1 comp
-                 :2 head}))))
+                 :2 head
+                 :extends {:a {:1 'lexicon
+                               :2 'lexicon}}}))))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
