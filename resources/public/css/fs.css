@@ -87,6 +87,10 @@ div.unknown {
     padding:2px;
 }
 
+tr.hide {
+    display:none;
+}
+
 tr.comment td {
     font-style:italic;
 }

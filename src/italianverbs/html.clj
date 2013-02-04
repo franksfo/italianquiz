@@ -253,6 +253,7 @@
          (= (type arg) clojure.lang.PersistentTreeMap))
      (str
       "<div class='map'>"
+      (if (:header arg) (str "<h2>" (:header arg) "</h2>"))
       "  <table class='map'>"
       (clojure.string/join
        ""
@@ -264,6 +265,9 @@
             ;; use a custom CSS class for :comment.
             (= (first tr) :comment)
             " class='comment'"
+            ;; use a custom CSS class for :header (i.e. hide it with display:none)
+            (= (first tr) :header)
+            " class='hide' style='display:none'"
             ;; ..handle other keywords that need a custom CSS class..
             ;; default: no custom CSS class.
             true "")
