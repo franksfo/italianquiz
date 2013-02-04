@@ -9,16 +9,51 @@
 (clear!)
 
 (def human {:human true
-            :animate true
-            :buyable false})
+            :animate true})
+
 (def animal {:animate true})
 
 (def food {:synsem {:sem {:edible true
                           :buyable true}}})
 
-(def infinitive-verb
+(def infinitive
   {:synsem {:cat :verb
             :infl :infinitive}})
+
+(defn sem-impl [input]
+  "expand input feature structures with semantic (really cultural) implicatures, e.g., if human, then not buyable or edible"
+  (let [human (if (= (fs/get-in input '(:human))
+                     true)
+                {:buyable false
+                 :edible false
+                 :animate true}
+                {})
+        nothuman (if (= (fs/get-in input '(:human))
+                        false)
+                   {:animate false}
+                   {})
+        animate (if (= (fs/get-in input '(:animate))
+                       true)
+                  {:artifact false
+                   :drinkable false
+                   :place false})
+        notanimate (if (= (fs/get-in input '(:animate))
+                          false)
+                     {:human false})
+        artifact (if (= (fs/get-in input '(:artifact))
+                        true)
+                   {:animate false})
+
+        place (if (= (fs/get-in input '(:place))
+                     true)
+                {:animate false})
+
+        ]
+
+    (let [merged (fs/merge human nothuman animate notanimate artifact place input)]
+      (if (not (= merged input))
+        (sem-impl merged) ;; we've added some new information: more implications possible from that.
+        merged)))) ;; no more implications: return
 
 (def noun-conjugator
   (let [italian-root (ref :top)
@@ -363,33 +398,31 @@
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
 (def subjective
-  (let [subj-sem (ref :top)
-        subj (ref {:sem subj-sem
-                   :cat :noun
-                   :agr {:case {:not :acc}}})]
+  (let [subj-sem (ref :top)]
     {:synsem {:sem {:subj subj-sem}
-              :subcat {:1 subj}}}))
+              :subcat {:1 {:sem subj-sem
+                           :cat :noun
+                           :agr {:cat {:not :acc}}}}}}))
 
 ;; intransitive: has subject but no object.
 (def intransitive
   (unify subjective
          {:synsem
-          {:subcat {:2 :nil!}}}))
+          {:subcat {:2 '()}}}))
 
 ;; intransitive: has both subject and object.
 (def transitive
   (unify subjective
-         (let [obj-sem (ref :top)
-               obj (ref {:sem obj-sem
-                         :cat :noun
-                         :agr {:case {:not :nom}}})]
+         (let [obj-sem (ref :top)]
            {:synsem {:sem {:obj obj-sem}
-                     :subcat {:2 obj}}})))
+                     :subcat {:2 {:sem obj-sem
+                                  :cat :noun
+                                  :agr {:case {:not :nom}}}}}})))
 
 (def bevere
   (unify
    transitive
-   infinitive-verb
+   infinitive
    {:italian "bevere"
     :english "to drink"
     :synsem {:sem {:pred :bevere
@@ -415,7 +448,6 @@
                                     :3plur "do"}}}
     
     :synsem {:cat :verb
-             :morph :irreg
              :infl :infinitive
              :sem {:pred :fare
                    :subj {:human true}
@@ -433,67 +465,105 @@
                                     :3plur "fanno"}}}
     :english "to make"
     :synsem {:cat :verb
-             :morph :irreg
              :infl :infinitive
              :sem {:pred :fare
                    :subj {:human true}
                    :obj {:artifact true}}}}))
 
 
+(def avere-common
+  {:synsem {:cat :verb}
+   :italian {:infinitive "avere"
+             :irregular {:present {:1sing "ho"
+                                   :2sing "hai"
+                                   :3sing "ha"
+                                   :1plur "abbiamo"
+                                   :2plur "avete"
+                                   :3plur "hanno"}}}
+   :english {:infinitive "to have"
+             :irregular {:present {:1sing "have"
+                                   :2sing "have"
+                                   :3sing "has"
+                                   :1plur "have"
+                                   :2plur "have"
+                                    :3plur "have"}}}})
+   
 (def avere1
   (unify
    transitive
-   {:italian {:infinitive "avere"
-              :irregular {:present {:1sing "ho"
-                                    :2sing "hai"
-                                    :3sing "ha"
-                                    :1plur "abbiamo"
-                                    :2plur "avete"
-                                    :3plur "hanno"}}}
-    :english {:infinitive "to have"
-              :irregular {:present {:1sing "have"
-                                    :2sing "have"
-                                    :3sing "has"
-                                    :1plur "have"
-                                    :2plur "have"
-                                    :3plur "have"}}}
-    :synsem {:cat :verb
-             :morph :irreg
-             :infl :infinitive
+   infinitive
+   avere-common
+   {:synsem {:infl :infinitive
              :sem {:pred :avere
                    :subj {:human true}
                    :obj {:buyable true}}}}))
 
 (def avere-aux
-  (let [v-past-pred (ref :top)]
+  (let [v-past-pred (ref :top)
+        subject (ref :top)]
     (unify
      subjective
-     {:synsem {:subcat {:2 {:cat :verb
+     infinitive
+     avere-common
+     {:synsem {:subcat {:1 subject
+                        :2 {:cat :verb
+                            :subcat {:1 subject}
                             :sem {:pred v-past-pred}
-                            :infl :past}}}}
-     {:italian {:infinitive "avere"
-                :irregular {:present {:1sing "ho"
-                                      :2sing "hai"
-                                      :3sing "ha"
-                                      :1plur "abbiamo"
-                                      :2plur "avete"
-                                      :3plur "hanno"}}}
-      :english {:infinitive "to have"
-                :irregular {:present {:1sing "have"
-                                      :2sing "have"
-                                      :3sing "has"
-                                      :1plur "have"
-                                      :2plur "have"
-                                      :3plur "have"}}}
-      :synsem {:cat :verb
-               :morph :irreg
-               :infl :infinitive
+                            :infl :past}}
                :sem {:pred v-past-pred}}})))
+
+(def avere-aux
+  (let [v-past-pred (ref :top)
+        subject (ref :top)]
+    (unify
+     subjective
+     infinitive
+     avere-common
+     {:synsem {:subcat {:1 subject
+                        :2 {:cat :verb
+                            :subcat {:1 subject}
+                            :sem {:pred v-past-pred}
+                            :infl :past}}
+               :sem {:pred v-past-pred}}})))
+
+(def avere-aux-intrans
+  (let [v-past-pred (ref :top)
+        subject (ref :top)]
+    (unify
+     intransitive
+     infinitive
+     avere-common
+     {:synsem {:subcat {:1 subject
+                        :2 {:cat :verb
+                            :subcat {:1 subject
+                                     :2 '()}
+                            :sem {:pred v-past-pred}
+                            :infl :past}}
+               :sem {:pred v-past-pred}}})))
+
+(def avere-aux-trans
+  (let [pred (ref :top)
+        subject (ref :top)
+        subject-sem (ref :top)
+        object-sem (ref :top)]
+    (unify
+     infinitive
+     avere-common
+     {:synsem {:subcat {:1 subject
+                        :2 {:cat :verb
+                            :subcat {:1 subject
+                                     :2 :top}
+                            :sem {:pred pred}
+                            :infl :past}}
+               :sem {:subj subject-sem
+                     :obj object-sem
+                     :pred pred}}})))
+
 
 (def comprare
   (unify
    transitive
-   infinitive-verb
+   infinitive
    {:italian "comprare"
     :english "to buy"
     :synsem {:sem {:pred :comprare
@@ -503,7 +573,7 @@
 (def dormire
   (unify
    intransitive
-   infinitive-verb
+   infinitive
    {:italian "dormire"
     :english "to sleep"
     :synsem {:sem {:subj {:animate true}
@@ -512,7 +582,7 @@
 (def mangiare
   (unify
    transitive
-   infinitive-verb
+   infinitive
    {:italian "mangiare"
     :english "to eat"
     :synsem {:sem {:pred :mangiare
@@ -522,7 +592,7 @@
 (def leggere
   (unify
    transitive
-   infinitive-verb
+   infinitive
    {:italian {:infinitive "leggere"
               :irregular {:passato "letto"}}
     :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
@@ -534,7 +604,7 @@
 (def vedere
   (unify
    transitive
-   infinitive-verb
+   infinitive
    {:italian "vedere"
     :english "to see"
     :synsem {:sem {:pred :vedere
@@ -543,7 +613,7 @@
 (def scrivere
   (unify
    transitive
-   infinitive-verb
+   infinitive
    {:italian "scrivere"
     :english "to write"
     :synsem {:sem {:pred :scrivere
@@ -553,12 +623,11 @@
 (def sognare
   (unify
    intransitive
-   infinitive-verb
+   infinitive
    {:italian "sognare"
     :english "to dream"
     :synsem {:sem {:subj {:animate true}
                    :pred :sognare}}}))
-
 
 (def finite-verb
   (let [subj-sem (ref :top)
@@ -588,6 +657,11 @@
   (unify finite-verb
          {:synsem {:infl :present}}))
 
+(def present-tense-aux-past-verb
+  (unify finite-verb
+         {:synsem {:infl :present
+                   :sem {:time :past}}}))
+
 ;; TODO: all verbs should have :infl information (not just past verbs)
 (def past-tense-verb
   (let [past (ref :past)]
@@ -615,19 +689,23 @@
 (def intrans-present-tense-verb
   (unify present-tense-verb
          {:root {:synsem
-                 {:subcat {:2 :nil!}}}}))
+                 {:subcat {:2 '()}}}}))
 
 (def vp-1-lexicon
   (concat
    (list
     avere1
     (unify {:root avere1}
-           trans-present-tense-verb)
+           trans-present-tense-verb))
 
-    avere-aux
-    (unify {:root avere-aux}
-           present-tense-verb)
-
+   (list avere-aux-trans
+         (let [do-def
+               (def avere-present-aux-trans
+                 (unify {:root avere-aux-trans}
+                        present-tense-aux-past-verb))]
+           avere-present-aux-trans))
+   (list
+      
     bevere
     (unify {:root bevere}
            trans-present-tense-verb)
@@ -672,7 +750,7 @@
                         :person :1st
                         :number :sing}
                   :sem (unify human {:pred :io})
-                  :subcat :nil!}
+                  :subcat '()}
          :english "i"
          :italian "io"}
         {:synsem {:cat :noun
@@ -680,7 +758,7 @@
                         :person :2nd
                         :number :sing}
                   :sem (unify human {:pred :tu})
-                  :subcat :nil!}
+                  :subcat '()}
          :english "you"
          :italian "tu"}
         {:synsem {:cat :noun
@@ -689,7 +767,7 @@
                         :gender :masc
                         :number :sing}
                   :sem (unify human {:pred :lui})
-                  :subcat :nil!}
+                  :subcat '()}
          :english "he"
          :italian "lui"}
         {:synsem {:cat :noun
@@ -698,7 +776,7 @@
                         :gender :fem
                         :number :sing}
                   :sem (unify human {:pred :lei})
-                  :subcat :nil!}
+                  :subcat '()}
          :english "she"
          :italian "lei"}
         {:synsem {:cat :noun
@@ -706,7 +784,7 @@
                         :person :1st
                         :number :plur}
                   :sem (unify human {:pred :noi})
-                  :subcat :nil!}
+                  :subcat '()}
          :english "we"
          :italian "noi"}
         {:synsem {:cat :noun
@@ -714,7 +792,7 @@
                         :person :2nd
                         :number :plur}
                   :sem (unify human {:pred :voi})
-                  :subcat :nil!}
+                  :subcat '()}
          :italian "voi"
          :english "you all"}
         {:synsem {:cat :noun
@@ -722,7 +800,7 @@
                         :person :3rd
                         :number :plur}
                   :sem (unify human {:pred :loro})
-                  :subcat :nil!}
+                  :subcat '()}
          :italian "loro"
          :english "they"}))
 
@@ -766,10 +844,9 @@
 ;; apparently I'm not understanding how to use
 ;; set/union correctly to avoid the duplication.
 (defn it [italian]
-  (set/union
-   (lookup {:italian italian})
-   (lookup {:italian {:infinitive italian}})
-   (lookup {:root {:italian italian}})))
+  (set/union (set (lookup {:italian italian}))
+             (set (lookup {:italian {:infinitive italian}}))
+             (set (lookup {:root {:italian italian}}))))
 
 (defn en [english]
   (lookup {:english english}))
