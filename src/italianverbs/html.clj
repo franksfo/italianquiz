@@ -156,10 +156,17 @@
 
       (and (not (= :subcat (last path)))
            (not (= :italian (last path)))
+
+           ;; display :extends properly (i.e. not a tree).
+           (not (= :a (last path)))
+           (not (= :b (last path)))
+           (not (= :c (last path)))
+
            (not (= :english (last path))))
       (not (= :none (:1 arg :none)))
       (not (= :none (:2 arg :none))))
 
+     
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
@@ -207,6 +214,12 @@
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
       (not (= :subcat (last path)))
+
+      (not (= :a (last path)))
+      (not (= :b (last path)))
+      (not (= :c (last path)))
+
+
       (not (= :none (:1 arg :none)))
       (= :none (:2 arg :none)))
      (str
@@ -329,6 +342,10 @@
           (= @arg nil))
      (str "NIL.")
 
+     (symbol? arg)
+     (str "<i>" arg "</i>")
+
+     
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
                                       (fs/path-to-ref-index serialized path 0))]

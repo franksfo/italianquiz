@@ -64,7 +64,9 @@
                   :head head
                   :comp comp
                   :1 head
-                  :2 comp}))
+                  :2 comp
+                  :extend {:a {:1 'lexicon
+                               :2 'np}}}))
     (list vp1)))
 
 (def sentence-rules
@@ -84,8 +86,13 @@
                 :head head
                 :comp comp
                 :1 comp
-                :2 head}))))
-
+                :2 head
+                :extend {:a {:1 'np
+                             :2 'vp}
+                         :b {:1 'lexicon
+                             :2 'vp}
+                         :c {:1 'np
+                             :2 'lexicon}}}))))
 (def np-rules 
   (list
    (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
@@ -112,8 +119,9 @@
                {:head head
                 :comp comp
                 :1 head
-                :2 comp})))
-             
+                :2 comp
+                :extend {:a {:1 'lexicon
+                             :2 'np}}})))
 
 (def rules (concat np-rules vp-rules sentence-rules))
 
