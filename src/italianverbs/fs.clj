@@ -3,7 +3,6 @@
         [clojure.tools.logging])
   (:require
    [clojure.tools.logging :as log]
-   [italianverbs.fs :as fs] ;; needed maybe by the (eval fs/..) stuff below.
    [clojure.core :as core]
    [clojure.string :as string]))
 
@@ -381,15 +380,15 @@
 (defn unify-and-apply [maps]
   "merge maps, and then apply the function (:fn merged) to the merged map."
   (let [merged
-        (eval `(fs/unify ~@maps))
+        (eval `(unify ~@maps))
         fn (:fn merged)
         eval-fn (if (and fn (= (type fn) java.lang.String))
                   (eval (symbol fn)) ;; string->fn (since a fn cannot (yet) be 
                   fn)] ;; otherwise, assume it's a function.
     (if (:fn merged)
-      (fs/unify merged
-            (apply eval-fn
-                   (list merged)))
+      (unify merged
+             (apply eval-fn
+                    (list merged)))
       maps)))
 
 (defn set-paths [fs paths val]
@@ -682,7 +681,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn unifyc [& args]
   "like fs/unify, but fs/copy each argument before unifying."
-  (apply fs/unify
+  (apply unify
          (map (fn [arg]
                 (copy arg))
               args)))
