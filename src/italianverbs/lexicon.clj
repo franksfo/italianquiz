@@ -13,8 +13,7 @@
 
 (def animal {:animate true})
 
-(def food {:synsem {:sem {:edible true
-                          :buyable true}}})
+(def food {:synsem {:sem {:edible true}}})
 
 (def infinitive
   {:synsem {:cat :verb
@@ -22,38 +21,50 @@
 
 (defn sem-impl [input]
   "expand input feature structures with semantic (really cultural) implicatures, e.g., if human, then not buyable or edible"
-  (let [human (if (= (fs/get-in input '(:human))
-                     true)
-                {:buyable false
-                 :edible false
-                 :animate true}
-                {})
-        nothuman (if (= (fs/get-in input '(:human))
-                        false)
-                   {:animate false}
-                   {})
-        animate (if (= (fs/get-in input '(:animate))
-                       true)
-                  {:artifact false
-                   :drinkable false
-                   :place false})
-        notanimate (if (= (fs/get-in input '(:animate))
-                          false)
-                     {:human false})
-        artifact (if (= (fs/get-in input '(:artifact))
+  (cond
+   (= input :top) input
+   true
+   (let [human (if (= (fs/get-in input '(:human))
+                      true)
+                 {:buyable false
+                  :edible false
+                  :animate true}
+                 {})
+         animal-but-not-human (if (and (fs/get-in input '(:animate))
+                                       (not (= true (fs/get-in input '(:human)))))
+                                {:human false})
+         nothuman (if (= (fs/get-in input '(:human))
+                         false)
+                    {:animate false}
+                    {})
+         animate (if (= (fs/get-in input '(:animate))
                         true)
-                   {:animate false})
+                   {:artifact false
+                    :drinkable false
+                    :place false})
+         if-inanimate (if (= (fs/get-in input '(:animate))
+                           false)
+                      {:human false})
+         inanimate-by-default (if (not (= (fs/get-in input '(:animate)) true))
+                                {:animate false})
 
-        place (if (= (fs/get-in input '(:place))
-                     true)
-                {:animate false})
+         artifact (if (= (fs/get-in input '(:artifact))
+                         true)
+                    {:animate false})
 
-        ]
+         if-edible (if (or (= (fs/get-in input '(:edible)) true)
+                           (= (fs/get-in input '(:drinkable)) true))
+                     {:buyable true})
 
-    (let [merged (fs/merge human nothuman animate notanimate artifact place input)]
-      (if (not (= merged input))
-        (sem-impl merged) ;; we've added some new information: more implications possible from that.
-        merged)))) ;; no more implications: return
+         place (if (= (fs/get-in input '(:place))
+                      true)
+                 {:animate false})
+
+         ]
+     (let [merged (fs/merge human nothuman animate if-inanimate inanimate-by-default artifact place if-edible input)]
+       (if (not (= merged input))
+         (sem-impl merged) ;; we've added some new information: more implications possible from that.
+         merged))))) ;; no more implications: return
 
 (def noun-conjugator
   (let [italian-root (ref :top)
@@ -110,8 +121,7 @@
                {:root (unify agreement
                              common-noun
                              {:synsem {:sem {:number :sing
-                                             :drinkable true
-                                             :buyable true}}})})
+                                             :drinkable true}}})})
         ]
     (list
 
@@ -168,10 +178,9 @@
             {:root (unify agreement
                           common-noun
                           masculine
-                          {:synsem {:sem {:pred :pane
-                                          :edible true
-                                          :buyable true
-                                          :artifact true}}
+                          {:synsem {:sem (sem-impl {:pred :pane
+                                                    :edible true
+                                                    :artifact true})}
                            :italian "pane"
                            :english "bread"}
                           {:synsem {:subcat {:1 {:cat :det
@@ -547,8 +556,8 @@
         subject-sem (ref :top)
         object-sem (ref :top)]
     (unify
-     infinitive
-     avere-common
+     (fs/copy infinitive)
+     (fs/copy avere-common)
      {:synsem {:subcat {:1 subject
                         :2 {:cat :verb
                             :subcat {:1 subject
@@ -558,7 +567,6 @@
                :sem {:subj subject-sem
                      :obj object-sem
                      :pred pred}}})))
-
 
 (def comprare
   (unify
@@ -601,14 +609,15 @@
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
-(def vedere
+(def pensare
   (unify
-   transitive
+   intransitive
    infinitive
-   {:italian "vedere"
-    :english "to see"
-    :synsem {:sem {:pred :vedere
-                   :subj {:animate true}}}}))
+   {:italian "pensare"
+    :english {:infinitive "to think"
+              :irregular {:past "thought"}}
+    :synsem {:sem {:pred :pensare
+                   :subj {:human true}}}}))
 
 (def scrivere
   (unify
@@ -628,6 +637,15 @@
     :english "to dream"
     :synsem {:sem {:subj {:animate true}
                    :pred :sognare}}}))
+
+(def vedere
+  (unify
+   transitive
+   infinitive
+   {:italian "vedere"
+    :english "to see"
+    :synsem {:sem {:pred :vedere
+                   :subj {:animate true}}}}))
 
 (def finite-verb
   (let [subj-sem (ref :top)
@@ -724,16 +742,31 @@
     leggere
     (unify {:root leggere}
            trans-present-tense-verb)
-    (unify {:root leggere}
-           trans-past-tense-verb)
+    (let [do-def
+          (def letto
+            (unify {:root leggere}
+                   trans-past-tense-verb))]
+      letto)
 
     mangiare
     (unify {:root mangiare}
            trans-present-tense-verb)
-    
+    (let [do-def
+          (def mangiato
+            (unify {:root mangiare}
+                   trans-past-tense-verb))]
+      mangiato)
+
+
+    pensare
+    (unify {:root pensare}
+           intrans-present-tense-verb)
+
     scrivere
     (unify {:root scrivere}
            trans-present-tense-verb)
+    (unify {:root scrivere}
+           trans-past-tense-verb)
 
     sognare
     (unify {:root sognare}
@@ -837,15 +870,10 @@
 (defn lookup [query]
   (lookup-in query lexicon))
 
-;; note: seems to have duplicates
-;; (e.g. finite form of italian has both
-;;  {:italian {:infinitive "leggere"}} and
-;;  {:root {:italian "leggere"}})
-;; apparently I'm not understanding how to use
-;; set/union correctly to avoid the duplication.
 (defn it [italian]
   (set/union (set (lookup {:italian italian}))
              (set (lookup {:italian {:infinitive italian}}))
+             (set (lookup {:italian {:infinitive {:infinitive italian}}}))
              (set (lookup {:root {:italian italian}}))))
 
 (defn en [english]
