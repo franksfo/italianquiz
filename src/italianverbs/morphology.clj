@@ -268,7 +268,7 @@
 
 (defn get-italian [a b]
   (let [conjugated-a (conjugate-it a)
-        conjugated-b (if (not (nil? b)) (conjugate-it b) "")]
+        conjugated-b (if (not (nil? b)) (conjugate-it b) "..")]
     (if (and
          (string? conjugated-a)
          (string? conjugated-b))
@@ -335,7 +335,7 @@
 
 (defn get-english [a b]
   (let [conjugated-a (conjugate-en a)
-        conjugated-b (if (not (nil? b)) (conjugate-en b) "")]
+        conjugated-b (if (not (nil? b)) (conjugate-en b) "..")]
     (if (and
          (= (type conjugated-a) java.lang.String)
          (= (type conjugated-b) java.lang.String))
