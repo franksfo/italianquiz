@@ -328,81 +328,81 @@
             {:root {:italian "vino"
                     :english "wine"
                     :synsem {:sem {:pred :vino
-                                   :artifact true}}}})
-     ;; articles
-     
-     {:synsem {:cat :det
-               :def :def
-               :gender :masc
-               :number :sing}
-      :italian "il"
-      :english "the"}
-     {:synsem {:cat :det
-               :def :indef
-               :gender :masc
-               :number :sing}
-      :italian "un"
-      :english "a"}
+                                   :artifact true}}}}))))
 
-     {:synsem {:cat :det
-               :def :def
-               :gender :fem
-               :number :sing}
-      :italian "la"
-      :english "the"}
+(def determiners
+  (list
+   {:synsem {:cat :det
+             :def :def
+             :gender :masc
+             :number :sing}
+    :italian "il"
+    :english "the"}
 
-     {:synsem {:cat :det
-               :def :indef
-               :gender :fem
-               :number :sing}
-      :italian "una"
-      :english "a"}
+   {:synsem {:cat :det
+             :def :indef
+             :gender :masc
+             :number :sing}
+    :italian "un"
+    :english "a"}
+   
+   {:synsem {:cat :det
+             :def :def
+             :gender :fem
+             :number :sing}
+    :italian "la"
+    :english "the"}
+   
+   {:synsem {:cat :det
+             :def :indef
+             :gender :fem
+             :number :sing}
+    :italian "una"
+    :english "a"}
+   
+   {:synsem {:cat :det
+             :def :def
+             :gender :masc
+             :number :plur}
+    :italian "i"
+    :english "the"}
+   
+   {:synsem {:cat :det
+             :def :def
+             :gender :fem
+             :number :plur}
+    :italian "le"
+    :english "the"}
+   
+   {:synsem {:cat :det
+             :def :partitivo
+             :number :sing
+             :gender :masc}
+    :italian "di il"
+    :english "some"}
+   
+   {:synsem {:cat :det
+             :def :partitivo
+             :number :sing
+             :gender :fem}
+    :italian "di la"
+    :english "some"}
+   
+   {:synsem {:cat :det
+             :def :partitivo
+             :number :plur
+             :gender :masc}
+    :italian "di i"
+    :english "some"}
+   
+   {:synsem {:cat :det
+             :def :partitivo
+             :number :plur
+             :gender :fem}
+    :italian "di le"
+    :english "some"}
+))
 
-     {:synsem {:cat :det
-               :def :def
-               :gender :masc
-               :number :plur}
-      :italian "i"
-      :english "the"}
-
-     {:synsem {:cat :det
-               :def :def
-               :gender :fem
-               :number :plur}
-      :italian "le"
-      :english "the"}
-
-     {:synsem {:cat :det
-               :def :partitivo
-               :number :sing
-               :gender :masc}
-      :italian "di il"
-      :english "some"}
-
-     {:synsem {:cat :det
-               :def :partitivo
-               :number :sing
-               :gender :fem}
-      :italian "di la"
-      :english "some"}
-
-     {:synsem {:cat :det
-               :def :partitivo
-               :number :plur
-               :gender :masc}
-      :italian "di i"
-      :english "some"}
-
-     {:synsem {:cat :det
-               :def :partitivo
-               :number :plur
-               :gender :fem}
-      :italian "di le"
-      :english "some"}
-    
-
-     
-     )))
 
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
@@ -709,21 +709,29 @@
          {:root {:synsem
                  {:subcat {:2 '()}}}}))
 
-(def vp-1-lexicon
+(def present-aux-verbs
+  (list
+   (unify {:root (fs/copy avere-aux-trans)}
+          present-tense-aux-past-verb)))
+
+(def avere-present-aux-trans
+  (first present-aux-verbs))
+
+(def past-verbs
+  (list (unify {:root leggere}
+               trans-past-tense-verb)))
+
+(def verbs
   (concat
+   present-aux-verbs
+   past-verbs
+   
    (list
     avere1
     (unify {:root avere1}
            trans-present-tense-verb))
 
-   (list avere-aux-trans
-         (let [do-def
-               (def avere-present-aux-trans
-                 (unify {:root (fs/copy avere-aux-trans)}
-                        present-tense-aux-past-verb))]
-           avere-present-aux-trans))
    (list
-      
     bevere
     (unify {:root bevere}
            trans-present-tense-verb)
@@ -742,11 +750,6 @@
     leggere
     (unify {:root leggere}
            trans-present-tense-verb)
-    (let [do-def
-          (def letto
-            (unify {:root leggere}
-                   trans-past-tense-verb))]
-      letto)
 
     mangiare
     (unify {:root mangiare}
@@ -844,7 +847,7 @@
          :italian "a"
          :english "at"}))
 
-(def lexicon (concat vp-1-lexicon nouns pronouns prepositions))
+(def lexicon (concat verbs nouns pronouns prepositions determiners))
 
 (map (fn [lexeme]
        (let [italian (:italian lexeme)

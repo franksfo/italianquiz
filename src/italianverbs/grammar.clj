@@ -135,8 +135,8 @@
                  :comp comp
                  :1 comp
                  :2 head
-                 :extend {:a {:1 'lexicon
-                               :2 'lexicon}}}))))
+                 :extend {:a {:1 'determiners
+                              :2 'nouns}}}))))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
