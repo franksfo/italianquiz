@@ -702,11 +702,10 @@
               (and true (= rand 1))
               (let [sentences
                     (over gram/s lex/pronouns
-                          (over (over gram/vp-present
-                                      lex/present-aux-verbs)
-                                (over (over gram/vp-past
-                                            lex/past-verbs)
-                                      (over gram/np lex/determiners lex/nouns))))]
+                          (first (over gram/vp-present
+                                       lex/present-aux-verbs
+                                       (first (over (over gram/vp-past (first lex/past-verbs))
+                                                    (over gram/np lex/determiners lex/nouns))))))]
                 (take-last 1
                            (take (rand-int (.size sentences))
                                  sentences))))]
