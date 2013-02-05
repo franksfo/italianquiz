@@ -695,8 +695,21 @@
          {})))))
 
 (defn random-sentence []
-  (let [sentences
-        (over gram/s lex/lexicon lex/lexicon)]
+  (let [rand (rand-int 2)
+        sentences
+        (cond (= rand 0)
+              (over gram/s lex/pronouns lex/verbs)
+              (and true (= rand 1))
+              (let [sentences
+                    (over gram/s lex/pronouns
+                          (over (over gram/vp-present
+                                      lex/present-aux-verbs)
+                                (over (over gram/vp-past
+                                            lex/past-verbs)
+                                      (over gram/np lex/determiners lex/nouns))))]
+                (take-last 1
+                           (take (rand-int (.size sentences))
+                                 sentences))))]
     (nth sentences (rand-int (.size sentences)))))
 
 (defn random-sentence-busted []
