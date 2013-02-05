@@ -54,7 +54,24 @@
 (def vp-rules
   (let [head (ref :top)
         comp (ref :top)]
-    (def vp1
+
+    (def vp-past
+      (fs/unifyc head-principle
+                 subcat-2-principle
+                 verb-inflection-morphology
+                 {:head {:synsem {:cat :verb
+                                  :infl :past}}}
+                 {:comment "vp[past] -> head comp"
+                  :head head
+                  :comp comp
+                  :1 head
+                  :2 comp
+                  :extend {:a {:1 'lexicon
+                               :2 'np}
+                           :b {:1 'lexicon
+                               :2 'lexicon}}}))
+
+    (def vp-present
       (fs/unifyc head-principle
                  subcat-2-principle
                  verb-inflection-morphology
@@ -68,8 +85,11 @@
                   :extend {:a {:1 'lexicon
                                :2 'np}
                            :b {:1 'lexicon
-                               :2 'lexicon}}}))
-    (list vp1)))
+                               :2 'lexicon}
+                           :c {:1 'lexicon
+                               :2 'vp-past}}}))
+
+    (list vp-present vp-past)))
 
 (def sentence-rules
   (let [subj-sem (ref :top)
@@ -90,11 +110,14 @@
                 :1 comp
                 :2 head
                 :extend {:a {:1 'np
-                             :2 'vp}
+                             :2 'vp-present}
                          :b {:1 'lexicon
-                             :2 'vp}
+                             :2 'vp-present}
                          :c {:1 'np
+                             :2 'lexicon}
+                         :d {:1 'lexicon
                              :2 'lexicon}}}))))
+
 (def np-rules 
   (list
    (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
@@ -112,7 +135,7 @@
                  :comp comp
                  :1 comp
                  :2 head
-                 :extends {:a {:1 'lexicon
+                 :extend {:a {:1 'lexicon
                                :2 'lexicon}}}))))
 
 (def prep-phrase
@@ -130,7 +153,8 @@
 (def rules (concat np-rules vp-rules sentence-rules))
 
 (def np (nth np-rules 0))
-(def vp (nth vp-rules 0))
+(def vp-present (nth vp-rules 0))
+(def vp-past (nth vp-rules 1))
 (def s (nth sentence-rules 0))
 
 ;; TODO: move to lexicon (maybe).
