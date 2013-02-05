@@ -44,7 +44,7 @@
    ;; TODO: make this configurable:
    ;;   might want to have a value for production usage lower/higher than
    ;;   for development usage.
-   :timeout 5000
+   :timeout 50000
    :namespace 'italianverbs.sandbox))
 
 (defn sandbox-load-string [expression]
@@ -88,12 +88,99 @@
 
   )
 
-(take-last 3 (take 3 (show-lexicon)))
-(take-last 3 (take 6 (show-lexicon)))
-(take-last 3 (take 9 (show-lexicon)))
+(if false
+  (do
+    (take-last 3 (take 3 (show-lexicon)))
+    (take-last 3 (take 6 (show-lexicon)))
+    (take-last 3 (take 9 (show-lexicon)))
 
 ;;
 ;;
 
-(take-last 3 (take 60 (show-lexicon)))
-(take-last 3 (take 63 (show-lexicon)))
+    (take-last 3 (take 15 (show-lexicon)))
+    
+    ;; get past tense form of "leggere":
+    
+    (lookup {:italian {:infinitive {:infinitive "leggere"}}
+             :synsem {:infl :past}})
+    
+;; generate a complete vp-past:
+    (let [letto (lookup {:italian {:infinitive {:infinitive "leggere"}}
+                         :synsem {:infl :past}})]
+      (over (over rules letto) (over (over np "il") "libro")))
+    
+    (over
+     (over (nth rules 1) avere-present-aux-trans)
+     (over (over rules letto) (over (over np "il") "libro")))
+    
+    
+    (take 1
+          (over (over s lexicon)
+                (over (over (nth rules 1) avere-present-aux-trans)
+                      (over (over rules letto) (over (over np "il") "libro")))))
+    
+    
+    (over (over s (over (over np "il") "dottore"))
+          (over (over (nth rules 1) avere-present-aux-trans)
+                (over (over rules letto) 
+                      (over (over np "il") "libro"))))))
+    
+(if false
+  (formattare
+   (take-last 10 (take 30
+                       (over (over s
+                                   (over (over np lexicon) lexicon))
+                             (over (over vp-present avere-present-aux-trans)
+                                   (over (over vp-past letto)
+                                       (over (over np lexicon) lexicon))))))))
+
+(if false
+  (formattare
+   (take 1
+         (over (over s
+                     (over (over np lexicon) lexicon))
+               (over (over vp-present avere-present-aux-trans)
+                     (over (over vp-past letto)
+                           (over (over np lexicon) lexicon)))))))
+
+(if false
+  (do 
+    (time ;; takes about 4 seconds.
+     (def foo (take 100
+                    (over (over s
+                                (over (over np lexicon) lexicon))
+                          (over (over vp-present avere-present-aux-trans)
+                                (over (over vp-past letto)
+                                      (over (over np lexicon) lexicon)))))))
+    ;;
+    (time (formattare (take-last 5 (take 5 foo))))
+    (time (formattare (take-last 5 (take 10 foo))))
+    (time (formattare (take-last 5 (take 15 foo))))
+    (time (formattare (take-last 5 (take 20 foo))))
+    (time (formattare (take-last 5 (take 25 foo))))
+    (time (formattare (take-last 5 (take 30 foo))))
+    (time (formattare (take-last 5 (take 35 foo))))))
+
+
+(if false
+  (formattare
+   (take-last
+    5
+    (take 100
+          (over (over s lexicon)
+                (over (over vp-present lexicon)
+                      (over (over vp-past lexicon)
+                            (over (over np lexicon)
+                                  lexicon))))))))
+
+(if false
+  (formattare
+   (over s lexicon
+         (over vp-present lexicon
+               (over vp-past lexicon
+                     (over np lexicon lexicon))))))
+
+
+;; find semantic implicatures of "cane (dog)"
+(if false
+  (sem-impl (fs/get-in (it "cane") '(:synsem :sem))))
