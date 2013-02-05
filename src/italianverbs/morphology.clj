@@ -104,6 +104,26 @@
              (not (= (fs/get-in arg '(:infinitive :irregular :passato) :notfound)
                      :notfound)))
         (str (fs/get-in arg '(:infinitive :irregular :passato)))
+
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past))
+
+        ;; regular past inflection
+        (let [root (fs/get-in arg '(:infinitive))
+              root (if root root "(no-root-found)")
+              are-type (re-find #"are$" root)
+              ere-type (re-find #"ere$" root)
+              ire-type (re-find #"ire$" root)
+              stem (string/replace root #"[iae]re$" "")
+              last-stem-char-is-i (re-find #"i$" stem)]
+          (cond (or are-type ere-type)
+                (str stem "ato")
+                (or are-type ire-type)
+                (str stem "ito")
+                true
+                (str "(regpast:TODO)")))
+
         
         :else
         ;; assume present tense verb with map with keys (:root and :agr).
@@ -176,6 +196,7 @@
         (and (map? arg)
              (contains? (set (keys arg)) :agr)
              (contains? (set (keys arg)) :infinitive)
+             (not (= :notfound (fs/get-in arg '(:infinitive :irregular :present) :notfound)))
              ;; TODO: check (= :present) rather than (not (= :past)).
              (not (= :past (fs/get-in arg '(:infl) :notfound)))
              (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
@@ -233,9 +254,27 @@
              (not (= (fs/get-in arg '(:infinitive :irregular :past) :notfound)
                      :notfound)))
         (str (fs/get-in arg '(:infinitive :irregular :past)))
+
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past))
+        (let [root (fs/get-in arg '(:infinitive))
+              root (if (nil? root) "(nilroot)" root)
+              root (if (not (= (type root) java.lang.String))
+                     (fs/get-in arg '(:infinitive :infinitive))
+                     root)
+              stem (string/replace root #"^to " "")
+              stem-minus-one (nth (re-find #"(.*).$" stem) 1)
+              penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
+              last-stem-char (re-find #".$" stem)
+              last-stem-char-is-e (re-find #"e$" stem)]
+          (cond last-stem-char-is-e  ;; e.g. "write" => "written"
+                (str stem-minus-one penultimate-stem-char "en")
+                true
+                (str stem "en")))
         
         :else
-        ;; assume a map with keys (:infintive and :agr).
+        ;; assume a map with keys (:infinitive and :agr).
         (let [root (fs/get-in arg '(:infinitive))
               root (if (nil? root) "(nilroot)" root)
               root (if (not (= (type root) java.lang.String))
