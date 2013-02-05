@@ -159,9 +159,14 @@
            (not (= :italian (last path)))
 
            ;; display :extends properly (i.e. not a tree).
+           ;; :extends will have features :a,:b,:c,..
            (not (= :a (last path)))
            (not (= :b (last path)))
            (not (= :c (last path)))
+           (not (= :d (last path)))
+           (not (= :e (last path)))
+           (not (= :f (last path)))
+           (not (= :g (last path)))
 
            (not (= :english (last path))))
       (not (= :none (:1 arg :none)))
