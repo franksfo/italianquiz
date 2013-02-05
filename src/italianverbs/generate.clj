@@ -15,7 +15,7 @@
    [clojure.string :as string]))
 
 (def sentence-skeleton-1
-  (unify gram/s {:comp gram/np :head (unify gram/vp {:comp gram/np})}))
+  (unify gram/s {:comp gram/np :head (unify gram/vp-present {:comp gram/np})}))
 
 (def sentence-skeleton-2
   (unify gram/s {:head gram/s
@@ -64,7 +64,7 @@
           unified)))))
 
                                         ;(def head-specification (get-terminal-head-in sentence-skeleton-1))
-(def head-specification (get-terminal-head-in gram/vp))
+(def head-specification (get-terminal-head-in gram/vp-present))
 (def matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
                                     (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lex/lexicon)))
 (def random-lexical-head (if (> (.size matching-lexical-heads) 0)
@@ -510,7 +510,7 @@
    (over gram/s
          lex/lexicon)
    (over
-    (over gram/vp lex/lexicon)
+    (over gram/vp-present lex/lexicon)
     (over (over gram/np lex/lexicon) lex/lexicon))))
 
 (defn lots-of-sentences-2 []
@@ -518,7 +518,7 @@
    (over gram/s
          (over (over gram/np lex/lexicon) lex/lexicon))
    (over
-    (over gram/vp lex/lexicon)
+    (over gram/vp-present lex/lexicon)
     (over (over gram/np lex/lexicon) lex/lexicon))))
 
 (defn lots-of-sentences []
@@ -580,6 +580,7 @@
 
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
+;; TO move this to html.clj: has to do with presentation.
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
   (if (map? expressions)
@@ -694,8 +695,13 @@
          {})))))
 
 (defn random-sentence []
+  (let [sentences
+        (over gram/s lex/lexicon lex/lexicon)]
+    (nth sentences (rand-int (.size sentences)))))
+
+(defn random-sentence-busted []
   (let [head-specification
-        (fs/copy (get-terminal-head-in gram/vp))
+        (fs/copy (get-terminal-head-in gram/vp-present))
         matching-lexical-verb-heads
         (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
                 (map (fn [lexeme] (fs/match head-specification lexeme)) lex/lexicon))
@@ -738,3 +744,7 @@
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
+
+(defn random-extend [phrase]
+  "return a random expansion of the given phrase, taken by looking at the phrase's :extend value, which list all possible expansions."
+  (nth (vals (fs/get-in phrase '(:extend))) (int (* (rand 1) (.size (fs/get-in phrase '(:extend)))))))
