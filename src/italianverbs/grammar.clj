@@ -66,10 +66,10 @@
                   :comp comp
                   :1 head
                   :2 comp
-                  :extend {:a {:1 'lexicon
-                               :2 'np}
-                           :b {:1 'lexicon
-                               :2 'lexicon}}}))
+                  :extend {:a {:head 'verbs
+                               :comp 'np}
+                           :b {:head 'verbs
+                               :comp 'nouns}}}))
 
     (def vp-present
       (fs/unifyc head-principle
@@ -82,12 +82,12 @@
                   :comp comp
                   :1 head
                   :2 comp
-                  :extend {:a {:1 'lexicon
-                               :2 'np}
-                           :b {:1 'lexicon
-                               :2 'lexicon}
-                           :c {:1 'lexicon
-                               :2 'vp-past}}}))
+                  :extend {:a {:head 'lexicon
+                               :comp 'np}
+                           :b {:head 'lexicon
+                               :comp 'lexicon}
+                           :c {:head 'lexicon
+                               :comp 'vp-past}}}))
 
     (list vp-present vp-past)))
 
@@ -109,14 +109,14 @@
                 :comp comp
                 :1 comp
                 :2 head
-                :extend {:a {:1 'np
-                             :2 'vp-present}
-                         :b {:1 'lexicon
-                             :2 'vp-present}
-                         :c {:1 'np
-                             :2 'lexicon}
-                         :d {:1 'lexicon
-                             :2 'lexicon}}}))))
+                :extend {:a {:comp 'np
+                             :head 'vp-present}
+                         :b {:comp 'pronouns
+                             :head 'vp-present}
+                         :c {:comp 'np
+                             :head 'verbs}
+                         :d {:comp 'pronouns
+                             :head 'verbs}}}))))
 
 (def np-rules 
   (list
@@ -135,8 +135,8 @@
                  :comp comp
                  :1 comp
                  :2 head
-                 :extend {:a {:1 'determiners
-                              :2 'nouns}}}))))
+                 :extend {:a {:comp 'determiners
+                              :head 'nouns}}}))))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
@@ -147,8 +147,8 @@
                 :comp comp
                 :1 head
                 :2 comp
-                :extend {:a {:1 'lexicon
-                             :2 'np}}})))
+                :extend {:a {:head 'lexicon ;; should be propositions.
+                             :comp 'np}}})))
 
 (def rules (concat np-rules vp-rules sentence-rules))
 

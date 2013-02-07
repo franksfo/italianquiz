@@ -694,22 +694,28 @@
          {:comp2 comp2}
          {})))))
 
-(defn random-sentence []
-  (let [rand (rand-int 2)
-        sentences
-        (cond (= rand 0)
-              (over gram/s lex/pronouns lex/verbs)
-              (and true (= rand 1))
-              (let [sentences
-                    (over gram/s lex/pronouns
-                          (first (over gram/vp-present
-                                       lex/present-aux-verbs
-                                       (first (over (over gram/vp-past (first lex/past-verbs))
-                                                    (over gram/np lex/determiners lex/nouns))))))]
-                (take-last 1
-                           (take (rand-int (.size sentences))
-                                 sentences))))]
-    (nth sentences (rand-int (.size sentences)))))
+(defn rs []
+  (let [random-verb (nth lex/present-verbs
+                         (rand-int (.size lex/present-verbs)))
+        obj-spec (fs/get-in random-verb '(:synsem :subcat :2))
+        object-np
+        (if (not (= obj-spec '()))
+          (random-np (unify {:synsem (unify obj-spec
+                                            {:subcat {:1 {:cat :det}}})})))]
+    (if object-np
+      (let [unified
+            (unify gram/vp-present
+                   {:head random-verb
+                    :comp object-np})]
+        (merge
+         {:italian (morph/get-italian
+                    (fs/get-in unified '(:1 :italian))
+                    (fs/get-in unified '(:2 :italian)))
+          :english (morph/get-english
+                    (fs/get-in unified '(:1 :english))
+                    (fs/get-in unified '(:2 :english)))}
+         unified))
+      random-verb)))
 
 (defn random-sentence-busted []
   (let [head-specification
@@ -754,9 +760,56 @@
          unified)
         unified))))
 
-(defn random-sentences [n]
-  (repeatedly n (fn [] (random-sentence))))
-
 (defn random-extend [phrase]
   "return a random expansion of the given phrase, taken by looking at the phrase's :extend value, which list all possible expansions."
   (nth (vals (fs/get-in phrase '(:extend))) (int (* (rand 1) (.size (fs/get-in phrase '(:extend)))))))
+
+(defn random-expansion [phrase]
+  (let [random-key (nth (keys (:extend phrase)) (rand-int (.size (keys (:extend phrase)))))]
+    (get (:extend phrase) random-key)))
+
+(defn generate [phrase]
+  (let [expansion (random-expansion phrase)
+        head (:head expansion)
+        comp (:comp expansion)
+        head (if (= head 'nouns) lex/nouns)
+        comp (if (= comp 'determiners) lex/determiners)
+        random-head (if (map? head)
+                      ;; TODO: recursively expand.
+                      nil
+                      (if (list? head)
+                        ;; list of lexemes: ;; TODO: filter (eval head)'s list by the (:head) value of phrase,
+                        ;; similar to what we do below with comps.
+                        (nth head (rand-int (.size head)))))]
+    (let [unified
+          (unify
+           (fs/copy phrase)
+           {:head (fs/copy random-head)})
+          random-comp
+          (if (map? comp)
+            ;; expand..
+            nil
+            ;; list of lexemes
+            (if (list? comp)
+              (let [lexemes comp]
+                (let [candidates (filter-by-match {:synsem (fs/get-in unified '(:head :synsem :subcat :1))}
+                                                  lexemes)]
+                  (nth candidates (rand-int (.size candidates)))))))]
+      (let [unified
+            (unify
+             unified
+             {:comp random-comp})]
+        (merge
+         unified
+         {:italian (morph/get-italian
+                    (fs/get-in unified '(:1 :italian))
+                    (fs/get-in unified '(:2 :italian)))
+          :english (morph/get-english
+                    (fs/get-in unified '(:1 :english))
+                    (fs/get-in unified '(:2 :english)))})))))
+
+(defn random-sentence []
+  (generate gram/np))
+
+(defn random-sentences [n]
+  (repeatedly n (fn [] (random-sentence))))
