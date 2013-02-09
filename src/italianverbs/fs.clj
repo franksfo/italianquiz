@@ -74,6 +74,7 @@
 ;    (println (str "unify val1: " val1))
 ;    (println (str "      val2: " val2))
     (cond
+     (nil? args) nil
 
      (= (.count args) 1)
      (first args)
