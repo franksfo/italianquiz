@@ -719,66 +719,58 @@
 
 (def past-verbs
   (list (unify {:root leggere}
+               trans-past-tense-verb)
+        (unify {:root scrivere}
                trans-past-tense-verb)))
+
+(def present-verbs
+  (concat
+   present-aux-verbs
+   
+   (list
+    (unify {:root avere1}
+           trans-present-tense-verb)
+    (unify {:root bevere}
+           trans-present-tense-verb)
+    (unify {:root comprare}
+           trans-present-tense-verb)
+    (unify {:root dormire}
+           intrans-present-tense-verb)
+    (unify {:root fare1}
+           trans-present-tense-verb)
+    (unify {:root fare2}
+           trans-present-tense-verb)
+    (unify {:root leggere}
+           trans-present-tense-verb)
+    (unify {:root mangiare}
+           trans-present-tense-verb)
+    (unify {:root pensare}
+           intrans-present-tense-verb)
+    (unify {:root scrivere}
+           trans-present-tense-verb)
+    (unify {:root sognare}
+           intrans-present-tense-verb)
+    (unify {:root vedere}
+           trans-present-tense-verb))))
 
 (def verbs
   (concat
    present-aux-verbs
+   present-verbs
    past-verbs
-   
    (list
     avere1
-    (unify {:root avere1}
-           trans-present-tense-verb))
-
-   (list
     bevere
-    (unify {:root bevere}
-           trans-present-tense-verb)
     comprare
-    (unify {:root comprare}
-           trans-present-tense-verb)
     dormire
-    (unify {:root dormire}
-           intrans-present-tense-verb)
     fare1
-    (unify {:root fare1}
-           trans-present-tense-verb)
     fare2
-    (unify {:root fare2}
-           trans-present-tense-verb)
     leggere
-    (unify {:root leggere}
-           trans-present-tense-verb)
-
     mangiare
-    (unify {:root mangiare}
-           trans-present-tense-verb)
-    (let [do-def
-          (def mangiato
-            (unify {:root mangiare}
-                   trans-past-tense-verb))]
-      mangiato)
-
-
     pensare
-    (unify {:root pensare}
-           intrans-present-tense-verb)
-
     scrivere
-    (unify {:root scrivere}
-           trans-present-tense-verb)
-    (unify {:root scrivere}
-           trans-past-tense-verb)
-
     sognare
-    (unify {:root sognare}
-           intrans-present-tense-verb)
-
-    vedere
-    (unify {:root vedere}
-           trans-present-tense-verb))))
-
+    vedere)))
 
 (def pronouns
   (list {:synsem {:cat :noun
