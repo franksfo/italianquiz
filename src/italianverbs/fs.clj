@@ -308,6 +308,7 @@
      :else :fail)))
 
 (defn merge [& args]
+  "warning: {} is the identity value, not nil; that is: (merge X {}) => X, but (merge X nil) => nil, (not X)."
   (let [val1 (first args)
         val2 (second args)]
     (cond
