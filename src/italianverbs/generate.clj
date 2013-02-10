@@ -831,9 +831,10 @@
      comps
      (map? comps) ;; a map such as np:
      (let [unified-spec (fs/unify comps comp-spec)
-           generated (generate (fs/unify unified-spec))] ;; recursively generate a phrase.
+           generated (generate unified-spec)] ;; recursively generate a phrase.
        (if (nil? generated)
-         (throw (Exception. (str "(generate) could not generate: returned nil with input: " unified-spec)))
+         (throw (Exception.
+                 (str "(generate) could not generate: returned nil with input: " unified-spec)))
          (list generated))) ;; wrap the generated phrase in a list (so we choose 'randomly' from amongst a singleton set).
      true
      (throw (Exception. (str "TODO: recursively expand rules."))))))
@@ -889,7 +890,8 @@
            :comp-expansion comp-expansion
            :parent unified-parent
            :exception random-comp
-           :comp (fs/get-in random-comp '(:comp))})))))
+           :comp (fs/get-in random-comp '(:comp))}
+          result)))))
 
 (defn random-sentence []
   (generate (rand-nth (list gram/np gram/s))))
