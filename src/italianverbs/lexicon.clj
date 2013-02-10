@@ -8,9 +8,7 @@
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear!)
 
-(def human {:human true
-            :animate true})
-
+(def human {:human true})
 (def animal {:animate true})
 
 (def food {:synsem {:sem {:edible true}}})
