@@ -861,23 +861,27 @@
     (let [random-comp
           (try (random-comp-for-parent unified-parent comp-expansion)
                (catch Exception e
-                 {:exception (str e)}))
+                 (str e)))
           unified-with-comp
           (fs/unifyc
            unified-parent
            {:comp (fs/copy (fs/get-in random-comp '(:comp)))})]
-      (merge
-       unified-with-comp
-                                        ;         {:debug
-                                        ;          {:unified unified-parent
-                                        ;           :random-comp random-comp
-                                        ;           :head random-head}}
-       {:italian (morph/get-italian
-                  (fs/get-in unified-with-comp '(:1 :italian))
-                  (fs/get-in unified-with-comp '(:2 :italian)))
-        :english (morph/get-english
-                  (fs/get-in unified-with-comp '(:1 :english))
-                  (fs/get-in unified-with-comp '(:2 :english)))}))))
+      (let [result
+            (merge
+             unified-with-comp
+             {:italian (morph/get-italian
+                        (fs/get-in unified-with-comp '(:1 :italian))
+                        (fs/get-in unified-with-comp '(:2 :italian)))
+              :english (morph/get-english
+                        (fs/get-in unified-with-comp '(:1 :english))
+                        (fs/get-in unified-with-comp '(:2 :english)))})]
+        (if (fs/fail? result)
+          {:status :failed
+           :result result
+           :comp-expansion comp-expansion
+           :parent unified-parent
+           :exception random-comp
+           :comp (fs/get-in random-comp '(:comp))})))))
 
 (defn random-sentence []
   (generate (rand-nth (list gram/np gram/s))))
