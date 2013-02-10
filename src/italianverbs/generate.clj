@@ -821,19 +821,27 @@
 
 (declare generate)
 
-(defn expansion-to-candidates [comp-expansion]
-  (let [comps (eval-symbol comp-expansion)]
+(defn expansion-to-candidates [comp-expansion comp-spec]
+  (let [comps
+        (if (symbol? comp-expansion)
+          (eval-symbol comp-expansion)
+          comp-expansion)]
     (cond
      (seq? comps)
      comps
      (map? comps) ;; a map such as np:
-     (list (generate comps)) ;; recursively generate the given phrase and wrap in a list (so we choose 'randomly' this generated phrase).
+     (let [unified-spec (fs/unify comps comp-spec)
+           generated (generate (fs/unify unified-spec))] ;; recursively generate a phrase.
+       (if (nil? generated)
+         (throw (Exception. (str "(generate) could not generate: returned nil with input: " unified-spec)))
+         (list generated))) ;; wrap the generated phrase in a list (so we choose 'randomly' from amongst a singleton set).
      true
      (throw (Exception. (str "TODO: recursively expand rules."))))))
 
 (defn random-comp-for-parent [parent comp-expansion]
-  (let [candidates (expansion-to-candidates comp-expansion)
-        complement-filter (fs/get-in parent '(:comp))
+  (let [candidates (expansion-to-candidates comp-expansion (fs/get-in parent '(:comp)))
+        complement-filter (fs/unifyc (fs/get-in parent '(:comp))
+                                     {:sem (lex/sem-impl (fs/get-in parent '(:comp)))})
         filtered  (if (> (.size candidates) 0)
                     (filter (fn [x]
                               (not (fs/fail? (fs/unifyc complement-filter x))))
