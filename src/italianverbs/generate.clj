@@ -780,9 +780,6 @@
    (= symbol 'vp-past) gram/vp-past
    true (throw (Exception. (str "Could not evaluate symbol: '" symbol "'")))))
 
-(def foohead2 (eval-symbol (:head (random-expansion gram/s))))
-(def foohead3 (nth foohead2 (rand-int (.size foohead2))))
-
 (defn random-head-and-comp-from-phrase [phrase]
   (let [expansion (random-expansion phrase)
         head (eval-symbol (:head expansion))
@@ -792,16 +789,20 @@
 
 (defn random-head-from-pair [head-and-comp]
   (let [head (:head head-and-comp)]
-    (if (map? head)
+    (cond
+     (map? head)
       ;; TODO: recursively expand rather than returning nil.
-      nil
-      (if (list? head) ;; head is a list of candidate heads (lexemes).
-        ;; TODO: filter by unifying each candidate against parent's :head value -
-        ;; if configured to do so. If no filtering, we assume that all candidates
-        ;; will unify successfully without checking, so we can avoid the time spent
-        ;; in this filtering.
-        (nth head (rand-int (.size head))) ;; choose a random head from the list.
-        (throw (Exception. (str "Don't know how to get a head from " head)))))))
+     (throw (Exception. (str "- can't handle recursive expand from : " head " yet.")))
+     (list? head) ;; head is a list of candidate heads (lexemes).
+     ;; TODO: filter by unifying each candidate against parent's :head value -
+     ;; if configured to do so. If no filtering, we assume that all candidates
+     ;; will unify successfully without checking, so we can avoid the time spent
+     ;; in this filtering.
+     (nth head (rand-int (.size head))) ;; choose a random head from the list.
+     (seq? head) ; a lazy sequence
+     (rand-nth head)
+     true
+     (throw (Exception. (str "- don't know how to get a head from: " head))))))
 
 (defn expansion-to-candidates [comp-expansion]
   (let [comps (eval-symbol comp-expansion)]
