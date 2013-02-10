@@ -863,7 +863,7 @@
                     (fs/get-in unified-with-comp '(:2 :english)))})))))
 
 (defn random-sentence []
-  (generate gram/np))
+  (generate (rand-nth (list gram/np gram/s))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
