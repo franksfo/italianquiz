@@ -67,9 +67,7 @@
                   :1 head
                   :2 comp
                   :extend {:a {:head 'verbs
-                               :comp 'np}
-                           :b {:head 'verbs
-                               :comp 'nouns}}}))
+                               :comp 'np}}}))
 
     (def vp-present
       (fs/unifyc head-principle
@@ -82,11 +80,11 @@
                   :comp comp
                   :1 head
                   :2 comp
-                  :extend {:a {:head 'lexicon
+                  :extend {:a {:head 'verbs
                                :comp 'np}
-                           :b {:head 'lexicon
+                           :b {:head 'verbs
                                :comp 'lexicon}
-                           :c {:head 'lexicon
+                           :c {:head 'verbs
                                :comp 'vp-past}}}))
 
     (list vp-present vp-past)))
@@ -109,14 +107,14 @@
                 :comp comp
                 :1 comp
                 :2 head
-                :extend {:a {:comp 'np
-                             :head 'vp-present}
-                         :b {:comp 'pronouns
-                             :head 'vp-present}
-                         :c {:comp 'np
-                             :head 'verbs}
+                :extend {;:a {:comp 'np
+                         ;    :head 'vp-present}
+                         ;:b {:comp 'pronouns
+                         ;    :head 'vp-present}
+                         ;:c {:comp 'np
+                         ;    :head 'verbs}
                          :d {:comp 'pronouns
-                             :head 'verbs}}}))))
+                             :head 'present-verbs}}}))))
 
 (def np-rules 
   (list
