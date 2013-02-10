@@ -22,44 +22,71 @@
   (cond
    (= input :top) input
    true
-   (let [human (if (= (fs/get-in input '(:human))
-                      true)
-                 {:buyable false
-                  :edible false
-                  :animate true}
-                 {})
-         animal-but-not-human (if (and (fs/get-in input '(:animate))
+   (let [animal-but-not-human (if (and (fs/get-in input '(:animate))
                                        (not (= true (fs/get-in input '(:human)))))
-                                {:human false})
-         nothuman (if (= (fs/get-in input '(:human))
-                         false)
-                    {:animate false}
-                    {})
+                                {:human false}{})
          animate (if (= (fs/get-in input '(:animate))
                         true)
                    {:artifact false
                     :drinkable false
-                    :place false})
-         if-inanimate (if (= (fs/get-in input '(:animate))
-                           false)
-                      {:human false})
-         inanimate-by-default (if (not (= (fs/get-in input '(:animate)) true))
-                                {:animate false})
-
+                    :place false}{})
          artifact (if (= (fs/get-in input '(:artifact))
                          true)
-                    {:animate false})
+                    {:animate false}{})
 
-         if-edible (if (or (= (fs/get-in input '(:edible)) true)
-                           (= (fs/get-in input '(:drinkable)) true))
-                     {:buyable true})
+         drinkable-xor-edible-1
+         ;; things are either drinkable or edible, but not both (except for weird foods
+         ;; like pudding or soup).
+         (if (and (= (fs/get-in input '(:edible)) true)
+                  (= (fs/get-in input '(:drinkable) :notfound) :notfound))
+           {:drinkable false}{})
+
+         drinkable-xor-edible-2
+         ;; things are either drinkable or edible, but not both (except for weird foods
+         ;; like pudding or soup).
+         (if (and (= (fs/get-in input '(:drinkable)) true)
+                  (= (fs/get-in input '(:edible) :notfound) :notfound))
+           {:edible false})
+
+         ;; qualities of foods and drinks.
+         edible (if (or (= (fs/get-in input '(:edible)) true)
+                        (= (fs/get-in input '(:drinkable)) true))
+                  {:buyable true
+                   :legible false}{})
+         human (if (= (fs/get-in input '(:human))
+                      true)
+                 {:buyable false
+                  :edible false
+                  :animate true
+                  :drinkable false}{})
+         inanimate (if (= (fs/get-in input '(:animate))
+                           false)
+                      {:human false}{})
+
+         ;; legible(x) => artifact(x)
+         legible
+         (if (= (fs/get-in input '(:legible)) true)
+           {:artifact true})
+
+         ;; artifact(x,false) => legible(x,false)
+         not-legible-if-not-artifact
+         (if (= (fs/get-in input '(:artifact)) false)
+           {:legible false})
 
          place (if (= (fs/get-in input '(:place))
                       true)
-                 {:animate false})
+                 {:animate false
+                  :drinkable false
+                  :edible false
+                  :legible false}{})
 
          ]
-     (let [merged (fs/merge human nothuman animate if-inanimate inanimate-by-default artifact place if-edible input)]
+     (let [merged (fs/merge animal-but-not-human animate artifact
+                            drinkable-xor-edible-1 drinkable-xor-edible-2
+                            edible human inanimate
+                            legible not-legible-if-not-artifact place
+                            input
+                            )]
        (if (not (= merged input))
          (sem-impl merged) ;; we've added some new information: more implications possible from that.
          merged))))) ;; no more implications: return
