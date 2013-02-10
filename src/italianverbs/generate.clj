@@ -773,12 +773,13 @@
    (= symbol 'nouns) lex/nouns
    (= symbol 'verbs) lex/verbs
    (= symbol 'present-verbs) lex/present-verbs
+   (= symbol 'present-transitive-verbs) lex/present-transitive-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
    (= symbol 'np) gram/np
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
-   true (throw (Exception. (str "Could not evaluate symbol: '" symbol "'")))))
+   true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
 (defn random-head-and-comp-from-phrase [phrase]
   (let [expansion (random-expansion phrase)
@@ -793,7 +794,6 @@
 ;; in this filtering.
 (def filter-head true)
 
-
 (defn head-candidates [phrase]
   (let [head-and-comp (random-head-and-comp-from-phrase phrase)
         parent phrase]
@@ -806,15 +806,10 @@
                     head))]
       candidates)))
 
-(defn random-head-from-pair [head-and-comp parent]
+(defn random-head [head-and-comp parent]
   (let [head (:head head-and-comp)
         head-filter (fs/get-in parent '(:head))
-        head
-        (if (and filter-head (seq? head))
-          (filter (fn [head-candidate]
-                    (not (fs/fail? (fs/unifyc head-filter head-candidate))))
-                  head)
-          head)]
+        head (head-candidates parent)]
     (cond
      (map? head)
      ;; TODO: recursively expand rather than returning nil.
@@ -852,36 +847,37 @@
      :parent parent
      :expansion comp-expansion}))
 
+(defn generate-with-parent [phrase random-head-and-comp]
+  (let [random-head (random-head random-head-and-comp phrase)]
+    (unify
+     (fs/copy phrase)
+     {:head (fs/copy random-head)})))
+
 (defn generate [phrase]
   (let [random-head-and-comp (random-head-and-comp-from-phrase phrase)
-        random-head (random-head-from-pair random-head-and-comp phrase)
+        unified-parent (generate-with-parent phrase random-head-and-comp)
         comp-expansion (:comp random-head-and-comp)]
-    (let [unified-parent
-          (unify
-           (fs/copy phrase)
-           {:head (fs/copy random-head)})]
-
       ;; now get complement given this head.
-      (let [random-comp
-            (try (random-comp-for-parent unified-parent comp-expansion)
-                 (catch Exception e
-                   {:exception (str e)}))
-            unified-with-comp
-            (fs/unifyc
-             unified-parent
-             {:comp (fs/copy (fs/get-in random-comp '(:comp)))})]
-        (merge
-         unified-with-comp
-;         {:debug
-;          {:unified unified-parent
-;           :random-comp random-comp
-;           :head random-head}}
-         {:italian (morph/get-italian
-                    (fs/get-in unified-with-comp '(:1 :italian))
-                    (fs/get-in unified-with-comp '(:2 :italian)))
-          :english (morph/get-english
-                    (fs/get-in unified-with-comp '(:1 :english))
-                    (fs/get-in unified-with-comp '(:2 :english)))})))))
+    (let [random-comp
+          (try (random-comp-for-parent unified-parent comp-expansion)
+               (catch Exception e
+                 {:exception (str e)}))
+          unified-with-comp
+          (fs/unifyc
+           unified-parent
+           {:comp (fs/copy (fs/get-in random-comp '(:comp)))})]
+      (merge
+       unified-with-comp
+                                        ;         {:debug
+                                        ;          {:unified unified-parent
+                                        ;           :random-comp random-comp
+                                        ;           :head random-head}}
+       {:italian (morph/get-italian
+                  (fs/get-in unified-with-comp '(:1 :italian))
+                  (fs/get-in unified-with-comp '(:2 :italian)))
+        :english (morph/get-english
+                  (fs/get-in unified-with-comp '(:1 :english))
+                  (fs/get-in unified-with-comp '(:2 :english)))}))))
 
 (defn random-sentence []
   (generate (rand-nth (list gram/np gram/s))))
