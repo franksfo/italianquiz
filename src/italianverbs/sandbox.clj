@@ -197,3 +197,15 @@
                                       (over np
                                             determiners
                                             nouns))))))))
+
+;; top part:
+;;(dotimes [n 20] (time (formattare (over s pronouns (over vp-present present-aux-verbs)))))
+
+;; bottom part:
+;;(dotimes [n 20] (time (formattare (over s pronouns (over vp-present present-aux-verbs)))))
+
+;;combine
+;(over (over s pronouns (over vp-present present-aux-verbs))
+                                        ;      (over (over vp-past past-verbs) (over np determiners nouns)))
+
+;(dotimes [n 200] (time (random-sentence)))
