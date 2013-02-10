@@ -787,19 +787,26 @@
     {:head head
      :comp comp}))
 
-(defn random-head-from-pair [head-and-comp]
-  (let [head (:head head-and-comp)]
+;; filter by unifying each candidate against parent's :head value -
+;; if configured to do so. If no filtering, we assume that all candidates
+;; will unify successfully without checking, so we can avoid the time spent
+;; in this filtering.
+(def filter-head true)
+
+(defn random-head-from-pair [head-and-comp parent]
+  (let [head (:head head-and-comp)
+        head-filter (fs/get-in parent '(:head))
+        head
+        (if (and filter-head (seq? head))
+          (filter (fn [head-candidate]
+                    (not (fs/fail? (fs/unifyc head-filter head-candidate))))
+                  head)
+          head)]
     (cond
      (map? head)
-      ;; TODO: recursively expand rather than returning nil.
+     ;; TODO: recursively expand rather than returning nil.
      (throw (Exception. (str "- can't handle recursive expand from : " head " yet.")))
-     (list? head) ;; head is a list of candidate heads (lexemes).
-     ;; TODO: filter by unifying each candidate against parent's :head value -
-     ;; if configured to do so. If no filtering, we assume that all candidates
-     ;; will unify successfully without checking, so we can avoid the time spent
-     ;; in this filtering.
-     (nth head (rand-int (.size head))) ;; choose a random head from the list.
-     (seq? head) ; a lazy sequence
+     (seq? head) ;; head is a list of candidate heads (lexemes).
      (rand-nth head)
      true
      (throw (Exception. (str "- don't know how to get a head from: " head))))))
@@ -828,7 +835,7 @@
 
 (defn generate [phrase]
   (let [random-head-and-comp (random-head-and-comp-from-phrase phrase)
-        random-head (random-head-from-pair random-head-and-comp)
+        random-head (random-head-from-pair random-head-and-comp phrase)
         comp-expansion (:comp random-head-and-comp)]
     (let [unified-parent
           (unify
