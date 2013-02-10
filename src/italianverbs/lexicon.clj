@@ -721,6 +721,27 @@
         (unify {:root scrivere}
                trans-past-tense-verb)))
 
+(def present-transitive-verbs
+  (list
+   (unify {:root avere1}
+          trans-present-tense-verb)
+   (unify {:root bevere}
+          trans-present-tense-verb)
+   (unify {:root comprare}
+           trans-present-tense-verb)
+                                        ;    (unify {:root fare1}
+                                        ;           trans-present-tense-verb)
+   (unify {:root fare2}
+          trans-present-tense-verb)
+   (unify {:root leggere}
+          trans-present-tense-verb)
+   (unify {:root mangiare}
+          trans-present-tense-verb)
+   (unify {:root scrivere}
+          trans-present-tense-verb)
+   (unify {:root vedere}
+          trans-present-tense-verb)))
+
 (def present-verbs
   (concat
    present-aux-verbs
@@ -734,8 +755,8 @@
            trans-present-tense-verb)
     (unify {:root dormire}
            intrans-present-tense-verb)
-    (unify {:root fare1}
-           trans-present-tense-verb)
+;    (unify {:root fare1}
+;           trans-present-tense-verb)
     (unify {:root fare2}
            trans-present-tense-verb)
     (unify {:root leggere}
@@ -761,7 +782,7 @@
     bevere
     comprare
     dormire
-    fare1
+;    fare1
     fare2
     leggere
     mangiare

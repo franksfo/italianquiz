@@ -80,7 +80,7 @@
                   :comp comp
                   :1 head
                   :2 comp
-                  :extend {:a {:head 'present-verbs
+                  :extend {:a {:head 'present-transitive-verbs
                                :comp 'np}}}))
 ;                           :b {:head 'verbs
 ;                               :comp 'lexicon}
