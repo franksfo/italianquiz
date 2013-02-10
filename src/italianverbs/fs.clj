@@ -3,7 +3,6 @@
         [clojure.tools.logging])
   (:require
    [clojure.tools.logging :as log]
-   [italianverbs.fs :as fs] ;; needed maybe by the (eval fs/..) stuff below.
    [clojure.core :as core]
    [clojure.string :as string]))
 
@@ -75,6 +74,7 @@
 ;    (println (str "unify val1: " val1))
 ;    (println (str "      val2: " val2))
     (cond
+     (nil? args) nil
 
      (= (.count args) 1)
      (first args)
@@ -177,8 +177,10 @@
 
      (= val1 val2) val1
 
-     :else :fail)))
-
+     :else
+     (do
+       ;(println (str "(" val1 ", " val2 ") => :fail"))
+       :fail))))
 
 ;; (fs/match {:a 42} {:a 42 :b 43})
 ;; => {:b 43, :a 42} ; ok: val2 specializes val1.
@@ -379,15 +381,15 @@
 (defn unify-and-apply [maps]
   "merge maps, and then apply the function (:fn merged) to the merged map."
   (let [merged
-        (eval `(fs/unify ~@maps))
+        (eval `(unify ~@maps))
         fn (:fn merged)
         eval-fn (if (and fn (= (type fn) java.lang.String))
                   (eval (symbol fn)) ;; string->fn (since a fn cannot (yet) be 
                   fn)] ;; otherwise, assume it's a function.
     (if (:fn merged)
-      (fs/unify merged
-            (apply eval-fn
-                   (list merged)))
+      (unify merged
+             (apply eval-fn
+                    (list merged)))
       maps)))
 
 (defn set-paths [fs paths val]
@@ -680,7 +682,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn unifyc [& args]
   "like fs/unify, but fs/copy each argument before unifying."
-  (apply fs/unify
+  (apply unify
          (map (fn [arg]
                 (copy arg))
               args)))
@@ -700,8 +702,23 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         n
         (path-to-ref-index (rest serialized) path (+ n 1))))))
 
+(defn compare-bytewise [a b index]
+  "compare two byte by casting each byte to short."
+  (if (> (alength a) index)
+    (if (> (alength b) index)
+      (if (= (nth a index)
+             (nth b index))
+        (compare-bytewise a b (+ 1 index))
+        (< (nth a index)
+           (nth b index)))
+      true)
+    false))
+      
 (defn sorted-paths-1 [paths]
-  (sort (fn [x y] (< (.size x) (.size y)))
+  (sort (fn [x y]
+          (if (< (.size x) (.size y))
+            true
+            (compare-bytewise (.getBytes (str x)) (.getBytes (str y)) 0)))
         paths))
 
 (defn sorted-paths [serialized path n index]
@@ -711,11 +728,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn is-first-path [serialized path n index]
   (if (nil? index)
-    (do (println (str "UHOH, INDEX IS NIL:" index)) ;;TODO: should be log.warn.
-        false)
+    (throw (Exception. (str "Index was null in serialized feature structure: " serialized)))
     (let [lookup (nth serialized index)
           firstpath (seq (first (sorted-paths serialized path n index)))]
-      (= (.size path) (.size firstpath)))))
+      (if (or true (= (seq path) firstpath))
+        (do ;(println (str "path: " (seq path) " is first of " (sorted-paths serialized path n index)))
+            true)
+        (do ;(println (str "path: " (seq path) " is NOT first of " (sorted-paths serialized path n index)))
+            false)))))
+
 
 (defn first-path [serialized path n index]
   (let [lookup (nth serialized index)

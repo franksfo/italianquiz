@@ -15,7 +15,7 @@
    [clojure.string :as string]))
 
 (def sentence-skeleton-1
-  (unify gram/s {:comp gram/np :head (unify gram/vp {:comp gram/np})}))
+  (unify gram/s {:comp gram/np :head (unify gram/vp-present {:comp gram/np})}))
 
 (def sentence-skeleton-2
   (unify gram/s {:head gram/s
@@ -64,7 +64,7 @@
           unified)))))
 
                                         ;(def head-specification (get-terminal-head-in sentence-skeleton-1))
-(def head-specification (get-terminal-head-in gram/vp))
+(def head-specification (get-terminal-head-in gram/vp-present))
 (def matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
                                     (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lex/lexicon)))
 (def random-lexical-head (if (> (.size matching-lexical-heads) 0)
@@ -427,7 +427,7 @@
            (over-parent-child each-parent child))
          parent))
 
-   (seq? child)
+   (or (set? child) (seq? child))
    (remove (fn [result]
              (or (fs/fail? result)
                  (nil? result)))
@@ -469,7 +469,13 @@
      (if (= do-match :fail)
        :fail
        (let [unified (unify parent
-                            {add-child-where child})]
+                            {add-child-where
+                             (unify
+                              (let [sem (fs/get-in child '(:synsem :sem) :notfound)]
+                                (if (not (= sem :notfound))
+                                  {:synsem {:sem (lex/sem-impl sem)}}
+                                  {}))
+                             child)})]
          (if (not (fs/fail? unified))
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
@@ -504,7 +510,7 @@
    (over gram/s
          lex/lexicon)
    (over
-    (over gram/vp lex/lexicon)
+    (over gram/vp-present lex/lexicon)
     (over (over gram/np lex/lexicon) lex/lexicon))))
 
 (defn lots-of-sentences-2 []
@@ -512,7 +518,7 @@
    (over gram/s
          (over (over gram/np lex/lexicon) lex/lexicon))
    (over
-    (over gram/vp lex/lexicon)
+    (over gram/vp-present lex/lexicon)
     (over (over gram/np lex/lexicon) lex/lexicon))))
 
 (defn lots-of-sentences []
@@ -574,6 +580,7 @@
 
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
+;; TO move this to html.clj: has to do with presentation.
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
   (if (map? expressions)
@@ -636,7 +643,7 @@
   (args2 verb))
 
 (def vp-head-spec
-  (fs/get-in gram/vp-save '(:head)))
+  (fs/get-in (nth gram/vp-rules 0) '(:head)))
 
 (defn rp1 [& head-spec]
   (let [head-spec
@@ -687,9 +694,32 @@
          {:comp2 comp2}
          {})))))
 
-(defn random-sentence []
+(defn rs []
+  (let [random-verb (nth lex/present-verbs
+                         (rand-int (.size lex/present-verbs)))
+        obj-spec (fs/get-in random-verb '(:synsem :subcat :2))
+        object-np
+        (if (not (= obj-spec '()))
+          (random-np (unify {:synsem (unify obj-spec
+                                            {:subcat {:1 {:cat :det}}})})))]
+    (if object-np
+      (let [unified
+            (unify gram/vp-present
+                   {:head random-verb
+                    :comp object-np})]
+        (merge
+         {:italian (morph/get-italian
+                    (fs/get-in unified '(:1 :italian))
+                    (fs/get-in unified '(:2 :italian)))
+          :english (morph/get-english
+                    (fs/get-in unified '(:1 :english))
+                    (fs/get-in unified '(:2 :english)))}
+         unified))
+      random-verb)))
+
+(defn random-sentence-busted []
   (let [head-specification
-        (fs/copy (get-terminal-head-in gram/vp))
+        (fs/copy (get-terminal-head-in gram/vp-present))
         matching-lexical-verb-heads
         (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
                 (map (fn [lexeme] (fs/match head-specification lexeme)) lex/lexicon))
@@ -729,6 +759,111 @@
                     (fs/get-in unified '(:2 :english)))}
          unified)
         unified))))
+
+(defn random-extend [phrase]
+  "return a random expansion of the given phrase, taken by looking at the phrase's :extend value, which list all possible expansions."
+  (nth (vals (fs/get-in phrase '(:extend))) (int (* (rand 1) (.size (fs/get-in phrase '(:extend)))))))
+
+(defn random-expansion [phrase]
+  (let [random-key (nth (keys (:extend phrase)) (rand-int (.size (keys (:extend phrase)))))]
+    (get (:extend phrase) random-key)))
+
+(defn eval-symbol [symbol]
+  (cond
+   (= symbol 'nouns) lex/nouns
+   (= symbol 'verbs) lex/verbs
+   (= symbol 'present-verbs) lex/present-verbs
+   (= symbol 'determiners) lex/determiners
+   (= symbol 'pronouns) lex/pronouns
+   (= symbol 'np) gram/np
+   (= symbol 'vp-present) gram/vp-present
+   (= symbol 'vp-past) gram/vp-past
+   true (throw (Exception. (str "Could not evaluate symbol: '" symbol "'")))))
+
+(defn random-head-and-comp-from-phrase [phrase]
+  (let [expansion (random-expansion phrase)
+        head (eval-symbol (:head expansion))
+        comp (:comp expansion)] ;; leave comp as just a symbol for now: we will evaluate it later in random-comp-from-head.
+    {:head head
+     :comp comp}))
+
+;; filter by unifying each candidate against parent's :head value -
+;; if configured to do so. If no filtering, we assume that all candidates
+;; will unify successfully without checking, so we can avoid the time spent
+;; in this filtering.
+(def filter-head true)
+
+(defn random-head-from-pair [head-and-comp parent]
+  (let [head (:head head-and-comp)
+        head-filter (fs/get-in parent '(:head))
+        head
+        (if (and filter-head (seq? head))
+          (filter (fn [head-candidate]
+                    (not (fs/fail? (fs/unifyc head-filter head-candidate))))
+                  head)
+          head)]
+    (cond
+     (map? head)
+     ;; TODO: recursively expand rather than returning nil.
+     (throw (Exception. (str "- can't handle recursive expand from : " head " yet.")))
+     (seq? head) ;; head is a list of candidate heads (lexemes).
+     (rand-nth head)
+     true
+     (throw (Exception. (str "- don't know how to get a head from: " head))))))
+
+(defn expansion-to-candidates [comp-expansion]
+  (let [comps (eval-symbol comp-expansion)]
+    (if (list? comps)
+      comps;(nth comps (rand-int (.size comps)))
+      (throw (Exception. (str "TODO: recursively expand rules."))))))
+
+(defn random-comp-for-parent [parent comp-expansion]
+  (let [candidates (expansion-to-candidates comp-expansion)
+        complement-filter (fs/get-in parent '(:comp))
+        filtered  (if (> (.size candidates) 0)
+                    (filter (fn [x]
+                              (not (fs/fail? (fs/unifyc complement-filter x))))
+                            candidates)
+                    (throw (Exception. (str "No candidates found for comp-expansion: " comp-expansion))))]
+    {:comp-candidates-unfiltered candidates
+     :filtered filtered
+     :comp (if (> (.size filtered) 0)
+             (nth filtered (rand-int (.size filtered)))
+             (throw (Exception. (str "None of the candidates: " candidates " matched the filter: " filter))))
+     :parent parent
+     :expansion comp-expansion}))
+
+(defn generate [phrase]
+  (let [random-head-and-comp (random-head-and-comp-from-phrase phrase)
+        random-head (random-head-from-pair random-head-and-comp phrase)
+        comp-expansion (:comp random-head-and-comp)]
+    (let [unified-parent
+          (unify
+           (fs/copy phrase)
+           {:head (fs/copy random-head)})]
+
+      ;; now get complement given this head.
+      (let [random-comp
+            (random-comp-for-parent unified-parent comp-expansion)
+            unified-with-comp
+            (fs/unifyc
+             unified-parent
+             {:comp (fs/copy (fs/get-in random-comp '(:comp)))})]
+        (merge
+         unified-with-comp
+;         {:debug
+;          {:unified unified-parent
+;           :random-comp random-comp
+;           :head random-head}}
+         {:italian (morph/get-italian
+                    (fs/get-in unified-with-comp '(:1 :italian))
+                    (fs/get-in unified-with-comp '(:2 :italian)))
+          :english (morph/get-english
+                    (fs/get-in unified-with-comp '(:1 :english))
+                    (fs/get-in unified-with-comp '(:2 :english)))})))))
+
+(defn random-sentence []
+  (generate (rand-nth (list gram/np gram/s))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))

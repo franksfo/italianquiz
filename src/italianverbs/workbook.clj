@@ -5,10 +5,8 @@
    [somnium.congomongo :as mongo]
    [clojure.tools.logging :as log]
    [clojure.string :as string]
-   [italianverbs.fs :as fs]
    [italianverbs.html :as html]
    [italianverbs.sandbox :as sandbox]
-   [italianverbs.lexiconfn :as lexfn]
    [italianverbs.lev :as lev]))
 
 (defn workbookq [expr attrs]
@@ -30,19 +28,6 @@
                              "</div>"
                              "<div class='evalresult'>"
                              (cond
-                              ;; TODO: collapse (PersistentList,Cons,LazySeq) into one case.
-                              (= (type loaded)
-                                 clojure.lang.PersistentList)
-                              (string/join " "
-                                           (map (fn [elem]
-                                                  (html/tablize elem))
-                                                loaded))
-                              (= (type loaded)
-                                 clojure.lang.Cons)
-                              (string/join " "
-                                           (map (fn [elem]
-                                                  (html/tablize elem))
-                                                loaded))
                               (and (= (type loaded)
                                       clojure.lang.LazySeq)
                                    (= 0
@@ -65,6 +50,14 @@
                                            (map (fn [elem]
                                                   (html/tablize elem))
                                                 (seq loaded)))
+
+                              (or (list? loaded)
+                                  (= (type loaded) clojure.lang.Cons)
+                                  (set? loaded))
+                              (string/join " "
+                                           (map (fn [elem]
+                                                  (html/tablize elem))
+                                                loaded))
                               (= (type loaded) clojure.lang.Var)
                               (str (eval loaded))
                               (and (map? loaded)

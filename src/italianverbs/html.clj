@@ -123,7 +123,8 @@
                {:as-tree true})
         ]
     (cond
-     (nil? arg) (str "<hr/>")
+     (nil? arg) (str "<i>nil</i>")
+     (= arg '()) (str "<i>&lt;&nbsp;&gt;</i>")
      (= (type arg) clojure.lang.LazySeq)
      (str
       ;; TODO: pass along additional args (path,serialized,opts)
@@ -133,13 +134,11 @@
                            (map (fn [each-arg]
                                   (tablize each-arg path (fs/serialize each-arg) opts))
                                 (seq arg))))
-     (= (type arg) clojure.lang.PersistentList)
-     (str
-      (clojure.string/join ""
-                           (map (fn [each-arg]
-                                  (tablize each-arg path (fs/serialize each-arg) opts))
-                                arg)))
-     (= (type arg) clojure.lang.Cons)
+     (set? arg)
+     (tablize (first arg) path serialized opts)
+     (or (set? arg)
+         (list? arg)
+         (= (type arg) clojure.lang.Cons))
      (str
       (clojure.string/join ""
                            (map (fn [each-arg]
@@ -155,9 +154,25 @@
       (or (= (type arg) clojure.lang.PersistentArrayMap)
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
-      (not (= :subcat (last path)))
+
+      (and (not (= :subcat (last path)))
+           (not (= :italian (last path)))
+
+           ;; display :extends properly (i.e. not a tree).
+           ;; :extends will have features :a,:b,:c,..
+           (not (= :a (last path)))
+           (not (= :b (last path)))
+           (not (= :c (last path)))
+           (not (= :d (last path)))
+           (not (= :e (last path)))
+           (not (= :f (last path)))
+           (not (= :g (last path)))
+
+           (not (= :english (last path))))
       (not (= :none (:1 arg :none)))
       (not (= :none (:2 arg :none))))
+
+     
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
@@ -205,6 +220,12 @@
           (= (type arg) clojure.lang.PersistentHashMap)
           (= (type arg) clojure.lang.PersistentTreeMap))
       (not (= :subcat (last path)))
+
+      (not (= :a (last path)))
+      (not (= :b (last path)))
+      (not (= :c (last path)))
+
+
       (not (= :none (:1 arg :none)))
       (= :none (:2 arg :none)))
      (str
@@ -238,6 +259,7 @@
          (= (type arg) clojure.lang.PersistentTreeMap))
      (str
       "<div class='map'>"
+      (if (:header arg) (str "<h2>" (:header arg) "</h2>"))
       "  <table class='map'>"
       (clojure.string/join
        ""
@@ -249,6 +271,9 @@
             ;; use a custom CSS class for :comment.
             (= (first tr) :comment)
             " class='comment'"
+            ;; use a custom CSS class for :header (i.e. hide it with display:none)
+            (= (first tr) :header)
+            " class='hide' style='display:none'"
             ;; ..handle other keywords that need a custom CSS class..
             ;; default: no custom CSS class.
             true "")
@@ -327,6 +352,10 @@
           (= @arg nil))
      (str "NIL.")
 
+     (symbol? arg)
+     (str "<i>" arg "</i>")
+
+     
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
                                       (fs/path-to-ref-index serialized path 0))]

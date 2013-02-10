@@ -7,6 +7,7 @@
 
 (defn conjugate-it [arg]
   "conjugate an italian expression."
+;  (pprint (str "conjugating: " arg))
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
@@ -24,6 +25,8 @@
         (and (map? arg)
              (contains? (set (keys arg)) :agr)
              (contains? (set (keys arg)) :infinitive)
+             ;; TODO: check (= :present) rather than (not (= :past)).
+             (not (= :past (fs/get-in arg '(:infl) :notfound)))
              (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
         ;; irregular present-tense (e.g. "fare")
         (let [root (fs/get-in arg '(:infinitive))
@@ -87,14 +90,43 @@
                         #"[eo]$" "i") ;; dottore => dottori; medico => medici
 
 
+        ;; has a :root and :agr, therefore noun, and
         ;; number not specified: use root form by default.
         (and (map? arg)
              (contains? arg :root)
              (contains? arg :agr))
         (str (fs/get-in arg '(:root)))
+
+        ;; irregular passato prossimo.
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past)
+             (not (= (fs/get-in arg '(:infinitive :irregular :passato) :notfound)
+                     :notfound)))
+        (str (fs/get-in arg '(:infinitive :irregular :passato)))
+
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past))
+
+        ;; regular past inflection
+        (let [root (fs/get-in arg '(:infinitive))
+              root (if root root "(no-root-found)")
+              are-type (re-find #"are$" root)
+              ere-type (re-find #"ere$" root)
+              ire-type (re-find #"ire$" root)
+              stem (string/replace root #"[iae]re$" "")
+              last-stem-char-is-i (re-find #"i$" stem)]
+          (cond (or are-type ere-type)
+                (str stem "ato")
+                (or are-type ire-type)
+                (str stem "ito")
+                true
+                (str "(regpast:TODO)")))
+
         
         :else
-        ;; assume a map with keys (:root and :agr).
+        ;; assume present tense verb with map with keys (:root and :agr).
         (let [root (fs/get-in arg '(:infinitive))
               root (if (nil? root) "(nil)" root)
               root (if (not (= (type root) java.lang.String))
@@ -143,7 +175,8 @@
 
            (and (= person :3rd) (= number :plur))
            (str stem "ano")
-           :else arg))))
+           :else
+           arg))))
 
 (defn conjugate-en [arg]
   (cond (nil? arg) ""
@@ -163,6 +196,9 @@
         (and (map? arg)
              (contains? (set (keys arg)) :agr)
              (contains? (set (keys arg)) :infinitive)
+             (not (= :notfound (fs/get-in arg '(:infinitive :irregular :present) :notfound)))
+             ;; TODO: check (= :present) rather than (not (= :past)).
+             (not (= :past (fs/get-in arg '(:infl) :notfound)))
              (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
         ;; irregular present-tense (e.g. "fare")
         (let [root (fs/get-in arg '(:infinitive))
@@ -210,9 +246,35 @@
              (contains? arg :root)
              (contains? arg :agr))
         (str (fs/get-in arg '(:root)))
+
+        ;; irregular past.
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past)
+             (not (= (fs/get-in arg '(:infinitive :irregular :past) :notfound)
+                     :notfound)))
+        (str (fs/get-in arg '(:infinitive :irregular :past)))
+
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past))
+        (let [root (fs/get-in arg '(:infinitive))
+              root (if (nil? root) "(nilroot)" root)
+              root (if (not (= (type root) java.lang.String))
+                     (fs/get-in arg '(:infinitive :infinitive))
+                     root)
+              stem (string/replace root #"^to " "")
+              stem-minus-one (nth (re-find #"(.*).$" stem) 1)
+              penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
+              last-stem-char (re-find #".$" stem)
+              last-stem-char-is-e (re-find #"e$" stem)]
+          (cond last-stem-char-is-e  ;; e.g. "write" => "written"
+                (str stem-minus-one penultimate-stem-char "en")
+                true
+                (str stem "en")))
         
         :else
-        ;; assume a map with keys (:infintive and :agr).
+        ;; assume a map with keys (:infinitive and :agr).
         (let [root (fs/get-in arg '(:infinitive))
               root (if (nil? root) "(nilroot)" root)
               root (if (not (= (type root) java.lang.String))
@@ -245,7 +307,7 @@
 
 (defn get-italian [a b]
   (let [conjugated-a (conjugate-it a)
-        conjugated-b (if (not (nil? b)) (conjugate-it b) "")]
+        conjugated-b (if (not (nil? b)) (conjugate-it b) "..")]
     (if (and
          (string? conjugated-a)
          (string? conjugated-b))
@@ -288,8 +350,6 @@
         (and (= conjugated-a "di la")
              (re-find #"^[aeiou]" conjugated-b))
         (str "del'" conjugated-b)
-
-
         
         (= conjugated-a "di il")
         (str "del " conjugated-b)
@@ -314,7 +374,7 @@
 
 (defn get-english [a b]
   (let [conjugated-a (conjugate-en a)
-        conjugated-b (if (not (nil? b)) (conjugate-en b) "")]
+        conjugated-b (if (not (nil? b)) (conjugate-en b) "..")]
     (if (and
          (= (type conjugated-a) java.lang.String)
          (= (type conjugated-b) java.lang.String))
