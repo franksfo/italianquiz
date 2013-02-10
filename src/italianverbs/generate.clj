@@ -793,6 +793,19 @@
 ;; in this filtering.
 (def filter-head true)
 
+
+(defn head-candidates [phrase]
+  (let [head-and-comp (random-head-and-comp-from-phrase phrase)
+        parent phrase]
+    (let [head (:head head-and-comp)
+          head-filter (fs/get-in parent '(:head))
+          candidates
+          (if (and filter-head (seq? head))
+            (filter (fn [head-candidate]
+                      (not (fs/fail? (fs/unifyc head-filter head-candidate))))
+                    head))]
+      candidates)))
+
 (defn random-head-from-pair [head-and-comp parent]
   (let [head (:head head-and-comp)
         head-filter (fs/get-in parent '(:head))
@@ -811,11 +824,17 @@
      true
      (throw (Exception. (str "- don't know how to get a head from: " head))))))
 
+(declare generate)
+
 (defn expansion-to-candidates [comp-expansion]
   (let [comps (eval-symbol comp-expansion)]
-    (if (list? comps)
-      comps;(nth comps (rand-int (.size comps)))
-      (throw (Exception. (str "TODO: recursively expand rules."))))))
+    (cond
+     (seq? comps)
+     comps
+     (map? comps) ;; a map such as np:
+     (list (generate comps)) ;; recursively generate the given phrase and wrap in a list (so we choose 'randomly' this generated phrase).
+     true
+     (throw (Exception. (str "TODO: recursively expand rules."))))))
 
 (defn random-comp-for-parent [parent comp-expansion]
   (let [candidates (expansion-to-candidates comp-expansion)
@@ -829,7 +848,7 @@
      :filtered filtered
      :comp (if (> (.size filtered) 0)
              (nth filtered (rand-int (.size filtered)))
-             (throw (Exception. (str "None of the candidates: " candidates " matched the filter: " filter))))
+             (throw (Exception. (str "None of the candidates: " (join (map (fn[x] (str "'" (:italian x) "'")) candidates) " ") " matched the filter: " complement-filter " from parent: " parent))))
      :parent parent
      :expansion comp-expansion}))
 
@@ -844,7 +863,9 @@
 
       ;; now get complement given this head.
       (let [random-comp
-            (random-comp-for-parent unified-parent comp-expansion)
+            (try (random-comp-for-parent unified-parent comp-expansion)
+                 (catch Exception e
+                   {:exception (str e)}))
             unified-with-comp
             (fs/unifyc
              unified-parent
