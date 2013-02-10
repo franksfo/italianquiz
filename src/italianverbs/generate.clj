@@ -768,45 +768,91 @@
   (let [random-key (nth (keys (:extend phrase)) (rand-int (.size (keys (:extend phrase)))))]
     (get (:extend phrase) random-key)))
 
-(defn generate [phrase]
+(defn eval-symbol [symbol]
+  (cond
+   (= symbol 'nouns) lex/nouns
+   (= symbol 'verbs) lex/verbs
+   (= symbol 'present-verbs) lex/present-verbs
+   (= symbol 'determiners) lex/determiners
+   (= symbol 'pronouns) lex/pronouns
+   (= symbol 'np) gram/np
+   (= symbol 'vp-present) gram/vp-present
+   (= symbol 'vp-past) gram/vp-past
+   true (throw (Exception. (str "Could not evaluate symbol: '" symbol "'")))))
+
+(def foohead2 (eval-symbol (:head (random-expansion gram/s))))
+(def foohead3 (nth foohead2 (rand-int (.size foohead2))))
+
+(defn random-head-and-comp-from-phrase [phrase]
   (let [expansion (random-expansion phrase)
-        head (:head expansion)
-        comp (:comp expansion)
-        head (if (= head 'nouns) lex/nouns)
-        comp (if (= comp 'determiners) lex/determiners)
-        random-head (if (map? head)
-                      ;; TODO: recursively expand.
-                      nil
-                      (if (list? head)
-                        ;; list of lexemes: ;; TODO: filter (eval head)'s list by the (:head) value of phrase,
-                        ;; similar to what we do below with comps.
-                        (nth head (rand-int (.size head)))))]
-    (let [unified
+        head (eval-symbol (:head expansion))
+        comp (:comp expansion)] ;; leave comp as just a symbol for now: we will evaluate it later in random-comp-from-head.
+    {:head head
+     :comp comp}))
+
+(defn random-head-from-pair [head-and-comp]
+  (let [head (:head head-and-comp)]
+    (if (map? head)
+      ;; TODO: recursively expand rather than returning nil.
+      nil
+      (if (list? head) ;; head is a list of candidate heads (lexemes).
+        ;; TODO: filter by unifying each candidate against parent's :head value -
+        ;; if configured to do so. If no filtering, we assume that all candidates
+        ;; will unify successfully without checking, so we can avoid the time spent
+        ;; in this filtering.
+        (nth head (rand-int (.size head))) ;; choose a random head from the list.
+        (throw (Exception. (str "Don't know how to get a head from " head)))))))
+
+(defn expansion-to-candidates [comp-expansion]
+  (let [comps (eval-symbol comp-expansion)]
+    (if (list? comps)
+      comps;(nth comps (rand-int (.size comps)))
+      (throw (Exception. (str "TODO: recursively expand rules."))))))
+
+(defn random-comp-for-parent [parent comp-expansion]
+  (let [candidates (expansion-to-candidates comp-expansion)
+        complement-filter (fs/get-in parent '(:comp))
+        filtered  (if (> (.size candidates) 0)
+                    (filter (fn [x]
+                              (not (fs/fail? (fs/unifyc complement-filter x))))
+                            candidates)
+                    (throw (Exception. (str "No candidates found for comp-expansion: " comp-expansion))))]
+    {:comp-candidates-unfiltered candidates
+     :filtered filtered
+     :comp (if (> (.size filtered) 0)
+             (nth filtered (rand-int (.size filtered)))
+             (throw (Exception. (str "None of the candidates: " candidates " matched the filter: " filter))))
+     :parent parent
+     :expansion comp-expansion}))
+
+(defn generate [phrase]
+  (let [random-head-and-comp (random-head-and-comp-from-phrase phrase)
+        random-head (random-head-from-pair random-head-and-comp)
+        comp-expansion (:comp random-head-and-comp)]
+    (let [unified-parent
           (unify
            (fs/copy phrase)
-           {:head (fs/copy random-head)})
-          random-comp
-          (if (map? comp)
-            ;; expand..
-            nil
-            ;; list of lexemes
-            (if (list? comp)
-              (let [lexemes comp]
-                (let [candidates (filter-by-match {:synsem (fs/get-in unified '(:head :synsem :subcat :1))}
-                                                  lexemes)]
-                  (nth candidates (rand-int (.size candidates)))))))]
-      (let [unified
-            (unify
-             unified
-             {:comp random-comp})]
+           {:head (fs/copy random-head)})]
+
+      ;; now get complement given this head.
+      (let [random-comp
+            (random-comp-for-parent unified-parent comp-expansion)
+            unified-with-comp
+            (fs/unifyc
+             unified-parent
+             {:comp (fs/copy (fs/get-in random-comp '(:comp)))})]
         (merge
-         unified
+         unified-with-comp
+;         {:debug
+;          {:unified unified-parent
+;           :random-comp random-comp
+;           :head random-head}}
          {:italian (morph/get-italian
-                    (fs/get-in unified '(:1 :italian))
-                    (fs/get-in unified '(:2 :italian)))
+                    (fs/get-in unified-with-comp '(:1 :italian))
+                    (fs/get-in unified-with-comp '(:2 :italian)))
           :english (morph/get-english
-                    (fs/get-in unified '(:1 :english))
-                    (fs/get-in unified '(:2 :english)))})))))
+                    (fs/get-in unified-with-comp '(:1 :english))
+                    (fs/get-in unified-with-comp '(:2 :english)))})))))
 
 (defn random-sentence []
   (generate gram/np))
