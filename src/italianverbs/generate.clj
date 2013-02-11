@@ -63,20 +63,6 @@
            unified)
           unified)))))
 
-                                        ;(def head-specification (get-terminal-head-in sentence-skeleton-1))
-(def head-specification (get-terminal-head-in gram/vp-present))
-(def matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
-                                    (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lex/lexicon)))
-(def random-lexical-head (if (> (.size matching-lexical-heads) 0)
-                           (nth matching-lexical-heads (rand-int (.size matching-lexical-heads)))))
-(def obj-spec (fs/get-in random-lexical-head '(:synsem :subcat :2)))
-
-(def object-np (random-np {:synsem obj-spec}))
-
-(def subj-spec (fs/get-in random-lexical-head '(:synsem :subcat :1)))
-(def subject-np (random-np {:synsem (unify subj-spec
-                                           {:subcat {:1 {:cat :det}}})}))
-
 (defn random-subject-np [head-spec]
   (let [rand (rand-int 2)]
     (if (= rand 0)
@@ -618,17 +604,6 @@
     (lex/lookup {:synsem (fs/get-in head-fs
                                   '(:synsem :subcat :1))})))
 
-(def arg1-index
-  (zipmap lex/lexicon (map (fn [lexeme] (args1 lexeme)) lex/lexicon)))
-
-(defn args1-cached [head]
-  "lookup lexical entries that can satisfy the first subcat position of the given head."
-  (let [head-fs
-        (if (map? head) head
-            ;; assume string:
-            (first (lex/it head)))]
-    (get arg1-index head-fs)))
-
 (defn args2 [head]
   "lookup lexical entries that can satisfy the second subcat position of the given head."
   (lex/lookup {:synsem (fs/get-in (nth (lex/it head) 0)
@@ -717,49 +692,6 @@
          unified))
       random-verb)))
 
-(defn random-sentence-busted []
-  (let [head-specification
-        (fs/copy (get-terminal-head-in gram/vp-present))
-        matching-lexical-verb-heads
-        (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
-                (map (fn [lexeme] (fs/match head-specification lexeme)) lex/lexicon))
-        random-verb (if (> (.size matching-lexical-heads) 0)
-                              (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))
-        obj-spec (fs/get-in random-verb '(:synsem :subcat :2))
-        object-np
-        (random-np (unify {:synsem (unify obj-spec
-                                          {:subcat {:1 {:cat :det}}})}))
-        subj-spec (fs/get-in random-verb '(:synsem :subcat :1))
-        subject-np (random-subject-np subj-spec)]
-    (let [unified (unify sentence-skeleton-1
-                         {:head
-                          (let [unified
-                                (unify
-                                 (fs/get-in sentence-skeleton-1 '(:head))
-                                 {:head random-verb
-                                  :comp object-np})]
-                            (fs/merge
-                             {:italian
-                              (morph/get-italian
-                               (fs/get-in unified '(:1 :italian))
-                               (fs/get-in unified '(:2 :italian)))
-                              :english
-                              (morph/get-english
-                               (fs/get-in unified '(:1 :english))
-                               (fs/get-in unified '(:2 :english)))}
-                             unified))}
-                         {:comp subject-np})]
-      (if (not (fs/fail? unified))
-        (merge
-         {:italian (morph/get-italian
-                    (fs/get-in unified '(:1 :italian))
-                    (fs/get-in unified '(:2 :italian)))
-          :english (morph/get-english
-                    (fs/get-in unified '(:1 :english))
-                    (fs/get-in unified '(:2 :english)))}
-         unified)
-        unified))))
-
 (defn random-extend [phrase]
   "return a random expansion of the given phrase, taken by looking at the phrase's :extend value, which list all possible expansions."
   (nth (vals (fs/get-in phrase '(:extend))) (int (* (rand 1) (.size (fs/get-in phrase '(:extend)))))))
@@ -774,6 +706,7 @@
    (= symbol 'verbs) lex/verbs
    (= symbol 'present-verbs) lex/present-verbs
    (= symbol 'present-transitive-verbs) lex/present-transitive-verbs
+   (= symbol 'present-aux-verbs) lex/present-aux-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
    (= symbol 'np) gram/np
@@ -798,13 +731,13 @@
   (let [head-and-comp (random-head-and-comp-from-phrase phrase)
         parent phrase]
     (let [head (:head head-and-comp)
-          debug (println "HC: HEAD: " head)
-          debug (println "head's type is: " (type head))
+;          debug (println "HC: HEAD: " head)
+;          debug (println "head's type is: " (type head))
           head-filter (fs/unifyc (fs/get-in parent '(:head))
                                  (if (not (nil? (fs/get-in parent '(:head :synsem :sem))))
                                    {:head {:synsem {:sem (lex/sem-impl (fs/get-in parent '(:head :synsem :sem)))}}}
                                    :top))
-          debug (println (str "HC:HF: " head-filter))
+;          debug (println (str "HC:HF: " head-filter))
           candidates
           (if (and filter-head (seq? head))
             (filter (fn [head-candidate]
@@ -867,11 +800,22 @@
 
 (defn random-comp-for-parent [parent comp-expansion]
   (let [candidates (expansion-to-candidates comp-expansion (fs/get-in parent '(:comp)))
-        complement-filter (fs/unifyc (fs/get-in parent '(:comp))
-                                     {:sem (lex/sem-impl (fs/get-in parent '(:comp)))})
+        sem-impl-result (if (not (nil? (fs/get-in parent '(:comp :synsem :sem))))
+                          (do
+;                            (println (str "NON-NULL SEMANTICS: " (fs/get-in parent '(:comp :synsem :sem))))
+                            (lex/sem-impl (fs/get-in parent '(:comp :synsem :sem)))))
+;        debug (println (str "SEM-IMPL: " sem-impl-result))
+        complement-filter (if (not (nil? sem-impl-result))
+                            (unify {:synsem {:sem sem-impl-result}}
+                                   (fs/get-in parent '(:comp)))
+                            (fs/get-in parent '(:comp)))
+;        debug (println (str "CF: " complement-filter))
         filtered  (if (> (.size candidates) 0)
                     (filter (fn [x]
-                              (not (fs/fail? (fs/unifyc complement-filter x))))
+                              (not (fs/fail?
+                                    (if (not (= complement-filter {}))
+                                      (fs/unifyc complement-filter x)
+                                      :top))))
                             candidates)
                     (throw (Exception. (str "No candidates found for comp-expansion: " comp-expansion))))]
     {:comp-candidates-unfiltered candidates
