@@ -164,7 +164,8 @@
             feminine
             {:root {:italian "acqua"
                     :english "water"
-                    :synsem {:sem {:pred :acqua}}}})
+                    :synsem {:sem {:artifact false
+                                   :pred :acqua}}}})
 
      (unify drinkable
             feminine
@@ -199,6 +200,7 @@
                           common-noun
                           masculine
                           {:synsem {:sem {:pred :mare
+                                          :buyable false ;; a seaside's too big to own.
                                           :artifact false
                                           :place true}}
                            :italian "mare"
