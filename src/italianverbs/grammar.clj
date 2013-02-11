@@ -81,8 +81,8 @@
                   :1 head
                   :2 comp
                   :extend {
-                           :a {:head 'present-transitive-verbs
-                               :comp 'np}
+;                           :a {:head 'present-transitive-verbs
+;                               :comp 'np}
 ;                           :b {:head 'verbs
 ;                               :comp 'lexicon}
                            :c {:head 'present-aux-verbs
@@ -103,7 +103,7 @@
                                      :2 '()}}})]
     (list
      (fs/unifyc head-principle subcat-1-principle
-               {:comment "s -> &lt;np vp-present>,&lt;pronouns vp-present>,&lt;np verbs>,&lt;pronouns,present-verbs>"
+               {:comment "sentence (4 subrules)"
                 :head head
                 :comp comp
                 :1 comp
