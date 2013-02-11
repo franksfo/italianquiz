@@ -691,8 +691,10 @@
   (unify
    transitive
    infinitive
-   {:italian "vedere"
-    :english "to see"
+   {:italian {:infinitive "vedere"
+              :irregular {:past "veduto"}}
+    :english {:infinitive "to see"
+              :irregular {:past "seen"}}
     :synsem {:sem {:pred :vedere
                    :subj {:animate true}}}}))
 
