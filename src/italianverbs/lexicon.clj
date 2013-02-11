@@ -770,9 +770,12 @@
    (unify {:root bevere}
           trans-present-tense-verb)
    (unify {:root comprare}
-           trans-present-tense-verb)
-;                                        ;    (unify {:root fare-do}
-;                                        ;           trans-present-tense-verb)
+          trans-present-tense-verb)
+
+   ;; need some activities (nouns with {:activity true}) to enable this:
+   ;; (unify {:root fare-do}
+   ;;           trans-present-tense-verb)
+
    (unify {:root fare-make}
           trans-present-tense-verb)
    (unify {:root leggere}

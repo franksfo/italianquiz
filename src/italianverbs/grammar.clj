@@ -80,12 +80,13 @@
                   :comp comp
                   :1 head
                   :2 comp
-                  :extend {:a {:head 'present-transitive-verbs
-                               :comp 'np}}}))
+                  :extend {
+                           :a {:head 'present-transitive-verbs
+                               :comp 'np}
 ;                           :b {:head 'verbs
 ;                               :comp 'lexicon}
-;                           :c {:head 'verbs
-;                               :comp 'vp-past}}}))
+                           :c {:head 'present-aux-verbs
+                               :comp 'vp-past}}}))
 
     (list vp-present vp-past)))
 
