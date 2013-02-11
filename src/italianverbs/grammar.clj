@@ -107,12 +107,14 @@
                 :comp comp
                 :1 comp
                 :2 head
-                :extend {;:a {:comp 'np
-                         ;    :head 'vp-present}
+                :extend {:a {:comp 'np
+                             :head 'vp-present}
                          :b {:comp 'pronouns
                              :head 'vp-present}
-;                         :d {:comp 'pronouns
-                                        ;                             :head 'present-verbs}
+                         :c {:comp 'np
+                             :head 'present-verbs}
+                         :d {:comp 'pronouns
+                             :head 'present-verbs}
                          }}))))
 
 (def np-rules 
