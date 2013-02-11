@@ -737,7 +737,7 @@
                                  (if (not (nil? (fs/get-in parent '(:head :synsem :sem))))
                                    {:head {:synsem {:sem (lex/sem-impl (fs/get-in parent '(:head :synsem :sem)))}}}
                                    :top))
-;          debug (println (str "HC:HF: " head-filter))
+          debug (println (str "HC:HF: " head-filter))
           candidates
           (if (and filter-head (seq? head))
             (filter (fn [head-candidate]
@@ -752,10 +752,12 @@
             (fs/unifyc head (fs/get-in parent '(:head))))]
       (if (nil? candidates)
         (throw (Exception. (str "Candidates is nil."))))
+      (println (str "HC:HF(2): " head-filter))
+      (println (str "HC:CA: (" (.size candidates) ") " (join (map (fn [x] x) candidates) " ; ")))
 ;      (if (seq? candidates) (println (str "HC CANDIDATES: " (join (map (fn [x] (fs/get-in x '(:italian))) candidates) " ; "))))
 ;      (if (map? candidates) (println (str "HC CANDIDATES IS A MAP (must recursively generate).")))
       (if (= (.size candidates) 0)
-        (throw (Exception. (str "No candidates found for filter: " (if (nil? filter-head) "(nil)" filter-head)))))
+        (throw (Exception. (str "No candidates found for filter: " (if (nil? head-filter) "(nil)" head-filter)))))
       candidates)))
 
 (declare generate)
