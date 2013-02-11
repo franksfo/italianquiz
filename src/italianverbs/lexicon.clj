@@ -9,7 +9,7 @@
 (clear!)
 
 (def human {:human true})
-(def animal {:animate true})
+(def animal {:animate true :human false})
 
 (def food {:synsem {:sem {:edible true}}})
 
