@@ -66,7 +66,7 @@
                   :comp comp
                   :1 head
                   :2 comp
-                  :extend {:a {:head 'verbs
+                  :extend {:a {:head 'past-verbs
                                :comp 'np}}}))
 
     (def vp-present

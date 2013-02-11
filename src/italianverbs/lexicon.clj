@@ -621,7 +621,8 @@
    transitive
    infinitive
    {:italian "comprare"
-    :english "to buy"
+    :english {:infinitive "to buy"
+              :irregular {:past "bought"}}
     :synsem {:sem {:pred :comprare
                    :subj {:human true}
                    :obj {:buyable true}}}}))
@@ -767,23 +768,23 @@
 
 (def past-verbs
   (list
-;   (unify {:root avere1}
-;          trans-past-tense-verb)
-;   (unify {:root bevere}
-;          trans-past-tense-verb)
+   (unify {:root avere1}
+          trans-past-tense-verb)
+   (unify {:root bevere}
+          trans-past-tense-verb)
    (unify {:root comprare}
-          trans-present-tense-verb)
-;   (unify {:root fare-make}
-;          trans-past-tense-verb)
-;   (unify {:root leggere}
-;          trans-past-tense-verb)
-;   (unify {:root mangiare}
-;          trans-past-tense-verb)
-;   (unify {:root scrivere}
-;          trans-past-tense-verb)
-;   (unify {:root vedere}
-;          trans-past-tense-verb)))
-))
+          trans-past-tense-verb)
+   (unify {:root fare-make}
+          trans-past-tense-verb)
+   (unify {:root leggere}
+          trans-past-tense-verb)
+   (unify {:root mangiare}
+          trans-past-tense-verb)
+   (unify {:root scrivere}
+          trans-past-tense-verb)
+   (unify {:root vedere}
+          trans-past-tense-verb)))
+
 
 (def present-transitive-verbs
   (list
