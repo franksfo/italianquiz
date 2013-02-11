@@ -788,17 +788,20 @@
           trans-present-tense-verb)
    ))
 
+(def present-intransitive-verbs
+  (list
+   (unify {:root dormire}
+          intrans-present-tense-verb)
+   (unify {:root pensare}
+          intrans-present-tense-verb)
+   (unify {:root sognare}
+          intrans-present-tense-verb)))
+
 (def present-verbs
   (concat
    present-aux-verbs
    present-transitive-verbs
-   (list
-    (unify {:root dormire}
-           intrans-present-tense-verb)
-    (unify {:root pensare}
-           intrans-present-tense-verb)
-    (unify {:root sognare}
-           intrans-present-tense-verb))))
+   present-intransitive-verbs))
 
 (def verbs
   (concat
