@@ -815,35 +815,36 @@
                               head-candidate)]
                         (not (fs/fail? (fs/unifyc head-filter head-candidate)))))
                     head)
-            head)]
+            ;; map: unify with parent's head constraints
+            (fs/unifyc head (fs/get-in parent '(:head))))]
       (if (nil? candidates)
         (throw (Exception. (str "Candidates is nil."))))
-      (if (seq? candidates) (println (str "HC CANDIDATES: " (join (map (fn [x] (fs/get-in x '(:italian))) candidates) " ; "))))
-      (if (map? candidates) (println (str "HC CANDIDATES IS A MAP (must recursively generate).")))
+;      (if (seq? candidates) (println (str "HC CANDIDATES: " (join (map (fn [x] (fs/get-in x '(:italian))) candidates) " ; "))))
+;      (if (map? candidates) (println (str "HC CANDIDATES IS A MAP (must recursively generate).")))
       (if (= (.size candidates) 0)
         (throw (Exception. (str "No candidates found for filter: " (if (nil? filter-head) "(nil)" filter-head)))))
       candidates)))
 
+(declare generate)
+
 (defn random-head [head-and-comp parent]
-  (println (str "RH parent: " parent))
-  (println (str "RH head-filter: " (fs/get-in parent '(:head))))
+;  (println (str "RH parent: " parent))
+;  (println (str "RH head-filter: " (fs/get-in parent '(:head))))
   (let [head (:head head-and-comp)
         head-filter (fs/get-in parent '(:head))
         head (head-candidates parent)]
     (cond
      (map? head)
-     ;; TODO: recursively expand rather than returning nil.
-     (throw (Exception. (str "- can't handle recursive expand from : " head " yet.")))
+     ;; recursively expand.
+     (generate head)
      (seq? head) ;; head is a list of candidate heads (lexemes).
      (rand-nth head)
      true
      (throw (Exception. (str "- don't know how to get a head from: " head))))))
 
-(declare generate)
-
 (defn expansion-to-candidates [comp-expansion comp-spec]
-  (println (str "ETC1: COMP-EXP: " comp-expansion))
-  (println (str "ETC1: COMP-SPEC: " comp-spec))
+;  (println (str "ETC1: COMP-EXP: " comp-expansion))
+;  (println (str "ETC1: COMP-SPEC: " comp-spec))
   (let [comps
         (if (symbol? comp-expansion)
           (eval-symbol comp-expansion)
@@ -882,22 +883,22 @@
      :expansion comp-expansion}))
 
 (defn generate-with-parent [random-head-and-comp phrase]
-  (println (str "GWP: RHAC: " random-head-and-comp))
-  (println (str "GWP: PHRA: " phrase))
+;  (println (str "GWP: RHAC: " random-head-and-comp))
+;  (println (str "GWP: PHRA: " phrase))
   (let [random-head (random-head random-head-and-comp phrase)]
     (unify
      (fs/copy phrase)
      {:head (fs/copy random-head)})))
 
 (defn generate [phrase]
-  (println (str "GENERATE: PHRASE: " phrase))
+;  (println (str "GENERATE: PHRASE: " phrase))
   (let [random-head-and-comp (random-head-and-comp-from-phrase phrase)
-        debug (println (str "GENERATE: RHAC: " random-head-and-comp))
+;        debug (println (str "GENERATE: RHAC: " random-head-and-comp))
         unified-parent (generate-with-parent random-head-and-comp phrase)
-        debug (println (str "GENERATE: UP: " unified-parent))
+;        debug (println (str "GENERATE: UP: " unified-parent))
         comp-expansion (:comp random-head-and-comp)]
       ;; now get complement given this head.
-    (println (str "GENERATE: COMP-EXPANSION: " comp-expansion))
+;    (println (str "GENERATE: COMP-EXPANSION: " comp-expansion))
     (let [random-comp
           (try (random-comp-for-parent unified-parent comp-expansion)
                (catch Exception e
@@ -925,7 +926,8 @@
           result)))))
 
 (defn random-sentence []
-  (generate (rand-nth (list gram/np gram/s))))
+                                        ;  (generate (rand-nth (list gram/np gram/s))))
+    (generate gram/s))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
