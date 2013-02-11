@@ -22,10 +22,7 @@
   (cond
    (= input :top) input
    true
-   (let [animal-but-not-human (if (and (fs/get-in input '(:animate))
-                                       (not (= true (fs/get-in input '(:human)))))
-                                {:human false}{})
-         animate (if (= (fs/get-in input '(:animate))
+   (let [animate (if (= (fs/get-in input '(:animate))
                         true)
                    {:artifact false
                     :drinkable false
@@ -34,16 +31,20 @@
                          true)
                     {:animate false}{})
 
+         consumable-false (if (= (fs/get-in input '(:consumable)) false)
+                            {:drinkable false
+                             :edible false} {})
+
          drinkable-xor-edible-1
          ;; things are either drinkable or edible, but not both (except for weird foods
-         ;; like pudding or soup).
+         ;; like pudding or soup). (part 1: edible)
          (if (and (= (fs/get-in input '(:edible)) true)
                   (= (fs/get-in input '(:drinkable) :notfound) :notfound))
            {:drinkable false}{})
 
          drinkable-xor-edible-2
          ;; things are either drinkable or edible, but not both (except for weird foods
-         ;; like pudding or soup).
+         ;; like pudding or soup). (part 2: drinkable)
          (if (and (= (fs/get-in input '(:drinkable)) true)
                   (= (fs/get-in input '(:edible) :notfound) :notfound))
            {:edible false})
@@ -52,6 +53,7 @@
          edible (if (or (= (fs/get-in input '(:edible)) true)
                         (= (fs/get-in input '(:drinkable)) true))
                   {:buyable true
+                   :human false
                    :legible false}{})
          human (if (= (fs/get-in input '(:human))
                       true)
@@ -63,15 +65,22 @@
                            false)
                       {:human false}{})
 
-         ;; legible(x) => artifact(x)
+         ;; legible(x) => artifact(x),drinkable(x,false),edible(x,false)
          legible
          (if (= (fs/get-in input '(:legible)) true)
-           {:artifact true})
+           {:artifact true
+            :drinkable false
+            :edible false})
 
          ;; artifact(x,false) => legible(x,false)
          not-legible-if-not-artifact
          (if (= (fs/get-in input '(:artifact)) false)
            {:legible false})
+
+         ;; we don't eat pets (unless things get so desperate that they aren't pets anymore)
+         pets (if (= (fs/get-in input '(:pet))
+                     true)
+                {:edible false})
 
          place (if (= (fs/get-in input '(:place))
                       true)
@@ -81,10 +90,10 @@
                   :legible false}{})
 
          ]
-     (let [merged (fs/merge animal-but-not-human animate artifact
+     (let [merged (fs/merge animate artifact consumable-false
                             drinkable-xor-edible-1 drinkable-xor-edible-2
                             edible human inanimate
-                            legible not-legible-if-not-artifact place
+                            legible not-legible-if-not-artifact pets place
                             input
                             )]
        (if (not (= merged input))
@@ -169,7 +178,7 @@
                           common-noun
                           masculine
                           {:synsem {:sem {:pred :amico
-                                          :human :true}}
+                                          :human true}}
                            :italian "amico"
                            :english "friend"})})
 
@@ -190,6 +199,7 @@
                           common-noun
                           masculine
                           {:synsem {:sem {:pred :mare
+                                          :artifact false
                                           :place true}}
                            :italian "mare"
                            :english "seaside"}
@@ -232,8 +242,9 @@
                           masculine
                           {:synsem {:sem {:pred :fiore
                                           :animate false
+                                          :artifact false
                                           :buyable true
-                                          :artifact false}}
+                                          :consumable false}}
                            :italian "fiore"
                            :english "flower"}
                           {:synsem {:subcat {:1 {:cat :det}}}})})
@@ -273,6 +284,8 @@
                           common-noun
                           feminine
                           {:synsem {:sem {:artifact true
+                                          :consumable false
+                                          :legible false
                                           :pred :scala}}
                            :italian "scala"
                            :english "ladder"})})
@@ -336,7 +349,7 @@
             {:root (unify agreement
                           common-noun
                           masculine
-                          {:synsem {:sem (unify animal {:pred :cane})}
+                          {:synsem {:sem (unify animal {:pred :cane :pet true})}
                            :italian "cane"
                            :english "dog"})})
 
@@ -344,7 +357,7 @@
             {:root (unify agreement
                           common-noun
                           masculine
-                          {:synsem {:sem (unify animal {:pred :gatto})}
+                          {:synsem {:sem (unify animal {:pred :gatto :pet true})}
                            :italian "gatto"
                            :english "cat"})})
 
@@ -353,8 +366,8 @@
             {:root {:italian "vino"
                     :english "wine"
                     :synsem {:sem {:pred :vino
-                                   :artifact true}}}}))))
-
+                                   :artifact true}}}})
+)))
 (def determiners
   (list
    {:synsem {:cat :det
@@ -460,10 +473,10 @@
    {:italian "bevere"
     :english "to drink"
     :synsem {:sem {:pred :bevere
-                   :subj {:animate true}
-                   :obj {:drinkable true}}}}))
+                   :subj (sem-impl {:animate true})
+                   :obj (sem-impl {:drinkable true})}}}))
 
-(def fare1
+(def fare-do
   (unify
    transitive
    {:italian {:infinitive "fare"
@@ -487,7 +500,7 @@
                    :subj {:human true}
                    :obj {:activity true}}}}))
 
-(def fare2
+(def fare-make
   (unify
    transitive
    {:italian {:infinitive "fare"
@@ -501,8 +514,8 @@
     :synsem {:cat :verb
              :infl :infinitive
              :sem {:pred :fare
-                   :subj {:human true}
-                   :obj {:artifact true}}}}))
+                   :subj (sem-impl {:human true})
+                   :obj (sem-impl {:artifact true})}}}))
 
 
 (def avere-common
@@ -619,8 +632,8 @@
    {:italian "mangiare"
     :english "to eat"
     :synsem {:sem {:pred :mangiare
-                   :subj {:animate true}
-                   :obj {:edible true}}}}))
+                   :subj (sem-impl {:animate true})
+                   :obj (sem-impl {:edible true})}}}))
 
 (def leggere
   (unify
@@ -756,9 +769,9 @@
           trans-present-tense-verb)
    (unify {:root comprare}
            trans-present-tense-verb)
-                                        ;    (unify {:root fare1}
-                                        ;           trans-present-tense-verb)
-   (unify {:root fare2}
+;                                        ;    (unify {:root fare-do}
+;                                        ;           trans-present-tense-verb)
+   (unify {:root fare-make}
           trans-present-tense-verb)
    (unify {:root leggere}
           trans-present-tense-verb)
@@ -767,37 +780,20 @@
    (unify {:root scrivere}
           trans-present-tense-verb)
    (unify {:root vedere}
-          trans-present-tense-verb)))
+          trans-present-tense-verb)
+   ))
 
 (def present-verbs
   (concat
    present-aux-verbs
-   
+   present-transitive-verbs
    (list
-    (unify {:root avere1}
-           trans-present-tense-verb)
-    (unify {:root bevere}
-           trans-present-tense-verb)
-    (unify {:root comprare}
-           trans-present-tense-verb)
     (unify {:root dormire}
            intrans-present-tense-verb)
-;    (unify {:root fare1}
-;           trans-present-tense-verb)
-    (unify {:root fare2}
-           trans-present-tense-verb)
-    (unify {:root leggere}
-           trans-present-tense-verb)
-    (unify {:root mangiare}
-           trans-present-tense-verb)
     (unify {:root pensare}
            intrans-present-tense-verb)
-    (unify {:root scrivere}
-           trans-present-tense-verb)
     (unify {:root sognare}
-           intrans-present-tense-verb)
-    (unify {:root vedere}
-           trans-present-tense-verb))))
+           intrans-present-tense-verb))))
 
 (def verbs
   (concat
@@ -805,18 +801,19 @@
    present-verbs
    past-verbs
    (list
-    avere1
-    bevere
-    comprare
-    dormire
-;    fare1
-    fare2
-    leggere
-    mangiare
-    pensare
-    scrivere
-    sognare
-    vedere)))
+;    avere1
+;    bevere
+;    comprare
+;    dormire
+;;    fare1
+;    fare2
+;    leggere
+;    mangiare
+;    pensare
+;    scrivere
+;    sognare
+    vedere
+    )))
 
 (def pronouns
   (list {:synsem {:cat :noun
@@ -919,3 +916,4 @@
 
 (defn en [english]
   (lookup {:english english}))
+
