@@ -102,19 +102,18 @@
                                      :2 '()}}})]
     (list
      (fs/unifyc head-principle subcat-1-principle
-               {:comment "s -> np vp"
+               {:comment "s -> &lt;np vp-present>,&lt;pronouns vp-present>,&lt;np verbs>,&lt;pronouns,present-verbs>"
                 :head head
                 :comp comp
                 :1 comp
                 :2 head
                 :extend {;:a {:comp 'np
                          ;    :head 'vp-present}
-                         ;:b {:comp 'pronouns
-                         ;    :head 'vp-present}
-                         ;:c {:comp 'np
-                         ;    :head 'verbs}
-                         :d {:comp 'pronouns
-                             :head 'present-verbs}}}))))
+                         :b {:comp 'pronouns
+                             :head 'vp-present}
+;                         :d {:comp 'pronouns
+                                        ;                             :head 'present-verbs}
+                         }}))))
 
 (def np-rules 
   (list

@@ -798,15 +798,35 @@
   (let [head-and-comp (random-head-and-comp-from-phrase phrase)
         parent phrase]
     (let [head (:head head-and-comp)
-          head-filter (fs/get-in parent '(:head))
+          debug (println "HC: HEAD: " head)
+          debug (println "head's type is: " (type head))
+          head-filter (fs/unifyc (fs/get-in parent '(:head))
+                                 (if (not (nil? (fs/get-in parent '(:head :synsem :sem))))
+                                   {:head {:synsem {:sem (lex/sem-impl (fs/get-in parent '(:head :synsem :sem)))}}}
+                                   :top))
+          debug (println (str "HC:HF: " head-filter))
           candidates
           (if (and filter-head (seq? head))
             (filter (fn [head-candidate]
-                      (not (fs/fail? (fs/unifyc head-filter head-candidate))))
-                    head))]
+                      (let [head-candidate
+                            (if (not (nil? (fs/get-in head-candidate '(:synsem :sem))))
+                              (fs/unifyc head-candidate
+                                         {:synsem {:sem (lex/sem-impl (fs/get-in head-candidate '(:synsem :sem)))}})
+                              head-candidate)]
+                        (not (fs/fail? (fs/unifyc head-filter head-candidate)))))
+                    head)
+            head)]
+      (if (nil? candidates)
+        (throw (Exception. (str "Candidates is nil."))))
+      (if (seq? candidates) (println (str "HC CANDIDATES: " (join (map (fn [x] (fs/get-in x '(:italian))) candidates) " ; "))))
+      (if (map? candidates) (println (str "HC CANDIDATES IS A MAP (must recursively generate).")))
+      (if (= (.size candidates) 0)
+        (throw (Exception. (str "No candidates found for filter: " (if (nil? filter-head) "(nil)" filter-head)))))
       candidates)))
 
 (defn random-head [head-and-comp parent]
+  (println (str "RH parent: " parent))
+  (println (str "RH head-filter: " (fs/get-in parent '(:head))))
   (let [head (:head head-and-comp)
         head-filter (fs/get-in parent '(:head))
         head (head-candidates parent)]
@@ -822,6 +842,8 @@
 (declare generate)
 
 (defn expansion-to-candidates [comp-expansion comp-spec]
+  (println (str "ETC1: COMP-EXP: " comp-expansion))
+  (println (str "ETC1: COMP-SPEC: " comp-spec))
   (let [comps
         (if (symbol? comp-expansion)
           (eval-symbol comp-expansion)
@@ -830,7 +852,10 @@
      (seq? comps)
      comps
      (map? comps) ;; a map such as np:
-     (let [unified-spec (fs/unify comps comp-spec)
+     (let [unified-spec (fs/unifyc comps comp-spec)
+;           debug (println (str "ETC: COMPS: " comps))
+;           debug (println (str "ETC: COMP-SPEC: " comp-spec))
+;           debug (println (str "ETC: UNIFIED SPEC: " unified-spec))
            generated (generate unified-spec)] ;; recursively generate a phrase.
        (if (nil? generated)
          (throw (Exception.
@@ -856,17 +881,23 @@
      :parent parent
      :expansion comp-expansion}))
 
-(defn generate-with-parent [phrase random-head-and-comp]
+(defn generate-with-parent [random-head-and-comp phrase]
+  (println (str "GWP: RHAC: " random-head-and-comp))
+  (println (str "GWP: PHRA: " phrase))
   (let [random-head (random-head random-head-and-comp phrase)]
     (unify
      (fs/copy phrase)
      {:head (fs/copy random-head)})))
 
 (defn generate [phrase]
+  (println (str "GENERATE: PHRASE: " phrase))
   (let [random-head-and-comp (random-head-and-comp-from-phrase phrase)
-        unified-parent (generate-with-parent phrase random-head-and-comp)
+        debug (println (str "GENERATE: RHAC: " random-head-and-comp))
+        unified-parent (generate-with-parent random-head-and-comp phrase)
+        debug (println (str "GENERATE: UP: " unified-parent))
         comp-expansion (:comp random-head-and-comp)]
       ;; now get complement given this head.
+    (println (str "GENERATE: COMP-EXPANSION: " comp-expansion))
     (let [random-comp
           (try (random-comp-for-parent unified-parent comp-expansion)
                (catch Exception e
@@ -889,7 +920,7 @@
            :result result
            :comp-expansion comp-expansion
            :parent unified-parent
-           :exception random-comp
+           :complement-attempt random-comp
            :comp (fs/get-in random-comp '(:comp))}
           result)))))
 
