@@ -473,16 +473,21 @@
    transitive
    infinitive
    {:italian "bevere"
-    :english "to drink"
+    :english {:infinitive "to drink"
+              :irregular {:past "drank"}}
     :synsem {:sem {:pred :bevere
+
                    :subj (sem-impl {:animate true})
                    :obj (sem-impl {:drinkable true})}}}))
 
+
+;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
   (unify
    transitive
    {:italian {:infinitive "fare"
-              :irregular {:present {:1sing "facio"
+              :irregular {:past "fatto"
+                          :present {:1sing "facio"
                                     :2sing "fai"
                                     :3sing "fa"
                                     :1plur "facciamo"
@@ -506,7 +511,8 @@
   (unify
    transitive
    {:italian {:infinitive "fare"
-              :irregular {:present {:1sing "facio"
+              :irregular {:past "fatto"
+                          :present {:1sing "facio"
                                     :2sing "fai"
                                     :3sing "fa"
                                     :1plur "facciamo"
@@ -523,14 +529,16 @@
 (def avere-common
   {:synsem {:cat :verb}
    :italian {:infinitive "avere"
-             :irregular {:present {:1sing "ho"
+             :irregular {:past "avuto"
+                         :present {:1sing "ho"
                                    :2sing "hai"
                                    :3sing "ha"
                                    :1plur "abbiamo"
                                    :2plur "avete"
                                    :3plur "hanno"}}}
    :english {:infinitive "to have"
-             :irregular {:present {:1sing "have"
+             :irregular {:past "had"
+                         :present {:1sing "have"
                                    :2sing "have"
                                    :3sing "has"
                                    :1plur "have"
@@ -758,10 +766,24 @@
   (first present-aux-verbs))
 
 (def past-verbs
-  (list (unify {:root leggere}
-               trans-past-tense-verb)
-        (unify {:root scrivere}
-               trans-past-tense-verb)))
+  (list
+;   (unify {:root avere1}
+;          trans-past-tense-verb)
+;   (unify {:root bevere}
+;          trans-past-tense-verb)
+   (unify {:root comprare}
+          trans-present-tense-verb)
+;   (unify {:root fare-make}
+;          trans-past-tense-verb)
+;   (unify {:root leggere}
+;          trans-past-tense-verb)
+;   (unify {:root mangiare}
+;          trans-past-tense-verb)
+;   (unify {:root scrivere}
+;          trans-past-tense-verb)
+;   (unify {:root vedere}
+;          trans-past-tense-verb)))
+))
 
 (def present-transitive-verbs
   (list
