@@ -534,7 +534,7 @@
                                    :2plur "have"
                                    :3plur "have"}}}})
    
-(def avere1
+(def avere
   (unify
    transitive
    infinitive
@@ -543,20 +543,6 @@
              :sem {:pred :avere
                    :subj {:human true}
                    :obj {:buyable true}}}}))
-
-(def avere-aux
-  (let [v-past-pred (ref :top)
-        subject (ref :top)]
-    (unify
-     subjective
-     infinitive
-     avere-common
-     {:synsem {:subcat {:1 subject
-                        :2 {:cat :verb
-                            :subcat {:1 subject}
-                            :sem {:pred v-past-pred}
-                            :infl :past}}
-               :sem {:pred v-past-pred}}})))
 
 (def avere-aux
   (let [v-past-pred (ref :top)
@@ -772,7 +758,7 @@
 
 (def past-verbs
   (list
-   (unify {:root avere1}
+   (unify {:root avere}
           trans-past-tense-verb)
    (unify {:root bevere}
           trans-past-tense-verb)
@@ -791,7 +777,7 @@
 
 (def present-transitive-verbs
   (list
-   (unify {:root avere1}
+   (unify {:root avere}
           trans-present-tense-verb)
    (unify {:root bevere}
           trans-present-tense-verb)
@@ -835,11 +821,11 @@
    present-verbs
    past-verbs
    (list
-    avere1
+    avere
     bevere
     comprare
     dormire
-;    fare1
+;    fare-do
     fare-make
     leggere
     mangiare
