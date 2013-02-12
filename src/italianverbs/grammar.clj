@@ -83,9 +83,7 @@
                   :extend {
 ;                           :a {:head 'present-transitive-verbs
 ;                               :comp 'np}
-;                           :b {:head 'verbs
-;                               :comp 'lexicon}
-                           :c {:head 'present-aux-verbs
+                           :b {:head 'present-aux-verbs
                                :comp 'vp-past}}}))
 
     (list vp-present vp-past)))
@@ -108,7 +106,8 @@
                 :comp comp
                 :1 comp
                 :2 head
-                :extend {:a {:comp 'np
+                :extend {
+                         :a {:comp 'np
                              :head 'vp-present}
                          :b {:comp 'pronouns
                              :head 'vp-present}
