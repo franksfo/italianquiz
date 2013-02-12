@@ -472,7 +472,8 @@
   (unify
    transitive
    infinitive
-   {:italian "bevere"
+   {:italian {:infinitive "bevere"
+              :irregular {:passato "bevuto"}}
     :english {:infinitive "to drink"
               :irregular {:past "drank"}}
     :synsem {:sem {:pred :bevere
@@ -486,7 +487,7 @@
   (unify
    transitive
    {:italian {:infinitive "fare"
-              :irregular {:past "fatto"
+              :irregular {:passato "fatto"
                           :present {:1sing "facio"
                                     :2sing "fai"
                                     :3sing "fa"
@@ -511,14 +512,15 @@
   (unify
    transitive
    {:italian {:infinitive "fare"
-              :irregular {:past "fatto"
+              :irregular {:passato "fatto"
                           :present {:1sing "facio"
                                     :2sing "fai"
                                     :3sing "fa"
                                     :1plur "facciamo"
                                     :2plur "fate"
                                     :3plur "fanno"}}}
-    :english "to make"
+    :english {:infinitive "to make"
+              :irregular {:past "made"}}
     :synsem {:cat :verb
              :infl :infinitive
              :sem {:pred :fare
@@ -529,7 +531,7 @@
 (def avere-common
   {:synsem {:cat :verb}
    :italian {:infinitive "avere"
-             :irregular {:past "avuto"
+             :irregular {:passato "avuto"
                          :present {:1sing "ho"
                                    :2sing "hai"
                                    :3sing "ha"
@@ -692,7 +694,7 @@
    transitive
    infinitive
    {:italian {:infinitive "vedere"
-              :irregular {:past "veduto"}}
+              :irregular {:passato "veduto"}}
     :english {:infinitive "to see"
               :irregular {:past "seen"}}
     :synsem {:sem {:pred :vedere
@@ -782,11 +784,10 @@
           trans-past-tense-verb)
    (unify {:root mangiare}
           trans-past-tense-verb)
-   (unify {:root scrivere}
-          trans-past-tense-verb)
-   (unify {:root vedere}
-          trans-past-tense-verb)))
-
+  (unify {:root scrivere}
+         trans-past-tense-verb)
+  (unify {:root vedere}
+         trans-past-tense-verb)))
 
 (def present-transitive-verbs
   (list
