@@ -5,6 +5,9 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
+(defn joinwtf [coll separator]
+  (apply str (interpose separator coll)))
+
 (defn conjugate-it [arg]
   "conjugate an italian expression."
 ;  (pprint (str "conjugating: " arg))
@@ -104,6 +107,14 @@
              (not (= (fs/get-in arg '(:infinitive :irregular :passato) :notfound)
                      :notfound)))
         (str (fs/get-in arg '(:infinitive :irregular :passato)))
+
+        (and (map? arg)
+             (map? (fs/get-in arg '(:infinitive))))
+        (do
+          (throw (Exception. (str "Infinitive of arg is a map: " arg " with infinitive: "
+                                  (fs/get-in arg '(:infinitive)) ","
+                                  ", but morph/conjugate-it doesn't know how to handle "
+                                  " it. Needs more morphological code to do so."))))
 
         (and (map? arg)
              (contains? arg :infl)
