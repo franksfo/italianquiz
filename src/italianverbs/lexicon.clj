@@ -469,20 +469,6 @@
                                   :cat :noun
                                   :agr {:case {:not :nom}}}}}})))
 
-(def bevere
-  (unify
-   transitive
-   infinitive
-   {:italian {:infinitive "bevere"
-              :irregular {:passato "bevuto"}}
-    :english {:infinitive "to drink"
-              :irregular {:past "drank"}}
-    :synsem {:sem {:pred :bevere
-
-                   :subj (sem-impl {:animate true})
-                   :obj (sem-impl {:drinkable true})}}}))
-
-
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
   (unify
@@ -546,7 +532,7 @@
                                    :3sing "has"
                                    :1plur "have"
                                    :2plur "have"
-                                    :3plur "have"}}}})
+                                   :3plur "have"}}}})
    
 (def avere1
   (unify
@@ -618,6 +604,19 @@
                :sem {:subj subject-sem
                      :obj object-sem
                      :pred pred}}})))
+(def bevere
+  (unify
+   transitive
+   infinitive
+   {:italian {:infinitive "bevere"
+              :irregular {:passato "bevuto"}}
+    :english {:infinitive "to drink"
+              :irregular {:past "drank"}}
+    :synsem {:sem {:pred :bevere
+
+                   :subj (sem-impl {:animate true})
+                   :obj (sem-impl {:drinkable true})}}}))
+
 
 (def comprare
   (unify
@@ -695,7 +694,7 @@
    transitive
    infinitive
    {:italian {:infinitive "vedere"
-              :irregular {:passato "veduto"}}
+              :irregular {:passato "visto"}}
     :english {:infinitive "to see"
               :irregular {:past "seen"}}
     :synsem {:sem {:pred :vedere
@@ -836,17 +835,17 @@
    present-verbs
    past-verbs
    (list
-;    avere1
-;    bevere
-;    comprare
-;    dormire
-;;    fare1
-;    fare2
-;    leggere
-;    mangiare
-;    pensare
-;    scrivere
-;    sognare
+    avere1
+    bevere
+    comprare
+    dormire
+;    fare1
+    fare-make
+    leggere
+    mangiare
+    pensare
+    scrivere
+    sognare
     vedere
     )))
 
