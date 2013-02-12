@@ -112,10 +112,9 @@
                          :b {:comp 'pronouns
                              :head 'vp-present}
                          :c {:comp 'np
-                             :head 'present-verbs}
+                             :head 'present-intransitive-verbs}
                          :d {:comp 'pronouns
-                             :head 'present-verbs}
-                         }}))))
+                             :head 'present-intransitive-verbs}}}))))
 
 (def np-rules 
   (list
