@@ -165,6 +165,7 @@
             {:root {:italian "acqua"
                     :english "water"
                     :synsem {:sem {:artifact false
+                                   :animate false
                                    :pred :acqua}}}})
 
      (unify drinkable
