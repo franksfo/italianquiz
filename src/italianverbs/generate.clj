@@ -692,11 +692,7 @@
          unified))
       random-verb)))
 
-(defn random-extend [phrase]
-  "return a random expansion of the given phrase, taken by looking at the phrase's :extend value, which list all possible expansions."
-  (nth (vals (fs/get-in phrase '(:extend))) (int (* (rand 1) (.size (fs/get-in phrase '(:extend)))))))
-
-(defn random-expansion [phrase]
+(defn random-extension [phrase]
   (let [random-key (nth (keys (:extend phrase)) (rand-int (.size (keys (:extend phrase)))))]
     (get (:extend phrase) random-key)))
 
@@ -705,6 +701,7 @@
    (= symbol 'nouns) lex/nouns
    (= symbol 'verbs) lex/verbs
    (= symbol 'present-verbs) lex/present-verbs
+   (= symbol 'present-intransitive-verbs) lex/present-intransitive-verbs
    (= symbol 'present-transitive-verbs) lex/present-transitive-verbs
    (= symbol 'present-aux-verbs) lex/present-aux-verbs
    (= symbol 'past-verbs) lex/past-verbs
@@ -715,9 +712,8 @@
    (= symbol 'vp-past) gram/vp-past
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
-(defn random-head-and-comp-from-phrase [phrase]
-  (let [expansion (random-expansion phrase)
-        head (eval-symbol (:head expansion))
+(defn random-head-and-comp-from-phrase [phrase expansion]
+  (let [head (eval-symbol (:head expansion))
         comp (:comp expansion)] ;; leave comp as just a symbol for now: we will evaluate it later in random-comp-from-head.
     {:head head
      :comp comp}))
@@ -728,8 +724,8 @@
 ;; in this filtering.
 (def filter-head true)
 
-(defn head-candidates [phrase]
-  (let [head-and-comp (random-head-and-comp-from-phrase phrase)
+(defn head-candidates [phrase expansion]
+  (let [head-and-comp (random-head-and-comp-from-phrase phrase expansion)
         parent phrase]
     (let [head (:head head-and-comp)
 ;          debug (println "HC: HEAD: " head)
@@ -763,12 +759,12 @@
 
 (declare generate)
 
-(defn random-head [head-and-comp parent]
+(defn random-head [head-and-comp parent expansion]
 ;  (println (str "RH parent: " parent))
 ;  (println (str "RH head-filter: " (fs/get-in parent '(:head))))
   (let [head (:head head-and-comp)
         head-filter (fs/get-in parent '(:head))
-        head (head-candidates parent)]
+        head (head-candidates parent expansion)]
     (cond
      (map? head)
      ;; recursively expand.
@@ -820,28 +816,33 @@
                                       (fs/unifyc complement-filter x)
                                       :top))))
                             candidates)
-                    (throw (Exception. (str "No candidates found for comp-expansion: " comp-expansion))))]
+                    (throw (Exception. (str "No candidates found for comp-expansion: "
+                                            comp-expansion))))]
     {:comp-candidates-unfiltered candidates
      :filtered filtered
      :comp (if (> (.size filtered) 0)
              (nth filtered (rand-int (.size filtered)))
-             (throw (Exception. (str "None of the candidates: " (join (map (fn[x] (str "'" (:italian x) "'")) candidates) " ") " matched the filter: " complement-filter " from parent: " parent))))
+             (throw (Exception. (str "None of the candidates: "
+                                     (join (map (fn[x] (str "'" (:italian x) "'")) candidates)
+                                           " ") " matched the filter: " complement-filter
+                                           " from parent: " parent))))
      :parent parent
      :expansion comp-expansion}))
 
-(defn generate-with-parent [random-head-and-comp phrase]
+(defn generate-with-parent [random-head-and-comp phrase expansion]
 ;  (println (str "GWP: RHAC: " random-head-and-comp))
 ;  (println (str "GWP: PHRA: " phrase))
-  (let [random-head (random-head random-head-and-comp phrase)]
+  (let [random-head (random-head random-head-and-comp phrase expansion)]
     (unify
      (fs/copy phrase)
      {:head (fs/copy random-head)})))
 
 (defn generate [phrase]
 ;  (println (str "GENERATE: PHRASE: " phrase))
-  (let [random-head-and-comp (random-head-and-comp-from-phrase phrase)
+  (let [chosen-extension (random-extension phrase)
+        random-head-and-comp (random-head-and-comp-from-phrase phrase chosen-extension)
 ;        debug (println (str "GENERATE: RHAC: " random-head-and-comp))
-        unified-parent (generate-with-parent random-head-and-comp phrase)
+        unified-parent (generate-with-parent random-head-and-comp phrase chosen-extension)
 ;        debug (println (str "GENERATE: UP: " unified-parent))
         comp-expansion (:comp random-head-and-comp)]
       ;; now get complement given this head.
@@ -857,6 +858,7 @@
       (let [result
             (merge
              unified-with-comp
+             {:extend chosen-extension}
              {:italian (morph/get-italian
                         (fs/get-in unified-with-comp '(:1 :italian))
                         (fs/get-in unified-with-comp '(:2 :italian)))
