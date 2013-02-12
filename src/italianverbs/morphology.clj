@@ -14,6 +14,7 @@
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
+
         (and (map? arg)
              (contains? (set (keys arg)) :1)
              (contains? (set (keys arg)) :2))
@@ -25,13 +26,14 @@
             {:1 result1
              :2 result2}))
 
+        ;; irregular present-tense (e.g. "fare")
         (and (map? arg)
              (contains? (set (keys arg)) :agr)
              (contains? (set (keys arg)) :infinitive)
-             ;; TODO: check (= :present) rather than (not (= :past)).
-             (not (= :past (fs/get-in arg '(:infl) :notfound)))
-             (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
-        ;; irregular present-tense (e.g. "fare")
+             ;; TODO: check (= :present) rather than (not (= :past)): requires that we have (:infl :present)
+             ;; explicitly rather than implicitly (i.e. it is the default)
+             (not (= :past (fs/get-in arg '(:infl))))
+             (map? (fs/get-in arg '(:infinitive :irregular :present))))
         (let [root (fs/get-in arg '(:infinitive))
               person (fs/get-in arg '(:agr :person))
               number (fs/get-in arg '(:agr :number))
@@ -109,11 +111,12 @@
         (str (fs/get-in arg '(:infinitive :irregular :passato)))
 
         (and (map? arg)
+             (= :past (fs/get-in arg '(:infl)))
              (map? (fs/get-in arg '(:infinitive))))
         (do
-          (throw (Exception. (str "Infinitive of arg is a map: " arg " with infinitive: "
+          (throw (Exception. (str "Argument is a map: " arg " with infinitive: "
                                   (fs/get-in arg '(:infinitive)) ","
-                                  ", but morph/conjugate-it doesn't know how to handle "
+                                  "but morph/conjugate-it doesn't know how to handle "
                                   " it. Needs more morphological code to do so."))))
 
         (and (map? arg)
