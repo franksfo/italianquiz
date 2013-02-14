@@ -25,11 +25,13 @@
    (let [animate (if (= (fs/get-in input '(:animate))
                         true)
                    {:artifact false
+                    :physical-object true
                     :drinkable false
                     :place false}{})
          artifact (if (= (fs/get-in input '(:artifact))
                          true)
-                    {:animate false}{})
+                    {:animate false
+                     :physical-object true}{})
 
          consumable-false (if (= (fs/get-in input '(:consumable)) false)
                             {:drinkable false
@@ -53,11 +55,13 @@
          edible (if (or (= (fs/get-in input '(:edible)) true)
                         (= (fs/get-in input '(:drinkable)) true))
                   {:buyable true
+                   :physical-object true
                    :human false
                    :legible false}{})
          human (if (= (fs/get-in input '(:human))
                       true)
                  {:buyable false
+                  :physical-object true
                   :edible false
                   :animate true
                   :drinkable false}{})
@@ -80,11 +84,14 @@
          ;; we don't eat pets (unless things get so desperate that they aren't pets anymore)
          pets (if (= (fs/get-in input '(:pet))
                      true)
-                {:edible false})
+                {:edible false
+                 :physical-object true
+                 })
 
          place (if (= (fs/get-in input '(:place))
                       true)
                  {:animate false
+                  :physical-object true
                   :drinkable false
                   :edible false
                   :legible false}{})
@@ -902,7 +909,21 @@
          :italian "a"
          :english "at"}))
 
-(def lexicon (concat verbs nouns pronouns prepositions determiners))
+(def adjectives
+  (list {:synsem {:cat :adjective
+                  :sem {:human true}}
+         :italian "alto"
+         :english "tall"}
+        {:synsem {:cat :adjective
+                  :sem {:mod {:physical-object true}}}
+         :italian "piccolo"
+         :english "small"}
+        {:synsem {:cat :adjective
+                  :sem {:mod {:physical-object true}}}
+         :italian "nero"
+         :english "black"}))
+
+(def lexicon (concat adjectives determiners nouns prepositions pronouns verbs))
 
 (map (fn [lexeme]
        (let [italian (:italian lexeme)
