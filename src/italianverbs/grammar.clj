@@ -61,7 +61,7 @@
                  verb-inflection-morphology
                  {:head {:synsem {:cat :verb
                                   :infl :past}}}
-                 {:comment "vp[past] -> head comp"
+                 {:comment "vp[past] &#x2192 head comp"
                   :head head
                   :comp comp
                   :1 head
@@ -75,7 +75,7 @@
                  verb-inflection-morphology
                  {:head {:synsem {:cat :verb
                                   :infl :present}}}
-                 {:comment "vp -> head comp"
+                 {:comment "vp &#x2192 head comp"
                   :head head
                   :comp comp
                   :1 head
