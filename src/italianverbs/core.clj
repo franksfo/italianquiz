@@ -114,7 +114,6 @@
        request
        ;; response map
        {
-        :session (get request :session)
         :headers {"Content-Type" "text/html"}
         :body
         (do ;"reload lexicon into mongodb and then render it as HTML."
@@ -131,7 +130,6 @@
        request
        ;; response map
        {
-        :session (get request :session)
         :headers {"Content-Type" "text/html"}
         :body
         (html/pagemacro "Sentence Generation"
@@ -145,7 +143,6 @@
   (GET "/quiz/filter/"
        request
        {
-        :session (get request :session)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
         :body (quiz/show-controls (session/request-to-session request)
@@ -156,7 +153,6 @@
   (POST "/quiz/filter/"
        request
        {
-        :session (get request :session)
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
         :headers {"Location" "/italian/quiz/filter/"}
@@ -166,7 +162,6 @@
   (POST "/quiz/clear" 
        request
        {
-        :session (get request :session)
         :side-effect (quiz/clear-questions (session/request-to-session request))
         :status 302
         :headers {"Location" "/quiz/"}
@@ -186,7 +181,6 @@
   (GET "/session/clear/" 
        request 
        {
-        :session (get request :session)
         :side-effect (session/unregister request)
         :status 302
         :headers {"Location" "/?msg=cleared"}

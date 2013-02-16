@@ -251,8 +251,7 @@
 (defn update-question-by-id-with-guess [guess qid session]
   (let [guess (normalize-whitespace guess)
         question (mongo/fetch-one :question
-                                  :where {:_id (new org.bson.types.ObjectId qid)
-                                          :session session})
+                                  :where {:_id (new org.bson.types.ObjectId qid)})
         updated-question-map
         (merge
          question
@@ -267,24 +266,6 @@
     updated-question-map))
 ;; for testing/sanity checking, might want to refetch (i.e. uncomment the line below and comment out line above).
 ;;    (mongo/fetch-one :question :where {:_id (new org.bson.types.ObjectId qid)})))
-
-;;  "update question with guess - a rewrite of (format-evaluation)."
-(defn update-question-with-guess [guess question]
-  (log/info (str "update-question-with-guess: " guess))
-  (let [guess
-        (normalize-whitespace guess)
-        answer (get question :answer)]
-    (if (nil? guess)
-      (throw (Exception. (str "Guess was null."))))
-    (if (nil? answer)
-      (throw (Exception. (str "Answer was null."))))
-    (log/info (str "update question: guess: " guess))
-    (log/info (str "update question: answer: " answer))
-    (mongo/update! :question question
-                   (merge {:guess guess
-                           :evaluation ;; evaluate the user's guess against the correct response.
-                           (lev/get-green2 answer guess)}
-                          question))))
 
 (defn oct2011 []
   (lexfn/choose-lexeme {:oct2011 true}))
@@ -477,12 +458,12 @@
   ;; :remote-addr :scheme :query-params :session :form-params :multipart-params :request-method :query-string
   ;; :route-params :content-type :cookies :uri :server-name :params :headers :content-length :server-port
   ;; :character-encoding :body
-  (let [type (random-guess-type (session/request-to-session request))
-        question (store-question (generate type)
-                                 (session/request-to-session request) nil)]
-    (log/debug "stored question; outputting.")
-    (str "<div id='question_text'>" (get question :question) "</div>"
-         "<input id='question_id' value='" (get question :_id) "'/>")))
+  (let [session (session/request-to-session request)
+        type (random-guess-type session)
+        question (store-question (generate type) session nil)
+        qid (:_id question)]
+    (str "<div id='question_text'>" (:question question) "</div>"
+         "<input id='question_id' value='" qid "'/>")))
 
 (defn evaluate [request format]
   (let [params (if (= (get request :request-method) :get)
@@ -497,8 +478,8 @@
                  params
                  {:session session})]
     ;; make sure qid is defined.
-    (if (= nil qid) (/ 1 0)) ;; figure out how to throw exceptions in clojure.
-    (if (= nil session) (/ 1 0)) ;; figure out how to throw exceptions in clojure.
+    (if (= nil qid) (throw (Exception. (str "qid (question ID) is not defined."))))
+    (if (= nil session) (throw (Exception. (str "session is not defined."))))
     (if guess
       (let [result (update-question-by-id-with-guess guess qid session)]
          (= format "xml")
