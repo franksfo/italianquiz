@@ -113,6 +113,33 @@
     [:body
      body]]))
 
+(defn enumerate-serialized-paths [paths n]
+  (if paths
+    (let [path (first paths)]
+      (if path
+        (conj
+         {(keyword (str "path" n))
+          (str (string/join " " path))}
+         (enumerate-serialized-paths (rest paths) (+ 1 n)))
+        {}))
+    {}))
+
+(defn enumerate-serialized [arg n]
+  (if arg
+    (let [elem (first arg)]
+      (if elem
+        (conj
+         {(keyword (str "p" n))
+          {:paths (if (not (nil? (first elem)))
+                    (enumerate-serialized-paths (first elem) 0))
+           :skel (second elem)}}
+         (enumerate-serialized (rest arg) (+ 1 n)))
+        {}))
+    {}))
+
+(defn tablize-ser [arg]
+  (enumerate-serialized arg 0))
+
 ;; TODO: use multimethod based on arg's type.
 (defn tablize [arg & [path serialized opts]]
   ;; set defaults.
@@ -268,6 +295,9 @@
           (str
            "<tr"
            (cond
+            ;; TODO: more general method to allow passage of css info from other parts of code:
+            (= (first tr) :paths)
+            " style='white-space:nowrap;'"
             ;; use a custom CSS class for :comment.
             (= (first tr) :comment)
             " class='comment'"
