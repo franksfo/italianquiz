@@ -10,7 +10,7 @@
 
 (defn conjugate-it [arg]
   "conjugate an italian expression."
-;  (pprint (str "conjugating: " arg))
+;  (println (str "conjugating: " arg))
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
@@ -35,8 +35,8 @@
              (not (= :past (fs/get-in arg '(:infl))))
              (map? (fs/get-in arg '(:infinitive :irregular :present))))
         (let [root (fs/get-in arg '(:infinitive))
-              person (fs/get-in arg '(:agr :person))
-              number (fs/get-in arg '(:agr :number))
+              person (fs/get-in arg '(:agr :person) :notfound)
+              number (fs/get-in arg '(:agr :number) :notfound)
               present (fs/get-in arg '(:infinitive :irregular :present))]
           (cond
            (and (= person :1st)
@@ -56,8 +56,20 @@
            (fs/get-in present '(:2plur))
            (and (= person :3rd)
                 (= number :plur))
-          (fs/get-in present '(:3plur))
-           :else arg))  ;(str "[unknown conjugation:root=" root ";person=" person ";number=" number "]:" root)))
+           (fs/get-in present '(:3plur))
+
+           :else
+           ;; nothing in the supplied agr is enough to tell us how to inflect this present-tense
+           ;; verb. Sometimes this should be treated as an erorr, sometimes not, as it's too soon
+           ;; in the generation process (e.g. generation of a vp) to say the situtation is an error.
+           ;; For now, hardwired to never be an error.
+           (let [error-on-unspecified false]
+             (if error-on-unspecified
+               {:error "no conjugation specified."
+                :num number
+                :person person
+              :arg arg}
+               arg))))
 
         (= (type arg) clojure.lang.Keyword)
         (str "cannot conjugate: " arg)
