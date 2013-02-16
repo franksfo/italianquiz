@@ -84,8 +84,8 @@
                            :a {:head 'present-transitive-verbs
                                :comp 'np}
                            :b {:head 'present-aux-verbs
-                               :comp 'vp-past}}}))
-
+                               :comp 'vp-past}
+                           }}))
     (list vp-present vp-past)))
 
 (def sentence-rules
@@ -114,22 +114,19 @@
                          :c {:comp 'np
                              :head 'present-intransitive-verbs}
                          :d {:comp 'pronouns
-                             :head 'present-intransitive-verbs}}}))))
+                             :head 'present-intransitive-verbs}
+                         }}))))
 
 (def np-rules 
   (let [head (ref :top)
         comp (ref :top)]
     (def np1
       (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
-                 (let [case (ref :top)
-                       person (ref :top)
-                       number (ref :top)
-                       gender (ref :top)
-                       agr (ref :top)]
+                 (let [agr (ref :top)]
                    (fs/unifyc
                     {:head {:synsem {:cat :noun
                                      :agr agr}}
-                     :comp {:synsem {:cat :det}}}
+                     :synsem {:agr agr}}
                     {:comment "np &#x2192; det noun"
                      :synsem {:agr agr}
                      :head head
@@ -138,20 +135,27 @@
                      :2 head
                      :extend {:a {:comp 'determiners
                                   :head 'nouns}}}))))
-    (def np2
-      (let [sem (ref :top)]
-        (fs/unifyc head-principle
-                   {:comp comp
-                    :head head
-                    :1 head
-                    :2 comp}
-                   {:head {:synsem {:cat :noun
-                                    :sem sem}}
-                    :comp {:synsem {:sem {:mod sem}}}}
-                   {:comment "np &#x2192 adj noun"
-                    :extend {:a {:comp 'adjectives
-                                 :head 'nouns}}})))
-    (list np1 np2)))
+    (list np1)))
+
+(def adj-rules
+  (list
+   (let [sem (ref :top)
+         head (ref :top)
+         comp (ref :top)
+         sem-adj (ref {:mod sem})]
+     (fs/unifyc head-principle
+                {:synsem {:sem {:adjstuff sem-adj}}}
+                {:comp comp
+                 :head head
+                 :1 head
+                 :2 comp}
+                {:comp {:synsem {:cat :adjective
+                                 :sem sem-adj}}}
+                {:head {:synsem {:cat :noun
+                                 :sem sem}}}
+                {:comment "n&#x0305 &#x2192 adj noun"
+                 :extend {:a {:comp 'adjectives
+                              :head 'nouns}}}))))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
