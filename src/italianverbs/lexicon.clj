@@ -245,6 +245,40 @@
                           {:synsem {:subcat {:1 {:cat :det
                                                  :number :sing
                                                  :def :def}}}})})
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem (unify animal {:pred :cane :pet true})}
+                           :italian "cane"
+                           :english "dog"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem (unify animal {:pred :gatto :pet true})}
+                           :italian "gatto"
+                           :english "cat"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :dottore}}
+                           :italian "dottore"
+                           :english "doctor"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :donna}}
+                           :italian "donna"
+                           :english {:irregular {:plur "women"}
+                                     :english "woman"}})})
 
      (unify noun-conjugator
             {:root (unify agreement
@@ -259,9 +293,16 @@
                            :english "flower"}
                           {:synsem {:subcat {:1 {:cat :det}}}})})
 
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          masculine
+                          {:synsem {:sem {:pred :libro
+                                          :legible true
+                                          :artifact true}}
+                           :italian "libro"
+                           :english "book"})})
 
-
-     
      ;; inherently plural.
      (unify noun-conjugator
             {:root (unify agreement
@@ -276,8 +317,6 @@
                           {:synsem {:subcat {:1 {:cat :det
                                                  :number :plur
                                                  :def :def}}}})})
-
-
 
      (unify noun-conjugator
             {:root (unify agreement
@@ -312,15 +351,6 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
-                          masculine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :dottore}}
-                           :italian "dottore"
-                           :english "doctor"})})
-
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
                           feminine
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :professoressa}}}
@@ -349,27 +379,12 @@
             {:root (unify agreement
                           common-noun
                           masculine
-                          {:synsem {:sem {:pred :libro
-                                          :legible true
-                                          :artifact true}}
-                           :italian "libro"
-                           :english "book"})})
-     
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          masculine
-                          {:synsem {:sem (unify animal {:pred :cane :pet true})}
-                           :italian "cane"
-                           :english "dog"})})
-
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          masculine
-                          {:synsem {:sem (unify animal {:pred :gatto :pet true})}
-                           :italian "gatto"
-                           :english "cat"})})
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :uomo}}
+                           :italian {:irregular {:plur "uomini"}
+                                     :italian "uomo"}
+                           :english {:irregular {:plur "men"}
+                                     :english "man"}})})
 
      (unify drinkable
             masculine
@@ -964,7 +979,8 @@
   (set/union (set (lookup {:italian italian}))
              (set (lookup {:italian {:infinitive italian}}))
              (set (lookup {:italian {:infinitive {:infinitive italian}}}))
-             (set (lookup {:root {:italian italian}}))))
+             (set (lookup {:root {:italian italian}}))
+             (set (lookup {:root {:italian {:italian italian}}}))))
 
 (defn en [english]
   (lookup {:english english}))

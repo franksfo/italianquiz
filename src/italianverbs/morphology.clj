@@ -81,12 +81,25 @@
              (= (fs/get-in arg '(:agr :number)) :sing))
         (fs/get-in arg '(:root))
 
+        ;; irregular noun: plural
+        (and (map? arg)
+             (not (= :notfound (fs/get-in arg '(:root :irregular :plur) :notfound)))
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (fs/get-in arg '(:root :irregular :plur))
+
+        ;; irregular noun: singular
+        (and (map? arg)
+             (not (= :notfound (fs/get-in arg '(:root :irregular :plur) :notfound)))
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:root :italian))
+
         (and (map? arg)
              (contains? arg :root)
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :gender)) :masc)
              (= (fs/get-in arg '(:agr :number)) :sing))
         (fs/get-in arg '(:root))
+
         
         ;; feminine noun pluralization
         (and (map? arg)
@@ -97,7 +110,7 @@
         (string/replace (fs/get-in arg '(:root))
                         #"a$" "e")
 
-        ;; masculine noun pluralization
+        ;; regular masculine noun pluralization
         (and (map? arg)
              (contains? arg :root)
              (contains? arg :agr)
@@ -255,6 +268,19 @@
         (= (type arg) clojure.lang.Keyword)
         (str "cannot conjugate: " arg)
 
+
+        ;; irregular noun: plural
+        (and (map? arg)
+             (not (= :notfound (fs/get-in arg '(:root :irregular :plur) :notfound)))
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (fs/get-in arg '(:root :irregular :plur))
+
+        ;; irregular noun: singular
+        (and (map? arg)
+             (not (= :notfound (fs/get-in arg '(:root :irregular :plur) :notfound)))
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:root :english))
+
         (and (map? arg)
              (contains? arg :root)
              (contains? arg :agr)
@@ -267,7 +293,7 @@
              (= (fs/get-in arg '(:agr :number)) :plur))
         (str (fs/get-in arg '(:root)) "s")
 
-        ;; number not specified: use root form by default.
+        ;; verb: number not specified: use root form by default.
         (and (map? arg)
              (contains? arg :root)
              (contains? arg :agr))
