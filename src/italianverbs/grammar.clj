@@ -142,20 +142,21 @@
    (let [sem (ref :top)
          head (ref :top)
          comp (ref :top)
-         sem-adj (ref {:mod sem})]
-     (fs/unifyc head-principle
-                {:synsem {:sem {:adjstuff sem-adj}}}
-                {:comp comp
-                 :head head
-                 :1 head
-                 :2 comp}
-                {:comp {:synsem {:cat :adjective
-                                 :sem sem-adj}}}
-                {:head {:synsem {:cat :noun
-                                 :sem sem}}}
-                {:comment "n&#x0305 &#x2192 adj noun"
-                 :extend {:a {:comp 'adjectives
-                              :head 'nouns}}}))))
+         comp-sem-pred (ref :top)]
+     (fs/unify
+      head-principle
+      {:1 head}
+      {:2 comp}
+      {:synsem {:sem sem}}
+      {:synsem {:sem {:mod comp-sem-pred}}}
+      {:head head}
+      {:comp comp}
+      {:head {:synsem {:cat :noun}}}
+      {:comp {:synsem {:cat :adjective
+                       :sem {:pred comp-sem-pred}}}}
+      {:comp {:synsem {:cat :adjective
+                       :sem {:mod sem}}}}
+      {:comment "n&#x0305 &#x2192 adj noun"}))))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})

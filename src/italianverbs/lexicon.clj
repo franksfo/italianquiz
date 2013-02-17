@@ -911,17 +911,28 @@
 
 (def adjectives
   (list {:synsem {:cat :adjective
-                  :sem {:human true}}
+                  :sem {:pred :alto
+                        :mod {:human true}}}
          :italian "alto"
          :english "tall"}
         {:synsem {:cat :adjective
-                  :sem {:mod {:physical-object true}}}
-         :italian "piccolo"
-         :english "small"}
+                  :sem {:pred :nero
+                        :mod {:physical-object true
+                              :human false}}}
+         :italian "bianca"
+         :english "white"}
         {:synsem {:cat :adjective
-                  :sem {:mod {:physical-object true}}}
+                  :sem {:pred :nero
+                        :mod {:physical-object true
+                              :human false}}}
          :italian "nero"
-         :english "black"}))
+         :english "black"}
+        {:synsem {:cat :adjective
+                  :sem {:pred :piccolo
+                        :mod {:physical-object true}}}
+         :italian "piccolo"
+         :english "small"}))
+
 
 (def lexicon (concat adjectives determiners nouns prepositions pronouns verbs))
 
