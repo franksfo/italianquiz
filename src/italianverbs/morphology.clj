@@ -424,15 +424,37 @@
       {:1 conjugated-a
        :2 conjugated-b})))
 
-(defn get-english [a b]
+(defn get-english [a b & [ head-category comp-category ]]
+  "Take two constituents and combine them.
+   The two category params may reverse word order
+     (e.g.: get-english 'cat' 'black' 'noun' 'adj' => 'black cat')"
   (let [conjugated-a (conjugate-en a)
         conjugated-b (if (not (nil? b)) (conjugate-en b) "..")]
-    (if (and
-         (= (type conjugated-a) java.lang.String)
-         (= (type conjugated-b) java.lang.String))
-      (string/trim (str conjugated-a " " conjugated-b))
-      {:1 conjugated-a
-       :2 conjugated-b})))
+    (cond
+
+     ;; in english, order of noun + adjective is reversed: (adjective + noun)
+     (and
+      (= (type conjugated-a) java.lang.String)
+      (= (type conjugated-b) java.lang.String)
+      (= head-category :noun)
+      (= comp-category :adjective))
+     (string/trim (str conjugated-b " " conjugated-a))
+
+     (and
+      (= (type conjugated-a) java.lang.String)
+      (= (type conjugated-b) java.lang.String))
+     (string/trim (str conjugated-a " " conjugated-b))
+
+     ;; in english, order of noun + adjective is reversed: (adjective + noun)
+     (and
+      (= head-category :noun)
+      (= comp-category :adjective))
+     {:1 conjugated-b
+      :2 conjugated-a}
+
+     true
+     {:1 conjugated-a
+      :2 conjugated-b})))
 
 (defn remove-to [english-verb-phrase]
   (let [english (get english-verb-phrase :english)]
