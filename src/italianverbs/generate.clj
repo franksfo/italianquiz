@@ -467,11 +467,14 @@
             unified
             {:italian (morph/get-italian
                        (fs/get-in unified '(:1 :italian))
-                       (fs/get-in unified '(:2 :italian)))
+                       (fs/get-in unified '(:2 :italian))
+                       (fs/get-in unified '(:head :synsem :cat))
+                       (fs/get-in unified '(:comp :synsem :cat)))
              :english (morph/get-english
                        (fs/get-in unified '(:1 :english))
-                       (fs/get-in unified '(:2 :english)))})
-
+                       (fs/get-in unified '(:2 :english))
+                       (fs/get-in unified '(:head :synsem :cat))
+                       (fs/get-in unified '(:comp :synsem :cat)))})
            :fail))))))
 
 (defn over [& args]
@@ -492,31 +495,33 @@
       (over-parent-child gram/rules child1))))
 
 (defn get-morph [expr morph-fn]
-  (morph-fn
-   (cond
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:1 :infinitive :infinitive)))))
-    (string/join " " (list (fs/get-in expr '(:1 :infinitive :infinitive))
-                           "(finite)"
-                           (morph-fn (fs/get-in expr '(:2)) "")))
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:1 :infinitive)))))
-    (string/join " " (list (morph-fn (fs/get-in expr '(:1 :infinitive)) "")
-                           "(finite)"
-                           (morph-fn (fs/get-in expr '(:2)) "")))
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:irregular)))))
-    (str (fs/get-in expr '(:infinitive)) " (finite)")
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:infinitive))))
-         (= java.lang.String (type (fs/get-in expr '(:infinitive)))))
-    (str (fs/get-in expr '(:infinitive)) " (finite)")
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:infinitive)))))
-    (fs/get-in expr '(:infinitive :infinitive))
-    :else
-    expr)
-   ""))
+  (let [head-cat (fs/get-in expr '(:head :synsem :cat) :notfound)
+        comp-cat (fs/get-in expr '(:comp :synsem :cat) :notfound)]
+    (morph-fn
+     (cond
+      (and (map? expr)
+           (not (nil? (fs/get-in expr '(:1 :infinitive :infinitive)))))
+      (string/join " " (list (fs/get-in expr '(:1 :infinitive :infinitive))
+                             "(finite)"
+                             (morph-fn (fs/get-in expr '(:2)) "")))
+      (and (map? expr)
+           (not (nil? (fs/get-in expr '(:1 :infinitive)))))
+      (string/join " " (list (morph-fn (fs/get-in expr '(:1 :infinitive)) "")
+                             "(finite)"
+                             (morph-fn (fs/get-in expr '(:2)) "")))
+      (and (map? expr)
+           (not (nil? (fs/get-in expr '(:irregular)))))
+      (str (fs/get-in expr '(:infinitive)) " (finite)")
+      (and (map? expr)
+           (not (nil? (fs/get-in expr '(:infinitive))))
+           (= java.lang.String (type (fs/get-in expr '(:infinitive)))))
+      (str (fs/get-in expr '(:infinitive)) " (finite)")
+      (and (map? expr)
+           (not (nil? (fs/get-in expr '(:infinitive)))))
+      (fs/get-in expr '(:infinitive :infinitive))
+      :else
+      expr)
+     "")))
 
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
@@ -542,11 +547,14 @@
          expressions)))
 
 (defn random-extension [phrase]
-  (let [random-key (nth (keys (:extend phrase)) (rand-int (.size (keys (:extend phrase)))))]
-    (get (:extend phrase) random-key)))
+  (if (= :notfound (:extend phrase :notfound))
+    (throw (Exception. (str "Can't generate using this rule because it has no :extend feature.")))
+    (let [random-key (nth (keys (:extend phrase)) (rand-int (.size (keys (:extend phrase)))))]
+      (get (:extend phrase) random-key))))
 
 (defn eval-symbol [symbol]
   (cond
+   (= symbol 'adjectives) lex/adjectives
    (= symbol 'nouns) lex/nouns
    (= symbol 'verbs) lex/verbs
    (= symbol 'present-verbs) lex/present-verbs
@@ -556,6 +564,7 @@
    (= symbol 'past-verbs) lex/past-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
+   (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
@@ -695,7 +704,6 @@
 ;        debug (println (str "GENERATE: UP: " unified-parent))
         comp-expansion (:comp random-head-and-comp)]
       ;; now get complement given this head.
-;    (println (str "GENERATE: COMP-EXPANSION: " comp-expansion))
     (let [random-comp
           (try (random-comp-for-parent unified-parent comp-expansion)
                (catch Exception e
@@ -703,17 +711,23 @@
           unified-with-comp
           (fs/unifyc
            unified-parent
-           {:comp (fs/copy (fs/get-in random-comp '(:comp)))})]
+           {:comp
+            (fs/get-in random-comp '(:comp))})]
       (let [result
             (merge
              unified-with-comp
              {:extend chosen-extension}
              {:italian (morph/get-italian
                         (fs/get-in unified-with-comp '(:1 :italian))
-                        (fs/get-in unified-with-comp '(:2 :italian)))
+                        (fs/get-in unified-with-comp '(:2 :italian))
+                        (fs/get-in unified-with-comp '(:head :synsem :cat)
+                        (fs/get-in unified-with-comp '(:comp :synsem :cat))))
+
               :english (morph/get-english
                         (fs/get-in unified-with-comp '(:1 :english))
-                        (fs/get-in unified-with-comp '(:2 :english)))})]
+                        (fs/get-in unified-with-comp '(:2 :english))
+                        (fs/get-in unified-with-comp '(:head :synsem :cat))
+                        (fs/get-in unified-with-comp '(:comp :synsem :cat)))})]
         (if (fs/fail? result)
           {:status :failed
            :result result

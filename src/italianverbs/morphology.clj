@@ -1,16 +1,12 @@
-;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (maybe not actually)
 (ns italianverbs.morphology
   (:require
    [italianverbs.fs :as fs]
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
-(defn joinwtf [coll separator]
-  (apply str (interpose separator coll)))
-
 (defn conjugate-it [arg]
   "conjugate an italian expression."
-;  (println (str "conjugating: " arg))
+  (log/debug (str "conjugate-it: " arg))
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
@@ -60,7 +56,7 @@
 
            :else
            ;; nothing in the supplied agr is enough to tell us how to inflect this present-tense
-           ;; verb. Sometimes this should be treated as an erorr, sometimes not, as it's too soon
+           ;; verb. Sometimes this should be treated as an error, sometimes not, as it's too soon
            ;; in the generation process (e.g. generation of a vp) to say the situtation is an error.
            ;; For now, hardwired to never be an error.
            (let [error-on-unspecified false]
@@ -72,7 +68,7 @@
                arg))))
 
         (= (type arg) clojure.lang.Keyword)
-        (str "cannot conjugate: " arg)
+        (throw (Exception. (str "cannot conjugate: " arg)))
 
         (and (map? arg)
              (contains? arg :root)
@@ -99,7 +95,6 @@
              (= (fs/get-in arg '(:agr :gender)) :masc)
              (= (fs/get-in arg '(:agr :number)) :sing))
         (fs/get-in arg '(:root))
-
         
         ;; feminine noun pluralization
         (and (map? arg)
@@ -258,8 +253,7 @@
            :else arg))  ;(str "[unknown conjugation:root=" root ";person=" person ";number=" number "]:" root)))
 
         (= (type arg) clojure.lang.Keyword)
-        (str "cannot conjugate: " arg)
-
+        (throw (Exception. (str "cannot conjugate: " arg)))
 
         ;; irregular noun: plural
         (and (map? arg)
@@ -285,7 +279,7 @@
              (= (fs/get-in arg '(:agr :number)) :plur))
         (str (fs/get-in arg '(:root)) "s")
 
-        ;; verb: number not specified: use root form by default.
+        ;; noun or verb: number not specified: use root form by default.
         (and (map? arg)
              (contains? arg :root)
              (contains? arg :agr))
@@ -349,7 +343,7 @@
            (str stem "")
            :else arg))))
 
-(defn get-italian [a b]
+(defn get-italian [a b & [ head-category comp-category ]]
   (let [conjugated-a (conjugate-it a)
         conjugated-b (if (not (nil? b)) (conjugate-it b) "..")]
     (if (and
