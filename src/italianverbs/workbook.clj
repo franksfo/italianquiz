@@ -11,6 +11,7 @@
 
 (defn workbookq [expr attrs]
   (do
+    ;; TODO: add timing information for each evaluation.
     (log/info (str "workbookq: evaluating expression: " expr))
     (if expr
       (let [output
