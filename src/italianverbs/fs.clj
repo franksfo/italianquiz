@@ -503,7 +503,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                      val))
                  (vals input))))
           (if (and (seq? input)
-                   (first input))
+                   (> (.size input) 0))
             (concat
              (all-refs (first input))
              (all-refs (rest input)))))))))
