@@ -8,11 +8,11 @@
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear!)
 
+;; useful abbreviations (aliases for some commonly-used maps):
+;; TODO: combine with abbreviations inside the (def nouns).
 (def human {:human true})
 (def animal {:animate true :human false})
-
 (def food {:synsem {:sem {:edible true}}})
-
 (def infinitive
   {:synsem {:cat :verb
             :infl :infinitive}})
@@ -25,6 +25,7 @@
    (let [animate (if (= (fs/get-in input '(:animate))
                         true)
                    {:artifact false
+                    :mass false
                     :physical-object true
                     :drinkable false
                     :place false}{})
@@ -37,6 +38,11 @@
                             {:drinkable false
                              :edible false} {})
 
+         drinkable
+         ;; drinkables are always mass nouns.
+         (if (= (fs/get-in input '(:drinkable)) true)
+           {:mass true}{})
+         
          drinkable-xor-edible-1
          ;; things are either drinkable or edible, but not both (except for weird foods
          ;; like pudding or soup). (part 1: edible)
@@ -97,7 +103,7 @@
                   :legible false}{})
 
          ]
-     (let [merged (fs/merge animate artifact consumable-false
+     (let [merged (fs/merge animate artifact consumable-false drinkable
                             drinkable-xor-edible-1 drinkable-xor-edible-2
                             edible human inanimate
                             legible not-legible-if-not-artifact pets place
@@ -151,11 +157,22 @@
         masculine {:synsem {:agr {:gender :masc}}}
         feminine {:synsem {:agr {:gender :fem}}}
 
-        mass-noun
-        {:synsem {:subcat {:1 {:cat :det
-                               :number :sing
-                               :def :def}}}}
 
+        mass-noun
+        (let [mass (ref true)]
+          {:synsem {:subcat {:1 {:cat :det
+                                 :mass mass
+                                 :number :sing}}
+                    :sem {:mass mass}}})
+
+        countable-noun
+        (let [mass (ref false)]
+          {:synsem {:subcat {:1 {:cat :det
+                                 :mass mass}}
+                    :sem {:mass mass}}})
+
+        ;; TODO: this abbreviation (drinkable) is starting to get into the same
+        ;; realm as (sem-impl). Combine the two.
         drinkable
         (unify noun-conjugator
                mass-noun
@@ -185,6 +202,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem {:pred :amico
                                           :human true}}
@@ -194,6 +212,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem {:pred :compito
                                           :legible true
@@ -206,6 +225,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem {:pred :mare
                                           :buyable false ;; a seaside's too big to own.
@@ -248,22 +268,29 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
+                          feminine
+                          {:synsem {:sem {:pred :camicia
+                                          :artifact true
+                                          :consumable false
+                                          :clothing true}}}
+                          {:italian "camicia"
+                           :english "shirt"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem (unify animal {:pred :cane :pet true})}
                            :italian "cane"
                            :english "dog"})})
 
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          masculine
-                          {:synsem {:sem (unify animal {:pred :gatto :pet true})}
-                           :italian "gatto"
-                           :english "cat"})})
 
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :dottore}}
@@ -273,6 +300,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           feminine
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :donna}}
@@ -283,6 +311,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem {:pred :fiore
                                           :animate false
@@ -296,9 +325,20 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
+                          masculine
+                          {:synsem {:sem (unify animal {:pred :gatto :pet true})}
+                           :italian "gatto"
+                           :english "cat"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem {:pred :libro
                                           :legible true
+                                          :mass false
                                           :artifact true}}
                            :italian "libro"
                            :english "book"})})
@@ -308,6 +348,7 @@
             {:root (unify agreement
                           common-noun
                           feminine
+                          mass-noun
                           {:synsem {:sem {:pred :notizie
                                           :buyable false
                                           :legible true}}
@@ -318,6 +359,7 @@
                                                  :number :plur
                                                  :def :def}}}})})
 
+     ;; "pizza" can be either mass or countable.
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
@@ -332,6 +374,7 @@
             {:root (unify agreement
                           common-noun
                           feminine
+                          countable-noun
                           {:synsem {:sem {:artifact true
                                           :consumable false
                                           :legible false
@@ -342,6 +385,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :ragazzo}}
@@ -351,6 +395,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           feminine
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :professoressa}}}
@@ -360,6 +405,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           feminine
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :ragazza}}}
@@ -369,6 +415,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :studente}}}
@@ -378,6 +425,7 @@
      (unify noun-conjugator
             {:root (unify agreement
                           common-noun
+                          countable-noun
                           masculine
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :uomo}}
@@ -393,6 +441,7 @@
                     :synsem {:sem {:pred :vino
                                    :artifact true}}}})
 )))
+
 (def determiners
   (list
    {:synsem {:cat :det
@@ -404,6 +453,7 @@
 
    {:synsem {:cat :det
              :def :indef
+             :mass false
              :gender :masc
              :number :sing}
     :italian "un"
@@ -440,6 +490,7 @@
    {:synsem {:cat :det
              :def :partitivo
              :number :sing
+             :mass true
              :gender :masc}
     :italian "di il"
     :english "some"}
@@ -447,6 +498,7 @@
    {:synsem {:cat :det
              :def :partitivo
              :number :sing
+             :mass true
              :gender :fem}
     :italian "di la"
     :english "some"}
@@ -464,7 +516,16 @@
              :gender :fem}
     :italian "di le"
     :english "some"}
-))
+
+   {:synsem {:cat :det
+             :def :partitivo
+             :mass false
+             :number :sing}
+    :italian "qualche"
+    :english "some"}
+
+
+   ))
 
 
 ;; A generalization of intransitive and transitive:
