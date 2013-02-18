@@ -71,8 +71,8 @@
 (defn unify [& args]
   (let [val1 (first args)
         val2 (second args)]
-;    (println (str "unify val1: " val1))
-;    (println (str "      val2: " val2))
+    (log/debug (str "unify val1: " val1))
+    (log/debug (str "      val2: " val2))
     (cond
      (nil? args) nil
 
@@ -679,9 +679,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     serialized))
 
 (defn copy [map]
+  (log/debug (str "copy: " map))
   (deserialize (serialize map)))
 
 (defn unifyc [& args]
+  (log/debug (str "unifyc: " args))
   "like fs/unify, but fs/copy each argument before unifying."
   (apply unify
          (map (fn [arg]
