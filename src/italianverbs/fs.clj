@@ -73,6 +73,8 @@
         val2 (second args)]
     (log/debug (str "unify val1: " val1))
     (log/debug (str "      val2: " val2))
+;    (println (str "unify val1: " val1))
+;    (println (str "      val2: " val2))
     (cond
      (nil? args) nil
 
@@ -177,9 +179,10 @@
 
      (= val1 val2) val1
 
-     :else
+     :else ;; fail.
      (do
-       ;(println (str "(" val1 ", " val2 ") => :fail"))
+       (log/debug (str "(" val1 ", " val2 ") => :fail"))
+;       (println (str "(" val1 ", " val2 ") => :fail"))
        :fail))))
 
 ;; (fs/match {:a 42} {:a 42 :b 43})
