@@ -117,6 +117,36 @@
                              :head 'present-intransitive-verbs}
                          }}))))
 
+(def adj-rules
+  (let [sem (ref :top)
+        head (ref :top)
+        comp (ref :top)
+        comp-sem-pred (ref :top)
+        subcat (ref :top)
+        agr (ref :top)]
+    (def nbar
+      (fs/unify
+       head-principle
+       {:1 head}
+       {:2 comp}
+       {:synsem {:subcat subcat}}
+       {:head {:synsem {:subcat subcat}}}
+       {:synsem {:sem sem}}
+       {:synsem {:sem {:mod comp-sem-pred}}}
+       {:head head}
+       {:comp comp}
+       {:head {:synsem {:cat :noun
+                        :agr agr}}
+        :synsem {:agr agr}}
+       {:comp {:synsem {:cat :adjective
+                        :sem {:pred comp-sem-pred}}}}
+       {:comp {:synsem {:cat :adjective
+                        :sem {:mod sem}}}}
+       {:comment "n&#x0305 &#x2192 adj noun"
+        :extend {:a {:head 'nouns
+                     :comp 'adjectives}}}))
+    (list nbar)))
+
 (def np-rules 
   (let [head (ref :top)
         comp (ref :top)]
@@ -133,30 +163,12 @@
                      :comp comp
                      :1 comp
                      :2 head
-                     :extend {:a {:comp 'determiners
-                                  :head 'nouns}}}))))
+                     :extend {
+                              :a {:comp 'determiners
+                                  :head 'nouns}
+                              :b {:comp 'determiners
+                                  :head 'nbar}}}))))
     (list np1)))
-
-(def adj-rules
-  (list
-   (let [sem (ref :top)
-         head (ref :top)
-         comp (ref :top)
-         comp-sem-pred (ref :top)]
-     (fs/unify
-      head-principle
-      {:1 head}
-      {:2 comp}
-      {:synsem {:sem sem}}
-      {:synsem {:sem {:mod comp-sem-pred}}}
-      {:head head}
-      {:comp comp}
-      {:head {:synsem {:cat :noun}}}
-      {:comp {:synsem {:cat :adjective
-                       :sem {:pred comp-sem-pred}}}}
-      {:comp {:synsem {:cat :adjective
-                       :sem {:mod sem}}}}
-      {:comment "n&#x0305 &#x2192 adj noun"}))))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
