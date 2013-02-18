@@ -987,23 +987,23 @@
          :italian "a"
          :english "at"}))
 
-;; TODO: cut down duplication in here (i.e. :italian :category, :english :category, etc).
+;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc).
 (def adjectives
   (list {:synsem {:cat :adjective
                   :sem {:pred :alto
                         :mod {:human true}}}
          :italian {:italian "alto"
-                   :category :adjective}
+                   :cat :adjective}
          :english {:english "tall"
-                   :category :adjective}}
+                   :cat :adjective}}
         {:synsem {:cat :adjective
                   :sem {:pred :nero
                         :mod {:physical-object true
                               :human false}}}
          :italian {:italian "bianca"
-                   :category :adjective}
+                   :cat :adjective}
          :english {:english "white"
-                   :category :adjective}}
+                   :cat :adjective}}
         {:synsem {:cat :adjective
                   :sem {:pred :nero
                         :mod {:physical-object true
@@ -1012,13 +1012,16 @@
                    :cat :adjective}
          :english {:english "black"
                    :cat :adjective}}
+
         {:synsem {:cat :adjective
                   :sem {:pred :piccolo
-                        :mod {:physical-object true}}}
+                        :mod {:physical-object true
+                              :mass false}}}
          :italian {:italian "piccolo"
                    :cat :adjective}
          :english {:english "small"
                    :cat :adjective}}
+
         {:synsem {:cat :adjective
                   :sem {:pred :rosso
                         :mod {:physical-object true

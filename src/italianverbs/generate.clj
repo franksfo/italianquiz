@@ -713,6 +713,10 @@
            unified-parent
            {:comp
             (fs/get-in random-comp '(:comp))})]
+      (log/debug (str "italian 1:" (fs/get-in unified-with-comp '(:1 :italian))))
+      (log/debug (str "italian 2:" (fs/get-in unified-with-comp '(:2 :italian))))
+      (log/debug (str "1 cat:" (fs/get-in unified-with-comp '(:1 :synsem :cat))))
+      (log/debug (str "2 cat:" (fs/get-in unified-with-comp '(:2 :synsem :cat))))
       (let [result
             (merge
              unified-with-comp
@@ -720,21 +724,19 @@
              {:italian (morph/get-italian
                         (fs/get-in unified-with-comp '(:1 :italian))
                         (fs/get-in unified-with-comp '(:2 :italian))
-                        (fs/get-in unified-with-comp '(:head :synsem :cat)
-                        (fs/get-in unified-with-comp '(:comp :synsem :cat))))
+                        (fs/get-in unified-with-comp '(:1 :synsem :cat))
+                        (fs/get-in unified-with-comp '(:2 :synsem :cat)))
 
               :english (morph/get-english
                         (fs/get-in unified-with-comp '(:1 :english))
                         (fs/get-in unified-with-comp '(:2 :english))
-                        (fs/get-in unified-with-comp '(:head :synsem :cat))
-                        (fs/get-in unified-with-comp '(:comp :synsem :cat)))})]
+                        (fs/get-in unified-with-comp '(:1 :synsem :cat))
+                        (fs/get-in unified-with-comp '(:2 :synsem :cat)))})]
         (if (fs/fail? result)
-          {:status :failed
-           :result result
-           :comp-expansion comp-expansion
-           :parent unified-parent
-           :complement-attempt random-comp
-           :comp (fs/get-in random-comp '(:comp))}
+          (do
+            (log/error (str "Generation failed: comp-expansion: " comp-expansion))
+            (log/error (str "Generation failed: parent: " unified-parent))
+            (throw (Exception. (str "Generation failed."))))
           result)))))
 
 (defn random-sentence []

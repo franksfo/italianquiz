@@ -4,7 +4,7 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
-(defn conjugate-it [arg]
+(defn conjugate-it [arg category]
   "conjugate an italian expression."
   (log/debug (str "conjugate-it: " arg))
   (cond (nil? arg) ""
@@ -14,8 +14,8 @@
         (and (map? arg)
              (contains? (set (keys arg)) :1)
              (contains? (set (keys arg)) :2))
-        (let [result1 (conjugate-it (:1 arg))
-              result2 (conjugate-it (:2 arg))]
+        (let [result1 (conjugate-it (:1 arg) category)
+              result2 (conjugate-it (:2 arg) category)]
           (if (and (= (type result1) java.lang.String)
                    (= (type result2) java.lang.String))
             (string/join " " (list result1 result2))
@@ -107,16 +107,29 @@
 
         ;; masculine adjective agreement: singular
         (and (map? arg)
-             (= (fs/get-in arg '(:cat)) :adjective)
+             (or (= category :adjective)
+                 (= (fs/get-in arg '(:cat)) :adjective))
              (contains? arg :italian)
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :gender)) :masc)
              (= (fs/get-in arg '(:agr :number)) :sing))
         (fs/get-in arg '(:italian))
 
+        ;; masculine adjective agreement: plural
+        (and (map? arg)
+             (or (= category :adjective)
+                 (= (fs/get-in arg '(:cat)) :adjective))
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:italian))
+                        #"o$" "i")
+
         ;; feminine adjective agreement: singular
         (and (map? arg)
-             (= (fs/get-in arg '(:cat)) :adjective)
+             (or (= category :adjective)
+                 (= (fs/get-in arg '(:cat)) :adjective))
              (contains? arg :italian)
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :gender)) :fem)
@@ -126,7 +139,8 @@
 
         ;; feminine adjective agreement: plural
         (and (map? arg)
-             (= (fs/get-in arg '(:cat)) :adjective)
+             (or (= category :adjective)
+                 (= (fs/get-in arg '(:cat)) :adjective))
              (contains? arg :italian)
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :gender)) :fem)
@@ -134,15 +148,14 @@
         (string/replace (fs/get-in arg '(:italian))
                         #"o$" "e")
 
-        ;; masculine adjective agreement: plural
+
+        ;; feminine noun or adjective: underspecified number.
         (and (map? arg)
-             (= (fs/get-in arg '(:cat)) :adjective)
-             (contains? arg :italian)
              (contains? arg :agr)
-             (= (fs/get-in arg '(:agr :gender)) :masc)
-             (= (fs/get-in arg '(:agr :number)) :plur))
-        (string/replace (fs/get-in arg '(:italian))
-                        #"o$" "i")
+             (or (= category :adjective)
+                 (= category :noun))
+             (= (fs/get-in arg '(:agr :gender)) :fem))
+        arg
 
         ;; regular masculine noun pluralization
         (and (map? arg)
@@ -152,6 +165,34 @@
              (= (fs/get-in arg '(:agr :number)) :plur))
         (string/replace (fs/get-in arg '(:root))
                         #"[eo]$" "i") ;; dottore => dottori; medico => medici
+
+        ;; masculine adjective agreement: singular
+        (and (map? arg)
+             (= category :adjective)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:italian))
+
+        ;; masculine adjective agreement: plural
+        (and (map? arg)
+             (= category :adjective)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:italian))
+                        #"o$" "i")
+
+
+        ;; masculine noun or adjective: underspecified number.
+        (and (map? arg)
+             (contains? arg :agr)
+             (or (= category :adjective)
+                 (= category :noun))
+             (= (fs/get-in arg '(:agr :gender)) :masc))
+        arg
 
         ;; irregular passato prossimo.
         (and (map? arg)
@@ -193,10 +234,15 @@
         :else
         ;; assume present tense verb with map with keys (:root and :agr).
         (let [root (fs/get-in arg '(:infinitive))
-              root (if (nil? root) "(nil)" root)
               root (if (not (= (type root) java.lang.String))
-                      (fs/get-in arg '(:infinitive :infinitive))
-                      root)
+                     (fs/get-in arg '(:infinitive :infinitive))
+                     root)
+              root-check (if (nil? root)
+                           (do
+                             (log/error (str "Expected to find :infinitive in: " arg " with category: " category))
+                             (throw (Exception. (str "Expected to find :infinitive in: " arg "."))))
+                           root)
+
               person (fs/get-in arg '(:agr :person))
               number (fs/get-in arg '(:agr :number))
               stem (string/replace root #"[iae]re$" "")
@@ -422,9 +468,13 @@
            (str stem "")
            :else arg))))
 
-(defn get-italian [a b & [ head-category comp-category ]]
-  (let [conjugated-a (conjugate-it a)
-        conjugated-b (if (not (nil? b)) (conjugate-it b) "..")]
+(defn get-italian [a b & [ a-category b-category ]]
+  (log/debug (str "get-italian: a : " a))
+  (log/debug (str "get-italian: b : " b))
+  (log/debug (str "get-italian: cat-a : " a-category))
+  (log/debug (str "get-italian: cat-b : " b-category))
+  (let [conjugated-a (conjugate-it a a-category)
+        conjugated-b (if (not (nil? b)) (conjugate-it b b-category) "..")]
     (if (and
          (string? conjugated-a)
          (string? conjugated-b))
