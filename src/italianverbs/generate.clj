@@ -743,3 +743,9 @@
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
+
+(defn speed-test [ & times]
+  "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
+  (let [times (if (first times) (first times) 10)]
+    (dotimes [n times] (time (random-sentence)))))
+
