@@ -105,6 +105,45 @@
         (string/replace (fs/get-in arg '(:root))
                         #"a$" "e")
 
+        ;; masculine adjective agreement: singular
+        (and (map? arg)
+             (= (fs/get-in arg '(:cat)) :adjective)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:italian))
+
+        ;; feminine adjective agreement: singular
+        (and (map? arg)
+             (= (fs/get-in arg '(:cat)) :adjective)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (string/replace (fs/get-in arg '(:italian))
+                        #"o$" "a")
+
+        ;; feminine adjective agreement: plural
+        (and (map? arg)
+             (= (fs/get-in arg '(:cat)) :adjective)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:italian))
+                        #"o$" "e")
+
+        ;; masculine adjective agreement: plural
+        (and (map? arg)
+             (= (fs/get-in arg '(:cat)) :adjective)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:italian))
+                        #"o$" "i")
+
         ;; regular masculine noun pluralization
         (and (map? arg)
              (contains? arg :root)
@@ -204,15 +243,15 @@
            :else
            arg))))
 
-(defn conjugate-en [arg]
+(defn conjugate-en [arg category]
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
         (and (map? arg)
              (contains? (set (keys arg)) :1)
              (contains? (set (keys arg)) :2))
-        (let [result1 (conjugate-en (:1 arg))
-              result2 (conjugate-en (:2 arg))]
+        (let [result1 (conjugate-en (:1 arg) category)
+              result2 (conjugate-en (:2 arg) category)]
           (if (and (= (type result1) java.lang.String)
                    (= (type result2) java.lang.String))
             (string/join " " (list result1 result2))
@@ -279,11 +318,47 @@
              (= (fs/get-in arg '(:agr :number)) :plur))
         (str (fs/get-in arg '(:root)) "s")
 
+        ;; TODO: replace :root with :english everwhere.
+        ;; (just as we are doing here).
+        ;; this rule currently does not function (because
+        ;; nouns use :root still (they need to be ported to the new
+        ;; :agr/:cat representation).
+        (and (map? arg)
+             (contains? arg :english)
+             (contains? arg :agr)
+             (= category :noun)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (str (fs/get-in arg '(:english)) "s")
+
+        (and (map? arg)
+             (contains? arg :english)
+             (contains? arg :agr)
+             (= category :adjective))
+        (fs/get-in arg '(:english))
+
+        (and (map? arg)
+             (contains? arg :english)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:english))
+
+        ;; number not specified or underspecified: keep unspecified.
+        (and (map? arg)
+             (contains? arg :english)
+             (contains? arg :agr))
+        arg
+
         ;; noun or verb: number not specified: use root form by default.
         (and (map? arg)
              (contains? arg :root)
-             (contains? arg :agr))
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :number)) :sing))
         (str (fs/get-in arg '(:root)))
+
+        (and (map? arg)
+             (contains? arg :english)
+             (contains? arg :agr))
+        (str (fs/get-in arg '(:english)))
 
         ;; irregular past.
         (and (map? arg)
@@ -297,6 +372,8 @@
              (contains? arg :infl)
              (= (fs/get-in arg '(:infl)) :past))
         (let [root (fs/get-in arg '(:infinitive))
+              ;; TODO: throw exception rather than encoding error as part
+              ;; of the english string.
               root (if (nil? root) "(nilroot)" root)
               root (if (not (= (type root) java.lang.String))
                      (fs/get-in arg '(:infinitive :infinitive))
@@ -314,6 +391,8 @@
         :else
         ;; assume a map with keys (:infinitive and :agr).
         (let [root (fs/get-in arg '(:infinitive))
+              ;; TODO: throw exception rather than encoding error as part
+              ;; of the english string.
               root (if (nil? root) "(nilroot)" root)
               root (if (not (= (type root) java.lang.String))
                       (fs/get-in arg '(:infinitive :infinitive))
@@ -410,20 +489,20 @@
       {:1 conjugated-a
        :2 conjugated-b})))
 
-(defn get-english [a b & [ head-category comp-category ]]
+(defn get-english [a b & [ a-category b-category ]]
   "Take two constituents and combine them.
    The two category params may reverse word order
      (e.g.: get-english 'cat' 'black' 'noun' 'adj' => 'black cat')"
-  (let [conjugated-a (conjugate-en a)
-        conjugated-b (if (not (nil? b)) (conjugate-en b) "..")]
+  (let [conjugated-a (conjugate-en a a-category)
+        conjugated-b (if (not (nil? b)) (conjugate-en b b-category) "..")]
     (cond
 
      ;; in english, order of noun + adjective is reversed: (adjective + noun)
      (and
       (= (type conjugated-a) java.lang.String)
       (= (type conjugated-b) java.lang.String)
-      (= head-category :noun)
-      (= comp-category :adjective))
+      (= a-category :noun)
+      (= b-category :adjective))
      (string/trim (str conjugated-b " " conjugated-a))
 
      (and
@@ -433,8 +512,8 @@
 
      ;; in english, order of noun + adjective is reversed: (adjective + noun)
      (and
-      (= head-category :noun)
-      (= comp-category :adjective))
+      (= a-category :noun)
+      (= b-category :adjective))
      {:1 conjugated-b
       :2 conjugated-a}
 

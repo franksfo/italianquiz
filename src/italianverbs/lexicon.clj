@@ -272,6 +272,7 @@
                           feminine
                           {:synsem {:sem {:pred :camicia
                                           :artifact true
+                                          :legible false ;; (exception: tshirts with writing on them)
                                           :consumable false
                                           :clothing true}}}
                           {:italian "camicia"
@@ -468,6 +469,7 @@
    
    {:synsem {:cat :det
              :def :indef
+             :mass false
              :gender :fem
              :number :sing}
     :italian "una"
@@ -985,30 +987,46 @@
          :italian "a"
          :english "at"}))
 
+;; TODO: cut down duplication in here (i.e. :italian :category, :english :category, etc).
 (def adjectives
   (list {:synsem {:cat :adjective
                   :sem {:pred :alto
                         :mod {:human true}}}
-         :italian "alto"
-         :english "tall"}
+         :italian {:italian "alto"
+                   :category :adjective}
+         :english {:english "tall"
+                   :category :adjective}}
         {:synsem {:cat :adjective
                   :sem {:pred :nero
                         :mod {:physical-object true
                               :human false}}}
-         :italian "bianca"
-         :english "white"}
+         :italian {:italian "bianca"
+                   :category :adjective}
+         :english {:english "white"
+                   :category :adjective}}
         {:synsem {:cat :adjective
                   :sem {:pred :nero
                         :mod {:physical-object true
                               :human false}}}
-         :italian "nero"
-         :english "black"}
+         :italian {:italian "nero"
+                   :cat :adjective}
+         :english {:english "black"
+                   :cat :adjective}}
         {:synsem {:cat :adjective
                   :sem {:pred :piccolo
                         :mod {:physical-object true}}}
-         :italian "piccolo"
-         :english "small"}))
-
+         :italian {:italian "piccolo"
+                   :cat :adjective}
+         :english {:english "small"
+                   :cat :adjective}}
+        {:synsem {:cat :adjective
+                  :sem {:pred :rosso
+                        :mod {:physical-object true
+                              :human false}}}
+         :italian {:italian "rosso"
+                   :cat :adjective}
+         :english {:english "red"
+                   :cat :adjective}}))
 
 (def lexicon (concat adjectives determiners nouns prepositions pronouns verbs))
 
@@ -1041,6 +1059,7 @@
              (set (lookup {:italian {:infinitive italian}}))
              (set (lookup {:italian {:infinitive {:infinitive italian}}}))
              (set (lookup {:root {:italian italian}}))
+             (set (lookup {:italian {:italian italian}}))
              (set (lookup {:root {:italian {:italian italian}}}))))
 
 (defn en [english]

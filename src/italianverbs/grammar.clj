@@ -123,6 +123,8 @@
         comp (ref :top)
         comp-sem-pred (ref :top)
         subcat (ref :top)
+        gender (ref :top)
+        number (ref :top)
         agr (ref :top)]
     (def nbar
       (fs/unify
@@ -133,10 +135,12 @@
        {:head {:synsem {:subcat subcat}}}
        {:synsem {:sem sem}}
        {:synsem {:sem {:mod comp-sem-pred}}}
-       {:head head}
-       {:comp comp}
+       {:head head
+        :comp comp}
        {:head {:synsem {:cat :noun
                         :agr agr}}
+        :comp {:italian {:agr agr}
+               :english {:agr agr}}
         :synsem {:agr agr}}
        {:comp {:synsem {:cat :adjective
                         :sem {:pred comp-sem-pred}}}}
