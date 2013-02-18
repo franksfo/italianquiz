@@ -119,14 +119,6 @@
         (string/replace (fs/get-in arg '(:root))
                         #"[eo]$" "i") ;; dottore => dottori; medico => medici
 
-
-        ;; has a :root and :agr, therefore noun, and
-        ;; number not specified: use root form by default.
-        (and (map? arg)
-             (contains? arg :root)
-             (contains? arg :agr))
-        (str (fs/get-in arg '(:root)))
-
         ;; irregular passato prossimo.
         (and (map? arg)
              (contains? arg :infl)
