@@ -111,14 +111,33 @@
   string)
                                         ;  (string/replace #"[ ]+$" "" (string/replace #"^[ ]+" "" (string/replace #"[ ]+" " " string))))
 
-(defn store-question [question session-id last-guess]
+(defn store-question [question-pair session-id last-guess]
   {:pre [(not (= session-id nil))]}
-  (mongo/insert! :question {:question (normalize-whitespace (get question :english))
-                            :answer (normalize-whitespace (get question :italian))
-                            :guess last-guess
-                            :italian (get question :italian)
-                            :english (get question :english)
-                            :session session-id}))
+  (let [question (get question-pair :english)
+        answer (get question-pair :italian)]
+    (if (nil? question)
+      (do
+        (log/error (str "morphological problem :english is null in: " question-pair))
+        (throw (Exception. (str "morphological problem :english value is null.")))))
+    (if (nil? answer)
+      (do
+        (log/error (str "morphological problem :italian is null in: " question-pair))
+        (throw (Exception. (str "morphological problem :italian value is null.")))))
+
+    (if (not (string? question))
+      (do
+        (log/error (str "morphological problem :english is not string: " question))
+        (throw (Exception. (str "morphological problem :english value is not string: " question)))))
+    (if (not (string? answer))
+      (do
+        (log/error (str "morphological problem :italian is not string: " answer))
+        (throw (Exception. (str "morphological problem :italian value is not string: " answer)))))
+    (mongo/insert! :question {:question (normalize-whitespace question)
+                              :answer (normalize-whitespace answer)
+                              :guess last-guess
+                              :italian (normalize-whitespace answer)
+                              :english (normalize-whitespace question)
+                              :session session-id})))
 
 (defn clear-questions [session]
   (mongo/destroy! :question {:session session})
