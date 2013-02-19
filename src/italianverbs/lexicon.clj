@@ -997,10 +997,12 @@
          :english {:english "tall"
                    :cat :adjective}}
         {:synsem {:cat :adjective
-                  :sem {:pred :nero
+                  :sem {:pred :bianco
                         :mod {:physical-object true
                               :human false}}}
-         :italian {:italian "bianca"
+         :italian {:italian "bianco"
+                   :irregular {:masc {:plur "bianchi"}
+                               :fem {:plur "bianche"}}
                    :cat :adjective}
          :english {:english "white"
                    :cat :adjective}}

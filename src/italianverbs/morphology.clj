@@ -115,6 +115,28 @@
              (= (fs/get-in arg '(:agr :number)) :sing))
         (fs/get-in arg '(:italian))
 
+        ;; masculine irregular plural adjective agreement.
+        (and (map? arg)
+             (or (= category :adjective)
+                 (= (fs/get-in arg '(:cat)) :adjective))
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :plur)
+             (not (= (fs/get-in arg '(:irregular :masc :plur) :notfound) :notfound)))
+        (fs/get-in arg '(:irregular :masc :plur))
+
+        ;; feminine irregular plural adjective agreement.
+        (and (map? arg)
+             (or (= category :adjective)
+                 (= (fs/get-in arg '(:cat)) :adjective))
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :plur)
+             (not (= (fs/get-in arg '(:irregular :fem :plur) :notfound) :notfound)))
+        (fs/get-in arg '(:irregular :fem :plur))
+
         ;; masculine adjective agreement: plural
         (and (map? arg)
              (or (= category :adjective)
