@@ -7,6 +7,9 @@
 (defn conjugate-it [arg category]
   "conjugate an italian expression."
   (log/debug (str "conjugate-it: " arg))
+  (log/debug (str "infl: " (fs/get-in arg '(:infl))))
+  (log/debug (str "futuro? " (= (fs/get-in arg '(:infl)) :futuro)))
+
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
         arg
@@ -29,6 +32,7 @@
              ;; TODO: check (= :present) rather than (not (= :past)): requires that we have (:infl :present)
              ;; explicitly rather than implicitly (i.e. it is the default)
              (not (= :past (fs/get-in arg '(:infl))))
+             (not (= :futuro (fs/get-in arg '(:infl))))
              (map? (fs/get-in arg '(:infinitive :irregular :present))))
         (let [root (fs/get-in arg '(:infinitive))
               person (fs/get-in arg '(:agr :person) :notfound)
@@ -252,6 +256,37 @@
                 true
                 (str "(regpast:TODO)")))
 
+        (= (fs/get-in arg '(:infl)) :futuro)
+        (do
+          (let [root (fs/get-in arg '(:infinitive))
+                root (if (map? root)
+                       (fs/get-in arg '(:infinitive :infinitive))
+                       root)
+                person (fs/get-in arg '(:agr :person))
+                number (fs/get-in arg '(:agr :number))
+                stem (string/replace root #"e$" "")]
+            (cond
+             (and (= person :1st) (= number :sing))
+             (str stem "ò")
+
+             (and (= person :2nd) (= number :sing))
+             (str stem "ai")
+
+             (and (= person :3rd) (= number :sing))
+             (str stem "à")
+
+             (and (= person :1st) (= number :plur))
+             (str stem "emo")
+
+             (and (= person :2nd) (= number :plur))
+             (str stem "ete")
+
+             (and (= person :3rd) (= number :plur))
+             (str stem "anno")
+
+             :else
+             arg)))
+
         
         :else
         ;; assume present tense verb with map with keys (:root and :agr).
@@ -455,9 +490,17 @@
                 (str stem-minus-one penultimate-stem-char "en")
                 true
                 (str stem "en")))
+
+        (= (fs/get-in arg '(:infl)) :futuro)
+        (let [root (fs/get-in arg '(:infinitive))
+              root (if (map? root)
+                     (fs/get-in root '(:infinitive))
+                     root)
+              stem (string/replace root #"^to " "")]
+          (str "will " stem))
         
         :else
-        ;; assume a map with keys (:infinitive and :agr).
+        ;; assume a map with keys (:infinitive and :agr), and conjugate present tense.
         (let [root (fs/get-in arg '(:infinitive))
               ;; TODO: throw exception rather than encoding error as part
               ;; of the english string.
@@ -469,6 +512,7 @@
               number (fs/get-in arg '(:agr :number))
               stem (string/replace root #"^to " "")
               last-stem-char-is-e (re-find #"e$" stem)]
+          (log/info (str "(english):arg: " arg))
           (cond
 
            (and (= person :1st) (= number :sing))
@@ -534,6 +578,10 @@
 
         (and (= conjugated-a "di i")
              (re-find #"^s[t]" conjugated-b))
+        (str "degli " conjugated-b)
+
+        (and (= conjugated-a "di i")
+             (re-find #"^[aeiou]" conjugated-b))
         (str "degli " conjugated-b)
 
         (and (= conjugated-a "di la")
@@ -627,7 +675,7 @@
     "isc"
     ""))
 
-(defn conjugate-italian-verb-regular [verb-head subject-head]
+(defn conjugate-present-italian-verb-regular [verb-head subject-head]
   (let [root-form (fs/get-in-r verb-head '(:italian))
         regex #"^([^ ]*)([aei])re[ ]*$"]
     (log/info (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
@@ -677,6 +725,94 @@
                                                              (= (final-char-of stem) (final-char-of "c")))
                                                           "h" "")
                                                         
+                                                        (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
+                                                        space)))
+
+     (and (or (= (fs/get-in-r subject-head '(:person)) "2nd")
+              (= (fs/get-in-r subject-head '(:person)) :2nd))
+          (or (= (fs/get-in-r subject-head '(:number)) "plural")
+              (= (fs/get-in-r subject-head '(:number)) :plural)))
+     (string/replace root-form regex
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
+                                                        vowel "te" space)))
+
+     (and (or (= (fs/get-in-r subject-head '(:person)) "3rd")
+              (= (fs/get-in-r subject-head '(:person)) :3rd))
+          (or (= (fs/get-in-r subject-head '(:number)) "singular")
+              (= (fs/get-in-r subject-head '(:number)) :singular)))
+     ;; TODO: this works for -ire verbs like aprire->aprie but not
+     ;; -ire verbs like finire->finisco.
+     (string/replace root-form regex
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
+                                                        (cond
+                                                         (= vowel "a") "a"
+                                                         true "e")
+                                                        space)))
+
+     (and (or (= (fs/get-in-r subject-head '(:person)) "3rd")
+              (= (fs/get-in-r subject-head '(:person)) :3rd))
+          (or (= (fs/get-in-r subject-head '(:number)) "plural")
+              (= (fs/get-in-r subject-head '(:number)) :plural)))
+     (string/replace root-form regex
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
+                                                        (cond
+                                                         (= vowel "a") "a"
+                                                         true "o")
+                                                        "no" space)))
+     true
+     (str "conjugate-italian-verb-regular error: :person (" (get subject-head :person) ") or :number (" (get subject-head :number) ") "
+          " value was not matched. (verb-head=" (get verb-head :italian) "),(subject-head=" (get subject-head :italian) ")"))))
+
+(defn conjugate-futuro [verb-head subject-head]
+  (let [root-form (fs/get-in-r verb-head '(:italian))
+        regex #"^([^ ]*)([aei])re[ ]*$"]
+    (log/info (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
+    (println (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
+    (cond
+
+     (and (or (= (fs/get-in-r subject-head '(:person)) "1st")
+              (= (fs/get-in-r subject-head '(:person)) :1st))
+          (or (= (fs/get-in-r subject-head '(:number)) "singular")
+              (= (fs/get-in-r subject-head '(:number)) :singular)))
+     (string/replace root-form regex
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
+                                                        "ò"
+                                                        space)))
+
+     (and (or (= (fs/get-in-r subject-head '(:person)) "1st")
+              (= (fs/get-in-r subject-head '(:person)) :1st))
+          (or (= (fs/get-in-r subject-head '(:number)) "plural")
+              (= (fs/get-in-r subject-head '(:number)) :plural)))
+     (string/replace root-form regex
+                        (fn [[_ stem i space]] (str stem
+                                                    (if-isco verb-head)
+
+                                                    (if (and
+                                                         (not (= (next-to-final-char-of stem) (final-char-of "s")))
+                                                         (= (final-char-of stem) (final-char-of "c")))
+                                                      "h" "")
+
+                                                    (if (not (= (final-char-of stem) (final-char-of "i")))
+                                                      "i" "")
+                                                    "amo" space)))
+
+     (and (or (= (fs/get-in-r subject-head '(:person)) "2nd")
+              (= (fs/get-in-r subject-head '(:person)) :2nd))
+          (or (= (fs/get-in-r subject-head '(:number)) :singular)
+              (= (fs/get-in-r subject-head '(:number)) "singular")))
+     (string/replace root-form regex
+                        (fn [[_ stem vowel space]] (str stem
+                                                        (if-isco verb-head)
+
+                                                        (if (and
+                                                             (not (= (next-to-final-char-of stem) (final-char-of "s")))
+                                                             (= (final-char-of stem) (final-char-of "c")))
+                                                          "h" "")
+
                                                         (if (not (= (final-char-of stem) (final-char-of "i"))) "i" "")
                                                         space)))
 
@@ -774,11 +910,29 @@
 (defn conjugate-italian-verb [verb-phrase subject]
   ;; conjugate verb based on subject and eventually verb's features (such as tense)
   ;; takes two feature structures and returns a string.
+  (log/info (str "CONJUGATE-ITALIAN-VERB"))
   (cond
    (or (= (get verb-phrase :infl) :passato-prossimo)
        (= (get verb-phrase :infl) "passato-prossimo"))
    (conjugate-passato-prossimo verb-phrase subject)
-   true
+
+   (= (get verb-phrase :infl) :futuro)
+   (let [italian (get verb-phrase :italian)
+         italian-head (get (fs/get-head verb-phrase) :italian)
+         ;; all we need is the head, which has the relevant grammatical information, not the whole subject
+         subject (fs/get-head subject)]
+     (let [italian (if italian-head italian italian)]
+       (let [except-first
+             (except-first-words
+              (fs/get-head verb-phrase)
+              (get verb-phrase :italian))]
+         (string/join (list
+                       " "
+                       (conjugate-futuro
+                        (fs/get-head verb-phrase) subject)
+                       except-first)))))
+
+   true ;; assume present
    (let [italian (get verb-phrase :italian)
          italian-head (get (fs/get-head verb-phrase) :italian)
          ;; all we need is the head, which has the relevant grammatical information, not the whole subject
@@ -790,7 +944,7 @@
               (get verb-phrase :italian))]
          (string/join (list
                        " "
-                       (conjugate-italian-verb-regular
+                       (conjugate-present-italian-verb-regular
                         (fs/get-head verb-phrase) subject)
                        except-first)))))))
 

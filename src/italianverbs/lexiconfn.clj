@@ -221,7 +221,7 @@
         third-plur (nth present-indicative-list 5)]
     (add-infl
      (if first-sing first-sing
-       (morph/conjugate-italian-verb-regular
+       (morph/conjugate-present-italian-verb-regular
         inf
         (merge firstp sing present)))
      (list (merge firstp sing present))
@@ -229,7 +229,7 @@
 
     (add-infl
      (if second-sing second-sing
-         (morph/conjugate-italian-verb-regular
+         (morph/conjugate-present-italian-verb-regular
           inf
           (merge secondp sing present)))
      (list (merge secondp sing present))
@@ -237,7 +237,7 @@
 
     (add-infl
      (if third-sing third-sing
-         (morph/conjugate-italian-verb-regular
+         (morph/conjugate-present-italian-verb-regular
           inf
           (merge thirdp sing present)))
      (list (merge thirdp sing present))
@@ -245,7 +245,7 @@
     
     (add-infl
      (if first-plur first-plur
-         (morph/conjugate-italian-verb-regular
+         (morph/conjugate-present-italian-verb-regular
           inf
           (merge firstp plural present)))
      (list (merge firstp plural present))
@@ -253,7 +253,7 @@
 
     (add-infl
      (if second-plur second-plur
-         (morph/conjugate-italian-verb-regular
+         (morph/conjugate-present-italian-verb-regular
           inf
           (merge secondp plural present)))
      (list (merge secondp plural present))
@@ -261,7 +261,7 @@
 
     (add-infl
      (if third-plur third-plur
-         (morph/conjugate-italian-verb-regular
+         (morph/conjugate-present-italian-verb-regular
           inf
           (merge thirdp plural present)))
      (list (merge thirdp plural present))

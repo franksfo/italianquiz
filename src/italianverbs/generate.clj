@@ -560,14 +560,18 @@
    (= symbol 'present-verbs) lex/present-verbs
    (= symbol 'present-intransitive-verbs) lex/present-intransitive-verbs
    (= symbol 'present-transitive-verbs) lex/present-transitive-verbs
+   (= symbol 'future-intransitive-verbs) lex/future-intransitive-verbs
+   (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'present-aux-verbs) lex/present-aux-verbs
    (= symbol 'past-verbs) lex/past-verbs
+   (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
+   (= symbol 'vp-future) gram/vp-future
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
 (defn random-head-and-comp-from-phrase [phrase expansion]

@@ -93,14 +93,14 @@
                  subcat-2-principle
                  verb-inflection-morphology
                  {:head {:synsem {:cat :verb
-                                  :infl :future}}}
+                                  :infl :futuro}}}
                  {:comment "vp[future] &#x2192 head comp"
                   :head head
                   :comp comp
                   :1 head
                   :2 comp
                   :extend {
-                           :a {:head 'future-intransitive-verbs
+                           :a {:head 'future-transitive-verbs
                                :comp 'np}}}))
 
     (list vp-present vp-past vp-future)))
@@ -110,6 +110,7 @@
         subcatted (ref {:cat :noun
                         :subcat '()
                         :sem subj-sem})
+        infl (ref :top)
         comp (ref {:synsem subcatted})
         head (ref {:synsem {:cat :verb
                             :sem {:subj subj-sem}
@@ -117,8 +118,9 @@
                                      :2 '()}}})]
     (list
      (fs/unifyc head-principle subcat-1-principle
-                {:synsem {:sem {:infl :present}}}
-                {:comment "sentence (2 subrules)"
+                {:synsem {:sem {:infl infl}}}
+                {:head {:synsem {:sem {:infl :infl}}}}
+                {:comment "sentence (8 subrules)"
                 :head head
                 :comp comp
                 :1 comp
@@ -132,20 +134,16 @@
                              :head 'present-intransitive-verbs}
                          :d {:comp 'pronouns
                              :head 'present-intransitive-verbs}
-                         }})
 
-     (fs/unifyc head-principle subcat-1-principle
-                {:synsem {:sem {:infl :future}}}
-                {:comment "sentence (2 subrules)"
-                 :head head
-                 :comp comp
-                 :1 comp
-                 :2 head
-                 :extend {
-                          :a {:comp 'np
-                              :head 'future-intransitive-verbs}
-                          :b {:comp 'pronouns
-                              :head 'future-intransitive-verbs}
+                         :e {:comp 'np
+                             :head 'future-intransitive-verbs}
+                         :f {:comp 'pronouns
+                             :head 'future-intransitive-verbs}
+                         :g {:comp 'np
+                             :head 'vp-future}
+                         :h {:comp 'pronouns
+                              :head 'vp-future}
+
                          }}))))
 
 (def adj-rules
@@ -222,6 +220,7 @@
 (def np (nth np-rules 0))
 (def vp-present (nth vp-rules 0))
 (def vp-past (nth vp-rules 1))
+(def vp-future (nth vp-rules 2))
 (def s (nth sentence-rules 0))
 
 ;; TODO: move to lexicon (maybe).

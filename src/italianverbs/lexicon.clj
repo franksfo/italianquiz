@@ -63,6 +63,7 @@
                   {:buyable true
                    :physical-object true
                    :human false
+                   :speakable false
                    :legible false}{})
          human (if (= (fs/get-in input '(:human))
                       true)
@@ -828,7 +829,8 @@
 (def future-tense-verb
   (unify finite-verb
          {:synsem {:infl :futuro}
-          :italian {:infl :futuro}}))
+          :italian {:infl :futuro}
+          :english {:infl :futuro}}))
 
 (def present-tense-aux-past-verb
   (unify finite-verb
@@ -845,6 +847,14 @@
 
 (def trans-present-tense-verb
   (unify present-tense-verb
+         (let [obj-sem (ref :top)
+               obj (ref {:sem obj-sem})]
+           {:root
+            {:synsem {:subcat {:2 obj}}}
+            :synsem {:sem {:obj obj-sem}}})))
+
+(def trans-future-tense-verb
+  (unify future-tense-verb
          (let [obj-sem (ref :top)
                obj (ref {:sem obj-sem})]
            {:root
@@ -925,6 +935,33 @@
           trans-present-tense-verb)
    ))
 
+(def future-transitive-verbs
+  (list
+  (unify {:root avere}
+          trans-future-tense-verb)
+   (unify {:root bevere}
+          trans-future-tense-verb)
+   (unify {:root comprare}
+          trans-future-tense-verb)
+
+   ;; need some activities (nouns with {:activity true}) to enable this:
+   ;; (unify {:root fare-do}
+   ;;           trans-future-tense-verb)
+
+   (unify {:root fare-make}
+          trans-future-tense-verb)
+   (unify {:root leggere}
+          trans-future-tense-verb)
+   (unify {:root mangiare}
+          trans-future-tense-verb)
+   (unify {:root parlare}
+          trans-future-tense-verb)
+   (unify {:root scrivere}
+          trans-future-tense-verb)
+   (unify {:root vedere}
+          trans-future-tense-verb)
+   ))
+
 (def present-intransitive-verbs
   (list
    (unify {:root dormire}
@@ -950,11 +987,18 @@
    present-transitive-verbs
    present-intransitive-verbs))
 
+(def future-verbs
+  (concat
+   future-transitive-verbs
+   future-intransitive-verbs))
+
 (def verbs
   (concat
    present-aux-verbs
    present-verbs
    past-verbs
+   future-verbs
+   ;; infinitives:
    (list
     avere
     bevere
