@@ -360,6 +360,28 @@
                                                  :number :plur
                                                  :def :def}}}})})
 
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          countable-noun
+                          feminine
+                          {:synsem {:sem {:legible true
+                                          :speakable true}}}
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :parola}}}
+                          {:italian "parola"
+                           :english "word"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          countable-noun
+                          feminine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :professoressa}}}
+                          {:italian "professoressa"
+                           :english "professor"})})
+
      ;; "pizza" can be either mass or countable.
      (unify noun-conjugator
             {:root (unify agreement
@@ -393,15 +415,7 @@
                            :italian "ragazzo"
                            :english "guy"})})
 
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          countable-noun
-                          feminine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :professoressa}}}
-                          {:italian "professoressa"
-                           :english "professor"})})
+
 
      (unify noun-conjugator
             {:root (unify agreement
@@ -731,6 +745,18 @@
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
+
+(def parlare
+  (unify
+   transitive
+   infinitive
+   {:italian {:infinitive "parlare"}
+    :english {:infinitive "to speak" 
+              :irregular {:past "spoke"}}
+    :synsem {:sem {:pred :parlare
+                   :subj {:human true}
+                   :obj {:speakable true}}}}))
+
 (def pensare
   (unify
    intransitive
@@ -799,6 +825,11 @@
   (unify finite-verb
          {:synsem {:infl :present}}))
 
+(def future-tense-verb
+  (unify finite-verb
+         {:synsem {:infl :futuro}
+          :italian {:infl :futuro}}))
+
 (def present-tense-aux-past-verb
   (unify finite-verb
          {:synsem {:infl :present
@@ -833,6 +864,11 @@
          {:root {:synsem
                  {:subcat {:2 '()}}}}))
 
+(def intrans-future-tense-verb
+  (unify future-tense-verb
+         {:root {:synsem
+                 {:subcat {:2 '()}}}}))
+
 (def present-aux-verbs
   (list
    (unify {:root (fs/copy avere-aux-trans)}
@@ -855,10 +891,12 @@
           trans-past-tense-verb)
    (unify {:root mangiare}
           trans-past-tense-verb)
-  (unify {:root scrivere}
-         trans-past-tense-verb)
-  (unify {:root vedere}
-         trans-past-tense-verb)))
+   (unify {:root parlare}
+          trans-past-tense-verb)
+   (unify {:root scrivere}
+          trans-past-tense-verb)
+   (unify {:root vedere}
+          trans-past-tense-verb)))
 
 (def present-transitive-verbs
   (list
@@ -879,6 +917,8 @@
           trans-present-tense-verb)
    (unify {:root mangiare}
           trans-present-tense-verb)
+   (unify {:root parlare}
+          trans-present-tense-verb)
    (unify {:root scrivere}
           trans-present-tense-verb)
    (unify {:root vedere}
@@ -893,6 +933,16 @@
           intrans-present-tense-verb)
    (unify {:root sognare}
           intrans-present-tense-verb)))
+
+(def future-intransitive-verbs
+  (list
+   (unify {:root dormire}
+          intrans-future-tense-verb)
+   (unify {:root pensare}
+          intrans-future-tense-verb)
+   (unify {:root sognare}
+          intrans-future-tense-verb)))
+
 
 (def present-verbs
   (concat
@@ -914,6 +964,7 @@
     fare-make
     leggere
     mangiare
+    parlare
     pensare
     scrivere
     sognare

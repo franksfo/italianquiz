@@ -75,7 +75,7 @@
                  verb-inflection-morphology
                  {:head {:synsem {:cat :verb
                                   :infl :present}}}
-                 {:comment "vp &#x2192 head comp"
+                 {:comment "vp[present] &#x2192 head comp"
                   :head head
                   :comp comp
                   :1 head
@@ -86,7 +86,24 @@
                            :b {:head 'present-aux-verbs
                                :comp 'vp-past}
                            }}))
-    (list vp-present vp-past)))
+
+
+    (def vp-future
+      (fs/unifyc head-principle
+                 subcat-2-principle
+                 verb-inflection-morphology
+                 {:head {:synsem {:cat :verb
+                                  :infl :future}}}
+                 {:comment "vp[future] &#x2192 head comp"
+                  :head head
+                  :comp comp
+                  :1 head
+                  :2 comp
+                  :extend {
+                           :a {:head 'future-intransitive-verbs
+                               :comp 'np}}}))
+
+    (list vp-present vp-past vp-future)))
 
 (def sentence-rules
   (let [subj-sem (ref :top)
@@ -95,13 +112,13 @@
                         :sem subj-sem})
         comp (ref {:synsem subcatted})
         head (ref {:synsem {:cat :verb
-                            :infl :present
                             :sem {:subj subj-sem}
                             :subcat {:1 subcatted
                                      :2 '()}}})]
     (list
      (fs/unifyc head-principle subcat-1-principle
-               {:comment "sentence (4 subrules)"
+                {:synsem {:sem {:infl :present}}}
+                {:comment "sentence (2 subrules)"
                 :head head
                 :comp comp
                 :1 comp
@@ -115,6 +132,20 @@
                              :head 'present-intransitive-verbs}
                          :d {:comp 'pronouns
                              :head 'present-intransitive-verbs}
+                         }})
+
+     (fs/unifyc head-principle subcat-1-principle
+                {:synsem {:sem {:infl :future}}}
+                {:comment "sentence (2 subrules)"
+                 :head head
+                 :comp comp
+                 :1 comp
+                 :2 head
+                 :extend {
+                          :a {:comp 'np
+                              :head 'future-intransitive-verbs}
+                          :b {:comp 'pronouns
+                              :head 'future-intransitive-verbs}
                          }}))))
 
 (def adj-rules
