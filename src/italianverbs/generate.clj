@@ -661,14 +661,23 @@
 
 (defn random-comp-for-parent [parent comp-expansion]
   (let [candidates (expansion-to-candidates comp-expansion (fs/get-in parent '(:comp)))
-        sem-impl-result (if (not (nil? (fs/get-in parent '(:comp :synsem :sem))))
+        path-to-comp-sem (if (not (nil? (fs/get-in parent '(:comp :synsem :sem :mod))))
+                           '(:comp :synsem :sem :mod)
+                           '(:comp :synsem :sem))
+        sem-impl-input (if (map? (fs/get-in parent path-to-comp-sem))
+                         (dissoc (dissoc (fs/get-in parent path-to-comp-sem) :mod) :pred))
+        sem-impl-result (if (not (nil? sem-impl-input))
                           (do
-;                            (println (str "NON-NULL SEMANTICS: " (fs/get-in parent '(:comp :synsem :sem))))
-                            (lex/sem-impl (fs/get-in parent '(:comp :synsem :sem)))))
+;                            (println (str "NON-NULL SEMANTICS: " (fs/get-in parent path-to-comp-sem)))
+                            (lex/sem-impl sem-impl-input)))
+;        debug (println (str "SEM-IMPL INPUT: " sem-impl-input))
 ;        debug (println (str "SEM-IMPL: " sem-impl-result))
         complement-filter (if (not (nil? sem-impl-result))
-                            (unify {:synsem {:sem sem-impl-result}}
-                                   (fs/get-in parent '(:comp)))
+                            (if (= path-to-comp-sem '(:comp :synsem :sem :mod))
+                              (unify {:synsem {:sem {:mod sem-impl-result}}}
+                                     (fs/get-in parent '(:comp)))
+                              (unify {:synsem {:sem sem-impl-result}}
+                                     (fs/get-in parent '(:comp))))
                             (fs/get-in parent '(:comp)))
 ;        debug (println (str "CF: " complement-filter))
         filtered  (if (> (.size candidates) 0)
@@ -685,9 +694,9 @@
      :comp (if (> (.size filtered) 0)
              (nth filtered (rand-int (.size filtered)))
              (throw (Exception. (str "None of the candidates: "
-                                     (join (map (fn[x] (str "'" (:italian x) "'")) candidates)
-                                           " ") " matched the filter: " complement-filter
-                                           " from parent: " parent))))
+                                     (join (map (fn[x] (str "'" (:italian x) "/" (fs/get-in x '(:synsem :sem)) "'")) candidates)
+                                           " ") " matched the filter: (sem:" (fs/get-in complement-filter '(:synsem :sem))
+                                           " from parent: " (fs/get-in parent '(:head :italian))))))
      :parent parent
      :expansion comp-expansion}))
 
@@ -709,9 +718,7 @@
         comp-expansion (:comp random-head-and-comp)]
       ;; now get complement given this head.
     (let [random-comp
-          (try (random-comp-for-parent unified-parent comp-expansion)
-               (catch Exception e
-                 (str e)))
+          (random-comp-for-parent unified-parent comp-expansion)
           unified-with-comp
           (fs/unifyc
            unified-parent
@@ -754,4 +761,3 @@
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
   (let [times (if (first times) (first times) 10)]
     (dotimes [n times] (time (random-sentence)))))
-
