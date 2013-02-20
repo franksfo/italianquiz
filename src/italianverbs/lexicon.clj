@@ -28,6 +28,7 @@
                     :mass false
                     :physical-object true
                     :drinkable false
+                    :speakable false
                     :place false}{})
          artifact (if (= (fs/get-in input '(:artifact))
                          true)
@@ -76,11 +77,12 @@
                            false)
                       {:human false}{})
 
-         ;; legible(x) => artifact(x),drinkable(x,false),edible(x,false)
+         ;; legible(x) => artifact(x),drinkable(x,false),edible(x,false),human(x,false)
          legible
          (if (= (fs/get-in input '(:legible)) true)
            {:artifact true
             :drinkable false
+            :human false
             :edible false})
 
          ;; artifact(x,false) => legible(x,false)
@@ -98,6 +100,7 @@
          place (if (= (fs/get-in input '(:place))
                       true)
                  {:animate false
+                  :speakable false
                   :physical-object true
                   :drinkable false
                   :edible false
@@ -217,6 +220,7 @@
                           masculine
                           {:synsem {:sem {:pred :compito
                                           :legible true
+                                          :speakable false
                                           :buyable false
                                           :artifact true
                                           :activity true}}
@@ -273,6 +277,7 @@
                           feminine
                           {:synsem {:sem {:pred :camicia
                                           :artifact true
+                                          :speakable false
                                           :legible false ;; (exception: tshirts with writing on them)
                                           :consumable false
                                           :clothing true}}}
@@ -319,7 +324,8 @@
                                           :animate false
                                           :artifact false
                                           :buyable true
-                                          :consumable false}}
+                                          :consumable false
+                                          :speakable false}}
                            :italian "fiore"
                            :english "flower"}
                           {:synsem {:subcat {:1 {:cat :det}}}})})
@@ -340,7 +346,9 @@
                           masculine
                           {:synsem {:sem {:pred :libro
                                           :legible true
+                                          :speakable false
                                           :mass false
+                                          :consumable false
                                           :artifact true}}
                            :italian "libro"
                            :english "book"})})
@@ -367,9 +375,8 @@
                           countable-noun
                           feminine
                           {:synsem {:sem {:legible true
-                                          :speakable true}}}
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :parola}}}
+                                          :speakable true
+                                          :pred :parola}}}
                           {:italian "parola"
                            :english "word"})})
 
@@ -402,6 +409,7 @@
                           {:synsem {:sem {:artifact true
                                           :consumable false
                                           :legible false
+                                          :speakable false
                                           :pred :scala}}
                            :italian "scala"
                            :english "ladder"})})
@@ -753,7 +761,7 @@
    infinitive
    {:italian {:infinitive "parlare"}
     :english {:infinitive "to speak" 
-              :irregular {:past "spoke"}}
+              :irregular {:past "spoken"}}
     :synsem {:sem {:pred :parlare
                    :subj {:human true}
                    :obj {:speakable true}}}}))
@@ -1101,6 +1109,25 @@
                    :cat :adjective}
          :english {:english "white"
                    :cat :adjective}}
+
+        {:synsem {:cat :adjective
+                  :sem {:pred :difficile
+                        :mod {
+                              :drinkable false
+                              :human false
+                              :animate false
+                              :buyable false
+                              :legible true
+                              :activity true
+                              :artifact true
+                              :physical-object true
+                              :edible false}}}
+
+         :italian {:italian "difficile"
+                   :cat :adjective}
+         :english {:english "difficult"
+                   :cat :adjective}}
+
         {:synsem {:cat :adjective
                   :sem {:pred :nero
                         :mod {:physical-object true
