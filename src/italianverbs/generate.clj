@@ -745,10 +745,11 @@
                         (fs/get-in unified-with-comp '(:2 :synsem :cat)))})]
         (if (fs/fail? result)
           (do
-            (log/error (str "Generation failed: comp-expansion: " comp-expansion))
-            (log/error (str "Generation failed: parent: " unified-parent))
-            (throw (Exception. (str "Generation failed."))))
-          result)))))
+            (log/error (str "Generation failed: parent: " (:comment unified-parent)))
+            (log/error (str "Generation failed: comp: " (:comment random-comp)))
+            (throw (Exception. (str "Generation failed: parent: " (:comment unified-parent)
+                                    "; comp: " random-comp))))
+          (fs/copy-trunc result))))))
 
 (defn random-sentence []
                                         ;  (generate (rand-nth (list gram/np gram/s))))

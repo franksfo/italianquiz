@@ -685,6 +685,50 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (log/debug (str "copy: " map))
   (deserialize (serialize map)))
 
+(defn trunc [serialized]
+  "create a new serialized map with all paths removed that are non-immediate."
+  (map (fn [paths-skel-pair]
+         (let [paths (first paths-skel-pair)
+               skel (second paths-skel-pair)]
+           (let [filtered-paths
+                 (filter (fn [path]
+                           (let [take-2 (take 2 path)]
+                             (and (not (= take-2
+                                          '(:head :head)))
+                                  (not (= take-2
+                                          '(:comp :comp)))
+                                  (not (= take-2
+                                          '(:head :comp)))
+                                  (not (= take-2
+                                          '(:comp :2)))
+                                  (not (= take-2
+                                          '(:head :1)))
+                                  (not (= take-2
+                                          '(:head :2)))
+                                  (not (= take-2
+                                          '(:1 :1)))
+                                  (not (= take-2
+                                          '(:1 :comp)))
+                                  (not (= take-2
+                                          '(:1 :head)))
+                                  (not (= take-2
+                                          '(:1 :2)))
+                                  (not (= take-2
+                                          '(:2 :2)))
+                                  (not (= take-2
+                                          '(:2 :1)))
+                                  (not (= take-2
+                                          '(:2 :head)))
+                                  (not (= take-2
+                                          '(:2 :comp))))))
+                         paths)]
+           (list filtered-paths skel))))
+       serialized))
+
+(defn copy-trunc [map]
+  (log/debug (str "copy: " map))
+  (deserialize (trunc (serialize map))))
+
 (defn unifyc [& args]
   (log/debug (str "unifyc: " args))
   "like fs/unify, but fs/copy each argument before unifying."
