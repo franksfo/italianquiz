@@ -4,6 +4,13 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
+(defn final-char-of [string]
+  (get string (- (.length string) 1)))
+
+(defn next-to-final-char-of [string]
+  (if (> (.length string) 1)
+    (get string (- (.length string) 2))))
+
 (defn conjugate-it [arg category]
   "conjugate an italian expression."
   (log/debug (str "conjugate-it: " arg))
@@ -150,7 +157,7 @@
              (= (fs/get-in arg '(:agr :gender)) :masc)
              (= (fs/get-in arg '(:agr :number)) :plur))
         (string/replace (fs/get-in arg '(:italian))
-                        #"o$" "i")
+                        #"[eo]$" "i") ;; adjectives ending in "e" or "o" pluralize to "i"
 
         ;; feminine adjective agreement: singular
         (and (map? arg)
@@ -163,7 +170,19 @@
         (string/replace (fs/get-in arg '(:italian))
                         #"o$" "a")
 
-        ;; feminine adjective agreement: plural
+        ;; feminine adjective agreement: plural with adjective ending in "e": change to "i".
+        (and (map? arg)
+             (or (= category :adjective)
+                 (= (fs/get-in arg '(:cat)) :adjective))
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :plur)
+             (= (final-char-of (fs/get-in arg '(:italian))) "e"))
+        (string/replace (fs/get-in arg '(:italian))
+                        #"e$" "i")
+
+        ;; feminine adjective agreement: plural with adjective ending in "o": change to "e".
         (and (map? arg)
              (or (= category :adjective)
                  (= (fs/get-in arg '(:cat)) :adjective))
@@ -229,13 +248,14 @@
         (str (fs/get-in arg '(:infinitive :irregular :passato)))
 
         (and (map? arg)
+             false
              (= :past (fs/get-in arg '(:infl)))
              (map? (fs/get-in arg '(:infinitive))))
         (do
           (throw (Exception. (str "Argument is a map: " arg " with infinitive: "
                                   (fs/get-in arg '(:infinitive)) ","
                                   "but morph/conjugate-it doesn't know how to handle "
-                                  " it. Needs more morphological code to do so."))))
+                                  "it. Needs more morphological code to do so."))))
 
         (and (map? arg)
              (contains? arg :infl)
@@ -243,8 +263,13 @@
 
         ;; regular past inflection
         (let [root (fs/get-in arg '(:infinitive))
+              root (if (map? root)
+                     (fs/get-in root '(:infinitive))
+                     root)
               root (if root root "(no-root-found)")
-              are-type (re-find #"are$" root)
+              are-type (try (re-find #"are$" root)
+                            (catch Exception e
+                              (throw (Exception. (str "Can't regex-find on non-string: " root)))))
               ere-type (re-find #"ere$" root)
               ire-type (re-find #"ire$" root)
               stem (string/replace root #"[iae]re$" "")
@@ -254,7 +279,7 @@
                 (or are-type ire-type)
                 (str stem "ito")
                 true
-                (str "(regpast:TODO)")))
+                (str "(regpast:TODO):" stem)))
 
         (= (fs/get-in arg '(:infl)) :futuro)
         (do
@@ -662,13 +687,6 @@
       (merge
        {:add-s with-s}
        english-verb-phrase))))
-
-(defn final-char-of [string]
-  (get string (- (.length string) 1)))
-
-(defn next-to-final-char-of [string]
-  (if (> (.length string) 1)
-    (get string (- (.length string) 2))))
 
 (defn if-isco [verb]
   (if (= (get verb :isco) true)
