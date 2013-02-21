@@ -292,9 +292,17 @@
 (defn che-tempo []
   (lexfn/choose-lexeme {:chetempo true}))
 
+(defn random-sentence []
+  "choose a random sentence generated via populate.clj/populate."
+  (let [count (mongo/fetch-count :sentences)
+        sentences (mongo/fetch :sentences)]
+    (nth sentences (rand-int count))))
+
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
+   true
+   (random-sentence)
    true
    (gen/random-sentence)
    (= question-type :oct2011)
