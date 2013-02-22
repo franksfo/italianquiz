@@ -577,6 +577,53 @@
                                   :cat :noun
                                   :agr {:case {:not :nom}}}}}})))
 
+;; TODO add subcat frames (<NP,PP>)
+(def andare-intrans
+  (unify
+   intransitive
+   infinitive
+   {:italian {:infinitive "andare"
+              :irregular {:present {:1sing "vado"
+                                    :2sing "vai"
+                                    :3sing "va"
+                                    :1plur "andiamo"
+                                    :2plur "andate"
+                                    :3plur "vanno"}
+                          :past {:type "essere"}}}
+    :english {:infinitive "to go"
+              :irregular {:past "went"}}
+    :synsem {:sem {:subj {:animate true}
+                   :pred :andare}}}))
+
+;; TODO add subcat frames (<NP,NP>) and (<NP,AdjP>)
+(def essere-intrans
+  (unify
+   intransitive
+   infinitive
+   {:italian {:infinitive "essere"
+              :irregular {:present {:1sing "sono"
+                                    :2sing "sei"
+                                    :3sing "è"
+                                    :1plur "siamo"
+                                    :2plur "siete"
+                                    :3plur "sono"}
+                          :past {:type "essere"}}}
+    :english {:infinitive "to be"
+              :irregular {:present {:1sing "am"
+                                    :2sing "are"
+                                    :3sing "is"
+                                    :1plur "are"
+                                    :2plur "are"
+                                    :3plur "are"}
+                          :past {:1sing "were"
+                                 :2sing "were"
+                                 :3sing "was"
+                                 :1plur "were"
+                                 :2plur "were"
+                                 :3plur "were"}}}
+    :synsem {:sem {:pred :essere}}}))
+
+
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
   (unify
@@ -972,7 +1019,11 @@
 
 (def present-intransitive-verbs
   (list
+   (unify {:root andare-intrans}
+          intrans-present-tense-verb)
    (unify {:root dormire}
+          intrans-present-tense-verb)
+   (unify {:root essere-intrans}
           intrans-present-tense-verb)
    (unify {:root pensare}
           intrans-present-tense-verb)

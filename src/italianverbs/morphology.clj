@@ -536,7 +536,8 @@
               person (fs/get-in arg '(:agr :person))
               number (fs/get-in arg '(:agr :number))
               stem (string/replace root #"^to " "")
-              last-stem-char-is-e (re-find #"e$" stem)]
+              last-stem-char-is-e (re-find #"e$" stem)
+              last-stem-char-is-vowel (re-find #"[aeiou]$" stem)]
           (log/info (str "(english):arg: " arg))
           (cond
 
@@ -546,9 +547,13 @@
            (and (= person :2nd) (= number :sing))
            (str stem "")
 
+           (and (= person :3rd) (= number :sing)
+                (= last-stem-char-is-vowel "o"))
+           (str stem "es")
+
            (and (= person :3rd) (= number :sing))
            (str stem "s")
-
+           
            (and (= person :1st) (= number :plur))
            (str stem "")
 
