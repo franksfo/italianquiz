@@ -298,10 +298,12 @@
         sentences (mongo/fetch :sentences)]
     (nth sentences (rand-int count))))
 
+(def production false)
+
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
-   true
+   production
    (random-sentence)
    true
    (gen/random-sentence)
