@@ -114,12 +114,12 @@
     
     
     (take 1
-          (over (over s lexicon)
+          (over (over s1 lexicon)
                 (over (over (nth rules 1) avere-present-aux-trans)
                       (over (over rules verbs) (over (over np "il") "libro")))))
     
     
-    (over (over s (over (over np "il") "dottore"))
+    (over (over s1 (over (over np "il") "dottore"))
           (over (over (nth rules 1) avere-present-aux-trans)
                 (over (over rules (it "letto"))
                       (over (over np "il") "libro"))))))
@@ -127,7 +127,7 @@
 (if false
   (formattare
    (take-last 10 (take 30
-                       (over (over s
+                       (over (over s1
                                    (over (over np lexicon) lexicon))
                              (over (over vp-present avere-present-aux-trans)
                                    (over (over vp-past verbs)
@@ -136,7 +136,7 @@
 (if false
   (formattare
    (take 1
-         (over (over s
+         (over (over s1
                      (over (over np lexicon) lexicon))
                (over (over vp-present avere-present-aux-trans)
                      (over (over vp-past verbs)
@@ -146,7 +146,7 @@
   (do 
     (time ;; takes about 4 seconds.
      (def foo (take 100
-                    (over (over s
+                    (over (over s1
                                 (over (over np lexicon) lexicon))
                           (over (over vp-present avere-present-aux-trans)
                                 (over (over vp-past verbs)
@@ -166,7 +166,7 @@
    (take-last
     5
     (take 100
-          (over (over s lexicon)
+          (over (over s1 lexicon)
                 (over (over vp-present lexicon)
                       (over (over vp-past lexicon)
                             (over (over np lexicon)
@@ -174,7 +174,7 @@
 
 (if false
   (formattare
-   (over s lexicon
+   (over s1 lexicon
          (over vp-present lexicon
                (over vp-past lexicon
                      (over np lexicon lexicon))))))
@@ -188,7 +188,7 @@
 (if false
   (dotimes [n 20] (time
                    (formattare
-                    (over s
+                    (over s1
                           pronouns
                           (over (over vp-present
                                       present-aux-verbs)
@@ -199,13 +199,13 @@
                                             nouns))))))))
 
 ;; top part:
-;;(dotimes [n 20] (time (formattare (over s pronouns (over vp-present present-aux-verbs)))))
+;;(dotimes [n 20] (time (formattare (over s1 pronouns (over vp-present present-aux-verbs)))))
 
 ;; bottom part:
-;;(dotimes [n 20] (time (formattare (over s pronouns (over vp-present present-aux-verbs)))))
+;;(dotimes [n 20] (time (formattare (over s1 pronouns (over vp-present present-aux-verbs)))))
 
 ;;combine
-;(over (over s pronouns (over vp-present present-aux-verbs))
+;(over (over s1 pronouns (over vp-present present-aux-verbs))
                                         ;      (over (over vp-past past-verbs) (over np determiners nouns)))
 
 ;(dotimes [n 200] (time (random-sentence)))

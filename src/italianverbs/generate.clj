@@ -14,13 +14,6 @@
    [italianverbs.search :as search]
    [clojure.string :as string]))
 
-(def sentence-skeleton-1
-  (unify gram/s {:comp gram/np :head (unify gram/vp-present {:comp gram/np})}))
-
-(def sentence-skeleton-2
-  (unify gram/s {:head gram/s
-                 :comp gram/prep-phrase}))
-
 (defn get-terminal-head-in [phrase-structure]
   (let [local-head (fs/get-in phrase-structure '(:head))]
     (if (not (nil? local-head))
@@ -564,6 +557,8 @@
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'present-aux-verbs) lex/present-aux-verbs
    (= symbol 'past-verbs) lex/past-verbs
+   (= symbol 'past-intransitive-verbs) lex/past-intransitive-verbs
+   (= symbol 'past-transitive-verbs) lex/past-transitive-verbs
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
@@ -752,8 +747,7 @@
           (fs/copy-trunc result))))))
 
 (defn random-sentence []
-                                        ;  (generate (rand-nth (list gram/np gram/s))))
-    (generate gram/s))
+    (generate gram/s1))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))

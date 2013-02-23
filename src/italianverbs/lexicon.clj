@@ -934,6 +934,11 @@
          {:root {:synsem
                  {:subcat {:2 '()}}}}))
 
+(def intrans-past-tense-verb
+  (unify past-tense-verb
+         {:root
+          {:synsem {:subcat {:2 '()}}}}))
+
 (def present-aux-verbs
   (list
    (unify {:root (fs/copy avere-aux-trans)}
@@ -942,7 +947,12 @@
 (def avere-present-aux-trans
   (first present-aux-verbs))
 
-(def past-verbs
+(def past-intransitive-verbs
+  (list
+   (unify {:root andare-intrans}
+          intrans-past-tense-verb)))
+
+(def past-transitive-verbs
   (list
    (unify {:root avere}
           trans-past-tense-verb)
@@ -962,6 +972,8 @@
           trans-past-tense-verb)
    (unify {:root vedere}
           trans-past-tense-verb)))
+
+(def past-verbs (concat past-intransitive-verbs past-transitive-verbs))
 
 (def present-transitive-verbs
   (list
@@ -1059,6 +1071,7 @@
    future-verbs
    ;; infinitives:
    (list
+    andare-intrans
     avere
     bevere
     comprare

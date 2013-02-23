@@ -66,8 +66,9 @@
                   :comp comp
                   :1 head
                   :2 comp
-                  :extend {:a {:head 'past-verbs
-                               :comp 'np}}}))
+                  :extend {:a {:head 'past-transitive-verbs
+                               :comp 'np}
+                           :b {:head 'past-intransitive-verbs}}}))
 
     (def vp-present
       (fs/unifyc head-principle
@@ -111,40 +112,51 @@
                         :subcat '()
                         :sem subj-sem})
         infl (ref :top)
+        present (ref :present)
+        future (ref :futuro)
         comp (ref {:synsem subcatted})
         head (ref {:synsem {:cat :verb
                             :sem {:subj subj-sem}
                             :subcat {:1 subcatted
                                      :2 '()}}})]
     (list
+     ;; present
      (fs/unifyc head-principle subcat-1-principle
-                {:synsem {:sem {:infl infl}}}
-                {:head {:synsem {:sem {:infl :infl}}}}
-                {:comment "sentence (8 subrules)"
-                :head head
-                :comp comp
-                :1 comp
-                :2 head
-                :extend {
-                         :a {:comp 'np
-                             :head 'vp-present}
-                         :b {:comp 'pronouns
-                             :head 'vp-present}
-                         :c {:comp 'np
-                             :head 'present-intransitive-verbs}
-                         :d {:comp 'pronouns
-                             :head 'present-intransitive-verbs}
-
-                         :e {:comp 'np
-                             :head 'future-intransitive-verbs}
-                         :f {:comp 'pronouns
-                             :head 'future-intransitive-verbs}
-                         :g {:comp 'np
-                             :head 'vp-future}
-                         :h {:comp 'pronouns
+                {:synsem {:infl present}}
+                {:comment "sentence (present) (4 subrules)"
+                 :head head
+                 :comp comp
+                 :1 comp
+                 :2 head
+                 :extend {
+                          :a {:comp 'np
+                              :head 'vp-present}
+                          :b {:comp 'pronouns
+                              :head 'vp-present}
+                          :c {:comp 'np
+                              :head 'present-intransitive-verbs}
+                          :d {:comp 'pronouns
+                              :head 'present-intransitive-verbs}
+                          }})
+     ;; future
+     (fs/unifyc head-principle subcat-1-principle
+                {:synsem {:infl future}}
+                {:comment "sentence (future) (4 subrules)"
+                 :head head
+                 :comp comp
+                 :1 comp
+                 :2 head
+                 :extend {
+                          :a {:comp 'np
+                              :head 'future-intransitive-verbs}
+                          :b {:comp 'pronouns
+                              :head 'future-intransitive-verbs}
+                          :c {:comp 'np
                               :head 'vp-future}
+                          :d {:comp 'pronouns
+                              :head 'vp-future}
+                          }}))))
 
-                         }}))))
 
 (def adj-rules
   (let [sem (ref :top)
@@ -221,7 +233,8 @@
 (def vp-present (nth vp-rules 0))
 (def vp-past (nth vp-rules 1))
 (def vp-future (nth vp-rules 2))
-(def s (nth sentence-rules 0))
+(def s1 (nth sentence-rules 0))
+(def s2 (nth sentence-rules 1))
 
 ;; TODO: move to lexicon (maybe).
 (defn italian-number [number]
@@ -281,5 +294,3 @@
 
 (defn english-time [hour minute ampm]
   (string/trim (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") ""))))
-
-
