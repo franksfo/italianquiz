@@ -13,9 +13,13 @@
 
 (defn conjugate-it [arg category]
   "conjugate an italian expression."
-  (log/debug (str "conjugate-it: " arg))
-  (log/debug (str "infl: " (fs/get-in arg '(:infl))))
-  (log/debug (str "futuro? " (= (fs/get-in arg '(:infl)) :futuro)))
+  (log/info (str "==="))
+  (log/info (str "arg: " arg))
+  (log/info (str "cat: " category))
+  (log/info (str "infl: " (fs/get-in arg '(:infl))))
+  (log/info (str "agreement: " (fs/get-in arg '(:agr))))
+  (log/info (str "futuro? " (= (fs/get-in arg '(:infl)) :futuro)))
+  (log/info (str ":cat of arg:" (fs/get-in arg '(:cat))))
 
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
@@ -81,6 +85,7 @@
         (= (type arg) clojure.lang.Keyword)
         (throw (Exception. (str "cannot conjugate: " arg)))
 
+        ;; <deprecated: use :italian instead of :root>
         (and (map? arg)
              (contains? arg :root)
              (contains? arg :agr)
@@ -107,6 +112,15 @@
              (= (fs/get-in arg '(:agr :number)) :sing))
         (fs/get-in arg '(:root))
         
+        ;; regular masculine noun pluralization
+        (and (map? arg)
+             (contains? arg :root)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:root))
+                        #"[eo]$" "i") ;; dottore => dottori; medico => medici
+
         ;; feminine noun pluralization
         (and (map? arg)
              (contains? arg :root)
@@ -116,6 +130,60 @@
         (string/replace (fs/get-in arg '(:root))
                         #"a$" "e")
 
+        ;; </deprecated: use :italian instead of :root>
+
+        ;; <replace with>
+
+        (and (map? arg)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (or (= category :noun)
+                 (= (fs/get-in arg '(:cat)) :noun))
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:italian))
+
+        ;; irregular noun: plural
+        (and (map? arg)
+             (not (= :notfound (fs/get-in arg '(:italian :irregular :plur) :notfound)))
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (fs/get-in arg '(:italian :irregular :plur))
+
+        ;; irregular noun: singular
+        (and (map? arg)
+             (not (= :notfound (fs/get-in arg '(:italian :irregular :plur) :notfound)))
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:italian :italian))
+
+        (and (map? arg)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:italian))
+
+        ;; regular masculine noun pluralization
+        (and (map? arg)
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :masc)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:italian))
+                        #"[eo]$" "i") ;; dottore => dottori; medico => medici
+        
+        ;; feminine noun pluralization
+        (and (map? arg)
+             (or (= category :noun)
+                 (= (fs/get-in arg '(:cat)) :noun))
+             (contains? arg :italian)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :gender)) :fem)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (string/replace (fs/get-in arg '(:italian))
+                        #"a$" "e")
+        ;; </replace with>
+
+        
         ;; masculine adjective agreement: singular
         (and (map? arg)
              (or (= category :adjective)
@@ -202,15 +270,6 @@
              (= (fs/get-in arg '(:agr :gender)) :fem))
         arg
 
-        ;; regular masculine noun pluralization
-        (and (map? arg)
-             (contains? arg :root)
-             (contains? arg :agr)
-             (= (fs/get-in arg '(:agr :gender)) :masc)
-             (= (fs/get-in arg '(:agr :number)) :plur))
-        (string/replace (fs/get-in arg '(:root))
-                        #"[eo]$" "i") ;; dottore => dottori; medico => medici
-
         ;; masculine adjective agreement: singular
         (and (map? arg)
              (= category :adjective)
@@ -266,7 +325,7 @@
               root (if (map? root)
                      (fs/get-in root '(:infinitive))
                      root)
-              root (if root root "(no-root-found)")
+              root (if root root (str "(no-root-found: in" arg))
               are-type (try (re-find #"are$" root)
                             (catch Exception e
                               (throw (Exception. (str "Can't regex-find on non-string: " root)))))
@@ -422,6 +481,7 @@
         (= (type arg) clojure.lang.Keyword)
         (throw (Exception. (str "cannot conjugate: " arg)))
 
+        ;; <deprecated: root>
         ;; irregular noun: plural
         (and (map? arg)
              (not (= :notfound (fs/get-in arg '(:root :irregular :plur) :notfound)))
@@ -445,7 +505,45 @@
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :plur))
         (str (fs/get-in arg '(:root)) "s")
+        ;; </deprecated: root>
 
+        ;; <use instead: english>
+
+        ;; irregular noun: plural
+        (and (map? arg)
+             (not (= :notfound (fs/get-in arg '(:english :irregular :plur) :notfound)))
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (fs/get-in arg '(:english :irregular :plur))
+
+        ;; irregular noun: singular
+        (and (map? arg)
+             (not (= :notfound (fs/get-in arg '(:english :irregular :plur) :notfound)))
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (fs/get-in arg '(:english :english))
+
+        ;; english with a note: plural
+        (and (map? arg)
+             (contains? arg :english)
+             (map? (fs/get-in arg '(:english)))
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :number)) :plur))
+        (str (fs/get-in arg '(:english :english)) "s" (fs/get-in arg '(:english :note)))
+
+        ;; english with a note: singular (default)
+        (and (map? arg)
+             (contains? arg :english)
+             (map? (fs/get-in arg '(:english)))
+             (contains? arg :agr))
+        (str (fs/get-in arg '(:english :english)) "" (fs/get-in arg '(:english :note)))
+        
+        (and (map? arg)
+             (contains? arg :english)
+             (contains? arg :agr)
+             (= (fs/get-in arg '(:agr :number)) :sing))
+        (str (fs/get-in arg '(:english)))
+
+        ;; </use instead>
+        
         ;; TODO: replace :root with :english everwhere.
         ;; (just as we are doing here).
         ;; this rule currently does not function (because
@@ -502,7 +600,7 @@
         (let [root (fs/get-in arg '(:infinitive))
               ;; TODO: throw exception rather than encoding error as part
               ;; of the english string.
-              root (if (nil? root) "(nilroot)" root)
+              root (if (nil? root) "(nilrootz)" root)
               root (if (not (= (type root) java.lang.String))
                      (fs/get-in arg '(:infinitive :infinitive))
                      root)
@@ -529,7 +627,7 @@
         (let [root (fs/get-in arg '(:infinitive))
               ;; TODO: throw exception rather than encoding error as part
               ;; of the english string.
-              root (if (nil? root) "(nilroot)" root)
+              root (if (nil? root) "(nilrootz)" root)
               root (if (not (= (type root) java.lang.String))
                       (fs/get-in arg '(:infinitive :infinitive))
                       root)

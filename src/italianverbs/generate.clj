@@ -651,8 +651,12 @@
          (throw (Exception.
                  (str "(generate) could not generate: returned nil with input: " unified-spec)))
          (list generated))) ;; wrap the generated phrase in a list (so we choose 'randomly' from amongst a singleton set).
+     (nil? comp-expansion)
+     (throw (Exception. (str "comp-expansion must not be null.")))
      true
-     (throw (Exception. (str "TODO: recursively expand rules."))))))
+     (do
+       (log/error (str "input values: " comp-expansion " and " comp-spec " are not supported yet."))
+       (throw (Exception. (str "TODO: recursively expand rules.")))))))
 
 (defn random-comp-for-parent [parent comp-expansion]
   (let [candidates (expansion-to-candidates comp-expansion (fs/get-in parent '(:comp)))
@@ -712,39 +716,55 @@
 ;        debug (println (str "GENERATE: UP: " unified-parent))
         comp-expansion (:comp random-head-and-comp)]
       ;; now get complement given this head.
-    (let [random-comp
-          (random-comp-for-parent unified-parent comp-expansion)
-          unified-with-comp
-          (fs/unifyc
-           unified-parent
-           {:comp
-            (fs/get-in random-comp '(:comp))})]
-      (log/debug (str "italian 1:" (fs/get-in unified-with-comp '(:1 :italian))))
-      (log/debug (str "italian 2:" (fs/get-in unified-with-comp '(:2 :italian))))
-      (log/debug (str "1 cat:" (fs/get-in unified-with-comp '(:1 :synsem :cat))))
-      (log/debug (str "2 cat:" (fs/get-in unified-with-comp '(:2 :synsem :cat))))
-      (let [result
-            (merge
-             unified-with-comp
-             {:extend chosen-extension}
-             {:italian (morph/get-italian
-                        (fs/get-in unified-with-comp '(:1 :italian))
-                        (fs/get-in unified-with-comp '(:2 :italian))
-                        (fs/get-in unified-with-comp '(:1 :synsem :cat))
-                        (fs/get-in unified-with-comp '(:2 :synsem :cat)))
+    (if (nil? comp-expansion) ;; a phrase with only a single child constituent: just return the parent.
+      (merge
+       unified-parent
+       {:extend chosen-extension}
+       {:italian (morph/get-italian
+                  (fs/get-in unified-parent '(:1 :italian))
+                  ""
+                  (fs/get-in unified-parent '(:1 :synsem :cat))
+                  nil)
+        :english (morph/get-english
+                  (fs/get-in unified-parent '(:1 :english))
+                  ""
+                  (fs/get-in unified-parent '(:1 :synsem :cat))
+                  nil)})
 
-              :english (morph/get-english
-                        (fs/get-in unified-with-comp '(:1 :english))
-                        (fs/get-in unified-with-comp '(:2 :english))
-                        (fs/get-in unified-with-comp '(:1 :synsem :cat))
-                        (fs/get-in unified-with-comp '(:2 :synsem :cat)))})]
-        (if (fs/fail? result)
-          (do
-            (log/error (str "Generation failed: parent: " (:comment unified-parent)))
-            (log/error (str "Generation failed: comp: " (:comment random-comp)))
-            (throw (Exception. (str "Generation failed: parent: " (:comment unified-parent)
-                                    "; comp: " random-comp))))
-          (fs/copy-trunc result))))))
+      ;; else there's a complement.
+      (let [random-comp
+            (random-comp-for-parent unified-parent comp-expansion)
+            unified-with-comp
+            (fs/unifyc
+             unified-parent
+             {:comp
+              (fs/get-in random-comp '(:comp))})]
+        (log/debug (str "italian 1:" (fs/get-in unified-with-comp '(:1 :italian))))
+        (log/debug (str "italian 2:" (fs/get-in unified-with-comp '(:2 :italian))))
+        (log/debug (str "1 cat:" (fs/get-in unified-with-comp '(:1 :synsem :cat))))
+        (log/debug (str "2 cat:" (fs/get-in unified-with-comp '(:2 :synsem :cat))))
+        (let [result
+              (merge
+               unified-with-comp
+               {:extend chosen-extension}
+               {:italian (morph/get-italian
+                          (fs/get-in unified-with-comp '(:1 :italian))
+                          (fs/get-in unified-with-comp '(:2 :italian))
+                          (fs/get-in unified-with-comp '(:1 :synsem :cat))
+                          (fs/get-in unified-with-comp '(:2 :synsem :cat)))
+                
+                :english (morph/get-english
+                          (fs/get-in unified-with-comp '(:1 :english))
+                          (fs/get-in unified-with-comp '(:2 :english))
+                          (fs/get-in unified-with-comp '(:1 :synsem :cat))
+                          (fs/get-in unified-with-comp '(:2 :synsem :cat)))})]
+          (if (fs/fail? result)
+            (do
+              (log/error (str "Generation failed: parent: " (:comment unified-parent)))
+              (log/error (str "Generation failed: comp: " (:comment random-comp)))
+              (throw (Exception. (str "Generation failed: parent: " (:comment unified-parent)
+                                      "; comp: " random-comp))))
+            (fs/copy-trunc result)))))))
 
 (defn random-sentence []
     (generate gram/s1))

@@ -61,7 +61,7 @@
                  verb-inflection-morphology
                  {:head {:synsem {:cat :verb
                                   :infl :past}}}
-                 {:comment "vp[past] &#x2192 head comp"
+                 {:comment "vp[past] &#x2192; head comp"
                   :head head
                   :comp comp
                   :1 head
@@ -76,7 +76,7 @@
                  verb-inflection-morphology
                  {:head {:synsem {:cat :verb
                                   :infl :present}}}
-                 {:comment "vp[present] &#x2192 head comp"
+                 {:comment "vp[present] &#x2192; head comp"
                   :head head
                   :comp comp
                   :1 head
@@ -95,7 +95,7 @@
                  verb-inflection-morphology
                  {:head {:synsem {:cat :verb
                                   :infl :futuro}}}
-                 {:comment "vp[future] &#x2192 head comp"
+                 {:comment "vp[future] &#x2192; head comp"
                   :head head
                   :comp comp
                   :1 head
@@ -187,7 +187,7 @@
                         :sem {:pred comp-sem-pred}}}}
        {:comp {:synsem {:cat :adjective
                         :sem {:mod sem}}}}
-       {:comment "n&#x0305 &#x2192 adj noun"
+       {:comment "n&#x0305; &#x2192; adj noun"
         :extend {:a {:head 'nouns
                      :comp 'adjectives}}}))
     (list nbar)))

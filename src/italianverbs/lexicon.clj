@@ -130,8 +130,30 @@
        :english english-root
        :synsem {:agr agr}}
       :italian {:root italian-root
+                :cat :noun
                 :agr agr}
       :english {:root english-root
+                :agr agr}
+      :synsem {:agr agr}})))
+
+;; noun-conjugator (above) is deprecated:
+;; <replace with>:
+(def noun-conjugator-new
+  (let [italian-root (ref :top)
+        english-root (ref :top)
+        synsem (ref :top)
+        agr (ref :top)]
+    (unify
+     {:root {:synsem synsem}
+      :synsem synsem}
+     {:root
+      {:italian italian-root
+       :english english-root
+       :synsem {:agr agr}}
+      :italian {:italian italian-root
+                :agr agr
+                :cat :noun}
+      :english {:english english-root
                 :agr agr}
       :synsem {:agr agr}})))
 
@@ -154,10 +176,12 @@
                             :subcat {:1 {:gender gender
                                          :number number}}}}
         common-noun
-        {:synsem {:cat :noun
-                  :agr {:person :3rd}
-                  :subcat {:1 {:cat :det}}}}
-
+        (unify
+;         {:italian {:cat :noun}}
+         {:synsem {:cat :noun
+                   :agr {:person :3rd}
+                   :subcat {:1 {:cat :det}}}})
+         
         masculine {:synsem {:agr {:gender :masc}}}
         feminine {:synsem {:agr {:gender :fem}}}
 
@@ -380,7 +404,7 @@
                           {:italian "parola"
                            :english "word"})})
 
-     (unify noun-conjugator
+     (unify noun-conjugator-new
             {:root (unify agreement
                           common-noun
                           countable-noun
@@ -388,8 +412,21 @@
                           {:synsem {:sem human}}
                           {:synsem {:sem {:pred :professoressa}}}
                           {:italian "professoressa"
-                           :english "professor"})})
+                           :english {:english "professor"
+                                     :note " (&#x2640;) "}})}) ;; unicode female symbol
 
+     (unify noun-conjugator-new
+            {:root (unify agreement
+                          common-noun
+                          countable-noun
+                          masculine
+                          {:synsem {:sem human}}
+                          {:synsem {:sem {:pred :professore}}}
+                          {:italian "professore"
+                           :english {:english "professor"
+                                     :note " (&#x2642;) "}})}) ;; unicode male symbol
+
+     
      ;; "pizza" can be either mass or countable.
      (unify noun-conjugator
             {:root (unify agreement
@@ -588,17 +625,16 @@
                                     :3sing "va"
                                     :1plur "andiamo"
                                     :2plur "andate"
-                                    :3plur "vanno"}
-                          :past {:type "essere"}}}
+                                    :3plur "vanno"}}}
     :english {:infinitive "to go"
               :irregular {:past "went"}}
     :synsem {:sem {:subj {:animate true}
-                   :pred :andare}}}))
+                   :pred {:pred :andare
+                          :essere true}}}}))
 
-;; TODO add subcat frames (<NP,NP>) and (<NP,AdjP>)
-(def essere-intrans
+
+(def essere-common
   (unify
-   intransitive
    infinitive
    {:italian {:infinitive "essere"
               :irregular {:present {:1sing "sono"
@@ -606,8 +642,7 @@
                                     :3sing "è"
                                     :1plur "siamo"
                                     :2plur "siete"
-                                    :3plur "sono"}
-                          :past {:type "essere"}}}
+                                    :3plur "sono"}}}
     :english {:infinitive "to be"
               :irregular {:present {:1sing "am"
                                     :2sing "are"
@@ -620,9 +655,34 @@
                                  :3sing "was"
                                  :1plur "were"
                                  :2plur "were"
-                                 :3plur "were"}}}
-    :synsem {:sem {:pred :essere}}}))
+                                 :3plur "were"}}}}))
 
+(def essere-intrans
+  (unify
+   intransitive
+   infinitive
+   essere-common
+   {:synsem {:sem {:pred {:pred :essere
+                          :essere true}}}}))
+
+(def essere-aux-trans
+  (let [pred (ref :top)
+        subject (ref :top)
+        subject-sem (ref :top)
+        object-sem (ref :top)]
+    (unify
+     (fs/copy infinitive)
+     (fs/copy essere-common)
+     {:synsem {:subcat {:1 subject
+                        :2 {:cat :verb
+                            :subcat {:1 subject
+                                     :2 :top}
+                            :sem {:pred pred}
+                            :infl :past}}
+               :sem {:subj subject-sem
+                     :obj object-sem
+                     :pred pred}}}
+     {:synsem {:subcat {:2 {:sem {:pred {:essere true}}}}}})))
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
@@ -745,6 +805,7 @@
                :sem {:subj subject-sem
                      :obj object-sem
                      :pred pred}}})))
+
 (def bevere
   (unify
    transitive
@@ -942,6 +1003,8 @@
 (def present-aux-verbs
   (list
    (unify {:root (fs/copy avere-aux-trans)}
+          present-tense-aux-past-verb)
+   (unify {:root (fs/copy essere-aux-trans)}
           present-tense-aux-past-verb)))
 
 (def avere-present-aux-trans
