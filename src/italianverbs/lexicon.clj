@@ -294,7 +294,7 @@
                           {:synsem {:subcat {:1 {:cat :det
                                                  :number :sing
                                                  :def :def}}}})})
-     (unify noun-conjugator
+     (unify noun-conjugator-new
             {:root (unify agreement
                           common-noun
                           countable-noun
@@ -451,7 +451,7 @@
                            :italian "scala"
                            :english "ladder"})})
 
-     (unify noun-conjugator
+     (unify noun-conjugator-new
             {:root (unify agreement
                           common-noun
                           countable-noun
@@ -463,7 +463,7 @@
 
 
 
-     (unify noun-conjugator
+     (unify noun-conjugator-new
             {:root (unify agreement
                           common-noun
                           countable-noun
@@ -1230,9 +1230,9 @@
                   :sem {:pred :bianco
                         :mod {:physical-object true
                               :human false}}}
-         :italian {:italian "bianco"
-                   :irregular {:masc {:plur "bianchi"}
-                               :fem {:plur "bianche"}}
+        :italian {:italian "bianco"
+                  :irregular {:masc {:plur "bianchi"}
+                              :fem {:plur "bianche"}}
                    :cat :adjective}
          :english {:english "white"
                    :cat :adjective}}
@@ -1282,14 +1282,6 @@
          :english {:english "red"
                    :cat :adjective}}))
 
-(def lexicon (concat adjectives determiners nouns prepositions pronouns verbs))
-
-(map (fn [lexeme]
-       (let [italian (:italian lexeme)
-             english (:english lexeme)]
-         (add italian english
-              lexeme)))
-     lexicon)
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
@@ -1318,4 +1310,16 @@
 
 (defn en [english]
   (lookup {:english english}))
+
+(def lexicon (concat adjectives determiners nouns prepositions pronouns verbs))
+
+;(def nouns (list (first (it "professoressa"))))
+;(def adjectives (list (first (it "piccolo"))))
+
+(map (fn [lexeme]
+       (let [italian (:italian lexeme)
+             english (:english lexeme)]
+         (add italian english
+              lexeme)))
+     lexicon)
 
