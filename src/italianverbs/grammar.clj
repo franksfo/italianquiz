@@ -133,10 +133,10 @@
                               :head 'vp-present}
                           :b {:comp 'pronouns
                               :head 'vp-present}
-                          :c {:comp 'np
-                              :head 'present-intransitive-verbs}
-                          :d {:comp 'pronouns
-                              :head 'present-intransitive-verbs}
+;                          :c {:comp 'np
+;                              :head 'present-intransitive-verbs}
+;                          :d {:comp 'pronouns
+;                              :head 'present-intransitive-verbs}
                           }})
      ;; future
      (fs/unifyc head-principle subcat-1-principle

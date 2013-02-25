@@ -495,20 +495,18 @@
       (and (map? expr)
            (not (nil? (fs/get-in expr '(:1 :infinitive :infinitive)))))
       (string/join " " (list (fs/get-in expr '(:1 :infinitive :infinitive))
-                             "(finite)"
                              (morph-fn (fs/get-in expr '(:2)) "")))
       (and (map? expr)
            (not (nil? (fs/get-in expr '(:1 :infinitive)))))
       (string/join " " (list (morph-fn (fs/get-in expr '(:1 :infinitive)) "")
-                             "(finite)"
                              (morph-fn (fs/get-in expr '(:2)) "")))
       (and (map? expr)
            (not (nil? (fs/get-in expr '(:irregular)))))
-      (str (fs/get-in expr '(:infinitive)) " (finite)")
+      (str (fs/get-in expr '(:infinitive)))
       (and (map? expr)
            (not (nil? (fs/get-in expr '(:infinitive))))
            (= java.lang.String (type (fs/get-in expr '(:infinitive)))))
-      (str (fs/get-in expr '(:infinitive)) " (finite)")
+      (str (fs/get-in expr '(:infinitive)))
       (and (map? expr)
            (not (nil? (fs/get-in expr '(:infinitive)))))
       (fs/get-in expr '(:infinitive :infinitive))
@@ -611,8 +609,11 @@
 ;      (if (seq? candidates) (println (str "HC CANDIDATES: " (join (map (fn [x] (fs/get-in x '(:italian))) candidates) " ; "))))
 ;      (if (map? candidates) (println (str "HC CANDIDATES IS A MAP (must recursively generate).")))
       (if (= (.size candidates) 0)
-        (throw (Exception. (str "No candidates found for filter: " (if (nil? head-filter) "(nil)" head-filter)))))
-      candidates)))
+        (do
+          (log/error (str "expansion: " expansion))
+          (log/error (str "No head candidates found for filter: " (if (nil? head-filter) "(nil)" head-filter) " with phrase: " (fs/get-in phrase '(:comment))))
+          (throw (Exception. (str "No head candidates found for filter: " (if (nil? head-filter) "(nil)" head-filter)))))
+      candidates))))
 
 (declare generate)
 
@@ -686,16 +687,21 @@
                                       (fs/unifyc complement-filter x)
                                       :top))))
                             candidates)
-                    (throw (Exception. (str "No candidates found for comp-expansion: "
-                                            comp-expansion))))]
+                    (do
+                      (log/error (str "No candidates found for comp-expansion: " comp-expansion))
+                      (throw (Exception. (str "No candidates found for comp-expansion: "
+                                              comp-expansion)))))]
     {:comp-candidates-unfiltered candidates
      :filtered filtered
      :comp (if (> (.size filtered) 0)
              (nth filtered (rand-int (.size filtered)))
-             (throw (Exception. (str "None of the candidates: "
-                                     (join (map (fn[x] (str "'" (:italian x) "/" (fs/get-in x '(:synsem :sem)) "'")) candidates)
-                                           " ") " matched the filter: (sem:" (fs/get-in complement-filter '(:synsem :sem))
-                                           " from parent: " (fs/get-in parent '(:head :italian))))))
+             (let [error-string
+                   (str "None of the candidates: "
+                        (join (map (fn[x] (str "'" (:italian x) "/" (fs/get-in x '(:synsem :sem)) "'")) candidates)
+                              " ") " matched the filter: (sem:" (fs/get-in complement-filter '(:synsem :sem))
+                              " from parent: " (fs/get-in parent '(:head :italian)))]
+               (log/error error-string)
+               (throw (Exception. error-string))))
      :parent parent
      :expansion comp-expansion}))
 
@@ -716,7 +722,8 @@
 ;        debug (println (str "GENERATE: UP: " unified-parent))
         comp-expansion (:comp random-head-and-comp)]
       ;; now get complement given this head.
-    (if (nil? comp-expansion) ;; a phrase with only a single child constituent: just return the parent.
+    (if (nil? comp-expansion)
+      ;; a phrase with only a single child constituent: just return the parent..
       (merge
        unified-parent
        {:extend chosen-extension}
@@ -731,7 +738,7 @@
                   (fs/get-in unified-parent '(:1 :synsem :cat))
                   nil)})
 
-      ;; else there's a complement.
+      ;; ..else there's a complement.
       (let [random-comp
             (random-comp-for-parent unified-parent comp-expansion)
             unified-with-comp

@@ -632,6 +632,102 @@
                    :pred {:pred :andare
                           :essere true}}}}))
 
+(def avere-common
+  {:synsem {:cat :verb}
+   :italian {:infinitive "avere"
+             :irregular {:passato "avuto"
+                         :present {:1sing "ho"
+                                   :2sing "hai"
+                                   :3sing "ha"
+                                   :1plur "abbiamo"
+                                   :2plur "avete"
+                                   :3plur "hanno"}}}
+   :english {:infinitive "to have"
+             :irregular {:past "had"
+                         :present {:1sing "have"
+                                   :2sing "have"
+                                   :3sing "has"
+                                   :1plur "have"
+                                   :2plur "have"
+                                   :3plur "have"}}}})
+   
+(def avere
+  (unify
+   transitive
+   infinitive
+   avere-common
+   {:synsem {:infl :infinitive
+             :sem {:pred :avere
+                   :subj {:human true}
+                   :obj {:buyable true}}}}))
+
+(def avere-aux
+  (let [v-past-pred (ref :top)
+        subject (ref :top)]
+    (unify
+     subjective
+     infinitive
+     avere-common
+     {:synsem {:subcat {:1 subject
+                        :2 {:cat :verb
+                            :subcat {:1 subject}
+                            :sem {:pred v-past-pred}
+                            :infl :past}}
+               :sem {:pred v-past-pred}}}
+     {:synsem {:subcat {:2 {:sem {:pred {:essere false}}}}}})))
+
+;; TODO: not sure if we need this: avere (to have) is not usually intransitive.
+(def avere-aux-intrans
+  (unify
+   (fs/copy infinitive)
+   (fs/copy avere-aux)
+   {:synsem {:subcat {:2 {:subcat {:2 '()}}}}}))
+
+(def avere-aux-trans
+  (let [v-past-pred (ref :top)
+        subject (ref :top)
+        subject-sem (ref :top) ;; todo: subject-sem is not contained within subject: move to avere-aux (above)
+        object-sem (ref :top)]
+    (unify
+     (fs/copy infinitive)
+     (fs/copy avere-aux)
+     {:synsem {:subcat {:2 {:subcat {:2 :top}}}}})))
+
+(def bevere
+  (unify
+   transitive
+   infinitive
+   {:italian {:infinitive "bevere"
+              :irregular {:passato "bevuto"}}
+    :english {:infinitive "to drink"
+              :irregular {:past "drank"}}
+    :synsem {:sem {:pred :bevere
+
+                   :subj (sem-impl {:animate true})
+                   :obj (sem-impl {:drinkable true})}}}))
+
+
+(def comprare
+  (unify
+   transitive
+   infinitive
+   {:italian "comprare"
+    :english {:infinitive "to buy"
+              :irregular {:past "bought"}}
+    :synsem {:sem {:pred :comprare
+                   :subj {:human true}
+                   :obj {:buyable true}}}}))
+
+(def dormire
+  (unify
+   intransitive
+   infinitive
+   {:italian "dormire"
+    :english {:infinitive "to sleep"
+              :irregular {:past "slept"}}
+    :synsem {:sem {:subj {:animate true}
+                   :pred {:pred :dormire
+                          :essere false}}}}))
 
 (def essere-common
   (unify
@@ -642,7 +738,8 @@
                                     :3sing "è"
                                     :1plur "siamo"
                                     :2plur "siete"
-                                    :3plur "sono"}}}
+                                    :3plur "sono"}
+                          :passato "stato"}}
     :english {:infinitive "to be"
               :irregular {:present {:1sing "am"
                                     :2sing "are"
@@ -650,7 +747,7 @@
                                     :1plur "are"
                                     :2plur "are"
                                     :3plur "are"}
-                          :past {:1sing "were"
+                          :past {:1sing "was"
                                  :2sing "were"
                                  :3sing "was"
                                  :1plur "were"
@@ -665,24 +762,40 @@
    {:synsem {:sem {:pred {:pred :essere
                           :essere true}}}}))
 
-(def essere-aux-trans
-  (let [pred (ref :top)
-        subject (ref :top)
-        subject-sem (ref :top)
-        object-sem (ref :top)]
+(def essere-trans
+  (unify
+   transitive
+   infinitive
+   essere-common
+   {:synsem {:sem {:pred {:pred :essere
+                          :essere true}}}}))
+
+(def essere-aux
+  (let [v-past-pred (ref :top)
+        subject (ref :top)]
     (unify
-     (fs/copy infinitive)
-     (fs/copy essere-common)
+     subjective
+     infinitive
+     essere-common
      {:synsem {:subcat {:1 subject
                         :2 {:cat :verb
-                            :subcat {:1 subject
-                                     :2 :top}
-                            :sem {:pred pred}
+                            :subcat {:1 subject}
+                            :sem {:pred v-past-pred}
                             :infl :past}}
-               :sem {:subj subject-sem
-                     :obj object-sem
-                     :pred pred}}}
+               :sem {:pred v-past-pred}}}
      {:synsem {:subcat {:2 {:sem {:pred {:essere true}}}}}})))
+
+(def essere-aux-intrans
+  (unify
+   (fs/copy infinitive)
+   (fs/copy essere-aux)
+   {:synsem {:subcat {:2 {:subcat {:2 '()}}}}}))
+
+(def essere-aux-trans
+  (unify
+   (fs/copy infinitive)
+   (fs/copy transitive)
+   (fs/copy essere-aux)))
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
@@ -728,117 +841,6 @@
              :sem {:pred :fare
                    :subj (sem-impl {:human true})
                    :obj (sem-impl {:artifact true})}}}))
-
-
-(def avere-common
-  {:synsem {:cat :verb}
-   :italian {:infinitive "avere"
-             :irregular {:passato "avuto"
-                         :present {:1sing "ho"
-                                   :2sing "hai"
-                                   :3sing "ha"
-                                   :1plur "abbiamo"
-                                   :2plur "avete"
-                                   :3plur "hanno"}}}
-   :english {:infinitive "to have"
-             :irregular {:past "had"
-                         :present {:1sing "have"
-                                   :2sing "have"
-                                   :3sing "has"
-                                   :1plur "have"
-                                   :2plur "have"
-                                   :3plur "have"}}}})
-   
-(def avere
-  (unify
-   transitive
-   infinitive
-   avere-common
-   {:synsem {:infl :infinitive
-             :sem {:pred :avere
-                   :subj {:human true}
-                   :obj {:buyable true}}}}))
-
-(def avere-aux
-  (let [v-past-pred (ref :top)
-        subject (ref :top)]
-    (unify
-     subjective
-     infinitive
-     avere-common
-     {:synsem {:subcat {:1 subject
-                        :2 {:cat :verb
-                            :subcat {:1 subject}
-                            :sem {:pred v-past-pred}
-                            :infl :past}}
-               :sem {:pred v-past-pred}}})))
-
-(def avere-aux-intrans
-  (let [v-past-pred (ref :top)
-        subject (ref :top)]
-    (unify
-     intransitive
-     infinitive
-     avere-common
-     {:synsem {:subcat {:1 subject
-                        :2 {:cat :verb
-                            :subcat {:1 subject
-                                     :2 '()}
-                            :sem {:pred v-past-pred}
-                            :infl :past}}
-               :sem {:pred v-past-pred}}})))
-
-(def avere-aux-trans
-  (let [pred (ref :top)
-        subject (ref :top)
-        subject-sem (ref :top)
-        object-sem (ref :top)]
-    (unify
-     (fs/copy infinitive)
-     (fs/copy avere-common)
-     {:synsem {:subcat {:1 subject
-                        :2 {:cat :verb
-                            :subcat {:1 subject
-                                     :2 :top}
-                            :sem {:pred pred}
-                            :infl :past}}
-               :sem {:subj subject-sem
-                     :obj object-sem
-                     :pred pred}}})))
-
-(def bevere
-  (unify
-   transitive
-   infinitive
-   {:italian {:infinitive "bevere"
-              :irregular {:passato "bevuto"}}
-    :english {:infinitive "to drink"
-              :irregular {:past "drank"}}
-    :synsem {:sem {:pred :bevere
-
-                   :subj (sem-impl {:animate true})
-                   :obj (sem-impl {:drinkable true})}}}))
-
-
-(def comprare
-  (unify
-   transitive
-   infinitive
-   {:italian "comprare"
-    :english {:infinitive "to buy"
-              :irregular {:past "bought"}}
-    :synsem {:sem {:pred :comprare
-                   :subj {:human true}
-                   :obj {:buyable true}}}}))
-
-(def dormire
-  (unify
-   intransitive
-   infinitive
-   {:italian "dormire"
-    :english "to sleep"
-    :synsem {:sem {:subj {:animate true}
-                   :pred :dormire}}}))
 
 (def mangiare
   (unify
@@ -899,9 +901,11 @@
    intransitive
    infinitive
    {:italian "sognare"
-    :english "to dream"
+    :english {:infinitive "to dream"
+              :irregular {:past "dreamt"}}
     :synsem {:sem {:subj {:animate true}
-                   :pred :sognare}}}))
+                   :pred {:pred :sognare
+                          :essere false}}}}))
 
 (def vedere
   (unify
@@ -1004,6 +1008,8 @@
   (list
    (unify {:root (fs/copy avere-aux-trans)}
           present-tense-aux-past-verb)
+   (unify {:root (fs/copy essere-aux-intrans)}
+          present-tense-aux-past-verb)
    (unify {:root (fs/copy essere-aux-trans)}
           present-tense-aux-past-verb)))
 
@@ -1013,6 +1019,12 @@
 (def past-intransitive-verbs
   (list
    (unify {:root andare-intrans}
+          intrans-past-tense-verb)
+   (unify {:root dormire}
+          intrans-past-tense-verb)
+   (unify {:root essere-intrans}
+          intrans-past-tense-verb)
+   (unify {:root sognare}
           intrans-past-tense-verb)))
 
 (def past-transitive-verbs
@@ -1022,6 +1034,8 @@
    (unify {:root bevere}
           trans-past-tense-verb)
    (unify {:root comprare}
+          trans-past-tense-verb)
+   (unify {:root essere-trans}
           trans-past-tense-verb)
    (unify {:root fare-make}
           trans-past-tense-verb)
@@ -1296,6 +1310,8 @@
                      (cons first-val matches))
               (recur (rest coll)
                      matches))))))))
+
+(declare lexicon)
 
 (defn lookup [query]
   (lookup-in query lexicon))
