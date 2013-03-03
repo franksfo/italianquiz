@@ -748,7 +748,8 @@
                                     :1plur "are"
                                     :2plur "are"
                                     :3plur "are"}
-                          :past {:1sing "was"
+                          :past {:infinitive "to have been"
+                                 :1sing "was"
                                  :2sing "were"
                                  :3sing "was"
                                  :1plur "were"
