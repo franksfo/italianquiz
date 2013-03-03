@@ -63,6 +63,7 @@
                         (= (fs/get-in input '(:drinkable)) true))
                   {:buyable true
                    :physical-object true
+                   :consumable true
                    :human false
                    :speakable false
                    :legible false}{})
