@@ -461,13 +461,13 @@
             {:italian (morph/get-italian
                        (fs/get-in unified '(:1 :italian))
                        (fs/get-in unified '(:2 :italian))
-                       (fs/get-in unified '(:head :synsem :cat))
-                       (fs/get-in unified '(:comp :synsem :cat)))
+                       (fs/get-in unified '(:1 :synsem :cat))
+                       (fs/get-in unified '(:2 :synsem :cat)))
              :english (morph/get-english
                        (fs/get-in unified '(:1 :english))
                        (fs/get-in unified '(:2 :english))
-                       (fs/get-in unified '(:head :synsem :cat))
-                       (fs/get-in unified '(:comp :synsem :cat)))})
+                       (fs/get-in unified '(:1 :synsem :cat))
+                       (fs/get-in unified '(:2 :synsem :cat)))})
            :fail))))))
 
 (defn over [& args]
