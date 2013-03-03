@@ -726,7 +726,7 @@
         comp-expansion (:comp random-head-and-comp)]
       ;; now get complement given this head.
     (if (nil? comp-expansion)
-      ;; a phrase with only a single child constituent: just return the parent..
+      ;; no complement:  a phrase with only a single child constituent: just return the parent..
       (merge
        unified-parent
        {:extend chosen-extension}
