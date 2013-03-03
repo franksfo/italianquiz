@@ -1324,7 +1324,8 @@
              (set (lookup {:italian {:infinitive {:infinitive italian}}}))
              (set (lookup {:root {:italian italian}}))
              (set (lookup {:italian {:italian italian}}))
-             (set (lookup {:root {:italian {:italian italian}}}))))
+             (set (lookup {:root {:italian {:italian italian}}}))
+             (set (lookup {:italian {:irregular {:passato italian}}}))))
 
 (defn en [english]
   (lookup {:english english}))
