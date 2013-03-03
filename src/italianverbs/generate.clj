@@ -488,31 +488,34 @@
       (over-parent-child gram/rules child1))))
 
 (defn get-morph [expr morph-fn]
-  (let [head-cat (fs/get-in expr '(:head :synsem :cat) :notfound)
-        comp-cat (fs/get-in expr '(:comp :synsem :cat) :notfound)]
-    (morph-fn
-     (cond
-      (and (map? expr)
-           (not (nil? (fs/get-in expr '(:1 :infinitive :infinitive)))))
-      (string/join " " (list (fs/get-in expr '(:1 :infinitive :infinitive))
-                             (morph-fn (fs/get-in expr '(:2)) "")))
-      (and (map? expr)
-           (not (nil? (fs/get-in expr '(:1 :infinitive)))))
-      (string/join " " (list (morph-fn (fs/get-in expr '(:1 :infinitive)) "")
-                             (morph-fn (fs/get-in expr '(:2)) "")))
-      (and (map? expr)
-           (not (nil? (fs/get-in expr '(:irregular)))))
-      (str (fs/get-in expr '(:infinitive)))
-      (and (map? expr)
-           (not (nil? (fs/get-in expr '(:infinitive))))
-           (= java.lang.String (type (fs/get-in expr '(:infinitive)))))
-      (str (fs/get-in expr '(:infinitive)))
-      (and (map? expr)
-           (not (nil? (fs/get-in expr '(:infinitive)))))
-      (fs/get-in expr '(:infinitive :infinitive))
-      :else
-      expr)
-     "")))
+  (morph-fn
+   (cond
+    (and (map? expr)
+         ;; TODO (some check for whether it is past or not)
+         (not (nil? (fs/get-in expr '(:1 :infinitive :irregular :past :infinitive)))))
+    (string/join " " (list (fs/get-in expr '(:1 :infinitive :irregular :past :infinitive))
+                           (morph-fn (fs/get-in expr '(:2)) "")))
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:1 :infinitive :infinitive)))))
+    (string/join " " (list (fs/get-in expr '(:1 :infinitive :infinitive))
+                           (morph-fn (fs/get-in expr '(:2)) "")))
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:1 :infinitive)))))
+    (string/join " " (list (morph-fn (fs/get-in expr '(:1 :infinitive)) "")
+                           (morph-fn (fs/get-in expr '(:2)) "")))
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:irregular)))))
+    (str (fs/get-in expr '(:infinitive)))
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:infinitive))))
+         (= java.lang.String (type (fs/get-in expr '(:infinitive)))))
+    (str (fs/get-in expr '(:infinitive)))
+    (and (map? expr)
+         (not (nil? (fs/get-in expr '(:infinitive)))))
+    (fs/get-in expr '(:infinitive :infinitive))
+    :else
+    expr)
+   ""))
 
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
