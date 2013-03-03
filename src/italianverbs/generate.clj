@@ -394,6 +394,7 @@
                examples)))
        "</table>"))
 
+;; TODO: use multiple dispatch.
 (defn over-parent-child [parent child]
   (cond
 
@@ -716,14 +717,16 @@
      (fs/copy phrase)
      {:head (fs/copy random-head)})))
 
+(declare generate-with-head-and-comp)
+
 (defn generate [phrase]
-;  (println (str "GENERATE: PHRASE: " phrase))
   (let [chosen-extension (random-extension phrase)
-        random-head-and-comp (random-head-and-comp-from-phrase phrase chosen-extension)
-;        debug (println (str "GENERATE: RHAC: " random-head-and-comp))
-        unified-parent (generate-with-parent random-head-and-comp phrase chosen-extension)
-;        debug (println (str "GENERATE: UP: " unified-parent))
-        comp-expansion (:comp random-head-and-comp)]
+        random-head-and-comp (random-head-and-comp-from-phrase phrase chosen-extension)]
+    (generate-with-head-and-comp phrase random-head-and-comp chosen-extension)))
+
+(defn generate-with-head-and-comp [phrase head-and-comp chosen-extension]
+  (let [unified-parent (generate-with-parent head-and-comp phrase chosen-extension)
+        comp-expansion (:comp head-and-comp)]
       ;; now get complement given this head.
     (if (nil? comp-expansion)
       ;; no complement:  a phrase with only a single child constituent: just return the parent..
