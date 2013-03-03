@@ -899,7 +899,7 @@
      (and (= a-category :verb)
           (= b-category :verb)
           (map? a)
-          (= (fs/get-in a '(:infinitive :infinitive) "to be")))
+          (= (fs/get-in a '(:infinitive :infinitive)) "to be"))
      conjugated-b
      
      ;; in english, order of noun + adjective is reversed: (adjective + noun)
