@@ -848,7 +848,8 @@
    infinitive
    {:italian "mangiare"
     :english "to eat"
-    :synsem {:sem {:pred :mangiare
+    :synsem {:sem {:pred {:pred :mangiare
+                          :essere false}
                    :subj (sem-impl {:animate true})
                    :obj (sem-impl {:edible true})}}}))
 
