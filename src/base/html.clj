@@ -66,7 +66,7 @@
        (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz")]]
      [:tr
       [:td {:colspan "2"}
-       (powered-by "compojure" "https://github.com/weavjester/compojure")]
+       (powered-by "compojure" "https://github.com/weavejester/compojure")]
       [:td {:rowspan "2" :colspan "1"}
        (powered-by "clojail" "https://github.com/flatland/clojail")]
       [:td {:rowspan "2" :colspan "2"}
