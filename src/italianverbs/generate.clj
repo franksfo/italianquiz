@@ -493,8 +493,8 @@
    (cond
     (and (map? expr)
          ;; TODO (some check for whether it is past or not)
-         (not (nil? (fs/get-in expr '(:1 :infinitive :irregular :past :infinitive)))))
-    (string/join " " (list (fs/get-in expr '(:1 :infinitive :irregular :past :infinitive))
+         (not (nil? (fs/get-in expr '(:1 :infinitive :irregular :past :participle)))))
+    (string/join " " (list (fs/get-in expr '(:1 :infinitive :irregular :past :participle))
                            (morph-fn (fs/get-in expr '(:2)) "")))
     (and (map? expr)
          (not (nil? (fs/get-in expr '(:1 :infinitive :infinitive)))))
