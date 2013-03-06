@@ -15,6 +15,7 @@
   "conjugate an italian expression."
   (do
     (log/debug (str "==="))
+    (log/debug (str "=>conjugate-it: arg=" arg  " ; category=" category))
     (log/debug (str "arg: " arg))
     (log/debug (str "category: " category))
     (log/debug (str "infl: " (fs/get-in arg '(:infl))))
@@ -22,26 +23,27 @@
     (log/debug (str "futuro? " (= (fs/get-in arg '(:infl)) :futuro)))
     (log/debug (str ":cat of arg:" (fs/get-in arg '(:cat)))))
 
-  (cond (nil? arg) ""
-        (= (type arg) java.lang.String)
-        arg
+  (let [retval
+        (cond (nil? arg) ""
+              (= (type arg) java.lang.String)
+              arg
 
-        (and (map? arg)
-             (contains? (set (keys arg)) :1)
-             (contains? (set (keys arg)) :2))
-        (let [result1 (conjugate-it (:1 arg) category)
-              result2 (conjugate-it (:2 arg) category)]
-          (if (and (= (type result1) java.lang.String)
-                   (= (type result2) java.lang.String))
-            (string/join " " (list result1 result2))
-            {:1 result1
-             :2 result2}))
+              (and (map? arg)
+                   (contains? (set (keys arg)) :1)
+                   (contains? (set (keys arg)) :2))
+              (let [result1 (conjugate-it (:1 arg) category)
+                    result2 (conjugate-it (:2 arg) category)]
+                (if (and (= (type result1) java.lang.String)
+                         (= (type result2) java.lang.String))
+                  (string/join " " (list result1 result2))
+                  {:1 result1
+                   :2 result2}))
 
-        ;; irregular present-tense (e.g. "fare")
-        (and (map? arg)
-             (contains? (set (keys arg)) :agr)
-             (contains? (set (keys arg)) :infinitive)
-             ;; TODO: check (= :present) rather than (not (= :past)): requires that we have (:infl :present)
+              ;; irregular present-tense (e.g. "fare")
+              (and (map? arg)
+                   (contains? (set (keys arg)) :agr)
+                   (contains? (set (keys arg)) :infinitive)
+                   ;; TODO: check (= :present) rather than (not (= :past)): requires that we have (:infl :present)
              ;; explicitly rather than implicitly (i.e. it is the default)
              (not (= :past (fs/get-in arg '(:infl))))
              (not (= :futuro (fs/get-in arg '(:infl))))
@@ -51,6 +53,7 @@
               number (fs/get-in arg '(:agr :number) :notfound)
               present (fs/get-in arg '(:infinitive :irregular :present))]
           (log/debug "it:1 +agr +infinitive")
+          (log/debug (str "it:1 person: " person "; number: " number))
           (cond
            (and (= person :1st)
                 (= number :sing))
@@ -81,8 +84,10 @@
                {:error "no conjugation specified."
                 :num number
                 :person person
-              :arg arg}
-               arg))))
+                :arg arg}
+               (do
+                 (log/warn (str "no conjugation specified in: " arg))
+                 arg)))))
 
         (= (type arg) clojure.lang.Keyword)
         (throw (Exception. (str "cannot conjugate: " arg)))
@@ -402,10 +407,10 @@
              (= :past (fs/get-in arg '(:infl)))
              (map? (fs/get-in arg '(:infinitive))))
         (do
-          (throw (Exception. (str "Argument is a map: " arg " with infinitive: "
+          (throw (Exception. (str "Argument is a verb: " arg " with infinitive: "
                                   (fs/get-in arg '(:infinitive)) ","
-                                  "but morph/conjugate-it doesn't know how to handle "
-                                  "it. Needs more morphological code to do so."))))
+                                  "but morph/conjugate-it doesn't know how to conjugate"
+                                  "it. Needs more lexical information or morphological code to do so."))))
 
         (and (map? arg)
              (contains? arg :infl)
@@ -552,13 +557,13 @@
     retval))
 
 (defn conjugate-en [arg category]
-  (log/info (str "==="))
-  (log/info (str "arg: " arg))
-  (log/info (str "cat: " category))
-  (log/info (str "infl: " (fs/get-in arg '(:infl))))
-  (log/info (str "agreement: " (fs/get-in arg '(:agr))))
-  (log/info (str "futuro? " (= (fs/get-in arg '(:infl)) :futuro)))
-  (log/info (str ":cat of arg:" (fs/get-in arg '(:cat))))
+  (log/debug (str "==="))
+  (log/debug (str "arg: " arg))
+  (log/debug (str "cat: " category))
+  (log/debug (str "infl: " (fs/get-in arg '(:infl))))
+  (log/debug (str "agreement: " (fs/get-in arg '(:agr))))
+  (log/debug (str "futuro? " (= (fs/get-in arg '(:infl)) :futuro)))
+  (log/debug (str ":cat of arg:" (fs/get-in arg '(:cat))))
 
   (cond (nil? arg) ""
         (= (type arg) java.lang.String)
@@ -615,14 +620,14 @@
         (and (map? arg)
              (not (= :notfound (fs/get-in arg '(:root :irregular :plur) :notfound)))
              (= (fs/get-in arg '(:agr :number)) :plur))
-        (do (log/info "en: +irreg +plur")
+        (do (log/debug "en: +irreg +plur")
             (fs/get-in arg '(:root :irregular :plur)))
 
         ;; irregular noun: singular
         (and (map? arg)
              (not (= :notfound (fs/get-in arg '(:root :irregular :plur) :notfound)))
              (= (fs/get-in arg '(:agr :number)) :sing))
-        (do (log/info "en: +root +sing")
+        (do (log/debug "en: +root +sing")
             (fs/get-in arg '(:root :english)))
 
         (and (map? arg)
@@ -630,7 +635,7 @@
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :sing))
         (do
-          (log/info "en: +root +sing")
+          (log/debug "en: +root +sing")
           (str (fs/get-in arg '(:root))))
 
         (and (map? arg)
@@ -638,7 +643,7 @@
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :plur))
         (do
-          (log/info "en: +root +agr +plur")
+          (log/debug "en: +root +agr +plur")
           (str (fs/get-in arg '(:root)) "s"))
         ;; </deprecated: root>
 
@@ -649,7 +654,7 @@
              (not (= :notfound (fs/get-in arg '(:english :irregular :plur) :notfound)))
              (= (fs/get-in arg '(:agr :number)) :plur))
         (do
-          (log/info "en: +plur +irreg")
+          (log/debug "en: +plur +irreg")
           (fs/get-in arg '(:english :irregular :plur)))
 
         ;; irregular noun: singular
@@ -657,7 +662,7 @@
              (not (= :notfound (fs/get-in arg '(:english :irregular :plur) :notfound)))
              (= (fs/get-in arg '(:agr :number)) :sing))
         (do
-          (log/info "en: +sing +irreg")
+          (log/debug "en: +sing +irreg")
           (fs/get-in arg '(:english :english)))
 
         ;; english (might have a note: plural)
@@ -667,7 +672,7 @@
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :plur))
         (do
-          (log/info "+:plur +map(:english) +note")
+          (log/debug "+:plur +map(:english) +note")
           (str (fs/get-in arg '(:english :english)) "s" (fs/get-in arg '(:english :note))))
 
         ;; english with a note: singular (default)
@@ -677,7 +682,7 @@
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :sing))
         (do
-          (log/info "en: +sing +map(:english) +(arg,:agr)")
+          (log/debug "en: +sing +map(:english) +(arg,:agr)")
           (str (fs/get-in arg '(:english :english)) (fs/get-in arg '(:english :note))))
         
         (and (map? arg)
@@ -685,7 +690,7 @@
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :sing))
         (do
-          (log/info "en: +sing +map(:english) +(arg,:agr)")
+          (log/debug "en: +sing +map(:english) +(arg,:agr)")
           (str (fs/get-in arg '(:english))))
 
         ;; </use instead>
@@ -701,7 +706,7 @@
              (= category :noun)
              (= (fs/get-in arg '(:agr :number)) :plur))
         (do
-          (log/info "+plur +english +agr +category(:noun)")
+          (log/debug "+plur +english +agr +category(:noun)")
           (str (fs/get-in arg '(:english)) "s"))
 
         (and (map? arg)
@@ -709,7 +714,7 @@
              (contains? arg :agr)
              (= category :adjective))
         (do
-          (log/info "+adj +english +:agr")
+          (log/debug "+adj +english +:agr")
           (fs/get-in arg '(:english)))
 
         (and (map? arg)
@@ -717,14 +722,14 @@
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :sing))
         (do
-          (log/info "+english +agr +sing")
+          (log/debug "+english +agr +sing")
           (fs/get-in arg '(:english)))
 
         ;; number not specified or underspecified: keep unspecified.
         (and (map? arg)
              (contains? arg :english)
              (contains? arg :agr))
-        (do (log/info "unspec1")
+        (do (log/debug "unspec1")
             arg)
 
         ;; noun or verb: number not specified: use root form by default.
@@ -732,13 +737,13 @@
              (contains? arg :root)
              (contains? arg :agr)
              (= (fs/get-in arg '(:agr :number)) :sing))
-        (do (log/info "unspec2")
+        (do (log/debug "unspec2")
             (str (fs/get-in arg '(:root))))
 
         (and (map? arg)
              (contains? arg :english)
              (contains? arg :agr))
-        (do (log/info "unspec3")
+        (do (log/debug "unspec3")
             (str (fs/get-in arg '(:english))))
 
         ;; irregular past: agreement information specified.
@@ -747,52 +752,50 @@
              (= (fs/get-in arg '(:infl)) :past)
              (not (= (fs/get-in arg '(:infinitive :irregular :past) :notfound)
                      :notfound)))
-        (do (log/info "en: +past +irreg +continuing")
+        (do (log/debug "en: +past +irreg +continuing")
             (cond
 
              (and (= (fs/get-in arg '(:agr :number)) :sing)
                   (= (fs/get-in arg '(:agr :person)) :1st)
                   (not (= (fs/get-in arg '(:infinitive :irregular :past :1sing) :notfound) :notfound)))
-             (do (log/info "en: +past +irreg +1sing")
+             (do (log/debug "en: +past +irreg +1sing")
                  (str (fs/get-in arg '(:infinitive :irregular :past :1sing))))
 
              (and (= (fs/get-in arg '(:agr :number)) :sing)
                   (= (fs/get-in arg '(:agr :person)) :2nd)
                   (not (= (fs/get-in arg '(:infinitive :irregular :past :2sing) :notfound) :notfound)))
-             (do (log/info "en: +past +irreg +2sing")
+             (do (log/debug "en: +past +irreg +2sing")
                  (str (fs/get-in arg '(:infinitive :irregular :past :2sing))))
 
              (and (= (fs/get-in arg '(:agr :number)) :sing)
                   (= (fs/get-in arg '(:agr :person)) :3rd)
                   (not (= (fs/get-in arg '(:infinitive :irregular :past :3sing) :notfound) :notfound)))
-             (do (log/info "en: +past +irreg +3sing")
+             (do (log/debug "en: +past +irreg +3sing")
                  (str (fs/get-in arg '(:infinitive :irregular :past :3sing))))
 
              (and (= (fs/get-in arg '(:agr :number)) :plur)
                   (= (fs/get-in arg '(:agr :person)) :1st)
                   (not (= (fs/get-in arg '(:infinitive :irregular :past :1plur) :notfound) :notfound)))
-             (do (log/info "en: +past +irreg +1plur")
+             (do (log/debug "en: +past +irreg +1plur")
                  (str (fs/get-in arg '(:infinitive :irregular :past :1plur))))
 
              (and (= (fs/get-in arg '(:agr :number)) :plur)
                   (= (fs/get-in arg '(:agr :person)) :2nd)
                   (not (= (fs/get-in arg '(:infinitive :irregular :past :2plur) :notfound) :notfound)))
-             (do (log/info "en: +past +irreg +2plur")
+             (do (log/debug "en: +past +irreg +2plur")
                  (str (fs/get-in arg '(:infinitive :irregular :past :2plur))))
 
              (and (= (fs/get-in arg '(:agr :number)) :plur)
                   (= (fs/get-in arg '(:agr :person)) :3rd)
                   (not (= (fs/get-in arg '(:infinitive :irregular :past :3plur) :notfound) :notfound)))
-             (do (log/info "en: +past +irreg +3plur")
+             (do (log/debug "en: +past +irreg +3plur")
                  (str (fs/get-in arg '(:infinitive :irregular :past :3plur))))
 
-
-
              (string? (fs/get-in arg '(:infinitive :irregular :past)))
-             (do (log/info "en: +past +irreg +general")
+             (do (log/debug "en: +past +irreg +general")
                  (fs/get-in arg '(:infinitive :irregular :past)))
              true
-             (do (log/info "en: +past +irreg +unspec")
+             (do (log/debug "en: +past +irreg +unspec")
                  arg)))
 
 
@@ -811,7 +814,7 @@
               penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
               last-stem-char (re-find #".$" stem)
               last-stem-char-is-e (re-find #"e$" stem)]
-          (log/info "+past +infl")
+          (log/debug "+past +infl")
           (cond last-stem-char-is-e  ;; e.g. "write" => "written"
                 (str stem-minus-one penultimate-stem-char "en")
                 true
@@ -823,7 +826,7 @@
                      (fs/get-in root '(:infinitive))
                      root)
               stem (string/replace root #"^to " "")]
-          (log/info "+futuro")
+          (log/debug "+futuro")
           (str "will " stem))
         
         :else
@@ -840,8 +843,8 @@
               stem (string/replace root #"^to " "")
               last-stem-char-is-e (re-find #"e$" stem)
               last-stem-char-is-vowel (re-find #"[aeiou]$" stem)]
-          (log/info "+else")
-          (log/info (str "(english):arg: " arg))
+          (log/debug "+else")
+          (log/debug (str "(english):arg: " arg))
           (cond
 
            (and (= person :1st) (= number :sing))
@@ -868,18 +871,24 @@
            :else arg))))
 
 (defn get-italian [a b & [ a-category b-category ]]
+  (log/debug (str "<get-italian>"))
   (log/debug (str "get-italian: a : " a))
   (log/debug (str "get-italian: b : " b))
   (log/debug (str "get-italian: cat-a : " a-category))
   (log/debug (str "get-italian: cat-b : " b-category))
   (let [conjugated-a (conjugate-it a a-category)
         conjugated-b (if (not (nil? b)) (conjugate-it b b-category) "..")]
+    (log/debug (str "conjugated-a: " conjugated-a))
+    (log/debug (str "conjugated-b: " conjugated-b))
     (if (and
          (string? conjugated-a)
          (string? conjugated-b))
       (string/trim
        (cond
 
+        ;; TODO: use features of a and b (e.g. gender, number)
+        ;; rather than string comparison.
+        ;; 1. definite article + noun
         (and (= conjugated-a "il")
              (re-find #"^s[t]" conjugated-b))
         (str "lo " conjugated-b)
@@ -903,8 +912,7 @@
              (re-find #"^[aeiou]" conjugated-b))
         (str "l'" conjugated-b)
 
-
-        ;; partitivi
+        ;; 2. partitive article + noun
         (and (= conjugated-a "di il")
              (re-find #"^s[t]" conjugated-b))
         (str "dello " conjugated-b)
@@ -932,7 +940,7 @@
         (str "delle " conjugated-b)
 
 
-        ;; prepositions
+        ;; 3. prepositions
         (and (= conjugated-a "a")
              (re-find #"^il " conjugated-b))
         (str "al " (string/replace conjugated-b #"^il " ""))
@@ -947,15 +955,18 @@
    The two category params may reverse word order
      (e.g.: get-english 'cat' 'black' 'noun' 'adj' => 'black cat')"
 
-  (log/info (str "get-english: a : " a))
-  (log/info (str "get-english: b : " b))
-  (log/info (str "get-english: cat-a : " a-category))
-  (log/info (str "get-english: cat-b : " b-category))
+  (log/debug (str "get-english: a : " a))
+  (log/debug (str "get-english: b : " b))
+  (log/debug (str "get-english: cat-a : " a-category))
+  (log/debug (str "get-english: cat-b : " b-category))
 
+  ;; TODO: sometimes ".." is being added necessarily (e.g.
+  ;; (formattare (over s1 pronouns (over vp-present present-aux-verbs (over vp-past "andare"))))))
+  ;; )
   (let [conjugated-a (conjugate-en a a-category)
         conjugated-b (if (not (nil? b)) (conjugate-en b b-category) "..")]
-    (log/info (str "conjugated-a: " conjugated-a))
-    (log/info (str "conjugated-b: " conjugated-b))
+    (log/debug (str "conjugated-a: " conjugated-a))
+    (log/debug (str "conjugated-b: " conjugated-b))
     (cond
      ;; "<to be> + past participle => past participle (e.g. "is went" => "went")
      (and (= a-category :verb)
@@ -1018,7 +1029,7 @@
 (defn conjugate-present-italian-verb-regular [verb-head subject-head]
   (let [root-form (fs/get-in-r verb-head '(:italian))
         regex #"^([^ ]*)([aei])re[ ]*$"]
-    (log/info (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
+    (log/debug (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
     (println (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
     (cond
 
@@ -1109,7 +1120,7 @@
 (defn conjugate-futuro [verb-head subject-head]
   (let [root-form (fs/get-in-r verb-head '(:italian))
         regex #"^([^ ]*)([aei])re[ ]*$"]
-    (log/info (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
+    (log/debug (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
     (println (str "conjugate-italian-verb-regular: " verb-head "," subject-head))
     (cond
 
@@ -1250,7 +1261,7 @@
 (defn conjugate-italian-verb [verb-phrase subject]
   ;; conjugate verb based on subject and eventually verb's features (such as tense)
   ;; takes two feature structures and returns a string.
-  (log/info (str "CONJUGATE-ITALIAN-VERB"))
+  (log/debug (str "CONJUGATE-ITALIAN-VERB"))
   (cond
    (or (= (get verb-phrase :infl) :passato-prossimo)
        (= (get verb-phrase :infl) "passato-prossimo"))
