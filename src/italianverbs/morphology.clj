@@ -348,7 +348,47 @@
           (log/debug "it:24 +agr +(adj|noun) +masc")
           arg)
 
-        ;; irregular passato prossimo.
+
+        ;; irregular passato prossimo: essere case: agrees with number and gender, but number
+        ;; (and likely gender, though we don't currently check) are not specified.
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past)
+             (not (= (fs/get-in arg '(:infinitive :irregular :passato) :notfound)
+                     :notfound))
+             (= (fs/get-in arg '(:infinitive :essere)) true)
+             (= :notfound (fs/get-in arg '(:agr :number) :notfound)))
+        arg
+
+        ;; irregular passato prossimo: essere case: agrees with number and gender.
+        (and (map? arg)
+             (contains? arg :infl)
+             (= (fs/get-in arg '(:infl)) :past)
+             (not (= (fs/get-in arg '(:infinitive :irregular :passato) :notfound)
+                     :notfound))
+             (= (fs/get-in arg '(:infinitive :essere)) true))
+        ;; TODO: handle number and gender agreement for essere-true passato forms.
+        (let [canonical (fs/get-in arg '(:infinitive :irregular :passato))
+              but-last (string/join "" (butlast canonical))
+              suffix (cond
+                      (and (= (fs/get-in arg '(:agr :gender)) :fem)
+                           (= (fs/get-in arg '(:agr :number)) :sing)
+                           (= (fs/get-in arg '(:infinitive :essere)) true))
+                      "a"
+
+                      (and (= (fs/get-in arg '(:agr :gender)) :fem)
+                           (= (fs/get-in arg '(:agr :number)) :plur)
+                           (= (fs/get-in arg '(:infinitive :essere)) true))
+                      "e"
+
+                      (and (= (fs/get-in arg '(:agr :number)) :plur)
+                           (= (fs/get-in arg '(:infinitive :essere)) true))
+                      "i"
+
+                      true
+                      "o")]
+          (str but-last suffix))
+        ;; irregular passato prossimo: non-essere case.
         (and (map? arg)
              (contains? arg :infl)
              (= (fs/get-in arg '(:infl)) :past)
@@ -369,8 +409,8 @@
 
         (and (map? arg)
              (contains? arg :infl)
-             (= (fs/get-in arg '(:infl)) :past))
-
+             (= (fs/get-in arg '(:infl)) :past)
+             (not (= (fs/get-in arg '(:agr :number) :not-found) :not-found)))
         ;; regular past inflection
         (let [root (fs/get-in arg '(:infinitive))
               root (if (map? root)
@@ -383,14 +423,34 @@
               ere-type (re-find #"ere$" root)
               ire-type (re-find #"ire$" root)
               stem (string/replace root #"[iae]re$" "")
-              last-stem-char-is-i (re-find #"i$" stem)]
+              last-stem-char-is-i (re-find #"i$" stem)
+              suffix (cond
+                      (and (= (fs/get-in arg '(:agr :gender)) :fem)
+                           (= (fs/get-in arg '(:agr :number)) :sing)
+                           (= (fs/get-in arg '(:infinitive :essere)) true))
+                      "a"
+
+                      (and (= (fs/get-in arg '(:agr :gender)) :fem)
+                           (= (fs/get-in arg '(:agr :number)) :plur)
+                           (= (fs/get-in arg '(:infinitive :essere)) true))
+                      "e"
+
+                      (and (= (fs/get-in arg '(:agr :number)) :plur)
+                           (= (fs/get-in arg '(:infinitive :essere)) true))
+                      "i"
+
+                      true
+                      "o")
+
+              ]
           (log/debug "regular past inflection")
-          (cond (or are-type ere-type)
-                (str stem "ato")
-                (or are-type ire-type)
-                (str stem "ito")
-                true
-                (str "(regpast:TODO):" stem)))
+          (cond
+           (or are-type ere-type)
+           (str stem "at" suffix) ;; "ato" or "ati"
+           (or are-type ire-type)
+           (str stem "it" suffix) ;; "ito" or "iti"
+           true
+           (str "(regpast:TODO):" stem)))
 
         (= (fs/get-in arg '(:infl)) :futuro)
         (do
@@ -487,7 +547,9 @@
            (and (= person :3rd) (= number :plur))
            (str stem "ano")
            :else
-           arg))))
+           arg)))]
+    (log/debug (str "<= conjugate-it: " retval))
+    retval))
 
 (defn conjugate-en [arg category]
   (log/info (str "==="))

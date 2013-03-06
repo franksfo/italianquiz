@@ -621,6 +621,7 @@
    intransitive
    infinitive
    {:italian {:infinitive "andare"
+              :essere true
               :irregular {:present {:1sing "vado"
                                     :2sing "vai"
                                     :3sing "va"
@@ -734,6 +735,7 @@
   (unify
    infinitive
    {:italian {:infinitive "essere"
+              :essere true
               :irregular {:present {:1sing "sono"
                                     :2sing "sei"
                                     :3sing "è"
@@ -748,21 +750,13 @@
                                     :1plur "are"
                                     :2plur "are"
                                     :3plur "are"}
-                          :past {:infinitive "to have been"
+                          :past {:participle "been"
                                  :1sing "was"
                                  :2sing "were"
                                  :3sing "was"
                                  :1plur "were"
                                  :2plur "were"
                                  :3plur "were"}}}}))
-
-(def essere-intrans
-  (unify
-   intransitive
-   infinitive
-   essere-common
-   {:synsem {:sem {:pred {:pred :essere
-                          :essere true}}}}))
 
 (def essere-trans
   (unify
@@ -1024,8 +1018,6 @@
    (unify {:root andare-intrans}
           intrans-past-tense-verb)
    (unify {:root dormire}
-          intrans-past-tense-verb)
-   (unify {:root essere-intrans}
           intrans-past-tense-verb)
    (unify {:root sognare}
           intrans-past-tense-verb)))
