@@ -1107,8 +1107,6 @@
           intrans-present-tense-verb)
    (unify {:root dormire}
           intrans-present-tense-verb)
-   (unify {:root essere-intrans}
-          intrans-present-tense-verb)
    (unify {:root pensare}
           intrans-present-tense-verb)
    (unify {:root sognare}
