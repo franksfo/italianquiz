@@ -780,7 +780,8 @@
             (fs/copy-trunc result)))))))
 
 (defn random-sentence []
-    (generate gram/s1))
+  (let [rules (list gram/s1 gram/s2)]
+    (generate (nth rules (rand-int (.size rules))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
