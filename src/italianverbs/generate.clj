@@ -476,9 +476,13 @@
   (let [parent (first args)
         child1 (second args)
         child2 (if (> (.size args) 2) (nth args 2))]
-    (if (not (nil? child2))
-      (over-parent-child (over-parent-child parent child1) child2)
-      (over-parent-child parent child1))))
+    (let [result
+          (if (not (nil? child2))
+            (over-parent-child (over-parent-child parent child1) child2)
+            (over-parent-child parent child1))]
+      (if (= (.size result) 1)
+        (first result)
+        result))))
 
 (defn overall [& args]
   "'overall' rules: try all rules as parents, with the args as children."
