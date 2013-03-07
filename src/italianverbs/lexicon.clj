@@ -506,11 +506,55 @@
 
 (def determiners
   (list
+
+   {:synsem {:cat :det
+             :def :partitivo
+             :number :sing
+             :mass true
+             :gender :fem}
+    :italian "di la"
+    :english "some"}
+
+   {:synsem {:cat :det
+             :def :partitivo
+             :number :plur
+             :gender :masc}
+    :italian "di i"
+    :english "some"}
+
+   {:synsem {:cat :det
+             :def :partitivo
+             :number :plur
+             :gender :fem}
+    :italian "di le"
+    :english "some"}
+
+   {:synsem {:cat :det
+             :def :def
+             :gender :masc
+             :number :plur}
+    :italian "i"
+    :english "the"}
+
    {:synsem {:cat :det
              :def :def
              :gender :masc
              :number :sing}
     :italian "il"
+    :english "the"}
+
+   {:synsem {:cat :det
+             :def :def
+             :gender :fem
+             :number :sing}
+    :italian "la"
+    :english "the"}
+
+   {:synsem {:cat :det
+             :def :def
+             :gender :fem
+             :number :plur}
+    :italian "le"
     :english "the"}
 
    {:synsem {:cat :det
@@ -522,34 +566,13 @@
     :english "a"}
    
    {:synsem {:cat :det
-             :def :def
-             :gender :fem
-             :number :sing}
-    :italian "la"
-    :english "the"}
-   
-   {:synsem {:cat :det
              :def :indef
              :mass false
              :gender :fem
              :number :sing}
     :italian "una"
     :english "a"}
-   
-   {:synsem {:cat :det
-             :def :def
-             :gender :masc
-             :number :plur}
-    :italian "i"
-    :english "the"}
-   
-   {:synsem {:cat :det
-             :def :def
-             :gender :fem
-             :number :plur}
-    :italian "le"
-    :english "the"}
-   
+
    {:synsem {:cat :det
              :def :partitivo
              :number :sing
@@ -560,32 +583,66 @@
    
    {:synsem {:cat :det
              :def :partitivo
-             :number :sing
-             :mass true
-             :gender :fem}
-    :italian "di la"
-    :english "some"}
-   
-   {:synsem {:cat :det
-             :def :partitivo
-             :number :plur
-             :gender :masc}
-    :italian "di i"
-    :english "some"}
-   
-   {:synsem {:cat :det
-             :def :partitivo
-             :number :plur
-             :gender :fem}
-    :italian "di le"
-    :english "some"}
-
-   {:synsem {:cat :det
-             :def :partitivo
              :mass false
              :number :sing}
     :italian "qualche"
     :english "some"}
+
+   {:synsem {:cat :det
+             :def :demonstrativo
+             :gender :fem
+             :number :sing}
+    :italian "quella"
+    :english "that"}
+
+   {:synsem {:cat :det
+             :def :demonstrativo
+             :gender :fem
+             :number :plur}
+    :italian "quelle"
+    :english "those"}
+
+   {:synsem {:cat :det
+             :def :demonstrativo
+             :gender :masc
+             :number :plur}
+    :italian "quelli"
+    :english "those"}
+
+   {:synsem {:cat :det
+             :def :demonstrativo
+             :gender :masc
+             :number :sing}
+    :italian "quello"
+    :english "that"}
+
+   {:synsem {:cat :det
+             :def :demonstrativo
+             :gender :fem
+             :number :sing}
+    :italian "questa"
+    :english "this"}
+
+   {:synsem {:cat :det
+             :def :demonstrativo
+             :gender :fem
+             :number :plur}
+    :italian "queste"
+    :english "these"}
+
+   {:synsem {:cat :det
+             :def :demonstrativo
+             :gender :masc
+             :number :plur}
+    :italian "questi"
+    :english "these"}
+
+   {:synsem {:cat :det
+             :def :demonstrativo
+             :gender :masc
+             :number :sing}
+    :italian "questo"
+    :english "this"}
 
 
    ))
