@@ -788,6 +788,35 @@
                    :pred {:pred :dormire
                           :essere false}}}}))
 
+(def dovere
+  (unify
+   infinitive
+   (let [obj-sem (ref :top)]
+     {:synsem {:sem {:obj obj-sem}
+               :subcat {:2 {:sem obj-sem
+                            :cat :verb
+                            :infl :infinitive}}}})
+
+   {:italian {:infinitive "dovere"
+              :irregular {:present {:1sing "devo"
+                                    :2sing "devi"
+                                    :3sing "deve"
+                                    :1plur "dobbiamo"
+                                    :2plur "dovete"
+                                    :3plur "devono"}}}
+    :english {:infinitive "must"
+              :irregular {:past "had"
+                          :present {:1sing "have"
+                                    :2sing "have"
+                                    :3sing "has"
+                                    :1plur "have"
+                                    :2plur "have"
+                                    :3plur "have"}}}
+    :synsem {:sem {:pred :dovere
+                   :subj {:human true} ;; TODO: relax this constraint: non-human things can be subject of dovere.
+                   :obj {:pred :top}}}})) ; dovere's object is a verb.
+
+
 (def essere-common
   (unify
    infinitive
@@ -1116,6 +1145,9 @@
    ;; need some activities (nouns with {:activity true}) to enable this:
    ;; (unify {:root fare-do}
    ;;           trans-present-tense-verb)
+
+   (unify {:root dovere}
+          trans-present-tense-verb)
 
    (unify {:root fare-make}
           trans-present-tense-verb)
