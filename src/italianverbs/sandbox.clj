@@ -44,7 +44,7 @@
    ;; TODO: make this configurable:
    ;;   might want to have a value for production usage lower/higher than
    ;;   for development usage.
-   :timeout 3000
+   :timeout 10000
    :namespace 'italianverbs.sandbox))
 
 (defn sandbox-load-string [expression]
