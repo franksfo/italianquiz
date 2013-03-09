@@ -59,7 +59,7 @@
 (defn footer []
   (html
    [:div {:class "poweredbox major"}
-    [:h2 [:i "imparare Italiano"] " è alimentato da .."]
+    [:h2 [:i "imparare l'Italiano"] " è alimentato da .."]
     [:table
      [:tr
       [:td {:colspan "5"}
@@ -70,7 +70,7 @@
       [:td {:rowspan "2" :colspan "1"}
        (powered-by "clojail" "https://github.com/flatland/clojail")]
       [:td {:rowspan "2" :colspan "2"}
-       (powered-by "congomongo" "https://github.com/somnium/congomongo")]]
+       (powered-by "congomongo" "https://github.com/aboekhoff/congomongo")]]
       [:tr
        [:td {:colspan "2"}
         (powered-by "ring" "https://github.com/mmcgrana/ring")]]
