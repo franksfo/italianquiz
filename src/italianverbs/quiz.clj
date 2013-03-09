@@ -1,4 +1,3 @@
-;; Seems like you need to restart ring to see changes to this file.
 ;; TODO: verify using tests that a user authenticated with session 'x' cannot modify a question
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the mongo/fetch's :where clause.
@@ -16,6 +15,10 @@
             [italianverbs.generate :as gen]
             [ring.util.codec :as url]
             [clojure.string :as string]))
+
+(def production true)
+;; ^^ true: pick a pre-generated question from mongodb
+;;    false: generate a new question (much slower)
 
 ;; to add a new question type:
 ;; 1. write a function (gen/my-new-question-type) that generates a question.
@@ -298,8 +301,6 @@
         sentences (mongo/fetch :sentences)]
     (nth sentences (rand-int count))))
 
-(def production true)
-
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
@@ -464,7 +465,6 @@
     ;; {english,italian,formatted evaluation (itself html), debug info}.
     (let [js (str "table_row('" row_id"', " perfect ")")]
       (html
-       [:tbody {:style "display:block"}
         [:tr
          [:td
           [:div {:style "display:none"}
@@ -472,11 +472,10 @@
            [:div {:id (str row_id "_it")} italian ]
            [:div {:id (str "tr_" row_id "_js_eval")} formatted-evaluation ]
            ]
-          ]
          ]
         ]
-       [:tbody
-        [:script js]]))))
+        [:tr
+         [:script js]]))))
 
 (defn question [request]
   ;; create a new question, store in backing store, and return an HTML fragment with the question's english form
@@ -573,11 +572,10 @@
            [:script "clear_guess_input()" ]
            ]
           ]
-
-         [:td
-          [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
-          ]
          ]
+        ]
+        [:div {:class "respond" }
+         [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
         ]
 
        [:table {:id "quiz_table" :class "quiz"} " " ]

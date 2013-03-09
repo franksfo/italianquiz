@@ -110,28 +110,22 @@ function table_row(question_id, perfect) {
     var english_td = "<td class='en' rowspan='" + rowspan + "'>" + english + "</td>";
     var evaluation = $("#"+row_id+"_eval").html();
     correct_td = "";
+    var eval_tr = "";
     if (perfect == true) {
         correct_td = "<td class='corr'> " + evaluation + "</td>";
+        eval_tr = ""; // no correction necessary: user's response was correct.
     } else {
+        eval_tr = "<tr class='" + stripe + "'><td class='incorr'>" + evaluation + "</td></tr>";
         correct_td = "<td>" + italian + "</td>";
     }
     var stripe = $("#stripe_toggle").html();
 
-    var eval_tr = "";
-    if (perfect != true) {
-        eval_tr = "<tr class='" + stripe + "'><td class='incorr'>" + evaluation + "</td></tr>";
-    } else {
-        eval_tr = ""; // no correction necessary: user's response was correct.
-    }
-
     var row
-        = "<tbody id='" + row_id + "' style='display:none'   >" +
-          "  <tr class='" + stripe + "'>" +
+        = "<tr id='" + row_id + "' style='display:none' class='" + stripe + "'  >" +
         english_td +
         correct_td +
           "</tr>" +
-          eval_tr +
-        "</tbody>";
+          eval_tr;
 
     $("#quiz_table").prepend(row);
 
