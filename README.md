@@ -22,8 +22,6 @@
 
 # Apache HTTP Server Proxying:
 
---->% begin http configuration --->%----
-
     # LoadModule might not be necessary depending on your Apache installation.
     # If it is necessary, module location may vary according to your Apache installation.
     # For example, you don't need this on Mac OS X because it's already loaded in
@@ -40,8 +38,6 @@
       Order allow,deny
       allow from all
     </Location>
-
---->% end http configuration --->%----
 
 After restarting your HTTP server, you should be able to access : http://yourhost/italian/ .
 
@@ -76,40 +72,40 @@ top of form to pose question to user.
 
 Schematically:
 
-ajax_quiz()
-\---> get_next_question() ---> "GET /guess/question" ---HTML---> #ajax_question
-|
-\---> user clicks button ---> submit_user_response() ---> "POST /evaluate/tr" --HTML---> #quiz_table
-|
-\---> user checks a preference box ---> submit_quiz_filters() --> "POST /quiz/filter/ajax" ---(quiz/set-filters) 
+    ajax_quiz()
+    \---> get_next_question() ---> "GET /guess/question" ---HTML---> #ajax_question
+    |
+    \---> user clicks button ---> submit_user_response() ---> "POST /evaluate/tr" --HTML---> #quiz_table
+    |
+    \---> user checks a preference box ---> submit_quiz_filters() --> "POST /quiz/filter/ajax" ---(quiz/set-filters) 
                                                                                            |
                                                                                            \--> --302 GET /quiz/filter/ajax --HTML--> #prefs
 
 
 Dependencies:
-...................................................
-.  .  .   .  .  .   .                             .
-.  .  .   .  .  .   . quiz                        .
-.  .  .   .  .  .   ...............................
-.  .  .   .  .  .          .         .      .     . 
-.  .  .   .  .  . generate .         . lev  . xml . 
-.  .  .   .  .  ............         ..............
-.  .  .   .  .             .         .      .         
-.  .  .   .  .  search     . lexicon . html .         
-.  .  .   .  ...............         ........         
-.  .  .   .                .         .                
-.  .  .   . grammar        .         .
-.  .  .   ............................ 
-.  .  .                              .
-.  .  .  lexiconfn                   .
-.  .  ................................
-.  .                                 .
-.  . morphology                      .
-.  ...................................
-.                                    .
-.  fs                                .
-......................................
 
+    ...................................................
+    .  .  .   .  .  .   .                             .
+    .  .  .   .  .  .   . quiz                        .
+    .  .  .   .  .  .   ...............................
+    .  .  .   .  .  .          .         .      .     . 
+    .  .  .   .  .  . generate .         . lev  . xml . 
+    .  .  .   .  .  ............         ..............
+    .  .  .   .  .             .         .      .         
+    .  .  .   .  .  search     . lexicon . html .         
+    .  .  .   .  ...............         ........         
+    .  .  .   .                .         .                
+    .  .  .   . grammar        .         .
+    .  .  .   ............................ 
+    .  .  .                              .
+    .  .  .  lexiconfn                   .
+    .  .  ................................
+    .  .                                 .
+    .  . morphology                      .
+    .  ...................................
+    .                                    .
+    .  fs                                .
+    ......................................
 
 Note that morphology does not have direct access to the lexicon for now: it should
 only be concerned with regular morphology rules, which excludes lexical information
