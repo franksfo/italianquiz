@@ -32,7 +32,7 @@
 (deftest unify-unequal-atomic-values
   "Testing that unify(v1,v2)=fail if v1 != v2."
   (let [result (unify {:foo 42} {:foo 43})]
-    (is (= (:foo result) :fail))))
+    (is (fail? result))))
 
 (deftest merge-unequal-atomic-values
   "Testing that merge(v1,v2)=v2 (overriding)."
@@ -164,6 +164,16 @@
   (let [result (unify {:foo 42} {:foo {:not 43}})]
     (is (= result {:foo 42}))))
 
+(deftest unify-with-not-and-top1
+  "unifying {:not X} with :top should return {:not X} if X != top."
+  (let [result (unify {:not 42} :top)]
+    (is (= result {:not 42}))))
+
+(deftest unify-with-not-and-top2
+  "same with reversed argument order."
+  (let [result (unify :top {:not 42})]
+    (is (= result {:not 42}))))
+
 (deftest keywords-and-strings-equiv
   "keywords and strings are equivalent for unification (due to accomodating mongo serialization), but canonicalize to keyword."
   (let [result (unify :foo "foo")]
@@ -202,7 +212,7 @@
 
 (deftest unify-override
   (let [result (unify '{:a 42} '{:a 43})]
-    (is (= (:a result) :fail))))
+    (is (fail? result))))
 
       
 ;;      (deftest

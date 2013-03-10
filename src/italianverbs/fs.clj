@@ -73,8 +73,6 @@
         val2 (second args)]
     (log/debug (str "unify val1: " val1))
     (log/debug (str "      val2: " val2))
-;    (println (str "unify val1: " val1))
-;    (println (str "      val2: " val2))
     (cond
      (nil? args) nil
 
@@ -138,7 +136,8 @@
      ;; convoluted way of expressing: "if val1 has the form: {:not X}, then .."
      (not (= :notfound (:not val1 :notfound)))
      (if (= val2 :top)
-       :top ;; special case: (unify :top {:not X}) => :top
+;       :top ;; special case: (unify :top {:not X}) => :top
+       val1
        ;; else
        (let [result (unify (:not val1) val2)]
          (if (= result :fail)
@@ -148,7 +147,8 @@
      ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
      (not (= :notfound (:not val2 :notfound)))
      (if (= val1 :top)
-       val1 ;; special case mentioned above in comments preceding this function.
+;;       val1 ;; special case mentioned above in comments preceding this function.
+       val2
        (let [result (unify val1 (:not val2))]
          (if (= result :fail)
            val1
