@@ -38,7 +38,7 @@ div.major h2 {
 }
 
 div#content {
-    width:auto;
+    width:100%;
     border:0px dashed blue;
     float:left;
     padding:0;
@@ -83,12 +83,21 @@ div.history {
     float:right;
 }
 
+table.question {
+    width:100%;
+}
+
+table.quiz {
+    width:100%;
+}
+
 div.quiz {
     width:100%;
     float:left;
 }
 
 div.quiz-elem {
+    width:99%;
     float:left;
 }
 
@@ -130,7 +139,7 @@ div.history {
 
 table.quiz {
     margin-left:0.25em;
-    width:70%;
+    width:100%;
 }
 
 table.quiz td.en {
@@ -152,7 +161,7 @@ table.quiz td.en {
 
 #quiz_table {
     border-collapse:collapse;
-    width:95%;
+    width:100%;
     margin-top:0.5em;
 }
 
@@ -165,6 +174,7 @@ table.quiz td.en {
 }
 
 #quiz_container {
+    width:98%;
     float:left;
     margin-bottom:1em;
 }
