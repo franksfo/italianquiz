@@ -969,6 +969,18 @@
     :synsem {:sem {:pred :pensare
                    :subj {:human true}}}}))
 
+(def ridere
+  (unify
+   intransitive
+   infinitive
+   {:italian {:infinitive "ridere"
+              :irregular {:passato "riso"}}
+    :english {:infinitive "to laugh"
+              :irregular {:past "laughed"}}
+    :synsem {:sem {:subj {:human true}
+                   :pred {:pred :ridere
+                          :essere false}}}}))
+
 (def scrivere
   (unify
    transitive
@@ -1105,6 +1117,8 @@
           intrans-past-tense-verb)
    (unify {:root dormire}
           intrans-past-tense-verb)
+   (unify {:root ridere}
+          intrans-past-tense-verb)
    (unify {:root sognare}
           intrans-past-tense-verb)))
 
@@ -1198,6 +1212,8 @@
           intrans-present-tense-verb)
    (unify {:root pensare}
           intrans-present-tense-verb)
+   (unify {:root ridere}
+          intrans-present-tense-verb)
    (unify {:root sognare}
           intrans-present-tense-verb)))
 
@@ -1207,9 +1223,10 @@
           intrans-future-tense-verb)
    (unify {:root pensare}
           intrans-future-tense-verb)
+   (unify {:root ridere}
+          intrans-future-tense-verb)
    (unify {:root sognare}
           intrans-future-tense-verb)))
-
 
 (def present-verbs
   (concat
@@ -1241,6 +1258,7 @@
     mangiare
     parlare
     pensare
+    ridere
     scrivere
     sognare
     vedere
