@@ -244,14 +244,20 @@ span.insert {
 }
 
 span.delete {
-    color:#ddd;
-    border-bottom: 8px solid red;
+    display:none;
+/*    color:#ddd;
+    border-bottom: 8px solid red;*/
 }
 span.subst {
     border-bottom: 8px solid red;
-    text-decoration:line-through;
+    color: white;
+/*    text-decoration:line-through;*/
+    color:#ddd;
 }
 span.match {
+/*    color:#ddd;*/  /* uncomment the preceding color:#ddd, once we 
+			are able to know that match is only used in showing
+			errors.*/
     border-bottom: 8px solid lightgreen;
 }
 
@@ -342,6 +348,7 @@ span.delete {
 }
 span.subst {
     border-bottom: 8px solid red;
+    color:#ddd;
     text-decoration:line-through;
 }
 span.match {
