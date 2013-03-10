@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/ekoontz/italianquiz?branch=master)](http://travis-ci.org/ekoontz/italianquiz)
+[![Build Status](https://secure.travis-ci.org/ekoontz/italianquiz.png?branch=master)](http://travis-ci.org/ekoontz/italianquiz)
 
 # Usage:
 
