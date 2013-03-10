@@ -119,26 +119,26 @@ only be concerned with regular morphology rules, which excludes lexical informat
 
 Structure sharing using Clojure refs
 
-user> (def myref (ref {}))
-#'user/myref
-user> (def mymap2 {:a myref :b myref})
-#'user/mymap2
-user> (dosync (ref-set myref {:c 42}))
-{:c 42}
-user> mymap2
-{:a #<Ref@55187eb3: {:c 42}>, :b #<Ref@55187eb3: {:c 42}>}
-user> (dosync (ref-set myref {:c 43}))
-{:c 43}
-user> mymap2
-{:a #<Ref@55187eb3: {:c 43}>, :b #<Ref@55187eb3: {:c 43}>}
-user> (dosync (alter myref (fn [ref] (merge ref {:foo 99}))))
-{:foo 99, :c 43}
-user> mymap2
-{:a #<Ref@55187eb3: {:foo 99, :c 43}>, :b #<Ref@55187eb3: {:foo 99, :c 43}>}
-user> (dosync (alter myref (fn [ref] (merge ref {:foo 100}))))
-{:foo 100, :c 43}
-user> mymap2
-{:a #<Ref@55187eb3: {:foo 100, :c 43}>, :b #<Ref@55187eb3: {:foo 100, :c 43}>}
-user> 
+    user> (def myref (ref {}))
+    #'user/myref
+    user> (def mymap2 {:a myref :b myref})
+    #'user/mymap2
+    user> (dosync (ref-set myref {:c 42}))
+    {:c 42}
+    user> mymap2
+    {:a #<Ref@55187eb3: {:c 42}>, :b #<Ref@55187eb3: {:c 42}>}
+    user> (dosync (ref-set myref {:c 43}))
+    {:c 43}
+    user> mymap2
+    {:a #<Ref@55187eb3: {:c 43}>, :b #<Ref@55187eb3: {:c 43}>}
+    user> (dosync (alter myref (fn [ref] (merge ref {:foo 99}))))
+    {:foo 99, :c 43}
+    user> mymap2
+    {:a #<Ref@55187eb3: {:foo 99, :c 43}>, :b #<Ref@55187eb3: {:foo 99, :c 43}>}
+    user> (dosync (alter myref (fn [ref] (merge ref {:foo 100}))))
+    {:foo 100, :c 43}
+    user> mymap2
+    {:a #<Ref@55187eb3: {:foo 100, :c 43}>, :b #<Ref@55187eb3: {:foo 100, :c 43}>}
+    user> 
 
 
