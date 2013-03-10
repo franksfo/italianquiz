@@ -1,4 +1,6 @@
-Usage:
+[![Build Status](https://secure.travis-ci.org/travis-ci/ekoontz-italianquiz?branch=master)](http://travis-ci.org/travis-ci/ekoontz-italianquiz)
+
+# Usage:
 
 1. git clone git://github.com/ekoontz/italianquiz.git italianquiz
 2. cd italianquiz/
@@ -9,16 +11,16 @@ Usage:
   ..then point your browser to http://localhost:3000
   That's all there is to it!
 
-Hacking:
+# Hacking:
 
 1. Start with src/italianverbs/core.clj
 2. Follow the routes in (defroutes main-routes).
 3. Look at :body attribute for each route:
    This holds the function that is executed for that route.
 
-REPL: see comments at the top of src/italianverbs/repl.clj.
+# REPL: see comments at the top of src/italianverbs/repl.clj.
 
-Apache HTTP Server Proxying:
+# Apache HTTP Server Proxying:
 
 --->% begin http configuration --->%----
 
@@ -43,7 +45,7 @@ Apache HTTP Server Proxying:
 
 After restarting your HTTP server, you should be able to access : http://yourhost/italian/ .
 
-Ajax, Routes, and Page Structure
+# Ajax, Routes, and Page Structure
 
 1. create a static html page whose head is:
 
@@ -113,7 +115,7 @@ Note that morphology does not have direct access to the lexicon for now: it shou
 only be concerned with regular morphology rules, which excludes lexical information
 (or so we assume for now).
 
-License:
+# License:
 
 -resources/public/js/jsquery-1.6.4.min.js 
   is provided under the LGPL version 2 per http://jquery.org/license/.
