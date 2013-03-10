@@ -73,7 +73,7 @@
   {:cat :verb
    :obj {:cat :noun}})
 
-(def verbs
+(def test-verbs
   {:cat :verb})
 
 ;; A lexical entry for the word: 'parlare' exists.
