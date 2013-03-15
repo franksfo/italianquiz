@@ -18,41 +18,6 @@
 ;;      (html/static-page
 ;;            (str (html/fs lexfn/trans-verbs) (string/join " " (map (fn [fs] (html/fs fs)) (lexfn/query (lexfn/pathify lexfn/trans-verbs))))
 
-
-;; TODO: remove *exclude-keys*,(pathify-r) and (pathify) in favor of fs's versions.
-(def ^:dynamic *exclude-keys* (set #{:_id :ref :refmap}))
-
-(defn pathify-r [fs & [prefix]]
-"Transform a map into a map of paths/value pairs,
- where paths are lists of keywords, and values are atomic values.
- e.g.:
- {:foo {:bar 42, :baz 99}} =>  { { (:foo :bar) 42}, {(:foo :baz) 99} }
-The idea is to map the key :foo to the (recursive) result of pathify on :foo's value."
-  (mapcat (fn [kv]
-            (let [key (first kv)
-                  val (second kv)]
-;              (println (str "K:" key))
-              (if (not (contains? *exclude-keys* key))
-                (if (or (= (type val) clojure.lang.PersistentArrayMap)
-                        (= (type val) clojure.lang.PersistentHashMap))
-                  (do
-;                    (println (str "PAM"))
-                    (pathify-r val (concat prefix (list key))))
-                  (if (and (= (type val) clojure.lang.Ref)
-                           (let [val @val]
-                             (or (= (type val) clojure.lang.PersistentArrayMap)
-                                 (= (type val) clojure.lang.PersistentHashMap))))
-                    (pathify-r @val (concat prefix (list key)))
-                  (do
-;                    (println (str "not PAM" (type val)))
-                    (list {(concat prefix (list key))
-                           (if (= (type val) clojure.lang.Ref) @val ;; simply resolve references rather than trying to search for graph isomorphism.
-                               val)})))))))
-          fs))
-
-(defn pathify [fs]
-  (pathify-r fs))
-
 (defn pv-not-matches [lexical-entry path value]
   (let [path-value (fs/get-in lexical-entry path)]
     (if (not (or (= path-value value)
@@ -96,24 +61,27 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (if (> (.size path-value-pairs) 0)
     (let [path (first (keys (first path-value-pairs)))
           value (get (first path-value-pairs) path)
-;          debug (println (str "path=" (seq path) "; value=" value))
+          debug (println (str "path=" (seq path) "; value=" value))
           result (set ;; <- removes duplicates
                   (mapcat
                    (fn [entry]
                      (pv-matches entry path value))
-                   lexicon))]
+                   lexicon))
+          debug2 (println (str "matches: " (.size result)))]
       (if (= (.size result) 0)
         ;; no results for _path_:_value_: short-circuit: return emptyset without trying remaining path-value-pairs,
         ;; since ultimate result will be emptyset regardless of remaining path-value-pairs.
         result
         (if (> (.size path-value-pairs) 1)
-          (intersection result (query-r (rest path-value-pairs) lexicon))
+          ;; more pairs to do: use result (subset of input lexicon) as lexicon in recursive call.
+          (query-r (rest path-value-pairs) result)
+          ;; no more pairs to do: return matches so far.
           result)))
     #{})) ;; base case : return an empty set.
 
 (defn query [& constraints]
   (query-r (mapcat (fn [constraint]
-                     (pathify constraint))
+                     (fs/pathify constraint))
                    constraints)
            (map (fn [entry]
                   (fs/deserialize (:entry entry)))
@@ -121,12 +89,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn query-with-lexicon [lexicon & constraints]
   "search the supplied lexicon for entries matching constraints."
-  (let [lexicon (set lexicon) ;; hopefully O(1) if _lexicon_ is already a set.
+  (println (str "input lexicon size: " (.size lexicon)))
+  (let [lexicon (set lexicon) ;; hopefully converting to a set is O(1) if _lexicon_ is already a set.
         ;; TODO: Find out: does calling (set) on (already) a set have
         ;; a penalty?
         pathified
         (mapcat (fn [constraint]
-                  (pathify constraint))
+                  (fs/pathify constraint))
                 constraints)]
 ;    (println (str "query-with-lexicon: " (seq pathified)))
     (log/debug (str "query-with-lexicon: " (seq pathified)))
@@ -189,7 +158,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                   (map (fn [fs]
                                          (str
                                           (html/tablize fs)))
-                                       (query (pathify grammatical-terminology-term))))))
+                                       (query (fs/pathify grammatical-terminology-term))))))
                             (string/split search-exp #"[ ]+"))
                     (let [loaded
                           (try

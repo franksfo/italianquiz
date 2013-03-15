@@ -418,13 +418,40 @@
 (defn deref-map [input]
   input)
 
-(defn pathify [fs & [prefix]]
+;; TODO: remove *exclude-keys*,(pathify-r) and (pathify) in favor of fs's versions.
+(def ^:dynamic *exclude-keys* (set #{:_id :ref :refmap}))
+
+(defn pathify-r [fs & [prefix]]
 "Transform a map into a map of paths/value pairs,
  where paths are lists of keywords, and values are atomic values.
  e.g.:
  {:foo {:bar 42, :baz 99}} =>  { { (:foo :bar) 42}, {(:foo :baz) 99} }
 The idea is to map the key :foo to the (recursive) result of pathify on :foo's value."
-(println (str "pathify with: " fs)))
+  (mapcat (fn [kv]
+            (let [key (first kv)
+                  val (second kv)]
+;              (println (str "K:" key))
+              (if (not (contains? *exclude-keys* key))
+                (if (or (= (type val) clojure.lang.PersistentArrayMap)
+                        (= (type val) clojure.lang.PersistentHashMap))
+                  (do
+;                    (println (str "PAM"))
+                    (pathify-r val (concat prefix (list key))))
+                  (if (and (= (type val) clojure.lang.Ref)
+                           (let [val @val]
+                             (or (= (type val) clojure.lang.PersistentArrayMap)
+                                 (= (type val) clojure.lang.PersistentHashMap))))
+                    (pathify-r @val (concat prefix (list key)))
+                  (do
+;                    (println (str "not PAM" (type val)))
+                    (list {(concat prefix (list key))
+                           (if (= (type val) clojure.lang.Ref) @val ;; simply resolve references rather than trying to search for graph isomorphism.
+                               val)})))))))
+          fs))
+
+(defn pathify [fs]
+  (pathify-r fs))
+
 
 (def uniq-using-recur
   (fn [sorted-vals]

@@ -113,7 +113,7 @@
 ;; Pathify a large map.
 (deftest pathify-map
   (let [result 
-        (pathify
+        (fs/pathify
          {:root {:gender :masc
                  :human true
                  :det {:cat :det
@@ -130,7 +130,7 @@
 
 (deftest pathify-2 ;; Pathify another map.
   (let [result 
-        (pathify {:root
+        (fs/pathify {:root
                   {:gender
                    :masc
                    :human true
@@ -143,24 +143,24 @@
     (is (= (count result) 9)))) ;; TODO: write better test as preceding.
 
 (deftest pathify-no-refs
-  (let [result (pathify {:a 42})]
+  (let [result (fs/pathify {:a 42})]
     (is (= (get (first result) (list :a)) 42))))
 
 (deftest pathify-with-ref
-  (let [result (pathify {:a (ref 42)})]
+  (let [result (fs/pathify {:a (ref 42)})]
     (is (= (get (first result) (list :a)) 42))))
 
 ;; {:a {:b 42}} => {(:a :b) 42}
 (deftest pathify-inner-map-no-refs
   (let [result
-        (pathify {:a {:b 42}})]
+        (fs/pathify {:a {:b 42}})]
     (is (= (first (keys (first result))) (list :a :b)))
     (is (= (first (vals (first result))) 42))))
 
 ;; {:a (ref {:b 42})} => {(:a :b) 42} (same as with no refs)
 (deftest pathify-inner-map-with-refs
   (let [result
-        (pathify {:a (ref {:b 42})})]
+        (fs/pathify {:a (ref {:b 42})})]
     (is (= (first (keys (first result))) (list :a :b)))
     (is (= (first (vals (first result))) 42))))
 
