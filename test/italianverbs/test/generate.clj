@@ -59,8 +59,7 @@
                   {:b {:root (fs/copy fare)}})]
 
     ;; TODO: more tests.
-    (is (= (fs/get-in unified '(:a :italian)) "avere"))
-    (printfs (list irreg-vp {:b {:root fare}} unified) "fare.html")))
+    (is (= (fs/get-in unified '(:a :italian)) "avere"))))
 
 (deftest t2
   (let [ref3 (ref :top)
@@ -94,8 +93,7 @@
         (fs/unify reg-vp
                   {:b {:root lavorare}})]
     ;; TODO: more tests.
-    (is (= (fs/get-in unified '(:a :italian)) "avere"))
-    (printfs (list reg-vp {:b {:root lavorare}} unified) "lavorare.html")))
+    (is (= (fs/get-in unified '(:a :italian)) "avere"))))
 
 (defn read-off-italian [expression]
   (let [debug (if false (println (str "read-off-italian: " (type expression))))]
@@ -170,7 +168,7 @@
                          :subcat {:a comp-synsem}})]
           {:comment "np -> det noun"
            :head head
-           :subcat :nil!
+           :subcat '()
            :synsem head-synsem
            :comp comp
            :a comp
@@ -208,6 +206,7 @@
                {:synsem {:cat :noun
                          :number :sing
                          :gender :masc
+                         :human false
                          :edible false
                          :artifact true
                          :person :3rd}
@@ -280,10 +279,9 @@
 (deftest get-rules-that-match-head-test
   "find the subset of _rules_ where each rule's head unifies with head."
   (let [rules np-1-rules
-        head {:head {:subcat :nil!}}]
+        head {:head {:subcat '()}}]
     (let [matching-rules
           (get-rules-that-match-head np-1-rules head)]
-      (printfs matching-rules "matching-rules.html")
       (is (= (.size matching-rules) 1)))))
 
 (deftest np-1
@@ -303,21 +301,7 @@
                 (= italian "il ragazzo")
                 (= italian "la ragazza")
                 (= italian "lei")))))
-          trials))
-
-    (println
-     (printfs
-      (map (fn [trial]
-             (let [num (:trial trial)
-                   result (:result trial)]
-               {:trial num
-                :italian (join (flatten (read-off-italian result)) " ")
-                :result result}))
-           (map (fn [num]
-                  (nth trials num))
-                (range 0 numtrials-printable)))
-      "nps.html"))))
-
+          trials))))
 
 ;  (let [np (generate-np np-1-rules np-1-lexicon nil)]
 ;    (= (read-off-italian np) '("il" "compito"))
@@ -328,8 +312,8 @@
    np-1-rules
    (list
     (let [vp-rule-1
-          (let [comp-synsem (ref {:cat :noun :case :acc})
-                comp (ref {:synsem comp-synsem :subcat :nil!})
+          (let [comp-synsem (ref {:cat :noun :case {:not :nom}})
+                comp (ref {:synsem comp-synsem }); :subcat '()})
                 subj (ref {:cat :noun :case :nom})
                 head-synsem (ref {:cat :verb
                                   :infl {:not :infinitive}
@@ -393,136 +377,142 @@
      (fs/unify (fs/copy regular) (fs/copy {:root leggere}) {:synsem {:subj {:person :3rd :number :sing}}})))) ;; leggia
 
 
+(def verb-with-root
+  (let [cat (ref :top)
+        subcat (ref :top)]
+    {:synsem {:cat cat}
+     :subcat subcat
+     :root {:subcat subcat
+            :synsem {:cat cat}}}))
+
+(def transitive
+  (let [subj (ref :top)
+        obj (ref :top)]
+    {:synsem {:subj subj
+              :obj obj}
+     :subcat {:a obj
+              :b subj}
+     :root {:synsem {:subj subj
+                     :obj obj}}}))
+
+(def finite
+  (fs/unify
+   (fs/copy verb-with-root)
+   {:synsem {:infl :present}}))
+  
+(def regular-verb-inflection
+  (let [agreement {:person :top
+                   :number :top}]
+    {:italian {:morph agreement}
+     :subcat {:b agreement}
+     :root {:synsem {:cat :verb}}}))
+
+(def verb-lexicon
+  (let [fare
+        (let [subj {:cat :noun
+                    :artifact false
+                    :human true}
+              obj {:cat :noun
+                   :human false
+                   :artifact true}]
+          (fs/unify
+           (fs/copy transitive)
+           {:italian "fare"
+            :english "to do"
+            :synsem {:cat :verb
+                     :morph :irreg
+                     :subj subj
+                     :obj obj
+                     :infl :infinitive}
+            :subcat {:a obj
+                     :b subj}}))
+        mangiare
+        (let [subj {:cat :noun
+                    :artifact false
+                    :animate true}
+              obj {:cat :noun
+                   :edible true}]
+         
+          (fs/merge
+           (fs/unify
+            (fs/copy transitive)
+            (fs/copy regular-verb-inflection)
+            {:synsem {:cat :verb
+                      :subj subj
+                      :obj obj
+                      :infl :infinitive}
+             :subcat {:a obj
+                      :b subj}})
+           {:italian "mangiare"
+            :english "to eat"}))]
+
+    
+    (list fare
+          mangiare
+          (fs/unify
+           (fs/copy finite)
+           (fs/copy transitive)
+           {:root (fs/copy fare)
+            :italian "facio"
+            :subcat {:b {:person :1st
+                         :number :sing}}})
+          
+          (fs/unify
+           (fs/copy finite)
+           (fs/copy transitive)
+           (let [agreement {:person :1st
+                            :number :sing}]
+             {:italian {:morph agreement}
+              :root (fs/copy mangiare)
+              :subcat {:b agreement}}))
+          
+          (fs/unify
+           (fs/copy finite)
+           (fs/copy transitive)
+           (let [agreement {:person :2nd
+                            :number :sing}]
+             {:italian {:morph agreement}
+              :root (fs/copy mangiare)
+              :subcat {:b agreement}}))
+          
+          (fs/unify
+           (fs/copy finite)
+           (fs/copy transitive)
+           {:root (fs/copy fare)
+            :italian "fai"
+            :subcat {:b {:person :2nd
+                         :number :sing}}})
+          (fs/unify
+           (fs/copy finite)
+           (fs/copy transitive)
+           {:root (fs/copy fare)
+            :italian "fa"
+            :subcat {:b {:person :3rd
+                         :number :sing}}})
+          (fs/unify
+           (fs/copy finite)
+           (fs/copy transitive)
+           {:root (fs/copy fare)
+            :italian "facciamo"
+            :subcat {:b {:person :1st
+                         :number :plur}}})
+          (fs/unify
+           (fs/copy finite)
+           (fs/copy transitive)
+           {:root (fs/copy fare)
+            :italian "fate"
+            :subcat {:b {:person :2nd
+                         :number :plur}}})
+          (fs/unify
+           (fs/copy finite)
+           (fs/copy transitive)
+           {:root (fs/copy fare)
+            :italian "fanno"
+            :subcat {:b {:person :3rd
+                         :number :plur}}}))))
+
 (def vp-1-lexicon
-  (let [verb-with-root
-        (let [cat (ref :top)
-              subcat (ref :top)]
-          {:synsem {:cat cat}
-           :subcat subcat
-           :root {:subcat subcat
-                  :synsem {:cat cat}}})
-        transitive
-        (let [subj (ref :top)
-              obj (ref :top)]
-          {:synsem {:subj subj
-                    :obj obj}
-           :subcat {:a obj
-                    :b subj}
-           :root {:synsem {:subj subj
-                           :obj obj}}})
-        finite
-        (fs/unify
-         (fs/copy verb-with-root)
-         {:synsem {:infl :present}})
-        
-        regular-verb-inflection
-        (let [agreement {:person :top
-                         :number :top}]
-          {:italian {:morph agreement}
-           :subcat {:b agreement}
-           :root {:synsem {:cat :verb}}})]
-    (concat
-     np-1-lexicon
-     (let [fare
-           (let [subj {:cat :noun
-                       :artifact false
-                       :human true}
-                 obj {:cat :noun
-                      :human false
-                      :artifact true}]
-             (fs/unify
-              (fs/copy transitive)
-              {:italian "fare"
-               :english "to do"
-               :synsem {:cat :verb
-                        :morph :irreg
-                        :subj subj
-                        :obj obj
-                        :infl :infinitive}
-               :subcat {:a obj
-                        :b subj}}))
-           mangiare
-           (let [subj {:cat :noun
-                       :artifact false
-                       :animate true}
-                 obj {:cat :noun
-                      :edible true}]
-             
-             (fs/unify
-              (fs/copy transitive)
-              (fs/copy regular-verb-inflection)
-              {:italian "mangiare"
-               :english "to eat"
-               :synsem {:cat :verb
-                        :subj subj
-                        :obj obj
-                        :infl :infinitive}
-               :subcat {:a obj
-                        :b subj}}))]
-
-       (list fare
-             mangiare
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "facio"
-               :subcat {:b {:person :1st
-                            :number :sing}}})
-
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              (let [agreement {:person :1st
-                               :number :sing}]
-                {:italian {:morph agreement}
-                 :root (fs/copy mangiare)
-                 :subcat {:b agreement}}))
-
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              (let [agreement {:person :2nd
-                               :number :sing}]
-              {:italian {:morph agreement}
-               :root (fs/copy mangiare)
-               :subcat {:b agreement}}))
-
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "fai"
-               :subcat {:b {:person :2nd
-                            :number :sing}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "fa"
-               :subcat {:b {:person :3rd
-                            :number :sing}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "facciamo"
-               :subcat {:b {:person :1st
-                            :number :plur}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "fate"
-               :subcat {:b {:person :2nd
-                            :number :plur}}})
-             (fs/unify
-              (fs/copy finite)
-              (fs/copy transitive)
-              {:root (fs/copy fare)
-               :italian "fanno"
-               :subcat {:b {:person :3rd
-                            :number :plur}}}))))))
+  (concat np-1-lexicon verb-lexicon))
 
 (defn generate-vp [rules lexicon head]
   (let [rule (random-rule rules '((:head :cat) :verb) '((:head :infl) :present))
@@ -565,7 +555,6 @@
                       {:trial num
                        :result (generate-vp vp-1-rules vp-1-lexicon nil)})
                     (range 0 numtrials))]
-    (printfs vp-1-lexicon "vp-1-lexicon.html")
     (println
      (map (fn [unified]
             (let [num (:trial unified)
@@ -576,19 +565,7 @@
                    (= (read-off-italian unified) '("facio" ("il" "compito")))
                    (= (read-off-italian unified) '("fa" ("il" "compito")))
                    (= (read-off-italian unified) '("fai" ("il" "compito")))))))
-          trials))
-    (println
-     (printfs
-      (map (fn [trial]
-             (let [num (:trial trial)
-                   result (:result trial)]
-               {:trial num
-                :italian (join (flatten (read-off-italian result)) " ")
-                :result result}))
-           (map (fn [num]
-                  (nth trials num))
-                (range 0 numtrials-printable)))
-      "vps.html"))))
+          trials))))
     
 (def sentence-rules
   (concat
@@ -597,12 +574,12 @@
          head-synsem (ref {:cat :verb
                            :subj subcatted
                            })
-         comp (ref {:synsem subcatted :subcat :nil!})
+         comp (ref {:synsem subcatted :subcat '()})
          head (ref {:synsem head-synsem
                     :subcat {:a subcatted}})]
      (list
       {:comment "s -> np vp"
-       :subcat :nil!
+       :subcat '()
        :head head
        :comp comp
        :a comp
@@ -619,7 +596,7 @@
                    :artifact false ;; <- :human true => artifact :false
                    :person :1st
                    :number :sing}
-          :subcat :nil!
+          :subcat '()
           :italian "io"}
          {:synsem {:cat :noun
                    :case :nom
@@ -627,7 +604,7 @@
                    :artifact false ;; <- :human true => artifact :false
                    :person :2nd
                    :number :sing}
-          :subcat :nil!
+          :subcat '()
           :italian "tu"}
          {:synsem {:cat :noun
                    :case :nom
@@ -636,7 +613,7 @@
                    :person :3rd
                    :gender :masc
                    :number :sing}
-          :subcat :nil!
+          :subcat '()
           :italian "lui"}
          {:synsem {:cat :noun
                    :case :nom
@@ -645,7 +622,7 @@
                    :person :3rd
                    :gender :fem
                    :number :sing}
-          :subcat :nil!
+          :subcat '()
           :italian "lei"}
          {:synsem {:cat :noun
                    :case :nom
@@ -653,7 +630,7 @@
                    :artifact false ;; <- :human true => artifact :false
                    :person :1st
                    :number :plur}
-          :subcat :nil!
+          :subcat '()
           :italian "noi"}
          {:synsem {:cat :noun
                    :case :nom
@@ -661,7 +638,7 @@
                    :artifact false ;; <- :human true => artifact :false
                    :person :2nd
                    :number :plur}
-          :subcat :nil!
+          :subcat '()
           :italian "voi"}
          {:synsem {:cat :noun
                    :case :nom
@@ -669,7 +646,7 @@
                    :artifact false ;; <- :human true => artifact :false
                    :person :3rd
                    :number :plur}
-          :subcat :nil!
+          :subcat '()
           :italian "loro"})))
 
 (defn fs? [fs]
@@ -680,12 +657,10 @@
 
 (deftest get-sentence-rules
   "get a top-level sentence rule"
-  (is (fs? (random-rule sentence-rules '((:subcat) :nil!)))))
+  (is (fs? (random-rule sentence-rules '((:subcat) '())))))
 
 (deftest get-verb-head
   "get a verb that can be the head of a vp."
-  (printfs sentence-lexicon "sentence-lexicon.html")
-  (printfs sentence-rules "sentence-rules.html")
   (let [verb
         (random (search/query-with-lexicon sentence-lexicon {:subcat :top
                                                              :synsem {:infl :present}}))]
@@ -702,15 +677,16 @@
              (if (nil? result1) result2 result1))
            (map (fn [rule] (if (= (:comment rule) "vp -> head comp")
                              (fs/unify (fs/copy rule) (fs/copy {:head head})))) sentence-rules))]
-      (printfs vp "vp-step1.html")
       vp)))
 
 (deftest create-vp-test
   "create a vp based on a head like in the test above."
-  (let [vp (create-vp-step1 nil)]
-    (let [verb (fs/get-in vp '(:head))]
-      (is (not (nil? vp)))
-      (is (not (nil? verb))))))
+  (let [vp (create-vp-step1 nil)
+        verb (fs/get-in vp '(:head))]
+    (is (not (nil? vp)))
+      (is (not (nil? verb)))
+      (is (not (fs/fail? vp)))
+      (is (not (fs/fail? verb)))))
 
 (defn map-head-over-rules [head]
   "try all rules for generating a noun phrase from a head."
@@ -1028,6 +1004,7 @@
 (defn create-vp [verb-head]
   (let [vp-step1 (create-vp-step1 verb-head)]
     (is (not (nil? vp-step1)))
+    (is (not (fs/fail? vp-step1)))
     (let [subcat-criteria (fs/get-in vp-step1 '(:comp))
           noun-head (random (search/query-with-lexicon sentence-lexicon subcat-criteria))]
       (let [np-step2 (create-np noun-head)]
@@ -1042,14 +1019,13 @@
 (deftest create-sentence
   "create a sentence"
   (let [vp (create-vp nil)]
-    (printfs vp "vps.html")
-    (let [subj-criteria {:synsem (fs/get-in vp '(:subcat))}]
-      (printfs subj-criteria "subj-criteria.html")
+    (is (not (fs/fail? vp)))
+    (let [subj-criteria {:synsem (fs/get-in vp '(:subcat :a))}]
       (is (fs? subj-criteria))
       (let [subj-head
             (create-np subj-criteria)]
         (is (fs? subj-head))
-        (printfs subj-head "subj.html")
+;        (is (not (fs/fail? subj-head)))
         (let [sentence-step1
               (reduce
                (fn [result1 result2]
@@ -1058,21 +1034,19 @@
                                  (fs/unify (fs/copy rule) (fs/copy {:comp subj-head}))))
                     sentence-rules))]
           (is (fs? sentence-step1))
-          (printfs sentence-step1 "sentence-step1.html")
           (let [sentence
                 (fs/unify (fs/copy sentence-step1) {:head (fs/copy vp)})]
-            (is (fs? sentence))
+;            (not (fs/fail? sentence))
+;            (is (fs? sentence))
             ;; subject/verb agreement
-            (is (= (fs/get-in sentence '(:head :subcat))
-                   (fs/get-in sentence '(:comp :synsem))))
-            (printfs sentence "sentence.html")
-            (printfs (list vp subj-head sentence) "sentence-derivation.html")))))))
-
+;            (is (= (fs/get-in sentence '(:head :subcat :a))
+;                   (fs/get-in sentence '(:comp :synsem))))))))))
+))))))
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
   ;; sentential rule: one whose subcat is nil!: meaning it takes no
   ;; subcategorizations (arguments) because it's a complete sentence.
-  (let [rule (random-rule rules '((:subcat) :nil!))]
+  (let [rule (random-rule rules '((:subcat) '()))]
     (let [head-lexemes
           (seq (search/query-with-lexicon lexicon
                  (fs/get-in rule '(:head))))]
