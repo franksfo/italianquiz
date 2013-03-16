@@ -284,25 +284,6 @@
           (get-rules-that-match-head np-1-rules head)]
       (is (= (.size matching-rules) 1)))))
 
-(deftest np-1
-  "generate some random noun phrases."
-  (let [trials (map (fn [num]
-                      {:trial num
-                       :result (generate-np np-1-rules np-1-lexicon nil)})
-                    (range 0 numtrials))
-        debug (println (str "TRIALS: " trials))]
-    (println ;; seems to be the only way to get tests to run in slime.
-     (map (fn [trial]
-            (let [result (:result trial)
-                  italian (string/trim (join (flatten (read-off-italian result)) " "))]
-              (is
-               (or
-                (= italian "il compito")
-                (= italian "il ragazzo")
-                (= italian "la ragazza")
-                (= italian "lei")))))
-          trials))))
-
 ;  (let [np (generate-np np-1-rules np-1-lexicon nil)]
 ;    (= (read-off-italian np) '("il" "compito"))
 ;    (printfs np "np-1.html")))
@@ -586,7 +567,10 @@
        :b head
        :synsem head-synsem
        }))))
-   
+
+;; TODO: slim this down a bit perhaps. just need some representative
+;; tests rather than an entire lexicon and grammar.
+;; tests are hard to read with this pile of test fixtures.
 (def sentence-lexicon
   (concat
    vp-1-lexicon
@@ -654,10 +638,6 @@
          clojure.lang.PersistentArrayMap)
       (= (type fs)
          clojure.lang.PersistentHashMap)))
-
-(deftest get-sentence-rules
-  "get a top-level sentence rule"
-  (is (fs? (random-rule sentence-rules '((:subcat) '())))))
 
 (deftest get-verb-head
   "get a verb that can be the head of a vp."
@@ -914,9 +894,6 @@
 (defn print-first [rule html]
   (printfs rule html))
 
-(deftest print-with-complex-keys
-  (html/tablize rules-finished-with-each-lexeme))
-
 (defn workbook [head filename]
   (let [result (combine nil
                         nil
@@ -1016,32 +993,6 @@
     (is (not (nil? vp-step2)))
     (printfs vp-step2 "vp-step2.html")))
 
-(deftest create-sentence
-  "create a sentence"
-  (let [vp (create-vp nil)]
-    (is (not (fs/fail? vp)))
-    (let [subj-criteria {:synsem (fs/get-in vp '(:subcat :a))}]
-      (is (fs? subj-criteria))
-      (let [subj-head
-            (create-np subj-criteria)]
-        (is (fs? subj-head))
-;        (is (not (fs/fail? subj-head)))
-        (let [sentence-step1
-              (reduce
-               (fn [result1 result2]
-                 (if (nil? result1) result2 result1))
-               (map (fn [rule] (if (= (:comment rule) "s -> np vp")
-                                 (fs/unify (fs/copy rule) (fs/copy {:comp subj-head}))))
-                    sentence-rules))]
-          (is (fs? sentence-step1))
-          (let [sentence
-                (fs/unify (fs/copy sentence-step1) {:head (fs/copy vp)})]
-;            (not (fs/fail? sentence))
-;            (is (fs? sentence))
-            ;; subject/verb agreement
-;            (is (= (fs/get-in sentence '(:head :subcat :a))
-;                   (fs/get-in sentence '(:comp :synsem))))))))))
-))))))
 (defn generate-sentence [rules lexicon]
   "generate a sentence (subject+vp)"
   ;; sentential rule: one whose subcat is nil!: meaning it takes no
@@ -1065,40 +1016,6 @@
                          (fs/copy rule) {:head vp :comp subject})]
             unified))))))
                 
-(deftest-ignore sentence-1
-  "generate a sentence (subject+vp)"
-  (let [trials (map (fn [num]
-                      {:trial num
-                       :result (generate-sentence sentence-rules sentence-lexicon)})
-                    (range 0 numtrials))]
-    (println
-     (map (fn [trial]
-            (let [result (:result trial)
-                  italian (join (flatten (read-off-italian result)) " ")]
-              (println (str "testing output: " italian))
-              (is
-               (or
-                (= italian "io facio il compito")
-                (= italian "lei fa il compito")
-                (= italian "tu fai il compito")))))
-          trials))
-
-    (printfs sentence-lexicon "sentence-lexicon.html")
-    (printfs sentence-rules "sentence-rules.html")
-
-    (println
-     (printfs
-      (map (fn [trial]
-             (let [num (:trial trial)
-                   result (:result trial)]
-               {:trial num
-                :italian (join (flatten (read-off-italian result)) " ")
-                :result result}))
-           (map (fn [num]
-                  (nth trials num))
-                (range 0 numtrials-printable)))
-      "sentences.html"))))
-  
 (def sentence-lexicon-with-exceptions
   (concat
    sentence-lexicon))
