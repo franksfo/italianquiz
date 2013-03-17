@@ -6,6 +6,8 @@
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.search :as search]))
 
+(deftest test1 (is (not (fs/fail? essere-aux-trans))))
+
 (def third-person {:person :3rd :cat :noun})
 (def common-noun (fs/merge third-person
                            (let [number-agreement (ref :top)

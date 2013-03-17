@@ -669,7 +669,7 @@
          (let [obj-sem (ref :top)]
            {:synsem {:sem {:obj obj-sem}
                      :subcat {:2 {:sem obj-sem
-                                  :cat :noun
+;                                  :cat :noun
                                   :agr {:case {:not :nom}}}}}})))
 
 ;; TODO add subcat frames (<NP,PP>)
@@ -1147,6 +1147,11 @@
 
 (def past-verbs (concat past-intransitive-verbs past-transitive-verbs))
 
+(def present-modal-verbs
+  (list
+   (unify {:root dovere}
+          trans-present-tense-verb)))
+
 (def present-transitive-verbs
   (list
    (unify {:root avere}
@@ -1160,8 +1165,6 @@
    ;; (unify {:root fare-do}
    ;;           trans-present-tense-verb)
 
-   (unify {:root dovere}
-          trans-present-tense-verb)
 
    (unify {:root fare-make}
           trans-present-tense-verb)
@@ -1239,6 +1242,29 @@
    future-transitive-verbs
    future-intransitive-verbs))
 
+(def infinitive-intransitive-verbs
+  (concat
+   (list
+    andare-intrans
+    dormire
+    pensare
+    ridere
+    sognare)))
+
+(def infinitive-transitive-verbs
+  (concat
+   (list
+    avere
+    bevere
+    comprare
+;    fare-do
+    fare-make
+    leggere
+    mangiare
+    parlare
+    scrivere
+    vedere)))
+
 (def verbs
   (concat
    present-aux-verbs
@@ -1246,23 +1272,8 @@
    past-verbs
    future-verbs
    ;; infinitives:
-   (list
-    andare-intrans
-    avere
-    bevere
-    comprare
-    dormire
-;    fare-do
-    fare-make
-    leggere
-    mangiare
-    parlare
-    pensare
-    ridere
-    scrivere
-    sognare
-    vedere
-    )))
+   infinitive-intransitive-verbs
+   infinitive-transitive-verbs))
 
 (def pronouns
   (list {:synsem {:cat :noun
@@ -1333,68 +1344,78 @@
 
 ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc).
 (def adjectives
-  (list {:synsem {:cat :adjective
-                  :sem {:pred :alto
-                        :mod {:human true}}}
-         :italian {:italian "alto"
-                   :cat :adjective}
-         :english {:english "tall"
-                   :cat :adjective}}
-        {:synsem {:cat :adjective
-                  :sem {:pred :bianco
-                        :mod {:physical-object true
-                              :human false}}}
-        :italian {:italian "bianco"
-                  :irregular {:masc {:plur "bianchi"}
-                              :fem {:plur "bianche"}}
-                   :cat :adjective}
-         :english {:english "white"
-                   :cat :adjective}}
+  (list
+   
+   {:synsem {:cat :adjective
+             :sem {:pred :alto
+                   :mod {:human true}}}
+    :italian {:italian "alto"
+              :cat :adjective}
+    :english {:english "tall"
+              :cat :adjective}}
+   
+   {:synsem {:cat :adjective
+             :sem {:pred :bianco
+                   :mod {:physical-object true
+                         :human false}}}
+    :italian {:italian "bianco"
+              :irregular {:masc {:plur "bianchi"}
+                          :fem {:plur "bianche"}}
+              :cat :adjective}
+    :english {:english "white"
+              :cat :adjective}}
+   
+   {:synsem {:cat :adjective
+             :sem {:pred :difficile
+                   :mod {:drinkable false
+                         :human false
+                         :animate false
+                         :buyable false
+                         :legible true
+                         :activity true
+                         :artifact true
+                         :physical-object true
+                         :edible false}}}
+    
+    :italian {:italian "difficile"
+              :cat :adjective}
+    :english {:english "difficult"
+              :cat :adjective}}
+   
+   {:synsem {:cat :adjective
+             :sem {:pred :nero
+                   :mod {:physical-object true
+                         :human false}}}
+    :italian {:italian "nero"
+              :cat :adjective}
+    :english {:english "black"
+              :cat :adjective}}
+   
+   {:synsem {:cat :adjective
+             :sem {:pred :piccolo
+                   :mod {:physical-object true
+                         :mass false}}}
+    :italian {:italian "piccolo"
+              :cat :adjective}
+    :english {:english "small"
+              :cat :adjective}}
+   
+   {:synsem {:cat :adjective
+             :sem {:pred :robusto
+                   :mod {:animate true}}}
+    :italian {:italian "robusto"
+              :cat :adjective}
+    :english {:english "large-built"
+              :cat :adjective}}
 
-        {:synsem {:cat :adjective
-                  :sem {:pred :difficile
-                        :mod {
-                              :drinkable false
-                              :human false
-                              :animate false
-                              :buyable false
-                              :legible true
-                              :activity true
-                              :artifact true
-                              :physical-object true
-                              :edible false}}}
-
-         :italian {:italian "difficile"
-                   :cat :adjective}
-         :english {:english "difficult"
-                   :cat :adjective}}
-
-        {:synsem {:cat :adjective
-                  :sem {:pred :nero
-                        :mod {:physical-object true
-                              :human false}}}
-         :italian {:italian "nero"
-                   :cat :adjective}
-         :english {:english "black"
-                   :cat :adjective}}
-
-        {:synsem {:cat :adjective
-                  :sem {:pred :piccolo
-                        :mod {:physical-object true
-                              :mass false}}}
-         :italian {:italian "piccolo"
-                   :cat :adjective}
-         :english {:english "small"
-                   :cat :adjective}}
-
-        {:synsem {:cat :adjective
-                  :sem {:pred :rosso
-                        :mod {:physical-object true
-                              :human false}}}
-         :italian {:italian "rosso"
-                   :cat :adjective}
-         :english {:english "red"
-                   :cat :adjective}}))
+   {:synsem {:cat :adjective
+             :sem {:pred :rosso
+                   :mod {:physical-object true
+                         :human false}}}
+    :italian {:italian "rosso"
+              :cat :adjective}
+    :english {:english "red"
+              :cat :adjective}}))
 
 
 (def lookup-in

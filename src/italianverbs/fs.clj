@@ -139,7 +139,9 @@
 ;       :top ;; special case: (unify :top {:not X}) => :top
        val1
        ;; else
-       (let [result (unify (:not val1) val2)]
+       (let [debug1 (log/debug (str "VAL1: " val1))
+             debug2 (log/debug (str "VAL2: " val2))
+             result (unify (:not val1) val2)]
          (if (= result :fail)
            val2
            :fail)))
@@ -147,9 +149,11 @@
      ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
      (not (= :notfound (:not val2 :notfound)))
      (if (= val1 :top)
-;;       val1 ;; special case mentioned above in comments preceding this function.
+;       val1 ;; special case mentioned above in comments preceding this function.
        val2
-       (let [result (unify val1 (:not val2))]
+       (let [debug1 (log/debug (str "VAL1: " val1))
+             debug2 (log/debug (str "VAL2: " val2))
+             result (unify val1 (:not val2))]
          (if (= result :fail)
            val1
            :fail)))
@@ -319,10 +323,8 @@
      (= (.count args) 1)
      (first args)
 
-     (and (or (= (type val1) clojure.lang.PersistentArrayMap)
-              (= (type val1) clojure.lang.PersistentHashMap))
-          (or (= (type val2) clojure.lang.PersistentArrayMap)
-              (= (type val2) clojure.lang.PersistentHashMap)))
+     (and (map? val1)
+          (map? val2))
      (reduce #(merge-with merge %1 %2) args)
 
      (and 
@@ -344,22 +346,30 @@
      (and 
       (= (type val1) clojure.lang.Ref)
       (= (type val2) clojure.lang.Ref))
-      (do (dosync
-           (alter val1
-                  (fn [x] (merge @val1 @val2))))
-          val1)
+     (do (dosync
+          (alter val1
+                 (fn [x] (merge @val1 @val2))))
+         val1)
 
+     (and (= val2 :top)
+          (not (= :notfound (:not val1 :notfound))))
+     val1
+     
      (not (= :notfound (:not val1 :notfound)))
      (let [result (unify (:not val1) val2)]
        (if (= result :fail)
          val2
          :fail))
+     
+     (and (= val1 :top)
+          (not (= :notfound (:not val2 :notfound))))
+     val2
 
      (not (= :notfound (:not val2 :notfound)))
      (let [result (unify val1 (:not val2))]
-       (if (= result :fail)
-         val1
-         :fail))
+        (if (= result :fail)
+          val1
+          :fail))
 
      (or (= val1 :fail)
          (= val2 :fail))
@@ -381,6 +391,13 @@
 
      :else ;override with remainder of arguments, like core/merge.
      (apply merge (rest args)))))
+
+(defn merge-debug [& args]
+  (log/debug (str "mergeD  v1:" (first args)))
+  (log/debug (str "mergeD: v2:" (second args)))
+  (let [retval (apply merge args)]
+    (log/debug (str "retvalD: " retval))
+    retval))
 
 (defn unify-and-apply [maps]
   "merge maps, and then apply the function (:fn merged) to the merged map."
@@ -672,7 +689,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; both lists and arrays (i.e. just assume a sequence).
 (defn deserialize [serialized]
   (let [base (second (first serialized))]
-    (apply merge
+    (apply merge-debug
            (let [all
                  (cons base
                        (flatten

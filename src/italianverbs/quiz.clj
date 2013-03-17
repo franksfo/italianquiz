@@ -16,7 +16,7 @@
             [ring.util.codec :as url]
             [clojure.string :as string]))
 
-(def production true)
+(def production false)
 ;; ^^ true: pick a pre-generated question from mongodb
 ;;    false: generate a new question (much slower)
 

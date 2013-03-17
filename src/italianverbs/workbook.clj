@@ -29,22 +29,25 @@
                              "</div>"
                              "<div class='evalresult'>"
                              (cond
-                              (and (= (type loaded)
-                                      clojure.lang.LazySeq)
-                                   (= 0
-                                      (.size
-                                       (remove
-                                        (fn [each]
-                                          (= each java.lang.String))
+                              (or
+                               (and (seq? loaded)
+                                    (> (.size loaded) 1))
+                               (and false (= (type loaded)
+                                       clojure.lang.LazySeq)
+                                    (= 0
+                                       (.size
+                                        (remove
+                                         (fn [each]
+                                           (= each java.lang.String))
                                         (map (fn [each]
                                                (type each))
-                                             loaded)))))
-                              (str "<ol>"
+                                             loaded))))))
+                              (str "<ol class='workbook'>"
                                    (string/join " "
                                                 (map (fn [elem]
                                                        (str "<li>" (html/tablize elem) "</li>"))
                                                      (seq loaded)))
-                                   "</il>")
+                                   "</ol>")
                               (= (type loaded)
                                  clojure.lang.LazySeq)
                               (string/join " "

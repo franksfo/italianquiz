@@ -170,7 +170,7 @@
     (is (= result {:not 42}))))
 
 (deftest unify-with-not-and-top2
-  "same with reversed argument order."
+  "(reversed argument order as preceding): unifying :top with {:not X} should return {:not X} if X != top."
   (let [result (unify :top {:not 42})]
     (is (= result {:not 42}))))
 
@@ -576,3 +576,9 @@ a given value in a given map."
 ;;              (= @(:a result) 42))))
 
       
+(deftest copy-with-not
+  (let [fs1 {:a (ref {:not 42})}
+        fs1-copy (copy fs1)]
+    (is (not (fail? fs1-copy)))))
+
+    

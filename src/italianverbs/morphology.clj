@@ -457,6 +457,15 @@
            true
            (str "(regpast:TODO):" stem)))
 
+        ;; not used yet...
+        (= (fs/get-in arg '(:infl)) :infinitive)
+        (fs/get-in arg '(:infinitive))
+
+        ;; .. used instead.
+        (and (= :notfound (fs/get-in arg '(:infl) :notfound))
+             (string? (fs/get-in arg '(:infinitive))))
+        (fs/get-in arg '(:infinitive))
+        
         (= (fs/get-in arg '(:infl)) :futuro)
         (do
           (log/debug "futuro")
@@ -828,6 +837,15 @@
               stem (string/replace root #"^to " "")]
           (log/debug "+futuro")
           (str "will " stem))
+
+        ;; not used yet...
+        (= (fs/get-in arg '(:infl)) :infinitive)
+        (fs/get-in arg '(:infinitive))
+
+        ;; .. used instead.
+        (and (= :notfound (fs/get-in arg '(:infl) :notfound))
+             (string? (fs/get-in arg '(:infinitive))))
+        (fs/get-in arg '(:infinitive))
         
         :else
         ;; assume a map with keys (:infinitive and :agr), and conjugate present tense.

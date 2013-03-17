@@ -70,6 +70,24 @@
                                :comp 'np}
                            :b {:head 'past-intransitive-verbs}}}))
 
+    ;; TODO: add also: vp-infinitive-intranstitive.
+
+    (def vp-infinitive-transitive
+      (fs/unifyc head-principle
+                 subcat-2-principle
+                 verb-inflection-morphology
+                 {:head {:synsem {:cat :verb
+                                  :infl :infinitive
+                                  :subcat {:2 {:cat :noun}}}}}
+                 {:comment "vp[inf] &#x2192; head comp"
+                  :head head
+                  :comp comp
+                  :1 head
+                  :2 comp
+                  :extend {
+                           :a {:head 'infinitive-transitive-verbs
+                               :comp 'np}}}))
+
     (def vp-present
       (fs/unifyc head-principle
                  subcat-2-principle
@@ -84,11 +102,12 @@
                   :extend {
                            :a {:head 'present-transitive-verbs
                                :comp 'np}
-                           :b {:head 'present-aux-verbs
+                           :b {:head 'present-modal-verbs
+                               :comp 'vp-infinitive-transitive}
+                           :c {:head 'present-aux-verbs
                                :comp 'vp-past}
                            }}))
-
-
+    
     (def vp-future
       (fs/unifyc head-principle
                  subcat-2-principle
@@ -212,7 +231,9 @@
                               :a {:comp 'determiners
                                   :head 'nouns}
                               :b {:comp 'determiners
-                                  :head 'nbar}}}))))
+                                  :head 'nbar}}
+                     }
+                    ))))
     (list np1)))
 
 (def prep-phrase

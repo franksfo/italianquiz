@@ -533,31 +533,44 @@
 
     ;; show the italian and english for each expression.
     (map (fn [expr]
-           (let [english
-                 (string/capitalize
-                  (get-morph (fs/get-in expr '(:english))
-                             morph/get-english))
+           (cond
+            (fs/fail? expr)
+            "<tt>fail</tt>"
+            :else
+            (let [english
+                  (string/capitalize
+                   (get-morph (fs/get-in expr '(:english))
+                              morph/get-english))
                  italian
-                 (string/capitalize
-                  (get-morph (fs/get-in expr '(:italian))
-                             morph/get-italian))]
-             (string/trim
-              (str italian " (" english ")."))))
+                  (string/capitalize
+                   (get-morph (fs/get-in expr '(:italian))
+                              morph/get-italian))]
+              (string/trim
+               (str italian " (" english ").")))))
          expressions)))
+
+(defn fo [expressions]
+  (formattare expressions))
 
 (defn random-extension [phrase]
   (if (= :notfound (:extend phrase :notfound))
-    (throw (Exception. (str "Can't generate using this rule because it has no :extend feature.")))
+;    (throw (Exception. (str "Can't generate using this rule: " phrase "  because it has no :extend feature.")))
+    {:error "cannot generate using this rule."
+     :rule phrase}
     (let [random-key (nth (keys (:extend phrase)) (rand-int (.size (keys (:extend phrase)))))]
       (get (:extend phrase) random-key))))
 
+;; TODO: figure out how to encode namespaces within rules so we don't need
+;; to have this difficult-to-maintain static mapping.
 (defn eval-symbol [symbol]
   (cond
    (= symbol 'adjectives) lex/adjectives
    (= symbol 'nouns) lex/nouns
-   (= symbol 'verbs) lex/verbs
+   (= symbol 'infinitive-intransitive-verbs) lex/infinitive-intransitive-verbs
+   (= symbol 'infinitive-transitive-verbs) lex/infinitive-transitive-verbs
    (= symbol 'present-verbs) lex/present-verbs
    (= symbol 'present-intransitive-verbs) lex/present-intransitive-verbs
+   (= symbol 'present-modal-verbs) lex/present-modal-verbs
    (= symbol 'present-transitive-verbs) lex/present-transitive-verbs
    (= symbol 'future-intransitive-verbs) lex/future-intransitive-verbs
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
@@ -568,17 +581,23 @@
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
+   (= symbol 'verbs) lex/verbs
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
+                                        ; doesn't exist yet:
+                                        ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
+   (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
    (= symbol 'vp-future) gram/vp-future
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
 (defn random-head-and-comp-from-phrase [phrase expansion]
-  (let [head (eval-symbol (:head expansion))
+  (let [head-sym (:head expansion)
+        head (eval-symbol (:head expansion))
         comp (:comp expansion)] ;; leave comp as just a symbol for now: we will evaluate it later in random-comp-from-head.
     {:head head
+     :head-sym head-sym
      :comp comp}))
 
 ;; filter by unifying each candidate against parent's :head value -
@@ -588,8 +607,15 @@
 (def filter-head true)
 
 (defn head-candidates [phrase expansion]
-  (let [head-and-comp (random-head-and-comp-from-phrase phrase expansion)
+  (let [debug (fs/copy phrase)
+        head-and-comp (random-head-and-comp-from-phrase phrase expansion)
         parent phrase]
+    (if (fs/fail? parent)
+       (do
+         (log/error "head-candidates: parent is fail: " parent)
+         (log/error "phrase(debug): " debug)
+         (log/error "expansion: " expansion)
+         (throw (Exception. (str "head-candidates: parent is fail: " parent)))))
     (let [head (:head head-and-comp)
 ;          debug (println "HC: HEAD: " head)
 ;          debug (println "head's type is: " (type head))
@@ -598,8 +624,17 @@
                                    {:head {:synsem {:sem (lex/sem-impl (fs/get-in parent '(:head :synsem :sem)))}}}
                                    :top))
 ;          debug (println (str "HC:HF: " head-filter))
+          check-filter (if (fs/fail? head-filter)
+                         (do
+                           (log/error (str "head-filter is fail: " head-filter))
+                           (log/error (str " parent's head:" (fs/get-in parent '(:head))))
+                           (log/error (str " arg1" (fs/get-in parent '(:head :synsem :sem))))
+                           (throw (Exception. (str "head-filter is fail: " head-filter)))))
+                         
           candidates
           (if (and filter-head (seq? head))
+            ;; If head is a seq, then head is a list of possible candidates
+            ;; (e.g. all nouns) for head of this phrase (e.g. for NP) ..
             (filter (fn [head-candidate]
                       (let [head-candidate
                             (if (not (nil? (fs/get-in head-candidate '(:synsem :sem))))
@@ -608,7 +643,7 @@
                               head-candidate)]
                         (not (fs/fail? (fs/unifyc head-filter head-candidate)))))
                     head)
-            ;; map: unify with parent's head constraints
+            ;; .. else, the head is not a seq, so we assume it must be a map. Unify it with parent's head constraints.
             (fs/unifyc head (fs/get-in parent '(:head))))]
       (if (nil? candidates)
         (throw (Exception. (str "Candidates is nil."))))
@@ -620,15 +655,26 @@
         (do
           (log/error (str "expansion: " expansion))
           (log/error (str "No head candidates found for filter: " (if (nil? head-filter) "(nil)" head-filter) " with phrase: " (fs/get-in phrase '(:comment))))
-          (throw (Exception. (str "No head candidates found for filter: " (if (nil? head-filter) "(nil)" head-filter)))))
+          {:error "no head candidates found for filter."
+
+           :head (cond (seq? head) ;; make it formattable if it's a list. (TODO: move this checking somewhere else.)
+                       (zipmap (range 1 (+ 1 (.size head))) head)
+                       :else head)
+                       
+           :head-filter head-filter})
       candidates))))
 
 (declare generate)
 
 (defn random-head [head-and-comp parent expansion]
-;  (println (str "RH parent: " parent))
-;  (println (str "RH head-filter: " (fs/get-in parent '(:head))))
-  (let [head (:head head-and-comp)
+  (let [check (if (fs/fail? parent)
+                (do
+                  (log/error (str "parent is fail: " parent))
+                  (throw (Exception. (str "random-head: parent is fail: " parent)))))
+        
+                                        ;  (println (str "RH parent: " parent))
+                                        ;  (println (str "RH head-filter: " (fs/get-in parent '(:head))))
+        head (:head head-and-comp)
         head-filter (fs/get-in parent '(:head))
         head (head-candidates parent expansion)]
     (cond
@@ -640,11 +686,37 @@
      true
      (throw (Exception. (str "- don't know how to get a head from: " head))))))
 
+(defn check-parent-comp-vs-expansion [comp-expansion parent]
+  "Check whether this parent will be able to successfully
+generate a complement from this comp-expansion."
+  (let [comp-spec (fs/get-in parent '(:comp))
+        comps
+        (if (symbol? comp-expansion) 
+          (eval-symbol comp-expansion)
+          comp-expansion)]
+    (cond
+     (seq? comps)
+     true ;; TODO: check that at least one succeeds rather than just returning true.
+     (map? comps) ;; a feature structure.
+     (let [unified-spec (fs/unifyc comps comp-spec)
+           check (if (fs/fail? comps)
+                   (throw (Exception.
+                           (str "comps was fail: " comps))))
+           check (if (fs/fail? comp-spec)
+                   (throw (Exception.
+                           (str "comp-spec was fail: " comp-spec))))]
+       unified-spec))))
+
 (defn expansion-to-candidates [comp-expansion comp-spec]
-;  (println (str "ETC1: COMP-EXP: " comp-expansion))
-;  (println (str "ETC1: COMP-SPEC: " comp-spec))
+  "Generate a complement from the right side of a rule. A rule's right
+side consists of a head and a comp. comp-expansion is the
+complement. This may stand for (i.e. have as its value) either a
+sequence of lexemes (if a symbol) or may be a map (i.e. a single
+lexeme or phrase). e.g. in the rule np -> det nbar, the comp-expansion
+is 'det'.  The comp-spec param can be used to place additional
+constraints on the generation of the complement."
   (let [comps
-        (if (symbol? comp-expansion)
+        (if (symbol? comp-expansion) 
           (eval-symbol comp-expansion)
           comp-expansion)]
     (cond
@@ -652,9 +724,21 @@
      comps
      (map? comps) ;; a map such as np:
      (let [unified-spec (fs/unifyc comps comp-spec)
-;           debug (println (str "ETC: COMPS: " comps))
-;           debug (println (str "ETC: COMP-SPEC: " comp-spec))
-;           debug (println (str "ETC: UNIFIED SPEC: " unified-spec))
+           check (if (fs/fail? comps)
+                   (throw (Exception.
+                           (str "comps was fail: " comps))))
+           check (if (fs/fail? comp-spec)
+                   (throw (Exception.
+                           (str "comp-spec was fail: " comp-spec))))
+           check (if (fs/fail? unified-spec)
+                   (do
+                     (log/error (str "unified-spec was fail: " unified-spec))
+                     (log/error (str "comps: " comps))
+                     (log/error (str "comp-spec: " comp-spec))
+                     (throw (Exception.
+                             (str "unified-spec was fail: " unified-spec)))))
+           
+
            generated (generate unified-spec)] ;; recursively generate a phrase.
        (if (nil? generated)
          (throw (Exception.
@@ -668,7 +752,20 @@
        (throw (Exception. (str "TODO: recursively expand rules.")))))))
 
 (defn random-comp-for-parent [parent comp-expansion]
-  (let [candidates (expansion-to-candidates comp-expansion (fs/get-in parent '(:comp)))
+  (let [check (if (fs/fail? parent)
+                (do
+                  (log/error (str "parent was fail: " parent))
+                  (log/error (str "comp-expansion: " comp-expansion))
+                  (throw (Exception. (str "parent was fail: " parent)))))
+        check (let [comp-check (check-parent-comp-vs-expansion comp-expansion parent)]
+                (if (fs/fail? comp-check)
+                  (do
+                    (log/error (str "This parent: " parent))
+                     (log/error (str " cannot generate given comp-expansion: " comp-expansion))
+                     (throw (Exception.
+                             (str "Parent: '" (fs/get-in parent '(:comment)) "' with head italian=" (fs/get-in parent '(:head :italian)) "), whose head specifies a complement:" (fs/get-in parent '(:head :synsem :subcat)) " cannot generate from: " comp-expansion "."))))))
+
+        candidates (expansion-to-candidates comp-expansion (fs/get-in parent '(:comp)))
         path-to-comp-sem (if (not (nil? (fs/get-in parent '(:comp :synsem :sem :mod))))
                            '(:comp :synsem :sem :mod)
                            '(:comp :synsem :sem))
@@ -678,8 +775,6 @@
                           (do
 ;                            (println (str "NON-NULL SEMANTICS: " (fs/get-in parent path-to-comp-sem)))
                             (lex/sem-impl sem-impl-input)))
-;        debug (println (str "SEM-IMPL INPUT: " sem-impl-input))
-;        debug (println (str "SEM-IMPL: " sem-impl-result))
         complement-filter (if (not (nil? sem-impl-result))
                             (if (= path-to-comp-sem '(:comp :synsem :sem :mod))
                               (unify {:synsem {:sem {:mod sem-impl-result}}}
@@ -688,6 +783,26 @@
                                      (fs/get-in parent '(:comp))))
                             (fs/get-in parent '(:comp)))
 ;        debug (println (str "CF: " complement-filter))
+        check-fail (if (fs/fail? complement-filter)
+                     (do
+                       (log/error (str "Candidate filter is fail: " complement-filter))
+                       (log/error (str "sem-impl-result: " sem-impl-result))
+                       (log/error (str "alternative-a: " (= path-to-comp-sem '(:comp :synsem :sem :mod))))
+                       (log/error (str "path-to-comp-sem: " path-to-comp-sem))
+                       (log/error (str "parent's comp: " (fs/get-in parent '(:comp))))
+                       (log/error (str "double-check: "
+                                       (if (not (nil? sem-impl-result))
+                                         (if (= path-to-comp-sem '(:comp :synsem :sem :mod))
+                                           (unify {:synsem {:sem {:mod sem-impl-result}}}
+                                                  (fs/get-in parent '(:comp)))
+                                           (unify {:synsem {:sem sem-impl-result}}
+                                                  (fs/get-in parent '(:comp))))
+                                         (fs/get-in parent '(:comp)))))
+                       (log/error (str "first unify arg : " {:synsem {:sem {:mod sem-impl-result}}}))
+                       (log/error (str "parent's comp's:" (fs/get-in parent '(:comp))))
+                      (throw (Exception. (str "Candidate filter is fail: " complement-filter)))))
+        debug (log/debug (str "CF: " complement-filter))
+        debug (log/debug (str "AGAINST #CANDIDATES:" (.size candidates)))
         filtered  (if (> (.size candidates) 0)
                     (filter (fn [x]
                               (not (fs/fail?
@@ -699,7 +814,13 @@
                       (log/error (str "No candidates found for comp-expansion: " comp-expansion))
                       (throw (Exception. (str "No candidates found for comp-expansion: "
                                               comp-expansion)))))]
-    {:comp-candidates-unfiltered candidates
+    ;; TODO: don't build this huge diagnostic map unless there's a reason to -
+    ;; i.e. development/debugging/exceptions.
+    {:comp-candidates-unfiltered (zipmap (map
+                                              (fn [int]
+                                                (keyword (str int)))
+                                              (range 1 (+ 1 (.size candidates))))
+                                         candidates)
      :filtered filtered
      :comp (if (> (.size filtered) 0)
              (nth filtered (rand-int (.size filtered)))
@@ -708,29 +829,76 @@
                         (join (map (fn[x] (str "'" (:italian x) "/" (fs/get-in x '(:synsem :sem)) "'")) candidates)
                               " ") " matched the filter: (sem:" (fs/get-in complement-filter '(:synsem :sem))
                               " from parent: " (fs/get-in parent '(:head :italian)))]
-               (log/error error-string)
-               (throw (Exception. error-string))))
+;               (throw (Exception. error-string))
+               (log/error (str "No candidates matched complement filter: " (fs/get-in complement-filter '(:synsem :sem))))
+               (throw (Exception. (str "No candidates matched complement filter: " (fs/get-in complement-filter '(:synsem :sem)))))))
+;               {:error "no candidates match"
+;                :filter (fs/get-in complement-filter '(:synsem :sem))
+;                :candidates (zipmap (range 1 (+ 1 (.size candidates))) candidates)
+;                :parent (fs/get-in parent '(:head :italian))}))
+               ;;               (log/error error-string)
+               ;;                                        ;               (throw (Exception. error-string))
+               ;;               (error/raise "GOT HERE.")
+               ;;               (throw (GenerateException. {:foo 42}))
+     ;;               ))
      :parent parent
      :expansion comp-expansion}))
 
 (defn generate-with-parent [random-head-and-comp phrase expansion]
 ;  (println (str "GWP: RHAC: " random-head-and-comp))
 ;  (println (str "GWP: PHRA: " phrase))
-  (let [random-head (random-head random-head-and-comp phrase expansion)]
-    (unify
-     (fs/copy phrase)
-     {:head (fs/copy random-head)})))
+  (let [check
+        (if (fs/fail? (:head random-head-and-comp))
+          (do
+            (log/error (str ":head part is :fail of: " random-head-and-comp))
+            (throw (Exception. (str "generate-with-parent: head part is fail of: " random-head-and-comp)))))
+        random-head (random-head random-head-and-comp phrase expansion)]
+    (let [retval
+          (unify
+           (fs/copy phrase)
+           {:head (fs/copy random-head)})]
+      (log/debug (str "GWP: fail?" (fs/fail? retval)))
+      (if (fs/fail? retval)
+        (throw (Exception. (str "generate-with-parent failed with random-head: " random-head))))
+      (log/debug (str "GWP: " retval))
+      retval)))
 
 (declare generate-with-head-and-comp)
 
 (defn generate [phrase]
-  (let [chosen-extension (random-extension phrase)
-        random-head-and-comp (random-head-and-comp-from-phrase phrase chosen-extension)]
-    (generate-with-head-and-comp phrase random-head-and-comp chosen-extension)))
+  (let [check (if (fs/fail? phrase)
+                (do
+                  (log/error (str "generate: input phrase was fail: " phrase))
+                  (throw (Exception. (str "generate: input phrase was fail: " phrase)))))
+        chosen-extension (random-extension phrase)]
+
+    (log/debug (str "generating " (:comment phrase) " with " chosen-extension))
+    (let [random-head-and-comp (random-head-and-comp-from-phrase phrase chosen-extension)]
+;      (log/info (str "generate: returned rhac was: " random-head-and-comp))
+      (let [retval (generate-with-head-and-comp phrase random-head-and-comp chosen-extension)]
+        (log/debug (str "generate: returning " (:comment phrase) " with " (:extend phrase)))
+        retval))))
+
+(defn check-for-fail [check-fs & [ message ] ]
+  (if (fs/fail? check-fs)
+    (do
+      (log/error (str "Fail: " check-fs))
+      (throw (Exception. (str "Fail: " check-fs))))))
 
 (defn generate-with-head-and-comp [phrase head-and-comp chosen-extension]
-  (let [unified-parent (generate-with-parent head-and-comp phrase chosen-extension)
-        comp-expansion (:comp head-and-comp)]
+  (let [check (if (fs/fail? head-and-comp)
+                (do
+                  (log/error (str "head-and-comp was fail: " head-and-comp))
+                  (throw (Exception. (str "head-and-comp was fail: " head-and-comp)))))
+        check (if (fs/fail? phrase)
+                (do
+                  (log/error (str "phrase was fail: " phrase))
+                  (throw (Exception. (str "phrase was fail: " phrase)))))
+
+
+        unified-parent (generate-with-parent head-and-comp phrase chosen-extension)]
+    (check-for-fail unified-parent)
+    (let [comp-expansion (:comp head-and-comp)]
       ;; now get complement given this head.
     (if (nil? comp-expansion)
       ;; no complement:  a phrase with only a single child constituent: just return the parent..
@@ -750,39 +918,65 @@
 
       ;; ..else there's a complement.
       (let [random-comp
-            (random-comp-for-parent unified-parent comp-expansion)
-            unified-with-comp
-            (fs/unifyc
-             unified-parent
-             {:comp
-              (fs/get-in random-comp '(:comp))})]
-        (log/debug (str "italian 1:" (fs/get-in unified-with-comp '(:1 :italian))))
-        (log/debug (str "italian 2:" (fs/get-in unified-with-comp '(:2 :italian))))
-        (log/debug (str "1 cat:" (fs/get-in unified-with-comp '(:1 :synsem :cat))))
-        (log/debug (str "2 cat:" (fs/get-in unified-with-comp '(:2 :synsem :cat))))
-        (let [result
-              (merge
-               unified-with-comp
-               {:extend chosen-extension}
-               {:italian (morph/get-italian
-                          (fs/get-in unified-with-comp '(:1 :italian))
-                          (fs/get-in unified-with-comp '(:2 :italian))
-                          (fs/get-in unified-with-comp '(:1 :synsem :cat))
-                          (fs/get-in unified-with-comp '(:2 :synsem :cat)))
-                
-                :english (morph/get-english
-                          (fs/get-in unified-with-comp '(:1 :english))
-                          (fs/get-in unified-with-comp '(:2 :english))
-                          (fs/get-in unified-with-comp '(:1 :synsem :cat))
-                          (fs/get-in unified-with-comp '(:2 :synsem :cat)))})]
-          (if (fs/fail? result)
+            (random-comp-for-parent unified-parent comp-expansion)]
+        (if (fs/fail? random-comp-for-parent)
+          (do
+            (log/error (str "RANDOM-COMP IS FAIL WITH unified parent: " unified-parent))
+            :fail)
+          (if (not (nil? (:error random-comp-for-parent)))
+            ;; propagate the error up.
             (do
-              (log/error (str "Generation failed: parent: " (:comment unified-parent)))
-              (log/error (str "Generation failed: comp: " (:comment random-comp)))
-              (throw (Exception. (str "Generation failed: parent: " (:comment unified-parent)
-                                      "; comp: " random-comp))))
-            (fs/copy-trunc result)))))))
-
+              (log/error (str "RANDOM-COMP HAS AN ERROR EMBEDDED INSIDE IT."))
+              random-comp-for-parent)
+          (let [unified-with-comp
+                (fs/unifyc
+                 unified-parent
+                 {:comp
+                  (fs/get-in random-comp '(:comp))})]
+            (if (fs/fail? unified-with-comp)
+              (do
+                (log/error (str "UNIFIED-WITH-COMP IS FAIL WITH random-comp=" (fs/get-in random-comp '(:comp))))
+                {:error "unified with-comp is fail with this random-comp."
+                 :random-comp random-comp})
+              (do
+                (log/debug (str "italian 1:" (fs/get-in unified-with-comp '(:1 :italian))))
+                (log/debug (str "italian 2:" (fs/get-in unified-with-comp '(:2 :italian))))
+                (log/debug (str "1 cat:" (fs/get-in unified-with-comp '(:1 :synsem :cat))))
+                (log/debug (str "2 cat:" (fs/get-in unified-with-comp '(:2 :synsem :cat))))
+                (let [result
+                      (merge
+                       unified-with-comp
+                       {:extend chosen-extension}
+                       {:italian (morph/get-italian
+                                  (fs/get-in unified-with-comp '(:1 :italian))
+                                  (fs/get-in unified-with-comp '(:2 :italian))
+                                  (fs/get-in unified-with-comp '(:1 :synsem :cat))
+                                  (fs/get-in unified-with-comp '(:2 :synsem :cat)))
+                        
+                        :english (morph/get-english
+                                  (fs/get-in unified-with-comp '(:1 :english))
+                                  (fs/get-in unified-with-comp '(:2 :english))
+                                  (fs/get-in unified-with-comp '(:1 :synsem :cat))
+                                  (fs/get-in unified-with-comp '(:2 :synsem :cat)))})]
+                  (if (fs/fail? result)
+                    (do
+;              (log/error (str "random-comp: " random-comp))
+;              (log/error (str "random-comp: (formatted) " (formattare random-comp)))
+                      (log/error (str "fail? random-comp: " (fs/fail? random-comp)))
+                      (log/error (str "italian 1:" (fs/get-in unified-with-comp '(:1 :italian))))
+                      (log/error (str "italian 2:" (fs/get-in unified-with-comp '(:2 :italian))))
+                      (log/error (str "1 cat:" (fs/get-in unified-with-comp '(:1 :synsem :cat))))
+                      (log/error (str "2 cat:" (fs/get-in unified-with-comp '(:2 :synsem :cat))))
+                      
+                      (log/error (str "GF: fail? unified-with-comp: " (fs/fail? unified-with-comp)))
+;              (log/error (str "Generation failed: parent: " unified-parent))
+;              (log/error (str "Generation failed: comp: " random-comp))
+                      {:error "Generation failed in (generate-with-head-and-comp)"
+                       :unified-parent :cannot-show-unified-parent-for-now
+                       :comp :cannot-show-random-comp-for-now})
+;               :comp random-comp})
+                    (fs/copy-trunc result)))))))))))))
+    
 (defn random-sentence []
   (let [rules (list gram/s1 gram/s2)]
     (generate (nth rules (rand-int (.size rules))))))
