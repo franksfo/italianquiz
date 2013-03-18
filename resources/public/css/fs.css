@@ -263,7 +263,7 @@ ol.workbook li {
     float:left;
     padding-left: 0.25em;
     border-top:0px solid green;
-    border-left:2px solid lightblue;
+    border-left:0px solid lightblue;
     border-bottom:0px solid green;
     border-right:0px solid green;
     width:100%;
@@ -276,7 +276,8 @@ ol.workbook {
 
 ol.workbook {
     float:left;
-    counter-reset: workbook-counter 0;}
+    counter-reset: workbook-counter 1;
+}
 
 /* Incrementing with each li. */
 ol.workbook > li + li {
