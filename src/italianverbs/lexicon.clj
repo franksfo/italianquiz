@@ -1378,6 +1378,15 @@
               :cat :adjective}
     :english {:english "tall"
               :cat :adjective}}
+
+
+   {:synsem {:cat :adjective
+             :sem {:pred :bello
+                   :mod :top}} ;; for now, no restrictions on what can be beautiful
+    :italian {:italian "bello"
+              :cat :adjective}
+    :english {:english "beautiful"
+              :cat :adjective}}
    
    {:synsem {:cat :adjective
              :sem {:pred :bianco
@@ -1388,6 +1397,14 @@
                           :fem {:plur "bianche"}}
               :cat :adjective}
     :english {:english "white"
+              :cat :adjective}}
+
+   {:synsem {:cat :adjective
+             :sem {:pred :brutto
+                   :mod :top}} ;; for now, no restrictions on what can be ugly.
+    :italian {:italian "brutto"
+              :cat :adjective}
+    :english {:english "ugly"
               :cat :adjective}}
    
    {:synsem {:cat :adjective
