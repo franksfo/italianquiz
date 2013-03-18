@@ -141,6 +141,7 @@
     (include-css "/italian/css/style.css")
     (include-css "/italian/css/layout.css")
     (include-css "/italian/css/fs.css")
+    (include-css "/italian/css/quiz.css")
     ]
    [:body
     {:onload

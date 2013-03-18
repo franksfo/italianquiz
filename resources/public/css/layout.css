@@ -205,10 +205,6 @@ div#searchresults {
     float:left;
 }
 
-table.question td.question_text {
-    width:20em;
-}
-
 div.respond {
     margin:0.3em;
 }

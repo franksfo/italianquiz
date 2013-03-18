@@ -105,6 +105,7 @@ function table_row(question_id, perfect) {
     var english =  $("#"+question_id+"_en").html();
     var italian =  $("#"+question_id+"_it").html();
     var rowspan = "1";
+    var stripe = $("#stripe_toggle").html();
     var row_id = "tr_"+question_id+"_js"; // <-"_js" will go away.
     if (perfect == true) {rowspan = 1;} else {rowspan = 2;}
     var english_td = "<td class='en' rowspan='" + rowspan + "'>" + english + "</td>";
@@ -115,10 +116,15 @@ function table_row(question_id, perfect) {
         correct_td = "<td class='corr'> " + evaluation + "</td>";
         eval_tr = ""; // no correction necessary: user's response was correct.
     } else {
-        eval_tr = "<tr class='" + stripe + "'><td class='incorr'>" + evaluation + "</td></tr>";
-        correct_td = "<td>" + italian + "</td>";
+	if (evaluation == "") {
+	    // user's response was blank: maybe they need encouragement by showing the correct response.
+            correct_td = "<td class='corr'> " + italian + "</td>";
+            eval_tr = "";
+	} else {
+            eval_tr = "<tr class='" + stripe + "'><td class='incorr'>" + evaluation + "</td></tr>";
+            correct_td = "<td>" + italian + "</td>";
+	}
     }
-    var stripe = $("#stripe_toggle").html();
 
     var row
         = "<tr id='" + row_id + "' style='display:none' class='" + stripe + "'  >" +

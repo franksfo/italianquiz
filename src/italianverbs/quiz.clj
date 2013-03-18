@@ -560,21 +560,17 @@
       [:h2 "Quiz" [:span#quizbanner [:script "show_question_types()" ]]]
       [:div#quiz_container
 
-       [:table {:class "question"} " "
-        [:tr
-         [:td {:class "question_text"}
-          [:div#ajax_question " "
-           [:script "get_next_question()" ]
-           ]
-          ]
-         [:td
-          [:input {:size "25" :id "guess_input" :type "text"}
-           [:script "clear_guess_input()" ]
-           ]
-          ]
+       [:div#ajax_question " "
+        [:script "get_next_question()" ]
+        ]
+
+       [:div#guess_input_div
+        [:input {:size "25" :id "guess_input" :type "text"}
+         [:script "clear_guess_input()" ]
          ]
         ]
-        [:div {:class "respond" }
+
+        [:div#guess_respond_button
          [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
         ]
 

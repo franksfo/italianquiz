@@ -1,0 +1,7 @@
+tr.undefined {
+    background:red;
+}
+
+tr.undefined td {
+    background:yellow;
+}

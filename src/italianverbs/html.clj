@@ -106,8 +106,10 @@
                   "imparare l'italiano")]
 
      (include-css "resources/public/css/style.css")
+     (include-css "resources/public/css/fs.css")
      (include-css "resources/public/css/layout.css")
-     (include-css "resources/public/css/fs.css")]
+     (include-css "resources/public/css/quiz.css")
+     ]
 
 
     [:body

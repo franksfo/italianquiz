@@ -239,26 +239,29 @@ table.matrix td.corrent {
 }
 
 span.insert {
+    visibility:hidden;
     border-bottom: 8px solid red;
     text-decoration:line-through;
 }
 
 span.delete {
-    display:none;
-/*    color:#ddd;
-    border-bottom: 8px solid red;*/
+    color:#bbb;
+    border-bottom: 8px solid red;
 }
 span.subst {
+/*    display:none;*/
     border-bottom: 8px solid red;
-    color: white;
 /*    text-decoration:line-through;*/
-    color:#ddd;
+    color:#bbb;
 }
+
 span.match {
-/*    color:#ddd;*/  /* uncomment the preceding color:#ddd, once we 
-			are able to know that match is only used in showing
-			errors.*/
+    color:#bbb;
     border-bottom: 8px solid lightgreen;
+}
+
+td.corr span.match {
+    color: black;
 }
 
 td.eval {
@@ -343,17 +346,19 @@ tr.distn span.match {
 }
 
 span.delete {
-    color:#ddd;
     border-bottom: 8px solid red;
+    color: transparent;
 }
+
 span.subst {
+    visibility:visible;
     border-bottom: 8px solid red;
-    color:#ddd;
-    text-decoration:line-through;
 }
+
 span.match {
     border-bottom: 8px solid lightgreen;
 }
+
 div.click {
     border: 3px solid lightgreen;
     background: green;
