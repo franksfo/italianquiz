@@ -221,7 +221,7 @@
                     {:head {:synsem {:cat :noun
                                      :agr agr}}
                      :synsem {:agr agr}}
-                    {:comment "np &#x2192; det noun"
+                    {:comment "np &#x2192; det (noun or nbar)"
                      :synsem {:agr agr}
                      :head head
                      :comp comp
