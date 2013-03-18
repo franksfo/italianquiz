@@ -463,6 +463,7 @@
 
         ;; .. used instead.
         (and (= :notfound (fs/get-in arg '(:infl) :notfound))
+             (= :notfound (fs/get-in arg '(:agr) :notfound))
              (string? (fs/get-in arg '(:infinitive))))
         (fs/get-in arg '(:infinitive))
         
@@ -844,13 +845,14 @@
 
         ;; .. used instead.
         (and (= :notfound (fs/get-in arg '(:infl) :notfound))
+             (= :notfound (fs/get-in arg '(:agr) :notfound))
              (string? (fs/get-in arg '(:infinitive))))
-        (fs/get-in arg '(:infinitive))
+        (str (fs/get-in arg '(:infinitive)))
         
         :else
         ;; assume a map with keys (:infinitive and :agr), and conjugate present tense.
         (let [root (fs/get-in arg '(:infinitive))
-              ;; TODO: throw exception rather than encoding error as part
+              ;; TODO: throw exception rather than encoding error "nilrootz" as part
               ;; of the english string.
               root (if (nil? root) "(nilrootz)" root)
               root (if (not (= (type root) java.lang.String))
