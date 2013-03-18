@@ -30,7 +30,3 @@
   (let [count (mongo/fetch-count :sentences)
         sentences (mongo/fetch :sentences)]
     (nth sentences (rand-int count))))
-
-
-
-
