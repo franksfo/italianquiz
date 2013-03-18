@@ -1013,6 +1013,29 @@
     :synsem {:sem {:pred :vedere
                    :subj {:animate true}}}}))
 
+
+(def volare
+  (unify
+   infinitive
+   (let [obj-sem (ref :top)]
+     {:synsem {:sem {:obj obj-sem}
+               :subcat {:2 {:sem obj-sem
+                            :cat :verb
+                            :infl :infinitive}}}})
+
+   {:italian {:infinitive "volare"
+              :irregular {:present {:1sing "voglio"
+                                    :2sing "vuoi"
+                                    :3sing "voule"
+                                    :1plur "vogliamo"
+                                    :2plur "volete"
+                                    :3plur "vogliano"}}}
+    :english {:infinitive "want"
+              :irregular {:past "wanted"}}
+    :synsem {:sem {:pred :volere
+                   :subj {:animate true}
+                   :obj {:pred :top}}}})) ; volere's object is a verb.
+
 (def finite-verb
   (let [subj-sem (ref :top)
         root-sem (ref {:subj subj-sem})
@@ -1150,6 +1173,8 @@
 (def present-modal-verbs
   (list
    (unify {:root dovere}
+          trans-present-tense-verb)
+   (unify {:root volare}
           trans-present-tense-verb)))
 
 (def present-transitive-verbs
