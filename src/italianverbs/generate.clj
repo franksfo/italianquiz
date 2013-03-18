@@ -978,7 +978,10 @@ constraints on the generation of the complement."
                     (fs/copy-trunc result)))))))))))))
     
 (defn random-sentence []
-  (let [rules (list gram/s1 gram/s2)]
+  (let [rules (list
+               gram/s-present
+               gram/s-future
+               )]
     (generate (nth rules (rand-int (.size rules))))))
 
 (defn random-sentences [n]

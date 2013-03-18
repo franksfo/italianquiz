@@ -254,8 +254,8 @@
 (def vp-present (nth vp-rules 0))
 (def vp-past (nth vp-rules 1))
 (def vp-future (nth vp-rules 2))
-(def s1 (nth sentence-rules 0))
-(def s2 (nth sentence-rules 1))
+(def s-present (nth sentence-rules 0))
+(def s-future (nth sentence-rules 1))
 
 ;; TODO: move to lexicon (maybe).
 (defn italian-number [number]
