@@ -209,4 +209,6 @@
 ;(over (over s1 pronouns (over vp-present present-aux-verbs))
                                         ;      (over (over vp-past past-verbs) (over np determiners nouns)))
 
-;(dotimes [n 200] (time (random-sentence)))
+ ;(dotimes [n 200] (time (random-sentence)))
+
+;;(take 20 (repeatedly #(formattare (random-sentence))))
