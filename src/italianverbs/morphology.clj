@@ -593,8 +593,9 @@
              (contains? (set (keys arg)) :agr)
              (contains? (set (keys arg)) :infinitive)
              (not (= :notfound (fs/get-in arg '(:infinitive :irregular :present) :notfound)))
-             ;; TODO: check (= :present) rather than (not (= :past)).
+             ;; TODO: check (= :present) rather than (not (= :past)) and (not (= :futuro)).
              (not (= :past (fs/get-in arg '(:infl) :notfound)))
+             (not (= :futuro (fs/get-in arg '(:infl) :notfound)))
              (not (= java.lang.String (type (fs/get-in arg '(:infinitive))))))
         ;; irregular present-tense (e.g. "fare")
         (let [root (fs/get-in arg '(:infinitive))
