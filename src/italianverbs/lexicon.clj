@@ -99,6 +99,8 @@
          (if (= (fs/get-in input '(:part-of-human-body)) true)
            {:speakable false
             :animate false
+            :edible false
+            :drinkable false
             :legible false
             :artifact false})
 
@@ -992,6 +994,35 @@
     :synsem {:sem {:pred :pensare
                    :subj {:human true}}}}))
 
+
+(def potere
+  (unify
+   infinitive
+   (let [obj-sem (ref :top)]
+     {:synsem {:sem {:obj obj-sem}
+               :subcat {:2 {:sem obj-sem
+                            :cat :verb
+                            :infl :infinitive}}}})
+
+   {:italian {:infinitive "potere"
+              :irregular {:present {:1sing "posso"
+                                    :2sing "puoi"
+                                    :3sing "può"
+                                    :1plur "possiamo"
+                                    :2plur "potete"
+                                    :3plur "possono"}}}
+    :english {:infinitive "to be able"
+              :irregular {:past "could"
+                          :present {:1sing "can"
+                                    :2sing "can"
+                                    :3sing "can"
+                                    :1plur "can"
+                                    :2plur "can"
+                                    :3plur "can"}}}
+    :synsem {:sem {:pred :potere
+                   :subj {:animate true}
+                   :obj {:pred :top}}}})) ; volere's object is a verb.
+
 (def ridere
   (unify
    intransitive
@@ -1197,6 +1228,8 @@
   (list
    (unify {:root dovere}
           trans-present-tense-verb)
+   (unify {:root potere}
+          trans-present-tense-verb)
    (unify {:root volare}
           trans-present-tense-verb)))
 
@@ -1319,6 +1352,7 @@
    present-verbs
    past-verbs
    future-verbs
+   present-modal-verbs
    ;; infinitives:
    infinitive-intransitive-verbs
    infinitive-transitive-verbs))
