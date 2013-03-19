@@ -45,7 +45,7 @@
    ;; TODO: make this configurable:
    ;;   might want to have a value for production usage lower/higher than
    ;;   for development usage.
-   :timeout 100000 ;; for development, set high (100 seconds)
+   :timeout 1000000 ;; for development, set high (1000 seconds)
    :namespace 'italianverbs.sandbox))
 
 (defn sandbox-load-string [expression]
@@ -211,4 +211,4 @@
 
  ;(dotimes [n 200] (time (random-sentence)))
 
-;;(take 20 (repeatedly #(formattare (random-sentence))))
+;;(take 20 (repeatedly #(fo (random-sentence))))
