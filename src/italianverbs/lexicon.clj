@@ -1080,10 +1080,10 @@
    {:italian {:infinitive "volare"
               :irregular {:present {:1sing "voglio"
                                     :2sing "vuoi"
-                                    :3sing "voule"
+                                    :3sing "vuole"
                                     :1plur "vogliamo"
                                     :2plur "volete"
-                                    :3plur "vogliano"}}}
+                                    :3plur "vogliono"}}}
     :english {:infinitive "want"
               :irregular {:past "wanted"}}
     :synsem {:sem {:pred :volere
