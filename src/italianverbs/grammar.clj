@@ -70,8 +70,6 @@
                                :comp 'np}
                            :b {:head 'past-intransitive-verbs}}}))
 
-    ;; TODO: add also: vp-infinitive-intranstitive.
-
     (def vp-infinitive-transitive
       (fs/unifyc head-principle
                  subcat-2-principle
@@ -104,7 +102,9 @@
                                :comp 'np}
                            :b {:head 'present-modal-verbs
                                :comp 'vp-infinitive-transitive}
-                           :c {:head 'present-aux-verbs
+                           :c {:head 'present-modal-verbs
+                               :comp 'infinitive-intransitive-verbs}
+                           :d {:head 'present-aux-verbs
                                :comp 'vp-past}
                            }}))
     
