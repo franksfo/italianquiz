@@ -1480,7 +1480,19 @@
     :italian {:italian "rosso"
               :cat :adjective}
     :english {:english "red"
-              :cat :adjective}}))
+              :cat :adjective}}
+
+
+
+   {:synsem {:cat :adjective
+             :sem {:pred :semplice
+                   :mod {:human true}}}
+    :italian {:italian "semplice"
+              :cat :adjective}
+    :english {:english "naive"
+              :cat :adjective}}
+
+   ))
 
 
 (def lookup-in
