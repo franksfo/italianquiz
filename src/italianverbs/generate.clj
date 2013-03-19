@@ -815,13 +815,14 @@ constraints on the generation of the complement."
                       (throw (Exception. (str "No candidates found for comp-expansion: "
                                               comp-expansion)))))]
     ;; TODO: don't build this huge diagnostic map unless there's a reason to -
-    ;; i.e. development/debugging/exceptions.
-    {:comp-candidates-unfiltered (zipmap (map
-                                              (fn [int]
-                                                (keyword (str int)))
-                                              (range 1 (+ 1 (.size candidates))))
-                                         candidates)
-     :filtered filtered
+    ;; i.e. development/debugging/exceptions: commenting out the following for now.
+    ;;
+    {;:comp-candidates-unfiltered (zipmap (map
+     ;                                         (fn [int]
+     ;                                           (keyword (str int)))
+     ;                                         (range 1 (+ 1 (.size candidates))))
+     ;                                    candidates)
+     ;:filtered filtered
      :comp (if (> (.size filtered) 0)
              (nth filtered (rand-int (.size filtered)))
              (let [error-string
@@ -831,6 +832,8 @@ constraints on the generation of the complement."
                               " from parent: " (fs/get-in parent '(:head :italian)))]
 ;               (throw (Exception. error-string))
                (log/error (str "No candidates matched complement filter: " (fs/get-in complement-filter '(:synsem :sem))))
+               (log/error (str " Head: " (fs/get-in parent '(:head :italian))))
+               (log/error (str " unfiltered candidate list: " candidates))
                (throw (Exception. (str "No candidates matched complement filter: " (fs/get-in complement-filter '(:synsem :sem)))))))
 ;               {:error "no candidates match"
 ;                :filter (fs/get-in complement-filter '(:synsem :sem))
