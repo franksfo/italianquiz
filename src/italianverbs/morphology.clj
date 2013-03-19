@@ -815,7 +815,7 @@
              (= (fs/get-in arg '(:infl)) :past))
         (let [root (fs/get-in arg '(:infinitive))
               ;; TODO: throw exception rather than encoding error as part
-              ;; of the english string.
+              ;; of the english string (i.e. no 'nilrootz')
               root (if (nil? root) "(nilrootz)" root)
               root (if (not (= (type root) java.lang.String))
                      (fs/get-in arg '(:infinitive :infinitive))
@@ -1015,6 +1015,11 @@
       (= b-category :adjective))
      {:1 conjugated-b
       :2 conjugated-a}
+
+     ;; "can" + "to X" => "can X"
+     (= (fs/get-in conjugated-a '(:infinitive :infinitive)) "to be able")
+     {:1 conjugated-a
+      :2 (string/replace conjugated-b #"^to " "")}
 
      true
      {:1 conjugated-a
