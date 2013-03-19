@@ -27,6 +27,7 @@
                    {:artifact false
                     :mass false
                     :physical-object true
+                    :part-of-human-body false
                     :drinkable false
                     :speakable false
                     :place false}{})
@@ -73,10 +74,12 @@
                   :physical-object true
                   :edible false
                   :animate true
+                  :part-of-human-body false
                   :drinkable false}{})
          inanimate (if (= (fs/get-in input '(:animate))
                            false)
-                      {:human false}{})
+                     {:human false
+                      :part-of-human-body false}{})
 
          ;; legible(x) => artifact(x),drinkable(x,false),edible(x,false),human(x,false)
          legible
@@ -84,6 +87,7 @@
            {:artifact true
             :drinkable false
             :human false
+            :part-of-human-body false
             :edible false})
 
          ;; artifact(x,false) => legible(x,false)
@@ -91,10 +95,18 @@
          (if (= (fs/get-in input '(:artifact)) false)
            {:legible false})
 
+         part-of-human-body
+         (if (= (fs/get-in input '(:part-of-human-body)) true)
+           {:speakable false
+            :animate false
+            :legible false
+            :artifact false})
+
          ;; we don't eat pets (unless things get so desperate that they aren't pets anymore)
          pets (if (= (fs/get-in input '(:pet))
                      true)
                 {:edible false
+                 :buyable true
                  :physical-object true
                  })
 
@@ -111,7 +123,7 @@
      (let [merged (fs/merge animate artifact consumable-false drinkable
                             drinkable-xor-edible-1 drinkable-xor-edible-2
                             edible human inanimate
-                            legible not-legible-if-not-artifact pets place
+                            legible not-legible-if-not-artifact part-of-human-body pets place
                             input
                             )]
        (if (not (= merged input))
@@ -221,6 +233,16 @@
                                    :animate false
                                    :pred :acqua}}}})
 
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          countable-noun
+                          masculine
+                          {:synsem {:sem {:pred :amico
+                                          :human true}}
+                           :italian "amico"
+                           :english "friend"})})
+
      (unify drinkable
             feminine
             {:root {:italian "birra"
@@ -233,10 +255,11 @@
                           common-noun
                           countable-noun
                           masculine
-                          {:synsem {:sem {:pred :amico
-                                          :human true}}
-                           :italian "amico"
-                           :english "friend"})})
+                          {:synsem {:sem {:pred :braccio
+                                          :part-of-human-body true}}
+                           :italian "braccio"
+                           :english "arm"})})
+
 
      (unify noun-conjugator
             {:root (unify agreement
