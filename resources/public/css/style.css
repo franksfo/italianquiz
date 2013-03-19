@@ -239,12 +239,13 @@ table.matrix td.corrent {
 }
 
 span.insert {
-    visibility:hidden;
+    color: #bbb;
+    visibility:visible;
     border-bottom: 8px solid red;
-    text-decoration:line-through;
 }
 
 span.delete {
+    display:none;
     color:#bbb;
     border-bottom: 8px solid red;
 }
