@@ -24,30 +24,31 @@ function submit_user_response(form_input_id) {
     });
     // 2. generate a new question and present it to the user.
     get_next_question();
-    // 3. initialize UI so that user is ready to answer question.
-    clear_guess_input();
 }
 
 function get_next_question() {
+    var hint = "";
     $("#ajax_question").html("...");
     $.ajax({
         dataType: "html",
         url: "/italian/quiz/question/",
         success: function (content) {
             $("#ajax_question").html(content);
+	    hint = content; // TODO: hintize.
+	    // 3. initialize user's input so that user is ready to answer next question.
+	    set_guess_input('');
         }
     });
 }
 
-function clear_guess_input() {
-    $("#guess_input").val('');
+function set_guess_input(text) {
+    $("#guess_input").val(text);
     $("#guess_input").focus();
     $("#guess_input").autoGrowInput({
-    comfortZone: 70,
-    minWidth: 200,
-    maxWidth: 2000
-});
-
+	comfortZone: 70,
+	minWidth: 410,
+	maxWidth: 2000
+    });
 }
 
 function remove_pluses(string) {
@@ -56,8 +57,8 @@ function remove_pluses(string) {
     return newstr;
 }
 
-function ajax_quiz() {
-    clear_guess_input();
+function ajax_quiz(hint) {
+    set_guess_input(hint);
 }
 
 function show_quiz_preferences() {
@@ -110,7 +111,7 @@ function table_row(question_id, perfect) {
     if (perfect == true) {rowspan = 1;} else {rowspan = 2;}
     var english_td = "<td class='en' rowspan='" + rowspan + "'>" + english + "</td>";
     var evaluation = $("#"+row_id+"_eval").html();
-    correct_td = "";
+    var correct_td = "";
     var eval_tr = "";
     if (perfect == true) {
         correct_td = "<td class='corr'> " + evaluation + "</td>";

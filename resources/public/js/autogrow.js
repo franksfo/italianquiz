@@ -6,7 +6,7 @@
 
         o = $.extend({
             maxWidth: 1000,
-            minWidth: 30,
+            minWidth: 50,
             comfortZone: 10
         }, o);
 

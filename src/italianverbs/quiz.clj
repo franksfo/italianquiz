@@ -560,13 +560,15 @@
       [:h2 "Quiz" [:span#quizbanner [:script "show_question_types()" ]]]
       [:div#quiz_container
 
-       [:div#ajax_question " "
-        [:script "get_next_question()" ]
-        ]
+       [:div#qa
+        [:div#ajax_question " "
+         [:script "get_next_question()" ]
+         ]
 
-       [:div#guess_input_div
-        [:input {:size "25" :id "guess_input" :type "text"}
-         [:script "clear_guess_input()" ]
+        [:div#guess_input_div
+         [:input {:size "20" :id "guess_input" :type "text"  }
+          [:script "set_guess_input('foo bar')" ]
+          ]
          ]
         ]
 
@@ -579,7 +581,7 @@
      )
 
    request
-   "ajax_quiz('quiz_container')"))
+   "ajax_quiz('')"))
 
 ;; TODO: more usage of fake session below for more coverage of quiz stateful behavior.
 (defn test []

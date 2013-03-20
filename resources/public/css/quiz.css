@@ -5,3 +5,27 @@ tr.undefined {
 tr.undefined td {
     background:yellow;
 }
+
+div#qa {
+    margin-left:10%;
+    width:80%;
+}
+
+div#ajax_question {
+    font-size:150%;
+    width:auto;
+    float:left
+}
+
+div#guess_input_div {
+    width:100%;
+    float:left;
+}
+
+div#guess_input_div input {
+    font-size:150%;
+}
+
+div#guess_respond_button {
+    float:left;
+}
