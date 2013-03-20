@@ -1,4 +1,3 @@
-;; RESTARTING OF RING REQUIRED FOR CHANGES TO THIS FILE. (purtroppo)
 (ns italianverbs.generate
   (:use [clojure.stacktrace]
         [italianverbs.lexiconfn])
@@ -568,6 +567,7 @@
    (= symbol 'nouns) lex/nouns
    (= symbol 'infinitive-intransitive-verbs) lex/infinitive-intransitive-verbs
    (= symbol 'infinitive-transitive-verbs) lex/infinitive-transitive-verbs
+   (= symbol 'prepositions) lex/prepositions
    (= symbol 'present-verbs) lex/present-verbs
    (= symbol 'present-intransitive-verbs) lex/present-intransitive-verbs
    (= symbol 'present-modal-verbs) lex/present-modal-verbs

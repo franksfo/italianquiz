@@ -695,7 +695,8 @@
          (let [obj-sem (ref :top)]
            {:synsem {:sem {:obj obj-sem}
                      :subcat {:2 {:sem obj-sem
-;                                  :cat :noun
+                                  ;; uncomment this:
+                                  ;;                                  :cat :noun
                                   :agr {:case {:not :nom}}}}}})))
 
 ;; TODO add subcat frames (<NP,PP>)
@@ -716,6 +717,29 @@
     :synsem {:sem {:subj {:animate true}
                    :pred {:pred :andare
                           :essere true}}}}))
+
+(def andare-pp
+  (unify
+   subjective
+   (let [place-sem (ref {:place true})]
+     {:synsem {:sem {:location place-sem}
+               :subcat {:2 {:sem place-sem
+                            :cat :prep}}}})
+   infinitive
+   {:italian {:infinitive "andare"
+              :essere true
+              :irregular {:present {:1sing "vado"
+                                    :2sing "vai"
+                                    :3sing "va"
+                                    :1plur "andiamo"
+                                    :2plur "andate"
+                                    :3plur "vanno"}}}
+    :english {:infinitive "to go"
+              :irregular {:past "went"}}
+    :synsem {:sem {:subj {:animate true}
+                   :pred {:pred :andare
+                          :essere true}}}}))
+
 
 (def avere-common
   {:synsem {:cat :verb}
@@ -1236,6 +1260,11 @@
 
 (def present-transitive-verbs
   (list
+
+
+   (fs/merge andare-pp
+          {:synsem {:infl :present}})
+
    (unify {:root avere}
           trans-present-tense-verb)
    (unify {:root bevere}
@@ -1336,6 +1365,7 @@
 (def infinitive-transitive-verbs
   (concat
    (list
+    andare-pp
     avere
     bevere
     comprare
@@ -1423,7 +1453,7 @@
                   :subcat {:1 {:cat :noun
                                :sem {:place true}}}}
          :italian "a"
-         :english "at"}))
+         :english "to"}))
 
 ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc).
 (def adjectives

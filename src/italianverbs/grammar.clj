@@ -187,7 +187,7 @@
         number (ref :top)
         agr (ref :top)]
     (def nbar
-      (fs/unify
+      (fs/unifyc
        head-principle
        {:1 head}
        {:2 comp}
@@ -241,12 +241,15 @@
         comp (ref :top)]
     (fs/unifyc head-principle
                subcat-1-principle
-               {:head head
+               {
+                :head head
                 :comp comp
                 :1 head
                 :2 comp
-                :extend {:a {:head 'lexicon ;; should be propositions.
-                             :comp 'np}}})))
+                :extend {:a {:head 'prepositions
+                             :comp 'np}
+                         :b {:head 'prepositions
+                             :comp 'nouns}}})))
 
 (def rules (concat np-rules vp-rules sentence-rules))
 
