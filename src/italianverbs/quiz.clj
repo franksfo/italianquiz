@@ -570,12 +570,11 @@
           [:script "set_guess_input('foo bar')" ]
           ]
          ]
-        ]
 
         [:div#guess_respond_button
          [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
+         ]
         ]
-
        [:table {:id "quiz_table" :class "quiz"} " " ]
        [:div {:style "display:none" :id "stripe_toggle"} "odd" ] ]]
      )
