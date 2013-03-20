@@ -98,6 +98,7 @@
          part-of-human-body
          (if (= (fs/get-in input '(:part-of-human-body)) true)
            {:speakable false
+            :buyable false
             :animate false
             :edible false
             :drinkable false
