@@ -464,19 +464,7 @@
                                           :artifact true}}
                            :italian "pizza"
                            :english "pizza"})})
-     
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          feminine
-                          countable-noun
-                          {:synsem {:sem {:artifact true
-                                          :consumable false
-                                          :legible false
-                                          :speakable false
-                                          :pred :scala}}
-                           :italian "scala"
-                           :english "ladder"})})
+
 
      (unify noun-conjugator-new
             {:root (unify agreement
@@ -499,6 +487,33 @@
                           {:synsem {:sem {:pred :ragazza}}}
                           {:italian "ragazza"
                            :english "girl"})})
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          countable-noun
+                          {:synsem {:sem {:artifact true
+                                          :consumable false
+                                          :legible false
+                                          :speakable false
+                                          :pred :scala}}
+                           :italian "scala"
+                           :english "ladder"})})
+
+
+     (unify noun-conjugator
+            {:root (unify agreement
+                          common-noun
+                          feminine
+                          countable-noun
+                          {:synsem {:sem {:artifact true
+                                          :consumable true
+                                          :legible true
+                                          :speakable true
+                                          :pred :scala}}
+                           :italian "stravaganza"
+                           :english "extravagant thing"})})
 
      (unify noun-conjugator
             {:root (unify agreement
