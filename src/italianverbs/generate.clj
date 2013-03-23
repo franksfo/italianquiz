@@ -521,6 +521,26 @@
     expr)
    ""))
 
+(defn get-root [map path language]
+  "display a string representing the canonical 'root' form of a word"
+  (cond
+   (fs/get-in map (concat path (list language language)))
+   (fs/get-in map (concat path (list language language)))
+
+   (fs/get-in map (concat path '(:irregular) (list language)))
+   (fs/get-in map (concat path '(:irregular) (list language)))
+
+   (fs/get-in map (concat path (list language)))
+   (fs/get-in map (concat path (list language)))
+
+   (fs/get-in map (concat path '(:root) (list language)))
+   (fs/get-in map (concat path '(:root) (list language)))
+
+   (fs/get-in map (concat path '(:root)))
+   (fs/get-in map (concat path '(:root)))
+
+   true (fs/get-in map path)))
+
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
 ;; TO move this to html.clj: has to do with presentation.
@@ -538,12 +558,33 @@
             :else
             (let [english
                   (string/capitalize
-                   (get-morph (fs/get-in expr '(:english))
-                              morph/get-english))
+                   (let [tmp
+                         (get-morph (fs/get-in expr '(:english))
+                                    morph/get-english)]
+                     (cond
+                      (and (map? tmp)
+                           (fs/get-in tmp '(:1)))
+                      (string/trim (str (get-root tmp '(:1) :english) " " (get-root tmp '(:2) :english)))
+
+                      (map? tmp)
+                      (get-root tmp nil :english)
+
+                      true tmp)))
                  italian
                   (string/capitalize
-                   (get-morph (fs/get-in expr '(:italian))
-                              morph/get-italian))]
+                   (let [tmp
+                         (get-morph (fs/get-in expr '(:italian))
+                                    morph/get-italian)]
+                     (cond
+                      (and (map? tmp)
+                           (fs/get-in tmp '(:1)))
+                      (string/trim (str (get-root tmp '(:1) :italian) " " (get-root tmp '(:2) :italian)))
+
+                      (map? tmp)
+                      (get-root tmp nil :italian)
+
+
+                      true tmp)))]
               (string/trim
                (str italian " (" english ").")))))
          expressions)))
@@ -597,7 +638,7 @@
         head (eval-symbol (:head expansion))
         comp (:comp expansion)] ;; leave comp as just a symbol for now: we will evaluate it later in random-comp-from-head.
     {:head head
-     :head-sym head-sym
+     :head-sym head-sym ;; saving this for diagnostics
      :comp comp}))
 
 ;; filter by unifying each candidate against parent's :head value -
