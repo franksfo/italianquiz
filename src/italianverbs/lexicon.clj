@@ -409,8 +409,8 @@
             {:root (unify agreement
                           common-noun
                           feminine
-                          mass-noun
-                          {:synsem {:sem {:pred :notizie
+                          {
+                          :synsem {:sem {:pred :notizie
                                           :buyable false
                                           :legible true}}
                            ;; "notizia" would work also: would be pluralized by (morphology/conjugate-it) to "notizie".
