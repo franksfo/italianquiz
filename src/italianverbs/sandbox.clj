@@ -144,20 +144,20 @@
 (if false
   (do 
     (time ;; takes about 4 seconds.
-     (def foo (take 100
+     (def foo100 (take 100
                     (over (over s-present
                                 (over (over np lexicon) lexicon))
                           (over (over vp-present avere-present-aux-trans)
                                 (over (over vp-past verbs)
                                       (over (over np lexicon) lexicon)))))))
     ;;
-    (time (formattare (take-last 5 (take 5 foo))))
-    (time (formattare (take-last 5 (take 10 foo))))
-    (time (formattare (take-last 5 (take 15 foo))))
-    (time (formattare (take-last 5 (take 20 foo))))
-    (time (formattare (take-last 5 (take 25 foo))))
-    (time (formattare (take-last 5 (take 30 foo))))
-    (time (formattare (take-last 5 (take 35 foo))))))
+    (time (formattare (take-last 5 (take 5 foo100))))
+    (time (formattare (take-last 5 (take 10 foo100))))
+    (time (formattare (take-last 5 (take 15 foo100))))
+    (time (formattare (take-last 5 (take 20 foo100))))
+    (time (formattare (take-last 5 (take 25 foo100))))
+    (time (formattare (take-last 5 (take 30 foo100))))
+    (time (formattare (take-last 5 (take 35 foo100))))))
 
 
 (if false
@@ -210,3 +210,6 @@
  ;(dotimes [n 200] (time (random-sentence)))
 
 ;;(take 20 (repeatedly #(fo (random-sentence))))
+
+
+(def foo5 (over vp-present "andare" (over prep-phrase "a" (over np "il" "mare"))))

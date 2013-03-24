@@ -53,22 +53,27 @@
 
 (def vp-rules
   (let [head (ref :top)
-        comp (ref :top)]
-
+        comp (ref :top)
+        infl (ref :top)
+        agr (ref :top)]
     (def vp-past
-      (fs/unifyc head-principle
-                 subcat-2-principle
-                 verb-inflection-morphology
-                 {:head {:synsem {:cat :verb
-                                  :infl :past}}}
-                 {:comment "vp[past] &#x2192; head comp?"
-                  :head head
-                  :comp comp
-                  :1 head
-                  :2 comp
-                  :extend {:a {:head 'past-transitive-verbs
-                               :comp 'np}
-                           :b {:head 'past-intransitive-verbs}}}))
+      (let [infl (ref :past)]
+        (fs/unifyc head-principle
+                   subcat-2-principle
+                   verb-inflection-morphology
+                   {:synsem {:infl infl}
+                    :head {:english {:infl infl}
+                           :italian {:infl infl}}}
+;                    :italian {:infl infl}
+;                    :english {:infl infl}}
+                   {:comment "vp[past] &#x2192; head comp?"}
+                   {:head head
+                    :comp comp
+                    :1 head
+                    :2 comp
+                    :extend {:a {:head 'past-transitive-verbs
+                                 :comp 'np}
+                             :b {:head 'past-intransitive-verbs}}})))
 
     (def vp-infinitive-transitive
       (fs/unifyc head-principle
@@ -87,26 +92,34 @@
                                :comp 'np}}}))
 
     (def vp-present
-      (fs/unifyc head-principle
-                 subcat-2-principle
-                 verb-inflection-morphology
-                 {:head {:synsem {:cat :verb
-                                  :infl :present}}}
-                 {:comment "vp[present] &#x2192; head comp"
-                  :head head
-                  :comp comp
-                  :1 head
-                  :2 comp
-                  :extend {
-                           :a {:head 'present-transitive-verbs
-                               :comp 'np}
-                           :b {:head 'present-modal-verbs
-                               :comp 'vp-infinitive-transitive}
-                           :c {:head 'present-modal-verbs
-                               :comp 'infinitive-intransitive-verbs}
-                           :d {:head 'present-aux-verbs
-                               :comp 'vp-past}
-                           }}))
+      (let [infl (ref :present)]
+        (fs/unifyc head-principle
+                   subcat-2-principle
+                   verb-inflection-morphology
+                   {:head {:english {:infl infl}
+                           :italian {:infl infl}
+                           :synsem {:cat :verb
+                                    :infl infl}}}
+                   {:comp {:english {:infl :past}
+                           :italian {:infl :past}}}
+                   {:comment "vp[present] &#x2192; head comp"
+                    :head head
+                    :comp comp
+                    :1 head
+                    :2 comp
+                    :extend {
+                             :a {:head 'present-transitive-verbs
+                                 :comp 'np}
+                             :b {:head 'present-modal-verbs
+                                 :comp 'vp-infinitive-transitive}
+                             :c {:head 'present-modal-verbs
+                                 :comp 'infinitive-intransitive-verbs}
+                             :d {:head 'present-aux-verbs
+                                 :comp 'vp-past}
+                             :e {:head 'aux-verbs
+                                 :comp 'intransitive-verbs}
+
+                             }})))
     
     (def vp-future
       (fs/unifyc head-principle
@@ -125,6 +138,17 @@
 
     (list vp-present vp-past vp-future)))
 
+(def subject-verb-agreement
+  (let [infl (ref :top)
+        agr (ref :top)]
+    {:comp {:synsem {:agr agr}}
+     :head {:synsem {:subcat {:1 {:agr agr}}
+                     :infl infl}
+            :italian {:agr agr
+                      :infl infl}
+            :english {:agr agr
+                      :infl infl}}}))
+
 (def sentence-rules
   (let [subj-sem (ref :top)
         subcatted (ref {:cat :noun
@@ -134,6 +158,7 @@
         present (ref :present)
         future (ref :futuro)
         comp (ref {:synsem subcatted})
+        agr (ref :top)
         head (ref {:synsem {:cat :verb
                             :sem {:subj subj-sem}
                             :subcat {:1 subcatted
@@ -141,6 +166,7 @@
     (list
      ;; present
      (fs/unifyc head-principle subcat-1-principle
+                subject-verb-agreement
                 {:synsem {:infl present}}
                 {:comment "sentence (present) (4 subrules)"
                  :head head
@@ -159,6 +185,7 @@
                           }})
      ;; future
      (fs/unifyc head-principle subcat-1-principle
+                subject-verb-agreement
                 {:synsem {:infl future}}
                 {:comment "sentence (future) (4 subrules)"
                  :head head
@@ -177,39 +204,26 @@
                           }}))))
 
 
-(def adj-rules
-  (let [sem (ref :top)
-        head (ref :top)
+(def nbar
+  (let [head (ref :top)
         comp (ref :top)
-        comp-sem-pred (ref :top)
         subcat (ref :top)
-        gender (ref :top)
-        number (ref :top)
         agr (ref :top)]
-    (def nbar
-      (fs/unifyc
-       head-principle
-       {:1 head}
-       {:2 comp}
-       {:synsem {:subcat subcat}}
-       {:head {:synsem {:subcat subcat}}}
-       {:synsem {:sem sem}}
-       {:synsem {:sem {:mod comp-sem-pred}}}
-       {:head head
-        :comp comp}
-       {:head {:synsem {:cat :noun
-                        :agr agr}}
-        :comp {:italian {:agr agr}
-               :english {:agr agr}}
-        :synsem {:agr agr}}
-       {:comp {:synsem {:cat :adjective
-                        :sem {:pred comp-sem-pred}}}}
-       {:comp {:synsem {:cat :adjective
-                        :sem {:mod sem}}}}
-       {:comment "n&#x0305; &#x2192; adj noun"
-        :extend {:a {:head 'nouns
-                     :comp 'adjectives}}}))
-    (list nbar)))
+    (fs/unifyc
+     head-principle
+     {:head head
+      :comp comp
+      :1 head
+      :2 comp}
+     {:synsem {:agr agr
+               :subcat subcat}
+      :head {:synsem {:agr agr
+                      :subcat subcat}}
+      :comp {:italian {:agr agr}
+             :english {:agr agr}}
+      :comment "n&#x0305; &#x2192; adj noun"
+      :extend {:a {:head 'nouns
+                   :comp 'adjectives}}})))
 
 (def np-rules 
   (let [head (ref :top)

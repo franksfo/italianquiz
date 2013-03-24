@@ -5,6 +5,7 @@
   (:require
    [clojure.set :as set]
    [italianverbs.fs :as fs]
+   [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
 (defn verb-row [italian]
@@ -145,9 +146,17 @@
 ;; TODO: use multimethod based on arg's type.
 (defn tablize [arg & [path serialized opts]]
   ;; set defaults.
-  (let [serialized (if (nil? serialized)
-                     (fs/serialize arg)
-                     serialized)
+  ;; (TODO: in which contexts are we passing an already-serialized arg?)
+  ;; if not already serialized, then serialize:
+  (let [serialized (if (nil? serialized) 
+                     (try
+                       (fs/serialize arg)
+                       (catch Exception e
+                         (do
+                           (log/warn (str "Trying to recover from serialization error: " e " caused by arg with type: " (type arg)))
+                           (fs/serialize {:a 42}))))
+                     serialized) ;; .. if already serialized, use that.
+        ;; ((nil? serialized) = false): tread the input arg as already-serialized.
         opts (if (nil? opts)
                {:as-tree true})
         ]

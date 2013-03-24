@@ -692,11 +692,13 @@
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
 (def subjective
-  (let [subj-sem (ref :top)]
-    {:synsem {:sem {:subj subj-sem}
+  (let [subj-sem (ref :top)
+        subject-agreement (ref {:cat {:not :acc}})]
+    {:italian {:agr subject-agreement}
+     :synsem {:sem {:subj subj-sem}
               :subcat {:1 {:sem subj-sem
                            :cat :noun
-                           :agr {:cat {:not :acc}}}}}}))
+                           :agr subject-agreement}}}}))
 
 ;; intransitive: has subject but no object.
 (def intransitive
@@ -729,9 +731,10 @@
                                     :3plur "vanno"}}}
     :english {:infinitive "to go"
               :irregular {:past "went"}}
-    :synsem {:sem {:subj {:animate true}
+    :synsem {:essere true
+             :sem {:subj {:animate true}
                    :pred {:pred :andare
-                          :essere true}}}}))
+                          }}}}))
 
 (def andare-pp
   (unify
@@ -741,7 +744,8 @@
                :subcat {:2 {:sem place-sem
                             :cat :prep}}}})
    infinitive
-   {:italian {:infinitive "andare"
+   {:note "andare-pp"
+    :italian {:infinitive "andare"
               :essere true
               :irregular {:present {:1sing "vado"
                                     :2sing "vai"
@@ -751,10 +755,9 @@
                                     :3plur "vanno"}}}
     :english {:infinitive "to go"
               :irregular {:past "went"}}
-    :synsem {:sem {:subj {:animate true}
-                   :pred {:pred :andare
-                          :essere true}}}}))
-
+    :synsem {:essere true
+             :sem {:subj {:animate true}
+                   :pred {:pred :andare}}}}))
 
 (def avere-common
   {:synsem {:cat :verb}
@@ -785,20 +788,30 @@
                    :subj {:human true}
                    :obj {:buyable true}}}}))
 
+
+;; whether a verb has essere or avere as its
+;; auxiliary to form its passato-prossimo form:
+;; Must be encoded in both the :italian (for morphological agreement)
+;; and the :synsem (for subcategorization by the appropriate aux verb).
+(def aux-type
+  (let [essere-binary-categorization (ref :top)]
+    {:italian {:essere essere-binary-categorization}
+     :synsem {:essere essere-binary-categorization}}))
+
 (def avere-aux
   (let [v-past-pred (ref :top)
         subject (ref :top)]
     (unify
+     aux-type
      subjective
-     infinitive
      avere-common
      {:synsem {:subcat {:1 subject
                         :2 {:cat :verb
+                            :essere false
                             :subcat {:1 subject}
                             :sem {:pred v-past-pred}
                             :infl :past}}
-               :sem {:pred v-past-pred}}}
-     {:synsem {:subcat {:2 {:sem {:pred {:essere false}}}}}})))
+               :sem {:pred v-past-pred}}})))
 
 ;; TODO: not sure if we need this: avere (to have) is not usually intransitive.
 (def avere-aux-intrans
@@ -884,7 +897,6 @@
 
 (def essere-common
   (unify
-   infinitive
    {:italian {:infinitive "essere"
               :essere true
               :irregular {:present {:1sing "sono"
@@ -921,16 +933,17 @@
   (let [v-past-pred (ref :top)
         subject (ref :top)]
     (unify
+     aux-type
      subjective
-     infinitive
      essere-common
      {:synsem {:subcat {:1 subject
                         :2 {:cat :verb
+                            :essere true
                             :subcat {:1 subject}
                             :sem {:pred v-past-pred}
                             :infl :past}}
-               :sem {:pred v-past-pred}}}
-     {:synsem {:subcat {:2 {:sem {:pred {:essere true}}}}}})))
+               :sem {:pred v-past-pred}
+               :essere true}})))
 
 (def essere-aux-intrans
   (unify
@@ -1088,13 +1101,12 @@
 (def sognare
   (unify
    intransitive
-   infinitive
-   {:italian "sognare"
+   {:italian {:infinitive "sognare"}
     :english {:infinitive "to dream"
               :irregular {:past "dreamt"}}
-    :synsem {:sem {:subj {:animate true}
-                   :pred {:pred :sognare
-                          :essere false}}}}))
+    :synsem {:essere false
+             :sem {:subj {:animate true}
+                   :pred {:pred :sognare}}}}))
 
 (def vedere
   (unify
@@ -1107,6 +1119,15 @@
     :synsem {:sem {:pred :vedere
                    :subj {:animate true}}}}))
 
+(def vivere
+  (unify
+   aux-type
+   intransitive
+   {:italian {:infinitive "vivere"}
+    :english {:infinitive "to live"}
+    :synsem {:essere true
+             :sem {:pred :vivere
+                   :subj {:animate true}}}})) ;; TODO: change to living-thing: (e.g. plants are living but not animate)
 
 (def volare
   (unify
@@ -1216,6 +1237,12 @@
          {:root
           {:synsem {:subcat {:2 '()}}}}))
 
+(def aux-verbs
+  (list avere-aux
+        essere-aux))
+
+;; TODO: remove present-aux-verbs and all dependencies:
+;; use aux-verbs (immediately above) instead.
 (def present-aux-verbs
   (list
    (unify {:root (fs/copy avere-aux-trans)}
@@ -1228,6 +1255,7 @@
 (def avere-present-aux-trans
   (first present-aux-verbs))
 
+;; TODO: remove these: going rootless (part 1: intransitive)
 (def past-intransitive-verbs
   (list
    (unify {:root andare-intrans}
@@ -1235,10 +1263,9 @@
    (unify {:root dormire}
           intrans-past-tense-verb)
    (unify {:root ridere}
-          intrans-past-tense-verb)
-   (unify {:root sognare}
           intrans-past-tense-verb)))
 
+;; TODO: remove these: going rootless (part 2: transitive)
 (def past-transitive-verbs
   (list
    (unify {:root avere}
@@ -1333,6 +1360,8 @@
           trans-future-tense-verb)
    ))
 
+
+;; TODO: get rid of this: no longer needed.
 (def present-intransitive-verbs
   (list
    (unify {:root andare-intrans}
@@ -1342,10 +1371,9 @@
    (unify {:root pensare}
           intrans-present-tense-verb)
    (unify {:root ridere}
-          intrans-present-tense-verb)
-   (unify {:root sognare}
           intrans-present-tense-verb)))
 
+;; TODO: get rid of this: no longer needed.
 (def future-intransitive-verbs
   (list
    (unify {:root dormire}
@@ -1353,8 +1381,6 @@
    (unify {:root pensare}
           intrans-future-tense-verb)
    (unify {:root ridere}
-          intrans-future-tense-verb)
-   (unify {:root sognare}
           intrans-future-tense-verb)))
 
 (def present-verbs
@@ -1368,14 +1394,14 @@
    future-transitive-verbs
    future-intransitive-verbs))
 
+;; get rid of this: no longer needed.
 (def infinitive-intransitive-verbs
   (concat
    (list
     andare-intrans
     dormire
     pensare
-    ridere
-    sognare)))
+    ridere)))
 
 (def infinitive-transitive-verbs
   (concat
@@ -1392,6 +1418,11 @@
     scrivere
     vedere)))
 
+(def intransitive-verbs
+  (list
+   sognare
+   vivere))
+
 (def verbs
   (concat
    present-aux-verbs
@@ -1401,7 +1432,8 @@
    present-modal-verbs
    ;; infinitives:
    infinitive-intransitive-verbs
-   infinitive-transitive-verbs))
+   infinitive-transitive-verbs
+   intransitive-verbs))
 
 (def pronouns
   (list {:synsem {:cat :noun

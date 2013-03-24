@@ -423,8 +423,13 @@
          ;; "add-child-where": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
          ;; if (:1 :italian) is nil, the parent has no child at :1 yet, so attach new child there at :1.
          ;; Otherwise, a :child exists at :1, so attach new child at :2.
-         add-child-where (if (nil?
-                              (fs/get-in parent '(:1 :italian)))
+         add-child-where (if (and
+                              (not
+                               (string?
+                                (fs/get-in parent '(:1 :italian))))
+                              (not
+                               (string?
+                                (fs/get-in parent '(:1 :italian :infinitive)))))
                            :1
                            :2)
          head-is-where (if (= (fs/get-in parent '(:head))
@@ -455,19 +460,17 @@
                                   {:synsem {:sem (lex/sem-impl sem)}}
                                   {}))
                              child)})]
+         (log/info (str ":2 " (fs/get-in unified '(:2))))
+         (log/info (str ":2: :italian: " (fs/get-in unified '(:2 :italian))))
          (if (not (fs/fail? unified))
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
-            {:italian (morph/get-italian
+            {:italian (morph/get-italian-stub
                        (fs/get-in unified '(:1 :italian))
-                       (fs/get-in unified '(:2 :italian))
-                       (fs/get-in unified '(:1 :synsem :cat))
-                       (fs/get-in unified '(:2 :synsem :cat)))
-             :english (morph/get-english
+                       (fs/get-in unified '(:2 :italian)))
+             :english (morph/get-english-stub
                        (fs/get-in unified '(:1 :english))
-                       (fs/get-in unified '(:2 :english))
-                       (fs/get-in unified '(:1 :synsem :cat))
-                       (fs/get-in unified '(:2 :synsem :cat)))})
+                       (fs/get-in unified '(:2 :english)))})
            :fail))))))
 
 (defn over [& args]
@@ -616,6 +619,7 @@
    (= symbol 'future-intransitive-verbs) lex/future-intransitive-verbs
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'present-aux-verbs) lex/present-aux-verbs
+   (= symbol 'aux-verbs) lex/aux-verbs
    (= symbol 'past-verbs) lex/past-verbs
    (= symbol 'past-intransitive-verbs) lex/past-intransitive-verbs
    (= symbol 'past-transitive-verbs) lex/past-transitive-verbs
