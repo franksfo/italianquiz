@@ -137,20 +137,23 @@
   (let [italian-root (ref :top)
         english-root (ref :top)
         synsem (ref :top)
+        cat (ref :noun)
         agr (ref :top)]
     (unify
      {:root {:synsem synsem}
       :synsem synsem}
-     {:root
-      {:italian italian-root
-       :english english-root
-       :synsem {:agr agr}}
-      :italian {:root italian-root
-                :cat :noun
+     {:italian {:root italian-root
+                :cat cat
                 :agr agr}
       :english {:root english-root
+                :cat cat
                 :agr agr}
-      :synsem {:agr agr}})))
+      :synsem {:agr agr
+               :cat cat}
+      :root ;; TODO: get rid of :root (as we're doing with verbs)
+      {:italian italian-root
+       :english english-root
+       :synsem {:agr agr}}})))
 
 ;; noun-conjugator (above) is deprecated:
 ;; <replace with>:
