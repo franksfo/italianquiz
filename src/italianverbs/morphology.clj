@@ -902,15 +902,93 @@
            (str stem "")
            :else arg))))
 
+
+(defn get-italian-stub-1 [word]
+  (cond
+   (and
+    (= (fs/get-in word '(:agr :gender)) :masc)
+    (= (fs/get-in word '(:agr :number)) :sing)
+    (= (fs/get-in word '(:cat) :noun))
+    (fs/get-in word '(:root)))
+   (fs/get-in word '(:root))
+   
+   (and
+    (= (fs/get-in word '(:agr :gender)) :masc)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat) :noun))
+    (fs/get-in word '(:root)))
+   (string/replace (fs/get-in word '(:root))
+                   #"[eo]$" "i") ;; dottore => dottori; medico => medici
+
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :fem)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat) :noun))
+    (fs/get-in word '(:root)))
+   (string/replace (fs/get-in word '(:root))
+                   #"[a]$" "e") ;; donna => donne
+
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :fem)
+    (= (fs/get-in word '(:agr :number)) :sing)
+    (= (fs/get-in word '(:cat) :noun))
+    (string? (fs/get-in word '(:root))))
+   (fs/get-in word '(:root))
+   
+   :else
+  word))
+
 (defn get-italian-stub [a b]
-  {:1 a
-   :stub true
-   :2 b})
+  (let [a (get-italian-stub-1 a)
+        b (get-italian-stub-1 b)]
+    (if (and (string? a) (string? b))
+      (str a " " b)
+      {:a a
+       :b b})))
+
+(defn get-english-stub-1 [word]
+  (cond
+
+   (and
+    (fs/get-in word '(:root :irregular :plur))
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat) :noun)))
+   (fs/get-in word '(:root :irregular :plur))
+   
+   
+   (and
+    (= (fs/get-in word '(:agr :number)) :sing)
+    (= (fs/get-in word '(:cat) :noun))
+    (string? (fs/get-in word '(:root))))
+   (fs/get-in word '(:root))
+
+   (and
+    (= (fs/get-in word '(:agr :number)) :sing)
+    (= (fs/get-in word '(:cat) :noun))
+    (string? (fs/get-in word '(:root :english))))
+   (fs/get-in word '(:root :english))
+   
+   (and
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat) :noun))
+    (string? (fs/get-in word '(:root))))
+   (str (fs/get-in word '(:root)) "s")
+
+   :else
+  word))
 
 (defn get-english-stub [a b]
-  {:1 a
-   :stub true
-   :2 b})
+  (let [a (get-english-stub-1 a)
+        b (get-english-stub-1 b)]
+    (if (and (string? a) (string? b))
+      ;; TODO: re-order based on category: e.g.
+      ;; If a is a noun, and b is a adj, reverse a and b in string,
+      ;;  so that italian word order is reversed to english word order.
+      (str a " " b)
+      {:a a
+       :b b})))
 
 (defn get-italian [a b & [ a-category b-category a-infl b-infl]]
   (log/info (str "<get-italian>"))
