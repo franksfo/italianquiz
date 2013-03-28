@@ -611,6 +611,8 @@
    (= symbol 'nouns) lex/nouns
    (= symbol 'infinitive-intransitive-verbs) lex/infinitive-intransitive-verbs
    (= symbol 'infinitive-transitive-verbs) lex/infinitive-transitive-verbs
+   (= symbol 'intransitive-verbs) lex/intransitive-verbs
+   (= symbol 'transitive-verbs) lex/transitive-verbs
    (= symbol 'prepositions) lex/prepositions
    (= symbol 'present-verbs) lex/present-verbs
    (= symbol 'present-intransitive-verbs) lex/present-intransitive-verbs
@@ -953,12 +955,12 @@ constraints on the generation of the complement."
       (merge
        unified-parent
        {:extend chosen-extension}
-       {:italian (morph/get-italian
+       {:italian (morph/get-italian-stub
                   (fs/get-in unified-parent '(:1 :italian))
                   ""
                   (fs/get-in unified-parent '(:1 :synsem :cat))
                   nil)
-        :english (morph/get-english
+        :english (morph/get-english-stub
                   (fs/get-in unified-parent '(:1 :english))
                   ""
                   (fs/get-in unified-parent '(:1 :synsem :cat))
@@ -995,17 +997,12 @@ constraints on the generation of the complement."
                       (merge
                        unified-with-comp
                        {:extend chosen-extension}
-                       {:italian (morph/get-italian
+                       {:italian (morph/get-italian-stub
                                   (fs/get-in unified-with-comp '(:1 :italian))
-                                  (fs/get-in unified-with-comp '(:2 :italian))
-                                  (fs/get-in unified-with-comp '(:1 :synsem :cat))
-                                  (fs/get-in unified-with-comp '(:2 :synsem :cat)))
-                        
-                        :english (morph/get-english
+                                  (fs/get-in unified-with-comp '(:2 :italian)))
+                        :english (morph/get-english-stub
                                   (fs/get-in unified-with-comp '(:1 :english))
-                                  (fs/get-in unified-with-comp '(:2 :english))
-                                  (fs/get-in unified-with-comp '(:1 :synsem :cat))
-                                  (fs/get-in unified-with-comp '(:2 :synsem :cat)))})]
+                                  (fs/get-in unified-with-comp '(:2 :english)))})]
                   (if (fs/fail? result)
                     (do
 ;              (log/error (str "random-comp: " random-comp))

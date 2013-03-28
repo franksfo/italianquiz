@@ -49,7 +49,8 @@
   (let [infl (ref :top)]
     {:italian {:infl infl}
      :english {:infl infl}
-     :head {:synsem {:infl infl}}}))
+     :head {:synsem {:cat :verb
+                     :infl infl}}}))
 
 (def vp-rules
   (let [head (ref :top)
@@ -96,47 +97,37 @@
         (fs/unifyc head-principle
                    subcat-2-principle
                    verb-inflection-morphology
-                   {:head {:english {:infl infl}
-                           :italian {:infl infl}
-                           :synsem {:cat :verb
-                                    :infl infl}}}
-                   {:comp {:english {:infl :past}
-                           :italian {:infl :past}}}
+                   {:synsem {:infl :present}}
+;                   {:comp {:english {:infl :past}
+;                           :italian {:infl :past}}}
                    {:comment "vp[present] &#x2192; head comp"
                     :head head
                     :comp comp
                     :1 head
                     :2 comp
                     :extend {
-                             :a {:head 'present-transitive-verbs
+                             :d {:head 'transitive-verbs
                                  :comp 'np}
-                             :b {:head 'present-modal-verbs
-                                 :comp 'vp-infinitive-transitive}
-                             :c {:head 'present-modal-verbs
-                                 :comp 'infinitive-intransitive-verbs}
-                             :d {:head 'present-aux-verbs
-                                 :comp 'vp-past}
                              :e {:head 'aux-verbs
                                  :comp 'intransitive-verbs}
 
                              }})))
     
     (def vp-future
-      (fs/unifyc head-principle
-                 subcat-2-principle
-                 verb-inflection-morphology
-                 {:head {:synsem {:cat :verb
-                                  :infl :futuro}}}
+      (let [infl (ref :futuro)]
+        (fs/unifyc head-principle
+                   subcat-2-principle
+                   verb-inflection-morphology
                  {:comment "vp[future] &#x2192; head comp"
                   :head head
                   :comp comp
                   :1 head
                   :2 comp
                   :extend {
-                           :a {:head 'future-transitive-verbs
-                               :comp 'np}}}))
+                           :a {:head 'transitive-verbs
+                               :comp 'np}}})))
 
-    (list vp-present vp-past vp-future)))
+  (list vp-present vp-past vp-future)))
 
 (def subject-verb-agreement
   (let [infl (ref :top)
@@ -179,9 +170,9 @@
                           :b {:comp 'pronouns
                               :head 'vp-present}
                           :c {:comp 'np
-                              :head 'present-intransitive-verbs}
+                              :head 'intransitive-verbs}
                           :d {:comp 'pronouns
-                              :head 'present-intransitive-verbs}
+                              :head 'intransitive-verbs}
                           }})
      ;; future
      (fs/unifyc head-principle subcat-1-principle
@@ -193,16 +184,11 @@
                  :1 comp
                  :2 head
                  :extend {
-                          :a {:comp 'np
-                              :head 'future-intransitive-verbs}
-                          :b {:comp 'pronouns
-                              :head 'future-intransitive-verbs}
                           :c {:comp 'np
                               :head 'vp-future}
                           :d {:comp 'pronouns
                               :head 'vp-future}
                           }}))))
-
 
 (def nbar
   (let [head (ref :top)

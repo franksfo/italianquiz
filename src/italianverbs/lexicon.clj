@@ -811,7 +811,9 @@
                             :subcat {:1 subject}
                             :sem {:pred v-past-pred}
                             :infl :past}}
-               :sem {:pred v-past-pred}}})))
+               :sem {:pred v-past-pred}
+               :essere false
+               }})))
 
 ;; TODO: not sure if we need this: avere (to have) is not usually intransitive.
 (def avere-aux-intrans
@@ -1029,7 +1031,6 @@
 (def parlare
   (unify
    transitive
-   infinitive
    {:italian {:infinitive "parlare"}
     :english {:infinitive "to speak" 
               :irregular {:past "spoken"}}
@@ -1289,6 +1290,7 @@
    (unify {:root vedere}
           trans-past-tense-verb)))
 
+;; TODO: remove these as above
 (def past-verbs (concat past-intransitive-verbs past-transitive-verbs))
 
 (def present-modal-verbs
@@ -1422,6 +1424,10 @@
   (list
    sognare
    vivere))
+
+(def transitive-verbs
+  (list
+   parlare))
 
 (def verbs
   (concat
