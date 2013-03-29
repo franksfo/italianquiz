@@ -100,6 +100,7 @@
           (alter val1
                  (fn [x] (unify @val1 val2))))
          ;; alternative to the above (not tested yet):  (fn [x] (unify (fs/copy @val1) val2))))
+         ;; TODO: why is this false-disabled? (document and test) or remove
          (if (and false (fail? @val1)) :fail
          val1))
      (and 
@@ -109,6 +110,7 @@
           (alter val2
                  (fn [x] (unify val1 @val2))))
          ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
+         ;; TODO: why is this false-disabled? (document and test) or remove.
          (if (and false (fail? @val2)) :fail
          val2))
 
