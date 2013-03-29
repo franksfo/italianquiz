@@ -429,8 +429,10 @@
                                 (fs/get-in parent '(:1 :italian))))
                               (not
                                (string?
-                                (fs/get-in parent '(:1 :italian :infinitive)))))
-                           :1
+                                (fs/get-in parent '(:1 :italian :infinitive))))
+                              (not
+                               (string?
+                                (fs/get-in parent '(:1 :italian :root)))))                           :1
                            :2)
          head-is-where (if (= (fs/get-in parent '(:head))
                               (fs/get-in parent '(:1)))
