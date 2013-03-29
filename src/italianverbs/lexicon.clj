@@ -161,19 +161,22 @@
   (let [italian-root (ref :top)
         english-root (ref :top)
         synsem (ref :top)
-        agr (ref :top)]
+        agr (ref :top)
+        cat (ref :noun)]
     (unify
      {:root {:synsem synsem}
       :synsem synsem}
      {:root
       {:italian italian-root
        :english english-root
-       :synsem {:agr agr}}
+       :synsem {:agr agr
+                :cat cat}}
       :italian {:italian italian-root
                 :agr agr
-                :cat :noun}
+                :cat cat}
       :english {:english english-root
-                :agr agr}
+                :agr agr
+                :cat cat}
       :synsem {:agr agr}})))
 
 (def nouns
