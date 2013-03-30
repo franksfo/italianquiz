@@ -279,89 +279,84 @@
              :italian {:italian "amico"}
              :english {:english "friend"}})
 
-     (unify drinkable
+     (unify agreement-new
+            drinkable-new
             feminine
-            {:root {:italian "birra"
-                    :english "beer"
-                    :synsem {:sem {:pred :birra
-                                   :artifact true}}}})
+            {:italian {:italian "birra"}
+             :english {:english "beer"}
+             :synsem {:sem {:pred :birra
+                            :artifact true}}})
 
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem {:pred :braccio
-                                          :part-of-human-body true}}
-                           ;; adding "bracci" as irregular because
-                           ;; current morphology.clj would otherwise return
-                           ;; "braccii".
-                           ;; TODO: might not be an exception so much
-                           ;; as a otho-pholological rule "io" -plur-> "i"
-                           :italian {:italian "braccio"
-                                     :irregular {:plur "bracci"}}
-                           :english "arm"})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem {:pred :braccio
+                           :part-of-human-body true}}
+            ;; adding "bracci" as irregular because
+            ;; current morphology.clj would otherwise return
+            ;; "braccii".
+            ;; TODO: might not be an exception so much
+            ;; as a otho-pholological rule "io" -plur-> "i"
+            :italian {:italian "braccio"
+                      :irregular {:plur "bracci"}}
+            :english {:english "arm"}})
 
 
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem {:pred :compito
-                                          :legible true
-                                          :speakable false
-                                          :buyable false
-                                          :artifact true
-                                          :activity true}}
-                           :italian "compito"
-                           :english "homework assignment"})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem {:pred :compito
+                           :legible true
+                           :speakable false
+                           :buyable false
+                           :artifact true
+                           :activity true}}
+            :italian {:italian "compito"}
+            :english {:english "homework assignment"}})
 
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem {:pred :mare
-                                          :buyable false ;; a seaside's too big to own.
-                                          :artifact false
-                                          :place true}}
-                           :italian "mare"
-                           :english "seaside"}
-                          {:synsem {:subcat {:1 {:cat :det
-                                                 :number :sing
-                                                 :def :def}}}})})
-
-     
-     ;; inherently singular.
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          masculine
-                          {:synsem {:sem (sem-impl {:pred :pane
-                                                    :edible true
-                                                    :artifact true})}
-                           :italian "pane"
-                           :english "bread"}
-                          {:synsem {:subcat {:1 {:cat :det
-                                                 :number :sing
-                                                 :def :def}}}})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem {:pred :mare
+                           :buyable false ;; a seaside's too big to own.
+                           :artifact false
+                           :place true}}
+            :italian {:italian "mare"}
+            :english {:english "seaside"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :number :sing
+                                  :def :def}}}})
 
      ;; inherently singular.
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          feminine
-                          food
-                          {:synsem {:sem {:pred :pasta
-                                          :artifact true}}
-                           :italian "pasta"
-                           :english "pasta"}
-                          {:synsem {:subcat {:1 {:cat :det
-                                                 :number :sing
-                                                 :def :def}}}})})
+    (unify agreement-new
+           common-noun
+           masculine
+           {:synsem {:sem (sem-impl {:pred :pane
+                                     :edible true
+                                     :artifact true})}
+            :italian {:italian "pane"}
+            :english {:english "bread"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :number :sing
+                                  :def :def}}}})
+
+     ;; inherently singular.
+    (unify agreement-new
+           common-noun
+           feminine
+           food
+           {:synsem {:sem {:pred :pasta
+                           :artifact true}}
+            :italian {:italian "pasta"}
+            :english {:english "pasta"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :number :sing
+                                  :def :def}}}})})
      (unify noun-conjugator-new
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           feminine
@@ -375,7 +370,7 @@
                            :english "shirt"})})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           masculine
@@ -385,7 +380,7 @@
 
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           masculine
@@ -395,7 +390,7 @@
                            :english "doctor"})})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           feminine
@@ -406,7 +401,7 @@
                                      :english "woman"}})})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           masculine
@@ -421,7 +416,7 @@
                           {:synsem {:subcat {:1 {:cat :det}}}})})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           masculine
@@ -430,7 +425,7 @@
                            :english "cat"})})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           masculine
@@ -445,7 +440,7 @@
 
      ;; inherently plural.
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           feminine
                           {
@@ -460,7 +455,7 @@
                                                  :def :def}}}})})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           feminine
@@ -471,7 +466,7 @@
                            :english "word"})})
 
      (unify noun-conjugator-new
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           feminine
@@ -482,7 +477,7 @@
                                      :note " (&#x2640;) "}})}) ;; unicode female symbol
 
      (unify noun-conjugator-new
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           masculine
@@ -495,7 +490,7 @@
      
      ;; "pizza" can be either mass or countable.
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           feminine
                           food
@@ -524,7 +519,7 @@
              :english {:english "girl"}})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           feminine
                           countable-noun
@@ -538,7 +533,7 @@
 
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           feminine
                           countable-noun
@@ -551,7 +546,7 @@
                            :english "extravagant thing"})})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           masculine
@@ -561,7 +556,7 @@
                            :english "student"})})
 
      (unify noun-conjugator
-            {:root (unify agreement
+            {:root (unify agreement-new
                           common-noun
                           countable-noun
                           masculine
