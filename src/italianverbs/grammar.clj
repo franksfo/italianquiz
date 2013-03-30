@@ -194,13 +194,16 @@
   (let [head (ref :top)
         comp (ref :top)
         subcat (ref :top)
-        agr (ref :top)]
+        agr (ref :top)
+        adjectival-predicate (ref :top)]
     (fs/unifyc
      head-principle
      {:head head
       :comp comp
       :1 head
       :2 comp}
+     {:synsem {:sem {:mod adjectival-predicate}}
+      :comp {:synsem {:sem {:pred adjectival-predicate}}}}
      {:synsem {:agr agr
                :subcat subcat}
       :head {:synsem {:agr agr
