@@ -197,6 +197,26 @@
                                   :gender gender}
                             :subcat {:1 {:gender gender
                                          :number number}}}}
+        agreement-new
+        (let [number (ref :top)
+              gender (ref :top)
+              person (ref :top)
+              agr (ref {:number number
+                        :gender gender
+                        :case :top
+                        :person person})
+              cat (ref :top)]
+          {:synsem {:cat cat
+                    :subcat {:1 {:number number
+                                 :person person
+                                 :gender gender}}
+                    
+                    :agr agr}
+           :italian {:cat cat
+                     :agr agr}
+           :english {:cat cat
+                     :agr agr}})
+
         common-noun
         (unify
 ;         {:italian {:cat :noun}}
@@ -266,7 +286,13 @@
                           masculine
                           {:synsem {:sem {:pred :braccio
                                           :part-of-human-body true}}
-                           :italian "braccio"
+                           ;; adding "bracci" as irregular because
+                           ;; current morphology.clj would otherwise return
+                           ;; "braccii".
+                           ;; TODO: might not be an exception so much
+                           ;; as a otho-pholological rule "io" -plur-> "i"
+                           :italian {:italian "braccio"
+                                     :irregular {:plur "bracci"}}
                            :english "arm"})})
 
 
@@ -471,28 +497,24 @@
                            :italian "pizza"
                            :english "pizza"})})
 
+     (unify agreement-new
+            common-noun
+            countable-noun
+            masculine
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :ragazzo}}
+             :italian {:italian "ragazzo"}
+             :english {:english "guy"}})
+    
 
-     (unify noun-conjugator-new
-            {:root (unify agreement
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :ragazzo}}
-                           :italian "ragazzo"
-                           :english "guy"})})
-
-
-
-     (unify noun-conjugator-new
-            {:root (unify agreement
-                          common-noun
-                          countable-noun
-                          feminine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :ragazza}}}
-                          {:italian "ragazza"
-                           :english "girl"})})
+     (unify agreement-new
+            common-noun
+            countable-noun
+            feminine
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :ragazza}}
+             :italian {:italian "ragazza"}
+             :english {:english "girl"}})
 
      (unify noun-conjugator
             {:root (unify agreement

@@ -432,7 +432,11 @@
                                 (fs/get-in parent '(:1 :italian :infinitive))))
                               (not
                                (string?
-                                (fs/get-in parent '(:1 :italian :root)))))                           :1
+                                (fs/get-in parent '(:1 :italian :root))))
+                              (not
+                               (string?
+                                (fs/get-in parent '(:1 :italian :italian)))))
+                           :1
                            :2)
          head-is-where (if (= (fs/get-in parent '(:head))
                               (fs/get-in parent '(:1)))
@@ -462,8 +466,8 @@
                                   {:synsem {:sem (lex/sem-impl sem)}}
                                   {}))
                              child)})]
-         (log/info (str ":2 " (fs/get-in unified '(:2))))
-         (log/info (str ":2: :italian: " (fs/get-in unified '(:2 :italian))))
+;         (log/info (str ":2 " (fs/get-in unified '(:2))))
+;         (log/info (str ":2: :italian: " (fs/get-in unified '(:2 :italian))))
          (if (not (fs/fail? unified))
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
@@ -1002,6 +1006,11 @@ constraints on the generation of the complement."
                        {:italian (morph/get-italian-stub
                                   (fs/get-in unified-with-comp '(:1 :italian))
                                   (fs/get-in unified-with-comp '(:2 :italian)))
+;;; :eng and :it are for debugging:
+;;;                        :eng {:a (fs/get-in unified-with-comp '(:1 :english))
+;;;                              :b (fs/get-in unified-with-comp '(:2 :english))}
+;;;                        :ita {:a (fs/get-in unified-with-comp '(:1 :italian))
+;;;                              :b (fs/get-in unified-with-comp '(:2 :italian))}
                         :english (morph/get-english-stub
                                   (fs/get-in unified-with-comp '(:1 :english))
                                   (fs/get-in unified-with-comp '(:2 :english)))})]

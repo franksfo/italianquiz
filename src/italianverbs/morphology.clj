@@ -903,15 +903,50 @@
            :else arg))))
 
 
+(declare get-italian-stub)
+
 (defn get-italian-stub-1 [word]
   (cond
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :fem)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat)) :adjective))
+   (string/replace (fs/get-in word '(:italian))
+                   #"[eo]$" "e") ;; nero => nere
+   
+   (and
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b)))
+   (get-italian-stub 
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b)))
+
    (and
     (= (fs/get-in word '(:agr :gender)) :masc)
     (= (fs/get-in word '(:agr :number)) :sing)
-    (= (fs/get-in word '(:cat) :noun))
+    (= (fs/get-in word '(:cat)) :noun)
     (fs/get-in word '(:root)))
    (fs/get-in word '(:root))
+
+   ;; handle lexical exceptions:
+   (and
+    (= (fs/get-in word '(:agr :gender)) :masc)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat)) :noun)
+    (string? (fs/get-in word '(:irregular :plur))))
+   (fs/get-in word '(:irregular :plur))
    
+   
+   (and
+    (= (fs/get-in word '(:agr :gender)) :masc)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat) :noun))
+    (fs/get-in word '(:italian)))
+   (string/replace (fs/get-in word '(:italian))
+                   #"[eo]$" "i") ;; dottore => dottori; medico => medici
+
+   ;; deprecated: remove support for :root.
    (and
     (= (fs/get-in word '(:agr :gender)) :masc)
     (= (fs/get-in word '(:agr :number)) :plur)
@@ -919,76 +954,208 @@
     (fs/get-in word '(:root)))
    (string/replace (fs/get-in word '(:root))
                    #"[eo]$" "i") ;; dottore => dottori; medico => medici
-
+   
 
    (and
     (= (fs/get-in word '(:agr :gender)) :fem)
     (= (fs/get-in word '(:agr :number)) :plur)
     (= (fs/get-in word '(:cat) :noun))
+    (fs/get-in word '(:italian)))
+   (string/replace (fs/get-in word '(:italian))
+                   #"[a]$" "e") ;; donna => donne
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :fem)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat)) :noun)
     (fs/get-in word '(:root)))
    (string/replace (fs/get-in word '(:root))
                    #"[a]$" "e") ;; donna => donne
 
 
+   ;; deprecated: remove support for :root.
    (and
     (= (fs/get-in word '(:agr :gender)) :fem)
     (= (fs/get-in word '(:agr :number)) :sing)
-    (= (fs/get-in word '(:cat) :noun))
+    (= (fs/get-in word '(:cat)) :noun)
     (string? (fs/get-in word '(:root))))
    (fs/get-in word '(:root))
-   
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :masc)
+    (= (fs/get-in word '(:agr :number)) :sing)
+    (= (fs/get-in word '(:cat) :adjective)))
+   (fs/get-in word '(:italian)) ;; nero
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :masc)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat)) :adjective)
+    ;; handle lexical exceptions.
+    (string? (fs/get-in word '(:irregular :masc :plur))))
+   (fs/get-in word '(:irregular :masc :plur))
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :masc)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat)) :adjective))
+   (string/replace (fs/get-in word '(:italian))
+                   #"[eo]$" "i") ;; nero => neri
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :fem)
+    (= (fs/get-in word '(:agr :number)) :sing)
+    (= (fs/get-in word '(:cat)) :adjective))
+   (string/replace (fs/get-in word '(:italian))
+                   #"[eo]$" "a") ;; nero => nera
+
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :fem)
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat)) :adjective)
+    ;; handle lexical exceptions.
+    (string? (fs/get-in word '(:irregular :fem :plur))))
+   (fs/get-in word '(:irregular :fem :plur))
+
    :else
   word))
 
 (defn get-italian-stub [a b]
   (let [a (get-italian-stub-1 a)
         b (get-italian-stub-1 b)]
-    (if (and (string? a) (string? b))
-      (str a " " b)
-      {:a a
-       :b b})))
+    (cond
+
+     (and (= a "di i")
+          (string? b))
+     (str "dei " b)
+     (and (= a "di il")
+          (string? b))
+     (str "del " b)
+     (and (= a "di la")
+          (string? b))
+     (str "della " b)
+     (and (= a "di le")
+          (string? b))
+     (str "delle " b)
+
+     (and (= a "i")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "gli " b)
+     (and (= a "i")
+          (string? b)
+          (re-find #"^s[t]" b))
+     (str "gli " b)
+
+     (and (string? a) (string? b))
+     (str a " " b)
+
+     (and (string? a) (string? (fs/get-in b '(:italian))))
+     (str a " " (fs/get-in b '(:italian)))
+
+     (and (string? (fs/get-in a '(:italian)))
+          (string? b))
+     (str (fs/get-in a '(:italian)) " " b)
+     
+     true
+     {:a a
+      :b b})))
+
+(declare get-english-stub)
 
 (defn get-english-stub-1 [word]
   (cond
 
+   (and
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b)))
+   (get-english-stub 
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b)))
+   
    (and
     (fs/get-in word '(:root :irregular :plur))
     (= (fs/get-in word '(:agr :number)) :plur)
     (= (fs/get-in word '(:cat) :noun)))
    (fs/get-in word '(:root :irregular :plur))
    
-   
+   ;; TODO: remove support for deprecated :root - use :english instead.
    (and
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:root))))
    (fs/get-in word '(:root))
+   (and
+    (= (fs/get-in word '(:agr :number)) :sing)
+    (= (fs/get-in word '(:cat) :noun))
+    (string? (fs/get-in word '(:english))))
+   (fs/get-in word '(:english))
 
+   ;; TODO: remove support for deprecated :root - use :english instead.
    (and
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:root :english))))
    (fs/get-in word '(:root :english))
-   
    (and
-    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
-    (string? (fs/get-in word '(:root))))
-   (str (fs/get-in word '(:root)) "s")
+    (string? (fs/get-in word '(:english :english))))
+   (fs/get-in word '(:english :english))
 
+   ;; TODO: remove support for deprecated :root - use :english instead.
+   (and (= (fs/get-in word '(:agr :number)) :plur)
+        (= (fs/get-in word '(:cat)) :noun)
+        (string? (fs/get-in word '(:root))))
+   (str (fs/get-in word '(:root)) "s")
+   (and (= (fs/get-in word '(:agr :number)) :plur)
+        (= (fs/get-in word '(:cat)) :noun)
+        (string? (fs/get-in word '(:english))))
+   (str (fs/get-in word '(:english)) "s")
+   (and (= (fs/get-in word '(:agr :number)) :plur)
+        (= (fs/get-in word '(:cat)) :noun)
+        (string? (fs/get-in word '(:english :english))))
+   (str (fs/get-in word '(:english :english))
+        "s"
+        (if (fs/get-in word '(:english :note))
+          (str (fs/get-in word '(:english :note)))))
+
+
+   (and (= (fs/get-in word '(:cat)) :adjective)
+        (string? (fs/get-in word '(:english))))
+   (fs/get-in word '(:english))
+
+   (map? word)
+   (merge {:morphology-is-done false}
+           word)
+   
    :else
   word))
 
 (defn get-english-stub [a b]
-  (let [a (get-english-stub-1 a)
-        b (get-english-stub-1 b)]
-    (if (and (string? a) (string? b))
-      ;; TODO: re-order based on category: e.g.
-      ;; If a is a noun, and b is a adj, reverse a and b in string,
-      ;;  so that italian word order is reversed to english word order.
-      (str a " " b)
-      {:a a
-       :b b})))
+  (let [re-a (get-english-stub-1 a)
+        re-b (get-english-stub-1 b)]
+    (cond
+     
+     (and (string? re-a) (string? re-b)
+          (= (fs/get-in a '(:cat)) :noun)
+          (= (fs/get-in b '(:cat)) :adjective))
+     ;; If a is a noun, and b is a adj, reverse a and b in string,
+     ;;  so that italian word order is reversed to english word order.
+     (str re-b " " re-a)
+          
+     (and (string? re-a) (string? re-b)
+          (= re-a "a")
+          (re-find #"^[aeiou]" re-b))
+     (str "an " re-b)
+
+     (and (string? re-a) (string? re-b))
+     (str re-a " " re-b)
+
+     :else
+     {:a a
+      :b b})))
 
 (defn get-italian [a b & [ a-category b-category a-infl b-infl]]
   (log/info (str "<get-italian>"))
