@@ -250,27 +250,34 @@
                              common-noun
                              {:synsem {:sem {:number :sing
                                              :drinkable true}}})})
+
+        drinkable-new
+        (unify mass-noun
+               common-noun
+               {:synsem {:sem {:number :sing
+                               :drinkable true}}})
+
         ]
     (list
 
 
-     (unify drinkable
+     (unify agreement-new
+            drinkable-new
             feminine
-            {:root {:italian "acqua"
-                    :english "water"
-                    :synsem {:sem {:artifact false
-                                   :animate false
-                                   :pred :acqua}}}})
+            {:italian {:italian "acqua"}
+             :english {:english "water"}
+             :synsem {:sem {:artifact false
+                            :animate false
+                            :pred :acqua}}})
 
-     (unify noun-conjugator
-            {:root (unify agreement
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem {:pred :amico
-                                          :human true}}
-                           :italian "amico"
-                           :english "friend"})})
+     (unify agreement-new
+            common-noun
+            countable-noun
+            masculine
+            {:synsem {:sem {:pred :amico
+                            :human true}}
+             :italian {:italian "amico"}
+             :english {:english "friend"}})
 
      (unify drinkable
             feminine

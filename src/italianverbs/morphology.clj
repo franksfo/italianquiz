@@ -1048,6 +1048,12 @@
           (re-find #"^s[t]" b))
      (str "gli " b)
 
+     (and (= a "il")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "l'" b)
+
+     
      (and (string? a) (string? b))
      (str a " " b)
 
