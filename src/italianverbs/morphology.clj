@@ -907,7 +907,56 @@
 
 (defn get-italian-stub-1 [word]
   (cond
+   (= (fs/get-in word '(:infl)) :present)
+   (let [infinitive (fs/get-in word '(:infinitive))
+         are-type (try (re-find #"are$" infinitive)
+                       (catch Exception e
+                         (throw (Exception. (str "Can't regex-find on non-string: " infinitive)))))
+         ere-type (re-find #"ere$" infinitive)
+         ire-type (re-find #"ire$" infinitive)
+         stem (string/replace infinitive #"[iae]re$" "")
+         last-stem-char-is-i (re-find #"i$" stem)
+         person (fs/get-in word '(:agr :person))
+         number (fs/get-in word '(:agr :number))]
+     (cond
+      (and (= person :1st) (= number :sing))
+      (str stem "o")
 
+      (and (= person :2nd) (= number :sing)
+           last-stem-char-is-i)
+      (str stem)
+
+      (and (= person :2nd) (= number :sing))
+      (str stem "i")
+
+      (and (= person :3rd) (= number :sing) (or ire-type ere-type))
+      (str stem "e")
+      
+      (and (= person :3rd) (= number :sing) are-type)
+      (str stem "a") 
+
+      (and (= person :1st) (= number :plur)
+           last-stem-char-is-i)
+      (str stem "amo")
+
+      (and (= person :1st) (= number :plur))
+      (str stem "iamo")
+
+      (and (= person :2nd) (= number :plur) are-type)
+      (str stem "ate")
+
+      (and (= person :2nd) (= number :plur) ere-type)
+      (str stem "ete")
+
+      (and (= person :2nd) (= number :plur) ire-type)
+      (str stem "ite")
+
+      (and (= person :3rd) (= number :plur))
+      (str stem "ano")
+      :else
+      word)
+     )
+     
 
    ;; TODO: move this down to other adjectives.
    ;; this was moved up here to avoid

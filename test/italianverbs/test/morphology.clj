@@ -84,4 +84,13 @@
                                   :cat :noun}})
          "some men")))
 
+(deftest dormo
+  (is (= (get-italian-stub-1 {:agr {:case :nom
+                                    :number :sing
+                                    :person :1st}
+                              :infinitive "dormire"
+                              :infl :present})
+         "dormo")))
+
+
 
