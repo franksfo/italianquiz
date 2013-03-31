@@ -165,10 +165,10 @@
                  :1 comp
                  :2 head
                  :extend {
-                          :a {:comp 'np
-                              :head 'vp-present}
-                          :b {:comp 'pronouns
-                              :head 'vp-present}
+;                          :a {:comp 'np
+;                              :head 'vp-present}
+;                          :b {:comp 'pronouns
+;                              :head 'vp-present}
                           :c {:comp 'np
                               :head 'intransitive-verbs}
                           :d {:comp 'pronouns
