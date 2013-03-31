@@ -556,17 +556,16 @@
                           {:italian "studente"
                            :english "student"})})
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :uomo}}
-                           :italian {:irregular {:plur "uomini"}
-                                     :italian "uomo"}
-                           :english {:irregular {:plur "men"}
-                                     :english "man"}})})
+     (unify agreement-new
+            common-noun
+            countable-noun
+            masculine
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :uomo}}
+             :italian {:irregular {:plur "uomini"}
+                       :italian "uomo"}
+             :english {:irregular {:plur "men"}
+                       :english "man"}})
 
      (unify drinkable-new
             agreement-new

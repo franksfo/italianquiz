@@ -1096,14 +1096,21 @@
    (get-english-stub 
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
-   
+
+   (and
+    (fs/get-in word '(:irregular :plur))
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:cat) :noun)))
+   (fs/get-in word '(:irregular :plur))
+
+   ;; TODO: remove support for deprecated :root - use :irregular instead (as immediately above).
    (and
     (fs/get-in word '(:root :irregular :plur))
     (= (fs/get-in word '(:agr :number)) :plur)
     (= (fs/get-in word '(:cat) :noun)))
    (fs/get-in word '(:root :irregular :plur))
    
-   ;; TODO: remove support for deprecated :root - use :english instead.
+   ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
@@ -1115,19 +1122,20 @@
     (string? (fs/get-in word '(:english))))
    (fs/get-in word '(:english))
 
-   ;; TODO: remove support for deprecated :root - use :english instead.
+   ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:root :english))))
    (fs/get-in word '(:root :english))
+
    (and
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:english :english))))
    (fs/get-in word '(:english :english))
 
-   ;; TODO: remove support for deprecated :root - use :english instead.
+   ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and (= (fs/get-in word '(:agr :number)) :plur)
         (= (fs/get-in word '(:cat)) :noun)
         (string? (fs/get-in word '(:root))))

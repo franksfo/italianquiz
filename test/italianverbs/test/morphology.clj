@@ -51,4 +51,26 @@
                               :b {:italian "acqua"
                                   :agr {:gender :fem
                                         :number :sing}
-                                  :cat :noun}}))))
+                                  :cat :noun}})
+         "della acqua")))
+
+(deftest degli-uomini
+  (is (= (get-italian-stub-1 {:a {:italian "di i"}
+                              :b {:italian {:irregular {:plur "uomini"}
+                                            :italian "uomo"}
+                                  :agr {:gender :masc
+                                        :number :plur}
+                                  :cat :noun}})
+         "degli uomini")))
+
+
+(deftest some-men
+  (is (= (get-english-stub-1 {:a {:english "some"}
+                              :b {:english {:irregular {:plur "men"}
+                                            :english "man"}
+                                  :agr {:gender :masc
+                                        :number :plur}
+                                  :cat :noun}})
+         "some men")))
+
+
