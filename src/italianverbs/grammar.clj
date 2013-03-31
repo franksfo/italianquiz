@@ -195,6 +195,7 @@
         comp (ref :top)
         subcat (ref :top)
         agr (ref :top)
+        head-semantics (ref :top)
         adjectival-predicate (ref :top)]
     (fs/unifyc
      head-principle
@@ -202,8 +203,11 @@
       :comp comp
       :1 head
       :2 comp}
+     {:synsem {:sem head-semantics}
+      :comp {:synsem {:sem {:mod head-semantics}}}}
      {:synsem {:sem {:mod adjectival-predicate}}
-      :comp {:synsem {:sem {:pred adjectival-predicate}}}}
+      :comp {:synsem {:sem {:mod head-semantics
+                            :pred adjectival-predicate}}}}
      {:synsem {:agr agr
                :subcat subcat}
       :head {:synsem {:agr agr
