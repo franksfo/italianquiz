@@ -356,150 +356,140 @@
                                   :def :def}}}}
            )
     
-           (unify noun-conjugator-new
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          feminine
-                          {:synsem {:sem {:pred :camicia
-                                          :artifact true
-                                          :speakable false
-                                          :legible false ;; (exception: tshirts with writing on them)
-                                          :consumable false
-                                          :clothing true}}}
-                          {:italian "camicia"
-                           :english "shirt"})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           feminine
+           {:synsem {:sem {:pred :camicia
+                           :artifact true
+                           :speakable false
+                           ;; (although an exception would be tshirts with writing on them):
+                           :legible false 
+                           :consumable false
+                           :clothing true}}}
+           {:italian {:italian "camicia"}
+            :english {:english "shirt"}})
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem (unify animal {:pred :cane :pet true})}
-                           :italian "cane"
-                           :english "dog"})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem (unify animal {:pred :cane :pet true})}
+            :italian {:italian "cane"}
+            :english {:english "dog"}})
 
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :dottore}}
-                           :italian "dottore"
-                           :english "doctor"})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem human}}
+           {:synsem {:sem {:pred :dottore}}
+            :italian {:italian "dottore"}
+            :english {:english "doctor"}})
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          feminine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :donna}}
-                           :italian "donna"
-                           :english {:irregular {:plur "women"}
-                                     :english "woman"}})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           feminine
+           {:synsem {:sem human}}
+           {:synsem {:sem {:pred :donna}}
+            :italian {:italian "donna"}
+            :english {:irregular {:plur "women"}
+                      :english "woman"}})
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem {:pred :fiore
-                                          :animate false
-                                          :artifact false
-                                          :buyable true
-                                          :consumable false
-                                          :speakable false}}
-                           :italian "fiore"
-                           :english "flower"}
-                          {:synsem {:subcat {:1 {:cat :det}}}})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem {:pred :fiore
+                           :animate false
+                           :artifact false
+                           :buyable true
+                           :consumable false
+                           :speakable false}}
+            :italian {:italian "fiore"}
+            :english {:english "flower"}}
+           {:synsem {:subcat {:1 {:cat :det}}}})
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem (unify animal {:pred :gatto :pet true})}
-                           :italian "gatto"
-                           :english "cat"})})
-
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem {:pred :libro
-                                          :legible true
-                                          :speakable false
-                                          :mass false
-                                          :consumable false
-                                          :artifact true}}
-                           :italian "libro"
-                           :english "book"})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem (unify animal {:pred :gatto :pet true})}
+            :italian {:italian "gatto"}
+            :english {:english "cat"}})
+  
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem {:pred :libro
+                           :legible true
+                           :speakable false
+                           :mass false
+                           :consumable false
+                           :artifact true}}
+            :italian {:italian "libro"}
+            :english {:english "book"}})
 
      ;; inherently plural.
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          feminine
-                          {
-                          :synsem {:sem {:pred :notizie
-                                          :buyable false
-                                          :legible true}}
-                           ;; "notizia" would work also: would be pluralized by (morphology/conjugate-it) to "notizie".
-                           :italian "notizie"
-                           :english "new"} ;; "news" (will be pluralized by (morphology/conjugate-en) to "news".
-                          {:synsem {:subcat {:1 {:cat :det
-                                                 :number :plur
-                                                 :def :def}}}})})
+    (unify agreement-new
+           common-noun
+           feminine
+           {
+            :synsem {:sem {:pred :notizie
+                           :buyable false
+                           :legible true}}
+            ;; "notizia" would probably also work, since it
+            ;; would be pluralized by morphology to "notizie".
+            :italian {:italian "notizie"}
+            :english {:english "new"}} ;; "news" (will be pluralized by morphology to "news").
+           {:synsem {:subcat {:1 {:cat :det
+                                  :number :plur
+                                  :def :def}}}})
+  
+    (unify agreement-new
+           common-noun
+           countable-noun
+           feminine
+           {:synsem {:sem {:legible true
+                           :speakable true
+                           :pred :parola}}}
+           {:italian {:italian "parola"}
+            :english {:english "word"}})
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          feminine
-                          {:synsem {:sem {:legible true
-                                          :speakable true
-                                          :pred :parola}}}
-                          {:italian "parola"
-                           :english "word"})})
+    (unify agreement-new
+           common-noun
+           countable-noun
+           feminine
+           {:synsem {:sem human}}
+           {:synsem {:sem {:pred :professoressa}}}
+           {:italian {:italian "professoressa"}
+            :english {:english "professor"
+                      :note " (&#x2640;) "}}) ;; unicode female symbol
 
-     (unify noun-conjugator-new
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          feminine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :professoressa}}}
-                          {:italian "professoressa"
-                           :english {:english "professor"
-                                     :note " (&#x2640;) "}})}) ;; unicode female symbol
-
-     (unify noun-conjugator-new
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :professore}}}
-                          {:italian "professore"
-                           :english {:english "professor"
-                                     :note " (&#x2642;) "}})}) ;; unicode male symbol
-
+    (unify agreement-new
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem human}}
+           {:synsem {:sem {:pred :professore}}}
+           {:italian {:italian "professore"}
+            :english {:english "professor"
+                      :note " (&#x2642;) "}}) ;; unicode male symbol
+  
      
      ;; "pizza" can be either mass or countable.
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          feminine
-                          {:synsem {:sem {:pred :pizza
-                                          :edible true
-                                          :artifact true}}
-                           :italian "pizza"
-                           :english "pizza"})})
-
+    (unify agreement-new
+           common-noun
+           feminine
+           {:synsem {:sem {:pred :pizza
+                           :edible true
+                           :artifact true}}
+            :italian {:italian "pizza"}
+            :english {:english "pizza"}})
+  
      (unify agreement-new
             common-noun
             countable-noun
@@ -519,42 +509,38 @@
              :italian {:italian "ragazza"}
              :english {:english "girl"}})
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          feminine
-                          countable-noun
-                          {:synsem {:sem {:artifact true
-                                          :consumable false
-                                          :legible false
-                                          :speakable false
-                                          :pred :scala}}
-                           :italian "scala"
-                           :english "ladder"})})
+     (unify agreement-new
+            common-noun
+            feminine
+            countable-noun
+            {:synsem {:sem {:artifact true
+                            :consumable false
+                            :legible false
+                            :speakable false
+                            :pred :scala}}
+             :italian {:italian "scala"}
+             :english {:english "ladder"}})
 
+     (unify agreement-new
+            common-noun
+            feminine
+            countable-noun
+            {:synsem {:sem {:artifact true
+                            :consumable true
+                            :legible true
+                            :speakable true
+                            :pred :scala}}
+             :italian {:italian "stravaganza"}
+             :english {:english "extravagant thing"}})
 
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          feminine
-                          countable-noun
-                          {:synsem {:sem {:artifact true
-                                          :consumable true
-                                          :legible true
-                                          :speakable true
-                                          :pred :scala}}
-                           :italian "stravaganza"
-                           :english "extravagant thing"})})
-
-     (unify noun-conjugator
-            {:root (unify agreement-new
-                          common-noun
-                          countable-noun
-                          masculine
-                          {:synsem {:sem human}}
-                          {:synsem {:sem {:pred :studente}}}
-                          {:italian "studente"
-                           :english "student"})})
+     (unify agreement-new
+            common-noun
+            countable-noun
+            masculine
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :studente}}}
+            {:italian {:italian "studente"}
+             :english {:english "student"}})
 
      (unify agreement-new
             common-noun
