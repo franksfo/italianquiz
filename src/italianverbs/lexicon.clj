@@ -735,7 +735,6 @@
 (def andare-intrans
   (unify
    intransitive
-   infinitive
    {:italian {:infinitive "andare"
               :essere true
               :irregular {:present {:1sing "vado"
@@ -875,8 +874,7 @@
 (def dormire
   (unify
    intransitive
-   infinitive
-   {:italian "dormire"
+   {:italian {:infinitive "dormire"}
     :english {:infinitive "to sleep"
               :irregular {:past "slept"}}
     :synsem {:sem {:subj {:animate true}
@@ -1056,8 +1054,7 @@
 (def pensare
   (unify
    intransitive
-   infinitive
-   {:italian "pensare"
+   {:italian {:infinitive "pensare"}
     :english {:infinitive "to think"
               :irregular {:past "thought"}}
     :synsem {:sem {:pred :pensare
@@ -1095,7 +1092,6 @@
 (def ridere
   (unify
    intransitive
-   infinitive
    {:italian {:infinitive "ridere"
               :irregular {:passato "riso"}}
     :english {:infinitive "to laugh"
@@ -1437,6 +1433,10 @@
 
 (def intransitive-verbs
   (list
+   andare-intrans
+   dormire
+   pensare
+   ridere
    sognare
    vivere))
 

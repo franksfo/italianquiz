@@ -921,6 +921,27 @@
          person (fs/get-in word '(:agr :person))
          number (fs/get-in word '(:agr :number))]
      (cond
+
+      (and (= person :1st) (= number :sing)
+           (string? (fs/get-in word '(:irregular :present :1sing))))
+      (fs/get-in word '(:irregular :present :1sing))
+      (and (= person :2nd) (= number :sing)
+           (string? (fs/get-in word '(:irregular :present :2sing))))
+      (fs/get-in word '(:irregular :present :2sing))
+      (and (= person :3rd) (= number :sing)
+           (string? (fs/get-in word '(:irregular :present :3sing))))
+      (fs/get-in word '(:irregular :present :3sing))
+
+      (and (= person :1st) (= number :plur)
+           (string? (fs/get-in word '(:irregular :present :1plur))))
+      (fs/get-in word '(:irregular :present :1plur))
+      (and (= person :2nd) (= number :plur)
+           (string? (fs/get-in word '(:irregular :present :2plur))))
+      (fs/get-in word '(:irregular :present :2plur))
+      (and (= person :3rd) (= number :plur)
+           (string? (fs/get-in word '(:irregular :present :3plur))))
+      (fs/get-in word '(:irregular :present :3plur))
+      
       (and (= person :1st) (= number :sing))
       (str stem "o")
 

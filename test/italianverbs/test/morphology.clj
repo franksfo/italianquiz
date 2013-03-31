@@ -103,4 +103,16 @@
 
 
 
+(deftest io-vado
+  (is (= (get-italian-stub-1 {:agr {:case :nom
+                                    :number :sing
+                                    :person :1st}
+                              :irregular {:present {:1sing "vado"}}
+                              :infinitive "andare"
+                              :infl :present})
+         "vado")))
+
+
+
+
 
