@@ -1107,9 +1107,8 @@
 (def scrivere
   (unify
    transitive
-   infinitive
-   {:italian "scrivere"
-    :english "to write"
+   {:italian {:infinitive "scrivere"}
+    :english {:infinitive "to write"}
     :synsem {:sem {:pred :scrivere
                    :subj {:human true}
                    :obj {:legible true}}}}))
@@ -1434,7 +1433,8 @@
 (def transitive-verbs
   (list
    mangiare
-   parlare))
+   parlare
+   scrivere))
 
 (def verbs
   (concat
