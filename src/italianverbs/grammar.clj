@@ -115,8 +115,8 @@
                     :extend {
                              :d {:head 'transitive-verbs
                                  :comp 'np}
-                             :e {:head 'aux-verbs
-                                 :comp 'intransitive-verbs}
+;                             :e {:head 'aux-verbs
+;                                 :comp 'intransitive-verbs}
 
                              }})))
     
@@ -174,14 +174,14 @@
                  :1 comp
                  :2 head
                  :extend {
-;                          :a {:comp 'np
-;                              :head 'vp-present}
+                          :a {:comp 'np
+                              :head 'vp-present}
                           :b {:comp 'pronouns
                               :head 'vp-present}
-;                          :c {:comp 'np
-;                              :head 'intransitive-verbs}
-;                          :d {:comp 'pronouns
-;                              :head 'intransitive-verbs}
+                          :c {:comp 'np
+                              :head 'intransitive-verbs}
+                          :d {:comp 'pronouns
+                              :head 'intransitive-verbs}
                           }})
      ;; future
      (fs/unifyc head-principle subcat-1-principle
