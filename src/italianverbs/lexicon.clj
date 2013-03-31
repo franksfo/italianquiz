@@ -12,7 +12,6 @@
 ;; TODO: combine with abbreviations inside the (def nouns).
 (def human {:human true})
 (def animal {:animate true :human false})
-(def food {:synsem {:sem {:edible true}}})
 (def infinitive
   {:synsem {:cat :verb
             :infl :infinitive}})
@@ -347,15 +346,17 @@
     (unify agreement-new
            common-noun
            feminine
-           food
-           {:synsem {:sem {:pred :pasta
-                           :artifact true}}
+           {:synsem {:sem (sem-impl {:pred :pasta
+                                     :edible true
+                                     :artifact true})}
             :italian {:italian "pasta"}
             :english {:english "pasta"}}
            {:synsem {:subcat {:1 {:cat :det
                                   :number :sing
-                                  :def :def}}}})})
-     (unify noun-conjugator-new
+                                  :def :def}}}}
+           )
+    
+           (unify noun-conjugator-new
             {:root (unify agreement-new
                           common-noun
                           countable-noun
@@ -493,8 +494,8 @@
             {:root (unify agreement-new
                           common-noun
                           feminine
-                          food
                           {:synsem {:sem {:pred :pizza
+                                          :edible true
                                           :artifact true}}
                            :italian "pizza"
                            :english "pizza"})})
@@ -567,14 +568,13 @@
                            :english {:irregular {:plur "men"}
                                      :english "man"}})})
 
-     (unify drinkable
+     (unify drinkable-new
+            agreement-new
             masculine
-            {:root {:italian "vino"
-                    :english "wine"
-                    :synsem {:sem {:pred :vino
-                                   :artifact true}}}})
-)))
-
+            {:italian {:italian "vino"}
+             :english {:english "wine"}
+             :synsem {:sem {:pred :vino
+                            :artifact true}}}))))
 (def determiners
   (list
 
