@@ -1025,13 +1025,12 @@
 (def mangiare
   (unify
    transitive
-   infinitive
-   {:italian "mangiare"
-    :english "to eat"
+   {:italian {:infinitive "mangiare"}
+    :english {:infinitive "to eat"}
     :synsem {:sem {:pred {:pred :mangiare
                           :essere false}
-                   :subj (sem-impl {:animate true})
-                   :obj (sem-impl {:edible true})}}}))
+                   :subj {:animate true}
+                   :obj {:edible true}}}}))
 
 (def leggere
   (unify
@@ -1434,6 +1433,7 @@
 
 (def transitive-verbs
   (list
+   mangiare
    parlare))
 
 (def verbs
