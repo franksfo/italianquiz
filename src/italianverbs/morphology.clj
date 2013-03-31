@@ -908,6 +908,19 @@
 (defn get-italian-stub-1 [word]
   (cond
 
+
+   ;; TODO: move this down to other adjectives.
+   ;; this was moved up here to avoid
+   ;; another rule from matching it.
+   ;; handle lexical exceptions (plural feminine adjectives):
+   (and
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:agr :gender)) :fem)
+    (= (fs/get-in word '(:cat)) :adjective)
+    (string? (fs/get-in word '(:irregular :fem :plur))))
+   (fs/get-in word '(:irregular :fem :plur))
+
+   
    ;; TODO: move this down to other adjectives.
    ;; this was moved up here to avoid
    ;; another rule from matching it.
@@ -939,14 +952,21 @@
     (= (fs/get-in word '(:cat)) :noun))
    (fs/get-in word '(:italian))
 
-   ;; handle lexical exceptions:
+   ;; handle lexical exceptions (plural nouns):
    (and
-    (= (fs/get-in word '(:agr :gender)) :masc)
     (= (fs/get-in word '(:agr :number)) :plur)
     (= (fs/get-in word '(:cat)) :noun)
     (string? (fs/get-in word '(:irregular :plur))))
    (fs/get-in word '(:irregular :plur))
-   
+
+   ;; handle lexical exceptions (plural masculine adjectives):
+   (and
+    (= (fs/get-in word '(:agr :number)) :plur)
+    (= (fs/get-in word '(:agr :gender)) :masc)
+    (= (fs/get-in word '(:cat)) :adjective)
+    (string? (fs/get-in word '(:irregular :masc :plur))))
+   (fs/get-in word '(:irregular :masc :plur))
+
    
    (and
     (= (fs/get-in word '(:agr :gender)) :masc)
@@ -1065,7 +1085,22 @@
           (re-find #"^s[t]" b))
      (str "gli " b)
 
+     (and (= a "un")
+          (or (re-find #"^s[t]" b)
+              (re-find #"^[aeiou]" b)))
+     (str "uno " b)
+
+     (and (= a "una")
+          (or (re-find #"^s[t]" b)
+              (re-find #"^[aeiou]" b)))
+     (str "un'" b)
+
+     
      (and (= a "il")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "l'" b)
+     (and (= a "la")
           (string? b)
           (re-find #"^[aeiou]" b))
      (str "l'" b)
