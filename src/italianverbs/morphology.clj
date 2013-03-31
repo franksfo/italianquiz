@@ -1248,7 +1248,10 @@
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:english))))
-   (fs/get-in word '(:english))
+   (str (fs/get-in word '(:english))
+        (if (fs/get-in word '(:note))
+          (fs/get-in word '(:note))))
+        
 
    ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and
@@ -1261,17 +1264,24 @@
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:english :english))))
-   (fs/get-in word '(:english :english))
+   (str
+    (fs/get-in word '(:english :english))
+    (if (fs/get-in word '(:note))
+      (fs/get-in word '(:note))))
 
    ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and (= (fs/get-in word '(:agr :number)) :plur)
         (= (fs/get-in word '(:cat)) :noun)
         (string? (fs/get-in word '(:root))))
    (str (fs/get-in word '(:root)) "s")
+
    (and (= (fs/get-in word '(:agr :number)) :plur)
         (= (fs/get-in word '(:cat)) :noun)
         (string? (fs/get-in word '(:english))))
-   (str (fs/get-in word '(:english)) "s")
+   (str (fs/get-in word '(:english)) "s"
+        (if (fs/get-in word '(:note))
+          (fs/get-in word '(:note))))
+
    (and (= (fs/get-in word '(:agr :number)) :plur)
         (= (fs/get-in word '(:cat)) :noun)
         (string? (fs/get-in word '(:english :english))))
