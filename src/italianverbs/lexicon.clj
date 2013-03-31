@@ -708,7 +708,7 @@
 ;; they both have a subject, thus "subjective".
 (def subjective
   (let [subj-sem (ref :top)
-        subject-agreement (ref {:cat {:not :acc}})]
+        subject-agreement (ref {:case {:not :acc}})]
     {:italian {:agr subject-agreement}
      :synsem {:sem {:subj subj-sem}
               :subcat {:1 {:sem subj-sem
