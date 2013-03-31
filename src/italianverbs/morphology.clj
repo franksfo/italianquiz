@@ -1026,6 +1026,13 @@
         b (get-italian-stub-1 b)]
     (cond
 
+
+     (and (= a "di i")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "degli " b)
+
+
      (and (= a "di i")
           (string? b))
      (str "dei " b)
