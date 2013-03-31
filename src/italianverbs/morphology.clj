@@ -907,11 +907,13 @@
 
 (defn get-italian-stub-1 [word]
   (cond
-   (= (fs/get-in word '(:infl)) :present)
+   (and
+    (= (fs/get-in word '(:infl)) :present)
+    (string? (fs/get-in word '(:infinitive))))
    (let [infinitive (fs/get-in word '(:infinitive))
          are-type (try (re-find #"are$" infinitive)
                        (catch Exception e
-                         (throw (Exception. (str "Can't regex-find on non-string: " infinitive)))))
+                         (throw (Exception. (str "Can't regex-find on non-string: " infinitive " from word: " word)))))
          ere-type (re-find #"ere$" infinitive)
          ire-type (re-find #"ire$" infinitive)
          stem (string/replace infinitive #"[iae]re$" "")
@@ -1173,6 +1175,47 @@
 
 (defn get-english-stub-1 [word]
   (cond
+   (and
+    (= :present (fs/get-in word '(:infl)))
+    (string? (fs/get-in word '(:infinitive))))
+   (let [root (fs/get-in word '(:infinitive))
+         ;; TODO: throw exception rather than encoding error "nilrootz" as part
+         ;; of the english string.
+         root (if (nil? root) "(nilrootz)" root)
+         root (if (not (= (type root) java.lang.String))
+                (fs/get-in word '(:infinitive :infinitive))
+                root)
+         person (fs/get-in word '(:agr :person))
+         number (fs/get-in word '(:agr :number))
+         stem (string/replace root #"^to " "")
+         last-stem-char-is-e (re-find #"e$" stem)
+         last-stem-char-is-vowel (re-find #"[aeiou]$" stem)]
+     (log/debug "+else")
+     (log/debug (str "(english):word: " word))
+     (cond
+
+      (and (= person :1st) (= number :sing))
+      (str stem "")
+
+      (and (= person :2nd) (= number :sing))
+      (str stem "")
+
+      (and (= person :3rd) (= number :sing)
+           (= last-stem-char-is-vowel "o"))
+      (str stem "es")
+
+      (and (= person :3rd) (= number :sing))
+      (str stem "s")
+
+      (and (= person :1st) (= number :plur))
+      (str stem "")
+
+      (and (= person :2nd) (= number :plur))
+      (str stem "")
+
+      (and (= person :3rd) (= number :plur))
+      (str stem "")
+      :else word))
 
    (and
     (fs/get-in word '(:a))
@@ -1200,6 +1243,7 @@
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:root))))
    (fs/get-in word '(:root))
+
    (and
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
@@ -1243,10 +1287,10 @@
 
    (map? word)
    (merge {:morphology-is-done false}
-           word)
+          word)
    
    :else
-  word))
+   word))
 
 (defn get-english-stub [a b]
   (let [re-a (get-english-stub-1 a)

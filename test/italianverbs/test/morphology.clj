@@ -93,4 +93,14 @@
          "dormo")))
 
 
+(deftest sleeps
+  (is (= (get-english-stub-1 {:agr {:case :nom
+                                    :number :sing
+                                    :person :3rd}
+                              :infinitive "to sleep"
+                              :infl :present})
+         "sleeps")))
+
+
+
 
