@@ -46,28 +46,39 @@
   (let [result (passato-prossimo "lavorare")]
     (is (= result "lavorato"))))
 
+
+(deftest acqua
+  (is
+   (= (get-italian-stub-1 {:italian "acqua"
+                           :agr {:gender :fem
+                                 :number :sing}
+                           :cat :noun})
+      "acqua")
+  ))
+
 (deftest della-acqua
-  (is (= (get-italian-stub-1 {:a {:italian "di la"}
+  (is (= (get-italian-stub-1 {:a "di la"
                               :b {:italian "acqua"
                                   :agr {:gender :fem
                                         :number :sing}
                                   :cat :noun}})
          "della acqua")))
 
+
+
 (deftest degli-uomini
-  (is (= (get-italian-stub-1 {:a {:italian "di i"}
-                              :b {:italian {:irregular {:plur "uomini"}
-                                            :italian "uomo"}
+  (is (= (get-italian-stub-1 {:a "di i"
+                              :b {:italian "uomo"
+                                  :irregular {:plur "uomini"}
                                   :agr {:gender :masc
                                         :number :plur}
                                   :cat :noun}})
          "degli uomini")))
 
-
 (deftest some-men
-  (is (= (get-english-stub-1 {:a {:english "some"}
-                              :b {:english {:irregular {:plur "men"}
-                                            :english "man"}
+  (is (= (get-english-stub-1 {:a "some"
+                              :b {:english "man"
+                                  :irregular {:plur "men"}
                                   :agr {:gender :masc
                                         :number :plur}
                                   :cat :noun}})
