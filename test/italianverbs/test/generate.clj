@@ -28,5 +28,14 @@
     (is (= "i dream"
            (fs/get-in io-sogno '(:english))))))
 
+(deftest io-parlo-la-parola
+  (let [io-parlo-la-parola (over gram/s-present "io"
+                                 (over gram/vp-present "parlare" (over gram/np "la" "parola")))]
+    (is (= "io parlo la parola"
+           (fs/get-in io-parlo-la-parola '(:italian))))
+    (is (= "i speak the word"
+           (fs/get-in io-parlo-la-parola '(:english))))))
+
+        
 
 

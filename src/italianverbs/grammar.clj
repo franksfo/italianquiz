@@ -46,10 +46,17 @@
 ;; a language's morphological inflection is
 ;; identical to its head's SYNSEM|INFL value.
 (def verb-inflection-morphology
-  (let [infl (ref :top)]
-    {:italian {:infl infl}
-     :english {:infl infl}
-     :head {:synsem {:cat :verb
+  (let [infl (ref :top)
+        cat (ref :verb)]
+    {:italian {:a {:infl infl
+                   :cat cat}}
+     :english {:a {:infl infl
+                   :cat cat}}
+     :head {:italian {:infl infl
+                      :cat cat}
+            :english {:infl infl
+                      :cat cat}
+            :synsem {:cat cat
                      :infl infl}}}))
 
 (def vp-rules
@@ -131,13 +138,15 @@
 
 (def subject-verb-agreement
   (let [infl (ref :top)
-        agr (ref :top)]
+        agr (ref {:case :nom})]
     {:comp {:synsem {:agr agr}}
      :head {:synsem {:subcat {:1 {:agr agr}}
                      :infl infl}
             :italian {:agr agr
+;                      :b {:infl infl}
                       :infl infl}
             :english {:agr agr
+;                      :b {:infl infl}
                       :infl infl}}}))
 
 (def sentence-rules
@@ -167,12 +176,12 @@
                  :extend {
 ;                          :a {:comp 'np
 ;                              :head 'vp-present}
-;                          :b {:comp 'pronouns
-;                              :head 'vp-present}
-                          :c {:comp 'np
-                              :head 'intransitive-verbs}
-                          :d {:comp 'pronouns
-                              :head 'intransitive-verbs}
+                          :b {:comp 'pronouns
+                              :head 'vp-present}
+;                          :c {:comp 'np
+;                              :head 'intransitive-verbs}
+;                          :d {:comp 'pronouns
+;                              :head 'intransitive-verbs}
                           }})
      ;; future
      (fs/unifyc head-principle subcat-1-principle

@@ -1189,8 +1189,8 @@
      (str (fs/get-in a '(:italian)) " " b)
      
      true
-     {:a a
-      :b b})))
+     {:a (if (nil? a) :top a)
+      :b (if (nil? b) :top b)})))
 
 (declare get-english-stub)
 
@@ -1344,8 +1344,8 @@
      (str re-a " " re-b)
 
      :else
-     {:a a
-      :b b})))
+     {:a (if (nil? a) :top a)
+      :b (if (nil? b) :top b)})))
 
 (defn get-italian [a b & [ a-category b-category a-infl b-infl]]
   (log/info (str "<get-italian>"))

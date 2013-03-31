@@ -710,6 +710,7 @@
   (let [subj-sem (ref :top)
         subject-agreement (ref {:case {:not :acc}})]
     {:italian {:agr subject-agreement}
+     :english {:agr subject-agreement}
      :synsem {:sem {:subj subj-sem}
               :subcat {:1 {:sem subj-sem
                            :cat :noun
@@ -724,8 +725,12 @@
 ;; intransitive: has both subject and object.
 (def transitive
   (unify subjective
-         (let [obj-sem (ref :top)]
-           {:synsem {:sem {:obj obj-sem}
+         (let [obj-sem (ref :top)
+               infl (ref :top)]
+           {:english {:infl infl}
+            :italian {:infl infl}
+            :synsem {:sem {:obj obj-sem}
+                     :infl infl
                      :subcat {:2 {:sem obj-sem
                                   ;; uncomment this:
                                   ;;                                  :cat :noun
@@ -1272,8 +1277,6 @@
   (list
    (unify {:root andare-intrans}
           intrans-past-tense-verb)
-   (unify {:root dormire}
-          intrans-past-tense-verb)
    (unify {:root ridere}
           intrans-past-tense-verb)))
 
@@ -1293,8 +1296,6 @@
    (unify {:root leggere}
           trans-past-tense-verb)
    (unify {:root mangiare}
-          trans-past-tense-verb)
-   (unify {:root parlare}
           trans-past-tense-verb)
    (unify {:root scrivere}
           trans-past-tense-verb)
@@ -1338,8 +1339,6 @@
           trans-present-tense-verb)
    (unify {:root mangiare}
           trans-present-tense-verb)
-   (unify {:root parlare}
-          trans-present-tense-verb)
    (unify {:root scrivere}
           trans-present-tense-verb)
    (unify {:root vedere}
@@ -1365,8 +1364,6 @@
           trans-future-tense-verb)
    (unify {:root mangiare}
           trans-future-tense-verb)
-   (unify {:root parlare}
-          trans-future-tense-verb)
    (unify {:root scrivere}
           trans-future-tense-verb)
    (unify {:root vedere}
@@ -1379,8 +1376,6 @@
   (list
    (unify {:root andare-intrans}
           intrans-present-tense-verb)
-   (unify {:root dormire}
-          intrans-present-tense-verb)
    (unify {:root pensare}
           intrans-present-tense-verb)
    (unify {:root ridere}
@@ -1389,8 +1384,6 @@
 ;; TODO: get rid of this: no longer needed.
 (def future-intransitive-verbs
   (list
-   (unify {:root dormire}
-          intrans-future-tense-verb)
    (unify {:root pensare}
           intrans-future-tense-verb)
    (unify {:root ridere}
@@ -1427,7 +1420,6 @@
     fare-make
     leggere
     mangiare
-    parlare
     scrivere
     vedere)))
 
@@ -1452,9 +1444,8 @@
    future-verbs
    present-modal-verbs
    ;; infinitives:
-   infinitive-intransitive-verbs
-   infinitive-transitive-verbs
-   intransitive-verbs))
+   intransitive-verbs
+   transitive-verbs))
 
 (def pronouns
   (list {:synsem {:cat :noun
