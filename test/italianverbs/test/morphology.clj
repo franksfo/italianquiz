@@ -45,3 +45,10 @@
 (deftest passato ;; Regular passato-prossimo conjugation
   (let [result (passato-prossimo "lavorare")]
     (is (= result "lavorato"))))
+
+(deftest della-acqua
+  (is (= (get-italian-stub-1 {:a {:italian "di la"}
+                              :b {:italian "acqua"
+                                  :agr {:gender :fem
+                                        :number :sing}
+                                  :cat :noun}}))))

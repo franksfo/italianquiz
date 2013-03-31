@@ -908,6 +908,9 @@
 (defn get-italian-stub-1 [word]
   (cond
 
+   ;; TODO: move this down to other adjectives.
+   ;; this was moved up here to avoid
+   ;; another rule from matching it.
    (and
     (= (fs/get-in word '(:agr :gender)) :fem)
     (= (fs/get-in word '(:agr :number)) :plur)
@@ -922,12 +925,19 @@
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
 
+   ;; TODO: remove support for deprecated :root.
    (and
     (= (fs/get-in word '(:agr :gender)) :masc)
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat)) :noun)
     (fs/get-in word '(:root)))
    (fs/get-in word '(:root))
+
+   (and
+    (= (fs/get-in word '(:agr :gender)) :fem)
+    (= (fs/get-in word '(:agr :number)) :sing)
+    (= (fs/get-in word '(:cat)) :noun))
+   (fs/get-in word '(:italian))
 
    ;; handle lexical exceptions:
    (and
