@@ -12,6 +12,8 @@
 ;; TODO: combine with abbreviations inside the (def nouns).
 (def human {:human true})
 (def animal {:animate true :human false})
+
+;; TODO: remove this: now using rootless verb morphology
 (def infinitive
   {:synsem {:cat :verb
             :infl :infinitive}})
@@ -428,6 +430,7 @@
                            :legible true
                            :speakable false
                            :mass false
+                           :buyable true
                            :consumable false
                            :artifact true}}
             :italian {:italian "libro"}
@@ -800,10 +803,8 @@
 (def avere
   (unify
    transitive
-   infinitive
    avere-common
-   {:synsem {:infl :infinitive
-             :sem {:pred :avere
+   {:synsem {:sem {:pred :avere
                    :subj {:human true}
                    :obj {:buyable true}}}}))
 
@@ -1432,18 +1433,18 @@
 
 (def transitive-verbs
   (list
+   avere
    mangiare
    parlare
    scrivere))
 
 (def verbs
   (concat
-   present-aux-verbs
-   present-verbs
-   past-verbs
-   future-verbs
-   present-modal-verbs
-   ;; infinitives:
+;   present-aux-verbs
+;   present-verbs
+;   past-verbs
+;   future-verbs
+;   present-modal-verbs
    intransitive-verbs
    transitive-verbs))
 

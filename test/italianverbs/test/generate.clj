@@ -36,6 +36,16 @@
     (is (= "i speak the word"
            (fs/get-in io-parlo-la-parola '(:english))))))
 
-        
+
+
+(deftest loro-hanno-il-pane
+  (let [loro-hanno-il-pane (over gram/s-present "loro"
+                                 (over gram/vp-present "avere" (over gram/np "il" "pane")))]
+    (is (= "loro hanno il pane"
+           (fs/get-in loro-hanno-il-pane '(:italian))))
+    (is (= "they have the bread"
+           (fs/get-in loro-hanno-il-pane '(:english))))))
+
+
 
 
