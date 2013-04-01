@@ -115,8 +115,8 @@
                     :extend {
                              :d {:head 'transitive-verbs
                                  :comp 'np}
-;                             :e {:head 'aux-verbs
-;                                 :comp 'intransitive-verbs}
+                             :e {:head 'aux-verbs
+                                 :comp 'intransitive-verbs}
 
                              }})))
     

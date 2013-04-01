@@ -908,6 +908,45 @@
 (defn get-italian-stub-1 [word]
   (cond
    (and
+    (= :past (fs/get-in word '(:infl)))
+    (string? (fs/get-in word '(:irregular :past))))
+   (fs/get-in word '(:irregular :past))
+
+   (= :past (fs/get-in word '(:infl)))
+   (let [infinitive (fs/get-in word '(:infinitive))
+         are-type (try (re-find #"are$" infinitive)
+                       (catch Exception e
+                         (throw (Exception. (str "Can't regex-find on non-string: " infinitive)))))
+         ere-type (re-find #"ere$" infinitive)
+         ire-type (re-find #"ire$" infinitive)
+         stem (string/replace infinitive #"[iae]re$" "")
+         last-stem-char-is-i (re-find #"i$" stem)
+         suffix (cond
+                 (and (= (fs/get-in word '(:agr :gender)) :fem)
+                      (= (fs/get-in word '(:agr :number)) :sing)
+                      (= (fs/get-in word '(:infinitive :essere)) true))
+                 "a"
+                 
+                 (and (= (fs/get-in word '(:agr :gender)) :fem)
+                      (= (fs/get-in word '(:agr :number)) :plur)
+                      (= (fs/get-in word '(:infinitive :essere)) true))
+                 "e"
+                 
+                 (and (= (fs/get-in word '(:agr :number)) :plur)
+                      (= (fs/get-in word '(:infinitive :essere)) true))
+                 "i"
+                 
+                 true
+                 "o")]
+     (cond
+      (or are-type ere-type)
+      (str stem "at" suffix) ;; "ato" or "ati"
+      (or are-type ire-type)
+      (str stem "it" suffix) ;; "ito" or "iti"
+      true
+      (str "(regpast:TODO):" stem)))
+   
+   (and
     (= (fs/get-in word '(:infl)) :present)
     (string? (fs/get-in word '(:infinitive))))
    (let [infinitive (fs/get-in word '(:infinitive))
@@ -1194,6 +1233,26 @@
 
 (defn get-english-stub-1 [word]
   (cond
+
+   ;; irregular past
+   (and (= :past (fs/get-in word '(:infl)))
+        (string? (fs/get-in word '(:irregular :past))))
+   (fs/get-in word '(:irregular :past))
+
+   ;; regular past
+   (and (= :past (fs/get-in word '(:infl)))
+        (string? (fs/get-in word '(:infinitive))))
+   (let [infinitive (fs/get-in word '(:infinitive))
+         stem (string/replace infinitive #"^to " "")
+         stem-minus-one (nth (re-find #"(.*).$" stem) 1)
+         penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
+         last-stem-char (re-find #".$" stem)
+         last-stem-char-is-e (re-find #"e$" stem)]
+     (cond last-stem-char-is-e  ;; e.g. "write" => "written"
+           (str stem-minus-one penultimate-stem-char "en")
+           true
+           (str stem "en")))
+   
    (and
     (= :present (fs/get-in word '(:infl)))
     (string? (fs/get-in word '(:infinitive))))

@@ -722,8 +722,11 @@
 ;; intransitive: has subject but no object.
 (def intransitive
   (unify subjective
-         {:synsem
-          {:subcat {:2 '()}}}))
+         (let [infl (ref :top)]
+           {:english {:infl infl}
+            :italian {:infl infl}
+            :synsem {:infl infl
+                     :subcat {:2 '()}}})))
 
 ;; intransitive: has both subject and object.
 (def transitive
@@ -860,8 +863,8 @@
               :irregular {:passato "bevuto"}}
     :english {:infinitive "to drink"
               :irregular {:past "drank"}}
-    :synsem {:sem {:pred :bevere
-
+    :synsem {:essere false
+             :sem {:pred :bevere
                    :subj (sem-impl {:animate true})
                    :obj (sem-impl {:drinkable true})}}}))
 
@@ -873,7 +876,8 @@
    {:italian "comprare"
     :english {:infinitive "to buy"
               :irregular {:past "bought"}}
-    :synsem {:sem {:pred :comprare
+    :synsem {:essere false
+             :sem {:pred :comprare
                    :subj {:human true}
                    :obj {:buyable true}}}}))
 
@@ -883,9 +887,9 @@
    {:italian {:infinitive "dormire"}
     :english {:infinitive "to sleep"
               :irregular {:past "slept"}}
-    :synsem {:sem {:subj {:animate true}
-                   :pred {:pred :dormire
-                          :essere false}}}}))
+    :synsem {:essere false
+             :sem {:subj {:animate true}
+                   :pred {:pred :dormire}}}}))
 
 (def dovere
   (unify
@@ -1062,7 +1066,8 @@
    {:italian {:infinitive "pensare"}
     :english {:infinitive "to think"
               :irregular {:past "thought"}}
-    :synsem {:sem {:pred :pensare
+    :synsem {:essere false
+             :sem {:pred :pensare
                    :subj {:human true}}}}))
 
 
@@ -1101,9 +1106,10 @@
               :irregular {:passato "riso"}}
     :english {:infinitive "to laugh"
               :irregular {:past "laughed"}}
-    :synsem {:sem {:subj {:human true}
-                   :pred {:pred :ridere
-                          :essere false}}}}))
+    :synsem {:essere false
+             :sem {:subj {:human true}
+                   :pred {:pred :ridere}}}}))
+
 
 (def scrivere
   (unify
@@ -1127,7 +1133,6 @@
 (def vedere
   (unify
    transitive
-   infinitive
    {:italian {:infinitive "vedere"
               :irregular {:passato "visto"}}
     :english {:infinitive "to see"
