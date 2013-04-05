@@ -912,6 +912,12 @@
     (string? (fs/get-in word '(:irregular :past))))
    (fs/get-in word '(:irregular :past))
 
+
+   ;; irregular passato prossimo
+   (and (= :past (fs/get-in word '(:infl)))
+        (fs/get-in word '(:irregular :passato)))
+   (fs/get-in word '(:irregular :passato))
+
    (= :past (fs/get-in word '(:infl)))
    (let [infinitive (fs/get-in word '(:infinitive))
          are-type (try (re-find #"are$" infinitive)
@@ -1232,8 +1238,15 @@
 (declare get-english-stub)
 
 (defn get-english-stub-1 [word]
+  (log/info (str "GET-ENGLISH-STUB-1: " word))
+  (log/info (str ":A :INFL: " (fs/get-in word '(:a :infl))))
+  (log/info (str ":B :INFL: " (fs/get-in word '(:b :infl))))
   (cond
 
+   (and (= (fs/get-in word '(:a :infl)) :present)
+        (= (fs/get-in word '(:b :infl)) :past))
+   (get-english-stub-1 (fs/get-in word '(:b)))
+   
    ;; irregular past
    (and (= :past (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:irregular :past))))
@@ -1248,7 +1261,7 @@
          penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
          last-stem-char (re-find #".$" stem)
          last-stem-char-is-e (re-find #"e$" stem)]
-     (cond last-stem-char-is-e  ;; e.g. "write" => "written"
+     (cond last-stem-char-is-e
            (str stem-minus-one penultimate-stem-char "en")
            true
            (str stem "en")))
@@ -1403,6 +1416,8 @@
 (defn get-english-stub [a b]
   (let [re-a (get-english-stub-1 a)
         re-b (get-english-stub-1 b)]
+    (log/info (str "GET-ENGLISH-STUB-1 a: " a " => " re-a))
+    (log/info (str "GET-ENGLISH-STUB-1 b: " b " => " re-b))
     (cond
      
      (and (string? re-a) (string? re-b)

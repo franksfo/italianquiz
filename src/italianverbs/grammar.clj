@@ -69,19 +69,16 @@
         (fs/unifyc head-principle
                    subcat-2-principle
                    verb-inflection-morphology
-                   {:synsem {:infl infl}
-                    :head {:english {:infl infl}
-                           :italian {:infl infl}}}
-;                    :italian {:infl infl}
-;                    :english {:infl infl}}
-                   {:comment "vp[past] &#x2192; head comp?"}
+                   {:comment "vp[past] &#x2192; head comp"}
                    {:head head
                     :comp comp
                     :1 head
                     :2 comp
-                    :extend {:a {:head 'past-transitive-verbs
+                    :synsem {:infl :past}
+                    :extend {:a {:head 'transitive-verbs
                                  :comp 'np}
-                             :b {:head 'past-intransitive-verbs}}})))
+;;                             :b {:head 'intransitive-verbs}
+                             }})))
 
     (def vp-infinitive-transitive
       (fs/unifyc head-principle
@@ -117,6 +114,8 @@
                                  :comp 'np}
                              :e {:head 'aux-verbs
                                  :comp 'intransitive-verbs}
+                             :f {:head 'aux-verbs
+                                 :comp 'vp-past}
 
                              }})))
     
@@ -134,7 +133,12 @@
                            :a {:head 'transitive-verbs
                                :comp 'np}}})))
 
-  (list vp-present vp-past vp-future)))
+    (list
+     vp-present
+     vp-past
+;     vp-future
+     )))
+
 
 (def subject-verb-agreement
   (let [infl (ref :top)
@@ -178,10 +182,10 @@
                               :head 'vp-present}
                           :b {:comp 'pronouns
                               :head 'vp-present}
-                          :c {:comp 'np
-                              :head 'intransitive-verbs}
-                          :d {:comp 'pronouns
-                              :head 'intransitive-verbs}
+;                          :c {:comp 'np
+;                              :head 'intransitive-verbs}
+;                          :d {:comp 'pronouns
+;                              :head 'intransitive-verbs}
                           }})
      ;; future
      (fs/unifyc head-principle subcat-1-principle
@@ -270,9 +274,12 @@
 (def rules (concat np-rules vp-rules sentence-rules))
 
 (def np (nth np-rules 0))
-(def vp-present (nth vp-rules 0))
-(def vp-past (nth vp-rules 1))
-(def vp-future (nth vp-rules 2))
+
+;; TODO: remove these 3: should not be needed.
+;(def vp-present (nth vp-rules 0))
+;(def vp-past (nth vp-rules 0))
+;(def vp-future (nth vp-rules 2))
+
 (def s-present (nth sentence-rules 0))
 (def s-future (nth sentence-rules 1))
 

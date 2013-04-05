@@ -817,9 +817,12 @@
 ;; Must be encoded in both the :italian (for morphological agreement)
 ;; and the :synsem (for subcategorization by the appropriate aux verb).
 (def aux-type
-  (let [essere-binary-categorization (ref :top)]
-    {:italian {:essere essere-binary-categorization}
-     :synsem {:essere essere-binary-categorization}}))
+  (let [essere-binary-categorization (ref :top)
+        aux (ref true)]
+    {:italian {:aux aux
+               :essere essere-binary-categorization}
+     :synsem {:aux aux
+              :essere essere-binary-categorization}}))
 
 (def avere-aux
   (let [v-past-pred (ref :top)
@@ -957,18 +960,26 @@
 (def essere-aux
   (let [v-past-pred (ref :top)
         subject (ref :top)]
-    (unify
-     aux-type
-     subjective
-     essere-common
-     {:synsem {:subcat {:1 subject
-                        :2 {:cat :verb
-                            :essere true
-                            :subcat {:1 subject}
-                            :sem {:pred v-past-pred}
-                            :infl :past}}
-               :sem {:pred v-past-pred}
-               :essere true}})))
+    (merge
+     (unify
+      aux-type
+      subjective
+      essere-common
+      {:synsem {:subcat {:1 subject
+                         :2 {:cat :verb
+                             :essere true
+                             :subcat {:1 subject}
+                             :sem {:pred v-past-pred}
+                             :infl :past}}
+                :sem {:pred v-past-pred}
+                :essere true}})
+     {:english {:infinitive "to be"
+                :irregular {:present {:1sing "have"
+                                      :2sing "have"
+                                      :3sing "has"
+                                      :1plur "have"
+                                      :2plur "have"
+                                      :3plur "have"}}}})))
 
 (def essere-aux-intrans
   (unify
@@ -1069,7 +1080,6 @@
     :synsem {:essere false
              :sem {:pred :pensare
                    :subj {:human true}}}}))
-
 
 (def potere
   (unify
