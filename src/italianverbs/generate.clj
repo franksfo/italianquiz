@@ -567,33 +567,27 @@
             :else
             (let [english
                   (string/capitalize
-                   (let [tmp
-                         (get-morph (fs/get-in expr '(:english))
-                                    morph/get-english)]
-                     (cond
-                      (and (map? tmp)
-                           (fs/get-in tmp '(:1)))
-                      (string/trim (str (get-root tmp '(:1) :english) " " (get-root tmp '(:2) :english)))
+                   (cond
+                    (string? (fs/get-in expr '(:english)))
+                    (fs/get-in expr '(:english))
+                    (string? (fs/get-in expr '(:english :english)))
+                    (fs/get-in expr '(:english :english))
+                    (string? (fs/get-in expr '(:english :infinitive)))
+                    (fs/get-in expr '(:english :infinitive))
+                    true
+                    expr))
 
-                      (map? tmp)
-                      (get-root tmp nil :english)
-
-                      true tmp)))
-                 italian
+                  italian
                   (string/capitalize
-                   (let [tmp
-                         (get-morph (fs/get-in expr '(:italian))
-                                    morph/get-italian)]
-                     (cond
-                      (and (map? tmp)
-                           (fs/get-in tmp '(:1)))
-                      (string/trim (str (get-root tmp '(:1) :italian) " " (get-root tmp '(:2) :italian)))
-
-                      (map? tmp)
-                      (get-root tmp nil :italian)
-
-
-                      true tmp)))]
+                   (cond
+                    (string? (fs/get-in expr '(:italian)))
+                    (fs/get-in expr '(:italian))
+                    (string? (fs/get-in expr '(:italian :italian)))
+                    (fs/get-in expr '(:italian :italian))
+                    (string? (fs/get-in expr '(:italian :infinitive)))
+                    (fs/get-in expr '(:italian :infinitive))
+                    true
+                    expr))]
               (string/trim
                (str italian " (" english ").")))))
          expressions)))
