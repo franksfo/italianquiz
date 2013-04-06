@@ -65,11 +65,14 @@
         infl (ref :top)
         agr (ref :top)]
     (def vp-past
-      (let [infl (ref :past)]
+      (let [infl (ref :past)
+            essere (ref :top)]
         (fs/unifyc head-principle
                    subcat-2-principle
                    verb-inflection-morphology
                    {:comment "vp[past] &#x2192; head comp"}
+                   {:synsem {:essere essere}
+                    :head {:synsem {:essere essere}}}
                    {:head head
                     :comp comp
                     :1 head
