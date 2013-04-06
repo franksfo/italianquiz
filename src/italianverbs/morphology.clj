@@ -902,22 +902,63 @@
            (str stem "")
            :else arg))))
 
+(defn suffix-of [word]
+  "compute the final character given a lexical entry and agreement info in :agr."
+  (let [suffix (cond
+
+                (and (= (fs/get-in word '(:agr :gender)) :fem)
+                     (= (fs/get-in word '(:agr :number)) :sing)
+                     (= (fs/get-in word '(:essere)) true))
+                "a"
+
+                (and (= (fs/get-in word '(:agr :gender)) :fem)
+                     (= (fs/get-in word '(:agr :number)) :plur)
+                     (= (fs/get-in word '(:essere)) true))
+                "e"
+
+                (and (= (fs/get-in word '(:agr :number)) :plur)
+                     (= (fs/get-in word '(:essere)) true))
+                "i"
+
+                true
+                "o"
+
+                )]
+    suffix))
 
 (declare get-italian-stub)
 
 (defn get-italian-stub-1 [word]
   (cond
+
    (and
     (= :past (fs/get-in word '(:infl)))
     (string? (fs/get-in word '(:irregular :past))))
    (fs/get-in word '(:irregular :past))
 
+   ;; irregular passato prossimo and essere-verb => NEI (not enough information): defer conjugatation and keep as a map.
+   (and (= :past (fs/get-in word '(:infl)))
+        (fs/get-in word '(:irregular :passato))
+        (fs/get-in word '(:essere) true)
+        (or (= :notfound (fs/get-in word '(:agr :number) :notfound))
+            (= :top (fs/get-in word '(:agr :number)))))
+   word
 
-   ;; irregular passato prossimo
+   ;; regular passato prossimo and essere-verb => NEI (not enough information): defer conjugation and keep as a map.
+   (and (= :past (fs/get-in word '(:infl)))
+        (fs/get-in word '(:essere) true)
+        (or (= :notfound (fs/get-in word '(:agr :number) :notfound))
+            (= :top (fs/get-in word '(:agr :number)))))
+   word
+
+  ;; conjugate irregular passato
    (and (= :past (fs/get-in word '(:infl)))
         (fs/get-in word '(:irregular :passato)))
-   (fs/get-in word '(:irregular :passato))
+   (let [irregular-passato (fs/get-in word '(:irregular :passato))
+         butlast (nth (re-find #"(.*).$" irregular-passato) 1)]
+     (str butlast (suffix-of word)))
 
+   ;; conjugate regular passato
    (= :past (fs/get-in word '(:infl)))
    (let [infinitive (fs/get-in word '(:infinitive))
          are-type (try (re-find #"are$" infinitive)
@@ -927,30 +968,22 @@
          ire-type (re-find #"ire$" infinitive)
          stem (string/replace infinitive #"[iae]re$" "")
          last-stem-char-is-i (re-find #"i$" stem)
-         suffix (cond
-                 (and (= (fs/get-in word '(:agr :gender)) :fem)
-                      (= (fs/get-in word '(:agr :number)) :sing)
-                      (= (fs/get-in word '(:infinitive :essere)) true))
-                 "a"
-                 
-                 (and (= (fs/get-in word '(:agr :gender)) :fem)
-                      (= (fs/get-in word '(:agr :number)) :plur)
-                      (= (fs/get-in word '(:infinitive :essere)) true))
-                 "e"
-                 
-                 (and (= (fs/get-in word '(:agr :number)) :plur)
-                      (= (fs/get-in word '(:infinitive :essere)) true))
-                 "i"
-                 
-                 true
-                 "o")]
+
+         ;; for passato prossimo, the last char depends on gender and number, if an essere-verb.
+         suffix (suffix-of word)]
+
      (cond
+
       (or are-type ere-type)
       (str stem "at" suffix) ;; "ato" or "ati"
+
       (or are-type ire-type)
       (str stem "it" suffix) ;; "ito" or "iti"
+
       true
       (str "(regpast:TODO):" stem)))
+
+
    
    (and
     (= (fs/get-in word '(:infl)) :present)
@@ -1022,9 +1055,7 @@
       (and (= person :3rd) (= number :plur))
       (str stem "ano")
       :else
-      word)
-     )
-     
+      word))
 
    ;; TODO: move this down to other adjectives.
    ;; this was moved up here to avoid
@@ -1238,9 +1269,9 @@
 (declare get-english-stub)
 
 (defn get-english-stub-1 [word]
-  (log/info (str "GET-ENGLISH-STUB-1: " word))
-  (log/info (str ":A :INFL: " (fs/get-in word '(:a :infl))))
-  (log/info (str ":B :INFL: " (fs/get-in word '(:b :infl))))
+  (log/debug (str "GET-ENGLISH-STUB-1: " word))
+  (log/debug (str ":A :INFL: " (fs/get-in word '(:a :infl))))
+  (log/debug (str ":B :INFL: " (fs/get-in word '(:b :infl))))
   (cond
 
    (and (= (fs/get-in word '(:a :infl)) :present)
@@ -1416,8 +1447,8 @@
 (defn get-english-stub [a b]
   (let [re-a (get-english-stub-1 a)
         re-b (get-english-stub-1 b)]
-    (log/info (str "GET-ENGLISH-STUB-1 a: " a " => " re-a))
-    (log/info (str "GET-ENGLISH-STUB-1 b: " b " => " re-b))
+    (log/debug (str "GET-ENGLISH-STUB-1 a: " a " => " re-a))
+    (log/debug (str "GET-ENGLISH-STUB-1 b: " b " => " re-b))
     (cond
      
      (and (string? re-a) (string? re-b)
@@ -1440,17 +1471,17 @@
       :b (if (nil? b) :top b)})))
 
 (defn get-italian [a b & [ a-category b-category a-infl b-infl]]
-  (log/info (str "<get-italian>"))
-  (log/info (str "get-italian: a : " a))
-  (log/info (str "get-italian: b : " b))
+  (log/debug (str "<get-italian>"))
+  (log/debug (str "get-italian: a : " a))
+  (log/debug (str "get-italian: b : " b))
   (log/debug (str "get-italian: cat-a : " a-category))
   (log/debug (str "get-italian: cat-b : " b-category))
-  (log/info (str "get-italian: infl-a : " a-infl))
-  (log/info (str "get-italian: infl-b : " b-infl))
+  (log/debug (str "get-italian: infl-a : " a-infl))
+  (log/debug (str "get-italian: infl-b : " b-infl))
   (let [conjugated-a (conjugate-it a a-category a-infl)
         conjugated-b (if (not (nil? b)) (conjugate-it b b-category b-infl) "..")]
-    (log/info (str "conjugated-a: " conjugated-a))
-    (log/info (str "conjugated-b: " conjugated-b))
+    (log/debug (str "conjugated-a: " conjugated-a))
+    (log/debug (str "conjugated-b: " conjugated-b))
     (if (and
          (string? conjugated-a)
          (string? conjugated-b))

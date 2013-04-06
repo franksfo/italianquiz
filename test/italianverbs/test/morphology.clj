@@ -113,6 +113,79 @@
          "vado")))
 
 
+(deftest suffix-of-1
+  (is (=
+       (suffix-of {:irregular {:passato "andato"}
+                   :infl :past
+                   :agr {:person :1st :number :plur} :essere true})
+       "i")))
+
+(deftest suffix-of-2
+  (is (=
+       (suffix-of {:irregular {:passato "andato"}
+                   :infl :past
+                   :agr {:gender :fem :number :plur}
+                   :essere true})
+       "e")))
+
+(deftest suffix-of-3
+  (is (=
+       (suffix-of {:irregular {:passato "andato"}
+                   :infl :past
+                   :agr {:gender :fem :number :sing}
+                   :essere true})
+       "a")))
+
+
+(deftest conjugate-irreg-passato-1
+  (is (=
+       (get-italian-stub-1 
+        {:infl :past
+         :irregular {:passato "andato"}
+         :agr {:gender :fem :number :sing}
+         :essere true})
+       "andata")))
+
+(deftest conjugate-irreg-passato-2
+  (is (=
+       (get-italian-stub-1 
+        {:infl :past
+         :irregular {:passato "andato"}
+         :agr {:gender :fem :number :plur}
+         :essere true})
+       "andate")))
+
+
+(deftest conjugate-irreg-passato-2
+  (is (=
+       (get-italian-stub-1 
+        {:infl :past
+         :irregular {:passato "andato"}
+         :agr {:number :plur
+               :gender :masc}
+         :essere true})
+       "andati")))
+
+(deftest conjugate-irreg-passato-3
+  (is (=
+       (get-italian-stub-1 
+        {:infl :past
+         :irregular {:passato "andato"}
+         :agr {:number :plur}
+         :essere true})
+       "andati")))
+
+
+(deftest conjugate-irreg-passato-4
+  "not specific enough: retain as map rather than conjugating."
+  (is (=
+       (get-italian-stub-1 
+        {:infl :past
+         :irregular {:passato "andato"}
+         :essere true})
+       {:infl :past
+        :irregular {:passato "andato"}
+        :essere true})))
 
 
 
