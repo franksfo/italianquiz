@@ -983,8 +983,6 @@
       true
       (str "(regpast:TODO):" stem)))
 
-
-   
    (and
     (= (fs/get-in word '(:infl)) :present)
     (string? (fs/get-in word '(:infinitive))))
@@ -1274,10 +1272,17 @@
   (log/debug (str ":B :INFL: " (fs/get-in word '(:b :infl))))
   (cond
 
-   (and (= (fs/get-in word '(:a :infl)) :present)
-        (= (fs/get-in word '(:b :infl)) :past))
-   (get-english-stub-1 (fs/get-in word '(:b)))
+   (and
+    (= true (fs/get-in word '(:a :hidden)))
+    (= true (fs/get-in word '(:b :hidden))))
+   ""
    
+   (= true (fs/get-in word '(:a :hidden)))
+   (get-english-stub-1 (fs/get-in word '(:b)))
+
+   (= true (fs/get-in word '(:b :hidden)))
+   (get-english-stub-1 (fs/get-in word '(:a)))
+
    ;; irregular past
    (and (= :past (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:irregular :past))))

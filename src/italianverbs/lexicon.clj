@@ -974,13 +974,8 @@
                              :infl :past}}
                 :sem {:pred v-past-pred}
                 :essere true}})
-     {:english {:infinitive "to be"
-                :irregular {:present {:1sing "have"
-                                      :2sing "have"
-                                      :3sing "has"
-                                      :1plur "have"
-                                      :2plur "have"
-                                      :3plur "have"}}}})))
+     {:english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
+                :hidden true}}))) ;; gets removed by morphological rules.
 
 (def essere-aux-intrans
   (unify
@@ -1160,7 +1155,8 @@
    aux-type
    intransitive
    {:italian {:infinitive "vivere"}
-    :english {:infinitive "to live"}
+    :english {:infinitive "to live"
+              :irregular {:past "lived"}}
     :synsem {:essere true
              :sem {:pred :vivere
                    :subj {:animate true}}}})) ;; TODO: change to living-thing: (e.g. plants are living but not animate)
