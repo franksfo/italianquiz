@@ -785,7 +785,8 @@
                    :pred {:pred :andare}}}}))
 
 (def avere-common
-  {:synsem {:cat :verb}
+  {:synsem {:essere false
+            :cat :verb}
    :italian {:infinitive "avere"
              :irregular {:passato "avuto"
                          :present {:1sing "ho"
@@ -1043,7 +1044,8 @@
    transitive
    {:italian {:infinitive "mangiare"}
     :english {:infinitive "to eat"}
-    :synsem {:sem {:pred {:pred :mangiare
+    :synsem {:essere false
+             :sem {:pred {:pred :mangiare
                           :essere false}
                    :subj {:animate true}
                    :obj {:edible true}}}}))
@@ -1056,7 +1058,8 @@
               :irregular {:passato "letto"}}
     :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
               :irregular {:past "read"}} ;; spelled "read" but pronounced like "red".
-    :synsem {:sem {:pred :leggere
+    :synsem {:essere false
+             :sem {:pred :leggere
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
@@ -1067,7 +1070,8 @@
    {:italian {:infinitive "parlare"}
     :english {:infinitive "to speak" 
               :irregular {:past "spoken"}}
-    :synsem {:sem {:pred :parlare
+    :synsem {:essere false
+             :sem {:pred :parlare
                    :subj {:human true}
                    :obj {:speakable true}}}}))
 
@@ -1126,7 +1130,8 @@
    transitive
    {:italian {:infinitive "scrivere"}
     :english {:infinitive "to write"}
-    :synsem {:sem {:pred :scrivere
+    :synsem {:essere false
+             :sem {:pred :scrivere
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
@@ -1460,6 +1465,7 @@
 ;   past-verbs
 ;   future-verbs
 ;   present-modal-verbs
+   aux-verbs
    intransitive-verbs
    transitive-verbs))
 
