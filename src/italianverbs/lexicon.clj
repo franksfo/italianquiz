@@ -1269,10 +1269,6 @@
          {:root
           {:synsem {:subcat {:2 '()}}}}))
 
-(def aux-verbs
-  (list avere-aux
-        essere-aux))
-
 ;; TODO: remove present-aux-verbs and all dependencies:
 ;; use aux-verbs (immediately above) instead.
 (def present-aux-verbs
@@ -1461,7 +1457,8 @@
 ;   past-verbs
 ;   future-verbs
 ;   present-modal-verbs
-   aux-verbs
+   essere-aux
+   avere-aux
    intransitive-verbs
    transitive-verbs))
 

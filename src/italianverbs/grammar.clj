@@ -113,13 +113,18 @@
                     :1 head
                     :2 comp
                     :extend {
-                             :d {:head 'transitive-verbs
+                             :a {:head 'transitive-verbs
                                  :comp 'np}
-                             :e {:head 'aux-verbs
-                                 :comp 'intransitive-verbs}
-                             :f {:head 'aux-verbs
-                                 :comp 'vp-past}
 
+                             :b {:head 'essere-aux
+                                 :comp 'intransitive-verbs}
+
+                            :c {:head 'avere-aux
+                                :comp 'intransitive-verbs}
+
+                             :d {:head 'avere-aux
+                                 :comp 'vp-past}
+                             
                              }})))
     
     (def vp-future

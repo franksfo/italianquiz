@@ -621,7 +621,6 @@
    (= symbol 'future-intransitive-verbs) lex/future-intransitive-verbs
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'present-aux-verbs) lex/present-aux-verbs
-   (= symbol 'aux-verbs) lex/aux-verbs
    (= symbol 'past-verbs) lex/past-verbs
    (= symbol 'past-intransitive-verbs) lex/past-intransitive-verbs
    (= symbol 'past-transitive-verbs) lex/past-transitive-verbs
@@ -637,6 +636,10 @@
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
    (= symbol 'vp-future) gram/vp-future
+   (= symbol 'essere-aux) (list lex/essere-aux)
+   (= symbol 'avere-aux) (list lex/avere-aux)
+
+
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
 (defn random-head-and-comp-from-phrase [phrase expansion]
@@ -688,7 +691,8 @@
                               (fs/unifyc head-candidate
                                          {:synsem {:sem (lex/sem-impl (fs/get-in head-candidate '(:synsem :sem)))}})
                               head-candidate)]
-                        (not (fs/fail? (fs/unifyc head-filter head-candidate)))))
+                        (or false
+                        (not (fs/fail? (fs/unifyc head-filter head-candidate))))))
                     head)
             ;; .. else, the head is not a seq, so we assume it must be a map. Unify it with parent's head constraints.
             (fs/unifyc head (fs/get-in parent '(:head))))]
@@ -700,16 +704,71 @@
 ;      (if (map? candidates) (println (str "HC CANDIDATES IS A MAP (must recursively generate).")))
       (if (= (.size candidates) 0)
         (do
+          (log/error (str "filter-head: " filter-head))
           (log/error (str "expansion: " expansion))
-          (log/error (str "No head candidates found for filter: " (if (nil? head-filter) "(nil)" head-filter) " with phrase: " (fs/get-in phrase '(:comment))))
-          {:error "no head candidates found for filter."
+          (log/error (str "head is a seq? " (seq? head)))
+          (log/error (str "head type:" (type head)))
+          (let [head-candidate (nth head 0)]
+            (if (not (nil? (fs/get-in head-candidate '(:synsem :sem))))
+              (let [unify-result
+                    (fs/unifyc head-candidate
+                               {:synsem {:sem (lex/sem-impl (fs/get-in head-candidate '(:synsem :sem)))}})]
+                (log/error (str "UNIF RESULT: " unify-result))
+                (log/error (str "FAIL? " (fs/fail? unify-result))))))
 
-           :head (cond (seq? head) ;; make it formattable if it's a list. (TODO: move this checking somewhere else.)
-                       (zipmap (range 1 (+ 1 (.size head))) head)
-                       :else head)
-                       
-           :head-filter head-filter})
-      candidates))))
+
+          (if (seq? head)
+            (do
+              (log/error (str "head size:" (.size head)))
+              (if (> (.size head) 0)
+                (do
+                  (log/error (str "first candidate: " (nth head 0)))
+                  (log/error (str "first candidate's synsem sem: " (fs/get-in (nth head 0) '(:synsem :sem))))
+                  (log/error (str "first candidate's sem-impl: " (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))))
+                  (log/error (str "UNIFY ARG1:" (fs/get-in (nth head 0) '(:synsem :sem))))
+                  (log/error (str "UNIFY ARG2:" (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))))
+                  (log/error (str "WTF2A:"
+                                  (nth head 0)))
+                  (log/error (str "WTF2B:"
+                                  {:synsem {:sem (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))}}))
+
+                  (log/error (str "ARG1-SYNSEM-SEM: " (fs/get-in (nth head 0) '(:synsem :sem))))
+                  (log/error (str "ARG2-SYNSEM-SEM: " (fs/get-in {:synsem {:sem (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))}} '(:synsem :sem))))
+
+                  (log/error (str "UNIFY (SYNSEM-SEM): "
+                                  (fs/unifyc (fs/get-in (nth head 0) '(:synsem :sem))
+                                             (fs/get-in {:synsem {:sem (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))}} '(:synsem :sem)))))                          
+
+                  (log/error (str "UNIFY: "
+                                  (fs/unifyc (nth head 0)
+                                             {:synsem {:sem (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))}})))
+
+                  (log/error (str "FAIL?: "
+                                  (fs/fail? (fs/unifyc (nth head 0)
+                                             {:synsem {:sem (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))}}))))
+
+
+
+                  (log/error "GOING TO RETURN FIRST CANDIDATE SINCE NOTHING IS WRONG WITH IT.")
+                  (list (first head))
+
+                  ))))
+
+          (log/error (str "head-filter: " (fs/get-in head-filter '(:synsem :sem))))
+          ;;          (log/error (str "No head candidates found for filter: "
+          ;;                          (if (nil? head-filter) "(nil)" head-filter) " with phrase: " (fs/get-in phrase '(:comment))))
+          {
+;          {:error "no head candidates found for filter."
+;
+;           :head (cond (seq? head) ;; make it formattable if it's a list. (TODO: move this checking somewhere else.)
+;                       (zipmap (range 1 (+ 1 (.size head))) head)
+;                       :else head)
+          :head head})
+;          :head-filter head-filter
+        (do
+          (log/info (str "successfully matched expansion: " expansion))
+          (log/info (str "successfully matched head-filter: " (fs/get-in head-filter '(:synsem :sem))))          
+          candidates)))))
 
 (declare generate)
 
