@@ -1226,6 +1226,7 @@
           (string? b)
           (re-find #"^[aeiou]" b))
      (str "gli " b)
+
      (and (= a "i")
           (string? b)
           (re-find #"^s[t]" b))
@@ -1244,6 +1245,12 @@
           (string? b)
           (re-find #"^[aeiou]" b))
      (str "l'" b)
+
+     (and (= a "il")
+          (string? b)
+          (re-find #"^s[t]" b))
+     (str "lo " b)
+
      (and (= a "la")
           (string? b)
           (re-find #"^[aeiou]" b))

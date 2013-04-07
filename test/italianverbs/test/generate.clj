@@ -47,5 +47,9 @@
            (fs/get-in loro-hanno-il-pane '(:english))))))
 
 
+(deftest gli-studenti-brutti
+  (is (= "gli studenti brutti"
+         (fs/get-in (over gram/np "i" (over gram/nbar "studente" "brutto"))
+                    '(:italian)))))
 
 

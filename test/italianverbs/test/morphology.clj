@@ -189,3 +189,22 @@
 
 
 
+(deftest plural-noun-singular
+  "il studente => lo studente"
+  (is (=
+       (get-italian-stub
+        "il"
+        "studente")
+       "lo studente")))
+
+(deftest plural-noun-plural
+  "i studente => gli studenti"
+  (is (=
+       "gli studenti"
+       (get-italian-stub
+        "i"
+        {:italian "studente"
+         :agr {:person :3rd
+               :gender :masc
+               :number :plur}}))))
+
