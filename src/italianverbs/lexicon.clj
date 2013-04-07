@@ -37,6 +37,13 @@
                     {:animate false
                      :physical-object true}{})
 
+         clothing (if (= (fs/get-in input '(:clothing))
+                         true)
+                    {:animate false
+                     :place false
+                     :physical-object true}{})
+
+         
          consumable-false (if (= (fs/get-in input '(:consumable)) false)
                             {:drinkable false
                              :edible false} {})
@@ -67,8 +74,10 @@
                    :physical-object true
                    :consumable true
                    :human false
+                   :place false
                    :speakable false
                    :legible false}{})
+         
          human (if (= (fs/get-in input '(:human))
                       true)
                  {:buyable false
@@ -76,7 +85,8 @@
                   :edible false
                   :animate true
                   :part-of-human-body false
-                  :drinkable false}{})
+                  :drinkable false
+                  :place false}{})
          inanimate (if (= (fs/get-in input '(:animate))
                            false)
                      {:human false
@@ -91,6 +101,13 @@
             :part-of-human-body false
             :edible false})
 
+         non-places (if (or
+                         (= (fs/get-in input '(:legible)) true)
+                         (= (fs/get-in input '(:part-of-human-body)) true)
+                         (= (fs/get-in input '(:pred)) :fiore)
+                         (= (fs/get-in input '(:pred)) :scala))
+                   {:place false})
+         
          ;; artifact(x,false) => legible(x,false)
          not-legible-if-not-artifact
          (if (= (fs/get-in input '(:artifact)) false)
@@ -124,10 +141,10 @@
                   :legible false}{})
 
          ]
-     (let [merged (fs/merge animate artifact consumable-false drinkable
+     (let [merged (fs/merge animate artifact clothing consumable-false drinkable
                             drinkable-xor-edible-1 drinkable-xor-edible-2
                             edible human inanimate
-                            legible not-legible-if-not-artifact part-of-human-body pets place
+                            legible non-places not-legible-if-not-artifact part-of-human-body pets place
                             input
                             )]
        (if (not (= merged input))
@@ -758,17 +775,16 @@
               :irregular {:past "went"}}
     :synsem {:essere true
              :sem {:subj {:animate true}
-                   :pred {:pred :andare
-                          }}}}))
+                   :pred :andare}}}))
 
-(def andare-pp
+
+(def andare-taking-pp
   (unify
    subjective
    (let [place-sem (ref {:place true})]
      {:synsem {:sem {:location place-sem}
                :subcat {:2 {:sem place-sem
                             :cat :prep}}}})
-   infinitive
    {:note "andare-pp"
     :italian {:infinitive "andare"
               :essere true
@@ -782,7 +798,7 @@
               :irregular {:past "went"}}
     :synsem {:essere true
              :sem {:subj {:animate true}
-                   :pred {:pred :andare}}}}))
+                   :pred :andare}}}))
 
 (def avere-common
   {:synsem {:essere false
@@ -1269,53 +1285,6 @@
          {:root
           {:synsem {:subcat {:2 '()}}}}))
 
-;; TODO: remove present-aux-verbs and all dependencies:
-;; use aux-verbs (immediately above) instead.
-(def present-aux-verbs
-  (list
-   (unify {:root (fs/copy avere-aux-trans)}
-          present-tense-aux-past-verb)
-   (unify {:root (fs/copy essere-aux-intrans)}
-          present-tense-aux-past-verb)
-   (unify {:root (fs/copy essere-aux-trans)}
-          present-tense-aux-past-verb)))
-
-(def avere-present-aux-trans
-  (first present-aux-verbs))
-
-;; TODO: remove these: going rootless (part 1: intransitive)
-(def past-intransitive-verbs
-  (list
-   (unify {:root andare-intrans}
-          intrans-past-tense-verb)
-   (unify {:root ridere}
-          intrans-past-tense-verb)))
-
-;; TODO: remove these: going rootless (part 2: transitive)
-(def past-transitive-verbs
-  (list
-   (unify {:root avere}
-          trans-past-tense-verb)
-   (unify {:root bevere}
-          trans-past-tense-verb)
-   (unify {:root comprare}
-          trans-past-tense-verb)
-   (unify {:root essere-trans}
-          trans-past-tense-verb)
-   (unify {:root fare-make}
-          trans-past-tense-verb)
-   (unify {:root leggere}
-          trans-past-tense-verb)
-   (unify {:root mangiare}
-          trans-past-tense-verb)
-   (unify {:root scrivere}
-          trans-past-tense-verb)
-   (unify {:root vedere}
-          trans-past-tense-verb)))
-
-;; TODO: remove these as above
-(def past-verbs (concat past-intransitive-verbs past-transitive-verbs))
-
 (def present-modal-verbs
   (list
    (unify {:root dovere}
@@ -1324,37 +1293,6 @@
           trans-present-tense-verb)
    (unify {:root volare}
           trans-present-tense-verb)))
-
-(def present-transitive-verbs
-  (list
-
-
-   (fs/merge andare-pp
-          {:synsem {:infl :present}})
-
-   (unify {:root avere}
-          trans-present-tense-verb)
-   (unify {:root bevere}
-          trans-present-tense-verb)
-   (unify {:root comprare}
-          trans-present-tense-verb)
-
-   ;; need some activities (nouns with {:activity true}) to enable this:
-   ;; (unify {:root fare-do}
-   ;;           trans-present-tense-verb)
-
-
-   (unify {:root fare-make}
-          trans-present-tense-verb)
-   (unify {:root leggere}
-          trans-present-tense-verb)
-   (unify {:root mangiare}
-          trans-present-tense-verb)
-   (unify {:root scrivere}
-          trans-present-tense-verb)
-   (unify {:root vedere}
-          trans-present-tense-verb)
-   ))
 
 (def future-transitive-verbs
   (list
@@ -1400,12 +1338,6 @@
    (unify {:root ridere}
           intrans-future-tense-verb)))
 
-(def present-verbs
-  (concat
-   present-aux-verbs
-   present-transitive-verbs
-   present-intransitive-verbs))
-
 (def future-verbs
   (concat
    future-transitive-verbs
@@ -1423,7 +1355,6 @@
 (def infinitive-transitive-verbs
   (concat
    (list
-    andare-pp
     avere
     bevere
     comprare
@@ -1450,17 +1381,17 @@
    parlare
    scrivere))
 
+(def verbs-taking-pp
+  (list
+   andare-taking-pp))
+
 (def verbs
   (concat
-;   present-aux-verbs
-;   present-verbs
-;   past-verbs
-;   future-verbs
-;   present-modal-verbs
    essere-aux
    avere-aux
    intransitive-verbs
-   transitive-verbs))
+   transitive-verbs
+   verbs-taking-pp))
 
 (def pronouns
   (list {:synsem {:cat :noun

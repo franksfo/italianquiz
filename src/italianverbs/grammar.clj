@@ -80,8 +80,8 @@
                     :synsem {:infl :past}
                     :extend {:a {:head 'transitive-verbs
                                  :comp 'np}
-;;                             :b {:head 'intransitive-verbs}
-                             }})))
+                             :b {:head 'verbs-taking-pp
+                                 :comp 'prep-phrase}}})))
 
     (def vp-infinitive-transitive
       (fs/unifyc head-principle
@@ -115,14 +115,15 @@
                     :extend {
                              :a {:head 'transitive-verbs
                                  :comp 'np}
-
-                             :b {:head 'essere-aux
+                             :b {:head 'verbs-taking-pp
+                                 :comp 'prep-phrase}
+                             :c {:head 'essere-aux
                                  :comp 'intransitive-verbs}
-
-                            :c {:head 'avere-aux
-                                :comp 'intransitive-verbs}
-
                              :d {:head 'avere-aux
+                                :comp 'intransitive-verbs}
+                             :e {:head 'avere-aux
+                                 :comp 'vp-past}
+                             :f {:head 'essere-aux
                                  :comp 'vp-past}
                              
                              }})))
@@ -190,10 +191,10 @@
                               :head 'vp-present}
                           :b {:comp 'pronouns
                               :head 'vp-present}
-;                          :c {:comp 'np
-;                              :head 'intransitive-verbs}
-;                          :d {:comp 'pronouns
-;                              :head 'intransitive-verbs}
+                          :c {:comp 'np
+                              :head 'intransitive-verbs}
+                          :d {:comp 'pronouns
+                              :head 'intransitive-verbs}
                           }})
      ;; future
      (fs/unifyc head-principle subcat-1-principle
@@ -275,9 +276,7 @@
                 :1 head
                 :2 comp
                 :extend {:a {:head 'prepositions
-                             :comp 'np}
-                         :b {:head 'prepositions
-                             :comp 'nouns}}})))
+                             :comp 'np}}})))
 
 (def rules (concat np-rules vp-rules sentence-rules))
 

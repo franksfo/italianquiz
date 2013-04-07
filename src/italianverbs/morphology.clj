@@ -1256,6 +1256,11 @@
           (re-find #"^[aeiou]" b))
      (str "l'" b)
 
+     ;; prepositional phrases
+     (and (= a "a")
+          (string? b)
+          (re-find #"^il " b))
+     (str "al " (string/replace b #"^il " ""))
      
      (and (string? a) (string? b))
      (str a " " b)
@@ -1563,60 +1568,6 @@
         (string/trim (str conjugated-a " " conjugated-b))))
       {:1 conjugated-a
        :2 conjugated-b})))
-
-(defn get-english [a b & [ a-category b-category a-infl b-infl]]
-  "Take two constituents and combine them.
-   The two category params may reverse word order
-     (e.g.: get-english 'cat' 'black' 'noun' 'adj' => 'black cat')"
-
-  (log/debug (str "get-english: a : " a))
-  (log/debug (str "get-english: b : " b))
-  (log/debug (str "get-english: cat-a : " a-category))
-  (log/debug (str "get-english: cat-b : " b-category))
-
-  ;; TODO: sometimes ".." is being added necessarily (e.g.
-  ;; (formattare (over s1 pronouns (over vp-present present-aux-verbs (over vp-past "andare"))))))
-  ;; )
-  (let [conjugated-a (conjugate-en a a-category)
-        conjugated-b (if (not (nil? b)) (conjugate-en b b-category) "..")]
-    (log/debug (str "conjugated-a: " conjugated-a))
-    (log/debug (str "conjugated-b: " conjugated-b))
-    (cond
-     ;; "<to be> + past participle => past participle (e.g. "is went" => "went")
-     (and (= a-category :verb)
-          (= b-category :verb)
-          (map? a)
-          (= (fs/get-in a '(:infinitive :infinitive)) "to be"))
-     conjugated-b
-     
-     ;; in english, order of noun + adjective is reversed: (adjective + noun)
-     (and
-      (= (type conjugated-a) java.lang.String)
-      (= (type conjugated-b) java.lang.String)
-      (= a-category :noun)
-      (= b-category :adjective))
-     (string/trim (str conjugated-b " " conjugated-a))
-
-     (and
-      (= (type conjugated-a) java.lang.String)
-      (= (type conjugated-b) java.lang.String))
-     (string/trim (str conjugated-a " " conjugated-b))
-
-     ;; in english, order of noun + adjective is reversed: (adjective + noun)
-     (and
-      (= a-category :noun)
-      (= b-category :adjective))
-     {:1 conjugated-b
-      :2 conjugated-a}
-
-     ;; "can" + "to X" => "can X"
-     (= (fs/get-in conjugated-a '(:infinitive :infinitive)) "to be able")
-     {:1 conjugated-a
-      :2 (string/replace conjugated-b #"^to " "")}
-
-     true
-     {:1 conjugated-a
-      :2 conjugated-b})))
 
 (defn remove-to [english-verb-phrase]
   (let [english (get english-verb-phrase :english)]

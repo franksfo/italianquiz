@@ -107,58 +107,9 @@
                          :synsem {:infl :past}})]
       (over (over rules verbs) (over (over np "il") "libro")))
     
-    (over
-     (over (nth rules 1) avere-present-aux-trans)
-     (over (over rules verbs) (over (over np "il") "libro")))
+))
     
     
-    (take 1
-          (over (over s-present lexicon)
-                (over (over (nth rules 1) avere-present-aux-trans)
-                      (over (over rules verbs) (over (over np "il") "libro")))))
-    
-    
-    (over (over s-present (over (over np "il") "dottore"))
-          (over (over (nth rules 1) avere-present-aux-trans)
-                (over (over rules (it "letto"))
-                      (over (over np "il") "libro"))))))
-    
-(if false
-  (formattare
-   (take-last 10 (take 30
-                       (over (over s-present
-                                   (over (over np lexicon) lexicon))
-                             (over (over vp-present avere-present-aux-trans)
-                                   (over (over vp-past verbs)
-                                       (over (over np lexicon) lexicon))))))))
-
-(if false
-  (formattare
-   (take 1
-         (over (over s-present
-                     (over (over np lexicon) lexicon))
-               (over (over vp-present avere-present-aux-trans)
-                     (over (over vp-past verbs)
-                           (over (over np lexicon) lexicon)))))))
-
-(if false
-  (do 
-    (time ;; takes about 4 seconds.
-     (def foo100 (take 100
-                    (over (over s-present
-                                (over (over np lexicon) lexicon))
-                          (over (over vp-present avere-present-aux-trans)
-                                (over (over vp-past verbs)
-                                      (over (over np lexicon) lexicon)))))))
-    ;;
-    (time (formattare (take-last 5 (take 5 foo100))))
-    (time (formattare (take-last 5 (take 10 foo100))))
-    (time (formattare (take-last 5 (take 15 foo100))))
-    (time (formattare (take-last 5 (take 20 foo100))))
-    (time (formattare (take-last 5 (take 25 foo100))))
-    (time (formattare (take-last 5 (take 30 foo100))))
-    (time (formattare (take-last 5 (take 35 foo100))))))
-
 
 (if false
   (formattare
@@ -182,30 +133,6 @@
 ;; find semantic implicatures of "cane (dog)"
 (if false
   (sem-impl (fs/get-in (it "cane") '(:synsem :sem))))
-
-;; currently takes 4 seconds per (formattare (over s ..))
-(if false
-  (dotimes [n 20] (time
-                   (formattare
-                    (over s-present
-                          pronouns
-                          (over (over vp-present
-                                      present-aux-verbs)
-                                (over (over vp-past
-                                            past-verbs)
-                                      (over np
-                                            determiners
-                                            nouns))))))))
-
-;; top part:
-;;(dotimes [n 20] (time (formattare (over s-present pronouns (over vp-present present-aux-verbs)))))
-
-;; bottom part:
-;;(dotimes [n 20] (time (formattare (over s-present pronouns (over vp-present present-aux-verbs)))))
-
-;;combine
-;(over (over s-present pronouns (over vp-present present-aux-verbs))
-                                        ;      (over (over vp-past past-verbs) (over np determiners nouns)))
 
  ;(dotimes [n 200] (time (random-sentence)))
 

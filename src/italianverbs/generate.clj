@@ -31,48 +31,6 @@
   (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
           (map (fn [lexeme] (fs/match (fs/copy spec) (fs/copy lexeme))) lex/lexicon)))
 
-(defn random-np [head-spec]
-  (let [matching-lexical-heads (filter-by-match head-spec lex/lexicon)
-        random-lexical-head (if (> (.size matching-lexical-heads) 0)
-                              (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))]
-;    (println (str "random-np: skel:" np))
-;    (println (str "np head-spec   :" head-spec))
-;    (println (str "random-np: rlh :" random-lexical-head))
-    (let [matching-lexical-comps (filter-by-match {:synsem (fs/get-in random-lexical-head '(:synsem :subcat :1))}
-                                                  lex/lexicon)
-          random-lexical-comp (if (> (.size matching-lexical-comps) 0)
-                                (nth matching-lexical-comps (rand-int (.size matching-lexical-comps))))]
-      (let [unified (unify gram/np {:head random-lexical-head
-                               :comp random-lexical-comp})]
-        (if (not (fs/fail? unified))
-          (merge
-           {:italian (morph/get-italian
-                      (fs/get-in unified '(:1 :italian))
-                      (fs/get-in unified '(:2 :italian)))
-            :english (morph/get-english
-                      (fs/get-in unified '(:1 :english))
-                      (fs/get-in unified '(:2 :english)))}
-           unified)
-          unified)))))
-
-(defn random-subject-np [head-spec]
-  (let [rand (rand-int 2)]
-    (if (= rand 0)
-      (random-np {:synsem
-                  (unify
-                   head-spec
-                   {:subcat {:1 {:cat :det}}})})
-      (let [matching (filter-by-match
-                      {:synsem
-                       (unify
-                        head-spec
-                        {:cat :noun
-                         :agr {:case :nom}
-                         :subcat :nil!})}
-                      lex/lexicon)]
-        (if (> (.size matching) 0)
-          (nth matching (rand-int (.size matching))))))))
-
 (defn printfs [fs & filename]
   "print a feature structure to a file. filename will be something easy to derive from the fs."
   (let [filename (if filename (first filename) "foo.html")]  ;; TODO: some conventional default if deriving from fs is too hard.
@@ -613,23 +571,19 @@
    (= symbol 'infinitive-transitive-verbs) lex/infinitive-transitive-verbs
    (= symbol 'intransitive-verbs) lex/intransitive-verbs
    (= symbol 'transitive-verbs) lex/transitive-verbs
+   (= symbol 'verbs-taking-pp) lex/verbs-taking-pp
    (= symbol 'prepositions) lex/prepositions
-   (= symbol 'present-verbs) lex/present-verbs
    (= symbol 'present-intransitive-verbs) lex/present-intransitive-verbs
    (= symbol 'present-modal-verbs) lex/present-modal-verbs
-   (= symbol 'present-transitive-verbs) lex/present-transitive-verbs
    (= symbol 'future-intransitive-verbs) lex/future-intransitive-verbs
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
-   (= symbol 'present-aux-verbs) lex/present-aux-verbs
-   (= symbol 'past-verbs) lex/past-verbs
-   (= symbol 'past-intransitive-verbs) lex/past-intransitive-verbs
-   (= symbol 'past-transitive-verbs) lex/past-transitive-verbs
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
    (= symbol 'verbs) lex/verbs
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
+   (= symbol 'prep-phrase) gram/prep-phrase
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
    (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
@@ -704,7 +658,10 @@
 ;      (if (map? candidates) (println (str "HC CANDIDATES IS A MAP (must recursively generate).")))
       (if (= (.size candidates) 0)
         (do
+          (log/error (str "*****"))
           (log/error (str "filter-head: " filter-head))
+          (log/error (str "head-filter: " head-filter))
+          (log/error (str "head-filter sysnsem/sem: " (fs/get-in head-filter '(:synsem :sem))))
           (log/error (str "expansion: " expansion))
           (log/error (str "head is a seq? " (seq? head)))
           (log/error (str "head type:" (type head)))
@@ -722,14 +679,15 @@
               (log/error (str "head size:" (.size head)))
               (if (> (.size head) 0)
                 (do
+                  (log/error (str "***"))
                   (log/error (str "first candidate: " (nth head 0)))
                   (log/error (str "first candidate's synsem sem: " (fs/get-in (nth head 0) '(:synsem :sem))))
                   (log/error (str "first candidate's sem-impl: " (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))))
                   (log/error (str "UNIFY ARG1:" (fs/get-in (nth head 0) '(:synsem :sem))))
                   (log/error (str "UNIFY ARG2:" (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))))
-                  (log/error (str "WTF2A:"
+                  (log/error (str "HEAD CANDIDATE 0:"
                                   (nth head 0)))
-                  (log/error (str "WTF2B:"
+                  (log/error (str "HEAD CANDIDATE 0: SYNSEM/SEM ONLY:"
                                   {:synsem {:sem (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))}}))
 
                   (log/error (str "ARG1-SYNSEM-SEM: " (fs/get-in (nth head 0) '(:synsem :sem))))
@@ -748,9 +706,7 @@
                                              {:synsem {:sem (lex/sem-impl (fs/get-in (nth head 0) '(:synsem :sem)))}}))))
 
 
-
-                  (log/error "GOING TO RETURN FIRST CANDIDATE SINCE NOTHING IS WRONG WITH IT.")
-                  (list (first head))
+                  :fail
 
                   ))))
 
@@ -766,8 +722,8 @@
           :head head})
 ;          :head-filter head-filter
         (do
-          (log/info (str "successfully matched expansion: " expansion))
-          (log/info (str "successfully matched head-filter: " (fs/get-in head-filter '(:synsem :sem))))          
+          (log/debug (str "successfully matched expansion: " expansion))
+          (log/debug (str "successfully matched head-filter: " (fs/get-in head-filter '(:synsem :sem))))          
           candidates)))))
 
 (declare generate)
@@ -919,7 +875,7 @@ constraints on the generation of the complement."
                     (do
                       (log/error (str "No candidates found for comp-expansion: " comp-expansion))
                       (throw (Exception. (str "No candidates found for comp-expansion: "
-                                              comp-expansion)))))]
+                                              comp-expansion ". Tried " (.size candidates) " candidates.")))))]
     ;; TODO: don't build this huge diagnostic map unless there's a reason to -
     ;; i.e. development/debugging/exceptions: commenting out the following for now.
     ;;
@@ -961,7 +917,7 @@ constraints on the generation of the complement."
           (do
             (log/error (str ":head part is :fail of: " random-head-and-comp))
             (throw (Exception. (str "generate-with-parent: head part is fail of: " random-head-and-comp)))))
-        random-head (random-head random-head-and-comp phrase expansion)]
+          random-head (random-head random-head-and-comp phrase expansion)]
     (let [retval
           (unify
            (fs/copy phrase)
