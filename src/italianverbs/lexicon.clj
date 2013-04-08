@@ -537,8 +537,8 @@
                             :consumable false
                             :legible false
                             :speakable false
-                            :pred :scala}}
-             :italian {:italian "scala"}
+                           :pred :scala}}
+            :italian {:italian "scala"}
              :english {:english "ladder"}})
 
      (unify agreement-new
@@ -578,8 +578,11 @@
             masculine
             {:italian {:italian "vino"}
              :english {:english "wine"}
-             :synsem {:sem {:pred :vino
-                            :artifact true}}}))))
+            :synsem {:sem {:pred :vino
+                            :artifact true}}})
+     )
+    )
+  )
 (def determiners
   (list
 
@@ -993,6 +996,11 @@
      {:english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
                 :hidden true}}))) ;; gets removed by morphological rules.
 
+(def aux-verbs
+  (list
+   essere-aux
+   avere-aux))
+
 (def essere-aux-intrans
   (unify
    (fs/copy infinitive)
@@ -1379,7 +1387,8 @@
    avere
    mangiare
    parlare
-   scrivere))
+   scrivere
+   ))
 
 (def verbs-taking-pp
   (list

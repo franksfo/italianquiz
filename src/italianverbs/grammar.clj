@@ -64,7 +64,7 @@
         comp (ref :top)
         infl (ref :top)
         agr (ref :top)]
-    (def vp-past
+    (def vp-past-avere
       (let [infl (ref :past)
             essere (ref :top)]
         (fs/unifyc head-principle
@@ -79,9 +79,24 @@
                     :2 comp
                     :synsem {:infl :past}
                     :extend {:a {:head 'transitive-verbs
-                                 :comp 'np}
-                             :b {:head 'verbs-taking-pp
-                                 :comp 'prep-phrase}}})))
+                                 :comp 'np}}})))
+    (def vp-past-essere
+      (let [infl (ref :past)
+            essere (ref :top)]
+        (fs/unifyc head-principle
+                   subcat-2-principle
+                   verb-inflection-morphology
+                   {:comment "vp[past] &#x2192; head comp"}
+                   {:synsem {:essere essere}
+                    :head {:synsem {:essere essere}}}
+                   {:head head
+                    :comp comp
+                    :1 head
+                    :2 comp
+                    :synsem {:infl :past}
+                    :extend {:a {:head 'verbs-taking-pp
+                                 :comp 'prep-phrase}
+                             }})))
 
     (def vp-infinitive-transitive
       (fs/unifyc head-principle
@@ -105,8 +120,6 @@
                    subcat-2-principle
                    verb-inflection-morphology
                    {:synsem {:infl :present}}
-;                   {:comp {:english {:infl :past}
-;                           :italian {:infl :past}}}
                    {:comment "vp[present] &#x2192; head comp"
                     :head head
                     :comp comp
@@ -122,9 +135,9 @@
                              :d {:head 'avere-aux
                                 :comp 'intransitive-verbs}
                              :e {:head 'avere-aux
-                                 :comp 'vp-past}
+                                 :comp 'vp-past-avere}
                              :f {:head 'essere-aux
-                                 :comp 'vp-past}
+                                 :comp 'vp-past-essere}
                              
                              }})))
     
@@ -144,7 +157,7 @@
 
     (list
      vp-present
-     vp-past
+     vp-past-essere
 ;     vp-future
      )))
 

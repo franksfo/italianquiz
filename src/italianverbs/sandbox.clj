@@ -118,17 +118,9 @@
     (take 100
           (over (over s-present lexicon)
                 (over (over vp-present lexicon)
-                      (over (over vp-past lexicon)
+                      (over (over vp-past-avere lexicon)
                             (over (over np lexicon)
                                   lexicon))))))))
-
-(if false
-  (formattare
-   (over s-present lexicon
-         (over vp-present lexicon
-               (over vp-past lexicon
-                     (over np lexicon lexicon))))))
-
 
 ;; find semantic implicatures of "cane (dog)"
 (if false
