@@ -1454,6 +1454,10 @@
         (string? (fs/get-in word '(:english))))
    (fs/get-in word '(:english))
 
+   (and (string? (fs/get-in word '(:english :english)))
+        (= (.size (keys word)) 1))
+   (fs/get-in word '(:english :english))
+   
    (map? word)
    (merge {:morphology-is-done false}
           word)
@@ -1483,6 +1487,10 @@
      (and (string? re-a) (string? re-b))
      (str re-a " " re-b)
 
+     (and (string? re-a) (string? (fs/get-in re-b '(:english))))
+     (str re-a " " (fs/get-in re-b '(:english)))
+
+     
      :else
      {:a (if (nil? a) :top a)
       :b (if (nil? b) :top b)})))

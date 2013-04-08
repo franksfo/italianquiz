@@ -174,3 +174,6 @@
         "a"
         "il mare"))))
 
+(deftest english-proper-noun
+  (is (= "rome"
+         (get-english-stub-1 {:english {:english "rome"}}))))

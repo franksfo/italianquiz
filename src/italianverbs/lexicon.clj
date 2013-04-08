@@ -237,11 +237,18 @@
 
         common-noun
         (unify
-;         {:italian {:cat :noun}}
          {:synsem {:cat :noun
                    :agr {:person :3rd}
                    :subcat {:1 {:cat :det}}}})
-         
+
+
+        proper-noun
+        (unify
+         {:synsem {:cat :noun
+                   :agr {:person :3rd}
+                   :subcat '()}})
+
+        
         masculine {:synsem {:agr {:gender :masc}}}
         feminine {:synsem {:agr {:gender :fem}}}
 
@@ -348,6 +355,16 @@
                                   :number :sing
                                   :def :def}}}})
 
+
+    (unify proper-noun
+           {:synsem {:sem {:pred :roma
+                           :buyable false ;; can't buy a city (unless you're a billionaire like Mike Bloomberg)
+                           :artifact true ;; but wasn't built in a day.
+                           :place true}}
+            :italian {:italian "Roma"}
+            :english {:english "Rome"}})
+
+    
      ;; inherently singular.
     (unify agreement-new
            common-noun
@@ -1604,6 +1621,10 @@
 
 (defn en [english]
   (lookup {:english english}))
+
+(def proper-nouns (filter (fn [lexeme]
+                        (= '() (fs/get-in lexeme '(:synsem :subcat))))
+                      nouns))
 
 (def lexicon (concat adjectives determiners nouns prepositions pronouns verbs))
 

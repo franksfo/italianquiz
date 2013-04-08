@@ -508,6 +508,14 @@
 
    true (fs/get-in map path)))
 
+(defn capitalize [s]
+  "Capitalize first char and leave the rest of the characters alone (compare with string/capitalize which lower-cases all chars after first."
+  (let [s (.toString s)]
+    (if (< (count s) 2)
+      (.toUpperCase s)
+      (str (.toUpperCase (subs s 0 1))
+           (subs s 1)))))
+
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
 ;; TO move this to html.clj: has to do with presentation.
@@ -524,7 +532,7 @@
             "<tt>fail</tt>"
             :else
             (let [english
-                  (string/capitalize
+                  (capitalize
                    (cond
                     (string? (fs/get-in expr '(:english)))
                     (fs/get-in expr '(:english))
@@ -533,11 +541,12 @@
                     (string? (fs/get-in expr '(:english :infinitive)))
                     (fs/get-in expr '(:english :infinitive))
                     true
-                    expr))
+                    expr)
+                  )
 
                   italian
-                  (string/capitalize
-                   (cond
+                  (capitalize
+                  (cond
                     (string? (fs/get-in expr '(:italian)))
                     (fs/get-in expr '(:italian))
                     (string? (fs/get-in expr '(:italian :italian)))
@@ -545,7 +554,9 @@
                     (string? (fs/get-in expr '(:italian :infinitive)))
                     (fs/get-in expr '(:italian :infinitive))
                     true
-                    expr))]
+                    expr)
+                  )
+              ]
               (string/trim
                (str italian " (" english ").")))))
          expressions)))
@@ -580,7 +591,10 @@
    (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
+   (= symbol 'proper-nouns) lex/proper-nouns
    (= symbol 'verbs) lex/verbs
+
+
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
    (= symbol 'prep-phrase) gram/prep-phrase

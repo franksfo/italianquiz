@@ -289,7 +289,9 @@
                 :1 head
                 :2 comp
                 :extend {:a {:head 'prepositions
-                             :comp 'np}}})))
+                             :comp 'np}
+                         :b {:head 'prepositions
+                             :comp 'proper-nouns}}})))
 
 (def rules (concat np-rules vp-rules sentence-rules))
 
