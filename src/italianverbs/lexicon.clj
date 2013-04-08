@@ -779,10 +779,8 @@
                                   ;;                                  :cat :noun
                                   :agr {:case {:not :nom}}}}}})))
 
-;; TODO add subcat frames (<NP,PP>)
-(def andare-intrans
-  (unify
-   intransitive
+
+(def andare
    {:italian {:infinitive "andare"
               :essere true
               :irregular {:present {:1sing "vado"
@@ -790,35 +788,32 @@
                                     :3sing "va"
                                     :1plur "andiamo"
                                     :2plur "andate"
-                                    :3plur "vanno"}}}
+                                    :3plur "vanno"}
+                          :futuro {:1sing "andrò"
+                                   :2sing "andrai"
+                                   :3sing "andrà"
+                                   :1plur "andremo"
+                                   :2plur "andrete"
+                                   :3plur "andranno"}}}
     :english {:infinitive "to go"
               :irregular {:past "went"}}
-    :synsem {:essere true
-             :sem {:subj {:animate true}
-                   :pred :andare}}}))
+    :synsem {:sem {:subj {:animate true}
+                   :pred :andare}}})
 
+(def andare-intrans
+  (unify
+   intransitive
+   andare))
 
 (def andare-taking-pp
   (unify
    subjective
+   andare
    (let [place-sem (ref {:place true})]
      {:synsem {:sem {:location place-sem}
                :subcat {:2 {:sem place-sem
                             :cat :prep}}}})
-   {:note "andare-pp"
-    :italian {:infinitive "andare"
-              :essere true
-              :irregular {:present {:1sing "vado"
-                                    :2sing "vai"
-                                    :3sing "va"
-                                    :1plur "andiamo"
-                                    :2plur "andate"
-                                    :3plur "vanno"}}}
-    :english {:infinitive "to go"
-              :irregular {:past "went"}}
-    :synsem {:essere true
-             :sem {:subj {:animate true}
-                   :pred :andare}}}))
+   {:note "andare-pp"}))
 
 (def avere-common
   {:synsem {:essere false

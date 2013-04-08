@@ -177,3 +177,13 @@
 (deftest english-proper-noun
   (is (= "rome"
          (get-english-stub-1 {:english {:english "rome"}}))))
+
+
+(deftest io-andro
+  (is (= "andrò"
+         (get-italian-stub-1
+          {:agr {:number :sing :person :1st}
+           :irregular {:futuro {:1sing "andrò"}}
+           :infinitive "andare"
+           :infl :futuro}))))
+

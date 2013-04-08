@@ -928,9 +928,64 @@
 
 (declare get-italian-stub)
 
+(defn stem-per-futuro [infinitive]
+  "_infinitive_ should be a string (italian verb infinitive form)"
+  (string/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
+
 (defn get-italian-stub-1 [word]
   (cond
 
+   (and
+    (= (fs/get-in word '(:infl)) :futuro)
+    (map? (fs/get-in word '(:irregular :futuro))))
+   (let [infinitive (fs/get-in word '(:infinitive))
+         person (fs/get-in word '(:agr :person))
+         number (fs/get-in word '(:agr :number))]
+     (cond
+      (and (= person :1st) (= number :sing))
+      (fs/get-in word '(:irregular :futuro :1sing))
+      (and (= person :2nd) (= number :sing))
+      (fs/get-in word '(:irregular :futuro :2sing))
+      (and (= person :3rd) (= number :sing))
+      (fs/get-in word '(:irregular :futuro :3sing))
+      (and (= person :1st) (= number :plur))
+      (fs/get-in word '(:irregular :futuro :1plur))
+      (and (= person :2nd) (= number :plur))
+      (fs/get-in word '(:irregular :futuro :2plur))
+      (and (= person :3rd) (= number :plur))
+      (fs/get-in word '(:irregular :futuro :3plur))
+      true
+      word))
+   
+   (and (= (fs/get-in word '(:infl)) :futuro)
+        (fs/get-in word '(:infinitive)))
+   (let [infinitive (fs/get-in word '(:infinitive))
+         person (fs/get-in word '(:agr :person))
+         number (fs/get-in word '(:agr :number))
+         stem (stem-per-futuro infinitive)]
+     (cond
+      (and (= person :1st) (= number :sing))
+      (str stem "ò")
+      
+      (and (= person :2nd) (= number :sing))
+      (str stem "ai")
+      
+      (and (= person :3rd) (= number :sing))
+      (str stem "à")
+      
+      (and (= person :1st) (= number :plur))
+      (str stem "emo")
+      
+      (and (= person :2nd) (= number :plur))
+      (str stem "ete")
+      
+      (and (= person :3rd) (= number :plur))
+      (str stem "anno")
+      
+      :else
+      word))
+
+   
    (and
     (= :past (fs/get-in word '(:infl)))
     (string? (fs/get-in word '(:irregular :past))))
@@ -1294,6 +1349,14 @@
    (= true (fs/get-in word '(:b :hidden)))
    (get-english-stub-1 (fs/get-in word '(:a)))
 
+   (and (= (fs/get-in word '(:infl)) :futuro)
+        (fs/get-in word '(:infinitive))
+        (not (nil? (fs/get-in word '(:agr :number))))
+        (not (nil? (fs/get-in word '(:agr :person)))))
+   (let [infinitive (fs/get-in word '(:infinitive))
+         stem (string/replace infinitive #"^to " "")]
+     (str "will " stem))
+   
    ;; irregular past
    (and (= :past (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:irregular :past))))
@@ -2005,10 +2068,6 @@
       (list #"\bsu le " "sulle ")
       )
      concat)))
-
-(defn stem-per-futuro [infinitive]
-  "_infinitive_ should be a string (italian verb infinitive form)"
-  (string/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
 
 (defn stem-per-passato-prossimo [infinitive]
   "_infinitive_ should be a string (italian verb infinitive form)"

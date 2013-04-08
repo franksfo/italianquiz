@@ -64,6 +64,7 @@
         comp (ref :top)
         infl (ref :top)
         agr (ref :top)]
+
     (def vp-past-avere
       (let [infl (ref :past)
             essere (ref :top)]
@@ -119,8 +120,7 @@
         (fs/unifyc head-principle
                    subcat-2-principle
                    verb-inflection-morphology
-                   {:synsem {:infl :present}}
-                   {:comment "vp[present] &#x2192; head comp"
+                   {:comment "vp &#x2192; head comp"
                     :head head
                     :comp comp
                     :1 head
@@ -142,10 +142,9 @@
                              }})))
     
     (def vp-future
-      (let [infl (ref :futuro)]
-        (fs/unifyc head-principle
-                   subcat-2-principle
-                   verb-inflection-morphology
+      (fs/unifyc head-principle
+                 subcat-2-principle
+                 verb-inflection-morphology
                  {:comment "vp[future] &#x2192; head comp"
                   :head head
                   :comp comp
@@ -153,12 +152,15 @@
                   :2 comp
                   :extend {
                            :a {:head 'transitive-verbs
-                               :comp 'np}}})))
+                               :comp 'np}
+                           :b {:head 'verbs-taking-pp
+                               :comp 'prep-phrase}}}))
 
+;; TODO: remove this list is not used.    
     (list
      vp-present
      vp-past-essere
-;     vp-future
+     vp-future
      )))
 
 
@@ -181,49 +183,56 @@
                         :subcat '()
                         :sem subj-sem})
         infl (ref :top)
-        present (ref :present)
-        future (ref :futuro)
         comp (ref {:synsem subcatted})
         agr (ref :top)
         head (ref {:synsem {:cat :verb
                             :sem {:subj subj-sem}
                             :subcat {:1 subcatted
                                      :2 '()}}})]
-    (list
-     ;; present
-     (fs/unifyc head-principle subcat-1-principle
-                subject-verb-agreement
-                {:synsem {:infl present}}
-                {:comment "sentence (present) (4 subrules)"
-                 :head head
-                 :comp comp
-                 :1 comp
-                 :2 head
-                 :extend {
-                          :a {:comp 'np
-                              :head 'vp-present}
-                          :b {:comp 'pronouns
-                              :head 'vp-present}
-                          :c {:comp 'np
-                              :head 'intransitive-verbs}
-                          :d {:comp 'pronouns
-                              :head 'intransitive-verbs}
-                          }})
+    ;; present
+    (def s-present
+      (fs/unifyc head-principle subcat-1-principle
+                 subject-verb-agreement
+                 {:synsem {:infl :present}}
+                 {:comment "sentence (present) (4 subrules)"
+                  :head head
+                  :comp comp
+                  :1 comp
+                  :2 head
+                  :extend {
+                           :a {:comp 'np
+                               :head 'vp-present}
+                           :b {:comp 'pronouns
+                               :head 'vp-present}
+                           :d {:comp 'np
+                               :head 'intransitive-verbs}
+                           :e {:comp 'pronouns
+                               :head 'intransitive-verbs}
+                           }}))
+    
      ;; future
-     (fs/unifyc head-principle subcat-1-principle
-                subject-verb-agreement
-                {:synsem {:infl future}}
-                {:comment "sentence (future) (4 subrules)"
-                 :head head
-                 :comp comp
-                 :1 comp
-                 :2 head
-                 :extend {
-                          :c {:comp 'np
-                              :head 'vp-future}
-                          :d {:comp 'pronouns
-                              :head 'vp-future}
-                          }}))))
+    (def s-future
+      (fs/unifyc head-principle subcat-1-principle
+                 subject-verb-agreement
+                 {:synsem {:infl :futuro}}
+                 {:comment "sentence (future) (4 subrules)"
+                  :head head
+                  :comp comp
+                  :1 comp
+                  :2 head
+                  :extend {
+
+                           :a {:comp 'np
+                               :head 'vp-future}
+                           :b {:comp 'pronouns
+                               :head 'vp-future}
+                           :d {:comp 'np
+                               :head 'intransitive-verbs}
+                           :e {:comp 'pronouns
+                               :head 'intransitive-verbs}
+                           }}))
+  
+    (list s-present s-future)))
 
 (def nbar
   (let [head (ref :top)
@@ -301,9 +310,6 @@
 ;(def vp-present (nth vp-rules 0))
 ;(def vp-past (nth vp-rules 0))
 ;(def vp-future (nth vp-rules 2))
-
-(def s-present (nth sentence-rules 0))
-(def s-future (nth sentence-rules 1))
 
 ;; TODO: move to lexicon (maybe).
 (defn italian-number [number]

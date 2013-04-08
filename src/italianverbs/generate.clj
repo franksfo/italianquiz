@@ -601,6 +601,7 @@
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
    (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
+
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past-avere) gram/vp-past-avere
    (= symbol 'vp-past-essere) gram/vp-past-essere
@@ -894,8 +895,6 @@ constraints on the generation of the complement."
      :expansion comp-expansion}))
 
 (defn generate-with-parent [random-head-and-comp phrase expansion]
-;  (println (str "GWP: RHAC: " random-head-and-comp))
-;  (println (str "GWP: PHRA: " phrase))
   (let [check
         (if (fs/fail? (:head random-head-and-comp))
           (do
@@ -908,7 +907,17 @@ constraints on the generation of the complement."
            {:head (fs/copy random-head)})]
       (log/debug (str "GWP: fail?" (fs/fail? retval)))
       (if (fs/fail? retval)
-        (throw (Exception. (str "generate-with-parent failed with random-head: " random-head))))
+        (do
+          (log/error "generate-with-parent failed: " (fs/get-in phrase '(:comment)) "->" expansion)
+          (log/error "*1*")
+          (log/error (str "phrase :2: " (fs/get-in phrase '(:head))))
+          (log/error "*2*")
+          (log/error (str "random-head:2: " random-head))
+          (log/error "*3*")
+          (log/error (str "english of parent: " (fs/get-in phrase '(:head :english))))
+          (log/error (str "english of random-head: " (fs/get-in random-head '(:english))))
+;          (log/error (str "RETVAL :2: " (fs/get-in retval '(:head))))
+          (throw (Exception. (str "generate-with-parent failed with random-head: " random-head)))))
       (log/debug (str "GWP: " retval))
       retval)))
 
@@ -1029,7 +1038,7 @@ constraints on the generation of the complement."
 (defn random-sentence []
   (let [rules (list
                gram/s-present
-;               gram/s-future
+               gram/s-future
                )]
     (generate (nth rules (rand-int (.size rules))))))
 
