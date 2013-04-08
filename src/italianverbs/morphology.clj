@@ -1233,8 +1233,7 @@
      (str "gli " b)
 
      (and (= a "un")
-          (or (re-find #"^s[t]" b)
-              (re-find #"^[aeiou]" b)))
+          (re-find #"^s[t]" b))
      (str "uno " b)
 
      (and (= a "una")
