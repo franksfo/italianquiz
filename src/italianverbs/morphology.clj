@@ -377,10 +377,13 @@
   word))
 
 (defn get-italian [a b]
-  (let [a (get-italian-1 a)
+  (log/info (str "get-italian a: " a))
+  (log/info (str "get-italian b: " b))
+  (let [a (if (nil? a) "" a)
+        b (if (nil? b) "" b)
+        a (get-italian-1 a)
         b (get-italian-1 b)]
     (cond
-
 
      (and (= a "di i")
           (string? b)
@@ -659,7 +662,9 @@
    word))
 
 (defn get-english [a b]
-  (let [re-a (get-english-1 a)
+  (let [a (if (nil? a) "" a)
+        b (if (nil? b) "" b)
+        re-a (get-english-1 a)
         re-b (get-english-1 b)]
     (log/debug (str "get-english-1 a: " a " => " re-a))
     (log/debug (str "get-english-1 b: " b " => " re-b))
