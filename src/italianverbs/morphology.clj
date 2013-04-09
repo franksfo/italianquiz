@@ -39,7 +39,18 @@
 
 (defn stem-per-futuro [infinitive]
   "_infinitive_ should be a string (italian verb infinitive form)"
-  (string/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
+  (cond
+   (re-find #"iare$" infinitive)
+   (string/replace infinitive #"iare$" "er")
+   (re-find #"are$" infinitive)
+   (string/replace infinitive #"are$" "er")
+   (re-find #"ere$" infinitive)
+   (string/replace infinitive #"ere$" "er")
+   (re-find #"ire$" infinitive)
+   (string/replace infinitive #"ire$" "ir")
+
+   true
+   infinitive))
 
 (defn get-italian-1 [word]
   (cond
@@ -650,8 +661,8 @@
 (defn get-english [a b]
   (let [re-a (get-english-1 a)
         re-b (get-english-1 b)]
-    (log/debug (str "GET-ENGLISH-1 a: " a " => " re-a))
-    (log/debug (str "GET-ENGLISH-1 b: " b " => " re-b))
+    (log/debug (str "get-english-1 a: " a " => " re-a))
+    (log/debug (str "get-english-1 b: " b " => " re-b))
     (cond
 
      (and (string? re-a)
