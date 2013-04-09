@@ -1109,7 +1109,8 @@
                                     :2plur "want to"
                                     :3plur "want to"}
                           :past "wanted to"}}
-    :synsem {:sem {:pred :volere
+    :synsem {:essere false
+             :sem {:pred :volere
                    :subj {:animate true}}}}))
 
 (def intransitive-verbs
@@ -1144,8 +1145,8 @@
 
 (def verbs
   (concat
-   essere-aux
-   avere-aux
+   (list essere-aux
+         avere-aux)
    intransitive-verbs
    transitive-verbs
    verbs-taking-pp
