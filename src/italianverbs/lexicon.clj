@@ -965,10 +965,10 @@
     :english {:infinitive "to make"
               :irregular {:past "made"}}
     :synsem {:cat :verb
-             :infl :infinitive
+             :essere false
              :sem {:pred :fare
-                   :subj (sem-impl {:human true})
-                   :obj (sem-impl {:artifact true})}}}))
+                   :subj {:human true}
+                   :obj {:artifact true}}}}))
 
 (def mangiare
   (unify
@@ -1124,6 +1124,8 @@
 (def transitive-verbs
   (list
    avere
+   fare-make
+   leggere
    mangiare
    parlare
    scrivere
