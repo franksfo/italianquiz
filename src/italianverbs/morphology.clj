@@ -935,6 +935,10 @@
 (defn get-italian-stub-1 [word]
   (cond
 
+   (and (= :infinitive (fs/get-in word '(:infl)))
+        (string? (fs/get-in word '(:infinitive))))
+   (fs/get-in word '(:infinitive))
+
    (and
     (= (fs/get-in word '(:infl)) :futuro)
     (map? (fs/get-in word '(:irregular :futuro))))
@@ -1338,11 +1342,26 @@
   (log/debug (str ":B :INFL: " (fs/get-in word '(:b :infl))))
   (cond
 
+
+   (and
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b)))
+   (get-english-stub
+    (get-english-stub-1 (fs/get-in word '(:a)))
+    (get-english-stub-1 (fs/get-in word '(:b))))
+
+   (and (= :infinitive (fs/get-in word '(:infl)))
+        (string? (fs/get-in word '(:infinitive))))
+   (fs/get-in word '(:infinitive))
+
+   (= true (fs/get-in word '(:hidden)))
+   ""
+
    (and
     (= true (fs/get-in word '(:a :hidden)))
     (= true (fs/get-in word '(:b :hidden))))
    ""
-   
+
    (= true (fs/get-in word '(:a :hidden)))
    (get-english-stub-1 (fs/get-in word '(:b)))
 
@@ -1437,14 +1456,6 @@
       (and (= person :3rd) (= number :plur))
       (str stem "")
       :else word))
-
-   (and
-    (fs/get-in word '(:a))
-    (fs/get-in word '(:b)))
-   (get-english-stub 
-    (fs/get-in word '(:a))
-    (fs/get-in word '(:b)))
-
    (and
     (fs/get-in word '(:irregular :plur))
     (= (fs/get-in word '(:agr :number)) :plur)
@@ -1533,13 +1544,27 @@
     (log/debug (str "GET-ENGLISH-STUB-1 a: " a " => " re-a))
     (log/debug (str "GET-ENGLISH-STUB-1 b: " b " => " re-b))
     (cond
+
+     (and (string? re-a)
+          (map? re-b)
+          (not (nil? (fs/get-in re-b '(:a))))
+          (not (nil? (fs/get-in re-b '(:b)))))
+     {:a re-a
+      :b re-b}
+
+     (and (map? a)
+          (= (fs/get-in a '(:modal)) true)
+          (string? re-b))
+     {:a a
+      :b (string/replace re-b #"^to " "")}
      
-     (and (string? re-a) (string? re-b)
-          (= (fs/get-in a '(:cat)) :noun)
-          (= (fs/get-in b '(:cat)) :adjective))
+     (and
+      (= (fs/get-in a '(:cat)) :noun)
+      (= (fs/get-in b '(:cat)) :adjective))
      ;; If a is a noun, and b is a adj, reverse a and b in string,
      ;;  so that italian word order is reversed to english word order.
-     (str re-b " " re-a)
+     {:a b
+      :b a}
           
      (and (string? re-a) (string? re-b)
           (= re-a "a")
