@@ -377,8 +377,6 @@
   word))
 
 (defn get-italian [a b]
-  (log/info (str "get-italian a: " a))
-  (log/info (str "get-italian b: " b))
   (let [a (if (nil? a) "" a)
         b (if (nil? b) "" b)
         a (get-italian-1 a)
@@ -460,12 +458,7 @@
 (declare get-english)
 
 (defn get-english-1 [word]
-  (log/debug (str "GET-ENGLISH-1: " word))
-  (log/debug (str ":A :INFL: " (fs/get-in word '(:a :infl))))
-  (log/debug (str ":B :INFL: " (fs/get-in word '(:b :infl))))
   (cond
-
-
    (and
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
