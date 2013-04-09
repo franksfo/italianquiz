@@ -376,7 +376,7 @@
                  child)))
 
    :else ; both parent and child are non-lists.
-   ;; First, check to make sure complement matches head's (:synsem :sem) value; otherwise, fail.
+   ;; First, check to make sure complement matches head's (:synsem :sem) value, if it exists, otherwise, fail.
    (let [
          ;; "add-child-where": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
          ;; if (:1 :italian) is nil, the parent has no child at :1 yet, so attach new child there at :1.
@@ -388,6 +388,7 @@
                               (not
                                (string?
                                 (fs/get-in parent '(:1 :italian :infinitive))))
+                              ;; TODO: remove: :root is going away.
                               (not
                                (string?
                                 (fs/get-in parent '(:1 :italian :root))))
@@ -396,6 +397,9 @@
                                 (fs/get-in parent '(:1 :italian :italian)))))
                            :1
                            :2)
+
+
+         
          head-is-where (if (= (fs/get-in parent '(:head))
                               (fs/get-in parent '(:1)))
                          :1
@@ -426,7 +430,10 @@
                              child)})]
 ;         (log/info (str ":2 " (fs/get-in unified '(:2))))
 ;         (log/info (str ":2: :italian: " (fs/get-in unified '(:2 :italian))))
-         (if (not (fs/fail? unified))
+;         (log/info (str "unified: " unified))
+         (if (fs/fail? unified) (log/warn "Failed attempt to add child to parent: " (fs/get-in parent '(:comment))
+                                          " at: " add-child-where))
+         (if (or true (not (fs/fail? unified))) ;; (or true - even if fail, still show it)
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
             {:italian (morph/get-italian-stub
@@ -541,8 +548,7 @@
                     (string? (fs/get-in expr '(:english :infinitive)))
                     (fs/get-in expr '(:english :infinitive))
                     true
-                    expr)
-                  )
+                    (fs/get-in expr '(:english :b :a))))
 
                   italian
                   (capitalize
@@ -578,17 +584,11 @@
   (cond
    (= symbol 'adjectives) lex/adjectives
    (= symbol 'nouns) lex/nouns
-   (= symbol 'infinitive-intransitive-verbs) lex/infinitive-intransitive-verbs
-   (= symbol 'infinitive-transitive-verbs) lex/infinitive-transitive-verbs
    (= symbol 'intransitive-verbs) lex/intransitive-verbs
    (= symbol 'transitive-verbs) lex/transitive-verbs
    (= symbol 'verbs-taking-pp) lex/verbs-taking-pp
+   (= symbol 'verbs-taking-vp) lex/verbs-taking-vp
    (= symbol 'prepositions) lex/prepositions
-   (= symbol 'present-intransitive-verbs) lex/present-intransitive-verbs
-   (= symbol 'present-modal-verbs) lex/present-modal-verbs
-   (= symbol 'future-intransitive-verbs) lex/future-intransitive-verbs
-   (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
-   (= symbol 'future-transitive-verbs) lex/future-transitive-verbs
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns
    (= symbol 'proper-nouns) lex/proper-nouns
@@ -905,7 +905,6 @@ constraints on the generation of the complement."
           (unify
            (fs/copy phrase)
            {:head (fs/copy random-head)})]
-      (log/debug (str "GWP: fail?" (fs/fail? retval)))
       (if (fs/fail? retval)
         (do
           (log/error "generate-with-parent failed: " (fs/get-in phrase '(:comment)) "->" expansion)

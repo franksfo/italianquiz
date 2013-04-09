@@ -112,7 +112,7 @@
                   :1 head
                   :2 comp
                   :extend {
-                           :a {:head 'infinitive-transitive-verbs
+                           :a {:head 'transitive-verbs
                                :comp 'np}}}))
 
     (def vp-present
@@ -138,7 +138,10 @@
                                  :comp 'vp-past-avere}
                              :f {:head 'essere-aux
                                  :comp 'vp-past-essere}
-                             
+                             :g {:head 'verbs-taking-vp
+                                 :comp 'vp-infinitive-transitive}
+                             :h {:head 'verbs-taking-vp
+                                 :comp 'intransitive-verbs}
                              }})))
     
     (def vp-future
@@ -187,8 +190,8 @@
         agr (ref :top)
         head (ref {:synsem {:cat :verb
                             :sem {:subj subj-sem}
-                            :subcat {:1 subcatted
-                                     :2 '()}}})]
+                            :subcat {:1 subcatted}}})]
+
     ;; present
     (def s-present
       (fs/unifyc head-principle subcat-1-principle
