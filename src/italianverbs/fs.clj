@@ -185,6 +185,20 @@
 
      (= val1 val2) val1
 
+     ;; The follow two 2 rules allow values of :english and :italian that
+     ;; are strings to over-ride values that are maps (in which
+     ;; case they are specs of how to compute a string: agreement
+     ;; information such as gender and number.
+     (and
+      (map? val1)
+      (string? val2))
+     val2
+
+     (and
+      (string? val1)
+      (map? val2))
+     val1
+
      :else ;; fail.
      (do
        (log/debug (str "(" val1 ", " val2 ") => :fail"))

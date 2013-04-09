@@ -581,4 +581,14 @@ a given value in a given map."
         fs1-copy (copy fs1)]
     (is (not (fail? fs1-copy)))))
 
-    
+
+(deftest unify-string-and-map
+  "This is to allow values of :english and :italian that
+  are strings to over-ride values that are maps (in which
+  case they are specs of how to compute a string: agreement
+  information such as gender and number."
+  (is (= "foo"
+         (unify "foo"
+                {:english "foo"}))))
+
+
