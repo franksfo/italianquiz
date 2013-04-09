@@ -853,12 +853,8 @@
 
 (def dovere
   (unify
-   (let [obj-sem (ref :top)]
-     {:synsem {:sem {:obj obj-sem}
-               :subcat {:2 {:sem obj-sem
-                            :cat :verb
-                            :infl :infinitive}}}})
-
+   subjective
+   modal
    {:italian {:infinitive "dovere"
               :irregular {:present {:1sing "devo"
                                     :2sing "devi"
@@ -866,17 +862,17 @@
                                     :1plur "dobbiamo"
                                     :2plur "dovete"
                                     :3plur "devono"}}}
-    :english {:infinitive "must"
-              :irregular {:past "had"
-                          :present {:1sing "have"
-                                    :2sing "have"
-                                    :3sing "has"
-                                    :1plur "have"
-                                    :2plur "have"
-                                    :3plur "have"}}}
+    :english {:infinitive "to have to"
+              :irregular {:past "had to"
+                          :present {:1sing "have to"
+                                    :2sing "have to"
+                                    :3sing "has to"
+                                    :1plur "have to"
+                                    :2plur "have to"
+                                    :3plur "have to"}}}
     :synsem {:sem {:pred :dovere
                    :subj {:human true} ;; TODO: relax this constraint: non-human things can be subject of dovere.
-                   :obj {:pred :top}}}})) ; dovere's object is a verb.
+                   }}}))
 
 
 (def essere-common
@@ -1138,8 +1134,9 @@
   (list
    andare-taking-pp))
 
-(def verbs-taking-vp
+(def modal-verbs
   (list
+   dovere
    potere
    volere))
 
@@ -1150,7 +1147,7 @@
    intransitive-verbs
    transitive-verbs
    verbs-taking-pp
-   verbs-taking-vp))
+   modal-verbs))
    
 
 (def pronouns

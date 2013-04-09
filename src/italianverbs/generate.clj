@@ -587,7 +587,7 @@
    (= symbol 'intransitive-verbs) lex/intransitive-verbs
    (= symbol 'transitive-verbs) lex/transitive-verbs
    (= symbol 'verbs-taking-pp) lex/verbs-taking-pp
-   (= symbol 'verbs-taking-vp) lex/verbs-taking-vp
+   (= symbol 'modal-verbs) lex/modal-verbs
    (= symbol 'prepositions) lex/prepositions
    (= symbol 'determiners) lex/determiners
    (= symbol 'pronouns) lex/pronouns

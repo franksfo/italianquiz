@@ -138,9 +138,9 @@
                                  :comp 'vp-past-avere}
                              :f {:head 'essere-aux
                                  :comp 'vp-past-essere}
-                             :g {:head 'verbs-taking-vp
+                             :g {:head 'modal-verbs
                                  :comp 'vp-infinitive-transitive}
-                             :h {:head 'verbs-taking-vp
+                             :h {:head 'modal-verbs
                                  :comp 'intransitive-verbs}
                              }})))
     
