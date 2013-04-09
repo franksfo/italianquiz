@@ -6,7 +6,7 @@
 
 (deftest acqua
   (is
-   (= (get-italian-stub-1 {:italian "acqua"
+   (= (get-italian-1 {:italian "acqua"
                            :agr {:gender :fem
                                  :number :sing}
                            :cat :noun})
@@ -14,7 +14,7 @@
   ))
 
 (deftest della-acqua
-  (is (= (get-italian-stub-1 {:a "di la"
+  (is (= (get-italian-1 {:a "di la"
                               :b {:italian "acqua"
                                   :agr {:gender :fem
                                         :number :sing}
@@ -24,7 +24,7 @@
 
 
 (deftest degli-uomini
-  (is (= (get-italian-stub-1 {:a "di i"
+  (is (= (get-italian-1 {:a "di i"
                               :b {:italian "uomo"
                                   :irregular {:plur "uomini"}
                                   :agr {:gender :masc
@@ -33,7 +33,7 @@
          "degli uomini")))
 
 (deftest some-men
-  (is (= (get-english-stub-1 {:a "some"
+  (is (= (get-english-1 {:a "some"
                               :b {:english "man"
                                   :irregular {:plur "men"}
                                   :agr {:gender :masc
@@ -42,7 +42,7 @@
          "some men")))
 
 (deftest dormo
-  (is (= (get-italian-stub-1 {:agr {:case :nom
+  (is (= (get-italian-1 {:agr {:case :nom
                                     :number :sing
                                     :person :1st}
                               :infinitive "dormire"
@@ -51,7 +51,7 @@
 
 
 (deftest sleeps
-  (is (= (get-english-stub-1 {:agr {:case :nom
+  (is (= (get-english-1 {:agr {:case :nom
                                     :number :sing
                                     :person :3rd}
                               :infinitive "to sleep"
@@ -61,7 +61,7 @@
 
 
 (deftest io-vado
-  (is (= (get-italian-stub-1 {:agr {:case :nom
+  (is (= (get-italian-1 {:agr {:case :nom
                                     :number :sing
                                     :person :1st}
                               :irregular {:present {:1sing "vado"}}
@@ -96,7 +96,7 @@
 
 (deftest conjugate-irreg-passato-1
   (is (=
-       (get-italian-stub-1 
+       (get-italian-1 
         {:infl :past
          :irregular {:passato "andato"}
          :agr {:gender :fem :number :sing}
@@ -105,7 +105,7 @@
 
 (deftest conjugate-irreg-passato-2
   (is (=
-       (get-italian-stub-1 
+       (get-italian-1 
         {:infl :past
          :irregular {:passato "andato"}
          :agr {:gender :fem :number :plur}
@@ -115,7 +115,7 @@
 
 (deftest conjugate-irreg-passato-2
   (is (=
-       (get-italian-stub-1 
+       (get-italian-1 
         {:infl :past
          :irregular {:passato "andato"}
          :agr {:number :plur
@@ -125,7 +125,7 @@
 
 (deftest conjugate-irreg-passato-3
   (is (=
-       (get-italian-stub-1 
+       (get-italian-1 
         {:infl :past
          :irregular {:passato "andato"}
          :agr {:number :plur}
@@ -136,7 +136,7 @@
 (deftest conjugate-irreg-passato-4
   "not specific enough: retain as map rather than conjugating."
   (is (=
-       (get-italian-stub-1 
+       (get-italian-1 
         {:infl :past
          :irregular {:passato "andato"}
          :essere true})
@@ -149,7 +149,7 @@
 (deftest plural-noun-singular
   "il studente => lo studente"
   (is (=
-       (get-italian-stub
+       (get-italian
         "il"
         "studente")
        "lo studente")))
@@ -158,7 +158,7 @@
   "i studente => gli studenti"
   (is (=
        "gli studenti"
-       (get-italian-stub
+       (get-italian
         "i"
         {:italian "studente"
          :agr {:person :3rd
@@ -170,18 +170,18 @@
   "a il mare => al mare"
   (is (=
        "al mare"
-       (get-italian-stub
+       (get-italian
         "a"
         "il mare"))))
 
 (deftest english-proper-noun
   (is (= "rome"
-         (get-english-stub-1 {:english {:english "rome"}}))))
+         (get-english-1 {:english {:english "rome"}}))))
 
 
 (deftest io-andro
   (is (= "andrò"
-         (get-italian-stub-1
+         (get-italian-1
           {:agr {:number :sing :person :1st}
            :irregular {:futuro {:1sing "andrò"}}
            :infinitive "andare"

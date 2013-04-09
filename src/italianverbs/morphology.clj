@@ -35,13 +35,13 @@
                 )]
     suffix))
 
-(declare get-italian-stub)
+(declare get-italian)
 
 (defn stem-per-futuro [infinitive]
   "_infinitive_ should be a string (italian verb infinitive form)"
   (string/replace infinitive #"^(.*)([aei])(re)$" (fn [[_ prefix vowel suffix]] (str prefix (if (= vowel "a") "e" vowel) "r"))))
 
-(defn get-italian-stub-1 [word]
+(defn get-italian-1 [word]
   (cond
 
    (and (= :infinitive (fs/get-in word '(:infl)))
@@ -248,7 +248,7 @@
    (and
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
-   (get-italian-stub 
+   (get-italian 
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
 
@@ -365,9 +365,9 @@
    :else
   word))
 
-(defn get-italian-stub [a b]
-  (let [a (get-italian-stub-1 a)
-        b (get-italian-stub-1 b)]
+(defn get-italian [a b]
+  (let [a (get-italian-1 a)
+        b (get-italian-1 b)]
     (cond
 
 
@@ -443,10 +443,10 @@
      {:a (if (nil? a) :top a)
       :b (if (nil? b) :top b)})))
 
-(declare get-english-stub)
+(declare get-english)
 
-(defn get-english-stub-1 [word]
-  (log/debug (str "GET-ENGLISH-STUB-1: " word))
+(defn get-english-1 [word]
+  (log/debug (str "GET-ENGLISH-1: " word))
   (log/debug (str ":A :INFL: " (fs/get-in word '(:a :infl))))
   (log/debug (str ":B :INFL: " (fs/get-in word '(:b :infl))))
   (cond
@@ -455,9 +455,9 @@
    (and
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
-   (get-english-stub
-    (get-english-stub-1 (fs/get-in word '(:a)))
-    (get-english-stub-1 (fs/get-in word '(:b))))
+   (get-english
+    (get-english-1 (fs/get-in word '(:a)))
+    (get-english-1 (fs/get-in word '(:b))))
 
    (and (= :infinitive (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:infinitive))))
@@ -472,10 +472,10 @@
    ""
 
    (= true (fs/get-in word '(:a :hidden)))
-   (get-english-stub-1 (fs/get-in word '(:b)))
+   (get-english-1 (fs/get-in word '(:b)))
 
    (= true (fs/get-in word '(:b :hidden)))
-   (get-english-stub-1 (fs/get-in word '(:a)))
+   (get-english-1 (fs/get-in word '(:a)))
 
    (and (= (fs/get-in word '(:infl)) :futuro)
         (fs/get-in word '(:infinitive))
@@ -647,11 +647,11 @@
    :else
    word))
 
-(defn get-english-stub [a b]
-  (let [re-a (get-english-stub-1 a)
-        re-b (get-english-stub-1 b)]
-    (log/debug (str "GET-ENGLISH-STUB-1 a: " a " => " re-a))
-    (log/debug (str "GET-ENGLISH-STUB-1 b: " b " => " re-b))
+(defn get-english [a b]
+  (let [re-a (get-english-1 a)
+        re-b (get-english-1 b)]
+    (log/debug (str "GET-ENGLISH-1 a: " a " => " re-a))
+    (log/debug (str "GET-ENGLISH-1 b: " b " => " re-b))
     (cond
 
      (and (string? re-a)

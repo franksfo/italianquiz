@@ -436,10 +436,10 @@
          (if (or true (not (fs/fail? unified))) ;; (or true - even if fail, still show it)
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
-            {:italian (morph/get-italian-stub
+            {:italian (morph/get-italian
                        (fs/get-in unified '(:1 :italian))
                        (fs/get-in unified '(:2 :italian)))
-             :english (morph/get-english-stub
+             :english (morph/get-english
                        (fs/get-in unified '(:1 :english))
                        (fs/get-in unified '(:2 :english)))})
            :fail))))))
@@ -962,12 +962,12 @@ constraints on the generation of the complement."
       (merge
        unified-parent
        {:extend chosen-extension}
-       {:italian (morph/get-italian-stub
+       {:italian (morph/get-italian
                   (fs/get-in unified-parent '(:1 :italian))
                   ""
                   (fs/get-in unified-parent '(:1 :synsem :cat))
                   nil)
-        :english (morph/get-english-stub
+        :english (morph/get-english
                   (fs/get-in unified-parent '(:1 :english))
                   ""
                   (fs/get-in unified-parent '(:1 :synsem :cat))
@@ -1004,7 +1004,7 @@ constraints on the generation of the complement."
                       (merge
                        unified-with-comp
                        {:extend chosen-extension}
-                       {:italian (morph/get-italian-stub
+                       {:italian (morph/get-italian
                                   (fs/get-in unified-with-comp '(:1 :italian))
                                   (fs/get-in unified-with-comp '(:2 :italian)))
 ;;; :eng and :it are for debugging:
@@ -1012,7 +1012,7 @@ constraints on the generation of the complement."
 ;;;                              :b (fs/get-in unified-with-comp '(:2 :english))}
 ;;;                        :ita {:a (fs/get-in unified-with-comp '(:1 :italian))
 ;;;                              :b (fs/get-in unified-with-comp '(:2 :italian))}
-                        :english (morph/get-english-stub
+                        :english (morph/get-english
                                   (fs/get-in unified-with-comp '(:1 :english))
                                   (fs/get-in unified-with-comp '(:2 :english)))})]
                   (if (fs/fail? result)
