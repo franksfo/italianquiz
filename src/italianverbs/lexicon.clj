@@ -696,10 +696,12 @@
 (def subjective
   (let [subj-sem (ref :top)
         subject-agreement (ref {:case {:not :acc}})
-        infl (ref :top)]
-    {:italian {:agr subject-agreement :infl infl}
+        infl (ref :top)
+        essere-type (ref :top)]
+    {:italian {:agr subject-agreement :infl infl :essere essere-type}
      :english {:agr subject-agreement :infl infl}
-     :synsem {:infl infl
+     :synsem {:essere essere-type
+              :infl infl
               :sem {:subj subj-sem}
               :subcat {:1 {:sem subj-sem
                            :cat :noun
