@@ -828,14 +828,14 @@
               :irregular {:past "drank"}}
     :synsem {:essere false
              :sem {:pred :bevere
-                   :subj (sem-impl {:animate true})
-                   :obj (sem-impl {:drinkable true})}}}))
+                   :subj {:animate true}
+                   :obj {:drinkable true}}}}))
 
 
 (def comprare
   (unify
    transitive
-   {:italian "comprare"
+   {:italian {:infinitive "comprare"}
     :english {:infinitive "to buy"
               :irregular {:past "bought"}}
     :synsem {:essere false
@@ -926,6 +926,25 @@
   (list
    essere-aux
    avere-aux))
+
+(def essere-copula
+  (let [gender (ref :top)
+        number (ref :top)]
+    (unify
+     transitive
+     essere-common
+     {:synsem {:cat :verb
+               :subcat {:1 {:cat :noun
+                            :def :demonstrativo
+                            :agr {:gender gender
+                                  :number number}}
+                        :2 {:cat :noun
+                            :def {:not :demonstrativo}
+                            :agr {:gender gender
+                                  :number number}}}
+               :sem {:pred :essere
+                     :subj {:human true}
+                     :obj {:human true}}}})))
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
@@ -1127,6 +1146,9 @@
 (def transitive-verbs
   (list
    avere
+   bevere
+   comprare
+   essere-copula
    fare-make
    leggere
    mangiare
