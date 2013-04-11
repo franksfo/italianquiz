@@ -19,7 +19,7 @@
                                   :agr {:gender :fem
                                         :number :sing}
                                   :cat :noun}})
-         "della acqua")))
+         "dell'acqua")))
 
 
 
@@ -187,3 +187,9 @@
            :infinitive "andare"
            :infl :futuro}))))
 
+(deftest tu-bevevi
+  (is (= "bevevi"
+         (get-italian-1
+          {:agr {:number :sing :person :2nd}
+           :infinitive "bevere"
+           :infl :imperfetto}))))

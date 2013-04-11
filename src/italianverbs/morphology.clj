@@ -52,6 +52,14 @@
    true
    infinitive))
 
+(defn stem-per-imperfetto [infinitive]
+  "_infinitive_ should be a string (italian verb infinitive form)"
+  (cond
+   (re-find #"re$" infinitive)
+   (string/replace infinitive #"re$" "")
+   true
+   infinitive))
+
 (defn get-italian-1 [word]
   (cond
 
@@ -81,6 +89,7 @@
       true
       word))
    
+   ;; regular futuro tense
    (and (= (fs/get-in word '(:infl)) :futuro)
         (fs/get-in word '(:infinitive)))
    (let [infinitive (fs/get-in word '(:infinitive))
@@ -109,6 +118,36 @@
       :else
       word))
 
+   ;; regular imperfetto sense
+   (and (= (fs/get-in word '(:infl)) :imperfetto)
+        (fs/get-in word '(:infinitive)))
+   (let [infinitive (fs/get-in word '(:infinitive))
+         person (fs/get-in word '(:agr :person))
+         number (fs/get-in word '(:agr :number))
+         stem (stem-per-imperfetto infinitive)]
+     (cond
+      (and (= person :1st) (= number :sing))
+      (str stem "vo")
+      
+      (and (= person :2nd) (= number :sing))
+      (str stem "vi")
+      
+      (and (= person :3rd) (= number :sing))
+      (str stem "va")
+      
+      (and (= person :1st) (= number :plur))
+      (str stem "vamo")
+      
+      (and (= person :2nd) (= number :plur))
+      (str stem "vate")
+      
+      (and (= person :3rd) (= number :plur))
+      (str stem "vano")
+      
+      :else
+      word))
+
+   
    
    (and
     (= :past (fs/get-in word '(:infl)))
@@ -392,12 +431,26 @@
      (and (= a "di i")
           (string? b))
      (str "dei " b)
+
      (and (= a "di il")
           (string? b))
-     (str "del " b)
+     (get-italian "del" b)  ;; allows this to feed next rule:
+
+     (and (= a "del")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "dell'" b)
+     
      (and (= a "di la")
           (string? b))
-     (str "della " b)
+     (get-italian "della" b) ;; allows this to feed next rule:
+
+     (and (= a "della")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "dell'" b)
+
+     
      (and (= a "di le")
           (string? b))
      (str "delle " b)
