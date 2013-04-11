@@ -133,7 +133,7 @@
                              :c {:head 'essere-aux
                                  :comp 'intransitive-verbs}
                              :d {:head 'avere-aux
-                                :comp 'intransitive-verbs}
+                                 :comp 'intransitive-verbs}
                              :e {:head 'avere-aux
                                  :comp 'vp-past-avere}
                              :f {:head 'essere-aux
@@ -157,15 +157,7 @@
                            :a {:head 'transitive-verbs
                                :comp 'np}
                            :b {:head 'verbs-taking-pp
-                               :comp 'prep-phrase}}}))
-
-;; TODO: remove this list is not used.    
-    (list
-     vp-present
-     vp-past-essere
-     vp-future
-     )))
-
+                               :comp 'prep-phrase}}}))))
 
 (def subject-verb-agreement
   (let [infl (ref :top)
@@ -174,10 +166,8 @@
      :head {:synsem {:subcat {:1 {:agr agr}}
                      :infl infl}
             :italian {:agr agr
-;                      :b {:infl infl}
                       :infl infl}
             :english {:agr agr
-;                      :b {:infl infl}
                       :infl infl}}}))
 
 (def sentence-rules
@@ -250,6 +240,9 @@
       :comp comp
       :1 head
       :2 comp}
+     (let [def (ref :top)]
+       {:head {:synsem {:def def}}
+        :synsem {:def def}})
      {:synsem {:sem head-semantics}
       :comp {:synsem {:sem {:mod head-semantics}}}}
      {:synsem {:sem {:mod adjectival-predicate}}
@@ -272,6 +265,10 @@
       (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
                  (let [agr (ref :top)]
                    (fs/unifyc
+                    (let [def (ref :top)]
+                      {:head {:synsem {:def def}}
+                       :synsem {:def def}
+                       :comp {:synsem {:def def}}})
                     {:head {:synsem {:cat :noun
                                      :agr agr}}
                      :synsem {:agr agr}}
@@ -308,11 +305,6 @@
 (def rules (concat np-rules vp-rules sentence-rules))
 
 (def np (nth np-rules 0))
-
-;; TODO: remove these 3: should not be needed.
-;(def vp-present (nth vp-rules 0))
-;(def vp-past (nth vp-rules 0))
-;(def vp-future (nth vp-rules 2))
 
 ;; TODO: move to lexicon (maybe).
 (defn italian-number [number]
