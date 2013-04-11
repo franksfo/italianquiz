@@ -743,7 +743,8 @@
                                    :3plur "andranno"}}}
     :english {:infinitive "to go"
               :irregular {:past "went"}}
-    :synsem {:sem {:subj {:animate true}
+    :synsem {:essere true
+             :sem {:subj {:animate true}
                    :pred :andare}}})
 
 (def andare-intrans
@@ -816,7 +817,6 @@
                             :sem {:pred v-past-pred}
                             :infl :past}}
                :sem {:pred v-past-pred}
-               :essere false
                }})))
 
 (def bevere
