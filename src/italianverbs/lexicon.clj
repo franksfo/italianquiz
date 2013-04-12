@@ -887,7 +887,13 @@
                                     :1plur "siamo"
                                     :2plur "siete"
                                     :3plur "sono"}
-                          :passato "stato"}}
+                          :passato "stato"
+                          :futuro {:1sing "sarò"
+                                   :2sing "sarai"
+                                   :3sing "sarà"
+                                   :1plur "saremo"
+                                   :2plur "sarete"
+                                   :3plur "saranno"}}}
     :english {:infinitive "to be"
               :irregular {:present {:1sing "am"
                                     :2sing "are"
@@ -957,7 +963,13 @@
                                     :3sing "fa"
                                     :1plur "facciamo"
                                     :2plur "fate"
-                                    :3plur "fanno"}}}
+                                    :3plur "fanno"}
+                          :futuro {:1sing "farò"
+                                   :2sing "farai"
+                                   :3sing "farà"
+                                   :1plur "faremo"
+                                   :2plur "farete"
+                                   :3plur "faranno"}}}
     :english {:infinitive "to do"
               :irregular {:present {:1sing "do"
                                     :2sing "do"
@@ -975,6 +987,8 @@
 (def fare-make
   (unify
    transitive
+   ;; TODO: as with "essere", make irregular conjugations
+   ;; shared between fare-do and fare-make.
    {:italian {:infinitive "fare"
               :irregular {:passato "fatto"
                           :present {:1sing "facio"
@@ -982,7 +996,13 @@
                                     :3sing "fa"
                                     :1plur "facciamo"
                                     :2plur "fate"
-                                    :3plur "fanno"}}}
+                                    :3plur "fanno"}
+                          :futuro {:1sing "farò"
+                                   :2sing "farai"
+                                   :3sing "farà"
+                                   :1plur "faremo"
+                                   :2plur "farete"
+                                   :3plur "faranno"}}}
     :english {:infinitive "to make"
               :irregular {:past "made"}}
     :synsem {:cat :verb
