@@ -603,8 +603,8 @@
    (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
 
    (= symbol 'vp-present) gram/vp-present
-   (= symbol 'vp-past-avere) gram/vp-past-avere
-   (= symbol 'vp-past-essere) gram/vp-past-essere
+   (= symbol 'vp-past-np) gram/vp-past-np
+   (= symbol 'vp-past-pp) gram/vp-past-pp
    
    (= symbol 'vp-future) gram/vp-future
    (= symbol 'aux-verbs) (list lex/aux-verbs)

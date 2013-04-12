@@ -108,19 +108,6 @@
       (over (over rules verbs) (over (over np "il") "libro")))
     
 ))
-    
-    
-
-(if false
-  (formattare
-   (take-last
-    5
-    (take 100
-          (over (over s-present lexicon)
-                (over (over vp-present lexicon)
-                      (over (over vp-past-avere lexicon)
-                            (over (over np lexicon)
-                                  lexicon))))))))
 
 ;; find semantic implicatures of "cane (dog)"
 (if false

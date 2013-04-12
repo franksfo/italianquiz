@@ -65,7 +65,7 @@
         infl (ref :top)
         agr (ref :top)]
 
-    (def vp-past-avere
+    (def vp-past-np
       (let [infl (ref :past)
             essere (ref :top)]
         (fs/unifyc head-principle
@@ -81,7 +81,7 @@
                     :synsem {:infl :past}
                     :extend {:a {:head 'transitive-verbs
                                  :comp 'np}}})))
-    (def vp-past-essere
+    (def vp-past-pp
       (let [infl (ref :past)
             essere (ref :top)]
         (fs/unifyc head-principle
@@ -135,9 +135,9 @@
                              :d {:head 'avere-aux
                                  :comp 'intransitive-verbs}
                              :e {:head 'avere-aux
-                                 :comp 'vp-past-avere}
+                                 :comp 'vp-past-np}
                              :f {:head 'essere-aux
-                                 :comp 'vp-past-essere}
+                                 :comp 'vp-past-pp}
                              :g {:head 'modal-verbs
                                  :comp 'vp-infinitive-transitive}
                              :h {:head 'modal-verbs
