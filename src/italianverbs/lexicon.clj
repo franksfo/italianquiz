@@ -32,6 +32,10 @@
                     {:animate false
                      :physical-object true}{})
 
+         city (if (= (fs/get-in input '(:city))
+                     true)
+                {:place true})
+         
          clothing (if (= (fs/get-in input '(:clothing))
                          true)
                     {:animate false
@@ -72,6 +76,16 @@
                    :place false
                    :speakable false
                    :legible false}{})
+
+         furniture (if (= (fs/get-in input '(:furniture))
+                          true)
+                     {:artifact true
+                      :buyable true
+                      :drinkable false
+                      :legible false
+                      :edible false
+                      :place false
+                      :speakable false})
          
          human (if (= (fs/get-in input '(:human))
                       true)
@@ -136,9 +150,9 @@
                   :legible false}{})
 
          ]
-     (let [merged (fs/merge animate artifact clothing consumable-false drinkable
+     (let [merged (fs/merge animate artifact city clothing consumable-false drinkable
                             drinkable-xor-edible-1 drinkable-xor-edible-2
-                            edible human inanimate
+                            edible furniture human inanimate
                             legible non-places not-legible-if-not-artifact part-of-human-body pets place
                             input
                             )]
@@ -223,7 +237,7 @@
                                  :mass mass}}
                     :sem {:mass mass}}})
 
-        drinkable-new
+        drinkable
         (unify mass-noun
                common-noun
                {:synsem {:sem {:number :sing
@@ -234,7 +248,7 @@
 
 
      (unify agreement
-            drinkable-new
+            drinkable
             feminine
             {:italian {:italian "acqua"}
              :english {:english "water"}
@@ -252,7 +266,7 @@
              :english {:english "friend"}})
 
      (unify agreement
-            drinkable-new
+            drinkable
             feminine
             {:italian {:italian "birra"}
              :english {:english "beer"}
@@ -307,7 +321,8 @@
            {:synsem {:sem {:pred :roma
                            :buyable false ;; can't buy a city (unless you're a billionaire like Mike Bloomberg)
                            :artifact true ;; but wasn't built in a day.
-                           :place true}}
+                           :place true
+                           :city true}}
             :italian {:italian "Roma"}
             :english {:english "Rome"}})
 
@@ -519,6 +534,16 @@
 
      (unify agreement
             common-noun
+            feminine
+            countable-noun
+            {:synsem {:sem {:furniture true
+                            :pred :sedia}}
+             :italian {:italian "sedia"}
+             :english {:english "chair"}})
+     
+     
+     (unify agreement
+            common-noun
             countable-noun
             masculine
             {:synsem {:sem human}}
@@ -526,6 +551,16 @@
             {:italian {:italian "studente"}
              :english {:english "student"}})
 
+     (unify agreement
+            common-noun
+            masculine
+            countable-noun
+            {:synsem {:sem {:furniture true
+                            :pred :tavolo}}
+             :italian {:italian "tavolo"}
+             :english {:english "table"}})
+
+     
      (unify agreement
             common-noun
             countable-noun
@@ -537,7 +572,7 @@
              :english {:irregular {:plur "men"}
                        :english "man"}})
 
-     (unify drinkable-new
+     (unify drinkable
             agreement
             masculine
             {:italian {:italian "vino"}
@@ -1022,6 +1057,22 @@
                    :subj {:animate true}
                    :obj {:edible true}}}}))
 
+ ;; need at least one essere-false verbs to allow vp[past] rule to work.
+(def mangiare-taking-pp
+  (unify
+   subjective
+   (let [place-sem (ref {:place true})]
+     {:italian {:infinitive "mangiare"}
+      :english {:infinitive "to eat"}
+      :synsem {:essere false
+               :sem {:pred {:location place-sem
+                            :pred :mangiare
+                            :essere false}
+                     :subj {:animate true}}
+               :subcat {:2 {:sem place-sem
+                            :subcat {:1 {:sem {:city true}}}
+                            :cat :prep}}}})))
+
 (def leggere
   (unify
    transitive
@@ -1179,7 +1230,8 @@
 
 (def verbs-taking-pp
   (list
-   andare-taking-pp))
+   andare-taking-pp
+   mangiare-taking-pp)) ;; need at least one essere-false verbs to allow vp[past] rule to work.
 
 (def modal-verbs
   (list
@@ -1259,10 +1311,23 @@
 
 (def prepositions
   (list {:synsem {:cat :prep
+                  :sem {:pred :to}
                   :subcat {:1 {:cat :noun
                                :sem {:place true}}}}
          :italian "a"
-         :english "to"}))
+         :english "to"}
+
+        {:synsem {:cat :prep
+                  :sem {:pred :in}
+                  :subcat {:1 {:cat :noun
+                               :sem {:city true}}}}
+         ;; this overrides the prep-phrase's extends, which are too general
+         ;; for this lexical entry "a"/"in".
+         :extend {:prep-phrase {:a {:head :prepositions
+                                    :comp :proper-nouns}}}
+         :italian "a"
+         :english "in"}
+        ))
 
 ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc).
 (def adjectives
@@ -1389,11 +1454,16 @@
   (lookup-in query lexicon))
 
 (defn it [italian]
-  (set/union (set (lookup {:italian italian}))
-             (set (lookup {:italian {:infinitive italian}}))
-             (set (lookup {:italian {:infinitive {:infinitive italian}}}))
-             (set (lookup {:italian {:italian italian}}))
-             (set (lookup {:italian {:irregular {:passato italian}}}))))
+  (let [result
+        (set/union (set (lookup {:italian italian}))
+                   (set (lookup {:italian {:infinitive italian}}))
+                   (set (lookup {:italian {:infinitive {:infinitive italian}}}))
+                   (set (lookup {:italian {:italian italian}}))
+                   (set (lookup {:italian {:irregular {:passato italian}}})))]
+    (if (= (.size result) 1)
+      (first result) ;; simply return first member rather than singleton-set:
+      ;; makes it easier to work with by end-users using with generate/* functions.
+      result)))
 
 (defn en [english]
   (lookup {:english english}))
