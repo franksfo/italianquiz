@@ -193,3 +193,12 @@
           {:agr {:number :sing :person :2nd}
            :infinitive "bevere"
            :infl :imperfetto}))))
+
+(deftest io-sono
+  (is (= "sono"
+         (get-italian-1
+          {:agr {:number :sing
+                 :person :1st}
+           :cat :verb
+           :infl :present
+           :irregular {:present {:1sing "sono"}}}))))

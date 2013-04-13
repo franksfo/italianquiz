@@ -60,8 +60,65 @@
    true
    infinitive))
 
+(defn analyze-italian-1 [word]
+  (let [person (fs/get-in word '(:agr :person))
+        number (fs/get-in word '(:agr :number))]
+    {:person person
+     :number number
+   :infinitive?    (and (= :infinitive (fs/get-in word '(:infl)))
+                        (string? (fs/get-in word '(:infinitive))))
+
+   :irregular-futuro?    (and
+                          (= (fs/get-in word '(:infl)) :futuro)
+                          (map? (fs/get-in word '(:irregular :futuro))))
+
+   :regular-futuro?    (and (= (fs/get-in word '(:infl)) :futuro)
+                            (fs/get-in word '(:infinitive)))
+
+   :regular-imperfetto?    (and (= (fs/get-in word '(:infl)) :imperfetto)
+                                (fs/get-in word '(:infinitive)))
+
+
+   :irregular-past?    (and
+                        (= :past (fs/get-in word '(:infl)))
+                        (string? (fs/get-in word '(:irregular :past))))
+
+   ;;nei: not enough information to conjugate.
+   :past-irregular-essere-type-nei
+   (and (= :past (fs/get-in word '(:infl)))
+        (fs/get-in word '(:irregular :passato))
+        (fs/get-in word '(:essere) true)
+        (or (= :notfound (fs/get-in word '(:agr :number) :notfound))
+            (= :top (fs/get-in word '(:agr :number)))))
+
+
+   ;;nei: not enough information to conjugate.
+   :past-esseri-but-nei?
+   (and (= :past (fs/get-in word '(:infl)))
+        (fs/get-in word '(:essere) true)
+        (or (= :notfound (fs/get-in word '(:agr :number) :notfound))
+            (= :top (fs/get-in word '(:agr :number)))))
+   
+   
+   :irregular-passato?
+   (and (= :past (fs/get-in word '(:infl)))
+        (fs/get-in word '(:irregular :passato)))
+
+   :regular-passato
+   (= :past (fs/get-in word '(:infl)))
+
+   :present
+     (= (fs/get-in word '(:infl)) :present)
+
+   
+}))
+
 (defn get-italian-1 [word]
-  (cond
+  (let [analysis (analyze-italian-1 word)
+        person (fs/get-in word '(:agr :person))
+        number (fs/get-in word '(:agr :number))]
+
+    (cond
 
    (and (= :infinitive (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:infinitive))))
@@ -148,7 +205,8 @@
       word))
 
    
-   
+   ;; TODO: remove this: :past is only for english (get-english-1), not italian.
+   ;; italian uses :passato.
    (and
     (= :past (fs/get-in word '(:infl)))
     (string? (fs/get-in word '(:irregular :past))))
@@ -169,7 +227,7 @@
             (= :top (fs/get-in word '(:agr :number)))))
    word
 
-  ;; conjugate irregular passato
+   ;; conjugate irregular passato
    (and (= :past (fs/get-in word '(:infl)))
         (fs/get-in word '(:irregular :passato)))
    (let [irregular-passato (fs/get-in word '(:irregular :passato))
@@ -188,7 +246,10 @@
          last-stem-char-is-i (re-find #"i$" stem)
 
          ;; for passato prossimo, the last char depends on gender and number, if an essere-verb.
-         suffix (suffix-of word)]
+         suffix (suffix-of word)
+
+         ]
+                           
 
      (cond
 
@@ -201,6 +262,36 @@
       true
       (str "(regpast:TODO):" stem)))
 
+   (and (= (fs/get-in word '(:infl)) :present)
+        (= person :1st) (= number :sing)
+        (string? (fs/get-in word '(:irregular :present :1sing))))
+   (fs/get-in word '(:irregular :present :1sing))
+   
+   (and (= (fs/get-in word '(:infl)) :present)
+        (= person :2nd) (= number :sing)
+        (string? (fs/get-in word '(:irregular :present :2sing))))
+   (fs/get-in word '(:irregular :present :2sing))
+
+   (and (= (fs/get-in word '(:infl)) :present)
+        (= person :3rd) (= number :sing)
+        (string? (fs/get-in word '(:irregular :present :3sing))))
+   (fs/get-in word '(:irregular :present :3sing))
+   
+   (and (= (fs/get-in word '(:infl)) :present)
+        (= person :1st) (= number :plur)
+        (string? (fs/get-in word '(:irregular :present :1plur))))
+   (fs/get-in word '(:irregular :present :1plur))
+
+   (and (= (fs/get-in word '(:infl)) :present)
+        (= person :2nd) (= number :plur)
+        (string? (fs/get-in word '(:irregular :present :2plur))))
+   (fs/get-in word '(:irregular :present :2plur))
+
+   (and (= (fs/get-in word '(:infl)) :present)
+        (= person :3rd) (= number :plur)
+        (string? (fs/get-in word '(:irregular :present :3plur))))
+   (fs/get-in word '(:irregular :present :3plur))
+   
    (and
     (= (fs/get-in word '(:infl)) :present)
     (string? (fs/get-in word '(:infinitive))))
@@ -414,6 +505,7 @@
 
    :else
   word))
+  )
 
 (defn get-italian [a b]
   (let [a (if (nil? a) "" a)
@@ -488,6 +580,17 @@
           (re-find #"^[aeiou]" b))
      (str "l'" b)
 
+     (and (= a "quello")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "quell'" b)
+
+     (and (= a "quella")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "quell'" b)
+
+     
      ;; prepositional phrases
      (and (= a "a")
           (string? b)
@@ -545,11 +648,30 @@
          stem (string/replace infinitive #"^to " "")]
      (str "will " stem))
    
-   ;; irregular past
+   ;; irregular past: one form for all persons/number
    (and (= :past (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:irregular :past))))
    (fs/get-in word '(:irregular :past))
 
+   ;; irregular past: different form for all persons/numbers.
+   (and (= :past (fs/get-in word '(:infl)))
+        (map? (fs/get-in word '(:irregular :past))))
+   (let [number (fs/get-in word '(:agr :number))
+         person (fs/get-in word '(:agr :person))]
+     (cond (and (= person :1st) (= number :sing))
+           (fs/get-in word '(:irregular :past :1sing))
+           (and (= person :2nd) (= number :sing))
+           (fs/get-in word '(:irregular :past :2sing))
+           (and (= person :3rd) (= number :sing))
+           (fs/get-in word '(:irregular :past :3sing))
+           (and (= person :1st) (= number :plur))
+           (fs/get-in word '(:irregular :past :1plur))
+           (and (= person :2nd) (= number :plur))
+           (fs/get-in word '(:irregular :past :2plur))
+           (and (= person :3rd) (= number :plur))
+           (fs/get-in word '(:irregular :past :3plur))
+           true word)) ;; not enough agreement specified to conjugate.
+   
    ;; regular past
    (and (= :past (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:infinitive))))
