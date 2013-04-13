@@ -30,7 +30,7 @@
 
 (deftest io-parlo-la-parola
   (let [io-parlo-la-parola (over gram/s-present "io"
-                                 (over gram/vp-present "parlare" (over gram/np "la" "parola")))]
+                                 (over gram/vp "parlare" (over gram/np "la" "parola")))]
     (is (= "io parlo la parola"
            (fs/get-in io-parlo-la-parola '(:italian))))
     (is (= "i speak the word"
@@ -40,7 +40,7 @@
 
 (deftest loro-hanno-il-pane
   (let [loro-hanno-il-pane (over gram/s-present "loro"
-                                 (over gram/vp-present "avere" (over gram/np "il" "pane")))]
+                                 (over gram/vp "avere" (over gram/np "il" "pane")))]
     (is (= "loro hanno il pane"
            (fs/get-in loro-hanno-il-pane '(:italian))))
     (is (= "they have the bread"

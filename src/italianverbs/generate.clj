@@ -428,11 +428,9 @@
                                   {:synsem {:sem (lex/sem-impl sem)}}
                                   {}))
                              child)})]
-;         (log/info (str ":2 " (fs/get-in unified '(:2))))
-;         (log/info (str ":2: :italian: " (fs/get-in unified '(:2 :italian))))
-;         (log/info (str "unified: " unified))
-         (if (fs/fail? unified) (log/warn "Failed attempt to add child to parent: " (fs/get-in parent '(:comment))
-                                          " at: " add-child-where))
+         (if (fs/fail? unified)
+           (log/warn "Failed attempt to add child to parent: " (fs/get-in parent '(:comment))
+                     " at: " add-child-where))
          (if (or true (not (fs/fail? unified))) ;; (or true - even if fail, still show it)
            (merge ;; use merge so that we overwrite the value for :italian.
             unified
@@ -602,11 +600,10 @@
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
    (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
 
+   (= symbol 'vp) gram/vp
    (= symbol 'vp-present) gram/vp-present
-   (= symbol 'vp-past-np) gram/vp-past-np
-   (= symbol 'vp-past-pp) gram/vp-past-pp
+   (= symbol 'vp-past) gram/vp-past
    
-   (= symbol 'vp-future) gram/vp-future
    (= symbol 'aux-verbs) (list lex/aux-verbs)
    (= symbol 'essere-aux) (list lex/essere-aux)
    (= symbol 'avere-aux) (list lex/avere-aux)
@@ -651,7 +648,7 @@
            (list? (:head head-and-comp))
            (= (.size filter-candidates-against-phrase) 0))
         (do
-          (log/error "No heads could match this phrase's head requirements: " (fs/get-in phrase '(:head)))
+          (log/error "For phrase " (fs/get-in phrase '(:comment)) " with expansion " expansion ", no heads could match this phrase's head requirements: " (fs/get-in phrase '(:head)))
           (log/error (str "First head candidate unify: " (fs/unifyc {:head (first (:head head-and-comp))}
                                                                     phrase)))
           (throw (Exception. (str "No heads could match this phrase's head requirements: " (fs/get-in phrase '(:head)))))))
@@ -812,6 +809,7 @@ constraints on the generation of the complement."
                      (throw (Exception.
                              (str "Parent: '" (fs/get-in parent '(:comment)) "' with head italian=" (fs/get-in parent '(:head :italian)) "), whose head specifies a complement:" (fs/get-in parent '(:head :synsem :subcat)) " cannot generate from: " comp-expansion "."))))))
 
+        ;; lookup lexical entries (if a symbol representing a set of lexemes) or generate a candidate (if a symbol representing a generative rule).
         candidates (expansion-to-candidates comp-expansion (fs/get-in parent '(:comp)))
         path-to-comp-sem (if (not (nil? (fs/get-in parent '(:comp :synsem :sem :mod))))
                            '(:comp :synsem :sem :mod)
@@ -864,33 +862,14 @@ constraints on the generation of the complement."
     ;; TODO: don't build this huge diagnostic map unless there's a reason to -
     ;; i.e. development/debugging/exceptions: commenting out the following for now.
     ;;
-    {;:comp-candidates-unfiltered (zipmap (map
-     ;                                         (fn [int]
-     ;                                           (keyword (str int)))
-     ;                                         (range 1 (+ 1 (.size candidates))))
-     ;                                    candidates)
-     ;:filtered filtered
-     :comp (if (> (.size filtered) 0)
+    {:comp (if (> (.size filtered) 0)
              (nth filtered (rand-int (.size filtered)))
-             (let [error-string
-                   (str "None of the candidates: "
-                        (join (map (fn[x] (str "'" (:italian x) "/" (fs/get-in x '(:synsem :sem)) "'")) candidates)
-                              " ") " matched the filter: (sem:" (fs/get-in complement-filter '(:synsem :sem))
-                              " from parent: " (fs/get-in parent '(:head :italian)))]
-;               (throw (Exception. error-string))
+             (do
                (log/error (str "No candidates matched complement filter: " (fs/get-in complement-filter '(:synsem :sem))))
+               (log/error (str " Parent: " parent))
                (log/error (str " Head: " (fs/get-in parent '(:head :italian))))
-               (log/error (str " unfiltered candidate list: " candidates))
+               (log/error (str " unfiltered candidate list:( " (.size candidates) "):" candidates))
                (throw (Exception. (str "No candidates matched complement filter: " (fs/get-in complement-filter '(:synsem :sem)))))))
-;               {:error "no candidates match"
-;                :filter (fs/get-in complement-filter '(:synsem :sem))
-;                :candidates (zipmap (range 1 (+ 1 (.size candidates))) candidates)
-;                :parent (fs/get-in parent '(:head :italian))}))
-               ;;               (log/error error-string)
-               ;;                                        ;               (throw (Exception. error-string))
-               ;;               (error/raise "GOT HERE.")
-               ;;               (throw (GenerateException. {:foo 42}))
-     ;;               ))
      :parent parent
      :expansion comp-expansion}))
 

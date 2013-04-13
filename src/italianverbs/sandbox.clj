@@ -116,6 +116,3 @@
  ;(dotimes [n 200] (time (random-sentence)))
 
 ;;(take 20 (repeatedly #(fo (random-sentence))))
-
-
-(def foo5 (over vp-present "andare" (over prep-phrase "a" (over np "il" "mare"))))
