@@ -32,6 +32,7 @@ table.map {
 table.map th {
     background: lightgreen;
     border: 2px solid lightgreen;
+    text-align:right;
 }
 
 table.fs th {
