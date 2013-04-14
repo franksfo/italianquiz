@@ -317,11 +317,26 @@
                                   :def :def}}}})
 
 
+
+
+    ;; TODO: Rome can inherit some stuff from città, but not all (i.e. not subcat, since Rome is a propernoun.
+    (unify agreement
+           common-noun
+           countable-noun
+           feminine
+           {:synsem {:sem {:pred :mare
+                           :buyable false  ;; can't buy a city (unless you're a billionaire like Mike Bloomberg) 
+                           :artifact true ;;
+                           :city true}}
+            :italian {:italian "città"}
+            :english {:english "city"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :def :def}}}})
+    
     (unify proper-noun
            {:synsem {:sem {:pred :roma
-                           :buyable false ;; can't buy a city (unless you're a billionaire like Mike Bloomberg)
+                           :buyable false
                            :artifact true ;; but wasn't built in a day.
-                           :place true
                            :city true}}
             :italian {:italian "Roma"}
             :english {:english "Rome"}})

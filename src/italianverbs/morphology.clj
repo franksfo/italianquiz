@@ -834,8 +834,8 @@
         b (if (nil? b) "" b)
         re-a (get-english-1 a)
         re-b (get-english-1 b)]
-    (log/debug (str "get-english-1 a: " a " => " re-a))
-    (log/debug (str "get-english-1 b: " b " => " re-b))
+    (log/info (str "get-english-1 a: " a " => " re-a))
+    (log/info (str "get-english-1 b: " b " => " re-b))
     (cond
 
      (and (string? re-a)

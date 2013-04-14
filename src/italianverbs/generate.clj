@@ -763,6 +763,7 @@ constraints on the generation of the complement."
         (if (symbol? comp-expansion) 
           (eval-symbol comp-expansion)
           comp-expansion)]
+    (log/info (str "expansion-to-candidates: " comp-expansion))
     (cond
      (seq? comps)
      comps
@@ -865,11 +866,18 @@ constraints on the generation of the complement."
     {:comp (if (> (.size filtered) 0)
              (nth filtered (rand-int (.size filtered)))
              (do
-               (log/error (str "No candidates matched complement filter: " (fs/get-in complement-filter '(:synsem :sem))))
+               (log/error (str "No candidates for expansion: " comp-expansion " in rule:  " (fs/get-in parent '(:comment)) " matched complement filter: " (fs/get-in complement-filter '(:synsem :sem)) " - tried: " (.size candidates) " candidates."))
                (log/error (str " Parent: " parent))
                (log/error (str " Head: " (fs/get-in parent '(:head :italian))))
                (log/error (str " unfiltered candidate list:( " (.size candidates) "):" candidates))
-               (throw (Exception. (str "No candidates matched complement filter: " (fs/get-in complement-filter '(:synsem :sem)))))))
+               (throw
+                (Exception.
+                 (str "No candidates matched complement filter: "
+                      (fs/get-in complement-filter '(:synsem :sem))
+                      " for generated complement expansion: " comp-expansion
+                      ". Tried " (.size candidates) " candidate" (if (not (= (.size candidates) 1)) "s")    " before giving up.")))))
+
+
      :parent parent
      :expansion comp-expansion}))
 
