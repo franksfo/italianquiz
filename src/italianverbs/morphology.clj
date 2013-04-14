@@ -801,15 +801,14 @@
    (and (= (fs/get-in word '(:agr :number)) :plur)
         (= (fs/get-in word '(:cat)) :noun)
         (string? (fs/get-in word '(:english))))
-   (str (fs/get-in word '(:english)) "s"
-        (if (fs/get-in word '(:note))
-          (fs/get-in word '(:note))))
+   (str (plural-en (fs/get-in word '(:english)))
+        (if (fs/get-in word '(:english :note))
+          (str (fs/get-in word '(:english :note)))))
 
    (and (= (fs/get-in word '(:agr :number)) :plur)
         (= (fs/get-in word '(:cat)) :noun)
         (string? (fs/get-in word '(:english :english))))
-   (str (fs/get-in word '(:english :english))
-        "s"
+   (str (plural-en (fs/get-in word '(:english :english)))
         (if (fs/get-in word '(:english :note))
           (str (fs/get-in word '(:english :note)))))
 
@@ -884,6 +883,7 @@
          {:remove-to string}
          english-verb-phrase)))))
 
+;; TODO: not used; remove after getting useful stuff out.
 (defn add-s-to-first-word [english-verb-phrase]
   (let [english-verb-string (get english-verb-phrase :english)]
     (let [regex #"^[ ]*([^ ]+)[ ]*(.*)"
@@ -926,8 +926,12 @@
                       (rest (string/split italian #"\s+")))))
 
 (defn plural-en [english]
-  (if (re-find #"[hsx]$" english) (str english "es")
-      (str english "s")))
+  (if (re-find #"[y]$" english)
+    (string/replace english #"[y]$" "ies")
+    (if (re-find #"[hsx]$" english)
+      (str english "es")
+      ;; default case.
+      (str english "s"))))
 
 (defn italian-article [det noun]
   "do italian det/noun morphology e.g. [def :def] + studente => lo studente" 
