@@ -763,7 +763,7 @@ constraints on the generation of the complement."
         (if (symbol? comp-expansion) 
           (eval-symbol comp-expansion)
           comp-expansion)]
-    (log/info (str "expansion-to-candidates: " comp-expansion))
+    (log/debug (str "expansion-to-candidates: " comp-expansion))
     (cond
      (seq? comps)
      comps
