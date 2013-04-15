@@ -652,21 +652,25 @@
 
    (and (= (fs/get-in word '(:infl)) :imperfetto)
         (fs/get-in word '(:infinitive))
-        (= :sing (fs/get-in word '(:agr :number)))
-        (or (= :1st (fs/get-in word '(:agr :person)))
-            (= :3rd (fs/get-in word '(:agr :person)))))
-   (let [infinitive (fs/get-in word '(:infinitive))
-         stem (string/replace infinitive #"^to " "")]
-     (str "was " stem "ing"))
-
-   (and (= (fs/get-in word '(:infl)) :imperfetto)
-        (fs/get-in word '(:infinitive))
         (not (nil? (fs/get-in word '(:agr :number))))
         (not (nil? (fs/get-in word '(:agr :person)))))
    (let [infinitive (fs/get-in word '(:infinitive))
-         stem (string/replace infinitive #"^to " "")]
-     (str "were " stem "ing"))
-
+         stem (string/replace infinitive #"^to " "")
+         stem-minus-one (nth (re-find #"(.*).$" stem) 1)
+         penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
+         last-stem-char (re-find #".$" stem)
+         last-stem-char-is-e (re-find #"e$" stem)]
+     ;; remove final "e", if any, before adding "e": e.g. "write" => "writing"
+     (let [stem (if last-stem-char-is-e
+                  stem-minus-one
+                  stem)]
+       (cond
+        (and (= :sing (fs/get-in word '(:agr :number)))
+             (or (= :1st (fs/get-in word '(:agr :person)))
+                 (= :3rd (fs/get-in word '(:agr :person)))))
+        (str "was " stem "ing")
+        true
+        (str "were " stem "ing"))))
    
    ;; irregular past: one form for all persons/number
    (and (= :past (fs/get-in word '(:infl)))
