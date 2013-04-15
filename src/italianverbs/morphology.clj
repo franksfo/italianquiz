@@ -614,6 +614,7 @@
 (declare get-english)
 
 (defn get-english-1 [word]
+  (log/debug (str "get-english-1: " word))
   (cond
    (and
     (fs/get-in word '(:a))
@@ -833,8 +834,8 @@
         b (if (nil? b) "" b)
         re-a (get-english-1 a)
         re-b (get-english-1 b)]
-    (log/info (str "get-english-1 a: " a " => " re-a))
-    (log/info (str "get-english-1 b: " b " => " re-b))
+    (log/debug (str "get-english-1 a: " a " => " re-a))
+    (log/debug (str "get-english-1 b: " b " => " re-b))
     (cond
 
      (and (string? re-a)
@@ -868,7 +869,6 @@
 
      (and (string? re-a) (string? (fs/get-in re-b '(:english))))
      (str re-a " " (fs/get-in re-b '(:english)))
-
      
      :else
      {:a (if (nil? a) :top a)
@@ -926,9 +926,9 @@
                       (rest (string/split italian #"\s+")))))
 
 (defn plural-en [english]
-  (if (re-find #"[y]$" english)
+  (if (re-find #"[t][y]$" english) ;; city => cities
     (string/replace english #"[y]$" "ies")
-    (if (re-find #"[hsx]$" english)
+    (if (re-find #"[hsx]$" english) ;; brush => brushes
       (str english "es")
       ;; default case.
       (str english "s"))))
