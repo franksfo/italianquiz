@@ -612,6 +612,7 @@
       :b (if (nil? b) :top b)})))
 
 (declare get-english)
+(declare plural-en)
 
 (defn get-english-1 [word]
   (log/debug (str "get-english-1: " word))
