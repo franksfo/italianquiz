@@ -309,6 +309,7 @@
            {:synsem {:sem {:pred :mare
                            :buyable false ;; a seaside's too big to own.
                            :artifact false
+                           :city false
                            :place true}}
             :italian {:italian "mare"}
             :english {:english "seaside"}}
@@ -324,7 +325,7 @@
            common-noun
            countable-noun
            feminine
-           {:synsem {:sem {:pred :mare
+           {:synsem {:sem {:pred :città
                            :buyable false  ;; can't buy a city (unless you're a billionaire like Mike Bloomberg) 
                            :artifact true ;;
                            :city true}}
@@ -875,11 +876,29 @@
    {:italian {:infinitive "bevere"
               :irregular {:passato "bevuto"}}
     :english {:infinitive "to drink"
-              :irregular {:past "drank"}}
+              :irregular {:past "drunk"}}
     :synsem {:essere false
              :sem {:pred :bevere
                    :subj {:animate true}
                    :obj {:drinkable true}}}}))
+
+;; need at least one essere-false verbs to allow vp[past] rule to work.
+(def bevere-taking-pp
+  (unify
+   subjective
+   (let [place-sem (ref {:place true})]
+     {:italian {:infinitive "bevere"
+                :irregular {:passato "bevuto"}}
+      :english {:infinitive "to drink"
+                :irregular {:past "drunk"}}
+      :synsem {:essere false
+               :sem {:pred {:location place-sem
+                            :pred :bevere
+                            :essere false}
+                     :subj {:animate true}}
+               :subcat {:2 {:sem place-sem
+                            :subcat {:1 {:sem {:city true}}}
+                            :cat :prep}}}})))
 
 
 (def comprare
@@ -1072,22 +1091,6 @@
                    :subj {:animate true}
                    :obj {:edible true}}}}))
 
- ;; need at least one essere-false verbs to allow vp[past] rule to work.
-(def mangiare-taking-pp
-  (unify
-   subjective
-   (let [place-sem (ref {:place true})]
-     {:italian {:infinitive "mangiare"}
-      :english {:infinitive "to eat"}
-      :synsem {:essere false
-               :sem {:pred {:location place-sem
-                            :pred :mangiare
-                            :essere false}
-                     :subj {:animate true}}
-               :subcat {:2 {:sem place-sem
-                            :subcat {:1 {:sem {:city true}}}
-                            :cat :prep}}}})))
-
 (def leggere
   (unify
    transitive
@@ -1246,7 +1249,7 @@
 (def verbs-taking-pp
   (list
    andare-taking-pp
-   mangiare-taking-pp)) ;; need at least one essere-false verbs to allow vp[past] rule to work.
+   bevere-taking-pp)) ;; need at least one essere-false verbs to allow vp[past] rule to work.
 
 (def modal-verbs
   (list
@@ -1332,16 +1335,16 @@
          :italian "a"
          :english "to"}
 
-        {:synsem {:cat :prep
-                  :sem {:pred :in}
-                  :subcat {:1 {:cat :noun
-                               :sem {:city true}}}}
-         ;; this overrides the prep-phrase's extends, which are too general
-         ;; for this lexical entry "a"/"in".
-         :extend {:prep-phrase {:a {:head :prepositions
-                                    :comp :proper-nouns}}}
-         :italian "a"
-         :english "in"}
+;        {:synsem {:cat :prep
+;                  :sem {:pred :in}
+;                  :subcat {:1 {:cat :noun
+;                               :sem {:city true}}}}
+;         ;; this overrides the prep-phrase's extends, which are too general
+;         ;; for this lexical entry "a"/"in".
+;         :extend {:prep-phrase {:a {:head :prepositions
+;                                    :comp :proper-nouns}}}
+;         :italian "a"
+;         :english "in"}
         ))
 
 ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc).
