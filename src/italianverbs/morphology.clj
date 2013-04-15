@@ -802,8 +802,8 @@
         (= (fs/get-in word '(:cat)) :noun)
         (string? (fs/get-in word '(:english))))
    (str (plural-en (fs/get-in word '(:english)))
-        (if (fs/get-in word '(:english :note))
-          (str (fs/get-in word '(:english :note)))))
+        (if (fs/get-in word '(:note))
+          (str (fs/get-in word '(:note)))))
 
    (and (= (fs/get-in word '(:agr :number)) :plur)
         (= (fs/get-in word '(:cat)) :noun)
