@@ -318,7 +318,21 @@
                                   :def :def}}}})
 
 
+    (unify proper-noun
+           {:synsem {:sem {:pred :milano
+                           :buyable false
+                           :artifact true
+                           :city true}}
+            :italian {:italian "Milano"}
+            :english {:english "Milan"}})
 
+    (unify proper-noun
+           {:synsem {:sem {:pred :napoli
+                           :buyable false
+                           :artifact true
+                           :city true}}
+            :italian {:italian "Napoli"}
+            :english {:english "Naples"}})
 
     ;; TODO: Rome can inherit some stuff from città, but not all (i.e. not subcat, since Rome is a propernoun.
     (unify agreement
