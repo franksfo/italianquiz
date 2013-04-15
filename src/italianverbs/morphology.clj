@@ -658,10 +658,16 @@
          stem (string/replace infinitive #"^to " "")
          stem-minus-one (nth (re-find #"(.*).$" stem) 1)
          penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
+         penultimate-stem-char-is-vowel (or (= penultimate-stem-char "a")
+                                            (= penultimate-stem-char "e")
+                                            (= penultimate-stem-char "i")
+                                            (= penultimate-stem-char "o")
+                                            (= penultimate-stem-char "u"))
          last-stem-char (re-find #".$" stem)
          last-stem-char-is-e (re-find #"e$" stem)]
      ;; remove final "e", if any, before adding "e": e.g. "write" => "writing"
-     (let [stem (if last-stem-char-is-e
+     (let [stem (if (and last-stem-char-is-e
+                         (not penultimate-stem-char-is-vowel))
                   stem-minus-one
                   stem)]
        (cond
