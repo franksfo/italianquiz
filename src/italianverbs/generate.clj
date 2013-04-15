@@ -1025,6 +1025,7 @@ constraints on the generation of the complement."
   (let [rules (list
                gram/s-present
                gram/s-future
+               gram/s-imperfetto
                )]
     (generate (nth rules (rand-int (.size rules))))))
 

@@ -649,6 +649,24 @@
    (let [infinitive (fs/get-in word '(:infinitive))
          stem (string/replace infinitive #"^to " "")]
      (str "will " stem))
+
+   (and (= (fs/get-in word '(:infl)) :imperfetto)
+        (fs/get-in word '(:infinitive))
+        (= :sing (fs/get-in word '(:agr :number)))
+        (or (= :1st (fs/get-in word '(:agr :person)))
+            (= :3rd (fs/get-in word '(:agr :person)))))
+   (let [infinitive (fs/get-in word '(:infinitive))
+         stem (string/replace infinitive #"^to " "")]
+     (str "was " stem "ing"))
+
+   (and (= (fs/get-in word '(:infl)) :imperfetto)
+        (fs/get-in word '(:infinitive))
+        (not (nil? (fs/get-in word '(:agr :number))))
+        (not (nil? (fs/get-in word '(:agr :person)))))
+   (let [infinitive (fs/get-in word '(:infinitive))
+         stem (string/replace infinitive #"^to " "")]
+     (str "were " stem "ing"))
+
    
    ;; irregular past: one form for all persons/number
    (and (= :past (fs/get-in word '(:infl)))

@@ -106,6 +106,11 @@
     (fs/merge vp
               {:comment "vp[past] &#x2192; head comp"
                :infl :past}))
+
+  (def vp-imperfetto
+    (fs/merge vp
+              {:comment "vp[impf] &#x2192; head comp"
+               :infl :imperfetto}))
   
   (def vp-infinitive-transitive
     (fs/unifyc head-principle
@@ -144,53 +149,52 @@
         agr (ref :top)
         head (ref {:synsem {:cat :verb
                             :sem {:subj subj-sem}
-                            :subcat {:1 subcatted}}})]
+                            :subcat {:1 subcatted}}})
+
+        rule-base
+        (fs/unifyc head-principle subcat-1-principle
+                   subject-verb-agreement
+                   {:head head
+                    :comp comp
+                    :1 comp
+                    :2 head
+                    :extend {:a {:comp 'np
+                                 :head 'vp}
+                             :b {:comp 'pronouns
+                                 :head 'vp}
+                             :c {:comp 'np
+                                 :head 'intransitive-verbs}
+                             :d {:comp 'pronouns
+                                 :head 'intransitive-verbs}}})]
 
     ;; present
     (def s-present
-      (fs/unifyc head-principle subcat-1-principle
-                 subject-verb-agreement
-                 {:synsem {:infl :present}}
-                 {:comment "sentence (present) (4 subrules)"
-                  :head head
-                  :comp comp
-                  :1 comp
-                  :2 head
-                  :extend {
-                           :a {:comp 'np
-                               :head 'vp-present}
-                           :b {:comp 'pronouns
-                               :head 'vp-present}
-                           :d {:comp 'np
-                               :head 'intransitive-verbs}
-                           :e {:comp 'pronouns
-                               :head 'intransitive-verbs}
-                           }}))
+      ;; unlike the case for future and imperfetto,
+      ;; override the existing :extends in the case of s-present.
+      (fs/merge
+       (fs/unifyc rule-base
+                  {:comment "sentence[present]"
+                   :synsem {:infl :present}})
+       {:extend {:a {:comp 'np
+                     :head 'vp-present}
+                 :b {:comp 'pronouns
+                     :head 'vp-present}
+                 :d {:comp 'np
+                     :head 'intransitive-verbs}
+                 :e {:comp 'pronouns
+                     :head 'intransitive-verbs}}}))
     
-     ;; future
     (def s-future
-      (fs/unifyc head-principle subcat-1-principle
-                 subject-verb-agreement
-                 {:synsem {:infl :futuro}}
-                 {:comment "sentence (future) (4 subrules)"
-                  :head head
-                  :comp comp
-                  :1 comp
-                  :2 head
-                  :extend {
+      (fs/unifyc rule-base
+                 {:comment "sentence[future]"
+                  :synsem {:infl :futuro}}))
 
-                           :a {:comp 'np
-                               :head 'vp}
-                           :b {:comp 'pronouns
-                               :head 'vp}
-                           :d {:comp 'np
-                               :head 'intransitive-verbs}
-                           :e {:comp 'pronouns
-                               :head 'intransitive-verbs}
-                           }}))
-  
-    (list s-present s-future)))
+    (def s-imperfetto
+      (fs/unifyc rule-base
+                 {:comment "sentence[imperfetto]"
+                  :synsem {:infl :imperfetto}}))))
 
+      
 (def nbar
   (let [head (ref :top)
         comp (ref :top)

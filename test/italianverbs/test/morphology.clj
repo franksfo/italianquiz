@@ -194,6 +194,20 @@
            :infinitive "bevere"
            :infl :imperfetto}))))
 
+(deftest was-sleeping
+  (is (= "was sleeping"
+         (get-english-1
+          {:agr {:number :sing :person :1st}
+           :infinitive "to sleep"
+           :infl :imperfetto}))))
+
+(deftest were-sleeping
+  (is (= "were sleeping"
+         (get-english-1
+          {:agr {:number :sing :person :2nd}
+           :infinitive "to sleep"
+           :infl :imperfetto}))))
+
 (deftest io-sono
   (is (= "sono"
          (get-italian-1
