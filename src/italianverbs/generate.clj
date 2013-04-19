@@ -455,14 +455,6 @@
         (first result)
         result))))
 
-(defn overall [& args]
-  "'overall' rules: try all rules as parents, with the args as children."
-  (let [child1 (first args)
-        child2 (if (> (.size args) 1) (nth args 1))]
-    (if (not (nil? child2))
-      (over-parent-child (over-parent-child gram/rules child1) child2)
-      (over-parent-child gram/rules child1))))
-
 (defn get-morph [expr morph-fn]
   (morph-fn
    (cond

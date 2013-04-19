@@ -532,7 +532,7 @@
           (string? b)
           (re-find #"^[aeiou]" b))
      (str "dell'" b)
-     
+
      (and (= a "di la")
           (string? b))
      (get-italian "della" b) ;; allows this to feed next rule:
@@ -542,7 +542,6 @@
           (re-find #"^[aeiou]" b))
      (str "dell'" b)
 
-     
      (and (= a "di le")
           (string? b))
      (str "delle " b)
@@ -564,7 +563,7 @@
      (and (= a "una")
           (re-find #"^[aeiou]" b))
      (str "un'" b)
-     
+
      (and (= a "il")
           (string? b)
           (re-find #"^[aeiou]" b))
@@ -590,13 +589,12 @@
           (re-find #"^[aeiou]" b))
      (str "quell'" b)
 
-     
      ;; prepositional phrases
      (and (= a "a")
           (string? b)
           (re-find #"^il " b))
      (str "al " (string/replace b #"^il " ""))
-     
+
      (and (string? a) (string? b))
      (str a " " b)
 
@@ -606,7 +604,7 @@
      (and (string? (fs/get-in a '(:italian)))
           (string? b))
      (str (fs/get-in a '(:italian)) " " b)
-     
+
      true
      {:a (if (nil? a) :top a)
       :b (if (nil? b) :top b)})))
@@ -667,6 +665,7 @@
          last-stem-char-is-e (re-find #"e$" stem)]
      ;; remove final "e", if any, before adding "e": e.g. "write" => "writing"
      (let [stem (if (and last-stem-char-is-e
+                         (> (.length stem) 2) ;; don't apply this to "be".
                          (not penultimate-stem-char-is-vowel))
                   stem-minus-one
                   stem)]
@@ -677,7 +676,7 @@
         (str "was " stem "ing")
         true
         (str "were " stem "ing"))))
-   
+
    ;; irregular past: one form for all persons/number
    (and (= :past (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:irregular :past))))

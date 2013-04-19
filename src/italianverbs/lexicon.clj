@@ -35,14 +35,14 @@
          city (if (= (fs/get-in input '(:city))
                      true)
                 {:place true})
-         
+
          clothing (if (= (fs/get-in input '(:clothing))
                          true)
                     {:animate false
                      :place false
                      :physical-object true}{})
 
-         
+
          consumable-false (if (= (fs/get-in input '(:consumable)) false)
                             {:drinkable false
                              :edible false} {})
@@ -51,7 +51,7 @@
          ;; drinkables are always mass nouns.
          (if (= (fs/get-in input '(:drinkable)) true)
            {:mass true}{})
-         
+
          drinkable-xor-edible-1
          ;; things are either drinkable or edible, but not both (except for weird foods
          ;; like pudding or soup). (part 1: edible)
@@ -86,7 +86,7 @@
                       :edible false
                       :place false
                       :speakable false})
-         
+
          human (if (= (fs/get-in input '(:human))
                       true)
                  {:buyable false
@@ -116,7 +116,7 @@
                          (= (fs/get-in input '(:pred)) :fiore)
                          (= (fs/get-in input '(:pred)) :scala))
                    {:place false})
-         
+
          ;; artifact(x,false) => legible(x,false)
          not-legible-if-not-artifact
          (if (= (fs/get-in input '(:artifact)) false)
@@ -199,7 +199,6 @@
                     :subcat {:1 {:number number
                                  :person person
                                  :gender gender}}
-                    
                     :agr agr}
            :italian {:cat cat
                      :agr agr}
@@ -219,7 +218,6 @@
                    :agr {:person :3rd}
                    :subcat '()}})
 
-        
         masculine {:synsem {:agr {:gender :masc}}}
         feminine {:synsem {:agr {:gender :fem}}}
 
@@ -347,7 +345,7 @@
             :english {:english "city"}}
            {:synsem {:subcat {:1 {:cat :det
                                   :def :def}}}})
-    
+
     (unify proper-noun
            {:synsem {:sem {:pred :roma
                            :buyable false
@@ -356,7 +354,7 @@
             :italian {:italian "Roma"}
             :english {:english "Rome"}})
 
-    
+
      ;; inherently singular.
     (unify agreement
            common-noun
@@ -383,7 +381,7 @@
                                   :number :sing
                                   :def :def}}}}
            )
-    
+
     (unify agreement
            common-noun
            countable-noun
@@ -392,7 +390,7 @@
                            :artifact true
                            :speakable false
                            ;; (although an exception would be tshirts with writing on them):
-                           :legible false 
+                           :legible false
                            :consumable false
                            :clothing true}}}
            {:italian {:italian "camicia"}
@@ -447,7 +445,7 @@
            {:synsem {:sem (unify animal {:pred :gatto :pet true})}
             :italian {:italian "gatto"}
             :english {:english "cat"}})
-  
+
     (unify agreement
            common-noun
            countable-noun
@@ -477,7 +475,7 @@
            {:synsem {:subcat {:1 {:cat :det
                                   :number :plur
                                   :def :def}}}})
-  
+
     (unify agreement
            common-noun
            countable-noun
@@ -507,8 +505,7 @@
            {:italian {:italian "professore"}
             :english {:english "professor"
                       :note " (&#x2642;) "}}) ;; unicode male symbol
-  
-     
+
      ;; "pizza" can be either mass or countable.
     (unify agreement
            common-noun
@@ -518,7 +515,7 @@
                            :artifact true}}
             :italian {:italian "pizza"}
             :english {:english "pizza"}})
-  
+
      (unify agreement
             common-noun
             countable-noun
@@ -527,7 +524,6 @@
             {:synsem {:sem {:pred :ragazzo}}
              :italian {:italian "ragazzo"}
              :english {:english "guy"}})
-    
 
      (unify agreement
             common-noun
@@ -570,8 +566,7 @@
                             :pred :sedia}}
              :italian {:italian "sedia"}
              :english {:english "chair"}})
-     
-     
+
      (unify agreement
             common-noun
             countable-noun
@@ -590,7 +585,6 @@
              :italian {:italian "tavolo"}
              :english {:english "table"}})
 
-     
      (unify agreement
             common-noun
             countable-noun
@@ -672,7 +666,7 @@
              :number :sing}
     :italian "un"
     :english "a"}
-   
+
    {:synsem {:cat :det
              :def :indef
              :mass false
@@ -688,7 +682,7 @@
              :gender :masc}
     :italian "di il"
     :english "some"}
-   
+
    {:synsem {:cat :det
              :def :partitivo
              :mass false
@@ -846,7 +840,6 @@
                                    :1plur "have"
                                    :2plur "have"
                                    :3plur "have"}}}})
-   
 (def avere
   (unify
    transitive
@@ -896,7 +889,8 @@
                    :subj {:animate true}
                    :obj {:drinkable true}}}}))
 
-;; need at least one essere-false verbs to allow vp[past] rule to work.
+;; need at least one essere-false verbs to allow vp[past] rule to work:
+;; the idea here is drinking a toast to a city: "The man drinks to Rome"
 (def bevere-taking-pp
   (unify
    subjective
@@ -909,7 +903,7 @@
                :sem {:pred {:location place-sem
                             :pred :bevere
                             :essere false}
-                     :subj {:animate true}}
+                     :subj {:human true}}
                :subcat {:2 {:sem place-sem
                             :subcat {:1 {:sem {:city true}}}
                             :cat :prep}}}})))
@@ -1117,12 +1111,11 @@
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
-
 (def parlare
   (unify
    transitive
    {:italian {:infinitive "parlare"}
-    :english {:infinitive "to speak" 
+    :english {:infinitive "to speak"
               :irregular {:past "spoken"}}
     :synsem {:essere false
              :sem {:pred :parlare
@@ -1192,6 +1185,16 @@
              :sem {:subj {:animate true}
                    :pred {:pred :sognare}}}}))
 
+(def telefonare
+  (unify
+   transitive
+   {:italian {:italian "telefonare"}
+    :english {:english "to call"}
+    :synsem {:essere false
+             :sem {:pred :telefonare
+                   :subj {:human true}
+                   :obj {:human true}}}}))
+
 (def vedere
   (unify
    transitive
@@ -1257,6 +1260,7 @@
    mangiare
    parlare
    scrivere
+   telefonare
    vedere
    ))
 
@@ -1279,7 +1283,6 @@
    transitive-verbs
    verbs-taking-pp
    modal-verbs))
-   
 
 (def pronouns
   (list {:synsem {:cat :noun

@@ -64,7 +64,7 @@
                      :infl infl}}}))
 
 (def vp-rules
-    
+
   (let [head (ref :top)
         comp (ref :top)
         infl (ref :top)
@@ -101,17 +101,12 @@
                             :comp 'vp-infinitive-transitive}
                         :h {:head 'modal-verbs
                             :comp 'intransitive-verbs}}}))
-  
+
   (def vp-past
     (fs/merge vp
               {:comment "vp[past] &#x2192; head comp"
                :infl :past}))
 
-  (def vp-imperfetto
-    (fs/merge vp
-              {:comment "vp[impf] &#x2192; head comp"
-               :infl :imperfetto}))
-  
   (def vp-infinitive-transitive
     (fs/unifyc head-principle
                subcat-2-principle
@@ -183,7 +178,7 @@
                      :head 'intransitive-verbs}
                  :e {:comp 'pronouns
                      :head 'intransitive-verbs}}}))
-    
+
     (def s-future
       (fs/unifyc rule-base
                  {:comment "sentence[future]"
@@ -194,7 +189,7 @@
                  {:comment "sentence[imperfetto]"
                   :synsem {:infl :imperfetto}}))))
 
-      
+
 (def nbar
   (let [head (ref :top)
         comp (ref :top)
@@ -226,10 +221,10 @@
       :extend {:a {:head 'nouns
                    :comp 'adjectives}}})))
 
-(def np-rules 
+(def np-rules
   (let [head (ref :top)
         comp (ref :top)]
-    (def np1
+    (def np
       (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
                  (let [agr (ref :top)]
                    (fs/unifyc
@@ -253,7 +248,7 @@
                                   :head 'nbar}}
                      }
                     ))))
-    (list np1)))
+    (list np)))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
@@ -269,10 +264,6 @@
                              :comp 'np}
                          :b {:head 'prepositions
                              :comp 'proper-nouns}}})))
-
-(def rules (concat np-rules vp-rules sentence-rules))
-
-(def np (nth np-rules 0))
 
 ;; TODO: move to lexicon (maybe).
 (defn italian-number [number]
@@ -296,7 +287,7 @@
    (= number 17) "diciassette"
    (= number 18) "diciotto"
    (= number 19) "diciannove"
-   
+
    ;; ...
    (= number 20) "venti"
    (< number 30) (str (italian-number 20) (italian-number (- number 20)))

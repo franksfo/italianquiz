@@ -91,23 +91,9 @@
     (take-last 3 (take 3 (show-lexicon)))
     (take-last 3 (take 6 (show-lexicon)))
     (take-last 3 (take 9 (show-lexicon)))
-
-;;
-;;
-
-    (take-last 3 (take 15 (show-lexicon)))
-    
-    ;; get past tense form of "leggere":
-    
-    (lookup {:italian {:infinitive {:infinitive "leggere"}}
-             :synsem {:infl :past}})
-    
-;; generate a complete vp-past:
-    (let [letto (lookup {:italian {:infinitive {:infinitive "leggere"}}
-                         :synsem {:infl :past}})]
-      (over (over rules verbs) (over (over np "il") "libro")))
-    
 ))
+;;
+;;
 
 ;; find semantic implicatures of "cane (dog)"
 (if false
