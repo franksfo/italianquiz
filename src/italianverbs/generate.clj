@@ -682,43 +682,44 @@
                     (fs/unifyc head-candidate
                                {:synsem {:sem (lex/sem-impl (fs/get-in head-candidate '(:synsem :sem)))}})]
                   )))
-            
+
             (if (seq? head)
               (do
                 (log/error (str "number of candidates:" (.size head)))
                 (if (> (.size head) 0)
                   (do
                     :fail
-                    
+
                     ))))
-            
+
             (log/error (str "head-filter: " (fs/get-in head-filter '(:synsem :sem))))
             :fail)
           (do
             (log/debug (str "successfully matched expansion: " expansion))
             (log/debug (str "expansion of " (fs/get-in phrase '(:comment))  " -> "   expansion " ratio:" (/ (.size candidates) (.size head))))
-            (log/debug (str "successfully matched head-filter: " (fs/get-in head-filter '(:synsem :sem))))          
+            (log/debug (str "successfully matched head-filter: " (fs/get-in head-filter '(:synsem :sem))))
             candidates))))))
 
 (declare generate)
 
-(defn random-head [head-and-comp parent expansion]
+(defn random-head [parent expansion]
   (let [check (if (fs/fail? parent)
                 (do
                   (log/error (str "parent is fail: " parent))
                   (throw (Exception. (str "random-head: parent is fail: " parent)))))
-        
+
                                         ;  (println (str "RH parent: " parent))
                                         ;  (println (str "RH head-filter: " (fs/get-in parent '(:head))))
-        head (:head head-and-comp)
         head-filter (fs/get-in parent '(:head))
         head (head-candidates parent expansion)]
     (cond
      (map? head)
      ;; recursively expand.
      (generate head)
-     (seq? head) ;; head is a list of candidate heads (lexemes).
-     (rand-nth head)
+     (seq? head) ;; head is a list of candidate heads (lexemes): choose one at random.
+     (do
+       (log/info (str "choosing head from list of size: " (.size head)))
+       (rand-nth head))
      true
      (throw (Exception. (str "- don't know how to get a head from: " head))))))
 
@@ -879,7 +880,8 @@ constraints on the generation of the complement."
           (do
             (log/error (str ":head part is :fail of: " random-head-and-comp))
             (throw (Exception. (str "generate-with-parent: head part is fail of: " random-head-and-comp)))))
-          random-head (random-head random-head-and-comp phrase expansion)]
+        head (:head random-head-and-comp)
+        random-head (random-head phrase expansion)]
     (let [retval
           (unify
            (fs/copy phrase)
