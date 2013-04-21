@@ -1284,7 +1284,7 @@
    verbs-taking-pp
    modal-verbs))
 
-(def pronouns
+(def nominative-pronouns
   (list {:synsem {:cat :noun
                   :agr {:case :nom
                         :person :1st
@@ -1344,6 +1344,105 @@
          :italian "loro"
          :english "they"}))
 
+(def accusative-pronouns
+  (let [acc (ref :acc)
+        noun (ref :noun)]
+    (list {:synsem {:cat noun
+                    :agr {:case acc
+                          :person :1st
+                          :number :sing}
+                    :sem (unify human {:pred :io})
+                    :subcat '()}
+           :english "me"
+           :italian {:italian "mi"
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :agr {:case acc
+                          :person :2nd
+                          :number :sing}
+                    :sem (unify human {:pred :tu})
+                    :subcat '()}
+           :english "you"
+           :italian {:italian "ti"
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :agr {:case acc
+                          :gender :masc
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify human {:pred :lui})
+                    :subcat '()}
+           :english "him"
+           :italian {:italian "lo"
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :agr {:case acc
+                          :gender :fem
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify human {:pred :lei})
+                    :subcat '()}
+           :english "her"
+           :italian {:italian "la"
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :agr {:case acc
+                          :person :1st
+                          :number :plur}
+                    :sem (unify human {:pred :noi})
+                    :subcat '()}
+           :english "us"
+           :italian {:italian "ci"
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :agr {:case acc
+                          :person :2nd
+                          :number :plur}
+                    :sem (unify human {:pred :voi})
+                    :subcat '()}
+           :english "you all"
+           :italian {:italian "vi"
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :agr {:case acc
+                          :gender :masc
+                          :person :3rd
+                          :number :plur}
+                    :sem (unify human {:pred :lui})
+                    :subcat '()}
+           :english {:english "them"
+                     :note " (&#x2642;) "} ;; unicode male
+           :italian {:italian "li"
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :agr {:case acc
+                          :gender :fem
+                          :person :3rd
+                          :number :plur}
+                    :sem (unify human {:pred :lei})
+                    :subcat '()}
+           :english {:english "them"
+                     :note " (&#x2640;) "}
+           :italian {:italian "le"
+                     :cat noun
+                     :case acc}}
+
+          )))
+
 (def prepositions
   (list {:synsem {:cat :prep
                   :sem {:pred :to}
@@ -1367,7 +1466,7 @@
 ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc).
 (def adjectives
   (list
-   
+
    {:synsem {:cat :adjective
              :sem {:pred :alto
                    :mod {:human true}}}
@@ -1384,7 +1483,7 @@
               :cat :adjective}
     :english {:english "beautiful"
               :cat :adjective}}
-   
+
    {:synsem {:cat :adjective
              :sem {:pred :bianco
                    :mod {:physical-object true
@@ -1403,7 +1502,7 @@
               :cat :adjective}
     :english {:english "ugly"
               :cat :adjective}}
-   
+
    {:synsem {:cat :adjective
              :sem {:pred :difficile
                    :mod {:drinkable false
@@ -1415,12 +1514,12 @@
                          :artifact true
                          :physical-object true
                          :edible false}}}
-    
+
     :italian {:italian "difficile"
               :cat :adjective}
     :english {:english "difficult"
               :cat :adjective}}
-   
+
    {:synsem {:cat :adjective
              :sem {:pred :nero
                    :mod {:physical-object true
@@ -1429,7 +1528,7 @@
               :cat :adjective}
     :english {:english "black"
               :cat :adjective}}
-   
+
    {:synsem {:cat :adjective
              :sem {:pred :piccolo
                    :mod {:physical-object true
@@ -1438,7 +1537,7 @@
               :cat :adjective}
     :english {:english "small"
               :cat :adjective}}
-   
+
    {:synsem {:cat :adjective
              :sem {:pred :robusto
                    :mod {:animate true}}}
@@ -1507,7 +1606,8 @@
                         (= '() (fs/get-in lexeme '(:synsem :subcat))))
                       nouns))
 
-(def lexicon (concat adjectives determiners nouns prepositions pronouns verbs))
+(def lexicon (concat adjectives determiners nouns prepositions
+                     nominative-pronouns accusative-pronouns verbs))
 
 ;(def nouns (list (first (it "professoressa"))))
 ;(def adjectives (list (first (it "piccolo"))))

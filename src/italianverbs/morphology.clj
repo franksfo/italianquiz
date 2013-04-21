@@ -519,7 +519,6 @@
           (re-find #"^[aeiou]" b))
      (str "degli " b)
 
-
      (and (= a "di i")
           (string? b))
      (str "dei " b)
@@ -604,6 +603,15 @@
      (and (string? (fs/get-in a '(:italian)))
           (string? b))
      (str (fs/get-in a '(:italian)) " " b)
+
+
+     (and (= :verb (fs/get-in a '(:cat)))
+          (= :noun (fs/get-in b '(:cat)))
+          (= :acc (fs/get-in b '(:case))))
+     ;; flip order in this case:
+     ;; i.e. "vedo ti" => "ti vedo".
+     {:a (if (nil? b) :top b)
+      :b (if (nil? a) :top a)}
 
      true
      {:a (if (nil? a) :top a)

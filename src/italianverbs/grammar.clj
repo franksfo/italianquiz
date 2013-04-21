@@ -82,24 +82,26 @@
                 :extend {:a {:head 'transitive-verbs
                              :comp 'np}
                          :b {:head 'verbs-taking-pp
-                             :comp 'prep-phrase}}}))
+                             :comp 'prep-phrase}
+                         :c {:head 'transitive-verbs
+                             :comp 'accusative-pronouns}}}))
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
     (fs/merge vp
-              {:extend {:c {:head 'essere-aux
+              {:extend {:d {:head 'essere-aux
                             :comp 'intransitive-verbs}
-                        :d {:head 'avere-aux
-                            :comp 'intransitive-verbs}
-
                         :e {:head 'avere-aux
+                            :comp 'intransitive-verbs}
+
+                        :f {:head 'avere-aux
                             :comp 'vp-past}
-                        :f {:head 'essere-aux
+                        :g {:head 'essere-aux
                             :comp 'vp-past}
 
-                        :g {:head 'modal-verbs
-                            :comp 'vp-infinitive-transitive}
                         :h {:head 'modal-verbs
+                            :comp 'vp-infinitive-transitive}
+                        :i {:head 'modal-verbs
                             :comp 'intransitive-verbs}}}))
 
   (def vp-past
@@ -155,7 +157,7 @@
                     :2 head
                     :extend {:a {:comp 'np
                                  :head 'vp}
-                             :b {:comp 'pronouns
+                             :b {:comp 'nominative-pronouns
                                  :head 'vp}
                              :c {:comp 'np
                                  :head 'intransitive-verbs}
@@ -172,7 +174,7 @@
                    :synsem {:infl :present}})
        {:extend {:a {:comp 'np
                      :head 'vp-present}
-                 :b {:comp 'pronouns
+                 :b {:comp 'nominative-pronouns
                      :head 'vp-present}
                  :d {:comp 'np
                      :head 'intransitive-verbs}
