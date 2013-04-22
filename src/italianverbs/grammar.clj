@@ -161,7 +161,7 @@
                                  :head 'vp}
                              :c {:comp 'np
                                  :head 'intransitive-verbs}
-                             :d {:comp 'pronouns
+                             :d {:comp 'nominative-pronouns
                                  :head 'intransitive-verbs}}})]
 
     ;; present
@@ -178,7 +178,7 @@
                      :head 'vp-present}
                  :d {:comp 'np
                      :head 'intransitive-verbs}
-                 :e {:comp 'pronouns
+                 :e {:comp 'nominative-pronouns
                      :head 'intransitive-verbs}}}))
 
     (def s-future
