@@ -79,16 +79,6 @@
                     {:checked-for {:root (dissoc (dissoc fs :_id) :use-number)}
                      :italian (morph/plural-masc (:italian fs))
                      :english (morph/plural-en (:english fs))})))))))
-    
-(defn random-morph [& constraints]
-  "apply the :morph function to the constraints."
-  ;; TODO: constantly switching between variable # of args and one-arg-which-is-a-list...be consistent in API.
-  (let [merged (apply fs/unify constraints)
-        morph-fn (:morph merged)]
-    (if morph-fn
-      (fs/unify-and-apply (list (fs/unify merged {:fn morph-fn})))
-      (fs/unify {:random-morph :no-morph-fn-default-used}
-             merged))))
 
 ;; TODO: learn why string/join doesn't work for me:
 ;; (string/join '("foo" "bar") " ")
@@ -235,7 +225,7 @@
    :english (join (list (:english subject) (:english verb-phrase)) " ")
    :verb-phrase verb-phrase
    :subject subject})
-                          
+
 (defn random-object-for-verb [verb]
   (search/random-lexeme (:obj verb)))
 
@@ -353,6 +343,8 @@
 
 ;; TODO: use multiple dispatch.
 (defn over-parent-child [parent child]
+  (log/debug (str "parent: " parent))
+  (log/debug (str "child: " child))
   (cond
 
    (= (type child) java.lang.String)
@@ -398,8 +390,6 @@
                            :1
                            :2)
 
-
-         
          head-is-where (if (= (fs/get-in parent '(:head))
                               (fs/get-in parent '(:1)))
                          :1
@@ -419,7 +409,9 @@
            (fs/match {:synsem (fs/copy sem-filter)}
                      (fs/copy {:synsem (fs/copy comp-sem)})))]
      (if (= do-match :fail)
-       :fail
+       (do
+         (log/info "failed match.")
+         :fail)
        (let [unified (unify parent
                             {add-child-where
                              (unify
@@ -451,7 +443,7 @@
           (if (not (nil? child2))
             (over-parent-child (over-parent-child parent child1) child2)
             (over-parent-child parent child1))]
-      (if (= (.size result) 1)
+      (if (and (seq? result) (= (.size result) 1))
         (first result)
         result))))
 
@@ -580,10 +572,10 @@
    (= symbol 'modal-verbs) lex/modal-verbs
    (= symbol 'prepositions) lex/prepositions
    (= symbol 'determiners) lex/determiners
-   (= symbol 'pronouns) lex/pronouns
+   (= symbol 'nominative-pronouns) lex/nominative-pronouns
+   (= symbol 'accusative-pronouns) lex/accusative-pronouns
    (= symbol 'proper-nouns) lex/proper-nouns
    (= symbol 'verbs) lex/verbs
-
 
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
@@ -595,7 +587,7 @@
    (= symbol 'vp) gram/vp
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
-   
+
    (= symbol 'aux-verbs) (list lex/aux-verbs)
    (= symbol 'essere-aux) (list lex/essere-aux)
    (= symbol 'avere-aux) (list lex/avere-aux)
@@ -621,9 +613,9 @@
   (let [debug (fs/copy phrase)
         head-and-comp (random-head-and-comp-from-phrase phrase expansion)
         parent phrase]
-    (log/debug (str "phrase: " (:comment phrase)))
-    (log/debug (str "phrase synsem: " (fs/get-in phrase '(:synsem))))
-    (log/debug (str "expansion: " expansion))
+;    (log/info (str "phrase: " (:comment phrase)))
+;    (log/info (str "phrase synsem: " (fs/get-in phrase '(:synsem))))
+;    (log/info (str "expansion: " expansion))
     (if (fs/fail? parent)
        (do
          (log/error "head-candidates: parent is fail: " parent)
@@ -635,7 +627,18 @@
                                                    (map (fn [head-candidate]
                                                           (fs/unifyc {:head head-candidate}
                                                                      phrase))
-                                                        (:head head-and-comp)))]
+                                                        (:head head-and-comp)))
+          debug (log/info (str "filter-candidates-against-phrase: " (.size filter-candidates-against-phrase)))
+
+          filter-against-complements (filter (fn [head-candidate]
+                                               true)
+                                             filter-candidates-against-phrase)
+
+          debug (log/info (str "filter-against-complements: " (.size filter-against-complements)))
+
+          ]
+
+
       (if (and
            (list? (:head head-and-comp))
            (= (.size filter-candidates-against-phrase) 0))
@@ -655,7 +658,7 @@
                              (log/error (str " parent's head:" (fs/get-in parent '(:head))))
                              (log/error (str " arg1" (fs/get-in parent '(:head :synsem :sem))))
                              (throw (Exception. (str "head-filter is fail: " head-filter)))))
-            
+
             candidates
             (if (and filter-head (seq? head))
               ;; If head is a seq, then head is a list of possible candidates
@@ -728,7 +731,7 @@
 generate a complement from this comp-expansion."
   (let [comp-spec (fs/get-in parent '(:comp))
         comps
-        (if (symbol? comp-expansion) 
+        (if (symbol? comp-expansion)
           (eval-symbol comp-expansion)
           comp-expansion)]
     (cond
@@ -753,7 +756,7 @@ lexeme or phrase). e.g. in the rule np -> det nbar, the comp-expansion
 is 'det'.  The comp-spec param can be used to place additional
 constraints on the generation of the complement."
   (let [comps
-        (if (symbol? comp-expansion) 
+        (if (symbol? comp-expansion)
           (eval-symbol comp-expansion)
           comp-expansion)]
     (log/debug (str "expansion-to-candidates: " comp-expansion))
@@ -775,7 +778,6 @@ constraints on the generation of the complement."
                      (log/error (str "comp-spec: " comp-spec))
                      (throw (Exception.
                              (str "unified-spec was fail: " unified-spec)))))
-           
 
            generated (generate unified-spec)] ;; recursively generate a phrase.
        (if (nil? generated)
@@ -867,6 +869,8 @@ constraints on the generation of the complement."
                 (Exception.
                  (str "No candidates matched complement filter: "
                       (fs/get-in complement-filter '(:synsem :sem))
+                      " from head: " (fs/get-in parent '(:head :italian))
+                      " in parent: " (fs/get-in parent '(:comment))
                       " for generated complement expansion: " comp-expansion
                       ". Tried " (.size candidates) " candidate" (if (not (= (.size candidates) 1)) "s")    " before giving up.")))))
 
@@ -1005,7 +1009,6 @@ constraints on the generation of the complement."
                       (log/error (str "italian 2:" (fs/get-in unified-with-comp '(:2 :italian))))
                       (log/error (str "1 cat:" (fs/get-in unified-with-comp '(:1 :synsem :cat))))
                       (log/error (str "2 cat:" (fs/get-in unified-with-comp '(:2 :synsem :cat))))
-                      
                       (log/error (str "GF: fail? unified-with-comp: " (fs/fail? unified-with-comp)))
 ;              (log/error (str "Generation failed: parent: " unified-parent))
 ;              (log/error (str "Generation failed: comp: " random-comp))
@@ -1014,12 +1017,12 @@ constraints on the generation of the complement."
                        :comp :cannot-show-random-comp-for-now})
 ;               :comp random-comp})
                     (fs/copy-trunc result)))))))))))))
-    
+
 (defn random-sentence []
   (let [rules (list
-               gram/s-present
+;               gram/s-present
                gram/s-future
-               gram/s-imperfetto
+;               gram/s-imperfetto
                )]
     (generate (nth rules (rand-int (.size rules))))))
 
