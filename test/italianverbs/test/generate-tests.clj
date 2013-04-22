@@ -4,10 +4,6 @@
 
 (def generate-tests
   (list
-   
-   
-
-
 
    (rdutest
     "Make sure every transitive verb has at least one noun that satisfies its :obj spec."
@@ -113,7 +109,7 @@
     (fn [retval]
       (not (= retval nil)))
     :random-lexeme2)
-     
+
      ;; TODO more random-morph tests.
 ;     (rdutest
 ;      "random-morph: test for pluralization exceptions: uomo->uomini"
