@@ -98,8 +98,6 @@
         (fs/get-in word '(:essere) true)
         (or (= :notfound (fs/get-in word '(:agr :number) :notfound))
             (= :top (fs/get-in word '(:agr :number)))))
-   
-   
    :irregular-passato?
    (and (= :past (fs/get-in word '(:infl)))
         (fs/get-in word '(:irregular :passato)))
@@ -110,7 +108,7 @@
    :present
      (= (fs/get-in word '(:infl)) :present)
 
-   
+
 }))
 
 (defn get-italian-1 [word]
@@ -145,7 +143,7 @@
       (fs/get-in word '(:irregular :futuro :3plur))
       true
       word))
-   
+
    ;; regular futuro tense
    (and (= (fs/get-in word '(:infl)) :futuro)
         (fs/get-in word '(:infinitive)))
@@ -156,22 +154,22 @@
      (cond
       (and (= person :1st) (= number :sing))
       (str stem "ò")
-      
+
       (and (= person :2nd) (= number :sing))
       (str stem "ai")
-      
+
       (and (= person :3rd) (= number :sing))
       (str stem "à")
-      
+
       (and (= person :1st) (= number :plur))
       (str stem "emo")
-      
+
       (and (= person :2nd) (= number :plur))
       (str stem "ete")
-      
+
       (and (= person :3rd) (= number :plur))
       (str stem "anno")
-      
+
       :else
       word))
 
@@ -185,26 +183,26 @@
      (cond
       (and (= person :1st) (= number :sing))
       (str stem "vo")
-      
+
       (and (= person :2nd) (= number :sing))
       (str stem "vi")
-      
+
       (and (= person :3rd) (= number :sing))
       (str stem "va")
-      
+
       (and (= person :1st) (= number :plur))
       (str stem "vamo")
-      
+
       (and (= person :2nd) (= number :plur))
       (str stem "vate")
-      
+
       (and (= person :3rd) (= number :plur))
       (str stem "vano")
-      
+
       :else
       word))
 
-   
+
    ;; TODO: remove this: :past is only for english (get-english-1), not italian.
    ;; italian uses :passato.
    (and
@@ -249,7 +247,7 @@
          suffix (suffix-of word)
 
          ]
-                           
+
 
      (cond
 
@@ -266,7 +264,7 @@
         (= person :1st) (= number :sing)
         (string? (fs/get-in word '(:irregular :present :1sing))))
    (fs/get-in word '(:irregular :present :1sing))
-   
+
    (and (= (fs/get-in word '(:infl)) :present)
         (= person :2nd) (= number :sing)
         (string? (fs/get-in word '(:irregular :present :2sing))))
@@ -276,7 +274,7 @@
         (= person :3rd) (= number :sing)
         (string? (fs/get-in word '(:irregular :present :3sing))))
    (fs/get-in word '(:irregular :present :3sing))
-   
+
    (and (= (fs/get-in word '(:infl)) :present)
         (= person :1st) (= number :plur)
         (string? (fs/get-in word '(:irregular :present :1plur))))
@@ -291,7 +289,7 @@
         (= person :3rd) (= number :plur)
         (string? (fs/get-in word '(:irregular :present :3plur))))
    (fs/get-in word '(:irregular :present :3plur))
-   
+
    (and
     (= (fs/get-in word '(:infl)) :present)
     (string? (fs/get-in word '(:infinitive))))
@@ -326,7 +324,7 @@
       (and (= person :3rd) (= number :plur)
            (string? (fs/get-in word '(:irregular :present :3plur))))
       (fs/get-in word '(:irregular :present :3plur))
-      
+
       (and (= person :1st) (= number :sing))
       (str stem "o")
 
@@ -339,9 +337,9 @@
 
       (and (= person :3rd) (= number :sing) (or ire-type ere-type))
       (str stem "e")
-      
+
       (and (= person :3rd) (= number :sing) are-type)
-      (str stem "a") 
+      (str stem "a")
 
       (and (= person :1st) (= number :plur)
            last-stem-char-is-i)
@@ -375,7 +373,6 @@
     (string? (fs/get-in word '(:irregular :fem :plur))))
    (fs/get-in word '(:irregular :fem :plur))
 
-   
    ;; TODO: move this down to other adjectives.
    ;; this was moved up here to avoid
    ;; another rule from matching it.
@@ -385,11 +382,10 @@
     (= (fs/get-in word '(:cat)) :adjective))
    (string/replace (fs/get-in word '(:italian))
                    #"[eo]$" "e") ;; nero => nere
-   
    (and
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
-   (get-italian 
+   (get-italian
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
 
@@ -422,7 +418,6 @@
     (string? (fs/get-in word '(:irregular :masc :plur))))
    (fs/get-in word '(:irregular :masc :plur))
 
-   
    (and
     (= (fs/get-in word '(:agr :gender)) :masc)
     (= (fs/get-in word '(:agr :number)) :plur)
@@ -439,7 +434,6 @@
     (fs/get-in word '(:root)))
    (string/replace (fs/get-in word '(:root))
                    #"[eo]$" "i") ;; dottore => dottori; medico => medici
-   
 
    (and
     (= (fs/get-in word '(:agr :gender)) :fem)
@@ -556,10 +550,12 @@
      (str "gli " b)
 
      (and (= a "un")
+          (string? b)
           (re-find #"^s[t]" b))
      (str "uno " b)
 
      (and (= a "una")
+          (string? b)
           (re-find #"^[aeiou]" b))
      (str "un'" b)
 
@@ -708,7 +704,7 @@
            (and (= person :3rd) (= number :plur))
            (fs/get-in word '(:irregular :past :3plur))
            true word)) ;; not enough agreement specified to conjugate.
-   
+
    ;; regular past
    (and (= :past (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:infinitive))))
@@ -722,7 +718,7 @@
            (str stem-minus-one penultimate-stem-char "en")
            true
            (str stem "en")))
-   
+
    (and
     (= :present (fs/get-in word '(:infl)))
     (string? (fs/get-in word '(:infinitive))))
@@ -796,7 +792,7 @@
     (= (fs/get-in word '(:agr :number)) :plur)
     (= (fs/get-in word '(:cat) :noun)))
    (fs/get-in word '(:root :irregular :plur))
-   
+
    ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and
     (= (fs/get-in word '(:agr :number)) :sing)
@@ -811,7 +807,6 @@
    (str (fs/get-in word '(:english))
         (if (fs/get-in word '(:note))
           (fs/get-in word '(:note))))
-        
 
    ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and
@@ -857,11 +852,11 @@
    (and (string? (fs/get-in word '(:english :english)))
         (= (.size (keys word)) 1))
    (fs/get-in word '(:english :english))
-   
+
    (map? word)
    (merge {:morphology-is-done false}
           word)
-   
+
    :else
    word))
 
@@ -886,7 +881,7 @@
           (string? re-b))
      {:a a
       :b (string/replace re-b #"^to " "")}
-     
+
      (and
       (= (fs/get-in a '(:cat)) :noun)
       (= (fs/get-in b '(:cat)) :adjective))
@@ -894,7 +889,7 @@
      ;;  so that italian word order is reversed to english word order.
      {:a b
       :b a}
-          
+
      (and (string? re-a) (string? re-b)
           (= re-a "a")
           (re-find #"^[aeiou]" re-b))
@@ -905,7 +900,7 @@
 
      (and (string? re-a) (string? (fs/get-in re-b '(:english))))
      (str re-a " " (fs/get-in re-b '(:english)))
-     
+
      :else
      {:a (if (nil? a) :top a)
       :b (if (nil? b) :top b)})))
@@ -1025,7 +1020,7 @@
      (and (= (get det :def) "part")
           (= (get noun :gender) "masc"))
      (str "dei " (get noun :italian))
-     
+
      true (str det-italian " " det-noun))))
 
 
@@ -1056,7 +1051,7 @@
       (list #"\ba i " "ai ")
       (list #"\ba gli " "agli ")
       (list #"\ba le " "alle ")
-      
+
       (list #"\bda il " "dal ")
       (list #"\bda lo " "dallo ")
       (list #"\bda la " "dalla ")
@@ -1072,7 +1067,7 @@
       (list #"\bde i " "dei ")
       (list #"\bde gli " "degli ")
       (list #"\bde le " "delle ")
-      
+
       (list #"\bdi il " "del ")
       (list #"\bdi lo " "dello ")
       (list #"\bdi la " "della ")
@@ -1080,7 +1075,7 @@
       (list #"\bdi i " "dei ")
       (list #"\bdi gli " "degli ")
       (list #"\bdi le " "delle ")
-      
+
       (list #"\bin il " "nel ")
       (list #"\bin lo " "nello ")
       (list #"\bin la " "nella ")
@@ -1116,7 +1111,7 @@
 
 (defn conjugate-future-italian [infinitive subject & [ stem ] ]
   (let [stem (if stem
-               stem 
+               stem
                (stem-per-futuro (get infinitive :italian)))]
     (cond
      (= (get subject :person)
