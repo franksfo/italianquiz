@@ -431,7 +431,7 @@
                                   {}))
                              child)})]
          (if (fs/fail? unified)
-           (log/warn "Failed attempt to add child to parent: " (fs/get-in parent '(:comment))
+           (log/debug "Failed attempt to add child to parent: " (fs/get-in parent '(:comment))
                      " at: " add-child-where))
          (if (or true (not (fs/fail? unified))) ;; (or true - even if fail, still show it)
            (merge ;; use merge so that we overwrite the value for :italian.
