@@ -535,24 +535,52 @@
                    (cond
                     (string? (fs/get-in expr '(:english)))
                     (fs/get-in expr '(:english))
+
                     (string? (fs/get-in expr '(:english :english)))
                     (fs/get-in expr '(:english :english))
+
                     (string? (fs/get-in expr '(:english :infinitive)))
                     (fs/get-in expr '(:english :infinitive))
+
+                    (and (string? (fs/get-in expr '(:english :a :english)))
+                         (string? (fs/get-in expr '(:english :b :english))))
+                    (str (fs/get-in expr '(:english :a :english))
+                         " "
+                         (fs/get-in expr '(:english :b :english)))
+
+                    (string? (fs/get-in expr '(:english :a :english)))
+                    (str (fs/get-in expr '(:english :a :english)) "...")
+
                     true
-                    (fs/get-in expr '(:english :b :a))))
+                    (fs/get-in expr '(:english))))
 
                   italian
                   (capitalize
                   (cond
                     (string? (fs/get-in expr '(:italian)))
                     (fs/get-in expr '(:italian))
+
                     (string? (fs/get-in expr '(:italian :italian)))
                     (fs/get-in expr '(:italian :italian))
+
                     (string? (fs/get-in expr '(:italian :infinitive)))
                     (fs/get-in expr '(:italian :infinitive))
+
+                    (and
+                     (string? (fs/get-in expr '(:italian :a :italian)))
+                     (string? (fs/get-in expr '(:italian :b :italian))))
+                    (str
+                     (fs/get-in expr '(:italian :a :italian)) " "
+                     (fs/get-in expr '(:italian :b :italian)))
+
+                    (string? (fs/get-in expr '(:italian :a)))
+                    (str (fs/get-in expr '(:italian :a)) "...")
+
+                    (string? (fs/get-in expr '(:italian :a :italian)))
+                    (str (fs/get-in expr '(:italian :a :italian)) "...")
+
                     true
-                    expr)
+                    (fs/get-in expr '(:italian)))
                   )
               ]
               (string/trim
