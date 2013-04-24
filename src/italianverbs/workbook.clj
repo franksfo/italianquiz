@@ -32,8 +32,9 @@
                               (or
                                (and (seq? loaded)
                                     (> (.size loaded) 1))
+                               ;; TODO: remove false-disabled code here:
                                (and false (= (type loaded)
-                                       clojure.lang.LazySeq)
+                                             clojure.lang.LazySeq)
                                     (= 0
                                        (.size
                                         (remove
