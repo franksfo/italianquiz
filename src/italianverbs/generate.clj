@@ -356,16 +356,26 @@
            (over-parent-child each-parent child))
          parent))
 
+   (nil? child)
+   nil
+
+   (and (seq? child)
+        (= (.size child) 0))
+   nil
+
    (or (set? child) (seq? child))
    (remove (fn [result]
              (or (fs/fail? result)
                  (nil? result)))
-           (flatten
-            (map (fn [each-child]
-                   (let [parent parent
-                         child each-child]
-                     (over-parent-child parent child)))
-                 child)))
+           (concat
+            (let [first-child (first child)]
+              (log/info (str "First child: " first-child))
+              (log/info (str "Type of first child: " (type first-child)))
+              (log/info (str "Size of child: " (.size child)))
+              (list (over-parent-child parent first-child)))
+            (if (nil? (rest child))
+              nil
+              (over-parent-child parent (rest child)))))
 
    :else ; both parent and child are non-lists.
    ;; First, check to make sure complement matches head's (:synsem :sem) value, if it exists, otherwise, fail.
