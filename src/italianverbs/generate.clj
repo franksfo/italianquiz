@@ -1058,9 +1058,9 @@ constraints on the generation of the complement."
 
 (defn random-sentence []
   (let [rules (list
-;               gram/s-present
+               gram/s-present
                gram/s-future
-;               gram/s-imperfetto
+               gram/s-imperfetto
                )]
     (generate (nth rules (rand-int (.size rules))))))
 
