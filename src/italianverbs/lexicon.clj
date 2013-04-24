@@ -1619,3 +1619,7 @@
               lexeme)))
      lexicon)
 
+(def adjs (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :adjective)) lexicon))
+(def nouns (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :noun)) lexicon))
+(def dets (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :determiner)) lexicon))
+
