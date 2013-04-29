@@ -56,7 +56,7 @@
   (if (= fs :fail) true
       (do
         (defn failr? [fs keys]
-          (if (> (.size keys) 0)
+          (if (and (not (nil? keys)) (> (.size keys) 0))
             (if (= (fail? (get-in fs (list (first keys)))) true)
               true
               (failr? fs (rest keys)))
