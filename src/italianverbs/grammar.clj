@@ -213,6 +213,9 @@
      {:synsem {:sem {:mod adjectival-predicate}}
       :comp {:synsem {:sem {:mod head-semantics
                             :pred adjectival-predicate}}}}
+     ;; the following will rule out pronouns, since they don't subcat for a determiner;
+     ;; (in fact, they don't subcat for anything)
+     {:synsem {:subcat {:1 {:cat :det}}}}
      {:synsem {:agr agr
                :subcat subcat}
       :head {:synsem {:agr agr
