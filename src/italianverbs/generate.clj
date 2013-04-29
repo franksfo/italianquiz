@@ -167,7 +167,6 @@
 
 (defn conjugate-np [noun & [determiner]]
   "conjugate a noun with a determiner (if the noun takes a determiner (:comp is not nil)) randomly chosen using the 'determiner' spec."
-  (log/info (str "(conjugate-np: " noun "," determiner ")"))
   (let [plural-exception (if (or
                               (= (:number noun) :plural) (= (:number noun) "plural")
                               (and (= (type (:number noun)) clojure.lang.Ref)
@@ -281,6 +280,123 @@
   (fs/unify map
         {:take-article "taken"}))
 
+(defn capitalize [s]
+  "Capitalize first char and leave the rest of the characters alone (compare with string/capitalize which lower-cases all chars after first."
+  (if (nil? s) ""
+      (let [s (.toString s)]
+        (if (< (count s) 2)
+          (.toUpperCase s)
+          (str (.toUpperCase (subs s 0 1))
+               (subs s 1))))))
+
+(defn formattare-1 [expr]
+  (cond
+   (fs/fail? expr)
+   "<tt>fail</tt>"
+   :else
+   (let [english
+         (capitalize
+          (cond
+           (string? (fs/get-in expr '(:english)))
+           (fs/get-in expr '(:english))
+
+           (string? (fs/get-in expr '(:english :english)))
+           (fs/get-in expr '(:english :english))
+
+           (string? (fs/get-in expr '(:english :infinitive)))
+           (fs/get-in expr '(:english :infinitive))
+
+           (and (string? (fs/get-in expr '(:english :a :english)))
+                (string? (fs/get-in expr '(:english :b :english))))
+           (str (fs/get-in expr '(:english :a :english))
+                " "
+                (fs/get-in expr '(:english :b :english)))
+
+
+           (and (string? (fs/get-in expr '(:english :a :infinitive)))
+                (string? (fs/get-in expr '(:english :b))))
+           (str (fs/get-in expr '(:english :a :infinitive))
+                " "
+                (fs/get-in expr '(:english :b)))
+
+           (and (string? (fs/get-in expr '(:english :a :infinitive)))
+                (string? (fs/get-in expr '(:english :b :a :infinitive)))
+                (string? (fs/get-in expr '(:english :b :b))))
+           (str (fs/get-in expr '(:english :a :infinitive))
+                " "
+                (fs/get-in expr '(:english :b :a :infinitive))
+                " "
+                (fs/get-in expr '(:english :b :b)))
+
+           (string? (fs/get-in expr '(:english :a :english)))
+           (str (fs/get-in expr '(:english :a :english)) "...")
+
+           (string? (fs/get-in expr '(:english :a :infinitive)))
+           (str (fs/get-in expr '(:english :a :infinitive)) "...")
+
+           true
+           (fs/get-in expr '(:english))))
+
+         italian
+         (capitalize
+          (cond
+           (string? (fs/get-in expr '(:italian)))
+           (fs/get-in expr '(:italian))
+
+           (string? (fs/get-in expr '(:italian :italian)))
+           (fs/get-in expr '(:italian :italian))
+
+           (string? (fs/get-in expr '(:italian :infinitive)))
+           (fs/get-in expr '(:italian :infinitive))
+
+           (and
+            (string? (fs/get-in expr '(:italian :a :italian)))
+            (string? (fs/get-in expr '(:italian :b :italian))))
+           (str
+            (fs/get-in expr '(:italian :a :italian)) " "
+            (fs/get-in expr '(:italian :b :italian)))
+
+           (string? (fs/get-in expr '(:italian :a)))
+           (str (fs/get-in expr '(:italian :a)) "...")
+
+           (string? (fs/get-in expr '(:italian :a :italian)))
+           (str (fs/get-in expr '(:italian :a :italian)) "...")
+
+           (and (string? (fs/get-in expr '(:italian :a :infinitive)))
+                (string? (fs/get-in expr '(:italian :b))))
+           (str (fs/get-in expr '(:italian :a :infinitive))
+                " "
+                (fs/get-in expr '(:italian :b)))
+
+           (string? (fs/get-in expr '(:italian :a :infinitive)))
+           (str (fs/get-in expr '(:italian :a :infinitive)) "...")
+
+           true
+           (fs/get-in expr '(:italian)))
+          )
+         ]
+     (string/trim
+      (str italian " (" english ").")))))
+
+;;; e.g.:
+;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
+;; TO DO: move this to morphology.clj since it has to do with surface representation.
+(defn formattare [expressions]
+  "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
+  (do
+    (if (map? expressions)
+      ;; wrap this single expression in a list and re-call.
+      (list (formattare-1 expressions))
+      (cond (nil? expressions) nil
+            (= (.size expressions) 0) nil
+            true
+            (cons
+             (formattare-1 (first expressions))
+             (formattare (rest expressions)))))))
+
+(defn fo [expressions]
+  (formattare expressions))
+
 (defn unify-and-merge [parent child1 child2]
   (let [unified
         (unify parent
@@ -301,6 +417,7 @@
 
 (defn unify-lr [lefts rights]
   "lefts and rights are lazy sequences."
+  (let [retval
   (map (fn [left]
          (let [left
                (unify left
@@ -321,18 +438,18 @@
                                                 (fs/get-in unified '(:1 :english))
                                                 (fs/get-in unified '(:2 :english)))}))))
                         rights))))
-       lefts))
+       lefts)]
+    retval))
 
 (defn gen2-with [parent candidates key]
-  (if (not (nil? (first candidates)))
-    (let [candidate (first candidates)
-          unify-with-candidate (fs/unifyc parent {key candidate})]
-      (lazy-seq
-       (if (fs/fail? unify-with-candidate)
-         (gen2-with parent (rest candidates) key)
-         (cons
-          unify-with-candidate
-          (gen2-with parent (rest candidates) key)))))))
+  (let [retval (remove #(= :fail %)
+                       (map (fn [candidate]
+                              (let [unify-with-candidate (fs/unifyc parent {key candidate})]
+                                (if (fs/fail? unify-with-candidate)
+                                  :fail
+                                  unify-with-candidate)))
+                            candidates))]
+    retval))
 
 (defn gen2nbar [parent]
   (let [gen-left (gen2-with parent (lazy-seq (shuffle lex/human-nouns)) :1)
@@ -340,18 +457,18 @@
     (apply #'concat (unify-lr gen-left gen-right))))
 
 (defn gen2np [parent left right]
-  (log/debug "start gen2np..")
-  (let [gen-left (gen2-with parent (lazy-seq (shuffle left)) :1)
+  (let [gen-left (gen2-with parent (shuffle left) :1)
         logstuff (log/debug "start gen-right..")
         gen-right (gen2-with parent (gen2nbar right) :2)]
     (log/debug "start unify-lr in gen2np..")
     (log/debug "start apply concat in gen2np..")
-    (apply #'concat (unify-lr gen-left gen-right))))
+    (let [retval (apply #'concat (unify-lr gen-left gen-right))]
+      retval)))
 
 (defn gen2sent [parent]
-  (let [gen-left (gen2-with parent (lazy-seq (gen2np gram/np lex/determiners gram/nbar)) :1)
-        gen-right (gen2-with parent (lazy-seq (shuffle lex/intransitive-verbs)) :2)]
-    (apply #'concat (unify-lr gen-left gen-right))))
+  (let [gen-left (gen2-with parent (gen2np gram/np lex/determiners gram/nbar) :1)
+        gen-right (gen2-with parent (shuffle lex/intransitive-verbs) :2)]
+    (unify-lr gen-left gen-right)))
 
 ;; TODO: use multiple dispatch.
 (defn over2 [parent child1 child2]
@@ -545,123 +662,6 @@
     (if (not (nil? child2))
       (over-parent-child (over-parent-child parent child1) child2)
       (over-parent-child parent child1))))
-
-(defn capitalize [s]
-  "Capitalize first char and leave the rest of the characters alone (compare with string/capitalize which lower-cases all chars after first."
-  (if (nil? s) ""
-      (let [s (.toString s)]
-        (if (< (count s) 2)
-          (.toUpperCase s)
-          (str (.toUpperCase (subs s 0 1))
-               (subs s 1))))))
-
-(defn formattare-1 [expr]
-  (cond
-   (fs/fail? expr)
-   "<tt>fail</tt>"
-   :else
-   (let [english
-         (capitalize
-          (cond
-           (string? (fs/get-in expr '(:english)))
-           (fs/get-in expr '(:english))
-
-           (string? (fs/get-in expr '(:english :english)))
-           (fs/get-in expr '(:english :english))
-
-           (string? (fs/get-in expr '(:english :infinitive)))
-           (fs/get-in expr '(:english :infinitive))
-
-           (and (string? (fs/get-in expr '(:english :a :english)))
-                (string? (fs/get-in expr '(:english :b :english))))
-           (str (fs/get-in expr '(:english :a :english))
-                " "
-                (fs/get-in expr '(:english :b :english)))
-
-
-           (and (string? (fs/get-in expr '(:english :a :infinitive)))
-                (string? (fs/get-in expr '(:english :b))))
-           (str (fs/get-in expr '(:english :a :infinitive))
-                " "
-                (fs/get-in expr '(:english :b)))
-
-           (and (string? (fs/get-in expr '(:english :a :infinitive)))
-                (string? (fs/get-in expr '(:english :b :a :infinitive)))
-                (string? (fs/get-in expr '(:english :b :b))))
-           (str (fs/get-in expr '(:english :a :infinitive))
-                " "
-                (fs/get-in expr '(:english :b :a :infinitive))
-                " "
-                (fs/get-in expr '(:english :b :b)))
-
-           (string? (fs/get-in expr '(:english :a :english)))
-           (str (fs/get-in expr '(:english :a :english)) "...")
-
-           (string? (fs/get-in expr '(:english :a :infinitive)))
-           (str (fs/get-in expr '(:english :a :infinitive)) "...")
-
-           true
-           (fs/get-in expr '(:english))))
-
-         italian
-         (capitalize
-          (cond
-           (string? (fs/get-in expr '(:italian)))
-           (fs/get-in expr '(:italian))
-
-           (string? (fs/get-in expr '(:italian :italian)))
-           (fs/get-in expr '(:italian :italian))
-
-           (string? (fs/get-in expr '(:italian :infinitive)))
-           (fs/get-in expr '(:italian :infinitive))
-
-           (and
-            (string? (fs/get-in expr '(:italian :a :italian)))
-            (string? (fs/get-in expr '(:italian :b :italian))))
-           (str
-            (fs/get-in expr '(:italian :a :italian)) " "
-            (fs/get-in expr '(:italian :b :italian)))
-
-           (string? (fs/get-in expr '(:italian :a)))
-           (str (fs/get-in expr '(:italian :a)) "...")
-
-           (string? (fs/get-in expr '(:italian :a :italian)))
-           (str (fs/get-in expr '(:italian :a :italian)) "...")
-
-           (and (string? (fs/get-in expr '(:italian :a :infinitive)))
-                (string? (fs/get-in expr '(:italian :b))))
-           (str (fs/get-in expr '(:italian :a :infinitive))
-                " "
-                (fs/get-in expr '(:italian :b)))
-
-           (string? (fs/get-in expr '(:italian :a :infinitive)))
-           (str (fs/get-in expr '(:italian :a :infinitive)) "...")
-
-           true
-           (fs/get-in expr '(:italian)))
-          )
-         ]
-     (string/trim
-      (str italian " (" english ").")))))
-
-;;; e.g.:
-;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
-;; TO DO: move this to morphology.clj since it has to do with surface representation.
-(defn formattare [expressions]
-  "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
-  (do
-    (if (map? expressions)
-      ;; wrap this single expression in a list and re-call.
-      (list (formattare-1 expressions))
-      (cond (nil? expressions) nil
-            (= (.size expressions) 0) nil
-            true
-            (cons
-             (formattare-1 (first expressions))
-             (formattare (rest expressions)))))))
-
-(defn fo [expressions]
-  (formattare expressions))
 
 (defn random-extension [phrase]
   (if (= :notfound (:extend phrase :notfound))
