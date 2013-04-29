@@ -302,14 +302,17 @@
 (defn unify-lr [lefts rights]
   "lefts and rights are lazy sequences."
   (map (fn [left]
-         (remove #(= :fail %)
-                 (map (fn [right]
-                        (let [unified
-                              (unify left right
-                                     {:1 {:synsem {:sem (lex/sem-impl (fs/get-in left '(:1 :synsem :sem)))}}
-                                      :2 {:synsem {:sem (lex/sem-impl (fs/get-in left '(:2 :synsem :sem)))}}})
-                              fail (fs/fail? unified)]
-                          (if fail :fail
+         (let [left
+               (unify left
+                      {:1 {:synsem {:sem (lex/sem-impl (fs/get-in left '(:1 :synsem :sem)))}}})]
+           (remove #(= :fail %)
+                   (map (fn [right]
+                          (let [unified
+                                (unify left right
+                                       {:2 {:synsem {:sem (lex/sem-impl (fs/get-in right '(:2 :synsem :sem)))}}})
+                                fail (fs/fail? unified)]
+                            (if fail
+                              :fail
                               (merge unified
                                      {:italian (morph/get-italian
                                                 (fs/get-in unified '(:1 :italian))
@@ -317,7 +320,7 @@
                                       :english (morph/get-english
                                                 (fs/get-in unified '(:1 :english))
                                                 (fs/get-in unified '(:2 :english)))}))))
-                      rights)))
+                        rights))))
        lefts))
 
 (defn gen2-with [parent candidates key]
@@ -331,37 +334,24 @@
           unify-with-candidate
           (gen2-with parent (rest candidates) key)))))))
 
-(defn gen2 [parent]
-  "Lazily generate all possible strings of the given parent:
-
-1. Choose an expansion pair given the parent.
-2. For the left member of the pair, call take-1 on a recursive
-call of gen2 of the left member.
-3. Unify this member with the parent's :1.
-3.a. If successful, continue to 4.
-3.b. If failed, goto 2.
-4. For the right member of the pair, call take-1 on a recursive
-call of gen2 of the right member.
-4.a. If successful, stop.
-4.b. If failed, goto 4."
-  (let [gen-left (gen2-with parent (seq (shuffle lex/determiners)) :1)
-        gen-right (gen2-with parent (seq (shuffle lex/nouns)) :2)]
-    (unify-lr gen-left gen-right)))
-
 (defn gen2nbar [parent]
-  (let [gen-left (gen2-with parent (lazy-seq (shuffle lex/lexicon)) :1)
+  (let [gen-left (gen2-with parent (lazy-seq (shuffle lex/human-nouns)) :1)
         gen-right (gen2-with parent (lazy-seq (shuffle lex/adjectives)) :2)]
     (apply #'concat (unify-lr gen-left gen-right))))
 
-(defn gen2np [parent]
+(defn gen2np [parent left right]
   (log/debug "start gen2np..")
-  (let [gen-left (gen2-with parent (lazy-seq (shuffle lex/determiners)) :1)
+  (let [gen-left (gen2-with parent (lazy-seq (shuffle left)) :1)
         logstuff (log/debug "start gen-right..")
-        gen-right (gen2-with parent (gen2nbar gram/nbar) :2)]
+        gen-right (gen2-with parent (gen2nbar right) :2)]
     (log/debug "start unify-lr in gen2np..")
-    (let [concat-this (unify-lr gen-left gen-right)]
-      (log/debug "start apply concat in gen2np..")
-      (apply #'concat (unify-lr gen-left gen-right)))))
+    (log/debug "start apply concat in gen2np..")
+    (apply #'concat (unify-lr gen-left gen-right))))
+
+(defn gen2sent [parent]
+  (let [gen-left (gen2-with parent (lazy-seq (gen2np gram/np lex/determiners gram/nbar)) :1)
+        gen-right (gen2-with parent (lazy-seq (shuffle lex/intransitive-verbs)) :2)]
+    (apply #'concat (unify-lr gen-left gen-right))))
 
 ;; TODO: use multiple dispatch.
 (defn over2 [parent child1 child2]
