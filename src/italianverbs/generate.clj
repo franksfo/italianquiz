@@ -251,7 +251,7 @@
                  :object object
                  :vp (fs/unify root-verb {:infl :passato-prossimo})}]
          (conjugate-sent svo subject)))))
-    
+
 (defn rand-sv []
   (let [subjects (search/search {:cat :noun :case {:not :nom}})
         subject (nth subjects (rand-int (.size subjects)))
@@ -276,85 +276,182 @@
                        :objs (if objs (.size objs) 0)}))
                   verbs)]
     objs))
-    
-(defn n-vps [n]
-  (if (> n 0)
-    (let [random-verb (random-verb)
-          objects (search/search (get-in random-verb '(:obj)))
-          object (conjugate-np (fs/unify (nth objects (rand-int (.size objects))) {:def :def}))]
-      (cons (cons random-verb object)
-            (n-vps (- n 1))))))
-
-(defn random-svo []
-  (let [subjects (search/search {:cat :noun :case {:not :nom}})]
-    (if (> (.size subjects) 0)
-      (let [subject (nth subjects (rand-int (.size subjects)))
-            root-verbs (search/search {:cat :verb :infl :infinitive})]
-        (if (> (.size root-verbs) 0)
-          (let [root-verb (nth root-verbs (rand-int (.size root-verbs)))
-                objects (search/search {:cat :noun :case {:not :acc}})]
-            (if (> (.size objects) 0)
-              (let [object (conjugate-np (fs/unify (nth objects (rand-int (.size objects))) {:def :def}))]
-                "vp")
-                                        ;(conjugate-vp root-verb subject object {:infl :present}))
-              "no objects"))
-          "no root verbs"))
-      "no subjects")))
-;        
-                 
-;             root-verb)]
-;    vp))
-;                 objects (search/search {:cat :noun})
-;                 object (conjugate-np (nth objects (rand-int (.size objects)))
-;                                      {:def :def})]
-;             root-verb)]
-;    vp))
-;             (conjugate-vp root-verb
-;                           subject
-;                           object
-;                           {:infl :present}))]
-;    (conjugate-sent vp subject)))
 
 (defn take-article [map]
   (fs/unify map
         {:take-article "taken"}))
 
-(def examples
-  (list {:label "fare: 1st singular"
-         :value
-         (search/search-one {:root {:infl :infinitive
-                                    :italian "fare"}
-                             :person :1st
-                             :number :singular})}))
+(defn unify-and-merge [parent child1 child2]
+  (let [unified
+        (unify parent
+               {:1 child1
+                :2 child2}
+               {:1 {:synsem {:sem (lex/sem-impl (fs/get-in child1 '(:synsem :sem)))}}
+                :2 {:synsem {:sem (lex/sem-impl (fs/get-in child2 '(:synsem :sem)))}}})
+        fail (fs/fail? unified)]
+    (if (= fail true)
+      :fail
+      (merge unified
+             {:italian (morph/get-italian
+                        (fs/get-in unified '(:1 :italian))
+                        (fs/get-in unified '(:2 :italian)))
+              :english (morph/get-english
+                        (fs/get-in unified '(:1 :english))
+                        (fs/get-in unified '(:2 :english)))}))))
 
-(defn generate-signs []
-  (str "<table class='generate'>"
-       (string/join ""
-             (map
-              (fn [html]
-                (str "<tr>" "<td>"
-                     "<div class='result'>" html "</div>"
-                     "</td>" "</tr>"))
-              (map
-               (fn [fs]
-                 (html/fs (:value fs)))
-               examples)))
-       "</table>"))
+(defn unify-lr [lefts rights]
+  "lefts and rights are lazy sequences."
+  (map (fn [left]
+         (remove #(= :fail %)
+                 (map (fn [right]
+                        (let [unified
+                              (unify left right
+                                     {:1 {:synsem {:sem (lex/sem-impl (fs/get-in left '(:1 :synsem :sem)))}}
+                                      :2 {:synsem {:sem (lex/sem-impl (fs/get-in left '(:2 :synsem :sem)))}}})
+                              fail (fs/fail? unified)]
+                          (if fail :fail
+                              (merge unified
+                                     {:italian (morph/get-italian
+                                                (fs/get-in unified '(:1 :italian))
+                                                (fs/get-in unified '(:2 :italian)))
+                                      :english (morph/get-english
+                                                (fs/get-in unified '(:1 :english))
+                                                (fs/get-in unified '(:2 :english)))}))))
+                      rights)))
+       lefts))
+
+(defn gen2-with [parent candidates key]
+  (if (not (nil? (first candidates)))
+    (let [candidate (first candidates)
+          unify-with-candidate (fs/unifyc parent {key candidate})]
+      (lazy-seq
+       (if (fs/fail? unify-with-candidate)
+         (gen2-with parent (rest candidates) key)
+         (cons
+          unify-with-candidate
+          (gen2-with parent (rest candidates) key)))))))
+
+(defn gen2 [parent]
+  "Lazily generate all possible strings of the given parent:
+
+1. Choose an expansion pair given the parent.
+2. For the left member of the pair, call take-1 on a recursive
+call of gen2 of the left member.
+3. Unify this member with the parent's :1.
+3.a. If successful, continue to 4.
+3.b. If failed, goto 2.
+4. For the right member of the pair, call take-1 on a recursive
+call of gen2 of the right member.
+4.a. If successful, stop.
+4.b. If failed, goto 4."
+  (let [gen-left (gen2-with parent (seq (shuffle lex/determiners)) :1)
+        gen-right (gen2-with parent (seq (shuffle lex/nouns)) :2)]
+    (unify-lr gen-left gen-right)))
+
+(defn gen2nbar [parent]
+  (let [gen-left (gen2-with parent (lazy-seq (shuffle lex/lexicon)) :1)
+        gen-right (gen2-with parent (lazy-seq (shuffle lex/adjectives)) :2)]
+    (apply #'concat (unify-lr gen-left gen-right))))
+
+(defn gen2np [parent]
+  (log/debug "start gen2np..")
+  (let [gen-left (gen2-with parent (lazy-seq (shuffle lex/determiners)) :1)
+        logstuff (log/debug "start gen-right..")
+        gen-right (gen2-with parent (gen2nbar gram/nbar) :2)]
+    (log/debug "start unify-lr in gen2np..")
+    (let [concat-this (unify-lr gen-left gen-right)]
+      (log/debug "start apply concat in gen2np..")
+      (apply #'concat (unify-lr gen-left gen-right)))))
+
+;; TODO: use multiple dispatch.
+(defn over2 [parent child1 child2]
+  (if (vector? child1)
+    (do
+      (log/info (str "over2 with child1 size: " (.size child1)))))
+  (if (vector? child2)
+    (do
+      (log/info (str "over2 with child2 size: " (.size child2)))))
+
+  (cond
+
+   (vector? parent)
+   (over2 (lazy-seq parent) child1 child2)
+
+   (vector? child1)
+   (over2 parent (lazy-seq child1) child2)
+
+   (vector? child2)
+   (over2 parent child1 (lazy-seq child2))
+
+   (= (type child1) java.lang.String)
+   (over2 parent (lex/it child1) child2)
+
+   (= (type child2) java.lang.String)
+   (over2 parent child1 (lex/it child2))
+
+   (nil? parent)
+   nil
+
+   (and (seq? parent)
+        (= (.size parent) 0))
+   nil
+
+   (nil? child1)
+   nil
+
+   (nil? child2)
+   nil
+
+   (and (seq? child1)
+        (= (.size child1) 0))
+   nil
+
+   (and (seq? child2)
+        (= (.size child2) 0))
+   nil
+
+   (or (set? parent) (seq? parent))
+   (lazy-cat (over2 (first parent) child1 child2)
+             (over2 (rest parent) child1 child2))
+
+   (or (set? child1) (seq? child1))
+   (do
+     (log/info (str (fs/get-in parent '(:comment)) ":child1: " (.size child1)))
+     (lazy-cat (over2 parent (first child1) child2)
+               (over2 parent (rest child1) child2)))
+
+   (or (set? child2) (seq? child2))
+   (do
+;     (log/info (str "child2: " (.size child2)))
+     (lazy-cat (over2 parent child1 (first child2))
+               (over2 parent child1 (rest child2))))
+
+   :else ; both parent and children are non-lists.
+   ;; First, check to make sure complement matches head's (:synsem :sem) value, if it exists, otherwise, fail.
+   (let [unified (unify-and-merge parent child1 child2)
+         fail (fs/fail? unified)]
+     (if (not fail)
+       (list unified)))))
 
 ;; TODO: use multiple dispatch.
 (defn over-parent-child [parent child]
   (log/debug (str "parent: " parent))
-  (log/debug (str "child: " child))
+  (log/info (str "child: " child))
   (cond
 
    (= (type child) java.lang.String)
    (over-parent-child parent (lex/it child))
 
-   (seq? parent)
-   (flatten
-    (map (fn [each-parent]
-           (over-parent-child each-parent child))
-         parent))
+   (nil? parent)
+   nil
+
+   (and (seq? parent)
+        (= (.size parent) 0))
+   nil
+
+   (or (set? parent) (seq? parent))
+   (concat (lazy-seq (over-parent-child (first parent) child))
+           (lazy-seq (over-parent-child (rest parent) child)))
 
    (nil? child)
    nil
@@ -364,18 +461,16 @@
    nil
 
    (or (set? child) (seq? child))
-   (remove (fn [result]
-             (or (fs/fail? result)
-                 (nil? result)))
-           (concat
-            (let [first-child (first child)]
-              (log/info (str "First child: " first-child))
-              (log/info (str "Type of first child: " (type first-child)))
-              (log/info (str "Size of child: " (.size child)))
-              (list (over-parent-child parent first-child)))
-            (if (nil? (rest child))
-              nil
-              (over-parent-child parent (rest child)))))
+   (let [retval (over-parent-child parent (first child))]
+     (if (not (fs/fail? retval))
+       (cons
+        retval
+        (if (nil? (rest child))
+          nil
+          (lazy-seq (over-parent-child parent (rest child)))))
+       (if (nil? (rest child))
+         nil
+         (lazy-seq (over-parent-child parent (rest child))))))
 
    :else ; both parent and child are non-lists.
    ;; First, check to make sure complement matches head's (:synsem :sem) value, if it exists, otherwise, fail.
@@ -444,148 +539,136 @@
                        (fs/get-in unified '(:2 :english)))})
            :fail))))))
 
+(defn over-parent [parent children]
+  (cond
+   (= (.size children) 0)
+   nil
+   true
+   (cons (over-parent-child parent (first children))
+         (lazy-seq (over-parent parent (rest children))))))
+
 (defn over [& args]
   "usage: (over parent child) or (over parent child1 child2)"
   (let [parent (first args)
         child1 (second args)
         child2 (if (> (.size args) 2) (nth args 2))]
-    (let [result
-          (if (not (nil? child2))
-            (over-parent-child (over-parent-child parent child1) child2)
-            (over-parent-child parent child1))]
-      (if (and (seq? result) (= (.size result) 1))
-        (first result)
-        result))))
-
-(defn get-morph [expr morph-fn]
-  (morph-fn
-   (cond
-    (and (map? expr)
-         ;; TODO (some check for whether it is past or not)
-         (not (nil? (fs/get-in expr '(:1 :infinitive :irregular :past :participle)))))
-    (string/join " " (list (fs/get-in expr '(:1 :infinitive :irregular :past :participle))
-                           (morph-fn (fs/get-in expr '(:2)) "")))
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:1 :infinitive :infinitive)))))
-    (string/join " " (list (fs/get-in expr '(:1 :infinitive :infinitive))
-                           (morph-fn (fs/get-in expr '(:2)) "")))
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:1 :infinitive)))))
-    (string/join " " (list (morph-fn (fs/get-in expr '(:1 :infinitive)) "")
-                           (morph-fn (fs/get-in expr '(:2)) "")))
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:irregular)))))
-    (str (fs/get-in expr '(:infinitive)))
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:infinitive))))
-         (= java.lang.String (type (fs/get-in expr '(:infinitive)))))
-    (str (fs/get-in expr '(:infinitive)))
-    (and (map? expr)
-         (not (nil? (fs/get-in expr '(:infinitive)))))
-    (fs/get-in expr '(:infinitive :infinitive))
-    :else
-    expr)
-   ""))
-
-(defn get-root [map path language]
-  "display a string representing the canonical 'root' form of a word"
-  (cond
-   (fs/get-in map (concat path (list language language)))
-   (fs/get-in map (concat path (list language language)))
-
-   (fs/get-in map (concat path '(:irregular) (list language)))
-   (fs/get-in map (concat path '(:irregular) (list language)))
-
-   (fs/get-in map (concat path (list language)))
-   (fs/get-in map (concat path (list language)))
-
-   (fs/get-in map (concat path '(:root) (list language)))
-   (fs/get-in map (concat path '(:root) (list language)))
-
-   (fs/get-in map (concat path '(:root)))
-   (fs/get-in map (concat path '(:root)))
-
-   true (fs/get-in map path)))
+    (if (not (nil? child2))
+      (over-parent-child (over-parent-child parent child1) child2)
+      (over-parent-child parent child1))))
 
 (defn capitalize [s]
   "Capitalize first char and leave the rest of the characters alone (compare with string/capitalize which lower-cases all chars after first."
-  (let [s (.toString s)]
-    (if (< (count s) 2)
-      (.toUpperCase s)
-      (str (.toUpperCase (subs s 0 1))
-           (subs s 1)))))
+  (if (nil? s) ""
+      (let [s (.toString s)]
+        (if (< (count s) 2)
+          (.toUpperCase s)
+          (str (.toUpperCase (subs s 0 1))
+               (subs s 1))))))
+
+(defn formattare-1 [expr]
+  (cond
+   (fs/fail? expr)
+   "<tt>fail</tt>"
+   :else
+   (let [english
+         (capitalize
+          (cond
+           (string? (fs/get-in expr '(:english)))
+           (fs/get-in expr '(:english))
+
+           (string? (fs/get-in expr '(:english :english)))
+           (fs/get-in expr '(:english :english))
+
+           (string? (fs/get-in expr '(:english :infinitive)))
+           (fs/get-in expr '(:english :infinitive))
+
+           (and (string? (fs/get-in expr '(:english :a :english)))
+                (string? (fs/get-in expr '(:english :b :english))))
+           (str (fs/get-in expr '(:english :a :english))
+                " "
+                (fs/get-in expr '(:english :b :english)))
+
+
+           (and (string? (fs/get-in expr '(:english :a :infinitive)))
+                (string? (fs/get-in expr '(:english :b))))
+           (str (fs/get-in expr '(:english :a :infinitive))
+                " "
+                (fs/get-in expr '(:english :b)))
+
+           (and (string? (fs/get-in expr '(:english :a :infinitive)))
+                (string? (fs/get-in expr '(:english :b :a :infinitive)))
+                (string? (fs/get-in expr '(:english :b :b))))
+           (str (fs/get-in expr '(:english :a :infinitive))
+                " "
+                (fs/get-in expr '(:english :b :a :infinitive))
+                " "
+                (fs/get-in expr '(:english :b :b)))
+
+           (string? (fs/get-in expr '(:english :a :english)))
+           (str (fs/get-in expr '(:english :a :english)) "...")
+
+           (string? (fs/get-in expr '(:english :a :infinitive)))
+           (str (fs/get-in expr '(:english :a :infinitive)) "...")
+
+           true
+           (fs/get-in expr '(:english))))
+
+         italian
+         (capitalize
+          (cond
+           (string? (fs/get-in expr '(:italian)))
+           (fs/get-in expr '(:italian))
+
+           (string? (fs/get-in expr '(:italian :italian)))
+           (fs/get-in expr '(:italian :italian))
+
+           (string? (fs/get-in expr '(:italian :infinitive)))
+           (fs/get-in expr '(:italian :infinitive))
+
+           (and
+            (string? (fs/get-in expr '(:italian :a :italian)))
+            (string? (fs/get-in expr '(:italian :b :italian))))
+           (str
+            (fs/get-in expr '(:italian :a :italian)) " "
+            (fs/get-in expr '(:italian :b :italian)))
+
+           (string? (fs/get-in expr '(:italian :a)))
+           (str (fs/get-in expr '(:italian :a)) "...")
+
+           (string? (fs/get-in expr '(:italian :a :italian)))
+           (str (fs/get-in expr '(:italian :a :italian)) "...")
+
+           (and (string? (fs/get-in expr '(:italian :a :infinitive)))
+                (string? (fs/get-in expr '(:italian :b))))
+           (str (fs/get-in expr '(:italian :a :infinitive))
+                " "
+                (fs/get-in expr '(:italian :b)))
+
+           (string? (fs/get-in expr '(:italian :a :infinitive)))
+           (str (fs/get-in expr '(:italian :a :infinitive)) "...")
+
+           true
+           (fs/get-in expr '(:italian)))
+          )
+         ]
+     (string/trim
+      (str italian " (" english ").")))))
 
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
-;; TO move this to html.clj: has to do with presentation.
+;; TO DO: move this to morphology.clj since it has to do with surface representation.
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
-  (if (map? expressions)
-    ;; wrap this single expression in a list and re-call.
-    (formattare (list expressions))
-
-    ;; show the italian and english for each expression.
-    (map (fn [expr]
-           (cond
-            (fs/fail? expr)
-            "<tt>fail</tt>"
-            :else
-            (let [english
-                  (capitalize
-                   (cond
-                    (string? (fs/get-in expr '(:english)))
-                    (fs/get-in expr '(:english))
-
-                    (string? (fs/get-in expr '(:english :english)))
-                    (fs/get-in expr '(:english :english))
-
-                    (string? (fs/get-in expr '(:english :infinitive)))
-                    (fs/get-in expr '(:english :infinitive))
-
-                    (and (string? (fs/get-in expr '(:english :a :english)))
-                         (string? (fs/get-in expr '(:english :b :english))))
-                    (str (fs/get-in expr '(:english :a :english))
-                         " "
-                         (fs/get-in expr '(:english :b :english)))
-
-                    (string? (fs/get-in expr '(:english :a :english)))
-                    (str (fs/get-in expr '(:english :a :english)) "...")
-
-                    true
-                    (fs/get-in expr '(:english))))
-
-                  italian
-                  (capitalize
-                  (cond
-                    (string? (fs/get-in expr '(:italian)))
-                    (fs/get-in expr '(:italian))
-
-                    (string? (fs/get-in expr '(:italian :italian)))
-                    (fs/get-in expr '(:italian :italian))
-
-                    (string? (fs/get-in expr '(:italian :infinitive)))
-                    (fs/get-in expr '(:italian :infinitive))
-
-                    (and
-                     (string? (fs/get-in expr '(:italian :a :italian)))
-                     (string? (fs/get-in expr '(:italian :b :italian))))
-                    (str
-                     (fs/get-in expr '(:italian :a :italian)) " "
-                     (fs/get-in expr '(:italian :b :italian)))
-
-                    (string? (fs/get-in expr '(:italian :a)))
-                    (str (fs/get-in expr '(:italian :a)) "...")
-
-                    (string? (fs/get-in expr '(:italian :a :italian)))
-                    (str (fs/get-in expr '(:italian :a :italian)) "...")
-
-                    true
-                    (fs/get-in expr '(:italian)))
-                  )
-              ]
-              (string/trim
-               (str italian " (" english ").")))))
-         expressions)))
+  (do
+    (if (map? expressions)
+      ;; wrap this single expression in a list and re-call.
+      (list (formattare-1 expressions))
+      (cond (nil? expressions) nil
+            (= (.size expressions) 0) nil
+            true
+            (cons
+             (formattare-1 (first expressions))
+             (formattare (rest expressions)))))))
 
 (defn fo [expressions]
   (formattare expressions))
@@ -1067,7 +1150,29 @@ constraints on the generation of the complement."
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
 
+(defn random-nbar [n]
+  (take n (over2 gram/nbar
+                 (shuffle lex/nouns)
+                 (shuffle lex/adjectives))))
+
+(defn random-np [n]
+  (take n (over2 gram/np
+                 (shuffle lex/determiners)
+                 (random-nbar n))))
+
+(defn random-sent [n]
+  (let [subj (take (* n 10) (shuffle (random-np (* n 20))))]
+    (take n (over2 (shuffle (list gram/s-future gram/s-present gram/s-imperfetto))
+                   subj
+                   (shuffle lex/intransitive-verbs)))))
+
 (defn speed-test [ & times]
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
   (let [times (if (first times) (first times) 10)]
     (dotimes [n times] (time (random-sentence)))))
+
+;;(if false
+;;  (def skeleton (first (over2 gram/s-present (over2 gram/np :top (over2 gram/nbar :top :top))
+;;                              (over2 gram/vp :top (over2 gram/np :top :top))))))
+
+

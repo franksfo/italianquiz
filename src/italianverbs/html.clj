@@ -9,16 +9,13 @@
    [clojure.string :as string]))
 
 (defn verb-row [italian]
-  (html  
-   [:tr 
-    [:th italian] [:td
-;                   (get (lex/lookup italian) :english)
-"FAIL."
-                   ] 
+  (html
+   [:tr
+    [:th italian] [:td "FAIL." ]
     ]))
 
 (defn verb-table [lexicon]
-  (html [:table 
+  (html [:table
 	(for [verb (sort (keys lexicon))]
 	     (verb-row verb))]))
 
@@ -210,7 +207,6 @@
       (not (= :none (:1 arg :none)))
       (not (= :none (:2 arg :none))))
 
-     
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
@@ -249,7 +245,7 @@
       "    </tr>"
       "  </table>"
       "</div>")
-     
+
     ;; displaying a phrase structure tree (1 child)
      (and
       (or true (not (nil? opts)))
@@ -333,7 +329,7 @@
               (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
               "  </div>"
               "</td>"
-              "<td>"
+              "<td class='ref'>"
               )
              " <td class='ref' colspan='2'>")
            (tablize (second tr)
