@@ -1623,3 +1623,18 @@
 (def nouns (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :noun)) lexicon))
 (def dets (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :determiner)) lexicon))
 
+(def animate-nouns
+  (filter (fn [lex]
+            (let [sem (fs/get-in lex '(:synsem :sem))
+                  sem-impl (sem-impl sem)]
+              (= (fs/get-in sem-impl '(:animate)) true)))
+          nouns))
+
+(def human-nouns
+  (filter (fn [lex]
+            (let [sem (fs/get-in lex '(:synsem :sem))
+                  sem-impl (sem-impl sem)]
+              (= (fs/get-in sem-impl '(:human)) true)))
+          nouns))
+
+

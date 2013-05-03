@@ -102,3 +102,49 @@
  ;(dotimes [n 200] (time (random-sentence)))
 
 ;;(take 20 (repeatedly #(fo (random-sentence))))
+
+;(fo (take 1 (over2 s-present (shuffle nominative-pronouns) (shuffle intransitive-verbs))))
+
+;(def skel (over2 s-present (over2 np :top (over2 nbar :top :top)) (over2 vp :top (over2 np :top :top))))
+
+(if false
+  (do
+(fo
+ (take 1
+       (over2 np
+              (take 4 (shuffle determiners))
+              (over2 nbar
+                     (take 1 (shuffle nouns))
+                     (take 4 (shuffle adjectives))))))
+
+(fo
+ (take 1
+       (over2 np
+              (shuffle determiners)
+              (over2 nbar
+                     (take 1 (shuffle nouns))
+                     (shuffle adjectives)))))
+
+(fo
+ (take 1
+       (over2 np
+              (shuffle determiners)
+              (over2 nbar
+                     (take 5 (shuffle nouns))
+                     (shuffle adjectives)))))
+
+(fo
+ (take 1
+
+       (over2 s-present
+              (over2 np
+                     (shuffle determiners)
+                     (over2 nbar
+                            (take 5 (shuffle nouns))
+                            (shuffle adjectives)))
+              (shuffle intransitive-verbs))))
+))
+
+
+42
+

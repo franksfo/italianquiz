@@ -13,20 +13,6 @@
    [italianverbs.search :as search]
    [clojure.string :as string]))
 
-(defn get-terminal-head-in [phrase-structure]
-  (let [local-head (fs/get-in phrase-structure '(:head))]
-    (if (not (nil? local-head))
-      (get-terminal-head-in local-head)
-      phrase-structure)))
-
-(defn random-np-random-lexical-head [head-spec]
-  (let [skeleton gram/np
-        head-specification (unify head-spec (get-terminal-head-in skeleton))
-        matching-lexical-heads (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
-                                       (map (fn [lexeme] (fs/match (fs/copy head-specification) (fs/copy lexeme))) lex/lexicon))]
-    (if (> (.size matching-lexical-heads) 0)
-      (nth matching-lexical-heads (rand-int (.size matching-lexical-heads))))))
-
 (defn filter-by-match [spec lexicon]
   (mapcat (fn [lexeme] (if (not (fs/fail? lexeme)) (list lexeme)))
           (map (fn [lexeme] (fs/match (fs/copy spec) (fs/copy lexeme))) lex/lexicon)))
@@ -415,9 +401,40 @@
                         (fs/get-in unified '(:1 :english))
                         (fs/get-in unified '(:2 :english)))}))))
 
+(defn unify-side [parent left-side right-sides]
+  (if (empty? right-sides)
+    nil
+    (lazy-seq (cons (unify-and-merge left-side (first right-sides))
+                    (unify-side left-side (rest right-sides))))))
+
+(defn unify-sides [parent & [left-sides right-sides]]
+  (let [left-sides
+        (if (nil? left-sides)
+          (lazy-seq lex/determiners)
+          left-sides)
+        right-sides
+        (if (nil? right-sides)
+          (lazy-seq (unify-sides gram/nbar)))]
+    (lazy-cat (unify-side parent
+                          (first left-sides)
+                          right-sides)
+              (unify-sides parent (rest left-sides)
+                           right-sides))))
+
+
+(defn unify-lr3 [left rights]
+  (map (fn [right]
+         {:1 left
+          :2 right})
+       rights))
+
+(defmacro unify-lr2 [lefts rights]
+  `(lazy-cat ~@(map (fn [left]
+                      (unify-lr3 left rights))
+                    lefts)))
+
 (defn unify-lr [lefts rights]
   "lefts and rights are lazy sequences."
-  (let [retval
   (map (fn [left]
          (let [left
                (unify left
@@ -438,23 +455,21 @@
                                                 (fs/get-in unified '(:1 :english))
                                                 (fs/get-in unified '(:2 :english)))}))))
                         rights))))
-       lefts)]
-    retval))
+       lefts))
 
 (defn gen2-with [parent candidates key]
-  (let [retval (remove #(= :fail %)
-                       (map (fn [candidate]
-                              (let [unify-with-candidate (fs/unifyc parent {key candidate})]
-                                (if (fs/fail? unify-with-candidate)
-                                  :fail
-                                  unify-with-candidate)))
-                            candidates))]
-    retval))
+  (remove #(= :fail %)
+          (map (fn [candidate]
+                 (let [unify-with-candidate (fs/unifyc parent {key candidate})]
+                   (if (fs/fail? unify-with-candidate)
+                     :fail
+                     unify-with-candidate)))
+               candidates)))
 
 (defn gen2nbar [parent]
   (let [gen-left (gen2-with parent (lazy-seq (shuffle lex/human-nouns)) :1)
         gen-right (gen2-with parent (lazy-seq (shuffle lex/adjectives)) :2)]
-    (apply #'concat (unify-lr gen-left gen-right))))
+    (unify-lr gen-left gen-right)))
 
 (defn gen2np [parent left right]
   (let [gen-left (gen2-with parent (shuffle left) :1)
@@ -462,8 +477,7 @@
         gen-right (gen2-with parent (gen2nbar right) :2)]
     (log/debug "start unify-lr in gen2np..")
     (log/debug "start apply concat in gen2np..")
-    (let [retval (apply #'concat (unify-lr gen-left gen-right))]
-      retval)))
+    (unify-lr gen-left gen-right)))
 
 (defn gen2sent [parent]
   (let [gen-left (gen2-with parent (gen2np gram/np lex/determiners gram/nbar) :1)
