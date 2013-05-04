@@ -467,8 +467,7 @@
                {:1 left}
                {:2 right}
                {:1 {:synsem {:sem (lex/sem-impl (fs/get-in left '(:synsem :sem)))}}
-                :2 {:synsem {:sem (lex/sem-impl (fs/get-in right '(:synsem :sem)))}}})
-        ]
+                :2 {:synsem {:sem (lex/sem-impl (fs/get-in right '(:synsem :sem)))}}})]
     (if (fs/fail? unified)
       :fail
       (merge unified
@@ -1204,8 +1203,7 @@ constraints on the generation of the complement."
 (declare g)
 
 (defn f [parent lefts rights]
-  (if (and (not (empty? rights))
-           (not (empty? lefts)))
+  (if (not (empty? lefts))
     (lazy-cat
      (g parent (first lefts) rights)
      (f parent (rest lefts) rights))))
@@ -1214,7 +1212,7 @@ constraints on the generation of the complement."
   (cond (= parent gram/np)
         (lazy-cat
          (f parent lex/determiners lex/nouns)
-         (f parent lex/determiners gram/nbar))
+         (f parent lex/determiners (list gram/nbar)))
         (= parent gram/nbar)
         (f parent lex/nouns lex/adjectives)
         :else nil))
@@ -1240,12 +1238,13 @@ constraints on the generation of the complement."
             (not (nil? right-expand))
             (lazy-cat
              (f parent (list left) right-expand)
-             (f parent (list left (rest rights))))
+             (f parent (list left) (rest rights)))
 
             :else
-            (remove #(fs/fail? %)
-                    (lazy-seq
-                     (cons (unify-lr4 parent left right)
-                           (g parent left (rest rights)))))))))
-
+            (do
+;              (log/info (str "right: " right))
+              (remove #(fs/fail? %)
+                      (lazy-seq
+                       (cons (unify-lr4 parent left right)
+                             (g parent left (rest rights))))))))))
 
