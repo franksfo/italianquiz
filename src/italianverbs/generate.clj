@@ -1211,10 +1211,18 @@ constraints on the generation of the complement."
 (defn expand [parent]
   (cond (= parent gram/np)
         (lazy-cat
-         (f parent lex/determiners lex/nouns)
-         (f parent lex/determiners (list gram/nbar)))
+         (let [expansions
+               (list (list (shuffle lex/determiners) (shuffle lex/nouns))
+                     (list (shuffle lex/determiners) (list gram/nbar)))]
+           (let [shuffled-expansion (shuffle expansions)]
+             (f parent
+                (first (first shuffled-expansion))
+                (second (first shuffled-expansion)))
+             (f parent
+                (first (second shuffled-expansion))
+                (second (second shuffled-expansion))))))
         (= parent gram/nbar)
-        (f parent lex/nouns lex/adjectives)
+        (f parent (shuffle lex/nouns) (shuffle lex/adjectives))
         :else nil))
 
 (defn g [parent left rights]
