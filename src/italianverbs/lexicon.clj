@@ -1621,6 +1621,9 @@
 
 (def adjs (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :adjective)) lexicon))
 (def nouns (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :noun)) lexicon))
+(def common-nouns (filter (fn [lex] (and (= (fs/get-in lex '(:synsem :cat)) :noun)
+                                         (= (fs/get-in lex '(:synsem :subcat :1 :cat)) :det)))
+                            lexicon))
 (def dets (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :determiner)) lexicon))
 
 (def animate-nouns

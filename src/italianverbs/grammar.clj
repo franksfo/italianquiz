@@ -74,7 +74,8 @@
     (fs/unifyc head-principle
                subcat-2-principle
                verb-inflection-morphology
-               {:comment "vp &#x2192; head comp"}
+               {:comment "vp &#x2192; head comp"
+                :comment-plaintext "vp -> head comp"}
                {:head head
                 :comp comp
                 :1 head
@@ -222,8 +223,9 @@
                       :subcat subcat}}
       :comp {:italian {:agr agr}
              :english {:agr agr}}
-      :comment "n&#x0305; &#x2192; adj noun"
-      :extend {:a {:head 'nouns
+      :comment "n&#x0305; &#x2192; noun adj"
+      :comment-plaintext "n -> noun adj"
+      :extend {:a {:head 'common-nouns
                    :comp 'adjectives}}})))
 
 (def np-rules
@@ -241,6 +243,7 @@
                                      :agr agr}}
                      :synsem {:agr agr}}
                     {:comment "np &#x2192; det (noun or nbar)"
+                     :comment-plaintext "np -> det (noun or nbar)"
                      :synsem {:agr agr}
                      :head head
                      :comp comp
@@ -248,7 +251,7 @@
                      :2 head
                      :extend {
                               :a {:comp 'determiners
-                                  :head 'nouns}
+                                  :head 'common-nouns}
                               :b {:comp 'determiners
                                   :head 'nbar}}
                      }

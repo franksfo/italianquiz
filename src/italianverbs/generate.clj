@@ -1204,25 +1204,63 @@ constraints on the generation of the complement."
 
 (defn f [parent lefts rights]
   (if (not (empty? lefts))
-    (lazy-cat
-     (g parent (first lefts) rights)
-     (f parent (rest lefts) rights))))
+    (do
+      (log/info (str "left: " (fo (first lefts))))
+      (lazy-cat
+       (g parent (first lefts) rights)
+       (f parent (rest lefts) rights)))))
 
 (defn expand [parent]
+  (if (fs/get-in parent '(:comment-plaintext))
+    (log/info (str "expanding: " (fs/get-in parent '(:comment-plaintext)))))
   (cond (= parent gram/np)
         (lazy-cat
          (let [expansions
-               (list (list (shuffle lex/determiners) (shuffle lex/nouns))
+               (list (list (shuffle lex/determiners) (shuffle lex/common-nouns))
                      (list (shuffle lex/determiners) (list gram/nbar)))]
-           (let [shuffled-expansion (shuffle expansions)]
+           (let [shuffled-expansions (shuffle expansions)]
              (f parent
-                (first (first shuffled-expansion))
-                (second (first shuffled-expansion)))
+                (first (first shuffled-expansions))
+                (second (first shuffled-expansions)))
              (f parent
-                (first (second shuffled-expansion))
-                (second (second shuffled-expansion))))))
+                (first (second shuffled-expansions))
+                (second (second shuffled-expansions))))))
+        (= parent gram/s-present)
+        (let [expansions (list (list (shuffle lex/nominative-pronouns)
+                                     (shuffle lex/intransitive-verbs))
+                               (list (shuffle lex/nominative-pronouns)
+                                     (list gram/vp-present))
+                               (list (list gram/np)
+                                     (shuffle lex/intransitive-verbs))
+                               (list (list gram/np)
+                                     (list gram/vp-present)))]
+          (let [shuffled-expansions (shuffle expansions)]
+            (f (unify parent {:synsem {:infl :present}})
+               (first (first shuffled-expansions))
+               (second (first shuffled-expansions)))))
+
+        (= parent gram/vp-present)
+        (let [expansions (list (list (shuffle lex/transitive-verbs)
+                                     (list gram/np)))]
+          (let [shuffled-expansions (shuffle expansions)
+                left (first (first shuffled-expansions))
+                right (second (first shuffled-expansions))]
+            (f (unify parent {:synsem {:infl :present}})
+               left
+               right)))
+
+        (= parent gram/s-future)
+        (let [expansions (list (list (shuffle lex/nominative-pronouns)
+                                     (shuffle lex/intransitive-verbs))
+                               (list (list gram/np)
+                                     (shuffle lex/intransitive-verbs)))]
+          (let [shuffled-expansions (shuffle expansions)]
+            (f (unify parent {:synsem {:infl :futuro}})
+               (first (first shuffled-expansions))
+               (second (first shuffled-expansions)))))
+
         (= parent gram/nbar)
-        (f parent (shuffle lex/nouns) (shuffle lex/adjectives))
+        (f parent (shuffle lex/common-nouns) (shuffle lex/adjectives))
         :else nil))
 
 (defn g [parent left rights]
@@ -1250,8 +1288,15 @@ constraints on the generation of the complement."
 
             :else
             (do
-;              (log/info (str "right: " right))
-              (remove #(fs/fail? %)
+              ;; remove failed results.
+              (remove (fn [result]
+                        (if (not (fs/fail? result))
+                          (do
+;                            (log/info (str "success: " (fs/get-in parent '(:comment-plaintext)) " => " (fo left) " + " (fo right)))
+                            false)
+                          (do
+;                            (log/info (str "failed : " (fs/get-in parent '(:comment-plaintext)) " => " (fo left) " + " (fo right)))
+                          true)))
                       (lazy-seq
                        (cons (unify-lr4 parent left right)
                              (g parent left (rest rights))))))))))
