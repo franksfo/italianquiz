@@ -1215,7 +1215,9 @@ constraints on the generation of the complement."
     (do
       (log/info (str "left: " (fo (first lefts))))
       (lazy-cat
-       (g parent (first lefts) rights)
+       (let [probe (take 1 rights)
+             logit (log/info "right: " (fo probe))]
+         (g parent (first lefts) rights))
        (f parent (rest lefts) rights)))))
 
 (defn expand [parent]
