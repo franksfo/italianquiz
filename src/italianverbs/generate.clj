@@ -167,7 +167,7 @@
 
 (defn conjugate-np [noun & [determiner]]
   "conjugate a noun with a determiner (if the noun takes a determiner (:comp is not nil)) randomly chosen using the 'determiner' spec."
-  (log/info (str "(conjugate-np: " noun "," determiner ")"))
+  (log/debug (str "(conjugate-np: " noun "," determiner ")"))
   (let [plural-exception (if (or
                               (= (:number noun) :plural) (= (:number noun) "plural")
                               (and (= (type (:number noun)) clojure.lang.Ref)
@@ -367,10 +367,10 @@ call of gen2 of the right member.
 (defn over2 [parent child1 child2]
   (if (vector? child1)
     (do
-      (log/info (str "over2 with child1 size: " (.size child1)))))
+      (log/debug (str "over2 with child1 size: " (.size child1)))))
   (if (vector? child2)
     (do
-      (log/info (str "over2 with child2 size: " (.size child2)))))
+      (log/debug (str "over2 with child2 size: " (.size child2)))))
 
   (cond
 
@@ -436,7 +436,7 @@ call of gen2 of the right member.
 ;; TODO: use multiple dispatch.
 (defn over-parent-child [parent child]
   (log/debug (str "parent: " parent))
-  (log/info (str "child: " child))
+  (log/debug (str "child: " child))
   (cond
 
    (= (type child) java.lang.String)
@@ -450,8 +450,10 @@ call of gen2 of the right member.
    nil
 
    (or (set? parent) (seq? parent))
-   (concat (lazy-seq (over-parent-child (first parent) child))
-           (lazy-seq (over-parent-child (rest parent) child)))
+   (lazy-cat
+    (remove #(fs/fail? %)
+            (over-parent-child (first parent) child))
+    (over-parent-child (rest parent) child))
 
    (nil? child)
    nil
@@ -462,15 +464,10 @@ call of gen2 of the right member.
 
    (or (set? child) (seq? child))
    (let [retval (over-parent-child parent (first child))]
-     (if (not (fs/fail? retval))
-       (cons
-        retval
-        (if (nil? (rest child))
-          nil
-          (lazy-seq (over-parent-child parent (rest child)))))
-       (if (nil? (rest child))
-         nil
-         (lazy-seq (over-parent-child parent (rest child))))))
+     (lazy-cat
+      (remove #(fs/fail? %)
+              (over-parent-child parent (first child)))
+      (over-parent-child parent (rest child))))
 
    :else ; both parent and child are non-lists.
    ;; First, check to make sure complement matches head's (:synsem :sem) value, if it exists, otherwise, fail.
@@ -513,9 +510,13 @@ call of gen2 of the right member.
                   (not (nil? comp-sem)))
            (fs/match {:synsem (fs/copy sem-filter)}
                      (fs/copy {:synsem (fs/copy comp-sem)})))]
+     ;; wrap the single result in a list so that it can be consumed by (over).
+     (list
      (if (= do-match :fail)
        (do
-         (log/info "failed match.")
+         (log/debug (str "sem-filter: " sem-filter))
+         (log/debug (str "comp-sem: " (fs/copy comp-sem)))
+         (log/debug "failed match.")
          :fail)
        (let [unified (unify parent
                             {add-child-where
@@ -528,24 +529,28 @@ call of gen2 of the right member.
          (if (fs/fail? unified)
            (log/debug "Failed attempt to add child to parent: " (fs/get-in parent '(:comment))
                      " at: " add-child-where))
-         (if (or true (not (fs/fail? unified))) ;; (or true - even if fail, still show it)
-           (merge ;; use merge so that we overwrite the value for :italian.
-            unified
-            {:italian (morph/get-italian
+
+          ;;
+          (if (or true (not (fs/fail? unified))) ;; (or true - even if fail, still show it)
+            (merge ;; use merge so that we overwrite the value for :italian.
+             unified
+             {:italian (morph/get-italian
                        (fs/get-in unified '(:1 :italian))
                        (fs/get-in unified '(:2 :italian)))
-             :english (morph/get-english
-                       (fs/get-in unified '(:1 :english))
-                       (fs/get-in unified '(:2 :english)))})
-           :fail))))))
+              :english (morph/get-english
+                        (fs/get-in unified '(:1 :english))
+                        (fs/get-in unified '(:2 :english)))})
+            :fail)))))))
 
 (defn over-parent [parent children]
   (cond
    (= (.size children) 0)
    nil
    true
-   (cons (over-parent-child parent (first children))
-         (lazy-seq (over-parent parent (rest children))))))
+   (lazy-seq
+    (cons
+     (over-parent-child parent (first children))
+     (over-parent parent (rest children))))))
 
 (defn over [& args]
   "usage: (over parent child) or (over parent child1 child2)"
@@ -749,7 +754,7 @@ call of gen2 of the right member.
                                                           (fs/unifyc {:head head-candidate}
                                                                      phrase))
                                                         (:head head-and-comp)))
-          debug (log/info (str "filter-candidates-against-phrase: " (.size filter-candidates-against-phrase)))
+          debug (log/debug (str "filter-candidates-against-phrase: " (.size filter-candidates-against-phrase)))
 
           filter-against-complements (filter (fn [head-candidate]
                                                true)
