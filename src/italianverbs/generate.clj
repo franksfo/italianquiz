@@ -375,6 +375,8 @@
       ;; wrap this single expression in a list and re-call.
       (list (formattare-1 expressions))
       (cond (nil? expressions) nil
+            (fs/fail? expressions)
+            ":fail"
             (= (.size expressions) 0) nil
             true
             (cons
@@ -1219,7 +1221,7 @@ constraints on the generation of the complement."
 (defn expand [parent]
   (if (fs/get-in parent '(:comment-plaintext))
     (log/info (str "expanding: " (fs/get-in parent '(:comment-plaintext)))))
-  (cond (= parent gram/np)
+  (cond (= (fs/get-in parent '(:comment-plaintext)) "np -> det (noun or nbar)")
         (lazy-cat
          (let [expansions
                (list (list (shuffle lex/determiners) (shuffle lex/common-nouns))
@@ -1296,9 +1298,10 @@ constraints on the generation of the complement."
             (do
               ;; remove failed results.
               (remove (fn [result]
+                        (if (not (fs/fail? result)) (log/info (str "considering: " (fo left) " + " (fo right) " = " (fo result))))
                         (if (not (fs/fail? result))
                           (do
-;                            (log/info (str "success: " (fs/get-in parent '(:comment-plaintext)) " => " (fo left) " + " (fo right)))
+;                            (log/info (str "success: " (fs/get-in parent '(:comment-plaintext)) " => " (fo left) " + " (fo right) " => " (fo result)))
                             false)
                           (do
 ;                            (log/info (str "failed : " (fs/get-in parent '(:comment-plaintext)) " => " (fo left) " + " (fo right)))
