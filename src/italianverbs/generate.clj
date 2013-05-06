@@ -1295,18 +1295,9 @@ constraints on the generation of the complement."
              (f parent (list left) (rest rights)))
 
             :else
-            (do
-              ;; remove failed results.
-              (remove (fn [result]
-                        (if (not (fs/fail? result)) (log/info (str "considering: " (fo left) " + " (fo right) " = " (fo result))))
-                        (if (not (fs/fail? result))
-                          (do
-;                            (log/info (str "success: " (fs/get-in parent '(:comment-plaintext)) " => " (fo left) " + " (fo right) " => " (fo result)))
-                            false)
-                          (do
-;                            (log/info (str "failed : " (fs/get-in parent '(:comment-plaintext)) " => " (fo left) " + " (fo right)))
-                          true)))
-                      (lazy-seq
-                       (cons (unify-lr4 parent left right)
-                             (g parent left (rest rights))))))))))
+            (remove #(fs/fail? %)
+                    (lazy-seq
+                     (cons (unify-lr4 parent left right)
+                           (g parent left (rest rights)))))))))
+
 
