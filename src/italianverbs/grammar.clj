@@ -224,7 +224,7 @@
       :comp {:italian {:agr agr}
              :english {:agr agr}}
       :comment "n&#x0305; &#x2192; noun adj"
-      :comment-plaintext "n -> noun adj"
+      :comment-plaintext "nbar -> noun adj"
       :extend {:a {:head 'common-nouns
                    :comp 'adjectives}}})))
 
