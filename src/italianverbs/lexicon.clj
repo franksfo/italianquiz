@@ -150,12 +150,14 @@
                   :legible false}{})
 
          ]
-     (let [merged (fs/merge animate artifact city clothing consumable-false drinkable
-                            drinkable-xor-edible-1 drinkable-xor-edible-2
-                            edible furniture human inanimate
-                            legible non-places not-legible-if-not-artifact part-of-human-body pets place
-                            input
-                            )]
+     (let [merged
+           (if (= input :fail) :fail
+               (fs/merge animate artifact city clothing consumable-false drinkable
+                         drinkable-xor-edible-1 drinkable-xor-edible-2
+                         edible furniture human inanimate
+                         legible non-places not-legible-if-not-artifact part-of-human-body pets place
+                         input
+                         ))]
        (if (not (= merged input))
          (sem-impl merged) ;; we've added some new information: more implications possible from that.
          merged))))) ;; no more implications: return
