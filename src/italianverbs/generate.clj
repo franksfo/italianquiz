@@ -1274,53 +1274,18 @@ constraints on the generation of the complement."
         nil
 
         (and
-         (nil? (fs/get-in parent '(:italian)))
+         (or
+          (nil? (fs/get-in parent '(:italian)))
+          (and (map? (fs/get-in parent '(:italian :a)))
+               (nil? (fs/get-in parent '(:italian :a :italian)))))
          (or
           (= (fs/get-in parent '(:comment-plaintext)) "np -> det (noun or nbar)")
           (= (fs/get-in parent '(:comment-plaintext)) "nbar -> noun adj")
+          (= (fs/get-in parent '(:comment-plaintext)) "s -> ..")
           (= (fs/get-in parent '(:comment-plaintext)) "vp -> head comp")))
-
-        (generate-all-from-expands parent (hc-expands parent))
-
-        (and true (not (nil? (fs/get-in parent '(:italian)))))
         (do
-                                        ;          (log/info (str "NON-NIL ITALIAN: " parent))
-                                        ;          (log/info (str "expands: " (hc-expands parent)))
-          nil)
-
-        (= parent gram/s-present)
-        (let [expansions (list (list (shuffle lex/nominative-pronouns)
-                                     (shuffle lex/intransitive-verbs))
-                               (list (shuffle lex/nominative-pronouns)
-                                     (list gram/vp-present))
-                               (list (list gram/np)
-                                     (shuffle lex/intransitive-verbs))
-                               (list (list gram/np)
-                                     (list gram/vp-present)))]
-          (let [shuffled-expansions (shuffle expansions)]
-            (heads-by-comps (unify parent {:synsem {:infl :present}})
-                            (first (first shuffled-expansions))
-                            (second (first shuffled-expansions)))))
-
-                                        ;        (= parent gram/vp-present)
-                                        ;        (let [expansions (list (list (shuffle lex/transitive-verbs)
-                                        ;                                     (list gram/np)))]
-                                        ;          (let [shuffled-expansions (shuffle expansions)
-                                        ;                left (first (first shuffled-expansions))
-                                        ;                right (second (first shuffled-expansions))]
-                                        ;            (f (unify parent {:synsem {:infl :present}})
-                                        ;               left
-                                        ;
-
-        (= parent gram/s-future)
-        (let [expansions (list (list (shuffle lex/nominative-pronouns)
-                                     (shuffle lex/intransitive-verbs))
-                               (list (list gram/np)
-                                     (shuffle lex/intransitive-verbs)))]
-          (let [shuffled-expansions (shuffle expansions)]
-            (heads-by-comps (unify parent {:synsem {:infl :futuro}})
-                            (first (first shuffled-expansions))
-                            (second (first shuffled-expansions)))))
+          (log/info (str "parent: " (fs/get-in parent '(:comment-plaintext)) " -> " (fo parent)))
+          (generate-all-from-expands parent (hc-expands parent)))
 
         :else nil))
 
