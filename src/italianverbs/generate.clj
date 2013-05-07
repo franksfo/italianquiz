@@ -461,16 +461,33 @@
        lefts))
 
 (defn unify-lr4 [parent left right]
-  (let [with-left (unify parent
-                         {:1 left})
-        with-right (unify parent
-                          {:2 right})
-        unified
+  (let [unified
         (unify parent
                {:1 left}
                {:2 right}
                {:1 {:synsem {:sem (lex/sem-impl (fs/get-in left '(:synsem :sem)))}}
                 :2 {:synsem {:sem (lex/sem-impl (fs/get-in right '(:synsem :sem)))}}})]
+    (if (fs/fail? unified)
+      :fail
+      (merge unified
+             {:italian (morph/get-italian
+                        (fs/get-in unified '(:1 :italian))
+                        (fs/get-in unified '(:2 :italian)))
+              :english (morph/get-english
+                        (fs/get-in unified '(:1 :english))
+                        (fs/get-in unified '(:2 :english)))}))))
+
+(defn unify-lr-hc [parent head comp]
+  (let [with-head (unify parent
+                         {:head head})
+        with-comp (unify parent
+                          {:head comp})
+        unified
+        (unify parent
+               {:head head}
+               {:comp comp}
+               {:head {:synsem {:sem (lex/sem-impl (fs/get-in head '(:synsem :sem)))}}
+                :copm {:synsem {:sem (lex/sem-impl (fs/get-in comp '(:synsem :sem)))}}})]
     (if (fs/fail? unified)
       :fail
       (merge unified
@@ -729,6 +746,7 @@
    (= symbol 'nominative-pronouns) lex/nominative-pronouns
    (= symbol 'accusative-pronouns) lex/accusative-pronouns
    (= symbol 'proper-nouns) lex/proper-nouns
+   (= symbol 'common-nouns) lex/common-nouns
    (= symbol 'verbs) lex/verbs
 
    (= symbol 'nbar) gram/nbar
@@ -1209,6 +1227,7 @@ constraints on the generation of the complement."
 ;;                              (over2 gram/vp :top (over2 gram/np :top :top))))))
 
 (declare g)
+(declare g-hc)
 
 (defn f [parent lefts rights]
   (if (not (empty? lefts))
@@ -1223,39 +1242,49 @@ constraints on the generation of the complement."
          (g parent (first lefts) rights))
          (f parent (rest lefts) rights))))))
 
+(defn f-hc [parent heads comps]
+  (if (not (empty? heads))
+    (if (fs/fail? (first heads))
+      (f parent (rest heads) comps)
+      (do
+        (log/debug (str "head: " (fo (first heads))))
+        (lazy-cat
+         (let [probe (take 1 comps)
+             logit (log/debug "right: " (fo probe))
+               ]
+         (g-hc parent (first heads) comps))
+         (f-hc parent (rest heads) comps))))))
+
+(defn hc-expands [parent]
+  (map (fn [expansion]
+         (let [head (eval-symbol (:head expansion))
+               comp (eval-symbol (:comp expansion))]
+           {:head (if (seq? head) (shuffle
+                                   (remove #(fs/fail? %)
+                                           (map (fn [head-candidate] (unify head-candidate (fs/get-in parent '(:head))))
+                                                head)))
+                      (list (unify (fs/get-in parent '(:head)) head)))
+            :comp (if (seq? comp) (shuffle
+                                   (remove #(fs/fail? %)
+                                           (map (fn [comp-candidate] (unify comp-candidate (fs/get-in parent '(:comp))))
+                                                comp)))
+                      (list (unify (fs/get-in parent '(:comp)) comp)))}))
+       (shuffle (vals (fs/get-in parent '(:extend))))))
+
 (defn expand [parent]
   (if (fs/get-in parent '(:comment-plaintext))
     (log/debug (str "expanding: " (fs/get-in parent '(:comment-plaintext)))))
   (cond (and
          (nil? (fs/get-in parent '(:italian)))
          (= (fs/get-in parent '(:comment-plaintext)) "np -> det (noun or nbar)"))
-        (let [expansions
-              (list (list
-                     (shuffle
-                      (remove #(fs/fail? %)
-                              (map #(unify % (fs/get-in parent '(:comp)))
-                                   lex/determiners)))
-                     (shuffle
-                      (remove #(fs/fail? %)
-                              (map #(unify % (fs/get-in parent '(:head)))
-                                   lex/common-nouns))))
-                    (list (shuffle
-                           (remove #(fs/fail? %)
-                                   (map #(unify % (fs/get-in parent '(:comp)))
-                                        lex/determiners)))
-                          (list
-                           (let [head-filter
-                                 (unify (fs/get-in parent '(:head))
-                                        gram/nbar)]
-                             head-filter))))]
-           (let [shuffled-expansions (shuffle expansions)]
-             (lazy-cat
-              (f parent
-                 (first (first shuffled-expansions))
-                 (second (first shuffled-expansions)))
-              (f parent
-                 (first (second shuffled-expansions))
-                 (second (second shuffled-expansions))))))
+        (let [exp2 (hc-expands parent)]
+          (lazy-cat
+           (f-hc parent
+                 (:head (first exp2))
+                 (:comp (first exp2)))
+           (f-hc parent
+                 (:head (second exp2))
+                 (:comp (second exp2)))))
 
         (= parent gram/s-present)
         (let [expansions (list (list (shuffle lex/nominative-pronouns)
@@ -1333,5 +1362,34 @@ constraints on the generation of the complement."
                     (lazy-seq
                      (cons (unify-lr4 parent left right)
                            (g parent left (rest rights)))))))))
+
+(defn g-hc [parent head comps]
+  "Returns a lazy sequence of expressions generated by adjoining (head,comp_i) to parent, for all
+   comp_i in comps."
+  (if (not (empty? comps))
+    (let [comp (first comps)
+          head-expand (expand head)
+          comp-expand (expand comp)]
+      (cond (and (not (nil? head-expand))
+                 (not (nil? comp-expand)))
+            (lazy-cat
+             (f-hc parent head-expand comp-expand)
+             (f-hc parent head-expand (rest comps)))
+
+            (not (nil? head-expand))
+            (lazy-cat
+             (f-hc parent head-expand (list comp))
+             (f-hc parent head-expand (rest comps)))
+
+            (not (nil? comp-expand))
+            (lazy-cat
+             (f-hc parent (list head) comp-expand)
+             (f-hc parent (list head) (rest comps)))
+
+            :else
+            (remove #(fs/fail? %)
+                    (lazy-seq
+                     (cons (unify-lr-hc parent head comp)
+                           (g-hc parent head (rest comps)))))))))
 
 
