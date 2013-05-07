@@ -1245,8 +1245,8 @@ constraints on the generation of the complement."
                                         lex/determiners)))
                           (list
                            (let [head-filter
-                                 (fs/copy (unify (fs/copy (fs/get-in parent '(:head)))
-                                                 (fs/copy gram/nbar)))]
+                                 (unify (fs/get-in parent '(:head))
+                                        gram/nbar)]
                              head-filter))))]
            (let [shuffled-expansions (shuffle expansions)]
              (lazy-cat
