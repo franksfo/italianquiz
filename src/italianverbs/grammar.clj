@@ -172,6 +172,7 @@
       (fs/merge
        (fs/unifyc rule-base
                   {:comment "sentence[present]"
+                   :comment-plaintext "s -> .."
                    :synsem {:infl :present}})
        {:extend {:a {:comp 'np
                      :head 'vp-present}
