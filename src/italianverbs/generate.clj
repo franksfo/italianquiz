@@ -1226,34 +1226,20 @@ constraints on the generation of the complement."
 ;;  (def skeleton (first (over2 gram/s-present (over2 gram/np :top (over2 gram/nbar :top :top))
 ;;                              (over2 gram/vp :top (over2 gram/np :top :top))))))
 
-(declare g)
-(declare g-hc)
+(declare head-by-comps)
 
-(defn f [parent lefts rights]
-  (if (not (empty? lefts))
-    (if (fs/fail? (first lefts))
-      (f parent (rest lefts) rights)
-      (do
-        (log/debug (str "left: " (fo (first lefts))))
-        (lazy-cat
-         (let [probe (take 1 rights)
-             logit (log/debug "right: " (fo probe))
-               ]
-         (g parent (first lefts) rights))
-         (f parent (rest lefts) rights))))))
-
-(defn f-hc [parent heads comps]
+(defn heads-by-comps [parent heads comps]
   (if (not (empty? heads))
     (if (fs/fail? (first heads))
-      (f parent (rest heads) comps)
+      (heads-by-comps parent (rest heads) comps)
       (do
         (log/debug (str "head: " (fo (first heads))))
         (lazy-cat
          (let [probe (take 1 comps)
              logit (log/debug "right: " (fo probe))
                ]
-         (g-hc parent (first heads) comps))
-         (f-hc parent (rest heads) comps))))))
+         (head-by-comps parent (first heads) comps))
+         (heads-by-comps parent (rest heads) comps))))))
 
 (defn hc-expands [parent]
   (map (fn [expansion]
@@ -1274,15 +1260,20 @@ constraints on the generation of the complement."
 (defn generate-all-from-expands [parent expands]
   (if (not (empty? expands))
     (lazy-cat
-     (f-hc parent
+     (heads-by-comps parent
            (:head (first expands))
            (:comp (first expands)))
      (generate-all-from-expands parent (rest expands)))))
 
 (defn expand [parent]
+  (if (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))
+    (log/debug (str "terminal: no comment.")))
   (if (fs/get-in parent '(:comment-plaintext))
     (log/debug (str "expanding: " (fs/get-in parent '(:comment-plaintext)))))
-  (cond (and
+  (cond (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))
+        nil
+
+        (and
          (nil? (fs/get-in parent '(:italian)))
          (or
           (= (fs/get-in parent '(:comment-plaintext)) "np -> det (noun or nbar)")
@@ -1290,6 +1281,12 @@ constraints on the generation of the complement."
           (= (fs/get-in parent '(:comment-plaintext)) "vp -> head comp")))
 
         (generate-all-from-expands parent (hc-expands parent))
+
+        (and true (not (nil? (fs/get-in parent '(:italian)))))
+        (do
+                                        ;          (log/info (str "NON-NIL ITALIAN: " parent))
+                                        ;          (log/info (str "expands: " (hc-expands parent)))
+          nil)
 
         (= parent gram/s-present)
         (let [expansions (list (list (shuffle lex/nominative-pronouns)
@@ -1301,19 +1298,19 @@ constraints on the generation of the complement."
                                (list (list gram/np)
                                      (list gram/vp-present)))]
           (let [shuffled-expansions (shuffle expansions)]
-            (f (unify parent {:synsem {:infl :present}})
-               (first (first shuffled-expansions))
-               (second (first shuffled-expansions)))))
+            (heads-by-comps (unify parent {:synsem {:infl :present}})
+                            (first (first shuffled-expansions))
+                            (second (first shuffled-expansions)))))
 
-;        (= parent gram/vp-present)
-;        (let [expansions (list (list (shuffle lex/transitive-verbs)
-;                                     (list gram/np)))]
-;          (let [shuffled-expansions (shuffle expansions)
-;                left (first (first shuffled-expansions))
-;                right (second (first shuffled-expansions))]
-;            (f (unify parent {:synsem {:infl :present}})
-;               left
-;
+                                        ;        (= parent gram/vp-present)
+                                        ;        (let [expansions (list (list (shuffle lex/transitive-verbs)
+                                        ;                                     (list gram/np)))]
+                                        ;          (let [shuffled-expansions (shuffle expansions)
+                                        ;                left (first (first shuffled-expansions))
+                                        ;                right (second (first shuffled-expansions))]
+                                        ;            (f (unify parent {:synsem {:infl :present}})
+                                        ;               left
+                                        ;
 
         (= parent gram/s-future)
         (let [expansions (list (list (shuffle lex/nominative-pronouns)
@@ -1321,42 +1318,13 @@ constraints on the generation of the complement."
                                (list (list gram/np)
                                      (shuffle lex/intransitive-verbs)))]
           (let [shuffled-expansions (shuffle expansions)]
-            (f (unify parent {:synsem {:infl :futuro}})
-               (first (first shuffled-expansions))
-               (second (first shuffled-expansions)))))
+            (heads-by-comps (unify parent {:synsem {:infl :futuro}})
+                            (first (first shuffled-expansions))
+                            (second (first shuffled-expansions)))))
 
         :else nil))
 
-(defn g [parent left rights]
-  "Returns a lazy sequence of expressions generated by adjoining (left,right_i) to parent, for all
-   right_i in rights."
-  (if (not (empty? rights))
-    (let [right (first rights)
-          left-expand (expand left)
-          right-expand (expand right)]
-      (cond (and (not (nil? left-expand))
-                 (not (nil? right-expand)))
-            (lazy-cat
-             (f parent left-expand right-expand)
-             (f parent left-expand (rest rights)))
-
-            (not (nil? left-expand))
-            (lazy-cat
-             (f parent left-expand (list right))
-             (f parent left-expand (rest rights)))
-
-            (not (nil? right-expand))
-            (lazy-cat
-             (f parent (list left) right-expand)
-             (f parent (list left) (rest rights)))
-
-            :else
-            (remove #(fs/fail? %)
-                    (lazy-seq
-                     (cons (unify-lr4 parent left right)
-                           (g parent left (rest rights)))))))))
-
-(defn g-hc [parent head comps]
+(defn head-by-comps [parent head comps]
   "Returns a lazy sequence of expressions generated by adjoining (head,comp_i) to parent, for all
    comp_i in comps."
   (if (not (empty? comps))
@@ -1366,23 +1334,23 @@ constraints on the generation of the complement."
       (cond (and (not (nil? head-expand))
                  (not (nil? comp-expand)))
             (lazy-cat
-             (f-hc parent head-expand comp-expand)
-             (f-hc parent head-expand (rest comps)))
+             (heads-by-comps parent head-expand comp-expand)
+             (heads-by-comps parent head-expand (rest comps)))
 
             (not (nil? head-expand))
             (lazy-cat
-             (f-hc parent head-expand (list comp))
-             (f-hc parent head-expand (rest comps)))
+             (heads-by-comps parent head-expand (list comp))
+             (heads-by-comps parent head-expand (rest comps)))
 
             (not (nil? comp-expand))
             (lazy-cat
-             (f-hc parent (list head) comp-expand)
-             (f-hc parent (list head) (rest comps)))
+             (heads-by-comps parent (list head) comp-expand)
+             (heads-by-comps parent (list head) (rest comps)))
 
             :else
             (remove #(fs/fail? %)
                     (lazy-seq
                      (cons (unify-lr-hc parent head comp)
-                           (g-hc parent head (rest comps)))))))))
+                           (head-by-comps parent head (rest comps)))))))))
 
 
