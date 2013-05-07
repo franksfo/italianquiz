@@ -1506,6 +1506,14 @@
               :cat :adjective}}
 
    {:synsem {:cat :adjective
+             :sem {:pred :corto
+                   :mod {:human true}}}
+    :italian {:italian "corto"
+              :cat :adjective}
+    :english {:english "short"
+              :cat :adjective}}
+
+   {:synsem {:cat :adjective
              :sem {:pred :difficile
                    :mod {:drinkable false
                          :human false
