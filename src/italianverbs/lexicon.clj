@@ -32,6 +32,10 @@
                     {:animate false
                      :physical-object true}{})
 
+         buyable (if (= (fs/get-in input '(:buyable))
+                        true)
+                   {:human false})
+
          city (if (= (fs/get-in input '(:city))
                      true)
                 {:place true})
@@ -50,7 +54,8 @@
          drinkable
          ;; drinkables are always mass nouns.
          (if (= (fs/get-in input '(:drinkable)) true)
-           {:mass true}{})
+           {:mass true
+            :legible false}{})
 
          drinkable-xor-edible-1
          ;; things are either drinkable or edible, but not both (except for weird foods
@@ -73,13 +78,17 @@
                    :physical-object true
                    :consumable true
                    :human false
+                   :pet false
                    :place false
                    :speakable false
-                   :legible false}{})
+                   :legible false
+                   :furniture false
+                   :part-of-human-body false}{})
 
          furniture (if (= (fs/get-in input '(:furniture))
                           true)
                      {:artifact true
+                      :animate false
                       :buyable true
                       :drinkable false
                       :legible false
@@ -107,6 +116,7 @@
            {:artifact true
             :drinkable false
             :human false
+            :furniture false
             :part-of-human-body false
             :edible false})
 
@@ -152,7 +162,7 @@
          ]
      (let [merged
            (if (= input :fail) :fail
-               (fs/merge animate artifact city clothing consumable-false drinkable
+               (fs/merge animate artifact buyable city clothing consumable-false drinkable
                          drinkable-xor-edible-1 drinkable-xor-edible-2
                          edible furniture human inanimate
                          legible non-places not-legible-if-not-artifact part-of-human-body pets place
@@ -483,6 +493,7 @@
            countable-noun
            feminine
            {:synsem {:sem {:legible true
+                           :buyable false
                            :speakable true
                            :pred :parola}}}
            {:italian {:italian "parola"}
@@ -496,7 +507,7 @@
            {:synsem {:sem {:pred :professoressa}}}
            {:italian {:italian "professoressa"}
             :english {:english "professor"
-                      :note " (&#x2640;) "}}) ;; unicode female symbol
+                      :note " (&#x2640;)"}}) ;; unicode female symbol
 
     (unify agreement
            common-noun
@@ -506,7 +517,7 @@
            {:synsem {:sem {:pred :professore}}}
            {:italian {:italian "professore"}
             :english {:english "professor"
-                      :note " (&#x2642;) "}}) ;; unicode male symbol
+                      :note " (&#x2642;)"}}) ;; unicode male symbol
 
      ;; "pizza" can be either mass or countable.
     (unify agreement
@@ -1096,8 +1107,7 @@
    {:italian {:infinitive "mangiare"}
     :english {:infinitive "to eat"}
     :synsem {:essere false
-             :sem {:pred {:pred :mangiare
-                          :essere false}
+             :sem {:pred :mangiare
                    :subj {:animate true}
                    :obj {:edible true}}}}))
 
@@ -1187,15 +1197,16 @@
              :sem {:subj {:animate true}
                    :pred {:pred :sognare}}}}))
 
-(def telefonare
-  (unify
-   transitive
-   {:italian {:italian "telefonare"}
-    :english {:english "to call"}
-    :synsem {:essere false
-             :sem {:pred :telefonare
-                   :subj {:human true}
-                   :obj {:human true}}}}))
+;; something's wrong with conjugation of this verb.
+;(def telefonare
+;  (unify
+;   transitive
+;   {:italian {:italian "telefonare"}
+;    :english {:english "to call"}
+;    :synsem {:essere false
+;             :sem {:pred :telefonare
+;                   :subj {:human true}
+;                   :obj {:human true}}}}))
 
 (def vedere
   (unify
@@ -1262,7 +1273,7 @@
    mangiare
    parlare
    scrivere
-   telefonare
+;   telefonare
    vedere
    ))
 
