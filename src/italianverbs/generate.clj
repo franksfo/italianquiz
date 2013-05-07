@@ -1212,29 +1212,51 @@ constraints on the generation of the complement."
 
 (defn f [parent lefts rights]
   (if (not (empty? lefts))
-    (do
-      (log/info (str "left: " (fo (first lefts))))
-      (lazy-cat
-       (let [probe (take 1 rights)
-             logit (log/info "right: " (fo probe))]
+    (if (fs/fail? (first lefts))
+      (f parent (rest lefts) rights)
+      (do
+        (log/info (str "left: " (fo (first lefts))))
+        (lazy-cat
+         (let [probe (take 1 rights)
+             logit (log/info "right: " (fo probe))
+               ]
          (g parent (first lefts) rights))
-       (f parent (rest lefts) rights)))))
+         (f parent (rest lefts) rights))))))
 
 (defn expand [parent]
   (if (fs/get-in parent '(:comment-plaintext))
     (log/info (str "expanding: " (fs/get-in parent '(:comment-plaintext)))))
-  (cond (= (fs/get-in parent '(:comment-plaintext)) "np -> det (noun or nbar)")
-        (lazy-cat
-         (let [expansions
-               (list (list (shuffle lex/determiners) (shuffle lex/common-nouns))
-                     (list (shuffle lex/determiners) (list gram/nbar)))]
+  (cond (and
+         (nil? (fs/get-in parent '(:italian)))
+         (= (fs/get-in parent '(:comment-plaintext)) "np -> det (noun or nbar)"))
+        (let [expansions
+              (list (list
+                     (shuffle
+                      (remove #(fs/fail? %)
+                              (map #(unify % (fs/get-in parent '(:comp)))
+                                   lex/determiners)))
+                     (shuffle
+                      (remove #(fs/fail? %)
+                              (map #(unify % (fs/get-in parent '(:head)))
+                                   lex/common-nouns))))
+                    (list (shuffle
+                           (remove #(fs/fail? %)
+                                   (map #(unify % (fs/get-in parent '(:comp)))
+                                        lex/determiners)))
+                          (list
+                           (let [head-filter
+                                 (fs/copy (unify (fs/copy (fs/get-in parent '(:head)))
+                                                 (fs/copy gram/nbar)))]
+                             head-filter))))]
            (let [shuffled-expansions (shuffle expansions)]
-             (f parent
-                (first (first shuffled-expansions))
-                (second (first shuffled-expansions)))
-             (f parent
-                (first (second shuffled-expansions))
-                (second (second shuffled-expansions))))))
+             (lazy-cat
+              (f parent
+                 (first (first shuffled-expansions))
+                 (second (first shuffled-expansions)))
+              (f parent
+                 (first (second shuffled-expansions))
+                 (second (second shuffled-expansions))))))
+
         (= parent gram/s-present)
         (let [expansions (list (list (shuffle lex/nominative-pronouns)
                                      (shuffle lex/intransitive-verbs))
@@ -1269,8 +1291,15 @@ constraints on the generation of the complement."
                (first (first shuffled-expansions))
                (second (first shuffled-expansions)))))
 
-        (= parent gram/nbar)
-        (f parent (shuffle lex/common-nouns) (shuffle lex/adjectives))
+        (and
+         (nil? (fs/get-in parent '(:italian)))
+         (= (fs/get-in parent '(:comment-plaintext)) "nbar -> noun adj"))
+        (f parent (shuffle
+                   (remove #(and false (fs/fail? %))
+                           (map #(unify % (fs/get-in parent '(:head)))
+                                lex/common-nouns)))
+           (shuffle lex/adjectives))
+
         :else nil))
 
 (defn g [parent left rights]
