@@ -1215,17 +1215,17 @@ constraints on the generation of the complement."
     (if (fs/fail? (first lefts))
       (f parent (rest lefts) rights)
       (do
-        (log/info (str "left: " (fo (first lefts))))
+        (log/debug (str "left: " (fo (first lefts))))
         (lazy-cat
          (let [probe (take 1 rights)
-             logit (log/info "right: " (fo probe))
+             logit (log/debug "right: " (fo probe))
                ]
          (g parent (first lefts) rights))
          (f parent (rest lefts) rights))))))
 
 (defn expand [parent]
   (if (fs/get-in parent '(:comment-plaintext))
-    (log/info (str "expanding: " (fs/get-in parent '(:comment-plaintext)))))
+    (log/debug (str "expanding: " (fs/get-in parent '(:comment-plaintext)))))
   (cond (and
          (nil? (fs/get-in parent '(:italian)))
          (= (fs/get-in parent '(:comment-plaintext)) "np -> det (noun or nbar)"))
@@ -1298,7 +1298,10 @@ constraints on the generation of the complement."
                    (remove #(and false (fs/fail? %))
                            (map #(unify % (fs/get-in parent '(:head)))
                                 lex/common-nouns)))
-           (shuffle lex/adjectives))
+           (shuffle
+            (remove #(and false (fs/fail? %))
+                    (map #(unify % (fs/get-in parent '(:comp)))
+                         lex/adjectives))))
 
         :else nil))
 
