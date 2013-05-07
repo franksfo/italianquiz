@@ -34,7 +34,8 @@
 
          buyable (if (= (fs/get-in input '(:buyable))
                         true)
-                   {:human false})
+                   {:human false
+                    :part-of-human-body false})
 
          city (if (= (fs/get-in input '(:city))
                      true)
