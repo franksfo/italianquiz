@@ -22,6 +22,7 @@
                         true)
                    {:artifact false
                     :mass false
+                    :furniture false
                     :physical-object true
                     :part-of-human-body false
                     :drinkable false
@@ -39,7 +40,8 @@
 
          city (if (= (fs/get-in input '(:city))
                      true)
-                {:place true})
+                {:place true
+                 :legible false})
 
          clothing (if (= (fs/get-in input '(:clothing))
                          true)
@@ -105,6 +107,7 @@
                   :animate true
                   :part-of-human-body false
                   :drinkable false
+                  :speakable false
                   :place false}{})
          inanimate (if (= (fs/get-in input '(:animate))
                            false)
