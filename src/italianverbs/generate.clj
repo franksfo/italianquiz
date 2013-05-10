@@ -481,13 +481,13 @@
   (let [with-head (unify parent
                          {:head head})
         with-comp (unify parent
-                          {:head comp})
+                         {:head comp})
         unified
         (unify parent
                {:head head}
                {:comp comp}
                {:head {:synsem {:sem (lex/sem-impl (fs/get-in head '(:synsem :sem)))}}
-                :copm {:synsem {:sem (lex/sem-impl (fs/get-in comp '(:synsem :sem)))}}})]
+                :comp {:synsem {:sem (lex/sem-impl (fs/get-in comp '(:synsem :sem)))}}})]
     (if (fs/fail? unified)
       :fail
       (merge unified
