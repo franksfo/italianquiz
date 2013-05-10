@@ -1232,14 +1232,9 @@ constraints on the generation of the complement."
   (if (not (empty? heads))
     (if (fs/fail? (first heads))
       (heads-by-comps parent (rest heads) comps)
-      (do
-        (log/debug (str "head: " (fo (first heads))))
-        (lazy-cat
-         (let [probe (take 1 comps)
-             logit (log/debug "right: " (fo probe))
-               ]
-         (head-by-comps parent (first heads) comps))
-         (heads-by-comps parent (rest heads) comps))))))
+      (lazy-cat
+       (head-by-comps parent (first heads) comps)
+       (heads-by-comps parent (rest heads) comps)))))
 
 (defn hc-expands [parent]
   (map (fn [expansion]
