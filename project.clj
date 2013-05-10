@@ -1,7 +1,7 @@
 (defproject italianverbs "1.0.0-SNAPSHOT"
   :description "Italian language learning app"
   :plugins [[lein-ring "0.7.3"]]
-  :dependencies [[org.clojure/clojure "1.4.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  [compojure "1.1.3"]
                  [congomongo "0.2.0"]
                  [clojail "1.0.3"]
