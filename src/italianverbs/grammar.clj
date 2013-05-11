@@ -81,30 +81,31 @@
                 :1 head
                 :2 comp
                 :extend {:a {:head 'transitive-verbs
-                             :comp 'np}
-                         :b {:head 'verbs-taking-pp
-                             :comp 'prep-phrase}
-                         :c {:head 'transitive-verbs
-                             :comp 'accusative-pronouns}}}))
+                             :comp 'np2}
+                         }}))
+;                         :b {:head 'verbs-taking-pp
+;                             :comp 'prep-phrase}
+;                         :c {:head 'transitive-verbs
+;                             :comp 'accusative-pronouns}}}))
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
     (fs/merge vp
-              {:extend {:d {:head 'essere-aux
-                            :comp 'intransitive-verbs}
-                        :e {:head 'avere-aux
-                            :comp 'intransitive-verbs}
+;              {:extend {:d {:head 'essere-aux
+;                            :comp 'intransitive-verbs}
+;                        :e {:head 'avere-aux
+;                            :comp 'intransitive-verbs}
 
-                        :f {:head 'avere-aux
-                            :comp 'vp-past}
-                        :g {:head 'essere-aux
-                            :comp 'vp-past}
+;                        :f {:head 'avere-aux
+;                            :comp 'vp-past}
+;                        :g {:head 'essere-aux
+;                            :comp 'vp-past}
 
-                        :h {:head 'modal-verbs
-                            :comp 'vp-infinitive-transitive}
-                        :i {:head 'modal-verbs
-                            :comp 'intransitive-verbs}}}))
-
+;                        :h {:head 'modal-verbs
+;                            :comp 'vp-infinitive-transitive}
+;                        :i {:head 'modal-verbs
+;                            :comp 'intransitive-verbs}}}))
+))
   (def vp-past
     (fs/merge vp
               {:comment "vp[past] &#x2192; head comp"
@@ -147,7 +148,8 @@
         agr (ref :top)
         head (ref {:synsem {:cat :verb
                             :sem {:subj subj-sem}
-                            :subcat {:1 subcatted}}})
+                            :subcat {:1 subcatted
+                                     :2 '()}}})
 
         rule-base
         (fs/unifyc head-principle subcat-1-principle
@@ -158,12 +160,13 @@
                     :2 head
                     :extend {:a {:comp 'np
                                  :head 'vp}
-                             :b {:comp 'nominative-pronouns
+                             :b {:comp 'lexicon
                                  :head 'vp}
                              :c {:comp 'np
-                                 :head 'intransitive-verbs}
-                             :d {:comp 'nominative-pronouns
-                                 :head 'intransitive-verbs}}})]
+                                 :head 'lexicon}
+                             :d {:comp 'lexicon
+                                 :head 'lexicon}
+                             }})]
 
     ;; present
     (def s-present
@@ -172,20 +175,12 @@
       (fs/merge
        (fs/unifyc rule-base
                   {:comment "sentence[present]"
-                   :comment-plaintext "s -> .."
-                   :synsem {:infl :present}})
-       {:extend {:a {:comp 'np
-                     :head 'vp-present}
-                 :b {:comp 'nominative-pronouns
-                     :head 'vp-present}
-                 :d {:comp 'np
-                     :head 'intransitive-verbs}
-                 :e {:comp 'nominative-pronouns
-                     :head 'intransitive-verbs}}}))
-
+                   :comment-plaintext "s[present] -> .."
+                   :synsem {:infl :present}})))
     (def s-future
       (fs/unifyc rule-base
                  {:comment "sentence[future]"
+                  :comment-plaintext "s[future] -> .."
                   :synsem {:infl :futuro}}))
 
     (def s-imperfetto
@@ -229,6 +224,42 @@
       :extend {:a {:head 'common-nouns
                    :comp 'adjectives}}})))
 
+(def nbar2
+  (let [head (ref :top)
+        comp (ref :top)
+        subcat (ref :top)
+        agr (ref :top)
+        head-semantics (ref :top)
+        adjectival-predicate (ref :top)]
+    (fs/unifyc
+     head-principle
+     {:head head
+      :comp comp
+      :1 head
+      :2 comp}
+     (let [def (ref :top)]
+       {:head {:synsem {:def def}}
+        :synsem {:def def}})
+     {:synsem {:sem head-semantics}
+      :comp {:synsem {:sem {:mod head-semantics}}}}
+     {:synsem {:sem {:mod adjectival-predicate}}
+      :comp {:synsem {:sem {:mod head-semantics
+                            :pred adjectival-predicate}}}}
+     ;; the following will rule out pronouns, since they don't subcat for a determiner;
+     ;; (in fact, they don't subcat for anything)
+     {:synsem {:subcat {:1 {:cat :det}}}}
+     {:synsem {:agr agr
+               :subcat subcat}
+      :head {:synsem {:agr agr
+                      :subcat subcat}}
+      :comp {:italian {:agr agr}
+             :english {:agr agr}}
+      :comment "n&#x0305;2 &#x2192; noun adj"
+      :comment-plaintext "nbar2 -> noun adj"
+      :extend {:a {:head 'common-nouns
+                   :comp 'adjectives}}})))
+
+
 (def np-rules
   (let [head (ref :top)
         comp (ref :top)]
@@ -257,7 +288,33 @@
                                   :head 'nbar}}
                      }
                     ))))
-    (list np)))
+    (def np2
+      (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
+                 (let [agr (ref :top)]
+                   (fs/unifyc
+                    (let [def (ref :top)]
+                      {:head {:synsem {:def def}}
+                       :synsem {:def def}
+                       :comp {:synsem {:def def}}})
+                    {:head {:synsem {:cat :noun
+                                     :agr agr}}
+                     :synsem {:agr agr}}
+                    {:comment "np2 &#x2192; det (noun or nbar)"
+                     :comment-plaintext "np2 -> det (noun or nbar)"
+                     :synsem {:agr agr}
+                     :head head
+                     :comp comp
+                     :1 comp
+                     :2 head
+                     :extend {
+                              :a {:comp 'determiners
+                                  :head 'common-nouns}
+                              :b {:comp 'determiners
+                                  :head 'nbar2}}
+                     }
+                    ))))
+
+    (list np np2)))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
