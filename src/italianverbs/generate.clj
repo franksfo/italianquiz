@@ -411,14 +411,6 @@
 
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
-(defn random-head-and-comp-from-phrase [phrase expansion]
-  (let [head-sym (:head expansion)
-        head (eval-symbol (:head expansion))
-        comp (:comp expansion)] ;; leave comp as just a symbol for now: we will evaluate it later in random-comp-from-head.
-    {:head head
-     :head-sym head-sym ;; saving this for diagnostics
-     :comp comp}))
-
 (declare head-by-comps)
 
 (defn heads-by-comps [parent heads comps]
