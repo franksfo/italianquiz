@@ -380,6 +380,7 @@
   (cond
    (= symbol 'adjectives) lex/adjectives
    (= symbol 'nouns) lex/nouns
+   (= symbol 'lexicon) lex/lexicon
    (= symbol 'intransitive-verbs) lex/intransitive-verbs
    (= symbol 'transitive-verbs) lex/transitive-verbs
    (= symbol 'verbs-taking-pp) lex/verbs-taking-pp
