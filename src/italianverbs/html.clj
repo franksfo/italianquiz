@@ -96,7 +96,7 @@
   "create a self-contained html page (for use with file:/// urls)."
   (html
    [:html
-    [:head 
+    [:head
      [:meta  {:Content-Type "text/html; charset=UTF-8"}]
      [:title (str title
                   (if (and title (not (= title "")))
@@ -145,7 +145,7 @@
   ;; set defaults.
   ;; (TODO: in which contexts are we passing an already-serialized arg?)
   ;; if not already serialized, then serialize:
-  (let [serialized (if (nil? serialized) 
+  (let [serialized (if (nil? serialized)
                      (try
                        (fs/serialize arg)
                        (catch Exception e
@@ -285,8 +285,7 @@
       "    </tr>"
       "  </table>"
       "</div>")
-     
-    
+
      ;; displaying a feature structure.
      (or (= (type arg) clojure.lang.PersistentArrayMap)
          (= (type arg) clojure.lang.PersistentHashMap)
@@ -342,7 +341,7 @@
            "   </td>"
            "</tr>"))
         ;; sorts the argument list in _arg__ by key name:
-        (into (sorted-map) arg)))
+        (remove #(= (first %) :comment-plaintext) (into (sorted-map) arg))))
       "  </table>"
       "</div>")
      (= (type arg) clojure.lang.PersistentHashSet)
@@ -392,7 +391,6 @@
      (symbol? arg)
      (str "<i>" arg "</i>")
 
-     
      (= (type arg) clojure.lang.Ref)
      (let [is-first (fs/is-first-path serialized path 0
                                       (fs/path-to-ref-index serialized path 0))]
