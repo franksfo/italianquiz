@@ -515,7 +515,10 @@
                            (head-by-comps parent head (rest comps)))))))))
 
 (defn random-sentence []
-  (first (take 1 (generate gram/s-present))))
+  (first (take 1 (generate
+                  (first (take 1 (shuffle
+                                  (list gram/s-present
+                                        gram/s-future))))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
