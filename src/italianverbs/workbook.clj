@@ -29,20 +29,8 @@
                              "</div>"
                              "<div class='evalresult'>"
                              (cond
-                              (or
-                               (and (seq? loaded)
-                                    (> (.size loaded) 1))
-                               ;; TODO: remove false-disabled code here:
-                               (and false (= (type loaded)
-                                             clojure.lang.LazySeq)
-                                    (= 0
-                                       (.size
-                                        (remove
-                                         (fn [each]
-                                           (= each java.lang.String))
-                                        (map (fn [each]
-                                               (type each))
-                                             loaded))))))
+                              (and (seq? loaded)
+                                   (> (.size loaded) 1))
                               (str "<ol class='workbook'>"
                                    (string/join " "
                                                 (map (fn [elem]
