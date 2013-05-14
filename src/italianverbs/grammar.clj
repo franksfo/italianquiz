@@ -158,13 +158,13 @@
                     :comp comp
                     :1 comp
                     :2 head
-                    :extend {:a {:comp 'np
-                                 :head 'vp}
-                             :b {:comp 'lexicon
-                                 :head 'vp}
-                             :c {:comp 'np
-                                 :head 'lexicon}
-                             :d {:comp 'lexicon
+                    :extend {;:a {:comp 'np
+                             ;    :head 'vp}
+;                             :b {:comp 'lexicon
+;                                 :head 'vp}
+;                             :c {:comp 'np
+;                                 :head 'lexicon}
+                             :a {:comp 'lexicon
                                  :head 'lexicon}
                              }})]
 
@@ -172,16 +172,30 @@
     (def s-present
       ;; unlike the case for future and imperfetto,
       ;; override the existing :extends in the case of s-present.
-      (fs/merge
-       (fs/unifyc rule-base
-                  {:comment "sentence[present]"
-                   :comment-plaintext "s[present] -> .."
-                   :synsem {:infl :present}})))
+      (fs/unifyc rule-base
+                 {:head {:synsem {:sem {:pred :avere}}}}
+                 {:comment "sentence[present]"
+                  :comment-plaintext "s[present] -> .."
+                  :synsem {:infl :present}}))
     (def s-future
       (fs/unifyc rule-base
                  {:comment "sentence[future]"
                   :comment-plaintext "s[future] -> .."
                   :synsem {:infl :futuro}}))
+
+    (def test-sent
+      (fs/merge
+       (fs/unifyc head-principle subcat-1-principle
+                  subject-verb-agreement
+                  {:head head
+                   :comp comp
+                   :1 comp
+                   :2 head
+                   :comment "stest"
+                   :comment-plaintext "stest"
+                   :synsem {:infl :present}
+                   :extend {:a {:comp 'tinylex
+                                :head 'tinylex}}})))
 
     (def s-imperfetto
       (fs/unifyc rule-base

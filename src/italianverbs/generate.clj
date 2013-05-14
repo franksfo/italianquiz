@@ -229,13 +229,13 @@
 
    (or (set? child1) (seq? child1))
    (do
-     (log/info (str (fs/get-in parent '(:comment)) ":child1: " (.size child1)))
+     (log/debug (str (fs/get-in parent '(:comment)) ":child1: " (.size child1)))
      (lazy-cat (over2 parent (first child1) child2)
                (over2 parent (rest child1) child2)))
 
    (or (set? child2) (seq? child2))
    (do
-;     (log/info (str "child2: " (.size child2)))
+     (log/debug (str "child2: " (.size child2)))
      (lazy-cat (over2 parent child1 (first child2))
                (over2 parent child1 (rest child2))))
 
@@ -381,6 +381,7 @@
    (= symbol 'adjectives) lex/adjectives
    (= symbol 'nouns) lex/nouns
    (= symbol 'lexicon) lex/lexicon
+   (= symbol 'tinylex) lex/tinylex
    (= symbol 'intransitive-verbs) lex/intransitive-verbs
    (= symbol 'transitive-verbs) lex/transitive-verbs
    (= symbol 'verbs-taking-pp) lex/verbs-taking-pp
@@ -402,6 +403,9 @@
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
    (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
 
+
+   (= symbol 'test-sent) gram/test-sent
+
    (= symbol 'vp) gram/vp
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
@@ -413,12 +417,39 @@
 
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
+(declare h-by-cs)
+
+(defn hs-by-cs [parent heads comps]
+  (if (not (empty? heads))
+    (lazy-cat
+     (h-by-cs parent (first heads) comps)
+     (hs-by-cs parent (rest heads) comps))))
+
+(defn h-by-cs [parent head comps]
+  (if (not (empty? comps))
+    (lazy-seq
+     (cons {:parent parent
+            :head head
+            :comp (first comps)}
+           (h-by-cs parent head (rest comps))))))
+
 (declare head-by-comps)
 
 (defn heads-by-comps [parent heads comps]
+  (log/info (str "heads-by-comps parent: " (fs/get-in parent '(:comment-plaintext))))
+;  (log/debug (str "heads-by-comps heads: " heads))
+  ;; note: keep commented out since it unlazifies sequence of comps:
+  ;;  (log/trace (str "heads-by-comps comps length: " (.size comps)))
+  (if (not (empty? heads))
+    (log/info (str "heads-by-comps first heads: " (fo (first heads))))
+    (log/debug (str "heads-by-comps no more heads.")))
+
+  (log/debug (str "HEADS-BY-COMPS: fail status of first heads: " (fs/fail? (first heads))))
+
   (if (not (empty? heads))
     (if (fs/fail? (first heads))
-      (let [logit (log/info (str "hs-by-cs: " (fs/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))]
+      (do
+        (log/info (str "heads-by-comps: " (fs/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
         (heads-by-comps parent (rest heads) comps))
       (lazy-cat
        (head-by-comps (unify parent
@@ -428,87 +459,108 @@
        (heads-by-comps parent (rest heads) comps)))))
 
 (defn hc-expands [parent]
-  (map (fn [expansion]
-         (let [head (eval-symbol (:head expansion))
-               comp (eval-symbol (:comp expansion))]
-           {:head (if (seq? head) (shuffle
-                                   (remove #(fs/fail? %)
-                                           (map (fn [head-candidate] (unify head-candidate (fs/get-in parent '(:head))))
-                                                head)))
-                      (list (unify (fs/get-in parent '(:head)) head)))
-            :comp (if (seq? comp) (shuffle
-                                   (remove #(fs/fail? %)
-                                           (map (fn [comp-candidate] (unify comp-candidate (fs/get-in parent '(:comp))))
-                                                comp)))
-                      (list (unify (fs/get-in parent '(:comp)) comp)))}))
-       (shuffle (vals (fs/get-in parent '(:extend))))))
+  (if (fs/get-in parent '(:extend))
+    (map (fn [expansion]
+           (let [head (eval-symbol (:head expansion))
+                 comp (eval-symbol (:comp expansion))]
+             {:head (if (seq? head) (shuffle
+                                     (remove #(fs/fail? %)
+                                             (map (fn [head-candidate] (unify head-candidate (fs/get-in parent '(:head))))
+                                                  head)))
+                        (list (unify (fs/get-in parent '(:head)) head)))
+              :comp (if (seq? comp) (shuffle
+                                     (remove #(fs/fail? %)
+                                             (map (fn [comp-candidate] (unify comp-candidate (fs/get-in parent '(:comp))))
+                                                  comp)))
+                        (list (unify (fs/get-in parent '(:comp)) comp)))}))
+         (shuffle (vals (fs/get-in parent '(:extend)))))))
 
 (defn generate-all-from-expands [parent expands]
   (if (not (empty? expands))
-    (lazy-cat
-     (heads-by-comps parent
-           (:head (first expands))
-           (:comp (first expands)))
-     (generate-all-from-expands parent (rest expands)))))
+    (do
+      (log/info (str "generate-all-from-expands: first expands: " (first expands)))
+      (log/info (str "generate-all-from-expands: first expands (fo): " (fo (first expands))))
+      (lazy-cat
+       (heads-by-comps parent
+                       (:head (first expands))
+                       (:comp (first expands)))
+       (generate-all-from-expands parent (rest expands))))))
+
+(defn parent-is-finished? [parent]
+  (let [retval (not
+                (or
+                 (nil? (fs/get-in parent '(:italian)))
+                 (and (map? (fs/get-in parent '(:italian :a)))
+                      (nil? (fs/get-in parent '(:italian :a :italian)))
+                      (nil? (fs/get-in parent '(:italian :a :infinitive))))))]
+    (log/info (str "parent-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " : " retval))
+    retval))
 
 (defn generate [parent]
   (if (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))
     (log/debug (str "terminal: no comment.")))
   (if (fs/get-in parent '(:comment-plaintext))
-    (log/info (str "generating: " (fs/get-in parent '(:comment-plaintext)))))
+    (log/info (str "generate: parent: " (fs/get-in parent '(:comment-plaintext)))))
   (cond (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))
         (do
-          (log/info (str "terminal: " (fo parent))))
+          (log/info (str "terminal parent: " (fo parent)))
+          nil)
+;          (list parent))
 
-        (or
-         (nil? (fs/get-in parent '(:italian)))
-         (and (map? (fs/get-in parent '(:italian :a)))
-              (nil? (fs/get-in parent '(:italian :a :italian)))
-              (nil? (fs/get-in parent '(:italian :a :infinitive)))))
-        (do
-          (log/debug (str "generating: " (fs/get-in parent '(:comment-plaintext))))
-          (if (= (fs/get-in parent '(:comment-plaintext)) "vp -> head comp")
-            (log/debug (str " gen vp: " (fs/get-in parent '(:italian)))))
-          (generate-all-from-expands parent (hc-expands parent)))
+        (not (parent-is-finished? parent))
+        (generate-all-from-expands parent (hc-expands parent))
 
         :else
         (do
-          (log/debug (str "finished: " (fs/get-in parent '(:comment-plaintext)) " : " (fo parent)))
+          (log/info (str "finished: " (fs/get-in parent '(:comment-plaintext)) " : " (fo parent)))
           nil)))
 
 (defn head-by-comps [parent head comps]
   "Returns a lazy sequence of expressions generated by adjoining (head,comp_i) to parent, for all
    comp_i in comps."
-  (log/info (str "head-by-comps: " (fs/get-in parent '(:comment-plaintext)))); " with comps: " (.size comps)))
+  (log/info (str "head-by-comps begin: " (fs/get-in parent '(:comment-plaintext))))
+  ;; note: unlazifies sequence of comps:
+  ;; (log/trace (str "head-by-comps: comps size:" (.size comps)))
+  (log/debug (str "head-by-comps head: " head))
+  (log/debug (str "head-by-comps comp: " (first comps)))
   (if (not (empty? comps))
     (let [comp (first comps)
-          head-expand (generate head)
+          ;; TODO: do not (generate) head yet, or perhaps do (first (generate head)).
+          head-expand (fs/get-in head '(:extend))
           comp-specification
           (unify comp
                  (fs/get-in parent '(:comp))
                  {:synsem {:sem (lex/sem-impl (fs/get-in parent '(:comp :synsem :sem)))}}
                  {:synsem {:sem (lex/sem-impl (fs/get-in comp '(:synsem :sem)))}})
-          logit (log/debug (str "head: " (fo head)))
-          logit1 (log/debug (str "pred of comp: " (fs/get-in comp-specification '(:synsem :sem :pred))))
-          logit2 (log/debug (str "semantic constraints on comp: " (fs/get-in comp-specification '(:synsem :sem))))
           comp-expand (if (not (fs/fail? comp-specification)) (generate comp-specification))
-          logit3 (log/debug (str  "head-expand nil? " (nil? head-expand)))
-          logit4 (log/debug (str  "comp-expand nil? " (nil? head-expand)))
-          logit5 (log/debug (if (not (fs/fail? comp-specification)) (str  "parent: " (fs/get-in parent '(:comment-plaintext)) " comp-specification: " comp-specification)))]
+          head-is-finished? (parent-is-finished? head)]
+      (log/debug (str "head-by-comps head fininished status: " head-is-finished?))
+      (log/debug (str "head-expand: " head-expand))
+      (log/debug (str "comp-expand: " comp-expand))
+      (log/debug (str "comp: " (fo comp)))
+      (log/debug (str "fail-comp-specification: " (fs/fail? comp-specification)))
       (cond (and (not (nil? head-expand))
+                 (not head-is-finished?)
                  (not (nil? comp-expand)))
-            (lazy-cat
-             (heads-by-comps parent head-expand comp-expand)
-             (heads-by-comps parent head-expand (rest comps)))
+            (do
+              (log/info "lazy-cat (hs X ce) (hs X c)")
+              (let [heads (generate head)]
+                (lazy-cat
+                 (heads-by-comps parent heads comp-expand)
+                 (heads-by-comps parent heads (rest comps)))))
 
             (fs/fail? comp-specification)
-            (heads-by-comps parent head-expand (rest comps))
+            (head-by-comps parent head (rest comps))
 
             (and (not (nil? head-expand))
+                 (not head-is-finished?)
                  (not (fs/fail? comp-specification)))
-            (lazy-cat
-             (heads-by-comps parent head-expand (list comp-specification))
-             (heads-by-comps parent head-expand (rest comps)))
+            (do
+              (log/info "lazy-cat (hs X c) (hs X c)")
+              (let [heads (generate head)]
+                (lazy-cat
+                 (heads-by-comps parent heads (list comp-specification))
+                 (heads-by-comps parent heads (rest comps)))))
 
             (not (nil? comp-expand))
             (lazy-cat
@@ -518,14 +570,10 @@
             :else
             (let [result (unify-lr-hc parent head comp-specification)]
               (if (fs/fail? result)
-                (do
-                  (log/info (str "head-by-comps fail: " (fs/get-in parent '(:comment-plaintext)) " with comp-spec " comp-specification))
-                  (head-by-comps parent head (rest comps)))
-                (do
-                  (log/info (str "head-by-comps done: " (fs/get-in parent '(:comment-plaintext)) " : " (fo result)))
-                  (lazy-seq
-                   (cons result
-                         (head-by-comps parent head (rest comps)))))))))))
+                (head-by-comps parent head (rest comps)))
+              (lazy-seq
+               (cons result
+                     (head-by-comps parent head (rest comps)))))))))
 
 (defn random-sentence []
   (first (take 1 (generate

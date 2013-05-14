@@ -572,7 +572,7 @@
                             :consumable true
                             :legible true
                             :speakable true
-                            :pred :scala}}
+                            :pred :stravaganza}}
              :italian {:italian "stravaganza"}
              :english {:english "extravagant thing"}})
 
@@ -1634,6 +1634,10 @@
 
 (def lexicon (concat adjectives determiners nouns prepositions
                      nominative-pronouns accusative-pronouns verbs))
+
+                                        ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
+                                        ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
+(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
 
 ;(def nouns (list (first (it "professoressa"))))
 ;(def adjectives (list (first (it "piccolo"))))
