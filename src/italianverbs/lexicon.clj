@@ -1637,7 +1637,9 @@
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
-(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
+                                        ;(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
+(def tinylex (list (it "Napoli") (it "Roma") (it "io")))
+
 
 ;(def nouns (list (first (it "professoressa"))))
 ;(def adjectives (list (first (it "piccolo"))))
