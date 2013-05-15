@@ -81,7 +81,7 @@
                 :1 head
                 :2 comp
                 :extend {:a {:head 'transitive-verbs
-                             :comp 'np2}
+                             :comp 'np}
                          }}))
 ;                         :b {:head 'verbs-taking-pp
 ;                             :comp 'prep-phrase}
@@ -158,13 +158,13 @@
                     :comp comp
                     :1 comp
                     :2 head
-                    :extend {;:a {:comp 'np
-                             ;    :head 'vp}
-;                             :b {:comp 'lexicon
-;                                 :head 'vp}
-;                             :c {:comp 'np
-;                                 :head 'lexicon}
-                             :a {:comp 'lexicon
+                    :extend {:a {:comp 'np
+                                 :head 'vp}
+                             :b {:comp 'lexicon
+                                 :head 'vp}
+                             :c {:comp 'np
+                                 :head 'lexicon}
+                             :d {:comp 'lexicon
                                  :head 'lexicon}
                              }})]
 
@@ -173,7 +173,7 @@
       ;; unlike the case for future and imperfetto,
       ;; override the existing :extends in the case of s-present.
       (fs/unifyc rule-base
-                 {:head {:synsem {:sem {:pred :avere}}}}
+;                 {:head {:synsem {:sem {:pred :sognare}}}}
                  {:comment "sentence[present]"
                   :comment-plaintext "s[present] -> .."
                   :synsem {:infl :present}}))
@@ -302,33 +302,8 @@
                                   :head 'nbar}}
                      }
                     ))))
-    (def np2
-      (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
-                 (let [agr (ref :top)]
-                   (fs/unifyc
-                    (let [def (ref :top)]
-                      {:head {:synsem {:def def}}
-                       :synsem {:def def}
-                       :comp {:synsem {:def def}}})
-                    {:head {:synsem {:cat :noun
-                                     :agr agr}}
-                     :synsem {:agr agr}}
-                    {:comment "np2 &#x2192; det (noun or nbar)"
-                     :comment-plaintext "np2 -> det (noun or nbar)"
-                     :synsem {:agr agr}
-                     :head head
-                     :comp comp
-                     :1 comp
-                     :2 head
-                     :extend {
-                              :a {:comp 'determiners
-                                  :head 'common-nouns}
-                              :b {:comp 'determiners
-                                  :head 'nbar2}}
-                     }
-                    ))))
 
-    (list np np2)))
+    (list np)))
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
