@@ -907,26 +907,6 @@
                    :subj {:animate true}
                    :obj {:drinkable true}}}}))
 
-;; need at least one essere-false verbs to allow vp[past] rule to work:
-;; the idea here is drinking a toast to a city: "The man drinks to Rome"
-(def bevere-taking-pp
-  (unify
-   subjective
-   (let [place-sem (ref {:place true})]
-     {:italian {:infinitive "bevere"
-                :irregular {:passato "bevuto"}}
-      :english {:infinitive "to drink"
-                :irregular {:past "drunk"}}
-      :synsem {:essere false
-               :sem {:pred {:location place-sem
-                            :pred :bevere
-                            :essere false}
-                     :subj {:human true}}
-               :subcat {:2 {:sem place-sem
-                            :subcat {:1 {:sem {:city true}}}
-                            :cat :prep}}}})))
-
-
 (def comprare
   (unify
    transitive
@@ -1284,8 +1264,7 @@
 
 (def verbs-taking-pp
   (list
-   andare-taking-pp
-   bevere-taking-pp)) ;; need at least one essere-false verbs to allow vp[past] rule to work.
+   andare-taking-pp))
 
 (def modal-verbs
   (list
