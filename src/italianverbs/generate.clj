@@ -407,22 +407,6 @@
 
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
-(declare h-by-cs)
-
-(defn hs-by-cs [parent heads comps]
-  (if (not (empty? heads))
-    (lazy-cat
-     (h-by-cs parent (first heads) comps)
-     (hs-by-cs parent (rest heads) comps))))
-
-(defn h-by-cs [parent head comps]
-  (if (not (empty? comps))
-    (lazy-seq
-     (cons {:parent parent
-            :head head
-            :comp (first comps)}
-           (h-by-cs parent head (rest comps))))))
-
 (declare head-by-comps)
 
 (defn heads-by-comps [parent heads comps]
