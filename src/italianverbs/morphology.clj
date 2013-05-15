@@ -590,6 +590,11 @@
           (re-find #"^il " b))
      (str "al " (string/replace b #"^il " ""))
 
+     (and (= a "a")
+          (string? b)
+          (re-find #"^le " b))
+     (str "alle " (string/replace b #"^le " ""))
+
      (and (string? a) (string? b))
      (str a " " b)
 
