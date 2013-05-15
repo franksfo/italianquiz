@@ -4,13 +4,6 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
-(defn final-char-of [string]
-  (get string (- (.length string) 1)))
-
-(defn next-to-final-char-of [string]
-  (if (> (.length string) 1)
-    (get string (- (.length string) 2))))
-
 (defn suffix-of [word]
   "compute the final character given a lexical entry and agreement info in :agr."
   (let [suffix (cond
@@ -947,29 +940,6 @@
   (if (= (get verb :isco) true)
     "isc"
     ""))
-
-;; TODO: figure out how to interpolate variables into regexps.
-(defn except-first-words [first-words words]
-  (let [regex #"^[^ ]+[ ]?(.*)"]
-    (string/replace words regex (fn [[_ rest]] rest))))
-
-(defn plural-masc [italian]
-  (string/join " "
-               (cons (string/replace (first (string/split italian #"\s+"))
-                                     #"[eo]$" (fn [x] "i"))
-                     (rest (string/split italian #"\s+")))))
-
-(defn plural-fem [italian]
-  (string/join " "
-               (cons (string/replace #"[oa]$" "e" (first (string/split #"\s+"
-                                                                       italian)))
-                     (rest (string/split italian #"\s+")))))
-
-(defn single-fem [italian]
-  (string/join " "
-                (cons (string/replace #"[o]$" "a" (first (string/split #"\s+"
-                                                                    italian)))
-                      (rest (string/split italian #"\s+")))))
 
 (defn plural-en [english]
   (if (re-find #"[t][y]$" english) ;; city => cities
