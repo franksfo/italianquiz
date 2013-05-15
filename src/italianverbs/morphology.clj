@@ -595,6 +595,11 @@
           (re-find #"^le " b))
      (str "alle " (string/replace b #"^le " ""))
 
+     (and (= a "a")
+          (string? b)
+          (re-find #"^la " b))
+     (str "alla " (string/replace b #"^la " ""))
+
      (and (string? a) (string? b))
      (str a " " b)
 
