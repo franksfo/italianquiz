@@ -82,30 +82,28 @@
                 :2 comp
                 :extend {:a {:head 'transitive-verbs
                              :comp 'np}
-                         }}))
-;                         :b {:head 'verbs-taking-pp
-;                             :comp 'prep-phrase}
+                         :b {:head 'verbs-taking-pp
+                             :comp 'prep-phrase}}}))
 ;                         :c {:head 'transitive-verbs
 ;                             :comp 'accusative-pronouns}}}))
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
     (fs/merge vp
-;              {:extend {:d {:head 'essere-aux
-;                            :comp 'intransitive-verbs}
-;                        :e {:head 'avere-aux
-;                            :comp 'intransitive-verbs}
-
-;                        :f {:head 'avere-aux
-;                            :comp 'vp-past}
-;                        :g {:head 'essere-aux
-;                            :comp 'vp-past}
+              {:extend {:d {:head 'essere-aux
+                            :comp 'intransitive-verbs}
+                        :e {:head 'avere-aux
+                            :comp 'intransitive-verbs}
+                        :f {:head 'avere-aux
+                            :comp 'vp-past}
+                        :g {:head 'essere-aux
+                            :comp 'vp-past}}}))
 
 ;                        :h {:head 'modal-verbs
 ;                            :comp 'vp-infinitive-transitive}
 ;                        :i {:head 'modal-verbs
 ;                            :comp 'intransitive-verbs}}}))
-))
+
   (def vp-past
     (fs/merge vp
               {:comment "vp[past] &#x2192; head comp"
@@ -172,11 +170,15 @@
     (def s-present
       ;; unlike the case for future and imperfetto,
       ;; override the existing :extends in the case of s-present.
-      (fs/unifyc rule-base
-;                 {:head {:synsem {:sem {:pred :sognare}}}}
-                 {:comment "sentence[present]"
-                  :comment-plaintext "s[present] -> .."
-                  :synsem {:infl :present}}))
+      (fs/merge
+       (fs/unifyc rule-base
+                  {:comment "sentence[present]"
+                   :comment-plaintext "s[present] -> .."
+                   :synsem {:infl :present}})
+       {:extend {:e {:comp 'lexicon
+                     :head 'vp-present}
+                 :f {:comp 'np
+                     :head 'vp-present}}}))
     (def s-future
       (fs/unifyc rule-base
                  {:comment "sentence[future]"
@@ -275,6 +277,8 @@
     (fs/unifyc head-principle
                subcat-1-principle
                {
+                :comment "pp &#x2192; prep (np or propernoun)"
+                :comment-plaintext "pp -> prep (np or proper noun)"
                 :head head
                 :comp comp
                 :1 head

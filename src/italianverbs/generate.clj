@@ -510,7 +510,6 @@
                                                  (fs/get-in parent '(:comp :synsem)))))
   (if (not (empty? comps))
     (let [comp (first comps)
-          ;; TODO: do not (generate) head yet, or perhaps do (first (generate head)).
           head-expand (fs/get-in head '(:extend))
           head-is-finished? (parent-is-finished? head)
           comp-specification
