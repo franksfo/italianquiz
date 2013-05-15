@@ -355,7 +355,7 @@
            countable-noun
            feminine
            {:synsem {:sem {:pred :città
-                           :buyable false  ;; can't buy a city (unless you're a billionaire like Mike Bloomberg) 
+                           :buyable false  ;; can't buy a city (unless you're a billionaire like Mike Bloomberg)
                            :artifact true ;;
                            :city true}}
             :italian {:italian "città"}
@@ -1180,7 +1180,7 @@
               :irregular {:past "laughed"}}
     :synsem {:essere false
              :sem {:subj {:human true}
-                   :pred {:pred :ridere}}}}))
+                   :pred :ridere}}}))
 
 (def scrivere
   (unify
@@ -1200,7 +1200,7 @@
               :irregular {:past "dreamt"}}
     :synsem {:essere false
              :sem {:subj {:animate true}
-                   :pred {:pred :sognare}}}}))
+                   :pred :sognare}}}))
 
 ;; something's wrong with conjugation of this verb.
 ;(def telefonare
