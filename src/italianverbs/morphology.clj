@@ -514,6 +514,11 @@
      (str "degli " b)
 
      (and (= a "di i")
+          (string? b)
+          (re-find #"^s[t]" b))
+     (str "degli " b)
+
+     (and (= a "di i")
           (string? b))
      (str "dei " b)
 
