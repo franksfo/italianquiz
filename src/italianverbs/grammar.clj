@@ -276,7 +276,8 @@
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
-        comp (ref {:synsem {:cat :noun}})]
+        comp (ref {:synsem {:cat :noun
+                            :subcat '()}})]
     (fs/unifyc head-principle
                subcat-1-principle
                {
