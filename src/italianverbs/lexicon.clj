@@ -779,6 +779,7 @@
      :english {:agr subject-agreement :infl infl}
      :synsem {:essere essere-type
               :infl infl
+              :cat :verb
               :sem {:subj subj-sem}
               :subcat {:1 {:sem subj-sem
                            :cat :noun
@@ -1052,7 +1053,6 @@
                                     :1plur "do"
                                     :2plur "do"
                                     :3plur "do"}}}
-    
     :synsem {:cat :verb
              :infl :infinitive
              :sem {:pred :fare

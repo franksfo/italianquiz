@@ -377,20 +377,14 @@
 ;; to have this difficult-to-maintain static mapping.
 (defn eval-symbol [symbol]
   (cond
-   (= symbol 'adjectives) lex/adjectives
-   (= symbol 'nouns) lex/nouns
    (= symbol 'lexicon) lex/lexicon
    (= symbol 'tinylex) lex/tinylex
    (= symbol 'intransitive-verbs) lex/intransitive-verbs
    (= symbol 'transitive-verbs) lex/transitive-verbs
    (= symbol 'verbs-taking-pp) lex/verbs-taking-pp
    (= symbol 'modal-verbs) lex/modal-verbs
-   (= symbol 'prepositions) lex/prepositions
-   (= symbol 'determiners) lex/determiners
    (= symbol 'nominative-pronouns) lex/nominative-pronouns
    (= symbol 'accusative-pronouns) lex/accusative-pronouns
-   (= symbol 'proper-nouns) lex/proper-nouns
-   (= symbol 'common-nouns) lex/common-nouns
    (= symbol 'verbs) lex/verbs
 
    (= symbol 'nbar) gram/nbar
@@ -407,7 +401,6 @@
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
 
-   (= symbol 'aux-verbs) (list lex/aux-verbs)
    (= symbol 'essere-aux) (list lex/essere-aux)
    (= symbol 'avere-aux) (list lex/avere-aux)
 
