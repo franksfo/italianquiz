@@ -394,9 +394,7 @@
    (= symbol 'verbs) lex/verbs
 
    (= symbol 'nbar) gram/nbar
-   (= symbol 'nbar2) gram/nbar2
    (= symbol 'np) gram/np
-   (= symbol 'np2) gram/np2
    (= symbol 'prep-phrase) gram/prep-phrase
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive

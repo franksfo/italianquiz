@@ -238,42 +238,6 @@
       :extend {:a {:head 'common-nouns
                    :comp 'adjectives}}})))
 
-(def nbar2
-  (let [head (ref :top)
-        comp (ref :top)
-        subcat (ref :top)
-        agr (ref :top)
-        head-semantics (ref :top)
-        adjectival-predicate (ref :top)]
-    (fs/unifyc
-     head-principle
-     {:head head
-      :comp comp
-      :1 head
-      :2 comp}
-     (let [def (ref :top)]
-       {:head {:synsem {:def def}}
-        :synsem {:def def}})
-     {:synsem {:sem head-semantics}
-      :comp {:synsem {:sem {:mod head-semantics}}}}
-     {:synsem {:sem {:mod adjectival-predicate}}
-      :comp {:synsem {:sem {:mod head-semantics
-                            :pred adjectival-predicate}}}}
-     ;; the following will rule out pronouns, since they don't subcat for a determiner;
-     ;; (in fact, they don't subcat for anything)
-     {:synsem {:subcat {:1 {:cat :det}}}}
-     {:synsem {:agr agr
-               :subcat subcat}
-      :head {:synsem {:agr agr
-                      :subcat subcat}}
-      :comp {:italian {:agr agr}
-             :english {:agr agr}}
-      :comment "n&#x0305;2 &#x2192; noun adj"
-      :comment-plaintext "nbar2 -> noun adj"
-      :extend {:a {:head 'common-nouns
-                   :comp 'adjectives}}})))
-
-
 (def np-rules
   (let [head (ref :top)
         comp (ref :top)]
