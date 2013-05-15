@@ -556,11 +556,8 @@
                  (not head-is-finished?)
                  (not (fs/fail? comp-specification)))
             (do
-              (log/info "lazy-cat (hs X c) (hs X c)")
-              (let [heads (generate head)]
-                (lazy-cat
-                 (heads-by-comps parent heads (list comp-specification))
-                 (heads-by-comps parent heads (rest comps)))))
+              (log/debug "(hs X c)")
+              (heads-by-comps parent (generate head) comps))
 
             (not (nil? comp-expand))
             (lazy-cat
