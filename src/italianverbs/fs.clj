@@ -92,7 +92,7 @@
        (if (not (nil? (some #{:fail} (vals tmp-result))))
          :fail
          (do ;(println (str "no fail in: " vals))
-             tmp-result)))
+           tmp-result)))
      (and
       (= (type val1) clojure.lang.Ref)
       (not (= (type val2) clojure.lang.Ref)))
