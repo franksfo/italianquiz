@@ -429,55 +429,67 @@
                       (first heads) comps)
        (heads-by-comps parent (rest heads) comps)))))
 
-(defn hc-expands [parent]
-  (log/info (str "hc-expands: " (fs/get-in parent '(:comment-plaintext))))
-  (if (fs/get-in parent '(:extend))
-    (map (fn [expansion]
-           (let [head (eval-symbol (:head expansion))
-                 comp (eval-symbol (:comp expansion))]
-             (log/info (str "doing hc-expands: head:" head " ; comp: " comp " ; " (fs/get-in parent '(:comment-plaintext))))
-             {:head (if (seq? head)
-                      (shuffle
-                       (remove #(fs/fail? %)
-                               (map (fn [head-candidate]
-                                      (let [result
-                                            (unify head-candidate
-                                                   (do (log/info (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
-                                                       (log/info (str "sem filter: "
+(defn head-expands [parent expansion]
+  (log/debug (str "head-expands expands: " (fs/get-in parent '(:comment-plaintext))))
+  (if expansion
+    (let [head (eval-symbol (:head expansion))]
+      (log/info (str "doing head-expands:"
+                     (fs/get-in head '(:comment-plaintext))
+                     " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
+      {:head (if (seq? head)
+               (shuffle
+                (remove #(fs/fail? %)
+                        (map (fn [head-candidate]
+                               (let [result
+                                     (unify head-candidate
+                                            (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
+                                                (log/debug (str "sem filter: "
                                                                       {:synsem {:sem (lex/sem-impl
                                                                                       (fs/get-in parent '(:head :synsem :sem)))}}))
-                                                       (unify
-                                                        {:synsem {:sem (lex/sem-impl
-                                                                        (fs/get-in parent '(:head :synsem :sem)))}}
-                                                        (fs/get-in parent '(:head)))))]
-                                        (log/info (str "fail? " (fs/fail? result)))
-                                        result))
-                                    head)))
-                      ;; else: treat as rule: should generate at this point.
-                      (list (unify (fs/get-in parent '(:head)) head)))
-              :comp (if (seq? comp)
-                      (let [comps
-                            (shuffle
-                             (remove #(fs/fail? %)
-                                     (map (fn [comp-candidate]
-                                            (let [result
-                                                  (unify comp-candidate
-                                                         (do (log/info (str "trying comp candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo comp-candidate)))
-                                                             (log/info (str "sem filter: "
-                                                                            {:synsem {:sem (lex/sem-impl
-                                                                                            (fs/get-in parent '(:comp :synsem :sem)))}}))
+                                                (unify
+                                                 {:synsem {:sem (lex/sem-impl
+                                                                 (fs/get-in parent '(:head :synsem :sem)))}}
+                                                 (fs/get-in parent '(:head)))))]
+                                 (if (not (fs/fail? result))
+                                   (log/debug (str "fail? " (fs/fail? result))))
+                                 result))
+                             head)))
+               ;; else: treat as rule: should generate at this point.
+               (list (unify (fs/get-in parent '(:head)) head)))})))
 
-                                                             (unify
-                                                              {:synsem {:sem (lex/sem-impl
-                                                                              (fs/get-in parent '(:comp :synsem :sem)))}}
-                                                              (fs/get-in parent '(:comp)))))]
-                                              (log/info (str "fail? " (fs/fail? result)))
-                                              result))
-                                          comp)))]
-                        (log/debug (str "size of comps of head: " (fs/get-in parent '(:comment-plaintext)) " : " (.size comps)))
-                        comps)
-                      (list (unify (fs/get-in parent '(:comp)) comp)))}))
-         (shuffle (vals (fs/get-in parent '(:extend)))))))
+(defn hc-expands [parent expansion]
+  (log/debug (str "hc-expands: " (fs/get-in parent '(:comment-plaintext))))
+  (if expansion
+    (let [head (eval-symbol (:head expansion))
+          comp (eval-symbol (:comp expansion))]
+      (log/debug (str "doing hc-expands: **HEAD**:"
+                       (fs/get-in head '(:comment-plaintext))
+                       " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
+      (log/debug (str "doing hc-expands: **COMP**:"
+                       (fs/get-in comp '(:comment-plaintext))
+                       " (" (if (not (seq? comp)) (fo comp) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
+      {:head (if (seq? head)
+               (shuffle
+                (remove #(fs/fail? %)
+                        (map (fn [head-candidate]
+                               (let [result
+                                     (unify head-candidate
+                                            (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
+                                                (log/debug (str "sem filter: "
+                                                                      {:synsem {:sem (lex/sem-impl
+                                                                                      (fs/get-in parent '(:head :synsem :sem)))}}))
+                                                (unify
+                                                 {:synsem {:sem (lex/sem-impl
+                                                                 (fs/get-in parent '(:head :synsem :sem)))}}
+                                                 (fs/get-in parent '(:head)))))]
+                                 (if (not (fs/fail? result))
+                                   (log/debug (str "fail? " (fs/fail? result))))
+                                 result))
+                             head)))
+               ;; else: treat as rule: should generate at this point.
+               (list (unify (fs/get-in parent '(:head)) head)))
+       :comp (if (seq? comp) comp
+                 (list (unify (fs/get-in parent '(:comp)) comp)))})))
 
 (defn generate-all-from-expands [parent expands]
   (if (not (empty? expands))
@@ -498,19 +510,46 @@
                       (nil? (fs/get-in parent '(:italian :a :italian)))
                       (nil? (fs/get-in parent '(:italian :a :infinitive))))))]
     (if (= retval true)
-      (log/debug (str "parent-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " : " retval)))
+      (if (fs/get-in parent '(:comment-plaintext))
+        (log/info (str "parent-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
     retval))
 
-(defn generate [parent]
-  (cond (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))
-        nil
-        (not (parent-is-finished? parent))
-        (do
-          (log/debug (str "generate " (fs/get-in parent '(:comment-plaintext))))
-          (generate-all-from-expands parent (hc-expands parent)))
+;; TODO: add hc-expands as a param and do lazy-seq (cons generate) over it.
+(defn generate [parent & [ hc-exps ]]
+  (let [head-expands
+        (if false ;; disabling
+          (if (nil? hc-exps)
+            (map (fn [extend]
+                   (head-expands parent extend))
+                 (do
+                   (let [shuffled (shuffle (vals (fs/get-in parent '(:extend))))]
+                     (log/info (str "expands (head) of parent: " (fs/get-in parent '(:comment-plaintext)) " : " shuffled))
+                     shuffled)))))
 
-        :else
-        nil))
+
+        hc-exps (if (nil? hc-exps)
+                  (map (fn [extend]
+                         (do (log/debug (str "DOING EXTEND: " extend))
+                             (hc-expands parent extend)))
+                       (do
+                         (let [shuffled (shuffle (vals (fs/get-in parent '(:extend))))]
+                           (log/info (str "expands of parent: " (fs/get-in parent '(:comment-plaintext)) " : " shuffled))
+                           shuffled))))]
+    (log/info (str "head-expands: " head-expands))
+    (log/info (str "hc-exps: " hc-exps))
+    (cond (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))
+          nil
+          (empty? hc-exps)
+          nil
+          (not (parent-is-finished? parent))
+          (do
+            (log/info (str "generating " (fs/get-in parent '(:comment-plaintext)) " with expansion: " (first hc-exps)))
+            (lazy-seq
+             (cons
+              (generate-all-from-expands parent (list (first hc-exps)))
+              (generate parent (rest hc-exps)))))
+          :else
+          nil)))
 
 (defn head-by-comps [parent head comps]
   "Returns a lazy sequence of expressions generated by adjoining (head,comp_i) to parent, for all
@@ -583,7 +622,7 @@
                   (log/debug (str "failed unification: " (fo head) " and " (fo comp-specification)))
                   (head-by-comps parent head (rest comps)))
                 (do
-                  (log/debug (str "successful unification: " (fo head) " and " (fo comp-specification)))
+                  (log/info (str "successful unification: " (fo head) " and " (fo comp-specification) " for " (fs/get-in parent '(:comment-plaintext))))
                   (lazy-seq
                    (cons result
                          (head-by-comps parent head (rest comps)))))))))))
