@@ -500,7 +500,8 @@
                           (if (and (= (fs/get-in parent '(:head :synsem :subcat :1))
                                       (fs/get-in parent '(:comp :synsem)))
                                    (map? (fs/get-in head '(:synsem :subcat :1))))
-                            {:synsem (fs/get-in head '(:synsem :subcat :1))}
+                            (unify {:synsem (fs/get-in head '(:synsem :subcat :1))}
+                                   {:synsem {:sem (lex/sem-impl (fs/get-in head '(:synsem :subcat :1 :sem)))}})
                             :top)))))
           comp-expand (if (not (fs/fail? comp-specification)) (generate comp-specification))]
 
