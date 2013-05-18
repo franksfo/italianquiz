@@ -80,14 +80,14 @@
                 :comp comp
                 :1 head
                 :2 comp
-                :extend {:a {:head 'transitive-verbs
+                :extend {:a {:head 'lexicon
                              :comp 'np}
-                         :b {:head 'verbs-taking-pp
+                         :b {:head 'lexicon
                              :comp 'prep-phrase}
-                         :c {:head 'modal-verbs
+                         :c {:head 'lexicon
                              :comp 'vp-infinitive-transitive}
-                         :d {:head 'modal-verbs
-                             :comp 'intransitive-verbs}
+                         :d {:head 'lexicon
+                             :comp 'lexicon}
 
 ;                         :c {:head 'transitive-verbs
 ;                             :comp 'accusative-pronouns}
@@ -96,13 +96,9 @@
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
     (fs/merge vp
-              {:extend {:e {:head 'essere-aux
-                            :comp 'intransitive-verbs}
-                        :f {:head 'avere-aux
-                            :comp 'intransitive-verbs}
-                        :g {:head 'avere-aux
+              {:extend {:e {:head 'lexicon
                             :comp 'vp-past}
-                        :h {:head 'essere-aux
+                        :f {:head 'lexicon
                             :comp 'vp-past}
                }}))
 
@@ -117,7 +113,8 @@
                verb-inflection-morphology
                {:head {:synsem {:cat :verb
                                 :infl :infinitive
-                                :subcat {:2 {:cat :noun}}}}}
+                                :subcat {:2 {:cat :noun
+                                             :subcat '()}}}}}
                {:comment "vp[inf] &#x2192; head comp"
                 :comment-plaintext "vp[inf] -> head comp"
                 :head head
@@ -125,7 +122,7 @@
                 :1 head
                 :2 comp
                 :extend {
-                         :a {:head 'transitive-verbs
+                         :a {:head 'lexicon
                              :comp 'np}}}))))
 
 (def subject-verb-agreement

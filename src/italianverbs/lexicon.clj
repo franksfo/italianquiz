@@ -800,8 +800,8 @@
             :synsem {:sem {:obj obj-sem}
                      :infl infl
                      :subcat {:2 {:sem obj-sem
-                                  ;; uncomment this:
-                                  ;;                                  :cat :noun
+                                  :subcat '()
+                                  :cat :noun
                                   :agr {:case {:not :nom}}}}}})))
 
 (def andare
@@ -837,6 +837,7 @@
    (let [place-sem (ref {:place true})]
      {:synsem {:sem {:location place-sem}
                :subcat {:2 {:sem place-sem
+                            :subcat '()
                             :cat :prep}}}})
    {:note "andare-pp"}))
 

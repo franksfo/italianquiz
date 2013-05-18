@@ -381,14 +381,8 @@
    (= symbol 'lexicon) (lazy-seq (cons (first lex/lexicon)
                                        (rest lex/lexicon)))
    (= symbol 'tinylex) lex/tinylex
-   (= symbol 'intransitive-verbs) lex/intransitive-verbs
-   (= symbol 'transitive-verbs) lex/transitive-verbs
-   (= symbol 'verbs-taking-pp) lex/verbs-taking-pp
-   (= symbol 'modal-verbs) (lazy-seq (cons (first lex/modal-verbs)
-                                           (rest lex/modal-verbs)))
    (= symbol 'nominative-pronouns) lex/nominative-pronouns
    (= symbol 'accusative-pronouns) lex/accusative-pronouns
-   (= symbol 'verbs) lex/verbs
 
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
@@ -403,9 +397,6 @@
    (= symbol 'vp) gram/vp
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
-
-   (= symbol 'essere-aux) (list lex/essere-aux)
-   (= symbol 'avere-aux) (list lex/avere-aux)
 
 
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
