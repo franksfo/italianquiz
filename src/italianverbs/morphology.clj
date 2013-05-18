@@ -577,6 +577,11 @@
           (re-find #"^[aeiou]" b))
      (str "quell'" b)
 
+     (and (= a "questo")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "quest'" b)
+
      (and (= a "quella")
           (string? b)
           (re-find #"^[aeiou]" b))
