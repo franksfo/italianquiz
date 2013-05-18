@@ -572,20 +572,15 @@
           (re-find #"^[aeiou]" b))
      (str "l'" b)
 
-     (and (= a "quello")
+     (and (= a "quell[ao]")
           (string? b)
           (re-find #"^[aeiou]" b))
      (str "quell'" b)
 
-     (and (= a "questo")
+     (and (= a "quest[aeio]")
           (string? b)
           (re-find #"^[aeiou]" b))
      (str "quest'" b)
-
-     (and (= a "quella")
-          (string? b)
-          (re-find #"^[aeiou]" b))
-     (str "quell'" b)
 
      ;; prepositional phrases
      (and (= a "a")
