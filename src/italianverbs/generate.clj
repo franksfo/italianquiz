@@ -465,7 +465,7 @@
                              head)))
                ;; else: treat as rule: should generate at this point.
                (list (unify (fs/get-in parent '(:head)) head)))
-       :comp (if (seq? comp) comp
+       :comp (if (seq? comp) (shuffle comp)
                  (list (unify (fs/get-in parent '(:comp)) comp)))})))
 
 (defn generate-all-from-expands [parent expands]
