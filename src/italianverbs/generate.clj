@@ -488,7 +488,6 @@
   {:head (fo (:head parent))
    :comp (fo (:comp parent))})
 
-;; TODO: add hc-expands as a param and do lazy-seq (cons generate) over it.
 (defn generate [parent & [ hc-exps ]]
   (log/info (str "generate: " (fs/get-in parent '(:comment-plaintext))))
   (let [hc-exps (if (nil? hc-exps)
