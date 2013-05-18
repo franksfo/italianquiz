@@ -413,7 +413,7 @@
 (declare head-by-comps)
 
 (defn heads-by-comps [parent heads comps]
-  (log/info (str "heads-by-comps begin: " (fs/get-in parent '(:comment-plaintext))))
+  (log/debug (str "heads-by-comps begin: " (fs/get-in parent '(:comment-plaintext))))
   (log/debug (str "type of comps: " (type comps)))
   (if (map? comps)
     (log/debug (str "the comp is a map: " comps)))
@@ -438,7 +438,7 @@
          (heads-by-comps parent (rest heads) comps))))))
 
 (defn hc-expands [parent expansion]
-  (log/info (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
+  (log/debug (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
   (if expansion
     (let [head (eval-symbol (:head expansion))
           comp (eval-symbol (:comp expansion))]
@@ -469,7 +469,7 @@
                  (list (unify (fs/get-in parent '(:comp)) comp)))})))
 
 (defn generate-all-from-expands [parent expands]
-  (log/info "generate-all-from-expands: " (fs/get-in parent '(:comment-plaintext)))
+  (log/debug "generate-all-from-expands: " (fs/get-in parent '(:comment-plaintext)))
   (if (not (empty? expands))
     (do
       (log/debug (str "generate-all-from-expands: first expands: " (first expands)))
