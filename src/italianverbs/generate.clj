@@ -482,7 +482,7 @@
          result)
        (generate-all-from-expands parent (rest expands))))))
 
-(defn parent-is-finished? [parent]
+(defn phrase-is-finished? [parent]
   (let [retval (not
                 (or
                  (nil? (fs/get-in parent '(:italian)))
@@ -491,7 +491,7 @@
                       (nil? (fs/get-in parent '(:italian :a :infinitive))))))]
     (if (= retval true)
       (if (fs/get-in parent '(:comment-plaintext))
-        (log/debug (str "parent-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
+        (log/debug (str "phrase-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
     retval))
 
 (defn fo-exp [parent]
@@ -513,12 +513,12 @@
     (log/debug (str "hc-exps: " hc-exps))
     (log/debug (str "cond1: " (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))))
     (log/debug (str "cond2: " (empty? hc-exps)))
-    (log/debug (str "cond3: " (not (parent-is-finished? parent))))
+    (log/debug (str "cond3: " (not (phrase-is-finished? parent))))
     (cond (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))
           nil
           (empty? hc-exps)
           nil
-          (not (parent-is-finished? parent))
+          (not (phrase-is-finished? parent))
           (do
             (log/debug (str "generating " (fs/get-in parent '(:comment-plaintext)) " with expansion: " (fo-exp (first hc-exps))))
             (lazy-cat
@@ -534,10 +534,10 @@
   (if (not (empty? comps))
     (let [comp (first comps)
           head-expand (fs/get-in head '(:extend))
-          head-is-finished? (parent-is-finished? head)]
+          head-is-finished? (phrase-is-finished? head)]
       (log/debug (str "HEAD-IS-FINISHED? : " head-is-finished?))
-      (log/debug (str "COMP-IS-FINISHED? : " (parent-is-finished? comp)))
-      (if (parent-is-finished? comp)
+      (log/debug (str "COMP-IS-FINISHED? : " (phrase-is-finished? comp)))
+      (if (phrase-is-finished? comp)
         (log/debug (str "COMP: " (fo comp))))
       (log/debug (str "COND1: " (fs/get-in parent '(:comment-plaintext)) " : "
                       (and (not (nil? head-expand))
@@ -560,7 +560,7 @@
                     (do
                       (log/debug "deferring comp generation until head generation is done.")
                       comp)
-                    (if (parent-is-finished? comp)
+                    (if (phrase-is-finished? comp)
                       (do
                         (log/debug (str "comp generation: " (fo comp) " is finished."))
                         comp)
@@ -584,7 +584,7 @@
                  (log/debug "3. hs X c")
                  (heads-by-comps parent (generate head) (lazy-seq (cons comp-specification (rest comps)))))
 
-               (and (not (parent-is-finished? comp))
+               (and (not (phrase-is-finished? comp))
                     (not (nil? comp-generate)))
                (do
                  (log/debug "4. lazy-cat (h X cg) (h (rest c)")

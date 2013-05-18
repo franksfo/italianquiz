@@ -100,9 +100,10 @@
                         :g {:head 'essere-aux
                             :comp 'vp-past}
                         :h {:head 'modal-verbs
-                           :comp 'vp-infinitive-transitive}
+                            :comp 'vp-infinitive-transitive}
                         :i {:head 'modal-verbs
-                            :comp 'intransitive-verbs}}}))
+                            :comp 'intransitive-verbs}
+               }}))
 
   (def vp-past
     (fs/merge vp
@@ -117,6 +118,7 @@
                                 :infl :infinitive
                                 :subcat {:2 {:cat :noun}}}}}
                {:comment "vp[inf] &#x2192; head comp"
+                :comment-plaintext "vp[inf] -> head comp"
                 :head head
                 :comp comp
                 :1 head
