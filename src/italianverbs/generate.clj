@@ -545,9 +545,8 @@
       (cond (and (not (nil? head-expand))
                  (not head-is-finished?))
             (do
-              (log/debug "1. lazy-cat (hs X ce) (hs X (rest c))")
-              (let [heads (generate head)]
-                (heads-by-comps parent heads comps)))
+              (log/debug "1. (hs X cs)")
+              (heads-by-comps parent (generate head) comps))
             :else
             (let [comp-specification
                   (unify comp
