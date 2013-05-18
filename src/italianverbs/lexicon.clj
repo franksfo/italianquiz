@@ -1140,7 +1140,7 @@
                                     :1plur "possiamo"
                                     :2plur "potete"
                                     :3plur "possono"}}}
-    :english {:infinitive "to be able"
+    :english {:infinitive "to be able to"
               :irregular {:past "could"
                           :present {:1sing "can"
                                     :2sing "can"
