@@ -84,6 +84,11 @@
                              :comp 'np}
                          :b {:head 'verbs-taking-pp
                              :comp 'prep-phrase}
+                         :c {:head 'modal-verbs
+                             :comp 'vp-infinitive-transitive}
+                         :d {:head 'modal-verbs
+                             :comp 'intransitive-verbs}
+
 ;                         :c {:head 'transitive-verbs
 ;                             :comp 'accusative-pronouns}
                          }}))
@@ -91,18 +96,14 @@
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
     (fs/merge vp
-              {:extend {:d {:head 'essere-aux
-                            :comp 'intransitive-verbs}
-                        :e {:head 'avere-aux
+              {:extend {:e {:head 'essere-aux
                             :comp 'intransitive-verbs}
                         :f {:head 'avere-aux
-                            :comp 'vp-past}
-                        :g {:head 'essere-aux
-                            :comp 'vp-past}
-                        :h {:head 'modal-verbs
-                            :comp 'vp-infinitive-transitive}
-                        :i {:head 'modal-verbs
                             :comp 'intransitive-verbs}
+                        :g {:head 'avere-aux
+                            :comp 'vp-past}
+                        :h {:head 'essere-aux
+                            :comp 'vp-past}
                }}))
 
   (def vp-past
