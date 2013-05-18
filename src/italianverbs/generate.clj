@@ -381,8 +381,6 @@
    (= symbol 'lexicon) (lazy-seq (cons (first lex/lexicon)
                                        (rest lex/lexicon)))
    (= symbol 'tinylex) lex/tinylex
-   (= symbol 'nominative-pronouns) lex/nominative-pronouns
-   (= symbol 'accusative-pronouns) lex/accusative-pronouns
 
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np

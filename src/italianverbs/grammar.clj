@@ -88,9 +88,6 @@
                              :comp 'vp-infinitive-transitive}
                          :d {:head 'lexicon
                              :comp 'lexicon}
-
-;                         :c {:head 'transitive-verbs
-;                             :comp 'accusative-pronouns}
                          }}))
 
   (def vp-present
