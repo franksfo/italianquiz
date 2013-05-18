@@ -779,6 +779,7 @@
      :english {:agr subject-agreement :infl infl}
      :synsem {:essere essere-type
               :infl infl
+              :cat :verb
               :sem {:subj subj-sem}
               :subcat {:1 {:sem subj-sem
                            :cat :noun
@@ -1052,7 +1053,6 @@
                                     :1plur "do"
                                     :2plur "do"
                                     :3plur "do"}}}
-    
     :synsem {:cat :verb
              :infl :infinitive
              :sem {:pred :fare
@@ -1140,7 +1140,7 @@
                                     :1plur "possiamo"
                                     :2plur "potete"
                                     :3plur "possono"}}}
-    :english {:infinitive "to be able"
+    :english {:infinitive "to be able to"
               :irregular {:past "could"
                           :present {:1sing "can"
                                     :2sing "can"
@@ -1617,7 +1617,8 @@
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
                                         ;(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
-(def tinylex (list (it "Napoli") (it "Roma") (it "io")))
+                                        ;(def tinylex (list (it "Napoli") (it "Roma") (it "io")))
+(def tinylex (list (it "gatto") (it "uomo")))
 
 
 ;(def nouns (list (first (it "professoressa"))))

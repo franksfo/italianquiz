@@ -83,9 +83,10 @@
                 :extend {:a {:head 'transitive-verbs
                              :comp 'np}
                          :b {:head 'verbs-taking-pp
-                             :comp 'prep-phrase}}}))
+                             :comp 'prep-phrase}
 ;                         :c {:head 'transitive-verbs
-;                             :comp 'accusative-pronouns}}}))
+;                             :comp 'accusative-pronouns}
+                         }}))
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
@@ -97,12 +98,12 @@
                         :f {:head 'avere-aux
                             :comp 'vp-past}
                         :g {:head 'essere-aux
-                            :comp 'vp-past}}}))
-
-;                        :h {:head 'modal-verbs
-;                            :comp 'vp-infinitive-transitive}
-;                        :i {:head 'modal-verbs
-;                            :comp 'intransitive-verbs}}}))
+                            :comp 'vp-past}
+                        :h {:head 'modal-verbs
+                            :comp 'vp-infinitive-transitive}
+                        :i {:head 'modal-verbs
+                            :comp 'intransitive-verbs}
+               }}))
 
   (def vp-past
     (fs/merge vp
@@ -117,6 +118,7 @@
                                 :infl :infinitive
                                 :subcat {:2 {:cat :noun}}}}}
                {:comment "vp[inf] &#x2192; head comp"
+                :comment-plaintext "vp[inf] -> head comp"
                 :head head
                 :comp comp
                 :1 head
@@ -178,7 +180,8 @@
        {:extend {:e {:comp 'lexicon
                      :head 'vp-present}
                  :f {:comp 'np
-                     :head 'vp-present}}}))
+                     :head 'vp-present}
+                 }}))
     (def s-future
       (fs/unifyc rule-base
                  {:comment "sentence[future]"
@@ -232,13 +235,15 @@
      {:synsem {:agr agr
                :subcat subcat}
       :head {:synsem {:agr agr
+                      :cat :noun
                       :subcat subcat}}
-      :comp {:italian {:agr agr}
+      :comp {:synsem {:cat :adjective}
+             :italian {:agr agr}
              :english {:agr agr}}
       :comment "n&#x0305; &#x2192; noun adj"
       :comment-plaintext "nbar -> noun adj"
-      :extend {:a {:head 'common-nouns
-                   :comp 'adjectives}}})))
+      :extend {:a {:head 'lexicon
+                   :comp 'lexicon}}})))
 
 (def np-rules
   (let [head (ref :top)
@@ -253,6 +258,7 @@
                        :comp {:synsem {:def def}}})
                     {:head {:synsem {:cat :noun
                                      :agr agr}}
+                     :comp {:synsem {:cat :det}}
                      :synsem {:agr agr}}
                     {:comment "np &#x2192; det (noun or nbar)"
                      :comment-plaintext "np -> det (noun or nbar)"
@@ -262,9 +268,9 @@
                      :1 comp
                      :2 head
                      :extend {
-                              :a {:comp 'determiners
-                                  :head 'common-nouns}
-                              :b {:comp 'determiners
+                              :a {:comp 'lexicon
+                                  :head 'lexicon}
+                              :b {:comp 'lexicon
                                   :head 'nbar}}
                      }
                     ))))
@@ -273,7 +279,8 @@
 
 (def prep-phrase
   (let [head (ref {:synsem {:cat :prep}})
-        comp (ref :top)]
+        comp (ref {:synsem {:cat :noun
+                            :subcat '()}})]
     (fs/unifyc head-principle
                subcat-1-principle
                {
@@ -283,10 +290,10 @@
                 :comp comp
                 :1 head
                 :2 comp
-                :extend {:a {:head 'prepositions
+                :extend {:a {:head 'lexicon
                              :comp 'np}
-                         :b {:head 'prepositions
-                             :comp 'proper-nouns}}})))
+                         :b {:head 'lexicon
+                             :comp 'lexicon}}})))
 
 ;; TODO: move to lexicon (maybe).
 (defn italian-number [number]
