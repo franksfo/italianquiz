@@ -83,9 +83,10 @@
                 :extend {:a {:head 'transitive-verbs
                              :comp 'np}
                          :b {:head 'verbs-taking-pp
-                             :comp 'prep-phrase}}}))
+                             :comp 'prep-phrase}
 ;                         :c {:head 'transitive-verbs
-;                             :comp 'accusative-pronouns}}}))
+;                             :comp 'accusative-pronouns}
+                         }}))
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
@@ -97,12 +98,11 @@
                         :f {:head 'avere-aux
                             :comp 'vp-past}
                         :g {:head 'essere-aux
-                            :comp 'vp-past}}}))
-
-;                        :h {:head 'modal-verbs
-;                            :comp 'vp-infinitive-transitive}
-;                        :i {:head 'modal-verbs
-;                            :comp 'intransitive-verbs}}}))
+                            :comp 'vp-past}
+                        :h {:head 'modal-verbs
+                           :comp 'vp-infinitive-transitive}
+                        :i {:head 'modal-verbs
+                            :comp 'intransitive-verbs}}}))
 
   (def vp-past
     (fs/merge vp
@@ -178,7 +178,8 @@
        {:extend {:e {:comp 'lexicon
                      :head 'vp-present}
                  :f {:comp 'np
-                     :head 'vp-present}}}))
+                     :head 'vp-present}
+                 }}))
     (def s-future
       (fs/unifyc rule-base
                  {:comment "sentence[future]"
