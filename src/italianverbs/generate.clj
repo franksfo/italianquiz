@@ -477,20 +477,34 @@
        :comp (if (seq? comp) (shuffle comp)
                  (list (unify (fs/get-in parent '(:comp)) comp)))})))
 
-(defn hc-expand-all [parent & [ extend-vals ]]
-  "create 'extends-vals' with (vals (:extend parent)) or (shuffle (vals (:extend parent)))."
-  (let [extend-vals (if extend-vals extend-vals (shuffle (vals (:extend parent))))]
-    (if (not (empty? extend-vals))
-      (lazy-seq
-       (cons (hc-expands parent (first extend-vals))
-             (hc-expand-all parent (rest extend-vals)))))))
+;; usage of this will replace hc-expands (above)
+(defn head-expands [parent & [ expansions ] ]
+  (let [expansions
+        (if (not (nil? expansions))
+          expansions
+          (shuffle (vals (:extend parent))))]
+    (if (not (empty? expansions))
+      (let [expansion (first expansions)]
+        (lazy-cat
+         (let [head (eval-symbol (:head expansion))]
+           (log/debug (str "doing hc-expands:"
+                           (fs/get-in head '(:comment-plaintext))
+                           " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
+           (lazy-head-expands parent expansion))
+         (head-expands parent (rest expansions)))))))
+
+(defn hc-expand-all [parent extend-vals]
+  (if (not (empty? extend-vals))
+    (lazy-seq
+     (cons (hc-expands parent (first extend-vals))
+           (hc-expand-all parent (rest extend-vals))))))
 
 (defn comps-of-expand [expand]
   (:comp expand))
 
 (defn generate [parent & [ hc-exps ]]
   (log/info (str "generate: " (fs/get-in parent '(:comment-plaintext))))
-  (let [hc-exps (if hc-exps hc-exps (hc-expand-all parent))]
+  (let [hc-exps (if hc-exps hc-exps (hc-expand-all parent (shuffle (vals (:extend parent)))))]
     (log/debug (str "cond1: " (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))))
     (log/debug (str "cond2: " (empty? hc-exps)))
     (log/debug (str "cond3: " (not (phrase-is-finished? parent))))
