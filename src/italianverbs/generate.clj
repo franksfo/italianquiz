@@ -448,14 +448,16 @@
               (map (fn [head-candidate]
                      (let [result
                            (unify head-candidate
-                                  (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
-                                      (log/debug (str "sem filter: "
-                                                      {:synsem {:sem (lex/sem-impl
-                                                                      (fs/get-in parent '(:head :synsem :sem)))}}))
-                                      (unify
-                                       {:synsem {:sem (lex/sem-impl
-                                                       (fs/get-in parent '(:head :synsem :sem)))}}
-                                       (fs/get-in parent '(:head)))))]
+                                  (unify
+                                   (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
+                                       (log/debug (str "sem filter: "
+                                                       {:synsem {:sem (lex/sem-impl
+                                                                       (fs/get-in parent '(:head :synsem :sem)))}}))
+                                       (unify
+                                        {:synsem {:sem (lex/sem-impl
+                                                        (fs/get-in parent '(:head :synsem :sem)))}}
+                                        (unify (fs/get-in parent '(:head))
+                                               {:comp-expand (:comp expansion)})))))]
                        (if (not (fs/fail? result))
                          (do (log/debug (str "success: " (fo result)))
                              result)
@@ -463,7 +465,7 @@
                              :fail))))
                    (shuffle head)))
              ;; else: treat as rule: should generate at this point.
-             (list (unify (fs/get-in parent '(:head)) head)))))
+             (list (unify (fs/get-in parent '(:head)) (unify head {:comp-expand (:comp expansion)}))))))
 
 (defn hc-expands [parent expansion]
   (log/info (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
