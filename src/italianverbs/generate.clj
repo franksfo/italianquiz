@@ -448,7 +448,7 @@
                                                                  (fs/get-in parent '(:head :synsem :sem)))}}
                                                  (fs/get-in parent '(:head)))))]
                                 (if (not (fs/fail? result))
-                                   (do (log/info (str "success: " (fo result)))
+                                   (do (log/debug (str "success: " (fo result)))
                                        result)
                                    (do (log/debug (str "fail: " (fo head-candidate)))
                                        :fail))))
@@ -457,20 +457,6 @@
                (list (unify (fs/get-in parent '(:head)) head)))
        :comp (if (seq? comp) (shuffle comp)
                  (list (unify (fs/get-in parent '(:comp)) comp)))})))
-
-(defn generate-all-from-expands [parent expands]
-  (log/debug "generate-all-from-expands: " (fs/get-in parent '(:comment-plaintext)))
-  (if (not (empty? expands))
-    (do
-      (log/debug (str "generate-all-from-expands: first expands: " (first expands)))
-      (log/debug (str "generate-all-from-expands: first expands: " (fs/get-in parent '(:comment-plaintext)) ":" (fo (first expands))))
-      (lazy-cat
-       (let [result
-             (heads-by-comps parent
-                             (:head (first expands))
-                             (:comp (first expands)))]
-         result)
-       (generate-all-from-expands parent (rest expands))))))
 
 (defn phrase-is-finished? [parent]
   (let [retval (not
@@ -508,10 +494,9 @@
           (empty? hc-exps)
           nil
           (not (phrase-is-finished? parent))
-          (do
-            (log/info (str "  " (fs/get-in parent '(:comment-plaintext)) " with: " (fo-exp (first hc-exps))))
+          (let [expand (first hc-exps)]
             (lazy-cat
-             (generate-all-from-expands parent (list (first hc-exps)))
+             (heads-by-comps parent (:head expand) (:comp expand))
              (generate parent (rest hc-exps))))
           :else
           nil)))
