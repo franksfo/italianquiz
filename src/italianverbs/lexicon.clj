@@ -179,16 +179,19 @@
 
 (def modal
   "modal verbs take a VP[inf] as their 2nd arg. the subject of the modal verb is the same as the subject of the VP[inf]"
-  (unify
-   (let [subj-sem (ref :top)]
-     {:synsem {:sem {:subj subj-sem}
-               :subcat {:2 {:sem {:subj subj-sem}}}}})
-   (let [vp-inf-sem (ref :top)]
-     {:synsem {:sem {:obj vp-inf-sem}
-               :subcat {:2 {:sem vp-inf-sem
+  (let [subj-sem (ref :top)
+        vp-inf-sem (ref {:subj subj-sem})
+        subj-subcat (ref {:cat :noun
+                          :sem subj-sem})]
+     {:synsem {:sem {:subj subj-sem
+                     :obj vp-inf-sem}
+               :subcat {:1 subj-subcat
+                        :2 {:sem vp-inf-sem
                             :cat :verb
-                            :infl :infinitive}}}})
-   {:english {:modal true}}))
+                            :infl :infinitive
+                            :subcat {:1 subj-subcat
+                                     :2 '()}}}}
+      :english {:modal true}}))
 
 (def nouns
   (let [gender (ref :top)
@@ -891,7 +894,8 @@
      {:synsem {:subcat {:1 subject
                         :2 {:cat :verb
                             :essere false
-                            :subcat {:1 subject}
+                            :subcat {:1 subject
+                                     :2 '()}
                             :sem {:pred v-past-pred}
                             :infl :past}}
                :sem {:pred v-past-pred}
@@ -928,7 +932,7 @@
               :irregular {:past "slept"}}
     :synsem {:essere false
              :sem {:subj {:animate true}
-                   :pred {:pred :dormire}}}}))
+                   :pred :dormire}}}))
 
 (def dovere
   (unify
@@ -997,7 +1001,7 @@
       {:synsem {:subcat {:1 subject
                          :2 {:cat :verb
                              :essere true
-                             :subcat {:1 subject}
+                             :subcat {:1 subject :2 '()}
                              :sem {:pred v-past-pred}
                              :infl :past}}
                 :sem {:pred v-past-pred}
