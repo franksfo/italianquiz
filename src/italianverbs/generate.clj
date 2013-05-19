@@ -438,6 +438,33 @@
         (log/debug (str "phrase-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
     retval))
 
+(defn lazy-head-expands [parent expansion]
+  (let [head (eval-symbol (:head expansion))]
+    (log/debug (str "doing hc-expands:"
+                    (fs/get-in head '(:comment-plaintext))
+                    " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
+    (if (seq? head)
+      (remove #(fs/fail? %)
+              (map (fn [head-candidate]
+                     (let [result
+                           (unify head-candidate
+                                  (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
+                                      (log/debug (str "sem filter: "
+                                                      {:synsem {:sem (lex/sem-impl
+                                                                      (fs/get-in parent '(:head :synsem :sem)))}}))
+                                      (unify
+                                       {:synsem {:sem (lex/sem-impl
+                                                       (fs/get-in parent '(:head :synsem :sem)))}}
+                                       (fs/get-in parent '(:head)))))]
+                       (if (not (fs/fail? result))
+                         (do (log/debug (str "success: " (fo result)))
+                             result)
+                         (do (log/debug (str "fail: " (fo head-candidate)))
+                             :fail))))
+                   (shuffle head)))
+             ;; else: treat as rule: should generate at this point.
+             (list (unify (fs/get-in parent '(:head)) head)))))
+
 (defn hc-expands [parent expansion]
   (log/info (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
   (if expansion
@@ -446,27 +473,7 @@
       (log/debug (str "doing hc-expands:"
                        (fs/get-in head '(:comment-plaintext))
                        " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
-      {:head (if (seq? head)
-               (remove #(fs/fail? %)
-                       (map (fn [head-candidate]
-                              (let [result
-                                    (unify head-candidate
-                                           (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
-                                               (log/debug (str "sem filter: "
-                                                               {:synsem {:sem (lex/sem-impl
-                                                                               (fs/get-in parent '(:head :synsem :sem)))}}))
-                                               (unify
-                                                 {:synsem {:sem (lex/sem-impl
-                                                                 (fs/get-in parent '(:head :synsem :sem)))}}
-                                                 (fs/get-in parent '(:head)))))]
-                                (if (not (fs/fail? result))
-                                   (do (log/debug (str "success: " (fo result)))
-                                       result)
-                                   (do (log/debug (str "fail: " (fo head-candidate)))
-                                       :fail))))
-                            (shuffle head)))
-               ;; else: treat as rule: should generate at this point.
-               (list (unify (fs/get-in parent '(:head)) head)))
+      {:head (lazy-head-expands parent expansion)
        :comp (if (seq? comp) (shuffle comp)
                  (list (unify (fs/get-in parent '(:comp)) comp)))})))
 
