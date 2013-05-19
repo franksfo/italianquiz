@@ -426,6 +426,18 @@
                         (first heads) comps)
          (heads-by-comps parent (rest heads) comps))))))
 
+(defn phrase-is-finished? [parent]
+  (let [retval (not
+                (or
+                 (nil? (fs/get-in parent '(:italian)))
+                 (and (map? (fs/get-in parent '(:italian :a)))
+                      (nil? (fs/get-in parent '(:italian :a :italian)))
+                      (nil? (fs/get-in parent '(:italian :a :infinitive))))))]
+    (if (= retval true)
+      (if (fs/get-in parent '(:comment-plaintext))
+        (log/debug (str "phrase-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
+    retval))
+
 (defn hc-expands [parent expansion]
   (log/info (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
   (if expansion
@@ -458,23 +470,6 @@
        :comp (if (seq? comp) (shuffle comp)
                  (list (unify (fs/get-in parent '(:comp)) comp)))})))
 
-(defn phrase-is-finished? [parent]
-  (let [retval (not
-                (or
-                 (nil? (fs/get-in parent '(:italian)))
-                 (and (map? (fs/get-in parent '(:italian :a)))
-                      (nil? (fs/get-in parent '(:italian :a :italian)))
-                      (nil? (fs/get-in parent '(:italian :a :infinitive))))))]
-    (if (= retval true)
-      (if (fs/get-in parent '(:comment-plaintext))
-        (log/debug (str "phrase-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
-    retval))
-
-(defn fo-exp [parent]
-  "format an intermediate phrase result for debugging purposes."
-  {:head (fo (:head parent))
-   :comp (fo (:comp parent))})
-
 (defn hc-expand-all [parent & [ extend-vals ]]
   "create 'extends-vals' with (vals (:extend parent)) or (shuffle (vals (:extend parent)))."
   (let [extend-vals (if extend-vals extend-vals (shuffle (vals (:extend parent))))]
@@ -482,6 +477,9 @@
       (lazy-seq
        (cons (hc-expands parent (first extend-vals))
              (hc-expand-all parent (rest extend-vals)))))))
+
+(defn comps-of-expand [expand]
+  (:comp expand))
 
 (defn generate [parent & [ hc-exps ]]
   (log/info (str "generate: " (fs/get-in parent '(:comment-plaintext))))
@@ -496,7 +494,9 @@
           (not (phrase-is-finished? parent))
           (let [expand (first hc-exps)]
             (lazy-cat
-             (heads-by-comps parent (:head expand) (:comp expand))
+             (heads-by-comps parent
+                             (:head expand)
+                             (comps-of-expand expand))
              (generate parent (rest hc-exps))))
           :else
           nil)))
