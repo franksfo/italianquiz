@@ -438,35 +438,38 @@
         (log/debug (str "phrase-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
     retval))
 
+(defn lazy-head-filter [parent expansion sem-impl heads]
+  (if (not (empty? heads))
+    (let [head-candidate (first heads)
+          result (unify head-candidate
+                        (unify
+                         (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
+                             (unify
+                              sem-impl
+                              (unify (fs/get-in parent '(:head))
+                                     {:this-expand expansion
+                                      :treat-as-rule false
+                                      :comp-expand (:comp expansion)})))))]
+      (if (not (fs/fail? result))
+        (lazy-seq
+         (cons result
+               (lazy-head-filter parent expansion sem-impl (rest heads))))
+        (lazy-head-filter parent expansion sem-impl (rest heads))))))
+
 (defn lazy-head-expands [parent expansion]
-  (let [head (eval-symbol (:head expansion))]
+  (let [head (eval-symbol (:head expansion))
+        sem-impl {:synsem {:sem (lex/sem-impl
+                                 (fs/get-in parent '(:head :synsem :sem)))}}]
     (log/debug (str "doing hc-expands:"
                     (fs/get-in head '(:comment-plaintext))
                     " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
     (if (seq? head)
-      (remove #(fs/fail? %)
-              (map (fn [head-candidate]
-                     (let [result
-                           (unify head-candidate
-                                  (unify
-                                   (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
-                                       (log/debug (str "sem filter: "
-                                                       {:synsem {:sem (lex/sem-impl
-                                                                       (fs/get-in parent '(:head :synsem :sem)))}}))
-                                       (unify
-                                        {:synsem {:sem (lex/sem-impl
-                                                        (fs/get-in parent '(:head :synsem :sem)))}}
-                                        (unify (fs/get-in parent '(:head))
-                                               {:comp-expand (:comp expansion)})))))]
-                       (if (not (fs/fail? result))
-                         (do (log/debug (str "success: " (fo result)))
-                             result)
-                         (do (log/debug (str "fail: " (fo head-candidate)))
-                             :fail))))
-                   (shuffle head)))
-             ;; else: treat as rule: should generate at this point.
-             (list (unify (fs/get-in parent '(:head)) (unify head {:comp-expand (:comp expansion)}))))))
-
+      ;; a sequence of lexical items: shuffle and filter by whether they fit the :head of this rule.
+      (lazy-head-filter parent expansion sem-impl (shuffle head))
+      ;; else: treat as rule: should generate at this point.
+      (list (unify (fs/get-in parent '(:head)) (unify head {:this-expand expansion
+                                                            :treat-as-rule true
+                                                            :comp-expand (:comp expansion)}))))))
 (defn hc-expands [parent expansion]
   (log/info (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
   (if expansion
@@ -475,25 +478,24 @@
       (log/debug (str "doing hc-expands:"
                        (fs/get-in head '(:comment-plaintext))
                        " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
-      {:head (lazy-head-expands parent expansion)
-       :comp (if (seq? comp) (shuffle comp)
-                 (list (unify (fs/get-in parent '(:comp)) comp)))})))
+      (let [head (lazy-head-expands parent expansion)]
+        {:head head
+         :comp
+         (do
+           (log/debug (str "hc-expands: head: " head))
+           (log/debug (str "hc-expands: comp: " comp))
+           (let [compx (:comp-expands head)]
+             (log/debug (str "hc-expands: compx: " compx))
+             (if (seq? comp) (shuffle comp)
+                 (list (unify (fs/get-in parent '(:comp)) comp)))))}))))
 
 ;; usage of this will replace hc-expands (above)
-(defn head-expands [parent & [ expansions ] ]
-  (let [expansions
-        (if (not (nil? expansions))
-          expansions
-          (shuffle (vals (:extend parent))))]
-    (if (not (empty? expansions))
-      (let [expansion (first expansions)]
-        (lazy-cat
-         (let [head (eval-symbol (:head expansion))]
-           (log/debug (str "doing hc-expands:"
-                           (fs/get-in head '(:comment-plaintext))
-                           " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
-           (lazy-head-expands parent expansion))
-         (head-expands parent (rest expansions)))))))
+(defn head-expands [parent expansion]
+  (let [head (eval-symbol (:head expansion))]
+    (log/debug (str "doing hc-expands:"
+                    (fs/get-in head '(:comment-plaintext))
+                    " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
+    (lazy-head-expands parent expansion)))
 
 (defn hc-expand-all [parent extend-vals]
   (if (not (empty? extend-vals))
