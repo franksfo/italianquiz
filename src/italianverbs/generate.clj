@@ -446,10 +446,7 @@
                          (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
                              (unify
                               sem-impl
-                              (unify (fs/get-in parent '(:head))
-                                     {:this-expand expansion
-                                      :treat-as-rule false
-                                      :comp-expand (:comp expansion)})))))]
+                              (fs/get-in parent '(:head))))))]
       (if (not (fs/fail? result))
         (lazy-seq
          (cons result
@@ -467,9 +464,8 @@
       ;; a sequence of lexical items: shuffle and filter by whether they fit the :head of this rule.
       (lazy-head-filter parent expansion sem-impl (shuffle head))
       ;; else: treat as rule: should generate at this point.
-      (list (unify (fs/get-in parent '(:head)) (unify head {:this-expand expansion
-                                                            :treat-as-rule true
-                                                            :comp-expand (:comp expansion)}))))))
+      (list (unify (fs/get-in parent '(:head)) head)))))
+
 (defn hc-expands [parent expansion]
   (log/info (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
   (if expansion
@@ -488,14 +484,6 @@
              (log/debug (str "hc-expands: compx: " compx))
              (if (seq? comp) (shuffle comp)
                  (list (unify (fs/get-in parent '(:comp)) comp)))))}))))
-
-;; usage of this will replace hc-expands (above)
-(defn head-expands [parent expansion]
-  (let [head (eval-symbol (:head expansion))]
-    (log/debug (str "doing hc-expands:"
-                    (fs/get-in head '(:comment-plaintext))
-                    " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
-    (lazy-head-expands parent expansion)))
 
 (defn hc-expand-all [parent extend-vals]
   (if (not (empty? extend-vals))
