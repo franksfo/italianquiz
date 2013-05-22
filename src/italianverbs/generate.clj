@@ -6,7 +6,7 @@
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]
-   [italianverbs.unify :as fs]
+   [italianverbs.unify :as unify]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
    [italianverbs.lexicon :as lex]
@@ -29,88 +29,88 @@
 
 (defn formattare-1 [expr]
   (cond
-   (fs/fail? expr)
+   (unify/fail? expr)
    "<tt>fail</tt>"
    :else
    (let [english
          (capitalize
           (cond
-           (string? (fs/get-in expr '(:english)))
-           (fs/get-in expr '(:english))
+           (string? (unify/get-in expr '(:english)))
+           (unify/get-in expr '(:english))
 
-           (string? (fs/get-in expr '(:english :english)))
-           (fs/get-in expr '(:english :english))
+           (string? (unify/get-in expr '(:english :english)))
+           (unify/get-in expr '(:english :english))
 
-           (string? (fs/get-in expr '(:english :infinitive)))
-           (fs/get-in expr '(:english :infinitive))
+           (string? (unify/get-in expr '(:english :infinitive)))
+           (unify/get-in expr '(:english :infinitive))
 
-           (and (string? (fs/get-in expr '(:english :a :english)))
-                (string? (fs/get-in expr '(:english :b :english))))
-           (str (fs/get-in expr '(:english :a :english))
+           (and (string? (unify/get-in expr '(:english :a :english)))
+                (string? (unify/get-in expr '(:english :b :english))))
+           (str (unify/get-in expr '(:english :a :english))
                 " "
-                (fs/get-in expr '(:english :b :english)))
+                (unify/get-in expr '(:english :b :english)))
 
 
-           (and (string? (fs/get-in expr '(:english :a :infinitive)))
-                (string? (fs/get-in expr '(:english :b))))
-           (str (fs/get-in expr '(:english :a :infinitive))
+           (and (string? (unify/get-in expr '(:english :a :infinitive)))
+                (string? (unify/get-in expr '(:english :b))))
+           (str (unify/get-in expr '(:english :a :infinitive))
                 " "
-                (fs/get-in expr '(:english :b)))
+                (unify/get-in expr '(:english :b)))
 
-           (and (string? (fs/get-in expr '(:english :a :infinitive)))
-                (string? (fs/get-in expr '(:english :b :a :infinitive)))
-                (string? (fs/get-in expr '(:english :b :b))))
-           (str (fs/get-in expr '(:english :a :infinitive))
+           (and (string? (unify/get-in expr '(:english :a :infinitive)))
+                (string? (unify/get-in expr '(:english :b :a :infinitive)))
+                (string? (unify/get-in expr '(:english :b :b))))
+           (str (unify/get-in expr '(:english :a :infinitive))
                 " "
-                (fs/get-in expr '(:english :b :a :infinitive))
+                (unify/get-in expr '(:english :b :a :infinitive))
                 " "
-                (fs/get-in expr '(:english :b :b)))
+                (unify/get-in expr '(:english :b :b)))
 
-           (string? (fs/get-in expr '(:english :a :english)))
-           (str (fs/get-in expr '(:english :a :english)) "...")
+           (string? (unify/get-in expr '(:english :a :english)))
+           (str (unify/get-in expr '(:english :a :english)) "...")
 
-           (string? (fs/get-in expr '(:english :a :infinitive)))
-           (str (fs/get-in expr '(:english :a :infinitive)) "...")
+           (string? (unify/get-in expr '(:english :a :infinitive)))
+           (str (unify/get-in expr '(:english :a :infinitive)) "...")
 
            true
-           (fs/get-in expr '(:english))))
+           (unify/get-in expr '(:english))))
 
          italian
          (capitalize
           (cond
-           (string? (fs/get-in expr '(:italian)))
-           (fs/get-in expr '(:italian))
+           (string? (unify/get-in expr '(:italian)))
+           (unify/get-in expr '(:italian))
 
-           (string? (fs/get-in expr '(:italian :italian)))
-           (fs/get-in expr '(:italian :italian))
+           (string? (unify/get-in expr '(:italian :italian)))
+           (unify/get-in expr '(:italian :italian))
 
-           (string? (fs/get-in expr '(:italian :infinitive)))
-           (fs/get-in expr '(:italian :infinitive))
+           (string? (unify/get-in expr '(:italian :infinitive)))
+           (unify/get-in expr '(:italian :infinitive))
 
            (and
-            (string? (fs/get-in expr '(:italian :a :italian)))
-            (string? (fs/get-in expr '(:italian :b :italian))))
+            (string? (unify/get-in expr '(:italian :a :italian)))
+            (string? (unify/get-in expr '(:italian :b :italian))))
            (str
-            (fs/get-in expr '(:italian :a :italian)) " "
-            (fs/get-in expr '(:italian :b :italian)))
+            (unify/get-in expr '(:italian :a :italian)) " "
+            (unify/get-in expr '(:italian :b :italian)))
 
-           (string? (fs/get-in expr '(:italian :a)))
-           (str (fs/get-in expr '(:italian :a)) "...")
+           (string? (unify/get-in expr '(:italian :a)))
+           (str (unify/get-in expr '(:italian :a)) "...")
 
-           (string? (fs/get-in expr '(:italian :a :italian)))
-           (str (fs/get-in expr '(:italian :a :italian)) "...")
+           (string? (unify/get-in expr '(:italian :a :italian)))
+           (str (unify/get-in expr '(:italian :a :italian)) "...")
 
-           (and (string? (fs/get-in expr '(:italian :a :infinitive)))
-                (string? (fs/get-in expr '(:italian :b))))
-           (str (fs/get-in expr '(:italian :a :infinitive))
+           (and (string? (unify/get-in expr '(:italian :a :infinitive)))
+                (string? (unify/get-in expr '(:italian :b))))
+           (str (unify/get-in expr '(:italian :a :infinitive))
                 " "
-                (fs/get-in expr '(:italian :b)))
+                (unify/get-in expr '(:italian :b)))
 
-           (string? (fs/get-in expr '(:italian :a :infinitive)))
-           (str (fs/get-in expr '(:italian :a :infinitive)) "...")
+           (string? (unify/get-in expr '(:italian :a :infinitive)))
+           (str (unify/get-in expr '(:italian :a :infinitive)) "...")
 
            true
-           (fs/get-in expr '(:italian)))
+           (unify/get-in expr '(:italian)))
           )
          ]
      (string/trim
@@ -126,7 +126,7 @@
       ;; wrap this single expression in a list and re-call.
       (list (formattare-1 expressions))
       (cond (nil? expressions) nil
-            (fs/fail? expressions)
+            (unify/fail? expressions)
             ":fail"
             (empty? expressions) nil
             true
@@ -143,18 +143,18 @@
         (unify parent
                {:1 child1
                 :2 child2}
-               {:1 {:synsem {:sem (lex/sem-impl (fs/get-in child1 '(:synsem :sem)))}}
-                :2 {:synsem {:sem (lex/sem-impl (fs/get-in child2 '(:synsem :sem)))}}})
-        fail (fs/fail? unified)]
+               {:1 {:synsem {:sem (lex/sem-impl (unify/get-in child1 '(:synsem :sem)))}}
+                :2 {:synsem {:sem (lex/sem-impl (unify/get-in child2 '(:synsem :sem)))}}})
+        fail (unify/fail? unified)]
     (if (= fail true)
       :fail
       (merge unified
              {:italian (morph/get-italian
-                        (fs/get-in unified '(:1 :italian))
-                        (fs/get-in unified '(:2 :italian)))
+                        (unify/get-in unified '(:1 :italian))
+                        (unify/get-in unified '(:2 :italian)))
               :english (morph/get-english
-                        (fs/get-in unified '(:1 :english))
-                        (fs/get-in unified '(:2 :english)))}))))
+                        (unify/get-in unified '(:1 :english))
+                        (unify/get-in unified '(:2 :english)))}))))
 
 (defn unify-lr-hc [parent head comp]
   (let [with-head (unify parent
@@ -165,17 +165,17 @@
         (unify parent
                {:head head}
                {:comp comp}
-               {:head {:synsem {:sem (lex/sem-impl (fs/get-in head '(:synsem :sem)))}}
-                :comp {:synsem {:sem (lex/sem-impl (fs/get-in comp '(:synsem :sem)))}}})]
-    (if (fs/fail? unified)
+               {:head {:synsem {:sem (lex/sem-impl (unify/get-in head '(:synsem :sem)))}}
+                :comp {:synsem {:sem (lex/sem-impl (unify/get-in comp '(:synsem :sem)))}}})]
+    (if (unify/fail? unified)
       :fail
       (merge unified
              {:italian (morph/get-italian
-                        (fs/get-in unified '(:1 :italian))
-                        (fs/get-in unified '(:2 :italian)))
+                        (unify/get-in unified '(:1 :italian))
+                        (unify/get-in unified '(:2 :italian)))
               :english (morph/get-english
-                        (fs/get-in unified '(:1 :english))
-                        (fs/get-in unified '(:2 :english)))}))))
+                        (unify/get-in unified '(:1 :english))
+                        (unify/get-in unified '(:2 :english)))}))))
 
 ;; TODO: use multiple dispatch.
 (defn over2 [parent child1 child2]
@@ -230,7 +230,7 @@
 
    (or (set? child1) (seq? child1))
    (do
-     (log/debug (str (fs/get-in parent '(:comment)) ":child1: " (.size child1)))
+     (log/debug (str (unify/get-in parent '(:comment)) ":child1: " (.size child1)))
      (lazy-cat (over2 parent (first child1) child2)
                (over2 parent (rest child1) child2)))
 
@@ -243,7 +243,7 @@
    :else ; both parent and children are non-lists.
    ;; First, check to make sure complement matches head's (:synsem :sem) value, if it exists, otherwise, fail.
    (let [unified (unify-and-merge parent child1 child2)
-         fail (fs/fail? unified)]
+         fail (unify/fail? unified)]
      (if (not fail)
        (list unified)))))
 
@@ -265,7 +265,7 @@
 
    (or (set? parent) (seq? parent))
    (lazy-cat
-    (remove #(fs/fail? %)
+    (remove #(unify/fail? %)
             (over-parent-child (first parent) child))
     (over-parent-child (rest parent) child))
 
@@ -279,7 +279,7 @@
    (or (set? child) (seq? child))
    (let [retval (over-parent-child parent (first child))]
      (lazy-cat
-      (remove #(fs/fail? %)
+      (remove #(unify/fail? %)
               (over-parent-child parent (first child)))
       (over-parent-child parent (rest child))))
 
@@ -292,38 +292,38 @@
          add-child-where (if (and
                               (not
                                (string?
-                                (fs/get-in parent '(:1 :italian))))
+                                (unify/get-in parent '(:1 :italian))))
                               (not
                                (string?
-                                (fs/get-in parent '(:1 :italian :infinitive))))
+                                (unify/get-in parent '(:1 :italian :infinitive))))
                               ;; TODO: remove: :root is going away.
                               (not
                                (string?
-                                (fs/get-in parent '(:1 :italian :root))))
+                                (unify/get-in parent '(:1 :italian :root))))
                               (not
                                (string?
-                                (fs/get-in parent '(:1 :italian :italian)))))
+                                (unify/get-in parent '(:1 :italian :italian)))))
                            :1
                            :2)
 
-         head-is-where (if (= (fs/get-in parent '(:head))
-                              (fs/get-in parent '(:1)))
+         head-is-where (if (= (unify/get-in parent '(:head))
+                              (unify/get-in parent '(:1)))
                          :1
                          :2)
          child-is-head (= head-is-where add-child-where)
          comp (if child-is-head
-                (fs/get-in parent '(:comp))
+                (unify/get-in parent '(:comp))
                 child)
          head (if child-is-head
                 child
-                (fs/get-in parent '(:head)))
-         sem-filter (fs/get-in head '(:synsem :subcat :2 :sem)) ;; :1 VERSUS :2 : make this more explicit about what we are searching for.
-         comp-sem (fs/get-in comp '(:synsem :sem))
+                (unify/get-in parent '(:head)))
+         sem-filter (unify/get-in head '(:synsem :subcat :2 :sem)) ;; :1 VERSUS :2 : make this more explicit about what we are searching for.
+         comp-sem (unify/get-in comp '(:synsem :sem))
          do-match
          (if (and (not (nil? sem-filter))
                   (not (nil? comp-sem)))
-           (fs/match {:synsem (fs/copy sem-filter)}
-                     (fs/copy {:synsem (fs/copy comp-sem)})))]
+           (unify/match {:synsem (unify/copy sem-filter)}
+                     (unify/copy {:synsem (unify/copy comp-sem)})))]
      ;; wrap the single result in a list so that it can be consumed by (over).
      (list
      (if (= do-match :fail)
@@ -334,25 +334,25 @@
        (let [unified (unify parent
                             {add-child-where
                              (unify
-                              (let [sem (fs/get-in child '(:synsem :sem) :notfound)]
+                              (let [sem (unify/get-in child '(:synsem :sem) :notfound)]
                                 (if (not (= sem :notfound))
                                   {:synsem {:sem (lex/sem-impl sem)}}
                                   {}))
                              child)})]
-         (if (fs/fail? unified)
-           (log/debug "Failed attempt to add child to parent: " (fs/get-in parent '(:comment))
+         (if (unify/fail? unified)
+           (log/debug "Failed attempt to add child to parent: " (unify/get-in parent '(:comment))
                      " at: " add-child-where))
 
           ;;
-          (if (or true (not (fs/fail? unified))) ;; (or true - even if fail, still show it)
+          (if (or true (not (unify/fail? unified))) ;; (or true - even if fail, still show it)
             (merge ;; use merge so that we overwrite the value for :italian.
              unified
              {:italian (morph/get-italian
-                       (fs/get-in unified '(:1 :italian))
-                       (fs/get-in unified '(:2 :italian)))
+                       (unify/get-in unified '(:1 :italian))
+                       (unify/get-in unified '(:2 :italian)))
               :english (morph/get-english
-                        (fs/get-in unified '(:1 :english))
-                        (fs/get-in unified '(:2 :english)))})
+                        (unify/get-in unified '(:1 :english))
+                        (unify/get-in unified '(:2 :english)))})
             :fail)))))))
 
 (defn over-parent [parent children]
@@ -402,7 +402,7 @@
 (declare head-by-comps)
 
 (defn heads-by-comps [parent heads comps]
-  (log/debug (str "heads-by-comps begin: " (fs/get-in parent '(:comment-plaintext))))
+  (log/debug (str "heads-by-comps begin: " (unify/get-in parent '(:comment-plaintext))))
   (log/debug (str "type of comps: " (type comps)))
   (if (map? comps)
     (log/debug (str "the comp is a map: " comps)))
@@ -410,32 +410,32 @@
     (log/debug (str "heads-by-comps first heads: " (fo (first heads))))
     (log/debug (str "heads-by-comps no more heads.")))
 
-  (log/debug (str "HEADS-BY-COMPS: fail status of first heads: " (fs/fail? (first heads))))
+  (log/debug (str "HEADS-BY-COMPS: fail status of first heads: " (unify/fail? (first heads))))
 
   (if (not (empty? heads))
-    (if (fs/fail? (first heads))
+    (if (unify/fail? (first heads))
       (do
-        (log/debug (str "heads-by-comps: " (fs/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
+        (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
         (heads-by-comps parent (rest heads) comps))
       (do
-        (log/debug (str "heads-by-comps: " (fs/get-in parent '(:comment-plaintext))))
+        (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext))))
         (lazy-cat
          (head-by-comps (unify parent
                                (unify {:head (first heads)}
-                                      {:head {:synsem {:sem (lex/sem-impl (fs/get-in (first heads) '(:synsem :sem)))}}}))
+                                      {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
                         (first heads) comps)
          (heads-by-comps parent (rest heads) comps))))))
 
 (defn phrase-is-finished? [parent]
   (let [retval (not
                 (or
-                 (nil? (fs/get-in parent '(:italian)))
-                 (and (map? (fs/get-in parent '(:italian :a)))
-                      (nil? (fs/get-in parent '(:italian :a :italian)))
-                      (nil? (fs/get-in parent '(:italian :a :infinitive))))))]
+                 (nil? (unify/get-in parent '(:italian)))
+                 (and (map? (unify/get-in parent '(:italian :a)))
+                      (nil? (unify/get-in parent '(:italian :a :italian)))
+                      (nil? (unify/get-in parent '(:italian :a :infinitive))))))]
     (if (= retval true)
-      (if (fs/get-in parent '(:comment-plaintext))
-        (log/debug (str "phrase-is-finished for: " (fs/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
+      (if (unify/get-in parent '(:comment-plaintext))
+        (log/debug (str "phrase-is-finished for: " (unify/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
     retval))
 
 (defn lazy-head-filter [parent expansion sem-impl heads]
@@ -443,11 +443,11 @@
     (let [head-candidate (first heads)
           result (unify head-candidate
                         (unify
-                         (do (log/debug (str "trying head candidate of " (fs/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
+                         (do (log/debug (str "trying head candidate of " (unify/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
                              (unify
                               sem-impl
-                              (fs/get-in parent '(:head))))))]
-      (if (not (fs/fail? result))
+                              (unify/get-in parent '(:head))))))]
+      (if (not (unify/fail? result))
         (lazy-seq
          (cons result
                (lazy-head-filter parent expansion sem-impl (rest heads))))
@@ -456,24 +456,24 @@
 (defn lazy-head-expands [parent expansion]
   (let [head (eval-symbol (:head expansion))
         sem-impl {:synsem {:sem (lex/sem-impl
-                                 (fs/get-in parent '(:head :synsem :sem)))}}]
+                                 (unify/get-in parent '(:head :synsem :sem)))}}]
     (log/debug (str "doing hc-expands:"
-                    (fs/get-in head '(:comment-plaintext))
-                    " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
+                    (unify/get-in head '(:comment-plaintext))
+                    " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (unify/get-in parent '(:comment-plaintext))))
     (if (seq? head)
       ;; a sequence of lexical items: shuffle and filter by whether they fit the :head of this rule.
       (lazy-head-filter parent expansion sem-impl (shuffle head))
       ;; else: treat as rule: should generate at this point.
-      (list (unify (fs/get-in parent '(:head)) head)))))
+      (list (unify (unify/get-in parent '(:head)) head)))))
 
 (defn hc-expands [parent expansion]
-  (log/debug (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
+  (log/debug (str "hc-expands: " (unify/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
   (if expansion
     (let [head (eval-symbol (:head expansion))
           comp (eval-symbol (:comp expansion))]
       (log/debug (str "doing hc-expands:"
-                       (fs/get-in head '(:comment-plaintext))
-                       " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (fs/get-in parent '(:comment-plaintext))))
+                       (unify/get-in head '(:comment-plaintext))
+                       " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (unify/get-in parent '(:comment-plaintext))))
       (let [head (lazy-head-expands parent expansion)]
         {:head head
          :comp
@@ -483,7 +483,7 @@
            (let [compx (:comp-expands head)]
              (log/debug (str "hc-expands: compx: " compx))
              (if (seq? comp) (shuffle comp)
-                 (list (unify (fs/get-in parent '(:comp)) comp)))))}))))
+                 (list (unify (unify/get-in parent '(:comp)) comp)))))}))))
 
 (defn hc-expand-all [parent extend-vals]
   (if (not (empty? extend-vals))
@@ -495,12 +495,12 @@
   (:comp expand))
 
 (defn generate [parent & [ hc-exps ]]
-  (log/debug (str "generate: " (fs/get-in parent '(:comment-plaintext))))
+  (log/debug (str "generate: " (unify/get-in parent '(:comment-plaintext))))
   (let [hc-exps (if hc-exps hc-exps (hc-expand-all parent (shuffle (vals (:extend parent)))))]
-    (log/debug (str "cond1: " (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))))
+    (log/debug (str "cond1: " (= :not-exists (unify/get-in parent '(:comment-plaintext) :not-exists))))
     (log/debug (str "cond2: " (empty? hc-exps)))
     (log/debug (str "cond3: " (not (phrase-is-finished? parent))))
-    (cond (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))
+    (cond (= :not-exists (unify/get-in parent '(:comment-plaintext) :not-exists))
           nil
           (empty? hc-exps)
           nil
@@ -517,16 +517,16 @@
 (defn head-by-comps [parent head comps]
   "Returns a lazy sequence of expressions generated by adjoining (head,comp_i) to parent, for all
    comp_i in comps."
-  (log/debug (str "head-by-comps begin: " (fs/get-in parent '(:comment-plaintext))))
+  (log/debug (str "head-by-comps begin: " (unify/get-in parent '(:comment-plaintext))))
   (if (not (empty? comps))
     (let [comp (first comps)
-          head-expand (fs/get-in head '(:extend))
+          head-expand (unify/get-in head '(:extend))
           head-is-finished? (phrase-is-finished? head)]
       (log/debug (str "HEAD-IS-FINISHED? : " head-is-finished?))
       (log/debug (str "COMP-IS-FINISHED? : " (phrase-is-finished? comp)))
       (if (phrase-is-finished? comp)
         (log/debug (str "COMP: " (fo comp))))
-      (log/debug (str "COND1: " (fs/get-in parent '(:comment-plaintext)) " : "
+      (log/debug (str "COND1: " (unify/get-in parent '(:comment-plaintext)) " : "
                       (and (not (nil? head-expand))
                            (not head-is-finished?))))
       (cond (and (not (nil? head-expand))
@@ -538,9 +538,9 @@
             (let [comp-specification
                   (unify comp
                          (unify
-                          (fs/get-in parent '(:comp))
-                          {:synsem {:sem (lex/sem-impl (unify (fs/get-in parent '(:comp :synsem :sem))
-                                                              (fs/get-in comp '(:synsem :sem))))}}))
+                          (unify/get-in parent '(:comp))
+                          {:synsem {:sem (lex/sem-impl (unify (unify/get-in parent '(:comp :synsem :sem))
+                                                              (unify/get-in comp '(:synsem :sem))))}}))
                   comp-generate
                   (if (not head-is-finished?)
                     (do
@@ -550,22 +550,22 @@
                       (do
                         (log/debug (str "comp generation: " (fo comp) " is finished."))
                         comp)
-                      (if (not (fs/fail? comp-specification))
+                      (if (not (unify/fail? comp-specification))
                         (do
                           (log/debug (str "generating comp now since head generation is done."))
-                  (log/debug (str "comp sem-impl: " (lex/sem-impl (unify (fs/get-in parent '(:comp :synsem :sem))
-                                                                         (fs/get-in comp '(:synsem :sem))))))
-                  (log/debug (str "generating comp: " (fs/get-in comp '(:comment-plaintext)) " given head: " (fo head)))
+                  (log/debug (str "comp sem-impl: " (lex/sem-impl (unify (unify/get-in parent '(:comp :synsem :sem))
+                                                                         (unify/get-in comp '(:synsem :sem))))))
+                  (log/debug (str "generating comp: " (unify/get-in comp '(:comment-plaintext)) " given head: " (fo head)))
                   (generate comp-specification)))))]
               (cond
-               (fs/fail? comp-specification)
+               (unify/fail? comp-specification)
                (do
                  (log/debug "2. h X (rest c)")
                  (head-by-comps parent head (rest comps)))
 
                (and (not (nil? head-expand))
                     (not head-is-finished?)
-                    (not (fs/fail? comp-specification)))
+                    (not (unify/fail? comp-specification)))
                (do
                  (log/debug "3. hs X c")
                  (heads-by-comps parent (generate head) (lazy-seq (cons comp-specification (rest comps)))))
@@ -581,16 +581,16 @@
                :else
                (let [result (unify-lr-hc parent head comp-specification)]
                  (log/debug "5. unify")
-                 (if (fs/fail? result)
+                 (if (unify/fail? result)
                    (do
                      (log/debug (str "failed unification: " (fo head) " and " (fo comp-specification)))
                      (head-by-comps parent head (rest comps)))
                    (do
 
-                     (if (or (= (fs/get-in parent '(:comment-plaintext)) "s[present] -> ..")
-                             (= (fs/get-in parent '(:comment-plaintext)) "s[future] -> .."))
-                       (log/info (str "successful unification: " (fo comp-specification) " and " (fo head) " for " (fs/get-in parent '(:comment-plaintext))))
-                       (log/debug (str "successful unification: " (fo head) " and " (fo comp-specification) " for " (fs/get-in parent '(:comment-plaintext)))))
+                     (if (or (= (unify/get-in parent '(:comment-plaintext)) "s[present] -> ..")
+                             (= (unify/get-in parent '(:comment-plaintext)) "s[future] -> .."))
+                       (log/info (str "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
+                       (log/debug (str "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
 
                      (lazy-seq
                       (cons result
@@ -615,7 +615,7 @@
 
 (defn random-infinitivo []
   (choose-lexeme
-   (fs/unify {:cat :verb
+   (unify/unify {:cat :verb
            :infl :infinitive}
           config/random-infinitivo)))
 
@@ -623,7 +623,7 @@
   (let [
         ;; 1. choose a random verb in the passato-prossimo form.
         verb-future (choose-lexeme
-                     (fs/unify
+                     (unify/unify
                       (if constraints (first constraints) {})
                       {:infl :futuro-semplice}
                       config/futuro-semplice))]

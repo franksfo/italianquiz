@@ -1289,6 +1289,7 @@
 
 (def nominative-pronouns
   (list {:synsem {:cat :noun
+                  :pronoun true
                   :agr {:case :nom
                         :person :1st
                         :number :sing}
@@ -1297,6 +1298,7 @@
          :english "i"
          :italian "io"}
         {:synsem {:cat :noun
+                  :pronoun true
                   :agr {:case :nom
                         :person :2nd
                         :number :sing}
@@ -1305,6 +1307,7 @@
          :english "you"
          :italian "tu"}
         {:synsem {:cat :noun
+                  :pronoun true
                   :agr {:case :nom
                         :person :3rd
                         :gender :masc
@@ -1314,6 +1317,7 @@
          :english "he"
          :italian "lui"}
         {:synsem {:cat :noun
+                  :pronoun true
                   :agr {:case :nom
                         :person :3rd
                         :gender :fem
@@ -1323,6 +1327,7 @@
          :english "she"
          :italian "lei"}
         {:synsem {:cat :noun
+                  :pronoun true
                   :agr {:case :nom
                         :person :1st
                         :number :plur}
@@ -1331,6 +1336,7 @@
          :english "we"
          :italian "noi"}
         {:synsem {:cat :noun
+                  :pronoun true
                   :agr {:case :nom
                         :person :2nd
                         :number :plur}
@@ -1339,6 +1345,7 @@
          :italian "voi"
          :english "you all"}
         {:synsem {:cat :noun
+                  :pronoun true
                   :agr {:case :nom
                         :person :3rd
                         :number :plur}
@@ -1351,6 +1358,7 @@
   (let [acc (ref :acc)
         noun (ref :noun)]
     (list {:synsem {:cat noun
+                    :pronoun true
                     :agr {:case acc
                           :person :1st
                           :number :sing}
@@ -1358,10 +1366,12 @@
                     :subcat '()}
            :english "me"
            :italian {:italian "mi"
+                     :pronoun true
                      :cat noun
                      :case acc}}
 
           {:synsem {:cat noun
+                    :pronoun true
                     :agr {:case acc
                           :person :2nd
                           :number :sing}
@@ -1373,6 +1383,7 @@
                      :case acc}}
 
           {:synsem {:cat noun
+                    :pronoun true
                     :agr {:case acc
                           :gender :masc
                           :person :3rd
@@ -1381,10 +1392,12 @@
                     :subcat '()}
            :english "him"
            :italian {:italian "lo"
+                     :pronoun true
                      :cat noun
                      :case acc}}
 
           {:synsem {:cat noun
+                    :pronoun true
                     :agr {:case acc
                           :gender :fem
                           :person :3rd
@@ -1397,6 +1410,7 @@
                      :case acc}}
 
           {:synsem {:cat noun
+                    :pronoun true
                     :agr {:case acc
                           :person :1st
                           :number :plur}
@@ -1408,6 +1422,7 @@
                      :case acc}}
 
           {:synsem {:cat noun
+                    :pronoun true
                     :agr {:case acc
                           :person :2nd
                           :number :plur}
@@ -1419,6 +1434,7 @@
                      :case acc}}
 
           {:synsem {:cat noun
+                    :pronoun true
                     :agr {:case acc
                           :gender :masc
                           :person :3rd
@@ -1432,6 +1448,7 @@
                      :case acc}}
 
           {:synsem {:cat noun
+                    :pronoun true
                     :agr {:case acc
                           :gender :fem
                           :person :3rd
@@ -1618,7 +1635,7 @@
                       nouns))
 
 (def lexicon (concat adjectives determiners nouns prepositions
-                     nominative-pronouns ;;accusative-pronouns
+                     nominative-pronouns accusative-pronouns
                      verbs))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
