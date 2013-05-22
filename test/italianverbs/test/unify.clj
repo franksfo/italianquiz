@@ -1,5 +1,5 @@
-(ns italianverbs.test.fs
-  (:use [italianverbs.fs])
+(ns italianverbs.test.unify
+  (:use [italianverbs.unify])
   (:use [clojure.test]))
 
 (deftest simple-merge-test

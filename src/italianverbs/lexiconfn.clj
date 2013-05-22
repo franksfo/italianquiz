@@ -4,7 +4,7 @@
    [clojure.core :as core]
    [somnium.congomongo :as mongo]
    [italianverbs.morphology :as morph]
-   [italianverbs.fs :as fs]))
+   [italianverbs.unify :as fs]))
 
 ;; begin db-specific stuff. for now, mongodb; might switch/parameterize later.
 (mongo/mongo! :db "mydb")

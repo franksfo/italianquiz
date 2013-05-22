@@ -2,7 +2,7 @@
   (:use [clojure.test]
         [italianverbs.lexicon])
   (:require
-   [italianverbs.fs :as fs]
+   [italianverbs.unify :as fs]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.search :as search]))
 

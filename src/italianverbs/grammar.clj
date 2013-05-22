@@ -1,6 +1,6 @@
 (ns italianverbs.grammar
   (:require
-   [italianverbs.fs :as fs]
+   [italianverbs.unify :as fs]
    [italianverbs.morphology :as morph]
    [italianverbs.lexiconfn :as lexfn]
    [clojure.string :as string]))

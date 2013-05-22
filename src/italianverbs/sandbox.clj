@@ -12,7 +12,7 @@
    [clojail.testers]
    ]
   [:require
-   [italianverbs.fs :as fs]
+   [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [clojure.set :as set]
    [italianverbs.test.generate :as tgen]

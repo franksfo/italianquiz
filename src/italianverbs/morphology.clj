@@ -1,6 +1,6 @@
 (ns italianverbs.morphology
   (:require
-   [italianverbs.fs :as fs]
+   [italianverbs.unify :as fs]
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 

@@ -4,7 +4,7 @@
    [ring.util.codec :as codec])
   (:require
    [clojure.set :as set]
-   [italianverbs.fs :as fs]
+   [italianverbs.unify :as fs]
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 

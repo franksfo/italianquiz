@@ -6,7 +6,7 @@
    [italianverbs.lev :as lev]
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]
-   [italianverbs.fs :as fs]
+   [italianverbs.unify :as fs]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
    [italianverbs.lexicon :as lex]
@@ -467,7 +467,7 @@
       (list (unify (fs/get-in parent '(:head)) head)))))
 
 (defn hc-expands [parent expansion]
-  (log/info (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
+  (log/debug (str "hc-expands: " (fs/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
   (if expansion
     (let [head (eval-symbol (:head expansion))
           comp (eval-symbol (:comp expansion))]
@@ -495,7 +495,7 @@
   (:comp expand))
 
 (defn generate [parent & [ hc-exps ]]
-  (log/info (str "generate: " (fs/get-in parent '(:comment-plaintext))))
+  (log/debug (str "generate: " (fs/get-in parent '(:comment-plaintext))))
   (let [hc-exps (if hc-exps hc-exps (hc-expand-all parent (shuffle (vals (:extend parent)))))]
     (log/debug (str "cond1: " (= :not-exists (fs/get-in parent '(:comment-plaintext) :not-exists))))
     (log/debug (str "cond2: " (empty? hc-exps)))
@@ -586,7 +586,12 @@
                      (log/debug (str "failed unification: " (fo head) " and " (fo comp-specification)))
                      (head-by-comps parent head (rest comps)))
                    (do
-                     (log/debug (str "successful unification: " (fo head) " and " (fo comp-specification) " for " (fs/get-in parent '(:comment-plaintext))))
+
+                     (if (or (= (fs/get-in parent '(:comment-plaintext)) "s[present] -> ..")
+                             (= (fs/get-in parent '(:comment-plaintext)) "s[future] -> .."))
+                       (log/info (str "successful unification: " (fo comp-specification) " and " (fo head) " for " (fs/get-in parent '(:comment-plaintext))))
+                       (log/debug (str "successful unification: " (fo head) " and " (fo comp-specification) " for " (fs/get-in parent '(:comment-plaintext)))))
+
                      (lazy-seq
                       (cons result
                             (head-by-comps parent head (rest comps)))))))))))))

@@ -3,7 +3,7 @@
         [italianverbs.lexiconfn])
   (:require
    [somnium.congomongo :as mongo]
-   [italianverbs.fs :as fs]))
+   [italianverbs.unify :as fs]))
 
 ;; TODO: for testing, consider some kind of mongodb mocking of some kind,
 ;; so that no actual mongodb connection would be necessary.

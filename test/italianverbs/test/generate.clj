@@ -6,8 +6,8 @@
    [clojure.string :as string]
    [clojure.set :as set]
    [somnium.congomongo :as mongo]
-   ;; TODO: graduate italianverbs.fs to :use.
-   [italianverbs.fs :as fs]
+   ;; TODO: graduate italianverbs.unify to :use.
+   [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.grammar :as gram]

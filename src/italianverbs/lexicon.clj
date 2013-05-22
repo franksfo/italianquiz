@@ -3,7 +3,7 @@
         [clojure.test])
   (:require
    [clojure.tools.logging :as log]
-   [italianverbs.fs :as fs]
+   [italianverbs.unify :as fs]
    [clojure.set :as set]))
 
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
@@ -1026,6 +1026,7 @@
                             :agr {:gender gender
                                   :number number}}
                         :2 {:cat :noun
+                            :pronoun {:not true} ;; accusative pronouns cause unbounded depth-first searches on the subject side.
                             :def {:not :demonstrativo}
                             :agr {:gender gender
                                   :number number}}}
@@ -1617,7 +1618,8 @@
                       nouns))
 
 (def lexicon (concat adjectives determiners nouns prepositions
-                     nominative-pronouns accusative-pronouns verbs))
+                     nominative-pronouns ;;accusative-pronouns
+                     verbs))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))

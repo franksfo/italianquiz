@@ -3,7 +3,7 @@
         [italianverbs.search]
         [clojure.set])
   (:require
-   [italianverbs.fs :as fs]
+   [italianverbs.unify :as fs]
    [italianverbs.lexiconfn :as lexfn]))
 
 (deftest pv-match-test

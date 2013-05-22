@@ -1,4 +1,4 @@
-(ns italianverbs.fs
+(ns italianverbs.unify
   (:use [clojure.set]
         [clojure.tools.logging])
   (:require
