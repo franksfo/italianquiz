@@ -98,8 +98,6 @@
     (fs/merge vp
               {:extend {:e {:head 'lexicon
                             :comp 'vp-past}
-                        :f {:head 'lexicon
-                            :comp 'vp-past}
                }}))
 
   (def vp-past
