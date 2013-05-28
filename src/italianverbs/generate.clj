@@ -67,10 +67,16 @@
                 (unify/get-in expr '(:english :b :b)))
 
            (string? (unify/get-in expr '(:english :a :english)))
-           (str (unify/get-in expr '(:english :a :english)) "...")
+           (str (unify/get-in expr '(:english :a :english)) ".a.")
+
+           (and (string? (unify/get-in expr '(:english :a :infinitive)))
+                (string? (unify/get-in expr '(:english :b :english))))
+           (str (unify/get-in expr '(:english :a :infinitive)) " "
+                (unify/get-in expr '(:english :b :english)))
 
            (string? (unify/get-in expr '(:english :a :infinitive)))
-           (str (unify/get-in expr '(:english :a :infinitive)) "...")
+           (str (unify/get-in expr '(:english :a :infinitive)) " "
+                (unify/get-in expr '(:english :b)))
 
            true
            (unify/get-in expr '(:english))))
@@ -97,8 +103,17 @@
            (string? (unify/get-in expr '(:italian :a)))
            (str (unify/get-in expr '(:italian :a)) "...")
 
+           (and
+            (string? (unify/get-in expr '(:italian :a :italian)))
+            (= (unify/get-in expr '(:italian :b :infl)) :top))
+           (str (unify/get-in expr '(:italian :a :italian)) " "
+                (unify/get-in expr '(:italian :b :infinitive)))
+
            (string? (unify/get-in expr '(:italian :a :italian)))
-           (str (unify/get-in expr '(:italian :a :italian)) "...")
+           (str (unify/get-in expr '(:italian :a :italian)) "..."
+                (unify/get-in expr '(:italian :b))
+                (unify/get-in expr '(:italian :b :infl)))
+
 
            (and (string? (unify/get-in expr '(:italian :a :infinitive)))
                 (string? (unify/get-in expr '(:italian :b))))
@@ -107,7 +122,7 @@
                 (unify/get-in expr '(:italian :b)))
 
            (string? (unify/get-in expr '(:italian :a :infinitive)))
-           (str (unify/get-in expr '(:italian :a :infinitive)) "...")
+           (str (unify/get-in expr '(:italian :a :infinitive)) ".c.")
 
            true
            (unify/get-in expr '(:italian)))
