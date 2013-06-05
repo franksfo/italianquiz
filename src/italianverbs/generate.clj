@@ -190,6 +190,19 @@
                         (unify/get-in unified '(:1 :english))
                         (unify/get-in unified '(:2 :english)))}))))
 
+(defn unify-lr-hc-debug [parent head comp]
+  (let [with-head (unify parent
+                         {:head head})
+        with-comp (unify parent
+                         {:head comp})]
+
+    (do
+      (log/info (str "PARENT: " (unify/get-in parent '(:comment-plaintext))))
+      (log/info (str "PARENT FAIL?" (unify/fail? parent)))
+      (log/info (str "HEAD: " (fo head)))
+      (log/info (str "HEAD FAIL?" (unify/fail? head)))
+      (log/info (str "WITH-HEAD: " with-head)))))
+
 ;; TODO: use multiple dispatch.
 (defn over2 [parent child1 child2]
   (if (vector? child1)
@@ -397,6 +410,7 @@
 
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
+   (= symbol 'np-subj) gram/np-subj
    (= symbol 'prep-phrase) gram/prep-phrase
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
