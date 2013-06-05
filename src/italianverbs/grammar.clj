@@ -96,13 +96,16 @@
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
     (fs/merge vp
-              {:extend {:e {:head 'lexicon
+              {:comment "vp[present] &#x2192; head comp"
+               :comment-plaintext "vp[present] -> head comp"
+               :extend {:e {:head 'lexicon
                             :comp 'vp-past}
                }}))
 
   (def vp-past
     (fs/merge vp
               {:comment "vp[past] &#x2192; head comp"
+               :comment-plaintext "vp[past] -> head comp"
                :infl :past}))
 
   (def vp-infinitive-transitive
