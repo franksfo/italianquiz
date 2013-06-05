@@ -410,7 +410,6 @@
 
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
-   (= symbol 'np-subj) gram/np-subj
    (= symbol 'prep-phrase) gram/prep-phrase
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
