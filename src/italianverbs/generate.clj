@@ -414,8 +414,14 @@
 
 (declare head-by-comps)
 
-(defn heads-by-comps [parent heads comps]
-  (log/debug (str "heads-by-comps begin: " (unify/get-in parent '(:comment-plaintext))))
+(defn depth-str [depth]
+  (if (and (not (nil? depth)) (> depth 0))
+    (str "    "
+         (depth-str (- depth 1)))
+    ""))
+
+(defn heads-by-comps [parent heads comps depth]
+  (log/info (str (depth-str depth) "heads-by-comps begin: " (unify/get-in parent '(:comment-plaintext))))
   (log/debug (str "type of comps: " (type comps)))
   (if (map? comps)
     (log/debug (str "the comp is a map: " comps)))
@@ -429,15 +435,30 @@
     (if (unify/fail? (first heads))
       (do
         (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
-        (heads-by-comps parent (rest heads) comps))
-      (do
-        (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext))))
-        (lazy-cat
-         (head-by-comps (unify parent
-                               (unify {:head (first heads)}
-                                      {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
-                        (first heads) comps)
-         (heads-by-comps parent (rest heads) comps))))))
+        (heads-by-comps parent (rest heads) comps depth))
+      (if (unify/fail?
+           (unify parent
+                  (unify {:head (first heads)}
+                         {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}})))
+        (do
+          (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
+          (heads-by-comps parent (rest heads) comps depth))
+
+        (do
+          (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) " first head: " (fo (first heads))))
+          (lazy-cat
+           (let [unified-parent (unify parent
+                                 (unify {:head (first heads)}
+                                        {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
+                 comp-cat (unify/get-in unified-parent '(:comp :synsem :cat))
+                 comp-synsem (unify/get-in unified-parent '(:comp :synsem))]
+             (head-by-comps unified-parent
+                            (first heads)
+                            (filter (fn [lex]
+                                      (not (unify/fail? (unify (unify/get-in lex '(:synsem)) comp-synsem))))
+                                    comps)
+                            depth))
+           (heads-by-comps parent (rest heads) comps depth)))))))
 
 (defn phrase-is-finished? [parent]
   (let [retval (not
@@ -479,8 +500,8 @@
       ;; else: treat as rule: should generate at this point.
       (list (unify (unify/get-in parent '(:head)) head)))))
 
-(defn hc-expands [parent expansion]
-  (log/debug (str "hc-expands: " (unify/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
+(defn hc-expands [parent expansion depth]
+  (log/debug (str (depth-str depth) "hc-expands: " (unify/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
   (if expansion
     (let [head (eval-symbol (:head expansion))
           comp (eval-symbol (:comp expansion))]
@@ -498,47 +519,53 @@
              (if (seq? comp) (shuffle comp)
                  (list (unify (unify/get-in parent '(:comp)) comp)))))}))))
 
-(defn hc-expand-all [parent extend-vals]
+(defn hc-expand-all [parent extend-vals depth]
   (if (not (empty? extend-vals))
     (lazy-seq
-     (cons (hc-expands parent (first extend-vals))
-           (hc-expand-all parent (rest extend-vals))))))
+     (cons
+      (do
+        (log/debug (str "hc-expand-all: extend: " (first extend-vals)))
+        (hc-expands parent (first extend-vals) depth))
+      (hc-expand-all parent (rest extend-vals) depth)))))
 
 (defn comps-of-expand [expand]
   (:comp expand))
 
-(defn generate [parent & [ hc-exps ]]
-  (log/debug (str "generate: " (unify/get-in parent '(:comment-plaintext))))
-  (let [hc-exps (if hc-exps hc-exps (hc-expand-all parent (shuffle (vals (:extend parent)))))]
+(defn generate [parent & [ hc-exps depth shuffled-expansions]]
+  (let [depth (if depth depth 0)
+        hc-expands-orig hc-exps
+        shuffled-expansions (if shuffled-expansions shuffled-expansions (shuffle (vals (:extend parent))))
+        hc-exps (if hc-exps hc-exps (hc-expand-all parent shuffled-expansions depth))
+        parent-finished (phrase-is-finished? parent)]
+    (log/info (str (depth-str depth) "generate: " (unify/get-in parent '(:comment-plaintext)) " with first exp: " (first shuffled-expansions)))
     (log/debug (str "cond1: " (= :not-exists (unify/get-in parent '(:comment-plaintext) :not-exists))))
     (log/debug (str "cond2: " (empty? hc-exps)))
-    (log/debug (str "cond3: " (not (phrase-is-finished? parent))))
+    (log/debug (str "cond3: " (not parent-finished)))
     (cond (= :not-exists (unify/get-in parent '(:comment-plaintext) :not-exists))
           nil
           (empty? hc-exps)
           nil
-          (not (phrase-is-finished? parent))
+          (not parent-finished)
           (let [expand (first hc-exps)]
             (lazy-cat
              (heads-by-comps parent
                              (:head expand)
-                             (comps-of-expand expand))
-             (generate parent (rest hc-exps))))
+                             (comps-of-expand expand)
+                             depth)
+             (generate parent (rest hc-exps) depth (rest shuffled-expansions))))
           :else
           nil)))
 
-(defn head-by-comps [parent head comps]
+(defn head-by-comps [parent head comps depth]
   "Returns a lazy sequence of expressions generated by adjoining (head,comp_i) to parent, for all
    comp_i in comps."
-  (log/debug (str "head-by-comps begin: " (unify/get-in parent '(:comment-plaintext))))
+  (log/debug (str (depth-str depth) "head-by-comps begin: " (unify/get-in parent '(:comment-plaintext)) "; head:" (fo head)))
+  (if (unify/fail? parent) (log/info (str "head-by-comps begin: parent fail? " (unify/fail? parent))))
   (if (not (empty? comps))
     (let [comp (first comps)
           head-expand (unify/get-in head '(:extend))
           head-is-finished? (phrase-is-finished? head)]
       (log/debug (str "HEAD-IS-FINISHED? : " head-is-finished?))
-      (log/debug (str "COMP-IS-FINISHED? : " (phrase-is-finished? comp)))
-      (if (phrase-is-finished? comp)
-        (log/debug (str "COMP: " (fo comp))))
       (log/debug (str "COND1: " (unify/get-in parent '(:comment-plaintext)) " : "
                       (and (not (nil? head-expand))
                            (not head-is-finished?))))
@@ -546,68 +573,82 @@
                  (not head-is-finished?))
             (do
               (log/debug "1. (hs X cs)")
-              (heads-by-comps parent (generate head) comps))
+              (heads-by-comps parent (generate head nil (+ 1 depth)) comps depth))
             :else
             (let [comp-specification
                   (unify comp
                          (unify
-                          (unify/get-in parent '(:comp))
+                          (unify
+                           (if head-is-finished?
+                             (unify/get-in
+                              (unify parent
+                                     {:head head})
+                              '(:comp))
+                             :top)
+                           (unify/get-in parent '(:comp)))
                           {:synsem {:sem (lex/sem-impl (unify (unify/get-in parent '(:comp :synsem :sem))
                                                               (unify/get-in comp '(:synsem :sem))))}}))
+                  comp-is-finished? (phrase-is-finished? comp)
                   comp-generate
                   (if (not head-is-finished?)
                     (do
                       (log/debug "deferring comp generation until head generation is done.")
                       comp)
-                    (if (phrase-is-finished? comp)
+                    (if comp-is-finished?
                       (do
                         (log/debug (str "comp generation: " (fo comp) " is finished."))
                         comp)
                       (if (not (unify/fail? comp-specification))
                         (do
                           (log/debug (str "generating comp now since head generation is done."))
-                  (log/debug (str "comp sem-impl: " (lex/sem-impl (unify (unify/get-in parent '(:comp :synsem :sem))
-                                                                         (unify/get-in comp '(:synsem :sem))))))
-                  (log/debug (str "generating comp: " (unify/get-in comp '(:comment-plaintext)) " given head: " (fo head)))
-                  (generate comp-specification)))))]
+                          (log/debug (str (depth-str depth) "generating comp: " (unify/get-in comp '(:comment-plaintext)) " given head: " (fo head)))
+                          (let [comp-gen
+                                (generate comp-specification nil (+ 1 depth))]
+                            (log/debug (str "DID COMP GEN."))
+                            comp-gen)))))]
               (cond
                (unify/fail? comp-specification)
                (do
                  (log/debug "2. h X (rest c)")
-                 (head-by-comps parent head (rest comps)))
+                 (head-by-comps parent head (rest comps) depth))
 
                (and (not (nil? head-expand))
                     (not head-is-finished?)
                     (not (unify/fail? comp-specification)))
                (do
                  (log/debug "3. hs X c")
-                 (heads-by-comps parent (generate head) (lazy-seq (cons comp-specification (rest comps)))))
+                 (heads-by-comps parent (generate head nil (+ 1 depth)) (lazy-seq (cons comp-specification (rest comps))) depth))
 
-               (and (not (phrase-is-finished? comp))
+               (and (not comp-is-finished?)
                     (not (nil? comp-generate)))
                (do
                  (log/debug "4. lazy-cat (h X cg) (h (rest c)")
                  (lazy-cat
-                  (head-by-comps parent head comp-generate)
-                  (head-by-comps parent head (rest comps))))
+                  (head-by-comps parent head comp-generate depth)
+                  (head-by-comps parent head (rest comps) depth)))
+
+               (unify/fail? parent)
+               (do
+                 (log/info "parent fail: " (unify/get-in parent '(:comment-plaintext)))
+                 nil)
 
                :else
                (let [result (unify-comp parent comp-specification)]
                  (log/debug "5. unify")
                  (if (unify/fail? result)
                    (do
-                     (log/debug (str "failed unification: " (fo head) " and " (fo comp-specification)))
-                     (head-by-comps parent head (rest comps)))
+                     (log/info (str "failed unification: " (fo head) " (" (unify/get-in head '(:comment-plaintext)) ") and " (fo comp-specification)))
+                     (head-by-comps parent head (rest comps) depth))
                    (do
 
                      (if (or (= (unify/get-in parent '(:comment-plaintext)) "s[present] -> ..")
                              (= (unify/get-in parent '(:comment-plaintext)) "s[future] -> .."))
-                       (log/info (str "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
-                       (log/debug (str "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
+                       (log/info (str (depth-str depth) "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
+                       (log/info (str (depth-str depth) "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
 
                      (lazy-seq
                       (cons result
-                            (head-by-comps parent head (rest comps)))))))))))))
+                            (head-by-comps parent head (rest comps) depth))))))))))))
 
 (defn random-sentence []
   (first (take 1 (generate
