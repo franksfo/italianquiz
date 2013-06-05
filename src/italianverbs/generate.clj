@@ -176,17 +176,10 @@
                         (unify/get-in unified '(:1 :english))
                         (unify/get-in unified '(:2 :english)))}))))
 
-(defn unify-lr-hc [parent head comp]
-  (let [with-head (unify parent
-                         {:head head})
-        with-comp (unify parent
-                         {:head comp})
-        unified
+(defn unify-comp [parent comp]
+  (let [unified
         (unify parent
-               {:head head}
-               {:comp comp}
-               {:head {:synsem {:sem (lex/sem-impl (unify/get-in head '(:synsem :sem)))}}
-                :comp {:synsem {:sem (lex/sem-impl (unify/get-in comp '(:synsem :sem)))}}})]
+               {:comp comp})]
     (if (unify/fail? unified)
       :fail
       (merge unified
@@ -599,7 +592,7 @@
                   (head-by-comps parent head (rest comps))))
 
                :else
-               (let [result (unify-lr-hc parent head comp-specification)]
+               (let [result (unify-comp parent comp-specification)]
                  (log/debug "5. unify")
                  (if (unify/fail? result)
                    (do
