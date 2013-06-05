@@ -101,7 +101,7 @@
             (unify/get-in expr '(:italian :b :italian)))
 
            (string? (unify/get-in expr '(:italian :a)))
-           (str (unify/get-in expr '(:italian :a)) "...")
+           (str (unify/get-in expr '(:italian :a)) " ")
 
            (and
             (string? (unify/get-in expr '(:italian :a :italian)))
@@ -109,10 +109,15 @@
            (str (unify/get-in expr '(:italian :a :italian)) " "
                 (unify/get-in expr '(:italian :b :infinitive)))
 
+           (and (string? (unify/get-in expr '(:italian :a :italian)))
+                (= (unify/get-in expr '(:italian :b :infl)) :present)
+                (string? (unify/get-in expr '(:italian :b :infinitive))))
+           (str (unify/get-in expr '(:italian :a :italian)) " "
+                (unify/get-in expr '(:italian :b :infinitive)))
+
            (string? (unify/get-in expr '(:italian :a :italian)))
-           (str (unify/get-in expr '(:italian :a :italian)) "..."
-                (unify/get-in expr '(:italian :b))
-                (unify/get-in expr '(:italian :b :infl)))
+           (str (unify/get-in expr '(:italian :a :italian)) " "
+                (unify/get-in expr '(:italian :b)))
 
 
            (and (string? (unify/get-in expr '(:italian :a :infinitive)))
