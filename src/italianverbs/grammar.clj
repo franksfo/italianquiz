@@ -5,6 +5,9 @@
    [italianverbs.lexiconfn :as lexfn]
    [clojure.string :as string]))
 
+(defn unify [ & args]
+  (apply fs/unify args))
+
 ;;    [1]
 ;;   /   \
 ;;  /     \
@@ -92,6 +95,41 @@
                          :d {:head 'lexicon
                              :comp 'lexicon}
                          }}))
+
+
+  (def vp-pron
+    (let [comp-italian (ref :top)
+          head-italian (ref :top)
+          comp-english (ref :top)
+          head-english (ref :top)
+          infl (ref :top)
+          cat (ref :top)]
+      (fs/merge
+       (unify
+        head-principle
+        subcat-2-principle
+        {:italian {:b {:infl infl
+                       :cat cat}}
+         :english {:a {:infl infl
+                       :cat cat}}}
+        {:head head
+         :comp comp
+         :1 comp
+         :2 head}
+        {:comp {:english comp-english
+                :italian comp-italian}
+         :head {:english head-english
+                :italian head-italian}
+         :italian {:a comp-italian
+                   :b head-italian}
+         :english {:a head-english
+                   :b comp-english}})
+       {:comment-plaintext "vp[pron]"
+        :comment "vp[pron]"
+        :extend {:e {:head :lexicon
+                     :comp :lexicon}
+                 ;; TODO add vp -> lexicon vp also.
+                 }})))
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
