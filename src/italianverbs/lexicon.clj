@@ -882,6 +882,7 @@
     {:italian {:aux aux
                :essere essere-binary-categorization}
      :synsem {:aux aux
+              :sem {:tense :past}
               :essere essere-binary-categorization}}))
 
 (def avere-aux
