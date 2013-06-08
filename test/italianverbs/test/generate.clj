@@ -51,3 +51,20 @@
   (is (= "gli studenti brutti"
          (fs/get-in (first (over gram/np "i" (over gram/nbar "studente" "brutto")))
                     '(:italian)))))
+
+(deftest generate-nbar
+  (let [nbar (take 1 (generate gram/nbar))]
+    (is (not (fs/fail? nbar)))))
+
+
+(deftest generate-np
+  (let [np (take 1 (generate gram/np))]
+    (is (not (fs/fail? np)))))
+
+(deftest generate-vp
+  (let [vp (take 1 (generate gram/vp-present))]
+    (is (not (fs/fail? vp)))))
+
+(deftest generate-s-present
+  (let [sentence (take 1 (generate gram/s-present))]
+    (is (not (fs/fail? sentence)))))
