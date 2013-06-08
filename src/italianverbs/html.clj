@@ -180,30 +180,172 @@
                                   (tablize each-arg path (fs/serialize each-arg) opts))
                                 arg)))
 
+
+     ;; displaying a phrase structure tree (2 children) (new implementation)
+     ;; Head-initial (H C)
+     (and
+      (map? arg)
+
+      (not (= :subcat (last path)))
+      (not (= :italian (last path)))
+      (not (= :english (last path)))
+
+      ;; this long set of (nots) is to prevent matching :extend:
+      ;; TODO: might be possible to remove this.
+      ;; :extends will have features :a,:b,:c,..
+      (not (= :a (last path)))
+      (not (= :b (last path)))
+      (not (= :c (last path)))
+      (not (= :d (last path)))
+      (not (= :e (last path)))
+      (not (= :f (last path)))
+      (not (= :g (last path)))
+      (not (= :none (:head arg :none)))
+      (not (= :none (:comp arg :none)))
+      (= :none (:1 arg :none))
+      (= :none (:2 arg :none))
+      (not (= :none (fs/get-in arg '(:head :italian) :none)))
+      (not (= :none (fs/get-in arg '(:head :italian) :none)))
+      (not (= :none (fs/get-in arg '(:comp :english) :none)))
+      (not (= :none (fs/get-in arg '(:comp :english) :none)))
+      ;; TODO: use reference-equality not value-equality!
+      (= (fs/get-in arg '(:head :italian))
+         (fs/get-in arg '(:italian :a)))
+      (= (fs/get-in arg '(:comp :italian))
+         (fs/get-in arg '(:italian :b))))
+
+     (str
+      "<div class='phrase'>"
+      "  <table class='phrase'>"
+      "    <tr>"
+      "      <td class='parent2child'>&nbsp;</td><td class='parent2child parent' colspan='5'>"
+      (tablize (dissoc (dissoc arg :head) :comp) path serialized opts)
+      "      </td><td class='parent2child'>&nbsp;</td>"
+      "    </tr>"
+      "    <tr>"
+      "      <td class='ref'>"
+      (if (= (type (:head arg)) clojure.lang.Ref)
+        (str
+         "     <div class='ref'>"
+         (fs/path-to-ref-index serialized (concat path '(:head)) 0)
+         "     </div>"))
+      "      </td>"
+      "      <td>H</td><td>"
+      (tablize (if (= (type (:head arg)) clojure.lang.Ref)
+                 @(:head arg)
+                 (:head arg))
+               (concat path '(:head)) serialized opts)
+      "      </td>"
+      "      <td class='ref'>"
+      (if (= (type (:comp arg)) clojure.lang.Ref)
+        (str
+         "    <div class='ref'>"
+         (fs/path-to-ref-index serialized (concat path '(:comp)) 0)
+         "    </div>"))
+      "      </td>"
+      "      <td>C</td><td>"
+      (tablize (if (= (type (:comp arg)) clojure.lang.Ref)
+                 @(:comp arg)
+                 (:comp arg))
+               (concat path '(:comp)) serialized opts)
+      "      </td><td>&nbsp;</td>"
+      "    </tr>"
+      "  </table>"
+      "</div>")
+
+
+     ;; displaying a phrase structure tree (2 children) (new implementation)
+     ;; Head-final (C H)
+     (and
+      (map? arg)
+
+      (not (= :subcat (last path)))
+      (not (= :italian (last path)))
+      (not (= :english (last path)))
+
+      ;; this long set of (nots) is to prevent matching :extend:
+      ;; TODO: might be possible to remove this.
+      ;; :extends will have features :a,:b,:c,..
+      (not (= :a (last path)))
+      (not (= :b (last path)))
+      (not (= :c (last path)))
+      (not (= :d (last path)))
+      (not (= :e (last path)))
+      (not (= :f (last path)))
+      (not (= :g (last path)))
+
+      (not (= :none (:head arg :none)))
+      (not (= :none (:comp arg :none)))
+      (= :none (:1 arg :none))
+      (= :none (:2 arg :none))
+      (not (= :none (fs/get-in arg '(:head :italian) :none)))
+      (not (= :none (fs/get-in arg '(:head :italian) :none)))
+      (not (= :none (fs/get-in arg '(:comp :english) :none)))
+      (not (= :none (fs/get-in arg '(:comp :english) :none)))
+      ;; TODO: use reference-equality not value-equality!
+      (= (fs/get-in arg '(:head :italian))
+         (fs/get-in arg '(:italian :a)))
+      (= (fs/get-in arg '(:comp :italian))
+         (fs/get-in arg '(:italian :b))))
+
+     (str
+      "<div class='phrase'>"
+      "  <table class='phrase'>"
+      "    <tr>"
+      "      <td class='parent2child'>&nbsp;</td><td class='parent2child parent' colspan='5'>"
+      (tablize (dissoc (dissoc arg :head) :comp) path serialized opts)
+      "      </td><td class='parent2child'>&nbsp;</td>"
+      "    </tr>"
+      "    <tr>"
+      "      <td class='ref'>"
+      (if (= (type (:head arg)) clojure.lang.Ref)
+        (str
+         "     <div class='ref'>"
+         (fs/path-to-ref-index serialized (concat path '(:head)) 0)
+         "     </div>"))
+      "      </td>"
+      "      <td>C</td><td>"
+      (tablize (if (= (type (:head arg)) clojure.lang.Ref)
+                 @(:head arg)
+                 (:head arg))
+               (concat path '(:head)) serialized opts)
+      "      </td>"
+      "      <td class='ref'>"
+      (if (= (type (:comp arg)) clojure.lang.Ref)
+        (str
+         "    <div class='ref'>"
+         (fs/path-to-ref-index serialized (concat path '(:comp)) 0)
+         "    </div>"))
+      "      </td>"
+      "      <td>H</td><td>"
+      (tablize (if (= (type (:comp arg)) clojure.lang.Ref)
+                 @(:comp arg)
+                 (:comp arg))
+               (concat path '(:comp)) serialized opts)
+      "      </td><td>&nbsp;</td>"
+      "    </tr>"
+      "  </table>"
+      "</div>")
+
+
      ;; displaying a phrase structure tree (2 children)
      (and
-      (or true (not (nil? opts)))
-      (or
-;       (println (str "OPTS: " opts))
-       true (:as-tree opts))
-      (or (= (type arg) clojure.lang.PersistentArrayMap)
-          (= (type arg) clojure.lang.PersistentHashMap)
-          (= (type arg) clojure.lang.PersistentTreeMap))
+      (map? arg)
 
-      (and (not (= :subcat (last path)))
-           (not (= :italian (last path)))
+      (not (= :subcat (last path)))
+      (not (= :italian (last path)))
 
-           ;; display :extends properly (i.e. not a tree).
-           ;; :extends will have features :a,:b,:c,..
-           (not (= :a (last path)))
-           (not (= :b (last path)))
-           (not (= :c (last path)))
-           (not (= :d (last path)))
-           (not (= :e (last path)))
-           (not (= :f (last path)))
-           (not (= :g (last path)))
+      ;; display :extends properly (i.e. not a tree).
+      ;; :extends will have features :a,:b,:c,..
+      (not (= :a (last path)))
+      (not (= :b (last path)))
+      (not (= :c (last path)))
+      (not (= :d (last path)))
+      (not (= :e (last path)))
+      (not (= :f (last path)))
+      (not (= :g (last path)))
 
-           (not (= :english (last path))))
+      (not (= :english (last path)))
       (not (= :none (:1 arg :none)))
       (not (= :none (:2 arg :none))))
 
