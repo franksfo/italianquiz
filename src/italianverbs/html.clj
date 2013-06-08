@@ -208,11 +208,11 @@
       (not (= :none (fs/get-in arg '(:head :italian) :none)))
       (not (= :none (fs/get-in arg '(:comp :english) :none)))
       (not (= :none (fs/get-in arg '(:comp :english) :none)))
-      ;; TODO: use reference-equality not value-equality!
-      (= (fs/get-in arg '(:head :italian))
-         (fs/get-in arg '(:italian :a)))
-      (= (fs/get-in arg '(:comp :italian))
-         (fs/get-in arg '(:italian :b))))
+      ;; head-initial:
+      (= (:italian (:head arg))
+         (:a (:italian arg)))
+      (= (:italian (:comp arg))
+         (:b (:italian arg))))
 
      (str
       "<div class='phrase'>"
@@ -282,11 +282,12 @@
       (not (= :none (fs/get-in arg '(:head :italian) :none)))
       (not (= :none (fs/get-in arg '(:comp :english) :none)))
       (not (= :none (fs/get-in arg '(:comp :english) :none)))
-      ;; TODO: use reference-equality not value-equality!
-      (= (fs/get-in arg '(:head :italian))
-         (fs/get-in arg '(:italian :a)))
-      (= (fs/get-in arg '(:comp :italian))
-         (fs/get-in arg '(:italian :b))))
+      ;; TODO: define: fs/ref= rather than this reverse-order checking.
+      ;; head-final:
+      (= (:italian (:head arg))
+         (:b (:italian arg)))
+      (= (:italian (:comp arg))
+         (:a (:italian arg))))
 
      (str
       "<div class='phrase'>"
@@ -298,30 +299,30 @@
       "    </tr>"
       "    <tr>"
       "      <td class='ref'>"
-      (if (= (type (:head arg)) clojure.lang.Ref)
+      (if (= (type (:comp arg)) clojure.lang.Ref)
         (str
          "     <div class='ref'>"
-         (fs/path-to-ref-index serialized (concat path '(:head)) 0)
+         (fs/path-to-ref-index serialized (concat path '(:comp)) 0)
          "     </div>"))
       "      </td>"
       "      <td>C</td><td>"
-      (tablize (if (= (type (:head arg)) clojure.lang.Ref)
-                 @(:head arg)
-                 (:head arg))
-               (concat path '(:head)) serialized opts)
-      "      </td>"
-      "      <td class='ref'>"
-      (if (= (type (:comp arg)) clojure.lang.Ref)
-        (str
-         "    <div class='ref'>"
-         (fs/path-to-ref-index serialized (concat path '(:comp)) 0)
-         "    </div>"))
-      "      </td>"
-      "      <td>H</td><td>"
       (tablize (if (= (type (:comp arg)) clojure.lang.Ref)
                  @(:comp arg)
                  (:comp arg))
                (concat path '(:comp)) serialized opts)
+      "      </td>"
+      "      <td class='ref'>"
+      (if (= (type (:head arg)) clojure.lang.Ref)
+        (str
+         "    <div class='ref'>"
+         (fs/path-to-ref-index serialized (concat path '(:head)) 0)
+         "    </div>"))
+      "      </td>"
+      "      <td>H</td><td>"
+      (tablize (if (= (type (:head arg)) clojure.lang.Ref)
+                 @(:head arg)
+                 (:head arg))
+               (concat path '(:head)) serialized opts)
       "      </td><td>&nbsp;</td>"
       "    </tr>"
       "  </table>"
