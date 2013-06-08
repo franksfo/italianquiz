@@ -1,9 +1,9 @@
 (ns italianverbs.generate
-  (:use [clojure.stacktrace]
-        [italianverbs.lexiconfn])
+  (:use [clojure.stacktrace])
   (:require
    [clojure.tools.logging :as log]
    [italianverbs.lev :as lev]
+   [italianverbs.lexiconfn :as lexfn]
    [italianverbs.morphology :as morph]
    [italianverbs.grammar :as gram]
    [italianverbs.unify :as unify]
@@ -160,11 +160,11 @@
 
 (defn unify-and-merge [parent child1 child2]
   (let [unified
-        (unify parent
-               {:1 child1
-                :2 child2}
-               {:1 {:synsem {:sem (lex/sem-impl (unify/get-in child1 '(:synsem :sem)))}}
-                :2 {:synsem {:sem (lex/sem-impl (unify/get-in child2 '(:synsem :sem)))}}})
+        (lexfn/unify parent
+                     {:1 child1
+                      :2 child2}
+                     {:1 {:synsem {:sem (lex/sem-impl (unify/get-in child1 '(:synsem :sem)))}}
+                      :2 {:synsem {:sem (lex/sem-impl (unify/get-in child2 '(:synsem :sem)))}}})
         fail (unify/fail? unified)]
     (if (= fail true)
       :fail
@@ -178,7 +178,7 @@
 
 (defn unify-comp [parent comp]
   (let [unified
-        (unify parent
+        (lexfn/unify parent
                {:comp comp})]
     (if (unify/fail? unified)
       :fail
@@ -191,10 +191,10 @@
                         (unify/get-in unified '(:2 :english)))}))))
 
 (defn unify-lr-hc-debug [parent head comp]
-  (let [with-head (unify parent
-                         {:head head})
-        with-comp (unify parent
-                         {:head comp})]
+  (let [with-head (lexfn/unify parent
+                               {:head head})
+        with-comp (lexfn/unify parent
+                               {:head comp})]
 
     (do
       (log/info (str "PARENT: " (unify/get-in parent '(:comment-plaintext))))
@@ -357,14 +357,14 @@
          (log/debug (str "sem-filter: " sem-filter))
          (log/debug "failed match.")
          :fail)
-       (let [unified (unify parent
-                            {add-child-where
-                             (unify
-                              (let [sem (unify/get-in child '(:synsem :sem) :notfound)]
-                                (if (not (= sem :notfound))
-                                  {:synsem {:sem (lex/sem-impl sem)}}
-                                  {}))
-                             child)})]
+       (let [unified (lexfn/unify parent
+                                  {add-child-where
+                                   (lexfn/unify
+                                    (let [sem (unify/get-in child '(:synsem :sem) :notfound)]
+                                      (if (not (= sem :notfound))
+                                        {:synsem {:sem (lex/sem-impl sem)}}
+                                        {}))
+                                    child)})]
          (if (unify/fail? unified)
            (log/debug "Failed attempt to add child to parent: " (unify/get-in parent '(:comment))
                      " at: " add-child-where))
@@ -450,8 +450,8 @@
         (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
         (heads-by-comps parent (rest heads) comps depth))
       (if (unify/fail?
-           (unify parent
-                  (unify {:head (first heads)}
+           (lexfn/unify parent
+                  (lexfn/unify {:head (first heads)}
                          {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}})))
         (do
           (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
@@ -460,15 +460,15 @@
         (do
           (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) " first head: " (fo (first heads))))
           (lazy-cat
-           (let [unified-parent (unify parent
-                                 (unify {:head (first heads)}
+           (let [unified-parent (lexfn/unify parent
+                                 (lexfn/unify {:head (first heads)}
                                         {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
                  comp-cat (unify/get-in unified-parent '(:comp :synsem :cat))
                  comp-synsem (unify/get-in unified-parent '(:comp :synsem))]
              (head-by-comps unified-parent
                             (first heads)
                             (filter (fn [lex]
-                                      (not (unify/fail? (unify (unify/get-in lex '(:synsem)) comp-synsem))))
+                                      (not (unify/fail? (lexfn/unify (unify/get-in lex '(:synsem)) comp-synsem))))
                                     comps)
                             depth))
            (heads-by-comps parent (rest heads) comps depth)))))))
@@ -488,12 +488,12 @@
 (defn lazy-head-filter [parent expansion sem-impl heads]
   (if (not (empty? heads))
     (let [head-candidate (first heads)
-          result (unify head-candidate
-                        (unify
-                         (do (log/debug (str "trying head candidate of " (unify/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
-                             (unify
-                              sem-impl
-                              (unify/get-in parent '(:head))))))]
+          result (lexfn/unify head-candidate
+                              (lexfn/unify
+                               (do (log/debug (str "trying head candidate of " (unify/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
+                                   (lexfn/unify
+                                    sem-impl
+                                    (unify/get-in parent '(:head))))))]
       (if (not (unify/fail? result))
         (lazy-seq
          (cons result
@@ -511,7 +511,7 @@
       ;; a sequence of lexical items: shuffle and filter by whether they fit the :head of this rule.
       (lazy-head-filter parent expansion sem-impl (shuffle head))
       ;; else: treat as rule: should generate at this point.
-      (list (unify (unify/get-in parent '(:head)) head)))))
+      (list (lexfn/unify (unify/get-in parent '(:head)) head)))))
 
 (defn hc-expands [parent expansion depth]
   (log/debug (str (depth-str depth) "hc-expands: " (unify/get-in parent '(:comment-plaintext)) " with expansion: " expansion))
@@ -530,7 +530,7 @@
            (let [compx (:comp-expands head)]
              (log/debug (str "hc-expands: compx: " compx))
              (if (seq? comp) (shuffle comp)
-                 (list (unify (unify/get-in parent '(:comp)) comp)))))}))))
+                 (list (lexfn/unify (unify/get-in parent '(:comp)) comp)))))}))))
 
 (defn hc-expand-all [parent extend-vals depth]
   (if (not (empty? extend-vals))
@@ -589,17 +589,17 @@
               (heads-by-comps parent (generate head nil (+ 1 depth)) comps depth))
             :else
             (let [comp-specification
-                  (unify comp
-                         (unify
-                          (unify
+                  (lexfn/unify comp
+                         (lexfn/unify
+                          (lexfn/unify
                            (if head-is-finished?
                              (unify/get-in
-                              (unify parent
+                              (lexfn/unify parent
                                      {:head head})
                               '(:comp))
                              :top)
                            (unify/get-in parent '(:comp)))
-                          {:synsem {:sem (lex/sem-impl (unify (unify/get-in parent '(:comp :synsem :sem))
+                          {:synsem {:sem (lex/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem))
                                                               (unify/get-in comp '(:synsem :sem))))}}))
                   comp-is-finished? (phrase-is-finished? comp)
                   comp-generate
@@ -678,10 +678,10 @@
     (dotimes [n times] (time (random-sentence)))))
 
 (defn espressioni []
-  (choose-lexeme {:cat :espressioni}))
+  (lexfn/choose-lexeme {:cat :espressioni}))
 
 (defn random-infinitivo []
-  (choose-lexeme
+  (lexfn/choose-lexeme
    (unify/unify {:cat :verb
            :infl :infinitive}
           config/random-infinitivo)))
@@ -689,7 +689,7 @@
 (defn random-futuro-semplice [& constraints]
   (let [
         ;; 1. choose a random verb in the passato-prossimo form.
-        verb-future (choose-lexeme
+        verb-future (lexfn/choose-lexeme
                      (unify/unify
                       (if constraints (first constraints) {})
                       {:infl :futuro-semplice}
