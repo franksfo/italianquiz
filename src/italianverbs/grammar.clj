@@ -6,7 +6,7 @@
    [clojure.string :as string]))
 
 (defn unify [ & args]
-  (apply fs/unify args))
+  (apply fs/unifyc args))
 
 ;;    [1]
 ;;   /   \
@@ -281,6 +281,31 @@
       :comment-plaintext "nbar -> noun adj"
       :extend {:a {:head 'lexicon
                    :comp 'lexicon}}})))
+
+(def nbar-new
+  (let [head-english (ref :top)
+        head-italian (ref :top)
+        comp-english (ref :top)
+        comp-italian (ref :top)
+        head-semantics (ref :top)
+        adjectival-predicate (ref :top)]
+    (unify head-principle
+           (let [def (ref :top)]
+             {:head {:synsem {:def def}}
+              :synsem {:def def}})
+           {:synsem {:sem head-semantics}
+            :comp {:synsem {:sem {:mod head-semantics}}}}
+           {:synsem {:sem {:mod adjectival-predicate}}
+            :comp {:synsem {:sem {:mod head-semantics
+                                  :pred adjectival-predicate}}}}
+           {:head {:italian head-italian
+                   :english head-english}
+            :comp {:italian comp-italian
+                   :english comp-english}
+            :italian {:a head-italian
+                      :b comp-italian}
+            :english {:a comp-english
+                      :b head-english}})))
 
 (def np-rules
   (let [head (ref :top)

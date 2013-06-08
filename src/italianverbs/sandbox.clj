@@ -1,7 +1,6 @@
 (ns italianverbs.sandbox
   [:use
    [clojure.core :exclude [find]]
-   [italianverbs.lexiconfn]
    [italianverbs.lexicon]
    ;; Prohibit generate/printfs because it writes directly to the filesystem:
    ;; attacker could DOS server by filling up filesystem.
@@ -12,6 +11,7 @@
    [clojail.testers]
    ]
   [:require
+   [italianverbs.lexiconfn :as lexfn]
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [clojure.set :as set]
