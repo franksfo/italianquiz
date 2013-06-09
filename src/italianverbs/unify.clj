@@ -854,4 +854,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         firstpath (seq (first (sorted-paths serialized path n index)))]
     firstpath))
 
+(defn ref= [map path1 path2]
+  "return true iff path1 and path2 point to the same object."
+  ;; TODO: add error checking.
+  (let [butlast-val1 (get-in map (butlast path1))
+        butlast-val2 (get-in map (butlast path2))]
+    (= (get butlast-val1 (last path1))
+       (get butlast-val2 (last path2)))))
 
