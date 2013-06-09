@@ -292,3 +292,10 @@ ol.workbook > li:before {
     padding-right:.25em;
     content: counter(workbook-counter) ". "
 }
+
+td.hc {
+    border-right:0px solid green;
+    text-align:right;
+    font-weight:bold;
+    font-size:150%;
+}
