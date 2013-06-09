@@ -273,6 +273,50 @@
      (if (not fail)
        (list unified)))))
 
+(defn add-child-where [parent]
+  (cond
+   ;; new-style:
+   (and (= :none (unify/get-in parent '(:1) :none))
+        (= :none (unify/get-in parent '(:2) :none)))
+   (cond
+    (and
+     (unify/ref= parent '(:head :italian) '(:italian :a))
+     (unify/ref= parent '(:comp :italian) '(:italian :b)))
+    ;; head-initial:
+    (cond (not (string? (unify/get-in parent '(:head :italian))))
+          :head
+          :else
+          :comp)
+    (and
+     (unify/ref= parent '(:head :italian) '(:italian :b))
+     (unify/ref= parent '(:comp :italian) '(:italian :a)))
+    ;; head-final.
+    (cond (not (string? (unify/get-in parent '(:comp :italian))))
+          :comp
+          :else
+          :head)
+    :else (throw (Exception. (str "could not determine where to place child (new-style)"))))
+   :else
+   ;; old-style:
+   (cond
+    (and
+     (not
+      (string?
+       (unify/get-in parent '(:1 :italian))))
+     (not
+      (string?
+       (unify/get-in parent '(:1 :italian :infinitive))))
+     ;; TODO: remove: :root is going away.
+     (not
+      (string?
+       (unify/get-in parent '(:1 :italian :root))))
+     (not
+      (string?
+       (unify/get-in parent '(:1 :italian :italian)))))
+    :1
+    :else
+    :2)))
+
 ;; TODO: use multiple dispatch.
 (defn over-parent-child [parent child]
   (log/debug (str "parent: " parent))
@@ -315,22 +359,7 @@
          ;; "add-child-where": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
          ;; if (:1 :italian) is nil, the parent has no child at :1 yet, so attach new child there at :1.
          ;; Otherwise, a :child exists at :1, so attach new child at :2.
-         add-child-where (if (and
-                              (not
-                               (string?
-                                (unify/get-in parent '(:1 :italian))))
-                              (not
-                               (string?
-                                (unify/get-in parent '(:1 :italian :infinitive))))
-                              ;; TODO: remove: :root is going away.
-                              (not
-                               (string?
-                                (unify/get-in parent '(:1 :italian :root))))
-                              (not
-                               (string?
-                                (unify/get-in parent '(:1 :italian :italian)))))
-                           :1
-                           :2)
+         add-child-where (add-child-where parent)
 
          head-is-where (if (= (unify/get-in parent '(:head))
                               (unify/get-in parent '(:1)))
@@ -421,7 +450,6 @@
    (= symbol 'vp) gram/vp
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past
-
 
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
