@@ -69,6 +69,40 @@
                      :essere essere
                      :infl infl}}}))
 
+
+
+(def italian-head-first
+  (let [head-italian (ref :top)
+        comp-italian (ref :top)]
+    {:head {:italian head-italian}
+     :comp {:italian comp-italian}
+     :italian {:a head-italian
+               :b comp-italian}}))
+
+(def italian-head-final
+  (let [head-italian (ref :top)
+        comp-italian (ref :top)]
+    {:head {:italian head-italian}
+     :comp {:italian comp-italian}
+     :italian {:a comp-italian
+               :b head-italian}}))
+
+(def english-head-first
+  (let [head-english (ref :top)
+        comp-english (ref :top)]
+    {:head {:english head-english}
+     :comp {:english comp-english}
+     :english {:a head-english
+               :b comp-english}}))
+
+(def english-head-final
+  (let [head-english (ref :top)
+        comp-english (ref :top)]
+    {:head {:english head-english}
+     :comp {:english comp-english}
+     :english {:a comp-english
+               :b head-english}}))
+
 (def vp-rules
 
   (let [head (ref :top)
@@ -170,38 +204,6 @@
             :english {:agr agr
                       :infl infl}}}))
 
-(def italian-head-first
-  (let [head-italian (ref :top)
-        comp-italian (ref :top)]
-    {:head {:italian head-italian}
-     :comp {:italian comp-italian}
-     :italian {:a head-italian
-               :b comp-italian}}))
-
-(def italian-head-final
-  (let [head-italian (ref :top)
-        comp-italian (ref :top)]
-    {:head {:italian head-italian}
-     :comp {:italian comp-italian}
-     :italian {:a comp-italian
-               :b head-italian}}))
-
-(def english-head-first
-  (let [head-english (ref :top)
-        comp-english (ref :top)]
-    {:head {:english head-english}
-     :comp {:english comp-english}
-     :english {:a head-english
-               :b comp-english}}))
-
-(def english-head-final
-  (let [head-english (ref :top)
-        comp-english (ref :top)]
-    {:head {:english head-english}
-     :comp {:english comp-english}
-     :english {:a comp-english
-               :b head-english}}))
-
 (def sentence-rules
   (let [subj-sem (ref :top)
         subcatted (ref {:cat :noun
@@ -218,11 +220,9 @@
         rule-base
         (fs/unifyc head-principle subcat-1-principle
                    subject-verb-agreement
-                   {:head head
-                    :comp comp
-                    :1 comp
-                    :2 head
-                    :extend {:a {:comp 'np
+                   italian-head-final
+                   english-head-final
+                   {:extend {:a {:comp 'np
                                  :head 'vp}
                              :b {:comp 'lexicon
                                  :head 'vp}
