@@ -82,11 +82,9 @@
                verb-inflection-morphology
                {:comment "vp &#x2192; head comp"
                 :comment-plaintext "vp -> head comp"}
-               {:head head
-                :comp comp
-                :1 head
-                :2 comp
-                :extend {:a {:head 'lexicon
+               italian-head-first
+               english-head-first
+               {:extend {:a {:head 'lexicon
                              :comp 'np}
                          :b {:head 'lexicon
                              :comp 'prep-phrase}
@@ -95,7 +93,6 @@
                          :d {:head 'lexicon
                              :comp 'lexicon}
                          }}))
-
 
   (def vp-pron
     (let [comp-italian (ref :top)
@@ -155,12 +152,10 @@
                                 :subcat {:2 {:cat :noun
                                              :subcat '()}}}}}
                {:comment "vp[inf] &#x2192; head comp"
-                :comment-plaintext "vp[inf] -> head comp"
-                :head head
-                :comp comp
-                :1 head
-                :2 comp
-                :extend {
+                :comment-plaintext "vp[inf] -> head comp"}
+               italian-head-first
+               english-head-first
+               {:extend {
                          :a {:head 'lexicon
                              :comp 'np}}}))))
 
@@ -174,6 +169,38 @@
                       :infl infl}
             :english {:agr agr
                       :infl infl}}}))
+
+(def italian-head-first
+  (let [head-italian (ref :top)
+        comp-italian (ref :top)]
+    {:head {:italian head-italian}
+     :comp {:italian comp-italian}
+     :italian {:a head-italian
+               :b comp-italian}}))
+
+(def italian-head-final
+  (let [head-italian (ref :top)
+        comp-italian (ref :top)]
+    {:head {:italian head-italian}
+     :comp {:italian comp-italian}
+     :italian {:a comp-italian
+               :b head-italian}}))
+
+(def english-head-first
+  (let [head-english (ref :top)
+        comp-english (ref :top)]
+    {:head {:english head-english}
+     :comp {:english comp-english}
+     :english {:a head-english
+               :b comp-english}}))
+
+(def english-head-final
+  (let [head-english (ref :top)
+        comp-english (ref :top)]
+    {:head {:english head-english}
+     :comp {:english comp-english}
+     :english {:a comp-english
+               :b head-english}}))
 
 (def sentence-rules
   (let [subj-sem (ref :top)
@@ -281,38 +308,6 @@
       :comment-plaintext "nbar -> noun adj"
       :extend {:a {:head 'lexicon
                    :comp 'lexicon}}})))
-
-(def italian-head-first
-  (let [head-italian (ref :top)
-        comp-italian (ref :top)]
-    {:head {:italian head-italian}
-     :comp {:italian comp-italian}
-     :italian {:a head-italian
-               :b comp-italian}}))
-
-(def italian-head-final
-  (let [head-italian (ref :top)
-        comp-italian (ref :top)]
-    {:head {:italian head-italian}
-     :comp {:italian comp-italian}
-     :italian {:a comp-italian
-               :b head-italian}}))
-
-(def english-head-first
-  (let [head-english (ref :top)
-        comp-english (ref :top)]
-    {:head {:english head-english}
-     :comp {:english comp-english}
-     :english {:a head-english
-               :b comp-english}}))
-
-(def english-head-final
-  (let [head-english (ref :top)
-        comp-english (ref :top)]
-    {:head {:english head-english}
-     :comp {:english comp-english}
-     :english {:a comp-english
-               :b head-english}}))
 
 (def nbar-new
   (let [head-semantics (ref :top)
