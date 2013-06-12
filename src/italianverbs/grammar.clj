@@ -282,21 +282,55 @@
       :extend {:a {:head 'lexicon
                    :comp 'lexicon}}})))
 
-(def nbar-new
+(def italian-head-first
+  (let [head-italian (ref :top)
+        comp-italian (ref :top)]
+    {:head {:italian head-italian}
+     :comp {:italian comp-italian}
+     :italian {:a head-italian
+               :b comp-italian}}))
+
+(def italian-head-final
+  (let [head-italian (ref :top)
+        comp-italian (ref :top)]
+    {:head {:italian head-italian}
+     :comp {:italian comp-italian}
+     :italian {:a comp-italian
+               :b head-italian}}))
+
+(def english-head-first
   (let [head-english (ref :top)
-        head-italian (ref :top)
-        comp-english (ref :top)
-        comp-italian (ref :top)
-        head-semantics (ref :top)
+        comp-english (ref :top)]
+    {:head {:english head-english}
+     :comp {:english comp-english}
+     :english {:a head-english
+               :b comp-english}}))
+
+(def english-head-final
+  (let [head-english (ref :top)
+        comp-english (ref :top)]
+    {:head {:english head-english}
+     :comp {:english comp-english}
+     :english {:a comp-english
+               :b head-english}}))
+
+(def nbar-new
+  (let [head-semantics (ref :top)
         adjectival-predicate (ref :top)
         agr (ref :top)
         subcat (ref :top)]
     (unify head-principle
+           ;; for Nbar, italian and english have opposite constituent order:
+           italian-head-first
+           english-head-final
            (let [def (ref :top)]
              {:head {:synsem {:def def}}
               :synsem {:def def}})
            {:synsem {:sem head-semantics}
             :comp {:synsem {:sem {:mod head-semantics}}}}
+           ;; the following will rule out pronouns, since they don't subcat for a determiner;
+           ;; (in fact, they don't subcat for anything)
+           {:synsem {:subcat {:1 {:cat :det}}}}
 
            {:synsem {:agr agr
                      :subcat subcat}
@@ -313,16 +347,7 @@
            {:comment "n&#x0305; &#x2192; noun adj"
             :comment-plaintext "nbar -> noun adj"
             :extend {:a {:head 'lexicon
-                         :comp 'lexicon}}
-            :head {:italian head-italian
-                   :english head-english}
-            :comp {:italian comp-italian
-                   :english comp-english}
-            ;; for Nbar, italian and english have opposite constituent order:
-            :italian {:a head-italian
-                      :b comp-italian}
-            :english {:a comp-english
-                      :b head-english}})))
+                         :comp 'lexicon}}})))
 
 (def np-rules
   (let [head (ref :top)
@@ -388,7 +413,7 @@
                             :a {:comp 'lexicon
                                 :head 'lexicon}
                             :b {:comp 'lexicon
-                                :head 'nbar}}
+                                :head 'nbar-new}}
                    })))))
 
 

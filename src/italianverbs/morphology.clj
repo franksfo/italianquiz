@@ -873,8 +873,8 @@
         b (if (nil? b) "" b)
         re-a (get-english-1 a)
         re-b (get-english-1 b)]
-    (log/debug (str "get-english-1 a: " a " => " re-a))
-    (log/debug (str "get-english-1 b: " b " => " re-b))
+    (log/debug (str "get-english a: " a " => " re-a))
+    (log/debug (str "get-english b: " b " => " re-b))
     (cond
 
      (and (string? re-a)
@@ -890,6 +890,15 @@
      {:a a
       :b (string/replace re-b #"^to " "")}
 
+     ;; new-style n' -> adj noun
+     (and
+      (= (fs/get-in a '(:cat)) :adjective)
+      (= (fs/get-in b '(:cat)) :noun)
+      (= (fs/get-in a '(:agr :number)) :top))
+     {:a a
+      :b b}
+
+     ;; old-style n' -> adj noun
      (and
       (= (fs/get-in a '(:cat)) :noun)
       (= (fs/get-in b '(:cat)) :adjective))

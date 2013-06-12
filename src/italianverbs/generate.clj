@@ -176,6 +176,24 @@
                         (unify/get-in unified '(:1 :english))
                         (unify/get-in unified '(:2 :english)))}))))
 
+(defn italian-head-initial? [parent]
+  (or
+   ;; new-style
+   (and (unify/ref= parent '(:head :italian) '(:italian :a))
+        (unify/ref= parent '(:comp :italian) '(:italian :b)))
+   ;; old-style
+   (and (unify/ref= parent '(:head) '(:1))
+        (unify/ref= parent '(:comp) '(:2)))))
+
+(defn english-head-initial? [parent]
+  (or
+   ;; new-style
+   (and (unify/ref= parent '(:head :english) '(:english :a))
+        (unify/ref= parent '(:comp :english) '(:english :b)))
+   ;; old-style
+   (and (unify/ref= parent '(:head) '(:1))
+        (unify/ref= parent '(:comp) '(:2)))))
+
 (defn unify-comp [parent comp]
   (let [unified
         (lexfn/unify parent
@@ -183,12 +201,21 @@
     (if (unify/fail? unified)
       :fail
       (merge unified
-             {:italian (morph/get-italian
-                        (unify/get-in unified '(:1 :italian))
-                        (unify/get-in unified '(:2 :italian)))
-              :english (morph/get-english
-                        (unify/get-in unified '(:1 :english))
-                        (unify/get-in unified '(:2 :english)))}))))
+             (if (italian-head-initial? unified)
+               {:italian (morph/get-italian
+                          (unify/get-in unified '(:head :italian))
+                          (unify/get-in unified '(:comp :italian)))}
+               {:italian (morph/get-italian
+                          (unify/get-in unified '(:comp :italian))
+                          (unify/get-in unified '(:head :italian)))})
+             (if (english-head-initial? unified)
+               {:english (morph/get-english
+                          (unify/get-in unified '(:head :english))
+                          (unify/get-in unified '(:comp :english)))}
+               {:english (morph/get-english
+                          (unify/get-in unified '(:comp :english))
+                          (unify/get-in unified '(:head :english)))})))))
+
 
 (defn unify-lr-hc-debug [parent head comp]
   (let [with-head (lexfn/unify parent
@@ -274,31 +301,75 @@
        (list unified)))))
 
 (defn add-child-where [parent]
+  (if (seq? parent)
+    (throw (Exception. (str "add-child-where was passed a seq: " seq " - should only be a map."))))
+
   (cond
+
    ;; new-style:
    (and (= :none (unify/get-in parent '(:1) :none))
         (= :none (unify/get-in parent '(:2) :none)))
    (cond
-    (and
-     (unify/ref= parent '(:head :italian) '(:italian :a))
-     (unify/ref= parent '(:comp :italian) '(:italian :b)))
-    ;; head-initial:
-    (cond (not (string? (unify/get-in parent '(:head :italian))))
-          :head
-          :else
-          :comp)
-    (and
-     (unify/ref= parent '(:head :italian) '(:italian :b))
-     (unify/ref= parent '(:comp :italian) '(:italian :a)))
-    ;; head-final.
-    (cond (not (string? (unify/get-in parent '(:comp :italian))))
-          :comp
+    (or
+     (string? (unify/get-in parent '(:italian)))
+     (string? (unify/get-in parent '(:italian :italian)))
+     (and (or (string? (unify/get-in parent '(:italian :a)))
+              (string? (unify/get-in parent '(:italian :a :italian))))
+          (or (string? (unify/get-in parent '(:italian :b)))
+              (string? (unify/get-in parent '(:italian :b :italian)))
+              (and (string? (unify/get-in parent '(:italian :b :a :italian)))
+                   (string? (unify/get-in parent '(:italian :b :b :italian))))))
+
+     (and
+      ;; head is filled in?
+      (or (string? (unify/get-in parent '(:head :italian)))
+          (string? (unify/get-in parent '(:head :italian :italian))))
+
+      ;; comp is filled in?
+      (or (string? (unify/get-in parent '(:comp :italian)))
+          (string? (unify/get-in parent '(:comp :italian :italian))))))
+
+    nil ;; done: both head and comp are filled in.
+    (italian-head-initial? parent)
+    (cond
+     (not (or (string? (unify/get-in parent '(:head :italian)))
+              (string? (unify/get-in parent '(:head :italian :italian)))))
+     :head
+     :else
+     :comp)
+    :else ;; head-final.
+    (cond (not (or (string? (unify/get-in parent '(:comp :italian)))
+                   (string? (unify/get-in parent '(:comp :italian :italian)))))
+          (do
+            (log/debug "returning :comp for head-final.")
+            :comp)
           :else
           :head)
-    :else (throw (Exception. (str "could not determine where to place child (new-style)"))))
+
+    :else
+    (throw (Exception. (str "could not determine where to place child (new-style): "
+                            " head italian: " (unify/get-in parent '(:head :italian))
+                            " comp italian: " (unify/get-in parent '(:comp :italian))
+                            " ref test1: " (unify/ref= parent '(:head :italian) '(:italian :b))
+                            " ref test2: " (unify/ref= parent '(:comp :italian) '(:italian :a))))))
+
+
    :else
    ;; old-style:
    (cond
+
+    (and
+     (string? (unify/get-in parent '(:1 :italian)))
+     (string? (unify/get-in parent '(:2 :italian :a :italian)))
+     (string? (unify/get-in parent '(:2 :italian :b :italian))))
+    nil
+
+    (and
+     (string? (unify/get-in parent '(:1 :italian)))
+     (string? (unify/get-in parent '(:2 :italian :a :infinitive)))
+     (string? (unify/get-in parent '(:2 :italian :b))))
+    nil
+
     (and
      (not
       (string?
@@ -314,8 +385,42 @@
       (string?
        (unify/get-in parent '(:1 :italian :italian)))))
     :1
-    :else
-    :2)))
+    (and
+     (not
+      (string?
+       (unify/get-in parent '(:2 :italian))))
+     (not
+      (string?
+       (unify/get-in parent '(:2 :italian :infinitive))))
+     ;; TODO: remove: :root is going away.
+     (not
+      (string?
+       (unify/get-in parent '(:2 :italian :root))))
+     (not
+      (string?
+       (unify/get-in parent '(:2 :italian :italian))))
+     (not
+      (and
+       (string?
+        (unify/get-in parent '(:2 :italian :a)))
+       (string?
+        (unify/get-in parent '(:2 :italian :b :infinitive))))))
+    :2
+
+    :else nil)))
+
+(defn add-child-where-with-logging [parent]
+  (log/info (str "add-child-where: parent: " parent))
+  (log/info (str "add-child-where: head italian: " (unify/get-in parent '(:head :italian))))
+  (log/info (str "add-child-where: comp italian: " (unify/get-in parent '(:comp :italian))))
+  (log/info (str "string? parent '(:head :italian):" (string? (unify/get-in parent '(:head :italian)))))
+  (log/info (str "string? parent '(:head :italian :italian):" (string? (unify/get-in parent '(:head :italian :italian)))))
+  (log/info (str "string? parent '(:comp :italian):" (string? (unify/get-in parent '(:comp :italian)))))
+  (log/info (str "string? parent '(:comp :italian :italian):" (string? (unify/get-in parent '(:comp :italian :italian)))))
+  (log/info (str "italian-head-initial?" (italian-head-initial? parent)))
+  (let [retval (add-child-where parent)]
+    (log/info (str "retval: " retval))
+    retval))
 
 ;; TODO: use multiple dispatch.
 (defn over-parent-child [parent child]
@@ -359,26 +464,45 @@
          ;; "add-child-where": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
          ;; if (:1 :italian) is nil, the parent has no child at :1 yet, so attach new child there at :1.
          ;; Otherwise, a :child exists at :1, so attach new child at :2.
-         add-child-where (add-child-where parent)
+         where-child (add-child-where parent)
 
+         ;; head-is-where no longer used with new-style constituency semantics.
+         ;; so with new-style, head-is-where is not used.
          head-is-where (if (= (unify/get-in parent '(:head))
                               (unify/get-in parent '(:1)))
                          :1
                          :2)
-         child-is-head (= head-is-where add-child-where)
+
+         child-is-head
+         (if (= where-child :head) ;; new-style
+           true
+           (if (= where-child :comp) ;; new-style
+             (= head-is-where where-child))) ;; old-style
+
          comp (if child-is-head
+                ;; child is head, so far complement, return parent's version of complement.
                 (unify/get-in parent '(:comp))
+                ;; else child is complement, so use it.
                 child)
+
          head (if child-is-head
+                ;; child is head, so use it.
                 child
+                ;; else child is complement, so return parent's version of head.
                 (unify/get-in parent '(:head)))
+
+         do-log
+         (do
+           (log/debug (str "head-is-where: " (unify/get-in parent '(:comment-plaintext)) ":" head-is-where))
+           (log/debug (str "child-is-head: " (unify/get-in parent '(:comment-plaintext)) ":" child-is-head)))
+
          sem-filter (unify/get-in head '(:synsem :subcat :2 :sem)) ;; :1 VERSUS :2 : make this more explicit about what we are searching for.
          comp-sem (unify/get-in comp '(:synsem :sem))
          do-match
          (if (and (not (nil? sem-filter))
                   (not (nil? comp-sem)))
            (unify/match {:synsem (unify/copy sem-filter)}
-                     (unify/copy {:synsem (unify/copy comp-sem)})))]
+                        (unify/copy {:synsem (unify/copy comp-sem)})))]
      ;; wrap the single result in a list so that it can be consumed by (over).
      (list
      (if (= do-match :fail)
@@ -387,7 +511,7 @@
          (log/debug "failed match.")
          :fail)
        (let [unified (lexfn/unify parent
-                                  {add-child-where
+                                  {where-child
                                    (lexfn/unify
                                     (let [sem (unify/get-in child '(:synsem :sem) :notfound)]
                                       (if (not (= sem :notfound))
@@ -396,19 +520,65 @@
                                     child)})]
          (if (unify/fail? unified)
            (log/debug "Failed attempt to add child to parent: " (unify/get-in parent '(:comment))
-                     " at: " add-child-where))
+                     " at: " where-child))
 
           ;;
-          (if (or true (not (unify/fail? unified))) ;; (or true - even if fail, still show it)
-            (merge ;; use merge so that we overwrite the value for :italian.
-             unified
-             {:italian (morph/get-italian
-                       (unify/get-in unified '(:1 :italian))
-                       (unify/get-in unified '(:2 :italian)))
-              :english (morph/get-english
-                        (unify/get-in unified '(:1 :english))
-                        (unify/get-in unified '(:2 :english)))})
-            :fail)))))))
+         (if (unify/fail? unified)
+           unified
+           (let [result (add-child-where unified)]
+             (log/debug "ACW: (" (unify/get-in unified '(:comment-plaintext)) ")" result)
+             (if (nil? (add-child-where unified)) ;; all children are instantiated.
+               (do
+                 (log/debug "all children done: doing parent-level morphology.")
+                 (log/debug "italian-head-initial?: " (italian-head-initial? unified))
+                 (merge ;; use merge so that we overwrite the value for :italian.
+                  unified
+                  (if (italian-head-initial? unified)
+                    {:italian (morph/get-italian
+                               (unify/get-in unified '(:head :italian))
+                               (unify/get-in unified '(:comp :italian)))}
+                    {:italian (morph/get-italian
+                               (unify/get-in unified '(:comp :italian))
+                               (unify/get-in unified '(:head :italian)))})
+                  (if (english-head-initial? unified)
+                    (let [english
+                          (morph/get-english
+                           (unify/get-in unified '(:head :english))
+                           (unify/get-in unified '(:comp :english)))]
+                      (log/debug (str "morphing (head-initial):"
+                                     (unify/get-in unified '(:head :english)) " + "
+                                     (unify/get-in unified '(:comp :english))))
+                      (log/debug (str "= " english))
+                      {:english english})
+                    (do
+                      (let [english
+                            (morph/get-english
+                             (unify/get-in unified '(:comp :english))
+                             (unify/get-in unified '(:head :english)))]
+                        (log/debug (str "morphing (head-final):"
+                                       (unify/get-in unified '(:comp :english)) " + "
+                                       (unify/get-in unified '(:head :english))))
+                        (log/debug (str "= " english))
+                        {:english english})))))
+
+               ;; not all children are instantiated yet (add-child-where unified) is non-null:
+               ;; just return unified without doing composition of child values.
+               (do
+                 (log/debug "not all children done - not doing the morphology.")
+                 unified))))))))))
+
+
+;         (if (and false
+;                  (or true (not (unify/fail? unified)))) ;; (or true - even if fail, still show it)
+;            (merge ;; use merge so that we overwrite the value for :italian.
+;             unified
+;             {:italian (morph/get-italian
+;                       (unify/get-in unified '(:1 :italian))
+;                       (unify/get-in unified '(:2 :italian)))
+;              :english (morph/get-english
+;                        (unify/get-in unified '(:1 :english))
+;                        (unify/get-in unified '(:2 :english)))})
+;            :fail)))))))
 
 (defn over-parent [parent children]
   (cond
@@ -438,7 +608,9 @@
    (= symbol 'tinylex) lex/tinylex
 
    (= symbol 'nbar) gram/nbar
+   (= symbol 'nbar-new) gram/nbar-new
    (= symbol 'np) gram/np
+   (= symbol 'np-new) gram/np-new
    (= symbol 'prep-phrase) gram/prep-phrase
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
@@ -462,7 +634,7 @@
     ""))
 
 (defn heads-by-comps [parent heads comps depth]
-  (log/info (str (depth-str depth) "heads-by-comps begin: " (unify/get-in parent '(:comment-plaintext))))
+  (log/debug (str (depth-str depth) "heads-by-comps begin: " (unify/get-in parent '(:comment-plaintext))))
   (log/debug (str "type of comps: " (type comps)))
   (if (map? comps)
     (log/debug (str "the comp is a map: " comps)))
@@ -502,12 +674,20 @@
            (heads-by-comps parent (rest heads) comps depth)))))))
 
 (defn phrase-is-finished? [parent]
-  (let [retval (not
-                (or
-                 (nil? (unify/get-in parent '(:italian)))
-                 (and (map? (unify/get-in parent '(:italian :a)))
-                      (nil? (unify/get-in parent '(:italian :a :italian)))
-                      (nil? (unify/get-in parent '(:italian :a :infinitive))))))]
+  (let [retval
+        (or
+         ;; new-style: no :1 or :2 feature.
+         (and (= :notfound (unify/get-in parent '(:1) :notfound))
+              (nil? (add-child-where parent)))
+         ;; old-style: :1 feature.
+         (and (not (= :notfound (unify/get-in parent '(:1) :notfound)))
+              (not
+               (or
+                (nil? (unify/get-in parent '(:italian)))
+                (nil? (add-child-where parent))
+                (and (map? (unify/get-in parent '(:italian :a)))
+                     (nil? (unify/get-in parent '(:italian :a :italian)))
+                     (nil? (unify/get-in parent '(:italian :a :infinitive))))))))]
     (if (= retval true)
       (if (unify/get-in parent '(:comment-plaintext))
         (log/debug (str "phrase-is-finished for: " (unify/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
@@ -578,7 +758,7 @@
         shuffled-expansions (if shuffled-expansions shuffled-expansions (shuffle (vals (:extend parent))))
         hc-exps (if hc-exps hc-exps (hc-expand-all parent shuffled-expansions depth))
         parent-finished (phrase-is-finished? parent)]
-    (log/info (str (depth-str depth) "generate: " (unify/get-in parent '(:comment-plaintext)) " with first exp: " (first shuffled-expansions)))
+    (log/debug (str (depth-str depth) "generate: " (unify/get-in parent '(:comment-plaintext)) " with exp: " (first shuffled-expansions)))
     (log/debug (str "cond1: " (= :not-exists (unify/get-in parent '(:comment-plaintext) :not-exists))))
     (log/debug (str "cond2: " (empty? hc-exps)))
     (log/debug (str "cond3: " (not parent-finished)))
@@ -588,6 +768,7 @@
           nil
           (not parent-finished)
           (let [expand (first hc-exps)]
+            (log/debug "parent not finished.")
             (lazy-cat
              (heads-by-comps parent
                              (:head expand)
@@ -601,7 +782,7 @@
   "Returns a lazy sequence of expressions generated by adjoining (head,comp_i) to parent, for all
    comp_i in comps."
   (log/debug (str (depth-str depth) "head-by-comps begin: " (unify/get-in parent '(:comment-plaintext)) "; head:" (fo head)))
-  (if (unify/fail? parent) (log/info (str "head-by-comps begin: parent fail? " (unify/fail? parent))))
+  (if (unify/fail? parent) (log/debug (str "head-by-comps begin: parent fail? " (unify/fail? parent))))
   (if (not (empty? comps))
     (let [comp (first comps)
           head-expand (unify/get-in head '(:extend))
@@ -670,7 +851,7 @@
 
                (unify/fail? parent)
                (do
-                 (log/info "parent fail: " (unify/get-in parent '(:comment-plaintext)))
+                 (log/debug "parent fail: " (unify/get-in parent '(:comment-plaintext)))
                  nil)
 
                :else
@@ -678,7 +859,7 @@
                  (log/debug "5. unify")
                  (if (unify/fail? result)
                    (do
-                     (log/info (str "failed unification: " (fo head) " (" (unify/get-in head '(:comment-plaintext)) ") and " (fo comp-specification)))
+                     (log/debug (str "failed unification: " (fo head) " (" (unify/get-in head '(:comment-plaintext)) ") and " (fo comp-specification)))
                      (head-by-comps parent head (rest comps) depth))
                    (do
 
@@ -694,8 +875,9 @@
 (defn random-sentence []
   (first (take 1 (generate
                   (first (take 1 (shuffle
-                                  (list gram/s-present
-                                        gram/s-future))))))))
+                                  (list gram/np-new))))))))
+                                        ;gram/s-present
+                                        ;gram/s-future))))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
