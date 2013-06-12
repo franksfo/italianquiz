@@ -41,8 +41,8 @@
 ;;    /        \
 ;; H subcat<1,2>  C[2]
 (def subcat-2-principle
-  (let [comp-synsem (ref :top)
-        parent-subcat (ref :top)]
+  (let [comp-synsem (ref {:cat :top})
+        parent-subcat (ref {:cat :top})]
     {:synsem {:subcat {:1 parent-subcat}}
      :head {:synsem {:subcat {:1 parent-subcat
                               :2 comp-synsem}}}
@@ -222,6 +222,7 @@
                    subject-verb-agreement
                    italian-head-final
                    english-head-final
+                   {:comp {:synsem {:subcat '()}}}
                    {:extend {:a {:comp 'np
                                  :head 'vp}
                              :b {:comp 'lexicon
