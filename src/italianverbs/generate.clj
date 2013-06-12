@@ -306,6 +306,7 @@
 
   (cond
 
+   ;; TODO: this code (whether new- or old- style) is difficult to read and maintain.
    ;; new-style:
    (and (= :none (unify/get-in parent '(:1) :none))
         (= :none (unify/get-in parent '(:2) :none)))
@@ -333,7 +334,8 @@
     (italian-head-initial? parent)
     (cond
      (not (or (string? (unify/get-in parent '(:head :italian)))
-              (string? (unify/get-in parent '(:head :italian :italian)))))
+              (string? (unify/get-in parent '(:head :italian :italian)))
+              (string? (unify/get-in parent '(:head :italian :infinitive)))))
      :head
      :else
      :comp)
