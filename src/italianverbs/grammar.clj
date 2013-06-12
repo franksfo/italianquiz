@@ -341,7 +341,7 @@
                             :a {:comp 'lexicon
                                 :head 'lexicon}
                                 :b {:comp 'lexicon
-                                    :head 'nbar-new}}
+                                    :head 'nbar}}
                    })))))
     (list np)))
 
