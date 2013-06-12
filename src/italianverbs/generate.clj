@@ -324,7 +324,10 @@
      (and
       ;; head is filled in?
       (or (string? (unify/get-in parent '(:head :italian)))
-          (string? (unify/get-in parent '(:head :italian :italian))))
+          (string? (unify/get-in parent '(:head :italian :infinitive)))
+          (string? (unify/get-in parent '(:head :italian :italian)))
+          (and (string? (unify/get-in parent '(:head :italian :a :infinitive)))
+               (string? (unify/get-in parent '(:head :italian :b)))))
 
       ;; comp is filled in?
       (or (string? (unify/get-in parent '(:comp :italian)))
@@ -568,19 +571,6 @@
                (do
                  (log/debug "not all children done - not doing the morphology.")
                  unified))))))))))
-
-
-;         (if (and false
-;                  (or true (not (unify/fail? unified)))) ;; (or true - even if fail, still show it)
-;            (merge ;; use merge so that we overwrite the value for :italian.
-;             unified
-;             {:italian (morph/get-italian
-;                       (unify/get-in unified '(:1 :italian))
-;                       (unify/get-in unified '(:2 :italian)))
-;              :english (morph/get-english
-;                        (unify/get-in unified '(:1 :english))
-;                        (unify/get-in unified '(:2 :english)))})
-;            :fail)))))))
 
 (defn over-parent [parent children]
   (cond
