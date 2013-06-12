@@ -610,9 +610,7 @@
    (= symbol 'tinylex) lex/tinylex
 
    (= symbol 'nbar) gram/nbar
-   (= symbol 'nbar-new) gram/nbar-new
    (= symbol 'np) gram/np
-   (= symbol 'np-new) gram/np-new
    (= symbol 'prep-phrase) gram/prep-phrase
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
@@ -877,9 +875,8 @@
 (defn random-sentence []
   (first (take 1 (generate
                   (first (take 1 (shuffle
-                                  (list gram/np-new))))))))
-                                        ;gram/s-present
-                                        ;gram/s-future))))))))
+                                  (list gram/s-present
+                                        gram/s-future))))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))

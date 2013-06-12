@@ -21,7 +21,7 @@
            (get-in il-libro '(:english))))))
 
 (deftest il-cane
-  (let [il-cane (first (over gram/np-new "il" "cane"))]
+  (let [il-cane (first (over gram/np "il" "cane"))]
     (is (not (fail? il-cane)))
     (is (= "il cane"
            (get-in il-cane '(:italian))))
@@ -29,7 +29,7 @@
            (get-in il-cane '(:english))))))
 
 (deftest i-cani
-  (let [i-cani (first (over gram/np-new "i" "cane"))]
+  (let [i-cani (first (over gram/np "i" "cane"))]
     (is (not (fail? i-cani)))
     (is (= "i cani"
            (get-in i-cani '(:italian))))
@@ -37,7 +37,7 @@
            (get-in i-cani '(:english))))))
 
 (deftest il-cane-nero
-  (let [il-cane-nero (first (over gram/np-new "il" (over gram/nbar-new "cane" "nero")))]
+  (let [il-cane-nero (first (over gram/np "il" (over gram/nbar "cane" "nero")))]
     (is (not (fail? il-cane-nero)))
     (is (= "il cane nero"
            (get-in il-cane-nero '(:italian))))
@@ -45,7 +45,7 @@
            (get-in il-cane-nero '(:english))))))
 
 (deftest i-cani-neri
-  (let [i-cani-neri (first (over gram/np-new "i" (over gram/nbar-new "cane" "nero")))]
+  (let [i-cani-neri (first (over gram/np "i" (over gram/nbar "cane" "nero")))]
     (is (not (fail? i-cani-neri)))
     (is (= "i cani neri"
            (get-in i-cani-neri '(:italian))))
@@ -115,8 +115,8 @@
     (is (not (fail? sentence)))))
 
 (deftest add-child-where-1
-  (let [cane (first (over gram/nbar-new "cane"))
-        cane-rosso (first (over gram/nbar-new "cane" "rosso"))]
+  (let [cane (first (over gram/nbar "cane"))
+        cane-rosso (first (over gram/nbar "cane" "rosso"))]
     (is (= (add-child-where cane) :comp))
     (is (nil? (add-child-where cane-rosso)))))
 
