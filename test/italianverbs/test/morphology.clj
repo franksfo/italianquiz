@@ -7,67 +7,78 @@
 (deftest acqua
   (is
    (= (get-italian-1 {:italian "acqua"
-                           :agr {:gender :fem
-                                 :number :sing}
-                           :cat :noun})
+                      :agr {:gender :fem
+                            :number :sing}
+                      :cat :noun})
       "acqua")
-  ))
+   ))
 
 (deftest della-acqua
   (is (= (get-italian-1 {:a "di la"
-                              :b {:italian "acqua"
-                                  :agr {:gender :fem
-                                        :number :sing}
-                                  :cat :noun}})
+                         :b {:italian "acqua"
+                             :agr {:gender :fem
+                                   :number :sing}
+                             :cat :noun}})
          "dell'acqua")))
 
 
 
 (deftest degli-uomini
   (is (= (get-italian-1 {:a "di i"
-                              :b {:italian "uomo"
-                                  :irregular {:plur "uomini"}
-                                  :agr {:gender :masc
-                                        :number :plur}
-                                  :cat :noun}})
+                         :b {:italian "uomo"
+                             :irregular {:plur "uomini"}
+                             :agr {:gender :masc
+                                   :number :plur}
+                             :cat :noun}})
          "degli uomini")))
 
 (deftest some-men
   (is (= (get-english-1 {:a "some"
-                              :b {:english "man"
-                                  :irregular {:plur "men"}
-                                  :agr {:gender :masc
-                                        :number :plur}
-                                  :cat :noun}})
+                         :b {:english "man"
+                             :irregular {:plur "men"}
+                             :agr {:gender :masc
+                                   :number :plur}
+                             :cat :noun}})
          "some men")))
 
 (deftest dormo
   (is (= (get-italian-1 {:agr {:case :nom
-                                    :number :sing
-                                    :person :1st}
-                              :infinitive "dormire"
-                              :infl :present})
+                               :number :sing
+                               :person :1st}
+                         :infinitive "dormire"
+                         :infl :present})
          "dormo")))
 
 
 (deftest sleeps
   (is (= (get-english-1 {:agr {:case :nom
-                                    :number :sing
-                                    :person :3rd}
-                              :infinitive "to sleep"
-                              :infl :present})
+                               :number :sing
+                               :person :3rd}
+                         :infinitive "to sleep"
+                         :infl :present})
          "sleeps")))
 
 
 
 (deftest io-vado
   (is (= (get-italian-1 {:agr {:case :nom
-                                    :number :sing
-                                    :person :1st}
-                              :irregular {:present {:1sing "vado"}}
-                              :infinitive "andare"
-                              :infl :present})
+                               :number :sing
+                               :person :1st}
+                         :irregular {:present {:1sing "vado"}}
+                         :infinitive "andare"
+                         :infl :present})
          "vado")))
+
+
+(deftest io-sogno
+  (is (= (get-italian-1 {:a "io"
+                         :b {:essere false
+                             :infinitive "sognare"
+                             :agr {:case :nom
+                                   :person :1st
+                                   :number :sing}
+                             :infl :present}})
+         "io sogno")))
 
 
 (deftest suffix-of-1
