@@ -443,7 +443,6 @@
             :italian {:italian "donna"}
             :english {:irregular {:plur "women"}
                       :english "woman"}})
-
     (unify agreement
            common-noun
            countable-noun
@@ -484,8 +483,7 @@
     (unify agreement
            common-noun
            feminine
-           {
-            :synsem {:sem {:pred :notizie
+           {:synsem {:sem {:pred :notizie
                            :buyable false
                            :legible true}}
             ;; "notizia" would probably also work, since it
@@ -601,8 +599,8 @@
             common-noun
             masculine
             countable-noun
-            {:synsem {:sem {:furniture true
-                            :pred :tavolo}}
+           {:synsem {:sem {:furniture true
+                           :pred :tavolo}}
              :italian {:italian "tavolo"}
              :english {:english "table"}})
 
