@@ -31,9 +31,10 @@
 ;;    /        \
 ;; H subcat<1>  C[1]
 (def subcat-1-principle
-  (let [comp-synsem (ref :top)]
+  (let [comp-synsem (ref {:subcat '()})]
     {:subcat '()
-     :head {:synsem {:subcat {:1 comp-synsem}}}
+     :head {:synsem {:subcat {:1 comp-synsem
+                              :2 '()}}}
      :comp {:synsem comp-synsem}}))
 
 ;;     subcat<1>
@@ -68,8 +69,6 @@
             :synsem {:cat cat
                      :essere essere
                      :infl infl}}}))
-
-
 
 (def italian-head-first
   (let [head-italian (ref :top)
@@ -106,7 +105,7 @@
 (def vp-rules
 
   (let [head (ref :top)
-        comp (ref :top)
+        comp (ref {:subcat '()})
         infl (ref :top)
         agr (ref :top)]
 
@@ -118,6 +117,8 @@
                 :comment-plaintext "vp -> head comp"}
                italian-head-first
                english-head-first
+               {:comp comp
+                :head head}
                {:extend {:a {:head 'lexicon
                              :comp 'np}
                          :b {:head 'lexicon
