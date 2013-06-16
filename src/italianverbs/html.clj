@@ -221,24 +221,29 @@
       "    </tr>"
       "    <tr>"
       "      <td class='ref'>"
+
       (if (= (type (:head arg)) clojure.lang.Ref)
         (str
          "     <div class='ref'>"
          (fs/path-to-ref-index serialized (concat path '(:head)) 0)
          "     </div>"))
+
       "      </td>"
       "      <td class='hc'>H</td><td>"
+
       (tablize (if (= (type (:head arg)) clojure.lang.Ref)
                  @(:head arg)
                  (:head arg))
                (concat path '(:head)) serialized opts)
       "      </td>"
       "      <td class='ref'>"
+
       (if (= (type (:comp arg)) clojure.lang.Ref)
         (str
          "    <div class='ref'>"
          (fs/path-to-ref-index serialized (concat path '(:comp)) 0)
          "    </div>"))
+
       "      </td>"
       "      <td class='hc'>C</td><td>"
       (tablize (if (= (type (:comp arg)) clojure.lang.Ref)
