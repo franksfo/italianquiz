@@ -156,6 +156,7 @@
                    :b head-italian}
          :english {:a head-english
                    :b comp-english}})
+              {:head {:synsem {:infl :present}}}
        {:comment-plaintext "vp[pron]"
         :comment "vp[pron]"
         :extend {:e {:head :lexicon
@@ -223,7 +224,9 @@
                    subject-verb-agreement
                    italian-head-final
                    english-head-final
-                   {:comp {:synsem {:subcat '()}}}
+                   {:comp {:synsem {:subcat '()
+                                    :cat :noun}}
+                    :head {:synsem {:cat :verb}}}
                    {:extend {:a {:comp 'np
                                  :head 'vp}
                              :b {:comp 'lexicon
