@@ -99,9 +99,7 @@
 (if false
   (sem-impl (fs/get-in (it "cane") '(:synsem :sem))))
 
- ;(dotimes [n 200] (time (random-sentence)))
-
-;;(take 20 (repeatedly #(fo (random-sentence))))
+;(take 10 (repeatedly #(fo (take 1 (generate s-present)))))
 
 ;(fo (take 1 (over2 s-present (shuffle nominative-pronouns) (shuffle intransitive-verbs))))
 
