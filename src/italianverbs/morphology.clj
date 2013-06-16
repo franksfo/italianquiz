@@ -4,6 +4,16 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
+(defn phrase-is-finished? [phrase]
+  (cond
+   (string? phrase) true
+   (map? phrase)
+   (or (phrase-is-finished? (fs/get-in phrase '(:italian)))
+       (string? (fs/get-in phrase '(:infinitive)))
+       (and (phrase-is-finished? (fs/get-in phrase '(:a)))
+            (phrase-is-finished? (fs/get-in phrase '(:b)))))
+   :else false))
+
 (defn suffix-of [word]
   "compute the final character given a lexical entry and agreement info in :agr."
   (let [suffix (cond
@@ -627,12 +637,24 @@
 (defn get-english-1 [word]
   (log/debug (str "get-english-1: " word))
   (cond
+
+   (string? word)
+   word
+
+   (and
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b))
+    (string? (fs/get-in word '(:a)))
+    (string? (fs/get-in word '(:b))))
+   (string/join " "
+         (list (fs/get-in word '(:a))
+               (fs/get-in word '(:b))))
+
    (and
     (fs/get-in word '(:a))
     (fs/get-in word '(:b)))
-   (get-english
-    (get-english-1 (fs/get-in word '(:a)))
-    (get-english-1 (fs/get-in word '(:b))))
+   (get-english (fs/get-in word '(:a))
+                (fs/get-in word '(:b)))
 
    (and (= :infinitive (fs/get-in word '(:infl)))
         (string? (fs/get-in word '(:infinitive))))
@@ -875,6 +897,7 @@
         re-b (get-english-1 b)]
     (log/debug (str "get-english a: " a " => " re-a))
     (log/debug (str "get-english b: " b " => " re-b))
+    (log/debug (str "a is modal?: " (= true (fs/get-in a '(:modal)))))
     (cond
 
      (and (string? re-a)
@@ -885,10 +908,19 @@
       :b re-b}
 
      (and (map? a)
+          (map? re-a))
+          {:a re-a
+           :b re-b}
+
+     (and (map? a)
           (= (fs/get-in a '(:modal)) true)
           (string? re-b))
-     {:a a
-      :b (string/replace re-b #"^to " "")}
+     (get-english-1 {:a re-a
+                     :b (string/replace re-b #"^to " "")})
+
+     (and (string? re-a)
+          (string? re-b))
+     (str re-a " " re-b)
 
      ;; new-style n' -> adj noun
      (and

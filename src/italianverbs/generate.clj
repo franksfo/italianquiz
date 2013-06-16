@@ -34,105 +34,10 @@
    :else
    (let [english
          (capitalize
-          (cond
-           (string? (unify/get-in expr '(:english)))
-           (unify/get-in expr '(:english))
-
-           (string? (unify/get-in expr '(:english :english)))
-           (unify/get-in expr '(:english :english))
-
-           (string? (unify/get-in expr '(:english :infinitive)))
-           (unify/get-in expr '(:english :infinitive))
-
-           (and (string? (unify/get-in expr '(:english :a :english)))
-                (string? (unify/get-in expr '(:english :b :english))))
-           (str (unify/get-in expr '(:english :a :english))
-                " "
-                (unify/get-in expr '(:english :b :english)))
-
-
-           (and (string? (unify/get-in expr '(:english :a :infinitive)))
-                (string? (unify/get-in expr '(:english :b))))
-           (str (unify/get-in expr '(:english :a :infinitive))
-                " "
-                (unify/get-in expr '(:english :b)))
-
-           (and (string? (unify/get-in expr '(:english :a :infinitive)))
-                (string? (unify/get-in expr '(:english :b :a :infinitive)))
-                (string? (unify/get-in expr '(:english :b :b))))
-           (str (unify/get-in expr '(:english :a :infinitive))
-                " "
-                (unify/get-in expr '(:english :b :a :infinitive))
-                " "
-                (unify/get-in expr '(:english :b :b)))
-
-           (string? (unify/get-in expr '(:english :a :english)))
-           (str (unify/get-in expr '(:english :a :english)) ".a.")
-
-           (and (string? (unify/get-in expr '(:english :a :infinitive)))
-                (string? (unify/get-in expr '(:english :b :english))))
-           (str (unify/get-in expr '(:english :a :infinitive)) " "
-                (unify/get-in expr '(:english :b :english)))
-
-           (string? (unify/get-in expr '(:english :a :infinitive)))
-           (str (unify/get-in expr '(:english :a :infinitive)) " "
-                (unify/get-in expr '(:english :b)))
-
-           true
-           (unify/get-in expr '(:english))))
-
+          (morph/get-english-1 (unify/get-in expr '(:english))))
          italian
          (capitalize
-          (cond
-           (string? (unify/get-in expr '(:italian)))
-           (unify/get-in expr '(:italian))
-
-           (string? (unify/get-in expr '(:italian :italian)))
-           (unify/get-in expr '(:italian :italian))
-
-           (string? (unify/get-in expr '(:italian :infinitive)))
-           (unify/get-in expr '(:italian :infinitive))
-
-           (and
-            (string? (unify/get-in expr '(:italian :a :italian)))
-            (string? (unify/get-in expr '(:italian :b :italian))))
-           (str
-            (unify/get-in expr '(:italian :a :italian)) " "
-            (unify/get-in expr '(:italian :b :italian)))
-
-           (string? (unify/get-in expr '(:italian :a)))
-           (str (unify/get-in expr '(:italian :a)) " ")
-
-           (and
-            (string? (unify/get-in expr '(:italian :a :italian)))
-            (= (unify/get-in expr '(:italian :b :infl)) :top))
-           (str (unify/get-in expr '(:italian :a :italian)) " "
-                (unify/get-in expr '(:italian :b :infinitive)))
-
-           (and (string? (unify/get-in expr '(:italian :a :italian)))
-                (= (unify/get-in expr '(:italian :b :infl)) :present)
-                (string? (unify/get-in expr '(:italian :b :infinitive))))
-           (str (unify/get-in expr '(:italian :a :italian)) " "
-                (unify/get-in expr '(:italian :b :infinitive)))
-
-           (string? (unify/get-in expr '(:italian :a :italian)))
-           (str (unify/get-in expr '(:italian :a :italian)) " "
-                (unify/get-in expr '(:italian :b)))
-
-
-           (and (string? (unify/get-in expr '(:italian :a :infinitive)))
-                (string? (unify/get-in expr '(:italian :b))))
-           (str (unify/get-in expr '(:italian :a :infinitive))
-                " "
-                (unify/get-in expr '(:italian :b)))
-
-           (string? (unify/get-in expr '(:italian :a :infinitive)))
-           (str (unify/get-in expr '(:italian :a :infinitive)) ".c.")
-
-           true
-           (unify/get-in expr '(:italian)))
-          )
-         ]
+          (morph/get-italian-1 (unify/get-in expr '(:italian))))]
      (string/trim
       (str italian " (" english ").")))))
 
@@ -200,6 +105,7 @@
                {:comp comp})]
     (if (unify/fail? unified)
       :fail
+      (if true unified
       (merge unified
              (if (italian-head-initial? unified)
                {:italian (morph/get-italian
@@ -214,7 +120,7 @@
                           (unify/get-in unified '(:comp :english)))}
                {:english (morph/get-english
                           (unify/get-in unified '(:comp :english))
-                          (unify/get-in unified '(:head :english)))})))))
+                          (unify/get-in unified '(:head :english)))}))))))
 
 
 (defn unify-lr-hc-debug [parent head comp]
@@ -224,11 +130,11 @@
                                {:head comp})]
 
     (do
-      (log/info (str "PARENT: " (unify/get-in parent '(:comment-plaintext))))
-      (log/info (str "PARENT FAIL?" (unify/fail? parent)))
-      (log/info (str "HEAD: " (fo head)))
-      (log/info (str "HEAD FAIL?" (unify/fail? head)))
-      (log/info (str "WITH-HEAD: " with-head)))))
+      (log/debug (str "PARENT: " (unify/get-in parent '(:comment-plaintext))))
+      (log/debug (str "PARENT FAIL?" (unify/fail? parent)))
+      (log/debug (str "HEAD: " (fo head)))
+      (log/debug (str "HEAD FAIL?" (unify/fail? head)))
+      (log/debug (str "WITH-HEAD: " with-head)))))
 
 ;; TODO: use multiple dispatch.
 (defn over2 [parent child1 child2]
@@ -314,6 +220,7 @@
     (or
      (string? (unify/get-in parent '(:italian)))
      (string? (unify/get-in parent '(:italian :italian)))
+     (string? (unify/get-in parent '(:italian :infinitive)))
      (and (or (string? (unify/get-in parent '(:italian :a)))
               (string? (unify/get-in parent '(:italian :a :italian))))
           (or (string? (unify/get-in parent '(:italian :b)))
@@ -334,6 +241,7 @@
           (string? (unify/get-in parent '(:comp :italian :italian))))))
 
     nil ;; done: both head and comp are filled in.
+
     (italian-head-initial? parent)
     (cond
      (not (or (string? (unify/get-in parent '(:head :italian)))
@@ -415,16 +323,16 @@
     :else nil)))
 
 (defn add-child-where-with-logging [parent]
-  (log/info (str "add-child-where: parent: " parent))
-  (log/info (str "add-child-where: head italian: " (unify/get-in parent '(:head :italian))))
-  (log/info (str "add-child-where: comp italian: " (unify/get-in parent '(:comp :italian))))
-  (log/info (str "string? parent '(:head :italian):" (string? (unify/get-in parent '(:head :italian)))))
-  (log/info (str "string? parent '(:head :italian :italian):" (string? (unify/get-in parent '(:head :italian :italian)))))
-  (log/info (str "string? parent '(:comp :italian):" (string? (unify/get-in parent '(:comp :italian)))))
-  (log/info (str "string? parent '(:comp :italian :italian):" (string? (unify/get-in parent '(:comp :italian :italian)))))
-  (log/info (str "italian-head-initial?" (italian-head-initial? parent)))
+  (log/debug (str "add-child-where: parent: " parent))
+  (log/debug (str "add-child-where: head italian: " (unify/get-in parent '(:head :italian))))
+  (log/debug (str "add-child-where: comp italian: " (unify/get-in parent '(:comp :italian))))
+  (log/debug (str "string? parent '(:head :italian):" (string? (unify/get-in parent '(:head :italian)))))
+  (log/debug (str "string? parent '(:head :italian :italian):" (string? (unify/get-in parent '(:head :italian :italian)))))
+  (log/debug (str "string? parent '(:comp :italian):" (string? (unify/get-in parent '(:comp :italian)))))
+  (log/debug (str "string? parent '(:comp :italian :italian):" (string? (unify/get-in parent '(:comp :italian :italian)))))
+  (log/debug (str "italian-head-initial?" (italian-head-initial? parent)))
   (let [retval (add-child-where parent)]
-    (log/info (str "retval: " retval))
+    (log/debug (str "retval: " retval))
     retval))
 
 ;; TODO: use multiple dispatch.
@@ -637,23 +545,38 @@
   (if (not (empty? heads))
     (if (unify/fail? (first heads))
       (do
-        (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
+        (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head: " (first heads) "  is fail; continuing."))
         (heads-by-comps parent (rest heads) comps depth))
-      (if (unify/fail?
-           (lexfn/unify parent
-                  (lexfn/unify {:head (first heads)}
-                         {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}})))
+      (let [unified
+            (lexfn/unify parent
+                         (lexfn/unify {:head (first heads)}
+                                      {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
+            unified-parent
+            (if (not (unify/fail? unified))
+              unified
+              :fail)]
+
+      (if (unify/fail? unified-parent)
         (do
-          (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head is fail; continuing."))
+          (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) ": first head: " (first heads) "  is fail; continuing."))
+          (log/debug (str "parent head: " (unify/get-in parent '(:head :english))))
+          (log/debug (str "failed head: " (unify/get-in (first heads) '(:english))))
+          (log/debug (str "fail path:" (unify/fail-path unified-parent)))
+          (log/debug (str "head english: " (unify/get-in (first heads) '(:english))))
+          (log/debug (str "head english b: " (unify/get-in (first heads) '(:english :b))))
+          (log/debug (str "parent head english: " (unify/get-in parent '(:head :english))))
+          (log/debug (str "parent head english b: " (unify/get-in parent '(:head :english :b))))
+          (log/debug (str "unify english: " (lexfn/unify (unify/get-in (first heads) '(:english))
+                                                        (unify/get-in parent '(:head :english)))))
+          (log/debug (str "unify head: " (lexfn/unify (first heads)
+                                                     (unify/get-in parent '(:head)))))
+;          (throw (Exception. (str "failed to unify head.")))
           (heads-by-comps parent (rest heads) comps depth))
 
         (do
           (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) " first head: " (fo (first heads))))
           (lazy-cat
-           (let [unified-parent (lexfn/unify parent
-                                 (lexfn/unify {:head (first heads)}
-                                        {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
-                 comp-cat (unify/get-in unified-parent '(:comp :synsem :cat))
+           (let [comp-cat (unify/get-in unified-parent '(:comp :synsem :cat))
                  comp-synsem (unify/get-in unified-parent '(:comp :synsem))]
              (head-by-comps unified-parent
                             (first heads)
@@ -661,27 +584,7 @@
                                       (not (unify/fail? (lexfn/unify (unify/get-in lex '(:synsem)) comp-synsem))))
                                     comps)
                             depth))
-           (heads-by-comps parent (rest heads) comps depth)))))))
-
-(defn phrase-is-finished? [parent]
-  (let [retval
-        (or
-         ;; new-style: no :1 or :2 feature.
-         (and (= :notfound (unify/get-in parent '(:1) :notfound))
-              (nil? (add-child-where parent)))
-         ;; old-style: :1 feature.
-         (and (not (= :notfound (unify/get-in parent '(:1) :notfound)))
-              (not
-               (or
-                (nil? (unify/get-in parent '(:italian)))
-                (nil? (add-child-where parent))
-                (and (map? (unify/get-in parent '(:italian :a)))
-                     (nil? (unify/get-in parent '(:italian :a :italian)))
-                     (nil? (unify/get-in parent '(:italian :a :infinitive))))))))]
-    (if (= retval true)
-      (if (unify/get-in parent '(:comment-plaintext))
-        (log/debug (str "phrase-is-finished for: " (unify/get-in parent '(:comment-plaintext)) " ( " (fo parent) " ): " retval))))
-    retval))
+           (heads-by-comps parent (rest heads) comps depth))))))))
 
 (defn lazy-head-filter [parent expansion sem-impl heads]
   (if (not (empty? heads))
@@ -747,11 +650,11 @@
         hc-expands-orig hc-exps
         shuffled-expansions (if shuffled-expansions shuffled-expansions (shuffle (vals (:extend parent))))
         hc-exps (if hc-exps hc-exps (hc-expand-all parent shuffled-expansions depth))
-        parent-finished (phrase-is-finished? parent)]
+        parent-finished (morph/phrase-is-finished? parent)]
     (log/debug (str (depth-str depth) "generate: " (unify/get-in parent '(:comment-plaintext)) " with exp: " (first shuffled-expansions)))
     (log/debug (str "cond1: " (= :not-exists (unify/get-in parent '(:comment-plaintext) :not-exists))))
     (log/debug (str "cond2: " (empty? hc-exps)))
-    (log/debug (str "cond3: " (not parent-finished)))
+    (log/debug (str "cond3: (not parent-finished?)" (not parent-finished)))
     (cond (= :not-exists (unify/get-in parent '(:comment-plaintext) :not-exists))
           nil
           (empty? hc-exps)
@@ -776,11 +679,14 @@
   (if (not (empty? comps))
     (let [comp (first comps)
           head-expand (unify/get-in head '(:extend))
-          head-is-finished? (phrase-is-finished? head)]
-      (log/debug (str "HEAD-IS-FINISHED? : " head-is-finished?))
-      (log/debug (str "COND1: " (unify/get-in parent '(:comment-plaintext)) " : "
-                      (and (not (nil? head-expand))
-                           (not head-is-finished?))))
+          head-is-finished? (morph/phrase-is-finished? head)]
+      (log/debug (str (depth-str depth) "HEAD-IS-FINISHED?  " (unify/get-in head '(:comment-plaintext)) ":" head-is-finished?))
+      (if (not head-is-finished?)
+        (log/debug (str (depth-str depth) "head is not finished:  " head)))
+      (log/debug (str "non-null head-expand and head not finished? "
+                     (unify/get-in parent '(:comment-plaintext)) " : "
+                     (and (not (nil? head-expand))
+                          (not head-is-finished?))))
       (cond (and (not (nil? head-expand))
                  (not head-is-finished?))
             (do
@@ -789,18 +695,21 @@
             :else
             (let [comp-specification
                   (lexfn/unify comp
-                         (lexfn/unify
-                          (lexfn/unify
-                           (if head-is-finished?
-                             (unify/get-in
-                              (lexfn/unify parent
-                                     {:head head})
-                              '(:comp))
-                             :top)
-                           (unify/get-in parent '(:comp)))
-                          {:synsem {:sem (lex/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem))
-                                                              (unify/get-in comp '(:synsem :sem))))}}))
-                  comp-is-finished? (phrase-is-finished? comp)
+                               (lexfn/unify
+                                (lexfn/unify
+                                 (if head-is-finished?
+                                   (unify/get-in
+                                    (lexfn/unify parent
+                                                 {:head head})
+                                    '(:comp))
+                                   :top)
+                                 (unify/get-in parent '(:comp)))
+                                {:synsem {:sem (lex/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem))
+                                                                          (unify/get-in comp '(:synsem :sem))))}}))
+                  ;; TODO: Move this before computation of comp-specification: if (phrase-is-finished? comp) == true, no need to compute comp-specification.
+                  ;; TODO: Do not compute comp-specification if (not head-is-finished?) == true, since head is not complete yet - compute comp-specification should
+                  ;;       be deferred until head-is-finished? == true.
+                  comp-is-finished? (morph/phrase-is-finished? comp)
                   comp-generate
                   (if (not head-is-finished?)
                     (do
@@ -808,15 +717,17 @@
                       comp)
                     (if comp-is-finished?
                       (do
-                        (log/debug (str "comp generation: " (fo comp) " is finished."))
+                        (log/debug (str "comp generation for: " (unify/get-in parent '(:comment-plaintext)) " is finished: " (fo comp)))
                         comp)
                       (if (not (unify/fail? comp-specification))
                         (do
                           (log/debug (str "generating comp now since head generation is done."))
-                          (log/debug (str (depth-str depth) "generating comp: " (unify/get-in comp '(:comment-plaintext)) " given head: " (fo head)))
+                          (log/debug (str (depth-str depth) "generating comp: " (unify/get-in comp '(:comment-plaintext)) " for parent: "
+                                         (unify/get-in parent '(:comment-plaintext)) " given head: " (fo head)))
                           (let [comp-gen
                                 (generate comp-specification nil (+ 1 depth))]
-                            (log/debug (str "DID COMP GEN."))
+                            (log/debug (str "generated complements for " (unify/get-in parent '(:comment-plaintext))
+                                           " from: " (unify/get-in comp '(:comment-plaintext))))
                             comp-gen)))))]
               (cond
                (unify/fail? comp-specification)
@@ -846,6 +757,7 @@
 
                :else
                (let [result (unify-comp parent comp-specification)]
+                 ;(log/debug (str "comp: " result " is done."))
                  (log/debug "5. unify")
                  (if (unify/fail? result)
                    (do
@@ -855,18 +767,30 @@
 
                      (if (or (= (unify/get-in parent '(:comment-plaintext)) "s[present] -> ..")
                              (= (unify/get-in parent '(:comment-plaintext)) "s[future] -> .."))
-                       (log/info (str (depth-str depth) "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
-                       (log/info (str (depth-str depth) "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
+                       (log/debug (str (depth-str depth) "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
+                       (log/debug (str (depth-str depth) "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
 
                      (lazy-seq
                       (cons result
-                            (head-by-comps parent head (rest comps) depth))))))))))))
+                            (head-by-comps parent head (rest comps) depth))))))))))
+    (log/debug (str "no more comps to try for parent: "
+                   (unify/get-in parent '(:comment-plaintext))))))
+
+(defn finalize [expr]
+  (let [english
+        (morph/get-english-1 (unify/get-in expr '(:english)))
+        italian
+        (morph/get-italian-1 (unify/get-in expr '(:italian)))]
+    (merge expr
+           {:italian italian
+            :english english})))
 
 (defn random-sentence []
-  (first (take 1 (generate
-                  (first (take 1 (shuffle
-                                  (list gram/s-present
-                                        gram/s-future))))))))
+  (finalize (first (take 1 (generate
+                            (first (take 1 (shuffle
+                                            (list gram/s-present
+                                                  gram/s-future
+                                                  )))))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
