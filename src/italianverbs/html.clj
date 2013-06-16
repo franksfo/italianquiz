@@ -265,9 +265,9 @@
       (not (= :italian (last path)))
       (not (= :english (last path)))
 
+      ;; :extends will have features :a,:b,:c,.. -
       ;; this long set of (nots) is to prevent matching :extend:
       ;; TODO: might be possible to remove this.
-      ;; :extends will have features :a,:b,:c,..
       (not (= :a (last path)))
       (not (= :b (last path)))
       (not (= :c (last path)))
