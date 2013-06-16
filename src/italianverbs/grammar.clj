@@ -359,12 +359,12 @@
                subcat-1-principle
                {
                 :comment "pp &#x2192; prep (np or propernoun)"
-                :comment-plaintext "pp -> prep (np or proper noun)"
-                :head head
-                :comp comp
-                :1 head
-                :2 comp
-                :extend {:a {:head 'lexicon
+                :comment-plaintext "pp -> prep (np or proper noun)"}
+               {:head head
+                :comp comp}
+               italian-head-first
+               english-head-first
+               {:extend {:a {:head 'lexicon
                              :comp 'np}
                          :b {:head 'lexicon
                              :comp 'lexicon}}})))
