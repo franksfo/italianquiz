@@ -212,128 +212,29 @@
 
   (cond
 
-   ;; TODO: this code (whether new- or old- style) is difficult to read and maintain.
-   ;; new-style:
-   (and (= :none (unify/get-in parent '(:1) :none))
-        (= :none (unify/get-in parent '(:2) :none)))
-   (cond
-    (or
-     (string? (unify/get-in parent '(:italian)))
-     (string? (unify/get-in parent '(:italian :italian)))
-     (string? (unify/get-in parent '(:italian :infinitive)))
-     (and (or (string? (unify/get-in parent '(:italian :a)))
-              (string? (unify/get-in parent '(:italian :a :italian))))
-          (or (string? (unify/get-in parent '(:italian :b)))
-              (string? (unify/get-in parent '(:italian :b :italian)))
-              (and (string? (unify/get-in parent '(:italian :b :a :italian)))
-                   (string? (unify/get-in parent '(:italian :b :b :italian))))))
+   (morph/phrase-is-finished? parent)
+   nil
 
-     (and
-      ;; head is filled in?
-      (or (string? (unify/get-in parent '(:head :italian)))
-          (string? (unify/get-in parent '(:head :italian :infinitive)))
-          (string? (unify/get-in parent '(:head :italian :italian)))
-          (and (string? (unify/get-in parent '(:head :italian :a :infinitive)))
-               (string? (unify/get-in parent '(:head :italian :b)))))
+   (and (italian-head-initial? parent)
+        (morph/phrase-is-finished? (unify/get-in parent '(:head))))
+   :comp
 
-      ;; comp is filled in?
-      (or (string? (unify/get-in parent '(:comp :italian)))
-          (string? (unify/get-in parent '(:comp :italian :italian))))))
+   (italian-head-initial? parent)
+   :head
 
-    nil ;; done: both head and comp are filled in.
+   (and (not (italian-head-initial? parent))
+        (morph/phrase-is-finished? (unify/get-in parent '(:comp))))
+   :head
 
-    (italian-head-initial? parent)
-    (cond
-     (not (or (string? (unify/get-in parent '(:head :italian)))
-              (string? (unify/get-in parent '(:head :italian :italian)))
-              (string? (unify/get-in parent '(:head :italian :infinitive)))))
-     :head
-     :else
-     :comp)
-    :else ;; head-final.
-    (cond (not (or (string? (unify/get-in parent '(:comp :italian)))
-                   (string? (unify/get-in parent '(:comp :italian :italian)))))
-          (do
-            (log/debug "returning :comp for head-final.")
-            :comp)
-          :else
-          :head)
-
-    :else
-    (throw (Exception. (str "could not determine where to place child (new-style): "
-                            " head italian: " (unify/get-in parent '(:head :italian))
-                            " comp italian: " (unify/get-in parent '(:comp :italian))
-                            " ref test1: " (unify/ref= parent '(:head :italian) '(:italian :b))
-                            " ref test2: " (unify/ref= parent '(:comp :italian) '(:italian :a))))))
-
+   (not (italian-head-initial? parent))
+   :comp
 
    :else
-   ;; old-style:
-   (cond
-
-    (and
-     (string? (unify/get-in parent '(:1 :italian)))
-     (string? (unify/get-in parent '(:2 :italian :a :italian)))
-     (string? (unify/get-in parent '(:2 :italian :b :italian))))
-    nil
-
-    (and
-     (string? (unify/get-in parent '(:1 :italian)))
-     (string? (unify/get-in parent '(:2 :italian :a :infinitive)))
-     (string? (unify/get-in parent '(:2 :italian :b))))
-    nil
-
-    (and
-     (not
-      (string?
-       (unify/get-in parent '(:1 :italian))))
-     (not
-      (string?
-       (unify/get-in parent '(:1 :italian :infinitive))))
-     ;; TODO: remove: :root is going away.
-     (not
-      (string?
-       (unify/get-in parent '(:1 :italian :root))))
-     (not
-      (string?
-       (unify/get-in parent '(:1 :italian :italian)))))
-    :1
-    (and
-     (not
-      (string?
-       (unify/get-in parent '(:2 :italian))))
-     (not
-      (string?
-       (unify/get-in parent '(:2 :italian :infinitive))))
-     ;; TODO: remove: :root is going away.
-     (not
-      (string?
-       (unify/get-in parent '(:2 :italian :root))))
-     (not
-      (string?
-       (unify/get-in parent '(:2 :italian :italian))))
-     (not
-      (and
-       (string?
-        (unify/get-in parent '(:2 :italian :a)))
-       (string?
-        (unify/get-in parent '(:2 :italian :b :infinitive))))))
-    :2
-
-    :else nil)))
-
-(defn add-child-where-with-logging [parent]
-  (log/debug (str "add-child-where: parent: " parent))
-  (log/debug (str "add-child-where: head italian: " (unify/get-in parent '(:head :italian))))
-  (log/debug (str "add-child-where: comp italian: " (unify/get-in parent '(:comp :italian))))
-  (log/debug (str "string? parent '(:head :italian):" (string? (unify/get-in parent '(:head :italian)))))
-  (log/debug (str "string? parent '(:head :italian :italian):" (string? (unify/get-in parent '(:head :italian :italian)))))
-  (log/debug (str "string? parent '(:comp :italian):" (string? (unify/get-in parent '(:comp :italian)))))
-  (log/debug (str "string? parent '(:comp :italian :italian):" (string? (unify/get-in parent '(:comp :italian :italian)))))
-  (log/debug (str "italian-head-initial?" (italian-head-initial? parent)))
-  (let [retval (add-child-where parent)]
-    (log/debug (str "retval: " retval))
-    retval))
+   (throw (Exception. (str "could not determine where to place child (new-style): "
+                           " head italian: " (unify/get-in parent '(:head :italian))
+                           " comp italian: " (unify/get-in parent '(:comp :italian))
+                           " ref test1: " (unify/ref= parent '(:head :italian) '(:italian :b))
+                           " ref test2: " (unify/ref= parent '(:comp :italian) '(:italian :a)))))))
 
 ;; TODO: use multiple dispatch.
 (defn over-parent-child [parent child]
