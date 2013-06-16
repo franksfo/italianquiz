@@ -340,10 +340,11 @@
                        :english {:a comp-english
                                  :b head-english}
                        :extend {
-                            :a {:comp 'lexicon
-                                :head 'lexicon}
+                                :a {:comp 'lexicon
+                                    :head 'lexicon}
                                 :b {:comp 'lexicon
-                                    :head 'nbar}}
+                                    :head 'nbar}
+                                }
                    })))))
     (list np)))
 
