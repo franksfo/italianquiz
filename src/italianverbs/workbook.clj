@@ -6,6 +6,7 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]
    [italianverbs.html :as html]
+   [italianverbs.unify :as unify]
    [italianverbs.sandbox :as sandbox]
    [italianverbs.lev :as lev]))
 
@@ -55,7 +56,7 @@
                               (str (eval loaded))
                               (and (map? loaded)
                                    (= (keys loaded) '(:plain)))
-                              (str "<div style='font-family:monospace'>" (:plain loaded) "</div>")
+                              (str "<div style='font-family:monospace'>" (unify/strip-refs (:plain loaded)) "</div>")
                               (map? loaded)
                               (html/tablize loaded)
                               (= (type loaded) nil)

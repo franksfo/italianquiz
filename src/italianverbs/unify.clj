@@ -58,7 +58,7 @@
           (do
             (defn failr? [fs keys]
               (if (and (not (nil? keys)) (> (.size keys) 0))
-                (if (= (fail? (get-in fs (list (first keys)))) true)
+                (if (fail? (get-in fs (list (first keys))))
                   true
                   (failr? fs (rest keys)))
                 false))
@@ -68,6 +68,15 @@
               (= (type fs) clojure.lang.Ref)
               (fail? @fs)
               :else false)))))
+
+(defn fail-path [fs & [ fs-keys ] ]
+  "find the first failing path in a fs."
+  (if (map? fs)
+    (let [fs-keys (if fs-keys fs-keys (keys fs))]
+      (if (> (.size fs-keys) 0)
+        (if (fail? (get-in fs (list (first fs-keys))))
+          (cons (first fs-keys) (fail-path (get-in fs (list (first fs-keys)))))
+          (fail-path fs (rest fs-keys)))))))
 
 (defn unify [& args]
   (let [val1 (first args)
@@ -861,4 +870,22 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         butlast-val2 (get-in map (butlast path2))]
     (= (get butlast-val1 (last path1))
        (get butlast-val2 (last path2)))))
+
+(defn strip-refs [map-with-refs]
+  "return a map like map-with-refs, but without refs - (e.g. {:foo (ref 42)} => {:foo 42}) - used for printing maps in plain (i.e. non html) format"
+  (cond
+   (= map-with-refs {})
+   {}
+   (map? map-with-refs)
+   (let [map-keys (sort (keys map-with-refs))]
+     (let [first-key (first (keys map-with-refs))
+           val (get map-with-refs first-key)]
+       (conj
+        {first-key (strip-refs val)}
+        (strip-refs (dissoc map-with-refs first-key)))))
+   (= (type map-with-refs) clojure.lang.Ref)
+   (strip-refs (deref map-with-refs))
+   :else
+   map-with-refs))
+
 
