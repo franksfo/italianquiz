@@ -434,51 +434,7 @@
          (if (unify/fail? unified)
            (log/debug "Failed attempt to add child to parent: " (unify/get-in parent '(:comment))
                      " at: " where-child))
-
-          ;;
-         (if (unify/fail? unified)
-           unified
-           (let [result (add-child-where unified)]
-             (log/debug "ACW: (" (unify/get-in unified '(:comment-plaintext)) ")" result)
-             (if (nil? (add-child-where unified)) ;; all children are instantiated.
-               (do
-                 (log/debug "all children done: doing parent-level morphology.")
-                 (log/debug "italian-head-initial?: " (italian-head-initial? unified))
-                 (merge ;; use merge so that we overwrite the value for :italian.
-                  unified
-                  (if (italian-head-initial? unified)
-                    {:italian (morph/get-italian
-                               (unify/get-in unified '(:head :italian))
-                               (unify/get-in unified '(:comp :italian)))}
-                    {:italian (morph/get-italian
-                               (unify/get-in unified '(:comp :italian))
-                               (unify/get-in unified '(:head :italian)))})
-                  (if (english-head-initial? unified)
-                    (let [english
-                          (morph/get-english
-                           (unify/get-in unified '(:head :english))
-                           (unify/get-in unified '(:comp :english)))]
-                      (log/debug (str "morphing (head-initial):"
-                                     (unify/get-in unified '(:head :english)) " + "
-                                     (unify/get-in unified '(:comp :english))))
-                      (log/debug (str "= " english))
-                      {:english english})
-                    (do
-                      (let [english
-                            (morph/get-english
-                             (unify/get-in unified '(:comp :english))
-                             (unify/get-in unified '(:head :english)))]
-                        (log/debug (str "morphing (head-final):"
-                                       (unify/get-in unified '(:comp :english)) " + "
-                                       (unify/get-in unified '(:head :english))))
-                        (log/debug (str "= " english))
-                        {:english english})))))
-
-               ;; not all children are instantiated yet (add-child-where unified) is non-null:
-               ;; just return unified without doing composition of child values.
-               (do
-                 (log/debug "not all children done - not doing the morphology.")
-                 unified))))))))))
+         unified))))))
 
 (defn over-parent [parent children]
   (cond
