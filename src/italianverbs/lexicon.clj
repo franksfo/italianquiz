@@ -595,33 +595,34 @@
 
 (def proper-nouns
   (let [proper-noun
-        (unify
-         {:synsem {:cat :noun
-                   :agr {:person :3rd}
-                   :subcat '()}})]
-        (unify proper-noun
-           {:synsem {:sem {:pred :milano
-                           :buyable false
-                           :artifact true
-                           :city true}}
-            :italian {:italian "Milano"}
-            :english {:english "Milan"}})
+        {:synsem {:cat :noun
+                  :pronoun false
+                  :agr {:person :3rd}
+                  :subcat '()}}]
+    (list
+     (unify proper-noun
+            {:synsem {:sem {:pred :milano
+                            :buyable false
+                            :artifact true
+                            :city true}}
+             :italian {:italian "Milano"}
+             :english {:english "Milan"}})
 
-        (unify proper-noun
-               {:synsem {:sem {:pred :napoli
-                               :buyable false
-                               :artifact true
-                               :city true}}
-                :italian {:italian "Napoli"}
-                :english {:english "Naples"}})
+     (unify proper-noun
+            {:synsem {:sem {:pred :napoli
+                            :buyable false
+                            :artifact true
+                            :city true}}
+             :italian {:italian "Napoli"}
+             :english {:english "Naples"}})
 
-        (unify proper-noun
-               {:synsem {:sem {:pred :roma
-                               :buyable false
-                               :artifact true ;; but wasn't built in a day.
-                               :city true}}
+     (unify proper-noun
+            {:synsem {:sem {:pred :roma
+                            :buyable false
+                            :artifact true ;; but wasn't built in a day.
+                            :city true}}
                 :italian {:italian "Roma"}
-                :english {:english "Rome"}})))
+             :english {:english "Rome"}}))))
 
 (def determiners
   (list
