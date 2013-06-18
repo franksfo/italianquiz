@@ -231,16 +231,8 @@
                    :agr {:person :3rd}
                    :subcat {:1 {:cat :det}}}})
 
-
-        proper-noun
-        (unify
-         {:synsem {:cat :noun
-                   :agr {:person :3rd}
-                   :subcat '()}})
-
         masculine {:synsem {:agr {:gender :masc}}}
         feminine {:synsem {:agr {:gender :fem}}}
-
 
         mass-noun
         (let [mass (ref true)]
@@ -335,24 +327,6 @@
                                   :number :sing
                                   :def :def}}}})
 
-
-    (unify proper-noun
-           {:synsem {:sem {:pred :milano
-                           :buyable false
-                           :artifact true
-                           :city true}}
-            :italian {:italian "Milano"}
-            :english {:english "Milan"}})
-
-    (unify proper-noun
-           {:synsem {:sem {:pred :napoli
-                           :buyable false
-                           :artifact true
-                           :city true}}
-            :italian {:italian "Napoli"}
-            :english {:english "Naples"}})
-
-    ;; TODO: Rome can inherit some stuff from città, but not all (i.e. not subcat, since Rome is a propernoun.
     (unify agreement
            common-noun
            countable-noun
@@ -366,13 +340,6 @@
            {:synsem {:subcat {:1 {:cat :det
                                   :def :def}}}})
 
-    (unify proper-noun
-           {:synsem {:sem {:pred :roma
-                           :buyable false
-                           :artifact true ;; but wasn't built in a day.
-                           :city true}}
-            :italian {:italian "Roma"}
-            :english {:english "Rome"}})
 
 
      ;; inherently singular.
@@ -625,6 +592,37 @@
      )
     )
   )
+
+(def proper-nouns
+  (let [proper-noun
+        (unify
+         {:synsem {:cat :noun
+                   :agr {:person :3rd}
+                   :subcat '()}})]
+        (unify proper-noun
+           {:synsem {:sem {:pred :milano
+                           :buyable false
+                           :artifact true
+                           :city true}}
+            :italian {:italian "Milano"}
+            :english {:english "Milan"}})
+
+        (unify proper-noun
+               {:synsem {:sem {:pred :napoli
+                               :buyable false
+                               :artifact true
+                               :city true}}
+                :italian {:italian "Napoli"}
+                :english {:english "Naples"}})
+
+        (unify proper-noun
+               {:synsem {:sem {:pred :roma
+                               :buyable false
+                               :artifact true ;; but wasn't built in a day.
+                               :city true}}
+                :italian {:italian "Roma"}
+                :english {:english "Rome"}})))
+
 (def determiners
   (list
 
@@ -1629,11 +1627,7 @@
 (defn en [english]
   (lookup {:english english}))
 
-(def proper-nouns (filter (fn [lexeme]
-                        (= '() (fs/get-in lexeme '(:synsem :subcat))))
-                      nouns))
-
-(def lexicon (concat adjectives determiners nouns prepositions
+(def lexicon (concat adjectives determiners nouns proper-nouns prepositions
                      nominative-pronouns accusative-pronouns
                      verbs))
 

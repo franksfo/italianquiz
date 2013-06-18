@@ -78,7 +78,7 @@
      :italian {:a head-italian
                :b comp-italian}}))
 
-(def italian-head-final
+(def italian-head-last
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
     {:head {:italian head-italian}
@@ -94,7 +94,7 @@
      :english {:a head-english
                :b comp-english}}))
 
-(def english-head-final
+(def english-head-last
   (let [head-english (ref :top)
         comp-english (ref :top)]
     {:head {:english head-english}
@@ -119,6 +119,8 @@
                english-head-first
                {:comp comp
                 :head head}
+               {:head {:synsem {:cat :verb}}}
+               {:comp {:synsem {:pronoun {:not true}}}}
                {:extend {:a {:head 'lexicon
                              :comp 'np}
                          :b {:head 'lexicon
@@ -130,39 +132,22 @@
                          }}))
 
   (def vp-pron
-    (let [comp-italian (ref :top)
-          head-italian (ref :top)
-          comp-english (ref :top)
-          head-english (ref :top)
-          infl (ref :top)
-          cat (ref :top)]
-      (fs/merge
-       (unify
-        head-principle
-        subcat-2-principle
-        {:italian {:b {:infl infl
-                       :cat cat}}
-         :english {:a {:infl infl
-                       :cat cat}}}
-        {:head head
-         :comp comp
-         :1 comp
-         :2 head}
-        {:comp {:english comp-english
-                :italian comp-italian}
-         :head {:english head-english
-                :italian head-italian}
-         :italian {:a comp-italian
-                   :b head-italian}
-         :english {:a head-english
-                   :b comp-english}})
-              {:head {:synsem {:infl :present}}}
-       {:comment-plaintext "vp[pron]"
-        :comment "vp[pron]"
-        :extend {:e {:head :lexicon
-                     :comp :lexicon}
-                 ;; TODO add vp -> lexicon vp also.
-                 }})))
+    (fs/merge
+     (unify
+      head-principle
+      subcat-2-principle
+      italian-head-last
+      english-head-first
+      {:head {:synsem {:cat :verb
+                       :infl :present}} ;; TODO: allow other than :present. (:present-only for now for testing).
+       :comp {:synsem {:cat :noun
+                       :pronoun true}}}
+      {:comment-plaintext "vp[pron]"
+       :comment "vp[pron]"
+       :extend {:e {:head 'lexicon
+                    :comp 'lexicon}
+                ;; TODO add vp -> lexicon vp also.
+                  }})))
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
@@ -222,8 +207,6 @@
         rule-base
         (fs/unifyc head-principle subcat-1-principle
                    subject-verb-agreement
-                   italian-head-final
-                   english-head-final
                    {:comp {:synsem {:subcat '()
                                     :cat :noun}}
                     :head {:synsem {:cat :verb}}}
@@ -231,28 +214,37 @@
                                  :head 'vp}
                              :b {:comp 'lexicon
                                  :head 'vp}
-                             :c {:comp 'np
+                             :c {:comp 'lexicon
+                                 :head 'vp-pron}
+                             :d {:comp 'np
+                                 :head 'vp-pron}
+
+                             :e {:comp 'np
                                  :head 'lexicon}
-                             :d {:comp 'lexicon
+                             :f {:comp 'lexicon
                                  :head 'lexicon}
                              }})]
 
-    ;; present
     (def s-present
       ;; unlike the case for future and imperfetto,
       ;; override the existing :extends in the case of s-present.
       (fs/merge
        (fs/unifyc rule-base
+                   italian-head-last
+                   english-head-last
                   {:comment "sentence[present]"
                    :comment-plaintext "s[present] -> .."
                    :synsem {:infl :present}})
-       {:extend {:e {:comp 'lexicon
-                     :head 'vp-present}
-                 :f {:comp 'np
+       {:extend {:g {:comp 'lexicon
+                      :head 'vp-present}
+                 :h {:comp 'np
                      :head 'vp-present}
                  }}))
+
     (def s-future
       (fs/unifyc rule-base
+                 italian-head-last
+                 english-head-last
                  {:comment "sentence[future]"
                   :comment-plaintext "s[future] -> .."
                   :synsem {:infl :futuro}}))
@@ -270,7 +262,7 @@
     (unify head-principle
            ;; for Nbar, italian and english have opposite constituent order:
            italian-head-first
-           english-head-final
+           english-head-last
            (let [def (ref :top)]
              {:head {:synsem {:def def}}
               :synsem {:def def}})

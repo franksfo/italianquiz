@@ -70,6 +70,13 @@
     (is (= "i dream"
            (get-in io-sogno '(:english))))))
 
+(deftest lei-ci-vede
+  (let [lei-ci-vede (finalize (first (over gram/s-present "lei" (over gram/vp-pron "ci" "vedere"))))]
+    (is (= "lei ci vede"
+           (get-in lei-ci-vede '(:italian))))
+    (is (= "she sees us"
+           (get-in lei-ci-vede '(:english))))))
+
 (deftest io-parlo-la-parola
   (let [parlare-la-parola (first (over gram/vp "parlare" (over gram/np "la" "parola")))
         io-parlo-la-parola (first
