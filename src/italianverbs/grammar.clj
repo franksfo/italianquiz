@@ -257,20 +257,6 @@
                   :comment-plaintext "s[future] -> .."
                   :synsem {:infl :futuro}}))
 
-    (def test-sent
-      (fs/merge
-       (fs/unifyc head-principle subcat-1-principle
-                  subject-verb-agreement
-                  {:head head
-                   :comp comp
-                   :1 comp
-                   :2 head
-                   :comment "stest"
-                   :comment-plaintext "stest"
-                   :synsem {:infl :present}
-                   :extend {:a {:comp 'tinylex
-                                :head 'tinylex}}})))
-
     (def s-imperfetto
       (fs/unifyc rule-base
                  {:comment "sentence[imperfetto]"
