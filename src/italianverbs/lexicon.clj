@@ -1483,116 +1483,117 @@
 
 ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc).
 (def adjectives
-  (list
+  (let [adjective (ref :adjective)
+        adj {:synsem {:cat adjective
+                      :sem {:mod :top}}
+             :italian {:cat adjective}
+             :english {:cat adjective}}]
+    (concat (map (fn [entry]
+                   (unify adj entry))
+                 (list
+                  {:synsem {:cat :adjective
+                            :sem {:pred :alto
+                                  :mod {:human true}}}
+                   :italian {:italian "alto"}
+                   :english {:english "tall"}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :alto
-                   :mod {:human true}}}
-    :italian {:italian "alto"
-              :cat :adjective}
-    :english {:english "tall"
-              :cat :adjective}}
+                  {:synsem {:sem {:pred :bello}}
+                   :italian {:italian "bello"}
+                   :english {:english "beautiful"}}
 
+                  {:synsem {:sem {:pred :gentile
+                                  :mod {:human true}}} ;; sono gli umani possono essere gentile.
+                   :italian {:italian "gentile"}
+                   :english {:english "kind"}}))
 
-   {:synsem {:cat :adjective
-             :sem {:pred :bello
-                   :mod :top}} ;; for now, no restrictions on what can be beautiful
-    :italian {:italian "bello"
-              :cat :adjective}
-    :english {:english "beautiful"
-              :cat :adjective}}
+            ;; TODO: copy all the below adjectives into the simpler list shown above.
+            (list
+             {:synsem {:cat :adjective
+                       :sem {:pred :bianco
+                             :mod {:physical-object true
+                                   :human false}}}
+              :italian {:italian "bianco"
+                        :irregular {:masc {:plur "bianchi"}
+                                    :fem {:plur "bianche"}}
+                        :cat :adjective}
+              :english {:english "white"
+                        :cat :adjective}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :bianco
-                   :mod {:physical-object true
-                         :human false}}}
-    :italian {:italian "bianco"
-              :irregular {:masc {:plur "bianchi"}
-                          :fem {:plur "bianche"}}
-              :cat :adjective}
-    :english {:english "white"
-              :cat :adjective}}
+             {:synsem {:cat :adjective
+                       :sem {:pred :brutto
+                             :mod :top}} ;; for now, no restrictions on what can be ugly.
+              :italian {:italian "brutto"
+                        :cat :adjective}
+              :english {:english "ugly"
+                        :cat :adjective}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :brutto
-                   :mod :top}} ;; for now, no restrictions on what can be ugly.
-    :italian {:italian "brutto"
-              :cat :adjective}
-    :english {:english "ugly"
-              :cat :adjective}}
+             {:synsem {:cat :adjective
+                       :sem {:pred :corto
+                             :mod {:human true}}}
+              :italian {:italian "corto"
+                        :cat :adjective}
+              :english {:english "short"
+                        :cat :adjective}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :corto
-                   :mod {:human true}}}
-    :italian {:italian "corto"
-              :cat :adjective}
-    :english {:english "short"
-              :cat :adjective}}
+             {:synsem {:cat :adjective
+                       :sem {:pred :difficile
+                             :mod {:drinkable false
+                                   :human false
+                                   :animate false
+                                   :buyable false
+                                   :legible true
+                                   :activity true
+                                   :artifact true
+                                   :physical-object true
+                                   :edible false}}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :difficile
-                   :mod {:drinkable false
-                         :human false
-                         :animate false
-                         :buyable false
-                         :legible true
-                         :activity true
-                         :artifact true
-                         :physical-object true
-                         :edible false}}}
+              :italian {:italian "difficile"
+                        :cat :adjective}
+              :english {:english "difficult"
+                        :cat :adjective}}
 
-    :italian {:italian "difficile"
-              :cat :adjective}
-    :english {:english "difficult"
-              :cat :adjective}}
+             {:synsem {:cat :adjective
+                       :sem {:pred :nero
+                             :mod {:physical-object true
+                                   :human false}}}
+              :italian {:italian "nero"
+                        :cat :adjective}
+              :english {:english "black"
+                        :cat :adjective}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :nero
-                   :mod {:physical-object true
-                         :human false}}}
-    :italian {:italian "nero"
-              :cat :adjective}
-    :english {:english "black"
-              :cat :adjective}}
+             {:synsem {:cat :adjective
+                       :sem {:pred :piccolo
+                             :mod {:physical-object true
+                                   :mass false}}}
+              :italian {:italian "piccolo"
+                        :cat :adjective}
+              :english {:english "small"
+                        :cat :adjective}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :piccolo
-                   :mod {:physical-object true
-                         :mass false}}}
-    :italian {:italian "piccolo"
-              :cat :adjective}
-    :english {:english "small"
-              :cat :adjective}}
+             {:synsem {:cat :adjective
+                       :sem {:pred :robusto
+                             :mod {:animate true}}}
+              :italian {:italian "robusto"
+                        :cat :adjective}
+              :english {:english "large-built"
+                        :cat :adjective}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :robusto
-                   :mod {:animate true}}}
-    :italian {:italian "robusto"
-              :cat :adjective}
-    :english {:english "large-built"
-              :cat :adjective}}
+             {:synsem {:cat :adjective
+                       :sem {:pred :rosso
+                             :mod {:physical-object true
+                                   :human false}}}
+              :italian {:italian "rosso"
+                        :cat :adjective}
+              :english {:english "red"
+                        :cat :adjective}}
 
-   {:synsem {:cat :adjective
-             :sem {:pred :rosso
-                   :mod {:physical-object true
-                         :human false}}}
-    :italian {:italian "rosso"
-              :cat :adjective}
-    :english {:english "red"
-              :cat :adjective}}
-
-
-
-   {:synsem {:cat :adjective
-             :sem {:pred :semplice
-                   :mod {:human true}}}
-    :italian {:italian "semplice"
-              :cat :adjective}
-    :english {:english "naive"
-              :cat :adjective}}
-
-   ))
-
+             {:synsem {:cat :adjective
+                       :sem {:pred :semplice
+                             :mod {:human true}}}
+              :italian {:italian "semplice"
+                        :cat :adjective}
+              :english {:english "naive"
+                        :cat :adjective}}))))
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
