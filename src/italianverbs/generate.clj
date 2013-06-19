@@ -560,8 +560,8 @@
                                     '(:comp))
                                    :top)
                                  (unify/get-in parent '(:comp)))
-                                {:synsem {:sem (lex/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem))
-                                                                          (unify/get-in comp '(:synsem :sem))))}}))
+                                {:synsem {:sem (lex/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem) :top)
+                                                                          (unify/get-in comp '(:synsem :sem) :top)))}}))
                   ;; TODO: Move this before computation of comp-specification: if (phrase-is-finished? comp) == true, no need to compute comp-specification.
                   ;; TODO: Do not compute comp-specification if (not head-is-finished?) == true, since head is not complete yet - compute comp-specification should
                   ;;       be deferred until head-is-finished? == true.
