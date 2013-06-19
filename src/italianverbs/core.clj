@@ -241,7 +241,7 @@
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
         })
-  
+
   (route/resources "/")
 
   ;; workaround for 'lein ring server' which opens
@@ -256,9 +256,9 @@
        request
        {:status 302
         :headers {"Location" (str "http://" server-hostname "/italian/")}})
-  
+
   ;; TODO: how to show info about the request (e.g. request path)
-  (route/not-found (html/page "Non posso trovare (page not found)." (str "Non passo trovare. Sorry, page not found. ")))
+  (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. ")))
 )
 
 
