@@ -345,7 +345,7 @@
     (unify agreement
            common-noun
            countable-noun
-           feminine
+           masculine
            {:synsem {:sem {:pred :calzoni
                            :artifact true
                            :speakable false
