@@ -673,6 +673,13 @@
     :english "the"}
 
    {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :plur}
+    :italian "i miei"
+    :english "my"}
+
+   {:synsem {:cat :det
              :def :def
              :gender :masc
              :number :sing}
@@ -680,11 +687,102 @@
     :english "the"}
 
    {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :sing}
+    :italian "il loro"
+    :english "their"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :sing}
+    :italian "il nostro"
+    :english "our"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :sing}
+    :italian "il mio"
+    :english "my"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :sing}
+    :italian "il suo"
+    :english "his"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :sing}
+    :italian "il suo"
+    :english "her"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :sing}
+    :italian "il tuo"
+    :english "your"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing}
+    :italian "il tua"
+    :english "your"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :plur}
+    :italian "i tuoi"
+    :english "your"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
+             :number :sing}
+    :italian "il vostro"
+    :english "your all's"}
+
+   {:synsem {:cat :det
              :def :def
              :gender :fem
              :number :sing}
     :italian "la"
     :english "the"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing}
+    :italian "la mia"
+    :english "my"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing}
+    :italian "la tua"
+    :english "your"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :plur}
+    :italian "le mie"
+    :english "my"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :plur}
+    :italian "le tue"
+    :english "your"}
 
    {:synsem {:cat :det
              :def :def
