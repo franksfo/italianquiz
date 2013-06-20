@@ -341,33 +341,22 @@
                                   :def :def}}}})
 
 
-
-     ;; inherently singular.
+    ;; inherently plural
     (unify agreement
            common-noun
-           masculine
-           {:synsem {:sem (sem-impl {:pred :pane
-                                     :edible true
-                                     :artifact true})}
-            :italian {:italian "pane"}
-            :english {:english "bread"}}
-           {:synsem {:subcat {:1 {:cat :det
-                                  :number :sing
-                                  :def :def}}}})
-
-     ;; inherently singular.
-    (unify agreement
-           common-noun
+           countable-noun
            feminine
-           {:synsem {:sem (sem-impl {:pred :pasta
-                                     :edible true
-                                     :artifact true})}
-            :italian {:italian "pasta"}
-            :english {:english "pasta"}}
+           {:synsem {:sem {:pred :calzoni
+                           :artifact true
+                           :speakable false
+                           :legible false
+                           :consumable false
+                           :clothing true}}}
+           {:italian {:italian "calzoni"}
+            :english {:english "trousers"}}
            {:synsem {:subcat {:1 {:cat :det
-                                  :number :sing
-                                  :def :def}}}}
-           )
+                                  :number :plur
+                                  :def :def}}}})
 
     (unify agreement
            common-noun
@@ -471,6 +460,33 @@
                            :pred :parola}}}
            {:italian {:italian "parola"}
             :english {:english "word"}})
+
+     ;; inherently singular.
+    (unify agreement
+           common-noun
+           masculine
+           {:synsem {:sem (sem-impl {:pred :pane
+                                     :edible true
+                                     :artifact true})}
+            :italian {:italian "pane"}
+            :english {:english "bread"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :number :sing
+                                  :def :def}}}})
+
+     ;; inherently singular.
+    (unify agreement
+           common-noun
+           feminine
+           {:synsem {:sem (sem-impl {:pred :pasta
+                                     :edible true
+                                     :artifact true})}
+            :italian {:italian "pasta"}
+            :english {:english "pasta"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :number :sing
+                                  :def :def}}}}
+           )
 
     (unify agreement
            common-noun
