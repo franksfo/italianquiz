@@ -760,6 +760,13 @@
              :def :possessive
              :gender :fem
              :number :sing}
+    :italian "la loro"
+    :english "their"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing}
     :italian "la mia"
     :english "my"}
 
@@ -767,8 +774,44 @@
              :def :possessive
              :gender :fem
              :number :sing}
+    :italian "la nostra"
+    :english "our"}
+
+   ;; TODO: add pronominal "la sua (hers)" and "la sua (his)"
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing}
+    :italian "la sua"
+    :english "her"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing}
+    :italian "la sua"
+    :english "his"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing}
     :italian "la tua"
     :english "your"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing}
+    :italian "la vostra"
+    :english "our"}
+
+   {:synsem {:cat :det
+             :def :def
+             :gender :fem
+             :number :plur}
+    :italian "le"
+    :english "the"}
 
    {:synsem {:cat :det
              :def :possessive
@@ -783,13 +826,6 @@
              :number :plur}
     :italian "le tue"
     :english "your"}
-
-   {:synsem {:cat :det
-             :def :def
-             :gender :fem
-             :number :plur}
-    :italian "le"
-    :english "the"}
 
    {:synsem {:cat :det
              :def :indef
