@@ -443,8 +443,8 @@
                                   (filter (fn [lex]
                                             (not (unify/fail? (lexfn/unify (unify/get-in lex '(:synsem)) comp-synsem))))
                                           comps)]
-                              (log/info (str  (unify/get-in parent '(:comment-plaintext)) ": size of pre-filtered complements: " (.size comps)))
-                              (log/info (str  (unify/get-in parent '(:comment-plaintext)) ": size of filtered complements: " (.size filtered-complements)))
+                              (log/debug (str  (unify/get-in parent '(:comment-plaintext)) ": size of pre-filtered complements: " (.size comps)))
+                              (log/debug (str  (unify/get-in parent '(:comment-plaintext)) ": size of filtered complements: " (.size filtered-complements)))
                               filtered-complements)
                             depth
                             (morph/phrase-is-finished? (first heads))))
@@ -654,8 +654,8 @@
 
                        (if (or (= (unify/get-in parent '(:comment-plaintext)) "s[present] -> ..")
                                (= (unify/get-in parent '(:comment-plaintext)) "s[future] -> .."))
-                         (log/info (str (depth-str depth) "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
-                         (log/info (str (depth-str depth) "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
+                         (log/debug (str (depth-str depth) "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
+                         (log/debug (str (depth-str depth) "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
 
                        (lazy-seq
                         (cons result
