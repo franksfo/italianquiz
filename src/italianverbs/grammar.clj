@@ -273,6 +273,10 @@
   (unify head-principle
          italian-head-last
          english-head-last ;; not sure about this e.g. "piu ricca di Paolo (richer than Paolo)"
+
+         ;; TODO: specify this in lexicon (subcat of head) rather than here in grammar.
+         {:comp {:synsem {:cat :intensifier}}}
+
          ;; but for now we use "more=rich" e.g. "pic ricca di Paolo (more rich than Paolo)"
          {:comment "intensifier-phrase&nbsp;&#x2192;&nbsp;intensifier&nbsp;+&nbsp;adj-phrase"
           :comment-plaintext "intensifier-phrase -> intensifier adj-phrase"
