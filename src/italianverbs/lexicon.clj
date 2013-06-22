@@ -813,7 +813,7 @@
              :gender :fem
              :number :sing}
     :italian "la vostra"
-    :english "our"}
+    :english "your"}
 
    {:synsem {:cat :det
              :def :def
