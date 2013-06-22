@@ -32,7 +32,7 @@
 ;; H subcat<1>  C[1]
 (def subcat-1-principle
   (let [comp-synsem (ref {:subcat '()})]
-    {:subcat '()
+    {:synsem {:subcat '()}
      :head {:synsem {:subcat {:1 comp-synsem
                               :2 '()}}}
      :comp {:synsem comp-synsem}}))
@@ -122,14 +122,16 @@
                {:head {:synsem {:cat :verb}}}
 ;;; TODO: commenting out the following for now; why is it here in the first place?
 ;               {:comp {:synsem {:pronoun {:not true}}}}
-               {:extend {:a {:head 'lexicon
-                             :comp 'np}
-                         :b {:head 'lexicon
-                             :comp 'prep-phrase}
-                         :c {:head 'lexicon
-                             :comp 'vp-infinitive-transitive}
-                         :d {:head 'lexicon
-                             :comp 'lexicon}
+               {:extend {;:a {:head 'lexicon
+                         ;    :comp 'np}
+                         ;:b {:head 'lexicon
+                         ;    :comp 'prep-phrase}
+                         ;:c {:head 'lexicon
+                         ;    :comp 'vp-infinitive-transitive}
+                         ;:d {:head 'lexicon
+                         ;    :comp 'lexicon}
+                         :e {:head 'lexicon
+                             :comp 'intensifier-phrase}
                          }}))
 
   (def vp-pron
@@ -145,19 +147,19 @@
                        :pronoun true}}}
       {:comment-plaintext "vp[pron]"
        :comment "vp[pron]"
-       :extend {:e {:head 'lexicon
+       :extend {:f {:head 'lexicon
                     :comp 'lexicon}
                 ;; TODO add vp -> lexicon vp also.
-                  }})))
+                }})))
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
     (fs/merge vp
               {:comment "vp[present] &#x2192; head comp"
                :comment-plaintext "vp[present] -> head comp"
-               :extend {:e {:head 'lexicon
-                            :comp 'vp-past}
-               }}))
+;               :extend {:f {:head 'lexicon
+;                            :comp 'vp-past}
+               }))
 
   (def vp-past
     (fs/merge vp
@@ -215,15 +217,15 @@
                                  :head 'vp}
                              :b {:comp 'lexicon
                                  :head 'vp}
-                             :c {:comp 'lexicon
-                                 :head 'vp-pron}
-                             :d {:comp 'np
-                                 :head 'vp-pron}
+;                             :c {:comp 'lexicon
+;                                 :head 'vp-pron}
+;                             :d {:comp 'np
+;                                 :head 'vp-pron}
 
-                             :e {:comp 'np
-                                 :head 'lexicon}
-                             :f {:comp 'lexicon
-                                 :head 'lexicon}
+;                             :e {:comp 'np
+;                                 :head 'lexicon}
+;                             :f {:comp 'lexicon
+;                                 :head 'lexicon}
                              }})]
 
     (def s-present
@@ -237,7 +239,7 @@
                    :comment-plaintext "s[present] -> .."
                    :synsem {:infl :present}})
        {:extend {:g {:comp 'lexicon
-                      :head 'vp-present}
+                     :head 'vp-present}
                  :h {:comp 'np
                      :head 'vp-present}
                  }}))
@@ -265,29 +267,34 @@
           :comment-plaintext "adj-phrase -> adj prep-phrase"}
 
          ;; TODO: prep-phrase should be {:cat {:not {:nom}}} to avoid "richer than he" (should be "richer than him")
+
+         (let [comparative (ref true)]
+           {:synsem {:sem {:comparative comparative}}
+            :comp {:synsem {:sem {:comparative comparative}}}
+            :head {:synsem {:sem {:comparative comparative}}}})
+
          {:synsem {:cat :adjective}
           :extend {:a {:head 'lexicon
                        :comp 'prep-phrase}}}))
 
-;; note that even though we call it 'intensifier-phrase',
+;; intensifier (e.g. "più") is the head, which subcategorizes
+;; for an adjective.
 ;; the head is the adjective-phrase, not the intensifier,
 ;; while the intensifier is the complement.
 (def intensifier-phrase
   (unify head-principle
-         italian-head-last
-         english-head-last ;; not sure about this e.g. "piu ricca di Paolo (richer than Paolo)"
+         subcat-1-principle
+         italian-head-first
+         english-head-first ;; not sure about this e.g. "più ricca di Paolo (richer than Paolo)"
 
          ;; TODO: specify this in lexicon (subcat of head) rather than here in grammar.
-         {:comp {:synsem {:cat :intensifier}}}
+         {:head {:synsem {:cat :intensifier}}}
 
-         ;; but for now we use "more=rich" e.g. "pic ricca di Paolo (more rich than Paolo)"
+         ;; but for now we use "more=rich" e.g. "più ricca di Paolo (more rich than Paolo)"
          {:comment "intensifier-phrase&nbsp;&#x2192;&nbsp;intensifier&nbsp;+&nbsp;adj-phrase"
           :comment-plaintext "intensifier-phrase -> intensifier adj-phrase"
-          :extend {:a {:head 'adj-phrase
-                       :comp 'lexicon}}}
-         {:synsem {:cat :adjective}}))
-;; cat=adjective: TODO: change italian-head-first to italian-head-last
-;; i.e make the adjective phrase the head, and make the intensifier an adjunct.
+          :extend {:a {:comp 'adj-phrase
+                       :head 'lexicon}}}))
 
 (def nbar
   (let [head-semantics (ref :top)
@@ -365,7 +372,9 @@
     (list np)))
 
 (def prep-phrase
-  (let [head (ref {:synsem {:cat :prep}})
+  (let [comparative (ref :top)
+        head (ref {:synsem {:cat :prep
+                            :sem {:comparative comparative}}})
         comp (ref {:synsem {:cat :noun
                             :subcat '()}})]
     (fs/unifyc head-principle
@@ -374,7 +383,8 @@
                 :comment "pp &#x2192; prep (np or propernoun)"
                 :comment-plaintext "pp -> prep (np or proper noun)"}
                {:head head
-                :comp comp}
+                :comp comp
+                :synsem {:sem {:comparative comparative}}}
                italian-head-first
                english-head-first
                {:extend {:a {:head 'lexicon
