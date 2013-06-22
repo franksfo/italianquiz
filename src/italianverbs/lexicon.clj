@@ -1707,7 +1707,16 @@
                           :sem {:comparative true}}}}
     :italian "più"
     :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
-    }))
+    }
+
+   {:synsem {:cat :intensifier
+             :subcat {:1 {:cat :adjective
+                          :sem {:comparative true}}}}
+    :italian "meno"
+    :english "less"
+    }
+
+   ))
 
   ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc)
   ;; (this is being accomplished below: see TODO below about "copy all the below adjectives.."
