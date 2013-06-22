@@ -1214,7 +1214,7 @@
                             :def :demonstrativo
                           :agr {:gender gender
                                 :number number}}
-                      :2 {:cat :adjective
+                      :2 {:cat :intensifier
                           :agr {:gender gender
                                 :number number}}}
                :sem {:pred :essere
