@@ -269,6 +269,9 @@
           :extend {:a {:head 'lexicon
                        :comp 'prep-phrase}}}))
 
+;; note that even though we call it 'intensifier-phrase',
+;; the head is the adjective-phrase, not the intensifier,
+;; while the intensifier is the complement.
 (def intensifier-phrase
   (unify head-principle
          italian-head-last

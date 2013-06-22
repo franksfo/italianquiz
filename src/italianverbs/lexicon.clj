@@ -1701,33 +1701,41 @@
                       :sem {:mod :top}}
              :italian {:cat adjective}
              :english {:cat adjective}}]
-    (concat (map (fn [entry]
-                   (unify adj entry))
-                 (list
-                  {:synsem {:cat :adjective
-                            :sem {:pred :alto
-                                  :mod {:human true}}}
-                   :italian {:italian "alto"}
-                   :english {:english "tall"}}
+    (concat
 
-                  {:synsem {:sem {:pred :bello}}
-                   :italian {:italian "bello"}
-                   :english {:english "beautiful"}}
+     ;; new-style
+     (map (fn [entry]
+            (unify adj entry))
+          (list
+           {:synsem {:cat :adjective
+                     :sem {:pred :alto
+                           :mod {:human true}}}
+            :italian {:italian "alto"}
+            :english {:english "tall"}}
 
-                  {:synsem {:sem {:pred :gentile
-                                  :mod {:human true}}} ;; sono gli umani possono essere gentile.
-                   :italian {:italian "gentile"}
-                   :english {:english "kind"}}
+           {:synsem {:sem {:pred :bello}}
+            :italian {:italian "bello"}
+            :english {:english "beautiful"}}
 
-                  ;; comparative:
-                  {:synsem {:sem {:pred :ricca
-                                  :mod {:human true}}
-                            :subcat {:1 {:cat :prep
-                                         :sem {:pred :di}}}}
-                   :italian "ricca"
-                   :english "rich"}))
+           {:synsem {:sem {:pred :gentile
+                           :mod {:human true}}} ;; sono gli umani possono essere gentile.
+            :italian {:italian "gentile"}
+            :english {:english "kind"}}
 
-            ;; TODO: copy all the below adjectives into the simpler list shown above.
+           ;; comparative:
+           (let [sem (ref :top)]
+             (unify
+              {:synsem {:sem sem}}
+              {:synsem {:sem sem}}
+              {:synsem {:sem {:pred :ricca
+                              :mod {:human true}}
+                        :subcat {:1 {:cat :prep
+                                     :sem {:pred :di}}}}
+               :italian "ricca"
+               :english "rich"}))))
+
+     ;; old-style
+     ;; TODO: copy all the below adjectives into the simpler list shown above.
             (list
              {:synsem {:cat :adjective
                        :sem {:pred :bianco
