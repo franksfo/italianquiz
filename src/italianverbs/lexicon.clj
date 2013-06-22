@@ -1190,7 +1190,6 @@
      essere-common
      {:synsem {:cat :verb
                :subcat {:1 {:cat :noun
-                            :def :demonstrativo ;; TODO: why is this :demonstrativo rather than something more general (:top)?
                             :agr {:gender gender
                                   :number number}}
                         :2 {:cat :noun
