@@ -217,15 +217,15 @@
                                  :head 'vp}
                              :b {:comp 'lexicon
                                  :head 'vp}
-;                             :c {:comp 'lexicon
-;                                 :head 'vp-pron}
-;                             :d {:comp 'np
-;                                 :head 'vp-pron}
+                             :c {:comp 'lexicon
+                                 :head 'vp-pron}
+                             :d {:comp 'np
+                                 :head 'vp-pron}
 
-;                             :e {:comp 'np
-;                                 :head 'lexicon}
-;                             :f {:comp 'lexicon
-;                                 :head 'lexicon}
+                             :e {:comp 'np
+                                 :head 'lexicon}
+                             :f {:comp 'lexicon
+                                 :head 'lexicon}
                              }})]
 
     (def s-present
