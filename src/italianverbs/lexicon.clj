@@ -1669,6 +1669,7 @@
         {:synsem {:cat :prep
                   :sem {:pred :di}
                   :subcat {:1 {:cat :noun
+                               :case {:not :nom}
                                :sem {:human true}}}}
          :italian "di"
          :english "than"}

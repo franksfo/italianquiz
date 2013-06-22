@@ -258,9 +258,13 @@
 
 (def adj-phrase
   (unify head-principle
+         subcat-1-principle
          italian-head-first
          english-head-first
-         {:synsem {:cat :adjective}}))
+         ;; TODO: prep-phrase should be {:cat {:not {:nom}}} to avoid "richer than he" (should be "richer than him")
+         {:synsem {:cat :adjective}
+          :extend {:a {:head 'lexicon
+                       :comp 'prep-phrase}}}))
 
 (def intensifier-phrase
   (unify head-principle
