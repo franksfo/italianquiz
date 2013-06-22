@@ -1456,6 +1456,7 @@
    bevere
    comprare
    essere-copula
+   essere-adjective
    fare-make
    leggere
    mangiare
