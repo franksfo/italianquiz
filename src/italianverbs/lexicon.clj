@@ -963,7 +963,7 @@
                                   :cat :noun
                                   :agr {:case {:not :nom}}}}}})))
 
-(def transitive-but-with-adjective-instead-of-noun
+(def transitive-but-with-intensifier-instead-of-noun
   (unify subjective
          (let [obj-sem (ref :top)
                infl (ref :top)]
@@ -973,7 +973,7 @@
                      :infl infl
                      :subcat {:2 {:sem obj-sem
                                   :subcat '()
-                                  :cat :adjective}}}})))
+                                  :cat :intensifier}}}})))
 
 (def andare
    {:italian {:infinitive "andare"
@@ -1202,11 +1202,12 @@
                      :subj {:human true}
                      :obj {:human true}}}})))
 
+;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
 (def essere-adjective
   (let [gender (ref :top)
         number (ref :top)]
     (unify
-     transitive-but-with-adjective-instead-of-noun
+     transitive-but-with-intensifier-instead-of-noun
      essere-common
      {:synsem {:cat :verb
                :subcat {:1 {:cat :noun
@@ -1660,16 +1661,18 @@
 
 (def prepositions
   (list {:synsem {:cat :prep
-                  :sem {:pred :to}
+                  :sem {:pred :to
+                        :comparative false}
                   :subcat {:1 {:cat :noun
                                :sem {:place true}}}}
          :italian "a"
          :english "to"}
 
         {:synsem {:cat :prep
-                  :sem {:pred :di}
+                  :sem {:pred :di
+                        :comparative true}
                   :subcat {:1 {:cat :noun
-                               :case {:not :nom}
+                               :agr {:case {:not :nom}}
                                :sem {:human true}}}}
          :italian "di"
          :english "than"}
@@ -1688,7 +1691,9 @@
 
 (def intensifiers
   (list
-   {:synsem {:cat :intensifier}
+   {:synsem {:cat :intensifier
+             :subcat {:1 {:cat :adjective
+                          :sem {:comparative true}}}}
     :italian "più"
     :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
     }))
@@ -1723,7 +1728,7 @@
             :english {:english "kind"}}
 
            ;; comparative:
-           (let [sem (ref :top)]
+           (let [sem (ref {:comparative true})]
              (unify
               {:synsem {:sem sem}}
               {:synsem {:sem sem}}
