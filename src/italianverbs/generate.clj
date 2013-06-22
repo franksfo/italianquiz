@@ -654,8 +654,8 @@
 
                        (if (or (= (unify/get-in parent '(:comment-plaintext)) "s[present] -> ..")
                                (= (unify/get-in parent '(:comment-plaintext)) "s[future] -> .."))
-                         (log/debug (str (depth-str depth) "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
-                         (log/debug (str (depth-str depth) "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
+                         (log/info (str (depth-str depth) "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
+                         (log/info (str (depth-str depth) "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
 
                        (lazy-seq
                         (cons result
