@@ -363,10 +363,11 @@
    (= symbol 'lexicon) (lazy-seq (cons (first lex/lexicon)
                                        (rest lex/lexicon)))
    (= symbol 'tinylex) lex/tinylex
-
+   (= symbol 'adj-phrase) gram/adj-phrase
    (= symbol 'nbar) gram/nbar
    (= symbol 'np) gram/np
    (= symbol 'prep-phrase) gram/prep-phrase
+   (= symbol 'intensifier-phrase) gram/intensifier-phrase
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
    (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive

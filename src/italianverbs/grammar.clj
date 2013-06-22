@@ -261,6 +261,9 @@
          subcat-1-principle
          italian-head-first
          english-head-first
+         {:comment "adj-phrase&nbsp;&#x2192;&nbsp;adj&nbsp;+&nbsp;prep-phrase"
+          :comment-plaintext "adj-phrase -> adj prep-phrase"}
+
          ;; TODO: prep-phrase should be {:cat {:not {:nom}}} to avoid "richer than he" (should be "richer than him")
          {:synsem {:cat :adjective}
           :extend {:a {:head 'lexicon
@@ -271,6 +274,10 @@
          italian-head-last
          english-head-last ;; not sure about this e.g. "piu ricca di Paolo (richer than Paolo)"
          ;; but for now we use "more=rich" e.g. "pic ricca di Paolo (more rich than Paolo)"
+         {:comment "intensifier-phrase&nbsp;&#x2192;&nbsp;intensifier&nbsp;+&nbsp;adj-phrase"
+          :comment-plaintext "intensifier-phrase -> intensifier adj-phrase"
+          :extend {:a {:head 'adj-phrase
+                       :comp 'lexicon}}}
          {:synsem {:cat :adjective}}))
 ;; cat=adjective: TODO: change italian-head-first to italian-head-last
 ;; i.e make the adjective phrase the head, and make the intensifier an adjunct.
