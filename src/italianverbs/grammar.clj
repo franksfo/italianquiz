@@ -120,7 +120,8 @@
                {:comp comp
                 :head head}
                {:head {:synsem {:cat :verb}}}
-               {:comp {:synsem {:pronoun {:not true}}}}
+;;; TODO: commenting out the following for now; why is it here in the first place?
+;               {:comp {:synsem {:pronoun {:not true}}}}
                {:extend {:a {:head 'lexicon
                              :comp 'np}
                          :b {:head 'lexicon
@@ -253,6 +254,22 @@
       (fs/unifyc rule-base
                  {:comment "sentence[imperfetto]"
                   :synsem {:infl :imperfetto}}))))
+
+
+(def adj-phrase
+  (unify head-principle
+         italian-head-first
+         english-head-first
+         {:synsem {:cat :adjective}}))
+
+(def intensifier-phrase
+  (unify head-principle
+         italian-head-last
+         english-head-last ;; not sure about this e.g. "piu ricca di Paolo (richer than Paolo)"
+         ;; but for now we use "more=rich" e.g. "pic ricca di Paolo (more rich than Paolo)"
+         {:synsem {:cat :adjective}}))
+;; cat=adjective: TODO: change italian-head-first to italian-head-last
+;; i.e make the adjective phrase the head, and make the intensifier an adjunct.
 
 (def nbar
   (let [head-semantics (ref :top)

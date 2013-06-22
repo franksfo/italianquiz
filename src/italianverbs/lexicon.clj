@@ -616,6 +616,14 @@
                   :agr {:person :3rd}
                   :subcat '()}}]
     (list
+
+     (unify proper-noun
+            {:synsem {:sem {:pred :giorgio
+                            :human true}
+                      :number :sing}
+             :italian "Giorgio"
+             :english "Giorgio"})
+
      (unify proper-noun
             {:synsem {:sem {:pred :milano
                             :buyable false
@@ -954,6 +962,18 @@
                                   :cat :noun
                                   :agr {:case {:not :nom}}}}}})))
 
+(def transitive-but-with-adjective-instead-of-noun
+  (unify subjective
+         (let [obj-sem (ref :top)
+               infl (ref :top)]
+           {:english {:infl infl}
+            :italian {:infl infl}
+            :synsem {:sem {:obj obj-sem}
+                     :infl infl
+                     :subcat {:2 {:sem obj-sem
+                                  :subcat '()
+                                  :cat :adjective}}}})))
+
 (def andare
    {:italian {:infinitive "andare"
               :essere true
@@ -1170,7 +1190,7 @@
      essere-common
      {:synsem {:cat :verb
                :subcat {:1 {:cat :noun
-                            :def :demonstrativo
+                            :def :demonstrativo ;; TODO: why is this :demonstrativo rather than something more general (:top)?
                             :agr {:gender gender
                                   :number number}}
                         :2 {:cat :noun
@@ -1181,6 +1201,23 @@
                :sem {:pred :essere
                      :subj {:human true}
                      :obj {:human true}}}})))
+
+(def essere-adjective
+  (let [gender (ref :top)
+        number (ref :top)]
+    (unify
+     transitive-but-with-adjective-instead-of-noun
+     essere-common
+     {:synsem {:cat :verb
+               :subcat {:1 {:cat :noun
+                            :def :demonstrativo
+                          :agr {:gender gender
+                                :number number}}
+                      :2 {:cat :adjective
+                          :agr {:gender gender
+                                :number number}}}
+               :sem {:pred :essere
+                     :subj {:human true}}}})))  ;; TODO: overly-specific.
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
@@ -1304,6 +1341,16 @@
                                     :3plur "can"}}}
     :synsem {:sem {:pred :potere
                    :subj {:animate true}}}}))
+
+(def recordare
+  (unify
+   transitive
+   {:italian {:infinitive "ricordare"}
+    :english {:infinitive "to remember"}
+    :synsem {:essere false
+             :sem {:subj {:human true}
+                   :obj {:legible true}
+                   :pred :recordare}}}))
 
 (def ridere
   (unify
@@ -1619,6 +1666,13 @@
          :italian "a"
          :english "to"}
 
+        {:synsem {:cat :prep
+                  :sem {:pred :di}
+                  :subcat {:1 {:cat :noun
+                               :sem {:human true}}}}
+         :italian "di"
+         :english "than"}
+
 ;        {:synsem {:cat :prep
 ;                  :sem {:pred :in}
 ;                  :subcat {:1 {:cat :noun
@@ -1631,7 +1685,15 @@
 ;         :english "in"}
         ))
 
-;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc).
+(def intensifiers
+  (list
+   {:synsem {:cat :intensifier}
+    :italian "più"
+    :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
+    }))
+
+  ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc)
+  ;; (this is being accomplished below: see TODO below about "copy all the below adjectives.."
 (def adjectives
   (let [adjective (ref :adjective)
         adj {:synsem {:cat adjective
@@ -1654,7 +1716,15 @@
                   {:synsem {:sem {:pred :gentile
                                   :mod {:human true}}} ;; sono gli umani possono essere gentile.
                    :italian {:italian "gentile"}
-                   :english {:english "kind"}}))
+                   :english {:english "kind"}}
+
+                  ;; comparative:
+                  {:synsem {:sem {:pred :ricca
+                                  :mod {:human true}}
+                            :subcat {:1 {:cat :prep
+                                         :sem {:pred :di}}}}
+                   :italian "ricca"
+                   :english "rich"}))
 
             ;; TODO: copy all the below adjectives into the simpler list shown above.
             (list
@@ -1779,7 +1849,7 @@
 (defn en [english]
   (lookup {:english english}))
 
-(def lexicon (concat adjectives determiners nouns proper-nouns prepositions
+(def lexicon (concat adjectives intensifiers determiners nouns proper-nouns prepositions
                      nominative-pronouns accusative-pronouns
                      verbs))
 
