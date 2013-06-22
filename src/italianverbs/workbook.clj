@@ -78,7 +78,7 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (random-sentence))")]
+          "(fo (take 1 (repeatedly #(random-sentence))))")]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
