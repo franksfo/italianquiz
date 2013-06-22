@@ -643,6 +643,15 @@
              :english {:english "Naples"}})
 
      (unify proper-noun
+            {:synsem {:sem {:pred :paola
+                            :human true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :fem}}
+             :italian "Paola"
+             :english "Paola"})
+
+     (unify proper-noun
             {:synsem {:sem {:pred :roma
                             :buyable false
                             :artifact true ;; but wasn't built in a day.
