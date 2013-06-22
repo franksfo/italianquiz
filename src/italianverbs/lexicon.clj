@@ -619,9 +619,10 @@
 
      (unify proper-noun
             {:synsem {:sem {:pred :giorgio
-                            :gender :masculine
                             :human true}
-                      :number :sing}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
              :italian "Giorgio"
              :english "Giorgio"})
 
