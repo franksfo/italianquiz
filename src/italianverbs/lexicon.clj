@@ -1792,6 +1792,35 @@
                      :cat noun
                      :case disj}}
 
+          ;; non human masculine and feminine forms
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :3rd
+                          :gender :masc
+                          :number :plur}
+                    :sem {:human false
+                          :pred :essi}
+                    :subcat '()}
+           :english "them"
+           :italian {:italian "essi"
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :3rd
+                          :gender :fem
+                          :number :plur}
+                    :sem {:human false
+                          :pred :essi}
+                    :subcat '()}
+           :english "them"
+           :italian {:italian "esse"
+                     :cat noun
+                     :case disj}}
+
           )))
 
 (def prepositions
