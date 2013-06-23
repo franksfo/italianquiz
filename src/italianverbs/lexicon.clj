@@ -1922,12 +1922,12 @@
              (unify
               {:synsem {:sem sem}}
               {:synsem {:sem sem}}
-              {:synsem {:sem {:pred :ricca
+              {:synsem {:sem {:pred :ricco
                               :mod {:human true}}
                         :subcat {:1 {:cat :prep
                                      :sem {:pred :di}}}}
-               :italian "ricca"
-               :english "rich"}))))
+               :italian {:italian "ricco"}
+               :english {:english "rich"}}))))
 
      ;; old-style
      ;; TODO: copy all the below adjectives into the simpler list shown above.
