@@ -613,6 +613,7 @@
   (let [proper-noun
         {:synsem {:cat :noun
                   :pronoun false
+                  :propernoun true
                   :agr {:person :3rd}
                   :subcat '()}}]
     (list
@@ -1832,9 +1833,72 @@
                   :sem {:pred :di
                         :comparative true}
                   :subcat {:1 {:cat :noun
+                               :propernoun true
+                               :sem {:human true}}}}
+         :italian "di"
+         :english "than"}
+
+        {:synsem {:cat :prep
+                  :sem {:pred :di
+                        :comparative true}
+                  :subcat {:1 {:cat :noun
+                               :pronoun true
                                :agr {:case :disj} ;; means: use disjunctive pronouns as complements of "di"
                                :sem {:human true}}}}
          :italian "di"
+         :english "than"}
+
+        {:synsem {:cat :prep
+                  :sem {:pred :di
+                        :comparative true}
+                  :subcat {:1 {:cat :noun
+                               :pronoun false
+                               :propernoun false
+                               :agr {:gender :masc
+                                     :number :sing
+                                     :case :disj} ;; means: use disjunctive pronouns as complements of "di"
+                               :sem {:human true}}}}
+         :italian "di il (del)"
+         :english "than"}
+
+        {:synsem {:cat :prep
+                  :sem {:pred :di
+                        :comparative true}
+                  :subcat {:1 {:cat :noun
+                               :pronoun false
+                               :propernoun false
+                               :agr {:gender :fem
+                                     :number :sing
+                                     :case :disj} ;; means: use disjunctive pronouns as complements of "di"
+                               :sem {:human true}}}}
+         :italian "di la (della)"
+         :english "than"}
+
+
+        {:synsem {:cat :prep
+                  :sem {:pred :di
+                        :comparative true}
+                  :subcat {:1 {:cat :noun
+                               :pronoun false
+                               :propernoun false
+                               :agr {:gender :masc
+                                     :number :plur
+                                     :case :disj} ;; means: use disjunctive pronouns as complements of "di"
+                               :sem {:human true}}}}
+         :italian "di i (dei)"
+         :english "than"}
+
+        {:synsem {:cat :prep
+                  :sem {:pred :di
+                        :comparative true}
+                  :subcat {:1 {:cat :noun
+                               :pronoun false
+                               :propernoun false
+                               :agr {:gender :fem
+                                     :number :plur
+                                     :case :disj} ;; means: use disjunctive pronouns as complements of "di"
+                               :sem {:human true}}}}
+         :italian "di le (delle)"
          :english "than"}
 
 ;        {:synsem {:cat :prep
