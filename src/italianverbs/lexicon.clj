@@ -1563,6 +1563,7 @@
 
 (def accusative-pronouns
   (let [acc (ref :acc)
+        disj (ref :disj)
         noun (ref :noun)]
     (list {:synsem {:cat noun
                     :pronoun true
@@ -1576,6 +1577,32 @@
                      :pronoun true
                      :cat noun
                      :case acc}}
+
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :1st
+                          :number :sing}
+                    :sem (unify human {:pred :io})
+                    :subcat '()}
+           :english "me"
+           :italian {:italian "me"
+                     :pronoun true
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case acc
+                          :person :2nd
+                          :number :sing}
+                    :sem (unify human {:pred :tu})
+                    :subcat '()}
+           :english "you"
+           :italian {:italian "te"
+                     :cat noun
+                     :case disj}}
 
           {:synsem {:cat noun
                     :pronoun true
@@ -1670,6 +1697,128 @@
 
           )))
 
+(def disjunctive-pronouns
+  (let [disj (ref :disj)
+        noun (ref :noun)]
+
+    (list {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :1st
+                          :number :sing}
+                    :sem (unify human {:pred :io})
+                    :subcat '()}
+           :english "me"
+           :italian {:italian "me"
+                     :pronoun true
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :2nd
+                          :polite false
+                          :number :sing}
+                    :sem (unify human {:pred :tu})
+                    :subcat '()}
+           :english "you"
+           :italian {:italian "te"
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :gender :masc
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify human {:pred :lui})
+                    :subcat '()}
+           :english "him"
+           :italian {:italian "lui"
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :gender :fem
+                          :person :2nd
+                          :polite true
+                          :number :sing}
+                    :sem (unify human {:pred :lei})
+                    :subcat '()}
+           :english "her"
+           :italian {:italian "lei"
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :gender :fem
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify human {:pred :lei})
+                    :subcat '()}
+           :english "her"
+           :italian {:italian "lei"
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify {:human false} {:pred :esso})
+                    :subcat '()}
+           :english "it"
+           :italian {:italian "esso"
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :1st
+                          :number :plur}
+                    :sem (unify human {:pred :noi})
+                    :subcat '()}
+           :english "us"
+           :italian {:italian "noi"
+                     :pronoun true
+                     :cat noun
+                     :case disj}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :2nd
+                          :number :plur}
+                    :sem (unify human {:pred :voi})
+                    :subcat '()}
+           :english "you all"
+           :italian {:italian "voi"
+                     :cat noun
+                     :case disj}}
+
+          ;; note: no gender: "loro" in either case of masc or fem.
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case disj
+                          :person :3rd
+                          :number :plur}
+                    :sem (unify human {:pred :lui})
+                    :subcat '()}
+           :english "them"
+           :italian {:italian "loro"
+                     :cat noun
+                     :case disj}}
+
+          )))
+
 (def prepositions
   (list {:synsem {:cat :prep
                   :sem {:pred :to
@@ -1683,7 +1832,7 @@
                   :sem {:pred :di
                         :comparative true}
                   :subcat {:1 {:cat :noun
-                               :agr {:case {:not :nom}}
+                               :agr {:case :disj} ;; means: use disjunctive pronouns as complements of "di"
                                :sem {:human true}}}}
          :italian "di"
          :english "than"}
@@ -1884,7 +2033,7 @@
   (lookup {:english english}))
 
 (def lexicon (concat adjectives intensifiers determiners nouns proper-nouns prepositions
-                     nominative-pronouns accusative-pronouns
+                     nominative-pronouns accusative-pronouns disjunctive-pronouns
                      verbs))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
