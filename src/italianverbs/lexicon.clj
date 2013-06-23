@@ -1579,32 +1579,6 @@
                      :cat noun
                      :case acc}}
 
-
-          {:synsem {:cat noun
-                    :pronoun true
-                    :agr {:case disj
-                          :person :1st
-                          :number :sing}
-                    :sem (unify human {:pred :io})
-                    :subcat '()}
-           :english "me"
-           :italian {:italian "me"
-                     :pronoun true
-                     :cat noun
-                     :case disj}}
-
-          {:synsem {:cat noun
-                    :pronoun true
-                    :agr {:case acc
-                          :person :2nd
-                          :number :sing}
-                    :sem (unify human {:pred :tu})
-                    :subcat '()}
-           :english "you"
-           :italian {:italian "te"
-                     :cat noun
-                     :case disj}}
-
           {:synsem {:cat noun
                     :pronoun true
                     :agr {:case acc
