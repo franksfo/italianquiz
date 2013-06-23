@@ -399,6 +399,7 @@
             :italian {:italian "donna"}
             :english {:irregular {:plur "women"}
                       :english "woman"}})
+
     (unify agreement
            common-noun
            countable-noun
@@ -434,6 +435,15 @@
                            :artifact true}}
             :italian {:italian "libro"}
             :english {:english "book"}})
+
+    (unify agreement
+           common-noun
+           countable-noun
+           feminine
+           {:synsem {:sem human}}
+           {:synsem {:sem {:pred :madre}}
+            :italian "madre"
+            :english "mother"})
 
      ;; inherently plural.
     (unify agreement
