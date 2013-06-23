@@ -511,6 +511,30 @@
         b (get-italian-1 b)]
     (cond
 
+     (and (string? a)
+          (= a "di")
+          (string? b)
+          (re-find #"^il (mio|tio|suo|nostro|vostro|loro)\b" b))
+     (str a " " (string/replace b #"^il " ""))
+
+     (and (string? a)
+          (= a "di")
+          (string? b)
+          (re-find #"^la (mia|tia|sua|nostra|vostra|loro)\b" b))
+     (str a " " (string/replace b #"^la " ""))
+
+     (and (string? a)
+          (= a "di")
+          (string? b)
+          (re-find #"^i (miei|tuoi|suoi|nostri|vostri|loro)\b" b))
+     (str a " " (string/replace b #"^i " ""))
+
+     (and (string? a)
+          (= a "di")
+          (string? b)
+          (re-find #"^le (mie|tue|sue|nostre|vostre|loro)\b" b))
+     (str a " " (string/replace b #"^le " ""))
+
      (and (= a "di i")
           (string? b)
           (re-find #"^[aeiou]" b))
