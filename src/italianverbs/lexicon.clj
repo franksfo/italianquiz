@@ -971,7 +971,7 @@
                      :subcat {:2 {:sem obj-sem
                                   :subcat '()
                                   :cat :noun
-                                  :agr {:case {:not :nom}}}}}})))
+                                  :agr {:case :acc}}}}})))
 
 (def transitive-but-with-intensifier-instead-of-noun
   (unify subjective
