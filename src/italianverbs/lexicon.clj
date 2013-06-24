@@ -984,6 +984,18 @@
                                   :cat :noun
                                   :agr {:case :acc}}}}})))
 
+(def transitive-but-with-adjective-instead-of-noun
+  (unify subjective
+         (let [obj-sem (ref :top)
+               infl (ref :top)]
+           {:english {:infl infl}
+            :italian {:infl infl}
+            :synsem {:sem {:obj obj-sem}
+                     :infl infl
+                     :subcat {:2 {:sem obj-sem
+                                  :subcat '()
+                                  :cat :adjective}}}})))
+
 (def transitive-but-with-intensifier-instead-of-noun
   (unify subjective
          (let [obj-sem (ref :top)
@@ -1204,6 +1216,23 @@
    essere-aux
    avere-aux))
 
+(def essere-adjective
+  (let [gender (ref :top)
+        number (ref :top)]
+    (unify
+     transitive-but-with-adjective-instead-of-noun
+     essere-common
+     {:synsem {:cat :verb
+               :subcat {:1 {:cat :noun
+                            :def :demonstrativo
+                          :agr {:gender gender
+                                :number number}}
+                      :2 {:cat :adjective
+                          :agr {:gender gender
+                                :number number}}}
+               :sem {:pred :essere
+                     :subj {:human true}}}})))  ;; TODO: overly-specific.
+
 (def essere-copula
   (let [gender (ref :top)
         number (ref :top)]
@@ -1224,7 +1253,7 @@
                      :obj {:human true}}}})))
 
 ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
-(def essere-adjective
+(def essere-intensifier
   (let [gender (ref :top)
         number (ref :top)]
     (unify
@@ -1475,6 +1504,7 @@
    avere
    bevere
    comprare
+   essere-adjective
    essere-copula
    essere-adjective
    fare-make
@@ -1917,11 +1947,16 @@
             :italian {:italian "gentile"}
             :english {:english "kind"}}
 
+           ;; non-comparative
+           (unify
+            {:synsem {:sem {:pred :ricco
+                            :mod {:human true}}}
+             :italian {:italian "ricco"}
+             :english {:english "rich"}})
+
            ;; comparative:
            (let [sem (ref {:comparative true})]
              (unify
-              {:synsem {:sem sem}}
-              {:synsem {:sem sem}}
               {:synsem {:sem {:pred :ricco
                               :mod {:human true}}
                         :subcat {:1 {:cat :prep
