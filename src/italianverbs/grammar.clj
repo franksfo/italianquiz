@@ -122,17 +122,16 @@
                {:head {:synsem {:cat :verb}}}
 ;;; TODO: commenting out the following for now; why is it here in the first place?
 ;               {:comp {:synsem {:pronoun {:not true}}}}
-               {:extend {;:a {:head 'lexicon
-                         ;    :comp 'np}
-                         ;:b {:head 'lexicon
-                         ;    :comp 'prep-phrase}
-                         ;:c {:head 'lexicon
-                         ;    :comp 'vp-infinitive-transitive}
-                         ;:d {:head 'lexicon
-                         ;    :comp 'lexicon}
+               {:extend {:a {:head 'lexicon
+                             :comp 'np}
+                         :b {:head 'lexicon
+                             :comp 'prep-phrase}
+                         :c {:head 'lexicon
+                             :comp 'vp-infinitive-transitive}
+                         :d {:head 'lexicon
+                             :comp 'lexicon}
                          :e {:head 'lexicon
-                             :comp 'intensifier-phrase}
-                         }}))
+                             :comp 'intensifier-phrase}}}))
 
   (def vp-pron
     (fs/merge
@@ -157,9 +156,8 @@
     (fs/merge vp
               {:comment "vp[present] &#x2192; head comp"
                :comment-plaintext "vp[present] -> head comp"
-;               :extend {:f {:head 'lexicon
-;                            :comp 'vp-past}
-               }))
+               :extend {:f {:head 'lexicon
+                            :comp 'vp-past}}}))
 
   (def vp-past
     (fs/merge vp
