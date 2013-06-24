@@ -1865,7 +1865,7 @@
 
 (def prepositions
   (list {:synsem {:cat :prep
-                  :sem {:pred :to
+                  :sem {:pred :a
                         :comparative false}
                   :subcat {:1 {:cat :noun
                                :sem {:place true}}}}
