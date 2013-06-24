@@ -442,8 +442,8 @@
            feminine
            {:synsem {:sem human}}
            {:synsem {:sem {:pred :madre}}
-            :italian "madre"
-            :english "mother"})
+            :italian {:italian "madre"}
+            :english {:english "mother"}})
 
      ;; inherently plural.
     (unify agreement
