@@ -417,10 +417,23 @@
     (unify agreement
            common-noun
            countable-noun
+           feminine
+           {:synsem {:sem {:legible true
+                           :artifact true
+                           :buyable true
+                           :speakable false
+                           :pred :giornale}}}
+           {:italian {:italian "giornale"}
+            :english {:english "newspaper"}})
+
+    (unify agreement
+           common-noun
+           countable-noun
            masculine
            {:synsem {:sem (unify animal {:pred :gatto :pet true})}
             :italian {:italian "gatto"}
             :english {:english "cat"}})
+
 
     (unify agreement
            common-noun
