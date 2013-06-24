@@ -1038,7 +1038,8 @@
   (unify
    subjective
    andare
-   (let [place-sem (ref {:place true})]
+   (let [place-sem (ref {:place true
+                         :pred :a})]
      {:synsem {:sem {:location place-sem}
                :subcat {:2 {:sem place-sem
                             :subcat '()
