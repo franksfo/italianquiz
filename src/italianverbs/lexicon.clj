@@ -1225,12 +1225,11 @@
      essere-common
      {:synsem {:cat :verb
                :subcat {:1 {:cat :noun
-                            :def :demonstrativo
-                          :agr {:gender gender
-                                :number number}}
-                      :2 {:cat :adjective
-                          :agr {:gender gender
-                                :number number}}}
+                            :agr {:gender gender
+                                  :number number}}
+                        :2 {:cat :adjective
+                            :agr {:gender gender
+                                  :number number}}}
                :sem {:pred :essere
                      :subj {:human true}}}})))  ;; TODO: overly-specific.
 
@@ -1507,7 +1506,7 @@
    comprare
    essere-adjective
    essere-copula
-   essere-adjective
+   essere-intensifier
    fare-make
    leggere
    mangiare
@@ -1923,9 +1922,15 @@
   ;; (this is being accomplished below: see TODO below about "copy all the below adjectives.."
 (def adjectives
   (let [adjective (ref :adjective)
+        gender (ref :top)
+        number (ref :top)
         adj {:synsem {:cat adjective
+                      :agr {:gender gender
+                            :number number}
                       :sem {:mod :top}}
-             :italian {:cat adjective}
+             :italian {:cat adjective
+                       :agr {:number number
+                             :gender gender}}
              :english {:cat adjective}}]
     (concat
 
