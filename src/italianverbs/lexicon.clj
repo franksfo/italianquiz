@@ -773,13 +773,6 @@
 
    {:synsem {:cat :det
              :def :possessive
-             :gender :fem
-             :number :sing}
-    :italian "il tua"
-    :english "your"}
-
-   {:synsem {:cat :det
-             :def :possessive
              :gender :masc
              :number :plur}
     :italian "i tuoi"
