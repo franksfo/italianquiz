@@ -709,3 +709,5 @@
                       config/futuro-semplice))]
     verb-future))
 
+(defn plain [expr]
+  {:plain expr})
