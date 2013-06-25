@@ -712,6 +712,8 @@
         (not (nil? (fs/get-in word '(:agr :person)))))
    (let [infinitive (fs/get-in word '(:infinitive))
          stem (string/replace infinitive #"^to " "")
+         to-final (re-find #" to$" stem) ;; occurs in e.g. "have to": in imperfect becomes "was having to"
+         stem (string/replace stem #" to$" "")
          stem-minus-one (nth (re-find #"(.*).$" stem) 1)
          penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
          penultimate-stem-char-is-vowel (or (= penultimate-stem-char "a")
@@ -731,9 +733,9 @@
         (and (= :sing (fs/get-in word '(:agr :number)))
              (or (= :1st (fs/get-in word '(:agr :person)))
                  (= :3rd (fs/get-in word '(:agr :person)))))
-        (str "was " stem "ing")
+        (str "was " stem "ing" (if to-final to-final ""))
         true
-        (str "were " stem "ing"))))
+        (str "were " stem "ing" (if to-final to-final "")))))
 
    ;; irregular past: one form for all persons/number
    (and (= :past (fs/get-in word '(:infl)))

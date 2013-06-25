@@ -403,3 +403,45 @@
 
 
 ))
+
+(deftest leggeva
+  (is (= "leggeva"
+         (get-italian-1
+          {:irregular {:passato "letto"}
+           :infl :imperfetto
+           :essere false
+           :agr {:person :3rd
+                 :case {:not :acc}
+                 :number :sing}
+           :infinitive "leggere"}))))
+
+(deftest was-reading
+  (is (= "was reading"
+         (get-english-1
+          {:irregular {:past "read"}
+           :infl :imperfetto
+           :agr {:person :3rd
+                 :case {:not :acc}
+                 :number :sing}
+           :infinitive "to read"}))))
+
+(deftest having-to
+  (is (= "was having to"
+         (get-english-1
+          {:irregular {:past "had to"
+                       :present {:2plur "have to"
+                                 :3sing "has to"
+                                 :2sing "have to"
+                                 :1sing "have to"
+                                 :3plur "have to"
+                                 :1plur "have to"}}
+           :infl :imperfetto
+           :agr {:person :3rd
+                 :case {:not :acc}
+                 :number :sing}
+           :modal true
+           :infinitive "to have to"}))))
+
+
+
+

@@ -1388,6 +1388,7 @@
   (unify
    subjective
    modal
+   {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
    {:italian {:infinitive "potere"
               :irregular {:present {:1sing "posso"
                                     :2sing "puoi"

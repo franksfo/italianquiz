@@ -252,7 +252,10 @@
 
     (def s-imperfetto
       (fs/unifyc rule-base
+                 italian-head-last
+                 english-head-last
                  {:comment "sentence[imperfetto]"
+                  :comment-plaintext "s[imperfetto] -> .."
                   :synsem {:infl :imperfetto}}))))
 
 
