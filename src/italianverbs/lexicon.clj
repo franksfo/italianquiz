@@ -838,9 +838,9 @@
    {:synsem {:cat :det
              :def :possessive
              :gender :fem
-             :number :sing}
+             :number :plur}
     :italian "la vostra"
-    :english "your"}
+    :english "your all's"}
 
    {:synsem {:cat :det
              :def :def
