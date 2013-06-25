@@ -156,6 +156,9 @@
     (fs/merge vp
               {:comment "vp[present] &#x2192; head comp"
                :comment-plaintext "vp[present] -> head comp"
+               :head {:synsem {:infl :present}}
+               ;; force the auxiliary verb (essere/avere) to be present-tense:
+               ;; non-present is possible too, but deferring that till later.
                :extend {:f {:head 'lexicon
                             :comp 'vp-past}}}))
 
