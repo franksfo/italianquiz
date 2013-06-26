@@ -162,6 +162,20 @@
                :extend {:f {:head 'lexicon
                             :comp 'vp-past}}}))
 
+
+  (def vp-imperfetto
+    ;; add to vp some additional expansions for vp-present:
+    (fs/merge vp
+              {:comment "vp[imperfetto] &#x2192; head comp"
+               :comment-plaintext "vp[imperfetto] -> head comp"
+               :head {:synsem {:infl :imperfetto}}
+               ;; force the auxiliary verb (essere/avere) to be present-tense:
+               ;; non-present is possible too, but deferring that till later.
+               :extend {:f {:head 'lexicon
+                            :comp 'lexicon}
+                        :g {:head 'lexicon
+                            :comp 'np}}}))
+
   (def vp-past
     (fs/merge vp
               {:comment "vp[past] &#x2192; head comp"
@@ -259,8 +273,11 @@
                  english-head-last
                  {:comment "sentence[imperfetto]"
                   :comment-plaintext "s[imperfetto] -> .."
-                  :synsem {:infl :imperfetto}}))))
-
+                  :synsem {:infl :imperfetto}
+                  :extend {:g {:comp 'lexicon
+                               :head 'vp-imperfetto}
+                           :h {:comp 'np
+                               :head 'vp-imperfetto}}}))))
 
 (def adj-phrase
   (unify head-principle
