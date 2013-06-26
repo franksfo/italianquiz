@@ -153,24 +153,24 @@
 
   (def vp-present
     ;; add to vp some additional expansions for vp-present:
-    (fs/merge vp
+    (fs/merge (fs/copy vp)
               {:comment "vp[present] &#x2192; head comp"
                :comment-plaintext "vp[present] -> head comp"
-               :head {:synsem {:infl :present}}
-               ;; force the auxiliary verb (essere/avere) to be present-tense:
+               ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
                ;; non-present is possible too, but deferring that till later.
+               :head {:synsem {:infl :present}}
                :extend {:f {:head 'lexicon
                             :comp 'vp-past}}}))
 
 
   (def vp-imperfetto
-    ;; add to vp some additional expansions for vp-present:
-    (fs/merge vp
+    (fs/merge (fs/copy vp)
               {:comment "vp[imperfetto] &#x2192; head comp"
                :comment-plaintext "vp[imperfetto] -> head comp"
                :head {:synsem {:infl :imperfetto}}
                ;; force the auxiliary verb (essere/avere) to be present-tense:
                ;; non-present is possible too, but deferring that till later.
+               ;; add to vp some additional expansions for vp-imperfetto:
                :extend {:f {:head 'lexicon
                             :comp 'lexicon}
                         :g {:head 'lexicon
