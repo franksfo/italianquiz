@@ -275,23 +275,10 @@
    :else ; both parent and child are non-lists.
    ;; First, check to make sure complement matches head's (:synsem :sem) value, if it exists, otherwise, fail.
    (let [
-         ;; "add-child-where": find where to attach child (:1 or :2), depending on value of current left child (:1)'s :italian.
-         ;; if (:1 :italian) is nil, the parent has no child at :1 yet, so attach new child there at :1.
-         ;; Otherwise, a :child exists at :1, so attach new child at :2.
+         ;; "add-child-where": find where to attach child (:head or :comp)
          where-child (add-child-where parent)
 
-         ;; head-is-where no longer used with new-style constituency semantics.
-         ;; so with new-style, head-is-where is not used.
-         head-is-where (if (= (unify/get-in parent '(:head))
-                              (unify/get-in parent '(:1)))
-                         :1
-                         :2)
-
-         child-is-head
-         (if (= where-child :head) ;; new-style
-           true
-           (if (= where-child :comp) ;; new-style
-             (= head-is-where where-child))) ;; old-style
+         child-is-head (= where-child :head)
 
          comp (if child-is-head
                 ;; child is head, so far complement, return parent's version of complement.
@@ -307,7 +294,6 @@
 
          do-log
          (do
-           (log/debug (str "head-is-where: " (unify/get-in parent '(:comment-plaintext)) ":" head-is-where))
            (log/debug (str "child-is-head: " (unify/get-in parent '(:comment-plaintext)) ":" child-is-head)))
 
          sem-filter (unify/get-in head '(:synsem :subcat :2 :sem)) ;; :1 VERSUS :2 : make this more explicit about what we are searching for.
@@ -333,7 +319,7 @@
                                         {}))
                                     child)})]
          (if (unify/fail? unified)
-           (log/debug "Failed attempt to add child to parent: " (unify/get-in parent '(:comment))
+           (log/debug "Failed attempt to add child:" (fo child) " to parent: " (unify/get-in parent '(:comment))
                      " at: " where-child))
          unified))))))
 
