@@ -434,6 +434,13 @@
             :italian {:italian "gatto"}
             :english {:english "cat"}})
 
+    (unify agreement
+           common-noun
+           countable-noun
+           masculine
+           {:synsem {:sem (unify animal {:pred :granchi :pet false})}
+            :italian {:italian "granchio"}
+            :english {:english "crab"}})
 
     (unify agreement
            common-noun
