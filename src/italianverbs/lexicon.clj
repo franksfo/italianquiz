@@ -439,7 +439,8 @@
            countable-noun
            masculine
            {:synsem {:sem (unify animal {:pred :granchi :pet false})}
-            :italian {:italian "granchio"}
+            :italian {:italian "granchio"
+                      :irregular {:plur "granchi"}}
             :english {:english "crab"}})
 
     (unify agreement
