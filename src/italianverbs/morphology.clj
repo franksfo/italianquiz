@@ -1017,7 +1017,7 @@
       (str english "s"))))
 
 (defn italian-article [det noun]
-  "do italian det/noun morphology e.g. [def :def] + studente => lo studente" 
+  "do italian det/noun morphology e.g. [def :def] + studente => lo studente"
   ;; TODO: return a feature structure holding the current return value in :italian.
   (let [det-italian (get det :italian)
         det-noun (get noun :italian)]
