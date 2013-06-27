@@ -1854,6 +1854,7 @@
                           :gender :masc
                           :number :plur}
                     :sem {:human false
+                          :place false
                           :pred :essi}
                     :subcat '()}
            :english "them"
