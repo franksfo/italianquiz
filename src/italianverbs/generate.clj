@@ -466,6 +466,7 @@
                     " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (unify/get-in parent '(:comment-plaintext))))
     (if (seq? head)
       ;; a sequence of lexical items: shuffle and filter by whether they fit the :head of this rule.
+      ;; TODO: pre-compile set of candidates heads for each parent.
       (lazy-head-filter parent expansion sem-impl (shuffle head))
       ;; else: treat as rule: should generate at this point.
       (list (lexfn/unify (unify/get-in parent '(:head)) head)))))
