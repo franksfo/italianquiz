@@ -790,7 +790,7 @@
              :gender :masc
              :number :sing}
     :italian "il vostro"
-    :english "your all's"}
+    :english "your (pl) "}
 
    {:synsem {:cat :det
              :def :def
@@ -847,7 +847,7 @@
              :gender :fem
              :number :plur}
     :italian "la vostra"
-    :english "your all's"}
+    :english "your (pl)"}
 
    {:synsem {:cat :det
              :def :def
