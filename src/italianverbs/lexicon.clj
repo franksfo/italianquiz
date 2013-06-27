@@ -1185,6 +1185,12 @@
                                     :2plur "siete"
                                     :3plur "sono"}
                           :passato "stato"
+                          :imperfetto {:1sing "ero"
+                                       :2sing "eri"
+                                       :3sing "era"
+                                       :1plur "eravamo"
+                                       :2plur "eravate"
+                                       :3plur "erano"}
                           :futuro {:1sing "sarò"
                                    :2sing "sarai"
                                    :3sing "sarà"
