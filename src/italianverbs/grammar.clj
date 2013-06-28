@@ -167,7 +167,8 @@
     (fs/merge (fs/copy vp)
               {:comment "vp[imperfetto] &#x2192; head comp"
                :comment-plaintext "vp[imperfetto] -> head comp"
-               :head {:synsem {:infl :imperfetto}}
+               :head {:synsem {:infl :imperfetto
+                               :sem {:activity true}}}
                ;; force the auxiliary verb (essere/avere) to be present-tense:
                ;; non-present is possible too, but deferring that till later.
                ;; add to vp some additional expansions for vp-imperfetto:
@@ -273,7 +274,8 @@
                  english-head-last
                  {:comment "sentence[imperfetto]"
                   :comment-plaintext "s[imperfetto] -> .."
-                  :synsem {:infl :imperfetto}
+                  :synsem {:infl :imperfetto
+                           :sem {:activity true}}
                   :extend {:g {:comp 'lexicon
                                :head 'vp-imperfetto}
                            :h {:comp 'np

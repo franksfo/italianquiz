@@ -353,7 +353,7 @@
                            :consumable false
                            :clothing true}}}
            {:italian {:italian "calzoni"}
-            :english {:english "trousers"}}
+            :english {:english "trouser"}}
            {:synsem {:subcat {:1 {:cat :det
                                   :number :plur
                                   :def :def}}}})
@@ -1113,7 +1113,8 @@
                             :essere false
                             :subcat {:1 subject
                                      :2 '()}
-                            :sem {:pred v-past-pred}
+                            :sem {:pred v-past-pred
+                                  :activity false}
                             :infl :past}}
                :sem {:pred v-past-pred}
                }})))
@@ -1171,6 +1172,7 @@
                                     :2plur "have to"
                                     :3plur "have to"}}}
     :synsem {:sem {:pred :dovere
+                   :activity false
                    :subj {:human true} ;; TODO: relax this constraint: non-human things can be subject of dovere.
                    }}}))
 
@@ -1251,6 +1253,7 @@
                             :agr {:gender gender
                                   :number number}}}
                :sem {:pred :essere
+                     :activity false
                      :subj {:human true}}}})))  ;; TODO: overly-specific.
 
 (def essere-copula
@@ -1412,6 +1415,7 @@
                                     :2plur "can"
                                     :3plur "can"}}}
     :synsem {:sem {:pred :potere
+                   :activity false
                    :subj {:animate true}}}}))
 
 (def recordare
@@ -1509,6 +1513,7 @@
                           :past "wanted to"}}
     :synsem {:essere false
              :sem {:pred :volere
+                   :activity false
                    :subj {:animate true}}}}))
 
 (def intransitive-verbs
@@ -1808,7 +1813,9 @@
                     :agr {:case disj
                           :person :3rd
                           :number :sing}
-                    :sem (unify {:human false} {:pred :esso})
+                    :sem (unify {:human false
+                                 :place false
+                                 :pred :esso})
                     :subcat '()}
            :english "it"
            :italian {:italian "esso"
@@ -1876,6 +1883,7 @@
                           :gender :fem
                           :number :plur}
                     :sem {:human false
+                          :place false
                           :pred :essi}
                     :subcat '()}
            :english "them"
@@ -2059,6 +2067,8 @@
 
              {:synsem {:cat :adjective
                        :sem {:pred :robusto
+                             :point false
+                             :activity false
                              :mod {:animate true}}}
               :italian {:italian "robusto"
                         :cat :adjective}
