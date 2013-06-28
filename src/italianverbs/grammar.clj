@@ -178,10 +178,13 @@
                             :comp 'np}}}))
 
   (def vp-past
-    (fs/merge vp
+    (fs/merge (fs/copy vp)
               {:comment "vp[past] &#x2192; head comp"
                :comment-plaintext "vp[past] -> head comp"
-               :infl :past}))
+               :synsem {:infl :past}}))
+               ;; debug only: normally this would be in
+;               :extend {:x {:head 'lexicon
+;                            :comp 'lexicon}}}))
 
   (def vp-infinitive-transitive
     (fs/unifyc head-principle
