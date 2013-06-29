@@ -1084,6 +1084,7 @@
    transitive
    avere-common
    {:synsem {:sem {:pred :avere
+                   :activity false
                    :subj {:human true}
                    :obj {:buyable true}}}}))
 
@@ -1108,13 +1109,13 @@
      aux-type
      subjective
      avere-common
-     {:synsem {:subcat {:1 subject
+     {:synsem {:infl :present
+               :subcat {:1 subject
                         :2 {:cat :verb
                             :essere false
                             :subcat {:1 subject
                                      :2 '()}
-                            :sem {:pred v-past-pred
-                                  :activity false}
+                            :sem {:pred v-past-pred}
                             :infl :past}}
                :sem {:pred v-past-pred}
                }})))
@@ -1223,11 +1224,13 @@
       aux-type
       subjective
       essere-common
-      {:synsem {:subcat {:1 subject
+      {:synsem {:infl :present
+                :subcat {:1 subject
                          :2 {:cat :verb
                              :essere true
                              :subcat {:1 subject :2 '()}
-                             :sem {:pred v-past-pred}
+                             :sem {:pred v-past-pred
+                                   :activity false}
                              :infl :past}}
                 :sem {:pred v-past-pred}
                 :essere true}})
@@ -1272,6 +1275,7 @@
                             :agr {:gender gender
                                   :number number}}}
                :sem {:pred :essere
+                     :activity false
                      :subj {:human true}
                      :obj {:human true}}}})))
 
@@ -1491,6 +1495,9 @@
               :irregular {:past "seen"}}
     :synsem {:essere false
              :sem {:pred :vedere
+                   :activity false ;; "seeing" is not a continuous act but rather an instantaneous one.
+                   ;; "watching" is the continuous counterpart of "seeing"
+                   ;; TODO: check against Italian usage
                    :subj {:animate true}}}}))
 
 (def vivere
@@ -1675,9 +1682,25 @@
                           :gender :masc
                           :person :3rd
                           :number :sing}
-                    :sem (unify human {:pred :lui})
+                    :sem (unify human {:pred :lo})
                     :subcat '()}
            :english "him"
+           :italian {:italian "lo"
+                     :pronoun true
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case acc
+                          :gender :masc
+                          :person :3rd
+                          :number :sing}
+                    :sem {:human false
+                          :pred :lo}
+                    :subcat '()}
+           :english {:english "it"
+                     :note " (&#x2642;)"}
            :italian {:italian "lo"
                      :pronoun true
                      :cat noun
@@ -1692,6 +1715,22 @@
                     :sem (unify human {:pred :lei})
                     :subcat '()}
            :english "her"
+           :italian {:italian "la"
+                     :cat noun
+                     :case acc}}
+
+          {:synsem {:cat noun
+                    :pronoun true
+                    :agr {:case acc
+                          :gender :fem
+                          :person :3rd
+                          :number :sing}
+                    :sem {:human false
+                          :place false ;; "they go to it (loro vanna a la)" sounds strange
+                          :pred :lei}
+                    :subcat '()}
+           :english {:english "it"
+                     :note " (&#x2640;)"} ;; unicode female symbol
            :italian {:italian "la"
                      :cat noun
                      :case acc}}
