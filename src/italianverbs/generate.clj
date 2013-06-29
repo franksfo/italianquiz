@@ -301,14 +301,13 @@
          do-match
          (if (and (not (nil? sem-filter))
                   (not (nil? comp-sem)))
-           (unify/match {:synsem (unify/copy sem-filter)}
-                        (unify/copy {:synsem (unify/copy comp-sem)})))]
+           (unify/unify {:synsem (unify/copy sem-filter)}
+                  (unify/copy {:synsem (unify/copy comp-sem)})))]
      ;; wrap the single result in a list so that it can be consumed by (over).
      (list
      (if (= do-match :fail)
        (do
-         (log/debug (str "sem-filter: " sem-filter))
-         (log/debug "failed match.")
+         (log/debug (str "failed match: sem-filter: " sem-filter " and comp-sem: " comp-sem))
          :fail)
        (let [unified (lexfn/unify parent
                                   {where-child
