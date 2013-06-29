@@ -174,6 +174,7 @@
     (fs/merge (fs/copy vp)
               {:comment "vp[imperfetto] &#x2192; head comp"
                :comment-plaintext "vp[imperfetto] -> head comp"
+               :comp {:synsem {:infl {:not :past}}}
                :head {:synsem {:infl :imperfetto
                                :sem {:activity true}}}
                ;; force the auxiliary verb (essere/avere) to be present-tense:
@@ -239,7 +240,8 @@
                    {:comp {:synsem {:subcat '()
                                     :cat :noun}}
                     :head {:synsem {:cat :verb}}}
-                   {:extend {:a {:comp 'np
+                   {:extend {
+                             :a {:comp 'np
                                  :head 'vp}
                              :b {:comp 'lexicon
                                  :head 'vp}
@@ -289,7 +291,9 @@
                   :extend {:g {:comp 'lexicon
                                :head 'vp-imperfetto}
                            :h {:comp 'np
-                               :head 'vp-imperfetto}}}))))
+                               :head 'vp-imperfetto}
+                           :i {:comp 'lexicon
+                               :head 'vp-pron}}}))))
 
 (def adj-phrase
   (unify head-principle
