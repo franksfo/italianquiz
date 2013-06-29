@@ -431,8 +431,13 @@
                                           comps)]
                               (log/debug (str  (unify/get-in parent '(:comment-plaintext)) ": size of pre-filtered complements: " (.size comps)))
                               (log/debug (str  (unify/get-in parent '(:comment-plaintext)) ": size of filtered complements: " (.size filtered-complements)))
-                              (log/info (str  (unify/get-in parent '(:comment-plaintext)) ": comp filter ratio: "
-                                              (+ 0.0 (/ (.size filtered-complements) (.size comps)))))
+                              (if (and (> (/ (.size filtered-complements)
+                                             (.size comps))
+                                          0)
+                                       (> 1/10 (/ (.size filtered-complements)
+                                                  (.size comps))))
+                                (log/warn (str  (unify/get-in parent '(:comment-plaintext)) ": comp filter ratio < 10%: "
+                                                (/ (.size filtered-complements) (.size comps)))))
                               filtered-complements)
                             depth
                             (morph/phrase-is-finished? (first heads))))
