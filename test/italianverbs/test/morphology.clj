@@ -3,8 +3,7 @@
   (:use [italianverbs.morphology])
   (:require
    [clojure.string :as string]))
-(if true
-  (do
+
 (deftest phrase-finished-1
   (is (phrase-is-finished?
        {:italian "acqua"}))
@@ -147,7 +146,7 @@
 
 (deftest conjugate-irreg-passato-3
   (is (=
-       (get-italian-1 
+       (get-italian-1
         {:infl :past
          :irregular {:passato "andato"}
          :agr {:number :plur}
@@ -156,17 +155,13 @@
 
 
 (deftest conjugate-irreg-passato-4
-  "not specific enough: retain as map rather than conjugating."
+  "not specific enough: (get-italian-1) should return 'andato' with square brackets around it to indicate that there isn't enough agreement information to conjugate."
   (is (=
-       (get-italian-1 
+       (get-italian-1
         {:infl :past
          :irregular {:passato "andato"}
          :essere true})
-       {:infl :past
-        :irregular {:passato "andato"}
-        :essere true})))
-
-
+       "[andato]")))
 
 (deftest plural-noun-singular
   "il studente => lo studente"
@@ -425,6 +420,96 @@
            :modal true
            :infinitive "to have to"}))))
 
+;; partial morphology: what to show when there's not
+;; enough constraints to conjugate words
+
+(deftest see
+  (is (= "[to see]"
+         (get-english-1
+          {:irregular {:past "seen"}
+           :infl :present
+           :agr {:case {:not :acc}}
+           :infinitive "to see"}))))
+
+(deftest to-see-me
+  (is (= "[to see] me"
+         (get-english-1
+          {:a {:irregular {:past "seen"}
+               :infl :present
+               :agr {:case {:not :acc}}
+               :infinitive "to see"}
+           :b "me"}))))
+
+(deftest were
+  (is (= "[were]"
+         (get-english-1
+          {:cat :verb
+           :infinitive "to be"
+           :irregular {:past {:1sing "was"
+                              :2sing "were"
+                              :3sing "was"
+                              :1plur "were"
+                              :2plur "were"
+                              :3plur "were"
+                              }}
+           :agr {:number :top
+                 :case {:not :acc}
+                 :gender :top}
+           :infl :past}))))
+
+(deftest were-more-small-than-you-all
+  (is (= "[were] more small than you all"
+         (get-english-1
+          {:b "more small than you all"
+           :a {:cat :verb :infinitive "to be"
+               :irregular {:present {:1sing "am" :3plur "are" :1plur "are" :2plur "are" :3sing "is" :2sing "are"}
+                           :past {:1sing "was" :3sing "was" :2plur "were" :1plur "were" :3plur "were" :participle "been" :2sing "were"}}
+               :agr {:number :top
+                     :case {:not :acc}
+                     :gender :top}
+               :infl :past}}))))
+
+(deftest vp-pron
+  (is (= "[to see] her"
+         (get-english-1
+          {:a {:irregular {:past "seen"}, :infl :top, :agr {:case {:not :acc}}, :infinitive "to see"}, :b "her"}))))
 
 
+(deftest professori
+  (is (= "professori"
+         (get-italian-1 {:agr {:gender :masc
+                               :person :3rd
+                               :case :top
+                               :number :plur}
+                         :cat :noun
+                         :italian "professore"}))))
 
+(deftest fatto
+  (is (= "fatto"
+         (get-italian-1 {:cat :verb
+                         :irregular {:present {:1sing "facio"
+                                               :3plur "fanno"
+                                               :1plur "facciamo"
+                                               :2plur "fate"
+                                               :3sing "fa"
+                                               :2sing "fai"}
+                                     :futuro {:1sing "farò"
+                                              :3plur "faranno"
+                                              :1plur "faremo"
+                                              :2plur "farete"
+                                              :3sing "farà"
+                                              :2sing "farai"}
+                                     :imperfetto {:1sing "facevo"
+                                                  :3plur "facevano"
+                                                  :1plur "facevamo"
+                                                  :2plur "facevate"
+                                                  :3sing "faceva"
+                                                  :2sing "facevi"}
+                                     :passato "fatto"}
+                         :essere false
+                         :agr {:gender :masc
+                               :person :3rd
+                               :number :sing
+                               :case :nom}
+                         :infinitive "fare"
+                         :infl :past}))))
