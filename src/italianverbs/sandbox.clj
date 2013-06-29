@@ -146,3 +146,17 @@
 
 42
 
+;; useful sandbox example usage:
+;;
+;; show underlying english structure of a linguistic sign:
+;;
+;; (plain (fs/get-in (first (take 1 (generate vp-past))) '(:english)))
+
+;; show result of morphological computation on a linguistic sign,a
+;; and if computation fails (i.e. falls through to a map), show the map in plain form for debugging.
+;;
+;;(plain (get-english-1 (fs/get-in (first (take 1 (generate vp-past))) '(:english))))
+
+;; generate a noun phrase with a specific expansion
+;;
+;;(fo (take 1 (generate-with np {"np -> det (noun or nbar)" {:a {:head 'lexicon :comp 'lexicon}}})))
