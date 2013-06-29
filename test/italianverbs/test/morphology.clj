@@ -239,23 +239,6 @@
            :infl :present
            :irregular {:present {:1sing "sono"}}}))))
 
-(deftest black-dog
-  (let [black {:english "dog"
-               :agr {:number :top
-                     :gender :masc
-                     :case :top
-                     :person :3rd}
-               :cat :noun}
-        dog {:english "black"
-             :agr {:number :top
-                   :gender :masc
-                   :case :top
-                   :person :3rd}
-             :cat :adjective}
-        english (get-english black dog)]
-    (is (map? english))))
-))
-
 (deftest to-speak-this-word
   (is (= "to speak this word"
          (get-english
