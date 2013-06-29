@@ -1305,6 +1305,12 @@
                                     :1plur "facciamo"
                                     :2plur "fate"
                                     :3plur "fanno"}
+                          :imperfetto {:1sing "facevo"
+                                       :2sing "facevi"
+                                       :3sing "faceva"
+                                       :1plur "facevamo"
+                                       :2plur "facevate"
+                                       :3plur "facevano"}
                           :futuro {:1sing "farò"
                                    :2sing "farai"
                                    :3sing "farà"
@@ -1337,6 +1343,12 @@
                                     :1plur "facciamo"
                                     :2plur "fate"
                                     :3plur "fanno"}
+                          :imperfetto {:1sing "facevo"
+                                       :2sing "facevi"
+                                       :3sing "faceva"
+                                       :1plur "facevamo"
+                                       :2plur "facevate"
+                                       :3plur "facevano"}
                           :futuro {:1sing "farò"
                                    :2sing "farai"
                                    :3sing "farà"
