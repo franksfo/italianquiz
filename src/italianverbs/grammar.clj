@@ -148,15 +148,14 @@
       subcat-2-principle
       italian-head-last
       english-head-first
-      {:head {:synsem {:cat :verb
-                       :infl :present}} ;; TODO: allow other than :present. (:present-only for now for testing).
+      {:head {:synsem {:cat :verb}}
+;                       :infl :present}} ;; TODO: allow other than :present. (:present-only for now for testing).
        :comp {:synsem {:cat :noun
                        :pronoun true}}}
       {:comment-plaintext "vp[pron]"
        :comment "vp[pron]"
        :extend {:f {:head 'lexicon
                     :comp 'lexicon}
-                ;; TODO add vp -> lexicon vp also.
                 }})))
 
   (def vp-present
