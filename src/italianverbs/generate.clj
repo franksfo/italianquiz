@@ -506,12 +506,34 @@
 (defn comps-of-expand [expand]
   (:comp expand))
 
-(defn generate [parent & [ hc-exps depth shuffled-expansions]]
+(defn generate [parent & [ hc-exps depth shuffled-expansions expansions-map]]
   (if (nil? (:extend parent))
     (throw (Exception. (str "Parent: " (unify/get-in parent '(:comment-plaintext)) " did not supply any :extend value, which (generate) needs in order to work.")))
     (let [depth (if depth depth 0)
           hc-expands-orig hc-exps
-          shuffled-expansions (if shuffled-expansions shuffled-expansions (shuffle (vals (:extend parent))))
+
+          new-shuffled-expansions
+          (do
+            (let [retval
+                  (if expansions-map
+                    (vec (vals (get expansions-map (unify/get-in parent '(:comment-plaintext))))))]
+;                    expansions-map)]
+;                      (shuffle (vals (:np expansions-map))))]
+              (log/debug (str "(new) expansions map: " expansions-map))
+              (log/debug (str "new-shuffled-expansions: " retval))
+              retval))
+
+          shuffled-expansions
+          (if (not (nil? new-shuffled-expansions))
+            new-shuffled-expansions
+            (do
+              (let [retval
+                    (if
+                        shuffled-expansions shuffled-expansions
+                        (shuffle (vals (:extend parent))))]
+                (log/debug (str "shuffled-expansions: " retval))
+                retval)))
+
           hc-exps (if hc-exps hc-exps (hc-expand-all parent shuffled-expansions depth))
           parent-finished (morph/phrase-is-finished? parent)]
       (log/debug (str (depth-str depth) "generate: " (unify/get-in parent '(:comment-plaintext)) " with exp: " (first shuffled-expansions)))
@@ -534,6 +556,9 @@
                (generate parent (rest hc-exps) depth (rest shuffled-expansions))))
             :else
             nil))))
+
+(defn generate-with [parent expands-map]
+  (generate parent nil nil nil expands-map))
 
 (defn binding-restrictions [sign]
   "Enforce binding restrictions to avoid things like 'I see me'."
