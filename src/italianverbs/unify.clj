@@ -202,12 +202,16 @@
      (and
       (map? val1)
       (string? val2))
-     val2
+     (do
+       (log/warn "unifying a map and a string: ignoring the former and returning the latter: 'val2'")
+       val2)
 
      (and
       (string? val1)
       (map? val2))
-     val1
+     (do
+       (log/warn (str "unifying a string and a map: ignoring the latter and returning the former: '" val1 "'"))
+       val1)
 
      :else ;; fail.
      (do
