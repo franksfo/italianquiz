@@ -359,6 +359,7 @@
 
 
    (= symbol 'vp) gram/vp
+   (= symbol 'vp-aux) gram/vp-aux
    (= symbol 'vp-imperfetto) gram/vp-imperfetto
    (= symbol 'vp-present) gram/vp-present
    (= symbol 'vp-past) gram/vp-past

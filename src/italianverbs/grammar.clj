@@ -160,30 +160,27 @@
 
   (def vp-aux
     (let [aspect (ref :top)]
-    ;; add to vp some additional expansions for vp-present:
-      (fs/merge head-principle
-                ;;subcat-2-principle
-                verb-inflection-morphology
-;                italian-head-first
-;                english-head-first
-;;                {:head {:synsem {:cat :verb}}}
-                {;;:comment "vp[aux] &#x2192; head comp"
-})))
-                 ;;:comment-plaintext "vp[aux] -> head comp"
-                 ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
-                 ;; non-present is possible too, but deferring that till later.
-;                 :head {:synsem {;:infl :present
-;                                 :aux true
-;                                 :subcat {:2 {:cat :verb
-;                                              :infl :past}}}}
-;
-;                                        ;}
-;                 }})))
-;
-;                                 :extend {;:f {:head 'lexicon
-;                                        ;    :comp 'vp-past}}})))
-;                          :g {:head 'lexicon
-;                              :comp 'lexicon}}})))
+      ;; add to vp some additional expansions for vp-present:
+      (fs/merge
+       (fs/unify head-principle
+                 subcat-2-principle
+                 verb-inflection-morphology
+                 italian-head-first
+                 english-head-first
+                 {:comment "vp[aux] &#x2192; head comp"
+                  :comment-plaintext "vp[aux] -> head comp"
+                  ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
+                  ;; non-present is possible too, but deferring that till later.
+                  :head {:synsem {:infl :present
+                                  :cat :verb
+                                  :aux true
+                                  :subcat {:2 {:cat :verb
+                                               :infl :past}}}}
+                  })
+       {:extend {:f {:head 'lexicon
+                     :comp 'vp-past}
+                 :g {:head 'lexicon
+                     :comp 'lexicon}}})))
 
   (def vp-present
     (let [aspect (ref :top)]
@@ -262,6 +259,13 @@
                             :subcat {:1 subcatted
                                      :2 '()}}})
 
+        rule-base-no-extend
+        (fs/unifyc head-principle subcat-1-principle
+                   subject-verb-agreement
+                   {:comp {:synsem {:subcat '()
+                                    :cat :noun}}
+                    :head {:synsem {:cat :verb}}})
+
         rule-base
         (fs/unifyc head-principle subcat-1-principle
                    subject-verb-agreement
@@ -302,7 +306,7 @@
 
     (def s-past
       (fs/merge
-       (fs/unifyc rule-base
+       (fs/unifyc rule-base-no-extend
                   italian-head-last
                   english-head-last
                   {:comment "sentence[past]"
