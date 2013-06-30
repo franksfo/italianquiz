@@ -1,3 +1,28 @@
--normalize whitespace in guess so that it can be compared with correct answer:
- e.g. " nella     pasta   " => "nella pasta"
--test Ace editor.
+ekoontz@mac ~/italianverbs $ lein repl
+REPL-y 0.1.0-beta10
+Clojure 1.5.1
+nREPL server started on port 54337
+    Exit: Control+D or (exit) or (quit)
+Commands: (user/help)
+    Docs: (doc function-name-here)
+          (find-doc "part-of-name-here")
+  Source: (source function-name-here)
+          (user/sourcery function-name-here)
+ Javadoc: (javadoc java-object-or-class-here)
+Examples from clojuredocs.org: [clojuredocs or cdoc]
+          (user/clojuredocs name-here)
+          (user/clojuredocs "ns-here" "name-here")
+user=> (ns italianverbs.generate)
+nil
+italianverbs.generate=> (load "generate")
+WARNING: resolve already refers to: #'clojure.core/resolve in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/resolve
+WARNING: get-in already refers to: #'clojure.core/get-in in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/get-in
+WARNING: merge already refers to: #'clojure.core/merge in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/merge
+nil
+italianverbs.generate=> (overflow2)
+StackOverflowError   java.util.regex.Pattern$BmpCharProperty.match (Pattern.java:3366)
+
+italianverbs.generate=> Bye for now!
+
+ekoontz@mac ~/italianverbs $ 
+
