@@ -158,16 +158,43 @@
                     :comp 'lexicon}
                 }})))
 
-  (def vp-present
+  (def vp-aux
+    (let [aspect (ref :top)]
     ;; add to vp some additional expansions for vp-present:
-    (fs/merge (fs/copy vp)
-              {:comment "vp[present] &#x2192; head comp"
-               :comment-plaintext "vp[present] -> head comp"
-               ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
-               ;; non-present is possible too, but deferring that till later.
-               :head {:synsem {:infl :present}}
-               :extend {:f {:head 'lexicon
-                            :comp 'vp-past}}}))
+      (fs/merge head-principle
+                ;;subcat-2-principle
+                verb-inflection-morphology
+;                italian-head-first
+;                english-head-first
+;;                {:head {:synsem {:cat :verb}}}
+                {;;:comment "vp[aux] &#x2192; head comp"
+})))
+                 ;;:comment-plaintext "vp[aux] -> head comp"
+                 ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
+                 ;; non-present is possible too, but deferring that till later.
+;                 :head {:synsem {;:infl :present
+;                                 :aux true
+;                                 :subcat {:2 {:cat :verb
+;                                              :infl :past}}}}
+;
+;                                        ;}
+;                 }})))
+;
+;                                 :extend {;:f {:head 'lexicon
+;                                        ;    :comp 'vp-past}}})))
+;                          :g {:head 'lexicon
+;                              :comp 'lexicon}}})))
+
+  (def vp-present
+    (let [aspect (ref :top)]
+    ;; add to vp some additional expansions for vp-present:
+      (fs/merge (fs/copy vp)
+                {:comment "vp[present] &#x2192; head comp"
+                 :comment-plaintext "vp[present] -> head comp"
+                 :head {:synsem {:infl :present
+                                 :aux false}}
+                 :extend {:f {:head 'lexicon
+                              :comp 'vp-past}}})))
 
 
   (def vp-imperfetto
@@ -189,7 +216,8 @@
     (fs/merge (fs/copy vp)
               {:comment "vp[past] &#x2192; head comp"
                :comment-plaintext "vp[past] -> head comp"
-               :synsem {:infl :past}}))
+               :synsem {:infl :past
+                        :sem {:aspect :passato}}}))
                ;; debug only: normally this would be in
 ;               :extend {:x {:head 'lexicon
 ;                            :comp 'lexicon}}}))
@@ -270,6 +298,23 @@
                      :head 'vp-present}
                  :h {:comp 'np
                      :head 'vp-present}
+                 }}))
+
+    (def s-past
+      (fs/merge
+       (fs/unifyc rule-base
+                  italian-head-last
+                  english-head-last
+                  {:comment "sentence[past]"
+                   :comment-plaintext "s[past] -> .."
+                   :synsem {:infl :present
+                            :sem {:aspect :passato
+                                  :tense :past}}})
+
+       {:extend {:g {:comp 'lexicon
+                     :head 'vp-aux}
+                 :h {:comp 'np
+                     :head 'vp-aux}
                  }}))
 
     (def s-future
