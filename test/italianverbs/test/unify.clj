@@ -575,7 +575,6 @@ a given value in a given map."
 ;;              (= (:b result) (:c result))
 ;;              (= @(:a result) 42))))
 
-      
 (deftest copy-with-not
   (let [fs1 {:a (ref {:not 42})}
         fs1-copy (copy fs1)]
@@ -590,5 +589,41 @@ a given value in a given map."
   (is (= "foo"
          (unify "foo"
                 {:english "foo"}))))
+
+(deftest overflow
+  "merge has a problem: we hit StackOverflowError java.util.regex.Pattern$BmpCharProperty.match (Pattern.java:3366) when this test is run.
+   Code works as expected if merge is replaced with unify. However, this test passes - the SOE seems to only happen
+when run from a REPL."
+  (unify
+   (get-in (merge (let [head-cat (ref :top)
+                                    head-is-pronoun (ref :top)
+                                    head-sem (ref :top)
+                                    head-infl (ref :top)]
+                                {:synsem {:cat head-cat
+                                          :pronoun head-is-pronoun
+                                          :sem head-sem
+                                          :infl head-infl}
+                                 :head {:synsem {:cat head-cat
+                                                 :pronoun head-is-pronoun
+                                                 :infl head-infl
+                                                 :sem head-sem}}})
+
+                              (let [essere (ref :top)
+                                    infl (ref :top)]
+                                {:italian {:a {:infl infl}}
+                                 :english {:a {:infl infl}}
+                                 :synsem {:infl infl
+                                          :essere essere}
+                                 :head {:italian {:infl infl}
+                                        :english {:infl infl}
+                                        :synsem {:essere essere
+                                                 :infl infl}}}))
+                 '(:head))
+   (unify
+    {:italian {:foo 42}}
+    (let [infl (ref :top)]
+      {:italian {:infl infl}
+       :english {:infl infl}
+       :synsem {:infl infl}}))))
 
 
