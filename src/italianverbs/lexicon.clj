@@ -417,7 +417,7 @@
     (unify agreement
            common-noun
            countable-noun
-           feminine
+           masculine
            {:synsem {:sem {:legible true
                            :artifact true
                            :buyable true
