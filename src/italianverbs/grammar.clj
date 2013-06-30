@@ -162,7 +162,7 @@
     (let [aspect (ref :top)]
       ;; add to vp some additional expansions for vp-present:
       (fs/merge
-       (fs/unify head-principle
+       (lexfn/unify head-principle
                  subcat-2-principle
                  verb-inflection-morphology
                  italian-head-first
@@ -314,7 +314,6 @@
                    :synsem {:infl :present
                             :sem {:aspect :passato
                                   :tense :past}}})
-
        {:extend {:g {:comp 'lexicon
                      :head 'vp-aux}
                  :h {:comp 'np
