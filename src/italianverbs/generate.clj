@@ -697,6 +697,7 @@
                             (first (take 1 (shuffle
                                             (list gram/s-present
                                                   gram/s-future
+                                                  gram/s-past
                                                   gram/s-imperfetto
                                                   )))))))))
 
