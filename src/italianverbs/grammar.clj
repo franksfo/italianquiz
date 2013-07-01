@@ -352,7 +352,7 @@
                                :head 'quando}}}))
 
 
-    (def quando-sentence
+    (def s-quando
       (fs/unifyc subcat-1-principle
                  italian-head-last
                  english-head-last

@@ -703,6 +703,7 @@
                                                   gram/s-future
                                                   gram/s-past
                                                   gram/s-imperfetto
+                                                  gram/s-quando
                                                   )))))))))
 
 (defn random-sentences [n]
