@@ -122,6 +122,14 @@
     (cond
 
      (and
+      (or (= (fs/get-in word '(:agr :gender)) :masc)
+          (= (fs/get-in word '(:agr :gender)) :top))
+      (= (fs/get-in word '(:agr :number)) :plur)
+      (= (fs/get-in word '(:cat)) :adjective))
+     (string/replace (fs/get-in word '(:italian))
+                     #"[eo]$" "i") ;; nero => neri
+
+     (and
       (= (fs/get-in word '(:agr :gender)) :fem)
       (= (fs/get-in word '(:agr :number)) :plur)
       (= (fs/get-in word '(:cat)) :adjective))
@@ -566,14 +574,6 @@
     ;; handle lexical exceptions.
     (string? (fs/get-in word '(:irregular :masc :plur))))
    (fs/get-in word '(:irregular :masc :plur))
-
-   (and
-    (= (fs/get-in word '(:agr :gender)) :masc)
-    (= (fs/get-in word '(:agr :number)) :plur)
-    (= (fs/get-in word '(:cat)) :adjective))
-   (string/replace (fs/get-in word '(:italian))
-                   #"[eo]$" "i") ;; nero => neri
-
 
 
    (and

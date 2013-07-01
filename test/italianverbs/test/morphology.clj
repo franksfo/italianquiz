@@ -521,3 +521,10 @@
                          :agr {:number :plur
                                :gender :fem}
                          :italian "brutto"}))))
+
+(deftest brutti
+  (is (= "brutti"
+         (get-italian-1 {:cat :adjective
+                         :agr {:number :plur
+                               :gender :top}
+                         :italian "brutto"}))))
