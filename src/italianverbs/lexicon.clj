@@ -1288,9 +1288,8 @@
      essere-common
      {:synsem {:cat :verb
                :subcat {:1 {:cat :noun
-                            :def :demonstrativo
-                          :agr {:gender gender
-                                :number number}}
+                            :agr {:gender gender
+                                  :number number}}
                       :2 {:cat :intensifier
                           :agr {:gender gender
                                 :number number}}}
