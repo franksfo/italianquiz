@@ -513,3 +513,11 @@
                                :case :nom}
                          :infinitive "fare"
                          :infl :past}))))
+
+;; adjectival agreement with number and gender.
+(deftest brutte
+  (is (= "brutte"
+         (get-italian-1 {:cat :adjective
+                         :agr {:number :plur
+                               :gender :fem}
+                         :italian "brutto"}))))
