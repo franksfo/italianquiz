@@ -2176,9 +2176,21 @@
 (defn en [english]
   (lookup {:english english}))
 
+(def quando
+  {:english "when"
+   :italian "quando"
+   :synsem {:sem {:pred :quando}
+            :subcat {:1 {:cat :verb
+                         :infl :imperfetto}
+                     :2 {:cat :verb
+                         :infl :present
+                         :sem {:aspect :passato
+                               :activity true
+                               :tense :past}}}}})
+
 (def lexicon (concat adjectives intensifiers determiners nouns proper-nouns prepositions
                      nominative-pronouns accusative-pronouns disjunctive-pronouns
-                     verbs))
+                     verbs quando))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
@@ -2217,5 +2229,4 @@
                   sem-impl (sem-impl sem)]
               (= (fs/get-in sem-impl '(:human)) true)))
           nouns))
-
 

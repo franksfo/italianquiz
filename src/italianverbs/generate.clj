@@ -355,6 +355,10 @@
    (= symbol 'intensifier-phrase) gram/intensifier-phrase
                                         ; doesn't exist yet:
                                         ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
+   (= symbol 'quando) lex/quando
+   (= symbol 'quando-phrase) gram/quando-phrase
+   (= symbol 's-imperfetto) gram/s-imperfetto
+   (= symbol 's-past) gram/s-past
    (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
 
 

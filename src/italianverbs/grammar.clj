@@ -341,7 +341,25 @@
                            :h {:comp 'np
                                :head 'vp-imperfetto}
                            :i {:comp 'lexicon
-                               :head 'vp-pron}}}))))
+                               :head 'vp-pron}}}))
+    (def quando-phrase
+      (fs/unifyc subcat-2-principle
+                 italian-head-first
+                 english-head-first
+                 {:comment "quando-phrase"
+                  :comment-plaintext "quando-phrase"
+                  :extend {:a {:comp 's-past
+                               :head 'quando}}}))
+
+
+    (def quando-sentence
+      (fs/unifyc subcat-1-principle
+                 italian-head-last
+                 english-head-last
+                 {:command "quando-sentence"
+                  :comment-plaintext "quando-sentence"
+                  :extend {:a {:comp 's-imperfetto
+                               :head 'quando-phrase}}}))))
 
 (def adj-phrase
   (unify head-principle
