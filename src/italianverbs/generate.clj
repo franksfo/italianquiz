@@ -394,8 +394,8 @@
   (if (not (empty? heads))
     (if (unify/fail? (first heads))
       (do
-        (log/debug (str "heads-by-comps: "
-                       (unify/get-in parent '(:comment-plaintext)) ": first head: " (first heads) "  is fail; continuing."))
+        (log/warn (str "heads-by-comps: "
+                       (unify/get-in parent '(:comment-plaintext)) ": first head: " (first heads) "  is unexpectedly fail; continuing with rest of heads."))
         (heads-by-comps parent (rest heads) comps depth))
       (let [unified
             (lexfn/unify parent
