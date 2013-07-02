@@ -1041,7 +1041,8 @@
               :irregular {:past "went"}}
     :synsem {:essere true
              :sem {:subj {:animate true}
-                   :pred :andare}}})
+                   :pred :andare
+                   :discrete false}}})
 
 (def andare-intrans
   (unify
@@ -1095,12 +1096,21 @@
 ;; and the :synsem (for subcategorization by the appropriate aux verb).
 (def aux-type
   (let [essere-binary-categorization (ref :top)
-        aux (ref true)]
+        aux (ref true)
+        sem (ref {:tense :past})
+        subject (ref :top)]
     {:italian {:aux aux
                :essere essere-binary-categorization}
      :synsem {:aux aux
-              :sem {:tense :past}
-              :essere essere-binary-categorization}}))
+              :sem sem
+              :essere essere-binary-categorization
+              :subcat {:1 subject
+                       :2 {:cat :verb
+                           :essere false
+                           :subcat {:1 subject
+                                    :2 '()}
+                           :sem sem
+                           :infl :past}}}}))
 
 (def avere-aux
   (unify
@@ -1141,6 +1151,7 @@
               :irregular {:past "slept"}}
     :synsem {:essere false
              :sem {:subj {:animate true}
+                   :discrete false
                    :pred :dormire}}}))
 
 (def dovere
@@ -1164,6 +1175,7 @@
                                     :3plur "have to"}}}
     :synsem {:sem {:pred :dovere
                    :activity false
+                   :discrete false
                    :subj {:human true} ;; TODO: relax this constraint: non-human things can be subject of dovere.
                    }}}))
 
@@ -1207,25 +1219,14 @@
                                  :3plur "were"}}}}))
 
 (def essere-aux
-  (let [v-past-pred (ref :top)
-        subject (ref :top)]
-    (merge
-     (unify
-      aux-type
-      subjective
-      essere-common
-      {:synsem {:infl :present
-                :subcat {:1 subject
-                         :2 {:cat :verb
-                             :essere true
-                             :subcat {:1 subject :2 '()}
-                             :sem {:pred v-past-pred
-                                   :activity false}
-                             :infl :past}}
-                :sem {:pred v-past-pred}
-                :essere true}})
-     {:english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
-                :hidden true}}))) ;; gets removed by morphological rules.
+  (unify
+   aux-type
+    subjective
+    essere-common
+    {:synsem {:infl :present
+              :subcat {:2 {:essere true}}}
+     :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
+               :hidden true}})) ;; gets removed by morphological rules.
 
 (def aux-verbs
   (list
@@ -1266,6 +1267,7 @@
                                   :number number}}}
                :sem {:pred :essere
                      :activity false
+                     :discrete false
                      :subj {:human true}
                      :obj {:human true}}}})))
 
@@ -1399,6 +1401,7 @@
               :irregular {:past "thought"}}
     :synsem {:essere false
              :sem {:pred :pensare
+                   :discrete false
                    :subj {:human true}}}}))
 
 (def potere
@@ -1423,6 +1426,7 @@
                                     :3plur "can"}}}
     :synsem {:sem {:pred :potere
                    :activity false
+                   :discrete false
                    :subj {:animate true}}}}))
 
 (def recordare
@@ -1444,7 +1448,9 @@
               :irregular {:past "laughed"}}
     :synsem {:essere false
              :sem {:subj {:human true}
-                   :pred :ridere}}}))
+                   :pred :ridere
+                   :discrete true
+                   }}}))
 
 (def scrivere
   (unify
@@ -1464,6 +1470,7 @@
               :irregular {:past "dreamt"}}
     :synsem {:essere false
              :sem {:subj {:animate true}
+                   :discrete false
                    :pred :sognare}}}))
 
 ;; something's wrong with conjugation of this verb.
@@ -1524,6 +1531,7 @@
     :synsem {:essere false
              :sem {:pred :volere
                    :activity false
+                   :discrete false
                    :subj {:animate true}}}}))
 
 (def intransitive-verbs
@@ -2177,12 +2185,12 @@
                      :2 {:cat :verb
                          :infl :present
                          :sem {:aspect :passato
-                               :activity true
+                               :discrete true
                                :tense :past}}}}})
 
 (def lexicon (concat adjectives intensifiers determiners nouns proper-nouns prepositions
                      nominative-pronouns accusative-pronouns disjunctive-pronouns
-                     verbs quando))
+                     verbs (list quando)))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
