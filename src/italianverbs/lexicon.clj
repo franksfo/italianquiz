@@ -1103,22 +1103,12 @@
               :essere essere-binary-categorization}}))
 
 (def avere-aux
-  (let [v-past-pred (ref :top)
-        subject (ref :top)]
-    (unify
-     aux-type
-     subjective
-     avere-common
-     {:synsem {:infl :present
-               :subcat {:1 subject
-                        :2 {:cat :verb
-                            :essere false
-                            :subcat {:1 subject
-                                     :2 '()}
-                            :sem {:pred v-past-pred}
-                            :infl :past}}
-               :sem {:pred v-past-pred}
-               }})))
+  (unify
+   aux-type
+   subjective
+   avere-common
+   {:synsem {:infl :present}
+    :english {:hidden true}}))
 
 (def bevere
   (unify
@@ -1126,7 +1116,7 @@
    {:italian {:infinitive "bevere"
               :irregular {:passato "bevuto"}}
     :english {:infinitive "to drink"
-              :irregular {:past "drunk"}}
+              :irregular {:past "drank"}}
     :synsem {:essere false
              :sem {:pred :bevere
                    :subj {:animate true}
@@ -1370,7 +1360,8 @@
   (unify
    transitive
    {:italian {:infinitive "mangiare"}
-    :english {:infinitive "to eat"}
+    :english {:infinitive "to eat"
+              :irregular {:past "ate"}}
     :synsem {:essere false
              :sem {:pred :mangiare
                    :subj {:animate true}
@@ -1382,7 +1373,8 @@
    {:italian {:infinitive "leggere"
               :irregular {:passato "letto"}}
     :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
-              :irregular {:past "read"}} ;; spelled "read" but pronounced like "red".
+              :irregular {:past "read"
+                          :note "(past)"}} ;; spelled "read" but pronounced like "red".
     :synsem {:essere false
              :sem {:pred :leggere
                    :subj {:human true}
@@ -1422,7 +1414,7 @@
                                     :2plur "potete"
                                     :3plur "possono"}}}
     :english {:infinitive "to be able to"
-              :irregular {:past "could"
+              :irregular {:past "could have"
                           :present {:1sing "can"
                                     :2sing "can"
                                     :3sing "can"
@@ -1491,7 +1483,7 @@
    {:italian {:infinitive "vedere"
               :irregular {:passato "visto"}}
     :english {:infinitive "to see"
-              :irregular {:past "seen"}}
+              :irregular {:past "saw"}}
     :synsem {:essere false
              :sem {:pred :vedere
                    :activity false ;; "seeing" is not a continuous act but rather an instantaneous one.
