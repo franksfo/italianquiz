@@ -1590,7 +1590,7 @@
                         :number :sing}
                   :sem (unify human {:pred :io})
                   :subcat '()}
-         :english "i"
+         :english "I"
          :italian "io"}
         {:synsem {:cat :noun
                   :pronoun true
