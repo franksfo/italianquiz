@@ -1456,7 +1456,8 @@
   (unify
    transitive
    {:italian {:infinitive "scrivere"}
-    :english {:infinitive "to write"}
+    :english {:infinitive "to write"
+              :irregular {:past "wrote"}}
     :synsem {:essere false
              :sem {:pred :scrivere
                    :subj {:human true}
