@@ -1355,6 +1355,7 @@
     :synsem {:cat :verb
              :essere false
              :sem {:pred :fare
+                   :discrete false
                    :subj {:human true}
                    :obj {:artifact true}}}}))
 
@@ -1379,6 +1380,7 @@
                           :note "(past)"}} ;; spelled "read" but pronounced like "red".
     :synsem {:essere false
              :sem {:pred :leggere
+                   :discrete false
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
@@ -2005,9 +2007,7 @@
                                 :human human}}}}
     :italian "meno"
     :english "less"
-    }
-
-   ))
+    })))
 
   ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc)
   ;; (this is being accomplished below: see TODO below about "copy all the below adjectives.."
@@ -2193,7 +2193,8 @@
    :synsem {:cat :quantifier
             :sem {:pred :quando}
             :subcat {:1 {:cat :verb
-                         :infl :imperfetto}
+                         :infl :imperfetto
+                         :sem {:activity true}}
                      :2 {:cat :verb
                          :infl :present
                          :sem {:aspect :passato
