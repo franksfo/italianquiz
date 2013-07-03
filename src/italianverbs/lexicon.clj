@@ -2189,7 +2189,8 @@
 (def quando
   {:english "when"
    :italian "quando"
-   :synsem {:sem {:pred :quando}
+   :synsem {:cat :quantifier
+            :sem {:pred :quando}
             :subcat {:1 {:cat :verb
                          :infl :imperfetto}
                      :2 {:cat :verb
