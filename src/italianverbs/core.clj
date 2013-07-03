@@ -35,7 +35,7 @@
 ;   "A handler processes the request map and returns a response map."
 ; http://groups.google.com/group/compojure/browse_thread/thread/3c507da23540da6e
 ; http://brehaut.net/blog/2011/ring_introduction
-  (GET "/" 
+  (GET "/"
        request
        ;; response map
        {:status 302
@@ -65,7 +65,7 @@
         :headers (if (session/request-to-session request)
                    {"Content-Type" "text/html;charset=utf-8"}
                    {"Location" "/italian/session/set/"})})
-  
+
   (GET "/quiz"
        request
        {:status 302
@@ -109,8 +109,7 @@
         :headers {"Content-Type" "text/html;charset=utf-8"}})
   ;; </workbook>
 
-  
-  (GET "/lexicon/" 
+  (GET "/lexicon/"
        request
        ;; response map
        {
@@ -126,7 +125,7 @@
 
 
   ;; show all the results of the sentence generation unit tests.
-  (GET "/generate/" 
+  (GET "/generate/"
        request
        ;; response map
        {
@@ -137,7 +136,6 @@
         })
 
 
-  
   ;; show user's quiz filter preferences. format param (in request) controls output's formatting:
   ;; might be a comma-separated list of filters, a bunch of checkboxes, xml, json, etc.
   (GET "/quiz/filter/"
@@ -158,8 +156,8 @@
         :headers {"Location" "/italian/quiz/filter/"}
         }
        )
-  
-  (POST "/quiz/clear" 
+
+  (POST "/quiz/clear"
        request
        {
         :side-effect (quiz/clear-questions (session/request-to-session request))
@@ -167,9 +165,9 @@
         :headers {"Location" "/quiz/"}
        }
        )
-  
-;; TODO: make this a POST with 'username' and 'password' params.
-  (GET "/session/set/"  
+
+  ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
+  (GET "/session/set/"
        request
        {
         :side-effect (session/register request)
@@ -178,8 +176,8 @@
         :headers {"Location" "/italian/?msg=set"}
         })
 
-  (GET "/session/clear/" 
-       request 
+  (GET "/session/clear/"
+       request
        {
         :side-effect (session/unregister request)
         :status 302
@@ -280,4 +278,3 @@
 
 (def app
   (handler/site main-routes))
-
