@@ -1389,7 +1389,7 @@
    transitive
    {:italian {:infinitive "parlare"}
     :english {:infinitive "to speak"
-              :irregular {:past "spoken"}}
+              :irregular {:past "spoke"}}
     :synsem {:essere false
              :sem {:pred :parlare
                    :subj {:human true}
@@ -1992,7 +1992,8 @@
                :cat :intensifier
                :subcat {:1 {:cat :adjective
                             :sem {:comparative true
-                                  :human human}}}}
+                                  :human human
+                                  :animate animate}}}}
       :italian "più"
       :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
       })
@@ -2004,7 +2005,8 @@
                      :animate animate}
                :subcat {:1 {:cat :adjective
                           :sem {:comparative true
-                                :human human}}}}
+                                :human human
+                                :animate animate}}}}
     :italian "meno"
     :english "less"
     })))
