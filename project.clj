@@ -10,6 +10,7 @@
   :profiles
   {:dev {:dependencies [[ring-mock "0.1.3"]
                         [org.clojure/tools.nrepl "0.2.0-beta10"]]}}
+  ;; italianverbs.core/app is defined in src/italianverbs/core.clj.
   :ring {:handler italianverbs.core/app})
 
 
