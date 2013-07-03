@@ -10,5 +10,3 @@
       (let [ring-session (get cookies "ring-session")]
         (if ring-session
           (get ring-session :value))))))
-
-       
