@@ -68,7 +68,7 @@
   (let [io-sogno (finalize (first (over gram/s-present "io" "sognare")))]
     (is (= "io sogno"
            (get-in io-sogno '(:italian))))
-    (is (= "i dream"
+    (is (= "I dream"
            (get-in io-sogno '(:english))))))
 
 (deftest lei-ci-vede
@@ -90,7 +90,7 @@
 
     (is (= "io parlo la parola"
            (get-in (finalize io-parlo-la-parola) '(:italian))))
-    (is (= "i speak the word"
+    (is (= "I speak the word"
            (get-in (finalize io-parlo-la-parola) '(:english))))
   ))
 
