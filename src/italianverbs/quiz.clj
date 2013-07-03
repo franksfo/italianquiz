@@ -1,9 +1,9 @@
 ;; TODO: verify using tests that a user authenticated with session 'x' cannot modify a question
 ;; whose session is 'y' where 'x' != 'y'.
-;; (see update-question-by-id-with-guess) where this is enforced by the mongo/fetch's :where clause.
+;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's :where clause.
 (ns italianverbs.quiz
   (:use [hiccup core page])
-  (:require [somnium.congomongo :as mongo]
+  (:require [somnium.congomongo :as db]
             [clojure.tools.logging :as log]
             [italianverbs.lev :as lev]
             [italianverbs.session :as session]
@@ -104,7 +104,7 @@
 	   (wrapchoice answer true))
        (if (> remaining 0)
 	   (let [choice (rand-int (count lexicon))]
-		(str 
+		(str
 		 (html [:div.debug (str "remaining: " remaining)])
 		 (wrapchoice (get lexicon (nth (keys lexicon) choice)))
 		 (show-choice (dissoc lexicon (nth (keys lexicon) choice)) (- remaining 1)
@@ -114,11 +114,17 @@
   string)
                                         ;  (string/replace #"[ ]+$" "" (string/replace #"^[ ]+" "" (string/replace #"[ ]+" " " string))))
 
-(defn store-question [question-pair session-id last-guess]
-  {:pre [(not (= session-id nil))]}
+(defn- store-question [question-pair session-id last-guess]
+  "Store a 'question pair' in the persistent mongodb store. A 'question pair' is an Italian/English pair of sentences that are translations of each other.
+   (store-question) may be called from either (question)
+   or (guess). In the former case, last-guess will be nil.  In the
+   latter case, it will contain the user's guess of the correct answer
+   to this question."
+  {:pre [(not (= session-id nil))]} ;; precondition: session must not be nil.
   (let [question (get question-pair :english)
         answer (get question-pair :italian)]
     (if (nil? question)
+      ;; TODO: add this as a precondition.
       (do
         (log/error (str "morphological problem :english is null in: " question-pair))
         (throw (Exception. (str "morphological problem :english value is null.")))))
@@ -135,22 +141,24 @@
       (do
         (log/error (str "morphological problem :italian is not string: " answer))
         (throw (Exception. (str "morphological problem :italian value is not string: " answer)))))
-    (mongo/insert! :question {:question (normalize-whitespace question)
-                              :answer (normalize-whitespace answer)
-                              :guess last-guess
-                              :italian (normalize-whitespace answer)
-                              :english (normalize-whitespace question)
-                              :session session-id})))
+    (db/insert! :question {:question (normalize-whitespace question)
+                           :answer (normalize-whitespace answer)
+                           :guess last-guess
+                           :italian (normalize-whitespace answer)
+                           :english (normalize-whitespace question)
+                           :session session-id})))
 
 (defn clear-questions [session]
-  (mongo/destroy! :question {:session session})
+  (db/destroy! :question {:session session})
+  (db/destroy! :queue {:session session})
   session)
 
 (defn set-filters [session request]
   (do
-    (mongo/destroy! :filter {:session session})
-    (mongo/insert! :filter {:form-params (get request :form-params)
-                      :session session})
+    (db/destroy! :filter {:session session})
+    (db/destroy! :queue {:session session})
+    (db/insert! :filter {:form-params (get request :form-params)
+                         :session session})
     session))
 
 
@@ -201,7 +209,6 @@
       {:class (str distance-from-top
                    (if (= (mod count 2) 1)
                      " odd"))}
-      
       [:td {:class "eval"}
        (if (get row :evaluation)
          (str (format-evaluation
@@ -209,7 +216,6 @@
          (str "" (get row :guess)))]]
      (if (not (= (get row :answer)
                  (get row :guess)))
-       
        [:tr
         {:class (str distance-from-top
                      (if (= (mod count 2) 1)
@@ -253,7 +259,7 @@
         ]
        (if (not (= (get row :answer)
                    (get row :guess)))
-                 
+
          [:tr
           {:class (str distance-from-top
                        (if (= (mod count 2) 1)
@@ -261,18 +267,18 @@
           [:td "" ]
           [:td {:class "answer"} (if (= hide-answer false) (first (rest qs)) (get row :answer))]
           ])
-       
+
        (show-history-rows (rest qs) (- count 1) true total)))))
 
 (defn most-recent-qid-for-user [session]
-  (let [results (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
+  (let [results (db/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
     (if (> (.size results) 0)
       (get (nth results 0) :_id))))
 
 ;; TODO: enforce session :where check.
 (defn update-question-by-id-with-guess [guess qid session]
   (let [guess (normalize-whitespace guess)
-        question (mongo/fetch-one :question
+        question (db/fetch-one :question
                                   :where {:_id (new org.bson.types.ObjectId qid)})
         updated-question-map
         (merge
@@ -283,11 +289,11 @@
                    (> (.length guess) 0))
             (lev/get-green2 (get question :answer)
                             guess))})]
-    (mongo/update! :question {:_id (new org.bson.types.ObjectId qid)}
+    (db/update! :question {:_id (new org.bson.types.ObjectId qid)}
                    updated-question-map)
     updated-question-map))
 ;; for testing/sanity checking, might want to refetch (i.e. uncomment the line below and comment out line above).
-;;    (mongo/fetch-one :question :where {:_id (new org.bson.types.ObjectId qid)})))
+;;    (db/fetch-one :question :where {:_id (new org.bson.types.ObjectId qid)})))
 
 (defn oct2011 []
   (lexfn/choose-lexeme {:oct2011 true}))
@@ -297,8 +303,8 @@
 
 (defn random-sentence []
   "choose a random sentence generated via populate.clj/populate."
-  (let [count (mongo/fetch-count :sentences)
-        sentences (mongo/fetch :sentences)]
+  (let [count (db/fetch-count :sentences)
+        sentences (db/fetch :sentences)]
     (nth sentences (rand-int count))))
 
 (defn generate [question-type]
@@ -335,7 +341,7 @@
 (defn- controls [session & [ form-action onclick ] ]
   (let [action (if form-action form-action "/italian/quiz/filter")
         onclick (if onclick onclick "submit()")
-        record (mongo/fetch-one :filter :where {:session session})
+        record (db/fetch-one :filter :where {:session session})
         filters (if record
                   (get record :form-params))
         checked (fn [session key]
@@ -390,9 +396,9 @@
         ]
        ]
       ]
-     
-     ;; at least for now, the following is used as empty anchor after settings are changed via controls and POSTed.
-     [:div {:id "controlbottom" :style "display:none"} 
+
+     ;; at least for now, the following is used only as an empty anchor after settings are changed via controls and POSTed.
+     [:div {:id "controlbottom" :style "display:none"}
       " "
       ]
    ]))
@@ -409,7 +415,7 @@
 
 (defn possible-question-types [session]
   (let [possible-question-types all-possible-question-types
-        record (mongo/fetch-one :filter :where {:session session})
+        record (db/fetch-one :filter :where {:session session})
         filters (if record
                   (get record :form-params))
         result (filter-by-criteria possible-question-types filters)]
@@ -438,7 +444,7 @@
 
 (defn previous-question [session]
   (let [most-recent-set
-        (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 2)]
+        (db/fetch :question :where {:session session} :sort {:_id -1} :limit 2)]
     ;; must be at least 2 results: if not, return nil.
     (if (> (.size most-recent-set) 1)
       (nth most-recent-set 1)
@@ -477,6 +483,18 @@
         [:tr
          [:script js]]))))
 
+(defn get-question-from-queue [session]
+  (log/info "checking queue for question..")
+  (let [queued-question (db/fetch-one :queue
+                                      :where {:session session})]
+    (if (not (nil? queued-question))
+      (do
+        (log/info (str "found one with id: " (:_id queued-question)))
+        ;; remove from queue
+        (db/destroy! :queue {:_id (:_id queued-question)})
+        queued-question)
+      nil))) ;; no question found.
+
 (defn question [request]
   ;; create a new question, store in backing store, and return an HTML fragment with the question's english form
   ;; and the question id to pose question to user.
@@ -487,13 +505,42 @@
   ;; :route-params :content-type :cookies :uri :server-name :params :headers :content-length :server-port
   ;; :character-encoding :body
   (let [session (session/request-to-session request)
-        type (random-guess-type session)
-        question (store-question (generate type) session nil)
-        qid (:_id question)]
-    (str "<div id='question_text'>" (:question question) "</div>"
-         "<input id='question_id' value='" qid "'/>")))
+        question-from-queue (get-question-from-queue session)]
+    (if (not (nil? question-from-queue))
+      (log/info (str "FOUND QUESTION: " question-from-queue)))
+    (let [question (if (and true question-from-queue)
+                     (do
+                       (log/info "found existing question in queue; using that.")
+                       (store-question question-from-queue session nil))
+                     (do
+                       (log/info "nothing in queue; generating new question...")
+                       (let [type (random-guess-type session)]
+                         (store-question (generate type) session nil))))]
+      (let [qid (:_id question)]
+        (log/info (str "qid: " qid))
+        (str "<div id='question_text'>" (:question question) "</div>"
+             "<input type='text' id='question_id' value='" qid "'/>")))))
+
+(defn fillqueue [request]
+  (let [session (session/request-to-session request)
+        queue (db/fetch :queue :where {:session session})]
+    (if (or (nil? queue)
+            (= (.size queue) 0))
+      (let [question-pair (generate (random-guess-type session))
+            question (get question-pair :english)
+            answer (get question-pair :italian)]
+        (log/info "filling up queue now.")
+        (db/insert! :queue {:question (normalize-whitespace question)
+                            :answer (normalize-whitespace answer)
+                            :italian (normalize-whitespace answer)
+                            :english (normalize-whitespace question)
+                            :session session})
+        (log/info "filled queue."))
+      (log/info "stuff in queue, not generating anything."))
+    (str (or (nil? queue) (= (.size queue) 0)))))
 
 (defn evaluate [request format]
+  ;; takes form data back from the user about what their guess was.
   (let [params (if (= (get request :request-method) :get)
                  (get request :query-params)
                  (get request :form-params))
@@ -526,6 +573,7 @@
           "</xmltr>")
          true
          (= format "tr") ; default: "tr".
+         ;; return a string that formats the guess and the evaluation as a HTML table row (a <tr>).
          (table-row result))
       (str "<error>no guess" guess "</error>"))))
 
@@ -534,10 +582,10 @@
                  (get request :query-params)
                  (get request :form-params))
         session (session/request-to-session request)
-        stored (if (get params "id")
-                 (mongo/fetch-one :question
-                                  :where {:_id (new org.bson.types.ObjectId (get params "id"))
-                                          :session session})
+        stored (if (get params "id") ;; if id is nil, then there is no existing question: TODO: figure out under what circumstances id can be nil.
+                 (db/fetch-one :question
+                               :where {:_id (new org.bson.types.ObjectId (get params "id"))
+                                       :session session})
                  (store-question question (session/request-to-session request) nil))]
     (str
      (xml/encoding)
@@ -595,13 +643,13 @@
      {:comment "fs printing"
       :test (html/fs
              {:most-recent
-              (let [qs (mongo/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
+              (let [qs (db/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
                 (if (> (.size qs) 0)
                   (nth qs 0)
                   "(no questions yet.)"))})})))
 
 (defn- show-filters [session]
-  (let [record (mongo/fetch-one :filter :where {:session session})
+  (let [record (db/fetch-one :filter :where {:session session})
         filters (if record (get record :form-params))]
     (string/join " "
                   (map (fn [key]

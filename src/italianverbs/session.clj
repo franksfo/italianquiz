@@ -1,31 +1,30 @@
 (ns italianverbs.session
-    (:use 
-    [hiccup core]
-    [somnium.congomongo])
+    (:use
+    [hiccup core])
     (:require [italianverbs.lexicon :as lexicon]
               [clojure.string :as string]
-              [somnium.congomongo :as congomongo]
+              [somnium.congomongo :as db]
               [base.lib :as lib])
-    (:import (java.security 
+    (:import (java.security ;; TOODO: what are these imports doing here?
               NoSuchAlgorithmException
               MessageDigest)
              (java.math BigInteger)))
 
 (defn find-or-insert-user [username]
-  (let [found (fetch-one :users :where {:name username})]
+  (let [found (db/fetch-one :users :where {:name username})]
        (if found found
-	 (insert! :users {:name username :lastlogin "never"}))))
+	 (db/insert! :users {:name username :lastlogin "never"}))))
 
 ;; TODO : figure out date/time in Clojure.
 (defn last-activity [username]
-  (let [my-user (fetch-one :users :where {:name username})]
-       (update! :users my-user (merge my-user {:lastlogin "reallynow"}))))
+  (let [my-user (db/fetch-one :users :where {:name username})]
+       (db/update! :users my-user (merge my-user {:lastlogin "reallynow"}))))
 
 (defn request-to-session [request]
   (get (get (get request :cookies) "ring-session") :value))
 
 (defn get-session-row [request]
-  (fetch-one :session))
+  (db/fetch-one :session))
 
 (defn get-username [request]
   (let [fetch (get-session-row request)]
@@ -43,7 +42,7 @@
         newuser (find-or-insert-user username)
         newsession
         (do (last-activity username)
-            (insert! :session {:user username
+            (db/insert! :session {:user username
                                :start "now"
                                :cookie (lib/get-session-key request)}))]
        {:name (get newuser :name)}))
@@ -55,6 +54,6 @@
                    (if (get (get (get request :cookies) "ring-session") :value)
                      (get (get (get request :cookies) "ring-session") :value))))]
     (if cookie
-      (destroy! :session {:cookie cookie})
+      (db/destroy! :session {:cookie cookie})
       nil)))
 

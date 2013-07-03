@@ -1287,6 +1287,7 @@
                           :agr {:gender gender
                                 :number number}}}
                :sem {:pred :essere
+                     :activity false
                      :subj {:human true}}}})))  ;; TODO: overly-specific.
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)

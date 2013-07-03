@@ -220,6 +220,13 @@
         :headers {"Content-Type" "text/html;charset=utf-8"}
         })
 
+  (GET "/quiz/fillqueue/"
+       request
+       {:body (quiz/fillqueue request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}
+        })
+
   (GET "/guess/tr/"
        request
        {
@@ -235,6 +242,11 @@
        request
        {
         :body
+        ;; note this only evaluates the user's guess to the previous question -
+        ;; it does not generate a new question. The latter is caused by a javascript
+        ;; function get_next_question() that is called when the user's
+        ;; clicks the 'Rispondi' button, which also more or less simulatenously submits the form that
+        ;; causes the (quiz/evaluate) here - see /resources/public/js/quiz.js.
         (quiz/evaluate request "tr")
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}

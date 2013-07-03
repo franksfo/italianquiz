@@ -27,8 +27,12 @@ function submit_user_response(form_input_id) {
 }
 
 function get_next_question() {
+    // first checks the Open Queue of questions for this user - if the
+    // queue is not empty, take the first from there. Otherwise, generates
+    // a new question.
     var hint = "";
     $("#ajax_question").html("...");
+
     $.ajax({
         dataType: "html",
         url: "/italian/quiz/question/",
@@ -36,9 +40,21 @@ function get_next_question() {
             $("#ajax_question").html(content);
 	    hint = content; // TODO: hintize.
 	    // 3. initialize user's input so that user is ready to answer next question.
-	    set_guess_input('');
+            set_guess_input('');
         }
     });
+
+    // while user thinks about current question (filled in above), fill queue in the background so that user doesn't need to wait very long for the next question.
+    $.ajax({
+        dataType: "html",
+        url: "/italian/quiz/fillqueue/",
+        success: function (content) {
+            $("#queue_size").remove();
+            $("#qa").append("<div id='queue_size'>xx</div>");
+            $("#queue_size").html(content);
+        }
+    });
+
 }
 
 function set_guess_input(text) {
@@ -81,7 +97,6 @@ function show_question_types() {
         }
     });
 }
-          
 
 function submit_quiz_filters(container, form) {
     $.ajax({
@@ -93,7 +108,7 @@ function submit_quiz_filters(container, form) {
         success: function (content) {
             $(container).html(content);
 
-            // this should happen only in 'success' of POST to avoid 
+            // this should happen only in 'success' of POST to avoid
             // a race condition: don't query db for user's question types
             // until user's updated preferences have made it into the database.
             show_question_types();

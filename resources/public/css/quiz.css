@@ -29,3 +29,31 @@ div#guess_input_div input {
 div#guess_respond_button {
     float:left;
 }
+
+div#ajax_question {
+    padding:0.25em;
+    margin:0.25em;
+    float:left;
+}
+
+div#question_text {
+    border:0px dashed green;
+}
+
+#question_id {
+    display:none;
+    border:2px dashed green;
+    background:#ccc;
+}
+
+#queue_size {
+    display:none;
+    border:2px dashed green;
+    background:#ccc;
+}
+
+#ajax_quiz {
+}
+
+#quiz_table {
+}

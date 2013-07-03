@@ -386,28 +386,6 @@ table.test td {
     padding-bottom:0.25em;
 }
 
-div#ajax_question {
-    padding:0.25em;
-    margin:0.25em;
-    float:left;
-}
-
-div#question_text {
-    border:0px dashed green;
-}
-
-#question_id {
-    display:none;
-    border:2px dashed green;
-    background:#ccc;
-}
-
-#ajax_quiz {
-}
-
-#quiz_table {
-}
-
 span.qtype {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
