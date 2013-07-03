@@ -1041,6 +1041,7 @@
               :irregular {:past "went"}}
     :synsem {:essere true
              :sem {:subj {:animate true}
+                   :activity false ;; because "I was going when (something happened) .." sounds weird.
                    :pred :andare
                    :discrete false}}})
 
