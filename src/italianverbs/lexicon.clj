@@ -1982,16 +1982,26 @@
 
 (def intensifiers
   (list
-   {:synsem {:cat :intensifier
-             :subcat {:1 {:cat :adjective
-                          :sem {:comparative true}}}}
-    :italian "più"
-    :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
-    }
+   (let [human (ref :top)
+         animate (ref :top)]
+     {:synsem {:sem {:human human
+                     :animate animate}
+               :cat :intensifier
+               :subcat {:1 {:cat :adjective
+                            :sem {:comparative true
+                                  :human human}}}}
+      :italian "più"
+      :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
+      })
 
-   {:synsem {:cat :intensifier
-             :subcat {:1 {:cat :adjective
-                          :sem {:comparative true}}}}
+   (let [human (ref :top)
+         animate (ref :top)]
+     {:synsem {:cat :intensifier
+               :sum {:human human
+                     :animate animate}
+               :subcat {:1 {:cat :adjective
+                          :sem {:comparative true
+                                :human human}}}}
     :italian "meno"
     :english "less"
     }
