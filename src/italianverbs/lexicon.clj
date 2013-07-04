@@ -789,6 +789,13 @@
    {:synsem {:cat :det
              :def :possessive
              :gender :masc
+             :number :plur}
+    :italian "i vostri"
+    :english "your (pl) "}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :masc
              :number :sing}
     :italian "il vostro"
     :english "your (pl) "}
@@ -846,8 +853,15 @@
    {:synsem {:cat :det
              :def :possessive
              :gender :fem
-             :number :plur}
+             :number :sing}
     :italian "la vostra"
+    :english "your (pl)"}
+
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :plur}
+    :italian "le vostre"
     :english "your (pl)"}
 
    {:synsem {:cat :det
