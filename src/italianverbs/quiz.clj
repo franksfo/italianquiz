@@ -506,38 +506,35 @@
   ;; :character-encoding :body
   (let [session (session/request-to-session request)
         question-from-queue (get-question-from-queue session)]
-    (if (not (nil? question-from-queue))
-      (log/info (str "FOUND QUESTION: " question-from-queue)))
     (let [question (if (and true question-from-queue)
                      (do
                        (log/info "found existing question in queue; using that.")
                        (store-question question-from-queue session nil))
                      (do
-                       (log/info "nothing in queue; generating new question...")
+                       (log/info "nothing in queue; generating new question.")
                        (let [type (random-guess-type session)]
                          (store-question (generate type) session nil))))]
       (let [qid (:_id question)]
-        (log/info (str "qid: " qid))
+        (log/debug (str "qid: " qid))
         (str "<div id='question_text'>" (:question question) "</div>"
              "<input type='text' id='question_id' value='" qid "'/>")))))
 
 (defn fillqueue [request]
-  (let [session (session/request-to-session request)
-        queue (db/fetch :queue :where {:session session})]
-    (if (or (nil? queue)
-            (= (.size queue) 0))
+  (let [session (session/request-to-session request)]
+    (while
+        (let [queue (db/fetch :queue :where {:session session})]
+          (or (nil? queue)
+              (< (.size (db/fetch :queue :where {:session session})) 3)))
       (let [question-pair (generate (random-guess-type session))
             question (get question-pair :english)
             answer (get question-pair :italian)]
-        (log/info "filling up queue now.")
+        (log/info "adding question to queue.")
         (db/insert! :queue {:question (normalize-whitespace question)
                             :answer (normalize-whitespace answer)
                             :italian (normalize-whitespace answer)
                             :english (normalize-whitespace question)
-                            :session session})
-        (log/info "filled queue."))
-      (log/info "stuff in queue, not generating anything."))
-    (str (or (nil? queue) (= (.size queue) 0)))))
+                            :session session})))
+    (log/info (str "queue is now big enough: size=" (.size (db/fetch :queue :where {:session session}))))))
 
 (defn evaluate [request format]
   ;; takes form data back from the user about what their guess was.
