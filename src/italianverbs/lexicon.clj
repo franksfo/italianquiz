@@ -380,6 +380,17 @@
             :italian {:italian "cane"}
             :english {:english "dog"}})
 
+    (unify agreement
+           common-noun
+           feminine
+           {:synsem {:sem {:pred :cipolla
+                           :edible true
+                           :animate false
+                           :artifact false}}
+            :italian {:italian "cipolla"}
+            :english {:english "onion"}})
+
+
 
     (unify agreement
            common-noun
