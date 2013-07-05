@@ -1608,6 +1608,39 @@
                   :subcat '()}
          :english "I"
          :italian "io"}
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :sing}
+                  :sem (unify human {:pred :ognuno})
+                  :subcat '()}
+         :english "everyone"
+         :italian "ognuno"}
+
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :sing}
+                  :sem {:human false
+                        :pred :qualcuno}
+                  :subcat '()}
+         :english "something"
+         :italian "qualcosa"}
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :sing}
+                  :sem (unify human {:pred :qualcuno})
+                  :subcat '()}
+         :english "someone"
+         :italian "qualcuno"}
+
         {:synsem {:cat :noun
                   :pronoun true
                   :agr {:case :nom
@@ -1617,6 +1650,7 @@
                   :subcat '()}
          :english "you"
          :italian "tu"}
+
         {:synsem {:cat :noun
                   :pronoun true
                   :agr {:case :nom
