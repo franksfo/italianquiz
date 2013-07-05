@@ -34,7 +34,7 @@
      [:a {:href "/italian/quiz/"} "Quiz"]]
     [:div
      (if (= relative-url "/preferiti/") {:class "selected"})
-     [:a {:href "/italian/preferiti/"} "i tuoi preferiti"]]
+     [:a {:href "/italian/preferiti/"} "I tuoi preferiti"]]
 ;    [:div
 ;     (if (= relative-url "/lexicon/") {:class "selected"})
 ;     [:a {:href "/italian/lexicon/"} "Lexicon"  ] ]
@@ -43,11 +43,11 @@
 ;     [:a {:href "/italian/search/"} "Search"  ] ]
     [:div
      (if (= relative-url "/workbook/") {:class "selected"})
-     [:a {:href "/italian/workbook/"} "Workbook"  ] ]
+     [:a {:href "/italian/workbook/"} "Libro di Lavoro"  ] ]
 
     [:div
      (if (= relative-url "/about/") {:class "selected"})
-     [:a {:href "/italian/about/"} "About"  ] ]
+     [:a {:href "/italian/about/"} "Che è"  ] ]
     ]))
 
 (defn powered-by [name link]
