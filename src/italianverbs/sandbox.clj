@@ -4,13 +4,16 @@
    [italianverbs.lexicon]
    ;; Prohibit generate/printfs because it writes directly to the filesystem:
    ;; attacker could DOS server by filling up filesystem.
-   [italianverbs.generate :exclude [printfs]]
+   ;; Also exclude 'generate' so that we can define a wrapper for it in the sandbox,
+   ;; rather than using it directly.
+   [italianverbs.generate :exclude [printfs generate]]
    [italianverbs.grammar]
    [italianverbs.morphology]
    [clojail.core :only [sandbox]]
    [clojail.testers]
    ]
   [:require
+   [italianverbs.generate :as gen]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
@@ -152,6 +155,19 @@
       (log/debug "got here(2): " (first map))
       (fs/get-in (first map) path not-found))
     (fs/get-in map path not-found)))
+
+(defn generate [parent]
+  (if (seq? parent)
+    (gen/generate (first parent))
+    (gen/generate parent)))
+
+(defn che [parent]
+  "display some basic info about the sign."
+  (if (seq? parent)
+    (che (first parent))
+    {:sem (get-in parent '(:synsem :sem))
+     :english (get-english (get-in parent '(:english)))
+     :italian (get-italian (get-in parent '(:italian)))}))
 
 42
 
