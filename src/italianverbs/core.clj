@@ -98,7 +98,7 @@
   (GET "/workbook/"
        request
        {:status 200
-        :body (html/page "Workbook" (workbook/workbook-ui request) request)
+        :body (html/page "Libro di Lavoro" (workbook/workbook-ui request) request)
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/workbook/q/"

@@ -47,7 +47,7 @@
 
     [:div
      (if (= relative-url "/about/") {:class "selected"})
-     [:a {:href "/italian/about/"} "Che è"  ] ]
+     [:a {:href "/italian/about/"} "Che è?"  ] ]
     ]))
 
 (defn powered-by [name link]
