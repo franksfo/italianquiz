@@ -1063,7 +1063,8 @@
                                    :2plur "andrete"
                                    :3plur "andranno"}}}
     :english {:infinitive "to go"
-              :irregular {:past "went"}}
+              :irregular {:past "went"
+                          :past-particle "gone"}}
     :synsem {:essere true
              :sem {:subj {:animate true}
                    :activity false ;; because "I was going when (something happened) .." sounds weird.
@@ -1340,7 +1341,8 @@
                                    :2plur "farete"
                                    :3plur "faranno"}}}
     :english {:infinitive "to do"
-              :irregular {:present {:1sing "do"
+              :irregular {:past-participle "done"
+                          :present {:1sing "do"
                                     :2sing "do"
                                     :3sing "does"
                                     :1plur "do"
@@ -1434,29 +1436,33 @@
                    :subj {:human true}}}}))
 
 (def potere
-  (unify
-   subjective
-   modal
-   {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
-   {:italian {:infinitive "potere"
-              :irregular {:present {:1sing "posso"
-                                    :2sing "puoi"
-                                    :3sing "può"
-                                    :1plur "possiamo"
-                                    :2plur "potete"
-                                    :3plur "possono"}}}
-    :english {:infinitive "to be able to"
-              :irregular {:past "could have"
-                          :present {:1sing "can"
-                                    :2sing "can"
-                                    :3sing "can"
-                                    :1plur "can"
-                                    :2plur "can"
-                                    :3plur "can"}}}
-    :synsem {:sem {:pred :potere
-                   :activity false
-                   :discrete false
-                   :subj {:animate true}}}}))
+  (let [pred-of-complement (ref :top)]
+    (unify
+     subjective
+     modal
+     {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
+     {:italian {:infinitive "potere"
+                :irregular {:present {:1sing "posso"
+                                      :2sing "puoi"
+                                      :3sing "può"
+                                      :1plur "possiamo"
+                                      :2plur "potete"
+                                      :3plur "possono"}}}
+      :english {:infinitive "to be able to"
+                :irregular {:past "could have"
+                            ;; TODO: enhance morphology.clj to handle one irregular for all agreements: {:present "can"}.
+                            :present {:1sing "can"
+                                      :2sing "can"
+                                      :3sing "can"
+                                      :1plur "can"
+                                      :2plur "can"
+                                      :3plur "can"}}}
+      :synsem {:subcat {:2 {:sem {:pred pred-of-complement}}}
+               :sem {:pred {:pred pred-of-complement
+                            :mod :potere}
+                     :activity false
+                     :discrete false
+                     :subj {:animate true}}}})))
 
 (def recordare
   (unify
@@ -1520,7 +1526,8 @@
    {:italian {:infinitive "vedere"
               :irregular {:passato "visto"}}
     :english {:infinitive "to see"
-              :irregular {:past "saw"}}
+              :irregular {:past "saw"
+                          :past-participle "seen"}}
     :synsem {:essere false
              :sem {:pred :vedere
                    :activity false ;; "seeing" is not a continuous act but rather an instantaneous one.
@@ -1610,7 +1617,18 @@
    modal-verbs))
 
 (def nominative-pronouns
-  (list {:synsem {:cat :noun
+  (list {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it.
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :sing}
+                  :sem (unify human {:pred :chiunque
+                                     :elective-existential true})
+                  :subcat '()}
+         :english "anyone"
+         :italian "chiunque"}
+
+        {:synsem {:cat :noun
                   :pronoun true
                   :agr {:case :nom
                         :person :1st

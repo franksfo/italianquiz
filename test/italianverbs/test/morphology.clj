@@ -528,3 +528,8 @@
                          :agr {:number :plur
                                :gender :top}
                          :italian "brutto"}))))
+
+(deftest could-have-past-participle
+  (is (= "Paola could have made this red wine"
+         (get-english
+          {:b {:b {:a {:irregular {:present {:1sing "can", :3plur "can", :1plur "can", :2plur "can", :3sing "can", :2sing "can"}, :past "could have"}, :agr {:number :sing, :case :nom, :gender :fem, :person :3rd}, :infl :past, :cat :verb, :modal true, :infinitive "to be able to"}, :b {:b {:b {:a {:english "red", :agr {:person :3rd, :number :sing, :gender :masc, :case :acc}, :cat :adjective}, :b {:agr {:person :3rd, :number :sing, :gender :masc, :case :acc}, :cat :noun, :english "wine"}}, :a "this"}, :a {:irregular {:past "made"}, :infl :infinitive, :cat :verb, :agr {:number :sing, :case :nom, :gender :fem, :person :3rd}, :infinitive "to make"}}}, :agr {:number :sing, :case :nom, :gender :fem, :person :3rd}, :infl :present, :a {:cat :verb, :irregular {:present {:1sing "have", :3plur "have", :1plur "have", :2plur "have", :3sing "has", :2sing "have"}, :past "had"}, :hidden true, :infinitive "to have", :agr {:number :sing, :case :nom, :gender :fem, :person :3rd}, :infl :present}}, :a "Paola"}))))

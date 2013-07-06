@@ -588,7 +588,7 @@
   word))
   )
 
-(defn get-italian [a b]
+(defn get-italian [a & [ b ]]
   (let [a (if (nil? a) "" a)
         b (if (nil? b) "" b)
         a (get-italian-1 a)
@@ -746,6 +746,8 @@
   (log/debug (str "get-english-1: " word))
   (cond
 
+   ;; :note is used for little annotations that are significant in italian but not in english
+   ;; e.g. gender signs (♂,♀) on nouns like "professore" and "professoressa".
    (and (string? (fs/get-in word '(:english)))
         (string? (fs/get-in word '(:note))))
    (str (get-english-1 (dissoc word :note)) " " (fs/get-in word '(:note)))
@@ -754,6 +756,7 @@
    (str
     ".." " " (get-english-1 (fs/get-in word '(:b))))
 
+   ;; show elipsis (..) if :b is not specified.
    (and
     (= (fs/get-in word '(:b)) :top)
     (string? (get-english-1 (fs/get-in word '(:a)))))
@@ -761,6 +764,7 @@
     (get-english-1 (fs/get-in word '(:a)))
     " " "..")
 
+   ;; show elipsis (..) if :a is not specified.
    (and
     (= (fs/get-in word '(:b)) :top)
     (string? (fs/get-in word '(:a :english))))
@@ -770,6 +774,26 @@
 
    (string? word)
    word
+
+   ;; (could have) + (gone) => "could have gone"
+   (and
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b))
+    (string? (fs/get-in word '(:a :irregular :past)))
+    (string? (fs/get-in word '(:b :irregular :past-participle)))
+    (= (fs/get-in word '(:a :infl)) :past))
+   (string/join " " (list (fs/get-in word '(:a :irregular :past))
+                          (fs/get-in word '(:b :irregular :past-participle))))
+
+   ;; (could have) + (sleep) => "could have slept"
+   (and
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b))
+    (string? (fs/get-in word '(:a :irregular :past)))
+    (string? (fs/get-in word '(:b :irregular :past)))
+    (= (fs/get-in word '(:a :infl)) :past))
+   (string/join " " (list (fs/get-in word '(:a :irregular :past))
+                          (fs/get-in word '(:b :irregular :past))))
 
    (and
     (fs/get-in word '(:a))
@@ -1040,7 +1064,7 @@
    :else
    word))
 
-(defn get-english [a b]
+(defn get-english [a & [ b ] ]
   (let [a (if (nil? a) "" a)
         b (if (nil? b) "" b)
         re-a (get-english-1 a)
