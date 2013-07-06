@@ -17,7 +17,7 @@
     (resolve @arg)
     arg))
 
-;; TODO: need tests: some tests use (get-in), but need more dedicated tests for it alone.
+;; TODO: need tests: many tests use (get-in), but need more dedicated tests for it alone.
 (defn get-in [map path & [not-found]]
   "same as clojure.core (get-in), but it resolves references if need be."
   (let [result
