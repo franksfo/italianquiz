@@ -144,6 +144,15 @@
 ))
 
 
+(defn get-in [map path & [not-found]]
+  (log/debug "got here: " (seq? map))
+
+  (if (seq? map)
+    (do
+      (log/debug "got here(2): " (first map))
+      (fs/get-in (first map) path not-found))
+    (fs/get-in map path not-found)))
+
 42
 
 ;; useful sandbox example usage:
