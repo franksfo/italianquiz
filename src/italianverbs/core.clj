@@ -288,5 +288,6 @@
 ; A map of options may also be provided. These keys are provided:
 ;  :session - a map of session middleware options
 
+;; TODO: clear out cache of sentences-per-user session when starting up.
 (def app
   (handler/site main-routes))
