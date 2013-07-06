@@ -4,6 +4,10 @@
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
+(defn strip [str]
+  "remove heading and trailing whitespace"
+  (string/replace (string/replace str #"^\s+" "") #"\s+$" ""))
+
 (defn phrase-is-finished? [phrase]
   (cond
    (string? phrase) true
@@ -773,7 +777,7 @@
     " " "..")
 
    (string? word)
-   word
+   (strip word)
 
    ;; (could have) + (gone) => "could have gone"
    (and
@@ -794,6 +798,30 @@
     (= (fs/get-in word '(:a :infl)) :past))
    (string/join " " (list (fs/get-in word '(:a :irregular :past))
                           (fs/get-in word '(:b :irregular :past))))
+
+   ;; (could have) + (do X) => "could have done X"
+   (and
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b))
+    (string? (fs/get-in word '(:a :irregular :past)))
+    (string? (fs/get-in word '(:b :a :irregular :past-participle)))
+    (= (fs/get-in word '(:a :infl)) :past))
+   ;; recursive call after inflecting '(:b :a) to past.
+   (get-english {:a (fs/get-in word '(:a))
+                 :b {:a (fs/get-in word '(:b :a :irregular :past-participle))
+                     :b (fs/get-in word '(:b :b))}})
+
+   ;; (could have) + (make X) => "could have made X"
+   (and
+    (fs/get-in word '(:a))
+    (fs/get-in word '(:b))
+    (string? (fs/get-in word '(:a :irregular :past)))
+    (string? (fs/get-in word '(:b :a :irregular :past)))
+    (= (fs/get-in word '(:a :infl)) :past))
+   ;; recursive call after inflecting '(:b :a) to past.
+   (get-english {:a (fs/get-in word '(:a))
+                 :b {:a (fs/get-in word '(:b :a :irregular :past))
+                     :b (fs/get-in word '(:b :b))}})
 
    (and
     (fs/get-in word '(:a))
@@ -1094,7 +1122,7 @@
 
      (and (string? re-a)
           (string? re-b))
-     (str re-a " " re-b)
+     (strip (str re-a " " re-b))
 
      ;; new-style n' -> adj noun
      (and
@@ -1105,6 +1133,7 @@
       :b b}
 
      ;; old-style n' -> adj noun
+     ;; TODO: remove this.
      (and
       (= (fs/get-in a '(:cat)) :noun)
       (= (fs/get-in b '(:cat)) :adjective))
