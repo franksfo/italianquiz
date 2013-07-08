@@ -529,7 +529,6 @@
     (= (fs/get-in word '(:cat)) :noun))
    (fs/get-in word '(:italian))
 
-
    ;; handle lexical exceptions (plural masculine adjectives):
    (and
     (= (fs/get-in word '(:agr :number)) :plur)

@@ -433,7 +433,7 @@
 (defn get-params [pairs]
   (if (first pairs)
       (let [keyval (re-seq #"[^=]+" (first pairs))]
-	   (merge 
+	   (merge
 	    {(first keyval) (url-decode (second keyval))}
 	    (get-params (rest pairs))))
     {}))
