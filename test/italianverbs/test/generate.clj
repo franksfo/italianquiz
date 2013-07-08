@@ -11,6 +11,7 @@
    [italianverbs.unify :as unify]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.grammar :as gram]
+   [italianverbs.morphology :as morph]
    [italianverbs.search :as search]))
 
 (deftest il-libro
@@ -169,3 +170,14 @@
          :english {:infl infl}
          :synsem {:infl infl}}))))
 
+;; TODO: move this test to grammar.clj or lexicon.clj.
+(deftest adj-agreement-with-subject
+  "adjectives must agree with subjects - tests this behavior with intermediate 'meno ricco' between the subject and the adjective."
+  (let [lei-e-piu-ricca-di-giorgio
+        (over gram/s-present "lei"
+              (over gram/vp-essere-copula "essere"
+                    (over gram/intensifier-phrase "più"
+                          (over gram/adj-phrase "ricco"
+                                (over gram/prep-phrase "di" "Giorgio")))))]
+    (is (= (morph/strip (morph/get-italian (get-in (first lei-e-piu-ricca-di-giorgio) '(:italian))))
+           "lei è più ricca di Giorgio"))))
