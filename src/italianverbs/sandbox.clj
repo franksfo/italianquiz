@@ -164,11 +164,16 @@
 (defn che [parent]
   "display some basic info about the sign."
   (if (seq? parent)
-    (che (first parent))
+    (if (not (nil? (first parent)))
+      (lazy-seq
+       (cons
+        (che (first parent))
+        (che (rest parent)))))
     {:sem (get-in parent '(:synsem :sem))
      :english (get-english (get-in parent '(:english)))
      :italian (get-italian (get-in parent '(:italian)))}))
 
+;;
 42
 
 ;; useful sandbox example usage:
