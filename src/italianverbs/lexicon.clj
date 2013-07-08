@@ -1044,7 +1044,6 @@
             :synsem {:sem {:obj obj-sem}
                      :infl infl
                      :subcat {:2 {:sem obj-sem
-                                  :subcat '()
                                   :cat :intensifier}}}})))
 
 (def andare
@@ -1260,6 +1259,7 @@
    essere-aux
    avere-aux))
 
+;; combine essere-adjective and essere-copula
 (def essere-adjective
   (let [gender (ref :top)
         number (ref :top)]
@@ -1279,11 +1279,13 @@
 
 (def essere-copula
   (let [gender (ref :top)
-        number (ref :top)]
+        number (ref :top)
+        human (ref :top)]
     (unify
      transitive
      essere-common
-     {:synsem {:cat :verb
+     {:notes "copula" ;; significant only for debugging.
+      :synsem {:cat :verb
                :subcat {:1 {:cat :noun
                             :agr {:gender gender
                                   :number number}}
@@ -1295,26 +1297,22 @@
                :sem {:pred :essere
                      :activity false
                      :discrete false
-                     :subj {:human true}
-                     :obj {:human true}}}})))
+                     :subj {:human human}
+                     :obj {:human human}}}})))
 
 ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
 (def essere-intensifier
-  (let [gender (ref :top)
-        number (ref :top)]
+  (let [subject (ref {:cat :noun})
+        comp-sem (ref :top)]
     (unify
-     transitive-but-with-intensifier-instead-of-noun
      essere-common
-     {:synsem {:cat :verb
-               :subcat {:1 {:cat :noun
-                            :agr {:gender gender
-                                  :number number}}
-                      :2 {:cat :intensifier
-                          :agr {:gender gender
-                                :number number}}}
-               :sem {:pred :essere
-                     :activity false
-                     :subj {:human true}}}})))  ;; TODO: overly-specific.
+     {:notes "intensifier"
+      :synsem {:cat :verb
+               :subcat {:1 subject
+                        :2 {:cat :intensifier
+                            :sem comp-sem
+                            :subcat {:1 subject}}}
+               :sem comp-sem}})))
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
@@ -1655,6 +1653,7 @@
                         :person :3rd
                         :number :sing}
                   :sem {:human false
+                        :animate false ;; otherwise we get weird things like "something will see my ladder".
                         :pred :qualcuno}
                   :subcat '()}
          :english "something"
@@ -2078,17 +2077,27 @@
       })
 
    (let [human (ref :top)
-         animate (ref :top)]
+         animate (ref :top)
+         subj-semantics (ref {:human human
+                              :animate animate})
+         obj-semantics (ref {:comparative true
+                             :human human
+                             :animate animate})
+         adj-semantics (ref :top)]
      {:synsem {:cat :intensifier
-               :sum {:human human
-                     :animate animate}
-               :subcat {:1 {:cat :adjective
-                          :sem {:comparative true
-                                :human human
-                                :animate animate}}}}
-    :italian "meno"
-    :english "less"
-    })))
+               :sem {:pred :meno
+                     :mod-pred adj-semantics
+                     :arg1 subj-semantics
+                     :arg2 obj-semantics}
+               :subcat {:1 {:cat :noun
+                            :sem subj-semantics}
+                        :2 {:cat :adjective
+                            :sem {:arg1 subj-semantics
+                                  :pred adj-semantics
+                                  :arg2 obj-semantics}}}}
+      :italian "meno"
+      :english "less"
+      })))
 
   ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc)
   ;; (this is being accomplished below: see TODO below about "copy all the below adjectives.."
@@ -2099,7 +2108,9 @@
         adj {:synsem {:cat adjective
                       :agr {:gender gender
                             :number number}
-                      :sem {:mod :top}}
+                      ;; commenting this for now: not sure why it's here; TODO remove altogether.
+;;                      :sem {:mod :top}
+                      }
              :italian {:cat adjective
                        :agr {:number number
                              :gender gender}}
@@ -2110,11 +2121,26 @@
      (map (fn [entry]
             (unify adj entry))
           (list
+           ;; non-comparative:
            {:synsem {:cat :adjective
                      :sem {:pred :alto
+                           :comparative false
                            :mod {:human true}}}
             :italian {:italian "alto"}
             :english {:english "tall"}}
+
+           ;; comparative:
+           (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
+                 complement-sem (ref {:pred :di
+                                      :mod complement-complement-sem})]
+             (unify
+              {:synsem {:sem {:pred :alto
+                              :comparative true
+                              :mod complement-complement-sem}
+                        :subcat {:1 {:cat :prep
+                                     :sem complement-sem}}}
+               :italian {:italian "alto"}
+               :english {:english "tall"}}))
 
            {:synsem {:sem {:pred :bello}}
             :italian {:italian "bello"}
@@ -2128,22 +2154,30 @@
            ;; non-comparative
            (unify
             {:synsem {:sem {:pred :ricco
-                            :mod {:human true}}}
+                            :comparative false
+                            :mod {:human true}}} ;; TODO between with comparative/non-comparative rather than duplicating.
              :italian {:italian "ricco"}
              :english {:english "rich"}})
 
            ;; comparative:
-           (let [sem (ref {:comparative true})]
+           (let [complement-complement-sem (ref {:human true}) ;; only humans can be rich.
+                 complement-sem (ref {:pred :di
+                                      :mod complement-complement-sem})
+                 subject-sem (ref {:human true})] ;; only humans can be rich.
              (unify
               {:synsem {:sem {:pred :ricco
-                              :mod {:human true}}
-                        :subcat {:1 {:cat :prep
-                                     :sem {:pred :di}}}}
+                              :comparative true
+                              :arg1 subject-sem
+                              :arg2 complement-complement-sem}
+                        :subcat {:1 {:cat :noun
+                                     :sem subject-sem}
+                                 :2 {:cat :prep
+                                     :sem complement-sem}}}
                :italian {:italian "ricco"}
                :english {:english "rich"}}))))
 
      ;; old-style
-     ;; TODO: copy all the below adjectives into the simpler list shown above.
+     ;; TODO: copy all the below adjectives into the format used above.
             (list
              {:synsem {:cat :adjective
                        :sem {:pred :bianco

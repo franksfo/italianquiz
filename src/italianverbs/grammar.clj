@@ -37,6 +37,18 @@
                               :2 '()}}}
      :comp {:synsem comp-synsem}}))
 
+(def subcat-promote-principle
+;;     subcat<1>
+;;     /      \
+;;    /        \
+;;   subcat<1,2>  2:C
+  (let [comp-synsem (ref :top)
+        parent-subcat (ref :top)]
+    {:synsem {:subcat {:1 parent-subcat}}
+     :head {:synsem {:subcat {:1 parent-subcat
+                              :2 comp-synsem}}}
+     :comp {:synsem comp-synsem}}))
+
 ;;     subcat<1>
 ;;     /      \
 ;;    /        \
@@ -140,6 +152,29 @@
                              :comp 'intensifier-phrase
                          }
                 }}))
+
+  (def vp-essere-copula
+    (let [infl (ref :top)
+          agr (ref :top)]
+      (unify
+       head-principle
+       subcat-promote-principle
+       italian-head-first
+       english-head-first
+       {:english {:a {:infl infl
+                      :agr agr}
+                  :infl infl
+                  :agr agr}
+        :italian {:a {:infl infl
+                      :agr agr}
+                  :b {:agr agr}
+                  :infl infl}
+        :head {:synsem {:cat :verb}}
+        :comment-plaintext "vp[essere-copula]"
+        :comment "vp[essere-copula]"
+        :extend {:f {:head 'lexicon
+                     :comp 'intensifier-phrase}
+                 }})))
 
   (def vp-pron
     (fs/merge
@@ -363,7 +398,7 @@
 
 (def adj-phrase
   (unify head-principle
-         subcat-1-principle
+         subcat-2-principle
          italian-head-first
          english-head-first
          {:comment "adj-phrase&nbsp;&#x2192;&nbsp;adj&nbsp;+&nbsp;prep-phrase" ;; sorry that this is hard to read: trying to avoid the
@@ -379,7 +414,7 @@
 
          (let [agr (ref :top)]
            {:synsem {:agr agr}
-            :italian {:a {:agr agr}}
+            :italian {:a {:agr agr}} ;; this enforces adjective-np agreement with subject.
             :head {:synsem {:agr agr}}})
 
          {:synsem {:cat :adjective}
@@ -392,12 +427,12 @@
 ;; while the intensifier is the complement.
 (def intensifier-phrase
   (unify head-principle
-         subcat-1-principle
+         subcat-2-principle
          italian-head-first
          english-head-first ;; not sure about this e.g. "più ricca di Paolo (richer than Paolo)"
 
          (let [agr (ref :top)]
-           {:synsem {:agr agr}
+           {:synsem {:subcat {:1 {:agr agr}}}
             :comp {:synsem {:agr agr}}
             :italian {:b {:agr agr}}})
 
@@ -488,9 +523,11 @@
 
 (def prep-phrase
   (let [comparative (ref :top)
+        comp-sem (ref :top)
         head (ref {:synsem {:cat :prep
                             :sem {:comparative comparative}}})
         comp (ref {:synsem {:cat :noun
+                            :sem comp-sem
                             :subcat '()}})]
     (fs/unifyc head-principle
                subcat-1-principle
@@ -499,7 +536,8 @@
                 :comment-plaintext "pp -> prep (np or proper noun)"}
                {:head head
                 :comp comp
-                :synsem {:sem {:comparative comparative}}}
+                :synsem {:sem {:comparative comparative
+                               :mod comp-sem}}}
                italian-head-first
                english-head-first
                {:extend {:a {:head 'lexicon
