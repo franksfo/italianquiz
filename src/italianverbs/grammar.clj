@@ -37,18 +37,6 @@
                               :2 '()}}}
      :comp {:synsem comp-synsem}}))
 
-(def subcat-promote-principle
-;;     subcat<1>
-;;     /      \
-;;    /        \
-;;   subcat<1,2>  2:C
-  (let [comp-synsem (ref :top)
-        parent-subcat (ref :top)]
-    {:synsem {:subcat {:1 parent-subcat}}
-     :head {:synsem {:subcat {:1 parent-subcat
-                              :2 comp-synsem}}}
-     :comp {:synsem comp-synsem}}))
-
 ;;     subcat<1>
 ;;     /      \
 ;;    /        \
@@ -132,6 +120,15 @@
                {:comp comp
                 :head head}
                {:head {:synsem {:cat :verb}}}
+               {:english {:a {:infl infl
+                              :agr agr}
+                          :infl infl
+                          :agr agr}
+                :italian {:a {:infl infl
+                              :agr agr}
+                          :b {:agr agr}
+                          :infl infl}}
+
                ;; note that vp-pron does not
                ;; inherit from vp, so it does not have this constraint.
                ;; we must have this negative constraint to prevent
@@ -149,32 +146,7 @@
                          :d {:head 'lexicon
                              :comp 'lexicon}
                          :e {:head 'lexicon
-                             :comp 'intensifier-phrase
-                         }
-                }}))
-
-  (def vp-essere-copula
-    (let [infl (ref :top)
-          agr (ref :top)]
-      (unify
-       head-principle
-       subcat-promote-principle
-       italian-head-first
-       english-head-first
-       {:english {:a {:infl infl
-                      :agr agr}
-                  :infl infl
-                  :agr agr}
-        :italian {:a {:infl infl
-                      :agr agr}
-                  :b {:agr agr}
-                  :infl infl}
-        :head {:synsem {:cat :verb}}
-        :comment-plaintext "vp[essere-copula]"
-        :comment "vp[essere-copula]"
-        :extend {:f {:head 'lexicon
-                     :comp 'intensifier-phrase}
-                 }})))
+                             :comp 'intensifier-phrase}}}))
 
   (def vp-pron
     (fs/merge
