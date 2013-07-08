@@ -439,9 +439,9 @@
                               (if (and (> (/ (.size filtered-complements)
                                              (.size comps))
                                           0)
-                                       (> 1/10 (/ (.size filtered-complements)
+                                       (> 1/20 (/ (.size filtered-complements)
                                                   (.size comps))))
-                                (log/warn (str  (unify/get-in parent '(:comment-plaintext)) ": comp filter ratio < 10%: "
+                                (log/warn (str  (unify/get-in parent '(:comment-plaintext)) ": comp filter ratio < 5%: "
                                                 (/ (.size filtered-complements) (.size comps)))))
                               filtered-complements)
                             depth
