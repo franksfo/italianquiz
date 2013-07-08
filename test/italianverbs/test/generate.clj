@@ -175,7 +175,7 @@
   "adjectives must agree with subjects - tests this behavior with intermediate 'meno ricco' between the subject and the adjective."
   (let [lei-e-piu-ricca-di-giorgio
         (over gram/s-present "lei"
-              (over gram/vp-essere-copula "essere"
+              (over gram/vp "essere"
                     (over gram/intensifier-phrase "più"
                           (over gram/adj-phrase "ricco"
                                 (over gram/prep-phrase "di" "Giorgio")))))]
