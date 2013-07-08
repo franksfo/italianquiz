@@ -2190,17 +2190,16 @@
                  complement-sem (ref {:pred :di
                                       :mod complement-complement-sem})
                  subject-sem (ref {:human true})] ;; only humans can be rich.
-             (unify
-              {:synsem {:sem {:pred :ricco
-                              :comparative true
-                              :arg1 subject-sem
-                              :arg2 complement-complement-sem}
-                        :subcat {:1 {:cat :noun
-                                     :sem subject-sem}
-                                 :2 {:cat :prep
-                                     :sem complement-sem}}}
-               :italian {:italian "ricco"}
-               :english {:english "rich"}}))))
+             {:synsem {:sem {:pred :ricco
+                             :comparative true
+                             :arg1 subject-sem
+                             :arg2 complement-complement-sem}
+                       :subcat {:1 {:cat :noun
+                                    :sem subject-sem}
+                                :2 {:cat :prep
+                                    :sem complement-sem}}}
+              :italian {:italian "ricco"}
+              :english {:english "rich"}})
 
      ;; old-style
      ;; TODO: copy all the below adjectives into the format used above.
