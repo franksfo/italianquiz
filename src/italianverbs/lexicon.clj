@@ -1259,23 +1259,6 @@
    essere-aux
    avere-aux))
 
-;; combine essere-adjective and essere-copula
-(def essere-adjective
-  (let [gender (ref :top)
-        number (ref :top)]
-    (unify
-     transitive-but-with-adjective-instead-of-noun
-     essere-common
-     {:synsem {:cat :verb
-               :subcat {:1 {:cat :noun
-                            :agr {:gender gender
-                                  :number number}}
-                        :2 {:cat :adjective
-                            :agr {:gender gender
-                                  :number number}}}
-               :sem {:pred :essere
-                     :activity false
-                     :subj {:human true}}}})))  ;; TODO: overly-specific.
 
 (def essere-copula
   (let [gender (ref :top)
@@ -1300,18 +1283,32 @@
                      :subj {:human human}
                      :obj {:human human}}}})))
 
+;; TODO: combine essere-adjective and essere-intensifier
+(def essere-adjective
+  (let [subject (ref {:cat :noun})
+        comp-sem (ref :top)]
+    (unify
+     essere-common
+     {:synsem {:cat :verb
+               :subcat {:1 subject
+                        :2 {:cat :adjective
+                            :sem comp-sem
+                            :subcat {:1 subject
+                                     :2 '()}}}
+               :sem comp-sem}})))
+
 ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
 (def essere-intensifier
   (let [subject (ref {:cat :noun})
         comp-sem (ref :top)]
     (unify
      essere-common
-     {:notes "intensifier"
-      :synsem {:cat :verb
+     {:synsem {:cat :verb
                :subcat {:1 subject
                         :2 {:cat :intensifier
                             :sem comp-sem
-                            :subcat {:1 subject}}}
+                            :subcat {:1 subject
+                                     :2 '()}}}
                :sem comp-sem}})))
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
@@ -2202,7 +2199,7 @@
                                 :2 {:cat :prep
                                     :sem complement-sem}}}
               :italian {:italian "ricco"}
-              :english {:english "rich"}})
+              :english {:english "rich"}})))
 
      ;; old-style
      ;; TODO: copy all the below adjectives into the format used above.
@@ -2294,7 +2291,7 @@
               :italian {:italian "semplice"
                         :cat :adjective}
               :english {:english "naive"
-                        :cat :adjective}}))))))
+                        :cat :adjective}}))))
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
