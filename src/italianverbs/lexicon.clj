@@ -2158,15 +2158,18 @@
            ;; comparative:
            (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
                  complement-sem (ref {:pred :di
-                                      :mod complement-complement-sem})]
-             (unify
-              {:synsem {:sem {:pred :alto
-                              :comparative true
-                              :mod complement-complement-sem}
-                        :subcat {:1 {:cat :prep
-                                     :sem complement-sem}}}
-               :italian {:italian "alto"}
-               :english {:english "tall"}}))
+                                      :mod complement-complement-sem})
+                 subject-sem (ref {:human true})] ;; only humans can be tall.
+             {:synsem {:sem {:pred :alto
+                             :comparative true
+                             :arg1 subject-sem
+                             :arg2 complement-complement-sem}
+                       :subcat {:1 {:cat :noun
+                                    :sem subject-sem}
+                                :2 {:cat :prep
+                                    :sem complement-sem}}}
+              :italian {:italian "alto"}
+              :english {:english "tall"}})
 
            {:synsem {:sem {:pred :bello}}
             :italian {:italian "bello"}
