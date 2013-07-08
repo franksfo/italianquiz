@@ -2072,6 +2072,9 @@
                             :sem {:comparative true
                                   :human human
                                   :animate animate}}}}
+
+
+
       :italian "più"
       :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
       })
@@ -2085,8 +2088,31 @@
                              :animate animate})
          adj-semantics (ref :top)]
      {:synsem {:cat :intensifier
+               :sem {:pred :più
+                     :modifies adj-semantics
+                     :arg1 subj-semantics
+                     :arg2 obj-semantics}
+               :subcat {:1 {:cat :noun
+                            :sem subj-semantics}
+                        :2 {:cat :adjective
+                            :sem {:arg1 subj-semantics
+                                  :pred adj-semantics
+                                  :arg2 obj-semantics}}}}
+      :italian "più"
+      :english "more"
+      })
+
+   (let [human (ref :top)
+         animate (ref :top)
+         subj-semantics (ref {:human human
+                              :animate animate})
+         obj-semantics (ref {:comparative true
+                             :human human
+                             :animate animate})
+         adj-semantics (ref :top)]
+     {:synsem {:cat :intensifier
                :sem {:pred :meno
-                     :mod-pred adj-semantics
+                     :modifies adj-semantics
                      :arg1 subj-semantics
                      :arg2 obj-semantics}
                :subcat {:1 {:cat :noun
