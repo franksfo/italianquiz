@@ -366,7 +366,8 @@
        (str butlast (suffix-of word)))
 
      ;; conjugate regular passato
-     (= :past (fs/get-in word '(:infl)))
+     (and (= :past (fs/get-in word '(:infl)))
+          (string? (fs/get-in word '(:infinitive))))
      (let [infinitive (fs/get-in word '(:infinitive))
            are-type (try (re-find #"are$" infinitive)
                          (catch Exception e
@@ -778,17 +779,18 @@
    (string? word)
    (strip word)
 
-   ;; (could have) + (gone) => "could have gone"
+   ;; (could have) + (to go) => "could have gone"
    (and
     (fs/get-in word '(:a))
     (fs/get-in word '(:b))
     (string? (fs/get-in word '(:a :irregular :past)))
+    (= (fs/get-in word '(:irregular :past)) "could have")
     (string? (fs/get-in word '(:b :irregular :past-participle)))
     (= (fs/get-in word '(:a :infl)) :past))
    (string/join " " (list (fs/get-in word '(:a :irregular :past))
                           (fs/get-in word '(:b :irregular :past-participle))))
 
-   ;; (could have) + (sleep) => "could have slept"
+   ;; (could have) + (to sleep) => "could have slept"
    (and
     (fs/get-in word '(:a))
     (fs/get-in word '(:b))
@@ -803,6 +805,7 @@
     (fs/get-in word '(:a))
     (fs/get-in word '(:b))
     (string? (fs/get-in word '(:a :irregular :past)))
+    (= (fs/get-in word '(:a :irregular :past)) "could have")
     (string? (fs/get-in word '(:b :a :irregular :past-participle)))
     (= (fs/get-in word '(:a :infl)) :past))
    ;; recursive call after inflecting '(:b :a) to past.
@@ -815,6 +818,7 @@
     (fs/get-in word '(:a))
     (fs/get-in word '(:b))
     (string? (fs/get-in word '(:a :irregular :past)))
+    (= (fs/get-in word '(:a :irregular :past)) "could have")
     (string? (fs/get-in word '(:b :a :irregular :past)))
     (= (fs/get-in word '(:a :infl)) :past))
    ;; recursive call after inflecting '(:b :a) to past.
