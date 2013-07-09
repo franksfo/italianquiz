@@ -353,7 +353,7 @@
 
      ;; regular passato prossimo and essere-verb => NEI (not enough information): defer conjugation and keep as a map.
      (and (= :past (fs/get-in word '(:infl)))
-          (fs/get-in word '(:essere) true)
+          (= (fs/get-in word '(:essere)) true)
           (or (= :notfound (fs/get-in word '(:agr :number) :notfound))
               (= :top (fs/get-in word '(:agr :number)))))
      (str "[" (fs/get-in word '(:infinitive)) " (past)]")
