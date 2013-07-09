@@ -559,6 +559,37 @@
                    :infl :infinitive}
                :b "this homework"}}))))
 
+(deftest fatto-Milano
+  (is (= "fatto Milano"
+         (strip (get-italian
+                 {:infl :past
+                  :a {:cat :verb
+                      :infinitive "fare"
+                      :essere false
+                      :irregular {:present {:1sing "facio"
+                                            :3plur "fanno"
+                                            :1plur "facciamo"
+                                            :2plur "fate"
+                                            :3sing "fa"
+                                            :2sing "fai"}
+                                  :futuro {:1sing "farò"
+                                           :3plur "faranno"
+                                           :1plur "faremo"
+                                           :2plur "farete"
+                                           :3sing "farà"
+                                           :2sing "farai"}
+                                  :imperfetto {:1sing "facevo"
+                                               :3plur "facevano"
+                                               :1plur "facevamo"
+                                               :2plur "facevate"
+                                               :3sing "faceva"
+                                               :2sing "facevi"}
+                                  :passato "fatto"}
+                      :agr {:case {:not :acc}}
+                      :infl :past}
+                  :b {:agr {:case {:not :acc}}
+                      :italian "Milano"}})))))
+
 
 
 
