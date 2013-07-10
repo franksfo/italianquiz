@@ -673,7 +673,10 @@
             {:synsem {:sem {:pred :milano
                             :buyable false
                             :artifact true
-                            :city true}}
+                            :city true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
              :italian {:italian "Milano"}
              :english {:english "Milan"}})
 
@@ -681,7 +684,10 @@
             {:synsem {:sem {:pred :napoli
                             :buyable false
                             :artifact true
-                            :city true}}
+                            :city true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
              :italian {:italian "Napoli"}
              :english {:english "Naples"}})
 
@@ -697,8 +703,11 @@
      (unify proper-noun
             {:synsem {:sem {:pred :roma
                             :buyable false
-                            :artifact true ;; but wasn't built in a day.
-                            :city true}}
+                            :artifact true ;; but wasn't built in a day..
+                            :city true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
                 :italian {:italian "Roma"}
              :english {:english "Rome"}}))))
 
