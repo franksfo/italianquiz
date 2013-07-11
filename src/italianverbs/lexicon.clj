@@ -1295,7 +1295,8 @@
 ;; TODO: combine essere-adjective and essere-intensifier
 (def essere-adjective
   (let [subject (ref {:cat :noun})
-        comp-sem (ref :top)]
+        comp-sem (ref
+                  {:activity false})]
     (unify
      essere-common
      {:synsem {:cat :verb
@@ -1309,7 +1310,8 @@
 ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
 (def essere-intensifier
   (let [subject (ref {:cat :noun})
-        comp-sem (ref :top)]
+        comp-sem (ref
+                  {:activity false})]
     (unify
      essere-common
      {:synsem {:cat :verb
