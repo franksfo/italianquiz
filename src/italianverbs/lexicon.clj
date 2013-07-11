@@ -1121,6 +1121,7 @@
    avere-common
    {:synsem {:sem {:pred :avere
                    :activity false
+                   :discrete false
                    :subj {:human true}
                    :obj {:buyable true}}}}))
 
@@ -1296,7 +1297,8 @@
 (def essere-adjective
   (let [subject (ref {:cat :noun})
         comp-sem (ref
-                  {:activity false})]
+                  {:activity false
+                   :discrete false})]
     (unify
      essere-common
      {:synsem {:cat :verb
@@ -1311,7 +1313,8 @@
 (def essere-intensifier
   (let [subject (ref {:cat :noun})
         comp-sem (ref
-                  {:activity false})]
+                  {:activity false
+                   :discrete false})]
     (unify
      essere-common
      {:synsem {:cat :verb
@@ -2239,7 +2242,30 @@
                                 :2 {:cat :prep
                                     :sem complement-sem}}}
               :italian {:italian "ricco"}
-              :english {:english "rich"}})))
+              :english {:english "rich"}})
+
+           ;; non-comparative
+           {:synsem {:cat :adjective
+                     :sem {:pred :robusto
+                           :comparative false
+                           :point false
+                           :activity false
+                           :mod {:animate true}}}
+            :italian {:italian "robusto"
+                      :cat :adjective}
+            :english {:english "large-built"
+                      :cat :adjective}}
+
+           {:synsem {:cat :adjective
+                     :sem {:pred :rosso
+                           :comparative false
+                           :mod {:physical-object true
+                                 :human false}}}
+            :italian {:italian "rosso"
+                        :cat :adjective}
+            :english {:english "red"
+                      :cat :adjective}}
+
 
      ;; old-style
      ;; TODO: copy all the below adjectives into the format used above.
@@ -2288,31 +2314,12 @@
                         :cat :adjective}}
 
              {:synsem {:cat :adjective
-                       :sem {:pred :robusto
-                             :point false
-                             :activity false
-                             :mod {:animate true}}}
-              :italian {:italian "robusto"
-                        :cat :adjective}
-              :english {:english "large-built"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
-                       :sem {:pred :rosso
-                             :mod {:physical-object true
-                                   :human false}}}
-              :italian {:italian "rosso"
-                        :cat :adjective}
-              :english {:english "red"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
                        :sem {:pred :semplice
                              :mod {:human true}}}
               :italian {:italian "semplice"
                         :cat :adjective}
               :english {:english "naive"
-                        :cat :adjective}}))))
+                        :cat :adjective}}))))))
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
