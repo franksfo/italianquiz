@@ -2181,10 +2181,39 @@
             :italian {:italian "bello"}
             :english {:english "beautiful"}}
 
+           ;; non-comparative
+           ;; TODO: add comparative
+           {:synsem {:cat :adjective
+                     :sem {:pred :bianco
+                           :comparative false
+                           :mod {:physical-object true
+                                 :human false}}}
+            :italian {:italian "bianco"
+                      :irregular {:masc {:plur "bianchi"}
+                                  :fem {:plur "bianche"}}
+                      :cat :adjective}
+            :english {:english "white"
+                      :cat :adjective}}
+
+           ;; non-comparative
+           ;; TODO: add comparative
            {:synsem {:sem {:pred :gentile
+                           :comparative false
                            :mod {:human true}}} ;; sono gli umani possono essere gentile.
             :italian {:italian "gentile"}
             :english {:english "kind"}}
+
+           ;; non-comparative
+           ;; TODO: add comparative
+           {:synsem {:cat :adjective
+                     :sem {:pred :nero
+                           :comparative false
+                           :mod {:physical-object true
+                                 :human false}}}
+            :italian {:italian "nero"
+                      :cat :adjective}
+            :english {:english "black"
+                      :cat :adjective}}
 
            ;; non-comparative
            (unify
@@ -2212,17 +2241,7 @@
 
      ;; old-style
      ;; TODO: copy all the below adjectives into the format used above.
-            (list
-             {:synsem {:cat :adjective
-                       :sem {:pred :bianco
-                             :mod {:physical-object true
-                                   :human false}}}
-              :italian {:italian "bianco"
-                        :irregular {:masc {:plur "bianchi"}
-                                    :fem {:plur "bianche"}}
-                        :cat :adjective}
-              :english {:english "white"
-                        :cat :adjective}}
+                (list
 
              {:synsem {:cat :adjective
                        :sem {:pred :brutto
@@ -2255,15 +2274,6 @@
               :italian {:italian "difficile"
                         :cat :adjective}
               :english {:english "difficult"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
-                       :sem {:pred :nero
-                             :mod {:physical-object true
-                                   :human false}}}
-              :italian {:italian "nero"
-                        :cat :adjective}
-              :english {:english "black"
                         :cat :adjective}}
 
              {:synsem {:cat :adjective
