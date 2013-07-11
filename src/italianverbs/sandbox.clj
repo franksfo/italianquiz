@@ -170,6 +170,8 @@
         (che (first parent))
         (che (rest parent)))))
     {:sem (get-in parent '(:synsem :sem))
+     :italiano-crudo (get-in parent '(:italian))
+     :inglese-crudo (get-in parent '(:english))
      :english (get-english (get-in parent '(:english)))
      :italian (get-italian (get-in parent '(:italian)))}))
 
