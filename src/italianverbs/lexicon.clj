@@ -2228,10 +2228,6 @@
               :italian {:italian "corto"}
               :english {:english "short"}})
 
-           {:synsem {:sem {:pred :bello}}
-            :italian {:italian "bello"}
-            :english {:english "beautiful"}}
-
            ;; non-comparative
            {:synsem {:cat :adjective
                      :sem {:pred :corto
