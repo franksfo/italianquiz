@@ -2314,16 +2314,6 @@
                         :cat :adjective}}
 
              {:synsem {:cat :adjective
-                       :sem {:pred :robusto
-                             :point false
-                             :activity false
-                             :mod {:animate true}}}
-              :italian {:italian "robusto"
-                        :cat :adjective}
-              :english {:english "large-built"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
                        :sem {:pred :rosso
                              :mod {:physical-object true
                                    :human false}}}
