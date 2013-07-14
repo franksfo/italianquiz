@@ -1121,6 +1121,7 @@
    avere-common
    {:synsem {:sem {:pred :avere
                    :activity false
+                   :discrete false
                    :subj {:human true}
                    :obj {:buyable true}}}}))
 
@@ -1296,7 +1297,8 @@
 (def essere-adjective
   (let [subject (ref {:cat :noun})
         comp-sem (ref
-                  {:activity false})]
+                  {:activity false
+                   :discrete false})]
     (unify
      essere-common
      {:synsem {:cat :verb
@@ -1311,7 +1313,8 @@
 (def essere-intensifier
   (let [subject (ref {:cat :noun})
         comp-sem (ref
-                  {:activity false})]
+                  {:activity false
+                   :discrete false})]
     (unify
      essere-common
      {:synsem {:cat :verb
