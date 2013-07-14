@@ -2148,70 +2148,70 @@
         adj {:synsem {:cat adjective
                       :agr {:gender gender
                             :number number}
-                      ;; commenting this for now: not sure why it's here; TODO remove altogether.
-;;                      :sem {:mod :top}
                       }
              :italian {:cat adjective
                        :agr {:number number
                              :gender gender}}
              :english {:cat adjective}}]
-
-    ;; new-style
-     (map (fn [entry]
-            (unify adj entry))
-          (list
-           ;; non-comparative:
-           {:synsem {:cat :adjective
-                     :sem {:pred :alto
-                           :comparative false
+    (map (fn [entry]
+           (unify adj entry))
+         (list
+          ;; non-comparative:
+          {:synsem {:cat :adjective
+                    :sem {:pred :alto
+                          :comparative false
                            :mod {:human true}}}
-            :italian {:italian "alto"}
-            :english {:english "tall"}}
+           :italian {:italian "alto"}
+           :english {:english "tall"}}
 
-           ;; comparative:
-           (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
-                 complement-sem (ref {:pred :di
-                                      :mod complement-complement-sem})
-                 subject-sem (ref {:human true})] ;; only humans can be tall.
-             {:synsem {:sem {:pred :alto
-                             :comparative true
-                             :arg1 subject-sem
-                             :arg2 complement-complement-sem}
-                       :subcat {:1 {:cat :noun
-                                    :sem subject-sem}
-                                :2 {:cat :prep
-                                    :sem complement-sem}}}
-              :italian {:italian "alto"}
-              :english {:english "tall"}})
+          ;; comparative:
+          (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
+                complement-sem (ref {:pred :di
+                                     :mod complement-complement-sem})
+                subject-sem (ref {:human true})] ;; only humans can be tall.
+            {:synsem {:sem {:pred :alto
+                            :comparative true
+                            :arg1 subject-sem
+                            :arg2 complement-complement-sem}
+                      :subcat {:1 {:cat :noun
+                                   :sem subject-sem}
+                               :2 {:cat :prep
+                                   :sem complement-sem}}}
+             :italian {:italian "alto"}
+             :english {:english "tall"}})
 
-           {:synsem {:sem {:pred :bello}}
-            :italian {:italian "bello"}
-            :english {:english "beautiful"}}
+          ;; non-comparative
+          ;; TODO: add comparative
+          {:synsem {:sem {:pred :bello
+                          :comparative false
+                          :mod :top}} ;; for now, no restrictions on what can be beautiful.
+           :italian {:italian "bello"}
+           :english {:english "beautiful"}}
 
-           ;; non-comparative
-           ;; TODO: add comparative
-           {:synsem {:cat :adjective
-                     :sem {:pred :brutto
-                           :comparative false
-                           :mod :top}} ;; for now, no restrictions on what can be ugly.
-            :italian {:italian "brutto"
-                      :cat :adjective}
-            :english {:english "ugly"
-                      :cat :adjective}}
+          ;; non-comparative
+          ;; TODO: add comparative
+          {:synsem {:cat :adjective
+                    :sem {:pred :brutto
+                          :comparative false
+                          :mod :top}} ;; for now, no restrictions on what can be ugly.
+           :italian {:italian "brutto"
+                     :cat :adjective}
+           :english {:english "ugly"
+                     :cat :adjective}}
 
-           ;; non-comparative
-           ;; TODO: add comparative
-           {:synsem {:cat :adjective
-                     :sem {:pred :bianco
-                           :comparative false
-                           :mod {:physical-object true
-                                 :human false}}}
-            :italian {:italian "bianco"
-                      :irregular {:masc {:plur "bianchi"}
-                                  :fem {:plur "bianche"}}
-                      :cat :adjective}
-            :english {:english "white"
-                      :cat :adjective}}
+          ;; non-comparative
+          ;; TODO: add comparative
+          {:synsem {:cat :adjective
+                    :sem {:pred :bianco
+                          :comparative false
+                          :mod {:physical-object true
+                                :human false}}}
+           :italian {:italian "bianco"
+                     :irregular {:masc {:plur "bianchi"}
+                                 :fem {:plur "bianche"}}
+                     :cat :adjective}
+           :english {:english "white"
+                     :cat :adjective}}
 
            (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
                  complement-sem (ref {:pred :di
@@ -2242,9 +2242,8 @@
             :english {:english "short"
                       :cat :adjective}}
 
-
            ;; non-comparative
-           ;; TODO: comparative
+           ;; TODO: add comparative
            {:synsem {:cat :adjective
                      :sem {:pred :difficile
                            :comparative false
