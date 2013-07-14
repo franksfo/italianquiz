@@ -41,9 +41,9 @@
     [:div
      (if (= relative-url "/workbook/") {:class "selected"})
      [:a {:href "/italian/workbook/"} "Libro di Lavoro"  ] ]
-    [:div
-     (if (= relative-url "/preferiti/") {:class "selected"})
-     [:a {:href "/italian/preferiti/"} "I tuoi preferiti"]]
+;    [:div
+;     (if (= relative-url "/preferiti/") {:class "selected"})
+;     [:a {:href "/italian/preferiti/"} "I tuoi preferiti"]]
     [:div
      (if (= relative-url "/about/") {:class "selected"})
      [:a {:href "/italian/about/"} "Che è?"  ] ]
