@@ -427,6 +427,8 @@
           :extend {:a {:comp 'adj-phrase
                        :head 'lexicon}}}))
 
+;; TODO: make adjective the head (currently the complement)
+;; and make noun the complement (currently the head)
 (def nbar
   (let [head-semantics (ref :top)
         adjectival-predicate (ref :top)
@@ -454,9 +456,9 @@
                    :italian {:agr agr}
                    :english {:agr agr}}}
 
-           {:synsem {:sem {:comparative false
-                           :mod adjectival-predicate}}
+           {:synsem {:sem {:mod adjectival-predicate}}
             :comp {:synsem {:sem {:mod head-semantics
+                                  :comparative false
                                   :pred adjectival-predicate}}}}
            {:comment "n&#x0305; &#x2192; noun adj"
             :comment-plaintext "nbar -> noun adj"
