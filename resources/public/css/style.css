@@ -21,7 +21,7 @@ div.quiz-elem {
     -moz-border-radius: 5px;
     border-radius: 5px;
     padding:0;
-    margin:0;   
+    margin:0;
 }
 
 div#workbooka {
@@ -239,21 +239,31 @@ table.matrix td.corrent {
 }
 
 span.insert {
-    color: #bbb;
-    visibility:visible;
+    color: #dee;
+    visibility:none;
+    text-decoration:line-through;
     border-bottom: 8px solid red;
 }
 
 span.delete {
-    display:none;
-    color:#bbb;
+    border-bottom: 8px solid red;
+    color: transparent; /* causes the correct letter to be invisible in this context, which is
+                           the user's guess: if span is class
+                           delete, it's something that appears in the
+                           correct answer, but which the user failed
+                           to type. Since the correct answer will be
+                           shown in the line above the user's input
+                           string, we don't need to make the letter
+                           visible; we will indicate the missing
+                           correct letter by showing an empty
+                           (transparent) blank space where the correct
+                           letter is missing from the user's guess. */
     border-bottom: 8px solid red;
 }
 span.subst {
-/*    display:none;*/
     border-bottom: 8px solid red;
-/*    text-decoration:line-through;*/
-    color:#bbb;
+    text-decoration:line-through;
+    color:#dee;
 }
 
 span.match {
@@ -344,11 +354,6 @@ tr.distn span.subst {
 }
 tr.distn span.match {
     border-bottom: 2px solid lightgreen;
-}
-
-span.delete {
-    border-bottom: 8px solid red;
-    color: transparent;
 }
 
 span.subst {
