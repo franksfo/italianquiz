@@ -1259,6 +1259,7 @@
    aux-type
     subjective
     essere-common
+    {:notes "essere-aux"}
     {:synsem {:infl :present
               :subcat {:2 {:essere true}}}
      :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
@@ -1301,6 +1302,7 @@
                    :discrete false})]
     (unify
      essere-common
+     {:notes "essere-adjective"}
      {:synsem {:cat :verb
                :subcat {:1 subject
                         :2 {:cat :adjective
@@ -1317,6 +1319,7 @@
                    :discrete false})]
     (unify
      essere-common
+     {:notes "essere-intensifer"}
      {:synsem {:cat :verb
                :subcat {:1 subject
                         :2 {:cat :intensifier
