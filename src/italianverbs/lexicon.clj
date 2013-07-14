@@ -2264,8 +2264,7 @@
             :italian {:italian "rosso"
                         :cat :adjective}
             :english {:english "red"
-                      :cat :adjective}}
-
+                      :cat :adjective}}))
 
      ;; old-style
      ;; TODO: copy all the below adjectives into the format used above.
@@ -2319,7 +2318,7 @@
               :italian {:italian "semplice"
                         :cat :adjective}
               :english {:english "naive"
-                        :cat :adjective}}))))))
+                        :cat :adjective}}))))
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
