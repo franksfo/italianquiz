@@ -1142,7 +1142,6 @@
               :essere essere-binary-categorization
               :subcat {:1 subject
                        :2 {:cat :verb
-                           :essere false
                            :subcat {:1 subject
                                     :2 '()}
                            :sem sem
