@@ -445,7 +445,8 @@
                    :italian {:agr agr}
                    :english {:agr agr}}}
 
-           {:synsem {:sem {:mod adjectival-predicate}}
+           {:synsem {:sem {:comparative false
+                           :mod adjectival-predicate}}
             :comp {:synsem {:sem {:mod head-semantics
                                   :pred adjectival-predicate}}}}
            {:comment "n&#x0305; &#x2192; noun adj"
