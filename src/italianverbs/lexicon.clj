@@ -2314,15 +2314,6 @@
                         :cat :adjective}}
 
              {:synsem {:cat :adjective
-                       :sem {:pred :rosso
-                             :mod {:physical-object true
-                                   :human false}}}
-              :italian {:italian "rosso"
-                        :cat :adjective}
-              :english {:english "red"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
                        :sem {:pred :semplice
                              :mod {:human true}}}
               :italian {:italian "semplice"
