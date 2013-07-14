@@ -111,9 +111,19 @@ Note that morphology does not have direct access to the lexicon for now: it shou
 only be concerned with regular morphology rules, which excludes lexical information
 (or so we assume for now).
 
+# Populating mongodb with questions
+
+To populate mongodb with a set of questions, run:
+
+    sh ./populate.sh <number of questions>
+
+which is simply a wrapper around:
+
+    lein run -m italianverbs.populate <number of questions>
+
 # License:
 
--resources/public/js/jsquery-1.6.4.min.js 
+-resources/public/js/jsquery-1.6.4.min.js
   is provided under the LGPL version 2 per http://jquery.org/license/.
 -remainder: see LICENSE file.
 
@@ -139,6 +149,6 @@ Structure sharing using Clojure refs
     {:foo 100, :c 43}
     user> mymap2
     {:a #<Ref@55187eb3: {:foo 100, :c 43}>, :b #<Ref@55187eb3: {:foo 100, :c 43}>}
-    user> 
+    user>
 
 

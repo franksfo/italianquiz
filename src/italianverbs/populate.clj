@@ -29,6 +29,11 @@
     (println (str "sentence collection now has " count " sentences."))
     count))
 
+(defn -main [& args]
+  (if (not (nil? (first args)))
+    (populate (Integer. (first args)))
+    (populate 100)))
+
 (defn random-sentence []
   (let [count (mongo/fetch-count :sentences)
         sentences (mongo/fetch :sentences)]
