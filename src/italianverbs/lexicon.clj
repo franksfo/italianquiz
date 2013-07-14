@@ -1688,10 +1688,10 @@
         {:synsem {:cat :noun
                   :pronoun true
                   :agr {:case :nom
+                        :gender :fem
                         :person :2nd
                         :number :sing}
                   :sem (unify human {:pred :tu})
-                        :gender :fem
                   :subcat '()}
          :english {:english "you"
                    :note " (&#x2640;)"} ;; unicode female symbol
