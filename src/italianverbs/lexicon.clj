@@ -1152,7 +1152,8 @@
    aux-type
    subjective
    avere-common
-   {:synsem {:infl :present}
+   {:synsem {:infl :present
+             :subcat {:2 {:essere false}}}
     :english {:hidden true}}))
 
 (def bevere
@@ -2151,9 +2152,8 @@
                        :agr {:number number
                              :gender gender}}
              :english {:cat adjective}}]
-    (concat
 
-     ;; new-style
+    ;; new-style
      (map (fn [entry]
             (unify adj entry))
           (list
@@ -2188,6 +2188,17 @@
            ;; non-comparative
            ;; TODO: add comparative
            {:synsem {:cat :adjective
+                     :sem {:pred :brutto
+                           :comparative false
+                           :mod :top}} ;; for now, no restrictions on what can be ugly.
+            :italian {:italian "brutto"
+                      :cat :adjective}
+            :english {:english "ugly"
+                      :cat :adjective}}
+
+           ;; non-comparative
+           ;; TODO: add comparative
+           {:synsem {:cat :adjective
                      :sem {:pred :bianco
                            :comparative false
                            :mod {:physical-object true
@@ -2197,6 +2208,56 @@
                                   :fem {:plur "bianche"}}
                       :cat :adjective}
             :english {:english "white"
+                      :cat :adjective}}
+
+           (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
+                 complement-sem (ref {:pred :di
+                                      :mod complement-complement-sem})
+                 subject-sem (ref {:human true})] ;; only humans can be short.
+             {:synsem {:sem {:pred :corto
+                             :comparative true
+                             :arg1 subject-sem
+                             :arg2 complement-complement-sem}
+                       :subcat {:1 {:cat :noun
+                                    :sem subject-sem}
+                                :2 {:cat :prep
+                                    :sem complement-sem}}}
+              :italian {:italian "corto"}
+              :english {:english "short"}})
+
+           {:synsem {:sem {:pred :bello}}
+            :italian {:italian "bello"}
+            :english {:english "beautiful"}}
+
+           ;; non-comparative
+           {:synsem {:cat :adjective
+                     :sem {:pred :corto
+                           :comparative false
+                           :mod {:human true}}}
+            :italian {:italian "corto"
+                      :cat :adjective}
+            :english {:english "short"
+                      :cat :adjective}}
+
+
+           ;; non-comparative
+           ;; TODO: comparative
+           {:synsem {:cat :adjective
+                     :sem {:pred :difficile
+                           :comparative false
+                           ;; "difficile" has a very specific list of things it can modify:
+                           :mod {:drinkable false
+                                 :human false
+                                 :animate false
+                                 :buyable false
+                                 :legible true
+                                 :activity true
+                                 :artifact true
+                                 :physical-object true
+                                 :edible false}}}
+            :italian {:italian "difficile"
+                      :cat :adjective}
+            :english {:english "difficult"
                       :cat :adjective}}
 
            ;; non-comparative
@@ -2217,6 +2278,18 @@
             :italian {:italian "nero"
                       :cat :adjective}
             :english {:english "black"
+                      :cat :adjective}}
+
+           ;; non-comparative
+           ;; TODO: add comparative
+           {:synsem {:cat :adjective
+                     :sem {:pred :piccolo
+                           :comparative false
+                           :mod {:physical-object true
+                                 :mass false}}}
+            :italian {:italian "piccolo"
+                      :cat :adjective}
+            :english {:english "small"
                       :cat :adjective}}
 
            ;; non-comparative
@@ -2247,7 +2320,6 @@
            {:synsem {:cat :adjective
                      :sem {:pred :robusto
                            :comparative false
-                           :point false
                            :activity false
                            :mod {:animate true}}}
             :italian {:italian "robusto"
@@ -2263,61 +2335,33 @@
             :italian {:italian "rosso"
                         :cat :adjective}
             :english {:english "red"
-                      :cat :adjective}}))
+                      :cat :adjective}}
 
-     ;; old-style
-     ;; TODO: copy all the below adjectives into the format used above.
-                (list
+           ;; comparative:
+           (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
+                 complement-sem (ref {:pred :di
+                                      :mod complement-complement-sem})
+                 subject-sem (ref {:human true})] ;; only humans can be naive.
+             {:synsem {:sem {:pred :semplice
+                             :comparative true
+                             :arg1 subject-sem
+                             :arg2 complement-complement-sem}
+                       :subcat {:1 {:cat :noun
+                                    :sem subject-sem}
+                                :2 {:cat :prep
+                                    :sem complement-sem}}}
+              :italian {:italian "semplice"}
+              :english {:english "naive"}})
 
-             {:synsem {:cat :adjective
-                       :sem {:pred :brutto
-                             :mod :top}} ;; for now, no restrictions on what can be ugly.
-              :italian {:italian "brutto"
-                        :cat :adjective}
-              :english {:english "ugly"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
-                       :sem {:pred :corto
-                             :mod {:human true}}}
-              :italian {:italian "corto"
-                        :cat :adjective}
-              :english {:english "short"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
-                       :sem {:pred :difficile
-                             :mod {:drinkable false
-                                   :human false
-                                   :animate false
-                                   :buyable false
-                                   :legible true
-                                   :activity true
-                                   :artifact true
-                                   :physical-object true
-                                   :edible false}}}
-
-              :italian {:italian "difficile"
-                        :cat :adjective}
-              :english {:english "difficult"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
-                       :sem {:pred :piccolo
-                             :mod {:physical-object true
-                                   :mass false}}}
-              :italian {:italian "piccolo"
-                        :cat :adjective}
-              :english {:english "small"
-                        :cat :adjective}}
-
-             {:synsem {:cat :adjective
-                       :sem {:pred :semplice
-                             :mod {:human true}}}
-              :italian {:italian "semplice"
-                        :cat :adjective}
-              :english {:english "naive"
-                        :cat :adjective}}))))
+           ;; non-comparative:
+           {:synsem {:cat :adjective
+                     :sem {:pred :semplice
+                           :comparative false
+                           :mod {:human true}}}
+            :italian {:italian "semplice"
+                      :cat :adjective}
+            :english {:english "naive"
+                      :cat :adjective}}))))
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
