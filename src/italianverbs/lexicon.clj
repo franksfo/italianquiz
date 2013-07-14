@@ -1467,6 +1467,7 @@
                                       :2plur "can"
                                       :3plur "can"}}}
       :synsem {:subcat {:2 {:sem {:pred pred-of-complement}}}
+               :essere false
                :sem {:pred {:pred pred-of-complement
                             :mod :potere}
                      :activity false
@@ -1665,6 +1666,7 @@
                         :number :sing}
                   :sem {:human false
                         :animate false ;; otherwise we get weird things like "something will see my ladder".
+                        :place false ;; otherwise we get "i went to something"
                         :pred :qualcuno}
                   :subcat '()}
          :english "something"
@@ -1788,6 +1790,7 @@
                           :person :3rd
                           :number :sing}
                     :sem {:human false
+                          :place false
                           :pred :lo}
                     :subcat '()}
            :english {:english "it"
