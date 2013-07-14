@@ -166,24 +166,33 @@
                 }})))
 
   (def vp-aux
-    (let [aspect (ref :top)]
-      ;; add to vp some additional expansions for vp-present:
+    (let [aspect (ref :top)
+          agr (ref :top)]
       (fs/merge
-       (lexfn/unify head-principle
-                 subcat-2-principle
-                 verb-inflection-morphology
-                 italian-head-first
-                 english-head-first
-                 {:comment "vp[aux] &#x2192; head comp"
-                  :comment-plaintext "vp[aux] -> head comp"
-                  ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
-                  ;; non-present is possible too, but deferring that till later.
-                  :head {:synsem {:infl :present
-                                  :cat :verb
-                                  :aux true
-                                  :subcat {:2 {:cat :verb
-                                               :infl :past}}}}
-                  })
+       (unify
+              head-principle
+              subcat-2-principle
+              verb-inflection-morphology
+              italian-head-first
+              english-head-first
+              {:comment "vp[aux] &#x2192; head comp"
+               :comment-plaintext "vp[aux] -> head comp"
+               ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
+               ;; non-present is possible too, but deferring that till later.
+               :head {:synsem {:infl :present
+                               :cat :verb
+                               :aux true
+                               :subcat {:2 {:cat :verb
+                                            :infl :past}}}}}
+              {:english {:a {:agr agr}
+                         :b {:agr agr}
+                         :agr agr}
+               :italian {:a {:agr agr}
+                         :b {:agr agr}
+                         :agr agr}
+               :head {:synsem {:agr agr}}
+               :comp {:synsem {:agr agr}}})
+       ;; add to vp some additional expansions for vp-present:
        {:extend {:f {:head 'lexicon
                      :comp 'vp-past}
                  :g {:head 'lexicon
