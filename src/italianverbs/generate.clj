@@ -379,6 +379,20 @@
          (depth-str (- depth 1)))
     ""))
 
+(defn che [parent]
+  "display some basic info about the sign."
+  (if (seq? parent)
+    (if (not (nil? (first parent)))
+      (lazy-seq
+       (cons
+        (che (first parent))
+        (che (rest parent)))))
+    {:sem (get-in parent '(:synsem :sem))
+;     :italiano-crudo (get-in parent '(:italian))
+;     :inglese-crudo (get-in parent '(:english))
+     :english (morph/get-english (get-in parent '(:english)))
+     :italian (morph/get-italian (get-in parent '(:italian)))}))
+
 (defn heads-by-comps [parent heads comps depth]
   (log/debug (str (depth-str depth) "heads-by-comps begin: " (unify/get-in parent '(:comment-plaintext))))
   (log/debug (str "type of comps: " (type comps)))
@@ -386,7 +400,7 @@
   (if (map? comps)
     (log/debug (str "the comp is a map: " comps)))
   (if (not (empty? heads))
-    (log/debug (str "heads-by-comps first heads: " (first heads)))
+    (log/debug (str "heads-by-comps first heads: " (che (first heads))))
     (log/debug (str "heads-by-comps no more heads.")))
 
   (log/debug (str "HEADS-BY-COMPS: fail status of first heads: " (unify/fail? (first heads))))
@@ -594,14 +608,14 @@
            '(:comp))
           :top)]
 
-    (log/debug (str (depth-str depth) "head-by-comps begin: " (unify/get-in parent '(:comment-plaintext)) "; head:" head))
+    (log/debug (str (depth-str depth) "head-by-comps begin: " (unify/get-in parent '(:comment-plaintext)) "; head:" (che head)))
     (if (unify/fail? parent) (log/debug (str "head-by-comps begin: parent fail? " (unify/fail? parent))))
     (if (not (empty? comps))
       (let [comp (first comps)
             head-expand (unify/get-in head '(:extend))]
         (log/debug (str (depth-str depth) "HEAD-IS-FINISHED?  " (unify/get-in head '(:comment-plaintext)) ":" head-is-finished?))
         (if (not head-is-finished?)
-          (log/debug (str (depth-str depth) "head is not finished:  " head)))
+          (log/debug (str (depth-str depth) "head is not finished:  " (che head))))
         (log/debug (str "non-null head-expand and head not finished? "
                         (unify/get-in parent '(:comment-plaintext)) " : "
                         (and (not (nil? head-expand))
