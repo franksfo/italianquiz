@@ -2242,7 +2242,30 @@
                                 :2 {:cat :prep
                                     :sem complement-sem}}}
               :italian {:italian "ricco"}
-              :english {:english "rich"}})))
+              :english {:english "rich"}})
+
+           ;; non-comparative
+           {:synsem {:cat :adjective
+                     :sem {:pred :robusto
+                           :comparative false
+                           :point false
+                           :activity false
+                           :mod {:animate true}}}
+            :italian {:italian "robusto"
+                      :cat :adjective}
+            :english {:english "large-built"
+                      :cat :adjective}}
+
+           {:synsem {:cat :adjective
+                     :sem {:pred :rosso
+                           :comparative false
+                           :mod {:physical-object true
+                                 :human false}}}
+            :italian {:italian "rosso"
+                        :cat :adjective}
+            :english {:english "red"
+                      :cat :adjective}}))
+
 
      ;; old-style
      ;; TODO: copy all the below adjectives into the format used above.
