@@ -2372,7 +2372,7 @@
                      :sem {:pred :rumorosa
                            :comparative false
                            :mod {:animate true}}}
-            :italian {:italian "rumorosa"
+            :italian {:italian "rumoroso"
                       :cat :adjective}
             :english {:english "noisy"
                       :cat :adjective}}
@@ -2390,7 +2390,7 @@
                                     :sem subject-sem}
                                 :2 {:cat :prep
                                     :sem complement-sem}}}
-              :italian {:italian "rumorosa"}
+              :italian {:italian "rumoroso"}
               :english {:english "noisy"}})
 
 
