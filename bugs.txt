@@ -24,5 +24,3 @@ StackOverflowError   java.util.regex.Pattern$BmpCharProperty.match (Pattern.java
 
 italianverbs.generate=> Bye for now!
 
-ekoontz@mac ~/italianverbs $ 
-

@@ -1054,6 +1054,16 @@
                      :infl infl
                      :subcat {:2 {:sem obj-sem
                                   :cat :intensifier}}}})))
+(def amare
+  (unify
+   transitive
+   {:italian {:infinitive "amare"}
+    :english {:infinitive "to love"
+              :irregular {:past "loved"}}
+    :synsem {:essere false
+             :sem {:pred :amare
+                   :subj {:human true}
+                   :obj {:animate true}}}}))
 
 (def andare
    {:italian {:infinitive "andare"
