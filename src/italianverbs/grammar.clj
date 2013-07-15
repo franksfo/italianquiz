@@ -226,14 +226,18 @@
                             :comp 'np}}}))
 
   (def vp-past
-    (fs/merge (fs/copy vp)
+    (fs/merge (fs/unify
+               (fs/copy vp)
+               (let [essere-boolean (ref :top)]
+                 {:head {:synsem {:essere essere-boolean}}
+                  :synsem {:infl :past
+                           :essere essere-boolean
+                           :sem {:aspect :passato}}}))
               {:comment "vp[past] &#x2192; head comp"
-               :comment-plaintext "vp[past] -> head comp"
-               :synsem {:infl :past
-                        :sem {:aspect :passato}}}))
+               :comment-plaintext "vp[past] -> head comp"}))
                ;; debug only: normally this would be in
-;               :extend {:x {:head 'lexicon
-;                            :comp 'lexicon}}}))
+                                        ;               :extend {:x {:head 'lexicon
+                                        ;                            :comp 'lexicon}}}))
 
   (def vp-infinitive-transitive
     (fs/unifyc head-principle
