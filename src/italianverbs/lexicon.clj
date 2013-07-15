@@ -1179,6 +1179,20 @@
                    :subj {:human true}
                    :obj {:buyable true}}}}))
 
+(def deludere
+  (unify
+   transitive
+   {:italian {:infinitive "deludere"
+              :irregular {:passato "deluso"}}
+    :english {:infinitive "to disappoint"
+              :irregular {:past "disappointed"}}
+    :synsem {:essere false
+             :sem {:subj {:human true}
+                   :obj {:human true}
+                   :discrete true
+                   :activity false
+                   :pred :deludere}}}))
+
 (def dormire
   (unify
    intransitive
@@ -1588,6 +1602,7 @@
 (def intransitive-verbs
   (list
    andare-intrans
+   deludere
    dormire
    pensare
    ridere
