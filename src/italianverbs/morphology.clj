@@ -897,6 +897,15 @@
 
         (and (= :sing (fs/get-in word '(:agr :number)))
              (or (= :1st (fs/get-in word '(:agr :person)))
+                 (= :3rd (fs/get-in word '(:agr :person))))
+             (string? (fs/get-in word '(:irregular :imperfetto-suffix))))
+        (str "was " (fs/get-in word '(:irregular :imperfetto-suffix)))
+
+        (string? (fs/get-in word '(:irregular :imperfetto-suffix)))
+        (str "were " (fs/get-in word '(:irregular :imperfetto-suffix)))
+
+        (and (= :sing (fs/get-in word '(:agr :number)))
+             (or (= :1st (fs/get-in word '(:agr :person)))
                  (= :3rd (fs/get-in word '(:agr :person)))))
         (str "was " stem "ing" (if to-final to-final ""))
 
