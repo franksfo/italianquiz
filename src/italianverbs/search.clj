@@ -109,15 +109,15 @@
         result))))
 
 ;; How to map over (fetch :lexicon) results:
-;; 
+;;
 ;; (get all lexical items with path=>value: :obj/:cat => "noun")
 ;; 1. (defn myfn [fs] (= (get (get fs :obj) :cat) "noun"))
-;; 
+;;
 ;; 2. (def results (mapcat (fn [fs] (if (myfn fs) (list fs))) (fetch :lexicon)))
 ;;
 (defn search [& constraints]
   ;; TODO: figure out how to get log/info to print to console in REPL.
-  (log/info (str "searching with constraints : " constraints))
+  (log/debug (str "searching with constraints : " constraints))
   (if (= (first constraints) :fail)
     (list :fail)
 ;; TODO: s/query/create-query/
