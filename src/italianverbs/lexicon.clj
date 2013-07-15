@@ -1617,7 +1617,6 @@
   (list
    amare
    avere
-   bevere
    comprare
    essere-adjective
    essere-copula
@@ -2557,7 +2556,7 @@
         :english {:infinitive "to drink"
                   :irregular {:past "drank"}}
         :synsem {:essere false
-                 :sem {:pred :bevere
+                 :sem {:pred :bere
                        :subj {:animate true}
                        :obj {:drinkable true}}}})
 
