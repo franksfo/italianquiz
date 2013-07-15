@@ -1209,7 +1209,8 @@
                                     :1plur "have to"
                                     :2plur "have to"
                                     :3plur "have to"}}}
-    :synsem {:sem {:pred :dovere
+    :synsem {:essere false ;; "io ho dovato..", not "io sono dovato.."
+             :sem {:pred :dovere
                    :activity false
                    :discrete false
                    :subj {:human true} ;; TODO: relax this constraint: non-human things can be subject of dovere.
