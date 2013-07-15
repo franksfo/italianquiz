@@ -2368,6 +2368,32 @@
             :english {:english "red"
                       :cat :adjective}}
 
+           {:synsem {:cat :adjective
+                     :sem {:pred :rumorosa
+                           :comparative false
+                           :mod {:animate true}}}
+            :italian {:italian "rumorosa"
+                      :cat :adjective}
+            :english {:english "noisy"
+                      :cat :adjective}}
+
+           ;; comparative:
+           (let [complement-complement-sem (ref {:human true}) ;; only animals can be noisy.
+                 complement-sem (ref {:pred :di
+                                      :mod complement-complement-sem})
+                 subject-sem (ref {:animate true})] ;; only animals can be noisy.
+             {:synsem {:sem {:pred :semplice
+                             :comparative true
+                             :arg1 subject-sem
+                             :arg2 complement-complement-sem}
+                       :subcat {:1 {:cat :noun
+                                    :sem subject-sem}
+                                :2 {:cat :prep
+                                    :sem complement-sem}}}
+              :italian {:italian "rumorosa"}
+              :english {:english "noisy"}})
+
+
            ;; comparative:
            (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
                  complement-sem (ref {:pred :di
