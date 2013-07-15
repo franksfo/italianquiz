@@ -1168,18 +1168,6 @@
              :subcat {:2 {:essere false}}}
     :english {:hidden true}}))
 
-(def bevere
-  (unify
-   transitive
-   {:italian {:infinitive "bere"
-              :irregular {:passato "bevuto"}}
-    :english {:infinitive "to drink"
-              :irregular {:past "drank"}}
-    :synsem {:essere false
-             :sem {:pred :bevere
-                   :subj {:animate true}
-                   :obj {:drinkable true}}}}))
-
 (def comprare
   (unify
    transitive
@@ -2554,6 +2542,25 @@
 
     (concat
      (list
+
+      ;; bere
+      (unify
+       (:transitive verb)
+       {:italian {:infinitive "bere"
+                  :irregular {:passato "bevuto"
+                              :present {:1sing "bevo"
+                                        :2sing "bevi"
+                                        :3sing "beve"
+                                        :1plur "beviamo"
+                                        :2plur "bevete"
+                                        :3plur "bevano"}}}
+        :english {:infinitive "to drink"
+                  :irregular {:past "drank"}}
+        :synsem {:essere false
+                 :sem {:pred :bevere
+                       :subj {:animate true}
+                       :obj {:drinkable true}}}})
+
       ;; cercare
       (unify
        (:transitive verb)
