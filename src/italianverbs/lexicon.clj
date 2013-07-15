@@ -1062,6 +1062,8 @@
               :irregular {:past "loved"}}
     :synsem {:essere false
              :sem {:pred :amare
+                   :activity false
+                   :discrete false
                    :subj {:human true}
                    :obj {:animate true}}}}))
 
@@ -1576,13 +1578,16 @@
 
 (def vivere
   (unify
-   aux-type
    intransitive
    {:italian {:infinitive "vivere"}
     :english {:infinitive "to live"
               :irregular {:past "lived"}}
     :synsem {:essere true
              :sem {:pred :vivere
+                   ;; TODO: activity=false for now, but other senses of 'vivere' could be activities, e.g.
+                   ;; adding PP (e.g. "vivevano in Milano (was living in Milano)")
+                   :activity false
+                   :discrete false
                    :subj {:animate true}}}})) ;; TODO: change to living-thing: (e.g. plants are living but not animate)
 
 (def volere
@@ -2542,35 +2547,80 @@
            :common common
            :countable countable
            :feminine feminine
-           :masculine masculine})]
+           :masculine masculine})
+
+        verb {:transitive transitive}
+        ]
 
     (concat
-     (list (unify (:agreement noun)
-                  (:common noun)
-                  (:feminine noun)
-                  {:synsem {:sem {:pred :cipolla
-                                  :edible true
-                                  :animate false
-                                  :artifact false}}
-                   :italian {:italian "melanzana"}
-                   :english {:english "eggplant"}})
+     (list
+      ;; cercare
+      (unify
+       (:transitive verb)
+       {:italian {:infinitive "cercare"}
+        :english {:infinitive "to look for"
+                  :irregular {:past "looked for"
+                              :imperfetto-suffix "looking for"
+                              :past-participle "looked for"
+                              :present {:1sing "look for"
+                                        :2sing "look for"
+                                        :3sing "looks for"
+                                        :1plur "look for"
+                                        :2plur "look for"
+                                        :3plur "look for"}}}
+        :synsem {:essere false
+                 :sem {:pred :cercare
+                       :activity true
+                       :discrete false
+                       :subj {:human true}
+                       :obj {:physical-object true}}}})
 
-           (unify (:agreement noun)
-                  (:common noun)
-                  (:countable noun)
-                  (:masculine noun)
-                  {:synsem {:sem {:pred :stradale
-                                  :buyable false ;; a road's too big to own.
-                                  :artifact true
-                                  :city false
-                                  :place true}}
-                   :italian {:italian "stradale"}
-                   :english {:english "road"}}))
+      ;; melanzana
+      (unify (:agreement noun)
+             (:common noun)
+             (:countable noun)
+             (:feminine noun)
+             {:synsem {:sem {:pred :cipolla
+                             :edible true
+                             :animate false
+                             :artifact false}}
+              :italian {:italian "melanzana"}
+              :english {:english "eggplant"}})
 
+      ;; perdere
+      (unify
+       (:transitive verb)
+       {:italian {:infinitive "perdere"
+                  :irregular {:passato "perso"}}
+        :english {:infinitive "to lose"
+                  :irregular {:past "lost"
+                              :past-participle "lost"}}
+        :synsem {:essere false
+                 :sem {:pred :perdere
+                       :activity false
+                       :discrete true
+                       :subj {:human true}
+                       :obj {:buyable true}}}})
+
+      ;; stradale
+      (unify (:agreement noun)
+             (:common noun)
+             (:countable noun)
+             (:masculine noun)
+             {:synsem {:sem {:pred :stradale
+                             :buyable false ;; a road's too big to own.
+                             :artifact true
+                             :city false
+                             :place true}}
+              :italian {:italian "stradale"}
+              :english {:english "road"}})
+           )
      adjectives intensifiers determiners
      nouns proper-nouns prepositions
      nominative-pronouns accusative-pronouns disjunctive-pronouns
-     verbs (list quando))))
+     verbs
+
+     (list quando))))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
