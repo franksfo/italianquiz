@@ -61,13 +61,13 @@
   (if (> (.size path-value-pairs) 0)
     (let [path (first (keys (first path-value-pairs)))
           value (get (first path-value-pairs) path)
-          debug (println (str "path=" (seq path) "; value=" value))
+          debug (log/debug (str "path=" (seq path) "; value=" value))
           result (set ;; <- removes duplicates
                   (mapcat
                    (fn [entry]
                      (pv-matches entry path value))
                    lexicon))
-          debug2 (println (str "matches: " (.size result)))]
+          debug2 (log/debug (str "matches: " (.size result)))]
       (if (= (.size result) 0)
         ;; no results for _path_:_value_: short-circuit: return emptyset without trying remaining path-value-pairs,
         ;; since ultimate result will be emptyset regardless of remaining path-value-pairs.
@@ -89,7 +89,7 @@
 
 (defn query-with-lexicon [lexicon & constraints]
   "search the supplied lexicon for entries matching constraints."
-  (println (str "input lexicon size: " (.size lexicon)))
+  (log/info (str "input lexicon size: " (.size lexicon)))
   (let [lexicon (set lexicon) ;; hopefully converting to a set is O(1) if _lexicon_ is already a set.
         ;; TODO: Find out: does calling (set) on (already) a set have
         ;; a penalty?
@@ -103,7 +103,7 @@
           (query-r pathified lexicon)]
       (if (nil? result)
         (do
-;          (println  (str "searching with constraints : " constraints))
+;          (log/info  (str "searching with constraints : " constraints))
           (log/info "(returned null)")
           result)
         result))))
