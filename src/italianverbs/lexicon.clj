@@ -1169,7 +1169,7 @@
 (def bevere
   (unify
    transitive
-   {:italian {:infinitive "bevere"
+   {:italian {:infinitive "bere"
               :irregular {:passato "bevuto"}}
     :english {:infinitive "to drink"
               :irregular {:past "drank"}}
@@ -2480,9 +2480,97 @@
                                :discrete true
                                :tense :past}}}}})
 
-(def lexicon (concat adjectives intensifiers determiners nouns proper-nouns prepositions
-                     nominative-pronouns accusative-pronouns disjunctive-pronouns
-                     verbs (list quando)))
+(def lexicon
+  (let [noun
+        (let [gender (ref :top)
+              ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
+              ;; (except for mass nouns which are only singular)
+              number (ref :top)
+
+              ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
+              ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
+              case (ref :top)
+
+              person (ref :top)
+
+              agreement
+              (let [number (ref :top)
+                    gender (ref :top)
+                    person (ref :top)
+                    agr (ref {:number number
+                              :gender gender
+                              :case :top
+                              :person person})
+                      cat (ref :top)]
+                {:synsem {:cat cat
+                          :subcat {:1 {:number number
+                                       :person person
+                                       :gender gender}}
+                          :agr agr}
+                 :italian {:cat cat
+                           :agr agr}
+                 :english {:cat cat
+                           :agr agr}})
+              common
+              (unify
+               {:synsem {:cat :noun
+                         :agr {:person :3rd}
+                         :subcat {:1 {:cat :det}}}})
+
+              masculine {:synsem {:agr {:gender :masc}}}
+              feminine {:synsem {:agr {:gender :fem}}}
+
+              mass
+              (let [mass (ref true)]
+                {:synsem {:subcat {:1 {:cat :det
+                                       :mass mass
+                                       :number :sing}}
+                          :sem {:mass mass}}})
+
+              countable
+              (let [mass (ref false)]
+                {:synsem {:subcat {:1 {:cat :det
+                                       :mass mass}}
+                          :sem {:mass mass}}})
+
+              drinkable
+              (unify mass
+                     common
+                     {:synsem {:sem {:number :sing
+                                     :drinkable true}}})]
+          {:agreement agreement
+           :common common
+           :countable countable
+           :feminine feminine
+           :masculine masculine})]
+
+    (concat
+     (list (unify (:agreement noun)
+                  (:common noun)
+                  (:feminine noun)
+                  {:synsem {:sem {:pred :cipolla
+                                  :edible true
+                                  :animate false
+                                  :artifact false}}
+                   :italian {:italian "melanzana"}
+                   :english {:english "eggplant"}})
+
+           (unify (:agreement noun)
+                  (:common noun)
+                  (:countable noun)
+                  (:masculine noun)
+                  {:synsem {:sem {:pred :stradale
+                                  :buyable false ;; a road's too big to own.
+                                  :artifact true
+                                  :city false
+                                  :place true}}
+                   :italian {:italian "stradale"}
+                   :english {:english "road"}}))
+
+     adjectives intensifiers determiners
+     nouns proper-nouns prepositions
+     nominative-pronouns accusative-pronouns disjunctive-pronouns
+     verbs (list quando))))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
