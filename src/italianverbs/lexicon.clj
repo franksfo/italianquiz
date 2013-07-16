@@ -1827,69 +1827,6 @@
 ;         :english "in"}
         ))
 
-(def intensifiers
-  (list
-   (let [human (ref :top)
-         animate (ref :top)]
-     {:synsem {:sem {:human human
-                     :animate animate}
-               :cat :intensifier
-               :subcat {:1 {:cat :adjective
-                            :sem {:comparative true
-                                  :human human
-                                  :animate animate}}}}
-
-
-
-      :italian "più"
-      :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
-      })
-
-   (let [human (ref :top)
-         animate (ref :top)
-         subj-semantics (ref {:human human
-                              :animate animate})
-         obj-semantics (ref {:comparative true
-                             :human human
-                             :animate animate})
-         adj-semantics (ref :top)]
-     {:synsem {:cat :intensifier
-               :sem {:pred :più
-                     :modifies adj-semantics
-                     :arg1 subj-semantics
-                     :arg2 obj-semantics}
-               :subcat {:1 {:cat :noun
-                            :sem subj-semantics}
-                        :2 {:cat :adjective
-                            :sem {:arg1 subj-semantics
-                                  :pred adj-semantics
-                                  :arg2 obj-semantics}}}}
-      :italian "più"
-      :english "more"
-      })
-
-   (let [human (ref :top)
-         animate (ref :top)
-         subj-semantics (ref {:human human
-                              :animate animate})
-         obj-semantics (ref {:comparative true
-                             :human human
-                             :animate animate})
-         adj-semantics (ref :top)]
-     {:synsem {:cat :intensifier
-               :sem {:pred :meno
-                     :modifies adj-semantics
-                     :arg1 subj-semantics
-                     :arg2 obj-semantics}
-               :subcat {:1 {:cat :noun
-                            :sem subj-semantics}
-                        :2 {:cat :adjective
-                            :sem {:arg1 subj-semantics
-                                  :pred adj-semantics
-                                  :arg2 obj-semantics}}}}
-      :italian "meno"
-      :english "less"
-      })))
 
   ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc)
   ;; (this is being accomplished below: see TODO below about "copy all the below adjectives.."
@@ -2507,6 +2444,66 @@
               :italian {:italian "melanzana"}
               :english {:english "eggplant"}})
 
+      (let [human (ref :top)
+            animate (ref :top)
+            subj-semantics (ref {:human human
+                              :animate animate})
+            obj-semantics (ref {:comparative true
+                                :human human
+                                :animate animate})
+            adj-semantics (ref :top)]
+        {:synsem {:cat :intensifier
+                  :sem {:pred :meno
+                        :modifies adj-semantics
+                        :arg1 subj-semantics
+                        :arg2 obj-semantics}
+                  :subcat {:1 {:cat :noun
+                               :sem subj-semantics}
+                           :2 {:cat :adjective
+                               :sem {:arg1 subj-semantics
+                                     :pred adj-semantics
+                                     :arg2 obj-semantics}}}}
+         :italian "meno"
+         :english "less"
+         })
+
+      (let [human (ref :top)
+            animate (ref :top)]
+        {:synsem {:sem {:human human
+                        :animate animate}
+                  :cat :intensifier
+                  :subcat {:1 {:cat :adjective
+                               :sem {:comparative true
+                                     :human human
+                                     :animate animate}}}}
+
+         :italian "più"
+         :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
+         })
+
+      (let [human (ref :top)
+            animate (ref :top)
+            subj-semantics (ref {:human human
+                                 :animate animate})
+            obj-semantics (ref {:comparative true
+                                :human human
+                                :animate animate})
+            adj-semantics (ref :top)]
+        {:synsem {:cat :intensifier
+                  :sem {:pred :più
+                        :modifies adj-semantics
+                        :arg1 subj-semantics
+                        :arg2 obj-semantics}
+                  :subcat {:1 {:cat :noun
+                               :sem subj-semantics}
+                           :2 {:cat :adjective
+                               :sem {:arg1 subj-semantics
+                                     :pred adj-semantics
+                                     :arg2 obj-semantics}}}}
+         :italian "più"
+         :english "more"
+         })
+
       ;; perdere
       (unify
        (:transitive verb)
@@ -2615,7 +2612,7 @@
        :english "a"}
       )
 
-     adjectives intensifiers
+     adjectives
      nouns proper-nouns prepositions
      nominative-pronouns accusative-pronouns disjunctive-pronouns
      verbs
