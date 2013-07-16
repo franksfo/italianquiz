@@ -711,291 +711,6 @@
                 :italian {:italian "Roma"}
              :english {:english "Rome"}}))))
 
-(def determiners
-  (list
-
-   {:synsem {:cat :det
-             :def :partitivo
-             :number :sing
-             :mass true
-             :gender :fem}
-    :italian "di la"
-    :english "some"}
-
-   {:synsem {:cat :det
-             :def :partitivo
-             :number :plur
-             :gender :masc}
-    :italian "di i"
-    :english "some"}
-
-   {:synsem {:cat :det
-             :def :partitivo
-             :number :plur
-             :gender :fem}
-    :italian "di le"
-    :english "some"}
-
-   {:synsem {:cat :det
-             :def :def
-             :gender :masc
-             :number :plur}
-    :italian "i"
-    :english "the"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :plur}
-    :italian "i miei"
-    :english "my"}
-
-   {:synsem {:cat :det
-             :def :def
-             :gender :masc
-             :number :sing}
-    :italian "il"
-    :english "the"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :sing}
-    :italian "il loro"
-    :english "their"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :sing}
-    :italian "il nostro"
-    :english "our"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :sing}
-    :italian "il mio"
-    :english "my"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :sing}
-    :italian "il suo"
-    :english "his"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :sing}
-    :italian "il suo"
-    :english "her"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :sing}
-    :italian "il tuo"
-    :english "your"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :plur}
-    :italian "i tuoi"
-    :english "your"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :plur}
-    :italian "i vostri"
-    :english "your (pl) "}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :masc
-             :number :sing}
-    :italian "il vostro"
-    :english "your (pl) "}
-
-   {:synsem {:cat :det
-             :def :def
-             :gender :fem
-             :number :sing}
-    :italian "la"
-    :english "the"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing}
-    :italian "la loro"
-    :english "their"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing}
-    :italian "la mia"
-    :english "my"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing}
-    :italian "la nostra"
-    :english "our"}
-
-   ;; TODO: add pronominal "la sua (hers)" and "la sua (his)"
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing}
-    :italian "la sua"
-    :english "her"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing}
-    :italian "la sua"
-    :english "his"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing}
-    :italian "la tua"
-    :english "your"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing}
-    :italian "la vostra"
-    :english "your (pl)"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :plur}
-    :italian "le vostre"
-    :english "your (pl)"}
-
-   {:synsem {:cat :det
-             :def :def
-             :gender :fem
-             :number :plur}
-    :italian "le"
-    :english "the"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :plur}
-    :italian "le mie"
-    :english "my"}
-
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :plur}
-    :italian "le tue"
-    :english "your"}
-
-   {:synsem {:cat :det
-             :def :indef
-             :mass false
-             :gender :masc
-             :number :sing}
-    :italian "un"
-    :english "a"}
-
-   {:synsem {:cat :det
-             :def :indef
-             :mass false
-             :gender :fem
-             :number :sing}
-    :italian "una"
-    :english "a"}
-
-   {:synsem {:cat :det
-             :def :partitivo
-             :number :sing
-             :mass true
-             :gender :masc}
-    :italian "di il"
-    :english "some"}
-
-   {:synsem {:cat :det
-             :def :partitivo
-             :mass false
-             :number :sing}
-    :italian "qualche"
-    :english "some"}
-
-   {:synsem {:cat :det
-             :def :demonstrativo
-             :gender :fem
-             :number :sing}
-    :italian "quella"
-    :english "that"}
-
-   {:synsem {:cat :det
-             :def :demonstrativo
-             :gender :fem
-             :number :plur}
-    :italian "quelle"
-    :english "those"}
-
-   {:synsem {:cat :det
-             :def :demonstrativo
-             :gender :masc
-             :number :plur}
-    :italian "quelli"
-    :english "those"}
-
-   {:synsem {:cat :det
-             :def :demonstrativo
-             :gender :masc
-             :number :sing}
-    :italian "quello"
-    :english "that"}
-
-   {:synsem {:cat :det
-             :def :demonstrativo
-             :gender :fem
-             :number :sing}
-    :italian "questa"
-    :english "this"}
-
-   {:synsem {:cat :det
-             :def :demonstrativo
-             :gender :fem
-             :number :plur}
-    :italian "queste"
-    :english "these"}
-
-   {:synsem {:cat :det
-             :def :demonstrativo
-             :gender :masc
-             :number :plur}
-    :italian "questi"
-    :english "these"}
-
-   {:synsem {:cat :det
-             :def :demonstrativo
-             :gender :masc
-             :number :sing}
-    :italian "questo"
-    :english "this"}
-
-
-   ))
-
-
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
 (def subjective
@@ -2542,6 +2257,36 @@
     (concat
      (list
 
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :plur
+                :gender :masc}
+       :italian "di i"
+       :english "some"}
+
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :sing
+                :mass true
+                :gender :fem}
+       :italian "di la"
+       :english "some"}
+
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :plur
+                :gender :fem}
+       :italian "di le"
+       :english "some"}
+
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :sing
+                :mass true
+                :gender :masc}
+       :italian "di il"
+       :english "some"}
+
       ;; bere
       (unify
        (:transitive verb)
@@ -2581,6 +2326,175 @@
                        :subj {:human true}
                        :obj {:physical-object true}}}})
 
+      {:synsem {:cat :det
+                :def :def
+                :gender :masc
+                :number :plur}
+       :italian "i"
+       :english "the"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :plur}
+       :italian "i miei"
+       :english "my"}
+
+      {:synsem {:cat :det
+                :def :def
+                :gender :masc
+                :number :sing}
+       :italian "il"
+       :english "the"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :sing}
+       :italian "il loro"
+       :english "their"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :sing}
+       :italian "il nostro"
+       :english "our"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :sing}
+       :italian "il mio"
+       :english "my"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :sing}
+       :italian "il suo"
+       :english "his"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :sing}
+       :italian "il suo"
+       :english "her"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :sing}
+       :italian "il tuo"
+       :english "your"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :plur}
+       :italian "i tuoi"
+       :english "your"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :plur}
+       :italian "i vostri"
+       :english "your (pl) "}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :sing}
+       :italian "il vostro"
+       :english "your (pl) "}
+      {:synsem {:cat :det
+                :def :def
+                :gender :fem
+                :number :sing}
+       :italian "la"
+       :english "the"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing}
+       :italian "la loro"
+       :english "their"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing}
+       :italian "la mia"
+       :english "my"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing}
+       :italian "la nostra"
+       :english "our"}
+
+      ;; TODO: add pronominal "la sua (hers)" and "la sua (his)"
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing}
+       :italian "la sua"
+       :english "her"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing}
+       :italian "la sua"
+       :english "his"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing}
+       :italian "la tua"
+       :english "your"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing}
+       :italian "la vostra"
+       :english "your (pl)"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :plur}
+       :italian "le vostre"
+       :english "your (pl)"}
+
+      {:synsem {:cat :det
+                :def :def
+                :gender :fem
+                :number :plur}
+       :italian "le"
+       :english "the"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :plur}
+       :italian "le mie"
+       :english "my"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :plur}
+       :italian "le tue"
+       :english "your"}
+
+
       ;; melanzana
       (unify (:agreement noun)
              (:common noun)
@@ -2608,6 +2522,69 @@
                        :subj {:human true}
                        :obj {:buyable true}}}})
 
+      {:synsem {:cat :det
+                :def :partitivo
+                :mass false
+                :number :sing}
+       :italian "qualche"
+       :english "some"}
+
+      {:synsem {:cat :det
+                :def :demonstrativo
+                :gender :fem
+                :number :sing}
+       :italian "quella"
+       :english "that"}
+
+      {:synsem {:cat :det
+                :def :demonstrativo
+                :gender :fem
+                :number :plur}
+       :italian "quelle"
+       :english "those"}
+
+      {:synsem {:cat :det
+                :def :demonstrativo
+                :gender :masc
+                :number :plur}
+       :italian "quelli"
+       :english "those"}
+
+      {:synsem {:cat :det
+                :def :demonstrativo
+                :gender :masc
+                :number :sing}
+       :italian "quello"
+       :english "that"}
+
+      {:synsem {:cat :det
+                :def :demonstrativo
+                :gender :fem
+                :number :sing}
+       :italian "questa"
+       :english "this"}
+
+      {:synsem {:cat :det
+                :def :demonstrativo
+                :gender :fem
+                :number :plur}
+       :italian "queste"
+       :english "these"}
+
+      {:synsem {:cat :det
+                :def :demonstrativo
+                :gender :masc
+                :number :plur}
+       :italian "questi"
+       :english "these"}
+
+      {:synsem {:cat :det
+                :def :demonstrativo
+                :gender :masc
+                :number :sing}
+       :italian "questo"
+       :english "this"}
+
       ;; stradale
       (unify (:agreement noun)
              (:common noun)
@@ -2620,8 +2597,25 @@
                              :place true}}
               :italian {:italian "stradale"}
               :english {:english "road"}})
-           )
-     adjectives intensifiers determiners
+
+      {:synsem {:cat :det
+                :def :indef
+                :mass false
+                :gender :masc
+                :number :sing}
+       :italian "un"
+       :english "a"}
+
+      {:synsem {:cat :det
+                :def :indef
+                :mass false
+                :gender :fem
+                :number :sing}
+       :italian "una"
+       :english "a"}
+      )
+
+     adjectives intensifiers
      nouns proper-nouns prepositions
      nominative-pronouns accusative-pronouns disjunctive-pronouns
      verbs
