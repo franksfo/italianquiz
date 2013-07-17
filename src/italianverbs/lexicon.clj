@@ -2111,18 +2111,7 @@
   (lookup {:english english}))
 
 (def quando
-  {:english "when"
-   :italian "quando"
-   :synsem {:cat :quantifier
-            :sem {:pred :quando}
-            :subcat {:1 {:cat :verb
-                         :infl :imperfetto
-                         :sem {:activity true}}
-                     :2 {:cat :verb
-                         :infl :present
-                         :sem {:aspect :passato
-                               :discrete true
-                               :tense :past}}}}})
+)
 
 (def lexicon
   (let [noun
@@ -2526,6 +2515,19 @@
        :italian "qualche"
        :english "some"}
 
+      {:italian "quando"
+       :english "when"
+       :synsem {:cat :quantifier
+                :sem {:pred :quando}
+                :subcat {:1 {:cat :verb
+                             :infl :imperfetto
+                             :sem {:activity true}}
+                         :2 {:cat :verb
+                             :infl :present
+                             :sem {:aspect :passato
+                                   :discrete true
+                                   :tense :past}}}}}
+
       {:synsem {:cat :det
                 :def :demonstrativo
                 :gender :fem
@@ -2617,7 +2619,7 @@
      nominative-pronouns accusative-pronouns disjunctive-pronouns
      verbs
 
-     (list quando))))
+)))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))

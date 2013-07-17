@@ -14,6 +14,7 @@
    ]
   [:require
    [italianverbs.generate :as gen]
+   [italianverbs.grammar :as gram]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
@@ -113,37 +114,37 @@
 (fo
  (take 1
        (over2 np
-              (take 4 (shuffle determiners))
+              (take 4 (shuffle lexicon))
               (over2 nbar
-                     (take 1 (shuffle nouns))
-                     (take 4 (shuffle adjectives))))))
+                     (take 1 (shuffle lexicon))
+                     (take 4 (shuffle lexicon))))))
 
 (fo
  (take 1
        (over2 np
-              (shuffle determiners)
+              (shuffle lexicon)
               (over2 nbar
-                     (take 1 (shuffle nouns))
-                     (shuffle adjectives)))))
+                     (take 1 (shuffle lexicon))
+                     (shuffle lexicon)))))
 
 (fo
  (take 1
        (over2 np
-              (shuffle determiners)
+              (shuffle lexicon)
               (over2 nbar
-                     (take 5 (shuffle nouns))
-                     (shuffle adjectives)))))
+                     (take 5 (shuffle lexicon))
+                     (shuffle lexicon)))))
 
 (fo
  (take 1
 
        (over2 s-present
               (over2 np
-                     (shuffle determiners)
+                     (shuffle lexicon)
                      (over2 nbar
-                            (take 5 (shuffle nouns))
-                            (shuffle adjectives)))
-              (shuffle intransitive-verbs))))
+                            (take 5 (shuffle lexicon))
+                            (shuffle lexicon)))
+              (shuffle lexicon))))
 ))
 
 
