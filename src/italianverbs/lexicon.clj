@@ -1827,255 +1827,6 @@
 ;         :english "in"}
         ))
 
-
-  ;; TODO: cut down duplication in here (i.e. :italian :cat, :english :cat, etc)
-  ;; (this is being accomplished below: see TODO below about "copy all the below adjectives.."
-(def adjectives
-  (let [adjective (ref :adjective)
-        gender (ref :top)
-        number (ref :top)
-        adj {:synsem {:cat adjective
-                      :agr {:gender gender
-                            :number number}
-                      }
-             :italian {:cat adjective
-                       :agr {:number number
-                             :gender gender}}
-             :english {:cat adjective}}]
-    (map (fn [entry]
-           (unify adj entry))
-         (list
-          ;; non-comparative:
-          {:synsem {:cat :adjective
-                    :sem {:pred :alto
-                          :comparative false
-                           :mod {:human true}}}
-           :italian {:italian "alto"}
-           :english {:english "tall"}}
-
-          ;; comparative:
-          (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
-                complement-sem (ref {:pred :di
-                                     :mod complement-complement-sem})
-                subject-sem (ref {:human true})] ;; only humans can be tall.
-            {:synsem {:sem {:pred :alto
-                            :comparative true
-                            :arg1 subject-sem
-                            :arg2 complement-complement-sem}
-                      :subcat {:1 {:cat :noun
-                                   :sem subject-sem}
-                               :2 {:cat :prep
-                                   :sem complement-sem}}}
-             :italian {:italian "alto"}
-             :english {:english "tall"}})
-
-          ;; non-comparative
-          ;; TODO: add comparative
-          {:synsem {:sem {:pred :bello
-                          :comparative false
-                          :mod :top}} ;; for now, no restrictions on what can be beautiful.
-           :italian {:italian "bello"}
-           :english {:english "beautiful"}}
-
-          ;; non-comparative
-          ;; TODO: add comparative
-          {:synsem {:cat :adjective
-                    :sem {:pred :brutto
-                          :comparative false
-                          :mod :top}} ;; for now, no restrictions on what can be ugly.
-           :italian {:italian "brutto"
-                     :cat :adjective}
-           :english {:english "ugly"
-                     :cat :adjective}}
-
-          ;; non-comparative
-          ;; TODO: add comparative
-          {:synsem {:cat :adjective
-                    :sem {:pred :bianco
-                          :comparative false
-                          :mod {:physical-object true
-                                :human false}}}
-           :italian {:italian "bianco"
-                     :irregular {:masc {:plur "bianchi"}
-                                 :fem {:plur "bianche"}}
-                     :cat :adjective}
-           :english {:english "white"
-                     :cat :adjective}}
-
-           (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
-                 complement-sem (ref {:pred :di
-                                      :mod complement-complement-sem})
-                 subject-sem (ref {:human true})] ;; only humans can be short.
-             {:synsem {:sem {:pred :corto
-                             :comparative true
-                             :arg1 subject-sem
-                             :arg2 complement-complement-sem}
-                       :subcat {:1 {:cat :noun
-                                    :sem subject-sem}
-                                :2 {:cat :prep
-                                    :sem complement-sem}}}
-              :italian {:italian "corto"}
-              :english {:english "short"}})
-
-           ;; non-comparative
-           {:synsem {:cat :adjective
-                     :sem {:pred :corto
-                           :comparative false
-                           :mod {:human true}}}
-            :italian {:italian "corto"
-                      :cat :adjective}
-            :english {:english "short"
-                      :cat :adjective}}
-
-           ;; non-comparative
-           ;; TODO: add comparative
-           {:synsem {:cat :adjective
-                     :sem {:pred :difficile
-                           :comparative false
-                           ;; "difficile" has a very specific list of things it can modify:
-                           :mod {:drinkable false
-                                 :human false
-                                 :animate false
-                                 :buyable false
-                                 :legible true
-                                 :activity true
-                                 :artifact true
-                                 :physical-object true
-                                 :edible false}}}
-            :italian {:italian "difficile"
-                      :cat :adjective}
-            :english {:english "difficult"
-                      :cat :adjective}}
-
-           ;; non-comparative
-           ;; TODO: add comparative
-           {:synsem {:sem {:pred :gentile
-                           :comparative false
-                           :mod {:human true}}} ;; sono gli umani possono essere gentile.
-            :italian {:italian "gentile"}
-            :english {:english "kind"}}
-
-           ;; non-comparative
-           ;; TODO: add comparative
-           {:synsem {:cat :adjective
-                     :sem {:pred :nero
-                           :comparative false
-                           :mod {:physical-object true
-                                 :human false}}}
-            :italian {:italian "nero"
-                      :cat :adjective}
-            :english {:english "black"
-                      :cat :adjective}}
-
-           ;; non-comparative
-           ;; TODO: add comparative
-           {:synsem {:cat :adjective
-                     :sem {:pred :piccolo
-                           :comparative false
-                           :mod {:physical-object true
-                                 :mass false}}}
-            :italian {:italian "piccolo"
-                      :cat :adjective}
-            :english {:english "small"
-                      :cat :adjective}}
-
-           ;; non-comparative
-           (unify
-            {:synsem {:sem {:pred :ricco
-                            :comparative false
-                            :mod {:human true}}} ;; TODO between with comparative/non-comparative rather than duplicating.
-             :italian {:italian "ricco"}
-             :english {:english "rich"}})
-
-           ;; comparative:
-           (let [complement-complement-sem (ref {:human true}) ;; only humans can be rich.
-                 complement-sem (ref {:pred :di
-                                      :mod complement-complement-sem})
-                 subject-sem (ref {:human true})] ;; only humans can be rich.
-             {:synsem {:sem {:pred :ricco
-                             :comparative true
-                             :arg1 subject-sem
-                             :arg2 complement-complement-sem}
-                       :subcat {:1 {:cat :noun
-                                    :sem subject-sem}
-                                :2 {:cat :prep
-                                    :sem complement-sem}}}
-              :italian {:italian "ricco"}
-              :english {:english "rich"}})
-
-           ;; non-comparative
-           {:synsem {:cat :adjective
-                     :sem {:pred :robusto
-                           :comparative false
-                           :activity false
-                           :mod {:animate true}}}
-            :italian {:italian "robusto"
-                      :cat :adjective}
-            :english {:english "large-built"
-                      :cat :adjective}}
-
-           {:synsem {:cat :adjective
-                     :sem {:pred :rosso
-                           :comparative false
-                           :mod {:physical-object true
-                                 :human false}}}
-            :italian {:italian "rosso"
-                        :cat :adjective}
-            :english {:english "red"
-                      :cat :adjective}}
-
-           {:synsem {:cat :adjective
-                     :sem {:pred :rumorosa
-                           :comparative false
-                           :mod {:animate true}}}
-            :italian {:italian "rumoroso"
-                      :cat :adjective}
-            :english {:english "noisy"
-                      :cat :adjective}}
-
-           ;; comparative:
-           (let [complement-complement-sem (ref {:human true}) ;; only animals can be noisy.
-                 complement-sem (ref {:pred :di
-                                      :mod complement-complement-sem})
-                 subject-sem (ref {:animate true})] ;; only animals can be noisy.
-             {:synsem {:sem {:pred :semplice
-                             :comparative true
-                             :arg1 subject-sem
-                             :arg2 complement-complement-sem}
-                       :subcat {:1 {:cat :noun
-                                    :sem subject-sem}
-                                :2 {:cat :prep
-                                    :sem complement-sem}}}
-              :italian {:italian "rumoroso"}
-              :english {:english "noisy"}})
-
-
-           ;; comparative:
-           (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
-                 complement-sem (ref {:pred :di
-                                      :mod complement-complement-sem})
-                 subject-sem (ref {:human true})] ;; only humans can be naive.
-             {:synsem {:sem {:pred :semplice
-                             :comparative true
-                             :arg1 subject-sem
-                             :arg2 complement-complement-sem}
-                       :subcat {:1 {:cat :noun
-                                    :sem subject-sem}
-                                :2 {:cat :prep
-                                    :sem complement-sem}}}
-              :italian {:italian "semplice"}
-              :english {:english "naive"}})
-
-           ;; non-comparative:
-           {:synsem {:cat :adjective
-                     :sem {:pred :semplice
-                           :comparative false
-                           :mod {:human true}}}
-            :italian {:italian "semplice"
-                      :cat :adjective}
-            :english {:english "naive"
-                      :cat :adjective}}))))
-
 (def lookup-in
   "find all members of the collection that matches with query successfully."
   (fn [query collection]
@@ -2176,12 +1927,146 @@
            :countable countable
            :feminine feminine
            :masculine masculine})
+        ;; end of hash for nouns.
 
-        verb {:transitive transitive}
-        ]
+
+        adjective
+        (let [adjective (ref :adjective)
+              gender (ref :top)
+              number (ref :top)]
+          {:synsem {:cat adjective
+                    :agr {:gender gender
+                          :number number}
+                    }
+           :italian {:cat adjective
+                     :agr {:number number
+                           :gender gender}}
+           :english {:cat adjective}})
+
+        verb {:transitive transitive}]
 
     (concat
      (list
+
+      ;; non-comparative:
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :alto
+                             :comparative false
+                             :mod {:human true}}}
+              :italian {:italian "alto"}
+              :english {:english "tall"}})
+
+      ;; comparative:
+      (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
+            complement-sem (ref {:pred :di
+                                 :mod complement-complement-sem})
+            subject-sem (ref {:human true})] ;; only humans can be tall.
+        (unify adjective
+               {:synsem {:sem {:pred :alto
+                               :comparative true
+                               :arg1 subject-sem
+                               :arg2 complement-complement-sem}
+                       :subcat {:1 {:cat :noun
+                                    :sem subject-sem}
+                                :2 {:cat :prep
+                                    :sem complement-sem}}}
+                :italian {:italian "alto"}
+                :english {:english "tall"}}))
+
+
+    ;; non-comparative
+    ;; TODO: add comparative
+    (unify adjective
+           {:synsem {:sem {:pred :bello
+                           :comparative false
+                           :mod :top}} ;; for now, no restrictions on what can be beautiful.
+            :italian {:italian "bello"}
+            :english {:english "beautiful"}})
+        ;; non-comparative
+    ;; TODO: add comparative
+    (unify adjective
+           {:synsem {:cat :adjective
+                     :sem {:pred :brutto
+                           :comparative false
+                           :mod :top}} ;; for now, no restrictions on what can be ugly.
+            :italian {:italian "brutto"
+                      :cat :adjective}
+            :english {:english "ugly"
+                      :cat :adjective}})
+
+    ;; non-comparative
+    ;; TODO: add comparative
+    (unify adjective
+           {:synsem {:cat :adjective
+                     :sem {:pred :bianco
+                           :comparative false
+                           :mod {:physical-object true
+                                 :human false}}}
+     :italian {:italian "bianco"
+               :irregular {:masc {:plur "bianchi"}
+                           :fem {:plur "bianche"}}
+               :cat :adjective}
+            :english {:english "white"
+                      :cat :adjective}})
+
+    (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
+          complement-sem (ref {:pred :di
+                               :mod complement-complement-sem})
+          subject-sem (ref {:human true})] ;; only humans can be short.
+      (unify adjective
+             {:synsem {:sem {:pred :corto
+                             :comparative true
+                             :arg1 subject-sem
+                             :arg2 complement-complement-sem}
+                       :subcat {:1 {:cat :noun
+                                    :sem subject-sem}
+                                :2 {:cat :prep
+                                    :sem complement-sem}}}
+              :italian {:italian "corto"}
+              :english {:english "short"}}))
+
+    (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :rosso
+                             :comparative false
+                             :mod {:physical-object true
+                                   :human false}}}
+              :italian {:italian "rosso"}
+              :english {:english "red"}})
+
+    ;; non-comparative
+    (unify adjective
+           {:synsem {:cat :adjective
+                     :sem {:pred :corto
+                           :comparative false
+                           :mod {:human true}}}
+            :italian {:italian "corto"
+                      :cat :adjective}
+            :english {:english "short"
+                      :cat :adjective}})
+
+    ;; non-comparative
+    ;; TODO: add comparative
+    (unify adjective
+           {:synsem {:cat :adjective
+                     :sem {:pred :difficile
+                           :comparative false
+                           ;; "difficile" has a very specific list of things it can modify:
+                           :mod {:drinkable false
+                                 :human false
+                                 :animate false
+                                 :buyable false
+                                 :legible true
+                                 :activity true
+                                 :artifact true
+                                 :physical-object true
+                                 :edible false}}}
+            :italian {:italian "difficile"
+                      :cat :adjective}
+            :english {:english "difficult"
+                      :cat :adjective}})
+
 
       {:synsem {:cat :det
                 :def :partitivo
@@ -2251,6 +2136,31 @@
                        :discrete false
                        :subj {:human true}
                        :obj {:physical-object true}}}})
+
+
+
+    ;; non-comparative
+    ;; TODO: add comparative
+    (unify adjective
+           {:synsem {:sem {:pred :gentile
+                           :comparative false
+                           :mod {:human true}}} ;; sono gli umani possono essere gentile.
+            :italian {:italian "gentile"}
+            :english {:english "kind"}})
+
+    ;; non-comparative
+    ;; TODO: add comparative
+    (unify adjective
+    {:synsem {:cat :adjective
+              :sem {:pred :nero
+                    :comparative false
+                    :mod {:physical-object true
+                          :human false}}}
+     :italian {:italian "nero"
+               :cat :adjective}
+     :english {:english "black"
+               :cat :adjective}})
+
 
       {:synsem {:cat :det
                 :def :def
@@ -2456,6 +2366,47 @@
          :english "less"
          })
 
+
+
+      ;; non-comparative
+      ;; TODO: add comparative
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :piccolo
+                             :comparative false
+                             :mod {:physical-object true
+                                   :mass false}}}
+              :italian {:italian "piccolo"
+                        :cat :adjective}
+              :english {:english "small"
+                        :cat :adjective}})
+
+      ;; non-comparative
+      (unify adjective
+             {:synsem {:sem {:pred :ricco
+                             :comparative false
+                             :mod {:human true}}} ;; TODO between with comparative/non-comparative rather than duplicating.
+              :italian {:italian "ricco"}
+              :english {:english "rich"}})
+
+    ;; comparative:
+    (let [complement-complement-sem (ref {:human true}) ;; only humans can be rich.
+          complement-sem (ref {:pred :di
+                               :mod complement-complement-sem})
+          subject-sem (ref {:human true})] ;; only humans can be rich.
+      (unify adjective
+      {:synsem {:sem {:pred :ricco
+                      :comparative true
+                      :arg1 subject-sem
+                      :arg2 complement-complement-sem}
+                :subcat {:1 {:cat :noun
+                             :sem subject-sem}
+                         :2 {:cat :prep
+                             :sem complement-sem}}}
+       :italian {:italian "ricco"}
+       :english {:english "rich"}}))
+
+
       (let [human (ref :top)
             animate (ref :top)]
         {:synsem {:sem {:human human
@@ -2584,6 +2535,88 @@
        :italian "questo"
        :english "this"}
 
+
+          ;; non-comparative
+    (unify adjective
+    {:synsem {:cat :adjective
+              :sem {:pred :robusto
+                    :comparative false
+                    :activity false
+                    :mod {:animate true}}}
+     :italian {:italian "robusto"
+               :cat :adjective}
+     :english {:english "large-built"
+               :cat :adjective}}
+
+
+    (unify adjective
+           {:synsem {:cat :adjective
+                     :sem {:pred :rosso
+                           :comparative false
+                           :mod {:physical-object true
+                                 :human false}}}
+            :italian {:italian "rossowtf"
+                      :cat :adjective}
+            :english {:english "red"
+                      :cat :adjective}})
+
+    (unify adjective
+           {:synsem {:cat :adjective
+                     :sem {:pred :rumorosa
+                           :comparative false
+                           :mod {:animate true}}}
+            :italian {:italian "rumoroso"
+                      :cat :adjective}
+            :english {:english "noisy"
+                      :cat :adjective}})
+
+    ;; comparative:
+    (let [complement-complement-sem (ref {:human true}) ;; only animals can be noisy.
+          complement-sem (ref {:pred :di
+                               :mod complement-complement-sem})
+          subject-sem (ref {:animate true})] ;; only animals can be noisy.
+      (unify adjective
+             {:synsem {:sem {:pred :semplice
+                             :comparative true
+                             :arg1 subject-sem
+                             :arg2 complement-complement-sem}
+                       :subcat {:1 {:cat :noun
+                                    :sem subject-sem}
+                                :2 {:cat :prep
+                                    :sem complement-sem}}}
+              :italian {:italian "rumoroso"}
+              :english {:english "noisy"}})
+
+
+      ;; comparative:
+      (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
+            complement-sem (ref {:pred :di
+                                 :mod complement-complement-sem})
+            subject-sem (ref {:human true})] ;; only humans can be naive.
+        (unify adjective
+               {:synsem {:sem {:pred :semplice
+                               :comparative true
+                               :arg1 subject-sem
+                               :arg2 complement-complement-sem}
+                         :subcat {:1 {:cat :noun
+                                      :sem subject-sem}
+                                  :2 {:cat :prep
+                                      :sem complement-sem}}}
+                :italian {:italian "semplice"}
+                :english {:english "naive"}}))
+
+      ;; non-comparative:
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :semplice
+                             :comparative false
+                             :mod {:human true}}}
+              :italian {:italian "semplice"
+                        :cat :adjective}
+              :english {:english "naive"
+                        :cat :adjective}})))
+
+
       ;; stradale
       (unify (:agreement noun)
              (:common noun)
@@ -2614,11 +2647,9 @@
        :english "a"}
       )
 
-     adjectives
      nouns proper-nouns prepositions
      nominative-pronouns accusative-pronouns disjunctive-pronouns
      verbs
-
 )))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
