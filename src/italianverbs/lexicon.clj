@@ -2553,19 +2553,19 @@
      :italian {:italian "robusto"
                :cat :adjective}
      :english {:english "large-built"
-               :cat :adjective}}
+               :cat :adjective}})
 
 
-    (unify adjective
-           {:synsem {:cat :adjective
-                     :sem {:pred :rosso
-                           :comparative false
-                           :mod {:physical-object true
-                                 :human false}}}
-            :italian {:italian "rossowtf"
-                      :cat :adjective}
-            :english {:english "red"
-                      :cat :adjective}})
+;    (unify adjective
+;           {:synsem {:cat :adjective
+;                     :sem {:pred :rosso
+;                           :comparative false
+;                           :mod {:physical-object true
+;                                 :human false}}}
+;            :italian {:italian "rossowtf"
+;                      :cat :adjective}
+;            :english {:english "red"
+;                      :cat :adjective}})
 
     (unify adjective
            {:synsem {:cat :adjective
@@ -2592,41 +2592,40 @@
                                 :2 {:cat :prep
                                     :sem complement-sem}}}
               :italian {:italian "rumoroso"}
-              :english {:english "noisy"}})
-
+              :english {:english "noisy"}}))
 
       ;; comparative:
-      (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
-            complement-sem (ref {:pred :di
-                                 :mod complement-complement-sem})
-            subject-sem (ref {:human true})] ;; only humans can be naive.
-        (unify adjective
-               {:synsem {:sem {:pred :semplice
-                               :comparative true
-                               :arg1 subject-sem
-                               :arg2 complement-complement-sem}
+    (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
+          complement-sem (ref {:pred :di
+                               :mod complement-complement-sem})
+          subject-sem (ref {:human true})] ;; only humans can be naive.
+      (unify adjective
+             {:synsem {:sem {:pred :semplice
+                             :comparative true
+                             :arg1 subject-sem
+                             :arg2 complement-complement-sem}
                          :subcat {:1 {:cat :noun
                                       :sem subject-sem}
                                   :2 {:cat :prep
                                       :sem complement-sem}}}
-                :italian {:italian "semplice"}
-                :english {:english "naive"}}))
+              :italian {:italian "semplice"}
+              :english {:english "naive"}}))
 
-      ;; non-comparative:
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :semplice
-                             :comparative false
-                             :mod {:human true}}}
-              :italian {:italian "semplice"
-                        :cat :adjective}
-              :english {:english "naive"
-                        :cat :adjective}})))
+    ;; non-comparative:
+    (unify adjective
+           {:synsem {:cat :adjective
+                     :sem {:pred :semplice
+                           :comparative false
+                           :mod {:human true}}}
+            :italian {:italian "semplice"
+                      :cat :adjective}
+            :english {:english "naive"
+                        :cat :adjective}})
 
 
       ;; stradale
       (unify (:agreement noun)
-             (:common noun)
+            (:common noun)
              (:countable noun)
              (:masculine noun)
              {:synsem {:sem {:pred :stradale
