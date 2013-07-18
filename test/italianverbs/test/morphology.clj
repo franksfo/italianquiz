@@ -470,7 +470,7 @@
                :infl :past}}))))
 
 (deftest vp-pron
-  (is (= "[to see] her"
+  (is (= "to see her"
          (get-english-1
           {:a {:irregular {:past "seen"}, :infl :top, :agr {:case {:not :acc}}, :infinitive "to see"}, :b "her"}))))
 
