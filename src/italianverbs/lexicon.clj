@@ -2026,14 +2026,6 @@
               :italian {:italian "corto"}
               :english {:english "short"}}))
 
-    (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :rosso
-                             :comparative false
-                             :mod {:physical-object true
-                                   :human false}}}
-              :italian {:italian "rosso"}
-              :english {:english "red"}})
 
     ;; non-comparative
     (unify adjective
@@ -2046,6 +2038,9 @@
             :english {:english "short"
                       :cat :adjective}})
 
+    
+
+    
     ;; non-comparative
     ;; TODO: add comparative
     (unify adjective
@@ -2148,6 +2143,8 @@
             :italian {:italian "gentile"}
             :english {:english "kind"}})
 
+
+
     ;; non-comparative
     ;; TODO: add comparative
     (unify adjective
@@ -2160,6 +2157,15 @@
                :cat :adjective}
      :english {:english "black"
                :cat :adjective}})
+
+    (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :rosso
+                             :comparative false
+                             :mod {:physical-object true
+                                   :human false}}}
+              :italian {:italian "rosso"}
+              :english {:english "red"}})
 
 
       {:synsem {:cat :det
