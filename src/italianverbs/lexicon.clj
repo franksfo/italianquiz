@@ -2158,16 +2158,6 @@
      :english {:english "black"
                :cat :adjective}})
 
-    (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :rosso
-                             :comparative false
-                             :mod {:physical-object true
-                                   :human false}}}
-              :italian {:italian "rosso"}
-              :english {:english "red"}})
-
-
       {:synsem {:cat :det
                 :def :def
                 :gender :masc
@@ -2387,31 +2377,21 @@
               :english {:english "small"
                         :cat :adjective}})
 
-      ;; non-comparative
-      (unify adjective
-             {:synsem {:sem {:pred :ricco
-                             :comparative false
-                             :mod {:human true}}} ;; TODO between with comparative/non-comparative rather than duplicating.
-              :italian {:italian "ricco"}
-              :english {:english "rich"}})
 
-    ;; comparative:
-    (let [complement-complement-sem (ref {:human true}) ;; only humans can be rich.
-          complement-sem (ref {:pred :di
-                               :mod complement-complement-sem})
-          subject-sem (ref {:human true})] ;; only humans can be rich.
-      (unify adjective
-      {:synsem {:sem {:pred :ricco
-                      :comparative true
-                      :arg1 subject-sem
-                      :arg2 complement-complement-sem}
-                :subcat {:1 {:cat :noun
-                             :sem subject-sem}
-                         :2 {:cat :prep
-                             :sem complement-sem}}}
-       :italian {:italian "ricco"}
-       :english {:english "rich"}}))
-
+      ;; perdere
+      (unify
+       (:transitive verb)
+       {:italian {:infinitive "perdere"
+                  :irregular {:passato "perso"}}
+        :english {:infinitive "to lose"
+                  :irregular {:past "lost"
+                              :past-participle "lost"}}
+        :synsem {:essere false
+                 :sem {:pred :perdere
+                       :activity false
+                       :discrete true
+                       :subj {:human true}
+                       :obj {:buyable true}}}})
 
       (let [human (ref :top)
             animate (ref :top)]
@@ -2449,21 +2429,6 @@
          :italian "più"
          :english "more"
          })
-
-      ;; perdere
-      (unify
-       (:transitive verb)
-       {:italian {:infinitive "perdere"
-                  :irregular {:passato "perso"}}
-        :english {:infinitive "to lose"
-                  :irregular {:past "lost"
-                              :past-participle "lost"}}
-        :synsem {:essere false
-                 :sem {:pred :perdere
-                       :activity false
-                       :discrete true
-                       :subj {:human true}
-                       :obj {:buyable true}}}})
 
       {:synsem {:cat :det
                 :def :partitivo
@@ -2540,6 +2505,42 @@
                 :number :sing}
        :italian "questo"
        :english "this"}
+
+      
+      ;; non-comparative
+      (unify adjective
+             {:synsem {:sem {:pred :ricco
+                             :comparative false
+                             :mod {:human true}}} ;; TODO between with comparative/non-comparative rather than duplicating.
+              :italian {:italian "ricco"}
+              :english {:english "rich"}})
+
+    ;; comparative:
+    (let [complement-complement-sem (ref {:human true}) ;; only humans can be rich.
+          complement-sem (ref {:pred :di
+                               :mod complement-complement-sem})
+          subject-sem (ref {:human true})] ;; only humans can be rich.
+      (unify adjective
+      {:synsem {:sem {:pred :ricco
+                      :comparative true
+                      :arg1 subject-sem
+                      :arg2 complement-complement-sem}
+                :subcat {:1 {:cat :noun
+                             :sem subject-sem}
+                         :2 {:cat :prep
+                             :sem complement-sem}}}
+       :italian {:italian "ricco"}
+       :english {:english "rich"}}))
+
+
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :rosso
+                             :comparative false
+                             :mod {:physical-object true
+                                   :human false}}}
+              :italian {:italian "rosso"}
+              :english {:english "red"}})
 
 
           ;; non-comparative
