@@ -345,7 +345,7 @@
         (str stem "vano")
 
         (string? infinitive)
-        (str "[" infinitive "]")
+        (str infinitive )
 
         :else
         (merge word
@@ -509,10 +509,10 @@
         (and (= person :3rd) (= number :plur))
         (str stem "ano")
         :else
-        (str "[" infinitive "]")))
+        (str infinitive )))
 
      (= (fs/get-in word '(:infl)) :top)
-     (str "[" (fs/get-in word '(:infinitive)) "]")
+     (str (fs/get-in word '(:infinitive)) )
 
      (and
       (fs/get-in word '(:a))
@@ -924,7 +924,7 @@
    (str "[" (fs/get-in word '(:irregular :past :2sing)) "]")
 
    (= :top (fs/get-in word '(:infl)))
-   (str "[" (fs/get-in word '(:infinitive)) "]")
+   (str (fs/get-in word '(:infinitive)) )
 
    ;; irregular past (2): a different inflection for each persons/numbers.
    (and (= :past (fs/get-in word '(:infl)))
