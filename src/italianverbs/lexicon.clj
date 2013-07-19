@@ -2605,6 +2605,15 @@
 
      (unify agreement-noun
             common-noun
+            masculine-noun
+            countable-noun
+           {:synsem {:sem {:furniture true
+                           :pred :tovaglia}}
+             :italian {:italian "tovaglia"}
+             :english {:english "tablecloth"}})
+
+     (unify agreement-noun
+            common-noun
             countable-noun
             masculine-noun
             {:synsem {:sem human}}
