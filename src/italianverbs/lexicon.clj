@@ -256,327 +256,7 @@
         ]
     (list
 
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem {:pred :mare
-                           :buyable false ;; a seaside's too big to own.
-                           :artifact false
-                           :city false
-                           :place true}}
-            :italian {:italian "mare"}
-            :english {:english "seaside"}}
-           {:synsem {:subcat {:1 {:cat :det
-                                  :number :sing
-                                  :def :def}}}})
 
-    ;; inherently plural
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem {:pred :calzoni
-                           :artifact true
-                           :speakable false
-                           :legible false
-                           :consumable false
-                           :clothing true}}}
-           {:italian {:italian "calzoni"}
-            :english {:english "trouser"}}
-           {:synsem {:subcat {:1 {:cat :det
-                                  :number :plur
-                                  :def :def}}}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           feminine
-           {:synsem {:sem {:pred :camicia
-                           :artifact true
-                           :speakable false
-                           ;; (although an exception would be tshirts with writing on them):
-                           :legible false
-                           :consumable false
-                           :clothing true}}}
-           {:italian {:italian "camicia"}
-            :english {:english "shirt"}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem (unify animal {:pred :cane :pet true})}
-            :italian {:italian "cane"}
-            :english {:english "dog"}})
-
-    (unify agreement
-           common-noun
-           feminine
-           {:synsem {:sem {:pred :cipolla
-                           :edible true
-                           :animate false
-                           :artifact false}}
-            :italian {:italian "cipolla"}
-            :english {:english "onion"}})
-
-
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem human}}
-           {:synsem {:sem {:pred :dottore}}
-            :italian {:italian "dottore"}
-            :english {:english "doctor"}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           feminine
-           {:synsem {:sem human}}
-           {:synsem {:sem {:pred :donna}}
-            :italian {:italian "donna"}
-            :english {:irregular {:plur "women"}
-                      :english "woman"}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem {:pred :fiore
-                           :animate false
-                           :artifact false
-                           :buyable true
-                           :consumable false
-                           :speakable false}}
-            :italian {:italian "fiore"}
-            :english {:english "flower"}}
-           {:synsem {:subcat {:1 {:cat :det}}}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem {:legible true
-                           :artifact true
-                           :buyable true
-                           :speakable false
-                           :pred :giornale}}}
-           {:italian {:italian "giornale"}
-            :english {:english "newspaper"}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem (unify animal {:pred :gatto :pet true})}
-            :italian {:italian "gatto"}
-            :english {:english "cat"}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem (unify animal {:pred :granchi :pet false})}
-            :italian {:italian "granchio"
-                      :irregular {:plur "granchi"}}
-            :english {:english "crab"}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem {:pred :libro
-                           :legible true
-                           :speakable false
-                           :mass false
-                           :buyable true
-                           :consumable false
-                           :artifact true}}
-            :italian {:italian "libro"}
-            :english {:english "book"}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           feminine
-           {:synsem {:sem human}}
-           {:synsem {:sem {:pred :madre}}
-            :italian {:italian "madre"}
-            :english {:english "mother"}})
-
-     ;; inherently plural.
-    (unify agreement
-           common-noun
-           feminine
-           {:synsem {:sem {:pred :notizie
-                           :buyable false
-                           :legible true}}
-            ;; "notizia" would probably also work, since it
-            ;; would be pluralized by morphology to "notizie".
-            :italian {:italian "notizie"}
-            :english {:english "new"}} ;; "news" (will be pluralized by morphology to "news").
-           {:synsem {:subcat {:1 {:cat :det
-                                  :number :plur
-                                  :def :def}}}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           feminine
-           {:synsem {:sem {:legible true
-                           :buyable false
-                           :speakable true
-                           :pred :parola}}}
-           {:italian {:italian "parola"}
-            :english {:english "word"}})
-
-     ;; inherently singular.
-    (unify agreement
-           common-noun
-           masculine
-           {:synsem {:sem (sem-impl {:pred :pane
-                                     :edible true
-                                     :artifact true})}
-            :italian {:italian "pane"}
-            :english {:english "bread"}}
-           {:synsem {:subcat {:1 {:cat :det
-                                  :number :sing
-                                  :def :def}}}})
-
-     ;; inherently singular.
-    (unify agreement
-           common-noun
-           feminine
-           {:synsem {:sem (sem-impl {:pred :pasta
-                                     :edible true
-                                     :artifact true})}
-            :italian {:italian "pasta"}
-            :english {:english "pasta"}}
-           {:synsem {:subcat {:1 {:cat :det
-                                  :number :sing
-                                  :def :def}}}}
-           )
-
-    (unify agreement
-           common-noun
-           countable-noun
-           feminine
-           {:synsem {:sem human}}
-           {:synsem {:sem {:pred :professoressa}}}
-           {:italian {:italian "professoressa"}
-            :english {:english "professor"
-                      :note " (&#x2640;)"}}) ;; unicode female symbol
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem human}}
-           {:synsem {:sem {:pred :professore}}}
-           {:italian {:italian "professore"}
-            :english {:english "professor"
-                      :note " (&#x2642;)"}}) ;; unicode male symbol
-
-     ;; "pizza" can be either mass or countable.
-    (unify agreement
-           common-noun
-           feminine
-           {:synsem {:sem {:pred :pizza
-                           :edible true
-                           :artifact true}}
-            :italian {:italian "pizza"}
-            :english {:english "pizza"}})
-
-     (unify agreement
-            common-noun
-            countable-noun
-            masculine
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :ragazzo}}
-             :italian {:italian "ragazzo"}
-             :english {:english "guy"}})
-
-     (unify agreement
-            common-noun
-            countable-noun
-            feminine
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :ragazza}}
-             :italian {:italian "ragazza"}
-             :english {:english "girl"}})
-
-     (unify agreement
-            common-noun
-            feminine
-            countable-noun
-            {:synsem {:sem {:artifact true
-                            :consumable false
-                            :legible false
-                            :speakable false
-                           :pred :scala}}
-            :italian {:italian "scala"}
-             :english {:english "ladder"}})
-
-     (unify agreement
-            common-noun
-            feminine
-            countable-noun
-            {:synsem {:sem {:artifact true
-                            :consumable true
-                            :legible true
-                            :speakable true
-                            :pred :stravaganza}}
-             :italian {:italian "stravaganza"}
-             :english {:english "extravagant thing"}})
-
-     (unify agreement
-            common-noun
-            feminine
-            countable-noun
-            {:synsem {:sem {:furniture true
-                            :pred :sedia}}
-             :italian {:italian "sedia"}
-             :english {:english "chair"}})
-
-     (unify agreement
-            common-noun
-            countable-noun
-            masculine
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :studente}}}
-            {:italian {:italian "studente"}
-             :english {:english "student"}})
-
-     (unify agreement
-            common-noun
-            masculine
-            countable-noun
-           {:synsem {:sem {:furniture true
-                           :pred :tavolo}}
-             :italian {:italian "tavolo"}
-             :english {:english "table"}})
-
-     (unify agreement
-            common-noun
-            countable-noun
-            masculine
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :uomo}}
-             :italian {:irregular {:plur "uomini"}
-                       :italian "uomo"}
-             :english {:irregular {:plur "men"}
-                       :english "man"}})
-
-     (unify drinkable
-            agreement
-            masculine
-            {:italian {:italian "vino"}
-             :english {:english "wine"}
-            :synsem {:sem {:pred :vino
-                            :artifact true}}})
      )
     )
   )
@@ -2008,6 +1688,56 @@
             :english {:english "ugly"
                       :cat :adjective}})
 
+    ;; inherently plural
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem {:pred :calzoni
+                           :artifact true
+                           :speakable false
+                           :legible false
+                           :consumable false
+                           :clothing true}}}
+           {:italian {:italian "calzoni"}
+            :english {:english "trouser"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :number :plur
+                                  :def :def}}}})
+
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           feminine-noun
+           {:synsem {:sem {:pred :camicia
+                           :artifact true
+                           :speakable false
+                           ;; (although an exception would be tshirts with writing on them):
+                           :legible false
+                           :consumable false
+                           :clothing true}}}
+           {:italian {:italian "camicia"}
+            :english {:english "shirt"}})
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem (unify animal {:pred :cane :pet true})}
+            :italian {:italian "cane"}
+            :english {:english "dog"}})
+
+    (unify agreement-noun
+           common-noun
+           feminine-noun
+           {:synsem {:sem {:pred :cipolla
+                           :edible true
+                           :animate false
+                           :artifact false}}
+            :italian {:italian "cipolla"}
+            :english {:english "onion"}})
+
       ;; cercare
       (unify
        (:transitive verb)
@@ -2071,7 +1801,6 @@
               :italian {:italian "corto"}
               :english {:english "short"}}))
 
-
     ;; non-comparative
     (unify adjective
            {:synsem {:cat :adjective
@@ -2083,9 +1812,6 @@
             :english {:english "short"
                       :cat :adjective}})
 
-    
-
-    
     ;; non-comparative
     ;; TODO: add comparative
     (unify adjective
@@ -2138,6 +1864,39 @@
        :italian "di il"
        :english "some"}
 
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :donna}}
+              :italian {:italian "donna"}
+              :english {:irregular {:plur "women"}
+                        :english "woman"}})
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             masculine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :dottore}}
+              :italian {:italian "dottore"}
+              :english {:english "doctor"}})
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem {:pred :fiore
+                           :animate false
+                           :artifact false
+                           :buyable true
+                           :consumable false
+                           :speakable false}}
+            :italian {:italian "fiore"}
+            :english {:english "flower"}}
+           {:synsem {:subcat {:1 {:cat :det}}}})
+
     ;; non-comparative
     ;; TODO: add comparative
     (unify adjective
@@ -2146,6 +1905,35 @@
                            :mod {:human true}}} ;; sono gli umani possono essere gentile.
             :italian {:italian "gentile"}
             :english {:english "kind"}})
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem {:legible true
+                           :artifact true
+                           :buyable true
+                           :speakable false
+                           :pred :giornale}}}
+           {:italian {:italian "giornale"}
+            :english {:english "newspaper"}})
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem (unify animal {:pred :gatto :pet true})}
+            :italian {:italian "gatto"}
+            :english {:english "cat"}})
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem (unify animal {:pred :granchi :pet false})}
+            :italian {:italian "granchio"
+                      :irregular {:plur "granchi"}}
+            :english {:english "crab"}})
 
       {:synsem {:cat :det
                 :def :def
@@ -2315,6 +2103,45 @@
        :italian "le tue"
        :english "your"}
 
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem {:pred :libro
+                           :legible true
+                           :speakable false
+                           :mass false
+                           :buyable true
+                           :consumable false
+                           :artifact true}}
+            :italian {:italian "libro"}
+            :english {:english "book"}})
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           feminine-noun
+           {:synsem {:sem human}}
+           {:synsem {:sem {:pred :madre}}
+            :italian {:italian "madre"}
+            :english {:english "mother"}})
+ 
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem {:pred :mare
+                           :buyable false ;; a seaside's too big to own.
+                           :artifact false
+                           :city false
+                           :place true}}
+            :italian {:italian "mare"}
+            :english {:english "seaside"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :number :sing
+                                  :def :def}}}})
+
+    
 
       ;; melanzana
       (unify (:agreement noun)
@@ -2363,6 +2190,89 @@
                         :cat :adjective}
               :english {:english "black"
                         :cat :adjective}})
+
+      ;; inherently plural.
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             {:synsem {:sem {:pred :notizie
+                             :buyable false
+                             :legible true}}
+              ;; "notizia" would probably also work, since it
+              ;; would be pluralized by morphology to "notizie".
+              :italian {:italian "notizie"}
+              :english {:english "new"}} ;; "news" (will be pluralized by morphology to "news").
+             {:synsem {:subcat {:1 {:cat :det
+                                    :number :plur
+                                    :def :def}}}})
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
+             {:synsem {:sem {:legible true
+                             :buyable false
+                             :speakable true
+                             :pred :parola}}}
+             {:italian {:italian "parola"}
+              :english {:english "word"}})
+
+      ;; inherently singular.
+      (unify agreement-noun
+             common-noun
+             masculine-noun
+             {:synsem {:sem (sem-impl {:pred :pane
+                                       :edible true
+                                       :artifact true})}
+              :italian {:italian "pane"}
+            :english {:english "bread"}}
+             {:synsem {:subcat {:1 {:cat :det
+                                    :number :sing
+                                    :def :def}}}})
+
+      ;; inherently singular.
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             {:synsem {:sem (sem-impl {:pred :pasta
+                                       :edible true
+                                       :artifact true})}
+              :italian {:italian "pasta"}
+              :english {:english "pasta"}}
+             {:synsem {:subcat {:1 {:cat :det
+                                    :number :sing
+                                    :def :def}}}}
+           )
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :professoressa}}}
+             {:italian {:italian "professoressa"}
+              :english {:english "professor"
+                      :note " (&#x2640;)"}}) ;; unicode female symbol
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             masculine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :professore}}}
+             {:italian {:italian "professore"}
+              :english {:english "professor"
+                        :note " (&#x2642;)"}}) ;; unicode male symbol
+
+      ;; "pizza" can be either mass or countable.
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             {:synsem {:sem {:pred :pizza
+                             :edible true
+                             :artifact true}}
+              :italian {:italian "pizza"}
+              :english {:english "pizza"}})
 
       ;; perdere
       (unify
@@ -2542,29 +2452,17 @@
               :english {:english "red"}})
 
 
-          ;; non-comparative
-    (unify adjective
-    {:synsem {:cat :adjective
-              :sem {:pred :robusto
-                    :comparative false
-                    :activity false
-                    :mod {:animate true}}}
-     :italian {:italian "robusto"
-               :cat :adjective}
-     :english {:english "large-built"
-               :cat :adjective}})
-
-
-;    (unify adjective
-;           {:synsem {:cat :adjective
-;                     :sem {:pred :rosso
-;                           :comparative false
-;                           :mod {:physical-object true
-;                                 :human false}}}
-;            :italian {:italian "rossowtf"
-;                      :cat :adjective}
-;            :english {:english "red"
-;                      :cat :adjective}})
+      ;; non-comparative
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :robusto
+                             :comparative false
+                             :activity false
+                             :mod {:animate true}}}
+              :italian {:italian "robusto"
+                        :cat :adjective}
+              :english {:english "large-built"
+                        :cat :adjective}})
 
     (unify adjective
            {:synsem {:cat :adjective
@@ -2592,6 +2490,24 @@
                                     :sem complement-sem}}}
               :italian {:italian "rumoroso"}
               :english {:english "noisy"}}))
+
+     (unify agreement-noun
+            common-noun
+            countable-noun
+            masculine-noun
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :ragazzo}}
+             :italian {:italian "ragazzo"}
+             :english {:english "guy"}})
+
+     (unify agreement-noun
+            common-noun
+            countable-noun
+            feminine-noun
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :ragazza}}
+             :italian {:italian "ragazza"}
+             :english {:english "girl"}})
 
       ;; comparative:
     (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
@@ -2635,6 +2551,77 @@
               :italian {:italian "stradale"}
               :english {:english "road"}})
 
+
+     (unify agreement-noun
+            common-noun
+            feminine-noun
+            countable-noun
+            {:synsem {:sem {:artifact true
+                            :consumable false
+                            :legible false
+                            :speakable false
+                           :pred :scala}}
+            :italian {:italian "scala"}
+             :english {:english "ladder"}})
+
+     (unify agreement-noun
+            common-noun
+            feminine-noun
+            countable-noun
+            {:synsem {:sem {:artifact true
+                            :consumable true
+                            :legible true
+                            :speakable true
+                            :pred :stravaganza}}
+             :italian {:italian "stravaganza"}
+             :english {:english "extravagant thing"}})
+
+     (unify agreement-noun
+            common-noun
+            feminine-noun
+            countable-noun
+            {:synsem {:sem {:furniture true
+                            :pred :sedia}}
+             :italian {:italian "sedia"}
+             :english {:english "chair"}})
+
+     (unify agreement-noun
+            common-noun
+            countable-noun
+            masculine-noun
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :studente}}}
+            {:italian {:italian "studente"}
+             :english {:english "student"}})
+
+     (unify agreement-noun
+            common-noun
+            masculine-noun
+            countable-noun
+           {:synsem {:sem {:furniture true
+                           :pred :tavolo}}
+             :italian {:italian "tavolo"}
+             :english {:english "table"}})
+
+     (unify agreement-noun
+            common-noun
+            countable-noun
+            masculine-noun
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :uomo}}
+             :italian {:irregular {:plur "uomini"}
+                       :italian "uomo"}
+             :english {:irregular {:plur "men"}
+                       :english "man"}})
+
+     (unify drinkable-noun
+            agreement-noun
+            masculine-noun
+            {:italian {:italian "vino"}
+             :english {:english "wine"}
+            :synsem {:sem {:pred :vino
+                            :artifact true}}})
+
       {:synsem {:cat :det
                 :def :indef
                 :mass false
@@ -2652,7 +2639,7 @@
        :english "a"}
       )
 
-     nouns proper-nouns prepositions
+     proper-nouns prepositions
      nominative-pronouns accusative-pronouns disjunctive-pronouns
      verbs
 )))
