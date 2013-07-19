@@ -261,66 +261,6 @@
     )
   )
 
-(def proper-nouns
-  (let [proper-noun
-        {:synsem {:cat :noun
-                  :pronoun false
-                  :propernoun true
-                  :agr {:person :3rd}
-                  :subcat '()}}]
-    (list
-
-     (unify proper-noun
-            {:synsem {:sem {:pred :giorgio
-                            :human true}
-                      :agr {:number :sing
-                            :person :3rd
-                            :gender :masc}}
-             :italian "Giorgio"
-             :english "Giorgio"})
-
-     (unify proper-noun
-            {:synsem {:sem {:pred :milano
-                            :buyable false
-                            :artifact true
-                            :city true}
-                      :agr {:number :sing
-                            :person :3rd
-                            :gender :masc}}
-             :italian {:italian "Milano"}
-             :english {:english "Milan"}})
-
-     (unify proper-noun
-            {:synsem {:sem {:pred :napoli
-                            :buyable false
-                            :artifact true
-                            :city true}
-                      :agr {:number :sing
-                            :person :3rd
-                            :gender :masc}}
-             :italian {:italian "Napoli"}
-             :english {:english "Naples"}})
-
-     (unify proper-noun
-            {:synsem {:sem {:pred :paola
-                            :human true}
-                      :agr {:number :sing
-                            :person :3rd
-                            :gender :fem}}
-             :italian "Paola"
-             :english "Paola"})
-
-     (unify proper-noun
-            {:synsem {:sem {:pred :roma
-                            :buyable false
-                            :artifact true ;; but wasn't built in a day..
-                            :city true}
-                      :agr {:number :sing
-                            :person :3rd
-                            :gender :masc}}
-                :italian {:italian "Roma"}
-             :english {:english "Rome"}}))))
-
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
 (def subjective
@@ -1547,6 +1487,13 @@
         feminine-noun (:feminine noun)
         masculine-noun (:masculine noun)
 
+        proper-noun
+        {:synsem {:cat :noun
+                  :pronoun false
+                  :propernoun true
+                  :agr {:person :3rd}
+                  :subcat '()}}
+
         adjective
         (let [adjective (ref :adjective)
               gender (ref :top)
@@ -1906,6 +1853,15 @@
             :italian {:italian "gentile"}
             :english {:english "kind"}})
 
+    (unify proper-noun
+           {:synsem {:sem {:pred :giorgio
+                           :human true}
+                     :agr {:number :sing
+                           :person :3rd
+                            :gender :masc}}
+            :italian "Giorgio"
+            :english "Giorgio"})
+
     (unify agreement-noun
            common-noun
            countable-noun
@@ -2125,7 +2081,7 @@
            {:synsem {:sem {:pred :madre}}
             :italian {:italian "madre"}
             :english {:english "mother"}})
- 
+
     (unify agreement-noun
            common-noun
            countable-noun
@@ -2140,8 +2096,6 @@
            {:synsem {:subcat {:1 {:cat :det
                                   :number :sing
                                   :def :def}}}})
-
-    
 
       ;; melanzana
       (unify (:agreement noun)
@@ -2178,6 +2132,28 @@
          :english "less"
          })
 
+      (unify proper-noun
+            {:synsem {:sem {:pred :milano
+                            :buyable false
+                            :artifact true
+                            :city true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
+             :italian {:italian "Milano"}
+             :english {:english "Milan"}})
+
+     (unify proper-noun
+            {:synsem {:sem {:pred :napoli
+                            :buyable false
+                            :artifact true
+                            :city true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
+             :italian {:italian "Napoli"}
+             :english {:english "Naples"}})
+
       ;; non-comparative
       ;; TODO: add comparative
       (unify adjective
@@ -2205,6 +2181,15 @@
              {:synsem {:subcat {:1 {:cat :det
                                     :number :plur
                                     :def :def}}}})
+
+     (unify proper-noun
+            {:synsem {:sem {:pred :paola
+                            :human true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :fem}}
+             :italian "Paola"
+             :english "Paola"})
 
       (unify agreement-noun
              common-noun
@@ -2441,6 +2426,16 @@
        :italian {:italian "ricco"}
        :english {:english "rich"}}))
 
+     (unify proper-noun
+            {:synsem {:sem {:pred :roma
+                            :buyable false
+                            :artifact true ;; but wasn't built in a day..
+                            :city true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
+                :italian {:italian "Roma"}
+             :english {:english "Rome"}})
 
       (unify adjective
              {:synsem {:cat :adjective
@@ -2648,7 +2643,7 @@
        :english "a"}
       )
 
-     proper-nouns prepositions
+     prepositions
      nominative-pronouns accusative-pronouns disjunctive-pronouns
      verbs
 )))
