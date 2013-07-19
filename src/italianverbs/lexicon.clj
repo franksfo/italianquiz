@@ -256,49 +256,6 @@
         ]
     (list
 
-
-     (unify agreement
-            drinkable
-            feminine
-            {:italian {:italian "acqua"}
-             :english {:english "water"}
-             :synsem {:sem {:artifact false
-                            :animate false
-                            :pred :acqua}}})
-
-     (unify agreement
-            common-noun
-            countable-noun
-            masculine
-            {:synsem {:sem {:pred :amico
-                            :human true}}
-             :italian {:italian "amico"}
-             :english {:english "friend"}})
-
-     (unify agreement
-            drinkable
-            feminine
-            {:italian {:italian "birra"}
-             :english {:english "beer"}
-             :synsem {:sem {:pred :birra
-                            :artifact true}}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
-           {:synsem {:sem {:pred :braccio
-                           :part-of-human-body true}}
-            ;; adding "bracci" as irregular because
-            ;; current morphology.clj would otherwise return
-            ;; "braccii".
-            ;; TODO: might not be an exception so much
-            ;; as a ortho-pholological rule "io" -plur-> "i"
-            :italian {:italian "braccio"
-                      :irregular {:plur "bracci"}}
-            :english {:english "arm"}})
-
-
     (unify agreement
            common-noun
            countable-noun
@@ -1925,10 +1882,17 @@
           {:agreement agreement
            :common common
            :countable countable
+           :drinkable drinkable
            :feminine feminine
            :masculine masculine})
         ;; end of hash for nouns.
-
+        ;; noun convenience variables:
+        agreement-noun (:agreement noun)
+        common-noun (:common noun)
+        countable-noun (:countable noun)
+        drinkable-noun (:drinkable noun)
+        feminine-noun (:feminine noun)
+        masculine-noun (:masculine noun)
 
         adjective
         (let [adjective (ref :adjective)
@@ -1948,14 +1912,32 @@
     (concat
      (list
 
-      ;; non-comparative:
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :alto
-                             :comparative false
-                             :mod {:human true}}}
-              :italian {:italian "alto"}
-              :english {:english "tall"}})
+     (unify (:agreement noun)
+            (:drinkable noun)
+            (:feminine noun)
+            {:italian {:italian "acqua"}
+             :english {:english "water"}
+             :synsem {:sem {:artifact false
+                            :animate false
+                            :pred :acqua}}})
+
+     ;; non-comparative:
+     (unify adjective
+            {:synsem {:cat :adjective
+                      :sem {:pred :alto
+                            :comparative false
+                            :mod {:human true}}}
+             :italian {:italian "alto"}
+             :english {:english "tall"}})
+
+     (unify agreement-noun
+            common-noun
+            countable-noun
+            masculine-noun
+            {:synsem {:sem {:pred :amico
+                            :human true}}
+             :italian {:italian "amico"}
+             :english {:english "friend"}})
 
       ;; comparative:
       (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
@@ -1974,7 +1956,6 @@
                 :italian {:italian "alto"}
                 :english {:english "tall"}}))
 
-
     ;; non-comparative
     ;; TODO: add comparative
     (unify adjective
@@ -1983,17 +1964,25 @@
                            :mod :top}} ;; for now, no restrictions on what can be beautiful.
             :italian {:italian "bello"}
             :english {:english "beautiful"}})
-        ;; non-comparative
-    ;; TODO: add comparative
-    (unify adjective
-           {:synsem {:cat :adjective
-                     :sem {:pred :brutto
-                           :comparative false
-                           :mod :top}} ;; for now, no restrictions on what can be ugly.
-            :italian {:italian "brutto"
-                      :cat :adjective}
-            :english {:english "ugly"
-                      :cat :adjective}})
+
+
+      ;; bere
+      (unify
+       (:transitive verb)
+       {:italian {:infinitive "bere"
+                  :irregular {:passato "bevuto"
+                              :present {:1sing "bevo"
+                                        :2sing "bevi"
+                                        :3sing "beve"
+                                        :1plur "beviamo"
+                                        :2plur "bevete"
+                                        :3plur "bevano"}}}
+        :english {:infinitive "to drink"
+                  :irregular {:past "drank"}}
+        :synsem {:essere false
+                 :sem {:pred :bere
+                       :subj {:animate true}
+                       :obj {:drinkable true}}}})
 
     ;; non-comparative
     ;; TODO: add comparative
@@ -2009,6 +1998,63 @@
                :cat :adjective}
             :english {:english "white"
                       :cat :adjective}})
+
+     (unify agreement-noun
+            drinkable-noun
+            feminine-noun
+            {:italian {:italian "birra"}
+             :english {:english "beer"}
+             :synsem {:sem {:pred :birra
+                            :artifact true}}})
+
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem {:pred :braccio
+                           :part-of-human-body true}}
+            ;; adding "bracci" as irregular because
+            ;; current morphology.clj would otherwise return
+            ;; "braccii".
+            ;; TODO: might not be an exception so much
+            ;; as a ortho-pholological rule "io" -plur-> "i"
+            :italian {:italian "braccio"
+                      :irregular {:plur "bracci"}}
+            :english {:english "arm"}})
+
+    ;; non-comparative
+    ;; TODO: add comparative
+    (unify adjective
+           {:synsem {:cat :adjective
+                     :sem {:pred :brutto
+                           :comparative false
+                           :mod :top}} ;; for now, no restrictions on what can be ugly.
+            :italian {:italian "brutto"
+                      :cat :adjective}
+            :english {:english "ugly"
+                      :cat :adjective}})
+
+      ;; cercare
+      (unify
+       (:transitive verb)
+       {:italian {:infinitive "cercare"}
+        :english {:infinitive "to look for"
+                  :irregular {:past "looked for"
+                              :imperfetto-suffix "looking for"
+                              :past-participle "looked for"
+                              :present {:1sing "look for"
+                                        :2sing "look for"
+                                        :3sing "looks for"
+                                        :1plur "look for"
+                                        :2plur "look for"
+                                        :3plur "look for"}}}
+        :synsem {:essere false
+                 :sem {:pred :cercare
+                       :activity true
+                       :discrete false
+                       :subj {:human true}
+                       :obj {:physical-object true}}}})
 
     (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
           complement-sem (ref {:pred :di
@@ -2092,47 +2138,6 @@
                 :gender :masc}
        :italian "di il"
        :english "some"}
-
-      ;; bere
-      (unify
-       (:transitive verb)
-       {:italian {:infinitive "bere"
-                  :irregular {:passato "bevuto"
-                              :present {:1sing "bevo"
-                                        :2sing "bevi"
-                                        :3sing "beve"
-                                        :1plur "beviamo"
-                                        :2plur "bevete"
-                                        :3plur "bevano"}}}
-        :english {:infinitive "to drink"
-                  :irregular {:past "drank"}}
-        :synsem {:essere false
-                 :sem {:pred :bere
-                       :subj {:animate true}
-                       :obj {:drinkable true}}}})
-
-      ;; cercare
-      (unify
-       (:transitive verb)
-       {:italian {:infinitive "cercare"}
-        :english {:infinitive "to look for"
-                  :irregular {:past "looked for"
-                              :imperfetto-suffix "looking for"
-                              :past-participle "looked for"
-                              :present {:1sing "look for"
-                                        :2sing "look for"
-                                        :3sing "looks for"
-                                        :1plur "look for"
-                                        :2plur "look for"
-                                        :3plur "look for"}}}
-        :synsem {:essere false
-                 :sem {:pred :cercare
-                       :activity true
-                       :discrete false
-                       :subj {:human true}
-                       :obj {:physical-object true}}}})
-
-
 
     ;; non-comparative
     ;; TODO: add comparative
@@ -2625,7 +2630,7 @@
 
       ;; stradale
       (unify (:agreement noun)
-            (:common noun)
+             (:common noun)
              (:countable noun)
              (:masculine noun)
              {:synsem {:sem {:pred :stradale
