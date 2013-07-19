@@ -260,19 +260,6 @@
            common-noun
            countable-noun
            masculine
-           {:synsem {:sem {:pred :compito
-                           :legible true
-                           :speakable false
-                           :buyable false
-                           :artifact true
-                           :activity true}}
-            :italian {:italian "compito"}
-            :english {:english "homework assignment"}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           masculine
            {:synsem {:sem {:pred :mare
                            :buyable false ;; a seaside's too big to own.
                            :artifact false
@@ -283,20 +270,6 @@
            {:synsem {:subcat {:1 {:cat :det
                                   :number :sing
                                   :def :def}}}})
-
-    (unify agreement
-           common-noun
-           countable-noun
-           feminine
-           {:synsem {:sem {:pred :città
-                           :buyable false  ;; can't buy a city (unless you're a billionaire like Mike Bloomberg)
-                           :artifact true ;;
-                           :city true}}
-            :italian {:italian "città"}
-            :english {:english "city"}}
-           {:synsem {:subcat {:1 {:cat :det
-                                  :def :def}}}})
-
 
     ;; inherently plural
     (unify agreement
@@ -2056,7 +2029,33 @@
                        :subj {:human true}
                        :obj {:physical-object true}}}})
 
-    (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           feminine-noun
+           {:synsem {:sem {:pred :città
+                           :buyable false  ;; can't buy a city (unless you're a billionaire like Mike Bloomberg)
+                           :artifact true ;;
+                           :city true}}
+            :italian {:italian "città"}
+            :english {:english "city"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :def :def}}}})
+
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem {:pred :compito
+                           :legible true
+                           :speakable false
+                           :buyable false
+                           :artifact true
+                           :activity true}}
+            :italian {:italian "compito"}
+            :english {:english "homework assignment"}})
+
+      (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
           complement-sem (ref {:pred :di
                                :mod complement-complement-sem})
           subject-sem (ref {:human true})] ;; only humans can be short.
@@ -2147,21 +2146,6 @@
                            :mod {:human true}}} ;; sono gli umani possono essere gentile.
             :italian {:italian "gentile"}
             :english {:english "kind"}})
-
-
-
-    ;; non-comparative
-    ;; TODO: add comparative
-    (unify adjective
-    {:synsem {:cat :adjective
-              :sem {:pred :nero
-                    :comparative false
-                    :mod {:physical-object true
-                          :human false}}}
-     :italian {:italian "nero"
-               :cat :adjective}
-     :english {:english "black"
-               :cat :adjective}})
 
       {:synsem {:cat :det
                 :def :def
@@ -2367,21 +2351,18 @@
          :english "less"
          })
 
-
-
       ;; non-comparative
       ;; TODO: add comparative
       (unify adjective
              {:synsem {:cat :adjective
-                       :sem {:pred :piccolo
+                       :sem {:pred :nero
                              :comparative false
                              :mod {:physical-object true
-                                   :mass false}}}
-              :italian {:italian "piccolo"
+                                   :human false}}}
+              :italian {:italian "nero"
                         :cat :adjective}
-              :english {:english "small"
+              :english {:english "black"
                         :cat :adjective}})
-
 
       ;; perdere
       (unify
@@ -2397,6 +2378,19 @@
                        :discrete true
                        :subj {:human true}
                        :obj {:buyable true}}}})
+
+      ;; non-comparative
+      ;; TODO: add comparative
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :piccolo
+                             :comparative false
+                             :mod {:physical-object true
+                                   :mass false}}}
+              :italian {:italian "piccolo"
+                        :cat :adjective}
+              :english {:english "small"
+                        :cat :adjective}})
 
       (let [human (ref :top)
             animate (ref :top)]
