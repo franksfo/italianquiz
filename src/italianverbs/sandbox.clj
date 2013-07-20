@@ -162,6 +162,14 @@
     (gen/generate (first parent))
     (gen/generate parent)))
 
+
+(defn fail? [input]
+  (if (seq? input)
+    (map (fn [each-of-input]
+           (fail? each-of-input))
+         input)
+    (fs/fail? input)))
+
 ;;
 42
 
