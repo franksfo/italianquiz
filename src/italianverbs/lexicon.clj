@@ -914,134 +914,6 @@
    verbs-taking-pp
    modal-verbs))
 
-(def nominative-pronouns
-  (list {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it.
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :3rd
-                        :number :sing}
-                  :sem (unify human {:pred :chiunque
-                                     :elective-existential true})
-                  :subcat '()}
-         :english "anyone"
-         :italian "chiunque"}
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :1st
-                        :number :sing}
-                  :sem (unify human {:pred :io})
-                  :subcat '()}
-         :english "I"
-         :italian "io"}
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :3rd
-                        :number :sing}
-                  :sem (unify human {:pred :ognuno})
-                  :subcat '()}
-         :english "everyone"
-         :italian "ognuno"}
-
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :3rd
-                        :number :sing}
-                  :sem {:human false
-                        :animate false ;; otherwise we get weird things like "something will see my ladder".
-                        :place false ;; otherwise we get "i went to something"
-                        :pred :qualcuno}
-                  :subcat '()}
-         :english "something"
-         :italian "qualcosa"}
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :3rd
-                        :number :sing}
-                  :sem (unify human {:pred :qualcuno})
-                  :subcat '()}
-         :english "someone"
-         :italian "qualcuno"}
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :gender :fem
-                        :person :2nd
-                        :number :sing}
-                  :sem (unify human {:pred :tu})
-                  :subcat '()}
-         :english {:english "you"
-                   :note " (&#x2640;)"} ;; unicode female symbol
-         :italian "tu"}
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :gender :masc
-                        :person :2nd
-                        :number :sing}
-                  :sem (unify human {:pred :tu})
-                  :subcat '()}
-         :english {:english "you"
-                   :note " (&#x2642;)"} ;; unicode female symbol
-         :italian "tu"}
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :3rd
-                        :gender :masc
-                        :number :sing}
-                  :sem (unify human {:pred :lui})
-                  :subcat '()}
-         :english "he"
-         :italian "lui"}
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :3rd
-                        :gender :fem
-                        :number :sing}
-                  :sem (unify human {:pred :lei})
-                  :subcat '()}
-         :english "she"
-         :italian "lei"}
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :1st
-                        :number :plur}
-                  :sem (unify human {:pred :noi})
-                  :subcat '()}
-         :english "we"
-         :italian "noi"}
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :2nd
-                        :number :plur}
-                  :sem (unify human {:pred :voi})
-                  :subcat '()}
-         :italian "voi"
-         :english "you all"}
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :3rd
-                        :number :plur}
-                  :sem (unify human {:pred :loro})
-                  :subcat '()}
-         :italian "loro"
-         :english "they"}))
-
 (def accusative-pronouns
   (let [acc (ref :acc)
         disj (ref :disj)
@@ -1340,43 +1212,6 @@
 
           )))
 
-(def prepositions
-  (list {:synsem {:cat :prep
-                  :sem {:pred :a
-                        :comparative false}
-                  :subcat {:1 {:cat :noun
-                               :sem {:place true}}}}
-         :italian "a"
-         :english "to"}
-
-        ;; using di (1,2) to debug:
-        ;; * Questo professore è meno difficile di lo (This professor (♂) is less difficult than him).
-        ;; (should be lui, not lo).
-        {:synsem {:cat :prep
-                  :sem {:pred :di
-                        :comparative true}
-                  :subcat {:1 {:cat :noun
-                               :def {:not :partitivo} ;; avoid alliteration like "di delle ragazze (of some women)"
-                               :agr {:case :disj} ;; pronouns must be disjunctive (me/te/lui/lei...etc)
-                               ;; non-pronouns will unify with this constraint.
-
-                               ;; TODO: remove this constraint: for debugging only.
-                               :sem {:human true}}}}
-         :italian "di"
-         :english "than"}
-
-;        {:synsem {:cat :prep
-;                  :sem {:pred :in}
-;                  :subcat {:1 {:cat :noun
-;                               :sem {:city true}}}}
-;         ;; this overrides the prep-phrase's extends, which are too general
-;         ;; for this lexical entry "a"/"in".
-;         :extend {:prep-phrase {:a {:head :prepositions
-;                                    :comp :proper-nouns}}}
-;         :italian "a"
-;         :english "in"}
-        ))
-
 (def lookup-in
   "find all members of the collection that matches with query successfully."
   (fn [query collection]
@@ -1512,7 +1347,15 @@
     (concat
      (list
 
-     (unify (:agreement noun)
+      {:synsem {:cat :prep
+                :sem {:pred :a
+                      :comparative false}
+                :subcat {:1 {:cat :noun
+                             :sem {:place true}}}}
+       :italian "a"
+       :english "to"}
+
+      (unify (:agreement noun)
             (:drinkable noun)
             (:feminine noun)
             {:italian {:italian "acqua"}
@@ -1781,7 +1624,23 @@
                       :cat :adjective}})
 
 
-      {:synsem {:cat :det
+        ;; using di (1,2) to debug:
+        ;; * Questo professore è meno difficile di lo (This professor (♂) is less difficult than him).
+        ;; (should be lui, not lo).
+        {:synsem {:cat :prep
+                  :sem {:pred :di
+                        :comparative true}
+                  :subcat {:1 {:cat :noun
+                               :def {:not :partitivo} ;; avoid alliteration like "di delle ragazze (of some women)"
+                               :agr {:case :disj} ;; pronouns must be disjunctive (me/te/lui/lei...etc)
+                               ;; non-pronouns will unify with this constraint.
+
+                               ;; TODO: remove this constraint: for debugging only.
+                               :sem {:human true}}}}
+         :italian "di"
+         :english "than"}
+
+        {:synsem {:cat :det
                 :def :partitivo
                 :number :plur
                 :gender :masc}
@@ -1906,6 +1765,20 @@
        :english "my"}
 
       {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :plur}
+       :italian "i tuoi"
+       :english "your"}
+
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :masc
+                :number :plur}
+       :italian "i vostri"
+       :english "your (pl) "}
+
+      {:synsem {:cat :det
                 :def :def
                 :gender :masc
                 :number :sing}
@@ -1954,19 +1827,16 @@
        :italian "il tuo"
        :english "your"}
 
-      {:synsem {:cat :det
-                :def :possessive
-                :gender :masc
-                :number :plur}
-       :italian "i tuoi"
-       :english "your"}
-
-      {:synsem {:cat :det
-                :def :possessive
-                :gender :masc
-                :number :plur}
-       :italian "i vostri"
-       :english "your (pl) "}
+;        {:synsem {:cat :prep
+;                  :sem {:pred :in}
+;                  :subcat {:1 {:cat :noun
+;                               :sem {:city true}}}}
+;         ;; this overrides the prep-phrase's extends, which are too general
+;         ;; for this lexical entry "a"/"in".
+;         :extend {:prep-phrase {:a {:head :prepositions
+;                                    :comp :proper-nouns}}}
+;         :italian "a"
+;         :english "in"}
 
       {:synsem {:cat :det
                 :def :possessive
@@ -1974,6 +1844,101 @@
                 :number :sing}
        :italian "il vostro"
        :english "your (pl) "}
+
+
+{:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it.
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :sing}
+                  :sem (unify human {:pred :chiunque
+                                     :elective-existential true})
+                  :subcat '()}
+         :english "anyone"
+         :italian "chiunque"}
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :1st
+                        :number :sing}
+                  :sem (unify human {:pred :io})
+                  :subcat '()}
+         :english "I"
+         :italian "io"}
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :gender :fem
+                        :person :2nd
+                        :number :sing}
+                  :sem (unify human {:pred :tu})
+                  :subcat '()}
+         :english {:english "you"
+                   :note " (&#x2640;)"} ;; unicode female symbol
+         :italian "tu"}
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :gender :masc
+                        :person :2nd
+                        :number :sing}
+                  :sem (unify human {:pred :tu})
+                  :subcat '()}
+         :english {:english "you"
+                   :note " (&#x2642;)"} ;; unicode female symbol
+         :italian "tu"}
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :gender :masc
+                        :number :sing}
+                  :sem (unify human {:pred :lui})
+                  :subcat '()}
+         :english "he"
+         :italian "lui"}
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :gender :fem
+                        :number :sing}
+                  :sem (unify human {:pred :lei})
+                  :subcat '()}
+         :english "she"
+         :italian "lei"}
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :1st
+                        :number :plur}
+                  :sem (unify human {:pred :noi})
+                  :subcat '()}
+         :english "we"
+         :italian "noi"}
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :2nd
+                        :number :plur}
+                  :sem (unify human {:pred :voi})
+                  :subcat '()}
+         :italian "voi"
+         :english "you all"}
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :plur}
+                  :sem (unify human {:pred :loro})
+                  :subcat '()}
+         :italian "loro"
+         :english "they"}
+
       {:synsem {:cat :det
                 :def :def
                 :gender :fem
@@ -2182,6 +2147,16 @@
                                     :number :plur
                                     :def :def}}}})
 
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :sing}
+                  :sem (unify human {:pred :ognuno})
+                  :subcat '()}
+         :english "everyone"
+         :italian "ognuno"}
+
      (unify proper-noun
             {:synsem {:sem {:pred :paola
                             :human true}
@@ -2323,6 +2298,29 @@
          :italian "più"
          :english "more"
          })
+
+{:synsem {:cat :noun
+          :pronoun true
+          :agr {:case :nom
+                :person :3rd
+                :number :sing}
+          :sem {:human false
+                :animate false ;; otherwise we get weird things like "something will see my ladder".
+                :place false ;; otherwise we get "i went to something"
+                :pred :qualcuno}
+          :subcat '()}
+ :english "something"
+ :italian "qualcosa"}
+
+{:synsem {:cat :noun
+          :pronoun true
+          :agr {:case :nom
+                :person :3rd
+                :number :sing}
+          :sem (unify human {:pred :qualcuno})
+          :subcat '()}
+ :english "someone"
+ :italian "qualcuno"}
 
       {:synsem {:cat :det
                 :def :partitivo
@@ -2607,7 +2605,23 @@
              :italian {:italian "tovaglia"}
              :english {:english "tablecloth"}})
 
-     (unify agreement-noun
+      {:synsem {:cat :det
+                :def :indef
+                :mass false
+                :gender :masc
+                :number :sing}
+       :italian "un"
+       :english "a"}
+
+      {:synsem {:cat :det
+                :def :indef
+                :mass false
+                :gender :fem
+                :number :sing}
+       :italian "una"
+       :english "a"}
+
+      (unify agreement-noun
             common-noun
             countable-noun
             masculine-noun
@@ -2626,25 +2640,9 @@
             :synsem {:sem {:pred :vino
                             :artifact true}}})
 
-      {:synsem {:cat :det
-                :def :indef
-                :mass false
-                :gender :masc
-                :number :sing}
-       :italian "un"
-       :english "a"}
-
-      {:synsem {:cat :det
-                :def :indef
-                :mass false
-                :gender :fem
-                :number :sing}
-       :italian "una"
-       :english "a"}
       )
 
-     prepositions
-     nominative-pronouns accusative-pronouns disjunctive-pronouns
+     accusative-pronouns disjunctive-pronouns
      verbs
 )))
 
@@ -2685,4 +2683,11 @@
                   sem-impl (sem-impl sem)]
               (= (fs/get-in sem-impl '(:human)) true)))
           nouns))
+
+(def quando
+  (first (filter (fn [lex]
+                   (= (fs/get-in lex '(:italian)) "quando"))
+                 lexicon)))
+
+
 
