@@ -905,15 +905,6 @@
    potere
    volere))
 
-(def verbs
-  (concat
-   (list essere-aux
-         avere-aux)
-   intransitive-verbs
-   transitive-verbs
-   verbs-taking-pp
-   modal-verbs))
-
 (def lookup-in
   "find all members of the collection that matches with query successfully."
   (fn [query collection]
@@ -2643,9 +2634,16 @@
                      :cat cat-of-pronoun
                      :case disjunctive-case-of-pronoun}}
 
-      )
+)
 
-     verbs
+  (concat
+   (list essere-aux
+         avere-aux)
+   intransitive-verbs
+   transitive-verbs
+   verbs-taking-pp
+   modal-verbs)
+
 )))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
