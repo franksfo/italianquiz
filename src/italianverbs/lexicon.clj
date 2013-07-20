@@ -1058,12 +1058,12 @@
           )))
 
 (def disjunctive-pronouns
-  (let [disj (ref :disj)
-        noun (ref :noun)]
+  (let [disjunctive-case-of-pronoun (ref :disj)
+        cat-of-pronoun (ref :noun)]
 
-    (list {:synsem {:cat noun
+    (list {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :person :1st
                           :number :sing}
                     :sem (unify human {:pred :io})
@@ -1071,12 +1071,12 @@
            :english "me"
            :italian {:italian "me"
                      :pronoun true
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :person :2nd
                           :polite false
                           :number :sing}
@@ -1084,12 +1084,12 @@
                     :subcat '()}
            :english "you"
            :italian {:italian "te"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :gender :masc
                           :person :3rd
                           :number :sing}
@@ -1097,12 +1097,12 @@
                     :subcat '()}
            :english "him"
            :italian {:italian "lui"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :gender :fem
                           :person :2nd
                           :polite true
@@ -1111,12 +1111,12 @@
                     :subcat '()}
            :english "her"
            :italian {:italian "lei"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :gender :fem
                           :person :3rd
                           :number :sing}
@@ -1124,12 +1124,12 @@
                     :subcat '()}
            :english "her"
            :italian {:italian "lei"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :person :3rd
                           :number :sing}
                     :sem (unify {:human false
@@ -1138,12 +1138,12 @@
                     :subcat '()}
            :english "it"
            :italian {:italian "esso"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :person :1st
                           :number :plur}
                     :sem (unify human {:pred :noi})
@@ -1151,38 +1151,38 @@
            :english "us"
            :italian {:italian "noi"
                      :pronoun true
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :person :2nd
                           :number :plur}
                     :sem (unify human {:pred :voi})
                     :subcat '()}
            :english "you all"
            :italian {:italian "voi"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
           ;; note: no gender: "loro" in either case of masc or fem.
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :person :3rd
                           :number :plur}
                     :sem (unify human {:pred :lui})
                     :subcat '()}
            :english "them"
            :italian {:italian "loro"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
           ;; non human masculine and feminine forms
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :person :3rd
                           :gender :masc
                           :number :plur}
@@ -1192,12 +1192,12 @@
                     :subcat '()}
            :english "them"
            :italian {:italian "essi"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
-          {:synsem {:cat noun
+          {:synsem {:cat cat-of-pronoun
                     :pronoun true
-                    :agr {:case disj
+                    :agr {:case disjunctive-case-of-pronoun
                           :person :3rd
                           :gender :fem
                           :number :plur}
@@ -1207,8 +1207,8 @@
                     :subcat '()}
            :english "them"
            :italian {:italian "esse"
-                     :cat noun
-                     :case disj}}
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
           )))
 
@@ -1870,30 +1870,6 @@
         {:synsem {:cat :noun
                   :pronoun true
                   :agr {:case :nom
-                        :gender :fem
-                        :person :2nd
-                        :number :sing}
-                  :sem (unify human {:pred :tu})
-                  :subcat '()}
-         :english {:english "you"
-                   :note " (&#x2640;)"} ;; unicode female symbol
-         :italian "tu"}
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :gender :masc
-                        :person :2nd
-                        :number :sing}
-                  :sem (unify human {:pred :tu})
-                  :subcat '()}
-         :english {:english "you"
-                   :note " (&#x2642;)"} ;; unicode female symbol
-         :italian "tu"}
-
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
                         :person :3rd
                         :gender :masc
                         :number :sing}
@@ -2299,28 +2275,28 @@
          :english "more"
          })
 
-{:synsem {:cat :noun
-          :pronoun true
-          :agr {:case :nom
-                :person :3rd
-                :number :sing}
-          :sem {:human false
-                :animate false ;; otherwise we get weird things like "something will see my ladder".
-                :place false ;; otherwise we get "i went to something"
-                :pred :qualcuno}
-          :subcat '()}
- :english "something"
- :italian "qualcosa"}
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :sing}
+                  :sem {:human false
+                        :animate false ;; otherwise we get weird things like "something will see my ladder".
+                        :place false ;; otherwise we get "i went to something"
+                        :pred :qualcuno}
+                  :subcat '()}
+         :english "something"
+         :italian "qualcosa"}
 
-{:synsem {:cat :noun
-          :pronoun true
-          :agr {:case :nom
-                :person :3rd
-                :number :sing}
-          :sem (unify human {:pred :qualcuno})
-          :subcat '()}
- :english "someone"
- :italian "qualcuno"}
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :3rd
+                        :number :sing}
+                  :sem (unify human {:pred :qualcuno})
+                  :subcat '()}
+         :english "someone"
+         :italian "qualcuno"}
 
       {:synsem {:cat :det
                 :def :partitivo
@@ -2604,6 +2580,30 @@
                            :pred :tovaglia}}
              :italian {:italian "tovaglia"}
              :english {:english "tablecloth"}})
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :gender :fem
+                        :person :2nd
+                        :number :sing}
+                  :sem (unify human {:pred :tu})
+                  :subcat '()}
+         :english {:english "you"
+                   :note " (&#x2640;)"} ;; unicode female symbol
+         :italian "tu"}
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :gender :masc
+                        :person :2nd
+                        :number :sing}
+                  :sem (unify human {:pred :tu})
+                  :subcat '()}
+         :english {:english "you"
+                   :note " (&#x2642;)"} ;; unicode female symbol
+         :italian "tu"}
 
       {:synsem {:cat :det
                 :def :indef
