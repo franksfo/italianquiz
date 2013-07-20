@@ -914,125 +914,6 @@
    verbs-taking-pp
    modal-verbs))
 
-(def disjunctive-pronouns
-  (let [disjunctive-case-of-pronoun (ref :disj)
-        cat-of-pronoun (ref :noun)]
-
-    (list
-
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :person :2nd
-                          :polite false
-                          :number :sing}
-                    :sem (unify human {:pred :tu})
-                    :subcat '()}
-           :english "you"
-           :italian {:italian "te"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :gender :masc
-                          :person :3rd
-                          :number :sing}
-                    :sem (unify human {:pred :lui})
-                    :subcat '()}
-           :english "him"
-           :italian {:italian "lui"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :gender :fem
-                          :person :2nd
-                          :polite true
-                          :number :sing}
-                    :sem (unify human {:pred :lei})
-                    :subcat '()}
-           :english "her"
-           :italian {:italian "lei"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :gender :fem
-                          :person :3rd
-                          :number :sing}
-                    :sem (unify human {:pred :lei})
-                    :subcat '()}
-           :english "her"
-           :italian {:italian "lei"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :person :3rd
-                          :number :sing}
-                    :sem (unify {:human false
-                                 :place false
-                                 :pred :esso})
-                    :subcat '()}
-           :english "it"
-           :italian {:italian "esso"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          ;; note: no gender: "loro" in either case of masc or fem.
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :person :3rd
-                          :number :plur}
-                    :sem (unify human {:pred :lui})
-                    :subcat '()}
-           :english "them"
-           :italian {:italian "loro"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          ;; non human masculine and feminine forms
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :person :3rd
-                          :gender :masc
-                          :number :plur}
-                    :sem {:human false
-                          :place false
-                          :pred :essi}
-                    :subcat '()}
-           :english "them"
-           :italian {:italian "essi"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :person :3rd
-                          :gender :fem
-                          :number :plur}
-                    :sem {:human false
-                          :place false
-                          :pred :essi}
-                    :subcat '()}
-           :english "them"
-           :italian {:italian "esse"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          )))
-
 (def lookup-in
   "find all members of the collection that matches with query successfully."
   (fn [query collection]
@@ -1530,6 +1411,51 @@
              {:synsem {:sem {:pred :dottore}}
               :italian {:italian "dottore"}
               :english {:english "doctor"}})
+          {:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify {:human false
+                                 :place false
+                                 :pred :esso})
+                    :subcat '()}
+           :english "it"
+           :italian {:italian "esso"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
+
+          ;; non human masculine and feminine forms
+          {:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :person :3rd
+                          :gender :masc
+                          :number :plur}
+                    :sem {:human false
+                          :place false
+                          :pred :essi}
+                    :subcat '()}
+           :english "them"
+           :italian {:italian "essi"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
+
+          {:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :person :3rd
+                          :gender :fem
+                          :number :plur}
+                    :sem {:human false
+                          :place false
+                          :pred :essi}
+                    :subcat '()}
+           :english "them"
+           :italian {:italian "esse"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
+
 
     (unify agreement-noun
            common-noun
@@ -1708,6 +1634,20 @@
                   :subcat '()}
          :english "I"
          :italian "io"}
+
+
+          ;; note: no gender: "loro" in either case of masc or fem.
+          {:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :person :3rd
+                          :number :plur}
+                    :sem (unify human {:pred :lui})
+                    :subcat '()}
+           :english "them"
+           :italian {:italian "loro"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
 
         {:synsem {:cat :noun
                   :pronoun true
@@ -1996,6 +1936,18 @@
                      :pronoun true
                      :cat pronoun-noun
                      :case pronoun-acc}}
+{:synsem {:cat cat-of-pronoun
+          :pronoun true
+          :agr {:case disjunctive-case-of-pronoun
+                :person :2nd
+                :polite false
+                :number :sing}
+          :sem (unify human {:pred :tu})
+          :subcat '()}
+ :english "you"
+ :italian {:italian "te"
+           :cat cat-of-pronoun
+           :case disjunctive-case-of-pronoun}}
 
           {:synsem {:cat pronoun-noun
                     :pronoun true
@@ -2044,6 +1996,47 @@
          :english "less"
          })
 
+
+          {:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :gender :fem
+                          :person :2nd
+                          :polite true
+                          :number :sing}
+                    :sem (unify human {:pred :lei})
+                    :subcat '()}
+           :english "her"
+           :italian {:italian "lei"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
+
+          {:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :gender :fem
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify human {:pred :lei})
+                    :subcat '()}
+           :english "her"
+           :italian {:italian "lei"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
+
+          {:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :gender :masc
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify human {:pred :lui})
+                    :subcat '()}
+           :english "him"
+           :italian {:italian "lui"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
+
       (unify proper-noun
             {:synsem {:sem {:pred :milano
                             :buyable false
@@ -2058,7 +2051,8 @@
      (unify proper-noun
             {:synsem {:sem {:pred :napoli
                             :buyable false
-                            :artifact true
+                            :artifact false
+;                            :artifact true
                             :city true}
                       :agr {:number :sing
                             :person :3rd
@@ -2388,7 +2382,8 @@
      (unify proper-noun
             {:synsem {:sem {:pred :roma
                             :buyable false
-                            :artifact true ;; but wasn't built in a day..
+                            :actifact false
+;                            :artifact true ;; but wasn't built in a day..
                             :city true}
                       :agr {:number :sing
                             :person :3rd
@@ -2650,7 +2645,6 @@
 
       )
 
-     disjunctive-pronouns
      verbs
 )))
 
