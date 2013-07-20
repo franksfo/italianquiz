@@ -424,7 +424,7 @@
 ;; enough constraints to conjugate words
 
 (deftest see
-  (is (= "[to see]"
+  (is (= "to see"
          (get-english-1
           {:irregular {:past "seen"}
            :infl :present
@@ -432,7 +432,7 @@
            :infinitive "to see"}))))
 
 (deftest to-see-me
-  (is (= "[to see] me"
+  (is (= "to see me"
          (get-english-1
           {:a {:irregular {:past "seen"}
                :infl :present

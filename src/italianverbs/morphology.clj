@@ -1020,7 +1020,7 @@
       (and (= person :3rd) (= number :plur))
       (str stem "")
 
-      :else (str "[" root "]")))
+      :else (str root )))
 
    (and
     (fs/get-in word '(:irregular :plur))
