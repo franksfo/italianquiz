@@ -2496,47 +2496,12 @@
                        :discrete false
                        :subj {:animate true}}}}))
 )
-;(concat
-; (list
 
-;   essere-common
-;   {:notes "essere-aux"}
-;   {:synsem {:infl :present
-;             :subcat {:2 {:essere true}}}
-;    :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
-;              :hidden true}} ;; gets removed by morphological rules.
-
-
-;   avere-aux))
-; intransitive-verbs
-
-;  (list
-;   comprare
-;   essere-adjective
-;   essere-copula
-;   essere-intensifier
-;   fare-make
-;   leggere
-;   mangiare
-;   parlare
-;   scrivere
-;;   telefonare
-;   vedere
-;   )
-
-;   verbs-taking-pp
-;   modal-verbs)
-
-;)))
-
-                                        ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
-                                        ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
-                                        ;(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
-                                        ;(def tinylex (list (it "Napoli") (it "Roma") (it "io")))
+;; (def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
+;;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
+;;(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
+;;(def tinylex (list (it "Napoli") (it "Roma") (it "io")))
 (def tinylex (list (it "gatto") (it "uomo")))
-
-
-;(def adjectives (list (first (it "piccolo"))))
 
 (map (fn [lexeme]
        (let [italian (:italian lexeme)
