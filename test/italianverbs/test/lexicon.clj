@@ -7,18 +7,6 @@
    [italianverbs.search :as search]))
 
 (def third-person {:person :3rd :cat :noun})
-(def common-noun (fs/merge third-person
-                           (let [number-agreement (ref :top)
-                                 gender-agreement (ref :top)]
-                             {:comp {:cat :det
-                                     ;; determiner must agree with number of noun:
-                                     :number number-agreement
-                                     :gender gender-agreement
-                                     }
-                              :morph "morph-noun"
-                              :common true
-                              :gender gender-agreement
-                              :number number-agreement})))
 
 (def artifact (fs/merge common-noun {:artifact true}))
 (def masc {:gender :masc})
