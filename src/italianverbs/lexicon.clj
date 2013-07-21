@@ -344,23 +344,6 @@
                    :pred :andare
                    :discrete false}}})
 
-(def andare-intrans
-  (unify
-   intransitive
-   andare))
-
-(def andare-taking-pp
-  (unify
-   verb-subjective
-   andare
-   (let [place-sem (ref {:place true
-                         :pred :a})]
-     {:synsem {:sem {:location place-sem}
-               :subcat {:2 {:sem place-sem
-                            :subcat '()
-                            :cat :prep}}}})
-   {:note "andare-pp"}))
-
 (def avere-common
   {:synsem {:essere false
             :cat :verb}
@@ -401,78 +384,6 @@
                                     :2 '()}
                            :sem sem
                            :infl :past}}}}))
-
-(def avere-aux
-  (unify
-   verb-aux-type
-   verb-subjective
-   avere-common
-   {:synsem {:infl :present
-             :subcat {:2 {:essere false}}}
-    :english {:hidden true}}))
-
-(def comprare
-  (unify
-   transitive
-   {:italian {:infinitive "comprare"}
-    :english {:infinitive "to buy"
-              :irregular {:past "bought"}}
-    :synsem {:essere false
-             :sem {:pred :comprare
-                   :subj {:human true}
-                   :obj {:buyable true}}}}))
-
-(def deludere
-  (unify
-   transitive
-   {:italian {:infinitive "deludere"
-              :irregular {:passato "deluso"}}
-    :english {:infinitive "to disappoint"
-              :irregular {:past "disappointed"}}
-    :synsem {:essere false
-             :sem {:subj {:human true}
-                   :obj {:human true}
-                   :discrete true
-                   :activity false
-                   :pred :deludere}}}))
-
-(def dormire
-  (unify
-   intransitive
-   {:italian {:infinitive "dormire"}
-    :english {:infinitive "to sleep"
-              :irregular {:past "slept"}}
-    :synsem {:essere false
-             :sem {:subj {:animate true}
-                   :discrete false
-                   :pred :dormire}}}))
-
-(def dovere
-  (unify
-   verb-subjective
-   modal
-   {:italian {:infinitive "dovere"
-              :irregular {:present {:1sing "devo"
-                                    :2sing "devi"
-                                    :3sing "deve"
-                                    :1plur "dobbiamo"
-                                    :2plur "dovete"
-                                    :3plur "devono"}}}
-    :english {:infinitive "to have to"
-              :irregular {:past "had to"
-                          :present {:1sing "have to"
-                                    :2sing "have to"
-                                    :3sing "has to"
-                                    :1plur "have to"
-                                    :2plur "have to"
-                                    :3plur "have to"}}}
-    :synsem {:essere false ;; "io ho dovato..", not "io sono dovato.."
-             :sem {:pred :dovere
-                   :activity false
-                   :discrete false
-                   :subj {:human true} ;; TODO: relax this constraint: non-human things can be subject of dovere.
-                   }}}))
-
 
 (def essere-common
   (unify
@@ -537,25 +448,8 @@
                      :obj {:human human}}}})))
 
 ;; TODO: combine essere-adjective and essere-intensifier
-(def essere-adjective
-  (let [subject (ref {:cat :noun})
-        comp-sem (ref
-                  {:activity false
-                   :discrete false})]
-    (unify
-     essere-common
-     {:notes "essere-adjective"}
-     {:synsem {:cat :verb
-               :subcat {:1 subject
-                        :2 {:cat :adjective
-                            :sem comp-sem
-                            :subcat {:1 subject
-                                     :2 '()}}}
-               :sem comp-sem}})))
-
-;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
-(def essere-intensifier
-)
+;(def essere-adjective
+;)
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
@@ -654,50 +548,6 @@
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
-(def parlare
-)
-
-(def pensare
-  (unify
-   intransitive
-   {:italian {:infinitive "pensare"}
-    :english {:infinitive "to think"
-              :irregular {:past "thought"}}
-    :synsem {:essere false
-             :sem {:pred :pensare
-                   :discrete false
-                   :subj {:human true}}}}))
-
-(def potere
-  (let [pred-of-complement (ref :top)]
-    (unify
-     verb-subjective
-     modal
-     {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
-     {:italian {:infinitive "potere"
-                :irregular {:present {:1sing "posso"
-                                      :2sing "puoi"
-                                      :3sing "può"
-                                      :1plur "possiamo"
-                                      :2plur "potete"
-                                      :3plur "possono"}}}
-      :english {:infinitive "to be able to"
-                :irregular {:past "could have"
-                            ;; TODO: enhance morphology.clj to handle one irregular for all agreements: {:present "can"}.
-                            :present {:1sing "can"
-                                      :2sing "can"
-                                      :3sing "can"
-                                      :1plur "can"
-                                      :2plur "can"
-                                      :3plur "can"}}}
-      :synsem {:subcat {:2 {:sem {:pred pred-of-complement}}}
-               :essere false
-               :sem {:pred {:pred pred-of-complement
-                            :mod :potere}
-                     :activity false
-                     :discrete false
-                     :subj {:animate true}}}})))
-
 (def recordare
   (unify
    transitive
@@ -707,19 +557,6 @@
              :sem {:subj {:human true}
                    :obj {:legible true}
                    :pred :recordare}}}))
-
-(def ridere
-  (unify
-   intransitive
-   {:italian {:infinitive "ridere"
-              :irregular {:passato "riso"}}
-    :english {:infinitive "to laugh"
-              :irregular {:past "laughed"}}
-    :synsem {:essere false
-             :sem {:subj {:human true}
-                   :pred :ridere
-                   :discrete true
-                   }}}))
 
 (def scrivere
   (unify
@@ -742,64 +579,6 @@
 ;             :sem {:pred :telefonare
 ;                   :subj {:human true}
 ;                   :obj {:human true}}}}))
-
-(def vivere
-  (unify
-   intransitive
-   {:italian {:infinitive "vivere"}
-    :english {:infinitive "to live"
-              :irregular {:past "lived"}}
-    :synsem {:essere true
-             :sem {:pred :vivere
-                   ;; TODO: activity=false for now, but other senses of 'vivere' could be activities, e.g.
-                   ;; adding PP (e.g. "vivevano in Milano (was living in Milano)")
-                   :activity false
-                   :discrete false
-                   :subj {:animate true}}}})) ;; TODO: change to living-thing: (e.g. plants are living but not animate)
-
-(def volere
-  (unify
-   verb-subjective
-   modal
-   {:italian {:infinitive "volere"
-              :irregular {:present {:1sing "voglio"
-                                    :2sing "vuoi"
-                                    :3sing "vuole"
-                                    :1plur "vogliamo"
-                                    :2plur "volete"
-                                    :3plur "vogliono"}}}
-    :english {:infinitive "to want to"
-              :irregular {:present {:1sing "want to"
-                                    :2sing "want to"
-                                    :3sing "wants to"
-                                    :1plur "want to"
-                                    :2plur "want to"
-                                    :3plur "want to"}
-                          :past "wanted to"}}
-    :synsem {:essere false
-             :sem {:pred :volere
-                   :activity false
-                   :discrete false
-                   :subj {:animate true}}}}))
-
-(def intransitive-verbs
-  (list
-   andare-intrans
-   deludere
-   dormire
-   pensare
-   ridere
-   vivere))
-
-(def verbs-taking-pp
-  (list
-   andare-taking-pp))
-
-(def modal-verbs
-  (list
-   dovere
-   potere
-   volere))
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
@@ -835,8 +614,10 @@
 (defn en [english]
   (lookup {:english english}))
 
-(def quando
-)
+(def subject (ref {:cat :noun}))
+(def comp-sem (ref {:activity false
+                    :discrete false}))
+
 
 (def lexicon
   (let [noun
@@ -938,10 +719,24 @@
 
         disjunctive-case-of-pronoun (ref :disj)
         cat-of-pronoun (ref :noun)
+
         ]
 
     (concat
      (list
+
+;      (unify
+;       essere-common
+;       {:notes "essere-adjective"
+;        :synsem {:cat :verb
+;                 :subcat {:1 subject
+;                          :2 {:cat :adjective
+;                              :sem comp-sem
+;                              :subcat {:1 subject
+;                                       :2 '()}}}
+;                 :sem comp-sem
+;                 }
+;        })
 
       {:synsem {:cat :prep
                 :sem {:pred :a
@@ -971,6 +766,22 @@
                        :subj {:human true}
                        :obj {:animate true}}}})
 
+      ;; andare-intransitive
+      (unify
+       intransitive
+       andare)
+
+      ;; andare that takes a prepositional phrase
+      (unify
+       verb-subjective
+       andare
+       (let [place-sem (ref {:place true
+                             :pred :a})]
+         {:synsem {:sem {:location place-sem}
+                   :subcat {:2 {:sem place-sem
+                                :subcat '()
+                                :cat :prep}}}})
+       {:note "andare-pp"})
 
       (unify
        transitive
@@ -981,7 +792,7 @@
                        :subj {:human true}
                    :obj {:buyable true}}}})
 
-     ;; non-comparative:
+  ;; non-comparative:
      (unify adjective
             {:synsem {:cat :adjective
                       :sem {:pred :alto
@@ -1015,6 +826,13 @@
                                     :sem complement-sem}}}
                 :italian {:italian "alto"}
                 :english {:english "tall"}}))
+  (unify
+   verb-aux-type
+   verb-subjective
+   avere-common
+   {:synsem {:infl :present
+             :subcat {:2 {:essere false}}}
+    :english {:hidden true}})
 
     ;; non-comparative
     ;; TODO: add comparative
@@ -1206,6 +1024,16 @@
             :italian {:italian "compito"}
             :english {:english "homework assignment"}})
 
+    (unify
+   transitive
+   {:italian {:infinitive "comprare"}
+    :english {:infinitive "to buy"
+              :irregular {:past "bought"}}
+    :synsem {:essere false
+             :sem {:pred :comprare
+                   :subj {:human true}
+                   :obj {:buyable true}}}})
+
       (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
           complement-sem (ref {:pred :di
                                :mod complement-complement-sem})
@@ -1232,6 +1060,19 @@
                       :cat :adjective}
             :english {:english "short"
                       :cat :adjective}})
+
+  (unify
+   transitive
+   {:italian {:infinitive "deludere"
+              :irregular {:passato "deluso"}}
+    :english {:infinitive "to disappoint"
+              :irregular {:past "disappointed"}}
+    :synsem {:essere false
+             :sem {:subj {:human true}
+                   :obj {:human true}
+                   :discrete true
+                   :activity false
+                   :pred :deludere}}})
 
     ;; non-comparative
     ;; TODO: add comparative
@@ -1311,21 +1152,47 @@
               :english {:irregular {:plur "women"}
                         :english "woman"}})
 
+  (unify
+   intransitive
+   {:italian {:infinitive "dormire"}
+    :english {:infinitive "to sleep"
+              :irregular {:past "slept"}}
+    :synsem {:essere false
+             :sem {:subj {:animate true}
+                   :discrete false
+                   :pred :dormire}}})
+
+  (unify
+   verb-subjective
+   modal
+   {:italian {:infinitive "dovere"
+              :irregular {:present {:1sing "devo"
+                                    :2sing "devi"
+                                    :3sing "deve"
+                                    :1plur "dobbiamo"
+                                    :2plur "dovete"
+                                    :3plur "devono"}}}
+    :english {:infinitive "to have to"
+              :irregular {:past "had to"
+                          :present {:1sing "have to"
+                                    :2sing "have to"
+                                    :3sing "has to"
+                                    :1plur "have to"
+                                    :2plur "have to"
+                                    :3plur "have to"}}}
+    :synsem {:essere false ;; "io ho dovato..", not "io sono dovato.."
+             :sem {:pred :dovere
+                   :activity false
+                   :discrete false
+                   :subj {:human true} ;; TODO: relax this constraint: non-human things can be subject of dovere.
+                   }}})
+
+
       (let [subject (ref {:cat :noun})
         comp-sem (ref
                   {:activity false
                    :discrete false})]
-    (unify
-     essere-common
-     {:notes "essere-intensifer"}
-     {:synsem {:cat :verb
-               :subcat {:1 subject
-                        :2 {:cat :intensifier
-                            :sem comp-sem
-                            :subcat {:1 subject
-                                     :2 '()}}}
-               :sem comp-sem}}))
-      
+
       (unify agreement-noun
              common-noun
              countable-noun
@@ -1334,7 +1201,33 @@
              {:synsem {:sem {:pred :dottore}}
               :italian {:italian "dottore"}
               :english {:english "doctor"}})
-          {:synsem {:cat cat-of-pronoun
+
+
+      ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
+      (unify
+       essere-common
+       {:notes "essere-intensifer"}
+       {:synsem {:cat :verb
+                 :subcat {:1 subject
+                          :2 {:cat :intensifier
+                              :sem comp-sem
+                              :subcat {:1 subject
+                                       :2 '()}}}
+                 :sem comp-sem}}))
+
+      (unify
+       verb-aux-type
+       verb-subjective
+       essere-common
+       {:notes "essere-aux"}
+       {:synsem {:infl :present
+                 :subcat {:2 {:essere true}}}
+        :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
+                  :hidden true}}) ;; gets removed by morphological rules.
+
+
+
+      {:synsem {:cat cat-of-pronoun
                     :pronoun true
                     :agr {:case disjunctive-case-of-pronoun
                           :person :3rd
@@ -1592,25 +1485,8 @@
                   :subcat '()}
          :english "she"
          :italian "lei"}
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :1st
-                        :number :plur}
-                  :sem (unify human {:pred :noi})
-                  :subcat '()}
-         :english "we"
-         :italian "noi"}
-        {:synsem {:cat :noun
-                  :pronoun true
-                  :agr {:case :nom
-                        :person :2nd
-                        :number :plur}
-                  :sem (unify human {:pred :voi})
-                  :subcat '()}
-         :italian "voi"
-         :english "you all"}
-        {:synsem {:cat :noun
+
+{:synsem {:cat :noun
                   :pronoun true
                   :agr {:case :nom
                         :person :3rd
@@ -1793,6 +1669,33 @@
        :italian "le tue"
        :english "your"}
 
+{:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :gender :fem
+                          :person :2nd
+                          :polite true
+                          :number :sing}
+                    :sem (unify human {:pred :lei})
+                    :subcat '()}
+           :english "her"
+           :italian {:italian "lei"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
+
+          {:synsem {:cat cat-of-pronoun
+                    :pronoun true
+                    :agr {:case disjunctive-case-of-pronoun
+                          :gender :fem
+                          :person :3rd
+                          :number :sing}
+                    :sem (unify human {:pred :lei})
+                    :subcat '()}
+           :english "her"
+           :italian {:italian "lei"
+                     :cat cat-of-pronoun
+                     :case disjunctive-case-of-pronoun}}
+
     (unify agreement-noun
            common-noun
            countable-noun
@@ -1859,30 +1762,6 @@
                      :pronoun true
                      :cat pronoun-noun
                      :case pronoun-acc}}
-{:synsem {:cat cat-of-pronoun
-          :pronoun true
-          :agr {:case disjunctive-case-of-pronoun
-                :person :2nd
-                :polite false
-                :number :sing}
-          :sem (unify human {:pred :tu})
-          :subcat '()}
- :english "you"
- :italian {:italian "te"
-           :cat cat-of-pronoun
-           :case disjunctive-case-of-pronoun}}
-
-          {:synsem {:cat pronoun-noun
-                    :pronoun true
-                    :agr {:case pronoun-acc
-                          :person :2nd
-                          :number :sing}
-                    :sem (unify human {:pred :tu})
-                    :subcat '()}
-           :english "you"
-           :italian {:italian "ti"
-                     :cat pronoun-noun
-                     :case pronoun-acc}}
 
       ;; melanzana
       (unify (:agreement noun)
@@ -1918,34 +1797,6 @@
          :italian "meno"
          :english "less"
          })
-
-
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :gender :fem
-                          :person :2nd
-                          :polite true
-                          :number :sing}
-                    :sem (unify human {:pred :lei})
-                    :subcat '()}
-           :english "her"
-           :italian {:italian "lei"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
-
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :gender :fem
-                          :person :3rd
-                          :number :sing}
-                    :sem (unify human {:pred :lei})
-                    :subcat '()}
-           :english "her"
-           :italian {:italian "lei"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
 
           {:synsem {:cat cat-of-pronoun
                     :pronoun true
@@ -2008,6 +1859,16 @@
                      :pronoun true
                      :cat cat-of-pronoun
                      :case disjunctive-case-of-pronoun}}
+
+{:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :1st
+                        :number :plur}
+                  :sem (unify human {:pred :noi})
+                  :subcat '()}
+         :english "we"
+         :italian "noi"}
 
 
       ;; inherently plural.
@@ -2091,7 +1952,17 @@
                                     :def :def}}}}
            )
 
-      (unify agreement-noun
+(unify
+   intransitive
+   {:italian {:infinitive "pensare"}
+    :english {:infinitive "to think"
+              :irregular {:past "thought"}}
+    :synsem {:essere false
+             :sem {:pred :pensare
+                   :discrete false
+                   :subj {:human true}}}})
+
+(unify agreement-noun
              common-noun
              countable-noun
              feminine-noun
@@ -2185,6 +2056,36 @@
          :italian "più"
          :english "more"
          })
+
+
+  (let [pred-of-complement (ref :top)]
+    (unify
+     verb-subjective
+     modal
+     {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
+     {:italian {:infinitive "potere"
+                :irregular {:present {:1sing "posso"
+                                      :2sing "puoi"
+                                      :3sing "può"
+                                      :1plur "possiamo"
+                                      :2plur "potete"
+                                      :3plur "possono"}}}
+      :english {:infinitive "to be able to"
+                :irregular {:past "could have"
+                            ;; TODO: enhance morphology.clj to handle one irregular for all agreements: {:present "can"}.
+                            :present {:1sing "can"
+                                      :2sing "can"
+                                      :3sing "can"
+                                      :1plur "can"
+                                      :2plur "can"
+                                      :3plur "can"}}}
+      :synsem {:subcat {:2 {:sem {:pred pred-of-complement}}}
+               :essere false
+               :sem {:pred {:pred pred-of-complement
+                            :mod :potere}
+                     :activity false
+                     :discrete false
+                     :subj {:animate true}}}}))
 
         {:synsem {:cat :noun
                   :pronoun true
@@ -2285,7 +2186,7 @@
        :italian "questo"
        :english "this"}
 
-      
+
       ;; non-comparative
       (unify adjective
              {:synsem {:sem {:pred :ricco
@@ -2310,6 +2211,18 @@
                              :sem complement-sem}}}
        :italian {:italian "ricco"}
        :english {:english "rich"}}))
+
+(unify
+   intransitive
+   {:italian {:infinitive "ridere"
+              :irregular {:passato "riso"}}
+    :english {:infinitive "to laugh"
+              :irregular {:past "laughed"}}
+    :synsem {:essere false
+             :sem {:subj {:human true}
+                   :pred :ridere
+                   :discrete true
+                   }}})
 
      (unify proper-noun
             {:synsem {:sem {:pred :roma
@@ -2493,6 +2406,31 @@
              :italian {:italian "tavolo"}
              :english {:english "table"}})
 
+{:synsem {:cat cat-of-pronoun
+          :pronoun true
+          :agr {:case disjunctive-case-of-pronoun
+                :person :2nd
+                :polite false
+                :number :sing}
+          :sem (unify human {:pred :tu})
+          :subcat '()}
+ :english "you"
+ :italian {:italian "te"
+           :cat cat-of-pronoun
+           :case disjunctive-case-of-pronoun}}
+
+          {:synsem {:cat pronoun-noun
+                    :pronoun true
+                    :agr {:case pronoun-acc
+                          :person :2nd
+                          :number :sing}
+                    :sem (unify human {:pred :tu})
+                    :subcat '()}
+           :english "you"
+           :italian {:italian "ti"
+                     :cat pronoun-noun
+                     :case pronoun-acc}}
+
      (unify agreement-noun
             common-noun
             masculine-noun
@@ -2542,6 +2480,17 @@
        :italian "una"
        :english "a"}
 
+      (unify agreement-noun
+            common-noun
+            countable-noun
+            masculine-noun
+            {:synsem {:sem human}}
+            {:synsem {:sem {:pred :uomo}}
+             :italian {:irregular {:plur "uomini"}
+                       :italian "uomo"}
+             :english {:irregular {:plur "men"}
+                       :english "man"}})
+
 (unify
    transitive
    {:italian {:infinitive "vedere"
@@ -2556,17 +2505,6 @@
                    ;; TODO: check against Italian usage
                    :subj {:animate true}}}})
 
-      (unify agreement-noun
-            common-noun
-            countable-noun
-            masculine-noun
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :uomo}}
-             :italian {:irregular {:plur "uomini"}
-                       :italian "uomo"}
-             :english {:irregular {:plur "men"}
-                       :english "man"}})
-
       {:synsem {:cat pronoun-noun
                 :pronoun true
                 :agr {:case pronoun-acc
@@ -2578,6 +2516,19 @@
        :italian {:italian "vi"
                  :cat pronoun-noun
                  :case pronoun-acc}}
+
+(unify
+   intransitive
+   {:italian {:infinitive "vivere"}
+    :english {:infinitive "to live"
+              :irregular {:past "lived"}}
+    :synsem {:essere true
+             :sem {:pred :vivere
+                   ;; TODO: activity=false for now, but other senses of 'vivere' could be activities, e.g.
+                   ;; adding PP (e.g. "vivevano in Milano (was living in Milano)")
+                   :activity false
+                   :discrete false
+                   :subj {:animate true}}}}) ;; TODO: change to living-thing: (e.g. plants are living but not animate)
 
      (unify drinkable-noun
             agreement-noun
@@ -2598,15 +2549,46 @@
                      :cat cat-of-pronoun
                      :case disjunctive-case-of-pronoun}}
 
-))))
+
+        {:synsem {:cat :noun
+                  :pronoun true
+                  :agr {:case :nom
+                        :person :2nd
+                        :number :plur}
+                  :sem (unify human {:pred :voi})
+                  :subcat '()}
+         :italian "voi"
+         :english "you all"}
+
+(unify
+   verb-subjective
+   modal
+   {:italian {:infinitive "volere"
+              :irregular {:present {:1sing "voglio"
+                                    :2sing "vuoi"
+                                    :3sing "vuole"
+                                    :1plur "vogliamo"
+                                    :2plur "volete"
+                                    :3plur "vogliono"}}}
+    :english {:infinitive "to want to"
+              :irregular {:present {:1sing "want to"
+                                    :2sing "want to"
+                                    :3sing "wants to"
+                                    :1plur "want to"
+                                    :2plur "want to"
+                                    :3plur "want to"}
+                          :past "wanted to"}}
+    :synsem {:essere false
+             :sem {:pred :volere
+                   :activity false
+                   :discrete false
+                   :subj {:animate true}}}}))
+
+)))
 
 ;(concat
 ; (list
 
-  ;; essere-aux
-;  (unify
-;   verb-aux-type
-;   verb-subjective
 ;   essere-common
 ;   {:notes "essere-aux"}
 ;   {:synsem {:infl :present
@@ -2619,8 +2601,6 @@
 ; intransitive-verbs
 
 ;  (list
-;   amare
-;   avere
 ;   comprare
 ;   essere-adjective
 ;   essere-copula
