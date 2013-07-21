@@ -2255,6 +2255,14 @@
                  :sem {:subj {:human true}
                        :obj {:human true}
                        :pred :recordare}}})
+      (unify
+       transitive
+       {:italian {:infinitive "ricordare"}
+        :english {:infinitive "to remember"}
+        :synsem {:essere false
+                 :sem {:subj {:human true}
+                       :obj {:animate true}
+                       :pred :recordare}}})
 
       (unify
        transitive
