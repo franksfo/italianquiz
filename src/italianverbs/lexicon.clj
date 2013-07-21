@@ -10,7 +10,6 @@
 (clear!)
 
 ;; useful abbreviations (aliases for some commonly-used maps):
-;; TODO: combine with abbreviations inside the (def nouns).
 (def human {:human true})
 (def animal {:animate true :human false})
 
@@ -192,74 +191,6 @@
                             :subcat {:1 subj-subcat
                                      :2 '()}}}}
       :english {:modal true}}))
-
-(def nouns
-  (let [gender (ref :top)
-
-        ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
-        ;; (except for mass nouns which are only singular)
-        number (ref :top)
-
-        ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
-        ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
-        case (ref :top)
-
-        person (ref :top)
-
-        agreement
-        (let [number (ref :top)
-              gender (ref :top)
-              person (ref :top)
-              agr (ref {:number number
-                        :gender gender
-                        :case :top
-                        :person person})
-              cat (ref :top)]
-          {:synsem {:cat cat
-                    :subcat {:1 {:number number
-                                 :person person
-                                 :gender gender}}
-                    :agr agr}
-           :italian {:cat cat
-                     :agr agr}
-           :english {:cat cat
-                     :agr agr}})
-
-        common-noun
-        (unify
-         {:synsem {:cat :noun
-                   :agr {:person :3rd}
-                   :subcat {:1 {:cat :det}}}})
-
-        masculine {:synsem {:agr {:gender :masc}}}
-        feminine {:synsem {:agr {:gender :fem}}}
-
-        mass-noun
-        (let [mass (ref true)]
-          {:synsem {:subcat {:1 {:cat :det
-                                 :mass mass
-                                 :number :sing}}
-                    :sem {:mass mass}}})
-
-        countable-noun
-        (let [mass (ref false)]
-          {:synsem {:subcat {:1 {:cat :det
-                                 :mass mass}}
-                    :sem {:mass mass}}})
-
-        drinkable
-        (unify mass-noun
-               common-noun
-               {:synsem {:sem {:number :sing
-                               :drinkable true}}})
-
-        ]
-    (list
-
-
-     )
-    )
-  )
 
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
@@ -618,38 +549,33 @@
 (def comp-sem (ref {:activity false
                     :discrete false}))
 
-
-(def lexicon
-  (let [noun
-        (let [gender (ref :top)
-              ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
-              ;; (except for mass nouns which are only singular)
-              number (ref :top)
-
-              ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
-              ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
-              case (ref :top)
-
+(def noun
+  (let [gender (ref :top)
+        ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
+        ;; (except for mass nouns which are only singular)
+        number (ref :top)
+        ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
+        ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
+        case (ref :top)
+        person (ref :top)
+        agreement
+        (let [number (ref :top)
+              gender (ref :top)
               person (ref :top)
-
-              agreement
-              (let [number (ref :top)
-                    gender (ref :top)
-                    person (ref :top)
-                    agr (ref {:number number
-                              :gender gender
-                              :case :top
-                              :person person})
-                      cat (ref :top)]
-                {:synsem {:cat cat
-                          :subcat {:1 {:number number
-                                       :person person
-                                       :gender gender}}
-                          :agr agr}
-                 :italian {:cat cat
-                           :agr agr}
-                 :english {:cat cat
-                           :agr agr}})
+              agr (ref {:number number
+                        :gender gender
+                        :case :top
+                        :person person})
+              cat (ref :top)]
+          {:synsem {:cat cat
+                    :subcat {:1 {:number number
+                                 :person person
+                                 :gender gender}}
+                    :agr agr}
+           :italian {:cat cat
+                     :agr agr}
+           :english {:cat cat
+                     :agr agr}})
               common
               (unify
                {:synsem {:cat :noun
@@ -682,8 +608,10 @@
            :countable countable
            :drinkable drinkable
            :feminine feminine
-           :masculine masculine})
-        ;; end of hash for nouns.
+           :masculine masculine}))
+
+(def lexicon
+  (let [
         ;; noun convenience variables:
         agreement-noun (:agreement noun)
         common-noun (:common noun)
@@ -724,19 +652,6 @@
 
     (concat
      (list
-
-;      (unify
-;       essere-common
-;       {:notes "essere-adjective"
-;        :synsem {:cat :verb
-;                 :subcat {:1 subject
-;                          :2 {:cat :adjective
-;                              :sem comp-sem
-;                              :subcat {:1 subject
-;                                       :2 '()}}}
-;                 :sem comp-sem
-;                 }
-;        })
 
       {:synsem {:cat :prep
                 :sem {:pred :a
@@ -1202,6 +1117,21 @@
               :italian {:italian "dottore"}
               :english {:english "doctor"}})
 
+
+      ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry
+      (unify
+       essere-common
+       {
+        :notes "essere-adjective"
+        :synsem {:cat :verb
+                 :subcat {:1 subject
+                          :2 {:cat :adjective
+                              :sem comp-sem
+                              :subcat {:1 subject
+                                       :2 '()}}}
+                 :sem comp-sem
+                 }
+        })
 
       ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
       (unify
@@ -2626,7 +2556,6 @@
 (def tinylex (list (it "gatto") (it "uomo")))
 
 
-;(def nouns (list (first (it "professoressa"))))
 ;(def adjectives (list (first (it "piccolo"))))
 
 (map (fn [lexeme]
