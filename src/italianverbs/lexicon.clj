@@ -1197,30 +1197,30 @@
                                             :2plur "fate"
                                             :3plur "fanno"}
                                   :imperfetto {:1sing "facevo"
-                                               :2sing "facevi"}}}})
-;                                               :3sing "faceva"}}}})
- ;                                              :1plur "facevamo"
-;                                               :2plur "facevate"}}}})
-;                                               :3plur "facevano"}}}})
-  ;                                :futuro {:1sing "farò"
-  ;                                         :2sing "farai"
-   ;                                        :3sing "farà"
-   ;                                        :1plur "faremo"
-   ;;                                        :2plur "farete"
-   ;                                        :3plur "faranno"}}}
-   ;         :english {:infinitive "to do"
-   ;                   :irregular {:past-participle "done"
-    ;                              :present {:1sing "do"
-    ;                                        :2sing "do"
-    ;;                                        :3sing "does"
-    ;                                        :1plur "do"
-    ;                                        :2plur "do"
-     ;                                       :3plur "do"}}}
-     ;       :synsem {:cat :verb
-     ;;                :infl :infinitive
-     ;                :sem {:pred :fare
-     ;                      :subj {:human true}
-      ;                     :obj {:activity true}}}})
+                                               :2sing "facevi"
+                                               :3sing "faceva"
+                                               :1plur "facevamo"
+                                               :2plur "facevate"
+                                               :3plur "facevano"}
+                                  :futuro {:1sing "farò"
+                                           :2sing "farai"
+                                           :3sing "farà"
+                                          :1plur "faremo"
+                                           :2plur "farete"
+                                           :3plur "faranno"}}}
+            :english {:infinitive "to do"
+                      :irregular {:past-participle "done"
+                                  :present {:1sing "do"
+                                            :2sing "do"
+                                            :3sing "does"
+                                            :1plur "do"
+                                            :2plur "do"
+                                           :3plur "do"}}}
+            :synsem {:cat :verb
+                     :infl :infinitive
+                     :sem {:pred :fare
+                           :subj {:human true}
+                          :obj {:activity true}}}})
 
           (unify agreement-noun
                  common-noun
