@@ -263,7 +263,7 @@
 
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
-(def subjective
+(def verb-subjective
   (let [subj-sem (ref :top)
         subject-agreement (ref {:case {:not :acc}})
         infl (ref :top)
@@ -280,12 +280,12 @@
 
 ;; intransitive: has subject but no object.
 (def intransitive
-  (unify subjective
+  (unify verb-subjective
          {:synsem {:subcat {:2 '()}}}))
 
 ;; transitive: has both subject and object.
 (def transitive
-  (unify subjective
+  (unify verb-subjective
          (let [obj-sem (ref :top)
                infl (ref :top)]
            {:english {:infl infl}
@@ -298,7 +298,7 @@
                                   :agr {:case :acc}}}}})))
 
 (def transitive-but-with-adjective-instead-of-noun
-  (unify subjective
+  (unify verb-subjective
          (let [obj-sem (ref :top)
                infl (ref :top)]
            {:english {:infl infl}
@@ -310,7 +310,7 @@
                                   :cat :adjective}}}})))
 
 (def transitive-but-with-intensifier-instead-of-noun
-  (unify subjective
+  (unify verb-subjective
          (let [obj-sem (ref :top)
                infl (ref :top)]
            {:english {:infl infl}
@@ -319,18 +319,6 @@
                      :infl infl
                      :subcat {:2 {:sem obj-sem
                                   :cat :intensifier}}}})))
-(def amare
-  (unify
-   transitive
-   {:italian {:infinitive "amare"}
-    :english {:infinitive "to love"
-              :irregular {:past "loved"}}
-    :synsem {:essere false
-             :sem {:pred :amare
-                   :activity false
-                   :discrete false
-                   :subj {:human true}
-                   :obj {:animate true}}}}))
 
 (def andare
    {:italian {:infinitive "andare"
@@ -363,7 +351,7 @@
 
 (def andare-taking-pp
   (unify
-   subjective
+   verb-subjective
    andare
    (let [place-sem (ref {:place true
                          :pred :a})]
@@ -392,22 +380,12 @@
                                    :1plur "have"
                                    :2plur "have"
                                    :3plur "have"}}}})
-(def avere
-  (unify
-   transitive
-   avere-common
-   {:synsem {:sem {:pred :avere
-                   :activity false
-                   :discrete false
-                   :subj {:human true}
-                   :obj {:buyable true}}}}))
-
 
 ;; whether a verb has essere or avere as its
 ;; auxiliary to form its passato-prossimo form:
 ;; Must be encoded in both the :italian (for morphological agreement)
 ;; and the :synsem (for subcategorization by the appropriate aux verb).
-(def aux-type
+(def verb-aux-type
   (let [essere-binary-categorization (ref :top)
         aux (ref true)
         sem (ref {:tense :past})
@@ -426,8 +404,8 @@
 
 (def avere-aux
   (unify
-   aux-type
-   subjective
+   verb-aux-type
+   verb-subjective
    avere-common
    {:synsem {:infl :present
              :subcat {:2 {:essere false}}}
@@ -471,7 +449,7 @@
 
 (def dovere
   (unify
-   subjective
+   verb-subjective
    modal
    {:italian {:infinitive "dovere"
               :irregular {:present {:1sing "devo"
@@ -535,23 +513,6 @@
                                  :2plur "were"
                                  :3plur "were"}}}}))
 
-(def essere-aux
-  (unify
-   aux-type
-    subjective
-    essere-common
-    {:notes "essere-aux"}
-    {:synsem {:infl :present
-              :subcat {:2 {:essere true}}}
-     :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
-               :hidden true}})) ;; gets removed by morphological rules.
-
-(def aux-verbs
-  (list
-   essere-aux
-   avere-aux))
-
-
 (def essere-copula
   (let [gender (ref :top)
         number (ref :top)
@@ -594,20 +555,7 @@
 
 ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
 (def essere-intensifier
-  (let [subject (ref {:cat :noun})
-        comp-sem (ref
-                  {:activity false
-                   :discrete false})]
-    (unify
-     essere-common
-     {:notes "essere-intensifer"}
-     {:synsem {:cat :verb
-               :subcat {:1 subject
-                        :2 {:cat :intensifier
-                            :sem comp-sem
-                            :subcat {:1 subject
-                                     :2 '()}}}
-               :sem comp-sem}})))
+)
 
 ;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
 (def fare-do
@@ -707,15 +655,7 @@
                    :obj {:legible true}}}}))
 
 (def parlare
-  (unify
-   transitive
-   {:italian {:infinitive "parlare"}
-    :english {:infinitive "to speak"
-              :irregular {:past "spoke"}}
-    :synsem {:essere false
-             :sem {:pred :parlare
-                   :subj {:human true}
-                   :obj {:speakable true}}}}))
+)
 
 (def pensare
   (unify
@@ -731,7 +671,7 @@
 (def potere
   (let [pred-of-complement (ref :top)]
     (unify
-     subjective
+     verb-subjective
      modal
      {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
      {:italian {:infinitive "potere"
@@ -792,17 +732,6 @@
                    :subj {:human true}
                    :obj {:legible true}}}}))
 
-(def sognare
-  (unify
-   intransitive
-   {:italian {:infinitive "sognare"}
-    :english {:infinitive "to dream"
-              :irregular {:past "dreamt"}}
-    :synsem {:essere false
-             :sem {:subj {:animate true}
-                   :discrete false
-                   :pred :sognare}}}))
-
 ;; something's wrong with conjugation of this verb.
 ;(def telefonare
 ;  (unify
@@ -813,21 +742,6 @@
 ;             :sem {:pred :telefonare
 ;                   :subj {:human true}
 ;                   :obj {:human true}}}}))
-
-(def vedere
-  (unify
-   transitive
-   {:italian {:infinitive "vedere"
-              :irregular {:passato "visto"}}
-    :english {:infinitive "to see"
-              :irregular {:past "saw"
-                          :past-participle "seen"}}
-    :synsem {:essere false
-             :sem {:pred :vedere
-                   :activity false ;; "seeing" is not a continuous act but rather an instantaneous one.
-                   ;; "watching" is the continuous counterpart of "seeing"
-                   ;; TODO: check against Italian usage
-                   :subj {:animate true}}}}))
 
 (def vivere
   (unify
@@ -845,7 +759,7 @@
 
 (def volere
   (unify
-   subjective
+   verb-subjective
    modal
    {:italian {:infinitive "volere"
               :irregular {:present {:1sing "voglio"
@@ -875,25 +789,7 @@
    dormire
    pensare
    ridere
-   sognare
    vivere))
-
-(def transitive-verbs
-  (list
-   amare
-   avere
-   comprare
-   essere-adjective
-   essere-copula
-   essere-intensifier
-   fare-make
-   leggere
-   mangiare
-   parlare
-   scrivere
-;   telefonare
-   vedere
-   ))
 
 (def verbs-taking-pp
   (list
@@ -1063,6 +959,27 @@
              :synsem {:sem {:artifact false
                             :animate false
                             :pred :acqua}}})
+      (unify
+       transitive
+       {:italian {:infinitive "amare"}
+        :english {:infinitive "to love"
+                  :irregular {:past "loved"}}
+        :synsem {:essere false
+                 :sem {:pred :amare
+                       :activity false
+                       :discrete false
+                       :subj {:human true}
+                       :obj {:animate true}}}})
+
+
+      (unify
+       transitive
+       avere-common
+       {:synsem {:sem {:pred :avere
+                       :activity false
+                       :discrete false
+                       :subj {:human true}
+                   :obj {:buyable true}}}})
 
      ;; non-comparative:
      (unify adjective
@@ -1394,6 +1311,21 @@
               :english {:irregular {:plur "women"}
                         :english "woman"}})
 
+      (let [subject (ref {:cat :noun})
+        comp-sem (ref
+                  {:activity false
+                   :discrete false})]
+    (unify
+     essere-common
+     {:notes "essere-intensifer"}
+     {:synsem {:cat :verb
+               :subcat {:1 subject
+                        :2 {:cat :intensifier
+                            :sem comp-sem
+                            :subcat {:1 subject
+                                     :2 '()}}}
+               :sem comp-sem}}))
+      
       (unify agreement-noun
              common-noun
              countable-noun
@@ -2135,6 +2067,15 @@
              {:synsem {:subcat {:1 {:cat :det
                                     :number :sing
                                     :def :def}}}})
+(unify
+ transitive
+ {:italian {:infinitive "parlare"}
+    :english {:infinitive "to speak"
+              :irregular {:past "spoke"}}
+  :synsem {:essere false
+           :sem {:pred :parlare
+                 :subj {:human true}
+                 :obj {:speakable true}}}})
 
       ;; inherently singular.
       (unify agreement-noun
@@ -2524,6 +2465,15 @@
                             :pred :sedia}}
              :italian {:italian "sedia"}
              :english {:english "chair"}})
+ (unify
+   intransitive
+   {:italian {:infinitive "sognare"}
+    :english {:infinitive "to dream"
+              :irregular {:past "dreamt"}}
+    :synsem {:essere false
+             :sem {:subj {:animate true}
+                   :discrete false
+                   :pred :sognare}}})
 
      (unify agreement-noun
             common-noun
@@ -2592,6 +2542,20 @@
        :italian "una"
        :english "a"}
 
+(unify
+   transitive
+   {:italian {:infinitive "vedere"
+              :irregular {:passato "visto"}}
+    :english {:infinitive "to see"
+              :irregular {:past "saw"
+                          :past-participle "seen"}}
+    :synsem {:essere false
+             :sem {:pred :vedere
+                   :activity false ;; "seeing" is not a continuous act but rather an instantaneous one.
+                   ;; "watching" is the continuous counterpart of "seeing"
+                   ;; TODO: check against Italian usage
+                   :subj {:animate true}}}})
+
       (unify agreement-noun
             common-noun
             countable-noun
@@ -2634,17 +2598,46 @@
                      :cat cat-of-pronoun
                      :case disjunctive-case-of-pronoun}}
 
-)
+))))
 
-  (concat
-   (list essere-aux
-         avere-aux)
-   intransitive-verbs
-   transitive-verbs
-   verbs-taking-pp
-   modal-verbs)
+;(concat
+; (list
 
-)))
+  ;; essere-aux
+;  (unify
+;   verb-aux-type
+;   verb-subjective
+;   essere-common
+;   {:notes "essere-aux"}
+;   {:synsem {:infl :present
+;             :subcat {:2 {:essere true}}}
+;    :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
+;              :hidden true}} ;; gets removed by morphological rules.
+
+
+;   avere-aux))
+; intransitive-verbs
+
+;  (list
+;   amare
+;   avere
+;   comprare
+;   essere-adjective
+;   essere-copula
+;   essere-intensifier
+;   fare-make
+;   leggere
+;   mangiare
+;   parlare
+;   scrivere
+;;   telefonare
+;   vedere
+;   )
+
+;   verbs-taking-pp
+;   modal-verbs)
+
+;)))
 
                                         ;(def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
                                         ;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
