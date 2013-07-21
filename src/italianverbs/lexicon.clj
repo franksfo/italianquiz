@@ -356,77 +356,6 @@
                                  :2plur "were"
                                  :3plur "were"}}}}))
 
-;; TODO: fare-common (factor out common stuff from fare-do and fare-make)
-(def fare-do
-  (unify
-   transitive
-   {:italian {:infinitive "fare"
-              :irregular {:passato "fatto"
-                          :present {:1sing "facio"
-                                    :2sing "fai"
-                                    :3sing "fa"
-                                    :1plur "facciamo"
-                                    :2plur "fate"
-                                    :3plur "fanno"}
-                          :imperfetto {:1sing "facevo"
-                                       :2sing "facevi"
-                                       :3sing "faceva"
-                                       :1plur "facevamo"
-                                       :2plur "facevate"
-                                       :3plur "facevano"}
-                          :futuro {:1sing "farò"
-                                   :2sing "farai"
-                                   :3sing "farà"
-                                   :1plur "faremo"
-                                   :2plur "farete"
-                                   :3plur "faranno"}}}
-    :english {:infinitive "to do"
-              :irregular {:past-participle "done"
-                          :present {:1sing "do"
-                                    :2sing "do"
-                                    :3sing "does"
-                                    :1plur "do"
-                                    :2plur "do"
-                                    :3plur "do"}}}
-    :synsem {:cat :verb
-             :infl :infinitive
-             :sem {:pred :fare
-                   :subj {:human true}
-                   :obj {:activity true}}}}))
-
-(def fare-make
-  (unify
-   transitive
-   ;; TODO: as with "essere", make irregular conjugations
-   ;; shared between fare-do and fare-make.
-   {:italian {:infinitive "fare"
-              :irregular {:passato "fatto"
-                          :present {:1sing "facio"
-                                    :2sing "fai"
-                                    :3sing "fa"
-                                    :1plur "facciamo"
-                                    :2plur "fate"
-                                    :3plur "fanno"}
-                          :imperfetto {:1sing "facevo"
-                                       :2sing "facevi"
-                                       :3sing "faceva"
-                                       :1plur "facevamo"
-                                       :2plur "facevate"
-                                       :3plur "facevano"}
-                          :futuro {:1sing "farò"
-                                   :2sing "farai"
-                                   :3sing "farà"
-                                   :1plur "faremo"
-                                   :2plur "farete"
-                                   :3plur "faranno"}}}
-    :english {:infinitive "to make"
-              :irregular {:past "made"}}
-    :synsem {:cat :verb
-             :essere false
-             :sem {:pred :fare
-                   :discrete false
-                   :subj {:human true}
-                   :obj {:artifact true}}}}))
 
 (def mangiare
   (unify
@@ -1186,6 +1115,9 @@
                      :cat cat-of-pronoun
                      :case disjunctive-case-of-pronoun}}
 
+          ;; fare (to do)
+          ;; TODO: add def for fare-common (factor out common stuff from fare-do and fare-make)
+          ;; as we do with essere-common.
           (unify
            transitive
            {:italian {:infinitive "fare"
@@ -1220,7 +1152,41 @@
                      :infl :infinitive
                      :sem {:pred :fare
                            :subj {:human true}
-                          :obj {:activity true}}}})
+                           :obj {:activity true}}}})
+
+          ;; fare (to make)
+          (unify
+           transitive
+           ;; TODO: as with "essere", make irregular conjugations
+           ;; shared between fare-do and fare-make.
+           {:italian {:infinitive "fare"
+                      :irregular {:passato "fatto"
+                                  :present {:1sing "facio"
+                                            :2sing "fai"
+                                            :3sing "fa"
+                                            :1plur "facciamo"
+                                            :2plur "fate"
+                                            :3plur "fanno"}
+                                  :imperfetto {:1sing "facevo"
+                                               :2sing "facevi"
+                                               :3sing "faceva"
+                                               :1plur "facevamo"
+                                               :2plur "facevate"
+                                               :3plur "facevano"}
+                                  :futuro {:1sing "farò"
+                                           :2sing "farai"
+                                           :3sing "farà"
+                                           :1plur "faremo"
+                                           :2plur "farete"
+                                           :3plur "faranno"}}}
+            :english {:infinitive "to make"
+                      :irregular {:past "made"}}
+            :synsem {:cat :verb
+                     :essere false
+                     :sem {:pred :fare
+                           :discrete false
+                           :subj {:human true}
+                           :obj {:artifact true}}}})
 
           (unify agreement-noun
                  common-noun
