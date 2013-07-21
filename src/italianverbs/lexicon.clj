@@ -252,7 +252,7 @@
                      :subcat {:2 {:sem obj-sem
                                   :cat :intensifier}}}})))
 
-(def andare
+(def andare-common
    {:italian {:infinitive "andare"
               :essere true
               :irregular {:present {:1sing "vado"
@@ -356,63 +356,6 @@
                                  :2plur "were"
                                  :3plur "were"}}}}))
 
-
-(def mangiare
-  (unify
-   transitive
-   {:italian {:infinitive "mangiare"}
-    :english {:infinitive "to eat"
-              :irregular {:past "ate"}}
-    :synsem {:essere false
-             :sem {:pred :mangiare
-                   :subj {:animate true}
-                   :obj {:edible true}}}}))
-
-(def leggere
-  (unify
-   transitive
-   {:italian {:infinitive "leggere"
-              :irregular {:passato "letto"}}
-    :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
-              :irregular {:past "read"
-                          :note "(past)"}} ;; spelled "read" but pronounced like "red".
-    :synsem {:essere false
-             :sem {:pred :leggere
-                   :discrete false
-                   :subj {:human true}
-                   :obj {:legible true}}}}))
-
-(def recordare
-  (unify
-   transitive
-   {:italian {:infinitive "ricordare"}
-    :english {:infinitive "to remember"}
-    :synsem {:essere false
-             :sem {:subj {:human true}
-                   :obj {:legible true}
-                   :pred :recordare}}}))
-
-(def scrivere
-  (unify
-   transitive
-   {:italian {:infinitive "scrivere"}
-    :english {:infinitive "to write"
-              :irregular {:past "wrote"}}
-    :synsem {:essere false
-             :sem {:pred :scrivere
-                   :subj {:human true}
-                   :obj {:legible true}}}}))
-
-;; something's wrong with conjugation of this verb.
-;(def telefonare
-;  (unify
-;   transitive
-;   {:italian {:italian "telefonare"}
-;    :english {:english "to call"}
-;    :synsem {:essere false
-;             :sem {:pred :telefonare
-;                   :subj {:human true}
-;                   :obj {:human true}}}}))
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
@@ -581,12 +524,12 @@
      ;; andare-intransitive
      (unify
       intransitive
-      andare)
+      andare-common)
 
      ;; andare that takes a prepositional phrase
      (unify
       verb-subjective
-      andare
+      andare-common
       (let [place-sem (ref {:place true
                             :pred :a})]
         {:synsem {:sem {:location place-sem}
@@ -1523,6 +1466,39 @@
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
+            {:synsem {:cat pronoun-noun
+                :pronoun true
+                :agr {:case pronoun-acc
+                      :gender :fem
+                      :person :3rd
+                      :number :plur}
+                :sem (unify human {:pred :lei})
+                :subcat '()}
+       :english {:english "them"
+                 :note " (&#x2640;) "}
+       :italian {:italian "le"
+                 :cat pronoun-noun
+                 :case pronoun-acc}}
+      {:synsem {:cat :det
+                :def :def
+                :gender :fem
+                :number :plur}
+       :italian "le"
+       :english "the"}
+
+      (unify
+       transitive
+       {:italian {:infinitive "leggere"
+                  :irregular {:passato "letto"}}
+        :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
+                  :irregular {:past "read"
+                              :note "(past)"}} ;; spelled "read" but pronounced like "red".
+        :synsem {:essere false
+                 :sem {:pred :leggere
+                       :discrete false
+                       :subj {:human true}
+                   :obj {:legible true}}}})
+
       {:synsem {:cat pronoun-noun
                 :pronoun true
                 :agr {:case pronoun-acc
@@ -1534,20 +1510,6 @@
        :english {:english "them"
                  :note " (&#x2642;) "} ;; unicode male
        :italian {:italian "li"
-                 :cat pronoun-noun
-                 :case pronoun-acc}}
-
-      {:synsem {:cat pronoun-noun
-                :pronoun true
-                :agr {:case pronoun-acc
-                      :gender :fem
-                      :person :3rd
-                      :number :plur}
-                :sem (unify human {:pred :lei})
-                :subcat '()}
-       :english {:english "them"
-                 :note " (&#x2640;) "}
-       :italian {:italian "le"
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
@@ -1564,13 +1526,6 @@
                 :number :plur}
        :italian "le vostre"
        :english "your (pl)"}
-
-      {:synsem {:cat :det
-                :def :def
-                :gender :fem
-                :number :plur}
-       :italian "le"
-       :english "the"}
 
       {:synsem {:cat :det
                 :def :possessive
@@ -1635,6 +1590,28 @@
              {:synsem {:sem {:pred :madre}}
               :italian {:italian "madre"}
               :english {:english "mother"}})
+
+
+      (unify
+       transitive
+       {:italian {:infinitive "mangiare"}
+        :english {:infinitive "to eat"
+                  :irregular {:past "ate"}}
+        :synsem {:essere false
+                 :sem {:pred :mangiare
+                       :subj {:animate true}
+                   :obj {:edible true}}}})
+
+;; something's wrong with conjugation of this verb.
+;(def telefonare
+;  (unify
+;   transitive
+;   {:italian {:italian "telefonare"}
+;    :english {:english "to call"}
+;    :synsem {:essere false
+;             :sem {:pred :telefonare
+;                   :subj {:human true}
+;                   :obj {:human true}}}}))
 
       (unify agreement-noun
              common-noun
@@ -2218,6 +2195,25 @@
             {:synsem {:sem {:pred :ragazza}}
              :italian {:italian "ragazza"}
              :english {:english "girl"}})
+
+      (unify
+       transitive
+       {:italian {:infinitive "ricordare"}
+        :english {:infinitive "to remember"}
+        :synsem {:essere false
+                 :sem {:subj {:human true}
+                       :obj {:legible true}
+                       :pred :recordare}}})
+
+      (unify
+       transitive
+       {:italian {:infinitive "scrivere"}
+        :english {:infinitive "to write"
+                  :irregular {:past "wrote"}}
+        :synsem {:essere false
+                 :sem {:pred :scrivere
+                       :subj {:human true}
+                       :obj {:legible true}}}})
 
       ;; comparative:
       (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
