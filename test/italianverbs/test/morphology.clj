@@ -712,3 +712,17 @@
                           :italian "bianco",
                           :cat :adjective}}})))))
 
+(deftest essere-format-1
+  (let [essere-test
+        {:synsem {:subcat {:1 {:cat :noun}, :2 {:sem {:discrete false, :activity false}, :cat :adjective, :subcat {:1 {:cat :noun}, :2 ()}}}, :essere true, :sem {:discrete false, :activity false}, :cat :verb}, :english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infinitive "to be"}, :italian {:essere true, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}, :infinitive "essere"}, :notes "essere-adjective"}]
+    (is (= (get-italian-1 (get-in essere-test '(:italian)))
+           "essere"))
+    (is (= (get-english-1 (get-in essere-test '(:english)))
+           "to be"))))
+
+(deftest essere-format-2
+  (let [essere-test {:english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infl :present, :agr {:case {:not :acc}}, :infinitive "to be", :hidden true}, :italian {:infinitive "essere", :infl :present, :aux true, :essere true, :agr {:case {:not :acc}}, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}}, :synsem {:cat :verb, :essere true, :aux true, :sem {:tense :past, :subj :top}, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 {:infl :past, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 ()}, :cat :verb, :sem {:tense :past, :subj :top}, :essere true}}, :infl :present}, :notes "essere-aux"}]
+    (is (= (get-italian-1 (get-in essere-test '(:italian)))
+           "essere"))))
+
+

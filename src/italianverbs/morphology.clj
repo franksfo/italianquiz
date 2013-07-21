@@ -1,5 +1,6 @@
 (ns italianverbs.morphology
   (:require
+   ;; TODO: "fs/" is historical; use "unify/" instead.
    [italianverbs.unify :as fs]
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
@@ -214,6 +215,7 @@
       (get-italian-1 (fs/get-in word '(:a)))
       " " "..")
 
+
      (and
       (= (fs/get-in word '(:b)) :top)
       (string? (fs/get-in word '(:a :italian))))
@@ -358,6 +360,8 @@
       (string? (fs/get-in word '(:irregular :past))))
      (fs/get-in word '(:irregular :past))
 
+     ;; TODO: do not use brackets: if there's an error about there being
+     ;; not enough information, throw an exception explicitly.
      ;; return the irregular form in square brackets, indicating that there's
      ;; not enough information to conjugate the verb.
      (and (= :past (fs/get-in word '(:infl)))
@@ -367,6 +371,7 @@
               (= :top (fs/get-in word '(:agr :number)))))
      (str "[" (fs/get-in word '(:irregular :passato)) "]")
 
+     ;; TODO: do not use brackets: if there's an error about there being
      ;; regular passato prossimo and essere-verb => NEI (not enough information): defer conjugation and keep as a map.
      (and (= :past (fs/get-in word '(:infl)))
           (= (fs/get-in word '(:essere)) true)
@@ -511,6 +516,7 @@
         :else
         (str infinitive )))
 
+
      (= (fs/get-in word '(:infl)) :top)
      (str (fs/get-in word '(:infinitive)) )
 
@@ -554,7 +560,7 @@
                    #"[a]$" "e") ;; donna => donne
 
 
-   ;; deprecated: remove support for :root.
+   ;; deprecated: TODO: remove support for :root.
    (and
     (= (fs/get-in word '(:agr :gender)) :fem)
     (= (fs/get-in word '(:agr :number)) :sing)
@@ -585,8 +591,13 @@
     (string? (fs/get-in word '(:irregular :fem :plur))))
    (fs/get-in word '(:irregular :fem :plur))
 
+   (string? (fs/get-in word '(:infinitive)))
+   (fs/get-in word '(:infinitive))
+
+   ;; TODO: throw exception rather than returning _word_, which is a map or something else unprintable.
+   ;; in other words, if we've gotten this far, it's a bug.
    :else
-  word))
+   word))
   )
 
 (defn get-italian [a & [ b ]]
@@ -843,13 +854,13 @@
    (fs/get-in word '(:infinitive))
 
    (= true (fs/get-in word '(:hidden)))
+;;   "Ø"
    ""
-
    (and
     (= true (fs/get-in word '(:a :hidden)))
     (= true (fs/get-in word '(:b :hidden))))
+;;   "Ø"
    ""
-
    (= true (fs/get-in word '(:a :hidden)))
    (get-english-1 (fs/get-in word '(:b)))
 
@@ -1020,6 +1031,9 @@
       (and (= person :3rd) (= number :plur))
       (str stem "")
 
+      (string? (fs/get-in word '(:infinitive)))
+      (fs/get-in word '(:infinitive))
+
       :else (str root )))
 
    (and
@@ -1091,12 +1105,17 @@
         (string? (fs/get-in word '(:english))))
    (fs/get-in word '(:english))
 
+   (string? (fs/get-in word '(:english)))
+   (fs/get-in word '(:english))
+
+   ;; TODO: not sure if this code is alive or not: is there ever
+   ;; a case of a sign with '(:english :english :english)?
    (and (string? (fs/get-in word '(:english :english)))
         (= (.size (keys word)) 1))
    (fs/get-in word '(:english :english))
 
-   (string? (fs/get-in word '(:english)))
-   (fs/get-in word '(:english))
+   (string? (fs/get-in word '(:infinitive)))
+   (fs/get-in word '(:infinitive))
 
    :else
    word))
