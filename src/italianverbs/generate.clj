@@ -27,6 +27,7 @@
           (str (.toUpperCase (subs s 0 1))
                (subs s 1))))))
 
+;; TODO: Move to morphology, same as (formattare) below.
 (defn formattare-1 [expr]
   (cond
    (unify/fail? expr)
@@ -60,6 +61,7 @@
               (formattare-1 (first expressions))
               (formattare (rest expressions))))))))
 
+;; TODO: move to morphology as above.
 (defn fo [expressions]
   (formattare expressions))
 
