@@ -1997,6 +1997,11 @@
                          :discrete false
                          :subj {:animate true}}}}))
 
+      {:synsem {:cat :sent-modifier
+                :subcat {:1 {:sem {:activity true}}}}
+       :italian "qualche volte"
+       :english "sometimes"}
+
       {:synsem {:cat :noun
                 :pronoun true
                 :agr {:case :nom

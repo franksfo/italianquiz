@@ -313,8 +313,8 @@
       ;; override the existing :extends in the case of s-present.
       (fs/merge
        (fs/unifyc rule-base
-                   italian-head-last
-                   english-head-last
+                  italian-head-last
+                  english-head-last
                   {:comment "sentence[present]"
                    :comment-plaintext "s[present] -> .."
                    :synsem {:infl :present}})
@@ -323,6 +323,19 @@
                  :h {:comp 'np
                      :head 'vp-present}
                  }}))
+
+    ;; e.g. "qualche volte, s-present"
+    (def s-present-modifier
+      (fs/unifyc head-principle
+                 subcat-1-principle
+                 italian-head-first
+                 english-head-first
+                 {:comment "mod + s-present"
+                  :comment-plaintext "mod + s-present"
+                  :extend {:a {:head 'lexicon
+                               :comp 's-present}}
+                  :synsem {:cat :sent-modifier}}))
+
 
     (def s-past
       (fs/merge
