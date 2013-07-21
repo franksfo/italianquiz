@@ -747,13 +747,13 @@
        :english "to"}
 
       (unify (:agreement noun)
-            (:drinkable noun)
-            (:feminine noun)
-            {:italian {:italian "acqua"}
-             :english {:english "water"}
-             :synsem {:sem {:artifact false
-                            :animate false
-                            :pred :acqua}}})
+             (:drinkable noun)
+             (:feminine noun)
+             {:italian {:italian "acqua"}
+              :english {:english "water"}
+              :synsem {:sem {:artifact false
+                             :animate false
+                             :pred :acqua}}})
       (unify
        transitive
        {:italian {:infinitive "amare"}
@@ -792,23 +792,23 @@
                        :subj {:human true}
                    :obj {:buyable true}}}})
 
-  ;; non-comparative:
-     (unify adjective
-            {:synsem {:cat :adjective
-                      :sem {:pred :alto
-                            :comparative false
-                            :mod {:human true}}}
-             :italian {:italian "alto"}
-             :english {:english "tall"}})
+      ;; non-comparative:
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :alto
+                             :comparative false
+                             :mod {:human true}}}
+              :italian {:italian "alto"}
+              :english {:english "tall"}})
 
-     (unify agreement-noun
-            common-noun
-            countable-noun
-            masculine-noun
-            {:synsem {:sem {:pred :amico
-                            :human true}}
-             :italian {:italian "amico"}
-             :english {:english "friend"}})
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             masculine-noun
+             {:synsem {:sem {:pred :amico
+                             :human true}}
+              :italian {:italian "amico"}
+              :english {:english "friend"}})
 
       ;; comparative:
       (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
@@ -820,29 +820,29 @@
                                :comparative true
                                :arg1 subject-sem
                                :arg2 complement-complement-sem}
-                       :subcat {:1 {:cat :noun
-                                    :sem subject-sem}
-                                :2 {:cat :prep
-                                    :sem complement-sem}}}
+                         :subcat {:1 {:cat :noun
+                                      :sem subject-sem}
+                                  :2 {:cat :prep
+                                      :sem complement-sem}}}
                 :italian {:italian "alto"}
                 :english {:english "tall"}}))
-  (unify
-   verb-aux-type
-   verb-subjective
-   avere-common
-   {:synsem {:infl :present
-             :subcat {:2 {:essere false}}}
-    :english {:hidden true}})
 
-    ;; non-comparative
-    ;; TODO: add comparative
-    (unify adjective
-           {:synsem {:sem {:pred :bello
-                           :comparative false
-                           :mod :top}} ;; for now, no restrictions on what can be beautiful.
-            :italian {:italian "bello"}
-            :english {:english "beautiful"}})
+      (unify
+       verb-aux-type
+       verb-subjective
+       avere-common
+       {:synsem {:infl :present
+                 :subcat {:2 {:essere false}}}
+        :english {:hidden true}})
 
+      ;; non-comparative
+      ;; TODO: add comparative
+      (unify adjective
+             {:synsem {:sem {:pred :bello
+                             :comparative false
+                             :mod :top}} ;; for now, no restrictions on what can be beautiful.
+              :italian {:italian "bello"}
+              :english {:english "beautiful"}})
 
       ;; bere
       (unify
@@ -862,28 +862,28 @@
                        :subj {:animate true}
                        :obj {:drinkable true}}}})
 
-    ;; non-comparative
-    ;; TODO: add comparative
-    (unify adjective
-           {:synsem {:cat :adjective
-                     :sem {:pred :bianco
-                           :comparative false
-                           :mod {:physical-object true
-                                 :human false}}}
-     :italian {:italian "bianco"
-               :irregular {:masc {:plur "bianchi"}
-                           :fem {:plur "bianche"}}
-               :cat :adjective}
-            :english {:english "white"
-                      :cat :adjective}})
+      ;; non-comparative
+      ;; TODO: add comparative
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :bianco
+                             :comparative false
+                             :mod {:physical-object true
+                                   :human false}}}
+              :italian {:italian "bianco"
+                        :irregular {:masc {:plur "bianchi"}
+                                    :fem {:plur "bianche"}}
+                        :cat :adjective}
+              :english {:english "white"
+                        :cat :adjective}})
 
-     (unify agreement-noun
-            drinkable-noun
-            feminine-noun
-            {:italian {:italian "birra"}
-             :english {:english "beer"}
-             :synsem {:sem {:pred :birra
-                            :artifact true}}})
+      (unify agreement-noun
+             drinkable-noun
+             feminine-noun
+             {:italian {:italian "birra"}
+              :english {:english "beer"}
+              :synsem {:sem {:pred :birra
+                             :artifact true}}})
 
 
     (unify agreement-noun
