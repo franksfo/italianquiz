@@ -966,9 +966,9 @@
          last-stem-char (re-find #".$" stem)
          last-stem-char-is-e (re-find #"e$" stem)]
      (cond last-stem-char-is-e
-           (str stem-minus-one penultimate-stem-char "en")
+           (str stem-minus-one penultimate-stem-char "ed")
            true
-           (str stem "en")))
+           (str stem "ed")))
 
    (and
     (= :present (fs/get-in word '(:infl)))
