@@ -1201,8 +1201,8 @@
                                            :1plur "facciamo"
                                            :2plur "fate"
                                            :3plur "fanno"}
-                                  :imperfetto {:1sing "facevo"
-                                               :2sing "facevi"}}}})
+                                  :imperfetto {:1sing "facevo"}}}})
+;                                               :2sing "facevi"}}}})
 ;                                               :3sing "faceva"}}}})
  ;                                              :1plur "facevamo"
 ;                                               :2plur "facevate"}}}})
