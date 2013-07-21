@@ -591,40 +591,35 @@
             :agr {:person :3rd}
             :subcat '()}})
 
-(def lexicon
-  (let [
-        ;; noun convenience variables:
-        agreement-noun (:agreement noun)
-        common-noun (:common noun)
-        countable-noun (:countable noun)
-        drinkable-noun (:drinkable noun)
-        feminine-noun (:feminine noun)
-        masculine-noun (:masculine noun)
-
-        pronoun-acc (ref :acc)
-        pronoun-noun (ref :noun)
-
-        adjective
-        (let [adjective (ref :adjective)
+(def adjective
+  (let [adjective (ref :adjective)
               gender (ref :top)
-              number (ref :top)]
-          {:synsem {:cat adjective
-                    :agr {:gender gender
-                          :number number}
-                    }
-           :italian {:cat adjective
-                     :agr {:number number
-                           :gender gender}}
-           :english {:cat adjective}})
+        number (ref :top)]
+    {:synsem {:cat adjective
+              :agr {:gender gender
+                    :number number}
+              }
+     :italian {:cat adjective
+               :agr {:number number
+                     :gender gender}}
+     :english {:cat adjective}}))
 
-        verb {:transitive transitive}
+;; noun convenience variables:
+(def agreement-noun (:agreement noun))
+(def common-noun (:common noun))
+(def countable-noun (:countable noun))
+(def drinkable-noun (:drinkable noun))
+(def feminine-noun (:feminine noun))
+(def masculine-noun (:masculine noun))
 
-        disjunctive-case-of-pronoun (ref :disj)
-        cat-of-pronoun (ref :noun)
+(def pronoun-acc (ref :acc))
+(def pronoun-noun (ref :noun))
+(def verb {:transitive transitive})
+(def disjunctive-case-of-pronoun (ref :disj))
+(def cat-of-pronoun (ref :noun))
 
-        ]
-
-    (list
+(def lexicon
+  (list
 
      {:synsem {:cat :prep
                :sem {:pred :a
@@ -1194,13 +1189,13 @@
           (unify
            transitive
            {:italian {:infinitive "fare"
-                     :irregular {:passato "fatto"
-                                 :present {:1sing "facio"
+                      :irregular {:passato "fatto"
+                                  :present {:1sing "facio"
                                             :2sing "fai"
                                             :3sing "fa"
-                                           :1plur "facciamo"
-                                           :2plur "fate"
-                                           :3plur "fanno"}
+                                            :1plur "facciamo"
+                                            :2plur "fate"
+                                            :3plur "fanno"}
                                   :imperfetto {:1sing "facevo"
                                                :2sing "facevi"}}}})
 ;                                               :3sing "faceva"}}}})
@@ -2538,9 +2533,7 @@
                        :activity false
                        :discrete false
                        :subj {:animate true}}}}))
-
-))
-
+)
 ;(concat
 ; (list
 
