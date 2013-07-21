@@ -1998,9 +1998,16 @@
                          :subj {:animate true}}}}))
 
       {:synsem {:cat :sent-modifier
-                :subcat {:1 {:sem {:activity true}}}}
+                :subcat {:1 {:infl :present
+                             :sem {:activity true}}}}
        :italian "qualche volte"
        :english "sometimes"}
+
+
+      {:synsem {:cat :sent-modifier
+                :subcat {:1 {:aspect :past}}}
+       :italian "ieri"
+       :english "yesterday"}
 
       {:synsem {:cat :noun
                 :pronoun true

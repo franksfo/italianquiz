@@ -361,6 +361,7 @@
    (= symbol 'quando-phrase) gram/quando-phrase
    (= symbol 's-imperfetto) gram/s-imperfetto
    (= symbol 's-past) gram/s-past
+   (= symbol 's-past-modifier) gram/s-past-modifier
    (= symbol 's-present) gram/s-present
    (= symbol 's-present-modifier) gram/s-present-modifier
    (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
@@ -733,6 +734,7 @@
                                                   gram/s-present-modifier
                                                   gram/s-future
                                                   gram/s-past
+                                                  gram/s-past-modifier
                                                   gram/s-imperfetto
                                                   gram/s-quando
                                                   )))))))))

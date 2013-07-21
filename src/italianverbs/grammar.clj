@@ -324,7 +324,7 @@
                      :head 'vp-present}
                  }}))
 
-    ;; e.g. "qualche volte, s-present"
+    ;; e.g. "qualche volte, <s-present>"
     (def s-present-modifier
       (fs/unifyc head-principle
                  subcat-1-principle
@@ -336,6 +336,17 @@
                                :comp 's-present}}
                   :synsem {:cat :sent-modifier}}))
 
+    ;; e.g. "ieri, <s-past>"
+    (def s-past-modifier
+      (fs/unifyc head-principle
+                 subcat-1-principle
+                 italian-head-first
+                 english-head-first
+                 {:comment "mod + s-past"
+                  :comment-plaintext "mod + s-past"
+                  :extend {:a {:head 'lexicon
+                               :comp 's-past}}
+                  :synsem {:cat :sent-modifier}}))
 
     (def s-past
       (fs/merge
