@@ -2000,7 +2000,7 @@
       {:synsem {:cat :sent-modifier
                 :subcat {:1 {:infl :present
                              :sem {:activity true}}}}
-       :italian "qualche volte"
+       :italian "qualche volta"
        :english "sometimes"}
 
 
