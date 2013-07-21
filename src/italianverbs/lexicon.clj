@@ -41,6 +41,7 @@
          city (if (= (fs/get-in input '(:city))
                      true)
                 {:place true
+                 :human false
                  :animate false
                  :legible false})
 
@@ -569,7 +570,8 @@
             countable-noun
             masculine-noun
             {:synsem {:sem {:pred :amico
-                            :human true}}
+                            :human true
+                            :child false}}
              :italian {:italian "amico"}
              :english {:english "friend"}})
 
@@ -708,6 +710,16 @@
             :italian {:italian "cane"}
             :english {:english "dog"}})
 
+     (unify adjective
+            {:synsem {:cat :adjective
+                      :sem {:pred :cattivo
+                            :comparative false
+                            :mod {:human true;; TODO:should not need this because child => human.
+                                  :child true}}}
+             :italian {:italian "cattivo"
+                       :cat :adjective}
+             :english {:english "naughty"
+                       :cat :adjective}})
 
 
     {:synsem {:cat pronoun-noun
@@ -898,7 +910,8 @@
            countable-noun
            feminine-noun
            {:synsem {:sem human}}
-           {:synsem {:sem {:pred :donna}}
+           {:synsem {:sem {:pred :donna
+                           :child false}}
             :italian {:italian "donna"}
             :english {:irregular {:plur "women"}
                       :english "woman"}})
@@ -962,7 +975,8 @@
              countable-noun
              masculine-noun
              {:synsem {:sem human}}
-             {:synsem {:sem {:pred :dottore}}
+             {:synsem {:sem {:pred :dottore
+                             :child false}}
               :italian {:italian "dottore"}
               :english {:english "doctor"}}))
 
@@ -1587,7 +1601,8 @@
              countable-noun
              feminine-noun
              {:synsem {:sem human}}
-             {:synsem {:sem {:pred :madre}}
+             {:synsem {:sem {:pred :madre
+                             :child false}}
               :italian {:italian "madre"}
               :english {:english "mother"}})
 
@@ -1861,8 +1876,9 @@
              countable-noun
              feminine-noun
              {:synsem {:sem human}}
-             {:synsem {:sem {:pred :professoressa}}}
-             {:italian {:italian "professoressa"}
+             {:synsem {:sem {:pred :professoressa
+                             :child false}}
+              :italian {:italian "professoressa"}
               :english {:english "professor"
                         :note " (&#x2640;)"}}) ;; unicode female symbol
 
@@ -1871,7 +1887,8 @@
              countable-noun
              masculine-noun
              {:synsem {:sem human}}
-             {:synsem {:sem {:pred :professore}}}
+             {:synsem {:sem {:pred :professore
+                             :child false}}}
              {:italian {:italian "professore"}
               :english {:english "professor"
                         :note " (&#x2642;)"}}) ;; unicode male symbol
@@ -2183,16 +2200,38 @@
              countable-noun
              masculine-noun
              {:synsem {:sem human}}
-             {:synsem {:sem {:pred :ragazzo}}
+             {:synsem {:sem {:pred :ragazzo
+                             :child false}}
               :italian {:italian "ragazzo"}
               :english {:english "guy"}})
 
       (unify agreement-noun
              common-noun
              countable-noun
-            feminine-noun
+             masculine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :ragazzino
+                             :child true}}
+              :italian {:italian "ragazzino"}
+              :english {:english "little boy"}})
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :ragazzina
+                             :child true}}
+              :italian {:italian "ragazzina"}
+              :english {:english "little girl"}})
+
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
             {:synsem {:sem human}}
-            {:synsem {:sem {:pred :ragazza}}
+            {:synsem {:sem {:pred :ragazza
+                            :child false}}
              :italian {:italian "ragazza"}
              :english {:english "girl"}})
 
@@ -2305,7 +2344,8 @@
              countable-noun
              masculine-noun
              {:synsem {:sem human}}
-             {:synsem {:sem {:pred :studente}}}
+             {:synsem {:sem {:pred :studente
+                             :child false}}} ;; could be true, but not always. TODO: create separate sense for child=true.
              {:italian {:italian "studente"}
               :english {:english "student"}})
 
@@ -2397,7 +2437,8 @@
              countable-noun
              masculine-noun
              {:synsem {:sem human}}
-             {:synsem {:sem {:pred :uomo}}
+             {:synsem {:sem {:pred :uomo
+                             :child false}}
               :italian {:irregular {:plur "uomini"}
                         :italian "uomo"}
               :english {:irregular {:plur "men"}
