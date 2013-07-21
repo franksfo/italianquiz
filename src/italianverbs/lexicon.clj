@@ -624,185 +624,185 @@
 
         ]
 
-     (list
+    (list
 
-      {:synsem {:cat :prep
-                :sem {:pred :a
-                      :comparative false}
-                :subcat {:1 {:cat :noun
-                             :sem {:place true}}}}
-       :italian "a"
-       :english "to"}
+     {:synsem {:cat :prep
+               :sem {:pred :a
+                     :comparative false}
+               :subcat {:1 {:cat :noun
+                            :sem {:place true}}}}
+      :italian "a"
+      :english "to"}
 
-      (unify (:agreement noun)
-             (:drinkable noun)
-             (:feminine noun)
-             {:italian {:italian "acqua"}
-              :english {:english "water"}
-              :synsem {:sem {:artifact false
-                             :animate false
-                             :pred :acqua}}})
-      (unify
-       transitive
-       {:italian {:infinitive "amare"}
-        :english {:infinitive "to love"
-                  :irregular {:past "loved"}}
-        :synsem {:essere false
-                 :sem {:pred :amare
-                       :activity false
-                       :discrete false
-                       :subj {:human true}
-                       :obj {:animate true}}}})
+     (unify (:agreement noun)
+            (:drinkable noun)
+            (:feminine noun)
+            {:italian {:italian "acqua"}
+             :english {:english "water"}
+             :synsem {:sem {:artifact false
+                            :animate false
+                            :pred :acqua}}})
+     (unify
+      transitive
+      {:italian {:infinitive "amare"}
+       :english {:infinitive "to love"
+                 :irregular {:past "loved"}}
+       :synsem {:essere false
+                :sem {:pred :amare
+                      :activity false
+                      :discrete false
+                      :subj {:human true}
+                      :obj {:animate true}}}})
 
-      ;; andare-intransitive
-      (unify
-       intransitive
-       andare)
+     ;; andare-intransitive
+     (unify
+      intransitive
+      andare)
 
-      ;; andare that takes a prepositional phrase
-      (unify
-       verb-subjective
-       andare
-       (let [place-sem (ref {:place true
-                             :pred :a})]
-         {:synsem {:sem {:location place-sem}
-                   :subcat {:2 {:sem place-sem
-                                :subcat '()
-                                :cat :prep}}}})
-       {:note "andare-pp"})
+     ;; andare that takes a prepositional phrase
+     (unify
+      verb-subjective
+      andare
+      (let [place-sem (ref {:place true
+                            :pred :a})]
+        {:synsem {:sem {:location place-sem}
+                  :subcat {:2 {:sem place-sem
+                               :subcat '()
+                               :cat :prep}}}})
+      {:note "andare-pp"})
 
-      (unify
-       transitive
-       avere-common
-       {:synsem {:sem {:pred :avere
-                       :activity false
-                       :discrete false
-                       :subj {:human true}
-                   :obj {:buyable true}}}})
+     (unify
+      transitive
+      avere-common
+      {:synsem {:sem {:pred :avere
+                      :activity false
+                      :discrete false
+                      :subj {:human true}
+                      :obj {:buyable true}}}})
 
-      ;; non-comparative:
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :alto
-                             :comparative false
-                             :mod {:human true}}}
-              :italian {:italian "alto"}
-              :english {:english "tall"}})
+     (unify
+      verb-aux-type
+      verb-subjective
+      avere-common
+      {:synsem {:infl :present
+                :subcat {:2 {:essere false}}}
+       :english {:hidden true}})
 
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             masculine-noun
-             {:synsem {:sem {:pred :amico
-                             :human true}}
-              :italian {:italian "amico"}
-              :english {:english "friend"}})
+     ;; non-comparative:
+     (unify adjective
+            {:synsem {:cat :adjective
+                      :sem {:pred :alto
+                            :comparative false
+                            :mod {:human true}}}
+             :italian {:italian "alto"}
+             :english {:english "tall"}})
 
-      ;; comparative:
-      (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
-            complement-sem (ref {:pred :di
-                                 :mod complement-complement-sem})
-            subject-sem (ref {:human true})] ;; only humans can be tall.
-        (unify adjective
-               {:synsem {:sem {:pred :alto
-                               :comparative true
-                               :arg1 subject-sem
-                               :arg2 complement-complement-sem}
-                         :subcat {:1 {:cat :noun
-                                      :sem subject-sem}
-                                  :2 {:cat :prep
-                                      :sem complement-sem}}}
-                :italian {:italian "alto"}
-                :english {:english "tall"}}))
+     (unify agreement-noun
+            common-noun
+            countable-noun
+            masculine-noun
+            {:synsem {:sem {:pred :amico
+                            :human true}}
+             :italian {:italian "amico"}
+             :english {:english "friend"}})
 
-      (unify
-       verb-aux-type
-       verb-subjective
-       avere-common
-       {:synsem {:infl :present
-                 :subcat {:2 {:essere false}}}
-        :english {:hidden true}})
+     ;; comparative:
+     (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
+           complement-sem (ref {:pred :di
+                                :mod complement-complement-sem})
+           subject-sem (ref {:human true})] ;; only humans can be tall.
+       (unify adjective
+              {:synsem {:sem {:pred :alto
+                              :comparative true
+                              :arg1 subject-sem
+                              :arg2 complement-complement-sem}
+                        :subcat {:1 {:cat :noun
+                                     :sem subject-sem}
+                                 :2 {:cat :prep
+                                     :sem complement-sem}}}
+               :italian {:italian "alto"}
+               :english {:english "tall"}}))
 
-      ;; non-comparative
-      ;; TODO: add comparative
-      (unify adjective
-             {:synsem {:sem {:pred :bello
-                             :comparative false
-                             :mod :top}} ;; for now, no restrictions on what can be beautiful.
-              :italian {:italian "bello"}
-              :english {:english "beautiful"}})
+     ;; non-comparative
+     ;; TODO: add comparative
+     (unify adjective
+            {:synsem {:sem {:pred :bello
+                            :comparative false
+                            :mod :top}} ;; for now, no restrictions on what can be beautiful.
+             :italian {:italian "bello"}
+             :english {:english "beautiful"}})
 
-      ;; bere
-      (unify
-       (:transitive verb)
-       {:italian {:infinitive "bere"
-                  :irregular {:passato "bevuto"
-                              :present {:1sing "bevo"
-                                        :2sing "bevi"
-                                        :3sing "beve"
-                                        :1plur "beviamo"
-                                        :2plur "bevete"
-                                        :3plur "bevano"}}}
-        :english {:infinitive "to drink"
-                  :irregular {:past "drank"}}
-        :synsem {:essere false
-                 :sem {:pred :bere
-                       :subj {:animate true}
-                       :obj {:drinkable true}}}})
+     ;; bere
+     (unify
+      (:transitive verb)
+      {:italian {:infinitive "bere"
+                 :irregular {:passato "bevuto"
+                             :present {:1sing "bevo"
+                                       :2sing "bevi"
+                                       :3sing "beve"
+                                       :1plur "beviamo"
+                                       :2plur "bevete"
+                                       :3plur "bevano"}}}
+       :english {:infinitive "to drink"
+                 :irregular {:past "drank"}}
+       :synsem {:essere false
+                :sem {:pred :bere
+                      :subj {:animate true}
+                      :obj {:drinkable true}}}})
 
-      ;; non-comparative
-      ;; TODO: add comparative
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :bianco
-                             :comparative false
-                             :mod {:physical-object true
-                                   :human false}}}
-              :italian {:italian "bianco"
-                        :irregular {:masc {:plur "bianchi"}
-                                    :fem {:plur "bianche"}}
-                        :cat :adjective}
-              :english {:english "white"
-                        :cat :adjective}})
+     ;; non-comparative
+     ;; TODO: add comparative
+     (unify adjective
+            {:synsem {:cat :adjective
+                      :sem {:pred :bianco
+                            :comparative false
+                            :mod {:physical-object true
+                                  :human false}}}
+             :italian {:italian "bianco"
+                       :irregular {:masc {:plur "bianchi"}
+                                   :fem {:plur "bianche"}}
+                       :cat :adjective}
+             :english {:english "white"
+                       :cat :adjective}})
 
-      (unify agreement-noun
-             drinkable-noun
-             feminine-noun
-             {:italian {:italian "birra"}
-              :english {:english "beer"}
-              :synsem {:sem {:pred :birra
-                             :artifact true}}})
+     (unify agreement-noun
+            drinkable-noun
+            feminine-noun
+            {:italian {:italian "birra"}
+             :english {:english "beer"}
+             :synsem {:sem {:pred :birra
+                            :artifact true}}})
 
 
-    (unify agreement-noun
-           common-noun
-           countable-noun
-           masculine-noun
-           {:synsem {:sem {:pred :braccio
-                           :part-of-human-body true}}
-            ;; adding "bracci" as irregular because
-            ;; current morphology.clj would otherwise return
-            ;; "braccii".
-            ;; TODO: might not be an exception so much
-            ;; as a ortho-pholological rule "io" -plur-> "i"
-            :italian {:italian "braccio"
-                      :irregular {:plur "bracci"}}
-            :english {:english "arm"}})
+     (unify agreement-noun
+            common-noun
+            countable-noun
+            masculine-noun
+            {:synsem {:sem {:pred :braccio
+                            :part-of-human-body true}}
+             ;; adding "bracci" as irregular because
+             ;; current morphology.clj would otherwise return
+             ;; "braccii".
+             ;; TODO: might not be an exception so much
+             ;; as a ortho-pholological rule "io" -plur-> "i"
+             :italian {:italian "braccio"
+                       :irregular {:plur "bracci"}}
+             :english {:english "arm"}})
 
-    ;; non-comparative
-    ;; TODO: add comparative
-    (unify adjective
-           {:synsem {:cat :adjective
-                     :sem {:pred :brutto
-                           :comparative false
-                           :mod :top}} ;; for now, no restrictions on what can be ugly.
-            :italian {:italian "brutto"
-                      :cat :adjective}
-            :english {:english "ugly"
-                      :cat :adjective}})
+     ;; non-comparative
+     ;; TODO: add comparative
+     (unify adjective
+            {:synsem {:cat :adjective
+                      :sem {:pred :brutto
+                            :comparative false
+                            :mod :top}} ;; for now, no restrictions on what can be ugly.
+             :italian {:italian "brutto"
+                       :cat :adjective}
+             :english {:english "ugly"
+                       :cat :adjective}})
 
-    ;; inherently plural
-    (unify agreement-noun
+     ;; inherently plural
+     (unify agreement-noun
            common-noun
            countable-noun
            masculine-noun
@@ -1191,22 +1191,22 @@
                      :cat cat-of-pronoun
                      :case disjunctive-case-of-pronoun}}
 
-;          (unify
-;           transitive
-;           {:italian {:infinitive "fare"
- ;                     :irregular {:passato "fatto"
- ;                                 :present {:1sing "facio"
-;                                            :2sing "fai"
-;                                            :3sing "fa"
- ;                                           :1plur "facciamo"
- ;                                           :2plur "fate"
- ;;                                           :3plur "fanno"}
- ;                                 :imperfetto {:1sing "facevo"
- ;                                              :2sing "facevi"
- ;                                              :3sing "faceva"
+          (unify
+           transitive
+           {:italian {:infinitive "fare"
+                     :irregular {:passato "fatto"
+                                 :present {:1sing "facio"
+                                            :2sing "fai"
+                                            :3sing "fa"
+                                           :1plur "facciamo"
+                                           :2plur "fate"
+                                           :3plur "fanno"}
+                                  :imperfetto {:1sing "facevo"
+                                               :2sing "facevi"}}}})
+;                                               :3sing "faceva"}}}})
  ;                                              :1plur "facevamo"
-  ;                                             :2plur "facevate"
-  ;;                                             :3plur "facevano"}
+;                                               :2plur "facevate"}}}})
+;                                               :3plur "facevano"}}}})
   ;                                :futuro {:1sing "farò"
   ;                                         :2sing "farai"
    ;                                        :3sing "farà"
