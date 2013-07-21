@@ -584,6 +584,13 @@
            :feminine feminine
            :masculine masculine}))
 
+(def proper-noun
+  {:synsem {:cat :noun
+            :pronoun false
+            :propernoun true
+            :agr {:person :3rd}
+            :subcat '()}})
+
 (def lexicon
   (let [
         ;; noun convenience variables:
@@ -593,13 +600,6 @@
         drinkable-noun (:drinkable noun)
         feminine-noun (:feminine noun)
         masculine-noun (:masculine noun)
-
-        proper-noun
-        {:synsem {:cat :noun
-                  :pronoun false
-                  :propernoun true
-                  :agr {:person :3rd}
-                  :subcat '()}}
 
         pronoun-acc (ref :acc)
         pronoun-noun (ref :noun)
@@ -1201,8 +1201,8 @@
                                            :1plur "facciamo"
                                            :2plur "fate"
                                            :3plur "fanno"}
-                                  :imperfetto {:1sing "facevo"}}}})
-;                                               :2sing "facevi"}}}})
+                                  :imperfetto {:1sing "facevo"
+                                               :2sing "facevi"}}}})
 ;                                               :3sing "faceva"}}}})
  ;                                              :1plur "facevamo"
 ;                                               :2plur "facevate"}}}})
