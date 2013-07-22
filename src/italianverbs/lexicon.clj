@@ -606,6 +606,12 @@
       (:transitive verb)
       {:italian {:infinitive "bere"
                  :irregular {:passato "bevuto"
+                             :imperfetto {:1sing "bevevo"
+                                          :2sing "bevevi"
+                                          :3sing "beveva"
+                                          :1plur "bevevamo"
+                                          :2plur "bevevate"
+                                          :3plur "bevevano"}
                              :present {:1sing "bevo"
                                        :2sing "bevi"
                                        :3sing "beve"
