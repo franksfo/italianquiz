@@ -2005,13 +2005,22 @@
 
       {:synsem {:cat :sent-modifier
                 :subcat {:1 {:infl :present
-                             :sem {:activity true}}}}
+                             :sem {:activity true
+                                   :tense :past}}}}
+       :italian "qualche volta"
+       :english "sometimes"}
+
+      {:synsem {:cat :sent-modifier
+                :subcat {:1 {:infl :present
+                             :sem {:activity true
+                                   :tense :present}}}}
        :italian "qualche volta"
        :english "sometimes"}
 
 
       {:synsem {:cat :sent-modifier
-                :subcat {:1 {:aspect :past}}}
+                :subcat {:1 {:sem {:tense :past
+                                   :activity true}}}}
        :italian "ieri"
        :english "yesterday"}
 
