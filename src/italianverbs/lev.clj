@@ -281,7 +281,7 @@
                 (merge
                  min-in-this-set
                  (! matrix min-in-this-set (next-candidates min-in-this-set)))))))
-          
+
         path (find-path matrix nil
                         (list (list (- (.size wordlist1) 1) (- (.size wordlist2) 1))))
 
@@ -310,6 +310,10 @@
         word2 (if (nil? word2) "nullword2" word2)]
     (log/info (str "get-green2:word1: " word1))
     (log/info (str "get-green2:word2: " word2))
+    ;; need to have more logging of normalization of word1 and word2 here, with respect to normalization of
+    ;; the two - how to decide whether a guess is correct or not (or perhaps *how* correct rather than a
+    ;; binary value.
+    (log/debug (str "equal? " (= word1 word2)))
     (let [matrix
           (matrix word1 word2)]
       (get matrix :path))))
