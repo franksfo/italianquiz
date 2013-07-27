@@ -4,8 +4,8 @@
    [clojure.tools.logging :as log]
    [italianverbs.lev :as lev]
    [italianverbs.lexiconfn :as lexfn]
+   ;; TODO: remove this: generate should not need access to morph/ at all.
    [italianverbs.morphology :as morph]
-   [italianverbs.grammar :as gram]
    [italianverbs.unify :as unify]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
@@ -67,11 +67,12 @@
 
 (defn unify-and-merge [parent child1 child2]
   (let [unified
-        (lexfn/unify parent
-                     {:1 child1
-                      :2 child2}
-                     {:1 {:synsem {:sem (lex/sem-impl (unify/get-in child1 '(:synsem :sem)))}}
-                      :2 {:synsem {:sem (lex/sem-impl (unify/get-in child2 '(:synsem :sem)))}}})
+        (merge {:extend (:extend parent)}
+               (lexfn/unify parent
+                          {:1 child1
+                           :2 child2}
+                          {:1 {:synsem {:sem (lex/sem-impl (unify/get-in child1 '(:synsem :sem)))}}
+                           :2 {:synsem {:sem (lex/sem-impl (unify/get-in child2 '(:synsem :sem)))}}}))
         fail (unify/fail? unified)]
     (if (= fail true)
       :fail
@@ -84,22 +85,13 @@
                         (unify/get-in unified '(:2 :english)))}))))
 
 (defn italian-head-initial? [parent]
-  (or
-   ;; new-style
-   (and (unify/ref= parent '(:head :italian) '(:italian :a))
-        (unify/ref= parent '(:comp :italian) '(:italian :b)))
-   ;; old-style
-   (and (unify/ref= parent '(:head) '(:1))
-        (unify/ref= parent '(:comp) '(:2)))))
+  (and (unify/ref= parent '(:head :italian) '(:italian :a))
+       (unify/ref= parent '(:comp :italian) '(:italian :b))))
 
 (defn english-head-initial? [parent]
-  (or
-   ;; new-style
-   (and (unify/ref= parent '(:head :english) '(:english :a))
-        (unify/ref= parent '(:comp :english) '(:english :b)))
-   ;; old-style
-   (and (unify/ref= parent '(:head) '(:1))
-        (unify/ref= parent '(:comp) '(:2)))))
+  (and (unify/ref= parent '(:head :english) '(:english :a))
+       (unify/ref= parent '(:comp :english) '(:english :b))))
+
 
 (defn unify-comp [parent comp]
   (let [unified
@@ -347,33 +339,11 @@
 ;; to have this difficult-to-maintain static mapping.
 (defn eval-symbol [symbol]
   (cond
+   (fn? symbol) (apply symbol nil)
    (= symbol 'lexicon) (lazy-seq (cons (first lex/lexicon)
                                        (rest lex/lexicon)))
    (= symbol 'tinylex) lex/tinylex
-   (= symbol 'adj-phrase) gram/adj-phrase
-   (= symbol 'nbar) gram/nbar
-   (= symbol 'np) gram/np
-   (= symbol 'prep-phrase) gram/prep-phrase
-   (= symbol 'intensifier-phrase) gram/intensifier-phrase
-                                        ; doesn't exist yet:
-                                        ;   (= symbol 'vp-infinitive-intransitive) gram/vp-infinitive-intransitive
    (= symbol 'quando) lex/quando
-   (= symbol 'quando-phrase) gram/quando-phrase
-   (= symbol 's-imperfetto) gram/s-imperfetto
-   (= symbol 's-past) gram/s-past
-   (= symbol 's-past-modifier) gram/s-past-modifier
-   (= symbol 's-present) gram/s-present
-   (= symbol 's-present-modifier) gram/s-present-modifier
-   (= symbol 'vp-infinitive-transitive) gram/vp-infinitive-transitive
-
-
-   (= symbol 'vp) gram/vp
-   (= symbol 'vp-aux) gram/vp-aux
-   (= symbol 'vp-imperfetto) gram/vp-imperfetto
-   (= symbol 'vp-present) gram/vp-present
-   (= symbol 'vp-past) gram/vp-past
-   (= symbol 'vp-pron) gram/vp-pron
-
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
 (declare head-by-comps)
@@ -430,8 +400,8 @@
         (heads-by-comps parent (rest heads) comps depth))
       (let [unified
             (lexfn/unify parent
-                         (lexfn/unify {:head (first heads)}
-                                      {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
+                       (lexfn/unify {:head (first heads)}
+                                  {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
             unified-parent
             (if (not (unify/fail? unified))
               unified
@@ -448,9 +418,9 @@
           (log/debug (str "parent head english: " (unify/get-in parent '(:head :english))))
           (log/debug (str "parent head english b: " (unify/get-in parent '(:head :english :b))))
           (log/debug (str "unify english: " (lexfn/unify (unify/get-in (first heads) '(:english))
-                                                        (unify/get-in parent '(:head :english)))))
+                                                       (unify/get-in parent '(:head :english)))))
           (log/debug (str "unify head: " (lexfn/unify (first heads)
-                                                     (unify/get-in parent '(:head)))))
+                                                (unify/get-in parent '(:head)))))
 ;          (throw (Exception. (str "failed to unify head.")))
           (heads-by-comps parent (rest heads) comps depth))
 
@@ -589,7 +559,8 @@
                                (:head expand)
                                (comps-of-expand expand)
                                depth)
-               (generate parent (rest hc-exps) depth (rest shuffled-expansions))))
+               (generate parent
+                         (rest hc-exps) depth (rest shuffled-expansions))))
             :else
             nil))))
 
@@ -621,7 +592,7 @@
         (if head-is-finished?
           (unify/get-in
            (lexfn/unify parent
-                        {:head head})
+                      {:head head})
            '(:comp))
           :top)]
 
@@ -645,10 +616,10 @@
               :else
               (let [comp-specification
                     (lexfn/unify comp
-                                 (lexfn/unify
-                                  comp-spec
-                                  {:synsem {:sem (lex/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem) :top)
-                                                                            (unify/get-in comp '(:synsem :sem) :top)))}}))
+                               (lexfn/unify
+                                comp-spec
+                                {:synsem {:sem (lex/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem) :top)
+                                                                        (unify/get-in comp '(:synsem :sem) :top)))}}))
                     ;; TODO: Move this before computation of comp-specification: if (phrase-is-finished? comp) == true, no need to compute comp-specification.
                     ;; TODO: Do not compute comp-specification if (not head-is-finished?) == true, since head is not complete yet - compute comp-specification should
                     ;;       be deferred until head-is-finished? == true.
@@ -718,6 +689,7 @@
       (log/debug (str "no more comps to try for parent: "
                       (unify/get-in parent '(:comment-plaintext)))))))
 
+;; TODO: move to morph/.
 (defn finalize [expr]
   (let [english
         (morph/get-english-1 (unify/get-in expr '(:english)))
@@ -726,26 +698,6 @@
     (merge expr
            {:italian italian
             :english english})))
-
-(defn random-sentence []
-  (finalize (first (take 1 (generate
-                            (first (take 1 (shuffle
-                                            (list gram/s-present
-                                                  gram/s-present-modifier
-                                                  gram/s-future
-                                                  gram/s-past
-                                                  gram/s-past-modifier
-                                                  gram/s-imperfetto
-                                                  gram/s-quando
-                                                  )))))))))
-
-(defn random-sentences [n]
-  (repeatedly n (fn [] (random-sentence))))
-
-(defn speed-test [ & times]
-  "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
-  (let [times (if (first times) (first times) 10)]
-    (dotimes [n times] (time (random-sentence)))))
 
 (defn espressioni []
   (lexfn/choose-lexeme {:cat :espressioni}))

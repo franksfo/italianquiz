@@ -313,7 +313,7 @@
    production
    (random-sentence)
    true
-   (gen/random-sentence)
+   (gram/random-sentence)
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)
