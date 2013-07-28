@@ -2626,5 +2626,27 @@
                    (= (fs/get-in lex '(:italian)) "quando"))
                  lexicon)))
 
+(def adjs
+  (filter (fn [lex]
+            (= (fs/get-in lex '(:synsem :cat)) :adjective))
+          lexicon))
 
+(def dets
+  (filter (fn [lex]
+            (= (fs/get-in lex '(:synsem :cat)) :det))
+          lexicon))
 
+(def verbs
+  (filter (fn [lex]
+            (= (fs/get-in lex '(:synsem :cat)) :verb))
+          lexicon))
+
+(def nouns
+  (filter (fn [lex]
+            (= (fs/get-in lex '(:synsem :cat)) :noun))
+          lexicon))
+
+(def intensifiers
+  (filter (fn [lex]
+            (= (fs/get-in lex '(:synsem :cat)) :intensifier))
+          lexicon))
