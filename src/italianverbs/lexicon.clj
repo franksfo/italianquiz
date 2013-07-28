@@ -1491,7 +1491,17 @@
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
-            {:synsem {:cat pronoun-noun
+      (unify
+       intransitive
+       {:italian {:infinitive "lavorare"}
+        :english {:infinitive "to work"}
+        :synsem {:essere false
+                 :sem {:subj {:human true
+                              :child false}
+                       :discrete false
+                       :pred :lavorare}}})
+
+      {:synsem {:cat pronoun-noun
                 :pronoun true
                 :agr {:case pronoun-acc
                       :gender :fem
