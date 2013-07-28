@@ -351,10 +351,6 @@
                            :sem {:aspect :passato}}}))
               {:comment "vp[past] &#x2192; head comp"
                :comment-plaintext "vp[past] -> head comp"}))
-               ;; debug only: normally this would be in
-                                        ;               :extend {:x {:head 'lexicon
-                                        ;                            :comp 'lexicon}}}))
-
 
   (def vp-aux
     (let [aspect (ref :top)
@@ -439,16 +435,19 @@
                         :subcat '()
                         :sem subj-sem})
         infl (ref :top)
+        tense (ref :top)
         comp (ref {:synsem subcatted})
         agr (ref :top)
         head (ref {:synsem {:cat :verb
-                            :sem {:subj subj-sem}
+                            :sem {:subj subj-sem
+                                  :tense tense}
                             :subcat {:1 subcatted
                                      :2 '()}}})
 
         rule-base-no-extend
         (fs/unifyc head-principle subcat-1-principle
                    subject-verb-agreement
+                   {:synsem {:sem {:tense tense}}}
                    {:comp {:synsem {:subcat '()
                                     :cat :noun}}
                     :head {:synsem {:cat :verb}}})
@@ -479,7 +478,8 @@
                   english-head-last
                   {:comment "sentence[present]"
                    :comment-plaintext "s[present] -> .."
-                   :synsem {:infl :present}})
+                   :synsem {:infl :present
+                            :sem {:tense :present}}})
        {:extend {:g {:comp 'lexicon
                      :head (fn [] vp-present)}
                  :h {:comp (fn [] np)

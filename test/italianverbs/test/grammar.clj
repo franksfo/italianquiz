@@ -9,6 +9,7 @@
   (let [result (first (take 1
                             (gen/generate
                              (unify s-present {:synsem {:sem {:pred :dormire
+                                                              :tense :present
                                                               :subj {:pred :io}}}}))))]
     (is (not (unify/fail? result)))
     (is (= (unify/get-in (gen/finalize result) '(:italian)) "io dormo"))
