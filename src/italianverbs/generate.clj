@@ -18,53 +18,6 @@
   (let [filename (if filename (first filename) "foo.html")]  ;; TODO: some conventional default if deriving from fs is too hard.
     (spit filename (html/static-page (html/tablize fs) filename))))
 
-(defn capitalize [s]
-  "Capitalize first char and leave the rest of the characters alone (compare with string/capitalize which lower-cases all chars after first."
-  (if (nil? s) ""
-      (let [s (.toString s)]
-        (if (< (count s) 2)
-          (.toUpperCase s)
-          (str (.toUpperCase (subs s 0 1))
-               (subs s 1))))))
-
-;; TODO: Move to morphology, same as (formattare) below.
-(defn formattare-1 [expr]
-  (cond
-   (unify/fail? expr)
-   "<tt>fail</tt>"
-   :else
-   (let [english
-         (capitalize
-          (morph/get-english-1 (unify/get-in expr '(:english))))
-         italian
-         (capitalize
-          (morph/get-italian-1 (unify/get-in expr '(:italian))))]
-     (string/trim
-      (str italian " (" english ").")))))
-
-;;; e.g.:
-;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
-;; TO DO: move this to morphology.clj since it has to do with surface representation.
-(defn formattare [expressions]
-  "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
-  (do
-    (if (map? expressions)
-      ;; wrap this single expression in a list and re-call.
-      (list (formattare-1 expressions))
-      (cond (nil? expressions) nil
-            (unify/fail? expressions)
-            ":fail"
-            (empty? expressions) nil
-            true
-            (lazy-seq
-             (cons
-              (formattare-1 (first expressions))
-              (formattare (rest expressions))))))))
-
-;; TODO: move to morphology as above.
-(defn fo [expressions]
-  (formattare expressions))
-
 (defn unify-and-merge [parent child1 child2]
   (let [unified
         (merge {:extend (:extend parent)}
@@ -126,7 +79,6 @@
     (do
       (log/debug (str "PARENT: " (unify/get-in parent '(:comment-plaintext))))
       (log/debug (str "PARENT FAIL?" (unify/fail? parent)))
-      (log/debug (str "HEAD: " (fo head)))
       (log/debug (str "HEAD FAIL?" (unify/fail? head)))
       (log/debug (str "WITH-HEAD: " with-head)))))
 
@@ -312,7 +264,7 @@
                                         {}))
                                     child)})]
          (if (unify/fail? unified)
-           (log/debug "Failed attempt to add child:" (fo child) " to parent: " (unify/get-in parent '(:comment))
+           (log/debug "Failed attempt to add child:" (morph/fo child) " to parent: " (unify/get-in parent '(:comment))
                      " at: " where-child))
          unified))))))
 
@@ -425,7 +377,7 @@
           (heads-by-comps parent (rest heads) comps depth))
 
         (do
-          (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) " first head: " (fo (first heads))))
+          (log/debug (str "heads-by-comps: " (unify/get-in parent '(:comment-plaintext)) " first head: " (morph/fo (first heads))))
           (lazy-cat
            (let [comp-cat (unify/get-in unified-parent '(:comp :synsem :cat))
                  comp-synsem (unify/get-in unified-parent '(:comp :synsem))]
@@ -454,13 +406,13 @@
     (let [head-candidate (first heads)
           result (lexfn/unify head-candidate
                               (lexfn/unify
-                               (do (log/debug (str "trying head candidate of " (unify/get-in parent '(:comment-plaintext)) " : " (fo head-candidate)))
+                               (do (log/debug (str "trying head candidate of " (unify/get-in parent '(:comment-plaintext)) " : " (morph/fo head-candidate)))
                                    (lexfn/unify
                                     sem-impl
                                     (unify/get-in parent '(:head))))))]
       (if (unify/fail? result)
-        (log/debug (str " head candidate failed: " (fo head-candidate)))
-        (log/debug (str " head candidate succeeded: " (fo head-candidate))))
+        (log/debug (str " head candidate failed: " (morph/fo head-candidate)))
+        (log/debug (str " head candidate succeeded: " (morph/fo head-candidate))))
       (if (not (unify/fail? result))
         (lazy-seq
          (cons result
@@ -473,7 +425,7 @@
                                  (unify/get-in parent '(:head :synsem :sem)))}}]
     (log/debug (str "doing hc-expands:"
                     (unify/get-in head '(:comment-plaintext))
-                    " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (unify/get-in parent '(:comment-plaintext))))
+                    " (" (if (not (seq? head)) (morph/fo head) "(lexicon)") "); for: " (unify/get-in parent '(:comment-plaintext))))
     (if (seq? head)
       ;; a sequence of lexical items: shuffle and filter by whether they fit the :head of this rule.
       ;; TODO: pre-compile set of candidates heads for each parent.
@@ -488,7 +440,7 @@
           comp (eval-symbol (:comp expansion))]
       (log/debug (str "doing hc-expands:"
                        (unify/get-in head '(:comment-plaintext))
-                       " (" (if (not (seq? head)) (fo head) "(lexicon)") "); for: " (unify/get-in parent '(:comment-plaintext))))
+                       " (" (if (not (seq? head)) (morph/fo head) "(lexicon)") "); for: " (unify/get-in parent '(:comment-plaintext))))
       (let [head (lazy-head-expands parent expansion)]
         {:head head
          :comp
@@ -631,13 +583,13 @@
                         comp)
                       (if comp-is-finished?
                         (do
-                          (log/debug (str "comp generation for: " (unify/get-in parent '(:comment-plaintext)) " is finished: " (fo comp)))
+                          (log/debug (str "comp generation for: " (unify/get-in parent '(:comment-plaintext)) " is finished: " (morph/fo comp)))
                           comp)
                         (if (not (unify/fail? comp-specification))
                           (do
                             (log/debug (str "generating comp now since head generation is done."))
                             (log/debug (str (depth-str depth) "generating comp: " (unify/get-in comp '(:comment-plaintext)) " for parent: "
-                                            (unify/get-in parent '(:comment-plaintext)) " given head: " (fo head)))
+                                            (unify/get-in parent '(:comment-plaintext)) " given head: " (morph/fo head)))
                             (let [comp-gen
                                   (generate comp-specification nil (+ 1 depth))]
                               (log/debug (str "generated complements for " (unify/get-in parent '(:comment-plaintext))
@@ -674,30 +626,20 @@
                    (log/debug "5. unify")
                    (if (unify/fail? result)
                      (do
-                       (log/debug (str "failed unification: " (fo head) " (" (unify/get-in head '(:comment-plaintext)) ") and " (fo comp-specification)))
+                       (log/debug (str "failed unification: " (morph/fo head) " (" (unify/get-in head '(:comment-plaintext)) ") and " (morph/fo comp-specification)))
                        (head-by-comps parent head (rest comps) depth head-is-finished?))
                      (do
 
                        (if (or (= (unify/get-in parent '(:comment-plaintext)) "s[present] -> ..")
                                (= (unify/get-in parent '(:comment-plaintext)) "s[future] -> .."))
-                         (log/debug (str (depth-str depth) "successful unification: " (fo comp-specification) " and " (fo head) " for " (unify/get-in parent '(:comment-plaintext))))
-                         (log/debug (str (depth-str depth) "successful unification: " (fo head) " and " (fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
+                         (log/debug (str (depth-str depth) "successful unification: " (morph/fo comp-specification) " and " (morph/fo head) " for " (unify/get-in parent '(:comment-plaintext))))
+                         (log/debug (str (depth-str depth) "successful unification: " (morph/fo head) " and " (morph/fo comp-specification) " for " (unify/get-in parent '(:comment-plaintext)))))
 
                        (lazy-seq
                         (cons result
                               (head-by-comps parent head (rest comps) depth head-is-finished?))))))))))
       (log/debug (str "no more comps to try for parent: "
                       (unify/get-in parent '(:comment-plaintext)))))))
-
-;; TODO: move to morph/.
-(defn finalize [expr]
-  (let [english
-        (morph/get-english-1 (unify/get-in expr '(:english)))
-        italian
-        (morph/get-italian-1 (unify/get-in expr '(:italian)))]
-    (merge expr
-           {:italian italian
-            :english english})))
 
 (defn espressioni []
   (lexfn/choose-lexeme {:cat :espressioni}))

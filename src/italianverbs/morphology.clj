@@ -1401,3 +1401,58 @@
      true
      "??")))
 
+
+
+(defn capitalize [s]
+  "Capitalize first char and leave the rest of the characters alone (compare with string/capitalize which lower-cases all chars after first."
+  (if (nil? s) ""
+      (let [s (.toString s)]
+        (if (< (count s) 2)
+          (.toUpperCase s)
+          (str (.toUpperCase (subs s 0 1))
+               (subs s 1))))))
+
+;; TODO: Move to morphology, same as (formattare) below.
+(defn formattare-1 [expr]
+  (cond
+   (fs/fail? expr)
+   "<tt>fail</tt>"
+   :else
+   (let [english
+         (capitalize
+          (get-english-1 (fs/get-in expr '(:english))))
+         italian
+         (capitalize
+          (get-italian-1 (fs/get-in expr '(:italian))))]
+     (string/trim
+      (str italian " (" english ").")))))
+
+;;; e.g.:
+;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
+(defn formattare [expressions]
+  "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
+  (do
+    (if (map? expressions)
+      ;; wrap this single expression in a list and re-call.
+      (list (formattare-1 expressions))
+      (cond (nil? expressions) nil
+            (fs/fail? expressions)
+            ":fail"
+            (empty? expressions) nil
+            true
+            (lazy-seq
+             (cons
+              (formattare-1 (first expressions))
+              (formattare (rest expressions))))))))
+
+(defn fo [expressions]
+  (formattare expressions))
+
+(defn finalize [expr]
+  (let [english
+        (get-english-1 (fs/get-in expr '(:english)))
+        italian
+        (get-italian-1 (fs/get-in expr '(:italian)))]
+    (merge expr
+           {:italian italian
+            :english english})))

@@ -1,6 +1,7 @@
 (ns italianverbs.test.grammar
   (:require
    [italianverbs.generate :as gen]
+   [italianverbs.morphology :as morph]
    [italianverbs.unify :as unify])
   (:use [clojure.test]
         [italianverbs.grammar]))
@@ -12,8 +13,8 @@
                                                               :tense :present
                                                               :subj {:pred :io}}}}))))]
     (is (not (unify/fail? result)))
-    (is (= (unify/get-in (gen/finalize result) '(:italian)) "io dormo"))
-    (is (= (unify/get-in (gen/finalize result) '(:english)) "I sleep"))))
+    (is (= (unify/get-in (morph/finalize result) '(:italian)) "io dormo"))
+    (is (= (unify/get-in (morph/finalize result) '(:english)) "I sleep"))))
 
 
 

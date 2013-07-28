@@ -647,11 +647,8 @@
 (defn english-time [hour minute ampm]
   (string/trim (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") ""))))
 
-
-;; TODO: move this to grammar namespace since what a top-level expression (a sentence) is inherently part of the grammar.
-;; also part of removing gram/ namespace from generate since generate should not depend on gram/.
 (defn random-sentence []
-  (gen/finalize (first (take 1 (gen/generate
+  (morph/finalize (first (take 1 (gen/generate
                                 (first (take 1 (shuffle
                                                 (list s-present
                                                       s-present-modifier
