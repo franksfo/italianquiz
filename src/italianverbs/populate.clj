@@ -8,6 +8,7 @@
    [:require
     [somnium.congomongo :as mongo]
     [italianverbs.generate :as gen]
+    [italianverbs.grammar :as gram]
     [italianverbs.html :as html]
     [italianverbs.unify :as unify]
     [clojure.set :as set]
@@ -22,7 +23,7 @@
   ;; TODO: add switch to avoid removing existing mongodb, if desired.
   (mongo/destroy! :sentences {})
   (dotimes [n num]
-    (let [sentence (gen/finalize (gen/random-sentence))]
+    (let [sentence (finalize (gram/random-sentence))]
       (mongo/insert! :sentences {:italian (unify/get-in sentence '(:italian))
                                  :english (unify/get-in sentence '(:english))})))
   (let [count (mongo/fetch-count :sentences)]
@@ -33,8 +34,3 @@
   (if (not (nil? (first args)))
     (populate (Integer. (first args)))
     (populate 100)))
-
-(defn random-sentence []
-  (let [count (mongo/fetch-count :sentences)
-        sentences (mongo/fetch :sentences)]
-    (nth sentences (rand-int count))))
