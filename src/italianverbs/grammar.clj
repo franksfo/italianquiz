@@ -204,10 +204,10 @@
                                :mod comp-sem}}}
                italian-head-first
                english-head-first
-               {:extend {:a {:head 'lexicon
+               {:extend {:a {:head (fn [] lex/preps)
                              :comp (fn [] np)}
-                         :b {:head 'lexicon
-                             :comp 'lexicon}}})))
+                         :b {:head (fn [] lex/preps)
+                             :comp (fn [] lex/propernouns-and-pronouns)}}})))
 (def adj-phrase
   (unify head-principle
          subcat-2-principle
@@ -280,7 +280,7 @@
                italian-head-first
                english-head-first
                {:extend {
-                         :a {:head 'lexicon
+                         :a {:head (fn [] lex/verbs)
                              :comp (fn [] np)}}}))
 
   (def vp ;; TODO replace other vps with just vp.
@@ -318,7 +318,7 @@
                          :c {:head (fn [] lex/verbs)
                              :comp (fn [] vp-infinitive-transitive)}
                          :d {:head (fn [] lex/verbs)
-                             :comp 'lexicon}
+                             :comp (fn [] lex/propernouns-and-pronouns)}
                          :e {:head (fn [] lex/verbs)
                              :comp (fn [] intensifier-phrase)}}}))
 
@@ -335,9 +335,8 @@
                        :pronoun true}}}
       {:comment-plaintext "vp[pron]"
        :comment "vp[pron]"
-       :extend {:f {:head 'lexicon
-                    :comp 'lexicon}
-                }})))
+       :extend {:f {:head (fn [] lex/verbs)
+                    :comp (fn [] lex/propernouns-and-pronouns)}}})))
 
 
   (def vp-past
@@ -407,7 +406,7 @@
                ;; non-present is possible too, but deferring that till later.
                ;; add to vp some additional expansions for vp-imperfetto:
                :extend {:f {:head (fn [] lex/verbs)
-                            :comp 'lexicon}
+                            :comp (fn [] lex/propernouns-and-pronouns)}
                         :g {:head (fn [] lex/verbs)
                             :comp (fn [] np)}}}))
 

@@ -2650,3 +2650,15 @@
   (filter (fn [lex]
             (= (fs/get-in lex '(:synsem :cat)) :intensifier))
           lexicon))
+
+(def preps
+  (filter (fn [lex]
+            (= (fs/get-in lex '(:synsem :cat)) :prep))
+          lexicon))
+
+(def propernouns-and-pronouns
+  (filter (fn [lex]
+            (and (= (fs/get-in lex '(:synsem :cat)) :noun)
+                 (= (fs/get-in lex '(:synsem :subcat)) '())))
+          lexicon))
+
