@@ -1,3 +1,6 @@
+;; TODO: move tests that use gram/ and lexfn/ to their own namespaces, since
+;; generate/ should not depend on those - the grammar and lexicon are independent of
+;; generation.
 (ns italianverbs.test.generate
   (:use [clojure.test]
         [italianverbs.unify]
