@@ -76,7 +76,7 @@
 
 (defn tr-path [path counter ]
   (if (> (.size path) 0)
-    (str "<td>" (html/fs (first path)) "</td>" 
+    (str "<td>" (html/tablize (first path)) "</td>" 
          (if (and (> counter 0)
                   (= (mod counter 3) 0))
            (str "</tr>" "<tr>"))

@@ -148,7 +148,7 @@
                                  results (lexfn/choose-lexeme constraints)]
                              (if (and results
                                       (not (= (get results :cat) :error))) ;; currently 'no results found' is a {:cat :error}.
-                               (html/fs (lexfn/choose-lexeme constraints)))))
+                               (html/tablize (lexfn/choose-lexeme constraints)))))
                          (string/split (if attrs attrs "italian english") #"[ ]+"))
                     (mapcat (fn [search-term]
                               (let [grammatical-terminology-term (get

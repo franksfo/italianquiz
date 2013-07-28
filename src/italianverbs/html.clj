@@ -19,17 +19,6 @@
 	(for [verb (sort (keys lexicon))]
 	     (verb-row verb))]))
 
-(defn fs-tr [key-val-pair]
-  (let [key (first key-val-pair)
-        val (second key-val-pair)]
-    (str "<tr"
-         (cond
-          (= key :comment)
-          (str " class='" key ")")
-          true
-          (str " class='" key ")"))
-         "'>" "<th>" key "</th>  <td>" val "</td></tr>")))
-
 (defn- url-escape
  "Like clojure.core/str but escapes ',\", ..(maybe more)."
  [x]
@@ -43,54 +32,6 @@
    (codec/url-encode italian)
    "'"   ">"
    italian "</a>"))
-
-(defn fs [feature-structure]
-  "Format a feature structure as an  HTML table."
-  (cond
-   (nil? feature-structure)
-   "NIL.."
-   (= java.lang.String (type feature-structure)) feature-structure
-   (= clojure.lang.Keyword (type feature-structure)) feature-structure
-   true
-   (str "<table class='fs'>"
-        (if (get feature-structure :italian)
-          (str "<tr><th colspan='2' class='fs'>"
-               (google-translate (get feature-structure :italian))
-               "</th></tr>"))
-        (string/join " " (seq (map fs-tr
-                                   (map (fn [key]
-                                          (cond
-                                           (= key :_id) nil
-                                           (= key :children) nil
-                                           ;; features whose values are nested feature structures.
-                                           (or (= key :head-debug) (= key :comp-debug)
-                                               (= key :subj)(= key :obj)
-                                               (= key :det)
-                                               (= key :question)
-                                               (= key :noun)
-                                        ;(= key :article-search)
-                                               (= key :article)
-                                        ;(= key :subject)
-                                        ;(= key :object)
-                                        ;(= key :verb-phrase)
-                                        ;(= key :verb)
-                                               (= key :most-recent)
-                                               (= key :head)(= key :comp)
-                                               (= key :notefs) ;; the following set is used for debugging.
-                                               (= key :adjunct)(= key :iobj)
-                                               (= key :choose)(= key :root)
-                                               (contains? (get feature-structure :type-is-fs) key)
-                                               (= key :choose-comp)(= key :choose-head))
-                                           (list key
-                                                 (fs (fs/get-in feature-structure (list key))))
-                                           (= key :comp) nil
-                                           (= key :type-is-fs) nil
-                                           true
-                                           (list key
-                                                 (get feature-structure key))))
-                                        (set/difference (set (keys feature-structure))
-                                                        (set (list :italian)))))))
-        "</table>")))
 
 (defn static-page [body & [title]]
   "create a self-contained html page (for use with file:/// urls)."
@@ -542,6 +483,10 @@
                      (or false (not (= (last path) :comp))))
               (tablize @arg path serialized
                        (merge opts {:as-tree false})))))
+
+     (fn? arg)
+     "&lambda;"
+
      true
      (str "<div class='unknown'>" "<b>don't know how to tablize this object : (type:" (type arg) "</b>;value=<b>"  arg "</b>)</div>"))))
 

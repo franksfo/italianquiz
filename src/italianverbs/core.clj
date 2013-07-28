@@ -26,7 +26,7 @@
     (str "Welcome to Italian Verbs" (if username (str ", " username)) ".")))
 
 (defn printlex [lexeme]
-  (ihtml/fs lexeme))
+  (ihtml/tablize lexeme))
 
 (defn wrap-div [string]
   (str "<div class='test'>" string "</div>"))
