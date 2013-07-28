@@ -2434,7 +2434,7 @@
 
       (unify agreement-noun
              common-noun
-             masculine-noun
+             feminine-noun
              countable-noun
              {:synsem {:sem {:furniture true
                              :pred :tovaglia}}
