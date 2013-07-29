@@ -287,8 +287,6 @@
       (over-parent-child (over-parent-child parent child1) child2)
       (over-parent-child parent child1))))
 
-;; TODO: figure out how to encode namespaces within rules so we don't need
-;; to have this difficult-to-maintain static mapping.
 (defn eval-symbol [symbol]
   (cond
    (fn? symbol) (apply symbol nil)
