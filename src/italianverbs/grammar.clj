@@ -336,6 +336,36 @@
                          :e {:head (fn [] lex/verbs)
                              :comp (fn [] intensifier-phrase)}}}))
 
+  (def vp-aux-3
+    (let [aspect (ref :top)
+          agr (ref :top)]
+      (fs/merge
+       (unify
+        head-principle
+        subcat-3-principle
+        verb-inflection-morphology
+        italian-head-first
+        english-head-first
+          {:comment "vp[aux3] &#x2192; head comp"
+           :comment-plaintext "vp[aux3] -> head comp"
+           ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
+           ;; non-present is possible too, but deferring that till later.
+           :head {:synsem {:infl :present
+                           :cat :verb
+                           :aux true
+                           :subcat {:2 {:cat :verb
+                                        :infl :past}}}}}
+          {:english {:a {:agr agr}
+                     :b {:agr agr}
+                     :agr agr}
+           :italian {:a {:agr agr}
+                     :b {:agr agr}
+                     :agr agr}
+           :head {:synsem {:agr agr}}
+           :comp {:synsem {:agr agr}}}
+          {:extend {:a {:head (fn [] lex/verbs)
+                        :comp (fn [] lex/verbs)}}}))))
+
   (def vp-pron
     (unify
      head-principle
@@ -382,7 +412,8 @@
                                :cat :verb
                                :aux true
                                :subcat {:2 {:cat :verb
-                                            :infl :past}}}}}
+                                            :infl :past}}}}
+               :comp {:synsem {:subcat {:2 '()}}}}
               {:english {:a {:agr agr}
                          :b {:agr agr}
                          :agr agr}
@@ -395,36 +426,6 @@
                      :comp (fn [] vp-past)}
                  :b {:head (fn [] lex/verbs)
                      :comp (fn [] lex/verbs)}}})))
-
-    (def vp-aux-3
-      (let [aspect (ref :top)
-            agr (ref :top)]
-        (fs/merge
-         (unify
-          head-principle
-          subcat-3-principle
-          verb-inflection-morphology
-          italian-head-first
-          english-head-first
-          {:comment "vp[aux3] &#x2192; head comp"
-           :comment-plaintext "vp[aux3] -> head comp"
-           ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
-               ;; non-present is possible too, but deferring that till later.
-           :head {:synsem {:infl :present
-                           :cat :verb
-                           :aux true
-                           :subcat {:2 {:cat :verb
-                                        :infl :past}}}}}
-          {:english {:a {:agr agr}
-                     :b {:agr agr}
-                     :agr agr}
-           :italian {:a {:agr agr}
-                     :b {:agr agr}
-                     :agr agr}
-           :head {:synsem {:agr agr}}
-           :comp {:synsem {:agr agr}}}
-          {:extend {:a {:head (fn [] lex/verbs)
-                       :comp (fn [] lex/verbs)}}}))))
 
   (def vp-present
     (let [aspect (ref :top)]
