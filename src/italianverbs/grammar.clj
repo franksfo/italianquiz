@@ -51,6 +51,20 @@
                               :2 comp-synsem}}}
      :comp {:synsem comp-synsem}}))
 
+;;     subcat<1,3>
+;;     /      \
+;;    /        \
+;; H subcat<1,2>  C[2]<1,3>
+(def subcat-3-principle
+  (let [subcat-1 (ref :top)
+        subcat-3 (ref :top)
+        subcat-2 (ref {:subcat {:1 subcat-1
+                                :2 subcat-3}})]
+    {:synsem {:subcat {:1 subcat-1
+                       :2 subcat-3}}
+     :head {:synsem {:subcat {:1 subcat-1
+                              :2 subcat-2}}}
+     :comp {:synsem subcat-2}}))
 
 ;; a language's morphological inflection is
 ;; identical to its head's SYNSEM|INFL value.
@@ -323,32 +337,32 @@
                              :comp (fn [] intensifier-phrase)}}}))
 
   (def vp-pron
-    (fs/merge
-     (unify
-      head-principle
-      subcat-2-principle
-      italian-head-last
-      english-head-first
-      {:head {:synsem {:cat :verb}}
-;                       :infl :present}} ;; TODO: allow other than :present. (:present-only for now for testing).
-       :comp {:synsem {:cat :noun
-                       :pronoun true}}}
-      {:comment-plaintext "vp[pron]"
-       :comment "vp[pron]"
-       :extend {:f {:head (fn [] lex/verbs)
-                    :comp (fn [] lex/propernouns-and-pronouns)}}})))
-
+    (unify
+     head-principle
+     subcat-2-principle
+     italian-head-last
+     english-head-first
+     {:head {:synsem {:cat :verb}}
+                                        ;                       :infl :present}} ;; TODO: allow other than :present. (:present-only for now for testing).
+      :comp {:synsem {:cat :noun
+                      :pronoun true}}}
+     {:comment-plaintext "vp[pron]"
+      :comment "vp[pron]"
+      :extend {:a {:head (fn [] lex/verbs)
+                   :comp (fn [] lex/propernouns-and-pronouns)}
+               :b {:head (fn [] lex/verbs)
+                   :comp (fn [] vp-aux-3)}}}))
 
   (def vp-past
-    (fs/merge (fs/unify
-               (fs/copy vp)
-               (let [essere-boolean (ref :top)]
-                 {:head {:synsem {:essere essere-boolean}}
-                  :synsem {:infl :past
-                           :essere essere-boolean
-                           :sem {:aspect :passato}}}))
-              {:comment "vp[past] &#x2192; head comp"
-               :comment-plaintext "vp[past] -> head comp"}))
+    (fs/unify
+     (fs/copy vp)
+     (let [essere-boolean (ref :top)]
+       {:head {:synsem {:essere essere-boolean}}
+        :synsem {:infl :past
+                 :essere essere-boolean
+                 :sem {:aspect :passato}}})
+     {:comment "vp[past] &#x2192; head comp"
+      :comment-plaintext "vp[past] -> head comp"}))
 
   (def vp-aux
     (let [aspect (ref :top)
@@ -377,11 +391,40 @@
                          :agr agr}
                :head {:synsem {:agr agr}}
                :comp {:synsem {:agr agr}}})
-       ;; add to vp some additional expansions for vp-present:
-       {:extend {:f {:head (fn [] lex/verbs)
+       {:extend {:a {:head (fn [] lex/verbs)
                      :comp (fn [] vp-past)}
-                 :g {:head (fn [] lex/verbs)
+                 :b {:head (fn [] lex/verbs)
                      :comp (fn [] lex/verbs)}}})))
+
+    (def vp-aux-3
+      (let [aspect (ref :top)
+            agr (ref :top)]
+        (fs/merge
+         (unify
+          head-principle
+          subcat-3-principle
+          verb-inflection-morphology
+          italian-head-first
+          english-head-first
+          {:comment "vp[aux3] &#x2192; head comp"
+           :comment-plaintext "vp[aux3] -> head comp"
+           ;; force the head (auxiliary verb (essere/avere)) to be present-tense:
+               ;; non-present is possible too, but deferring that till later.
+           :head {:synsem {:infl :present
+                           :cat :verb
+                           :aux true
+                           :subcat {:2 {:cat :verb
+                                        :infl :past}}}}}
+          {:english {:a {:agr agr}
+                     :b {:agr agr}
+                     :agr agr}
+           :italian {:a {:agr agr}
+                     :b {:agr agr}
+                     :agr agr}
+           :head {:synsem {:agr agr}}
+           :comp {:synsem {:agr agr}}}
+          {:extend {:a {:head (fn [] lex/verbs)
+                       :comp (fn [] lex/verbs)}}}))))
 
   (def vp-present
     (let [aspect (ref :top)]

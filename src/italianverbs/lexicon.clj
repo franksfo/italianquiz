@@ -318,6 +318,24 @@
                            :sem sem
                            :infl :past}}}}))
 
+(def verb-aux-type-2
+  (let [essere-binary-categorization (ref :top)
+        aux (ref true)
+        sem (ref {:tense :past})
+        subject (ref :top)
+        object (ref :top)]
+    {:italian {:aux aux
+               :essere essere-binary-categorization}
+     :synsem {:aux aux
+              :sem sem
+              :essere essere-binary-categorization
+              :subcat {:1 subject
+                       :2 {:cat :verb
+                           :subcat {:1 subject
+                                    :2 object}
+                           :sem sem
+                           :infl :past}}}}))
+
 (def essere-common
   (unify
    {:synsem {:essere true}
@@ -539,6 +557,7 @@
                                :cat :prep}}}})
       {:note "andare-pp"})
 
+     ;; avere: to possess something buyable
      (unify
       transitive
       avere-common
@@ -548,8 +567,18 @@
                       :subj {:human true}
                       :obj {:buyable true}}}})
 
+     ;; avere: auxiliary-verb: takes intransitive verb (1 args)
      (unify
       verb-aux-type
+      verb-subjective
+      avere-common
+      {:synsem {:infl :present
+                :subcat {:2 {:essere false}}}
+       :english {:hidden true}})
+
+     ;; avere: auxiliary-verb: takes transitive verb (2 args)
+     (unify
+      verb-aux-type-2
       verb-subjective
       avere-common
       {:synsem {:infl :present
