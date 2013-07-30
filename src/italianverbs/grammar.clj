@@ -66,6 +66,20 @@
                               :2 subcat-2}}}
      :comp {:synsem subcat-2}}))
 
+;;     subcat<1>
+;;     /      \
+;;    /        \
+;; H subcat<2>  C[2]<1>
+(def subcat-4-principle
+  (let [subcat-1 (ref :top)
+        subcat-2 (ref {:subcat {:1 subcat-1}})]
+    {:synsem {:subcat {:1 subcat-1
+                       :2 '()}}
+     :head {:synsem {:subcat {:1 subcat-2}}}
+     :comp {:synsem subcat-2}}))
+
+
+
 ;; a language's morphological inflection is
 ;; identical to its head's SYNSEM|INFL value.
 (def verb-inflection-morphology
@@ -222,6 +236,7 @@
                              :comp (fn [] np)}
                          :b {:head (fn [] lex/preps)
                              :comp (fn [] lex/propernouns-and-pronouns)}}})))
+
 (def adj-phrase
   (unify head-principle
          subcat-2-principle
@@ -466,6 +481,22 @@
                       :infl infl}
             :english {:agr agr
                       :infl infl}}}))
+
+(def prep-plus-verb-inf
+  (unify
+   subcat-4-principle
+   head-principle
+   {:comment "pp &#x2192; prep vp[inf]"
+    :comment-plaintext "pp -> prep vp[inf]"}
+
+   {:head {:synsem {:cat :prep}}}
+
+   italian-head-first
+   english-head-first
+
+   {:extend {:a {:head (fn [] lex/preps)
+                 :comp (fn [] vp)}}}))
+
 
 (def sentence-rules
   (let [subj-sem (ref :top)

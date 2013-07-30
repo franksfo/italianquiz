@@ -253,6 +253,18 @@
                      :subcat {:2 {:sem obj-sem
                                   :cat :intensifier}}}})))
 
+(def transitive-but-with-prepositional-phrase-instead-of-noun
+  (unify verb-subjective
+         (let [obj-sem (ref :top)
+               infl (ref :top)]
+           {:english {:infl infl}
+            :italian {:infl infl}
+            :synsem {:sem {:obj obj-sem}
+                     :infl infl
+                     :subcat {:2 {:sem obj-sem
+                                  :subcat '()
+                                  :cat :prep}}}})))
+
 (def andare-common
    {:italian {:infinitive "andare"
               :essere true
@@ -1720,12 +1732,22 @@
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
-      ;; melanzana
       (unify (:agreement noun)
              (:common noun)
              (:countable noun)
              (:feminine noun)
-             {:synsem {:sem {:pred :cipolla
+             {:synsem {:sem {:pred :mela
+                             :edible true
+                             :animate false
+                             :artifact false}}
+              :italian {:italian "mela"}
+              :english {:english "apple"}})
+
+      (unify (:agreement noun)
+             (:common noun)
+             (:countable noun)
+             (:feminine noun)
+             {:synsem {:sem {:pred :melanzana
                              :edible true
                              :animate false
                              :artifact false}}
@@ -1952,6 +1974,20 @@
                              :artifact true}}
               :italian {:italian "pizza"}
               :english {:english "pizza"}})
+
+
+      (let [complement-semantics (ref :top)]
+        {:synsem {:cat :prep
+                  :sem {:pred :per
+                        :comparative false
+                        :mod complement-semantics}
+                  :subcat {:1 {:cat :verb
+                               :sem complement-semantics
+                               :infl :infinitive
+                               :subcat {:1 :top
+                                        :2 '()}}}}
+         :italian "per"
+         :english ""})
 
       ;; perdere
       (unify
@@ -2531,6 +2567,19 @@
                         :italian "uomo"}
               :english {:irregular {:plur "men"}
                         :english "man"}})
+
+
+      (unify
+       transitive-but-with-prepositional-phrase-instead-of-noun
+       {:italian {:infinitive "venire"
+                  :irregular {:passato "venuto"}}
+        :english {:infinitive "to come"
+                  :irregular {:past "came"}}
+        :synsem {:essere true
+                 :sem {:pred :venire
+                       :activity true
+                       ;; TODO: check against Italian usage
+                       :subj {:animate true}}}})
 
       (unify
        transitive
