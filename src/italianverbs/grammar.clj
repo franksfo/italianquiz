@@ -287,14 +287,14 @@
           :extend {:a {:comp (fn [] adj-phrase)
                        :head (fn [] lex/intensifiers)}}}))
 
-(def vp-rules
-
-  (let [head (ref :top)
-        comp (ref {:subcat '()})
-        infl (ref :top)
-        agr (ref :top)]
-
-
+(let [head (ref :top)
+      ;; commenting out a) in favor of b): heads should declare this constraint if they want.
+      ;; a)
+      ;; comp (ref {:subcat '()})
+      ;; b) comp has no restrictions on its :subcat.
+      comp (ref :top)
+      infl (ref :top)
+      agr (ref :top)]
 
   (def vp-infinitive-transitive
     (fs/unifyc head-principle
@@ -311,6 +311,7 @@
                {:extend {
                          :a {:head (fn [] lex/verbs)
                              :comp (fn [] np)}}}))
+
 
   (def vp ;; TODO replace other vps with just vp.
     (fs/unifyc head-principle
@@ -350,6 +351,20 @@
                              :comp (fn [] lex/propernouns-and-pronouns)}
                          :e {:head (fn [] lex/verbs)
                              :comp (fn [] intensifier-phrase)}}}))
+  (def prep-plus-verb-inf
+    (unify
+     subcat-4-principle
+     head-principle
+     {:comment "pp &#x2192; prep vp[inf]"
+      :comment-plaintext "pp -> prep vp[inf]"}
+
+     {:head {:synsem {:cat :prep}}}
+
+     italian-head-first
+     english-head-first
+
+     {:extend {:a {:head (fn [] lex/preps)
+                   :comp (fn [] vp)}}}))
 
   (def vp-aux-3
     (let [aspect (ref :top)
@@ -408,7 +423,10 @@
                   :essere essere-boolean
                   :sem {:aspect :passato}}}))
      {:comment "vp[past] &#x2192; head comp"
-      :comment-plaintext "vp[past] -> head comp"}))
+      :comment-plaintext "vp[past] -> head comp"}
+     ;; TODO: promote to vp.
+     {:extend {:f {:head (fn [] lex/verbs)
+                   :comp (fn [] prep-plus-verb-inf)}}}))
 
   (def vp-aux
     (let [aspect (ref :top)
@@ -470,7 +488,7 @@
                         :g {:head (fn [] lex/verbs)
                             :comp (fn [] np)}}}))
 
-))
+)
 
 (def subject-verb-agreement
   (let [infl (ref :top)
@@ -482,22 +500,6 @@
                       :infl infl}
             :english {:agr agr
                       :infl infl}}}))
-
-(def prep-plus-verb-inf
-  (unify
-   subcat-4-principle
-   head-principle
-   {:comment "pp &#x2192; prep vp[inf]"
-    :comment-plaintext "pp -> prep vp[inf]"}
-
-   {:head {:synsem {:cat :prep}}}
-
-   italian-head-first
-   english-head-first
-
-   {:extend {:a {:head (fn [] lex/preps)
-                 :comp (fn [] vp)}}}))
-
 
 (def sentence-rules
   (let [subj-sem (ref :top)
