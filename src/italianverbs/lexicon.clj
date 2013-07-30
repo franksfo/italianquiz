@@ -237,6 +237,7 @@
            {:english {:infl infl}
             :italian {:infl infl}
             :synsem {:sem {:obj obj-sem}
+                     :cat :verb
                      :infl infl
                      :subcat {:2 {:sem obj-sem
                                   :subcat '()
@@ -262,7 +263,6 @@
             :synsem {:sem {:obj obj-sem}
                      :infl infl
                      :subcat {:2 {:sem obj-sem
-                                  :subcat '()
                                   :cat :prep}}}})))
 
 (def andare-common
