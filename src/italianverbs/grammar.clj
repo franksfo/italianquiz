@@ -399,13 +399,14 @@
                    :comp (fn [] vp-aux-3)}}}))
 
   (def vp-past
-    (fs/unify
-     (fs/copy vp)
-     (let [essere-boolean (ref :top)]
-       {:head {:synsem {:essere essere-boolean}}
-        :synsem {:infl :past
-                 :essere essere-boolean
-                 :sem {:aspect :passato}}})
+    (fs/merge
+     (unify
+      vp
+      (let [essere-boolean (ref :top)]
+        {:head {:synsem {:essere essere-boolean}}
+         :synsem {:infl :past
+                  :essere essere-boolean
+                  :sem {:aspect :passato}}}))
      {:comment "vp[past] &#x2192; head comp"
       :comment-plaintext "vp[past] -> head comp"}))
 
