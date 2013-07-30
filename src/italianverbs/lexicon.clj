@@ -2579,7 +2579,8 @@
                  :sem {:pred :venire
                        :activity true
                        ;; TODO: check against Italian usage
-                       :subj {:animate true}}}})
+                       :subj {:animate true}}
+                 :subcat {:2 {:sem {:pred :per}}}}})
 
       (unify
        transitive
