@@ -423,8 +423,11 @@
                     )
            "   </td>"
            "</tr>"))
-        ;; sorts the argument list in _arg__ by key name:
-        (remove #(= (first %) :comment-plaintext) (into (sorted-map) arg))))
+        ;; sorts the argument list in _arg__ by key name. remove :comment-plaintext and :extend.
+        (remove #(= (first %) :comment-plaintext)
+                (remove #(= (first %) :extend)
+                        (into (sorted-map) arg)))
+        ))
       "  </table>"
       "</div>")
      (= (type arg) clojure.lang.PersistentHashSet)
