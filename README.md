@@ -67,9 +67,11 @@ The last step should return:
 
 ## Start up italianquiz server
 
+```
 git clone git://github.com/ekoontz/italianquiz.git italianquiz
 cd italianquiz/
 lein ring server-headless
+```
 
 You should see output such as:
 
