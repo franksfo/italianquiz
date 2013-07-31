@@ -1,47 +1,125 @@
 [![Build Status](https://secure.travis-ci.org/ekoontz/italianquiz.png?branch=master)](http://travis-ci.org/ekoontz/italianquiz)
 
-# Usage:
+# Quick Start
 
-1. git clone git://github.com/ekoontz/italianquiz.git italianquiz
-2. cd italianquiz/
-3. lein deps
-4. sudo mongod 
-5. lein ring server
+## Install Prerequisites
 
-  ..then point your browser to http://localhost:3000
-  That's all there is to it!
+You need git, Apache httpd, mongo, leiningen and italianquiz. We start by installing the first three.
+
+```
+sudo yum -y install git httpd
+
+echo "
+[10gen]
+name=10gen Repository
+baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64
+gpgcheck=0
+enabled=1" > 10gen.repo
+
+sudo cp 10gen.repo /etc/yum.repos.d/
+sudo yum update
+sudo yum -y install mongo-10gen mongo-10gen-server
+sudo /etc/init.d/mongod start
+```
+
+## Configure Apache HTTP
+
+We'll configure Apache to map /italian to our clojure webserver
+which we'll set up in the next section, which will listen on port
+3000.
+
+```
+echo "
+ProxyPreserveHost on
+ProxyPass /italian http://localhost:3000
+ProxyPassReverse /italian http://localhost:3000
+<Location /italian>
+  Options All
+  Order allow,deny
+  allow from all
+</Location>
+" > italianquiz.conf
+
+cat /etc/httpd/conf/httpd.conf italianquiz.conf > httpd.conf
+sudo cp httpd.conf /etc/httpd/conf
+sudo /etc/init.d/httpd restart
+```
+
+## Install leiningen
+
+```
+mkdir -p bin
+wget https://raw.github.com/technomancy/leiningen/stable/bin/lein -O bin/lein
+chmod 755 bin/lein
+echo "
+PATH=$PATH:$HOME/bin
+export PATH
+" >> .bash_profile
+. .bash_profile
+which lein
+```
+
+The last step should return:
+
+```
+~/bin/lein
+```
+
+## Start up italianquiz server
+
+git clone git://github.com/ekoontz/italianquiz.git italianquiz
+cd italianquiz/
+lein ring server-headless
+
+You should see output such as:
+
+```
+WARNING: resolve already refers to: #'clojure.core/resolve in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/resolve
+WARNING: get-in already refers to: #'clojure.core/get-in in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/get-in
+WARNING: merge already refers to: #'clojure.core/merge in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/merge
+WARNING: get-in already refers to: #'clojure.core/get-in in namespace: italianverbs.test.generate, being replaced by: #'italianverbs.unify/get-in
+WARNING: resolve already refers to: #'clojure.core/resolve in namespace: italianverbs.test.generate, being replaced by: #'italianverbs.unify/resolve
+WARNING: merge already refers to: #'clojure.core/merge in namespace: italianverbs.test.generate, being replaced by: #'italianverbs.unify/merge
+WARNING: get-in already refers to: #'clojure.core/get-in in namespace: italianverbs.sandbox, being replaced by: #'italianverbs.sandbox/get-in
+WARNING: test already refers to: #'clojure.core/test in namespace: italianverbs.quiz, being replaced by: #'italianverbs.quiz/test
+2013-07-31 04:50:48.152:INFO:oejs.Server:jetty-7.6.1.v20120215
+2013-07-31 04:50:48.313:INFO:oejs.AbstractConnector:Started SelectChannelConnector@0.0.0.0:3000
+Started server on port 3000
+```
+
+At this point you may point your browser at http://yourhostname/italian and you are up and running!
+
+## Enabling Workbook Mode
+
+Workbook allows you to access a web-based Clojure REPL (read-eval-print loop) running within the italianquiz server. For security, this REPL is
+within a Clojail environment (https://github.com/flatland/clojail). The REPL is available at http://yourhostname/italian/workbook but
+you must also add a .java.policy to your home directory like so:
+
+```
+echo "
+grant {
+  permission java.security.AllPermission;
+};" > ~/.java.policy
+
+```
+
+Note that the above is very permissive and not recommended. I intend to narrow this down once I understand how .java.policy rules work.
 
 # Hacking:
+
+## Server path routing
+
+A client interacts with italianquiz through an HTTP interface. The
+HTTP routes that a client can access are defined in src/italianverbs/core.clj.
+
+To modify the routes:
 
 1. Start with src/italianverbs/core.clj
 2. Follow the routes in (defroutes main-routes).
 3. Look at :body attribute for each route:
    This holds the function that is executed for that route.
 
-# REPL: see comments at the top of src/italianverbs/repl.clj.
-
-# Apache HTTP Server Proxying:
-
-    # LoadModule might not be necessary depending on your Apache installation.
-    # If it is necessary, module location may vary according to your Apache installation.
-    # For example, you don't need this on Mac OS X because it's already loaded in
-    # /private/etc/apache2/httpd.conf
-    # LoadModule proxy_module modules/mod_proxy.so
-
-    ProxyPreserveHost on
-
-    ProxyPass /italian http://localhost:3000
-    ProxyPassReverse /italian http://localhost:3000
-
-    <Location /italian>
-      Options All
-      Order allow,deny
-      allow from all
-    </Location>
-
-After restarting your HTTP server, you should be able to access : http://yourhost/italian/ .
-
-# Ajax, Routes, and Page Structure
+## Ajax, Routes, and Page Structure
 
 1. create a static html page whose head is:
 
