@@ -694,6 +694,20 @@
           (re-find #"^[aeiouh]" b))
      (str "l'" b)
 
+     ;; 4) handle e.g. "aiutari + ti" => "aiutarti"
+     (and (string? a)
+          (or (re-find #"are$" a)
+              (re-find #"ere$" a))
+          (or (= b "mi")
+              (= b "ti")
+              (= b "la")
+              (= b "lo")
+              (= b "li")
+              (= b "ci")
+              (= b "vi")))
+     (str (string/replace a #"[e]$" "")
+          b)
+
      (and (= a "un")
           (string? b)
           (re-find #"^s[t]" b))
