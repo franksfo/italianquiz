@@ -540,7 +540,19 @@
              :synsem {:sem {:artifact false
                             :animate false
                             :pred :acqua}}})
-     (unify
+
+
+      (unify
+       transitive
+       {:italian {:infinitive "aiutare"}
+        :english {:infinitive "to help"}
+        :synsem {:essere false
+                 :sem {:pred :aiutare
+                       :activity true
+                       :subj {:human true}
+                       :obj {:human true}}}})
+
+      (unify
       transitive
       {:italian {:infinitive "amare"}
        :english {:infinitive "to love"
@@ -1793,7 +1805,7 @@
       (unify proper-noun
              {:synsem {:sem {:pred :milano
                              :buyable false
-                             :artifact true
+                             :artifact false
                              :city true}
                        :agr {:number :sing
                              :person :3rd
@@ -2567,7 +2579,6 @@
                         :italian "uomo"}
               :english {:irregular {:plur "men"}
                         :english "man"}})
-
 
       (unify
        transitive-but-with-prepositional-phrase-instead-of-noun
