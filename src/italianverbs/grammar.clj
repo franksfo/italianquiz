@@ -351,6 +351,22 @@
                              :comp (fn [] lex/propernouns-and-pronouns)}
                          :e {:head (fn [] lex/verbs)
                              :comp (fn [] intensifier-phrase)}}}))
+
+  ;; vp-pron is verb-last in Italian, so this is the opposite order in Italian.
+  (def vp-pron-verb-first
+    (unify
+     head-principle
+     subcat-2-principle
+     italian-head-first
+     english-head-first
+     {:head {:synsem {:cat :verb}}
+      :comp {:synsem {:cat :noun
+                      :pronoun true}}}
+     {:comment-plaintext "vp[pron-vf]"
+      :comment "vp[pron-vf]"
+      :extend {:a {:head (fn [] lex/verbs)
+                   :comp (fn [] lex/propernouns-and-pronouns)}}}))
+
   (def prep-plus-verb-inf
     (unify
      subcat-4-principle
@@ -358,13 +374,19 @@
      {:comment "pp &#x2192; prep vp[inf]"
       :comment-plaintext "pp -> prep vp[inf]"}
 
+     ;; TODO: remove category info: rely on subcat-4 to handle lexical selection.
+     ;; removing category info will allow more info shared between rules.
      {:head {:synsem {:cat :prep}}}
 
      italian-head-first
      english-head-first
 
      {:extend {:a {:head (fn [] lex/preps)
-                   :comp (fn [] vp)}}}))
+                   :comp (fn [] vp)}
+               :b {:head (fn [] lex/preps)
+                   :comp (fn [] vp-pron-verb-first)}
+               :c {:head (fn [] lex/preps)
+                   :comp (fn [] lex/verbs)}}}))
 
   (def vp-aux-3
     (let [aspect (ref :top)
