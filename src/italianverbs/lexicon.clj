@@ -2478,6 +2478,23 @@
 
       (unify agreement-noun
              common-noun
+             masculine-noun
+             countable-noun
+             {:synsem {:sem {:human false ;; should not need this: material=false.
+                             :buyable false ;; should not need this: material=false.
+                             :drinkable false ;; should not need this: material=false.
+                             :edible false  ;; should not need this: material=false.
+                             :legible false
+                             :artifact false
+                             :material false
+                             :political true
+                             :speakable false;; should not need this: material=false.
+                             }}}
+             {:italian {:italian "sciopero"}
+              :english {:english "strike"}})
+
+      (unify agreement-noun
+             common-noun
              feminine-noun
              countable-noun
              {:synsem {:sem {:furniture true
