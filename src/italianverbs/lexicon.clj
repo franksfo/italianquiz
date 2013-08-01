@@ -2660,7 +2660,8 @@
                        :activity false ;; "seeing" is not a continuous act but rather an instantaneous one.
                        ;; "watching" is the continuous counterpart of "seeing"
                        ;; TODO: check against Italian usage
-                       :subj {:animate true}}}})
+                       :subj {:animate true}
+                       :obj {:visible true}}}})
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
