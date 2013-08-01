@@ -2390,6 +2390,16 @@
                        :subj {:human true}
                        :obj {:legible true}}}})
 
+      (unify
+       transitive
+       {:italian {:infinitive "seguire"}
+        :english {:infinitive "to follow"}
+        :synsem {:essere false
+                 :sem {:pred :scrivere
+                       :subj {:animate true}
+                       :obj {:animate true}}}})
+
+
       ;; comparative:
       (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
             complement-sem (ref {:pred :di
