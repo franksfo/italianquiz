@@ -2671,7 +2671,8 @@
                                         :3sing "vuole"
                                         :1plur "vogliamo"
                                         :2plur "volete"
-                                        :3plur "vogliono"}}}
+                                        :3plur "vogliono"}
+                              :past "voluto"}}
         :english {:infinitive "to want to"
                   :irregular {:present {:1sing "want to"
                                         :2sing "want to"
