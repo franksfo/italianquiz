@@ -239,7 +239,7 @@ table.matrix td.corrent {
 }
 
 span.insert {
-    color: #dee;
+    color: #bbb;
     visibility:none;
     text-decoration:line-through;
     border-bottom: 8px solid red;
@@ -263,11 +263,11 @@ span.delete {
 span.subst {
     border-bottom: 8px solid red;
     text-decoration:line-through;
-    color:#dee;
+    color:#bbb;
 }
 
 span.match {
-    color:#bbb;
+    color:#111;
     border-bottom: 8px solid lightgreen;
 }
 
