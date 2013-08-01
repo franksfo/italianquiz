@@ -126,6 +126,14 @@
             :part-of-human-body false
             :edible false})
 
+         material-false
+         (if (= (fs/get-in input '(:material)) :false)
+           {:edible false
+            :animate false
+            :drinkable false
+            :buyable false ; money can't buy me love..
+            :visible false})
+
          non-places (if (or
                          (= (fs/get-in input '(:legible)) true)
                          (= (fs/get-in input '(:part-of-human-body)) true)
@@ -171,7 +179,8 @@
                (fs/merge input animate artifact buyable city clothing consumable-false drinkable
                          drinkable-xor-edible-1 drinkable-xor-edible-2
                          edible furniture human inanimate
-                         legible non-places not-legible-if-not-artifact part-of-human-body pets place
+                         legible material-false non-places
+                         not-legible-if-not-artifact part-of-human-body pets place
                          ))]
        (log/debug (str "sem-impl so far: " merged))
        (if (not (= merged input))
