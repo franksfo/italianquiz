@@ -2464,6 +2464,25 @@
               :italian {:italian "scala"}
               :english {:english "ladder"}})
 
+      (unify
+       (:transitive verb)
+       {:italian {:infinitive "sostenere"
+                  :irregular {:passato "sostenuto"
+                              :present {:1sing "sostengo"
+                                        :2sing "sostengi"
+                                        :3sing "sostenga"
+                                        :1plur "sosteniamo"
+                                        :2plur "sostenete"
+                                        :3plur "sostengono"}}}
+        :english {:infinitive "to support"}
+
+        :synsem {:essere false
+                 :sem {:pred :sostenere
+                       :activity true
+                       :discrete false
+                       :subj {:human true}
+                       :obj {:sem {:political true}}}}})
+
       (unify agreement-noun
              common-noun
              feminine-noun
