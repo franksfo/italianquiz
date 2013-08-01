@@ -725,7 +725,7 @@
 
      (and (= a "il")
           (string? b)
-          (re-find #"^s[t]" b))
+          (re-find #"^s[ct]" b))
      (str "lo " b)
 
      (and (= a "la")
