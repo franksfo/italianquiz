@@ -2444,7 +2444,7 @@
              (:countable noun)
              (:masculine noun)
              {:synsem {:sem {:pred :stradale
-                             :buyable false ;; a road's too big to own.
+                             :buyable false ;; a road's too big/valuable to own.
                              :artifact true
                              :city false
                              :place true}}
