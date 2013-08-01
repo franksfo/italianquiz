@@ -463,6 +463,8 @@
   (:comp expand))
 
 (defn generate [parent & [ hc-exps depth shuffled-expansions expansions-map]]
+  (if (unify/fail? parent)
+    :fail)
   (if (nil? (:extend parent))
     (throw (Exception. (str "Parent: " (unify/get-in parent '(:comment-plaintext)) " did not supply any :extend value, which (generate) needs in order to work.")))
     (let [depth (if depth depth 0)
