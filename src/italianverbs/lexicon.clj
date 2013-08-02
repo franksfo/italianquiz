@@ -2636,19 +2636,6 @@
                         :english "man"}})
 
       (unify
-       transitive-but-with-prepositional-phrase-instead-of-noun
-       {:italian {:infinitive "venire"
-                  :irregular {:passato "venuto"}}
-        :english {:infinitive "to come"
-                  :irregular {:past "came"}}
-        :synsem {:essere true
-                 :sem {:pred :venire
-                       :activity true
-                       ;; TODO: check against Italian usage
-                       :subj {:animate true}}
-                 :subcat {:2 {:sem {:pred :per}}}}})
-
-      (unify
        transitive
        {:italian {:infinitive "vedere"
                   :irregular {:passato "visto"}}
@@ -2662,6 +2649,41 @@
                        ;; TODO: check against Italian usage
                        :subj {:animate true}
                        :obj {:visible true}}}})
+
+      (def venire-root
+        {:italian {:infinitive "venire"
+                   :irregular {:passato "venuto"
+                               :futuro  {:1sing "verrò"
+                                         :2sing "verrai"
+                                         :3sing "verrà"
+                                         :1plur "verremo"
+                                         :2plur "verrete"
+                                         :3plur "verranno"}
+                               :present {:1sing "vengo"
+                                         :2sing "vieni"
+                                         :3sing "viene"
+                                         :1plur "veniamo"
+                                         :2plur "venete"
+                                         :3plur "vengono"}}}
+         :english {:infinitive "to come"
+                   :irregular {:past "came"}}})
+
+      (unify
+       intransitive
+       venire-root
+       {:synsem {:essere true
+                 :sem {:pred :venire
+                       :activity true
+                       :subj {:animate true}}}})
+
+      (unify
+       transitive-but-with-prepositional-phrase-instead-of-noun
+       venire-root
+       {:synsem {:essere true
+                 :sem {:pred :venire
+                       :activity true
+                       :subj {:animate true}}
+                 :subcat {:2 {:sem {:pred :per}}}}})
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
