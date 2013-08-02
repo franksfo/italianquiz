@@ -293,7 +293,6 @@
    (= symbol 'lexicon) (lazy-seq (cons (first lex/lexicon)
                                        (rest lex/lexicon)))
    (= symbol 'tinylex) lex/tinylex
-   (= symbol 'quando) lex/quando
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
 (declare head-by-comps)

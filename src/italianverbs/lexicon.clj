@@ -2139,7 +2139,7 @@
 
       {:italian "quando"
        :english "when"
-       :synsem {:cat :quantifier
+       :synsem {:cat :temporal-glue
                 :sem {:pred :quando}
                 :subcat {:1 {:cat :verb
                              :infl :imperfetto
@@ -2783,10 +2783,10 @@
               (= (fs/get-in sem-impl '(:human)) true)))
           nouns))
 
-(def quando
-  (first (filter (fn [lex]
-                   (= (fs/get-in lex '(:italian)) "quando"))
-                 lexicon)))
+(def temporal-glue
+  (filter (fn [lex]
+            (= (fs/get-in lex '(:synsem :cat)) :temporal-glue))
+          lexicon))
 
 (def adjs
   (filter (fn [lex]

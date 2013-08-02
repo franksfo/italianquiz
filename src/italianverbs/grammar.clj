@@ -669,24 +669,24 @@
                                :head (fn [] vp-imperfetto)}
                            :i {:comp 'lexicon
                                :head (fn [] vp-pron)}}}))
-    (def quando-phrase
+    (def temporal-glue-phrase
       (fs/unifyc subcat-2-principle
                  italian-head-first
                  english-head-first
-                 {:comment "quando-phrase"
-                  :comment-plaintext "quando-phrase"
+                 {:comment "temporal-glue-phrase"
+                  :comment-plaintext "temporal-glue-phrase"
                   :extend {:a {:comp (fn [] s-past)
-                               :head 'quando}}}))
+                               :head (fn [] lex/temporal-glue)}}}))
 
 
-    (def s-quando
+    (def s-temporal-glue
       (fs/unifyc subcat-1-principle
                  italian-head-last
                  english-head-last
-                 {:command "quando-sentence"
-                  :comment-plaintext "quando-sentence"
+                 {:command "temporal-sentence"
+                  :comment-plaintext "temporal-sentence"
                   :extend {:a {:comp (fn [] s-imperfetto)
-                               :head (fn [] quando-phrase)}}}))))
+                               :head (fn [] temporal-glue-phrase)}}}))))
 
 
 ;; TODO: move to lexicon (maybe).
@@ -758,7 +758,7 @@
                                                       s-past
                                                       s-past-modifier
                                                       s-imperfetto
-                                                      s-quando
+                                                      s-temporal-glue
                                                       )))))))))
 
 (defn random-sentences [n]
