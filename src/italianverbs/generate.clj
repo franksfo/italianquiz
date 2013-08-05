@@ -146,7 +146,8 @@
                (over2 parent child1 (rest child2))))
 
    :else ; both parent and children are non-lists.
-   ;; First, check to make sure complement matches head's (:synsem :sem) value, if it exists, otherwise, fail.
+   ;; First, check to make sure complement matches head's (:synsem
+   ;; :sem) value, if it exists, otherwise, :fail.
    (let [unified (unify-and-merge parent child1 child2)
          fail (unify/fail? unified)]
      (if (not fail)
@@ -182,7 +183,6 @@
                            " ref test1: " (unify/ref= parent '(:head :italian) '(:italian :b))
                            " ref test2: " (unify/ref= parent '(:comp :italian) '(:italian :a)))))))
 
-;; TODO: use multiple dispatch.
 (defn get-path-to-last-subcat [head]
   (let [path-to-3 (unify/get-in head '(:synsem :subcat :3) :notfound)]
     (if (not (= path-to-3 :notfound))
@@ -192,6 +192,7 @@
           path-to-2
           (unify/get-in head '(:synsem :subcat :1) :notfound))))))
 
+;; TODO: use multiple dispatch.
 (defn over-parent-child [parent child]
   (log/debug (str "parent: " parent))
   (log/debug (str "child: " child))
@@ -247,10 +248,10 @@
                 ;; else child is complement, so return parent's version of head.
                 (unify/get-in parent '(:head)))
 
-         do-log
          path-to-last-subcat
          (get-path-to-last-subcat head)
 
+         do-log
          (do
            (log/debug (str "child-is-head: " (unify/get-in parent '(:comment-plaintext)) ":" child-is-head))
            (log/debug (str "path-to-last-subcat: " path-to-last-subcat)))
