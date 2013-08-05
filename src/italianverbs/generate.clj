@@ -183,6 +183,15 @@
                            " ref test2: " (unify/ref= parent '(:comp :italian) '(:italian :a)))))))
 
 ;; TODO: use multiple dispatch.
+(defn get-path-to-last-subcat [head]
+  (let [path-to-3 (unify/get-in head '(:synsem :subcat :3) :notfound)]
+    (if (not (= path-to-3 :notfound))
+      path-to-3
+      (let [path-to-2 (unify/get-in head '(:synsem :subcat :2) :notfound)]
+        (if (not (= path-to-2 :notfound))
+          path-to-2
+          (unify/get-in head '(:synsem :subcat :1) :notfound))))))
+
 (defn over-parent-child [parent child]
   (log/debug (str "parent: " parent))
   (log/debug (str "child: " child))
@@ -239,10 +248,14 @@
                 (unify/get-in parent '(:head)))
 
          do-log
-         (do
-           (log/debug (str "child-is-head: " (unify/get-in parent '(:comment-plaintext)) ":" child-is-head)))
+         path-to-last-subcat
+         (get-path-to-last-subcat head)
 
-         sem-filter (unify/get-in head '(:synsem :subcat :2 :sem)) ;; :1 VERSUS :2 : make this more explicit about what we are searching for.
+         (do
+           (log/debug (str "child-is-head: " (unify/get-in parent '(:comment-plaintext)) ":" child-is-head))
+           (log/debug (str "path-to-last-subcat: " path-to-last-subcat)))
+
+         sem-filter (unify/get-in head (concat path-to-last-subcat '(:sem)))
          comp-sem (unify/get-in comp '(:synsem :sem))
          do-match
          (if (and (not (nil? sem-filter))
