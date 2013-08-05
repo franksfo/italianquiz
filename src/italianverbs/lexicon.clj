@@ -541,6 +541,20 @@
       :italian "a"
       :english "to"}
 
+
+     (let [complement-semantics (ref :top)]
+       {:synsem {:cat :prep
+                 :sem {:pred :a
+                       :comparative false
+                       :mod complement-semantics}
+                 :subcat {:1 {:cat :verb
+                              :sem complement-semantics
+                              :infl :infinitive
+                              :subcat {:1 :top
+                                       :2 '()}}}}
+        :italian "a"
+        :english ""})
+
      (unify (:agreement noun)
             (:drinkable noun)
             (:feminine noun)
@@ -783,6 +797,19 @@
             :italian {:italian "cane"}
             :english {:english "dog"}})
 
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           feminine-noun
+           {:synsem {:sem {:pred :casa
+                           :buyable true
+                           :artifact true
+                           :place true}}
+            :italian {:italian "casa"}
+            :english {:english "house"}}
+           {:synsem {:subcat {:1 {:cat :det
+                                  :def :def}}}})
+
      (unify adjective
             {:synsem {:cat :adjective
                       :sem {:pred :cattivo
@@ -873,6 +900,7 @@
                :sem {:pred :comprare
                      :subj {:human true}
                      :obj {:buyable true}}}})
+
     (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
           complement-sem (ref {:pred :di
                                :mod complement-complement-sem})
@@ -1150,7 +1178,6 @@
                      :cat cat-of-pronoun
                      :case disjunctive-case-of-pronoun}}
 
-
           (def fare-common
             ;; factor out common stuff from all senses of "fare".
             {:italian {:infinitive "fare"
@@ -1178,8 +1205,10 @@
           (unify
            transitive
            fare-common
+           {:synsem {:subcat {:3 '()}}}
            {:english {:infinitive "to do"
                       :irregular {:past-participle "done"
+                                  :past "did"
                                   :present {:1sing "do"
                                             :2sing "do"
                                             :3sing "does"
@@ -1196,6 +1225,7 @@
           (unify
            transitive
            fare-common
+           {:synsem {:subcat {:3 '()}}}
            {:english {:infinitive "to make"
                       :irregular {:past "made"}}
             :synsem {:cat :verb
@@ -1204,6 +1234,28 @@
                            :discrete false
                            :subj {:human true}
                            :obj {:artifact true}}}})
+
+          ;; fare (to do well to): e.g. "tu ha fatto bene a vendere la casa"
+          (unify
+           verb-subjective
+           {:synsem {:subcat {:2 {:cat :prep
+                                  :sem {:pred :a}}
+                              :3 {:cat :adverb
+                                  :sem {:pred :bene}}}}}
+           fare-common
+           {:english {:infinitive "to do"
+                      :irregular {:past-participle "done"
+                                  :past "did"
+                                  :present {:1sing "do"
+                                            :2sing "do"
+                                            :3sing "does"
+                                            :1plur "do"
+                                            :2plur "do"
+                                            :3plur "do"}}}}
+           {:synsem {:cat :verb
+                     :infl :infinitive
+                     :sem {:pred :fare
+                           :subj {:human true}}}})
 
           (unify agreement-noun
                  common-noun
@@ -2636,6 +2688,16 @@
                        ;; TODO: check against Italian usage
                        :subj {:animate true}
                        :obj {:visible true}}}})
+
+    (unify
+     transitive
+     {:italian {:infinitive "vendere"}
+      :english {:infinitive "to sell"
+                :irregular {:past "sold"}}
+      :synsem {:essere false
+               :sem {:pred :vendere
+                     :subj {:human true}
+                     :obj {:buyable true}}}})
 
       ;; factor out common stuff from all senses of "venire".
       (def venire-common
