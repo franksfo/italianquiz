@@ -2538,7 +2538,8 @@
              common-noun
              masculine-noun
              countable-noun
-             {:synsem {:sem {:human false ;; should not need this: material=false.
+             {:synsem {:sem {:pred :sciopero
+                             :human false ;; should not need this: material=false.
                              :buyable false ;; should not need this: material=false.
                              :drinkable false ;; should not need this: material=false.
                              :edible false  ;; should not need this: material=false.
