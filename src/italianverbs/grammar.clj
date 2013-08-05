@@ -772,16 +772,16 @@
 
 (defn random-sentence []
   (morph/finalize (first (take 1 (gen/generate
-                                (first (take 1 (shuffle
-                                                (list s-present
-                                                      s-present-modifier
-                                                      s-future
-                                                      s-future-modifier
-                                                      s-past
-                                                      s-past-modifier
-                                                      s-imperfetto
-                                                      s-temporal-glue
-                                                      )))))))))
+                                  (first (take 1 (shuffle
+                                                  (list s-present
+                                                        s-present-modifier
+                                                        s-future
+                                                        s-future-modifier
+                                                        s-past
+                                                        s-past-modifier
+                                                        s-imperfetto
+                                                        s-temporal-glue
+                                                        )))))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
