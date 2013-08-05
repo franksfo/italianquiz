@@ -78,7 +78,27 @@
      :head {:synsem {:subcat {:1 subcat-2}}}
      :comp {:synsem subcat-2}}))
 
-
+;;       subcat<1,2>
+;;      /          \
+;;     /            \
+;; H subcat<1,2,3>  C[3]
+(def subcat-5-principle
+  ;; we specify {:cat :top} rather than simply :top
+  ;; because we want to prevent matching with '()
+  ;; that is, a verb which only subcats for :1 and 2: (transitive)
+  ;; would match :3 because (unify '() :top) => :top,
+  ;; and would fit in here erroneously.
+  ;; This is prevented by {:cat :top},
+  ;; because (unify '() {:cat :top}) => :fail.
+  (let [subcat-1 (ref {:cat :top})
+        subcat-2 (ref {:cat :top})
+        subcat-3 (ref {:cat :top})]
+    {:head {:synsem {:subcat {:1 subcat-1
+                              :2 subcat-2
+                              :3 subcat-3}}}
+     :comp {:synsem subcat-3}
+     :synsem {:subcat {:1 subcat-1
+                       :2 subcat-2}}}))
 
 ;; a language's morphological inflection is
 ;; identical to its head's SYNSEM|INFL value.
@@ -132,8 +152,10 @@
      :english {:a comp-english
                :b head-english}}))
 
-
-
+(def vp-plus-adverb
+  (unify subcat-5-principle
+         italian-head-first
+         english-head-first))
 
 ;; TODO: make adjective the head (currently the complement)
 ;; and make noun the complement (currently the head)
