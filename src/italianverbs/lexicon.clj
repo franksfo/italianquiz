@@ -663,6 +663,11 @@
              :italian {:italian "bello"}
              :english {:english "beautiful"}})
 
+     (unify {:synsem {:cat :adverb}}
+            {:synsem {:sem {:pred :bene}}
+             :italian {:italian "bene"}
+             :english {:english "well"}})
+
      ;; bere
      (unify
       (:transitive verb)
