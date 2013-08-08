@@ -614,11 +614,12 @@
                       :subj {:human true}
                       :obj {:buyable true}}}})
 
-     ;; avere: auxiliary-verb: takes intransitive verb (1 args)
+     ;; avere: auxiliary-verb: takes intransitive verb (1 arg)
      (unify
       verb-aux-type
       verb-subjective
       avere-common
+      {:takes :one-arg}
       {:synsem {:infl :present
                 :subcat {:2 {:essere false}}}
        :english {:hidden true}})
@@ -628,6 +629,7 @@
       verb-aux-type-2
       verb-subjective
       avere-common
+      {:takes :two-args}
       {:synsem {:infl :present
                 :subcat {:2 {:essere false}}}
        :english {:hidden true}})
