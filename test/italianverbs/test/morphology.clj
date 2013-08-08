@@ -725,4 +725,27 @@
     (is (= (get-italian-1 (get-in essere-test '(:italian)))
            "essere"))))
 
+(deftest did-well-past
+  (let [did-well-past {:cat :verb,
+                       :b {:english "well"},
+                       :a {:irregular {:present {:2plur "do",
+                                                 :3sing "does",
+                                                 :2sing "do",
+                                                 :1sing "do",
+                                                 :3plur "do",
+                                                 :1plur "do"},
+                                       :past "did",
+                                       :past-participle "done"},
+                           :agr {:gender :masc,
+                                 :number :sing,
+                                 :person :2nd,
+                                 :case :nom},
+                           :infl :infinitive,
+                           :infinitive "to do"},
+                       :infl :past,
+                       :agr {:gender :masc,
+                             :number :sing,
+                             :person :2nd,
+                             :case :nom}}]
+    (is (= (get-english-1 did-well-past) "did well"))))
 
