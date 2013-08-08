@@ -664,9 +664,8 @@
           config/random-infinitivo)))
 
 (defn random-futuro-semplice [& constraints]
-  (let [
-        ;; 1. choose a random verb in the passato-prossimo form.
-        verb-future (lexfn/choose-lexeme
+  ;; 1. choose a random verb in the passato-prossimo form.
+  (let [verb-future (lexfn/choose-lexeme
                      (unify/unify
                       (if constraints (first constraints) {})
                       {:infl :futuro-semplice}
