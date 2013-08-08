@@ -254,9 +254,11 @@
          do-log
          (do
            (log/debug (str "child-is-head: " (unify/get-in parent '(:comment-plaintext)) ":" child-is-head))
+           (log/debug (str "head: " head))
            (log/debug (str "path-to-last-subcat: " path-to-last-subcat)))
 
-         sem-filter (unify/get-in head (concat path-to-last-subcat '(:sem)))
+         sem-filter (if (not (= path-to-last-subcat :notfound))
+                      (unify/get-in head (concat path-to-last-subcat '(:sem))))
          comp-sem (unify/get-in comp '(:synsem :sem))
          do-match
          (if (and (not (nil? sem-filter))
