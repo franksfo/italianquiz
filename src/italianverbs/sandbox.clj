@@ -8,6 +8,7 @@
    ;; rather than using it directly.
    [italianverbs.generate :exclude [printfs generate]]
    [italianverbs.grammar]
+   [italianverbs.test.grammar]
    [italianverbs.html]
    [italianverbs.morphology]
    [clojail.core :only [sandbox]]
