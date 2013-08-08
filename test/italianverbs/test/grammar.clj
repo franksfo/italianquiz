@@ -39,3 +39,14 @@
 
 
 
+(deftest adj-agreement-with-subject
+  "adjectives must agree with subjects - tests this behavior with intermediate 'meno ricco' between the subject and the adjective."
+  (let [lei-e-piu-ricca-di-giorgio
+        (over s-present "lei"
+              (over vp "essere"
+                    (over intensifier-phrase "più"
+                          ;; error: (over adj-phrase (second (it "ricco")))
+                          (over adj-phrase "ricco"
+                                (over prep-phrase "di" "Giorgio")))))]
+    (is (= (morph/strip (morph/get-italian (get-in (first lei-e-piu-ricca-di-giorgio) '(:italian))))
+           "lei è più ricca di Giorgio"))))
