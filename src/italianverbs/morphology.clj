@@ -360,6 +360,13 @@
       (string? (fs/get-in word '(:irregular :past))))
      (fs/get-in word '(:irregular :past))
 
+     ;; "fare [past]" + "bene" => "fatto bene"
+     (and (= (fs/get-in word '(:cat)) :verb)
+          (= (fs/get-in word '(:infl)) :past)
+          (string? (fs/get-in word '(:a :irregular :passato))))
+     (str (fs/get-in word '(:a :irregular :passato)) " "
+          (get-italian-1 (fs/get-in word '(:b))))
+
      ;; TODO: do not use brackets: if there's an error about there being
      ;; not enough information, throw an exception explicitly.
      ;; return the irregular form in square brackets, indicating that there's
@@ -788,6 +795,13 @@
 (defn get-english-1 [word]
   (log/debug (str "get-english-1: " word))
   (cond
+
+   ;; "to do [past]" + "well" => "did well"
+   (and (= (fs/get-in word '(:cat)) :verb)
+        (= (fs/get-in word '(:infl)) :past)
+        (string? (fs/get-in word '(:a :irregular :past))))
+   (str (fs/get-in word '(:a :irregular :past)) " "
+        (get-english-1 (fs/get-in word '(:b))))
 
    ;; :note is used for little annotations that are significant in italian but not in english
    ;; e.g. gender signs (♂,♀) on nouns like "professore" and "professoressa".
