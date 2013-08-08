@@ -2549,6 +2549,7 @@
                              :artifact false
                              :material false
                              :political true
+                             :animate false;; should not need this: material=false.
                              :speakable false;; should not need this: material=false.
                              }}}
              {:italian {:italian "sciopero"}
