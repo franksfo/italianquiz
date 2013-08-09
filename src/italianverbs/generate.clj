@@ -510,11 +510,7 @@
           hc-exps (if hc-exps hc-exps (hc-expand-all parent shuffled-expansions depth))
           parent-finished (morph/phrase-is-finished? parent)]
       (log/debug (str (depth-str depth) "generate: " (unify/get-in parent '(:comment-plaintext)) " with exp: " (first shuffled-expansions)))
-      (cond (= :not-exists (unify/get-in parent '(:comment-plaintext) :not-exists))
-            (do
-              (log/warn "No :comment-plaintext for this parent.")
-              nil)
-            (empty? hc-exps)
+      (cond (empty? hc-exps)
             (do
               (log/debug (str "no expansions left to do for "(unify/get-in parent '(:comment-plaintext) :not-exists)))
               nil)
