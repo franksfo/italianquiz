@@ -535,27 +535,31 @@
 (def lexicon
   (list
 
+   {:synsem {:cat :prep
+             :type 1
+             :sem {:pred :a
+                   :comparative false}
+             :subcat {:1 {:cat :noun
+                          :sem {:place true}}
+                      :2 '()}}
+    :italian "a"
+    :english "to"}
+
+
+   (let [complement-semantics (ref :top)]
      {:synsem {:cat :prep
+               :type 2
                :sem {:pred :a
-                     :comparative false}
-               :subcat {:1 {:cat :noun
-                            :sem {:place true}}}}
+                     :comparative false
+                     :mod complement-semantics}
+               :subcat {:1 {:cat :verb
+                            :sem complement-semantics
+                            :infl :infinitive
+                            :subcat {:1 :top
+                                     :2 '()}}
+                        :2 '()}}
       :italian "a"
-      :english "to"}
-
-
-     (let [complement-semantics (ref :top)]
-       {:synsem {:cat :prep
-                 :sem {:pred :a
-                       :comparative false
-                       :mod complement-semantics}
-                 :subcat {:1 {:cat :verb
-                              :sem complement-semantics
-                              :infl :infinitive
-                              :subcat {:1 :top
-                                       :2 '()}}}}
-        :italian "a"
-        :english ""})
+      :english ""})
 
      (unify (:agreement noun)
             (:drinkable noun)
@@ -1222,6 +1226,7 @@
             :synsem {:cat :verb
                      :infl :infinitive
                      :sem {:pred :fare
+                           :example "fare i compiti"
                            :subj {:human true}
                            :obj {:activity true}}}})
 
@@ -1235,31 +1240,35 @@
             :synsem {:cat :verb
                      :essere false
                      :sem {:pred :fare
+                           :example "fare il pane"
                            :discrete false
                            :subj {:human true}
                            :obj {:artifact true}}}})
 
           ;; fare (to do well to): e.g. "tu ha fatto bene a vendere la casa"
-          (unify
-           verb-subjective
-           {:synsem {:subcat {:2 {:cat :prep
-                                  :sem {:pred :a}}
-                              :3 {:cat :adverb
-                                  :sem {:pred :bene}}}}}
-           fare-common
-           {:english {:infinitive "to do"
-                      :irregular {:past-participle "done"
-                                  :past "did"
-                                  :present {:1sing "do"
-                                            :2sing "do"
-                                            :3sing "does"
-                                            :1plur "do"
-                                            :2plur "do"
-                                            :3plur "do"}}}}
-           {:synsem {:cat :verb
-                     :infl :infinitive
-                     :sem {:pred :fare
-                           :subj {:human true}}}})
+          (let [adverb-semantics (ref {:pred :top})]
+            (unify
+             verb-subjective
+             fare-common
+             {:synsem {:subcat {:2 {:cat :prep
+                                    :sem {:pred :a}}
+                                :3 {:cat :adverb
+                                    :sem adverb-semantics}}
+                       :cat :verb
+                       :infl :infinitive
+                       :sem {:pred :fare
+                             :example "fare bene a vendere la casa"
+                             :mod adverb-semantics
+                             :subj {:human true}}}
+              :english {:infinitive "to do"
+                        :irregular {:past-participle "done"
+                                    :past "did"
+                                    :present {:1sing "do"
+                                              :2sing "do"
+                                              :3sing "does"
+                                              :1plur "do"
+                                              :2plur "do"
+                                              :3plur "do"}}}}))
 
           (unify agreement-noun
                  common-noun
