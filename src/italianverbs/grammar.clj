@@ -14,6 +14,21 @@
 ;;   /   \
 ;;  /     \
 ;; H[1]    C
+(def head-principle-no-infl
+  (let [head-cat (ref :top)
+        head-is-pronoun (ref :top)
+        head-sem (ref :top)]
+    {:synsem {:cat head-cat
+              :pronoun head-is-pronoun
+              :sem head-sem}
+     :head {:synsem {:cat head-cat
+                     :pronoun head-is-pronoun
+                     :sem head-sem}}}))
+
+;;    [1]
+;;   /   \
+;;  /     \
+;; H[1]    C
 (def head-principle
   (let [head-cat (ref :top)
         head-is-pronoun (ref :top)
@@ -154,8 +169,11 @@
 
 (def vp-plus-adverb
   (unify subcat-5-principle
+         head-principle-no-infl
          italian-head-first
-         english-head-first))
+         english-head-first
+         {:extend {:a {:head (fn [] lex/verbs)
+                       :comp (fn [] lex/adverbs)}}}))
 
 ;; TODO: make adjective the head (currently the complement)
 ;; and make noun the complement (currently the head)
@@ -258,6 +276,8 @@
                              :comp (fn [] np)}
                          :b {:head (fn [] lex/preps)
                              :comp (fn [] lex/propernouns-and-pronouns)}}})))
+
+(def vp)
 
 (def adj-phrase
   (unify head-principle
@@ -390,16 +410,13 @@
       :extend {:a {:head (fn [] lex/verbs)
                    :comp (fn [] lex/propernouns-and-pronouns)}}}))
 
+  ;; "tu fai bene [a vendere la casa]"
   (def prep-plus-verb-inf
     (unify
      subcat-4-principle
      head-principle
      {:comment "pp &#x2192; prep vp[inf]"
       :comment-plaintext "pp -> prep vp[inf]"}
-
-     ;; TODO: remove category info: rely on subcat-4 to handle lexical selection.
-     ;; removing category info will allow more info shared between rules.
-     {:head {:synsem {:cat :prep}}}
 
      italian-head-first
      english-head-first
@@ -462,6 +479,7 @@
     (fs/merge
      (unify
       vp
+;      (dissoc vp :extend) ;; for debugging: allows elimination of vp's extend.
       (let [essere-boolean (ref :top)]
         {:head {:synsem {:essere essere-boolean}}
          :synsem {:infl :past
@@ -470,7 +488,7 @@
      {:comment "vp[past] &#x2192; head comp"
       :comment-plaintext "vp[past] -> head comp"}
      ;; TODO: promote to vp.
-     {:extend {:f {:head (fn [] lex/verbs)
+     {:extend {:f {:head (fn [] vp-plus-adverb)
                    :comp (fn [] prep-plus-verb-inf)}}}))
 
   (def vp-aux
