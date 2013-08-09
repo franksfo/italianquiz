@@ -250,7 +250,8 @@
                      :infl infl
                      :subcat {:2 {:sem obj-sem
                                   :subcat '()
-                                  :cat :adjective}}}})))
+                                  :cat :adjective}
+                              :3 '()}}})))
 
 (def transitive-but-with-intensifier-instead-of-noun
   (unify verb-subjective
@@ -272,7 +273,8 @@
             :synsem {:sem {:obj obj-sem}
                      :infl infl
                      :subcat {:2 {:sem obj-sem
-                                  :cat :prep}}}})))
+                                  :cat :prep}
+                              :3 '()}}})))
 
 (def andare-common
    {:italian {:infinitive "andare"
