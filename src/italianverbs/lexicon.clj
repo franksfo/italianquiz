@@ -2864,6 +2864,11 @@
             (= (fs/get-in lex '(:synsem :cat)) :adjective))
           lexicon))
 
+(def adverbs
+  (filter (fn [lex]
+            (= (fs/get-in lex '(:synsem :cat)) :adverb))
+          lexicon))
+
 (def dets
   (filter (fn [lex]
             (= (fs/get-in lex '(:synsem :cat)) :det))
