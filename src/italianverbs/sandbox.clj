@@ -52,6 +52,13 @@
    :timeout 1000000 ;; for development, set high (1000 seconds)
    :namespace 'italianverbs.sandbox))
 
+(defn sem [sign]
+  (if (seq? sign)
+    (map (fn [each]
+           (sem each))
+         sign)
+    (fs/get-in sign '(:synsem :sem))))
+
 (defn sandbox-load-string [expression]
   (workbook-sandbox (read-string expression)))
 
