@@ -814,6 +814,7 @@
            countable-noun
            feminine-noun
            {:synsem {:sem {:pred :casa
+                           :activity false ;; should not need this probably: should be inferrable from  :place==true or perhaps :artifact==true.
                            :buyable true
                            :artifact true
                            :place true}}
