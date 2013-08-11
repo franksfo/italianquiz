@@ -78,3 +78,6 @@
     (is (= (morph/strip (morph/get-italian (get-in (first lei-e-piu-ricca-di-giorgio) '(:italian))))
            "lei è più ricca di Giorgio"))))
 
+(deftest fare-bene
+  (let [result (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare :mod {:pred :bene}}}})))]
+    (is (not (unify/fail? result)))))
