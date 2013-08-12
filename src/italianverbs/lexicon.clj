@@ -1188,7 +1188,8 @@
 
           (def fare-common
             ;; factor out common stuff from all senses of "fare".
-            {:italian {:infinitive "fare"
+            {:synsem {:essere false}
+             :italian {:infinitive "fare"
                        :irregular {:passato "fatto"
                                    :present {:1sing "facio"
                                              :2sing "fai"
