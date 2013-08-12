@@ -666,3 +666,8 @@
         true
         (html
          (controls session nil "submit_quiz_filters('#controls_container','#controls_form');"))))
+
+;; need to do this to get the workbook to work, for some reason.
+(def do-the-minimum (take 1 (gram/minimal-grammatical-initialization)))
+
+

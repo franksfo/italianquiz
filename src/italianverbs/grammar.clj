@@ -800,6 +800,10 @@
                                                         s-imperfetto
                                                         s-temporal-glue
                                                         )))))))))
+(defn minimal-grammatical-initialization []
+  ;; TODO: replace with something less expensive. we want the minimum amount of work that
+  ;; will prevent ExceptionInInitializerErrors.
+  (first (take 1 (gen/generate nbar))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
