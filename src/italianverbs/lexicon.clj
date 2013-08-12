@@ -18,7 +18,11 @@
   (cond
    (= input :top) input
    true
-   (let [animate (if (= (fs/get-in input '(:animate))
+   (let [activity (if (= (fs/get-in input '(:activity))
+                         true)
+                    {:human false
+                     :part-of-human-body false})
+         animate (if (= (fs/get-in input '(:animate))
                         true)
                    {:artifact false
                     :mass false
