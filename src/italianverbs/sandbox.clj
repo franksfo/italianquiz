@@ -6,7 +6,7 @@
    ;; attacker could DOS server by filling up filesystem.
    ;; Also exclude 'generate' so that we can define a wrapper for it in the sandbox,
    ;; rather than using it directly.
-   [italianverbs.generate :exclude [printfs generate]]
+   [italianverbs.generate :exclude [printfs]]
    [italianverbs.grammar]
    [italianverbs.test.grammar]
    [italianverbs.html]
@@ -165,12 +165,6 @@
       (log/debug "got here(2): " (first map))
       (fs/get-in (first map) path not-found))
     (fs/get-in map path not-found)))
-
-(defn generate [parent]
-  (if (seq? parent)
-    (gen/generate (first parent))
-    (gen/generate parent)))
-
 
 (defn fail? [input]
   (if (seq? input)
