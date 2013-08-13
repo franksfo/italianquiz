@@ -2643,7 +2643,9 @@
              {:synsem {:sem {:furniture true
                              :pred :tovaglia}}
               :italian {:italian "tovaglia"}
-              :english {:english "tablecloth"}})
+              :english {:english "tablecloth"
+                        ;; regular morphology would give us "tableclothes", so:
+                        :irregular {:plur "tablecloths"}}})
 
       {:synsem {:cat :noun
                 :pronoun true
