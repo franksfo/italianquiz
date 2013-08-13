@@ -1020,6 +1020,11 @@
      :italian "domani"
      :english "tomorrow"}
 
+    {:synsem {:cat :sent-modifier
+              :subcat {:1 {:sem {:tense :future}}}}
+     :italian "dopodomani"
+     :english "the day after tomorrow"}
+
     (unify agreement-noun
            common-noun
            countable-noun
@@ -1458,6 +1463,11 @@
        :english "I"
        :italian "io"}
 
+      {:synsem {:cat :sent-modifier
+                :subcat {:1 {:sem {:tense :past
+                                   :activity true}}}}
+       :italian "l'altro ieri"
+       :english "the day before yesterday"}
 
       ;; note: no gender: "loro" in either case of masc or fem.
       {:synsem {:cat cat-of-pronoun
