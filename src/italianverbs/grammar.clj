@@ -16,12 +16,15 @@
 ;; H[1]    C
 (def head-principle-no-infl
   (let [head-cat (ref :top)
+        head-essere (ref :top)
         head-is-pronoun (ref :top)
         head-sem (ref :top)]
     {:synsem {:cat head-cat
+              :essere head-essere
               :pronoun head-is-pronoun
               :sem head-sem}
      :head {:synsem {:cat head-cat
+                     :essere head-essere
                      :pronoun head-is-pronoun
                      :sem head-sem}}}))
 
@@ -30,18 +33,10 @@
 ;;  /     \
 ;; H[1]    C
 (def head-principle
-  (let [head-cat (ref :top)
-        head-is-pronoun (ref :top)
-        head-sem (ref :top)
-        head-infl (ref :top)]
-    {:synsem {:cat head-cat
-              :pronoun head-is-pronoun
-              :sem head-sem
-              :infl head-infl}
-     :head {:synsem {:cat head-cat
-                     :pronoun head-is-pronoun
-                     :infl head-infl
-                     :sem head-sem}}}))
+  (unify head-principle-no-infl
+  (let [head-infl (ref :top)]
+    {:synsem {:infl head-infl}
+     :head {:synsem {:infl head-infl}}})))
 
 ;;     subcat<>
 ;;     /      \
