@@ -2464,7 +2464,7 @@
        {:italian {:infinitive "seguire"}
         :english {:infinitive "to follow"}
         :synsem {:essere false
-                 :sem {:pred :scrivere
+                 :sem {:pred :seguire
                        :subj {:animate true}
                        :obj {:animate true}}}})
 
