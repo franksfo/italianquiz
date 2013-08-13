@@ -540,7 +540,6 @@
   (list
 
    {:synsem {:cat :prep
-             :type 1
              :sem {:pred :a
                    :comparative false}
              :subcat {:1 {:cat :noun
@@ -552,10 +551,7 @@
 
    (let [complement-semantics (ref :top)]
      {:synsem {:cat :prep
-               :type 2
-               :sem {:pred :a
-                     :comparative false
-                     :mod complement-semantics}
+               :sem complement-semantics
                :subcat {:1 {:cat :verb
                             :sem complement-semantics
                             :infl :infinitive
@@ -1254,12 +1250,15 @@
                            :obj {:artifact true}}}})
 
           ;; fare (to do well to): e.g. "tu ha fatto bene a vendere la casa"
-          (let [adverb-semantics (ref {:pred :top})]
+          (let [adverb-semantics (ref {:pred :top})
+                subject-semantics (ref {:human true})
+                prepositional-semantics (ref {:subj subject-semantics})]
             (unify
              verb-subjective
              fare-common
-             {:synsem {:subcat {:2 {:cat :prep
-                                    :sem {:pred :a}}
+             {:synsem {:subcat {:1 {:sem subject-semantics}
+                                :2 {:cat :prep
+                                    :sem prepositional-semantics}
                                 :3 {:cat :adverb
                                     :sem adverb-semantics}}
                        :cat :verb
@@ -1267,7 +1266,8 @@
                        :sem {:pred :fare
                              :example "fare bene a vendere la casa"
                              :mod adverb-semantics
-                             :subj {:human true}}}
+                             :subj subject-semantics
+                             :obj prepositional-semantics}}
               :english {:infinitive "to do"
                         :irregular {:past-participle "done"
                                     :past "did"
