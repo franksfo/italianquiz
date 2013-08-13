@@ -79,5 +79,12 @@
            "lei è più ricca di Giorgio"))))
 
 (deftest fare-bene
-  (let [result (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare :mod {:pred :bene}}}})))]
+  (let [result (first (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare
+                                                                      :mod {:pred :bene}}}}))))]
+    (is (not (unify/fail? result)))))
+
+(deftest fare-bene-vendere-casa
+  (let [result (first (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare
+                                                                      :obj {:pred :vendere
+                                                                            :obj {:pred :casa}}}}}))))]
     (is (not (unify/fail? result)))))
