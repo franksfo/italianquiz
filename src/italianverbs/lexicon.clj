@@ -1758,7 +1758,7 @@
         :synsem {:essere false
                  :sem {:pred :mangiare
                        :subj {:animate true}
-                   :obj {:edible true}}}})
+                       :obj {:edible true}}}})
 
 ;; something's wrong with conjugation of this verb.
 ;(def telefonare
@@ -2423,14 +2423,6 @@
              :italian {:italian "ragazza"}
              :english {:english "girl"}})
 
-      (unify
-       transitive
-       {:italian {:infinitive "ricordare"}
-        :english {:infinitive "to remember"}
-        :synsem {:essere false
-                 :sem {:subj {:human true}
-                       :obj {:human true}
-                       :pred :recordare}}})
       (unify
        transitive
        {:italian {:infinitive "ricordare"}
