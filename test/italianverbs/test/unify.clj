@@ -1,4 +1,5 @@
 (ns italianverbs.test.unify
+  (:refer-clojure :exclude [get-in merge resolve find])
   (:use [italianverbs.unify])
   (:use [clojure.test]))
 

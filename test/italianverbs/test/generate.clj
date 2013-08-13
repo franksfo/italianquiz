@@ -2,6 +2,7 @@
 ;; generate/ should not depend on those - the grammar and lexicon are independent of
 ;; generation.
 (ns italianverbs.test.generate
+  (:refer-clojure :exclude [get-in merge resolve])
   (:use [clojure.test]
         [italianverbs.unify]
         [italianverbs.generate])

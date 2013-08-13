@@ -1,6 +1,6 @@
 (ns italianverbs.sandbox
-  [:use
-   [clojure.core :exclude [find]]
+  (:refer-clojure :exclude [get-in merge resolve find])
+  (:use
    [italianverbs.lexicon]
    ;; Prohibit generate/printfs because it writes directly to the filesystem:
    ;; attacker could DOS server by filling up filesystem.
@@ -12,9 +12,8 @@
    [italianverbs.html]
    [italianverbs.morphology]
    [clojail.core :only [sandbox]]
-   [clojail.testers]
-   ]
-  [:require
+   [clojail.testers])
+  (:require
    [italianverbs.generate :as gen]
    [italianverbs.grammar :as gram]
    [italianverbs.lexiconfn :as lexfn]
@@ -23,7 +22,7 @@
    [clojure.set :as set]
    [italianverbs.test.generate :as tgen]
    [clojure.string :as string]
-   [clojure.tools.logging :as log]])
+   [clojure.tools.logging :as log]))
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
