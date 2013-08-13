@@ -2436,7 +2436,8 @@
       (unify
        transitive
        {:italian {:infinitive "ricordare"}
-        :english {:infinitive "to remember"}
+        :english {:infinitive "to remember"
+                  :irregular {:past-particle "remembered"}}
         :synsem {:essere false
                  :sem {:subj {:human true}
                        :obj {:animate true}
@@ -2445,7 +2446,8 @@
       (unify
        transitive
        {:italian {:infinitive "ricordare"}
-        :english {:infinitive "to remember"}
+        :english {:infinitive "to remember"
+                  :irregular {:past-particle "remembered"}}
         :synsem {:essere false
                  :sem {:subj {:human true}
                        :obj {:legible true}
