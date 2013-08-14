@@ -763,6 +763,11 @@
 
      (and (= a "a")
           (string? b)
+          (re-find #"^i " b))
+     (str "ai " (string/replace b #"^il " ""))
+
+     (and (= a "a")
+          (string? b)
           (re-find #"^le " b))
      (str "alle " (string/replace b #"^le " ""))
 
