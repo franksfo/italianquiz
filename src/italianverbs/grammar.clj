@@ -273,12 +273,18 @@
            english-head-first)
     {:extend {:a {:head (fn [] lex/preps)
                   :comp (fn [] lex/propernouns-and-pronouns)}
+
               :b {:head (fn [] lex/preps)
                   :comp (fn [] np)}
+
               :c {:head (fn [] lex/preps)
                   :comp (fn [] lex/verbs)}
+
               :d {:head (fn [] lex/preps)
-                  :comp (fn [] vp-infinitive-transitive)}}}))
+                  :comp (fn [] vp-infinitive-transitive)}
+
+              :e {:head (fn [] lex/preps)
+                  :comp (fn [] vp-pron-verb-first)}}}))
 
 (def vp)
 
