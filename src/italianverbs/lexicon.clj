@@ -541,6 +541,7 @@
 
    {:synsem {:cat :prep
              :sem {:pred :a
+                   :mod {:pred :a}
                    :comparative false}
              :subcat {:1 {:cat :noun
                           :sem {:place true}}
@@ -549,7 +550,7 @@
     :english "to"}
 
 
-   (let [complement-semantics (ref :top)]
+   (let [complement-semantics (ref {:mod {:pred :a}})]
      {:synsem {:cat :prep
                :sem complement-semantics
                :subcat {:1 {:cat :verb
@@ -2068,17 +2069,18 @@
 
 
       (let [complement-semantics (ref :top)]
-        {:synsem {:cat :prep
-                  :sem {:pred :per
-                        :comparative false
-                        :mod complement-semantics}
-                  :subcat {:1 {:cat :verb
-                               :sem complement-semantics
-                               :infl :infinitive
-                               :subcat {:1 :top
-                                        :2 '()}}}}
-         :italian "per"
-         :english ""})
+        (unify
+         {:synsem {:sem {:mod {:pred :per}}}}
+         {:synsem {:cat :prep
+                   :sem complement-semantics
+                   :subcat {:1 {:cat :verb
+                                :sem complement-semantics
+                                :infl :infinitive
+                                :subcat {:1 :top
+                                         :2 '()}}
+                            :2 '()}}
+          :italian "per"
+          :english ""}))
 
       ;; perdere
       (unify
@@ -2758,11 +2760,13 @@
       (unify
        transitive-but-with-prepositional-phrase-instead-of-noun
        venire-common
-       {:synsem {:essere true
-                 :sem {:pred :venire
-                       :activity true
-                       :subj {:animate true}}
-                 :subcat {:2 {:sem {:pred :per}}}}})
+       (let [complement-semantics (ref {:mod {:pred :per}})] ;; takes 'per' as proposition.
+         {:synsem {:essere true
+                   :sem {:pred :venire
+                         :activity true
+                         :subj {:animate true}
+                         :obj complement-semantics}
+                   :subcat {:2 {:sem complement-semantics}}}}))
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
