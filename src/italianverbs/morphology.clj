@@ -704,7 +704,8 @@
      ;; 4) handle e.g. "aiutari + ti" => "aiutarti"
      (and (string? a)
           (or (re-find #"are$" a)
-              (re-find #"ere$" a))
+              (re-find #"ere$" a)
+              (re-find #"ire$" a))
           (or (= b "mi")
               (= b "ti")
               (= b "la")
