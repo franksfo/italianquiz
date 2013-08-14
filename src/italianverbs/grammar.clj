@@ -263,7 +263,7 @@
                    })))))
     (list np)))
 
-(def vp-infinitive-transtive)
+(def vp-infinitive-transitive)
 
 (def prep-phrase
   (merge
