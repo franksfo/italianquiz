@@ -49,6 +49,20 @@
                               :2 '()}}}
      :comp {:synsem comp-synsem}}))
 
+;;     subcat<>
+;;     /      \
+;;    /        \
+;; H subcat<1>  C[1]
+(def subcat-1-principle-no-complement-subcat-restrictions
+  (let [comp-synsem (ref {:subcat :top})]
+    {:synsem {:subcat '()}
+     :head {:synsem {:subcat {:1 comp-synsem
+                              :2 '()}}}
+     :comp {:synsem comp-synsem}}))
+
+
+
+
 ;;     subcat<1>
 ;;     /      \
 ;;    /        \
@@ -58,7 +72,8 @@
         parent-subcat (ref {:cat :top})]
     {:synsem {:subcat {:1 parent-subcat}}
      :head {:synsem {:subcat {:1 parent-subcat
-                              :2 comp-synsem}}}
+                              :2 comp-synsem
+                              :3 '()}}}
      :comp {:synsem comp-synsem}}))
 
 ;;     subcat<1,3>
@@ -249,28 +264,19 @@
     (list np)))
 
 (def prep-phrase
-  (let [comparative (ref :top)
-        comp-sem (ref :top)
-        head (ref {:synsem {:cat :prep
-                            :sem {:comparative comparative}}})
-        comp (ref {:synsem {:cat :noun
-                            :sem comp-sem
-                            :subcat '()}})]
-    (fs/unifyc head-principle
-               subcat-1-principle
-               {
-                :comment "pp &#x2192; prep (np or propernoun)"
-                :comment-plaintext "pp -> prep (np or proper noun)"}
-               {:head head
-                :comp comp
-                :synsem {:sem {:comparative comparative
-                               :mod comp-sem}}}
-               italian-head-first
-               english-head-first
-               {:extend {:a {:head (fn [] lex/preps)
-                             :comp (fn [] np)}
-                         :b {:head (fn [] lex/preps)
-                             :comp (fn [] lex/propernouns-and-pronouns)}}})))
+  (merge
+    (unify head-principle
+           subcat-1-principle-no-complement-subcat-restrictions
+           italian-head-first
+           english-head-first)
+    {:extend {:a {:head (fn [] lex/preps)
+                  :comp (fn [] lex/propernouns-and-pronouns)}
+              :b {:head (fn [] lex/preps)
+                  :comp (fn [] np)}
+              :c {:head (fn [] lex/preps)
+                  :comp (fn [] lex/verbs)}
+              :d {:head (fn [] lex/preps)
+                  :comp (fn [] vp-infinitive-transitive)}}}))
 
 (def vp)
 
@@ -387,7 +393,8 @@
                          :d {:head (fn [] lex/verbs)
                              :comp (fn [] lex/propernouns-and-pronouns)}
                          :e {:head (fn [] lex/verbs)
-                             :comp (fn [] intensifier-phrase)}}}))
+                             :comp (fn [] intensifier-phrase)}
+                         }}))
 
   ;; vp-pron is verb-last in Italian, so this is the opposite order in Italian.
   ;; e.g. "aiutare" "ti" (morphology turns it into "aiutarti").
