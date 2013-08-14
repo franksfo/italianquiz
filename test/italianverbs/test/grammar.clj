@@ -1,9 +1,9 @@
 (ns italianverbs.test.grammar
   (:require
-   [italianverbs.morphology :as morph]
    [italianverbs.unify :as unify])
   (:use [clojure.test]
         [italianverbs.generate]
+        [italianverbs.morphology]
         [italianverbs.grammar]))
 
 (deftest io-dormo
@@ -12,8 +12,8 @@
                              (unify s-present {:synsem {:sem {:pred :dormire
                                                               :subj {:pred :io}}}}))))]
     (is (not (unify/fail? result)))
-    (is (= (unify/get-in (morph/finalize result) '(:italian)) "io dormo"))
-    (is (= (unify/get-in (morph/finalize result) '(:english)) "I sleep"))))
+    (is (= (unify/get-in (finalize result) '(:italian)) "io dormo"))
+    (is (= (unify/get-in (finalize result) '(:english)) "I sleep"))))
 
 (defn successful [result]
   (or (not (map? result))
@@ -57,13 +57,13 @@
 
 (deftest tu-hai-fatto-bene-a-vendere-la-casa-test
   (is (successful? tu-hai-fatto-bene-a-vendere-la-casa))
-  (let [english (unify/get-in (morph/finalize (unify/copy tu-hai-fatto-bene-a-vendere-la-casa))
+  (let [english (unify/get-in (finalize (unify/copy tu-hai-fatto-bene-a-vendere-la-casa))
                               '(:english))]
     ;; TODO: figure out why extra space is being generated after "you".
     (is (or (= english "you  (&#x2642;) did well to sell the house")
             (= english "you  (&#x2640;) did well to sell the house"))))
   (is (= "tu hai fatto bene a vendere la casa"
-         (unify/get-in (morph/finalize (unify/copy tu-hai-fatto-bene-a-vendere-la-casa))
+         (unify/get-in (finalize (unify/copy tu-hai-fatto-bene-a-vendere-la-casa))
                        '(:italian)))))
 
 (deftest adj-agreement-with-subject
@@ -75,7 +75,7 @@
                           ;; error: (over adj-phrase (second (it "ricco")))
                           (over adj-phrase "ricco"
                                 (over prep-phrase "di" "Giorgio")))))]
-    (is (= (morph/strip (morph/get-italian (get-in (first lei-e-piu-ricca-di-giorgio) '(:italian))))
+    (is (= (strip (get-italian (get-in (first lei-e-piu-ricca-di-giorgio) '(:italian))))
            "lei è più ricca di Giorgio"))))
 
 (deftest fare-bene
