@@ -91,4 +91,4 @@
 
 (deftest io-sono-venuto-per-dormire
   (is (successful? (over s-past "io"
-                         (over vp-aux lexicon (over vp-past "venire" (over prep-plus-verb-inf "per" "dormire")))))))
+                         (over vp-aux "avere" (over vp-past "venire" (over prep-plus-verb-inf "per" "dormire")))))))
