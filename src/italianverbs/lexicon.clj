@@ -551,6 +551,16 @@
 
 
    (let [complement-semantics (ref {:mod {:pred :a}})]
+;        {:synsem {:cat :prep
+;                  :sem {:pred :in}
+;                  :subcat {:1 {:cat :noun
+;                               :sem {:city true}}}}
+;         ;; this overrides the prep-phrase's extends, which are too general
+;         ;; for this lexical entry "a"/"in".
+;         :extend {:prep-phrase {:a {:head :prepositions
+;                                    :comp :proper-nouns}}}
+;         :italian "a"
+;         :english "in"}
      {:synsem {:cat :prep
                :sem complement-semantics
                :subcat {:1 {:cat :verb
@@ -1423,17 +1433,6 @@
                 :number :sing}
        :italian "il tuo"
        :english "your"}
-
-;        {:synsem {:cat :prep
-;                  :sem {:pred :in}
-;                  :subcat {:1 {:cat :noun
-;                               :sem {:city true}}}}
-;         ;; this overrides the prep-phrase's extends, which are too general
-;         ;; for this lexical entry "a"/"in".
-;         :extend {:prep-phrase {:a {:head :prepositions
-;                                    :comp :proper-nouns}}}
-;         :italian "a"
-;         :english "in"}
 
       {:synsem {:cat :det
                 :def :possessive
