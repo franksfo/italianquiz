@@ -264,6 +264,7 @@
     (list np)))
 
 (def vp-infinitive-transitive)
+(def vp-pron-verb-first)
 
 (def prep-phrase
   (merge
