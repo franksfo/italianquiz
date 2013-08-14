@@ -263,6 +263,8 @@
                    })))))
     (list np)))
 
+(def vp-infinitive-transtive)
+
 (def prep-phrase
   (merge
     (unify head-principle
