@@ -81,10 +81,14 @@
 (deftest fare-bene
   (let [result (first (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare
                                                                       :mod {:pred :bene}}}}))))]
-    (is (not (unify/fail? result)))))
+    (is (successful? result))))
 
 (deftest fare-bene-vendere-casa
   (let [result (first (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare
                                                                       :obj {:pred :vendere
                                                                             :obj {:pred :casa}}}}}))))]
-    (is (not (unify/fail? result)))))
+    (is (successful? result))))
+
+(deftest io-sono-venuto-per-dormire
+  (is (successful? (over s-past "io"
+                         (over vp-aux lexicon (over vp-past "venire" (over prep-plus-verb-inf "per" "dormire")))))))
