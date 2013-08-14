@@ -64,6 +64,7 @@
          ;; drinkables are always mass nouns.
          (if (= (fs/get-in input '(:drinkable)) true)
            {:mass true
+            :activity false
             :legible false}{})
 
          drinkable-xor-edible-1
@@ -544,13 +545,12 @@
                    :mod {:pred :a}
                    :comparative false}
              :subcat {:1 {:cat :noun
+                          :subcat '()
                           :sem {:place true}}
                       :2 '()}}
     :italian "a"
     :english "to"}
 
-
-   (let [complement-semantics (ref {:mod {:pred :a}})]
 ;        {:synsem {:cat :prep
 ;                  :sem {:pred :in}
 ;                  :subcat {:1 {:cat :noun
@@ -561,6 +561,9 @@
 ;                                    :comp :proper-nouns}}}
 ;         :italian "a"
 ;         :english "in"}
+
+   ;; e.g. "a ridere": tu hai fatto bene [a ridere] (you did well to laugh)"
+   (let [complement-semantics (ref {:mod {:pred :a}})]
      {:synsem {:cat :prep
                :sem complement-semantics
                :subcat {:1 {:cat :verb
@@ -986,8 +989,10 @@
     ;; (should be lui, not lo).
     {:synsem {:cat :prep
               :sem {:pred :di
+                    :mod {:pred :di} ;; so that "venire" cannot match.
                     :comparative true}
               :subcat {:1 {:cat :noun
+                           :subcat '()
                            :def {:not :partitivo} ;; avoid alliteration like "di delle ragazze (of some women)"
                            :agr {:case :disj} ;; pronouns must be disjunctive (me/te/lui/lei...etc)
                            ;; non-pronouns will unify with this constraint.
@@ -2067,9 +2072,8 @@
               :english {:english "pizza"}})
 
 
-      (let [complement-semantics (ref :top)]
+      (let [complement-semantics (ref {:mod {:pred :per}})]
         (unify
-         {:synsem {:sem {:mod {:pred :per}}}}
          {:synsem {:cat :prep
                    :sem complement-semantics
                    :subcat {:1 {:cat :verb
