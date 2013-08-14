@@ -63,12 +63,13 @@
                   true
                   (failr? fs (rest keys)))
                 false))
-            (cond (= fs :fail) true
-              (map? fs)
-              (failr? fs (keys fs))
-              (= (type fs) clojure.lang.Ref)
-              (fail? @fs)
-              :else false)))))
+            (cond
+             (= fs :fail) true
+             (map? fs)
+             (failr? fs (keys fs))
+             (= (type fs) clojure.lang.Ref)
+             (fail? @fs)
+             :else false)))))
 
 (defn fail-path [fs & [ fs-keys ] ]
   "find the first failing path in a fs."
