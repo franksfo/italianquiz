@@ -1273,7 +1273,8 @@
           ;; fare (to do well to): e.g. "tu ha fatto bene a vendere la casa"
           (let [adverb-semantics (ref {:pred :top})
                 subject-semantics (ref {:human true})
-                prepositional-semantics (ref {:subj subject-semantics})]
+                prepositional-semantics (ref {:subj subject-semantics
+                                              :mod {:pred :a}})]
             (unify
              verb-subjective
              fare-common
