@@ -23,26 +23,26 @@
 
 (def fare-bene (over vp-plus-adverb "fare" "bene"))
 (deftest fare-bene-test
-  (is (successful? fare-bene)))
+  (is (successful fare-bene)))
 
 (def a-vendere-la-casa (over prep-plus-verb-inf "a"
                              (over vp
                                    "vendere"
                                    (over np "la" "casa"))))
 (deftest a-vendere-la-casa-test
-  (is (successful? a-vendere-la-casa)))
+  (is (successful a-vendere-la-casa)))
 
 (def fare-bene-a-vendere-la-casa
   (over vp fare-bene a-vendere-la-casa))
 (deftest fare-bene-a-vendere-la-casa-test
-  (is (successful? fare-bene-a-vendere-la-casa)))
+  (is (successful fare-bene-a-vendere-la-casa)))
 
 (def avere-fare-bene-a-vendere-la-casa
   ;; TODO: should not have to look for second or first member: (over) should handle it.
   (second (over vp-aux "avere" fare-bene-a-vendere-la-casa)))
 
 (deftest avere-fare-bene-a-vendere-la-casa-test
-  (is (successful? avere-fare-bene-a-vendere-la-casa)))
+  (is (successful avere-fare-bene-a-vendere-la-casa)))
 
 (def tu-hai-fatto-bene-a-vendere-la-casa
   ;; TODO: (over) can't take a sequence as the 2nd argument, so can't do this (commented-out):
@@ -56,7 +56,7 @@
       result)))
 
 (deftest tu-hai-fatto-bene-a-vendere-la-casa-test
-  (is (successful? tu-hai-fatto-bene-a-vendere-la-casa))
+  (is (successful tu-hai-fatto-bene-a-vendere-la-casa))
   (let [english (unify/get-in (finalize (unify/copy tu-hai-fatto-bene-a-vendere-la-casa))
                               '(:english))]
     ;; TODO: figure out why extra space is being generated after "you".
@@ -81,14 +81,14 @@
 (deftest fare-bene
   (let [result (first (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare
                                                                       :mod {:pred :bene}}}}))))]
-    (is (successful? result))))
+    (is (successful result))))
 
 (deftest fare-bene-vendere-casa
   (let [result (first (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare
                                                                       :obj {:pred :vendere
                                                                             :obj {:pred :casa}}}}}))))]
-    (is (successful? result))))
+    (is (successful result))))
 
 (deftest io-sono-venuto-per-dormire
-  (is (successful? (over s-past "io"
+  (is (successful (over s-past "io"
                          (over vp-aux "avere" (over vp-past "venire" (over prep-plus-verb-inf "per" "dormire")))))))
