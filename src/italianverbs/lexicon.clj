@@ -2506,6 +2506,17 @@
               :english {:english "naive"
                         :cat :adjective}})
 
+      (unify (:agreement noun)
+             (:common noun)
+             (:countable noun)
+             (:masculine noun)
+             {:synsem {:sem {:pred :strada
+                             :buyable false ;; a street's too big/valuable to own.
+                             :artifact true
+                             :city false
+                             :place true}}
+              :italian {:italian "strada"}
+              :english {:english "street"}})
 
       ;; stradale
       (unify (:agreement noun)
@@ -2532,37 +2543,6 @@
                              :pred :scala}}
               :italian {:italian "scala"}
               :english {:english "ladder"}})
-
-      (unify
-       (:transitive verb)
-       {:italian {:infinitive "sostenere"
-                  :irregular {:passato "sostenuto"
-                              :present {:1sing "sostengo"
-                                        :2sing "sostengi"
-                                        :3sing "sostenga"
-                                        :1plur "sosteniamo"
-                                        :2plur "sostenete"
-                                        :3plur "sostengono"}}}
-        :english {:infinitive "to support"}
-
-        :synsem {:essere false
-                 :sem {:pred :sostenere
-                       :activity true
-                       :discrete false
-                       :subj {:human true}
-                       :obj {:sem {:political true}}}}})
-
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             countable-noun
-             {:synsem {:sem {:artifact true
-                             :consumable true
-                             :legible true
-                             :speakable true
-                             :pred :stravaganza}}
-              :italian {:italian "stravaganza"}
-              :english {:english "extravagant thing"}})
 
       (unify agreement-noun
              common-noun
@@ -2591,6 +2571,26 @@
                              :pred :sedia}}
               :italian {:italian "sedia"}
               :english {:english "chair"}})
+
+      (unify
+       (:transitive verb)
+       {:italian {:infinitive "sostenere"
+                  :irregular {:passato "sostenuto"
+                              :present {:1sing "sostengo"
+                                        :2sing "sostengi"
+                                        :3sing "sostenga"
+                                        :1plur "sosteniamo"
+                                        :2plur "sostenete"
+                                        :3plur "sostengono"}}}
+        :english {:infinitive "to support"}
+
+        :synsem {:essere false
+                 :sem {:pred :sostenere
+                       :activity true
+                       :discrete false
+                       :subj {:human true}
+                       :obj {:sem {:political true}}}}})
+
       (unify
        intransitive
        {:italian {:infinitive "sognare"}
@@ -2600,6 +2600,33 @@
                  :sem {:subj {:animate true}
                        :discrete false
                        :pred :sognare}}})
+
+      (unify agreement-noun
+             common-noun
+             masculine-noun
+             countable-noun
+             {:synsem {:agr {:number :plur}
+                       :sem {:human true
+                             :pred :suoceri}}
+              :italian {:italian "suoceri"}
+              :english {:english "parent-in-law" ;; note that this form is never used
+                        ;; because the agreement is fixed as plural, so only the
+                        ;; following irregular plural form will be used.
+                        :irregular {:plur "parents-in-law"}}})
+
+
+
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             countable-noun
+             {:synsem {:sem {:artifact true
+                             :consumable true
+                             :legible true
+                             :speakable true
+                             :pred :stravaganza}}
+              :italian {:italian "stravaganza"}
+              :english {:english "extravagant thing"}})
 
       (unify agreement-noun
              common-noun
@@ -2677,7 +2704,7 @@
                 :sem (unify human {:pred :tu})
                 :subcat '()}
        :english {:english "you"
-                 :note " (&#x2642;)"} ;; unicode female symbol
+                 :note " (&#x2642;)"} ;; unicode male symbol
        :italian "tu"}
 
       {:synsem {:cat :det
