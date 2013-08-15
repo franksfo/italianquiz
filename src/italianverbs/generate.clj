@@ -418,11 +418,8 @@
   (if (not (empty? heads))
     (let [head-candidate (first heads)
           result (lexfn/unify head-candidate
-                              (lexfn/unify
-                               (do (log/debug (str "trying head candidate of " (unify/get-in parent '(:comment-plaintext)) " : " (morph/fo head-candidate)))
-                                   (lexfn/unify
-                                    sem-impl
-                                    (unify/get-in parent '(:head))))))]
+                              sem-impl
+                              (unify/get-in parent '(:head)))]
       (if (unify/fail? result)
         (log/debug (str " head candidate failed: " (morph/fo head-candidate)))
         (log/debug (str " head candidate succeeded: " (morph/fo head-candidate))))
