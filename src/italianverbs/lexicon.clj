@@ -1248,17 +1248,6 @@
                        :subj {:animate true}
                        :obj {:edible true}}}})
 
-;; something's wrong with conjugation of this verb.
-;(def telefonare
-;  (unify
-;   transitive
-;   {:italian {:italian "telefonare"}
-;    :english {:english "to call"}
-;    :synsem {:essere false
-;             :sem {:pred :telefonare
-;                   :subj {:human true}
-;                   :obj {:human true}}}}))
-
       (unify agreement-noun
              common-noun
              countable-noun
@@ -2155,6 +2144,25 @@
               :english {:english "tablecloth"
                         ;; regular morphology would give us "tableclothes", so:
                         :irregular {:plur "tablecloths"}}})
+
+      ;; something's wrong with conjugation of this verb.
+                                        ;(def telefonare
+                                        ;  (unify
+                                        ;   transitive
+                                        ;   {:italian {:italian "telefonare"}
+                                        ;    :english {:english "to call"}
+                                        ;    :synsem {:essere false
+                                        ;             :sem {:pred :telefonare
+                                        ;                   :subj {:human true}
+                                        ;                   :obj {:human true}}}}))
+
+
+
+      {:synsem {:cat :sent-modifier
+                :subcat {:1 {:sem {:tense :past
+                                   :activity true}}}}
+       :italian "tre giorni fa"
+       :english "three days ago"}
 
       {:synsem {:cat :noun
                 :pronoun true
