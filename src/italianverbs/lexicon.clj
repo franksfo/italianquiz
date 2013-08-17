@@ -2510,7 +2510,7 @@
       (unify (:agreement noun)
              (:common noun)
              (:countable noun)
-             (:masculine noun)
+             (:feminine noun)
              {:synsem {:sem {:pred :strada
                              :buyable false ;; a street's too big/valuable to own.
                              :artifact true
