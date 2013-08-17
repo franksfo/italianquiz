@@ -76,14 +76,6 @@ lein ring server-headless
 You should see output such as:
 
 ```
-WARNING: resolve already refers to: #'clojure.core/resolve in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/resolve
-WARNING: get-in already refers to: #'clojure.core/get-in in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/get-in
-WARNING: merge already refers to: #'clojure.core/merge in namespace: italianverbs.unify, being replaced by: #'italianverbs.unify/merge
-WARNING: get-in already refers to: #'clojure.core/get-in in namespace: italianverbs.test.generate, being replaced by: #'italianverbs.unify/get-in
-WARNING: resolve already refers to: #'clojure.core/resolve in namespace: italianverbs.test.generate, being replaced by: #'italianverbs.unify/resolve
-WARNING: merge already refers to: #'clojure.core/merge in namespace: italianverbs.test.generate, being replaced by: #'italianverbs.unify/merge
-WARNING: get-in already refers to: #'clojure.core/get-in in namespace: italianverbs.sandbox, being replaced by: #'italianverbs.sandbox/get-in
-WARNING: test already refers to: #'clojure.core/test in namespace: italianverbs.quiz, being replaced by: #'italianverbs.quiz/test
 2013-07-31 04:50:48.152:INFO:oejs.Server:jetty-7.6.1.v20120215
 2013-07-31 04:50:48.313:INFO:oejs.AbstractConnector:Started SelectChannelConnector@0.0.0.0:3000
 Started server on port 3000
@@ -106,6 +98,28 @@ grant {
 ```
 
 Note that the above is very permissive and not recommended. I intend to narrow this down once I understand how .java.policy rules work.
+
+# Working in the REPL
+
+```
+ekoontz@mac ~/italianverbs $ lein repl
+nREPL server started on port 60977
+REPL-y 0.2.0
+Clojure 1.5.1
+    Docs: (doc function-name-here)
+          (find-doc "part-of-name-here")
+  Source: (source function-name-here)
+ Javadoc: (javadoc java-object-or-class-here)
+    Exit: Control+D or (exit) or (quit)
+
+user=> (load-file "src/italianverbs/tutorial.clj")
+user=> (ns italianverbs.tutorial)
+nil
+italianverbs.tutorial=> (fo (take 1 (generate np)))
+("La scala bianca (The white ladder).")
+italianverbs.tutorial=> (fo (take 1 (generate s-present)))
+("Il tuo dottore aiuta Paola (Your doctor helps Paola).")
+```
 
 # Hacking:
 

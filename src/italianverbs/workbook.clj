@@ -19,7 +19,7 @@
             (string/join " "
                          (let [loaded
                                (try
-                                 (sandbox/sandbox-load-string expr)
+                                 (sandbox/workbook-sandbox (read-string expr))
                                  (catch Exception e
                                    (log/error (str "failed to sandbox-load-string: " expr))
                                    (str e)))]
