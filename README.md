@@ -133,7 +133,7 @@ italianverbs.tutorial=> (fo (take 1 (generate s-present)))
 
 # Hacking:
 
-<a href="http://hiro-tan.org/italian/about">Architectural diagram</a>.
+<a href="http://hiro-tan.org/italian/about/">Architectural diagram</a>.
 
 ## Server path routing
 
