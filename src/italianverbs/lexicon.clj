@@ -863,6 +863,12 @@
        :italian "i vostri"
        :english "your (pl) "}
 
+      {:synsem {:cat :sent-modifier
+                :subcat {:1 {:sem {:tense :past
+                                   :activity true}}}}
+       :italian "ieri"
+       :english "yesterday"}
+
       {:synsem {:cat :det
                 :def :def
                 :gender :masc
@@ -1654,13 +1660,6 @@
                                    :tense :present}}}}
        :italian "qualche volta"
        :english "sometimes"}
-
-
-      {:synsem {:cat :sent-modifier
-                :subcat {:1 {:sem {:tense :past
-                                   :activity true}}}}
-       :italian "ieri"
-       :english "yesterday"}
 
       {:synsem {:cat :noun
                 :pronoun true
