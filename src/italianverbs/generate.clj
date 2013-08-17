@@ -10,6 +10,7 @@
    [italianverbs.config :as config]
    [italianverbs.html :as html]
    [italianverbs.lexicon :as lex]
+   [italianverbs.lexiconfn :as lexfn]
    [italianverbs.search :as search]
    [clojure.string :as string]))
 
@@ -24,8 +25,8 @@
                (lexfn/unify parent
                           {:1 child1
                            :2 child2}
-                          {:1 {:synsem {:sem (lex/sem-impl (unify/get-in child1 '(:synsem :sem)))}}
-                           :2 {:synsem {:sem (lex/sem-impl (unify/get-in child2 '(:synsem :sem)))}}}))
+                          {:1 {:synsem {:sem (lexfn/sem-impl (unify/get-in child1 '(:synsem :sem)))}}
+                           :2 {:synsem {:sem (lexfn/sem-impl (unify/get-in child2 '(:synsem :sem)))}}}))
         fail (unify/fail? unified)]
     (if (= fail true)
       :fail
@@ -276,7 +277,7 @@
                                    (lexfn/unify
                                     (let [sem (unify/get-in child '(:synsem :sem) :notfound)]
                                       (if (not (= sem :notfound))
-                                        {:synsem {:sem (lex/sem-impl sem)}}
+                                        {:synsem {:sem (lexfn/sem-impl sem)}}
                                         {}))
                                     child)})]
          (if (unify/fail? unified)
@@ -308,7 +309,6 @@
    (fn? symbol) (apply symbol nil)
    (= symbol 'lexicon) (lazy-seq (cons (first lex/lexicon)
                                        (rest lex/lexicon)))
-   (= symbol 'tinylex) lex/tinylex
    true (throw (Exception. (str "(italianverbs.generate/eval-symbol could not evaluate symbol: '" symbol "'")))))
 
 (declare head-by-comps)
@@ -366,7 +366,7 @@
       (let [unified
             (lexfn/unify parent
                        (lexfn/unify {:head (first heads)}
-                                  {:head {:synsem {:sem (lex/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
+                                  {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in (first heads) '(:synsem :sem)))}}}))
             unified-parent
             (if (not (unify/fail? unified))
               unified
@@ -431,7 +431,7 @@
 
 (defn lazy-head-expands [parent expansion]
   (let [head (eval-symbol (:head expansion))
-        sem-impl {:synsem {:sem (lex/sem-impl
+        sem-impl {:synsem {:sem (lexfn/sem-impl
                                  (unify/get-in parent '(:head :synsem :sem)))}}]
     (log/debug (str "doing hc-expands:"
                     (unify/get-in head '(:comment-plaintext))
@@ -580,8 +580,8 @@
                     (lexfn/unify comp
                                (lexfn/unify
                                 comp-spec
-                                {:synsem {:sem (lex/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem) :top)
-                                                                        (unify/get-in comp '(:synsem :sem) :top)))}}))
+                                {:synsem {:sem (lexfn/sem-impl (lexfn/unify (unify/get-in parent '(:comp :synsem :sem) :top)
+                                                                            (unify/get-in comp '(:synsem :sem) :top)))}}))
                     ;; TODO: Move this before computation of comp-specification: if (phrase-is-finished? comp) == true, no need to compute comp-specification.
                     ;; TODO: Do not compute comp-specification if (not head-is-finished?) == true, since head is not complete yet - compute comp-specification should
                     ;;       be deferred until head-is-finished? == true.
