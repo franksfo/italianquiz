@@ -68,6 +68,21 @@ div.poweredbox td {
     padding-bottom:2px;
 }
 
+table.italianquiz td {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:4px solid #11ceff;
+    background:#11ceff;
+    margin-top:0.5em;
+    margin-bottom:0.5em;
+    padding-bottom:2px;
+}
+
+div.groupinglabel {
+    float:left;
+    font-size:smaller;
+}
 
 div.guess {
     width:70%;

@@ -1,9 +1,7 @@
-;; probably can remove congomongo from here.
 ;; TODO: move as much app-specific code out of here
 ;; into italianverbs.html.
 (ns base.html
-  (:use [hiccup core page]
-        [somnium.congomongo])
+  (:use [hiccup core page])
   (:require [base.lib :as baselib]
             [clojure.tools.logging :as log]
             [hiccup.page :as hpage]
@@ -62,7 +60,35 @@
     [:table
      [:tr
       [:td {:colspan "5"}
-       (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz")]]
+       [:div {:class "groupinglabel"}
+        (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz")]
+
+        [:table {:class "italianquiz"}
+         [:tr
+          [:td {:colspan "3"}
+           (powered-by "quiz" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/quiz.clj")]
+          ]
+         [:tr
+          [:td
+           (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbsgrammar.clj")]
+          [:td {:rowspan "2"}
+           (powered-by "morphology" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/morphology.clj")
+           ]
+          [:td {:rowspan "2"}
+           (powered-by "lexicon" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/lexicon.clj")
+           ]
+          ]
+         [:tr
+          [:td {:colspan "1"}
+           (powered-by "generate" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/generate.clj")
+           ]
+          ]
+         [:tr
+          [:td {:colspan "3"}
+           (powered-by "unify" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/unify.clj")
+           ]
+          ]
+         ]]]
      [:tr
       [:td {:colspan "2"}
        (powered-by "compojure" "https://github.com/weavejester/compojure")]
