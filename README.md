@@ -8,7 +8,7 @@ written in Clojure, a Lisp that runs on the Java Virtual Machine
 href="http://en.wikipedia.org/wiki/Head-driven_phrase_structure_grammar">Head
 Driven Phrase Structure Grammar (HPSG)</a> as described in the book <a
 href="http://cslipublications.stanford.edu/site/0226674479.shtml">Head-Driven
-Phrase Structure Grammar</a> by Pollard and Sag 1994.
+Phrase Structure Grammar</a> [Pollard and Sag 1994].
 
 # Quick Start
 
