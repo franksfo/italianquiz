@@ -79,12 +79,12 @@
                       :subj {:human true}
                       :obj {:animate true}}}})
 
-     ;; andare-intransitive
+     ;; "andare"-intransitive
      (unify
       intransitive
       andare-common)
 
-     ;; andare that takes a prepositional phrase
+     ;; "andare" that takes a prepositional phrase
      (unify
       verb-subjective
       andare-common
@@ -96,7 +96,7 @@
                                :cat :prep}}}})
       {:note "andare-pp"})
 
-     ;; avere: to possess something buyable
+     ;; "avere": to possess something buyable
      (unify
       transitive
       avere-common
@@ -106,7 +106,7 @@
                       :subj {:human true}
                       :obj {:buyable true}}}})
 
-     ;; avere: auxiliary-verb: takes intransitive verb (1 arg)
+     ;; "avere": auxiliary-verb: takes intransitive verb (1 arg)
      (unify
       verb-aux-type
       verb-subjective
@@ -116,7 +116,7 @@
                 :subcat {:2 {:essere false}}}
        :english {:hidden true}})
 
-     ;; avere: auxiliary-verb: takes transitive verb (2 args)
+     ;; "avere": auxiliary-verb: takes transitive verb (2 args)
      (unify
       verb-aux-type-2
       verb-subjective
