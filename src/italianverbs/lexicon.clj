@@ -1967,6 +1967,12 @@
               :english {:english "naive"
                         :cat :adjective}})
 
+      (unify {:italian "stamattina"
+              :synsem {:cat :sent-modifier
+                       :subcat {:1 {:sem {:tense :past
+                                          :activity true}}}}
+              :english "this morning"})
+
       (unify (:agreement noun)
              (:common noun)
              (:countable noun)
