@@ -748,7 +748,7 @@
 
      (and (= a "quelli")
           (string? b)
-          (re-find #"^(st|[aeiou])" b))
+          (re-find #"^(st|sc|[aeiou])" b))
      (str "quegli " b)
 
      (and (= a "quest[aeio]")
