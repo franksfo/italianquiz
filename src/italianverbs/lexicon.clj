@@ -2279,6 +2279,7 @@
                    :sem {:pred :venire
                          :activity true
                          :subj {:animate true}
+                         :deliberate true ;; you come to do something that you intended to do, not something that you do accidentally.
                          :obj complement-semantics}
                    :subcat {:2 {:sem complement-semantics}}}}))
 
