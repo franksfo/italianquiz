@@ -1562,6 +1562,7 @@
         :synsem {:essere false
                  :sem {:pred :perdere
                        :activity false
+                       :deliberate false ;; you don't lose things on purpose.
                        :discrete true
                        :subj {:human true}
                        :obj {:buyable true}}}})
