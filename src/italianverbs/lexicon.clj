@@ -301,9 +301,7 @@
                            :artifact true
                            :place true}}
             :italian {:italian "casa"}
-            :english {:english "house"}}
-           {:synsem {:subcat {:1 {:cat :det
-                                  :def :def}}}})
+            :english {:english "house"}})
 
      (unify adjective
             {:synsem {:cat :adjective
