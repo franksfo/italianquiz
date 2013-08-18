@@ -423,20 +423,19 @@
                             head-is-finished?))
            (heads-by-comps parent (rest heads) comps depth))))))))
 
-(defn lazy-head-filter [parent expansion sem-impl heads]
+(defn lazy-head-filter [expansion head-of-parent-and-sem-impl heads]
   (if (not (empty? heads))
     (let [head-candidate (first heads)
           result (lexfn/unify head-candidate
-                              sem-impl
-                              (unify/get-in parent '(:head)))]
+                              head-of-parent-and-sem-impl)]
       (if (unify/fail? result)
         (log/debug (str " head candidate failed: " (morph/fo head-candidate)))
         (log/debug (str " head candidate succeeded: " (morph/fo head-candidate))))
       (if (not (unify/fail? result))
         (lazy-seq
          (cons result
-               (lazy-head-filter parent expansion sem-impl (rest heads))))
-        (lazy-head-filter parent expansion sem-impl (rest heads))))))
+               (lazy-head-filter expansion head-of-parent-and-sem-impl (rest heads))))
+        (lazy-head-filter expansion head-of-parent-and-sem-impl (rest heads))))))
 
 (defn lazy-head-expands [parent expansion]
   (let [head (eval-symbol (:head expansion))
@@ -448,7 +447,7 @@
     (if (seq? head)
       ;; a sequence of lexical items: shuffle and filter by whether they fit the :head of this rule.
       ;; TODO: pre-compile set of candidates heads for each parent.
-      (lazy-head-filter parent expansion sem-impl (shuffle head))
+      (lazy-head-filter expansion (lexfn/unify sem-impl (unify/get-in parent '(:head))) (shuffle head))
       ;; else: treat as rule: should generate at this point.
       (list (lexfn/unify (unify/get-in parent '(:head)) head)))))
 
