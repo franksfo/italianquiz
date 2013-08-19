@@ -575,6 +575,47 @@
                                  :2plur "were"
                                  :3plur "were"}}}}))
 
+          (def fare-common
+            ;; factor out common stuff from all senses of "fare".
+            {:synsem {:essere false}
+             :italian {:infinitive "fare"
+                       :irregular {:passato "fatto"
+                                   :present {:1sing "facio"
+                                             :2sing "fai"
+                                             :3sing "fa"
+                                             :1plur "facciamo"
+                                             :2plur "fate"
+                                             :3plur "fanno"}
+                                   :imperfetto {:1sing "facevo"
+                                                :2sing "facevi"
+                                                :3sing "faceva"
+                                                :1plur "facevamo"
+                                                :2plur "facevate"
+                                                :3plur "facevano"}
+                                   :futuro {:1sing "farò"
+                                            :2sing "farai"
+                                            :3sing "farà"
+                                            :1plur "faremo"
+                                            :2plur "farete"
+                                            :3plur "faranno"}}}})
+      ;; factor out common stuff from all senses of "venire".
+      (def venire-common
+        {:italian {:infinitive "venire"
+                   :irregular {:passato "venuto"
+                               :futuro  {:1sing "verrò"
+                                         :2sing "verrai"
+                                         :3sing "verrà"
+                                         :1plur "verremo"
+                                         :2plur "verrete"
+                                         :3plur "verranno"}
+                               :present {:1sing "vengo"
+                                         :2sing "vieni"
+                                         :3sing "viene"
+                                         :1plur "veniamo"
+                                         :2plur "venete"
+                                         :3plur "vengono"}}}
+         :english {:infinitive "to come"
+                   :irregular {:past "came"}}})
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."

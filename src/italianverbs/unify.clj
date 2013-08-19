@@ -590,7 +590,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn skeletize [input-val]
   (if (or (= (type input-val) clojure.lang.PersistentArrayMap)
           (= (type input-val) clojure.lang.PersistentHashMap))
-    (zipmap (keys input-val)
+    (zipmap (keys (dissoc input-val :serialized))
             (map (fn [val]
                    (if (= (type val) clojure.lang.Ref)
                      :top
@@ -598,7 +598,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                              (= (type val) clojure.lang.PersistentHashMap))
                        (skeletize val)
                        val)))
-                 (vals input-val)))
+                 (vals (dissoc input-val :serialized))))
     input-val))
 
 ;; TODO s/map/input-map/
@@ -735,22 +735,26 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
              all))))
 
 (defn serialize [input-map]
-  (let [;debug (println (str "SERIALIZING: " input-map))
-        ser (ser-intermed input-map)]
-    ;; ser is a intermediate (but fully-serialized) representation
-    ;; as a map:
-    ;; { path1 => value1
-    ;;   path2 => value2
-    ;;   nil   => skeleton}
-    ;;
-    ;; The skeleton (immediately above) is the _input-map_, but with
-    ;; the dummy placeholder value :top substituted for each occurance
-    ;; of a reference in _input-map_.
-    ;;
-    ;; We now sort _ser_ in a shortest-path-first order, so that,
-    ;; during de-serialization, all assignments will happen in this
-    ;; same correct order.
-    (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))
+  (let [memoized (get input-map :serialized :none)]
+    (if (not (= memoized :none))
+      (let [debug (log/debug "using cached serialization!")]
+        memoized)
+      (let [;debug (println (str "SERIALIZING: " input-map))
+            ser (ser-intermed input-map)]
+        ;; ser is a intermediate (but fully-serialized) representation
+        ;; as a map:
+        ;; { path1 => value1
+        ;;   path2 => value2
+        ;;   nil   => skeleton}
+        ;;
+        ;; The skeleton (immediately above) is the _input-map_, but with
+        ;; the dummy placeholder value :top substituted for each occurance
+        ;; of a reference in _input-map_.
+        ;;
+        ;; We now sort _ser_ in a shortest-path-first order, so that,
+        ;; during de-serialization, all assignments will happen in this
+        ;; same correct order.
+        (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))))
 
 (defn optimized-ser [input-map]
   "generate a better serialized form that removes intermediate refs (refs to other refs)"

@@ -10,7 +10,15 @@
 (clear!)
 
 (def lexicon
-  (list
+
+  (map (fn [entry]
+         (log/debug "serializing entry.")
+         (if (not (= :none (get entry :serialized :none)))
+           (conj {:serialized (fs/serialize entry)}
+                 entry)
+           (conj {:serialized (fs/serialize (dissoc entry :serialized))}
+                 entry)))
+        (list
 
    {:synsem {:cat :prep
              :sem {:pred :a
@@ -430,6 +438,7 @@
       :synsem {:essere false
                :sem {:subj {:human true}
                      :obj {:human true}
+                     :deliberate false
                      :discrete true
                      :activity false
                      :pred :deludere}}})
@@ -678,29 +687,6 @@
                      :cat cat-of-pronoun
                      :case disjunctive-case-of-pronoun}}
 
-          (def fare-common
-            ;; factor out common stuff from all senses of "fare".
-            {:synsem {:essere false}
-             :italian {:infinitive "fare"
-                       :irregular {:passato "fatto"
-                                   :present {:1sing "facio"
-                                             :2sing "fai"
-                                             :3sing "fa"
-                                             :1plur "facciamo"
-                                             :2plur "fate"
-                                             :3plur "fanno"}
-                                   :imperfetto {:1sing "facevo"
-                                                :2sing "facevi"
-                                                :3sing "faceva"
-                                                :1plur "facevamo"
-                                                :2plur "facevate"
-                                                :3plur "facevano"}
-                                   :futuro {:1sing "farò"
-                                            :2sing "farai"
-                                            :3sing "farà"
-                                            :1plur "faremo"
-                                            :2plur "farete"
-                                            :3plur "faranno"}}}})
 
           ;; fare (to do)
           (unify
@@ -1471,16 +1457,18 @@
                                     :number :sing
                                     :def :def}}}})
 
-      (unify
-       transitive
-       {:italian {:infinitive "parlare"}
-        :english {:infinitive "to speak"
-                  :irregular {:past "spoke"}}
-        :synsem {:essere false
-                 :sem {:pred :parlare
-                       :subj {:human true}
-                       :obj {:speakable true}}}})
-
+      (let [parlare
+            (unify
+             transitive
+             {:italian {:infinitive "parlare"}
+              :english {:infinitive "to speak"
+                        :irregular {:past "spoke"}}
+              :synsem {:essere false
+                       :sem {:pred :parlare
+                             :subj {:human true}
+                             :obj {:speakable true}}}})]
+        parlare)
+      
       ;; inherently singular.
       (unify agreement-noun
              common-noun
@@ -2245,69 +2233,51 @@
                      :subj {:human true}
                      :obj {:buyable true}}}})
 
-      ;; factor out common stuff from all senses of "venire".
-      (def venire-common
-        {:italian {:infinitive "venire"
-                   :irregular {:passato "venuto"
-                               :futuro  {:1sing "verrò"
-                                         :2sing "verrai"
-                                         :3sing "verrà"
-                                         :1plur "verremo"
-                                         :2plur "verrete"
-                                         :3plur "verranno"}
-                               :present {:1sing "vengo"
-                                         :2sing "vieni"
-                                         :3sing "viene"
-                                         :1plur "veniamo"
-                                         :2plur "venete"
-                                         :3plur "vengono"}}}
-         :english {:infinitive "to come"
-                   :irregular {:past "came"}}})
+    (unify
+     intransitive
+     venire-common
+     {:synsem {:essere true
+               :sem {:pred :venire
+                     :activity true
+                     :subj {:animate true}}}})
 
-      (unify
-       intransitive
-       venire-common
+    (unify
+     transitive-but-with-prepositional-phrase-instead-of-noun
+     venire-common
+     (let [complement-semantics (ref {:mod {:pred :per}})] ;; takes 'per' as proposition.
        {:synsem {:essere true
                  :sem {:pred :venire
                        :activity true
-                       :subj {:animate true}}}})
+                       :subj {:animate true}
+                       :deliberate true ;; you come to do something that you intended to do, not something that you do accidentally.
+                       :obj complement-semantics}
+                 :subcat {:2 {:sem complement-semantics}}}}))
 
-      (unify
-       transitive-but-with-prepositional-phrase-instead-of-noun
-       venire-common
-       (let [complement-semantics (ref {:mod {:pred :per}})] ;; takes 'per' as proposition.
-         {:synsem {:essere true
-                   :sem {:pred :venire
-                         :activity true
-                         :subj {:animate true}
-                         :deliberate true ;; you come to do something that you intended to do, not something that you do accidentally.
-                         :obj complement-semantics}
-                   :subcat {:2 {:sem complement-semantics}}}}))
+    {:synsem {:cat pronoun-noun
+              :pronoun true
+              :agr {:case pronoun-acc
+                    :person :2nd
+                    :number :plur}
+              :sem (unify human {:pred :voi})
+              :subcat '()}
+     :english "you all"
+     :italian {:italian "vi"
+               :cat pronoun-noun
+               :case pronoun-acc}}
 
-      {:synsem {:cat pronoun-noun
-                :pronoun true
-                :agr {:case pronoun-acc
-                      :person :2nd
-                      :number :plur}
-                :sem (unify human {:pred :voi})
-                :subcat '()}
-       :english "you all"
-       :italian {:italian "vi"
-                 :cat pronoun-noun
-                 :case pronoun-acc}}
-
-      (unify
-       intransitive
-       {:italian {:infinitive "vivere"}
-        :english {:infinitive "to live"
-                  :irregular {:past "lived"}}
-        :synsem {:essere true
-                 :sem {:pred :vivere
-                       ;; TODO: activity=false for now, but other senses of 'vivere' could be activities, e.g.
-                       ;; adding PP (e.g. "vivevano in Milano (was living in Milano)")
-                       :activity false
-                       :discrete false
-                       :subj {:animate true}}}}) ;; TODO: change to living-thing: (e.g. plants are living but not animate)
+    (unify
+     intransitive
+     {:italian {:infinitive "vivere"}
+      :english {:infinitive "to live"
+                :irregular {:past "lived"}}
+      :synsem {:essere true
+               :sem {:pred :vivere
+                     :deliberate false
+                     ;; TODO: activity=false for now, but other senses of 'vivere' could be activities, e.g.
+                     ;; adding PP (e.g. "vivevano in Milano (was living in Milano)")
+                     :activity false
+                     :discrete false
+                     :subj {:animate true}}}}) ;; TODO: change to living-thing: (e.g. plants are living but not animate)
 
       (unify drinkable-noun
              agreement-noun
@@ -2363,7 +2333,7 @@
                        :activity false
                        :discrete false
                        :subj {:animate true}}}}))
-)
+))
 
 ;; (def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
 ;;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
@@ -2371,6 +2341,7 @@
 ;;(def tinylex (list (it "Napoli") (it "Roma") (it "io")))
 ;(def tinylex (list (it "gatto") (it "uomo")))
 
+;; TODO: what is this doing? looks expensive.
 (map (fn [lexeme]
        (let [italian (:italian lexeme)
              english (:english lexeme)]
