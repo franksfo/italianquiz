@@ -126,6 +126,28 @@
 
     (cond
 
+     (and
+      (string? (fs/get-in word '(:a :infinitive)))
+      (fs/get-in word '(:a :infinitive))
+      (= (fs/get-in word '(:a :infl)) :top))
+     (fs/get-in word '(:a :infinitive))
+
+     (and
+      true
+      (string? (fs/get-in word '(:a :infinitive)))
+      (or (= :none (fs/get-in word '(:b :agr :number) :none))
+          (= :top (fs/get-in word '(:b :agr :number) :none)))
+      )
+      (fs/get-in word '(:a :infinitive))
+
+          ;; handle lexical exceptions (plural feminine adjectives):
+     (and
+      (= (fs/get-in word '(:agr :number)) :plur)
+      (= (fs/get-in word '(:agr :gender)) :fem)
+      (= (fs/get-in word '(:cat)) :adjective)
+      (string? (fs/get-in word '(:irregular :fem :plur))))
+     (fs/get-in word '(:irregular :fem :plur))
+
      ;; handle lexical exceptions (plural feminine adjectives):
      (and
       (= (fs/get-in word '(:agr :number)) :plur)
@@ -604,8 +626,8 @@
    ;; TODO: throw exception rather than returning _word_, which is a map or something else unprintable.
    ;; in other words, if we've gotten this far, it's a bug.
    :else
-   word))
-  )
+   word)
+  ))
 
 (defn get-italian [a & [ b ]]
   (let [a (if (nil? a) "" a)
