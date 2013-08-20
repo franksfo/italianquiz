@@ -2244,12 +2244,14 @@
     (unify
      transitive-but-with-prepositional-phrase-instead-of-noun
      venire-common
-     (let [complement-semantics (ref {:mod {:pred :per}})] ;; takes 'per' as proposition.
+     (let [complement-subject (ref {:animate true})
+           complement-semantics (ref {:subj complement-subject
+                                      :activity true
+                                      :deliberate true ;;;; you come somewhere to do something that you intended to do, not something that you do accidentally.
+                                      :mod {:pred :per}})] ;; takes 'per' as proposition.
        {:synsem {:essere true
                  :sem {:pred :venire
-                       :activity true
-                       :subj {:animate true}
-                       :deliberate true ;; you come to do something that you intended to do, not something that you do accidentally.
+                       :subj complement-subject
                        :obj complement-semantics}
                  :subcat {:2 {:sem complement-semantics}}}}))
 
