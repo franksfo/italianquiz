@@ -407,6 +407,7 @@
 
   ;; vp-pron is verb-last in Italian, so this is the opposite order in Italian.
   ;; e.g. "aiutare" "ti" (morphology turns it into "aiutarti").
+  ;; TODO: as mentioned above, fold this into vp.
   (def vp-pron-verb-first
     (unify
      head-principle
