@@ -826,6 +826,8 @@
 
 (def np (conj {:serialized (fs/serialize np)}
               np))
+(def nbar (conj {:serialized (fs/serialize nbar)}
+              nbar))
 (def s-present (conj {:serialized (fs/serialize s-present)}
                      s-present))
 
@@ -834,6 +836,9 @@
 
 (def s-future (conj {:serialized (fs/serialize s-future)}
                     s-future))
+
+(def s-future-modifier (conj {:serialized (fs/serialize s-future-modifier)}
+                             s-future-modifier))
 
 (def s-past (conj {:serialized (fs/serialize s-past)}
                   s-past))
@@ -844,8 +849,11 @@
 (def s-imperfetto (conj {:serialized (fs/serialize s-imperfetto)}
                         s-imperfetto))
 
-(def s-imperfetto (conj {:serialized (fs/serialize s-temporal-glue)}
-                        s-temporal-glue))
+(def s-temporal-glue (conj {:serialized (fs/serialize s-temporal-glue)}
+                           s-temporal-glue))
+
+(def temporal-glue-phrase (conj {:serialized (fs/serialize temporal-glue-phrase)}
+                                  temporal-glue-phrase))
 
 (def vp-plus-adverb (conj {:serialized (fs/serialize vp-plus-adverb)}
                           vp-plus-adverb))
@@ -856,6 +864,11 @@
 (def vp-pron (conj {:serialized (fs/serialize vp-pron)}
                    vp-pron))
 
+(def vp-past (conj {:serialized (fs/serialize vp-past)}
+                   vp-past))
+
+(def vp-present (conj {:serialized (fs/serialize vp-present)}
+                      vp-present))
 
 (def vp-pron-verb-first (conj {:serialized (fs/serialize vp-pron-verb-first)}
                               vp-pron-verb-first))
@@ -865,5 +878,8 @@
 
 (def nbar (conj {:serialized (fs/serialize nbar)}
                 nbar))
+
+(def adj-phrase (conj {:serialized (fs/serialize adj-phrase)}
+                      adj-phrase))
 
 
