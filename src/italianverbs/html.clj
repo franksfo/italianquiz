@@ -122,7 +122,7 @@
                                 arg)))
 
 
-     ;; displaying a phrase structure tree (2 children) (new implementation)
+     ;; displaying a phrase structure tree (2 children)
      ;; Head-initial (H C)
      (and
       (map? arg)
@@ -197,7 +197,7 @@
       "</div>")
 
 
-     ;; displaying a phrase structure tree (2 children) (new implementation)
+     ;; displaying a phrase structure tree (2 children)
      ;; Head-final (C H)
      (and
       (map? arg)
