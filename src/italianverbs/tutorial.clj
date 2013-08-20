@@ -1,8 +1,8 @@
 (ns italianverbs.tutorial
-  (:refer-clojure :exclude [get-in merge find])
+  (:refer-clojure :exclude [find get-in merge resolve ])
   (:use
    [italianverbs.lexicon]
-   [italianverbs.unify :exclude [unify]]
+   [italianverbs.unify :exclude [get-in merge resolve unify]]
    [italianverbs.generate]
    [italianverbs.grammar]
    [italianverbs.html]
