@@ -54,22 +54,23 @@
 ;; cost of traversing substructures more than once.
 (defn fail? [fs]
   "(fail? fs) <=> true if at least one of fs's path's value is :fail."
-  (if (seq? fs) false
-      (if (= fs :fail) true
-          (do
-            (defn failr? [fs keys]
-              (if (and (not (nil? keys)) (> (.size keys) 0))
-                (if (fail? (get-in fs (list (first keys))))
-                  true
-                  (failr? fs (rest keys)))
-                false))
-            (cond
-             (= fs :fail) true
-             (map? fs)
-             (failr? fs (keys fs))
-             (= (type fs) clojure.lang.Ref)
-             (fail? @fs)
-             :else false)))))
+  (if (= :fail fs) true
+      (if (seq? fs) false
+          (if (= fs :fail) true
+              (do
+                (defn failr? [fs keys]
+                  (if (and (not (nil? keys)) (> (.size keys) 0))
+                    (if (fail? (get-in fs (list (first keys))))
+                      true
+                      (failr? fs (rest keys)))
+                    false))
+                (cond
+                 (= fs :fail) true
+                 (map? fs)
+                 (failr? fs (keys fs))
+                 (= (type fs) clojure.lang.Ref)
+                 (fail? @fs)
+                 :else false))))))
 
 (defn fail-path [fs & [ fs-keys ] ]
   "find the first failing path in a fs."
