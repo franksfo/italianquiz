@@ -425,7 +425,9 @@
            "</tr>"))
         ;; sorts the argument list in _arg__ by key name. remove :comment-plaintext and :extend.
         (remove #(= (first %) :comment-plaintext)
-                (remove #(= (first %) :extend)
+                (remove #(or (= (first %) :comment-plaintext)
+                             (= (first %) :extend)
+                             (= (first %) :serialized))
                         (into (sorted-map) arg)))
         ))
       "  </table>"
