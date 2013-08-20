@@ -686,7 +686,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   (:skel ref-skel))
                 (keys rsk))]
     (merge
-     {nil (skeletize input-map)}
+     {nil top-level}
      (zipmap
       (vals rsk)
       sk))))
