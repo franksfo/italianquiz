@@ -126,6 +126,12 @@
 
     (cond
 
+     (or
+      (not (= :none (fs/get-in word '(:a) :none)))
+      (not (= :none (fs/get-in word '(:b) :none))))
+     (get-italian (fs/get-in word '(:a))
+                  (fs/get-in word '(:b)))
+
      (and
       (string? (fs/get-in word '(:a :infinitive)))
       (fs/get-in word '(:a :infinitive))
