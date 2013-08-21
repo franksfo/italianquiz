@@ -279,7 +279,8 @@
 
          human (if (= (fs/get-in input '(:human))
                       true)
-                 {:buyable false
+                 {:activity false
+                  :buyable false
                   :physical-object true
                   :edible false
                   :animate true
