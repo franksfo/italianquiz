@@ -302,7 +302,6 @@
                                   :number :plur
                                   :def :def}}}})
 
-
     (unify agreement-noun
            common-noun
            countable-noun
@@ -427,6 +426,33 @@
                :sem {:pred :comprare
                      :subj {:human true}
                      :obj {:buyable true}}}})
+
+    (let [complement-complement-sem (ref {:human true})
+           complement-sem (ref {:pred :di
+                                :mod complement-complement-sem})
+           subject-sem (ref {:place true})]
+       (unify adjective
+              {:synsem {:sem {:pred :contento
+                              :comparative true
+                              :arg1 subject-sem
+                              :arg2 complement-complement-sem}
+                        :subcat {:1 {:cat :noun
+                                     :sem subject-sem}
+                                 :2 {:cat :prep
+                                     :sem complement-sem}}}
+               :italian "contento"
+               :english "happy"}))
+
+     ;; non-comparative
+     (unify adjective
+            {:synsem {:cat :adjective
+                      :sem {:pred :contento
+                            :comparative false
+                            :mod {:human true}}}
+             :italian {:italian "contento"
+                       :cat :adjective}
+             :english {:english "happy"
+                       :cat :adjective}})
 
     (let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
           complement-sem (ref {:pred :di
