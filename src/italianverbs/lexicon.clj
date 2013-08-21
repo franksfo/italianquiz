@@ -1894,7 +1894,6 @@
         :synsem {:essere false
                  :sem {:subj {:human true}
                        :obj {:animate true}
-                       :deliberate false
                        :pred :ricordare}}})
 
       (unify
@@ -1905,7 +1904,6 @@
         :synsem {:essere false
                  :sem {:subj {:human true}
                        :obj {:legible true}
-                       :deliberate false
                        :pred :ricordare}}})
 
       (unify
