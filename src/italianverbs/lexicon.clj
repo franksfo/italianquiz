@@ -1514,18 +1514,6 @@
              {:italian {:italian "professore"}
               :english {:english "professor"
                         :note " (&#x2642;)"}}) ;; unicode male symbol
-
-      ;; "pizza" can be either mass or countable.
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             {:synsem {:sem {:pred :pizza
-                             :edible true
-                             :artifact true}}
-              :italian {:italian "pizza"}
-              :english {:english "pizza"}})
-
-
       (let [complement-semantics (ref {:mod {:pred :per}})]
         (unify
          {:synsem {:cat :prep
@@ -1567,6 +1555,16 @@
                         :cat :adjective}
               :english {:english "small"
                         :cat :adjective}})
+
+      ;; "pizza" can be either mass or countable.
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             {:synsem {:sem {:pred :pizza
+                             :edible true
+                             :artifact true}}
+              :italian {:italian "pizza"}
+              :english {:english "pizza"}})
 
       (let [human (ref :top)
             animate (ref :top)]
