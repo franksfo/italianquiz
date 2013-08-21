@@ -1952,6 +1952,19 @@
               :english {:english "naive"
                         :cat :adjective}})
 
+
+      (unify (:agreement noun)
+             (:common noun)
+             (:countable noun)
+             (:feminine noun)
+             {:synsem {:sem {:pred :spiaggia
+                             :buyable false
+                             :artifact true
+                             :city false
+                             :place true}}
+              :italian {:italian "spiaggia"}
+              :english {:english "beach"}})
+
       (unify {:italian "stamattina"
               :synsem {:cat :sent-modifier
                        :subcat {:1 {:sem {:tense :past
