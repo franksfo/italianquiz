@@ -2276,6 +2276,7 @@
      {:synsem {:essere true
                :sem {:pred :venire
                      :activity true
+                     :motion true
                      :subj {:animate true}}}})
 
     (unify
@@ -2284,6 +2285,7 @@
      (let [complement-subject (ref {:animate true})
            complement-semantics (ref {:subj complement-subject
                                       :activity true
+                                      :motion false ;; otherwise we get weird things like "he came to go".
                                       :deliberate true ;;;; you come somewhere to do something that you intended to do, not something that you do accidentally.
                                       :mod {:pred :per}})] ;; takes 'per' as proposition.
        {:synsem {:essere true

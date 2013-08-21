@@ -476,7 +476,8 @@
              :sem {:subj {:animate true}
                    :activity false ;; because "I was going when (something happened) .." sounds weird.
                    :pred :andare
-                   :discrete false}}})
+                   :discrete false
+                   :motion false}}})
 
 (def avere-common
   {:synsem {:essere false
