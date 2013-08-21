@@ -129,18 +129,13 @@
      (and
       (string? (fs/get-in word '(:a :infinitive)))
       (fs/get-in word '(:a :infinitive))
-      (= (fs/get-in word '(:a :infl)) :top))
-     (fs/get-in word '(:a :infinitive))
-
-     (and
-      true
-      (string? (fs/get-in word '(:a :infinitive)))
       (or (= :none (fs/get-in word '(:b :agr :number) :none))
           (= :top (fs/get-in word '(:b :agr :number) :none)))
-      )
-      (fs/get-in word '(:a :infinitive))
+      (= (fs/get-in word '(:a :infl)) :top))
+     (strip (str (fs/get-in word '(:a :infinitive))
+                 " " (get-italian-1 (fs/get-in word '(:b)))))
 
-          ;; handle lexical exceptions (plural feminine adjectives):
+     ;; handle lexical exceptions (plural feminine adjectives):
      (and
       (= (fs/get-in word '(:agr :number)) :plur)
       (= (fs/get-in word '(:agr :gender)) :fem)
@@ -622,6 +617,11 @@
 
    (string? (fs/get-in word '(:infinitive)))
    (fs/get-in word '(:infinitive))
+
+   (or
+    (= (fs/get-in word '(:agr :case)) {:not :acc})
+    (= (fs/get-in word '(:agr)) :top))
+   ".."
 
    ;; TODO: throw exception rather than returning _word_, which is a map or something else unprintable.
    ;; in other words, if we've gotten this far, it's a bug.
