@@ -64,6 +64,32 @@
                             :animate false
                             :pred :acqua}}})
 
+     (let [complement-complement-sem (ref {:place true}) ;; only places can be crowded
+           complement-sem (ref {:pred :di
+                                :mod complement-complement-sem})
+           subject-sem (ref {:place true})] ;; only places can be crowded.
+       (unify adjective
+              {:synsem {:sem {:pred :affolato
+                              :comparative true
+                              :arg1 subject-sem
+                              :arg2 complement-complement-sem}
+                        :subcat {:1 {:cat :noun
+                                     :sem subject-sem}
+                                 :2 {:cat :prep
+                                     :sem complement-sem}}}
+               :italian "affolato"
+               :english "crowded"}))
+
+     ;; non-comparative
+     (unify adjective
+            {:synsem {:cat :adjective
+                      :sem {:pred :affolato
+                            :comparative false
+                            :mod {:place true}}} ;; only places can be crowded.
+             :italian {:italian "affolato"
+                       :cat :adjective}
+             :english {:english "crowded"
+                       :cat :adjective}})
 
       (unify
        transitive
