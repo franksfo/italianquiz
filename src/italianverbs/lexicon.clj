@@ -1894,7 +1894,8 @@
         :synsem {:essere false
                  :sem {:subj {:human true}
                        :obj {:animate true}
-                       :pred :recordare}}})
+                       :deliberate false
+                       :pred :ricordare}}})
 
       (unify
        transitive
@@ -1904,7 +1905,8 @@
         :synsem {:essere false
                  :sem {:subj {:human true}
                        :obj {:legible true}
-                       :pred :recordare}}})
+                       :deliberate false
+                       :pred :ricordare}}})
 
       (unify
        transitive
