@@ -197,7 +197,6 @@
                :english {:english "tall"}}))
 
      ;; non-comparative
-     ;; TODO: add comparative
      (unify adjective
             {:synsem {:sem {:pred :bello
                             :comparative false
@@ -205,10 +204,28 @@
              :italian {:italian "bello"}
              :english {:english "beautiful"}})
 
+     (let [complement-complement-sem (ref :top) ;; for now no restrictions
+           complement-sem (ref {:pred :di
+                                :mod complement-complement-sem})
+           subject-sem (ref :top)] ;; subject can be anything.
+       (unify adjective
+              {:synsem {:sem {:pred :bello
+                              :comparative true
+                              :arg1 subject-sem
+                              :arg2 complement-complement-sem}
+                        :subcat {:1 {:cat :noun
+                                     :sem subject-sem}
+                                 :2 {:cat :prep
+                                     :sem complement-sem}}}
+               :italian {:italian "bello"}
+               :english {:english "beautiful"}}))
+
      (unify {:synsem {:cat :adverb}}
             {:synsem {:sem {:pred :bene}}
              :italian {:italian "bene"}
              :english {:english "well"}})
+
+
 
      ;; bere
      (unify
