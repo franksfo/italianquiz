@@ -979,6 +979,17 @@
        :english "your (pl) "}
 
 
+      ;; working on: "mi sono comprate un nuovo cellulare"
+      (unify masculine-noun
+             common-noun
+             countable-noun
+             agreement-noun
+      {:synsem {:cat :noun
+                :sem {:pred :cellulare
+                      :artifact true}}
+       :english "mobile phone"
+       :italian "cellulare"})
+
       {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it.
                 :pronoun true
                 :agr {:case :nom
