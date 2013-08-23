@@ -89,7 +89,7 @@
 
 (defn query-with-lexicon [lexicon & constraints]
   "search the supplied lexicon for entries matching constraints."
-  (log/info (str "input lexicon size: " (.size lexicon)))
+  (log/debug (str "input lexicon size: " (.size lexicon)))
   (let [lexicon (set lexicon) ;; hopefully converting to a set is O(1) if _lexicon_ is already a set.
         ;; TODO: Find out: does calling (set) on (already) a set have
         ;; a penalty?
