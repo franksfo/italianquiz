@@ -64,19 +64,28 @@
        [:div {:class "groupinglabel"}
         (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz")]
 
-        [:table {:class "italianquiz"}
-         [:tr
-          [:td {:colspan "3"}
-           (powered-by "quiz" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/quiz.clj")]
-          ]
+       [:table {:class "italianquiz"}
+        [:tr
+         [:td {:colspan "3"}
+          [:div {:class "groupinglabel2"}
+           [:span {:class "label"} "app layer"]
+           [:table {:class "groupinglabel2"}
+            [:tr
+             [:td {:colspan "1"}
+              (powered-by "quiz" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/quiz.clj")]
+             [:td {:colspan "1"}
+              (powered-by "sandbox" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/sandbox.clj")]
+             [:td {:colspan "1"}
+              "others.."]]]]]]
+
          [:tr
           [:td
            (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbsgrammar.clj")]
           [:td {:rowspan "2"}
-           (powered-by "morphology" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/morphology.clj")
+           (powered-by "lexicon" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/lexicon.clj")
            ]
           [:td {:rowspan "2"}
-           (powered-by "lexicon" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/lexicon.clj")
+           (powered-by "morphology" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/morphology.clj")
            ]
           ]
          [:tr

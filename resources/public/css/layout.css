@@ -84,6 +84,28 @@ div.groupinglabel {
     font-size:smaller;
 }
 
+div.groupinglabel2 {
+    width:100%;
+    float:left;
+}
+
+div.groupinglabel2 span.label {
+    font-size:100%;
+    float:left;
+    text-align:left;
+}
+
+table.groupinglabel2 td {
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border:4px solid #11ceff;
+    background:#71fbfb;
+    margin-top:0.5em;
+    margin-bottom:0.5em;
+    padding-bottom:2px;
+}
+
 div.guess {
     width:70%;
 }
