@@ -223,6 +223,45 @@
             :extend {:a {:head (fn [] lex/nouns)
                          :comp (fn [] lex/adjs)}}})))
 
+
+(def nbar2
+  (let [head-semantics (ref :top)
+        adjectival-predicate (ref :top)
+        agr (ref :top)
+        subcat (ref :top)]
+    (unify head-principle
+           ;; for Nbar2, italian and english have the same constituent order:
+           ;; Adj then Noun,
+           ;; e.g. "nuovo cellulare (new mobile phone)"
+           italian-head-last
+           english-head-last
+           (let [def (ref :top)]
+             {:head {:synsem {:def def}}
+              :synsem {:def def}})
+           {:synsem {:sem head-semantics}
+            :comp {:synsem {:sem {:mod head-semantics}}}}
+           ;; the following will rule out pronouns, since they don't subcat for a determiner;
+           ;; (in fact, they don't subcat for anything)
+           {:synsem {:subcat {:1 {:cat :det}}}}
+
+           {:synsem {:agr agr
+                     :subcat subcat}
+            :head {:synsem {:agr agr
+                            :cat :noun
+                            :subcat subcat}}
+            :comp {:synsem {:cat :adjective}
+                   :italian {:agr agr}
+                   :english {:agr agr}}}
+
+           {:synsem {:sem {:mod adjectival-predicate}}
+            :comp {:synsem {:sem {:mod head-semantics
+                                  :comparative false
+                                  :pred adjectival-predicate}}}}
+           {:comment "n&#x0305; &#x2192; noun adj"
+            :comment-plaintext "nbar -> noun adj"
+            :extend {:a {:head (fn [] lex/adjs-initial-in-italian)
+                         :comp (fn [] lex/nouns)}}})))
+
 (def np-rules
   (let [head (ref :top)
         comp (ref :top)]
@@ -259,6 +298,9 @@
                                     :head (fn [] lex/nouns)}
                                 :b {:comp (fn [] lex/dets)
                                     :head (fn [] nbar)}
+                                :c {:comp (fn [] lex/dets)
+                                    :head (fn [] nbar2)}
+
                                 }
                    })))))
     (list np)))
