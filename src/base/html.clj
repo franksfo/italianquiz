@@ -74,7 +74,7 @@
              [:td {:colspan "1"}
               (powered-by "quiz" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/quiz.clj")]
              [:td {:colspan "1"}
-              (powered-by "sandbox" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/sandbox.clj")]
+              (powered-by "workbook" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/workbook.clj")]
              [:td {:colspan "1"}
               "others.."]]]]]]
 
