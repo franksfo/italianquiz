@@ -979,16 +979,16 @@
        :english "your (pl) "}
 
 
-      ;; working on: "mi sono comprate un nuovo cellulare"
-      (unify masculine-noun
+      ;; working on: "mi sono comprato un nuovo cellulare"
+      (unify agreement-noun
+             masculine-noun
              common-noun
              countable-noun
-             agreement-noun
       {:synsem {:cat :noun
                 :sem {:pred :cellulare
                       :artifact true}}
-       :english "mobile phone"
-       :italian "cellulare"})
+       :english {:english "mobile phone"}
+       :italian {:italian "cellulare"}})
 
       {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it.
                 :pronoun true
@@ -1493,6 +1493,13 @@
              {:synsem {:subcat {:1 {:cat :det
                                     :number :plur
                                     :def :def}}}})
+
+      {:italian {:italian "nuovo"
+                 :initial :true}
+       :english {:english "new"}
+       :synsem {:cat :adjective
+                :sem {:pred :nuovo
+                      :mod {:artifact true}}}}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -2444,7 +2451,18 @@
               lexeme)))
      lexicon)
 
-(def adjs (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :adjective)) lexicon))
+(def adjs-final-in-italian ;; e.g. "blanco" in "nero blanco"
+  (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :adjective)) lexicon))
+(def adjs ;; backwards compatibility: use adjs-final-in-italian when the more
+  ;; specific use is done.
+  adjs-final-in-italian)
+(def adjs-initial-in-italian  ;; e.g. "nuovo" in "nuovo cellulare"
+  (filter (fn [lex]
+            (and
+             (= (fs/get-in lex '(:italian :initial)) :true)
+             (= (fs/get-in lex '(:synsem :cat)) :adjective)))
+          lexicon))
+
 (def nouns (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :noun)) lexicon))
 (def common-nouns (filter (fn [lex] (and (= (fs/get-in lex '(:synsem :cat)) :noun)
                                          (= (fs/get-in lex '(:synsem :subcat :1 :cat)) :det)))
