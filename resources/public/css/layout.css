@@ -58,9 +58,9 @@ div.poweredbox table {
 }
 
 div.poweredbox td {
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
     border:4px solid #71fbfb;
     background:#71fbfb;
     margin-top:0.5em;
@@ -69,9 +69,9 @@ div.poweredbox td {
 }
 
 table.italianquiz td {
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius:7px;
     border:4px solid #11ceff;
     background:#11ceff;
     margin-top:0.5em;
@@ -90,6 +90,7 @@ div.groupinglabel2 {
 }
 
 div.groupinglabel2 span.label {
+    padding-left:2%;
     font-size:100%;
     float:left;
     text-align:left;
@@ -101,9 +102,10 @@ table.groupinglabel2 td {
     border-radius: 10px;
     border:4px solid #11ceff;
     background:#71fbfb;
-    margin-top:0.5em;
-    margin-bottom:0.5em;
-    padding-bottom:2px;
+    padding:2%;
+    margin:0%;
+    margin-top:2%;
+    margin-bottom:2%;
 }
 
 div.guess {
