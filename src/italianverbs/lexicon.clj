@@ -82,6 +82,7 @@
 
      ;; non-comparative
      (unify adjective
+            subcat0
             {:synsem {:cat :adjective
                       :sem {:pred :affolato
                             :comparative false
@@ -162,6 +163,7 @@
 
      ;; non-comparative:
      (unify adjective
+            subcat0
             {:synsem {:cat :adjective
                       :sem {:pred :alto
                             :comparative false
@@ -198,6 +200,7 @@
 
      ;; non-comparative
      (unify adjective
+            subcat0
             {:synsem {:sem {:pred :bello
                             :comparative false
                             :mod :top}} ;; for now, no restrictions on what can be beautiful.
@@ -220,12 +223,11 @@
                :italian {:italian "bello"}
                :english {:english "beautiful"}}))
 
-     (unify {:synsem {:cat :adverb}}
+     (unify subcat0
+            {:synsem {:cat :adverb}}
             {:synsem {:sem {:pred :bene}}
              :italian {:italian "bene"}
              :english {:english "well"}})
-
-
 
      ;; bere
      (unify
@@ -1495,7 +1497,14 @@
                                     :def :def}}}})
 
       {:italian {:italian "nuovo"
-                 :initial :true}
+                 :initial true}
+       :english {:english "new"}
+       :synsem {:cat :adjective
+                :sem {:pred :nuovo
+                      :mod {:artifact true}}}}
+
+      {:italian {:italian "nuovo"
+                 :initial false}
        :english {:english "new"}
        :synsem {:cat :adjective
                 :sem {:pred :nuovo

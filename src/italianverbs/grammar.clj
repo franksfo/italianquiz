@@ -177,6 +177,13 @@
      :english {:a comp-english
                :b head-english}}))
 
+(def cc0
+  (unify
+   subcat-1-principle
+   head-principle
+   italian-head-last
+   english-head-last))
+
 (def vp-plus-adverb
   (unify subcat-5-principle
          head-principle-no-infl
@@ -636,10 +643,7 @@
         rule-base-no-extend
         (fs/unifyc head-principle subcat-1-principle
                    subject-verb-agreement
-                   {:synsem {:sem {:tense tense}}}
-                   {:comp {:synsem {:subcat '()
-                                    :cat :noun}}
-                    :head {:synsem {:cat :verb}}})
+                   {:synsem {:sem {:tense tense}}})
 
         rule-base
         (fs/unifyc rule-base-no-extend
@@ -674,6 +678,17 @@
                  :h {:comp (fn [] np)
                      :head (fn [] vp-present)}
                  }}))
+
+    ;; if parent is subcat0, head must be subcat1 (i.e. intransitive).
+    (def s-present2
+      (fs/merge
+       (fs/unifyc cc0
+                  {:synsem {:infl :present}})
+       {:extend {:g {:comp 'lexicon
+                     :head (fn [] vp)}
+                 :h {:comp (fn [] np)
+                     :head (fn [] vp)}}}))
+
 
     ;; TODO: a) and b) should both be reducible to one rule.
     ;; the problem is that the :extend (generation rules) differs.

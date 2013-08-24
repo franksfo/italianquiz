@@ -733,3 +733,5 @@
 (def verb {:transitive transitive})
 (def disjunctive-case-of-pronoun (ref :disj))
 (def cat-of-pronoun (ref :noun))
+
+(def subcat0 {:synsem {:subcat '()}})
