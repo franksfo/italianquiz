@@ -2011,7 +2011,7 @@
              (:feminine noun)
              {:synsem {:sem {:pred :spiaggia
                              :buyable false
-                             :artifact true
+                             :artifact false
                              :city false
                              :place true}}
               :italian {:italian "spiaggia"}
