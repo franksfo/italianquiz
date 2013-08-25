@@ -1517,18 +1517,24 @@
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
   (do
-    (if (map? expressions)
-      ;; wrap this single expression in a list and re-call.
-      (list (formattare-1 expressions))
-      (cond (nil? expressions) nil
-            (fs/fail? expressions)
-            ":fail"
-            (empty? expressions) nil
-            true
+    (if (and (= (type expressions) clojure.lang.LazySeq)
+             (not (empty? expressions)))
+      (cons
+       (formattare (first expressions))
+       (lazy-seq
+        (formattare (rest expressions))))
+      (if (map? expressions)
+        ;; wrap this single expression in a list and re-call.
+        (list (formattare-1 expressions))
+        (cond (nil? expressions) nil
+              (fs/fail? expressions)
+              ":fail"
+              (empty? expressions) nil
+              true
             (lazy-seq
              (cons
               (formattare-1 (first expressions))
-              (formattare (rest expressions))))))))
+              (formattare (rest expressions)))))))))
 
 (defn fo [expressions]
   (formattare expressions))
