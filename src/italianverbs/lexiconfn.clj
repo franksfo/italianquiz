@@ -694,6 +694,18 @@
                                   :subcat '()}}}}
            map)
           map)
+
+
+        map
+        (if (= (fs/get-in map '(:synsem :cat)) :prep)
+          (let [italian (fs/get-in map '(:italian))]
+            (if (string? italian)
+              (merge map
+                     {:italian {:italian italian
+                                :initial true}})
+              (merge map
+                     {:italian {:initial true}})))
+          map)
         ]
     map))
 
