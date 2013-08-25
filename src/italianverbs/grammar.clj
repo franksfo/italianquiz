@@ -857,18 +857,6 @@
 (defn english-time [hour minute ampm]
   (string/trim (str hour ":" (if (< minute 10) (str "0" minute) minute) " " (if (= hour 12) (if (= ampm "am") " after midnight" " after noon") ""))))
 
-(defn random-sentence []
-  (morph/finalize (first (take 1 (gen/generate
-                                  (first (take 1 (shuffle
-                                                  (list s-present
-                                                        s-present-modifier
-                                                        s-future
-                                                        s-future-modifier
-                                                        s-past
-                                                        s-past-modifier
-                                                        s-imperfetto
-                                                        s-temporal-glue
-                                                        )))))))))
 (defn minimal-grammatical-initialization []
   ;; TODO: replace with something less expensive. we want the minimum amount of work that
   ;; will prevent ExceptionInInitializerErrors.
@@ -964,3 +952,19 @@
            (if (= input :fail) :fail
                (fs/merge input finitize))]
        merged)))) ;; for now, no recursive call.
+
+(defn random-sentence []
+  (if false
+  (morph/finalize (first (take 1 (gen/generate
+                                  (first (take 1 (shuffle
+                                                  (list s-present
+                                                        s-present-modifier
+                                                        s-future
+                                                        s-future-modifier
+                                                        s-past
+                                                        s-past-modifier
+                                                        s-imperfetto
+                                                        s-temporal-glue
+                                                        ))))))))
+  (morph/finalize (sentence-impl (first (take 1 (gen/double-apply 0 seed-phrases (shuffle lex/lexicon))))))))
+
