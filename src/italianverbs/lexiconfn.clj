@@ -62,45 +62,6 @@
 (defn english [lexeme]
   (get (nth lexeme 1) :english))
 
-(def subcat0 {:synsem {:subcat '()}})
-
-(defn implied [map]
-  "things to be added to lexical entries based on what's implied about them in order to canonicalize them."
-  ;; for example, if a lexical entry is a noun with no :number value, or
-  ;; the :number value equal to :top, then set it to :singular, because
-  ;; a noun is canonically singular.
-  ;; TODO: remove this first test: probably doesn't match anything
-  ;; - should be (get-in map '(:synsem :cat)), not (:cat map).
-  (let [map
-        (if (= (fs/get-in map '(:synsem :cat)) :det)
-          (unify
-           subcat0
-           map)
-          map)]
-    map))
-
-;; italian and english are strings, featuremap is a map of key->values.
-(defn add [italian english & featuremaps]
-  (let [merged
-        (apply fs/merge
-               (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
-                       (list {:english english}
-                             {:italian italian})))]
-    (add-lexeme (implied merged))))
-
-
-;; _italian is a string; _types is a list of symbols (each of which is a map of key-values);
-;; _result is an accumulator which contains the merge of all of the maps
-;; in _types.
-;; no _english param needed; _result should be assumed to contain a :root key-value.
-(defn add-infl [italian & [types result]]
-  (if (first types)
-    (add-infl
-     italian
-     (rest types)
-     (merge (first types) result))
-    (add italian nil result)))
-
 (def firstp
   {:person :1st})
 (def secondp
@@ -123,43 +84,6 @@
 
 (defn english-pluralize [singular]
   (str (replace #"([sxz])$" "$1e" singular) "s"))
-
-(defn add-plural [fs types & [italian-plural english-plural]]
-  (add
-   (if italian-plural italian-plural
-       (italian-pluralize (get fs :italian)
-                          (get fs :gender)))
-   (if english-plural english-plural
-     (english-pluralize (get fs :english)))
-   (fs/merge
-    types
-    fs
-    {:det {:number :plural}}
-    {:number :plural})))
-
-(defn add-with-plural [italian english featuremap types & [italian-plural english-plural]]
-  (add-plural
-   (add italian english
-        (fs/merge
-         types
-         featuremap
-         {:det {:number :singular}}
-         {:number :singular}))
-   types
-   italian-plural english-plural))
-
-;; _italian and _english are strings; _types is a list of symbols (each of which is a map of key-values);
-;; _result is an accumulator which is the merge of all of the maps in _types.
-;; Key-values in earlier types have precedence over those in later types
-;; (i.e. the later key-value pair do NOT override original value for that key).
-(defn add-as [italian english & [types result]]
-  (if (first types)
-    (add-as
-     italian
-     english
-     (rest types)
-     (merge (first types) result))
-    (add italian nil (merge {:english english} result))))
 
 (defn choose-lexeme [ & [struct dummy]]
   "Choose a random lexeme from the set of lexemes
@@ -738,3 +662,95 @@
 
 
 
+(def subcat0 {:synsem {:subcat '()}})
+
+(defn implied [map]
+  "things to be added to lexical entries based on what's implied about them in order to canonicalize them."
+  ;; for example, if a lexical entry is a noun with no :number value, or
+  ;; the :number value equal to :top, then set it to :singular, because
+  ;; a noun is canonically singular.
+  ;; TODO: remove this first test: probably doesn't match anything
+  ;; - should be (get-in map '(:synsem :cat)), not (:cat map).
+  (let [map
+        (if (or (= (fs/get-in map '(:synsem :cat)) :det)
+                (= (fs/get-in map '(:synsem :cat)) :adverb))
+          (unify
+           subcat0
+           map)
+          map)
+
+        map
+        (if (and (= (fs/get-in map '(:synsem :cat)) :adjective)
+                 (= (fs/get-in map '(:synsem :sem :comparative)) false))
+          (unify
+           subcat0
+           map)
+          map)
+
+        map
+        (if (= (fs/get-in map '(:synsem :cat)) :sent-modifier)
+          (unify
+           {:synsem {:subcat {:1 {:cat :verb
+                                  :subcat '()}}}}
+           map)
+          map)
+        ]
+    map))
+
+;; italian and english are strings, featuremap is a map of key->values.
+(defn add [italian english & featuremaps]
+  (let [merged
+        (apply fs/merge
+               (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
+                       (list {:english english}
+                             {:italian italian})))]
+    (add-lexeme (implied merged))))
+
+
+;; _italian is a string; _types is a list of symbols (each of which is a map of key-values);
+;; _result is an accumulator which contains the merge of all of the maps
+;; in _types.
+;; no _english param needed; _result should be assumed to contain a :root key-value.
+(defn add-infl [italian & [types result]]
+  (if (first types)
+    (add-infl
+     italian
+     (rest types)
+     (merge (first types) result))
+    (add italian nil result)))
+(defn add-plural [fs types & [italian-plural english-plural]]
+  (add
+   (if italian-plural italian-plural
+       (italian-pluralize (get fs :italian)
+                          (get fs :gender)))
+   (if english-plural english-plural
+     (english-pluralize (get fs :english)))
+   (fs/merge
+    types
+    fs
+    {:det {:number :plural}}
+    {:number :plural})))
+
+(defn add-with-plural [italian english featuremap types & [italian-plural english-plural]]
+  (add-plural
+   (add italian english
+        (fs/merge
+         types
+         featuremap
+         {:det {:number :singular}}
+         {:number :singular}))
+   types
+   italian-plural english-plural))
+
+;; _italian and _english are strings; _types is a list of symbols (each of which is a map of key-values);
+;; _result is an accumulator which is the merge of all of the maps in _types.
+;; Key-values in earlier types have precedence over those in later types
+;; (i.e. the later key-value pair do NOT override original value for that key).
+(defn add-as [italian english & [types result]]
+  (if (first types)
+    (add-as
+     italian
+     english
+     (rest types)
+     (merge (first types) result))
+    (add italian nil (merge {:english english} result))))

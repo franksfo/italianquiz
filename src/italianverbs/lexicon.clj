@@ -226,11 +226,10 @@
                :italian {:italian "bello"}
                :english {:english "beautiful"}}))
 
-     (unify subcat0
-            {:synsem {:cat :adverb}}
-            {:synsem {:sem {:pred :bene}}
-             :italian {:italian "bene"}
-             :english {:english "well"}})
+     {:synsem {:cat :adverb
+               :sem {:pred :bene}}
+      :italian {:italian "bene"}
+      :english {:english "well"}}
 
      ;; bere
      (unify
@@ -2568,6 +2567,8 @@
 (def tinylex
   (union (it1 "a")
          (it1 "acqua")
+         (it1 "affolato")
+         (it1 "aiutare")
          (it1 "andare")
          (it1 "dormire")
          (it1 "il")
