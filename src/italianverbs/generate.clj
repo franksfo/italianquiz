@@ -690,13 +690,14 @@
               (gen13 (- depth 1) phrases)))
 
       ;; depth == 0: no more recursion.
-      (map (fn [phrase]
-             (flatten
-              (map (fn [lexeme]
-                     (moreover-head phrase lexeme))
-                 lexicon))
-             (flatten
-              (map (fn [lexeme]
-                     (moreover-comp phrase lexeme))
+      (flatten
+       (map (fn [phrase]
+              (flatten
+               (map (fn [lexeme]
+                      (moreover-head phrase lexeme))
+                    lexicon))
+              (flatten
+               (map (fn [lexeme]
+                      (moreover-comp phrase lexeme))
                    lexicon)))
-           phrases))))
+            phrases)))))

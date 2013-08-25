@@ -11,7 +11,10 @@
         ))
 
 (deftest test-gen13
-  (is (=  42 42)))
+  ;; test negative values: should be no infinite recursion.
+  (is (nil? (gen13 -1 seed-phrases lexicon))))
 
+(deftest test-gen13-2
+  (nth (take 1 (gen13 0 seed-phrases lexicon) ) 0))
 
 
