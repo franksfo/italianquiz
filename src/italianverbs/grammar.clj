@@ -862,9 +862,6 @@
   ;; will prevent ExceptionInInitializerErrors.
   (first (take 1 (gen/generate nbar))))
 
-(defn random-sentences [n]
-  (repeatedly n (fn [] (random-sentence))))
-
 (defn speed-test [ & times]
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
   (let [times (if (first times) (first times) 10)]
@@ -953,6 +950,7 @@
                (fs/merge input finitize))]
        merged)))) ;; for now, no recursive call.
 
+;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itslelf should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
   (morph/finalize (first (take 1 (gen/generate
@@ -968,3 +966,5 @@
                                                         ))))))))
   (morph/finalize (sentence-impl (first (take 1 (gen/double-apply 0 seed-phrases (shuffle lex/lexicon))))))))
 
+(defn random-sentences [n]
+  (repeatedly n (fn [] (random-sentence))))
