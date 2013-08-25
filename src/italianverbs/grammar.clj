@@ -177,7 +177,8 @@
 
 (def cc0
   (unify
-   {:comp {:italian {:initial true}}}
+   {:comp {:italian {:initial true}}
+    :head {:italian {:initial false}}}
    subcat-1-principle
    head-principle
    italian-head-last
