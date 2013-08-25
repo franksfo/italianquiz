@@ -31,7 +31,8 @@
 (deftest test-gen13-5
   (let [result (sentence-impl
                 (first (double-apply 0 seed-phrases (list (it "io") (it "dormire")))))]
-    (is (= "Io dormo (I sleep)." (first (fo result))))))
+    (is (or (= "Io dormo (I sleep)." (first (fo result)))
+            (= "Io dormirò (I will sleep)." (first (fo result)))))))
 
 ;; gen13 test for workbook:
 ;;(fo (sentence-impl (take 30 (double-apply 0 seed-phrases (take 30 lexicon)))))
