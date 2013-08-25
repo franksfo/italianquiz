@@ -382,7 +382,7 @@
 ;; they both have a subject, thus "subjective".
 (def verb-subjective
   (let [subj-sem (ref :top)
-        subject-agreement (ref {:case {:not :acc}})
+        subject-agreement (ref {:case :nom})
         infl (ref :top)
         essere-type (ref :top)]
     {:italian {:agr subject-agreement :infl infl :essere essere-type}
