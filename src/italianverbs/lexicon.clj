@@ -2559,4 +2559,11 @@
 (defn en [english]
   (lookup {:english english}))
 
+(def tinylex
+  (set/union (it1 "io")
+             (it1 "lui")
+             (it1 "tu")
+             (it1 "andare")
+             (it1 "dormire")))
+;  (take 7 lexicon))
 
