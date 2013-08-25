@@ -34,4 +34,6 @@
     (is (= "Io dormo (I sleep)." (first (fo result))))))
 
 ;; gen13 test for workbook:
-                                        ;(fo (sentence-impl (take 30 (double-apply 0 seed-phrases (take 30 lexicon)))))
+;;(fo (sentence-impl (take 30 (double-apply 0 seed-phrases (take 30 lexicon)))))
+;;(fo (sentence-impl (take 1 (double-apply 0 seed-phrases (shuffle lexicon)))))
+;;(fo (take 10 (repeatedly #(sentence-impl (take 1 (double-apply 0 seed-phrases (shuffle lexicon)))))))
