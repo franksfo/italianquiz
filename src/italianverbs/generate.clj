@@ -700,7 +700,6 @@
 
       ;; depth == 0: no more recursion.
       (do
-          (log/info "got here(0)..")
           (remove (fn [phr] (unify/fail? phr))
                   (flatten
                    (map (fn [phrase]
