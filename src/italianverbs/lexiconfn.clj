@@ -12,12 +12,9 @@
 (mongo/mongo! :db "mydb")
 (mongo/make-connection "mydb" :host "localhost")
 
-(defn unify [& args]
+(defn unify [ & args]
   "like fs/unify, but fs/copy each argument before unifying."
-  (apply fs/unify
-         (map (fn [arg]
-                (fs/copy arg))
-              args)))
+  (apply fs/unifyc args))
 
 (defn encode-where-query [& where]
   "encode a query as a set of index queries."

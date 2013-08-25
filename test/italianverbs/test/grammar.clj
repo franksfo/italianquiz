@@ -4,7 +4,8 @@
   (:use [clojure.test]
         [italianverbs.generate]
         [italianverbs.morphology]
-        [italianverbs.grammar]))
+        [italianverbs.grammar]
+        [italianverbs.lexiconfn :only (unify)]))
 
 (deftest io-dormo
   (let [result (first (take 1

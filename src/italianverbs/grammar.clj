@@ -1,4 +1,5 @@
 (ns italianverbs.grammar
+  (:use [italianverbs.lexiconfn :only (unify)])
   (:require
    [italianverbs.unify :as fs]
    [italianverbs.morphology :as morph]
@@ -6,9 +7,6 @@
    [italianverbs.lexicon :as lex]
    [italianverbs.generate :as gen]
    [clojure.string :as string]))
-
-(defn unify [ & args]
-  (apply fs/unifyc args))
 
 ;;    [1]
 ;;   /   \
@@ -940,4 +938,8 @@
 (def adj-phrase (conj {:serialized (fs/serialize adj-phrase)}
                       adj-phrase))
 
+
+(def seed-phrases
+  (list
+   cc0))
 

@@ -668,3 +668,35 @@
 
 (defn plain [expr]
   {:plain expr})
+
+(defn moreover-head [parent child]
+  (lexfn/unify parent
+               {:head child}))
+
+(defn moreover-comp [parent child]
+  (lexfn/unify parent
+                {:comp child}))
+
+(defn gen13 [depth phrases lexicon]
+  (if (>= depth 0) ;; screen out negative numbers to prevent infinite recursion.
+    (if (> depth 0)
+      (concat
+       (gen13 (- depth 1) phrases
+              lexicon (gen13 (- depth 1) phrases lexicon))
+       (gen13 (- depth 1) phrases
+              (gen13 (- depth 1) phrases lexicon))
+       (gen13 (- depth 1) phrases
+              (gen13 (- depth 1) phrases)
+              (gen13 (- depth 1) phrases)))
+
+      ;; depth == 0: no more recursion.
+      (map (fn [phrase]
+             (flatten
+              (map (fn [lexeme]
+                     (moreover-head phrase lexeme))
+                 lexicon))
+             (flatten
+              (map (fn [lexeme]
+                     (moreover-comp phrase lexeme))
+                   lexicon)))
+           phrases))))
