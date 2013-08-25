@@ -11,6 +11,7 @@
    [italianverbs.test.grammar]
    [italianverbs.html]
    [italianverbs.morphology]
+   [italianverbs.unify :only (fail?)]
    [clojail.core :only [sandbox]]
    [clojail.testers])
   (:require
