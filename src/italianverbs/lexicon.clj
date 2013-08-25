@@ -2544,13 +2544,18 @@
 (defn lookup [query]
   (lookup-in query lexicon))
 
-(defn it [italian]
+(defn it1 [italian]
+  "same as it but no type conversion of singleton sets to take the first member."
   (let [result
         (set/union (set (lookup {:italian italian}))
                    (set (lookup {:italian {:infinitive italian}}))
                    (set (lookup {:italian {:infinitive {:infinitive italian}}}))
                    (set (lookup {:italian {:italian italian}}))
                    (set (lookup {:italian {:irregular {:passato italian}}})))]
+    result))
+
+(defn it [italian]
+  (let [result (it1 italian)]
     (if (= (.size result) 1)
       (first result) ;; simply return first member rather than singleton-set:
       ;; makes it easier to work with by end-users using with generate/* functions.
