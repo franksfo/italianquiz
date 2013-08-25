@@ -1,5 +1,6 @@
 (ns italianverbs.test.lexicon
-  (:use [clojure.test]
+  (:use [clojure.set]
+        [clojure.test]
         [italianverbs.lexicon])
   (:require
    [italianverbs.unify :as fs]
@@ -54,3 +55,16 @@
     (is (= (get-in to-have '(:number))
            (get-in to-have '(:subj :number))))))
 
+;; doing this in src/lexicon.clj for now,
+;; since it can't get reloaded automatically for
+;; some reason.
+;(def tinylex
+;  (union (it1 "andare")
+;         (it1 "dormire")
+;         (it1 "il")
+;         (it1 "io")
+;         (it1 "libro")
+;         (it1 "lui")
+;         (it1 "tu")))
+
+;  (take 7 lexicon))

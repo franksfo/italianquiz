@@ -1,8 +1,8 @@
 (ns italianverbs.lexicon
   (:use [italianverbs.lexiconfn]
+        [clojure.set]
         [clojure.test])
   (:require
-   [clojure.set :as set]
    [clojure.tools.logging :as log]
    [italianverbs.unify :as fs]))
 
@@ -2547,11 +2547,11 @@
 (defn it1 [italian]
   "same as it but no type conversion of singleton sets to take the first member."
   (let [result
-        (set/union (set (lookup {:italian italian}))
-                   (set (lookup {:italian {:infinitive italian}}))
-                   (set (lookup {:italian {:infinitive {:infinitive italian}}}))
-                   (set (lookup {:italian {:italian italian}}))
-                   (set (lookup {:italian {:irregular {:passato italian}}})))]
+        (union (set (lookup {:italian italian}))
+               (set (lookup {:italian {:infinitive italian}}))
+               (set (lookup {:italian {:infinitive {:infinitive italian}}}))
+               (set (lookup {:italian {:italian italian}}))
+               (set (lookup {:italian {:irregular {:passato italian}}})))]
     result))
 
 (defn it [italian]
@@ -2565,10 +2565,11 @@
   (lookup {:english english}))
 
 (def tinylex
-  (set/union (it1 "io")
-             (it1 "lui")
-             (it1 "tu")
-             (it1 "andare")
-             (it1 "dormire")))
-;  (take 7 lexicon))
+  (union (it1 "andare")
+         (it1 "dormire")
+         (it1 "il")
+         (it1 "io")
+         (it1 "libro")
+         (it1 "lui")
+         (it1 "tu")))
 

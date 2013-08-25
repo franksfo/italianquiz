@@ -10,6 +10,7 @@
    [italianverbs.grammar]
    [italianverbs.lexiconfn]
    [italianverbs.test.grammar]
+   [italianverbs.test.lexicon]
    [italianverbs.html]
    [italianverbs.morphology]
    [italianverbs.unify :only (fail?)]
