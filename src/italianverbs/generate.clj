@@ -690,14 +690,27 @@
               (gen13 (- depth 1) phrases)))
 
       ;; depth == 0: no more recursion.
-      (flatten
-       (map (fn [phrase]
+      (remove (fn [phr] (unify/fail? phr))
               (flatten
-               (map (fn [lexeme]
-                      (moreover-head phrase lexeme))
-                    lexicon))
-              (flatten
-               (map (fn [lexeme]
-                      (moreover-comp phrase lexeme))
-                   lexicon)))
-            phrases)))))
+               (map (fn [phrase]
+                      (concat
+                       (map (fn [lexeme]
+                              (moreover-head phrase lexeme))
+                            lexicon)
+                       (map (fn [lexeme]
+                              (moreover-comp phrase lexeme))
+                            lexicon)))
+                    phrases))))))
+
+(defn cleanup [phrases]
+  (remove (fn [phr] (or (= (unify/get-in phr '(:english :a)) :top)
+                        (= (unify/get-in phr '(:english :b)) :top)
+                        (= (unify/get-in phr '(:italian :a)) :top)
+                        (= (unify/get-in phr '(:italian :b)) :top)))
+          phrases))
+
+(defn double-apply [depth phrases lexicon]
+  (cleanup (gen13 0
+                  (gen13 0 phrases lexicon)
+                  lexicon)))
+
