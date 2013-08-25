@@ -635,7 +635,7 @@
 
 (def adjective
   (let [adjective (ref :adjective)
-              gender (ref :top)
+        gender (ref :top)
         number (ref :top)]
     {:synsem {:cat adjective
               :agr {:gender gender
@@ -660,8 +660,6 @@
 (def disjunctive-case-of-pronoun (ref :disj))
 (def cat-of-pronoun (ref :noun))
 
-
-
 (def subcat0 {:synsem {:subcat '()}})
 
 (defn implied [map]
@@ -681,7 +679,7 @@
 
         map
         (if (and (= (fs/get-in map '(:synsem :cat)) :adjective)
-                 (= (fs/get-in map '(:synsem :sem :comparative)) false))
+                 (not (= (fs/get-in map '(:synsem :sem :comparative)) true)))
           (unify
            subcat0
            map)
