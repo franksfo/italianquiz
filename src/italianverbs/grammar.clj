@@ -957,7 +957,9 @@
    true
    (let [finitize (if (= (fs/get-in input '(:synsem :infl))
                          :top)
-                    {:synsem {:infl :present}})]
+                    (first (take 1 (shuffle
+                                    (list {:synsem {:infl :present}}
+                                          {:synsem {:infl :futuro}})))))]
      (let [merged
            (if (= input :fail) :fail
                (fs/merge input finitize))]
