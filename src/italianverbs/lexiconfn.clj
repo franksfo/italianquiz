@@ -357,7 +357,8 @@
                          not-legible-if-not-artifact part-of-human-body pets place
                          ))]
        (log/debug (str "sem-impl so far: " merged))
-       (if (not (= merged input))
+       (if (not (= merged input)) ;; TODO: make this check more efficient: count how many rules were hit
+         ;; rather than equality-check to see if merged has changed.
          (sem-impl merged) ;; we've added some new information: more implications possible from that.
          merged))))) ;; no more implications: return
 
@@ -732,3 +733,5 @@
 (def cat-of-pronoun (ref :noun))
 
 (def subcat0 {:synsem {:subcat '()}})
+
+
