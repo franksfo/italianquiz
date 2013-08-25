@@ -927,7 +927,8 @@
       {:synsem {:cat :det
                 :def :def
                 :gender :masc
-                :number :sing}
+                :number :sing
+                :subcat '()}
        :italian "il"
        :english "the"}
 
