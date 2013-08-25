@@ -10,7 +10,10 @@
 (deftest io-dormo
   (let [result (first (take 1
                             (generate
-                             (unify s-present {:synsem {:sem {:pred :dormire
+                             (unify s-present {:synsem {;; TODO: :cat :verb is a workaround for overgeneration due
+                                                        ;; to generation redesign.
+                                                        :cat :verb
+                                                        :sem {:pred :dormire
                                                               :subj {:pred :io}}}}))))]
     (is (not (unify/fail? result)))
     (is (= (unify/get-in (finalize result) '(:italian)) "io dormo"))
