@@ -670,8 +670,17 @@
   {:plain expr})
 
 (defn moreover-head [parent child]
-  (lexfn/unify parent
-               {:head child}))
+  (let [result (lexfn/unify parent
+                            {:head child})]
+    (if (not (unify/fail? result))
+      (merge {:head-filled true}
+             result)
+      :fail)))
+
+(defn head-filled-in [phrase]
+  (and (not (nil? phrase))
+       (= (:head-filled phrase) true)))
+
 
 (defn moreover-comp [parent child]
   (lexfn/unify parent
@@ -690,17 +699,20 @@
               (gen13 (- depth 1) phrases)))
 
       ;; depth == 0: no more recursion.
-      (remove (fn [phr] (unify/fail? phr))
-              (flatten
-               (map (fn [phrase]
-                      (concat
-                       (map (fn [lexeme]
-                              (moreover-head phrase lexeme))
-                            lexicon)
-                       (map (fn [lexeme]
-                              (moreover-comp phrase lexeme))
-                            lexicon)))
-                    phrases))))))
+      (do
+          (log/info "got here(0)..")
+          (remove (fn [phr] (unify/fail? phr))
+                  (flatten
+                   (map (fn [phrase]
+                          (if (head-filled-in phrase)
+                            (map (fn [lexeme]
+                                   (moreover-comp phrase lexeme))
+                                 lexicon)
+                            ;; else: head is not filled in: fill it in.
+                            (map (fn [lexeme]
+                                   (moreover-head phrase lexeme))
+                                 lexicon)))
+                        phrases)))))))
 
 (defn cleanup [phrases]
   (remove (fn [phr] (or (= (unify/get-in phr '(:english :a)) :top)
