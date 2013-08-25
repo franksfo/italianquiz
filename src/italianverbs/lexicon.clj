@@ -13,11 +13,13 @@
 
   (map (fn [entry]
          (log/debug "serializing entry.")
-         (if (not (= :none (get entry :serialized :none)))
-           (conj {:serialized (fs/serialize entry)}
-                 entry)
-           (conj {:serialized (fs/serialize (dissoc entry :serialized))}
-                 entry)))
+         (let [entry
+               (if (not (= :none (get entry :serialized :none)))
+                 (conj {:serialized (fs/serialize entry)}
+                       entry)
+                 (conj {:serialized (fs/serialize (dissoc entry :serialized))}
+                       entry))]
+           (implied entry)))
         (list
 
          {:synsem {:cat :prep
@@ -928,8 +930,7 @@
       {:synsem {:cat :det
                 :def :def
                 :gender :masc
-                :number :sing
-                :subcat '()}
+                :number :sing}
        :italian "il"
        :english "the"}
 
@@ -2565,11 +2566,16 @@
   (lookup {:english english}))
 
 (def tinylex
-  (union (it1 "andare")
+  (union (it1 "a")
+         (it1 "acqua")
+         (it1 "andare")
          (it1 "dormire")
          (it1 "il")
          (it1 "io")
+         (it1 "la")
          (it1 "libro")
+         (it1 "loro")
          (it1 "lui")
-         (it1 "tu")))
+         (it1 "tu")
+         ))
 

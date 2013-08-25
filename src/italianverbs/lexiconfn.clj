@@ -62,17 +62,21 @@
 (defn english [lexeme]
   (get (nth lexeme 1) :english))
 
+(def subcat0 {:synsem {:subcat '()}})
+
 (defn implied [map]
   "things to be added to lexical entries based on what's implied about them in order to canonicalize them."
   ;; for example, if a lexical entry is a noun with no :number value, or
   ;; the :number value equal to :top, then set it to :singular, because
   ;; a noun is canonically singular.
-  (if (and (= (:cat map) :noun)
-           (or (= (:number map :notfound) :notfound)
-               (and (= (type (:number map)) clojure.lang.Ref)
-                    (= @(:number map) :top))))
-    (implied (fs/merge map
-                       {:number :singular}))
+  ;; TODO: remove this first test: probably doesn't match anything
+  ;; - should be (get-in map '(:synsem :cat)), not (:cat map).
+  (let [map
+        (if (= (fs/get-in map '(:synsem :cat)) :det)
+          (unify
+           subcat0
+           map)
+          map)]
     map))
 
 ;; italian and english are strings, featuremap is a map of key->values.
@@ -732,6 +736,5 @@
 (def disjunctive-case-of-pronoun (ref :disj))
 (def cat-of-pronoun (ref :noun))
 
-(def subcat0 {:synsem {:subcat '()}})
 
 
