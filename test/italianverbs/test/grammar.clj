@@ -21,9 +21,9 @@
 
 (defn successful [result]
   (or (not (map? result))
-      (is (not (unify/fail? result))))
+      (not (unify/fail? result)))
   (or (not (seq? result))
-      (is (not (nil? (seq result))))))
+      (not (nil? (seq result)))))
 
 (def fare-bene (over vp-plus-adverb "fare" "bene"))
 (deftest fare-bene-test
