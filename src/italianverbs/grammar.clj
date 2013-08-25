@@ -945,3 +945,20 @@
   (list
    cc0))
 
+(defn sentence-impl [input]
+  "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
+:present (later, set to a randomly selected member of {:finite, :futuro, ..}."
+  (cond
+   (seq? input)
+   (map (fn [each]
+          (sentence-impl each))
+        input)
+   (= input :top) input
+   true
+   (let [finitize (if (= (fs/get-in input '(:synsem :infl))
+                         :top)
+                    {:synsem {:infl :present}})]
+     (let [merged
+           (if (= input :fail) :fail
+               (fs/merge input finitize))]
+       merged)))) ;; for now, no recursive call.

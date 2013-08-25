@@ -24,3 +24,12 @@
     (is (not (nil? result)))
     (is (= "Il compito (The homework assignment)." (first (fo (first result)))))))
 
+(deftest test-gen13-4
+  (let [result (unify {:synsem {:infl :present}} (first (double-apply 0 seed-phrases (list (it "io") (it "dormire")))))]
+    (is (= "Io dormo (I sleep)." (first (fo result))))))
+
+(deftest test-gen13-5
+  (let [result (sentence-impl
+                (first (double-apply 0 seed-phrases (list (it "io") (it "dormire")))))]
+    (is (= "Io dormo (I sleep)." (first (fo result))))))
+
