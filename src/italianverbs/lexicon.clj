@@ -20,16 +20,17 @@
                  entry)))
         (list
 
-   {:synsem {:cat :prep
-             :sem {:pred :a
-                   :mod {:pred :a}
-                   :comparative false}
-             :subcat {:1 {:cat :noun
-                          :subcat '()
-                          :sem {:place true}}
-                      :2 '()}}
-    :italian "a"
-    :english "to"}
+         {:synsem {:cat :prep
+                   :sem {:pred :a
+                         :mod {:pred :a}
+                         :comparative false}
+                   :subcat {:1 {:cat :noun
+                                :subcat '()
+                                :sem {:place true}}
+                            :2 '()}}
+          :italian {:initial true
+                    :italian "a"}
+          :english "to"}
 
 ;        {:synsem {:cat :prep
 ;                  :sem {:pred :in}
