@@ -692,12 +692,12 @@
       (concat
        (gen13 (- depth 1) phrases
               lexicon (gen13 (- depth 1) phrases lexicon))
-       (gen13 (- depth 1) phrases
-              (gen13 (- depth 1) phrases lexicon))
-       (gen13 (- depth 1) phrases
-              (gen13 (- depth 1) phrases)
-              (gen13 (- depth 1) phrases)))
-
+;       (gen13 (- depth 1) phrases
+;              (gen13 (- depth 1) phrases lexicon))
+;       (gen13 (- depth 1) phrases
+;              (gen13 (- depth 1) phrases)
+;              (gen13 (- depth 1) phrases)))
+       )
       ;; depth == 0: no more recursion.
       (do
           (remove (fn [phr] (unify/fail? phr))
@@ -725,3 +725,23 @@
                   (gen13 0 phrases lexicon)
                   lexicon)))
 
+(defn triple-apply [depth phrases lexicon]
+  (cleanup (gen13 0
+                  (gen13 1 phrases lexicon)
+                  lexicon)))
+
+(defn gen14 [phrases heads complements]
+  (if (not (empty? phrases))
+    (let [phrase (first phrases)]
+      (lazy-cat
+       (if (not (empty? heads))
+         (let [head (first heads)]
+           (lazy-cat
+            (if (not (empty? complements))
+              (let [complement (first complements)]
+                (let [new-phrase (moreover-head head complement)]
+                  (lazy-seq
+                   (cons new-phrase
+                         (gen14 phrases heads (rest complements)))))))
+            (gen14 phrases (rest heads) complements))))
+       (gen14 (rest phrases) heads complements)))))
