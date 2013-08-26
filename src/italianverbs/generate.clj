@@ -731,30 +731,31 @@
                   lexicon)))
 
 (defn gen14 [phrases heads complements]
-  (if (not (empty? phrases))
-    (let [phrase (first phrases)]
-      (log/info (str "phrases size: " (.size phrases)))
-      (log/info (str "heads size: " (.size heads)))
-      (log/info (str "comps size: " (.size complements)))
-      (lazy-cat
-       (if (not (empty? heads))
-         (let [head (first heads)]
-           (log/info (str "heads size: " (.size heads)))
-           (log/info (str "emptiness of comps: " (empty? complements)))
-           (lazy-cat
-            (if (not (empty? complements))
-              (do (log/info (str "complements size: " (.size complements)))
-                  (let [complement (first complements)]
-                    (log/info (str "doing unify with " (morph/fo head)
-                                   " and " (morph/fo complement)))
-                    (let [new-phrase (moreover-comp
-                                      (moreover-head phrase head)
-                                      complement)]
-                      (if (not (unify/fail? new-phrase))
-                        (lazy-seq
-                         (cons new-phrase
-                               (gen14 phrases heads (rest complements))))
-                        (gen14 phrases heads (rest complements)))))))
-            (gen14 phrases (rest heads) complements))))
-       (gen14 (rest phrases) heads complements)))))
+  (lazy-cat
+   (if (and (not (empty? phrases))
+            (not (empty? heads))
+            (not (empty? complements)))
+     (let [phrase (first phrases)]
+       (lazy-cat
+        (let [head (first heads)
+              phrase-with-head (moreover-head phrase head)]
+          (if (not (unify/fail? phrase-with-head))
+            (lazy-cat
+             (remove (fn [phr] (unify/fail? phr))
+                     (map (fn [comp]
+                            (moreover-comp
+                             phrase-with-head
+                             comp))
+                          complements))
+             (gen14 (list phrase)
+                    (rest heads)
+                    complements))
+           (gen14 (list phrase)
+                  (rest heads)
+                  complements))))))
+   (gen14 (rest phrases) heads complements)))
+
+
+
+
 
