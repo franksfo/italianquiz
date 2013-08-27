@@ -948,6 +948,10 @@
                (fs/merge input finitize))]
        merged)))) ;; for now, no recursive call.
 
+(defn sent-impl [input]
+  "shortcut"
+  (sentence-impl input))
+
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itslelf should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
