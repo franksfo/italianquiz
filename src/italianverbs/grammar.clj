@@ -32,9 +32,12 @@
 ;; H[1]    C
 (def head-principle
   (unify head-principle-no-infl
-  (let [head-infl (ref :top)]
-    {:synsem {:infl head-infl}
-     :head {:synsem {:infl head-infl}}})))
+         (let [head-infl (ref :top)
+               agr (ref :top)]
+           {:synsem {:infl head-infl
+                     :agr agr}
+            :head {:synsem {:infl head-infl
+                            :agr agr}}})))
 
 ;;     subcat<>
 ;;     /      \
