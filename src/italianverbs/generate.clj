@@ -746,6 +746,18 @@
                   (gen13 1 phrases lexicon)
                   lexicon)))
 
+(defn gen14-inner [phrase-with-head complements]
+  (if (not (empty? complements))
+    (let [comp (first complements)]
+      (let [result (moreover-comp
+                    phrase-with-head
+                    comp)]
+        (if (not (unify/fail? result))
+          (lazy-seq
+           (cons result
+                 (gen14-inner phrase-with-head (rest complements))))
+          (gen14-inner phrase-with-head (rest complements)))))))
+
 (defn gen14 [phrases heads complements]
   (lazy-cat
    (if (and (not (empty? phrases))
@@ -758,11 +770,7 @@
           (if (not (unify/fail? phrase-with-head))
             (lazy-cat
              (remove (fn [phr] (unify/fail? phr))
-                     (map (fn [comp]
-                            (moreover-comp
-                             phrase-with-head
-                             comp))
-                          complements))
+                     (gen14-inner phrase-with-head complements))
              (gen14 (list phrase)
                     (rest heads)
                     complements))
