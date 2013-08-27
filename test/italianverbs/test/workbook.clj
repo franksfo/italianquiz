@@ -40,12 +40,11 @@
 ;;(fo (take 10 (repeatedly #(sentence-impl (take 1 (double-apply 0 seed-phrases (shuffle lexicon)))))))
 
 (deftest test-gen14-1
-  (let [result (sentence-impl
-                (first (take 1
-                             (gen14 seed-phrases
-                                    (list (it "io") (it "dormire"))
-                                    (list (it "io") (it "dormire"))
-                                    sent-impl))))]
+  (let [result (first (take 1
+                            (gen14 seed-phrases
+                                   (list (it "io") (it "dormire"))
+                                   (list (it "io") (it "dormire"))
+                                   sent-impl)))]
     (is (or (= "Io dormo (I sleep)." (first (fo result)))
             (= "Io dormirò (I will sleep)." (first (fo result)))))))
 
