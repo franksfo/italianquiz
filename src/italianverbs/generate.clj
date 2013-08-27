@@ -154,11 +154,29 @@
      (if (not fail)
        (list unified)))))
 
+(defn head-filled-in? [phrase]
+  (and (not (nil? phrase))
+       (= (:head-filled phrase) true)))
+
+(defn comp-filled-in? [phrase]
+  (and (not (nil? phrase))
+       (= (:comp-filled phrase) true)))
+
 (defn add-child-where [parent]
   (if (seq? parent)
     (throw (Exception. (str "add-child-where was passed a seq: " seq " - should only be a map."))))
 
   (cond
+
+   (and (head-filled-in? parent)
+        (comp-filled-in? parent))
+   nil
+
+   (head-filled-in? parent)
+   :comp
+
+   (comp-filled-in? parent)
+   :head
 
    (morph/phrase-is-finished? parent)
    nil
@@ -273,6 +291,9 @@
          (log/debug (str "failed match: sem-filter: " sem-filter " and comp-sem: " comp-sem))
          :fail)
        (let [unified (lexfn/unify parent
+                                  (if child-is-head
+                                    {:head-filled true}
+                                    {:comp-filled true})
                                   {where-child
                                    (lexfn/unify
                                     (let [sem (unify/get-in child '(:synsem :sem) :notfound)]
@@ -677,11 +698,6 @@
              result)
       :fail)))
 
-(defn head-filled-in [phrase]
-  (and (not (nil? phrase))
-       (= (:head-filled phrase) true)))
-
-
 (defn moreover-comp [parent child]
   (lexfn/unify parent
                 {:comp child}))
@@ -703,7 +719,7 @@
           (remove (fn [phr] (unify/fail? phr))
                   (flatten
                    (map (fn [phrase]
-                          (if (head-filled-in phrase)
+                          (if (head-filled-in? phrase)
                             (map (fn [lexeme]
                                    (moreover-comp phrase lexeme))
                                  lexicon)
