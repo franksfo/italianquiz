@@ -3,14 +3,15 @@
   (:require
    [clojure.tools.logging :as log]
    [italianverbs.lev :as lev]
+   ;; TODO: remove this: generate should not need access to lexfn/ at all.
    [italianverbs.lexiconfn :as lexfn]
    ;; TODO: remove this: generate should not need access to morph/ at all.
    [italianverbs.morphology :as morph]
    [italianverbs.unify :as unify]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
+   ;; TODO: remove this: generate should not need access to lex/ at all.
    [italianverbs.lexicon :as lex]
-   [italianverbs.lexiconfn :as lexfn]
    [italianverbs.search :as search]
    [clojure.string :as string]))
 
@@ -692,15 +693,22 @@
 
 (defn moreover-head [parent child]
   (let [result (lexfn/unify parent
-                            {:head child})]
+                            {:head child}
+                            {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
     (if (not (unify/fail? result))
       (merge {:head-filled true}
              result)
       :fail)))
 
 (defn moreover-comp [parent child]
-  (lexfn/unify parent
-                {:comp child}))
+  (let [result
+        (lexfn/unify parent
+                     {:comp child}
+                     {:comp {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
+    (if (not (unify/fail? result))
+      (merge {:comp-filled true}
+             result)
+      :fail)))
 
 (defn gen13 [depth phrases lexicon]
   (if (>= depth 0) ;; screen out negative numbers to prevent infinite recursion.
