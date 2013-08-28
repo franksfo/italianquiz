@@ -767,18 +767,18 @@
           (gen14-inner phrase-with-head (rest complements) sent-impl))))))
 
 (defn gen14 [phrases heads complements sent-impl]
+  (log/info (str "gen14: starting now."))
   (lazy-cat
    (if (and (not (empty? phrases))
             (not (empty? heads))
             (not (empty? complements)))
      (let [phrase (first phrases)]
        (lazy-cat
-        (let [head (first heads)
+        (let [head (first (take 1 heads))
               phrase-with-head (moreover-head phrase head)]
           (if (not (unify/fail? phrase-with-head))
             (lazy-cat
-             (remove (fn [phr] (unify/fail? phr))
-                     (gen14-inner phrase-with-head complements sent-impl))
+             (gen14-inner phrase-with-head complements sent-impl)
              (gen14 (list phrase)
                     (rest heads)
                     complements

@@ -96,3 +96,8 @@
 (deftest io-sono-venuto-per-dormire
   (is (successful (over s-past "io"
                          (over vp-aux "essere" (over vp-past "venire" (over prep-plus-verb-inf "per" "dormire")))))))
+
+
+;; Optimize me:
+;(fo (take 1 (gen21 (take 1 (gen21 (shuffle lexicon) (shuffle lexicon)))
+;                              (shuffle lexicon)))))
