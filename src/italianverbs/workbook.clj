@@ -79,15 +79,8 @@
         (if search-query
           search-query
 
-          "(fo (take 1 (gen14 seed-phrases
-                              (shuffle lexicon)
-                              (take 1 (gen14 seed-phrases
-                                             (shuffle lexicon)
-                                             (shuffle lexicon)
-                                             sent-impl))
-                              sent-impl)))"
-
-;          "(fo (take 1 (repeatedly #(random-sentence))))"
+          "(fo (take 1 (gen21 (shuffle lexicon)
+                              (shuffle lexicon)))))"
           )]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
