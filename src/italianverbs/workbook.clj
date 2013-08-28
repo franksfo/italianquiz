@@ -20,6 +20,8 @@
                          (let [loaded
                                (try
                                  (sandbox/workbook-sandbox (read-string expr))
+                                 ;; TODO: how can I show the stack trace for the
+                                 ;; attempt to process the expression?
                                  (catch Exception e
                                    (log/error (str "failed to sandbox-load-string: " expr))
                                    (str e)))]
