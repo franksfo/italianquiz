@@ -754,40 +754,45 @@
                   (gen13 1 phrases lexicon)
                   lexicon)))
 
-(defn gen14-inner [phrase-with-head complements sent-impl]
-  (if (not (empty? complements))
-    (let [comp (first complements)]
-      (let [result (sent-impl (moreover-comp
-                               phrase-with-head
-                               comp))]
-        (if (not (unify/fail? result))
-          (lazy-seq
-           (cons result
-                 (gen14-inner phrase-with-head (rest complements) sent-impl)))
-          (gen14-inner phrase-with-head (rest complements) sent-impl))))))
+(defn gen14-inner [phrase-with-head complements sent-impl recursion-level]
+  (let [recursion-level (+ 1 recursion-level)]
+    (log/info (str "gen14-inner: starting now: recursion-level: " recursion-level))
+    (if (not (empty? complements))
+      (let [comp (first complements)]
+        (let [result (sent-impl (moreover-comp
+                                 phrase-with-head
+                                 comp))]
+          (if (not (unify/fail? result))
+            (lazy-seq
+             (cons result
+                   (gen14-inner phrase-with-head (rest complements) sent-impl recursion-level)))
+            (gen14-inner phrase-with-head (rest complements) sent-impl recursion-level)))))))
 
-(defn gen14 [phrases heads complements sent-impl]
-  (log/info (str "gen14: starting now."))
-  (lazy-cat
-   (if (and (not (empty? phrases))
-            (not (empty? heads))
-            (not (empty? complements)))
-     (let [phrase (first phrases)]
-       (lazy-cat
-        (let [head (first (take 1 heads))
-              phrase-with-head (moreover-head phrase head)]
-          (if (not (unify/fail? phrase-with-head))
-            (lazy-cat
-             (gen14-inner phrase-with-head complements sent-impl)
-             (gen14 (list phrase)
-                    (rest heads)
-                    complements
-                    sent-impl))
-           (gen14 (list phrase)
-                  (rest heads)
-                  complements
-                  sent-impl))))))
-   (gen14 (rest phrases) heads complements sent-impl)))
+(defn gen14 [phrases heads complements sent-impl recursion-level]
+  (let [recursion-level (+ 1 recursion-level)]
+    (log/info (str "gen14: starting now: recursion-level: " recursion-level))
+    (lazy-cat
+     (if (and (not (empty? phrases))
+              (not (empty? heads))
+              (not (empty? complements)))
+       (let [phrase (first phrases)]
+         (lazy-cat
+          (let [head (first (take 1 heads))
+                phrase-with-head (moreover-head phrase head)]
+            (if (not (unify/fail? phrase-with-head))
+              (lazy-cat
+               (gen14-inner phrase-with-head complements sent-impl 0)
+               (gen14 (list phrase)
+                      (rest heads)
+                      complements
+                      sent-impl
+                      recursion-level))
+              (gen14 (list phrase)
+                     (rest heads)
+                     complements
+                     sent-impl
+                     recursion-level))))))
+     (gen14 (rest phrases) heads complements sent-impl recursion-level))))
 
 
 
