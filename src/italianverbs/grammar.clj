@@ -978,3 +978,9 @@
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
   (let [times (if (first times) (first times) 10)]
     (dotimes [n times] (time (random-sentence)))))
+
+(defn gen21 [heads comps]
+  (gen/gen14 seed-phrases
+             heads
+             comps
+             sent-impl))
