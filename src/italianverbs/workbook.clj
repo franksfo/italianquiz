@@ -80,9 +80,7 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-
-          "(fo (take 1 (gen21 (shuffle lexicon)
-                              (shuffle lexicon)))))"
+          "(fo (random-sentence)))"
           )]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka

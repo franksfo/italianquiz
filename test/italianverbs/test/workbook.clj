@@ -86,16 +86,15 @@
 
 (defn functions-as-seqs-test5 []
   (gen14 seed-phrases
-         (shuffle verbs)
-         (gen14 seed-phrases
-                (gen14 seed-phrases
-                       (shuffle nouns)
-                       (shuffle lexicon)
-                       sent-impl
-                       0)
-                (shuffle dets)
-                sent-impl 0)
-         sent-impl 0))
+             (shuffle verbs)
+             (fn [] (gen14 (list cc0)
+                           (fn [] (gen14 (list hc1)
+                                         (fn [] (shuffle nouns))
+                                         (fn [] (shuffle adjs))
+                                         sent-impl 0))
+                           (fn [] (shuffle dets))
+                           sent-impl 0))
+             sent-impl 0))
 
 
 
