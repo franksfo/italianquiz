@@ -2565,18 +2565,12 @@
   (lookup {:english english}))
 
 (def tinylex
-  (union (it1 "a")
-         (it1 "acqua")
-         (it1 "affolato")
-         (it1 "aiutare")
-         (it1 "andare")
+  (union (it1 "andare")
          (it1 "dormire")
-         (it1 "il")
-         (it1 "io")
          (it1 "la")
-         (it1 "libro")
-         (it1 "loro")
-         (it1 "lui")
-         (it1 "tu")
+         (it1 "il")
+         (it1 "ragazzo")
+         (it1 "ragazza")
+         (it1 "un")
          ))
 

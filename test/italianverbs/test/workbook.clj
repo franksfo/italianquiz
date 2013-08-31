@@ -48,3 +48,8 @@
     (is (or (= "Io dormo (I sleep)." (first (fo result)))
             (= "Io dormirò (I will sleep)." (first (fo result)))))))
 
+
+(defn functions-as-seqs-test []
+  (gen14 seed-phrases (shuffle lexicon) (gen14 seed-phrases (shuffle lexicon) (shuffle tinylex) sent-impl 0) sent-impl 0))
+
+

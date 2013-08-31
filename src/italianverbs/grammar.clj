@@ -952,7 +952,7 @@
   "shortcut"
   (sentence-impl input))
 
-;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itslelf should not depend on lexicon (lex/lexicon).
+;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
   (morph/finalize (first (take 1 (gen/generate
@@ -969,7 +969,7 @@
   (morph/finalize (first (take 1
                                (gen/gen14 seed-phrases
                                           (shuffle lex/lexicon) (shuffle lex/lexicon)
-                                          sent-impl))))))
+                                          sent-impl 0))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
@@ -979,10 +979,10 @@
   (let [times (if (first times) (first times) 10)]
     (dotimes [n times] (time (random-sentence)))))
 
-(defn gen21 [heads comps]
-  (gen/gen14 seed-phrases
-             heads
-             comps
-             sent-impl
-             0))
+;(defn gen21 [heads comps]
+;  (gen/gen14 seed-phrases
+;             heads
+;             comps
+;             sent-impl
+;             0))
 
