@@ -64,11 +64,12 @@
 ;;     subcat<1>
 ;;     /      \
 ;;    /        \
-;; H subcat<1>  C
+;; H subcat<1>  C<>
 (def subcat-1-1-principle
   (let [subcat (ref :top)]
     {:synsem {:subcat {:1 subcat
                        :2 '()}}
+     :comp {:synsem {:subcat '()}}
      :head {:synsem {:subcat {:1 subcat
                               :2 '()}}}}))
 
@@ -203,13 +204,19 @@
             :english {:agr agr}
             :synsem {:agr agr}}}))
 
+(def comp-modifies-head
+  (let [head-semantics (ref :top)]
+    {:head {:synsem {:sem head-semantics}}
+     :comp {:synsem {:sem {:mod head-semantics}}}}))
+
 (def hc1
   (unify
    {:comp {:italian {:initial false}}
     :head {:italian {:initial true}}}
    subcat-1-1-principle
-;   hc-agreement
+   hc-agreement
    head-principle
+   comp-modifies-head
    italian-head-first
    english-head-last))
 
@@ -1007,36 +1014,36 @@
                      (shuffle
                       (list
                        (gen/gen14 seed-phrases
-                                  (shuffle cc0-heads)
-                                  (shuffle cc0-comps)
+                                  (fn [] (shuffle cc0-heads))
+                                  (fn [] (shuffle cc0-comps))
                                   sent-impl 0)
 
-;                       (gen/gen14 seed-phrases
-;                                  (fn [] (shuffle lex/verbs))
-;                                  (fn [] (gen/gen14 seed-phrases
-;                                                    (fn [] (shuffle lex/nouns))
-;                                                    (fn [] (shuffle lex/dets))
-;                                                    sent-impl 0))
-;                                  sent-impl 0)
+                       (gen/gen14 seed-phrases
+                                  (fn [] (shuffle lex/verbs))
+                                  (fn [] (gen/gen14 seed-phrases
+                                                    (fn [] (shuffle lex/nouns))
+                                                    (fn [] (shuffle lex/dets))
+                                                    sent-impl 0))
+                                  sent-impl 0)
 
-;                       (gen/gen14 (list cc0)
-;                                  (fn [] (gen/gen14 (list hc1)
-;                                                    (fn [] (shuffle lex/nouns))
-;                                                    (fn [] (shuffle lex/adjs))
-;                                                    sent-impl 0))
-;                                  (fn [] (shuffle lex/dets))
-;                                  sent-impl 0)
+                       (gen/gen14 (list cc0)
+                                  (fn [] (gen/gen14 (list hc1)
+                                                    (fn [] (shuffle lex/nouns))
+                                                    (fn [] (shuffle lex/adjs))
+                                                    sent-impl 0))
+                                  (fn [] (shuffle lex/dets))
+                                  sent-impl 0)
 
-;                       (gen/gen14 seed-phrases
-;                                  (fn [] (shuffle lex/verbs))
-;                                  (fn [] (gen/gen14 (list cc0)
-;                                                    (fn [] (gen/gen14 (list hc1)
-;                                                                      (fn [] (shuffle lex/nouns))
-;                                                                      (fn [] (shuffle lex/adjs))
-;                                                                      sent-impl 0))
-;                                                    (fn [] (shuffle lex/dets))
-;                                                    sent-impl 0))
-;                                  sent-impl 0)
+                       (gen/gen14 seed-phrases
+                                  (fn [] (shuffle lex/verbs))
+                                  (fn [] (gen/gen14 (list cc0)
+                                                    (fn [] (gen/gen14 (list hc1)
+                                                                      (fn [] (shuffle lex/nouns))
+                                                                      (fn [] (shuffle lex/adjs))
+                                                                      sent-impl 0))
+                                                    (fn [] (shuffle lex/dets))
+                                                    sent-impl 0))
+                                  sent-impl 0)
                        ))))]
   (morph/finalize (first (take 1 use-fn))))))
 
