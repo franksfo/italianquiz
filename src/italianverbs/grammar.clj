@@ -966,10 +966,21 @@
                                                         s-imperfetto
                                                         s-temporal-glue
                                                         ))))))))
-  (morph/finalize (first (take 1
-                               (gen/gen14 seed-phrases
-                                          (shuffle lex/lexicon) (shuffle lex/lexicon)
-                                          sent-impl 0))))))
+  (let [use-fn
+        (first (take 1
+                     (shuffle
+                      (list
+                       (gen/gen14 seed-phrases
+                                  (shuffle lex/lexicon) (shuffle lex/lexicon)
+                                  sent-impl 0)
+                       (gen/gen14 seed-phrases
+                                  (shuffle lex/verbs)
+                                  (gen/gen14 seed-phrases
+                                             (shuffle lex/nouns)
+                                             (shuffle lex/dets)
+                                             sent-impl 0)
+                                  sent-impl 0)))))]
+  (morph/finalize (first (take 1 use-fn))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
