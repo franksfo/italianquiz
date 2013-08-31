@@ -84,6 +84,14 @@
                 sent-impl 0)
          sent-impl 0))
 
+
+(defn fn-5 []
+  (take 1
+        (gen/gen14 seed-phrases
+                   (shuffle cc0-heads)
+                   (shuffle cc0-comps)
+                   sent-impl 0)))
+
 (defn functions-as-seqs-test5 []
   (gen14 seed-phrases
          (shuffle verbs)
