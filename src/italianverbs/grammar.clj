@@ -928,6 +928,16 @@
   (list
    cc0))
 
+(def cc0-heads
+  (filter (fn [lex]
+            (not (fs/fail? (unify cc0 {:head lex}))))
+          lex/lexicon))
+
+(def cc0-comps
+  (filter (fn [lex]
+            (not (fs/fail? (unify cc0 {:comp lex}))))
+          lex/lexicon))
+
 (defn sentence-impl [input]
   "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
 :present (later, set to a randomly selected member of {:finite, :futuro, ..}."
@@ -971,7 +981,8 @@
                      (shuffle
                       (list
                        (gen/gen14 seed-phrases
-                                  (shuffle lex/lexicon) (shuffle lex/lexicon)
+                                  (shuffle cc0-heads)
+                                  (shuffle cc0-comps)
                                   sent-impl 0)
                        (gen/gen14 seed-phrases
                                   (shuffle lex/verbs)
