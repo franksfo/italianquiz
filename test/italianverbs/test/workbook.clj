@@ -50,6 +50,52 @@
 
 
 (defn functions-as-seqs-test []
-  (gen14 seed-phrases (shuffle lexicon) (gen14 seed-phrases (shuffle lexicon) (shuffle tinylex) sent-impl 0) sent-impl 0))
+  (gen14 seed-phrases (shuffle lexicon)
+         (gen14 seed-phrases
+                (shuffle lexicon)
+                (shuffle lexicon)
+                sent-impl 0)
+         sent-impl 0))
+
+(defn functions-as-seqs-test2 []
+  (gen14 seed-phrases (shuffle tinylex)
+         (gen14 seed-phrases
+                (shuffle tinylex)
+                (shuffle tinylex)
+                sent-impl 0)
+         sent-impl 0))
+
+
+(defn functions-as-seqs-test3 []
+  (gen14 seed-phrases
+         (shuffle tinylex)
+         (gen14 seed-phrases
+                (shuffle lexicon)
+                (shuffle tinylex)
+                sent-impl 0)
+         sent-impl 0))
+
+(defn functions-as-seqs-test4 []
+  (gen14 seed-phrases
+         (shuffle verbs)
+         (gen14 seed-phrases
+                (shuffle nouns)
+                (shuffle dets)
+                sent-impl 0)
+         sent-impl 0))
+
+(defn functions-as-seqs-test5 []
+  (gen14 seed-phrases
+         (shuffle verbs)
+         (gen14 seed-phrases
+                (gen14 seed-phrases
+                       (shuffle nouns)
+                       (shuffle lexicon)
+                       sent-impl
+                       0)
+                (shuffle dets)
+                sent-impl 0)
+         sent-impl 0))
+
 
 
