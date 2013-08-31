@@ -44,7 +44,7 @@
                             (gen14 seed-phrases
                                    (list (it "io") (it "dormire"))
                                    (list (it "io") (it "dormire"))
-                                   sent-impl)))]
+                                   sent-impl 0)))]
     (is (or (= "Io dormo (I sleep)." (first (fo result)))
             (= "Io dormirò (I will sleep)." (first (fo result)))))))
 
