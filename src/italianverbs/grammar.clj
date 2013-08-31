@@ -64,11 +64,12 @@
 ;;     subcat<1>
 ;;     /      \
 ;;    /        \
-;; H subcat<1>  C
+;; H subcat<1>  C<>
 (def subcat-1-1-principle
   (let [subcat (ref :top)]
     {:synsem {:subcat {:1 subcat
                        :2 '()}}
+     :comp {:synsem {:subcat '()}}
      :head {:synsem {:subcat {:1 subcat
                               :2 '()}}}}))
 
