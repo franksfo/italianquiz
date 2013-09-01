@@ -1013,14 +1013,14 @@
         (first (take 1
                      (shuffle
                       (list
-                       (gen/gen14 seed-phrases
+                       (gen/gen14 (list cc0)
                                   (fn [] (shuffle cc0-heads))
                                   (fn [] (shuffle cc0-comps))
                                   sent-impl 0)
 
-                       (gen/gen14 seed-phrases
+                       (gen/gen14 (list cc0)
                                   (fn [] (shuffle lex/verbs))
-                                  (fn [] (gen/gen14 seed-phrases
+                                  (fn [] (gen/gen14 (list cc0)
                                                     (fn [] (shuffle lex/nouns))
                                                     (fn [] (shuffle lex/dets))
                                                     sent-impl 0))
@@ -1034,7 +1034,7 @@
                                   (fn [] (shuffle lex/dets))
                                   sent-impl 0)
 
-                       (gen/gen14 seed-phrases
+                       (gen/gen14 (list cc0)
                                   (fn [] (shuffle lex/verbs))
                                   (fn [] (gen/gen14 (list cc0)
                                                     (fn [] (gen/gen14 (list hc1)
