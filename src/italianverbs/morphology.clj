@@ -857,6 +857,10 @@
   (log/debug (str "get-english-1: " word))
   (cond
 
+   ;; TODO: move down: too general to be here at beginning.
+   (string? (fs/get-in word '(:english)))
+   (fs/get-in word '(:english))
+
    ;; "to do [past]" + "well" => "did well"
    (and (= (fs/get-in word '(:cat)) :verb)
         (= (fs/get-in word '(:infl)) :past)
