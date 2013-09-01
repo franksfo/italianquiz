@@ -1006,6 +1006,17 @@
   "shortcut"
   (sentence-impl input))
 
+
+(defn take-gen [n]
+  (take n (gen/gen14 (list ch21)
+                     (fn []
+                       (log/info "in fn: tinylex for head.")
+                       lex/lexicon)
+                     (fn []
+               (log/info "in fn: tinylex for comp.")
+               lex/lexicon)
+                     sent-impl 0)))
+
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
@@ -1060,10 +1071,10 @@
                        (gen/gen14 (list ch21)
                                   (fn []
                                     (log/info "in fn: tinylex for head.")
-                                    lex/tinylex)
+                                    lex/lexicon)
                                   (fn []
                                     (log/info "in fn: tinylex for comp.")
-                                    lex/tinylex)
+                                    lex/lexicon)
                                   sent-impl 0)
 
 ;                       (gen/gen14 (list cc0)
