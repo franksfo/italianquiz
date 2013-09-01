@@ -1,8 +1,9 @@
 (ns italianverbs.grammar
-  (:use [italianverbs.lexiconfn :only (unify)])
+  (:use [italianverbs.lexiconfn :only (unify)]
+        [italianverbs.morphology])
   (:require
+   [clojure.tools.logging :as log]
    [italianverbs.unify :as fs]
-   [italianverbs.morphology :as morph]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.lexicon :as lex]
    [italianverbs.generate :as gen]
@@ -212,6 +213,14 @@
   (let [head-semantics (ref :top)]
     {:head {:synsem {:sem head-semantics}}
      :comp {:synsem {:sem {:mod head-semantics}}}}))
+
+(def ch21
+  (unify
+   subcat-2-principle
+   head-principle
+   italian-head-last
+   english-head-last
+   {:comp {:synsem {:pronoun true}}}))
 
 (def hc1
   (unify
@@ -882,7 +891,7 @@
       (and (= print-hour 12)
            (= ampm "pm"))
       "mezzonotte"
-      true (morph/italian-article {:italian "le" :def :def} {:number :singular :italian print-hour :numerical true}))
+      true (italian-article {:italian "le" :def :def} {:number :singular :italian print-hour :numerical true}))
      (cond
       (= minute 0) ""
       (= minute 15) " e un quarto"
@@ -1000,7 +1009,7 @@
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
-  (morph/finalize (first (take 1 (gen/generate
+  (finalize (first (take 1 (gen/generate
                                   (first (take 1 (shuffle
                                                   (list s-present
                                                         s-present-modifier
@@ -1015,46 +1024,72 @@
         (first (take 1
                      (shuffle
                       (list
-                       (gen/gen14 (list cc0)
-                                  (fn [] (shuffle cc0-heads))
-                                  (fn [] (shuffle cc0-comps))
+
+                       ;(gen/gen14 (list cc0)
+                       ;           (fn [] (shuffle cc0-heads))
+                       ;           (fn [] (shuffle cc0-comps))
+                       ;           sent-impl 0)
+
+                       ;(gen/gen14 (list cc0)
+                       ;           (fn [] (shuffle lex/verbs))
+                       ;           (fn [] (gen/gen14 (list cc0)
+                       ;                             (fn [] (shuffle lex/nouns))
+                       ;                             (fn [] (shuffle lex/dets))
+                       ;                             sent-impl 0))
+                       ;           sent-impl 0)
+
+                       ;(gen/gen14 (list cc0)
+                       ;           (fn [] (gen/gen14 (list hc1)
+                       ;                             (fn [] (shuffle lex/nouns))
+                       ;                             (fn [] (shuffle lex/adjs))
+                       ;                             sent-impl 0))
+                       ;           (fn [] (shuffle lex/dets))
+                       ;           sent-impl 0)
+
+                       ;(gen/gen14 (list cc0)
+                       ;           (fn [] (shuffle lex/verbs))
+                       ;           (fn [] (gen/gen14 (list cc0)
+                       ;                             (fn [] (gen/gen14 (list hc1)
+                       ;                                               (fn [] (shuffle lex/nouns))
+                       ;                                               (fn [] (shuffle lex/adjs))
+                       ;                                               sent-impl 0))
+                       ;                             (fn [] (shuffle lex/dets))
+                       ;                             sent-impl 0))
+                       ;           sent-impl 0)
+
+                       (gen/gen14 (list ch21)
+                                  (fn []
+                                    (log/info "in fn: tinylex for head.")
+                                    lex/tinylex)
+                                  (fn []
+                                    (log/info "in fn: tinylex for comp.")
+                                    lex/tinylex)
                                   sent-impl 0)
 
-                       (gen/gen14 (list cc0)
-                                  (fn [] (shuffle lex/verbs))
-                                  (fn [] (gen/gen14 (list cc0)
-                                                    (fn [] (shuffle lex/nouns))
-                                                    (fn [] (shuffle lex/dets))
-                                                    sent-impl 0))
-                                  sent-impl 0)
+;                       (gen/gen14 (list cc0)
+;                                  (fn []
+;                                    (log/debug "in fn: shuffle lex/verbs")
+;                                    (shuffle lex/verbs))
+;                                  (fn []
+;                                    (log/debug "in fn: gen14 cc0")
+;                                    (gen/gen14 (list cc0)
+;                                               (fn [] (gen/gen14 (list ch21)
+;                                                                 (fn [] lex/tinylex)
+;                                                                 (fn [] lex/tinylex)
+;                                                                 sent-impl 0))
+;                                               (fn [] (shuffle lex/dets))
+;                                               sent-impl 0))
+;                                  sent-impl 0)
 
-                       (gen/gen14 (list cc0)
-                                  (fn [] (gen/gen14 (list hc1)
-                                                    (fn [] (shuffle lex/nouns))
-                                                    (fn [] (shuffle lex/adjs))
-                                                    sent-impl 0))
-                                  (fn [] (shuffle lex/dets))
-                                  sent-impl 0)
-
-                       (gen/gen14 (list cc0)
-                                  (fn [] (shuffle lex/verbs))
-                                  (fn [] (gen/gen14 (list cc0)
-                                                    (fn [] (gen/gen14 (list hc1)
-                                                                      (fn [] (shuffle lex/nouns))
-                                                                      (fn [] (shuffle lex/adjs))
-                                                                      sent-impl 0))
-                                                    (fn [] (shuffle lex/dets))
-                                                    sent-impl 0))
-                                  sent-impl 0)
                        ))))]
-  (morph/finalize (first (take 1 use-fn))))))
+  (finalize (first (take 1 use-fn))))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
 
 (defn speed-test [ & times]
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
-  (take 3 (repeatedly #(time (morph/fo (random-sentence)))))
+  (take 3 (repeatedly #(time (fo (random-sentence))))))
 
 ;(defn gen21 [heads comps]
 ;  (gen/gen14 seed-phrases

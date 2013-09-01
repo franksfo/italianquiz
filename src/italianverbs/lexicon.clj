@@ -13,12 +13,19 @@
 
   (map (fn [entry]
          (log/debug "serializing entry.")
-         (let [entry
-               (if (not (= :none (get entry :serialized :none)))
-                 (conj {:serialized (fs/serialize entry)}
-                       entry)
-                 (conj {:serialized (fs/serialize (dissoc entry :serialized))}
-                       entry))]
+         (let [italian (fs/get-in entry '(:italian))
+               entry
+               (conj
+                {:italian (if (string? italian)
+                            {:italian italian}
+                            italian)}
+                (dissoc
+                 (if (not (= :none (get entry :serialized :none)))
+                   (conj {:serialized (fs/serialize entry)}
+                         entry)
+                   (conj {:serialized (fs/serialize (dissoc entry :serialized))}
+                         entry))
+                 :italian))]
            (implied entry)))
         (list
 
@@ -2455,12 +2462,12 @@
 ;(def tinylex (list (it "gatto") (it "uomo")))
 
 ;; TODO: what is this doing? looks expensive.
-(map (fn [lexeme]
-       (let [italian (:italian lexeme)
-             english (:english lexeme)]
-         (add italian english
-              lexeme)))
-     lexicon)
+;(map (fn [lexeme]
+;       (let [italian (:italian lexeme)
+;             english (:english lexeme)]
+;         (add italian english
+;              lexeme)))
+;     lexicon)
 
 (def adjs-final-in-italian ;; e.g. "blanco" in "nero blanco"
   (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :adjective)) lexicon))
@@ -2572,5 +2579,6 @@
          (it1 "ragazzo")
          (it1 "ragazza")
          (it1 "un")
+         (it1 "vedere")
          ))
 

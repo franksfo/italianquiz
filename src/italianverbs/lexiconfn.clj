@@ -40,7 +40,7 @@
     (mongo/fetch :lexicon)))
 
 (defn fetch-one [& where]
-  (if where 
+  (if where
     (mongo/fetch-one :lexicon :where (first where))
     (mongo/fetch-one :lexicon)))
 
@@ -592,33 +592,34 @@
                      :agr agr}
            :english {:cat cat
                      :agr agr}})
-              common
-              (unify
-               {:synsem {:cat :noun
-                         :agr {:person :3rd}
-                         :subcat {:1 {:cat :det}}}})
+        common
+        (unify
+         {:synsem {:cat :noun
+                   :agr {:person :3rd}
+                   :subcat {:1 {:cat :det}
+                            :2 '()}}})
 
-              masculine {:synsem {:agr {:gender :masc}}}
-              feminine {:synsem {:agr {:gender :fem}}}
+        masculine {:synsem {:agr {:gender :masc}}}
+        feminine {:synsem {:agr {:gender :fem}}}
 
-              mass
-              (let [mass (ref true)]
-                {:synsem {:subcat {:1 {:cat :det
-                                       :mass mass
-                                       :number :sing}}
-                          :sem {:mass mass}}})
+        mass
+        (let [mass (ref true)]
+          {:synsem {:subcat {:1 {:cat :det
+                                 :mass mass
+                                 :number :sing}}
+                    :sem {:mass mass}}})
 
-              countable
-              (let [mass (ref false)]
-                {:synsem {:subcat {:1 {:cat :det
-                                       :mass mass}}
-                          :sem {:mass mass}}})
+        countable
+        (let [mass (ref false)]
+          {:synsem {:subcat {:1 {:cat :det
+                                 :mass mass}}
+                    :sem {:mass mass}}})
 
-              drinkable
-              (unify mass
-                     common
-                     {:synsem {:sem {:number :sing
-                                     :drinkable true}}})]
+        drinkable
+        (unify mass
+               common
+               {:synsem {:sem {:number :sing
+                               :drinkable true}}})]
           {:agreement agreement
            :common common
            :countable countable
