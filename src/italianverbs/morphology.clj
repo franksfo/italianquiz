@@ -127,6 +127,27 @@
     (cond
 
      (and
+      (string? (fs/get-in word '(:a :italian)))
+      (string? (fs/get-in word '(:b :infinitive)))
+      (or (= :none (fs/get-in word '(:b :agr :number) :none))
+          (= :top (fs/get-in word '(:b :agr :number) :none)))
+      )
+     (str (strip (fs/get-in word '(:a :italian)))
+          " "
+          (strip (fs/get-in word '(:b :infinitive))))
+
+     (and
+      (string? (fs/get-in word '(:a)))
+      (string? (fs/get-in word '(:b :infinitive)))
+      (or (= :none (fs/get-in word '(:b :agr :number) :none))
+          (= :top (fs/get-in word '(:b :agr :number) :none)))
+      )
+     (str (strip (fs/get-in word '(:a)))
+          " "
+          (strip (fs/get-in word '(:b :infinitive))))
+
+
+     (and
       (string? (fs/get-in word '(:a :infinitive)))
       (fs/get-in word '(:a :infinitive))
       (or (= :none (fs/get-in word '(:b :agr :number) :none))
@@ -1145,9 +1166,9 @@
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:english))))
-   (str (fs/get-in word '(:english))
-        (if (fs/get-in word '(:note))
-          (fs/get-in word '(:note))))
+   (str (strip (fs/get-in word '(:english))) " "
+        (strip (if (fs/get-in word '(:note))
+          (fs/get-in word '(:note)))))
 
    ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and
@@ -1161,9 +1182,9 @@
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:english :english))))
    (str
-    (fs/get-in word '(:english :english))
+    (strip (fs/get-in word '(:english :english))) " "
     (if (fs/get-in word '(:note))
-      (fs/get-in word '(:note))))
+      (strip (fs/get-in word '(:note)))))
 
    ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and (= (fs/get-in word '(:agr :number)) :plur)
