@@ -1048,6 +1048,26 @@
                    (fn [] lex/tinylex)
                    sent-impl 0)))
 
+(defn take-gen3 [n]
+  (take n
+        (gen/gen14 (list cc0)
+                   (fn []
+                     (gen/gen14 (list ch21)
+                                (fn []
+                                  (log/info "in fn: tinylex for head.")
+                                  lex/tinylex)
+                                (fn []
+                                  (log/info "in fn: tinylex for comp.")
+                                  lex/tinylex)
+                                sent-impl 0))
+                   (fn []
+                     (gen/gen14 (list cc0)
+                                (fn [] lex/tinylex)
+                                (fn [] lex/tinylex)
+                                sent-impl 0))
+                   sent-impl 0)))
+
+
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
