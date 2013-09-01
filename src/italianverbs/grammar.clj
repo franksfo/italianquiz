@@ -219,7 +219,7 @@
    subcat-2-principle
    head-principle
    italian-head-last
-   english-head-last
+   english-head-first
    {:comp {:synsem {:pronoun true}}}))
 
 (def hc1
