@@ -158,10 +158,13 @@
 (def italian-head-first
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
-    {:head {:italian head-italian}
-     :comp {:italian comp-italian}
-     :italian {:a head-italian
-               :b comp-italian}}))
+    (unify
+     {:comp {:italian {:initial false}}
+      :head {:italian {:initial true}}}
+     {:head {:italian head-italian}
+      :comp {:italian comp-italian}
+      :italian {:a head-italian
+                :b comp-italian}})))
 
 (def italian-head-last
   (let [head-italian (ref :top)
@@ -212,8 +215,6 @@
 
 (def hc1
   (unify
-   {:comp {:italian {:initial false}}
-    :head {:italian {:initial true}}}
    subcat-1-1-principle
    hc-agreement
    head-principle
