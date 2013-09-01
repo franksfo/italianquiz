@@ -695,16 +695,19 @@
           map)
 
 
+        ;; in italian, prepositions are always initial (might not need this)
         map
         (if (= (fs/get-in map '(:synsem :cat)) :prep)
-          (let [italian (fs/get-in map '(:italian))]
-            (if (string? italian)
-              (merge map
-                     {:italian {:italian italian
-                                :initial true}})
-              (merge map
-                     {:italian {:initial true}})))
-          map)
+          map map)
+;          (let [italian (fs/get-in map '(:italian))]
+;            (if (string? italian)
+;              (merge map
+;                     {:italian {:italian italian
+;                                :initial true}})
+;              (unify map
+;                     {:italian italian}
+;                     {:italian {:initial true}})))
+;          map)
         ]
     map))
 

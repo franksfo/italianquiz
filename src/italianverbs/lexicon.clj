@@ -87,7 +87,8 @@
                                      :sem subject-sem}
                                  :2 {:cat :prep
                                      :sem complement-sem}}}
-               :italian "affolato"
+               :italian {:italian "affolato"
+                         :initial true}
                :english "crowded"}))
 
      ;; non-comparative
