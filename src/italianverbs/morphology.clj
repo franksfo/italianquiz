@@ -123,7 +123,7 @@
   (let [analysis (analyze-italian-1 word)
         person (fs/get-in word '(:agr :person))
         number (fs/get-in word '(:agr :number))
-        debug (log/info "get-italian-1: input word: " word)
+        debug (log/debug "get-italian-1: input word: " word)
         ]
 
     (cond
@@ -680,8 +680,8 @@
         b (if (nil? b) "" b)
         a (get-italian-1 a)
         b (get-italian-1 b)
-        debug-a (log/info (str "get-italian: a: " a))
-        debug-b (if b (log/info (str "get-italian: b: " b)))
+        debug-a (log/debug (str "get-italian: a: " a))
+        debug-b (if b (log/debug (str "get-italian: b: " b)))
 
         ]
     (cond
@@ -878,7 +878,7 @@
 (declare plural-en)
 
 (defn get-english-1 [word]
-  (log/info (str "get-english-1: " word))
+  (log/debug (str "get-english-1: " word))
   (cond
 
    ;; "to do [past]" + "well" => "did well"
