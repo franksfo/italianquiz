@@ -123,10 +123,19 @@
   (let [analysis (analyze-italian-1 word)
         person (fs/get-in word '(:agr :person))
         number (fs/get-in word '(:agr :number))
-        debug (log/debug "get-italian-1: input word: " word)
+        debug (log/info "get-italian-1: input word: " word)
         ]
 
     (cond
+
+     ;; TODO: this rule is pre-empting all of the following rules
+     ;; that look in :a and :b. Either remove those following rules
+     ;; if they are redundant and not needed, or move this general rule
+     ;; below the following rules.
+     (and (not (= :none (fs/get-in word '(:a) :none)))
+          (not (= :none (fs/get-in word '(:b) :none))))
+     (get-italian (fs/get-in word '(:a))
+                  (fs/get-in word '(:b)))
 
      (and
       (string? (fs/get-in word '(:a :italian)))
@@ -671,8 +680,8 @@
         b (if (nil? b) "" b)
         a (get-italian-1 a)
         b (get-italian-1 b)
-        debug-a (log/debug (str "get-italian: a: " a))
-        debug-b (if b (log/debug (str "get-italian: b: " b)))
+        debug-a (log/info (str "get-italian: a: " a))
+        debug-b (if b (log/info (str "get-italian: b: " b)))
 
         ]
     (cond
@@ -869,12 +878,8 @@
 (declare plural-en)
 
 (defn get-english-1 [word]
-  (log/debug (str "get-english-1: " word))
+  (log/info (str "get-english-1: " word))
   (cond
-
-   ;; TODO: move down: too general to be here at beginning.
-   (string? (fs/get-in word '(:english)))
-   (fs/get-in word '(:english))
 
    ;; "to do [past]" + "well" => "did well"
    (and (= (fs/get-in word '(:cat)) :verb)
@@ -1159,6 +1164,9 @@
       (string? (fs/get-in word '(:infinitive)))
       (fs/get-in word '(:infinitive))
 
+      (string? (fs/get-in word '(:english)))
+      (fs/get-in word '(:english))
+
       :else (str root )))
 
    (and
@@ -1166,6 +1174,7 @@
     (= (fs/get-in word '(:agr :number)) :plur)
     (= (fs/get-in word '(:cat) :noun)))
    (fs/get-in word '(:irregular :plur))
+
 
    ;; TODO: remove support for deprecated :root - use :irregular instead (as immediately above).
    (and
@@ -1185,9 +1194,10 @@
     (= (fs/get-in word '(:agr :number)) :sing)
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:english))))
-   (str (strip (fs/get-in word '(:english))) " "
-        (strip (if (fs/get-in word '(:note))
-          (fs/get-in word '(:note)))))
+   (strip (str (fs/get-in word '(:english)) " "
+               (if (fs/get-in word '(:note))
+                 (fs/get-in word '(:note))
+                 "")))
 
    ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and
@@ -1195,6 +1205,7 @@
     (= (fs/get-in word '(:cat) :noun))
     (string? (fs/get-in word '(:root :english))))
    (fs/get-in word '(:root :english))
+
 
    (and
     (= (fs/get-in word '(:agr :number)) :sing)
