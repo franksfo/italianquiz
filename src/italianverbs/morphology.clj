@@ -122,7 +122,9 @@
 (defn get-italian-1 [word]
   (let [analysis (analyze-italian-1 word)
         person (fs/get-in word '(:agr :person))
-        number (fs/get-in word '(:agr :number))]
+        number (fs/get-in word '(:agr :number))
+        debug (log/debug "get-italian-1: input word: " word)
+        ]
 
     (cond
 
@@ -236,7 +238,6 @@
       (= (fs/get-in word '(:cat)) :adjective))
      (string/replace (fs/get-in word '(:italian))
                      #"[eo]$" "a") ;; nero => nera
-
      (and
       (string? (fs/get-in word '(:italian)))
       (= :top (fs/get-in word '(:agr :sing) :top)))
@@ -252,7 +253,6 @@
      (str
       (get-italian-1 (fs/get-in word '(:a)))
       " " "..")
-
 
      (and
       (= (fs/get-in word '(:b)) :top)
@@ -314,7 +314,8 @@
         (str stem "anno")
 
         :else
-        word))
+        (fs/get-in word '(:infinitive))))
+
 
      ;; irregular imperfetto sense:
      ;; 1) use irregular based on number and person.
@@ -358,6 +359,8 @@
       (string? (fs/get-in word '(:irregular :imperfetto :3plur))))
      (fs/get-in word '(:irregular :imperfetto :3plur))
 
+
+     
      ;; regular imperfetto sense
      (and (= (fs/get-in word '(:infl)) :imperfetto)
           (fs/get-in word '(:infinitive)))
@@ -397,6 +400,13 @@
       (= :past (fs/get-in word '(:infl)))
       (string? (fs/get-in word '(:irregular :past))))
      (fs/get-in word '(:irregular :past))
+
+     (and
+      (fs/get-in word '(:a))
+      (fs/get-in word '(:b))
+      true) (str
+             (strip (get-italian-1 (fs/get-in word '(:a)))) " "
+             (strip (get-italian-1 (fs/get-in word '(:b)))))
 
      ;; "fare [past]" + "bene" => "fatto bene"
      (and (= (fs/get-in word '(:cat)) :verb)
@@ -459,6 +469,7 @@
         true
         (str "(regpast:TODO):" stem)))
 
+     
      (and (= (fs/get-in word '(:infl)) :present)
           (= person :1st) (= number :sing)
           (string? (fs/get-in word '(:irregular :present :1sing))))
@@ -561,7 +572,6 @@
         :else
         (str infinitive )))
 
-
      (= (fs/get-in word '(:infl)) :top)
      (str (fs/get-in word '(:infinitive)) )
 
@@ -660,7 +670,11 @@
   (let [a (if (nil? a) "" a)
         b (if (nil? b) "" b)
         a (get-italian-1 a)
-        b (get-italian-1 b)]
+        b (get-italian-1 b)
+        debug-a (log/debug (str "get-italian: a: " a))
+        debug-b (if b (log/debug (str "get-italian: b: " b)))
+
+        ]
     (cond
 
      (and (string? a)
@@ -745,7 +759,8 @@
           (re-find #"^[aeiouh]" b))
      (str "t'" b)
      ;; 3)
-     (and (re-find #"^l[ao]$" a)
+     (and (string? a)
+          (re-find #"^l[ao]$" a)
           (string? b)
           (re-find #"^[aeiouh]" b))
      (str "l'" b)
