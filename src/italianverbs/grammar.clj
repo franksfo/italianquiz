@@ -238,7 +238,53 @@
    head-principle
    italian-head-last
    english-head-first
-   {:comp {:synsem {:pronoun true}}}))
+   {:comp {:synsem {:subcat '()
+                    :pronoun true}}}))
+
+(def ch21-heads
+  (filter (fn [lex]
+            (not (fs/fail? (unify ch21 {:head lex}))))
+          lex/lexicon))
+
+(defn sentence-impl [input]
+  "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
+:present (later, set to a randomly selected member of {:finite, :futuro, ..}."
+  (cond
+   (seq? input)
+   (map (fn [each]
+          (sentence-impl each))
+        input)
+   (= input :top) input
+   true
+   (let [finitize (if (= (fs/get-in input '(:synsem :infl))
+                         :top)
+                    (first (take 1 (shuffle
+                                    (list {:synsem {:infl :present}}
+                                          {:synsem {:infl :futuro}})))))]
+     (let [merged
+           (if (= input :fail) :fail
+               (fs/merge input finitize))]
+       merged)))) ;; for now, no recursive call.
+
+(defn sent-impl [input]
+  "shortcut"
+  (sentence-impl input))
+
+(defn find-some-head-for [parent heads candidate-comp]
+  "returns true iff there is some head H such that parent => H candidate-comp succeeds."
+  (if (not (empty? heads))
+    (or
+     (not (fs/fail? (sent-impl (gen/moreover-comp (gen/moreover-head parent
+                                                                     (first heads))
+                                                  candidate-comp))))
+     (find-some-head-for parent (rest heads) candidate-comp))))
+
+(def ch21-comps
+  (filter (fn [lex]
+            (find-some-head-for ch21 ch21-heads lex))
+          (filter (fn [lex]
+                    (not (fs/fail? (unify ch21 {:comp lex}))))
+                  lex/lexicon)))
 
 (def hc11
   (unify
@@ -262,6 +308,11 @@
    head-principle
    italian-head-first
    english-head-first))
+
+(def hh21-heads
+  (filter (fn [lex]
+            (not (fs/fail? (unify hh21 {:head lex}))))
+          lex/lexicon))
 
 (def vp-plus-adverb
   (unify subcat-5-principle
@@ -1011,92 +1062,34 @@
 
 (def cc10-comps
   (filter (fn [lex]
-            (not (fs/fail? (unify cc10 {:comp lex}))))
-          lex/lexicon))
+            (find-some-head-for cc10 cc10-heads lex))
+          (filter (fn [lex]
+                    (not (fs/fail? (unify cc10 {:comp lex}))))
+                  lex/lexicon)))
 
-(defn sentence-impl [input]
-  "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
-:present (later, set to a randomly selected member of {:finite, :futuro, ..}."
-  (cond
-   (seq? input)
-   (map (fn [each]
-          (sentence-impl each))
-        input)
-   (= input :top) input
-   true
-   (let [finitize (if (= (fs/get-in input '(:synsem :infl))
-                         :top)
-                    (first (take 1 (shuffle
-                                    (list {:synsem {:infl :present}}
-                                          {:synsem {:infl :futuro}})))))]
-     (let [merged
-           (if (= input :fail) :fail
-               (fs/merge input finitize))]
-       merged)))) ;; for now, no recursive call.
+(defn gen15 [phrases heads comps]
+  (gen/gen14 phrases heads comps sent-impl 0))
 
-(defn sent-impl [input]
-  "shortcut"
-  (sentence-impl input))
+(defn base-ch21 []
+  (gen15 (list ch21) ch21-heads ch21-comps))
 
+(defn base-cc10 []
+  (gen15 (list cc10) cc10-heads cc10-comps))
 
 (defn take-gen [n]
-  (take n (gen/gen14 (list ch21)
-                     (fn []
-                       lex/lexicon)
-                     (fn []
-                       lex/lexicon)
-                     sent-impl 0)))
-
+  (take n (base-ch21)))
 
 (defn take-gen2 [n]
   (take n
-        (gen/gen14 (list cc10)
-                   (fn []
-                     (gen/gen14 (list ch21)
-                                (fn []
-                                  (log/info "in fn: tinylex for head.")
-                                  tinylex)
-                                (fn []
-                                  (log/info "in fn: tinylex for comp.")
-                                  tinylex)
-                                sent-impl 0))
-                   (fn [] tinylex)
-                   sent-impl 0)))
-
-(defn take-gen2 [n]
-  (take n
-        (gen/gen14 (list cc10)
-                   (fn []
-                     (gen/gen14 (list ch21)
-                                (fn []
-                                  (log/info "in fn: tinylex for head.")
-                                  tinylex)
-                                (fn []
-                                  (log/info "in fn: tinylex for comp.")
-                                  tinylex)
-                                sent-impl 0))
-                   (fn [] tinylex)
-                   sent-impl 0)))
+        (gen15 (list cc10)
+               base-ch21
+               cc10-comps)))
 
 (defn take-gen3 [n]
   (take n
-        (gen/gen14 (list cc10)
-                   (fn []
-                     (gen/gen14 (list ch21)
-                                (fn []
-                                  (log/info "in fn: tinylex for head.")
-                                  tinylex)
-                                (fn []
-                                  (log/info "in fn: tinylex for comp.")
-                                  tinylex)
-                                sent-impl 0))
-                   (fn []
-                     (gen/gen14 (list cc10)
-                                (fn [] tinylex)
-                                (fn [] tinylex)
-                                sent-impl 0))
-                   sent-impl 0)))
-
+        (gen15 (list cc10)
+               base-ch21
+               base-cc10)))
 
 (defn take-gen3-random [n]
   (take n
@@ -1117,16 +1110,9 @@
 
 (defn take-gen4-random [n]
   (take n
-        (gen/gen14 (list hh21)
-                   (fn [] (shuffle tinylex))
-                   (fn []
-                     (gen/gen14 (list cc10)
-                                (fn []
-                                  (shuffle tinylex))
-                                (fn []
-                                  (shuffle tinylex))
-                                sent-impl 0))
-                   sent-impl 0)))
+        (gen15 (list hh21)
+               hh21-heads
+               base-cc10)))
 
 (defn take-gen5-random [n]
   (take n
@@ -1183,6 +1169,37 @@
                    (gen/gen14 (list cc10)
                               (fn []
                                 (shuffle lex/nouns))
+                              (fn []
+                                (shuffle lex/dets))
+                              sent-impl 0)
+                   sent-impl 0)))
+
+(defn take-gen8-random [n]
+  (take n
+        (gen/gen14 (list cc10)
+                   (gen/gen14 (list hh21)
+                              (fn [] (shuffle lex/verbs))
+                              (fn []
+                                (gen/gen14 (list cc10)
+                                           (fn []
+                                             (gen/gen14 (list hc11)
+                                                        (fn []
+                                                          (shuffle lex/nouns))
+                                                        (fn []
+                                                          (shuffle lex/adjs))
+                                                        sent-impl 0))
+                                           (fn []
+                                             (shuffle lex/dets))
+                                           sent-impl 0))
+                              sent-impl 0)
+                   (gen/gen14 (list cc10)
+                              (fn []
+                                (gen/gen14 (list hc11)
+                                           (fn []
+                                             (shuffle lex/nouns))
+                                           (fn []
+                                             (shuffle lex/adjs))
+                                           sent-impl 0))
                               (fn []
                                 (shuffle lex/dets))
                               sent-impl 0)
