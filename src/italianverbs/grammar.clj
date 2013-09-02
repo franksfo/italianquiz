@@ -194,7 +194,7 @@
      :english {:a comp-english
                :b head-english}}))
 
-(def cc0
+(def cc10
   (unify
    subcat-1-principle
    head-principle
@@ -222,7 +222,7 @@
    english-head-first
    {:comp {:synsem {:pronoun true}}}))
 
-(def hc1
+(def hc11
   (unify
    subcat-1-1-principle
    hc-agreement
@@ -230,6 +230,20 @@
    comp-modifies-head
    italian-head-first
    english-head-last))
+
+(def hh10
+  (unify
+   subcat-1-principle
+   head-principle
+   italian-head-last
+   english-head-last))
+
+(def hh21
+  (unify
+   subcat-2-principle
+   head-principle
+   italian-head-first
+   english-head-first))
 
 (def vp-plus-adverb
   (unify subcat-5-principle
@@ -729,7 +743,7 @@
     ;; if parent is subcat0, head must be subcat1 (i.e. intransitive).
     (def s-present2
       (fs/merge
-       (fs/unifyc cc0
+       (fs/unifyc cc10
                   {:synsem {:infl :present}})
        {:extend {:g {:comp 'lexicon
                      :head (fn [] vp)}
@@ -970,16 +984,16 @@
 
 (def seed-phrases
   (list
-   cc0))
+   cc10))
 
-(def cc0-heads
+(def cc10-heads
   (filter (fn [lex]
-            (not (fs/fail? (unify cc0 {:head lex}))))
+            (not (fs/fail? (unify cc10 {:head lex}))))
           lex/lexicon))
 
-(def cc0-comps
+(def cc10-comps
   (filter (fn [lex]
-            (not (fs/fail? (unify cc0 {:comp lex}))))
+            (not (fs/fail? (unify cc10 {:comp lex}))))
           lex/lexicon))
 
 (defn sentence-impl [input]
@@ -1020,7 +1034,7 @@
 
 (defn take-gen2 [n]
   (take n
-        (gen/gen14 (list cc0)
+        (gen/gen14 (list cc10)
                    (fn []
                      (gen/gen14 (list ch21)
                                 (fn []
@@ -1035,7 +1049,7 @@
 
 (defn take-gen2 [n]
   (take n
-        (gen/gen14 (list cc0)
+        (gen/gen14 (list cc10)
                    (fn []
                      (gen/gen14 (list ch21)
                                 (fn []
@@ -1050,7 +1064,7 @@
 
 (defn take-gen3 [n]
   (take n
-        (gen/gen14 (list cc0)
+        (gen/gen14 (list cc10)
                    (fn []
                      (gen/gen14 (list ch21)
                                 (fn []
@@ -1061,7 +1075,7 @@
                                   lex/tinylex)
                                 sent-impl 0))
                    (fn []
-                     (gen/gen14 (list cc0)
+                     (gen/gen14 (list cc10)
                                 (fn [] lex/tinylex)
                                 (fn [] lex/tinylex)
                                 sent-impl 0))
@@ -1087,31 +1101,31 @@
                      (shuffle
                       (list
 
-                       ;(gen/gen14 (list cc0)
-                       ;           (fn [] (shuffle cc0-heads))
-                       ;           (fn [] (shuffle cc0-comps))
+                       ;(gen/gen14 (list cc10)
+                       ;           (fn [] (shuffle cc10-heads))
+                       ;           (fn [] (shuffle cc10-comps))
                        ;           sent-impl 0)
 
-                       ;(gen/gen14 (list cc0)
+                       ;(gen/gen14 (list cc10)
                        ;           (fn [] (shuffle lex/verbs))
-                       ;           (fn [] (gen/gen14 (list cc0)
+                       ;           (fn [] (gen/gen14 (list cc10)
                        ;                             (fn [] (shuffle lex/nouns))
                        ;                             (fn [] (shuffle lex/dets))
                        ;                             sent-impl 0))
                        ;           sent-impl 0)
 
-                       ;(gen/gen14 (list cc0)
-                       ;           (fn [] (gen/gen14 (list hc1)
+                       ;(gen/gen14 (list cc10)
+                       ;           (fn [] (gen/gen14 (list hc11)
                        ;                             (fn [] (shuffle lex/nouns))
                        ;                             (fn [] (shuffle lex/adjs))
                        ;                             sent-impl 0))
                        ;           (fn [] (shuffle lex/dets))
                        ;           sent-impl 0)
 
-                       ;(gen/gen14 (list cc0)
+                       ;(gen/gen14 (list cc10)
                        ;           (fn [] (shuffle lex/verbs))
-                       ;           (fn [] (gen/gen14 (list cc0)
-                       ;                             (fn [] (gen/gen14 (list hc1)
+                       ;           (fn [] (gen/gen14 (list cc10)
+                       ;                             (fn [] (gen/gen14 (list hc11)
                        ;                                               (fn [] (shuffle lex/nouns))
                        ;                                               (fn [] (shuffle lex/adjs))
                        ;                                               sent-impl 0))
@@ -1128,13 +1142,13 @@
                                     lex/lexicon)
                                   sent-impl 0)
 
-;                       (gen/gen14 (list cc0)
+;                       (gen/gen14 (list cc10)
 ;                                  (fn []
 ;                                    (log/debug "in fn: shuffle lex/verbs")
 ;                                    (shuffle lex/verbs))
 ;                                  (fn []
-;                                    (log/debug "in fn: gen14 cc0")
-;                                    (gen/gen14 (list cc0)
+;                                    (log/debug "in fn: gen14 cc10")
+;                                    (gen/gen14 (list cc10)
 ;                                               (fn [] (gen/gen14 (list ch21)
 ;                                                                 (fn [] lex/tinylex)
 ;                                                                 (fn [] lex/tinylex)
