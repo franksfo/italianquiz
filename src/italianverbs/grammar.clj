@@ -217,7 +217,8 @@
    subcat-1-principle
    head-principle
    italian-head-last
-   english-head-last))
+   english-head-last
+   {:comment "cc10"}))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -239,7 +240,8 @@
    italian-head-last
    english-head-first
    {:comp {:synsem {:subcat '()
-                    :pronoun true}}}))
+                    :pronoun true}}
+    :comment "ch21"}))
 
 (def ch21-heads
   (filter (fn [lex]
@@ -293,21 +295,24 @@
    head-principle
    comp-modifies-head
    italian-head-first
-   english-head-last))
+   english-head-last
+   {:comment "hc11"}))
 
 (def hh10
   (unify
    subcat-1-principle
    head-principle
    italian-head-last
-   english-head-last))
+   english-head-last
+   {:comment "hhc10"}))
 
 (def hh21
   (unify
    subcat-2-principle
    head-principle
    italian-head-first
-   english-head-first))
+   english-head-first
+   {:comment "hh21"}))
 
 (def hh21-heads
   (filter (fn [lex]
@@ -1076,7 +1081,7 @@
 (defn base-cc10 []
   (gen15 (list cc10) cc10-heads cc10-comps))
 
-(defn take-gen [n]
+(defn take-gen1 [n]
   (take n (base-ch21)))
 
 (defn take-gen2 [n]
@@ -1108,11 +1113,19 @@
                                 sent-impl 0))
                    sent-impl 0)))
 
-(defn take-gen4-random [n]
+(defn take-gen4a [n]
   (take n
         (gen15 (list hh21)
                hh21-heads
                base-cc10)))
+
+(defn take-gen4 [n]
+  (take n
+        (gen15 (list cc10)
+               (gen15 (list hh21)
+                      hh21-heads
+                      base-cc10)
+               cc10-comps)))
 
 (defn take-gen5-random [n]
   (take n
