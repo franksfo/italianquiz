@@ -1099,8 +1099,20 @@
                                 sent-impl 0))
                    sent-impl 0)))
 
-
 (defn take-gen4-random [n]
+  (take n
+        (gen/gen14 (list hh21)
+                   (fn [] (shuffle lex/tinylex))
+                   (fn []
+                     (gen/gen14 (list cc10)
+                                (fn []
+                                  (shuffle lex/tinylex))
+                                (fn []
+                                  (shuffle lex/tinylex))
+                                sent-impl 0))
+                   sent-impl 0)))
+
+(defn take-gen5-random [n]
   (take n
         (gen/gen14 (list hh21)
                    (fn [] (shuffle lex/tinylex))
