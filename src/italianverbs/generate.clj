@@ -754,24 +754,18 @@
                   (gen13 1 phrases lexicon)
                   lexicon)))
 
-(defn gen14-inner [phrase-with-head complements sent-impl recursion-level]
+(defn gen14-inner [phrase-with-head complements complement-filter-fn sent-impl recursion-level]
   (let [debug-inner (log/debug (str "gen14-inner begin: recursion level: " recursion-level))
         recursion-level (+ 1 recursion-level)
         debug-inner (log/debug (str "type of complements: " (type complements)))
         complements (cond (fn? complements)
-                          (apply complements nil)
+                          (apply complements (list (apply complement-filter-fn (list phrase-with-head))))
                           :else
                           complements)
         empty-complements
-        (cond (fn? complements)
-              (nil? (first (take 1 complements)))
-              :else
-              (empty? complements))
+        (empty? complements)
         complement
-        (cond (fn? complements)
-              (first (take 1 complements))
-              :else
-              (first complements))
+        (first complements)
         rest-complements (rest complements)]
     (log/debug (str "gen14-inner: comp-emptiness: " empty-complements))
     (if (not empty-complements)
@@ -799,10 +793,10 @@
                                (morph/fo comp))))
               (lazy-seq
                (cons result
-                     (gen14-inner phrase-with-head rest-complements sent-impl recursion-level))))
+                     (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))
             (do
               (log/debug "gen14-inner: fail.")
-              (gen14-inner phrase-with-head rest-complements sent-impl recursion-level))))))))
+              (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))))))
 
 (defn gen14 [phrases heads complements sent-impl recursion-level]
   (log/debug (str "gen14: starting now: recursion-level: " recursion-level))
@@ -827,7 +821,8 @@
                phrase-with-head (moreover-head phrase head)
                is-fail? (unify/fail? phrase-with-head)
                debug (log/debug (str "fail? phrase-with-head:"
-                                    is-fail?))
+                                     is-fail?))
+               filter-function (unify/get-in phrase '(:comp-filter-fn))
                ]
            (if (not is-fail?)
              (do
@@ -836,7 +831,10 @@
                (log/info (str "SUCC: head: " (morph/fo head) " added successfully. now mapping the combined phrase+head to the set "
                               "of complements, and concatting that list to a gen14 on the rest of the heads."))
                (lazy-cat
-                (gen14-inner phrase-with-head complements sent-impl 0)
+                (gen14-inner phrase-with-head
+                             complements
+                             filter-function
+                             sent-impl 0)
                 (gen14 (list phrase)
                        rest-heads
                        complements

@@ -11,8 +11,6 @@
    [italianverbs.generate :as gen]
    [clojure.string :as string]))
 
-
-
 (def tinylex
   (union ;(it1 "aiutare")
          (it1 "andare")
@@ -218,7 +216,18 @@
    head-principle
    italian-head-last
    english-head-last
-   {:comment "cc10"}))
+   {:comment "cc10"
+    :comp-filter-fn (fn [phrase-with-head]
+                      (fn [comp]
+                        (let [subcatted (fs/get-in phrase-with-head '(:head :synsem :subcat :1))]
+                          (let [result
+                                (and
+                                 (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
+                                                       (fs/get-in subcatted '(:cat)))))
+                                 (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
+                                                       (lexfn/sem-impl (fs/get-in subcatted '(:sem)))))))]
+                            (log/info (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+                            result))))}))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -312,7 +321,18 @@
    head-principle
    italian-head-first
    english-head-first
-   {:comment "hh21"}))
+   {:comment "hh21"
+    :comp-filter-fn (fn [phrase-with-head]
+                      (fn [comp]
+                        (let [subcatted (fs/get-in phrase-with-head '(:head :synsem :subcat :2))]
+                          (let [result
+                                (and
+                                 (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
+                                                       (fs/get-in subcatted '(:cat)))))
+                                 (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
+                                                       (lexfn/sem-impl (fs/get-in subcatted '(:sem)))))))]
+                            (log/info (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+                            result))))}))
 
 (def hh21-heads
   (filter (fn [lex]
@@ -1078,8 +1098,11 @@
 (defn base-ch21 []
   (gen15 (list ch21) ch21-heads ch21-comps))
 
-(defn base-cc10 []
-  (gen15 (list cc10) cc10-heads cc10-comps))
+(defn base-cc10 [use-filter]
+  (gen15 (list cc10)
+         (filter use-filter
+                 cc10-heads)
+         cc10-comps))
 
 (defn take-gen1 [n]
   (take n (base-ch21)))
