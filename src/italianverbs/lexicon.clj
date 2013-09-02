@@ -2572,16 +2572,3 @@
 (defn en [english]
   (lookup {:english english}))
 
-(def tinylex
-  (union (it1 "aiutare")
-         (it1 "andare")
-         (it1 "dormire")
-         (it1 "la")
-         (it1 "il")
-         (it1 "io")
-         (it1 "ragazzo")
-         (it1 "ragazza")
-         (it1 "un")
-         (it1 "vedere")
-         ))
-

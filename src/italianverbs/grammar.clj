@@ -1,5 +1,7 @@
 (ns italianverbs.grammar
   (:use [italianverbs.lexiconfn :only (unify)]
+        [clojure.set]
+        [italianverbs.lexicon :only (it1)]
         [italianverbs.morphology])
   (:require
    [clojure.tools.logging :as log]
@@ -8,6 +10,22 @@
    [italianverbs.lexicon :as lex]
    [italianverbs.generate :as gen]
    [clojure.string :as string]))
+
+
+
+(def tinylex
+  (union ;(it1 "aiutare")
+         (it1 "andare")
+         (it1 "dormire")
+         (it1 "la")
+         (it1 "il")
+         (it1 "io")
+         (it1 "ragazzo")
+         (it1 "ragazza")
+         (it1 "un")
+         (it1 "vedere")
+        ))
+
 
 ;;    [1]
 ;;   /   \
@@ -1024,10 +1042,8 @@
 (defn take-gen [n]
   (take n (gen/gen14 (list ch21)
                      (fn []
-                       (log/info "in fn: tinylex for head.")
                        lex/lexicon)
                      (fn []
-                       (log/info "in fn: tinylex for comp.")
                        lex/lexicon)
                      sent-impl 0)))
 
@@ -1039,12 +1055,12 @@
                      (gen/gen14 (list ch21)
                                 (fn []
                                   (log/info "in fn: tinylex for head.")
-                                  lex/tinylex)
+                                  tinylex)
                                 (fn []
                                   (log/info "in fn: tinylex for comp.")
-                                  lex/tinylex)
+                                  tinylex)
                                 sent-impl 0))
-                   (fn [] lex/tinylex)
+                   (fn [] tinylex)
                    sent-impl 0)))
 
 (defn take-gen2 [n]
@@ -1054,12 +1070,12 @@
                      (gen/gen14 (list ch21)
                                 (fn []
                                   (log/info "in fn: tinylex for head.")
-                                  lex/tinylex)
+                                  tinylex)
                                 (fn []
                                   (log/info "in fn: tinylex for comp.")
-                                  lex/tinylex)
+                                  tinylex)
                                 sent-impl 0))
-                   (fn [] lex/tinylex)
+                   (fn [] tinylex)
                    sent-impl 0)))
 
 (defn take-gen3 [n]
@@ -1069,15 +1085,15 @@
                      (gen/gen14 (list ch21)
                                 (fn []
                                   (log/info "in fn: tinylex for head.")
-                                  lex/tinylex)
+                                  tinylex)
                                 (fn []
                                   (log/info "in fn: tinylex for comp.")
-                                  lex/tinylex)
+                                  tinylex)
                                 sent-impl 0))
                    (fn []
                      (gen/gen14 (list cc10)
-                                (fn [] lex/tinylex)
-                                (fn [] lex/tinylex)
+                                (fn [] tinylex)
+                                (fn [] tinylex)
                                 sent-impl 0))
                    sent-impl 0)))
 
@@ -1102,26 +1118,26 @@
 (defn take-gen4-random [n]
   (take n
         (gen/gen14 (list hh21)
-                   (fn [] (shuffle lex/tinylex))
+                   (fn [] (shuffle tinylex))
                    (fn []
                      (gen/gen14 (list cc10)
                                 (fn []
-                                  (shuffle lex/tinylex))
+                                  (shuffle tinylex))
                                 (fn []
-                                  (shuffle lex/tinylex))
+                                  (shuffle tinylex))
                                 sent-impl 0))
                    sent-impl 0)))
 
 (defn take-gen5-random [n]
   (take n
         (gen/gen14 (list hh21)
-                   (fn [] (shuffle lex/tinylex))
+                   (fn [] (shuffle tinylex))
                    (fn []
                      (gen/gen14 (list cc10)
                                 (fn []
-                                  (shuffle lex/tinylex))
+                                  (shuffle tinylex))
                                 (fn []
-                                  (shuffle lex/tinylex))
+                                  (shuffle tinylex))
                                 sent-impl 0))
                    sent-impl 0)))
 
@@ -1215,8 +1231,8 @@
 ;                                    (log/debug "in fn: gen14 cc10")
 ;                                    (gen/gen14 (list cc10)
 ;                                               (fn [] (gen/gen14 (list ch21)
-;                                                                 (fn [] lex/tinylex)
-;                                                                 (fn [] lex/tinylex)
+;                                                                 (fn [] tinylex)
+;                                                                 (fn [] tinylex)
 ;                                                                 sent-impl 0))
 ;                                               (fn [] (shuffle lex/dets))
 ;                                               sent-impl 0))
