@@ -1162,6 +1162,14 @@
                       base-cc10)
                cc10-comps)))
 
+(defn take-gen4-random [n]
+  (take n
+        (gen15 (list cc10)
+               (gen15 (list hh21)
+                      (shuffle hh21-heads)
+                      base-cc10-random)
+               (shuffle cc10-comps))))
+
 (defn take-gen5-random [n]
   (take n
         (gen/gen14 (list hh21)
