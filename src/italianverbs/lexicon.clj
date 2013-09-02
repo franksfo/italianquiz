@@ -558,7 +558,8 @@
                            ;; non-pronouns will unify with this constraint.
                            ;; TODO: remove this constraint: for debugging only.
                            :sem {:human true}}}}
-     :italian "di"
+     :italian {:italian "di"
+               :initial true}
      :english "than"}
 
     {:synsem {:cat :det
