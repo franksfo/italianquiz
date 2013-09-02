@@ -257,6 +257,8 @@
             (not (fs/fail? (unify ch21 {:head lex}))))
           lex/lexicon))
 
+(log/info (str "ch21-heads: " (.size ch21-heads)))
+
 (defn sentence-impl [input]
   "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
 :present (later, set to a randomly selected member of {:finite, :futuro, ..}."
@@ -296,6 +298,8 @@
           (filter (fn [lex]
                     (not (fs/fail? (unify ch21 {:comp lex}))))
                   lex/lexicon)))
+
+(log/info (str "ch21-comps: " (.size ch21-comps)))
 
 (def hc11
   (unify
@@ -1085,12 +1089,16 @@
             (not (fs/fail? (unify cc10 {:head lex}))))
           lex/lexicon))
 
+(log/info (str "cc10-heads:" (.size cc10-heads)))
+
 (def cc10-comps
   (filter (fn [lex]
             (find-some-head-for cc10 cc10-heads lex))
           (filter (fn [lex]
                     (not (fs/fail? (unify cc10 {:comp lex}))))
                   lex/lexicon)))
+
+(log/info (str "cc10-comps:" (.size cc10-comps)))
 
 (defn gen15 [phrases heads comps]
   (gen/gen14 phrases heads comps sent-impl 0))
