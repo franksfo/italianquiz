@@ -833,6 +833,8 @@
              (do
                (log/debug (str "SUCC: head: " (dissoc head :serialized) " added successfully. now mapping the combined phrase+head to the set "
                               "of complements, and concatting that list to a gen14 on the rest of the heads."))
+               (log/info (str "SUCC: head: " (morph/fo head) " added successfully. now mapping the combined phrase+head to the set "
+                              "of complements, and concatting that list to a gen14 on the rest of the heads."))
                (lazy-cat
                 (gen14-inner phrase-with-head complements sent-impl 0)
                 (gen14 (list phrase)
