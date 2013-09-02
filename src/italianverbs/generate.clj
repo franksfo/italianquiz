@@ -757,7 +757,6 @@
 (defn gen14-inner [phrase-with-head complements sent-impl recursion-level]
   (let [debug-inner (log/debug (str "gen14-inner begin: recursion level: " recursion-level))
         recursion-level (+ 1 recursion-level)
-        debug-inner (log/debug (str "gen14-inner begin(2)"))
         debug-inner (log/debug (str "type of complements: " (type complements)))
         complements (cond (fn? complements)
                           (apply complements nil)
@@ -768,7 +767,6 @@
               (nil? (first (take 1 complements)))
               :else
               (empty? complements))
-        debug-inner (log/debug (str "gen14-inner begin(3)"))
         complement
         (cond (fn? complements)
               (first (take 1 complements))
@@ -783,8 +781,22 @@
                                  comp))]
           (if (not (unify/fail? result))
             (do
+              (log/info (str "gen14-inner SUCC: recursion level: " recursion-level))
               (log/debug (str "gen14-inner: SUCC: head: " (dissoc (unify/get-in phrase-with-head '(:head)) :serialized)))
               (log/debug (str "gen14-inner: SUCC: comp: " (dissoc comp :serialized)))
+              (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
+                ;; italian comp first.
+                (log/info (str "gen14-inner: SUCC: phrase: "
+                               (get-in phrase-with-head '(:comment)) " => "
+                               (morph/fo comp)
+                               " + "
+                               (morph/fo (unify/get-in phrase-with-head '(:head)))))
+                ;; italian head first.
+                (log/info (str "gen14-inner: SUCC: phrase: "
+                               (get-in phrase-with-head '(:comment)) " => "
+                               (morph/fo (unify/get-in phrase-with-head '(:head)))
+                               " + "
+                               (morph/fo comp))))
               (lazy-seq
                (cons result
                      (gen14-inner phrase-with-head rest-complements sent-impl recursion-level))))
@@ -811,6 +823,7 @@
             phrase (first phrases)]
         (lazy-cat
          (let [logging (log/debug (str "head candidate: " (dissoc head :serialized)))
+               logging (log/info (str "GEN-14 phrase: " (unify/get-in phrase '(:comment))))
                phrase-with-head (moreover-head phrase head)
                is-fail? (unify/fail? phrase-with-head)
                debug (log/debug (str "fail? phrase-with-head:"
@@ -833,7 +846,7 @@
                       rest-heads
                       complements
                       sent-impl
-                      (- recursion-level 1)))))
+                      recursion-level))))
          (gen14 (rest phrases) heads complements sent-impl recursion-level))))))
 
 
