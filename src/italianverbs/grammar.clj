@@ -1125,6 +1125,28 @@
                                 sent-impl 0))
                    sent-impl 0)))
 
+(defn take-gen6-random [n]
+  (take n
+        (gen/gen14 (list cc10)
+                   (gen/gen14 (list hh21)
+                              (fn [] (shuffle lex/verbs))
+                              (fn []
+                                (gen/gen14 (list cc10)
+                                           (fn []
+                                             (shuffle lex/nouns))
+                                           (fn []
+                                             (shuffle lex/dets))
+                                           sent-impl 0))
+                              sent-impl 0)
+                   (gen/gen14 (list cc10)
+                              (fn []
+                                (shuffle lex/nouns))
+                              (fn []
+                                (shuffle lex/dets))
+                              sent-impl 0)
+                   sent-impl 0)))
+
+
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
