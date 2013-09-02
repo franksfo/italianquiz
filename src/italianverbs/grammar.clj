@@ -226,7 +226,7 @@
                                                        (fs/get-in subcatted '(:cat)))))
                                  (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
                                                        (lexfn/sem-impl (fs/get-in subcatted '(:sem)))))))]
-                            (log/info (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+                            (log/debug (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
                             result))))}))
 
 (def hc-agreement
@@ -331,7 +331,7 @@
                                                        (fs/get-in subcatted '(:cat)))))
                                  (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
                                                        (lexfn/sem-impl (fs/get-in subcatted '(:sem)))))))]
-                            (log/info (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+                            (log/debug (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
                             result))))}))
 
 (def hh21-heads
@@ -1104,6 +1104,12 @@
                  cc10-heads)
          cc10-comps))
 
+(defn base-cc10-random [use-filter]
+  (gen15 (list cc10)
+         (filter use-filter
+                 (shuffle cc10-heads))
+         (shuffle cc10-comps)))
+
 (defn take-gen1 [n]
   (take n (base-ch21)))
 
@@ -1141,6 +1147,12 @@
         (gen15 (list hh21)
                hh21-heads
                base-cc10)))
+
+(defn take-gen4a-random [n]
+  (take n
+        (gen15 (list hh21)
+               (shuffle hh21-heads)
+               base-cc10-random)))
 
 (defn take-gen4 [n]
   (take n
