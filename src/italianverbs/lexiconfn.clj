@@ -690,10 +690,10 @@
         (if (= (fs/get-in map '(:synsem :cat)) :sent-modifier)
           (unify
            {:synsem {:subcat {:1 {:cat :verb
-                                  :subcat '()}}}}
+                                  :subcat '()}
+                              :2 '()}}}
            map)
           map)
-
 
         ;; in italian, prepositions are always initial (might not need this)
         map
