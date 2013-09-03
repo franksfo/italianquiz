@@ -892,7 +892,7 @@
    ;; e.g. gender signs (♂,♀) on nouns like "professore" and "professoressa".
    (and (string? (fs/get-in word '(:english)))
         (string? (fs/get-in word '(:note))))
-   (str (get-english-1 (dissoc word :note)) " " (fs/get-in word '(:note)))
+   (str (strip (get-english-1 (dissoc word :note))) " " (strip (fs/get-in word '(:note))))
 
    (= (fs/get-in word '(:a)) :top)
    (str
