@@ -293,6 +293,12 @@
         (fs/get-in word '(:irregular :futuro :2plur))
         (and (= person :3rd) (= number :plur))
         (fs/get-in word '(:irregular :futuro :3plur))
+
+
+        (and (= (fs/get-in word '(:infl)) :futuro)
+             (string? (fs/get-in word '(:infinitive))))
+        (str (fs/get-in word '(:infinitive)) " (futuro)")
+
         true
         word))
 
