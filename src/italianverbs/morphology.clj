@@ -119,6 +119,9 @@
 
 }))
 
+(defn ref? [word]
+  (= (type word) clojure.lang.Ref))
+
 (defn get-italian-1 [word]
   (let [analysis (analyze-italian-1 word)
         person (fs/get-in word '(:agr :person))
@@ -127,6 +130,15 @@
         ]
 
     (cond
+
+     (ref? word)
+     (get-italian-1 @word)
+
+     (and (map? (fs/get-in word '(:a)))
+          (map? (fs/get-in word '(:b))))
+     (get-italian
+      (fs/get-in word '(:a))
+      (fs/get-in word '(:b)))
 
      ;; TODO: this rule is pre-empting all of the following rules
      ;; that look in :a and :b. Either remove those following rules
