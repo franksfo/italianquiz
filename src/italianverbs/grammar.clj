@@ -267,8 +267,10 @@
         input)
    (= input :top) input
    true
-   (let [finitize (if (= (fs/get-in input '(:synsem :infl))
-                         :top)
+   (let [finitize (if (or (= (fs/get-in input '(:synsem :infl))
+                             :top)
+                          (= (fs/get-in input '(:synsem :infl))
+                             :infinitive))
                     (first (take 1 (shuffle
                                     (list {:synsem {:infl :present}}
                                           {:synsem {:infl :futuro}})))))]
@@ -313,7 +315,7 @@
    head-principle
    italian-head-last
    english-head-last
-   {:comment "hhc10"}))
+   {:comment "hh10"}))
 
 (def hh21
   (unify
@@ -321,7 +323,8 @@
    head-principle
    italian-head-first
    english-head-first
-   {:comment "hh21"
+   {:comp {:synsem {:subcat '()}}
+    :comment "hh21"
     :comp-filter-fn (fn [phrase-with-head]
                       (fn [comp]
                         (let [subcatted (fs/get-in phrase-with-head '(:head :synsem :subcat :2))]
@@ -1085,7 +1088,6 @@
             (not (fs/fail? (unify cc10 {:head lex}))))
           lex/lexicon))
 
-
 (def cc10-comps
   (filter (fn [lex]
             (find-some-head-for cc10 cc10-heads lex))
@@ -1180,16 +1182,13 @@
 
 (defn take-gen5-random [n]
   (take n
-        (gen/gen14 (list hh21)
-                   (fn [] (shuffle tinylex))
-                   (fn []
-                     (gen/gen14 (list cc10)
-                                (fn []
-                                  (shuffle tinylex))
-                                (fn []
-                                  (shuffle tinylex))
-                                sent-impl 0))
-                   sent-impl 0)))
+        (gen15 (list cc10)
+               (gen15 (list hh21)
+                      (shuffle hh21-heads)
+                      base-cc10-random)
+               (gen15 (list cc10)
+                      (shuffle cc10-heads)
+                      (shuffle cc10-comps)))))
 
 (defn take-gen6-random [n]
   (take n
