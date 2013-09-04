@@ -1813,18 +1813,20 @@
        :italian "qualche"
        :english "some"}
 
-      {:italian "quando"
-       :english "when"
-       :synsem {:cat :temporal-glue
-                :sem {:pred :quando}
-                :subcat {:1 {:cat :verb
-                             :infl :imperfetto
-                             :sem {:activity true}}
-                   :2 {:cat :verb
-                       :infl :present
-                       :sem {:aspect :passato
-                             :discrete true
-                             :tense :past}}}}}
+;      {:italian "quando"
+;       :english "when"
+;       :synsem {:cat :temporal-glue
+;                :sem {:pred :quando}
+;                :subcat {:1 {:cat :verb
+;                             :infl :imperfetto
+;                             :sem {:activity true}
+;                             :subcat '()}
+;                         :2 {:cat :verb
+;                             :infl :present
+;                             :sem {:aspect :passato
+;                                   :discrete true
+;                                   :tense :past}
+;                             :subcat '()}}}}
 
       {:synsem {:cat :det
                 :def :demonstrativo
