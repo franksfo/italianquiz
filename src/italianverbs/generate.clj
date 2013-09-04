@@ -826,14 +826,14 @@
                ]
            (if (not is-fail?)
              (do
-               (log/debug (str "SUCC: head: " (dissoc head :serialized) " added successfully to " (unify/get-in phrase '(:comment)) " . now mapping the combined phrase+head to the set "
-                              "of complements, and concatting that list to a gen14 on the rest of the heads."))
+               (log/debug (str "head: " (dissoc head :serialized)
+                               (if (unify/get-in head '(:comment))
+                                 (str "(" (unify/get-in head '(:comment))) ")")
+                               " added successfully to " (unify/get-in phrase '(:comment)) "."))
                (log/info (str "SUCCESS: head: " (morph/fo head)
                               (if (unify/get-in head '(:comment))
                                 (str "(" (unify/get-in head '(:comment)) ")")
-                                "")
-                              " added successfully to " (unify/get-in phrase '(:comment)) " . now mapping the combined phrase+head to the set "
-                              "of complements, and concatting that list to a gen14 on the rest of the heads."))
+                                "")))
                (lazy-cat
                 (gen14-inner phrase-with-head
                              complements
