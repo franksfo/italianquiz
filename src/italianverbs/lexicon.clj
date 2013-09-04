@@ -551,13 +551,15 @@
               :sem {:pred :di
                     :mod {:pred :di} ;; so that "venire" cannot match.
                     :comparative true}
-              :subcat {:1 {:cat :noun
+              :subcat {:1 {:cat :verb ;; switched from :noun to :verb: to avoid "di" subcatting first arg as
+                           ;; if it were a verb, e.g. "Paola di la ragazza".
                            :subcat '()
                            :def {:not :partitivo} ;; avoid alliteration like "di delle ragazze (of some women)"
                            :agr {:case :disj} ;; pronouns must be disjunctive (me/te/lui/lei...etc)
                            ;; non-pronouns will unify with this constraint.
                            ;; TODO: remove this constraint: for debugging only.
-                           :sem {:human true}}}}
+                           :sem {:human true}}
+                       :2 '()}}
      :italian {:italian "di"
                :initial true}
      :english "than"}
@@ -999,7 +1001,8 @@
              countable-noun
       {:synsem {:cat :noun
                 :sem {:pred :cellulare
-                      :artifact true}}
+                      :artifact true
+                      :writable false}}
        :english {:english "mobile phone"}
        :italian {:italian "cellulare"}})
 
@@ -1053,6 +1056,20 @@
                 :subcat '()}
        :english "he"
        :italian "lui"}
+
+      {:synsem {:cat :noun
+                :pronoun true
+                :agr {:case :nom
+                      :person :3rd
+                      :gender :masc
+                      :number :sing}
+                :sem {:human false
+                      :pred :lui}
+                :subcat '()}
+       :english {:english "it"
+                 :note "(&#x2642;)"}
+       :italian "lui"}
+
       {:synsem {:cat :noun
                 :pronoun true
                 :agr {:case :nom
@@ -1179,7 +1196,7 @@
                       :pred :lei}
                 :subcat '()}
        :english {:english "it"
-                 :note " (&#x2640;)"} ;; unicode female symbol
+                 :note "(&#x2640;)"} ;; unicode female symbol
        :italian {:italian "la"
                  :cat pronoun-noun
                  :case pronoun-acc}}
@@ -1295,6 +1312,19 @@
        :italian {:italian "lei"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
+
+      {:synsem {:cat :noun
+                :pronoun true
+                :agr {:case :nom
+                      :person :3rd
+                      :gender :fem
+                      :number :sing}
+                :sem {:human false
+                      :pred :lei}
+                :subcat '()}
+       :english {:english "it"
+                 :note "(&#x2640;)"} ;; unicode female
+       :italian "lei"}
 
       (unify agreement-noun
              common-noun
@@ -1681,8 +1711,8 @@
                   :subcat {:1 {:cat :adjective
                                :sem {:comparative true
                                      :human human
-                                     :animate animate}}}}
-
+                                     :animate animate}}
+                           :2 '()}}
          :italian "più"
          :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
          })
@@ -2019,7 +2049,8 @@
         :synsem {:essere false
                  :sem {:pred :scrivere
                        :subj {:human true}
-                       :obj {:legible true}}}})
+                       :obj {:legible true
+                             :writable true}}}})
 
       (unify
        transitive
