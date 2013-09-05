@@ -817,12 +817,11 @@
             phrase (first phrases)]
         (lazy-cat
          (let [logging (log/debug (str "head candidate: " (dissoc head :serialized)))
-               logging (log/info (str "GEN-14 phrase: " (unify/get-in phrase '(:comment))))
+               logging (log/info (str "gen14 start: phrase: " (unify/get-in phrase '(:comment))))
                phrase-with-head (moreover-head phrase head)
                is-fail? (unify/fail? phrase-with-head)
                debug (log/debug (str "fail? phrase-with-head:"
                                      is-fail?))
-               filter-function (unify/get-in phrase '(:comp-filter-fn))
                ]
            (if (not is-fail?)
              (do
@@ -830,15 +829,17 @@
                                (if (unify/get-in head '(:comment))
                                  (str "(" (unify/get-in head '(:comment))) ")")
                                " added successfully to " (unify/get-in phrase '(:comment)) "."))
-               (log/info (str "SUCCESS: head: " (morph/fo head)
+               (log/info (str "gen14: SUCCESS: head: " (morph/fo head)
                               (if (unify/get-in head '(:comment))
                                 (str "(" (unify/get-in head '(:comment)) ")")
                                 "")))
                (lazy-cat
-                (gen14-inner phrase-with-head
-                             complements
-                             filter-function
-                             sent-impl 0)
+                (let [filter-function (unify/get-in phrase '(:comp-filter-fn))]
+                  (log/info (str "filterfn: " filter-function))
+                  (gen14-inner phrase-with-head
+                               complements
+                               filter-function
+                               sent-impl 0))
                 (gen14 (list phrase)
                        rest-heads
                        complements
