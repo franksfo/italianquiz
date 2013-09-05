@@ -218,6 +218,7 @@
    english-head-last
    {:comment "cc10"
     :comp-filter-fn (fn [phrase-with-head]
+                      (log/info "cc10 filter.")
                       (fn [comp]
                         (let [subcatted (fs/get-in phrase-with-head '(:head :synsem :subcat :1))]
                           (let [result
@@ -250,12 +251,18 @@
    english-head-first
    {:comp {:synsem {:subcat '()
                     :pronoun true}}
-    :comment "ch21"}))
+    :comment "ch21"
+    ;; TODO: add filter fn
+    }))
 
+;; standard rule-caching disclaimer:
+;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def ch21-heads
-  (filter (fn [lex]
-            (not (fs/fail? (unify ch21 {:head lex}))))
-          lex/lexicon))
+  (if false
+    (filter (fn [lex]
+              (not (fs/fail? (unify ch21 {:head lex}))))
+            lex/lexicon)
+    lex/lexicon))
 
 (defn sentence-impl [input]
   "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
@@ -292,12 +299,16 @@
                                                   candidate-comp))))
      (find-some-head-for parent (rest heads) candidate-comp))))
 
+;; standard rule-caching disclaimer:
+;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def ch21-comps
-  (filter (fn [lex]
-            (find-some-head-for ch21 ch21-heads lex))
-          (filter (fn [lex]
-                    (not (fs/fail? (unify ch21 {:comp lex}))))
-                  lex/lexicon)))
+  (if false
+    (filter (fn [lex]
+              (find-some-head-for ch21 ch21-heads lex))
+            (filter (fn [lex]
+                      (not (fs/fail? (unify ch21 {:comp lex}))))
+                    lex/lexicon))
+    lex/lexicon))
 
 (def hc11
   (unify
@@ -334,13 +345,20 @@
                                                        (fs/get-in subcatted '(:cat)))))
                                  (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
                                                        (lexfn/sem-impl (fs/get-in subcatted '(:sem)))))))]
-                            (log/debug (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+                            (log/info (str "hh21: " (fo phrase-with-head) " filtering on comp: " (fo comp) " => "
+                                           (if result
+                                             "TRUE" ;; emphasize for ease of readability in logs.
+                                             result)))
                             result))))}))
 
+;; standard rule-caching disclaimer:
+;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def hh21-heads
-  (filter (fn [lex]
-            (not (fs/fail? (unify hh21 {:head lex}))))
-          lex/lexicon))
+  (if false
+    (filter (fn [lex]
+              (not (fs/fail? (unify hh21 {:head lex}))))
+            lex/lexicon)
+    lex/lexicon))
 
 (def vp-plus-adverb
   (unify subcat-5-principle
@@ -1083,19 +1101,27 @@
   (list
    cc10))
 
+;; standard rule-caching disclaimer:
+;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-heads
-  (filter (fn [lex]
-            (not (fs/fail? (unify cc10 {:head lex}))))
-          lex/lexicon))
+  (if false
+    (filter (fn [lex]
+              (not (fs/fail? (unify cc10 {:head lex}))))
+            lex/lexicon)
+    lex/lexicon))
 
+;; standard rule-caching disclaimer:
+;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-comps
-  (filter (fn [lex]
-            (find-some-head-for cc10 cc10-heads lex))
-          (filter (fn [lex]
-                    (not (fs/fail? (unify cc10 {:comp lex}))))
-                  lex/lexicon)))
+  (if false
+    (filter (fn [lex]
+              (find-some-head-for cc10 cc10-heads lex))
+            (filter (fn [lex]
+                      (not (fs/fail? (unify cc10 {:comp lex}))))
+                    lex/lexicon))
+    lex/lexicon))
 
-(if false
+(if true
   (do
     (log/info (str "ch21-heads: " (.size ch21-heads)))
     (log/info (str "ch21-comps: " (.size ch21-comps)))
@@ -1183,12 +1209,18 @@
 (defn take-gen5-random [n]
   (take n
         (gen15 (list cc10)
+
+               ;; head: VP -> V NP
                (gen15 (list hh21)
-                      (shuffle hh21-heads)
-                      base-cc10-random)
+                      (shuffle hh21-heads) ;; Verb
+                      base-cc10-random) ;; object: NP
+
+               ;; comp: NP: subject.
+               ;; TODO: filter generation according to
+               ;; head VP (generating above).
                (gen15 (list cc10)
-                      (shuffle cc10-heads)
-                      (shuffle cc10-comps)))))
+                      (shuffle cc10-heads) ;; Noun of subject
+                      (shuffle cc10-comps))))) ;; Det of subject
 
 (defn take-gen6-random [n]
   (take n
