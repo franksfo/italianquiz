@@ -134,6 +134,17 @@
      (ref? word)
      (get-italian-1 @word)
 
+     ;; TODO: this is a special case that should be handled below instead
+     ;; of forcing every input to go through this check.
+     (= word {:initial false})
+     ".."
+
+     (and (string? (fs/get-in word '(:a)))
+          (map? (fs/get-in word '(:b))))
+     (string/trim (str (fs/get-in word '(:a)) " "
+                       (get-italian-1
+                        (fs/get-in word '(:b)))))
+
      (and (map? (fs/get-in word '(:a)))
           (map? (fs/get-in word '(:b))))
      (get-italian
@@ -311,8 +322,10 @@
              (string? (fs/get-in word '(:infinitive))))
         (str (fs/get-in word '(:infinitive)) " (futuro)")
 
-        true
-        word))
+        true ;; failthrough: should usually not get here:
+        ;; TODO: describe when it might be ok, i.e. why log/warn not log/error.
+        (do (log/warn (str "get-italian-1 could not match: " word))
+        word)))
 
      ;; regular futuro tense
      (and (= (fs/get-in word '(:infl)) :futuro)
