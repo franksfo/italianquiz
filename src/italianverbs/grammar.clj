@@ -339,15 +339,17 @@
    {:comp {:synsem {:subcat '()}}
     :comment "hh21"
     :comp-filter-fn (fn [phrase-with-head]
-                      (fn [comp]
-                        (let [complement-synsem (fs/get-in phrase-with-head '(:head :synsem :subcat :2))]
+                      (let [complement-synsem (fs/get-in phrase-with-head '(:head :synsem :subcat :2))
+                            complement-cat (fs/get-in phrase-with-head '(:head :synsem :subcat :2 :cat))
+                            complement-sem (lexfn/sem-impl (fs/get-in phrase-with-head '(:head :synsem :subcat :2 :sem)))]
+                        (fn [comp]
                           (let [result
                                 (and
                                  (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
-                                                       (fs/get-in complement-synsem '(:cat)))))
+                                                       complement-cat)))
                                  (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
-                                                       (lexfn/sem-impl (fs/get-in complement-synsem '(:sem)))))))]
-                            (log/info (str "hh21: " (fo phrase-with-head) " filtering on comp: " (fo comp) " => "
+                                                       complement-sem))))]
+                            (log/info (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                                            (if result
                                              "TRUE" ;; emphasize for ease of readability in logs.
                                              result)))
