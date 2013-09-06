@@ -1679,7 +1679,7 @@
                        :deliberate false ;; you don't lose things on purpose.
                        :discrete true
                        :subj {:human true}
-                       :obj {:buyable true}}}})
+                       :obj {:animate false}}}}) ;; mostly you don't lose humans or animals, or you do, and it's too sad to put in here.
 
       ;; non-comparative
       ;; TODO: add comparative
