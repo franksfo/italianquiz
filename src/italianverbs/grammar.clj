@@ -1216,7 +1216,10 @@
 
                ;; head: VP -> V NP
                (gen15 (list hh21)
-                      (shuffle hh21-heads) ;; Verb
+                      (filter (fn [candidate]
+                                (= (fs/get-in candidate '(:synsem :cat)) :verb))
+                              (shuffle hh21-heads)) ;; Verb
+
                       base-cc10-random) ;; object: NP
 
                ;; comp: NP: subject.
