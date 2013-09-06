@@ -1002,7 +1002,8 @@
       {:synsem {:cat :noun
                 :sem {:pred :cellulare
                       :artifact true
-                      :writable false}}
+                      :writable false
+                      :speakable false}}
        :english {:english "mobile phone"}
        :italian {:italian "cellulare"}})
 
@@ -1605,7 +1606,7 @@
                              :subj {:human true}
                              :obj {:speakable true}}}})]
         parlare)
-      
+
       ;; inherently singular.
       (unify agreement-noun
              common-noun
