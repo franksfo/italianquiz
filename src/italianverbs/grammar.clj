@@ -218,15 +218,17 @@
    english-head-last
    {:comment "cc10"
     :comp-filter-fn (fn [phrase-with-head]
-                      (log/info "cc10 filter.")
-                      (fn [comp]
-                        (let [subcatted (fs/get-in phrase-with-head '(:head :synsem :subcat :1))]
+                      (log/debug "cc10 filter.")
+                      (let [complement-synsem (fs/get-in phrase-with-head '(:head :synsem :subcat :1))
+                            complement-category (fs/get-in complement-synsem '(:cat))
+                            complement-sem (lexfn/sem-impl (fs/get-in complement-synsem '(:sem)))]
+                        (fn [comp]
                           (let [result
                                 (and
                                  (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
-                                                       (fs/get-in subcatted '(:cat)))))
+                                                       complement-category)))
                                  (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
-                                                       (lexfn/sem-impl (fs/get-in subcatted '(:sem)))))))]
+                                                       complement-sem))))]
                             (log/debug (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
                             result))))}))
 
@@ -338,13 +340,13 @@
     :comment "hh21"
     :comp-filter-fn (fn [phrase-with-head]
                       (fn [comp]
-                        (let [subcatted (fs/get-in phrase-with-head '(:head :synsem :subcat :2))]
+                        (let [complement-synsem (fs/get-in phrase-with-head '(:head :synsem :subcat :2))]
                           (let [result
                                 (and
                                  (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
-                                                       (fs/get-in subcatted '(:cat)))))
+                                                       (fs/get-in complement-synsem '(:cat)))))
                                  (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
-                                                       (lexfn/sem-impl (fs/get-in subcatted '(:sem)))))))]
+                                                       (lexfn/sem-impl (fs/get-in complement-synsem '(:sem)))))))]
                             (log/info (str "hh21: " (fo phrase-with-head) " filtering on comp: " (fo comp) " => "
                                            (if result
                                              "TRUE" ;; emphasize for ease of readability in logs.
