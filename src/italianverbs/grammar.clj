@@ -1214,10 +1214,27 @@
   (take n
         (gen15 (list cc10)
 
+               ;; head
+               (gen15 (list hh21)
+                      (shuffle hh21-heads)
+                      base-cc10-random)
+
+               ;; comp
+               ;; TODO: filter generation according to
+               ;; head VP (generating above).
+               (gen15 (list cc10)
+                      (shuffle cc10-heads)
+                      (shuffle cc10-comps)))))
+
+(defn take-sentences-randomly [n]
+  (take n
+        (gen15 (list cc10)
+
                ;; head: VP -> V NP
                (gen15 (list hh21)
                       (filter (fn [candidate]
-                                (= (fs/get-in candidate '(:synsem :cat)) :verb))
+                                (and (not (= :notfound (fs/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                                     (= (fs/get-in candidate '(:synsem :cat)) :verb)))
                               (shuffle hh21-heads)) ;; Verb
 
                       base-cc10-random) ;; object: NP
