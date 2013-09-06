@@ -1,6 +1,7 @@
 (ns italianverbs.grammar
   (:use [italianverbs.lexiconfn :only (unify)]
         [clojure.set]
+        [italianverbs.generate]
         [italianverbs.lexicon :only (it1)]
         [italianverbs.morphology])
   (:require
