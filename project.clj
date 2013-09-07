@@ -5,7 +5,11 @@
                  [compojure "1.1.3"]
                  [congomongo "0.2.0"]
                  [clojail "1.0.6"]
-                 [org.clojure/tools.logging "0.2.3"]
+                 [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
+                                                    javax.jms/jms
+                                                    com.sun.jdmk/jmxtools
+                                                    com.sun.jmx/jmxri]]
+                 [org.clojure/tools.logging "0.2.6"]
                  [hiccup "1.0.1"]]
   :profiles
   {:dev {:dependencies [[ring-mock "0.1.3"]
