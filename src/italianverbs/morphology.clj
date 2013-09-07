@@ -138,6 +138,8 @@
      ;; of forcing every input to go through this check.
      (= word {:initial false})
      ".."
+     (= word {:initial true})
+     ".."
 
      (and (string? (fs/get-in word '(:a)))
           (map? (fs/get-in word '(:b))))
