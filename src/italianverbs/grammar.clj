@@ -1,16 +1,14 @@
 (ns italianverbs.grammar
-  (:use [italianverbs.lexiconfn :only (unify)]
-        [clojure.set]
-        [italianverbs.generate]
+  (:use [clojure.set :only (union)]
+        [italianverbs.generate :only (generate moreover-head moreover-comp gen14)]
         [italianverbs.lexicon :only (it1)]
-        [italianverbs.morphology])
-  (:require
-   [clojure.tools.logging :as log]
-   [italianverbs.unify :as fs]
-   [italianverbs.lexiconfn :as lexfn]
-   [italianverbs.lexicon :as lex]
-   [italianverbs.generate :as gen]
-   [clojure.string :as string]))
+        [italianverbs.lexiconfn :only (unify sem-impl)]
+        [italianverbs.morphology :only (finalize fo italian-article)]
+        [italianverbs.unify :only (copy fail? serialize)])
+
+  (:require [clojure.tools.logging :as log]
+            [italianverbs.lexicon :as lex]
+            [clojure.string :as string]))
 
 (def tinylex
   (union ;(it1 "aiutare")
@@ -220,15 +218,15 @@
    {:comment "cc10"
     :comp-filter-fn (fn [phrase-with-head]
                       (log/debug "cc10 filter.")
-                      (let [complement-synsem (fs/get-in phrase-with-head '(:head :synsem :subcat :1))
-                            complement-category (fs/get-in complement-synsem '(:cat))
-                            complement-sem (lexfn/sem-impl (fs/get-in complement-synsem '(:sem)))]
+                      (let [complement-synsem (get-in phrase-with-head '(:head :synsem :subcat :1))
+                            complement-category (get-in complement-synsem '(:cat))
+                            complement-sem (sem-impl (get-in complement-synsem '(:sem)))]
                         (fn [comp]
                           (let [result
                                 (and
-                                 (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
+                                 (not (fail? (unify (get-in comp '(:synsem :cat))
                                                        complement-category)))
-                                 (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
+                                 (not (fail? (unify (sem-impl (get-in comp '(:synsem :sem)))
                                                        complement-sem))))]
                             (log/debug (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
                             result))))}))
@@ -263,7 +261,7 @@
 (def ch21-heads
   (if false
     (filter (fn [lex]
-              (not (fs/fail? (unify ch21 {:head lex}))))
+              (not (fail? (unify ch21 {:head lex}))))
             lex/lexicon)
     lex/lexicon))
 
@@ -277,16 +275,16 @@
         input)
    (= input :top) input
    true
-   (let [finitize (if (or (= (fs/get-in input '(:synsem :infl))
+   (let [finitize (if (or (= (get-in input '(:synsem :infl))
                              :top)
-                          (= (fs/get-in input '(:synsem :infl))
+                          (= (get-in input '(:synsem :infl))
                              :infinitive))
                     (first (take 1 (shuffle
                                     (list {:synsem {:infl :present}}
                                           {:synsem {:infl :futuro}})))))]
      (let [merged
            (if (= input :fail) :fail
-               (fs/merge input finitize))]
+               (merge input finitize))]
        merged)))) ;; for now, no recursive call.
 
 (defn sent-impl [input]
@@ -297,7 +295,7 @@
   "returns true iff there is some head H such that parent => H candidate-comp succeeds."
   (if (not (empty? heads))
     (or
-     (not (fs/fail? (sent-impl (gen/moreover-comp (gen/moreover-head parent
+     (not (fail? (sent-impl (moreover-comp (moreover-head parent
                                                                      (first heads))
                                                   candidate-comp))))
      (find-some-head-for parent (rest heads) candidate-comp))))
@@ -309,7 +307,7 @@
     (filter (fn [lex]
               (find-some-head-for ch21 ch21-heads lex))
             (filter (fn [lex]
-                      (not (fs/fail? (unify ch21 {:comp lex}))))
+                      (not (fail? (unify ch21 {:comp lex}))))
                     lex/lexicon))
     lex/lexicon))
 
@@ -340,15 +338,15 @@
    {:comp {:synsem {:subcat '()}}
     :comment "hh21"
     :comp-filter-fn (fn [phrase-with-head]
-                      (let [complement-synsem (fs/get-in phrase-with-head '(:head :synsem :subcat :2))
-                            complement-cat (fs/get-in phrase-with-head '(:head :synsem :subcat :2 :cat))
-                            complement-sem (lexfn/sem-impl (fs/get-in phrase-with-head '(:head :synsem :subcat :2 :sem)))]
+                      (let [complement-synsem (get-in phrase-with-head '(:head :synsem :subcat :2))
+                            complement-cat (get-in phrase-with-head '(:head :synsem :subcat :2 :cat))
+                            complement-sem (sem-impl (get-in phrase-with-head '(:head :synsem :subcat :2 :sem)))]
                         (fn [comp]
                           (let [result
                                 (and
-                                 (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
+                                 (not (fail? (unify (get-in comp '(:synsem :cat))
                                                        complement-cat)))
-                                 (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
+                                 (not (fail? (unify (sem-impl (get-in comp '(:synsem :sem)))
                                                        complement-sem))))]
                             (log/info (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                                            (if result
@@ -361,7 +359,7 @@
 (def hh21-heads
   (if false
     (filter (fn [lex]
-              (not (fs/fail? (unify hh21 {:head lex}))))
+              (not (fail? (unify hh21 {:head lex}))))
             lex/lexicon)
     lex/lexicon))
 
@@ -458,9 +456,9 @@
             head-italian (ref :top)
             comp-english (ref :top)
             comp-italian (ref :top)]
-        (fs/unifyc head-principle subcat-1-principle ;; NP -> Comp Head
+        (unify head-principle subcat-1-principle ;; NP -> Comp Head
                    (let [agr (ref :top)]
-                     (fs/unifyc
+                     (unify
                       (let [def (ref :top)]
                         {:head {:synsem {:def def}}
                          :synsem {:def def}
@@ -579,7 +577,7 @@
       agr (ref :top)]
 
   (def vp-infinitive-transitive
-    (fs/unifyc head-principle
+    (unify head-principle
                subcat-2-principle
                verb-inflection-morphology
                {:head {:synsem {:cat :verb
@@ -596,7 +594,7 @@
 
 
   (def vp ;; TODO replace other vps with just vp.
-    (fs/unifyc head-principle
+    (unify head-principle
                subcat-2-principle
                verb-inflection-morphology
                {:comment "vp &#x2192; head comp"
@@ -673,7 +671,7 @@
   (def vp-aux-3
     (let [aspect (ref :top)
           agr (ref :top)]
-      (fs/merge
+      (merge
        (unify
         head-principle
         subcat-3-principle
@@ -718,7 +716,7 @@
                    :comp (fn [] vp-aux-3)}}}))
 
   (def vp-past
-    (fs/merge
+    (merge
      (unify
       vp
 ;      (dissoc vp :extend) ;; for debugging: allows elimination of vp's extend.
@@ -736,7 +734,7 @@
   (def vp-aux
     (let [aspect (ref :top)
           agr (ref :top)]
-      (fs/merge
+      (merge
        (unify
               head-principle
               subcat-2-principle
@@ -769,7 +767,7 @@
   (def vp-present
     (let [aspect (ref :top)]
     ;; add to vp some additional expansions for vp-present:
-      (fs/merge (fs/copy vp)
+      (merge (copy vp)
                 {:comment "vp[present] &#x2192; head comp"
                  :comment-plaintext "vp[present] -> head comp"
                  :head {:synsem {:infl :present
@@ -779,7 +777,7 @@
 
 
   (def vp-imperfetto
-    (fs/merge (fs/copy vp)
+    (merge (copy vp)
               {:comment "vp[imperfetto] &#x2192; head comp"
                :comment-plaintext "vp[imperfetto] -> head comp"
                :comp {:synsem {:infl {:not :past}}}
@@ -822,12 +820,12 @@
                                      :2 '()}}})
 
         rule-base-no-extend
-        (fs/unifyc head-principle subcat-1-principle
+        (unify head-principle subcat-1-principle
                    subject-verb-agreement
                    {:synsem {:sem {:tense tense}}})
 
         rule-base
-        (fs/unifyc rule-base-no-extend
+        (unify rule-base-no-extend
                    {:extend {
                              :a {:comp (fn [] np)
                                  :head (fn [] vp)}
@@ -846,8 +844,8 @@
     (def s-present
       ;; unlike the case for future and imperfetto,
       ;; override the existing :extends in the case of s-present.
-      (fs/merge
-       (fs/unifyc rule-base
+      (merge
+       (unify rule-base
                   italian-head-last
                   english-head-last
                   {:comment "sentence[present]"
@@ -862,8 +860,8 @@
 
     ;; if parent is subcat0, head must be subcat1 (i.e. intransitive).
     (def s-present2
-      (fs/merge
-       (fs/unifyc cc10
+      (merge
+       (unify cc10
                   {:synsem {:infl :present}})
        {:extend {:g {:comp 'lexicon
                      :head (fn [] vp)}
@@ -879,7 +877,7 @@
     ;; a)
     ;; e.g. "qualche volte, <s-present>"
     (def s-present-modifier
-      (fs/unifyc head-principle
+      (unify head-principle
                  subcat-1-principle
                  italian-head-first
                  english-head-first
@@ -892,8 +890,8 @@
 
 
     (def s-past
-      (fs/merge
-       (fs/unifyc rule-base-no-extend
+      (merge
+       (unify rule-base-no-extend
                   italian-head-last
                   english-head-last
                   {:comment "sentence[past]"
@@ -910,7 +908,7 @@
     ;; b)
     ;; takes an past sentence as a complement: e.g. "ieri, <s-past>"
     (def s-past-modifier
-      (fs/unifyc head-principle
+      (unify head-principle
                  subcat-1-principle
                  italian-head-first
                  english-head-first
@@ -922,7 +920,7 @@
                   :head {:synsem {:subcat {:1 {:sem {:tense :past}}}}}}))
 
     (def s-future
-      (fs/unifyc rule-base-no-extend
+      (unify rule-base-no-extend
                  italian-head-last
                  english-head-last
                  {:extend {:a {:comp (fn [] np)
@@ -934,7 +932,7 @@
                   :synsem {:infl :futuro}}))
 
     (def s-future-modifier
-      (fs/unifyc head-principle
+      (unify head-principle
                  subcat-1-principle
                  italian-head-first
                  english-head-first
@@ -946,7 +944,7 @@
                   :head {:synsem {:subcat {:1 {:sem {:tense :future}}}}}}))
 
     (def s-imperfetto
-      (fs/unifyc rule-base
+      (unify rule-base
                  italian-head-last
                  english-head-last
                  {:comment "sentence[imperfetto]"
@@ -960,7 +958,7 @@
                            :i {:comp 'lexicon
                                :head (fn [] vp-pron)}}}))
     (def temporal-glue-phrase
-      (fs/unifyc subcat-2-principle
+      (unify subcat-2-principle
                  italian-head-first
                  english-head-first
                  {:comment "temporal-glue-phrase"
@@ -970,7 +968,7 @@
 
 
     (def s-temporal-glue
-      (fs/unifyc subcat-1-principle
+      (unify subcat-1-principle
                  italian-head-last
                  english-head-last
                  {:command "temporal-sentence"
@@ -1041,64 +1039,64 @@
 (defn minimal-grammatical-initialization []
   ;; TODO: replace with something less expensive. we want the minimum amount of work that
   ;; will prevent ExceptionInInitializerErrors.
-  (first (take 1 (gen/generate nbar))))
+  (first (take 1 (generate nbar))))
 
-(def np (conj {:serialized (fs/serialize np)}
+(def np (conj {:serialized (serialize np)}
               np))
-(def nbar (conj {:serialized (fs/serialize nbar)}
+(def nbar (conj {:serialized (serialize nbar)}
               nbar))
-(def s-present (conj {:serialized (fs/serialize s-present)}
+(def s-present (conj {:serialized (serialize s-present)}
                      s-present))
 
-(def s-present-modifier (conj {:serialized (fs/serialize s-present-modifier)}
+(def s-present-modifier (conj {:serialized (serialize s-present-modifier)}
                               s-present-modifier))
 
-(def s-future (conj {:serialized (fs/serialize s-future)}
+(def s-future (conj {:serialized (serialize s-future)}
                     s-future))
 
-(def s-future-modifier (conj {:serialized (fs/serialize s-future-modifier)}
+(def s-future-modifier (conj {:serialized (serialize s-future-modifier)}
                              s-future-modifier))
 
-(def s-past (conj {:serialized (fs/serialize s-past)}
+(def s-past (conj {:serialized (serialize s-past)}
                   s-past))
 
-(def s-past-modifier (conj {:serialized (fs/serialize s-past-modifier)}
+(def s-past-modifier (conj {:serialized (serialize s-past-modifier)}
                            s-past-modifier))
 
-(def s-imperfetto (conj {:serialized (fs/serialize s-imperfetto)}
+(def s-imperfetto (conj {:serialized (serialize s-imperfetto)}
                         s-imperfetto))
 
-(def s-temporal-glue (conj {:serialized (fs/serialize s-temporal-glue)}
+(def s-temporal-glue (conj {:serialized (serialize s-temporal-glue)}
                            s-temporal-glue))
 
-(def temporal-glue-phrase (conj {:serialized (fs/serialize temporal-glue-phrase)}
+(def temporal-glue-phrase (conj {:serialized (serialize temporal-glue-phrase)}
                                   temporal-glue-phrase))
 
-(def vp-plus-adverb (conj {:serialized (fs/serialize vp-plus-adverb)}
+(def vp-plus-adverb (conj {:serialized (serialize vp-plus-adverb)}
                           vp-plus-adverb))
 
-(def vp-aux (conj {:serialized (fs/serialize vp-aux)}
+(def vp-aux (conj {:serialized (serialize vp-aux)}
                   vp-aux))
 
-(def vp-pron (conj {:serialized (fs/serialize vp-pron)}
+(def vp-pron (conj {:serialized (serialize vp-pron)}
                    vp-pron))
 
-(def vp-past (conj {:serialized (fs/serialize vp-past)}
+(def vp-past (conj {:serialized (serialize vp-past)}
                    vp-past))
 
-(def vp-present (conj {:serialized (fs/serialize vp-present)}
+(def vp-present (conj {:serialized (serialize vp-present)}
                       vp-present))
 
-(def vp-pron-verb-first (conj {:serialized (fs/serialize vp-pron-verb-first)}
+(def vp-pron-verb-first (conj {:serialized (serialize vp-pron-verb-first)}
                               vp-pron-verb-first))
 
-(def prep-phrase (conj {:serialized (fs/serialize prep-phrase)}
+(def prep-phrase (conj {:serialized (serialize prep-phrase)}
                        prep-phrase))
 
-(def nbar (conj {:serialized (fs/serialize nbar)}
+(def nbar (conj {:serialized (serialize nbar)}
                 nbar))
 
-(def adj-phrase (conj {:serialized (fs/serialize adj-phrase)}
+(def adj-phrase (conj {:serialized (serialize adj-phrase)}
                       adj-phrase))
 
 
@@ -1111,7 +1109,7 @@
 (def cc10-heads
   (if false
     (filter (fn [lex]
-              (not (fs/fail? (unify cc10 {:head lex}))))
+              (not (fail? (unify cc10 {:head lex}))))
             lex/lexicon)
     lex/lexicon))
 
@@ -1122,7 +1120,7 @@
     (filter (fn [lex]
               (find-some-head-for cc10 cc10-heads lex))
             (filter (fn [lex]
-                      (not (fs/fail? (unify cc10 {:comp lex}))))
+                      (not (fail? (unify cc10 {:comp lex}))))
                     lex/lexicon))
     lex/lexicon))
 
@@ -1134,7 +1132,7 @@
     (log/info (str "cc10-comps:" (.size cc10-comps)))))
 
 (defn gen15 [phrases heads comps]
-  (gen/gen14 phrases heads comps sent-impl 0))
+  (gen14 phrases heads comps sent-impl 0))
 
 (defn base-ch21 []
   (gen15 (list ch21) ch21-heads ch21-comps))
@@ -1168,16 +1166,16 @@
 
 (defn take-gen3-random [n]
   (take n
-        (gen/gen14 (list cc10)
+        (gen14 (list cc10)
                    (fn []
-                     (gen/gen14 (list ch21)
+                     (gen14 (list ch21)
                                 (fn []
                                   (shuffle lex/lexicon))
                                 (fn []
                                   (shuffle lex/lexicon))
                                 sent-impl 0))
                    (fn []
-                     (gen/gen14 (list cc10)
+                     (gen14 (list cc10)
                                 (fn [] (shuffle lex/lexicon))
                                 (fn [] (shuffle lex/lexicon))
                                 sent-impl 0))
@@ -1227,41 +1225,20 @@
                       (shuffle cc10-heads)
                       (shuffle cc10-comps)))))
 
-(defn generate-sentences-with-subjects [subcat-infos subject-heads subject-comps]
-  "generate subjects: filter heads by subcat-infos"
-  nil)
-
-(defn take-sentences-randomly [n]
-  (take n
-        (let [vps
-              ;; head: VP -> V NP
-              (gen15 (list hh21)
-                     (filter (fn [candidate]
-                               (and (not (= :notfound (fs/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                                    (= (fs/get-in candidate '(:synsem :cat)) :verb)))
-                             (shuffle hh21-heads)) ;; Verb
-                     base-cc10-random)] ;; object NP
-          (generate-sentences-with-subjects
-            (map (fn [head-of-parent-cc10] ;; parent-cc10 is the top-level sentential-cc10.
-                   (fs/get-in head-of-parent-cc10 '(:synsem :subcat :1)))
-                 vps)
-            (shuffle cc10-heads) ;; Noun of subject
-            (shuffle cc10-comps))))) ;; Det of subject
-
 (defn take-gen6-random [n]
   (take n
-        (gen/gen14 (list cc10)
-                   (gen/gen14 (list hh21)
+        (gen14 (list cc10)
+                   (gen14 (list hh21)
                               (fn [] (shuffle lex/verbs))
                               (fn []
-                                (gen/gen14 (list cc10)
+                                (gen14 (list cc10)
                                            (fn []
                                              (shuffle lex/nouns))
                                            (fn []
                                              (shuffle lex/dets))
                                            sent-impl 0))
                               sent-impl 0)
-                   (gen/gen14 (list cc10)
+                   (gen14 (list cc10)
                               (fn []
                                 (shuffle lex/nouns))
                               (fn []
@@ -1271,13 +1248,13 @@
 
 (defn take-gen7-random [n]
   (take n
-        (gen/gen14 (list cc10)
-                   (gen/gen14 (list hh21)
+        (gen14 (list cc10)
+                   (gen14 (list hh21)
                               (fn [] (shuffle lex/verbs))
                               (fn []
-                                (gen/gen14 (list cc10)
+                                (gen14 (list cc10)
                                            (fn []
-                                             (gen/gen14 (list hc11)
+                                             (gen14 (list hc11)
                                                         (fn []
                                                           (shuffle lex/nouns))
                                                         (fn []
@@ -1287,7 +1264,7 @@
                                              (shuffle lex/dets))
                                            sent-impl 0))
                               sent-impl 0)
-                   (gen/gen14 (list cc10)
+                   (gen14 (list cc10)
                               (fn []
                                 (shuffle lex/nouns))
                               (fn []
@@ -1297,13 +1274,13 @@
 
 (defn take-gen8-random [n]
   (take n
-        (gen/gen14 (list cc10)
-                   (gen/gen14 (list hh21)
+        (gen14 (list cc10)
+                   (gen14 (list hh21)
                               (fn [] (shuffle lex/verbs))
                               (fn []
-                                (gen/gen14 (list cc10)
+                                (gen14 (list cc10)
                                            (fn []
-                                             (gen/gen14 (list hc11)
+                                             (gen14 (list hc11)
                                                         (fn []
                                                           (shuffle lex/nouns))
                                                         (fn []
@@ -1313,9 +1290,9 @@
                                              (shuffle lex/dets))
                                            sent-impl 0))
                               sent-impl 0)
-                   (gen/gen14 (list cc10)
+                   (gen14 (list cc10)
                               (fn []
-                                (gen/gen14 (list hc11)
+                                (gen14 (list hc11)
                                            (fn []
                                              (shuffle lex/nouns))
                                            (fn []
@@ -1330,7 +1307,7 @@
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
-  (finalize (first (take 1 (gen/generate
+  (finalize (first (take 1 (generate
                                   (first (take 1 (shuffle
                                                   (list s-present
                                                         s-present-modifier
@@ -1346,31 +1323,31 @@
                      (shuffle
                       (list
 
-                       ;(gen/gen14 (list cc10)
+                       ;(gen14 (list cc10)
                        ;           (fn [] (shuffle cc10-heads))
                        ;           (fn [] (shuffle cc10-comps))
                        ;           sent-impl 0)
 
-                       ;(gen/gen14 (list cc10)
+                       ;(gen14 (list cc10)
                        ;           (fn [] (shuffle lex/verbs))
-                       ;           (fn [] (gen/gen14 (list cc10)
+                       ;           (fn [] (gen14 (list cc10)
                        ;                             (fn [] (shuffle lex/nouns))
                        ;                             (fn [] (shuffle lex/dets))
                        ;                             sent-impl 0))
                        ;           sent-impl 0)
 
-                       ;(gen/gen14 (list cc10)
-                       ;           (fn [] (gen/gen14 (list hc11)
+                       ;(gen14 (list cc10)
+                       ;           (fn [] (gen14 (list hc11)
                        ;                             (fn [] (shuffle lex/nouns))
                        ;                             (fn [] (shuffle lex/adjs))
                        ;                             sent-impl 0))
                        ;           (fn [] (shuffle lex/dets))
                        ;           sent-impl 0)
 
-                       ;(gen/gen14 (list cc10)
+                       ;(gen14 (list cc10)
                        ;           (fn [] (shuffle lex/verbs))
-                       ;           (fn [] (gen/gen14 (list cc10)
-                       ;                             (fn [] (gen/gen14 (list hc11)
+                       ;           (fn [] (gen14 (list cc10)
+                       ;                             (fn [] (gen14 (list hc11)
                        ;                                               (fn [] (shuffle lex/nouns))
                        ;                                               (fn [] (shuffle lex/adjs))
                        ;                                               sent-impl 0))
@@ -1378,7 +1355,7 @@
                        ;                             sent-impl 0))
                        ;           sent-impl 0)
 
-                       (gen/gen14 (list ch21)
+                       (gen14 (list ch21)
                                   (fn []
                                     (log/info "in fn: tinylex for head.")
                                     lex/lexicon)
@@ -1387,14 +1364,14 @@
                                     lex/lexicon)
                                   sent-impl 0)
 
-;                       (gen/gen14 (list cc10)
+;                       (gen14 (list cc10)
 ;                                  (fn []
 ;                                    (log/debug "in fn: shuffle lex/verbs")
 ;                                    (shuffle lex/verbs))
 ;                                  (fn []
 ;                                    (log/debug "in fn: gen14 cc10")
-;                                    (gen/gen14 (list cc10)
-;                                               (fn [] (gen/gen14 (list ch21)
+;                                    (gen14 (list cc10)
+;                                               (fn [] (gen14 (list ch21)
 ;                                                                 (fn [] tinylex)
 ;                                                                 (fn [] tinylex)
 ;                                                                 sent-impl 0))
@@ -1413,7 +1390,7 @@
   (take 3 (repeatedly #(time (fo (random-sentence))))))
 
 ;(defn gen21 [heads comps]
-;  (gen/gen14 seed-phrases
+;  (gen14 seed-phrases
 ;             heads
 ;             comps
 ;             sent-impl
