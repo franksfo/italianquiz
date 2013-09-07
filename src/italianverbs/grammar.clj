@@ -224,18 +224,13 @@
                             complement-category (fs/get-in complement-synsem '(:cat))
                             complement-sem (lexfn/sem-impl (fs/get-in complement-synsem '(:sem)))]
                         (fn [comp]
-                          (log/debug (str "cc10: filter by cat: " complement-category))
-                          (log/debug (str "cc10: filter by sem: " complement-sem))
                           (let [result
                                 (and
                                  (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
                                                        complement-category)))
                                  (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
                                                        complement-sem))))]
-                            (if result (log/info (str "cc10: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                                           (if result
-                                             "TRUE" ;; emphasize for ease of readability in logs.
-                                             result))))
+                            (log/debug (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
                             result))))}))
 
 (def hc-agreement
@@ -349,18 +344,16 @@
                             complement-cat (fs/get-in phrase-with-head '(:head :synsem :subcat :2 :cat))
                             complement-sem (lexfn/sem-impl (fs/get-in phrase-with-head '(:head :synsem :subcat :2 :sem)))]
                         (fn [comp]
-                          (log/debug (str "cc10: filter by cat: " complement-cat))
-                          (log/debug (str "cc10: filter by sem: " complement-sem))
                           (let [result
                                 (and
                                  (not (fs/fail? (unify (fs/get-in comp '(:synsem :cat))
                                                        complement-cat)))
                                  (not (fs/fail? (unify (lexfn/sem-impl (fs/get-in comp '(:synsem :sem)))
                                                        complement-sem))))]
-                            (if result (log/info (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+                            (log/info (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                                            (if result
                                              "TRUE" ;; emphasize for ease of readability in logs.
-                                             result))))
+                                             result)))
                             result))))}))
 
 ;; standard rule-caching disclaimer:
@@ -1234,42 +1227,26 @@
                       (shuffle cc10-heads)
                       (shuffle cc10-comps)))))
 
-(defn take-sentences-randomly-1 [n])
+(defn generate-sentences-with-subjects [subcat-infos subject-heads subject-comps]
+  "generate subjects: filter heads by subcat-infos"
+  nil)
 
 (defn take-sentences-randomly [n]
   (take n
-        (let [phrases-with-heads
-              (gen15 (list cc10)
-                     ;; head: VP -> V NP
-                     (gen15 (list hh21)
-                            (filter (fn [head-candidate]
-                                (and (not (= :notfound (fs/get-in head-candidate '(:synsem :subcat :2 :cat) :notfound)))
-                                     (= (fs/get-in head-candidate '(:synsem :cat)) :verb)))
-                                    ;; Verbs: filter by:
-                                    ;; 1. require having 2 args: e.g. transitive verbs like
-                                    ;; "amare (to love)" that take a subject and an object.
-                                    ;; 2. cat = :verb.
-                                    (shuffle hh21-heads))
-                      base-cc10-random) ;; object: NP
-                     )]
-
-              ;; (take-sentences-randomly-1 phrases-with-heads
-              ;; ^^ takes a bunch of phrases with heads and lazily generates complements for them, returning
-              ;; a complete set of phrases.
-              ;;
-              ;;       (gen15 (list cc10) .. (copy from below)
-
-              comps
-              ;; comp: NP: subject.
-              ;; TODO: filter generation according to
-              ;; head VP (generating above).
-              (gen15 (list cc10)
-                     (filter (fn [head-of-comp-candidate]
-                               true) ;; for now: TODO: use :subcat :1 of phrases-with-heads.
-                             (shuffle cc10-heads)) ;; Noun of subject
-                     (shuffle cc10-comps))] ;; Det of subject
-
-          )))
+        (let [vps
+              ;; head: VP -> V NP
+              (gen15 (list hh21)
+                     (filter (fn [candidate]
+                               (and (not (= :notfound (fs/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                                    (= (fs/get-in candidate '(:synsem :cat)) :verb)))
+                             (shuffle hh21-heads)) ;; Verb
+                     base-cc10-random)] ;; object NP
+          (generate-sentences-with-subjects
+            (map (fn [head-of-parent-cc10] ;; parent-cc10 is the top-level sentential-cc10.
+                   (fs/get-in head-of-parent-cc10 '(:synsem :subcat :1)))
+                 vps)
+            (shuffle cc10-heads) ;; Noun of subject
+            (shuffle cc10-comps))))) ;; Det of subject
 
 (defn take-gen6-random [n]
   (take n
