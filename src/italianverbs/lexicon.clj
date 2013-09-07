@@ -2195,7 +2195,8 @@
                        :activity true
                        :discrete false
                        :subj {:human true}
-                       :obj {:sem {:political true}}}}})
+                       :obj {:sem {:human true
+                                   :political true}}}}})
 
       (unify
        intransitive
