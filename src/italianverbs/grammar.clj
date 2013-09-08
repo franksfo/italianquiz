@@ -1,14 +1,18 @@
 (ns italianverbs.grammar
+  (:refer-clojure :exclude [get-in resolve])
   (:use [clojure.set :only (union)]
+        [clojure.core :exclude (get-in resolve)]
         [italianverbs.generate :only (generate moreover-head moreover-comp gen14)]
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article)]
-        [italianverbs.unify :only (copy fail? serialize)])
+        [italianverbs.unify :only (copy fail? serialize get-in resolve)]
+        )
 
   (:require [clojure.tools.logging :as log]
             [italianverbs.lexicon :as lex]
-            [clojure.string :as string]))
+            [clojure.string :as string])
+)
 
 (def tinylex
   (union ;(it1 "aiutare")
@@ -217,7 +221,7 @@
    english-head-last
    {:comment "cc10"
     :comp-filter-fn (fn [phrase-with-head]
-                      (log/debug "cc10 filter.")
+                      (log/info "cc10 filter.")
                       (let [complement-synsem (get-in phrase-with-head '(:head :synsem :subcat :1))
                             complement-category (get-in complement-synsem '(:cat))
                             complement-sem (sem-impl (get-in complement-synsem '(:sem)))]
@@ -225,10 +229,13 @@
                           (let [result
                                 (and
                                  (not (fail? (unify (get-in comp '(:synsem :cat))
-                                                       complement-category)))
+                                                    complement-category)))
                                  (not (fail? (unify (sem-impl (get-in comp '(:synsem :sem)))
-                                                       complement-sem))))]
-                            (log/debug (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+                                                    complement-sem))))]
+                            (log/info (str "complement-synsem: " complement-synsem))
+                            (log/info (str "complement-category: " complement-category))
+                            (log/info (str "complement-sem: " complement-sem))
+                            (log/info (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
                             result))))}))
 
 (def hc-agreement
@@ -1107,20 +1114,24 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-heads
-  (if false
+  (if true
     (filter (fn [lex]
-              (not (fail? (unify cc10 {:head lex}))))
+              (and true ;(= (get-in lex '(:italian :italian)) "acqua")
+                   (not (fail? (unify cc10 {:head lex})))))
             lex/lexicon)
     lex/lexicon))
 
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-comps
-  (if false
+  (if true
     (filter (fn [lex]
-              (find-some-head-for cc10 cc10-heads lex))
+              true)
+;              (find-some-head-for cc10 cc10-heads lex))
             (filter (fn [lex]
-                      (not (fail? (unify cc10 {:comp lex}))))
+                      (and (or (= (get-in lex '(:italian)) "la")
+                               (= (get-in lex '(:italian)) "il"))
+                           (not (fail? (unify cc10 {:comp lex})))))
                     lex/lexicon))
     lex/lexicon))
 
@@ -1142,6 +1153,11 @@
          (filter use-filter
                  cc10-heads)
          cc10-comps))
+
+(defn base-cc10-random-nofilter []
+  (gen15 (list cc10)
+         (shuffle cc10-heads)
+         (shuffle cc10-comps)))
 
 (defn base-cc10-random [use-filter]
   (gen15 (list cc10)
