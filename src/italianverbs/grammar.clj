@@ -1129,7 +1129,7 @@
               true)
 ;              (find-some-head-for cc10 cc10-heads lex))
             (filter (fn [lex]
-                      (and (or (= (get-in lex '(:italian)) "la")
+                      (and (or true (= (get-in lex '(:italian)) "la")
                                (= (get-in lex '(:italian)) "il"))
                            (not (fail? (unify cc10 {:comp lex})))))
                     lex/lexicon))
