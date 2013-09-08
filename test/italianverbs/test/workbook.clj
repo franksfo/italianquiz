@@ -87,7 +87,7 @@
 
 (defn fn-5 []
   (take 1
-        (gen/gen14 seed-phrases
+        (gen14 seed-phrases
                    (shuffle cc0-heads)
                    (shuffle cc0-comps)
                    sent-impl 0)))
