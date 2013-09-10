@@ -7,11 +7,12 @@
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article)]
-        [italianverbs.unify :only (copy fail? serialize get-in resolve)]
+;        [italianverbs.unify :only (copy fail? serialize get-in resolve)]
         )
 
   (:require [clojure.tools.logging :as log]
             [italianverbs.lexicon :as lex]
+            [italianverbs.unify :as unify]
             [clojure.string :as string])
 )
 
@@ -30,15 +31,15 @@
 
 (defn thevps1 []
   (filter (fn [candidate]
-            (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                 (= (get-in candidate '(:synsem :cat)) :verb)))
+            (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                 (= (unify/get-in candidate '(:synsem :cat)) :verb)))
           (shuffle hh21-heads))) ;; Verb
 
 (defn thevps []
   (gen15 (list hh21)
          (filter (fn [candidate]
-                   (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                        (= (get-in candidate '(:synsem :cat)) :verb)))
+                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
                  (shuffle hh21-heads)) ;; Verb
          base-cc10-random)) ;; object NP
 
@@ -48,14 +49,14 @@
               ;; head: VP -> V NP
               (gen15 (list hh21)
                      (filter (fn [candidate]
-                               (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                                    (= (get-in candidate '(:synsem :cat)) :verb)))
+                               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                                    (= (unify/get-in candidate '(:synsem :cat)) :verb)))
                              (shuffle hh21-heads)) ;; Verb
                      base-cc10-random)] ;; object NP
           vps)))
 ;          (generate-sentences-with-subjects
 ;            (map (fn [head-of-parent-cc10] ;; parent-cc10 is the top-level sentential-cc10.
-;                   (get-in head-of-parent-cc10 '(:synsem :subcat :1)))
+;                   (unify/get-in head-of-parent-cc10 '(:synsem :subcat :1)))
  ;                vps)
 ;            (shuffle cc10-heads) ;; Noun of subject
 ;            (shuffle cc10-comps))))) ;; Det of subject
