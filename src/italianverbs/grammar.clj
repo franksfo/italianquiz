@@ -221,7 +221,7 @@
    english-head-last
    {:comment "cc10"
     :comp-filter-fn (fn [phrase-with-head]
-                      (log/info "cc10 filter.")
+                      (log/debug "cc10 filter.")
                       (let [complement-synsem (get-in phrase-with-head '(:head :synsem :subcat :1))
                             complement-category (get-in complement-synsem '(:cat))
                             complement-sem (sem-impl (get-in complement-synsem '(:sem)))]
@@ -232,10 +232,10 @@
                                                     complement-category)))
                                  (not (fail? (unify (sem-impl (get-in comp '(:synsem :sem)))
                                                     complement-sem))))]
-                            (log/info (str "complement-synsem: " complement-synsem))
-                            (log/info (str "complement-category: " complement-category))
-                            (log/info (str "complement-sem: " complement-sem))
-                            (log/info (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+                            (log/debug (str "complement-synsem: " complement-synsem))
+                            (log/debug (str "complement-category: " complement-category))
+                            (log/debug (str "complement-sem: " complement-sem))
+                            (log/debug (str "result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
                             result))))}))
 
 (def hc-agreement
