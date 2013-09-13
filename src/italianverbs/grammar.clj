@@ -6,7 +6,7 @@
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article)]
-        [italianverbs.unify :only (copy fail? serialize get-in resolve)]
+        [italianverbs.unify :only (copy fail? serialize resolve get-in)]
         )
 
   (:require [clojure.tools.logging :as log]
@@ -1114,7 +1114,7 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-heads
-  (if true
+  (if false
     (filter (fn [lex]
               (and true ;(= (get-in lex '(:italian :italian)) "acqua")
                    (not (fail? (unify cc10 {:head lex})))))
@@ -1124,7 +1124,7 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-comps
-  (if true
+  (if false
     (filter (fn [lex]
               true)
 ;              (find-some-head-for cc10 cc10-heads lex))
@@ -1160,10 +1160,12 @@
          (shuffle cc10-comps)))
 
 (defn base-cc10-random [use-filter]
-  (gen15 (list cc10)
-         (filter use-filter
-                 (shuffle cc10-heads))
-         (shuffle cc10-comps)))
+  (do
+    (log/info "base-cc10-random: start.")
+    (gen15 (list cc10)
+           (filter use-filter
+                   (shuffle cc10-heads))
+           (shuffle cc10-comps))))
 
 (defn take-gen1 [n]
   (take n (base-ch21)))
