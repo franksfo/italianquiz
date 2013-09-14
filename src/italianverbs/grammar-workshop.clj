@@ -72,4 +72,17 @@
                  (lazy-shuffle hh21-heads))))
 (def arg3 base-cc10-random)
 
+
+(defn my-vp []
+  (take 1 (gen15 arg1 (apply arg2 nil) arg3)))
 ;; (fo (take 1 (gen15 arg1 (apply arg2 nil) arg3)))
+
+
+(defn my-sent []
+  (fo (take 1 (gen15 (list cc10) ;; parent: S -> NP VP
+                     (let [the-vp (my-vp)] ;; head: VP -> V NP; NP -> Det N
+                       (log/info "THE VP:" (fo the-vp))
+                       the-vp)
+                     base-cc10-random)))) ;; comp: NP -> Det N
+
+
