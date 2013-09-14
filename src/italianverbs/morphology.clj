@@ -914,6 +914,9 @@
   (log/debug (str "get-english-1: " word))
   (cond
 
+   (= word :top)
+   ""
+   
    ;; "to do [past]" + "well" => "did well"
    (and (= (fs/get-in word '(:cat)) :verb)
         (= (fs/get-in word '(:infl)) :past)
