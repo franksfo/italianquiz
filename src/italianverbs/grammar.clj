@@ -1142,6 +1142,17 @@
     (log/info (str "cc10-heads:" (.size cc10-heads)))
     (log/info (str "cc10-comps:" (.size cc10-comps)))))
 
+(defn mo-betta-gen15 [phrases heads comps]
+  (log/info (str "mo-betta-gen15: start."))
+  (let [one-item
+        (take 1
+              (filter (fn [lexeme]
+                        (do
+                          (log/info (str "lexeme: " (fo lexeme)))
+                          (= :verb (get-in lexeme '(:synsem :cat)))))
+                      heads))]
+    one-item))
+
 (defn gen15 [phrases heads comps]
   (gen14 phrases heads comps sent-impl 0))
 

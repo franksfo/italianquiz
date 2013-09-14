@@ -4,7 +4,7 @@
         [clojure.core :exclude (get-in resolve)]
         [italianverbs.generate :only (generate moreover-head moreover-comp gen14)]
         [italianverbs.grammar]
-        [italianverbs.lexicon :only (it1)]
+        [italianverbs.lexicon :only (it1 lexicon it en)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article)]
         [italianverbs.unify :only (copy fail? serialize get-in resolve)]
@@ -61,3 +61,15 @@
 ;            (shuffle cc10-heads) ;; Noun of subject
 ;            (shuffle cc10-comps))))) ;; Det of subject
 
+
+;; this works just great: (filter) stops after the first match: "aiutare (to help)".
+;; (take 1 (filter (fn [lexeme] (= :verb (get-in lexeme '(:synsem :cat)))) lexicon))
+
+;; (def arg1 (list hh21))
+;; (def arg2 (filter (fn [candidate]
+;;                   (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+;;                        (= (get-in candidate '(:synsem :cat)) :verb)))
+;;                 (shuffle hh21-heads))
+;; (def arg3 base-cc10-random)
+
+;; (fo (take 1 (gen15 arg1 arg2 arg3)))
