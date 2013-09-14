@@ -65,11 +65,11 @@
 ;; this works just great: (filter) stops after the first match: "aiutare (to help)".
 ;; (take 1 (filter (fn [lexeme] (= :verb (get-in lexeme '(:synsem :cat)))) lexicon))
 
-;; (def arg1 (list hh21))
-;; (def arg2 (filter (fn [candidate]
-;;                   (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-;;                        (= (get-in candidate '(:synsem :cat)) :verb)))
-;;                 (shuffle hh21-heads))
-;; (def arg3 base-cc10-random)
+(def arg1 (list hh21))
+(def arg2 (filter (fn [candidate]
+                   (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                        (= (get-in candidate '(:synsem :cat)) :verb)))
+                 (lazy-shuffle hh21-heads)))
+(def arg3 base-cc10-random)
 
 ;; (fo (take 1 (gen15 arg1 arg2 arg3)))
