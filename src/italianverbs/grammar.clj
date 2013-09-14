@@ -1151,7 +1151,7 @@
             [prior remainder]
             (split-at rand-pos coll)
             elem (nth coll rand-pos)]
-        (log/info (str "lazy-shuff: " (fo elem)))
+        (log/debug (str "lazy-shuff: " (fo elem)))
         (lazy-seq
          (cons elem
                (lazy-shuffle (concat prior (rest remainder)))))))))
