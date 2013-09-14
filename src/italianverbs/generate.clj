@@ -767,7 +767,8 @@
         debug-inner (log/info (str "gen14-inner: fn? complements: " (fn? complements)))
         debug-inner (log/info (str "gen14-inner: seq? complements: " (seq? complements)))
         complements (cond (fn? complements)
-                          (apply complements (list (apply complement-filter-fn (list phrase-with-head))))
+                          (do (log/info (str "gen14-inner: treating complements as a fn."))
+                              (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
                           (seq? complements)
                           ;; filter the complements according to the complement-filter-fn
                           (lazy-seq
@@ -902,8 +903,3 @@
                       sent-impl
                       recursion-level))))
          (gen14 (rest phrases) heads complements sent-impl recursion-level))))))
-
-
-
-
-
