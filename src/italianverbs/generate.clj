@@ -806,9 +806,9 @@
                                  comp))]
           (if (not (unify/fail? result))
             (do
-              (log/info (str "gen14-inner SUCC: recursion level: " recursion-level))
-              (log/info (str "gen14-inner: SUCC: head: " (dissoc (unify/get-in phrase-with-head '(:head)) :serialized)))
-              (log/info (str "gen14-inner: SUCC: comp: " (dissoc comp :serialized)))
+              (log/info (str "gen14-inner UNIFIES: recursion level: " recursion-level))
+              (log/info (str "gen14-inner: UNIFIES: head: " (dissoc (unify/get-in phrase-with-head '(:head)) :serialized)))
+              (log/info (str "gen14-inner: UNIFIES: comp: " (dissoc comp :serialized)))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; italian comp first.
                 (log/info (str "gen14-inner:"
