@@ -1142,6 +1142,20 @@
     (log/info (str "cc10-heads:" (.size cc10-heads)))
     (log/info (str "cc10-comps:" (.size cc10-comps)))))
 
+;; thanks to Boris V. Schmid:
+;; https://groups.google.com/forum/#!topic/clojure/riyVxj1Qbbs
+(defn lazy-shuffle [coll]
+  (let [size (count coll)]
+    (if (> size 0)
+      (let [rand-pos (rand-int size)
+            [prior remainder]
+            (split-at rand-pos coll)
+            elem (nth coll rand-pos)]
+        (log/info (str "lazy-shuff: " (fo elem)))
+        (lazy-seq
+         (cons elem
+               (lazy-shuffle (concat prior (rest remainder)))))))))
+
 (defn mo-betta-gen15 [phrases heads comps]
   (log/info (str "mo-betta-gen15: start."))
   (let [one-item
@@ -1175,8 +1189,8 @@
     (log/info "base-cc10-random: start.")
     (gen15 (list cc10)
            (filter use-filter
-                   (shuffle cc10-heads))
-           (shuffle cc10-comps))))
+                   (lazy-shuffle cc10-heads))
+           (lazy-shuffle cc10-comps))))
 
 (defn take-gen1 [n]
   (take n (base-ch21)))
