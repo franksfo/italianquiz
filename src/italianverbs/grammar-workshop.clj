@@ -68,21 +68,7 @@
               ~comp)))
 
 (defn my-sent []
-  (gen15 (list cc10) ;; parent: S -> NP VP
-
-         ;; VP -> V NP:
-         (gen15 (list hh21)  ;; V
-                (filter (fn [candidate] ;; filter Vs to reduce number of candidates we need to filter.
-                          (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                               (= (get-in candidate '(:synsem :cat)) :verb)))
-                        (lazy-shuffle hh21-heads))
-                base-cc10-random) ;; object: NP -> Det N
-
-         base-cc10-random)) ;; subject: NP -> Det N
-
-
-(defn my-sent2 []
-  (mycc10
+  (mycc10 ;; parent: S -> NP VP
 
    ;; VP -> V NP:
    (gen15 (list hh21)  ;; V
@@ -90,9 +76,9 @@
                     (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
                          (= (get-in candidate '(:synsem :cat)) :verb)))
                   (lazy-shuffle hh21-heads))
-          base-cc10-random) ;; object NP (NP -> Det N)
+          base-cc10-random) ;; object: NP -> Det N
 
-   base-cc10-random)) ;; subject NP: (NP -> Det N)
+   base-cc10-random)) ;; subject: NP -> Det N
 
 
 
