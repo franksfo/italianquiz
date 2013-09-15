@@ -54,35 +54,45 @@
                              (shuffle hh21-heads)) ;; Verb
                      base-cc10-random)] ;; object NP
           vps)))
-;          (generate-sentences-with-subjects
-;            (map (fn [head-of-parent-cc10] ;; parent-cc10 is the top-level sentential-cc10.
-;                   (unify/get-in head-of-parent-cc10 '(:synsem :subcat :1)))
- ;                vps)
-;            (shuffle cc10-heads) ;; Noun of subject
-;            (shuffle cc10-comps))))) ;; Det of subject
 
+(defmacro myhh21 [head comp]
+  `(do ~(log/info "myhh21 macro compile-time.")
+       (gen15 (list hh21)
+              ~head
+              ~comp)))
 
-;; this works just great: (filter) stops after the first match: "aiutare (to help)".
-;; (take 1 (filter (fn [lexeme] (= :verb (get-in lexeme '(:synsem :cat)))) lexicon))
-
-(def arg1 (list hh21))
-(def arg2 (fn [] (filter (fn [candidate]
-                   (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                        (= (get-in candidate '(:synsem :cat)) :verb)))
-                 (lazy-shuffle hh21-heads))))
-(def arg3 base-cc10-random)
-
-
-(defn my-vp []
- (take 1 (gen15 arg1 (apply arg2 nil) arg3)))
-;; (fo (take 1 (gen15 arg1 (apply arg2 nil) arg3)))
-
+(defmacro mycc10 [head comp]
+  `(do ~(log/info "mycc10 macro compile-time.")
+       (gen15 (list cc10)
+              ~head
+              ~comp)))
 
 (defn my-sent []
-  (sent-impl (take 1 (gen15 (list cc10) ;; parent: S -> NP VP
-                            (let [the-vp (my-vp)] ;; head: VP -> V NP -> Det N
-                              (log/info "THE VP:" (fo the-vp))
-                              the-vp)
-                            base-cc10-random)))) ;; comp: NP -> Det N
+  (gen15 (list cc10) ;; parent: S -> NP VP
+
+         ;; VP -> V NP:
+         (gen15 (list hh21)  ;; V
+                (filter (fn [candidate] ;; filter Vs to reduce number of candidates we need to filter.
+                          (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                               (= (get-in candidate '(:synsem :cat)) :verb)))
+                        (lazy-shuffle hh21-heads))
+                base-cc10-random) ;; object: NP -> Det N
+
+         base-cc10-random)) ;; subject: NP -> Det N
+
+
+(defn my-sent2 []
+  (mycc10
+
+   ;; VP -> V NP:
+   (gen15 (list hh21)  ;; V
+          (filter (fn [candidate] ;; filter Vs to reduce number of candidates we need to filter.
+                    (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                         (= (get-in candidate '(:synsem :cat)) :verb)))
+                  (lazy-shuffle hh21-heads))
+          base-cc10-random) ;; object NP (NP -> Det N)
+
+   base-cc10-random)) ;; subject NP: (NP -> Det N)
+
 
 
