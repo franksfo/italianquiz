@@ -14,6 +14,10 @@
             [clojure.string :as string])
 )
 
+(def phrase-times-lexicon-cache false)
+;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
+;;    false: don't pre-compute product (fast startup, slow runtime)
+
 (def tinylex
   (union ;(it1 "aiutare")
          (it1 "andare")
@@ -267,7 +271,7 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def ch21-heads
-  (if true
+  (if phrase-times-lexicon-cache
     (filter (fn [lex]
               (not (fail? (unify ch21 {:head lex}))))
             lex/lexicon)
@@ -311,7 +315,7 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def ch21-comps
-  (if true
+  (if phrase-times-lexicon-cache
     (filter (fn [lex]
               (find-some-head-for ch21 ch21-heads lex))
             (filter (fn [lex]
@@ -1121,7 +1125,7 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-heads
-  (if true
+  (if phrase-times-lexicon-cache
     (filter (fn [lex]
               (and true ;(= (get-in lex '(:italian :italian)) "acqua")
                    (not (fail? (unify cc10 {:head lex})))))
@@ -1131,7 +1135,7 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-comps
-  (if true
+  (if phrase-times-lexicon-cache
     (filter (fn [lex]
               true)
 ;              (find-some-head-for cc10 cc10-heads lex))
