@@ -16,45 +16,6 @@
             [clojure.string :as string])
 )
 
-
-(defn generate-sentences-with-subjects-1 [subcat-info subject-heads subject-comps]
-  "filter subject-heads by subcat-info"
-  (base-cc10 (fn [subject-head]
-                 (not (fail? (unify subcat-info subject-head))))
-                subject-heads))
-
-(defn generate-sentences-with-subjects [subcat-infos subject-heads subject-comps]
-  "generate subjects: filter heads by subcat-infos."
-  (if (not (empty? subcat-infos))
-    (lazy-cat (generate-sentences-with-subjects-1 (first subcat-infos) subject-heads subject-comps)
-              (generate-sentences-with-subjects (rest subcat-infos) subject-heads subject-comps))))
-
-(defn thevps1 []
-  (filter (fn [candidate]
-            (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                 (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-          (shuffle hh21-heads))) ;; Verb
-
-(defn thevps []
-  (gen15 (list hh21)
-         (filter (fn [candidate]
-                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                 (shuffle hh21-heads)) ;; Verb
-         base-cc10-random)) ;; object NP
-
-(defn take-sentences-randomly [n]
-  (take n
-        (let [vps
-              ;; head: VP -> V NP
-              (gen15 (list hh21)
-                     (filter (fn [candidate]
-                               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                                    (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                             (shuffle hh21-heads)) ;; Verb
-                     base-cc10-random)] ;; object NP
-          vps)))
-
 (defmacro myhh21 [head comp]
   `(do ~(log/info "myhh21 macro compile-time.")
        (gen15 (list hh21)
@@ -84,6 +45,9 @@
    ;; subject: NP -> Det N
    base-cc10-random))
 
+(defn take-sentences-randomly [n]
+  (take n
+        (my-sent)))
 
 
 
