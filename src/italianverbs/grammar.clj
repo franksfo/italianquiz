@@ -221,10 +221,11 @@
    english-head-last
    {:comment "cc10"
     :comp-filter-fn (fn [phrase-with-head]
-                      (log/debug "cc10 filter.")
-                      (let [complement-synsem (get-in phrase-with-head '(:head :synsem :subcat :1))
-                            complement-category (get-in complement-synsem '(:cat))
-                            complement-sem (sem-impl (get-in complement-synsem '(:sem)))]
+                      (log/info "cc10 filter.")
+                      (let [complement-synsem (get-in phrase-with-head '(:head :synsem :subcat :1) :top)
+                            complement-category (get-in complement-synsem '(:cat) :top)
+                            complement-sem (sem-impl (get-in complement-synsem '(:sem) :top))]
+
                         (fn [comp]
                           (let [result
                                 (and
