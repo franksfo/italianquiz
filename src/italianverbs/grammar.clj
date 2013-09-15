@@ -356,10 +356,16 @@
                                                        complement-cat)))
                                  (not (fail? (unify (sem-impl (get-in comp '(:synsem :sem)))
                                                        complement-sem))))]
-                            (log/info (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                                           (if result
-                                             "TRUE" ;; emphasize for ease of readability in logs.
-                                             result)))
+                            (if result
+                              (log/info (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+                                             (if result
+                                               "TRUE" ;; emphasize for ease of readability in logs.
+                                               result)))
+                              (log/debug (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+                                              (if result
+                                                "TRUE" ;; emphasize for ease of readability in logs.
+                                                result))))
+
                             result))))}))
 
 ;; standard rule-caching disclaimer:
