@@ -117,6 +117,8 @@
    (let [activity (if (= (fs/get-in input '(:activity))
                          true)
                     {:human false
+                     :artifact false
+                     :consumable false
                      :part-of-human-body false})
          animate (if (= (fs/get-in input '(:animate))
                         true)
@@ -131,6 +133,7 @@
          artifact (if (= (fs/get-in input '(:artifact))
                          true)
                     {:animate false
+                     :activity false
                      :physical-object true}{})
 
          buyable (if (= (fs/get-in input '(:buyable))
