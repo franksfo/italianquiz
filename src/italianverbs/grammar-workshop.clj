@@ -16,38 +16,5 @@
             [clojure.string :as string])
 )
 
-(defmacro myhh21 [head comp]
-  `(do ~(log/info "myhh21 macro compile-time.")
-       (gen15 (list hh21)
-              ~head
-              ~comp)))
-
-(defmacro mycc10 [head comp]
-  `(do ~(log/info "mycc10 macro compile-time.")
-       (gen15 (list cc10)
-              ~head
-              ~comp)))
-
-(defn my-sent []
-  ;; parent: S -> NP VP
-  (mycc10
-
-   ;; VP -> V NP:
-   (myhh21
-    (filter (fn [candidate] ;; filter Vs to reduce number of candidates we need to filter.
-              (and (not (= :notfound (get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                   (= (get-in candidate '(:synsem :cat)) :verb)))
-            (lazy-shuffle hh21-heads))
-
-    ;; object: NP -> Det N
-    base-cc10-random)
-
-   ;; subject: NP -> Det N
-   base-cc10-random))
-
-(defn take-sentences-randomly [n]
-  (take n
-        (my-sent)))
-
 
 

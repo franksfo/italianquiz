@@ -6,7 +6,7 @@
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article)]
-        [italianverbs.unify :only (copy fail? serialize resolve get-in)]
+        [italianverbs.unify :only (copy fail? serialize)]
         )
 
   (:require [clojure.tools.logging :as log]
@@ -227,19 +227,19 @@
    {:comment "cc10"
     :comp-filter-fn (fn [phrase-with-head]
                       (log/debug "cc10 filter.")
-                      (let [complement-synsem (get-in phrase-with-head '(:head :synsem :subcat :1) :top)
-                            complement-category (get-in complement-synsem '(:cat) :top)
-                            complement-sem (get-in complement-synsem '(:sem) :top)]
+                      (let [complement-synsem (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :top)
+                            complement-category (unify/get-in complement-synsem '(:cat) :top)
+                            complement-sem (unify/get-in complement-synsem '(:sem) :top)]
 
                         (fn [comp]
                           (let [result
                                 (and
-                                 (not (fail? (unify (get-in comp '(:synsem :cat) :top)
+                                 (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
                                                     complement-category)))
-                                 (not (fail? (unify (get-in comp '(:synsem :sem) :top)
+                                 (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
                                                     complement-sem))))]
                             (log/debug (str "cc10:comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
-                            (log/debug (str "cc10:comp-filter-fn:phrase-with-head's first arg" (get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
+                            (log/debug (str "cc10:comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
                             (log/debug (str "cc10:comp-filter-fn:type(phrase-with-head):" (type phrase-with-head)))
                             (log/debug (str "cc10:comp-filter-fn:complement:" (fo comp)))
                             (log/debug (str "cc10:comp-filter-fn:complement-synsem (from head): " complement-synsem))
@@ -309,9 +309,9 @@
           input)
      (= input :top) input
      true
-     (let [finitize (if (or (= (get-in input '(:synsem :infl))
+     (let [finitize (if (or (= (unify/get-in input '(:synsem :infl))
                                :top)
-                            (= (get-in input '(:synsem :infl))
+                            (= (unify/get-in input '(:synsem :infl))
                                :infinitive))
                       (first (take 1 (shuffle
                                       (list {:synsem {:infl :present}}
@@ -375,20 +375,20 @@
    {:comp {:synsem {:subcat '()}}
     :comment "hh21"
     :comp-filter-fn (fn [phrase-with-head]
-                      (let [complement-synsem (get-in phrase-with-head '(:head :synsem :subcat :2) :top)
-                            complement-cat (get-in phrase-with-head '(:head :synsem :subcat :2 :cat) :top)
-                            complement-sem (sem-impl (get-in phrase-with-head '(:head :synsem :subcat :2 :sem) :top))]
+                      (let [complement-synsem (unify/get-in phrase-with-head '(:head :synsem :subcat :2) :top)
+                            complement-cat (unify/get-in phrase-with-head '(:head :synsem :subcat :2 :cat) :top)
+                            complement-sem (sem-impl (unify/get-in phrase-with-head '(:head :synsem :subcat :2 :sem) :top))]
                         (fn [comp]
                           (let [result
                                 (and
-                                 (not (fail? (unify (get-in comp '(:synsem :cat))
+                                 (not (fail? (unify (unify/get-in comp '(:synsem :cat))
                                                        complement-cat)))
-                                 (not (fail? (unify (sem-impl (get-in comp '(:synsem :sem)))
+                                 (not (fail? (unify (sem-impl (unify/get-in comp '(:synsem :sem)))
                                                        complement-sem))))]
                             (if result
                               (do
                                 (log/debug (str "hh21:comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
-                                (log/debug (str "hh21:comp-filter-fn:phrase-with-head's first arg" (get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
+                                (log/debug (str "hh21:comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
 
                                 (log/debug (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                                                (if result
@@ -1156,7 +1156,7 @@
 (def cc10-heads
   (if phrase-times-lexicon-cache
     (filter (fn [lex]
-              (and true ;(= (get-in lex '(:italian :italian)) "acqua")
+              (and true ;(= (unify/get-in lex '(:italian :italian)) "acqua")
                    (not (fail? (unify cc10 {:head lex})))))
             lex/lexicon)
     lex/lexicon))
@@ -1169,8 +1169,8 @@
               true)
 ;              (find-some-head-for cc10 cc10-heads lex))
             (filter (fn [lex]
-                      (and (or true (= (get-in lex '(:italian)) "la")
-                               (= (get-in lex '(:italian)) "il"))
+                      (and (or true (= (unify/get-in lex '(:italian)) "la")
+                               (= (unify/get-in lex '(:italian)) "il"))
                            (not (fail? (unify cc10 {:comp lex})))))
                     lex/lexicon))
     lex/lexicon))
@@ -1375,67 +1375,68 @@
                               sent-impl 0)
                    sent-impl 0)))
 
+(defmacro myhh21 [head comp]
+  `(do ~(log/info "myhh21 macro compile-time.")
+       (finalize
+        (gen15 (list hh21)
+               ~head
+               ~comp))))
+
+(defmacro mycc10 [head comp]
+  `(do ~(log/info "mycc10 macro compile-time.")
+       (finalize
+        (gen15 (list cc10)
+               ~head
+               ~comp))))
+
+(defn my-sent []
+  ;; parent: S -> NP VP
+  (mycc10
+
+   ;; VP -> V NP:
+   (myhh21
+    (filter (fn [candidate] ;; filter Vs to reduce number of candidates we need to filter.
+              (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                   (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+            (lazy-shuffle hh21-heads))
+
+    ;; object: NP -> Det N
+    base-cc10-random)
+
+   ;; subject: NP -> Det N
+   base-cc10-random))
+
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
-  (finalize (first (take 1 (generate
-                                  (first (take 1 (shuffle
-                                                  (list s-present
-                                                        s-present-modifier
-                                                        s-future
-                                                        s-future-modifier
-                                                        s-past
-                                                        s-past-modifier
-                                                        s-imperfetto
-                                                        s-temporal-glue
+    (finalize (first (take 1 (generate
+                              (first (take 1 (shuffle
+                                              (list s-present
+                                                    s-present-modifier
+                                                    s-future
+                                                    s-future-modifier
+                                                    s-past
+                                                    s-past-modifier
+                                                    s-imperfetto
+                                                    s-temporal-glue
                                                         ))))))))
-  (let [use-fn
-        (first (take 1
-                     (shuffle
-                      (list
+    (first (take 1
+                 ;; parent: S -> NP VP
+                 (mycc10
 
-                       ;(gen14 (list cc10)
-                       ;           (fn [] (shuffle cc10-heads))
-                       ;           (fn [] (shuffle cc10-comps))
-                       ;           sent-impl 0)
+                  ;; VP -> V NP:
+                  (myhh21
+                   (filter (fn [candidate] ;; filter Vs to reduce number of candidates we need to filter.
+                             (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                                  (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+                           (lazy-shuffle hh21-heads))
 
-                       ;(gen14 (list cc10)
-                       ;           (fn [] (shuffle lex/verbs))
-                       ;           (fn [] (gen14 (list cc10)
-                       ;                             (fn [] (shuffle lex/nouns))
-                       ;                             (fn [] (shuffle lex/dets))
-                       ;                             sent-impl 0))
-                       ;           sent-impl 0)
+                   ;; object: NP -> Det N
+                   base-cc10-random)
 
-                       ;(gen14 (list cc10)
-                       ;           (fn [] (gen14 (list hc11)
-                       ;                             (fn [] (shuffle lex/nouns))
-                       ;                             (fn [] (shuffle lex/adjs))
-                       ;                             sent-impl 0))
-                       ;           (fn [] (shuffle lex/dets))
-                       ;           sent-impl 0)
-
-                       ;(gen14 (list cc10)
-                       ;           (fn [] (shuffle lex/verbs))
-                       ;           (fn [] (gen14 (list cc10)
-                       ;                             (fn [] (gen14 (list hc11)
-                       ;                                               (fn [] (shuffle lex/nouns))
-                       ;                                               (fn [] (shuffle lex/adjs))
-                       ;                                               sent-impl 0))
-                       ;                             (fn [] (shuffle lex/dets))
-                       ;                             sent-impl 0))
-                       ;           sent-impl 0)
-
-                       (gen14 (list ch21)
-                                  (fn []
-                                    (log/info "in fn: tinylex for head.")
-                                    lex/lexicon)
-                                  (fn []
-                                    (log/info "in fn: tinylex for comp.")
-                                    lex/lexicon)
-                                  sent-impl 0)))))]
-  (finalize (first (take 1 use-fn))))))
+                  ;; subject: NP -> Det N
+                  base-cc10-random)))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
