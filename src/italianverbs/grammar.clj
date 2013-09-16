@@ -1166,8 +1166,7 @@
 (def cc10-comps
   (if phrase-times-lexicon-cache
     (filter (fn [lex]
-              true)
-;              (find-some-head-for cc10 cc10-heads lex))
+              (find-some-head-for cc10 cc10-heads lex))
             (filter (fn [lex]
                       (and (or true (= (unify/get-in lex '(:italian)) "la")
                                (= (unify/get-in lex '(:italian)) "il"))
@@ -1431,10 +1430,15 @@
                            (lazy-shuffle hh21-heads))
 
                    ;; object: NP -> Det N
-                   base-cc10-random)
+                   (first (take 1 (shuffle
+                                   (list base-cc10-random
+                                         (lazy-shuffle cc10-comps))))))
 
                   ;; subject: NP -> Det N
-                  base-cc10-random)))))
+                  (first (take 1 (shuffle
+                                  (list ; base-cc10-random
+                                        (lazy-shuffle cc10-comps)))))
+                  )))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
