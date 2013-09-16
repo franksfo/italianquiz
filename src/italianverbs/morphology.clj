@@ -1628,13 +1628,15 @@
   (formattare expressions))
 
 (defn finalize [expr]
-  (let [english
-        (get-english-1 (fs/get-in expr '(:english)))
+  (if (= :fail expr)
+    :fail
+    (let [english
+          (get-english-1 (fs/get-in expr '(:english)))
         italian
-        (get-italian-1 (fs/get-in expr '(:italian)))]
-    (log/info (str "input expr: " (fo expr)))
-    (log/info (str "finalized english: " english))
-    (log/info (str "finalized italian: " italian))
-    (merge expr
-           {:italian italian
-            :english english})))
+          (get-italian-1 (fs/get-in expr '(:italian)))]
+      (log/info (str "input expr: " (fo expr)))
+      (log/info (str "finalized english: " english))
+      (log/info (str "finalized italian: " italian))
+      (merge expr
+             {:italian italian
+              :english english}))))
