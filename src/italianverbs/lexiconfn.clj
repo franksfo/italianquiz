@@ -116,13 +116,14 @@
    true
    (let [activity (if (= (fs/get-in input '(:activity))
                          true)
-                    {:human false
+                    {:animate false
                      :artifact false
                      :consumable false
                      :part-of-human-body false})
          animate (if (= (fs/get-in input '(:animate))
                         true)
-                   {:artifact false
+                   {:activity false
+                    :artifact false
                     :mass false
                     :furniture false
                     :physical-object true
