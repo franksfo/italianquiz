@@ -2,6 +2,7 @@
   (:require
    ;; TODO: "fs/" is historical; use "unify/" instead.
    [italianverbs.unify :as fs]
+   [clojure.core :as core]
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
 
@@ -1631,6 +1632,9 @@
         (get-english-1 (fs/get-in expr '(:english)))
         italian
         (get-italian-1 (fs/get-in expr '(:italian)))]
+    (log/info (str "input expr: " (fo expr)))
+    (log/info (str "finalized english: " english))
+    (log/info (str "finalized italian: " italian))
     (merge expr
            {:italian italian
             :english english})))

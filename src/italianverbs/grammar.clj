@@ -1377,17 +1377,15 @@
 
 (defmacro myhh21 [head comp]
   `(do ~(log/info "myhh21 macro compile-time.")
-       (finalize
-        (gen15 (list hh21)
-               ~head
-               ~comp))))
+       (gen15 (list hh21)
+              ~head
+              ~comp)))
 
 (defmacro mycc10 [head comp]
   `(do ~(log/info "mycc10 macro compile-time.")
-       (finalize
-        (gen15 (list cc10)
-               ~head
-               ~comp))))
+       (gen15 (list cc10)
+              ~head
+              ~comp)))
 
 (defn my-sent []
   ;; parent: S -> NP VP
