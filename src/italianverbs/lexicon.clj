@@ -387,6 +387,7 @@
                     :subcat '()}
      :english "us"
      :italian {:italian "ci"
+               :initial false
                :cat pronoun-noun
                :case pronoun-acc}}
 
@@ -1003,6 +1004,7 @@
       {:synsem {:cat :noun
                 :sem {:pred :cellulare
                       :artifact true
+                      :consumable false
                       :writable false
                       :speakable false}}
        :english {:english "mobile phone"}
@@ -1153,6 +1155,7 @@
                 :subcat '()}
        :english "him"
        :italian {:italian "lo"
+                 :initial true
                  :pronoun true
                  :cat noun
                  :case pronoun-acc}}
@@ -1170,6 +1173,7 @@
        :english {:english "it"
                  :note " (&#x2642;)"}
        :italian {:italian "lo"
+                 :initial true
                  :pronoun true
                  :cat pronoun-noun
                  :case pronoun-acc}}
@@ -1184,6 +1188,7 @@
                 :subcat '()}
        :english "her"
        :italian {:italian "la"
+                 :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
@@ -1200,6 +1205,7 @@
        :english {:english "it"
                  :note "(&#x2640;)"} ;; unicode female symbol
        :italian {:italian "la"
+                 :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
@@ -1224,6 +1230,7 @@
        :english {:english "them"
                  :note " (&#x2640;) "}
        :italian {:italian "le"
+                 :initial false
                  :cat pronoun-noun
                  :case pronoun-acc}}
       {:synsem {:cat :det
@@ -1257,6 +1264,7 @@
        :english {:english "them"
                  :note " (&#x2642;) "} ;; unicode male
        :italian {:italian "li"
+                 :initial false
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
@@ -2420,6 +2428,7 @@
               :subcat '()}
      :english "you all"
      :italian {:italian "vi"
+               :initial false
                :cat pronoun-noun
                :case pronoun-acc}}
 
