@@ -156,6 +156,15 @@
                      :physical-object true}{})
 
 
+         consumable (if (= (fs/get-in input '(:consumable)) true)
+                      {:activity false
+                       :buyable true
+                       :furniture false
+                       :legible false
+                       :pet false
+                       :physical-object true
+                       :speakable false})
+
          consumable-false (if (= (fs/get-in input '(:consumable)) false)
                             {:drinkable false
                              :edible false} {})
@@ -163,9 +172,7 @@
          drinkable
          ;; drinkables are always mass nouns.
          (if (= (fs/get-in input '(:drinkable)) true)
-           {:mass true
-            :activity false
-            :legible false}{})
+           {:mass true})
 
          drinkable-xor-edible-1
          ;; things are either drinkable or edible, but not both (except for weird foods
@@ -184,9 +191,7 @@
          ;; qualities of foods and drinks.
          edible (if (or (= (fs/get-in input '(:edible)) true)
                         (= (fs/get-in input '(:drinkable)) true))
-                  {:buyable true
-                   :physical-object true
-                   :consumable true
+                  {:consumable true
                    :human false
                    :pet false
                    :place false
@@ -282,7 +287,7 @@
          ]
      (let [merged
            (if (= input :fail) :fail
-               (fs/merge input animate artifact buyable city clothing consumable-false drinkable
+               (fs/merge input animate artifact buyable city clothing consumable consumable-false drinkable
                          drinkable-xor-edible-1 drinkable-xor-edible-2
                          edible furniture human inanimate
                          legible material-false non-places
