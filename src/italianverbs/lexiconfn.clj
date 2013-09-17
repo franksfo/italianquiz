@@ -277,7 +277,8 @@
 
          place (if (= (fs/get-in input '(:place))
                       true)
-                 {:animate false
+                 {:activity false
+                  :animate false
                   :speakable false
                   :physical-object true
                   :drinkable false
