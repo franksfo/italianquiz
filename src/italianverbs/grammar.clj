@@ -15,7 +15,7 @@
             [clojure.string :as string])
 )
 
-(def phrase-times-lexicon-cache true)
+(def phrase-times-lexicon-cache false)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
