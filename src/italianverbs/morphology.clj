@@ -87,7 +87,6 @@
    :regular-imperfetto?    (and (= (fs/get-in word '(:infl)) :imperfetto)
                                 (fs/get-in word '(:infinitive)))
 
-
    :irregular-past?    (and
                         (= :past (fs/get-in word '(:infl)))
                         (string? (fs/get-in word '(:irregular :past))))
@@ -127,8 +126,16 @@
   (let [analysis (analyze-italian-1 word)
         person (fs/get-in word '(:agr :person))
         number (fs/get-in word '(:agr :number))
-        debug (log/debug "get-italian-1: input word: " word)
+        info (log/debug "get-italian-1: input word: " word)
         ]
+
+    (log/debug (str "a? " (fs/get-in word '(:a))))
+    (log/debug (str "b? " (fs/get-in word '(:b))))
+    (log/debug (str "analysis: " analysis))
+
+    ;; throw exception if contradictory facts are found:
+;    (if (= (fs/get-in word '(:a :initial) false))
+;      (throw (Exception. (str ":a's initial is false: (:a should always be initial=true)."))))
 
     (cond
 
@@ -714,11 +721,25 @@
         b (if (nil? b) "" b)
         a (get-italian-1 a)
         b (get-italian-1 b)
-        debug-a (log/debug (str "get-italian: a: " a))
-        debug-b (if b (log/debug (str "get-italian: b: " b)))
+        info-a (log/debug (str "get-italian: a: " a))
+        info-b (if b (log/debug (str "get-italian: b: " b)))
+
+
+        cat-a (log/debug (str "cat a:" (fs/get-in a '(:cat))))
+        cat-b (log/debug (str "cat b:" (fs/get-in b '(:cat))))
 
         ]
     (cond
+
+
+     (and false ;; going to throw out this logic: will use :initial and rule schemata instead.
+          (= :verb (fs/get-in a '(:cat)))
+          (= :noun (fs/get-in b '(:cat)))
+          (= :acc (fs/get-in b '(:case))))
+     ;; flip order in this case:
+     ;; i.e. "vedo ti" => "ti vedo".
+     {:a (if (nil? b) :top b)
+      :b (if (nil? a) :top a)}
 
      (and (string? a)
           (= a "di")
@@ -895,15 +916,6 @@
           (string? b))
      (str (fs/get-in a '(:italian)) " " b)
 
-
-     (and (= :verb (fs/get-in a '(:cat)))
-          (= :noun (fs/get-in b '(:cat)))
-          (= :acc (fs/get-in b '(:case))))
-     ;; flip order in this case:
-     ;; i.e. "vedo ti" => "ti vedo".
-     {:a (if (nil? b) :top b)
-      :b (if (nil? a) :top a)}
-
      true
      {:a (if (nil? a) :top a)
       :b (if (nil? b) :top b)})))
@@ -917,7 +929,7 @@
 
    (= word :top)
    ""
-   
+
    ;; "to do [past]" + "well" => "did well"
    (and (= (fs/get-in word '(:cat)) :verb)
         (= (fs/get-in word '(:infl)) :past)
@@ -1634,9 +1646,9 @@
           (get-english-1 (fs/get-in expr '(:english)))
         italian
           (get-italian-1 (fs/get-in expr '(:italian)))]
-      (log/info (str "input expr: " (fo expr)))
-      (log/info (str "finalized english: " english))
-      (log/info (str "finalized italian: " italian))
+      (log/debug (str "input expr: " (fo expr)))
+      (log/debug (str "finalized english: " english))
+      (log/debug (str "finalized italian: " italian))
       (merge expr
              {:italian italian
               :english english}))))

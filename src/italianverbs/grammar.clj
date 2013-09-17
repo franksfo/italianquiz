@@ -5,7 +5,7 @@
         [italianverbs.generate :only (generate moreover-head moreover-comp gen14)]
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
-        [italianverbs.morphology :only (finalize fo italian-article)]
+        [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
         [italianverbs.unify :only (copy fail? serialize)]
         )
 
@@ -15,7 +15,7 @@
             [clojure.string :as string])
 )
 
-(def phrase-times-lexicon-cache false)
+(def phrase-times-lexicon-cache true)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
@@ -1174,12 +1174,12 @@
                     lex/lexicon))
     lex/lexicon))
 
-(if true
+(if phrase-times-lexicon-cache
   (do
-    (log/info (str "ch21-heads: " (.size ch21-heads)))
-    (log/info (str "ch21-comps: " (.size ch21-comps)))
-    (log/info (str "cc10-heads:" (.size cc10-heads)))
-    (log/info (str "cc10-comps:" (.size cc10-comps)))))
+    (log/debug (str "ch21-heads: " (.size ch21-heads)))
+    (log/debug (str "ch21-comps: " (.size ch21-comps)))
+    (log/debug (str "cc10-heads:" (.size cc10-heads)))
+    (log/debug (str "cc10-comps:" (.size cc10-comps)))))
 
 ;; thanks to Boris V. Schmid:
 ;; https://groups.google.com/forum/#!topic/clojure/riyVxj1Qbbs
@@ -1196,7 +1196,9 @@
                (lazy-shuffle (concat prior (rest remainder)))))))))
 
 (defn gen15 [phrases heads comps]
-  (gen14 phrases heads comps sent-impl 0))
+  (do
+    (log/info (str "gen15 start."))
+    (gen14 phrases heads comps sent-impl 0)))
 
 (defn base-ch21 []
   (gen15 (list ch21) ch21-heads ch21-comps))
@@ -1214,7 +1216,7 @@
 
 (defn base-cc10-random [use-filter]
   (do
-    (log/debug "base-cc10-random: start.")
+    (log/debug "base-cc10-random: start: filtering cc10 heads (i.e. SUBJECT)")
     (gen15 (list cc10)
            (filter use-filter
                    (lazy-shuffle cc10-heads))
@@ -1418,27 +1420,34 @@
                                                     s-imperfetto
                                                     s-temporal-glue
                                                         ))))))))
-    (first (take 1
-                 ;; parent: S -> NP VP
-                 (mycc10
+    (let [result
+          (first (take 1
+                       ;; parent: S -> NP VP
+                       (mycc10
 
-                  ;; VP -> V NP:
-                  (myhh21
-                   (filter (fn [candidate] ;; filter Vs to reduce number of candidates we need to filter.
-                             (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                                  (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+                        ;; VP -> V NP:
+                        (myhh21
+                         (filter (fn [candidate]
+                                   ;; filter Vs to reduce number of candidates we need to filter:
+                                   ;; (only transitive verbs)
+                                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
                            (lazy-shuffle hh21-heads))
 
-                   ;; object: NP -> Det N
-                   (first (take 1 (shuffle
-                                   (list base-cc10-random
-                                         (lazy-shuffle cc10-comps))))))
+                         ;; object: NP -> Det N
+                         (first (take 1 (shuffle
+                                         (list base-cc10-random
+                                               (lazy-shuffle cc10-comps)
+                                               )))))
 
-                  ;; subject: NP -> Det N
-                  (first (take 1 (shuffle
-                                  (list ; base-cc10-random
-                                        (lazy-shuffle cc10-comps)))))
-                  )))))
+                        ;; subject: NP -> Det N
+                        (first (take 1 (shuffle
+                                        (list base-cc10-random
+                                              (lazy-shuffle cc10-comps)
+                                              ))))
+                        )))]
+      (log/info "FO SAYS: " (fo result))
+      result)))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
