@@ -229,7 +229,7 @@
                       (log/debug "cc10 filter.")
                       (let [complement-synsem (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :top)
                             complement-category (unify/get-in complement-synsem '(:cat) :top)
-                            complement-sem (unify/get-in complement-synsem '(:sem) :top)]
+                            complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))]
 
                         (fn [comp]
                           (let [result
