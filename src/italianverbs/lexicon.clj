@@ -387,7 +387,7 @@
                     :subcat '()}
      :english "us"
      :italian {:italian "ci"
-               :initial false
+               :initial true
                :cat pronoun-noun
                :case pronoun-acc}}
 
@@ -1231,7 +1231,7 @@
        :english {:english "them"
                  :note " (&#x2640;) "}
        :italian {:italian "le"
-                 :initial false
+                 :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
       {:synsem {:cat :det
@@ -1265,7 +1265,7 @@
        :english {:english "them"
                  :note " (&#x2642;) "} ;; unicode male
        :italian {:italian "li"
-                 :initial false
+                 :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
@@ -1410,6 +1410,7 @@
                 :subcat '()}
        :english "me"
        :italian {:italian "mi"
+                 :initial true
                  :pronoun true
                  :cat pronoun-noun
                  :case pronoun-acc}}
@@ -2286,6 +2287,7 @@
                 :subcat '()}
        :english "you"
        :italian {:italian "ti"
+                 :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
@@ -2429,7 +2431,7 @@
               :subcat '()}
      :english "you all"
      :italian {:italian "vi"
-               :initial false
+               :initial true
                :cat pronoun-noun
                :case pronoun-acc}}
 
