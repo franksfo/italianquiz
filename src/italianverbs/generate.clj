@@ -820,13 +820,13 @@
               (log/debug (str "gen14-inner: unifies comp: " (fo comp)))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; italian comp first.
-                (log/info (str "gen14-inner:"
+                (log/debug (str "gen14-inner:"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo comp)
                                " + "
                                (fo (unify/get-in phrase-with-head '(:head))) " => TRUE"))
                 ;; italian head first.
-                (log/info (str "gen14-inner:"
+                (log/debug (str "gen14-inner:"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
