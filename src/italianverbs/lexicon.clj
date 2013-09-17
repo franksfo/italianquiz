@@ -847,6 +847,7 @@
                  countable-noun
                  masculine-noun
                  {:synsem {:sem {:pred :fiore
+                                 :activity false
                                  :animate false
                                  :artifact false
                                  :buyable true
