@@ -218,6 +218,41 @@
      :english {:a comp-english
                :b head-english}}))
 
+(def standard-filter-fn
+  (fn [phrase-with-head]
+    (log/info "standard filter.")
+    (let [complement-synsem (unify/get-in phrase-with-head '(:comp :synsem) :top)
+          complement-category (unify/get-in complement-synsem '(:cat) :top)
+          complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))]
+
+      (fn [comp]
+        (let [result
+              (and
+               (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
+                                  complement-category)))
+               (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
+                                  complement-sem))))]
+          (log/info (str "standard:comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
+          (log/info (str "standard:comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
+          (log/info (str "standard:comp-filter-fn:type(phrase-with-head):" (type phrase-with-head)))
+          (log/info (str "standard:comp-filter-fn:complement:" (fo comp)))
+          (log/info (str "standard:comp-filter-fn:complement-synsem (from head): " complement-synsem))
+          (log/info (str "standard:comp-filter-fn:complement-category (from head): " complement-category))
+          (log/info (str "standard:comp-filter-fn:complement-sem: " complement-sem))
+          (log/info (str "standard:comp-filter-fn:result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+
+          (if result
+            (log/info (str "standard: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+                            (if result
+                              "TRUE" ;; emphasize for ease of readability in logs.
+                              result)))
+            (log/info (str "standard: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+                            (if result
+                              "TRUE" ;; emphasize for ease of readability in logs.
+                              result))))
+
+          result)))))
+
 (def cc10
   (unify
    subcat-1-principle
@@ -225,40 +260,7 @@
    italian-head-last
    english-head-last
    {:comment "cc10"
-    :comp-filter-fn (fn [phrase-with-head]
-                      (log/debug "cc10 filter.")
-                      (let [complement-synsem (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :top)
-                            complement-category (unify/get-in complement-synsem '(:cat) :top)
-                            complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))]
-
-                        (fn [comp]
-                          (let [result
-                                (and
-                                 (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
-                                                    complement-category)))
-                                 (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
-                                                    complement-sem))))]
-                            (log/debug (str "cc10:comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
-                            (log/debug (str "cc10:comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
-                            (log/debug (str "cc10:comp-filter-fn:type(phrase-with-head):" (type phrase-with-head)))
-                            (log/debug (str "cc10:comp-filter-fn:complement:" (fo comp)))
-                            (log/debug (str "cc10:comp-filter-fn:complement-synsem (from head): " complement-synsem))
-                            (log/debug (str "cc10:comp-filter-fn:complement-category (from head): " complement-category))
-                            (log/debug (str "cc10:comp-filter-fn:complement-sem: " complement-sem))
-                            (log/debug (str "cc10:comp-filter-fn:result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
-
-
-                            (if result
-                              (log/debug (str "cc10: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                                             (if result
-                                               "TRUE" ;; emphasize for ease of readability in logs.
-                                               result)))
-                              (log/debug (str "cc10: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                                              (if result
-                                                "TRUE" ;; emphasize for ease of readability in logs.
-                                                result))))
-
-                            result))))}))
+    :comp-filter-fn standard-filter-fn}))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -374,32 +376,7 @@
    english-head-first
    {:comp {:synsem {:subcat '()}}
     :comment "hh21"
-    :comp-filter-fn (fn [phrase-with-head]
-                      (let [complement-synsem (unify/get-in phrase-with-head '(:head :synsem :subcat :2) :top)
-                            complement-cat (unify/get-in phrase-with-head '(:head :synsem :subcat :2 :cat) :top)
-                            complement-sem (sem-impl (unify/get-in phrase-with-head '(:head :synsem :subcat :2 :sem) :top))]
-                        (fn [comp]
-                          (let [result
-                                (and
-                                 (not (fail? (unify (unify/get-in comp '(:synsem :cat))
-                                                       complement-cat)))
-                                 (not (fail? (unify (sem-impl (unify/get-in comp '(:synsem :sem)))
-                                                       complement-sem))))]
-                            (if result
-                              (do
-                                (log/debug (str "hh21:comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
-                                (log/debug (str "hh21:comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
-
-                                (log/debug (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                                               (if result
-                                                 "TRUE" ;; emphasize for ease of readability in logs.
-                                                 result)))
-                                (log/debug (str "hh21: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                                                (if result
-                                                  "TRUE" ;; emphasize for ease of readability in logs.
-                                                  result)))))
-
-                            result))))}))
+    :comp-filter-fn standard-filter-fn}))
 
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
@@ -1376,6 +1353,12 @@
                               sent-impl 0)
                    sent-impl 0)))
 
+(defmacro mych21 [head comp]
+  `(do ~(log/info "mych21 macro compile-time.")
+       (gen15 (list ch21)
+              ~head
+              ~comp)))
+
 (defmacro myhh21 [head comp]
   `(do ~(log/info "myhh21 macro compile-time.")
        (gen15 (list hh21)
@@ -1405,7 +1388,6 @@
    ;; subject: NP -> Det N
    base-cc10-random))
 
-
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
@@ -1425,6 +1407,7 @@
                        ;; parent: S -> NP VP
                        (mycc10
 
+
                         ;; VP -> V NP:
                         (myhh21
                          (filter (fn [candidate]
@@ -1439,6 +1422,7 @@
                                          (list base-cc10-random
                                                (lazy-shuffle cc10-comps)
                                                )))))
+
 
                         ;; subject: NP -> Det N
                         (first (take 1 (shuffle
