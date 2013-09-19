@@ -1221,8 +1221,21 @@
               ~comp)))
 (log/info "done.")
 
+
+(log/info "begin italian-english specifics.")
+
+(defn s-to-np-vp [np vp]
+  (lazy-seq (mycc10 vp np))) ;; note that order is reversed in this case: vp then np, because
+;; (mycc10) and other generic functions always have their arguments head, then comp.
+
+(defn vp-to-v-np [v np]
+  (lazy-seq (myhh21 v np)))
+
 (def np-to-det-n
-  (fn [filter] (base-cc10-random filter)))
+  (fn [filter]
+    (do
+      (log/info "looking for nouns..")
+      (lazy-seq (base-cc10-random (merge filter))))))
 
 (def proper-nouns
   (lazy-shuffle cc10-comps))
@@ -1244,31 +1257,29 @@
     (let [result
           (first (take 1
                        ;; parent: S -> NP VP
-                       (mycc10
+                       (s-to-np-vp
 
+                        ;; Subject NP.
+                        (first (take 1 (shuffle
+                                        (list np-to-det-n
+                                              proper-nouns
+                                              ))))
 
                         ;; VP -> V NP:
-                        (myhh21
+                        (vp-to-v-np
                          (filter (fn [candidate]
                                    ;; filter Vs to reduce number of candidates we need to filter:
                                    ;; (only transitive verbs)
                                    (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
                                         (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                           (lazy-shuffle hh21-heads))
+                                 (lazy-shuffle hh21-heads))
 
-                         ;; object: NP -> Det N
+                         ;; Object NP:
                          (first (take 1 (shuffle
                                          (list np-to-det-n
                                                proper-nouns
-                                               )))))
+                                               ))))))))]
 
-
-                        ;; subject: NP -> Det N
-                        (first (take 1 (shuffle
-                                        (list np-to-det-n
-                                              proper-nouns
-                                              ))))
-                        )))]
       (log/info "FO SAYS: " (fo result))
       result)))
 
