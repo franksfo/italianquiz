@@ -1240,6 +1240,32 @@
 (def proper-nouns
   (lazy-shuffle cc10-comps))
 
+(defn sentences []
+  (lazy-seq
+   ;; parent: S -> NP VP
+   (s-to-np-vp
+
+    ;; Subject NP.
+    (first (take 1 (shuffle
+                    (list np-to-det-n
+                          proper-nouns
+                          ))))
+
+    ;; VP -> V NP:
+    (vp-to-v-np
+     (filter (fn [candidate]
+               ;; filter Vs to reduce number of candidates we need to filter:
+               ;; (only transitive verbs)
+               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                    (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+             (lazy-shuffle hh21-heads))
+
+     ;; Object NP:
+     (first (take 1 (shuffle
+                     (list np-to-det-n
+                           proper-nouns
+                           ))))))))
+
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
   (if false
@@ -1255,30 +1281,7 @@
                                                     s-temporal-glue
                                                         ))))))))
     (let [result
-          (first (take 1
-                       ;; parent: S -> NP VP
-                       (s-to-np-vp
-
-                        ;; Subject NP.
-                        (first (take 1 (shuffle
-                                        (list np-to-det-n
-                                              proper-nouns
-                                              ))))
-
-                        ;; VP -> V NP:
-                        (vp-to-v-np
-                         (filter (fn [candidate]
-                                   ;; filter Vs to reduce number of candidates we need to filter:
-                                   ;; (only transitive verbs)
-                                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                                 (lazy-shuffle hh21-heads))
-
-                         ;; Object NP:
-                         (first (take 1 (shuffle
-                                         (list np-to-det-n
-                                               proper-nouns
-                                               ))))))))]
+          (first (take 1 (sentences)))]
 
       (log/info "FO SAYS: " (fo result))
       result)))
