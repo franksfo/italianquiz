@@ -15,7 +15,7 @@
             [clojure.string :as string])
 )
 
-(def phrase-times-lexicon-cache true)
+(def phrase-times-lexicon-cache false)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
@@ -1193,200 +1193,39 @@
 
 (defn base-cc10-random [use-filter]
   (do
-    (log/debug "base-cc10-random: start: filtering cc10 heads (i.e. SUBJECT)")
+    (log/debug "base-cc10-random: start: filtering cc10 heads.")
     (gen15 (list cc10)
            (filter use-filter
                    (lazy-shuffle cc10-heads))
            (lazy-shuffle cc10-comps))))
 
-(defn take-gen1 [n]
-  (take n (base-ch21)))
-
-(defn take-gen2 [n]
-  (take n
-        (gen15 (list cc10)
-               base-ch21
-               cc10-comps)))
-
-(defn take-gen3 [n]
-  (take n
-        (gen15 (list cc10)
-               base-ch21
-               base-cc10)))
-
-(defn take-gen3-random [n]
-  (take n
-        (gen14 (list cc10)
-                   (fn []
-                     (gen14 (list ch21)
-                                (fn []
-                                  (shuffle lex/lexicon))
-                                (fn []
-                                  (shuffle lex/lexicon))
-                                sent-impl 0))
-                   (fn []
-                     (gen14 (list cc10)
-                                (fn [] (shuffle lex/lexicon))
-                                (fn [] (shuffle lex/lexicon))
-                                sent-impl 0))
-                   sent-impl 0)))
-
-(defn take-gen4a [n]
-  (take n
-        (gen15 (list hh21)
-               hh21-heads
-               base-cc10)))
-
-(defn take-gen4a-random [n]
-  (take n
-        (gen15 (list hh21)
-               (shuffle hh21-heads)
-               base-cc10-random)))
-
-(defn take-gen4 [n]
-  (take n
-        (gen15 (list cc10)
-               (gen15 (list hh21)
-                      hh21-heads
-                      base-cc10)
-               cc10-comps)))
-
-(defn take-gen4-random [n]
-  (take n
-        (gen15 (list cc10)
-               (gen15 (list hh21)
-                      (shuffle hh21-heads)
-                      base-cc10-random)
-               (shuffle cc10-comps))))
-
-(defn take-gen5-random [n]
-  (take n
-        (gen15 (list cc10)
-
-               ;; head
-               (gen15 (list hh21)
-                      (shuffle hh21-heads)
-                      base-cc10-random)
-
-               ;; comp
-               ;; TODO: filter generation according to
-               ;; head VP (generating above).
-               (gen15 (list cc10)
-                      (shuffle cc10-heads)
-                      (shuffle cc10-comps)))))
-
-(defn take-gen6-random [n]
-  (take n
-        (gen14 (list cc10)
-                   (gen14 (list hh21)
-                              (fn [] (shuffle lex/verbs))
-                              (fn []
-                                (gen14 (list cc10)
-                                           (fn []
-                                             (shuffle lex/nouns))
-                                           (fn []
-                                             (shuffle lex/dets))
-                                           sent-impl 0))
-                              sent-impl 0)
-                   (gen14 (list cc10)
-                              (fn []
-                                (shuffle lex/nouns))
-                              (fn []
-                                (shuffle lex/dets))
-                              sent-impl 0)
-                   sent-impl 0)))
-
-(defn take-gen7-random [n]
-  (take n
-        (gen14 (list cc10)
-                   (gen14 (list hh21)
-                              (fn [] (shuffle lex/verbs))
-                              (fn []
-                                (gen14 (list cc10)
-                                           (fn []
-                                             (gen14 (list hc11)
-                                                        (fn []
-                                                          (shuffle lex/nouns))
-                                                        (fn []
-                                                          (shuffle lex/adjs))
-                                                        sent-impl 0))
-                                           (fn []
-                                             (shuffle lex/dets))
-                                           sent-impl 0))
-                              sent-impl 0)
-                   (gen14 (list cc10)
-                              (fn []
-                                (shuffle lex/nouns))
-                              (fn []
-                                (shuffle lex/dets))
-                              sent-impl 0)
-                   sent-impl 0)))
-
-(defn take-gen8-random [n]
-  (take n
-        (gen14 (list cc10)
-                   (gen14 (list hh21)
-                              (fn [] (shuffle lex/verbs))
-                              (fn []
-                                (gen14 (list cc10)
-                                           (fn []
-                                             (gen14 (list hc11)
-                                                        (fn []
-                                                          (shuffle lex/nouns))
-                                                        (fn []
-                                                          (shuffle lex/adjs))
-                                                        sent-impl 0))
-                                           (fn []
-                                             (shuffle lex/dets))
-                                           sent-impl 0))
-                              sent-impl 0)
-                   (gen14 (list cc10)
-                              (fn []
-                                (gen14 (list hc11)
-                                           (fn []
-                                             (shuffle lex/nouns))
-                                           (fn []
-                                             (shuffle lex/adjs))
-                                           sent-impl 0))
-                              (fn []
-                                (shuffle lex/dets))
-                              sent-impl 0)
-                   sent-impl 0)))
-
+(log/info "compiling mych21..")
 (defmacro mych21 [head comp]
   `(do ~(log/info "mych21 macro compile-time.")
        (gen15 (list ch21)
               ~head
               ~comp)))
 
+(log/info "compiling myhh21..")
 (defmacro myhh21 [head comp]
   `(do ~(log/info "myhh21 macro compile-time.")
        (gen15 (list hh21)
               ~head
               ~comp)))
 
+(log/info "compiling mycc10..")
 (defmacro mycc10 [head comp]
   `(do ~(log/info "mycc10 macro compile-time.")
        (gen15 (list cc10)
               ~head
               ~comp)))
+(log/info "done.")
 
-(defn my-sent []
-  ;; parent: S -> NP VP
-  (mycc10
+(def np-to-det-n
+  (fn [filter] (base-cc10-random filter)))
 
-   ;; VP -> V NP:
-   (myhh21
-    (filter (fn [candidate] ;; filter Vs to reduce number of candidates we need to filter.
-              (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                   (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-            (lazy-shuffle hh21-heads))
-
-    ;; object: NP -> Det N
-    base-cc10-random)
-
-   ;; subject: NP -> Det N
-   base-cc10-random))
+(def proper-nouns
+  (lazy-shuffle cc10-comps))
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
@@ -1419,15 +1258,15 @@
 
                          ;; object: NP -> Det N
                          (first (take 1 (shuffle
-                                         (list base-cc10-random
-                                               (lazy-shuffle cc10-comps)
+                                         (list np-to-det-n
+                                               proper-nouns
                                                )))))
 
 
                         ;; subject: NP -> Det N
                         (first (take 1 (shuffle
-                                        (list base-cc10-random
-                                              (lazy-shuffle cc10-comps)
+                                        (list np-to-det-n
+                                              proper-nouns
                                               ))))
                         )))]
       (log/info "FO SAYS: " (fo result))
