@@ -1224,12 +1224,17 @@
 
 (log/info "begin italian-english specifics.")
 
-(defn s-to-np-vp [np vp]
-  (lazy-seq (mycc10 vp np))) ;; note that order is reversed in this case: vp then np, because
+ ;; note that order of arguments to mycc10 is reverse of s-to-np-vp, because
 ;; (mycc10) and other generic functions always have their arguments head, then comp.
+(defn s-to-np-vp [nps vp]
+  (if (first nps)
+    (lazy-cat (mycc10 vp (first nps))
+              (s-to-np-vp (rest nps) vp))))
 
-(defn vp-to-v-np [v np]
-  (lazy-seq (myhh21 v np)))
+(defn vp-to-v-np [v nps]
+  (if (first nps)
+    (lazy-cat (myhh21 v (first nps))
+              (vp-to-v-np v (rest nps)))))
 
 (def np-to-det-n
   (fn [filter]
@@ -1246,10 +1251,9 @@
    (s-to-np-vp
 
     ;; Subject NP.
-    (first (take 1 (shuffle
-                    (list np-to-det-n
-                          proper-nouns
-                          ))))
+    (shuffle
+     (list np-to-det-n
+           proper-nouns))
 
     ;; VP -> V NP:
     (vp-to-v-np
@@ -1261,10 +1265,10 @@
              (lazy-shuffle hh21-heads))
 
      ;; Object NP:
-     (first (take 1 (shuffle
-                     (list np-to-det-n
-                           proper-nouns
-                           ))))))))
+     (shuffle
+      (list np-to-det-n
+            proper-nouns))
+     ))))
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
