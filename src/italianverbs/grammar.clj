@@ -1172,29 +1172,29 @@
          (cons elem
                (lazy-shuffle (concat prior (rest remainder)))))))))
 
-(defn gen15 [phrases heads comps]
+(defn gen15 [phrase heads comps]
   (do
     (log/info (str "gen15 start."))
-    (gen14 phrases heads comps sent-impl 0)))
+    (gen14 (list phrase) heads comps sent-impl 0)))
 
 (defn base-ch21 []
-  (gen15 (list ch21) ch21-heads ch21-comps))
+  (gen15 ch21 ch21-heads ch21-comps))
 
 (defn base-cc10 [use-filter]
-  (gen15 (list cc10)
+  (gen15 cc10
          (filter use-filter
                  cc10-heads)
          cc10-comps))
 
 (defn base-cc10-random-nofilter []
-  (gen15 (list cc10)
+  (gen15 cc10
          (shuffle cc10-heads)
          (shuffle cc10-comps)))
 
 (defn base-cc10-random [use-filter]
   (do
     (log/debug "base-cc10-random: start: filtering cc10 heads.")
-    (gen15 (list cc10)
+    (gen15 cc10
            (filter use-filter
                    (lazy-shuffle cc10-heads))
            (lazy-shuffle cc10-comps))))
@@ -1202,21 +1202,21 @@
 (log/info "compiling mych21..")
 (defmacro mych21 [head comp]
   `(do ~(log/info "mych21 macro compile-time.")
-       (gen15 (list ch21)
+       (gen15 ch21
               ~head
               ~comp)))
 
 (log/info "compiling myhh21..")
 (defmacro myhh21 [head comp]
   `(do ~(log/info "myhh21 macro compile-time.")
-       (gen15 (list hh21)
+       (gen15 hh21
               ~head
               ~comp)))
 
 (log/info "compiling mycc10..")
 (defmacro mycc10 [head comp]
   `(do ~(log/info "mycc10 macro compile-time.")
-       (gen15 (list cc10)
+       (gen15 cc10
               ~head
               ~comp)))
 (log/info "done.")
