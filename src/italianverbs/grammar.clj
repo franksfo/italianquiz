@@ -1,6 +1,6 @@
 (ns italianverbs.grammar
   (:refer-clojure :exclude [get-in resolve])
-  (:use [clojure.set :only (union)]
+  (:use [clojure.set :only (union intersection)]
         [clojure.core :exclude (get-in resolve merge)]
         [italianverbs.generate :only (generate moreover-head moreover-comp gen14)]
         [italianverbs.lexicon :only (it1)]
