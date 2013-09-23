@@ -122,10 +122,3 @@
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
   (take 3 (repeatedly #(time (fo (random-sentence))))))
 
-;(defn gen21 [heads comps]
-;  (gen14 seed-phrases
-;             heads
-;             comps
-;             sent-impl
-;             0))
-
