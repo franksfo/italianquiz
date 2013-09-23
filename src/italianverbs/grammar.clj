@@ -1250,7 +1250,7 @@
   ;; TODO: more compile-time filtering
   (filter (fn [lexeme]
             (and (= (get-in lexeme '(:synsem :cat)) :noun)
-                 true))
+                 (= (get-in lexeme '(:synsem :subcat)) '())))
           lex/lexicon))
 
 (defn sentences []
