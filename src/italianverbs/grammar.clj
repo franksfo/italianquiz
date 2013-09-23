@@ -1263,7 +1263,7 @@
      (list np-to-det-n
            proper-nouns))
 
-    ;; VP -> V NP:
+    ;; VP.
     (let [expansion (first (take 1 (shuffle (list
 
                                              vp-to-v-np
@@ -1271,7 +1271,7 @@
 
                                                   ))))]
 
-      (cond (= expansion vp-to-v-np)
+      (cond (= expansion vp-to-v-np) ;; VP -> V NP
             (expansion
              (filter (fn [candidate]
                        ;; filter Vs to reduce number of candidates we need to filter:
@@ -1280,11 +1280,12 @@
                             (= (unify/get-in candidate '(:synsem :cat)) :verb)))
                      (lazy-shuffle hh21-heads))
 
-             ;; Object NP:
+             ;; Object NP
              (shuffle
               (list np-to-det-n
                     proper-nouns)))
-            (= expansion vp-to-propernoun-v)
+
+            (= expansion vp-to-propernoun-v) ;; VP -> Pronoun V
             (expansion
 
              ;; Object Pronoun
