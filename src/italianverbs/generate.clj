@@ -775,13 +775,27 @@
         recursion-level (+ 1 recursion-level)
         debug-inner (log/debug (str "gen14-inner: type of complements: " (type complements)))
         debug-inner (log/debug (str "gen14-inner: complement-filter-fn: " complement-filter-fn))
+        check-filter-fn (if (nil? complement-filter-fn)
+                          (let [error-message (str "complement-filter-fn is nil.")]
+                            (log/debug error-message)
+                            (throw (Exception. error-message))))
         debug-inner (log/debug (str "gen14-inner: fn? complements: " (fn? complements)))
         debug-inner (log/debug (str "gen14-inner: seq? complements: " (seq? complements)))
+        debug-inner (log/debug (str "gen14-inner: map? complements: " (map? complements)))
+        debug-inner (if (= (type complements)
+                           clojure.lang.PersistentVector)
+                      (log/debug (str "gen14-inner: vector? complements: " (= (type complements) clojure.lang.PersistentVector) " with size: " (.size complements))))
+        maps-as-complements-not-allowed
+        (if (map? complements)
+          ;; TODO: support map by simply re-calling with a list with one element: the map.
+          (let [error-message (str "complements should be either a sequence or a function: maps not supported at this time.")]
+            (log/debug error-message)
+            (throw (Exception. error-message))))
         complements (cond (fn? complements)
                           (do (log/debug (str "gen14-inner: treating complements as a fn."))
                               (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
                           (seq? complements)
-                          ;; filter the complements according to the complement-filter-fn
+                          ;; filter the complements according to the complement-filter-fn.
                           (lazy-seq
                           (do
                             (log/debug (str "gen14-inner: applying complement-filter-fn with (after application) type: " (type (apply complement-filter-fn (list phrase-with-head)))))
@@ -789,18 +803,28 @@
                                       (apply
                                        (apply complement-filter-fn (list phrase-with-head))
                                        (list complement)))
-                                    complements))
+                                    complements)))
+                          (= (type complements)
+                             clojure.lang.PersistentVector)
+                          (do (log/debug (str "gen14-inner: filtering vector."))
+                              (filter (fn [complement]
+                                        true)
+                                      complements))
                           :else
-                          (do (log/debug "neither fn? or seq?: just returning complements.")
-                              complements)))
+                          (let [error-message (str "neither fn?, seq? nor vector: " (type complements))]
+                            (do (log/error error-message)
+                                (throw (Exception. error-message)))))
         empty-complements
         (if (fn? complements)
           (empty? (apply complements nil))
           (empty? complements))
         complement
-        (if (fn? complements)
-          (first (apply complements nil))
-          (first complements))
+        (cond (fn? complements)
+              (first (apply complements nil))
+              (seq? complements)
+              (first complements)
+              (= (type complements) clojure.lang.PersistentVector)
+              (first complements))
         debug-inner (log/debug "gen14-inner: before doing (rest complements)..")
         rest-complements
         (if (fn? complements)
@@ -808,6 +832,8 @@
           (lazy-seq (rest complements)))
         debug-inner (log/debug "gen14-inner: after doing (rest complements)..")]
     (log/debug (str "gen14-inner: comp-emptiness: " empty-complements))
+    (log/debug (str "complement(comment): " (unify/get-in complement '(:comment))))
+    (log/debug (str "complement: " (fo complement)))
     (if (not empty-complements)
       (let [comp complement]
         (let [result (sent-impl (moreover-comp
@@ -858,6 +884,7 @@
   (log/debug (str "gen14: first phrase: " (unify/get-in (first phrases) '(:comment))))
   (log/debug (str "gen14: fo(first phrase): " (fo (first phrases))))
   (log/debug (str "gen14: type of comps: " (type complements)))
+  (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
 
   (let [recursion-level (+ 1 recursion-level)
         heads (cond (fn? heads)
@@ -894,6 +921,9 @@
                (lazy-cat
                 (do
                   (log/debug (str "gen14: about to call gen14-inner with phrase-with-head: " (fo phrase-with-head) " and complements type=: " (type complements)))
+                  (if (= (type complements) clojure.lang.PersistentVector)
+                    (log/debug (str "gen14: complements is a vector with size: " (.size complements))))
+
                   (let [filter-function (unify/get-in phrase '(:comp-filter-fn))]
                     (gen14-inner phrase-with-head
                                  complements
