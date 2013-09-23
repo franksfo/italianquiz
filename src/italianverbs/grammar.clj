@@ -6,7 +6,7 @@
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
-        [italianverbs.unify :only (copy fail? serialize)]
+        [italianverbs.unify :only (copy fail? serialize get-in)]
         )
 
   (:require [clojure.tools.logging :as log]
