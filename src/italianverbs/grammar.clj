@@ -232,25 +232,20 @@
                                   complement-category)))
                (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
                                   complement-sem))))]
-          (log/info (str "standard:comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
-          (log/info (str "standard:comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
-          (log/info (str "standard:comp-filter-fn:type(phrase-with-head):" (type phrase-with-head)))
-          (log/info (str "standard:comp-filter-fn:complement:" (fo comp)))
-          (log/info (str "standard:comp-filter-fn:complement-synsem (from head): " complement-synsem))
-          (log/info (str "standard:comp-filter-fn:complement-category (from head): " complement-category))
-          (log/info (str "standard:comp-filter-fn:complement-sem: " complement-sem))
-          (log/info (str "standard:comp-filter-fn:result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+          (log/info (str "comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
+          (log/info (str "comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
+          (log/info (str "comp-filter-fn:type(phrase-with-head):" (type phrase-with-head)))
+          (log/info (str "comp-filter-fn:complement:" (fo comp)))
+          (log/info (str "comp-filter-fn:complement-synsem (from head): " complement-synsem))
+          (log/info (str "comp-filter-fn:complement-category (from head): " complement-category))
+          (log/info (str "comp-filter-fn:complement-sem: " complement-sem))
+          (log/info (str "comp-filter-fn:result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
 
           (if result
-            (log/info (str "standard: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                            (if result
-                              "TRUE" ;; emphasize for ease of readability in logs.
-                              result)))
-            (log/info (str "standard: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+            (log/info (str "head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                             (if result
                               "TRUE" ;; emphasize for ease of readability in logs.
                               result))))
-
           result)))))
 
 (def cc10
@@ -1236,6 +1231,11 @@
     (lazy-cat (myhh21 v (first nps))
               (vp-to-v-np v (rest nps)))))
 
+(defn vp-to-propernoun-v [propernouns v]
+  (if (first propernouns)
+    (lazy-cat (mych21 v (first propernouns))
+              (vp-to-propernoun-v v (rest propernouns)))))
+
 (def np-to-det-n
   (fn [filter]
     (do
@@ -1243,7 +1243,15 @@
       (lazy-seq (base-cc10-random (merge filter))))))
 
 (def proper-nouns
+  ;; TODO: more compile-time filtering
   (lazy-shuffle cc10-comps))
+
+(def pronouns
+  ;; TODO: more compile-time filtering
+  (filter (fn [lexeme]
+            (and (= (get-in lexeme '(:synsem :cat)) :noun)
+                 true))
+          lex/lexicon))
 
 (defn sentences []
   (lazy-seq
@@ -1256,19 +1264,41 @@
            proper-nouns))
 
     ;; VP -> V NP:
-    (vp-to-v-np
-     (filter (fn [candidate]
-               ;; filter Vs to reduce number of candidates we need to filter:
-               ;; (only transitive verbs)
-               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                    (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-             (lazy-shuffle hh21-heads))
+    (let [expansion (first (take 1 (shuffle (list
 
-     ;; Object NP:
-     (shuffle
-      (list np-to-det-n
-            proper-nouns))
-     ))))
+                                             ;vp-to-v-np
+                                             vp-to-propernoun-v
+
+                                                  ))))]
+
+      (cond (= expansion vp-to-v-np)
+            (expansion
+             (filter (fn [candidate]
+                       ;; filter Vs to reduce number of candidates we need to filter:
+                       ;; (only transitive verbs)
+                       (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                            (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+                     (lazy-shuffle hh21-heads))
+
+             ;; Object NP:
+             (shuffle
+              (list np-to-det-n
+                    proper-nouns)))
+            (= expansion vp-to-propernoun-v)
+            (expansion
+
+             ;; Object Pronoun
+             (shuffle pronouns)
+
+             (filter (fn [candidate]
+                       ;; filter Vs to reduce number of candidates we need to filter:
+                       ;; (only transitive verbs)
+                       (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                            (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+                     (lazy-shuffle hh21-heads)))
+
+            true (throw (Exception. (str "candidate function: " expansion " could not be handled (yet).")))
+)))))
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
