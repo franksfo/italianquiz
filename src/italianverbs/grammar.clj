@@ -1266,7 +1266,7 @@
     ;; VP -> V NP:
     (let [expansion (first (take 1 (shuffle (list
 
-                                             ;vp-to-v-np
+                                             vp-to-v-np
                                              vp-to-propernoun-v
 
                                                   ))))]
