@@ -311,8 +311,11 @@
                             (= (unify/get-in input '(:synsem :infl))
                                :infinitive))
                       (first (take 1 (shuffle
-                                      (list {:synsem {:infl :present}}
-                                            {:synsem {:infl :futuro}})))))]
+                                      (list
+                                            {:synsem {:infl :futuro}}
+                                            {:synsem {:infl :imperfetto}}
+                                            {:synsem {:infl :present}}
+                                            )))))]
        (let [merged
              (if (= input :fail) :fail
                  (unify/merge input finitize))]
