@@ -279,8 +279,7 @@
    {:comp {:synsem {:subcat '()
                     :pronoun true}}
     :comment "ch21"
-    ;; TODO: add filter fn
-    }))
+    :comp-filter-fn standard-filter-fn}))
 
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
