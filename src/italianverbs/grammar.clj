@@ -32,19 +32,25 @@
 (log/info "begin italian-english specifics.")
 
  ;; note that order of arguments to mycc10 is reverse of s-to-np-vp, because
-;; (mycc10) and other generic functions always have their arguments head, then comp.
-(defn s-to-np-vp [nps vp]
+;; (gen-cc10) and other generic functions always have their arguments head, then comp.
+
+(defn s-to-np-vp-inner [np vps]
+  (if (first vps)
+    (lazy-cat (gen-cc10 (first vps) np)
+              (s-to-np-vp-inner np (rest vps)))))
+
+(defn s-to-np-vp [nps vps]
   (if (first nps)
-    (lazy-cat (mycc10 vp (first nps))
-              (s-to-np-vp (rest nps) vp))))
+    (lazy-cat (s-to-np-vp-inner (first nps) vps)
+              (s-to-np-vp (rest nps) vps))))
 
 (defn vp-to-v-np [v nps]
   (if (first nps)
-    (lazy-cat (myhh21 v (first nps))
+    (lazy-cat (gen-hh21 v (first nps))
               (vp-to-v-np v (rest nps)))))
 
-(defn vp-to-propernoun-v [propernouns v]
-  (mych21 v propernouns))
+(defn vp-to-pronoun-v [pronouns v]
+  (gen-ch21 v pronouns))
 
 (def np-to-det-n
   (fn [filter]
@@ -63,53 +69,44 @@
                  (= (get-in lexeme '(:synsem :subcat)) '())))
           lex/lexicon))
 
+(def np
+  (shuffle
+   (list np-to-det-n
+         proper-nouns)))
+
 (defn sentences []
   (lazy-seq
    ;; parent: S -> NP VP
    (s-to-np-vp
 
-    ;; Subject NP.
-    (shuffle
-     (list np-to-det-n
-           proper-nouns))
+    np ;; Subject NP.
 
     ;; VP.
-    (let [expansion (first (take 1 (shuffle (list
+    (lazy-shuffle
+     (list
+      (fn []
+        (vp-to-v-np ;; 1. . VP -> V NP
+         (filter (fn [candidate]
+                   ;; filter Vs to reduce number of candidates we need to filter:
+                   ;; (only transitive verbs)
+                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+                 (lazy-shuffle hh21-heads))
 
-                                             vp-to-v-np
-                                             vp-to-propernoun-v
+         np)) ;; Object NP
 
-                                                  ))))]
+      (fn []
+        (vp-to-pronoun-v ;; 2. VP -> Pronoun V
+         ;; Object Pronoun
+         (lazy-shuffle pronouns)
 
-      (cond (= expansion vp-to-v-np) ;; VP -> V NP
-            (expansion
-             (filter (fn [candidate]
-                       ;; filter Vs to reduce number of candidates we need to filter:
-                       ;; (only transitive verbs)
-                       (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                            (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                     (lazy-shuffle hh21-heads))
+         (filter (fn [candidate]
+                   ;; filter Vs to reduce number of candidates we need to filter:
+                   ;; (only transitive verbs)
+                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+                 (lazy-shuffle hh21-heads)))))))))
 
-             ;; Object NP
-             (shuffle
-              (list np-to-det-n
-                    proper-nouns)))
-
-            (= expansion vp-to-propernoun-v) ;; VP -> Pronoun V
-            (expansion
-
-             ;; Object Pronoun
-             (shuffle pronouns)
-
-             (filter (fn [candidate]
-                       ;; filter Vs to reduce number of candidates we need to filter:
-                       ;; (only transitive verbs)
-                       (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                            (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                     (lazy-shuffle hh21-heads)))
-
-            true (throw (Exception. (str "candidate function: " expansion " could not be handled (yet).")))
-)))))
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []

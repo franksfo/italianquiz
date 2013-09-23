@@ -451,23 +451,23 @@
                    (lazy-shuffle cc10-heads))
            (lazy-shuffle cc10-comps))))
 
-(log/info "compiling mych21..")
-(defmacro mych21 [head comp]
-  `(do ~(log/info "mych21 macro compile-time.")
+(log/info "compiling gen-ch21..")
+(defmacro gen-ch21 [head comp]
+  `(do ~(log/info "gen-ch21 macro compile-time.")
        (gen15 ch21
               ~head
               ~comp)))
 
-(log/info "compiling myhh21..")
-(defmacro myhh21 [head comp]
-  `(do ~(log/info "myhh21 macro compile-time.")
+(log/info "compiling gen-hh21..")
+(defmacro gen-hh21 [head comp]
+  `(do ~(log/info "gen-hh21 macro compile-time.")
        (gen15 hh21
               ~head
               ~comp)))
 
-(log/info "compiling mycc10..")
-(defmacro mycc10 [head comp]
-  `(do ~(log/info "mycc10 macro compile-time.")
+(log/info "compiling gen-cc10..")
+(defmacro gen-cc10 [head comp]
+  `(do ~(log/info "gen-cc10 macro compile-time.")
        (gen15 cc10
               ~head
               ~comp)))
