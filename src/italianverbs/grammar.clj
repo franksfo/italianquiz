@@ -232,17 +232,17 @@
                                   complement-category)))
                (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
                                   complement-sem))))]
-          (log/info (str "comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
-          (log/info (str "comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
-          (log/info (str "comp-filter-fn:type(phrase-with-head):" (type phrase-with-head)))
-          (log/info (str "comp-filter-fn:complement:" (fo comp)))
-          (log/info (str "comp-filter-fn:complement-synsem (from head): " complement-synsem))
-          (log/info (str "comp-filter-fn:complement-category (from head): " complement-category))
-          (log/info (str "comp-filter-fn:complement-sem: " complement-sem))
-          (log/info (str "comp-filter-fn:result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+          (log/debug (str "comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
+          (log/debug (str "comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
+          (log/debug (str "comp-filter-fn:type(phrase-with-head):" (type phrase-with-head)))
+          (log/debug (str "comp-filter-fn:complement:" (fo comp)))
+          (log/debug (str "comp-filter-fn:complement-synsem (from head): " complement-synsem))
+          (log/debug (str "comp-filter-fn:complement-category (from head): " complement-category))
+          (log/debug (str "comp-filter-fn:complement-sem: " complement-sem))
+          (log/debug (str "comp-filter-fn:result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
 
           (if result
-            (log/info (str "head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+            (log/debug (str "head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                             (if result
                               "TRUE" ;; emphasize for ease of readability in logs.
                               result))))
@@ -1171,7 +1171,7 @@
 
 (defn gen15 [phrase heads comps]
   (do
-    (log/info (str "gen15 start."))
+    (log/info (str "gen15 start: " (get-in phrase '(:comment)) "," (type heads) "," (type comps)))
     (gen14 (list phrase) heads comps sent-impl 0)))
 
 (defn base-ch21 []
@@ -1234,9 +1234,7 @@
               (vp-to-v-np v (rest nps)))))
 
 (defn vp-to-propernoun-v [propernouns v]
-  (if (first propernouns)
-    (lazy-cat (mych21 v (first propernouns))
-              (vp-to-propernoun-v v (rest propernouns)))))
+  (mych21 v propernouns))
 
 (def np-to-det-n
   (fn [filter]
