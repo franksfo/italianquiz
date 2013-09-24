@@ -58,9 +58,12 @@
       (log/info "looking for nouns..")
       (lazy-seq (base-cc10-random (merge filter))))))
 
-(def proper-nouns
+(def propernouns-and-pronouns
   ;; TODO: more compile-time filtering
-  (lazy-shuffle cc10-comps))
+  (filter (fn [lexeme]
+            (and (= (unify/get-in lexeme '(:synsem :cat)) :noun)
+                 (= (unify/get-in lexeme '(:synsem :subcat)) '())))
+          cc10-comps))
 
 (def intransitive-verbs
   (filter (fn [candidate]
@@ -86,7 +89,7 @@
 (def np
   (shuffle
    (list np-to-det-n
-         proper-nouns)))
+         propernouns-and-pronouns)))
 
 (defn sentences []
   (lazy-seq
