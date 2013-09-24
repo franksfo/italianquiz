@@ -150,10 +150,14 @@
      ".."
 
      (and (string? (fs/get-in word '(:a)))
+          (string? (fs/get-in word '(:b))))
+     (get-italian (fs/get-in word '(:a))
+                  (fs/get-in word '(:b)))
+
+     (and (string? (fs/get-in word '(:a)))
           (map? (fs/get-in word '(:b))))
-     (string/trim (str (fs/get-in word '(:a)) " "
-                       (get-italian-1
-                        (fs/get-in word '(:b)))))
+     (get-italian (fs/get-in word '(:a))
+                  (fs/get-in word '(:b)))
 
      (and (map? (fs/get-in word '(:a)))
           (map? (fs/get-in word '(:b))))
@@ -724,14 +728,19 @@
         info-a (log/debug (str "get-italian: a: " a))
         info-b (if b (log/debug (str "get-italian: b: " b)))
 
+        it-b (log/debug "it-b is string? " (string? (fs/get-in b '(:italian))))
+        it-b (log/debug "it-b is string? " (string? (fs/get-in b '(:italian))))
 
         cat-a (log/debug (str "cat a:" (fs/get-in a '(:cat))))
         cat-b (log/debug (str "cat b:" (fs/get-in b '(:cat))))
 
-        it-b (log/debug "it-b is string? " (string? (fs/get-in b '(:italian))))
         ]
     (cond
 
+     (and (= a "i")
+          (string? (fs/get-in b '(:italian)))
+          (re-find #"^[aeiou]" (fs/get-in b '(:italian))))
+     (str "gli " b)
 
      (and false ;; going to throw out this logic: will use :initial and rule schemata instead.
           (= :verb (fs/get-in a '(:cat)))
@@ -815,12 +824,7 @@
           (re-find #"^[aeiou]" b))
      (str "gli " b)
 
-     (and (= (fs/get-in a '(:italian)) "i")
-          (string? b)
-          (re-find #"^[aeiou]" b))
-     (str "gli " b)
-
-     (and (= (fs/get-in a '(:italian)) "i")
+     (and (= a "i")
           (string? (fs/get-in b '(:italian)))
           (re-find #"^[aeiou]" (fs/get-in b '(:italian))))
      (str "gli " b)
