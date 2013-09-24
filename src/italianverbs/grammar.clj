@@ -7,7 +7,7 @@
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
         [italianverbs.ug]
-        [italianverbs.unify :only (copy fail? serialize get-in)]
+        [italianverbs.unify :only (copy fail? serialize get-in resolve)]
         )
 
   (:require [clojure.tools.logging :as log]
@@ -58,9 +58,12 @@
       (log/info "looking for nouns..")
       (lazy-seq (base-cc10-random (merge filter))))))
 
-(def proper-nouns
+(def propernouns-and-pronouns
   ;; TODO: more compile-time filtering
-  (lazy-shuffle cc10-comps))
+  (filter (fn [lexeme]
+            (and (= (unify/get-in lexeme '(:synsem :cat)) :noun)
+                 (= (unify/get-in lexeme '(:synsem :subcat)) '())))
+          cc10-comps))
 
 (def intransitive-verbs
   (filter (fn [candidate]
@@ -83,52 +86,48 @@
                  (= (get-in lexeme '(:synsem :subcat)) '())))
           lex/lexicon))
 
-(def np
-  (shuffle
-   (list np-to-det-n
-         (fn [] (lazy-shuffle pronouns))
-         (fn [] (lazy-shuffle proper-nouns)))))
-
 (def intransitive-verbs
   (filter (fn [lexeme]
             (and (= (get-in lexeme '(:synsem :cat)) :verb)
                  (= (get-in lexeme '(:synsem :subcat :2)) '())))
           lex/lexicon))
 
+(defn np-expansions []
+  (lazy-shuffle (list np-to-det-n
+                      (lazy-shuffle propernouns-and-pronouns))))
 
 (defn sentences []
   (lazy-seq
    ;; parent: S -> NP VP
    (s-to-np-vp
 
-    np ;; Subject NP.
+    (np-expansions) ;; Subject NP.
 
     ;; VP.
     (shuffle
      (list
 
       ;; 1. VP -> V
-;      (fn [] (lazy-shuffle intransitive-verbs))
+      (fn [] (lazy-shuffle intransitive-verbs))
 
       ;; 2. VP -> V NP
       (fn []
         (vp-to-v-np
          (lazy-shuffle transitive-verbs)
-         np)) ;; Object NP
+         (np-expansions))) ;; Object NP
 
       ;; 3. VP -> Pronoun V
-;      (fn []
-;        (vp-to-pronoun-v
-;         ;; Object Pronoun
-;         (lazy-shuffle pronouns)
+      (fn []
+        (vp-to-pronoun-v
+         ;; Object Pronoun
+         (lazy-shuffle pronouns)
 
-;         (filter (fn [candidate]
-;                   ;; filter Vs to reduce number of candidates we need to filter:
-;                   ;; (only transitive verbs)
-;                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-;                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-;                 (lazy-shuffle hh21-heads)))))))))
-)))))
+         (filter (fn [candidate]
+                   ;; filter Vs to reduce number of candidates we need to filter:
+                   ;; (only transitive verbs)
+                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+                 (lazy-shuffle hh21-heads)))))))))
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
