@@ -89,6 +89,13 @@
          (fn [] (lazy-shuffle pronouns))
          (fn [] (lazy-shuffle proper-nouns)))))
 
+(def intransitive-verbs
+  (filter (fn [lexeme]
+            (and (= (get-in lexeme '(:synsem :cat)) :verb)
+                 (= (get-in lexeme '(:synsem :subcat :2)) '())))
+          lex/lexicon))
+
+
 (defn sentences []
   (lazy-seq
    ;; parent: S -> NP VP
@@ -101,8 +108,7 @@
      (list
 
       ;; 1. VP -> V
-      (fn []
-        (lazy-shuffle intransitive-verbs))
+;      (fn [] (lazy-shuffle intransitive-verbs))
 
       ;; 2. VP -> V NP
       (fn []
@@ -111,18 +117,18 @@
          np)) ;; Object NP
 
       ;; 3. VP -> Pronoun V
-      (fn []
-        (vp-to-pronoun-v
-         ;; Object Pronoun
-         (lazy-shuffle pronouns)
+;      (fn []
+;        (vp-to-pronoun-v
+;         ;; Object Pronoun
+;         (lazy-shuffle pronouns)
 
-         (filter (fn [candidate]
-                   ;; filter Vs to reduce number of candidates we need to filter:
-                   ;; (only transitive verbs)
-                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                 (lazy-shuffle hh21-heads)))))))))
-
+;         (filter (fn [candidate]
+;                   ;; filter Vs to reduce number of candidates we need to filter:
+;                   ;; (only transitive verbs)
+;                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+;                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+;                 (lazy-shuffle hh21-heads)))))))))
+)))))
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
