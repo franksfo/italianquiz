@@ -70,7 +70,7 @@
   (fn [filter]
     (do
       (log/info "looking for nouns..")
-      (lazy-seq (base-cc10-random (merge filter))))))
+      (lazy-seq (gen-np (merge filter))))))
 
 (def propernouns-and-pronouns
   ;; TODO: more compile-time filtering
@@ -93,13 +93,6 @@
                  (= (unify/get-in candidate '(:synsem :cat)) :verb)))
           (lazy-shuffle hh21-heads)))
 
-(def pronouns
-  ;; TODO: more compile-time filtering
-  (filter (fn [lexeme]
-            (and (= (get-in lexeme '(:synsem :cat)) :noun)
-                 (= (get-in lexeme '(:synsem :subcat)) '())))
-          lex/lexicon))
-
 (def intransitive-verbs
   (filter (fn [lexeme]
             (and (= (get-in lexeme '(:synsem :cat)) :verb)
@@ -108,7 +101,8 @@
 
 (defn nps []
   (lazy-shuffle (list np-to-det-n
-                      (lazy-shuffle propernouns-and-pronouns))))
+                      (lazy-shuffle propernouns-and-pronouns)
+                      )))
 
 (defn sentences []
   (lazy-seq
