@@ -427,7 +427,7 @@
 (defn gen15 [phrase heads comps]
   (do
     (log/info (str "gen15 start: " (get-in phrase '(:comment)) "," (type heads) "," (type comps)))
-    (gen14 (list phrase) heads comps sent-impl 0)))
+    (gen14 phrase heads comps sent-impl 0)))
 
 (defn base-ch21 []
   (gen15 ch21 ch21-heads ch21-comps))

@@ -878,11 +878,11 @@
 
               (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))))))
 
-(defn gen14 [phrases heads complements sent-impl recursion-level]
-  (log/debug (str "gen14: starting now: recursion-level: " recursion-level))
-  (log/debug (str "gen14: type of heads: " (type heads)))
-  (log/debug (str "gen14: first phrase: " (unify/get-in (first phrases) '(:comment))))
-  (log/debug (str "gen14: fo(first phrase): " (fo (first phrases))))
+(defn gen14 [phrase heads complements sent-impl recursion-level]
+  (log/info (str "gen14: starting now: recursion-level: " recursion-level))
+  (log/info (str "gen14: type of heads: " (type heads)))
+  (log/info (str "gen14: first phrase: " (unify/get-in phrase '(:comment))))
+  (log/debug (str "gen14: fo(first phrase): " (fo phrase)))
   (log/debug (str "gen14: type of comps: " (type complements)))
   (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
 
@@ -893,52 +893,44 @@
                     :else
                     heads)
         head (first heads)
-        log-debug (log/debug (if (empty? phrases) (str "phrases is empty: done with gen14 at recursion level: " recursion-level)
-                                (str "phrases is not empty: there's at least one phrase to process.")))
         rest-heads (rest heads)]
-    (if (and (not (empty? phrases))
-             (not (nil? head)))
-      (let [debug (log/debug (str "gen14: phrases is non-empty, and head exists, so we will do Ps x Hs x Cs."))
-            phrase (first phrases)]
-        (lazy-cat
-         (let [logging (log/debug (str "gen14: head candidate: " (fo head)))
-               logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
-               phrase-with-head (moreover-head phrase head)
-               is-fail? (unify/fail? phrase-with-head)
-               debug (log/debug (str "gen14: fail? phrase-with-head:"
-                                     is-fail?))
-               ]
-           (if (not is-fail?)
-             (do
-               (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
-                               (if (unify/get-in head '(:comment))
-                                 (str "(" (unify/get-in head '(:comment))) ")")
-                               " added successfully to " (unify/get-in phrase '(:comment)) "."))
-               (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
-                              (if (unify/get-in head '(:comment))
-                                (str "(" (unify/get-in head '(:comment)) ")")
-                                "")))
-               (lazy-cat
-                (do
-                  (log/debug (str "gen14: about to call gen14-inner with phrase-with-head: " (fo phrase-with-head) " and complements type=: " (type complements)))
-                  (if (= (type complements) clojure.lang.PersistentVector)
-                    (log/debug (str "gen14: complements is a vector with size: " (.size complements))))
+    (let [logging (log/debug (str "gen14: head candidate: " (fo head)))
+          logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+          phrase-with-head (moreover-head phrase head)
+          is-fail? (unify/fail? phrase-with-head)
+          debug (log/debug (str "gen14: fail? phrase-with-head:"
+                                is-fail?))
+          ]
+      (if (not is-fail?)
+        (do
+          (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
+                          (if (unify/get-in head '(:comment))
+                            (str "(" (unify/get-in head '(:comment))) ")")
+                          " added successfully to " (unify/get-in phrase '(:comment)) "."))
+          (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
+                          (if (unify/get-in head '(:comment))
+                            (str "(" (unify/get-in head '(:comment)) ")")
+                            "")))
+          (lazy-cat
+           (do
+             (log/debug (str "gen14: about to call gen14-inner with phrase-with-head: " (fo phrase-with-head) " and complements type=: " (type complements)))
+             (if (= (type complements) clojure.lang.PersistentVector)
+               (log/debug (str "gen14: complements is a vector with size: " (.size complements))))
 
-                  (let [filter-function (unify/get-in phrase '(:comp-filter-fn))]
-                    (gen14-inner phrase-with-head
-                                 complements
-                                 filter-function
-                                 sent-impl 0)))
-                (gen14 (list phrase)
-                       rest-heads
-                       complements
-                       sent-impl
-                       recursion-level)))
-             (do
-               (log/debug (str "gen14: FAIL: continuing with rest of heads."))
-               (gen14 (list phrase)
-                      rest-heads
-                      complements
-                      sent-impl
-                      recursion-level))))
-         (gen14 (rest phrases) heads complements sent-impl recursion-level))))))
+             (let [filter-function (unify/get-in phrase '(:comp-filter-fn))]
+               (gen14-inner phrase-with-head
+                            complements
+                            filter-function
+                            sent-impl 0)))
+           (gen14 phrase
+                  rest-heads
+                  complements
+                  sent-impl
+                  recursion-level)))
+        (do
+          (log/debug (str "gen14: FAIL: continuing with rest of heads."))
+          (gen14 phrase
+                 rest-heads
+                 complements
+                 sent-impl
+                 recursion-level))))))
