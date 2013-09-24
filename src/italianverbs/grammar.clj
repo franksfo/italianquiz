@@ -52,6 +52,20 @@
 (defn vp-to-pronoun-v [pronouns v]
   (gen-ch21 v pronouns))
 
+(def common-nouns
+  (filter (fn [lexeme]
+            (and (= (get-in lexeme '(:synsem :cat)) :noun)
+                 (= (get-in lexeme '(:synsem :subcat :1 :cat)) :det)))
+          cc10-heads))
+
+(defn gen-np [use-filter]
+  (do
+    (log/debug "base-cc10-random: start: filtering cc10 heads.")
+    (gen15 cc10
+           (filter use-filter
+                   (lazy-shuffle common-nouns))
+           (lazy-shuffle cc10-comps))))
+
 (def np-to-det-n
   (fn [filter]
     (do
