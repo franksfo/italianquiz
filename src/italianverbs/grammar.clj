@@ -49,6 +49,10 @@
     (lazy-cat (gen-hh21 v (first nps))
               (vp-to-v-np v (rest nps)))))
 
+;; remove vp-to-v-np; use this instead.
+(defn vp-to-vaux-vpast [vaux vpasts]
+  (gen-hh21 vaux vpasts))
+
 (defn vp-to-pronoun-v [pronouns v]
   (gen-ch21 v pronouns))
 
@@ -123,26 +127,44 @@
      (list
 
       ;; 1. VP -> V
-      (fn [] (lazy-shuffle intransitive-verbs))
+;      (fn [] (lazy-shuffle intransitive-verbs))
 
       ;; 2. VP -> V NP
-      (fn []
-        (vp-to-v-np
-         (lazy-shuffle transitive-verbs)
-         (nps))) ;; Object NP
+;      (fn []
+;        (vp-to-v-np
+ ;        (lazy-shuffle transitive-verbs)
+ ;        (nps))) ;; Object NP
 
       ;; 3. VP -> Pronoun V
-      (fn []
-        (vp-to-pronoun-v
-         ;; Object Pronoun
-         (lazy-shuffle pronouns)
+;      (fn []
+;        (vp-to-pronoun-v
+;         ;; Object Pronoun
+;         (lazy-shuffle pronouns)
 
+;         (filter (fn [candidate]
+;                   ;; filter Vs to reduce number of candidates we need to filter:
+;                   ;; (only transitive verbs)
+;                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+;                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+;                 (lazy-shuffle hh21-heads))))
+
+      ;; 4. VP -> v[aux] v[past]
+      (fn []
+        (vp-to-vaux-vpast
+         ;; v[aux]
+         ;; TODO: filter to only get aux verbs.
          (filter (fn [candidate]
-                   ;; filter Vs to reduce number of candidates we need to filter:
-                   ;; (only transitive verbs)
                    (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                 (lazy-shuffle hh21-heads)))))))))
+                        (= (unify/get-in candidate '(:synsem :cat)) :verb)
+                        (= (unify/get-in candidate '(:italian :infinitive)) "avere")
+                        (= (unify/get-in candidate '(:synsem :aux)) true)))
+                 (lazy-shuffle hh21-heads))
+
+         ;; v[past]
+         (lazy-shuffle intransitive-verbs)))
+
+      )))))
+
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
