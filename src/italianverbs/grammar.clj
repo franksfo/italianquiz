@@ -62,6 +62,20 @@
   ;; TODO: more compile-time filtering
   (lazy-shuffle cc10-comps))
 
+(def intransitive-verbs
+  (filter (fn [candidate]
+            (and (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound))
+                 (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+          lex/lexicon))
+
+(def transitive-verbs
+  (filter (fn [candidate]
+            ;; filter Vs to reduce number of candidates we need to filter:
+            ;; (only transitive verbs)
+            (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                 (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+          (lazy-shuffle hh21-heads)))
+
 (def pronouns
   ;; TODO: more compile-time filtering
   (filter (fn [lexeme]
@@ -82,17 +96,13 @@
     np ;; Subject NP.
 
     ;; VP.
-    (lazy-shuffle
+    (shuffle
      (list
       (fn []
+        (lazy-shuffle intransitive-verbs))
+      (fn []
         (vp-to-v-np ;; 1. . VP -> V NP
-         (filter (fn [candidate]
-                   ;; filter Vs to reduce number of candidates we need to filter:
-                   ;; (only transitive verbs)
-                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-                 (lazy-shuffle hh21-heads))
-
+         (lazy-shuffle transitive-verbs)
          np)) ;; Object NP
 
       (fn []
