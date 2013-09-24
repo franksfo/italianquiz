@@ -79,6 +79,13 @@
                  (= (unify/get-in lexeme '(:synsem :subcat)) '())))
           cc10-comps))
 
+(def pronouns
+  ;; TODO: more compile-time filtering
+  (filter (fn [lexeme]
+            (and (= (unify/get-in lexeme '(:synsem :cat)) :noun)
+                 (not (= (unify/get-in lexeme '(:synsem :pronoun)) false))))
+          propernouns-and-pronouns))
+
 (def intransitive-verbs
   (filter (fn [candidate]
             (and (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound))
