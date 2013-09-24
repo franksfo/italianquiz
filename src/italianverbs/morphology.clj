@@ -779,6 +779,14 @@
           (string? b))
      (str "dei " b)
 
+     (and (= (fs/get-in a '(:italian)) "di i")
+          (string? b))
+     (str "dei " b)
+
+     (and (= (fs/get-in a '(:italian)) "di i")
+          (string? (fs/get-in b '(:italian))))
+     (str "dei " (get-italian-1 (fs/get-in b '(:italian))))
+
      (and (= a "di il")
           (string? b))
      (get-italian "del" b)  ;; allows this to feed next rule:
@@ -804,6 +812,16 @@
      (and (= a "i")
           (string? b)
           (re-find #"^[aeiou]" b))
+     (str "gli " b)
+
+     (and (= (fs/get-in a '(:italian)) "i")
+          (string? b)
+          (re-find #"^[aeiou]" b))
+     (str "gli " b)
+
+     (and (= (fs/get-in a '(:italian)) "i")
+          (string? (fs/get-in b '(:italian)))
+          (re-find #"^[aeiou]" (fs/get-in b '(:italian))))
      (str "gli " b)
 
      (and (= a "i")
