@@ -99,15 +99,20 @@
     ;; VP.
     (shuffle
      (list
+
+      ;; 1. VP -> V
       (fn []
         (lazy-shuffle intransitive-verbs))
+
+      ;; 2. VP -> V NP
       (fn []
-        (vp-to-v-np ;; 1. . VP -> V NP
+        (vp-to-v-np
          (lazy-shuffle transitive-verbs)
          np)) ;; Object NP
 
+      ;; 3. VP -> Pronoun V
       (fn []
-        (vp-to-pronoun-v ;; 2. VP -> Pronoun V
+        (vp-to-pronoun-v
          ;; Object Pronoun
          (lazy-shuffle pronouns)
 
