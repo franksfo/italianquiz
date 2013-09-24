@@ -86,7 +86,8 @@
 (def np
   (shuffle
    (list np-to-det-n
-         proper-nouns)))
+         (fn [] (lazy-shuffle pronouns))
+         (fn [] (lazy-shuffle proper-nouns)))))
 
 (defn sentences []
   (lazy-seq
