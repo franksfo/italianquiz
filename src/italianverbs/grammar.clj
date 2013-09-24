@@ -7,7 +7,7 @@
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
         [italianverbs.ug]
-        [italianverbs.unify :only (copy fail? serialize get-in)]
+        [italianverbs.unify :only (copy fail? serialize get-in resolve)]
         )
 
   (:require [clojure.tools.logging :as log]
@@ -86,17 +86,16 @@
                  (= (get-in lexeme '(:synsem :subcat)) '())))
           lex/lexicon))
 
-(def np
-  (shuffle
-   (list np-to-det-n
-         propernouns-and-pronouns)))
+(def np-expansions
+  (lazy-shuffle (list np-to-det-n
+                      propernouns-and-pronouns)))
 
 (defn sentences []
   (lazy-seq
    ;; parent: S -> NP VP
    (s-to-np-vp
 
-    np ;; Subject NP.
+    np-expansions ;; Subject NP.
 
     ;; VP.
     (shuffle
@@ -106,7 +105,7 @@
       (fn []
         (vp-to-v-np ;; 1. . VP -> V NP
          (lazy-shuffle transitive-verbs)
-         np)) ;; Object NP
+         np-expansions)) ;; Object NP
 
       (fn []
         (vp-to-pronoun-v ;; 2. VP -> Pronoun V
