@@ -728,6 +728,7 @@
         cat-a (log/debug (str "cat a:" (fs/get-in a '(:cat))))
         cat-b (log/debug (str "cat b:" (fs/get-in b '(:cat))))
 
+        it-b (log/debug "it-b is string? " (string? (fs/get-in b '(:italian))))
         ]
     (cond
 
