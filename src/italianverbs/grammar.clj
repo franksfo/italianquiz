@@ -92,7 +92,7 @@
                  (= (get-in lexeme '(:synsem :subcat :2)) '())))
           lex/lexicon))
 
-(defn np-expansions []
+(defn nps []
   (lazy-shuffle (list np-to-det-n
                       (lazy-shuffle propernouns-and-pronouns))))
 
@@ -101,7 +101,7 @@
    ;; parent: S -> NP VP
    (s-to-np-vp
 
-    (np-expansions) ;; Subject NP.
+    (nps) ;; Subject NP.
 
     ;; VP.
     (shuffle
@@ -114,7 +114,7 @@
       (fn []
         (vp-to-v-np
          (lazy-shuffle transitive-verbs)
-         (np-expansions))) ;; Object NP
+         (nps))) ;; Object NP
 
       ;; 3. VP -> Pronoun V
       (fn []
