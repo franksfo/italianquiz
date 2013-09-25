@@ -115,6 +115,43 @@
                       (lazy-shuffle propernouns-and-pronouns)
                       )))
 
+(def vp-v
+  (fn [] (lazy-shuffle intransitive-verbs)))
+
+(def vp-v-np
+  (fn []
+    (vp-to-v-np
+     (lazy-shuffle transitive-verbs)
+     (nps)))) ;; Object NP
+
+(def vp-pron-v
+  (fn []
+    (vp-to-pronoun-v
+     ;; Object Pronoun
+     (lazy-shuffle pronouns)
+
+     (filter (fn [candidate]
+               ;; filter Vs to reduce number of candidates we need to filter:
+               ;; (only transitive verbs)
+               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                    (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+             (lazy-shuffle hh21-heads)))))
+
+(def vp-vaux-past
+  (fn []
+    (vp-to-vaux-vpast
+     ;; v[aux]
+     ;; TODO: filter to only get aux verbs.
+     (filter (fn [candidate]
+               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                    (= (unify/get-in candidate '(:synsem :cat)) :verb)
+                    (= (unify/get-in candidate '(:italian :infinitive)) "avere")
+                    (= (unify/get-in candidate '(:synsem :aux)) true)))
+             (lazy-shuffle hh21-heads))
+
+     ;; v[past]
+     (lazy-shuffle intransitive-verbs))))
+
 (defn sentences []
   (lazy-seq
    ;; parent: S -> NP VP
@@ -122,46 +159,22 @@
 
     (nps) ;; Subject NP.
 
-    ;; VP.
+
+    ;; VP: 4 expansions:
     (shuffle
      (list
 
       ;; 1. VP -> V
-;      (fn [] (lazy-shuffle intransitive-verbs))
+      vp-v
 
       ;; 2. VP -> V NP
-;      (fn []
-;        (vp-to-v-np
- ;        (lazy-shuffle transitive-verbs)
- ;        (nps))) ;; Object NP
+      vp-v-np
 
       ;; 3. VP -> Pronoun V
-;      (fn []
-;        (vp-to-pronoun-v
-;         ;; Object Pronoun
-;         (lazy-shuffle pronouns)
-
-;         (filter (fn [candidate]
-;                   ;; filter Vs to reduce number of candidates we need to filter:
-;                   ;; (only transitive verbs)
-;                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-;                        (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-;                 (lazy-shuffle hh21-heads))))
+      vp-pron-v
 
       ;; 4. VP -> v[aux] v[past]
-      (fn []
-        (vp-to-vaux-vpast
-         ;; v[aux]
-         ;; TODO: filter to only get aux verbs.
-         (filter (fn [candidate]
-                   (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                        (= (unify/get-in candidate '(:synsem :cat)) :verb)
-                        (= (unify/get-in candidate '(:italian :infinitive)) "avere")
-                        (= (unify/get-in candidate '(:synsem :aux)) true)))
-                 (lazy-shuffle hh21-heads))
-
-         ;; v[past]
-         (lazy-shuffle intransitive-verbs)))
+;      vp-vaux-past
 
       )))))
 
