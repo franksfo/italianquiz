@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [get-in resolve])
   (:use [clojure.set :only (union intersection)]
         [clojure.core :exclude (get-in resolve merge)]
-        [italianverbs.generate :only (generate moreover-head moreover-comp gen14)]
+        [italianverbs.generate :only (generate moreover-head moreover-comp gen14 over3)]
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
@@ -137,15 +137,15 @@
                     (= (unify/get-in candidate '(:synsem :cat)) :verb)))
              (lazy-shuffle hh21-heads)))))
 
+;; TODO: combine vp-vaux-past and vp-to-vaux-past.
 (def vp-vaux-past
   (fn []
     (vp-to-vaux-vpast
      ;; v[aux]
-     ;; TODO: filter to only get aux verbs.
      (filter (fn [candidate]
                (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
                     (= (unify/get-in candidate '(:synsem :cat)) :verb)
-                    (= (unify/get-in candidate '(:italian :infinitive)) "avere")
+                    (= (unify/get-in candidate '(:italian :infinitive)) "avere") ;; TODO: remove: this is temporary.
                     (= (unify/get-in candidate '(:synsem :aux)) true)))
              (lazy-shuffle hh21-heads))
 
