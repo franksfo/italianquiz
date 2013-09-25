@@ -894,43 +894,45 @@
                     heads)
         head (first heads)
         rest-heads (rest heads)]
-    (let [logging (log/debug (str "gen14: head candidate: " (fo head)))
-          logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
-          phrase-with-head (moreover-head phrase head)
-          is-fail? (unify/fail? phrase-with-head)
-          debug (log/debug (str "gen14: fail? phrase-with-head:"
-                                is-fail?))
-          ]
-      (if (not is-fail?)
-        (do
-          (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
-                          (if (unify/get-in head '(:comment))
-                            (str "(" (unify/get-in head '(:comment))) ")")
-                          " added successfully to " (unify/get-in phrase '(:comment)) "."))
-          (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
-                          (if (unify/get-in head '(:comment))
-                            (str "(" (unify/get-in head '(:comment)) ")")
-                            "")))
-          (lazy-cat
-           (do
-             (log/debug (str "gen14: about to call gen14-inner with phrase-with-head: " (fo phrase-with-head) " and complements type=: " (type complements)))
-             (if (= (type complements) clojure.lang.PersistentVector)
-               (log/debug (str "gen14: complements is a vector with size: " (.size complements))))
+    (if (not (empty? heads))
+      (let [logging (log/info (str "gen14: head candidate: " (fo head)))
+            logging (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+            phrase-with-head (moreover-head phrase head)
+            is-fail? (unify/fail? phrase-with-head)
+            debug (log/info (str "gen14: fail? phrase-with-head:"
+                                  is-fail?))
+            ]
+        (if (not is-fail?)
+          (do
+            (log/info (str "gen14: head: " (fo (dissoc head :serialized))
+                            (if (unify/get-in head '(:comment))
+                              (str "(" (unify/get-in head '(:comment))) ")")
+                            " added successfully to " (unify/get-in phrase '(:comment)) "."))
+            (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
+                            (if (unify/get-in head '(:comment))
+                              (str "(" (unify/get-in head '(:comment)) ")")
+                              "")))
+            (lazy-cat
+             (do
+               (log/info (str "gen14: about to call gen14-inner with phrase-with-head: " (fo phrase-with-head) " and complements type=: " (type complements)))
+               (if (= (type complements) clojure.lang.PersistentVector)
+                 (log/info (str "gen14: complements is a vector with size: " (.size complements))))
 
-             (let [filter-function (unify/get-in phrase '(:comp-filter-fn))]
-               (gen14-inner phrase-with-head
-                            complements
-                            filter-function
-                            sent-impl 0)))
-           (gen14 phrase
-                  rest-heads
-                  complements
-                  sent-impl
-                  recursion-level)))
-        (do
-          (log/debug (str "gen14: FAIL: continuing with rest of heads."))
-          (gen14 phrase
-                 rest-heads
-                 complements
-                 sent-impl
-                 recursion-level))))))
+               (let [filter-function (unify/get-in phrase '(:comp-filter-fn))]
+                 (gen14-inner phrase-with-head
+                              complements
+                              filter-function
+                              sent-impl 0)))
+             (gen14 phrase
+                    rest-heads
+                    complements
+                    sent-impl
+                    recursion-level)))
+          (do
+            (log/info (str "gen14: FAIL: continuing with rest of heads."))
+            (gen14 phrase
+                   rest-heads
+                   complements
+                   sent-impl
+                   recursion-level)))))))
+
