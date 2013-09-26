@@ -356,8 +356,7 @@
    head-principle
    italian-head-first
    english-head-first
-   {:comp {:synsem {:subcat '()}}
-    :comment "hh21"
+   {:comment "hh21"
     :comp-filter-fn standard-filter-fn}))
 
 ;; standard rule-caching disclaimer:
