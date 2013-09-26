@@ -145,7 +145,6 @@
      (filter (fn [candidate]
                (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
                     (= (unify/get-in candidate '(:synsem :cat)) :verb)
-                    (= (unify/get-in candidate '(:italian :infinitive)) "avere") ;; TODO: remove: this is temporary.
                     (= (unify/get-in candidate '(:synsem :aux)) true)))
              (lazy-shuffle hh21-heads))
 
