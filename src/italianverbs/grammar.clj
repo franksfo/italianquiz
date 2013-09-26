@@ -73,7 +73,7 @@
 (def np-to-det-n
   (fn [filter]
     (do
-      (log/info "looking for nouns..")
+      (log/debug "looking for nouns..")
       (lazy-seq (gen-np (merge filter))))))
 
 (def propernouns-and-pronouns
@@ -182,7 +182,6 @@
 (defn random-sentence []
   (let [result
         (first (take 1 (sentences)))]
-    (log/info "FO SAYS: " (fo result))
     result))
 
 (defn random-sentences [n]
