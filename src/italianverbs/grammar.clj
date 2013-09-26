@@ -174,7 +174,7 @@
       vp-pron-v
 
       ;; 4. VP -> v[aux] v[past]
-;      vp-vaux-past
+      vp-vaux-past
 
       )))))
 
