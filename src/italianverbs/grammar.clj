@@ -44,18 +44,6 @@
     (lazy-cat (s-to-np-vp-inner (first nps) vps)
               (s-to-np-vp (rest nps) vps))))
 
-(defn vp-to-v-np [v nps]
-  (if (first nps)
-    (lazy-cat (gen-hh21 v (first nps))
-              (vp-to-v-np v (rest nps)))))
-
-;; remove vp-to-v-np; use this instead.
-(defn vp-to-vaux-vpast [vaux vpasts]
-  (gen-hh21 vaux vpasts))
-
-(defn vp-to-pronoun-v [pronouns v]
-  (gen-ch21 v pronouns))
-
 (def common-nouns
   (filter (fn [lexeme]
             (and (= (get-in lexeme '(:synsem :cat)) :noun)
@@ -118,6 +106,11 @@
 (def vp-v
   (fn [] (lazy-shuffle intransitive-verbs)))
 
+(defn vp-to-v-np [v nps]
+  (if (first nps)
+    (lazy-cat (gen-hh21 v (first nps))
+              (vp-to-v-np v (rest nps)))))
+
 (def vp-v-np
   (fn []
     (vp-to-v-np
@@ -126,7 +119,7 @@
 
 (def vp-pron-v
   (fn []
-    (vp-to-pronoun-v
+    (gen-ch21
      ;; Object Pronoun
      (lazy-shuffle pronouns)
 
@@ -137,10 +130,10 @@
                     (= (unify/get-in candidate '(:synsem :cat)) :verb)))
              (lazy-shuffle hh21-heads)))))
 
-;; TODO: combine vp-vaux-past and vp-to-vaux-past.
+;; remove vp-to-v-np; use this instead.
 (def vp-vaux-past
   (fn []
-    (vp-to-vaux-vpast
+    (gen-hh21
      ;; v[aux]
      (filter (fn [candidate]
                (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
@@ -157,7 +150,6 @@
    (s-to-np-vp
 
     (nps) ;; Subject NP.
-
 
     ;; VP: 4 expansions:
     (shuffle
@@ -190,4 +182,5 @@
 (defn speed-test [ & times]
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
   (take 3 (repeatedly #(time (fo (random-sentence))))))
-
+;; or:
+;;(fo (take 3 (repeatedly #(time (random-sentence)))))
