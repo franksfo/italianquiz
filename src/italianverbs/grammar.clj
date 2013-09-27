@@ -130,8 +130,7 @@
                     (= (unify/get-in candidate '(:synsem :cat)) :verb)))
              (lazy-shuffle hh21-heads)))))
 
-;; remove vp-to-v-np; use this instead.
-(def vp-vaux-past
+(def vp-vaux-past-intransitive
   (fn []
     (gen-hh21
      ;; v[aux]
@@ -143,6 +142,23 @@
 
      ;; v[past]
      (lazy-shuffle intransitive-verbs))))
+
+(def vp-vaux-past-transitive
+  (fn []
+    (gen-hh21
+     ;; v[aux]
+     (filter (fn [candidate]
+               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                    (= (unify/get-in candidate '(:synsem :cat)) :verb)
+                    (= (unify/get-in candidate '(:synsem :aux)) true)))
+             (lazy-shuffle hh21-heads))
+
+     ;; vp[past] -> v[past] np
+     vp-v-np)))
+
+(def vp-vaux-x
+  (lazy-shuffle (list vp-vaux-past-intransitive
+                      vp-vaux-past-transitive)))
 
 (defn sentences []
   (lazy-seq
@@ -165,7 +181,10 @@
       vp-pron-v
 
       ;; 4. VP -> v[aux] v[past]
-      vp-vaux-past
+      vp-vaux-past-intransitive
+
+      ;; doesn't work yet.
+;      vp-vaux-past-transitive
 
       )))))
 
