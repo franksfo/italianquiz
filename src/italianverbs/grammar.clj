@@ -45,6 +45,15 @@
                    (lazy-shuffle common-nouns))
            (lazy-shuffle cc10-comps))))
 
+(defn gen-the-np [expansion use-filter]
+  (let [schema (:schema expansion)
+        heads (:head expansion)
+        comps (:comp expansion)]
+    (gen15 schema
+           (filter use-filter
+                   (lazy-shuffle heads))
+           (lazy-shuffle cc10-comps))))
+
 (def np-to-det-n
   (fn [filter]
     (do
@@ -63,6 +72,13 @@
   (filter (fn [lexeme]
             (and (= (unify/get-in lexeme '(:synsem :cat)) :noun)
                  (not (= (unify/get-in lexeme '(:synsem :pronoun)) false))))
+          propernouns-and-pronouns))
+
+(def propernouns
+  ;; TODO: more compile-time filtering
+  (filter (fn [lexeme]
+            (and (= (unify/get-in lexeme '(:synsem :cat)) :noun)
+                 (not (= (unify/get-in lexeme '(:synsem :pronoun)) true))))
           propernouns-and-pronouns))
 
 (def intransitive-verbs
@@ -205,12 +221,14 @@
 ;; or:
 ;;(fo (take 3 (repeatedly #(time (random-sentence)))))
 
-(defn gen [left-side]
-  (log/info (str "gen: left-side:" left-side))
-  (log/info (str "gen: left-side type:" (type left-side)))
-  (cond (symbol? left-side)
-        (do
-          (log/info (str "value of left-side is: " (eval left-side)))
+(defn gen [rule]
+  (log/info (str "gen: rule:" rule))
+  (log/info (str "gen: rule type:" (type rule)))
+  (log/info (str "gen: rule type:" (type rule)))
+  (cond (seq? rule)
+        (let [expansions (lazy-shuffle rule)]
+          (log/info (str "first expansion:" (first expansions)))
+
           (lazy-seq
            ;; parent: S -> NP VP
            (s-to-np-vp
@@ -223,7 +241,7 @@
              (list
               vp-v)))))
         true
-        (log/error "no idea what to do with left side.")))
+        (log/error "no idea what to do with left side: its type is: " (type rule))))
 
 (defmacro rewrite-as [name value]
   (if (ns-resolve *ns* (symbol (str name)))
