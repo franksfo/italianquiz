@@ -75,19 +75,18 @@
                             :animate false
                             :pred :acqua}}})
 
-     (let [complement-complement-sem (ref {:place true}) ;; only places can be crowded
-           complement-sem (ref {:pred :di
-                                :mod complement-complement-sem})
-           subject-sem (ref {:place true})] ;; only places can be crowded.
+     (let [is-place (ref {:place true}) ;; only places can be crowded.
+           than-this (ref {:pred :di
+                           :mod is-place})]
        (unify adjective
               {:synsem {:sem {:pred :affolato
                               :comparative true
-                              :arg1 subject-sem
-                              :arg2 complement-complement-sem}
+                              :arg1 is-place
+                              :arg2 is-place}
                         :subcat {:1 {:cat :noun
-                                     :sem subject-sem}
+                                     :sem is-place}
                                  :2 {:cat :prep
-                                     :sem complement-sem}}}
+                                     :sem than-this}}}
                :italian {:italian "affolato"
                          :initial true}
                :english "crowded"}))
