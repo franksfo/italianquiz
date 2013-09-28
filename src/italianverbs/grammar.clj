@@ -147,11 +147,6 @@
   (lazy-shuffle (list vp-vaux-past-intransitive
                       vp-vaux-past-transitive)))
 
-(defn gen [fns]
-  (if (first fns)
-    (lazy-cat ((first fns))
-              (gen (rest fns)))))
-
 ;; note that order of arguments to gen-cc10 is reverse of s-to-np-vp, because
 ;; gen-cc10 and other generic functions always have their arguments head, then comp.
 
@@ -209,3 +204,59 @@
   (take 3 (repeatedly #(time (fo (random-sentence))))))
 ;; or:
 ;;(fo (take 3 (repeatedly #(time (random-sentence)))))
+
+(defn gen [left-side]
+  (log/info (str "gen: left-side:" left-side))
+  (log/info (str "gen: left-side type:" (type left-side)))
+  (cond (symbol? left-side)
+        (do
+          (log/info (str "value of left-side is: " (eval left-side)))
+          (lazy-seq
+           ;; parent: S -> NP VP
+           (s-to-np-vp
+
+            ;; subject NP.
+            (shuffle (list np-to-det-n))
+
+            ;; VP: 4 expansions:
+            (shuffle
+             (list
+              vp-v)))))
+        true
+        (log/error "no idea what to do with left side.")))
+
+(defmacro rewrite-as [name value]
+  (if (ns-resolve *ns* (symbol (str name)))
+    `(def ~name (cons ~value ~name))
+    `(def ~name (list ~value))))
+
+;; undefine any previous values.
+(ns-unmap 'italianverbs.grammar 'declarative-sentence)
+(ns-unmap 'italianverbs.grammar 'np)
+(ns-unmap 'italianverbs.grammar 'vp)
+
+
+;; define rewrite rules.
+(rewrite-as declarative-sentence {:schema 'cc10
+                                  :comp 'np
+                                  :head 'vp})
+(rewrite-as np {:schema 'cc10
+                :comp 'det
+                :head 'common-nouns})
+
+(rewrite-as np 'propernouns)
+(rewrite-as np 'pronouns)
+
+(rewrite-as vp 'intransitive-verbs)
+(rewrite-as vp {:schema 'hh21
+                :comp 'np
+                :head 'transitive-verbs})
+(rewrite-as vp {:schema 'ch21
+                :comp 'pronouns
+                :head 'transitive-verbs})
+
+;; aliases
+(def ds declarative-sentence)
+
+(log/info "done loading grammar.")
+
