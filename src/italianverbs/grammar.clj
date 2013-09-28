@@ -31,19 +31,6 @@
 
 (log/info "begin italian-english specifics.")
 
- ;; note that order of arguments to mycc10 is reverse of s-to-np-vp, because
-;; (gen-cc10) and other generic functions always have their arguments head, then comp.
-
-(defn s-to-np-vp-inner [np vps]
-  (if (first vps)
-    (lazy-cat (gen-cc10 (first vps) np)
-              (s-to-np-vp-inner np (rest vps)))))
-
-(defn s-to-np-vp [nps vps]
-  (if (first nps)
-    (lazy-cat (s-to-np-vp-inner (first nps) vps)
-              (s-to-np-vp (rest nps) vps))))
-
 (def common-nouns
   (filter (fn [lexeme]
             (and (= (get-in lexeme '(:synsem :cat)) :noun)
@@ -160,12 +147,32 @@
   (lazy-shuffle (list vp-vaux-past-intransitive
                       vp-vaux-past-transitive)))
 
+(defn gen [fns]
+  (if (first fns)
+    (lazy-cat ((first fns))
+              (gen (rest fns)))))
+
+;; note that order of arguments to gen-cc10 is reverse of s-to-np-vp, because
+;; gen-cc10 and other generic functions always have their arguments head, then comp.
+
+(defn s-to-np-vp-inner [np vps]
+  (if (first vps)
+    (lazy-cat (gen-cc10 (first vps) np)
+              (s-to-np-vp-inner np (rest vps)))))
+
+(defn s-to-np-vp [nps vps]
+  (if (first nps)
+    (lazy-cat (s-to-np-vp-inner (first nps) vps)
+              (s-to-np-vp (rest nps) vps))))
+
 (defn sentences []
   (lazy-seq
    ;; parent: S -> NP VP
    (s-to-np-vp
 
-    (nps) ;; Subject NP.
+    ;; subject NP.
+    (shuffle (list np-to-det-n
+                   (lazy-shuffle propernouns-and-pronouns)))
 
     ;; VP: 4 expansions:
     (shuffle
@@ -187,7 +194,6 @@
 ;      vp-vaux-past-transitive
 
       )))))
-
 
 ;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
 (defn random-sentence []
