@@ -180,7 +180,7 @@
 (ns-unmap 'italianverbs.grammar 'vp)
 
 
-;; define rewrite rules.
+;; -- define rewrite rules --
 (rewrite-as declarative-sentence {:schema 'cc10
                                   :comp 'np
                                   :head 'vp})
@@ -199,7 +199,7 @@
                 :comp 'pronouns
                 :head 'transitive-verbs})
 
-;; aliases
+;; -- aliases --
 (def ds declarative-sentence)
 
 (log/info "done loading grammar.")
@@ -245,4 +245,21 @@
                      true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
            lazy-returned-sequence)
          (gen-all (rest alternatives) filter-against filter-fn))))))
+
+
+;; these work:
+(defn speed-test2 []
+  (do
+    (time (fo (take 1 (gen-all (shuffle np)))))
+    (time (fo (take 1 (gen-all (shuffle vp)))))
+    (time (fo (take 1 (gen-all (shuffle ds)))))))
+
+(defn speed-test3 [ & times]
+  "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
+  (let [times (if times times 3)]
+    (list
+     (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle np)))))))
+     (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle vp)))))))
+     (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle ds))))))))))
+
 
