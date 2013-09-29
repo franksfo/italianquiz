@@ -59,9 +59,8 @@
 ;; -- aliases --
 (def ds declarative-sentence)
 
-
 ;; -- useful functions
-(defn sentences []
+(defn generate-sentences []
   (gen-all 'sentences (shuffle declarative-sentence)))
 
 (defn random-sentence []
