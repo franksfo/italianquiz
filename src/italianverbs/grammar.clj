@@ -42,29 +42,6 @@
             (= (get-in lexeme '(:synsem :cat)) :det))
           cc10-heads))
 
-(defn gen-np [use-filter]
-  (do
-    (log/debug "base-cc10-random: start: filtering cc10 heads.")
-    (gen15 cc10
-           (filter use-filter
-                   (lazy-shuffle common-nouns))
-           (lazy-shuffle cc10-comps))))
-
-(defn gen-the-np [expansion use-filter]
-  (let [schema (:schema expansion)
-        heads (:head expansion)
-        comps (:comp expansion)]
-    (gen15 schema
-           (filter use-filter
-                   (lazy-shuffle heads))
-           (lazy-shuffle cc10-comps))))
-
-(def np-to-det-n
-  (fn [filter]
-    (do
-      (log/debug "looking for nouns..")
-      (lazy-seq (gen-np (merge filter))))))
-
 (def propernouns-and-pronouns
   ;; TODO: more compile-time filtering
   (filter (fn [lexeme]
@@ -106,24 +83,8 @@
                  (= (get-in lexeme '(:synsem :subcat :2)) '())))
           lex/lexicon))
 
-(defn nps []
-  (lazy-shuffle (list np-to-det-n
-                      (lazy-shuffle propernouns-and-pronouns)
-                      )))
-
 (def vp-v
   (fn [] (lazy-shuffle intransitive-verbs)))
-
-(defn vp-to-v-np [v nps]
-  (if (first nps)
-    (lazy-cat (gen-hh21 v (first nps))
-              (vp-to-v-np v (rest nps)))))
-
-(def vp-v-np
-  (fn []
-    (vp-to-v-np
-     (lazy-shuffle transitive-verbs)
-     (nps)))) ;; Object NP
 
 (def vp-pron-v
   (fn []
@@ -151,23 +112,6 @@
      ;; v[past]
      (lazy-shuffle intransitive-verbs))))
 
-(def vp-vaux-past-transitive
-  (fn []
-    (gen-hh21
-     ;; v[aux]
-     (filter (fn [candidate]
-               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                    (= (unify/get-in candidate '(:synsem :cat)) :verb)
-                    (= (unify/get-in candidate '(:synsem :aux)) true)))
-             (lazy-shuffle hh21-heads))
-
-     ;; vp[past] -> v[past] np
-     vp-v-np)))
-
-(def vp-vaux-x
-  (lazy-shuffle (list vp-vaux-past-intransitive
-                      vp-vaux-past-transitive)))
-
 ;; note that order of arguments to gen-cc10 is reverse of s-to-np-vp, because
 ;; gen-cc10 and other generic functions always have their arguments head, then comp.
 
@@ -187,7 +131,7 @@
    (s-to-np-vp
 
     ;; subject NP.
-    (shuffle (list np-to-det-n
+    (shuffle (list ;np-to-det-n
                    (lazy-shuffle propernouns-and-pronouns)))
 
     ;; VP: 4 expansions:
@@ -198,7 +142,7 @@
       vp-v
 
       ;; 2. VP -> V NP
-      vp-v-np
+;      vp-v-np
 
       ;; 3. VP -> Pronoun V
       vp-pron-v
@@ -224,28 +168,6 @@
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
   (let [times (if times times 3)]
     (fo (take times (repeatedly #(time (random-sentence)))))))
-
-(defn gen [rule]
-  (log/info (str "gen: rule:" rule))
-  (log/info (str "gen: rule type:" (type rule)))
-  (log/info (str "gen: rule type:" (type rule)))
-  (cond (seq? rule)
-        (let [expansions (lazy-shuffle rule)]
-          (log/info (str "first expansion:" (first expansions)))
-
-          (lazy-seq
-           ;; parent: S -> NP VP
-           (s-to-np-vp
-
-            ;; subject NP.
-            (shuffle (list np-to-det-n))
-
-            ;; VP: 4 expansions:
-            (shuffle
-             (list
-              vp-v)))))
-        true
-        (log/error "no idea what to do with left side: its type is: " (type rule))))
 
 (defmacro rewrite-as [name value]
   (if (ns-resolve *ns* (symbol (str name)))
@@ -284,9 +206,7 @@
 
 (defn gen-all [ alternatives & [filter-against filter-fn]]
   (if (first alternatives)
-    (let [first-alt (first alternatives)
-          debug (log/info (if (not (symbol? first-alt))
-                            (str "gen-all with alt: " (fo first-alt))))]
+    (let [first-alt (first alternatives)]
       (let [filter-fn (if filter-fn
                         filter-fn
                         (if filter-against
@@ -318,9 +238,9 @@
                               ;; TODO: comp filter should use a function of the head's subcat value for
                               ;; the filter.
                               (gen-all (if (symbol? comp) (lazy-shuffle (eval comp)) (lazy-shuffle comp)))))
+
                      (map? first-alt)
-                     (do (log/info (str "just returning a list of " (fo first-alt)))
-                         (list first-alt))
+                     (list first-alt)
 
                      true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
            lazy-returned-sequence)
