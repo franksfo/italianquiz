@@ -429,13 +429,19 @@
     (gen14 phrase heads comps sent-impl 0)))
 
 (defn gen17 [phrase heads comps]
-  (let [head (first heads)]
-    (if head
-      (lazy-cat
-       (do
-         (log/info (str "will filter comps using phrase's filter function: " (:comp-filter-fn phrase)))
-         (gen14 phrase (list head) comps sent-impl 0))
-       (gen17 phrase (rest heads) comps)))))
+  (log/info (str "gen17: phrase:" phrase))
+  (log/info (str "gen17: seq? heads:" (seq? heads)))
+  (cond (seq? heads)
+        (let [head (first heads)]
+          (if head
+            (lazy-cat
+             (do
+               (log/info (str "will filter comps using phrase's filter function: " (:comp-filter-fn phrase)))
+               (gen14 phrase (list head) comps sent-impl 0)))
+             (gen17 phrase (rest heads) comps)))
+
+        true
+        (gen14 phrase heads comps sent-impl 0)))
 
 (defn base-ch21 []
   (gen15 ch21 ch21-heads ch21-comps))
