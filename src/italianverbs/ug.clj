@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [get-in resolve])
   (:use [clojure.set :only (union intersection)]
         [clojure.core :exclude (get-in resolve merge)]
-        [italianverbs.generate :only (generate moreover-head moreover-comp gen14)]
+        [italianverbs.generate :only (generate moreover-head moreover-comp gen14 lazy-shuffle)]
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
@@ -408,20 +408,6 @@
     (log/debug (str "ch21-comps: " (.size ch21-comps)))
     (log/debug (str "cc10-heads:" (.size cc10-heads)))
     (log/debug (str "cc10-comps:" (.size cc10-comps)))))
-
-;; thanks to Boris V. Schmid:
-;; https://groups.google.com/forum/#!topic/clojure/riyVxj1Qbbs
-(defn lazy-shuffle [coll]
-  (let [size (count coll)]
-    (if (> size 0)
-      (let [rand-pos (rand-int size)
-            [prior remainder]
-            (split-at rand-pos coll)
-            elem (nth coll rand-pos)]
-        (log/debug (str "lazy-shuff: " (fo elem)))
-        (lazy-seq
-         (cons elem
-               (lazy-shuffle (concat prior (rest remainder)))))))))
 
 (defn gen15 [phrase heads comps]
   (do
