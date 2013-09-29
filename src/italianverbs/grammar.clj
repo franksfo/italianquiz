@@ -277,14 +277,31 @@
 
 (log/info "done loading grammar.")
 
-(defn gen-all [ alternatives ]
+(defn gen-all [ alternatives & [filter-against filter-fn]]
   (if (> (.size alternatives) 0)
-    (let [first-alt (first alternatives)]
-    (lazy-cat
-     (let [lazy-returned-sequence (cond (symbol? first-alt)
-                                        (lazy-shuffle (eval first-alt))
-                                        (map? first-alt)
-                                        nil
-                                        true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
-       lazy-returned-sequence)
-     (gen-all (rest alternatives))))))
+    (let [first-alt (first alternatives)
+          ;; TODO: we are creating this function everytime: instead, just create and pass.
+          filter-fn (if filter-fn
+                      filter-fn
+                      (if filter-against
+                        (fn [x]
+                          (let [debug (log/info (str "filtering: " x))
+                                debug (log/info (str "against: " filter-against))
+                                result (unify x filter-against)
+                                debug (log/info (str "result: " result))]
+                            (not (unify/fail? result))))
+                        (fn [x] true)))]
+      (lazy-cat
+       (let [lazy-returned-sequence
+             (cond (symbol? first-alt)
+                   (lazy-shuffle
+                    (filter filter-fn (eval first-alt)))
+
+                   (map? first-alt)
+                   nil
+
+
+
+                   true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
+         lazy-returned-sequence)
+       (gen-all (rest alternatives) filter-against filter-fn)))))
