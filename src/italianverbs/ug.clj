@@ -227,20 +227,17 @@
           (log/debug (str "comp-filter-fn:result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
 
           (if result
-            (log/debug (str "head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                            (if result
-                              "TRUE" ;; emphasize for ease of readability in logs.
-                              result))))
-          result)))))
+            ;; complement was compatible with the filter: not filtered out.
+            (do (log/info (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
+                (log/info (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
+                (log/info (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+                               "TRUE" ;; emphasize for ease of readability in logs.
+                               )))
 
-(def cc10
-  (unify
-   subcat-1-principle
-   head-principle
-   italian-head-last
-   english-head-last
-   {:comment "cc10"
-    :comp-filter-fn standard-filter-fn}))
+            ;; complement was incompatible with the filter and thus filtered out:
+            (do
+              (log/info (str "FILTER OUT: " (fo comp)))
+              result)))))))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -255,6 +252,17 @@
     {:head {:synsem {:sem head-semantics}}
      :comp {:synsem {:sem {:mod head-semantics}}}}))
 
+;; -- BEGIN SCHEMA DEFINITIONS
+
+(def cc10
+  (unify
+   subcat-1-principle
+   head-principle
+   italian-head-last
+   english-head-last
+   {:comment "cc10"
+    :comp-filter-fn standard-filter-fn}))
+
 (def ch21
   (unify
    subcat-2-principle
@@ -265,6 +273,35 @@
                     :pronoun true}}
     :comment "ch21"
     :comp-filter-fn standard-filter-fn}))
+
+(def hc11
+  (unify
+   subcat-1-1-principle
+   hc-agreement
+   head-principle
+   comp-modifies-head
+   italian-head-first
+   english-head-last
+   {:comment "hc11"}))
+
+(def hh10
+  (unify
+   subcat-1-principle
+   head-principle
+   italian-head-last
+   english-head-last
+   {:comment "hh10"}))
+
+(def hh21
+  (unify
+   subcat-2-principle
+   head-principle
+   italian-head-first
+   english-head-first
+   {:comment "hh21"
+    :comp-filter-fn standard-filter-fn}))
+
+;; -- END SCHEMA DEFINITIONS
 
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
@@ -331,33 +368,6 @@
                       (not (fail? (unify ch21 {:comp lex}))))
                     lex/lexicon))
     lex/lexicon))
-
-(def hc11
-  (unify
-   subcat-1-1-principle
-   hc-agreement
-   head-principle
-   comp-modifies-head
-   italian-head-first
-   english-head-last
-   {:comment "hc11"}))
-
-(def hh10
-  (unify
-   subcat-1-principle
-   head-principle
-   italian-head-last
-   english-head-last
-   {:comment "hh10"}))
-
-(def hh21
-  (unify
-   subcat-2-principle
-   head-principle
-   italian-head-first
-   english-head-first
-   {:comment "hh21"
-    :comp-filter-fn standard-filter-fn}))
 
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
@@ -457,14 +467,24 @@
               ~head
               ~comp)))
 
+
+(defn log-candidate-form [label candidate]
+  (cond (and (map? candidate)
+             (:schema candidate)
+             (:head candidate)
+             (:comp candidate))
+        (str "label (" (:schema candidate) ") -> "
+             "H:" (:head candidate) " , "
+             "C:" (:comp candidate))
+        (map? candidate)
+        (str "candidate: " (fo candidate))
+        true
+        (str "label: " label "; candidate: " candidate)))
+
 (defn gen-all [label alternatives & [filter-against filter-fn]]
   (if (first alternatives)
-    (let [first-alt (first alternatives)]
-      (log/info (str "gen-all: " label "; candidate: "
-                     (cond (map? first-alt)
-                           (fo first-alt)
-                           true
-                           first-alt)))
+    (let [candidate (first alternatives)]
+      (log/info (str "gen-all: label: " label "; candidate: " (log-candidate-form label candidate)))
       (let [filter-fn (if filter-fn
                         filter-fn
                         (if filter-against
@@ -477,30 +497,50 @@
                               (not (unify/fail? result))))
 
                           ;; no filter was desired by the caller: just use the pass-through filter.
-                          (fn [x] true)))]
+                          (do (log/warn (str "using pass-thru filter for " label))
+                              (fn [x] true))))]
         (lazy-cat
          (let [lazy-returned-sequence
-               (cond (symbol? first-alt)
+               (cond (symbol? candidate)
                      (lazy-shuffle
-                      (filter filter-fn (eval first-alt)))
+                      (filter filter-fn (eval candidate)))
 
-                     (and (map? first-alt)
-                          (not (nil? (:schema first-alt))))
-                     (let [schema (:schema first-alt)
-                           head (:head first-alt)
-                           comp (:comp first-alt)]
-                       (log/info (str "schema: " schema))
+                     (and (map? candidate)
+                          (not (nil? (:schema candidate))))
+                     (let [schema (:schema candidate)
+                           head (:head candidate)
+                           comp (:comp candidate)]
+
+                       ;; schema is a tree with 3 nodes: a parent, a head child, and a comp child.
+                       ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
+                       ;; in a particular order (i.e. either head is first or complement is first).
+                       ;; head is either 1) or 2):
+                       ;; 1) a rule consisting of a schema, a head rule, and a comp rule.
+                       ;; 2) a sequence of lexemes.
+
+                       ;; comp is either 1) or 2):
+                       ;; 1) a rule consisting of a schema, a head rule, and a comp rule.
+                       ;; 2) a sequence of lexemes.
+
+
+                       (log/info (str "doing gen15 with schema: " schema))
+
+                       ;; (eval schema) is a rule schema.
                        (gen15 (eval schema)
+
+                              ;; head:
                               (filter filter-fn
-                                      (gen-all (str schema " -> " head " (H)")
+                                      (gen-all (str label " : " schema " -> " head " (H)")
                                                (lazy-shuffle (eval head))))
-                              (gen-all (str schema " -> " comp " (C)")
+
+                              ;; complement:
+                              (gen-all (str label " : " schema " -> " comp " (C)")
                                        (if (symbol? comp) (lazy-shuffle (eval comp)) (lazy-shuffle comp)))))
 
-                     (map? first-alt)
-                     (list first-alt)
+                     (map? candidate)
+                     (list candidate)
 
-                     true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
+                     true (throw (Exception. "don't know what to do with this; type=" (type candidate))))]
            lazy-returned-sequence)
          (gen-all label (rest alternatives) filter-against filter-fn))))))
 
