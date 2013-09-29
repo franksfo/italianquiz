@@ -9,10 +9,12 @@
 
 (log/info "started loading rules.")
 
-;; undefine any previous values.
+;; undefine any previous values: TODO: should be a one-liner.
 (ns-unmap 'italianverbs.rules 'declarative-sentence)
 (ns-unmap 'italianverbs.rules 'np)
 (ns-unmap 'italianverbs.rules 'vp)
+(ns-unmap 'italianverbs.rules 'vp-transitive)
+(ns-unmap 'italianverbs.rules 'supercool)
 
 (rewrite-as declarative-sentence {:schema 'cc10
                                   :comp 'np
@@ -46,6 +48,10 @@
                        :head 'aux-verbs
                        :comp 'vp-transitive})
 
+(defn sc []
+  (take 1 (gen-all 'supercool supercool)))
+
+
 ;; -- aliases --
 (def ds declarative-sentence)
 
@@ -53,7 +59,7 @@
   (gen-all 'sentences (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (take 1 (gen-all 'ds (shuffle declarative-sentence))))
+  (take 1 (gen-all 'declarative-sentence (shuffle declarative-sentence))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
