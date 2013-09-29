@@ -425,8 +425,17 @@
 
 (defn gen15 [phrase heads comps]
   (do
-    (log/debug (str "gen15 start: " (get-in phrase '(:comment)) "," (type heads) "," (type comps)))
+    (log/info (str "gen15 start: " (get-in phrase '(:comment)) "," (type heads) "," (type comps)))
     (gen14 phrase heads comps sent-impl 0)))
+
+(defn gen17 [phrase heads comps]
+  (let [head (first heads)]
+    (if head
+      (lazy-cat
+       (do
+         (log/info (str "will filter comps using phrase's filter function: " (:comp-filter-fn phrase)))
+         (gen14 phrase (list head) comps sent-impl 0))
+       (gen17 phrase (rest heads) comps)))))
 
 (defn base-ch21 []
   (gen15 ch21 ch21-heads ch21-comps))
@@ -527,10 +536,10 @@
                        ;; 2) a sequence of lexemes.
 
 
-                       (log/info (str "doing gen15 with schema: " schema))
+                       (log/info (str "doing gen17 with schema: " schema))
 
                        ;; (eval schema) is a rule schema.
-                       (gen15 (eval schema)
+                       (gen17 (eval schema)
 
                               ;; head:
                               (filter filter-fn
