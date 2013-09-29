@@ -123,10 +123,10 @@
 (log/info "done loading grammar.")
 
 (defn sentences []
-  (gen-all (shuffle ds)))
+  (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (take 1 (gen-all (shuffle ds))))
+  (take 1 (gen-all (shuffle declarative-sentence))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
@@ -140,7 +140,7 @@
   (do
     (time (fo (take 1 (gen-all (shuffle np)))))
     (time (fo (take 1 (gen-all (shuffle vp)))))
-    (time (fo (take 1 (gen-all (shuffle ds)))))))
+    (time (fo (take 1 (gen-all (shuffle declarative-sentence)))))))
 
 (defn speed-test3 [ & times]
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
@@ -148,5 +148,5 @@
     (list
      (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle np)))))))
      (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle vp)))))))
-     (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle ds))))))))))
+     (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle declarative-sentence))))))))))
 
