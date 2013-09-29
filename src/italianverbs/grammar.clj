@@ -89,8 +89,3 @@
                  (= (unify/get-in candidate '(:synsem :cat)) :verb)
                  (= (unify/get-in candidate '(:synsem :aux)) true)))
           (lazy-shuffle hh21-heads)))
-
-;; undefine any previous values.
-(ns-unmap 'italianverbs.grammar 'declarative-sentence)
-(ns-unmap 'italianverbs.grammar 'np)
-(ns-unmap 'italianverbs.grammar 'vp)

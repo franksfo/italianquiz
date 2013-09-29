@@ -8,6 +8,12 @@
 ))
 
 (log/info "started loading rules.")
+
+;; undefine any previous values.
+(ns-unmap 'italianverbs.rules 'declarative-sentence)
+(ns-unmap 'italianverbs.rules 'np)
+(ns-unmap 'italianverbs.rules 'vp)
+
 (rewrite-as declarative-sentence {:schema 'cc10
                                   :comp 'np
                                   :head 'vp})
