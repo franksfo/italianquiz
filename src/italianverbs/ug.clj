@@ -547,8 +547,14 @@
                                                        (lazy-shuffle (eval head)))))
 
                               ;; complement:
-                              (gen-all (str label " : " schema " -> " comp " (C)")
-                                       (if (symbol? comp) (lazy-shuffle (eval comp)) (lazy-shuffle comp)))))
+                              (fn [filter-by]
+                                (do
+                                  (log/info (str "COMPLEMENT SHOULD BE FILTERED BY:" filter-by))
+                                  (gen-all (str label " : " schema " -> " comp " (C)")
+                                           (if (symbol? comp)
+                                             (lazy-shuffle (eval comp)) (lazy-shuffle comp))
+                                           nil
+                                           filter-by)))))
 
                      (map? candidate)
                      (list candidate)
