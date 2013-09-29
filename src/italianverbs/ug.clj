@@ -542,9 +542,9 @@
                        (gen17 (eval schema)
 
                               ;; head:
-                              (filter filter-fn
-                                      (gen-all (str label " : " schema " -> " head " (H)")
-                                               (lazy-shuffle (eval head))))
+                              (fn [] (filter filter-fn
+                                              (gen-all (str label " : " schema " -> " head " (H)")
+                                                       (lazy-shuffle (eval head)))))
 
                               ;; complement:
                               (gen-all (str label " : " schema " -> " comp " (C)")
