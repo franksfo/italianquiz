@@ -90,11 +90,6 @@
                  (= (unify/get-in candidate '(:synsem :aux)) true)))
           (lazy-shuffle hh21-heads)))
 
-(defmacro rewrite-as [name value]
-  (if (ns-resolve *ns* (symbol (str name)))
-    `(def ~name (cons ~value ~name))
-    `(def ~name (list ~value))))
-
 ;; undefine any previous values.
 (ns-unmap 'italianverbs.grammar 'declarative-sentence)
 (ns-unmap 'italianverbs.grammar 'np)
@@ -126,48 +121,6 @@
 (def ds declarative-sentence)
 
 (log/info "done loading grammar.")
-
-(defn gen-all [ alternatives & [filter-against filter-fn]]
-  (if (first alternatives)
-    (let [first-alt (first alternatives)]
-      (let [filter-fn (if filter-fn
-                        filter-fn
-                        (if filter-against
-                          ;; create a function using the filter-against we were given.
-                          (fn [x]
-                            (let [debug (log/debug (str "filtering: " x))
-                                  debug (log/debug (str "against: " filter-against))
-                                  result (unify x filter-against)
-                                  debug (log/debug (str "result: " result))]
-                              (not (unify/fail? result))))
-
-                          ;; no filter was desired by the caller: just use the pass-through filter.
-                          (fn [x] true)))]
-        (lazy-cat
-         (let [lazy-returned-sequence
-               (cond (symbol? first-alt)
-                     (lazy-shuffle
-                      (filter filter-fn (eval first-alt)))
-
-                     (and (map? first-alt)
-                          (not (nil? (:schema first-alt))))
-                     (let [schema (:schema first-alt)
-                           head (:head first-alt)
-                           comp (:comp first-alt)]
-                       (log/info (str "schema: " schema))
-                       (gen15 (eval schema)
-                              (filter filter-fn
-                                      (gen-all (lazy-shuffle (eval head))))
-                              ;; TODO: comp filter should use a function of the head's subcat value for
-                              ;; the filter.
-                              (gen-all (if (symbol? comp) (lazy-shuffle (eval comp)) (lazy-shuffle comp)))))
-
-                     (map? first-alt)
-                     (list first-alt)
-
-                     true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
-           lazy-returned-sequence)
-         (gen-all (rest alternatives) filter-against filter-fn))))))
 
 (defn sentences []
   (gen-all (shuffle ds)))

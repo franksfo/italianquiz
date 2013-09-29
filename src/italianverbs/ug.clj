@@ -456,4 +456,47 @@
        (gen15 cc10
               ~head
               ~comp)))
+
+(defn gen-all [ alternatives & [filter-against filter-fn]]
+  (if (first alternatives)
+    (let [first-alt (first alternatives)]
+      (let [filter-fn (if filter-fn
+                        filter-fn
+                        (if filter-against
+                          ;; create a function using the filter-against we were given.
+                          (fn [x]
+                            (let [debug (log/debug (str "filtering: " x))
+                                  debug (log/debug (str "against: " filter-against))
+                                  result (unify x filter-against)
+                                  debug (log/debug (str "result: " result))]
+                              (not (unify/fail? result))))
+
+                          ;; no filter was desired by the caller: just use the pass-through filter.
+                          (fn [x] true)))]
+        (lazy-cat
+         (let [lazy-returned-sequence
+               (cond (symbol? first-alt)
+                     (lazy-shuffle
+                      (filter filter-fn (eval first-alt)))
+
+                     (and (map? first-alt)
+                          (not (nil? (:schema first-alt))))
+                     (let [schema (:schema first-alt)
+                           head (:head first-alt)
+                           comp (:comp first-alt)]
+                       (log/info (str "schema: " schema))
+                       (gen15 (eval schema)
+                              (filter filter-fn
+                                      (gen-all (lazy-shuffle (eval head))))
+                              ;; TODO: comp filter should use a function of the head's subcat value for
+                              ;; the filter.
+                              (gen-all (if (symbol? comp) (lazy-shuffle (eval comp)) (lazy-shuffle comp)))))
+
+                     (map? first-alt)
+                     (list first-alt)
+
+                     true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
+           lazy-returned-sequence)
+         (gen-all (rest alternatives) filter-against filter-fn))))))
+
 (log/info "done.")
