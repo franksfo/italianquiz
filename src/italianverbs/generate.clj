@@ -718,19 +718,22 @@
           :fail)))))
 
 (defn moreover-comp [parent child]
-  (do
-    (log/debug (str "moreover-comp parent: " (fo parent)))
-    (log/debug (str "moreover-comp comp:" (fo child)))
-    (let [result
-          (lexfn/unify parent
-                       {:comp child}
-                       {:comp {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
-      (if (not (unify/fail? result))
-        (let [debug (log/debug (str "moreover-comp " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/debug (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
-          (merge {:comp-filled true}
-                 result))
-          :fail))))
+  (log/debug (str "moreover-comp parent: " (fo parent)))
+  (log/debug (str "moreover-comp comp:" (fo child)))
+  (let [result
+        (lexfn/unify parent
+                     {:comp child}
+                     {:comp {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
+    (if (not (unify/fail? result))
+      (let [debug (log/debug (str "moreover-comp " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+            debug (log/debug (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+        (merge {:comp-filled true}
+               result))
+      (do
+        (log/info "moreover-comp: fail at: " (unify/fail-path result))
+        (log/info "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
+        (log/info "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
+        :fail))))
 
 (defn over3 [parent child]
   (log/debug (str "string? child: " (string? child)))
@@ -857,13 +860,15 @@
           (lazy-seq (rest complements)))
         debug-inner (log/info "gen14-inner: after doing (rest complements)..")]
     (log/info (str "gen14-inner: comp-emptiness: " empty-complements))
+    (log/info (str "(fo phrase-with-head): " (fo phrase-with-head)))
     (log/info (str "complement(comment): " (unify/get-in complement '(:comment))))
     (log/info (str "complement: " (fo complement)))
     (if (not empty-complements)
       (let [comp complement]
-        (let [result (sent-impl (moreover-comp
-                                 phrase-with-head
-                                 comp))]
+        (let [result
+              (moreover-comp
+               phrase-with-head
+               comp)]
           (if (not (unify/fail? result))
             (do
               (log/info (str "gen14-inner: unifies: recursion level: " recursion-level))
@@ -882,11 +887,16 @@
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
                                (fo comp) " => TRUE")))
-              (lazy-seq
-               (cons result
-                     (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))
+              (let [with-impl (sent-impl result)]
+                  (if (unify/fail? with-impl)
+                    (do (log/warn (str "result: " (fo result) " was not fail, but its sent-impl *was* fail: continuing without this one."))
+                        (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))
+                    (lazy-seq
+                     (cons
+                      with-impl
+                      (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))))
             (do
-              (log/info "gen14-inner: fail.")
+              (log/info (str "gen14-inner: fail: " result))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; comp first ('c' is first character of comment):
                 (log/info (str "gen14-inner :"
@@ -899,7 +909,7 @@
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
-                               (fo comp) " => false")))
+                               (fo comp) " => FAIL.")))
 
               (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))))))
 
