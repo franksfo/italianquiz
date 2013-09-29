@@ -457,9 +457,14 @@
               ~head
               ~comp)))
 
-(defn gen-all [ alternatives & [filter-against filter-fn]]
+(defn gen-all [label alternatives & [filter-against filter-fn]]
   (if (first alternatives)
     (let [first-alt (first alternatives)]
+      (log/info (str "gen-all: " label "; candidate: "
+                     (cond (map? first-alt)
+                           (fo first-alt)
+                           true
+                           first-alt)))
       (let [filter-fn (if filter-fn
                         filter-fn
                         (if filter-against
@@ -487,16 +492,16 @@
                        (log/info (str "schema: " schema))
                        (gen15 (eval schema)
                               (filter filter-fn
-                                      (gen-all (lazy-shuffle (eval head))))
-                              ;; TODO: comp filter should use a function of the head's subcat value for
-                              ;; the filter.
-                              (gen-all (if (symbol? comp) (lazy-shuffle (eval comp)) (lazy-shuffle comp)))))
+                                      (gen-all (str schema " -> " head " (H)")
+                                               (lazy-shuffle (eval head))))
+                              (gen-all (str schema " -> " comp " (C)")
+                                       (if (symbol? comp) (lazy-shuffle (eval comp)) (lazy-shuffle comp)))))
 
                      (map? first-alt)
                      (list first-alt)
 
                      true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
            lazy-returned-sequence)
-         (gen-all (rest alternatives) filter-against filter-fn))))))
+         (gen-all label (rest alternatives) filter-against filter-fn))))))
 
 (log/info "done.")

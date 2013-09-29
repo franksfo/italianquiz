@@ -34,15 +34,26 @@
 (rewrite-as vp {:schema 'hh21
                 :head 'aux-verbs
                 :comp 'intransitive-verbs})
+;(rewrite-as vp {:schema 'hh21
+;                :head 'aux-verbs
+;                :comp 'vp-transitive})
+
+(rewrite-as vp-transitive {:schema 'hh21
+                           :comp 'np
+                           :head 'transitive-verbs})
+
+(rewrite-as supercool {:schema 'hh21
+                       :head 'aux-verbs
+                       :comp 'vp-transitive})
 
 ;; -- aliases --
 (def ds declarative-sentence)
 
 (defn sentences []
-  (gen-all (shuffle declarative-sentence)))
+  (gen-all 'sentences (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (take 1 (gen-all (shuffle declarative-sentence))))
+  (take 1 (gen-all 'ds (shuffle declarative-sentence))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
