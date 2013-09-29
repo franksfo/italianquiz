@@ -208,7 +208,8 @@
   (fn [phrase-with-head]
     (let [complement-synsem (unify/get-in phrase-with-head '(:comp :synsem) :top)
           complement-category (unify/get-in complement-synsem '(:cat) :top)
-          complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))]
+          complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))
+          complement-italian-initial (unify/get-in phrase-with-head '(:comp :italian :initial) :top)]
 
       (fn [comp]
         (let [result
@@ -216,7 +217,10 @@
                (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
                                   complement-category)))
                (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
-                                  complement-sem))))]
+                                  complement-sem)))
+               (not (fail? (unify (unify/get-in comp '(:italian :initial) :top)
+                                  complement-italian-initial))))]
+
           (log/debug (str "comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
           (log/debug (str "comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
           (log/debug (str "comp-filter-fn:type(phrase-with-head):" (type phrase-with-head)))
@@ -224,7 +228,7 @@
           (log/debug (str "comp-filter-fn:complement-synsem (from head): " complement-synsem))
           (log/debug (str "comp-filter-fn:complement-category (from head): " complement-category))
           (log/debug (str "comp-filter-fn:complement-sem: " complement-sem))
-          (log/debug (str "comp-filter-fn:result of filter: " (fo phrase-with-head) " + " (fo comp) " = " result))
+          (log/info (str "comp-filter-fn:RESULT OF FILTER: " (fo phrase-with-head) " + " (fo comp) " = " result))
 
           (if result
             ;; complement was compatible with the filter: not filtered out.
