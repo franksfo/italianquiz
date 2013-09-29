@@ -904,7 +904,7 @@
               (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))))))
 
 (defn gen14 [phrase heads complements sent-impl recursion-level]
-  (if (not (empty? heads))
+  (if (or (fn? heads) (not (empty? heads)))
     (do
       (log/info (str "gen14: starting now: recursion-level: " recursion-level))
       (log/info (str "gen14: type of heads: " (type heads)))
