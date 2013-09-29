@@ -83,91 +83,12 @@
                  (= (get-in lexeme '(:synsem :subcat :2)) '())))
           lex/lexicon))
 
-(def vp-v
-  (fn [] (lazy-shuffle intransitive-verbs)))
-
-(def vp-pron-v
-  (fn []
-    (gen-ch21
-     ;; Object Pronoun
-     (lazy-shuffle pronouns)
-
-     (filter (fn [candidate]
-               ;; filter Vs to reduce number of candidates we need to filter:
-               ;; (only transitive verbs)
-               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                    (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-             (lazy-shuffle hh21-heads)))))
-
-(def vp-vaux-past-intransitive
-  (fn []
-    (gen-hh21
-     ;; v[aux]
-     (filter (fn [candidate]
-               (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                    (= (unify/get-in candidate '(:synsem :cat)) :verb)
-                    (= (unify/get-in candidate '(:synsem :aux)) true)))
-             (lazy-shuffle hh21-heads))
-
-     ;; v[past]
-     (lazy-shuffle intransitive-verbs))))
-
-;; note that order of arguments to gen-cc10 is reverse of s-to-np-vp, because
-;; gen-cc10 and other generic functions always have their arguments head, then comp.
-
-(defn s-to-np-vp-inner [np vps]
-  (if (first vps)
-    (lazy-cat (gen-cc10 (first vps) np)
-              (s-to-np-vp-inner np (rest vps)))))
-
-(defn s-to-np-vp [nps vps]
-  (if (first nps)
-    (lazy-cat (s-to-np-vp-inner (first nps) vps)
-              (s-to-np-vp (rest nps) vps))))
-
-(defn sentences []
-  (lazy-seq
-   ;; parent: S -> NP VP
-   (s-to-np-vp
-
-    ;; subject NP.
-    (shuffle (list ;np-to-det-n
-                   (lazy-shuffle propernouns-and-pronouns)))
-
-    ;; VP: 4 expansions:
-    (shuffle
-     (list
-
-      ;; 1. VP -> V
-      vp-v
-
-      ;; 2. VP -> V NP
-;      vp-v-np
-
-      ;; 3. VP -> Pronoun V
-      vp-pron-v
-
-      ;; 4. VP -> v[aux] v[past]
-      vp-vaux-past-intransitive
-
-      ;; doesn't work yet.
-;      vp-vaux-past-transitive
-
-      )))))
-
-;; TODO: move to somewhere else that uses both grammar and lexicon (e.g. quiz or workbook): grammar itself should not depend on lexicon (lex/lexicon).
-(defn random-sentence []
-  (let [result
-        (first (take 1 (sentences)))]
-    result))
-
-(defn random-sentences [n]
-  (repeatedly n (fn [] (random-sentence))))
-
-(defn speed-test [ & times]
-  "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
-  (let [times (if times times 3)]
-    (fo (take times (repeatedly #(time (random-sentence)))))))
+(def aux-verbs
+  (filter (fn [candidate]
+            (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                 (= (unify/get-in candidate '(:synsem :cat)) :verb)
+                 (= (unify/get-in candidate '(:synsem :aux)) true)))
+          (lazy-shuffle hh21-heads)))
 
 (defmacro rewrite-as [name value]
   (if (ns-resolve *ns* (symbol (str name)))
@@ -178,7 +99,6 @@
 (ns-unmap 'italianverbs.grammar 'declarative-sentence)
 (ns-unmap 'italianverbs.grammar 'np)
 (ns-unmap 'italianverbs.grammar 'vp)
-
 
 ;; -- define rewrite rules --
 (rewrite-as declarative-sentence {:schema 'cc10
@@ -198,6 +118,9 @@
 (rewrite-as vp {:schema 'ch21
                 :comp 'pronouns
                 :head 'transitive-verbs})
+(rewrite-as vp {:schema 'hh21
+                :head 'aux-verbs
+                :comp 'intransitive-verbs})
 
 ;; -- aliases --
 (def ds declarative-sentence)
@@ -246,8 +169,20 @@
            lazy-returned-sequence)
          (gen-all (rest alternatives) filter-against filter-fn))))))
 
+(defn sentences []
+  (gen-all (shuffle ds)))
 
-;; these work:
+(defn random-sentence []
+  (take 1 (gen-all (shuffle ds))))
+
+(defn random-sentences [n]
+  (repeatedly n (fn [] (random-sentence))))
+
+(defn speed-test [ & times]
+  "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
+  (let [times (if times times 3)]
+    (fo (take times (repeatedly #(time (random-sentence)))))))
+
 (defn speed-test2 []
   (do
     (time (fo (take 1 (gen-all (shuffle np)))))
@@ -256,10 +191,9 @@
 
 (defn speed-test3 [ & times]
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
-  (let [times (if times times 3)]
+  (let [times (if times times 10)]
     (list
      (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle np)))))))
      (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle vp)))))))
      (fo (take times (repeatedly #(time (take 1 (gen-all (shuffle ds))))))))))
-
 
