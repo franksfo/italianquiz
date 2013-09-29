@@ -74,7 +74,8 @@
             ;; filter Vs to reduce number of candidates we need to filter:
             ;; (only transitive verbs)
             (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
-                 (= (unify/get-in candidate '(:synsem :cat)) :verb)))
+                 (= (unify/get-in candidate '(:synsem :cat)) :verb)
+                 (= (unify/get-in candidate '(:synsem :subcat :2 :cat)) :noun)))
           (lazy-shuffle hh21-heads)))
 
 (def intransitive-verbs
