@@ -242,7 +242,7 @@
 
             ;; complement was incompatible with the filter and thus filtered out:
             (do
-              (log/info (str "FILTER OUT: " (fo comp)))
+              (log/debug (str "FILTER OUT: " (fo comp)))
               result)))))))
 
 (def hc-agreement
