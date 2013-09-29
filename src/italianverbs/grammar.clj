@@ -37,6 +37,11 @@
                  (= (get-in lexeme '(:synsem :subcat :1 :cat)) :det)))
           cc10-heads))
 
+(def dets
+  (filter (fn [lexeme]
+            (= (get-in lexeme '(:synsem :cat)) :det))
+          cc10-heads))
+
 (defn gen-np [use-filter]
   (do
     (log/debug "base-cc10-random: start: filtering cc10 heads.")
@@ -258,7 +263,7 @@
                                   :comp 'np
                                   :head 'vp})
 (rewrite-as np {:schema 'cc10
-                :comp 'det
+                :comp 'dets
                 :head 'common-nouns})
 
 (rewrite-as np 'propernouns)
@@ -278,30 +283,46 @@
 (log/info "done loading grammar.")
 
 (defn gen-all [ alternatives & [filter-against filter-fn]]
-  (if (> (.size alternatives) 0)
+  (if (first alternatives)
     (let [first-alt (first alternatives)
-          ;; TODO: we are creating this function everytime: instead, just create and pass.
-          filter-fn (if filter-fn
-                      filter-fn
-                      (if filter-against
-                        (fn [x]
-                          (let [debug (log/info (str "filtering: " x))
-                                debug (log/info (str "against: " filter-against))
-                                result (unify x filter-against)
-                                debug (log/info (str "result: " result))]
-                            (not (unify/fail? result))))
-                        (fn [x] true)))]
-      (lazy-cat
-       (let [lazy-returned-sequence
-             (cond (symbol? first-alt)
-                   (lazy-shuffle
-                    (filter filter-fn (eval first-alt)))
+          debug (log/info (if (not (symbol? first-alt))
+                            (str "gen-all with alt: " (fo first-alt))))]
+      (let [filter-fn (if filter-fn
+                        filter-fn
+                        (if filter-against
+                          ;; create a function using the filter-against we were given.
+                          (fn [x]
+                            (let [debug (log/debug (str "filtering: " x))
+                                  debug (log/debug (str "against: " filter-against))
+                                  result (unify x filter-against)
+                                  debug (log/debug (str "result: " result))]
+                              (not (unify/fail? result))))
 
-                   (map? first-alt)
-                   nil
+                          ;; no filter was desired by the caller: just use the pass-through filter.
+                          (fn [x] true)))]
+        (lazy-cat
+         (let [lazy-returned-sequence
+               (cond (symbol? first-alt)
+                     (lazy-shuffle
+                      (filter filter-fn (eval first-alt)))
 
+                     (and (map? first-alt)
+                          (not (nil? (:schema first-alt))))
+                     (let [schema (:schema first-alt)
+                           head (:head first-alt)
+                           comp (:comp first-alt)]
+                       (log/info (str "schema: " schema))
+                       (gen15 (eval schema)
+                              (filter filter-fn
+                                      (gen-all (lazy-shuffle (eval head))))
+                              ;; TODO: comp filter should use a function of the head's subcat value for
+                              ;; the filter.
+                              (gen-all (if (symbol? comp) (lazy-shuffle (eval comp)) (lazy-shuffle comp)))))
+                     (map? first-alt)
+                     (do (log/info (str "just returning a list of " (fo first-alt)))
+                         (list first-alt))
 
+                     true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
+           lazy-returned-sequence)
+         (gen-all (rest alternatives) filter-against filter-fn))))))
 
-                   true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
-         lazy-returned-sequence)
-       (gen-all (rest alternatives) filter-against filter-fn)))))
