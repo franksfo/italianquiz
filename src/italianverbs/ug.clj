@@ -228,6 +228,7 @@
           (log/debug (str "comp-filter-fn:complement-synsem (from head): " complement-synsem))
           (log/debug (str "comp-filter-fn:complement-category (from head): " complement-category))
           (log/debug (str "comp-filter-fn:complement-sem: " complement-sem))
+          (log/info (str "comp-filter-fn:complement's italian initial must be: " complement-italian-initial))
           (log/info (str "comp-filter-fn:RESULT OF FILTER: " (fo phrase-with-head) " + " (fo comp) " = " result))
 
           (if result
@@ -530,7 +531,7 @@
                            head (:head candidate)
                            comp (:comp candidate)]
 
-                       ;; schema is a tree with 3 nodes: a parent, a head child, and a comp child.
+                       ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
                        ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
                        ;; in a particular order (i.e. either head is first or complement is first).
                        ;; head is either 1) or 2):
@@ -544,7 +545,8 @@
 
                        (log/info (str "doing gen17 with schema: " schema))
 
-                       ;; (eval schema) is a rule schema.
+                       ;; (eval schema) is a 3-node tree as described above: schema is a symbol (e.g. 'cc10 whose
+                       ;; value is the tree, thus allowing us to access that value with (eval schema).
                        (gen17 (eval schema)
 
                               ;; head:
