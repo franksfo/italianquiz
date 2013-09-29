@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [get-in resolve])
   (:use [italianverbs.generate :only (rewrite-as)]
         [italianverbs.grammar]
+        [italianverbs.lexicon :only (it1)]
         [italianverbs.ug]
         [italianverbs.morphology :only (fo)])
   (:require [clojure.tools.logging :as log]
@@ -36,6 +37,7 @@
 (rewrite-as vp {:schema 'hh21
                 :head 'aux-verbs
                 :comp 'intransitive-verbs})
+;; uncomment once 'supercool' works on its own.
 ;(rewrite-as vp {:schema 'hh21
 ;                :head 'aux-verbs
 ;                :comp 'vp-transitive})
@@ -51,10 +53,14 @@
 (defn sc []
   (take 1 (gen-all 'supercool supercool)))
 
+(defn vpt []
+  (take 1 (gen-all 'vpt vp-transitive)))
 
 ;; -- aliases --
 (def ds declarative-sentence)
 
+
+;; -- useful functions
 (defn sentences []
   (gen-all 'sentences (shuffle declarative-sentence)))
 
