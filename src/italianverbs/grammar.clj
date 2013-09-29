@@ -217,9 +217,8 @@
 
 (defn speed-test [ & times]
   "TODO: show benchmark results and statistics (min,max,95%tile,stddev,etc)"
-  (take 3 (repeatedly #(time (fo (random-sentence))))))
-;; or:
-;;(fo (take 3 (repeatedly #(time (random-sentence)))))
+  (let [times (if times times 3)]
+    (fo (take times (repeatedly #(time (random-sentence)))))))
 
 (defn gen [rule]
   (log/info (str "gen: rule:" rule))
@@ -278,3 +277,14 @@
 
 (log/info "done loading grammar.")
 
+(defn gen-all [ alternatives ]
+  (if (> (.size alternatives) 0)
+    (let [first-alt (first alternatives)]
+    (lazy-cat
+     (let [lazy-returned-sequence (cond (symbol? first-alt)
+                                        (lazy-shuffle (eval first-alt))
+                                        (map? first-alt)
+                                        nil
+                                        true (throw (Exception. "don't know what to do with this; type=" (type first-alt))))]
+       lazy-returned-sequence)
+     (gen-all (rest alternatives))))))
