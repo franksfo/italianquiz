@@ -1640,6 +1640,8 @@
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
   (do
+    (symbol? expressions)
+    expressions
     (if (and (= (type expressions) clojure.lang.LazySeq)
              (not (empty? expressions)))
       (cons
