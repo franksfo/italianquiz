@@ -76,7 +76,7 @@
             (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
                  (= (unify/get-in candidate '(:synsem :cat)) :verb)
                  (= (unify/get-in candidate '(:synsem :subcat :2 :cat)) :noun)))
-          (lazy-shuffle hh21-heads)))
+          hh21-heads))
 
 (def intransitive-verbs
   (filter (fn [lexeme]
@@ -89,4 +89,4 @@
             (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
                  (= (unify/get-in candidate '(:synsem :cat)) :verb)
                  (= (unify/get-in candidate '(:synsem :aux)) true)))
-          (lazy-shuffle hh21-heads)))
+          hh21-heads))
