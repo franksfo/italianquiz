@@ -15,7 +15,7 @@
             [clojure.string :as string])
 )
 
-(def phrase-times-lexicon-cache false)
+(def phrase-times-lexicon-cache true)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
@@ -209,6 +209,7 @@
     (let [complement-synsem (unify/get-in phrase-with-head '(:comp :synsem) :top)
           complement-category (unify/get-in complement-synsem '(:cat) :top)
           complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))
+          complement-essere-type (unify/get-in complement-synsem '(:essere) :top)
           complement-italian-initial (unify/get-in phrase-with-head '(:comp :italian :initial) :top)]
 
       (fn [comp]
@@ -218,6 +219,8 @@
                                   complement-category)))
                (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
                                   complement-sem)))
+               (not (fail? (unify (unify/get-in comp '(:synsem :essere) :top)
+                                  complement-essere-type)))
                (not (fail? (unify (unify/get-in comp '(:italian :initial) :top)
                                   complement-italian-initial))))]
 
@@ -431,7 +434,7 @@
     (gen14 phrase heads comps nil 0)))
 
 (defn gen17 [phrase heads comps post-unify-fn]
-  (log/info (str "gen17: phrase:" phrase))
+  (log/info (str "gen17: phrase:" (:comment phrase)))
   (log/info (str "gen17: seq? heads:" (seq? heads)))
   (cond (seq? heads)
         (let [head (first heads)]
@@ -506,7 +509,7 @@
   (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
-      (log/info (str "gen-all: label: " label "; candidate: " (log-candidate-form label candidate)))
+      (log/info (str "gen-all: label: " label "; " (log-candidate-form label candidate)))
       (log/info (str "gen-all: post-unify: " (if (map? candidate) (:post-unify-fn candidate))))
       (let [filter-fn (if filter-fn
                         filter-fn
