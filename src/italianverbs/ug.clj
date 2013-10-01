@@ -494,7 +494,7 @@
              (:schema candidate)
              (:head candidate)
              (:comp candidate))
-        (str "label (" (:schema candidate) ") -> "
+        (str "label: " label
              "H:" (:head candidate) " , "
              "C:" (:comp candidate))
         (map? candidate)
