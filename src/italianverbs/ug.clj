@@ -504,7 +504,8 @@
 
 (defn gen-all [label alternatives & [filter-against filter-fn]]
   (if (first alternatives)
-    (let [candidate (first alternatives)]
+    (let [candidate (first alternatives)
+          label (if label label (if (map? label) (:label candidate)))]
       (log/info (str "gen-all: label: " label "; candidate: " (log-candidate-form label candidate)))
       (log/info (str "gen-all: post-unify: " (if (map? candidate) (:post-unify-fn candidate))))
       (let [filter-fn (if filter-fn
