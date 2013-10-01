@@ -502,7 +502,7 @@
         true
         (str "label: " label "; candidate: " candidate)))
 
-(defn gen-all [label alternatives & [filter-against filter-fn]]
+(defn gen-all [alternatives & [label filter-against filter-fn]]
   (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
@@ -554,16 +554,16 @@
 
                               ;; head:
                               (fn [] (filter filter-fn
-                                              (gen-all (str label " : " schema " -> " head " (H)")
-                                                       (lazy-shuffle (eval head)))))
+                                              (gen-all (lazy-shuffle (eval head))
+                                                       (str label " : " schema " -> " head " (H)"))))
 
                               ;; complement:
                               (fn [filter-by]
                                 (do
                                   (log/info (str "COMPLEMENT SHOULD BE FILTERED BY:" filter-by))
-                                  (gen-all (str label " : " schema " -> " comp " (C)")
-                                           (if (symbol? comp)
+                                  (gen-all (if (symbol? comp)
                                              (lazy-shuffle (eval comp)) (lazy-shuffle comp))
+                                           (str label " : " schema " -> " comp " (C)")
                                            nil
                                            filter-by)))
                               (:post-unify-fn candidate)))
@@ -571,8 +571,8 @@
                      (map? candidate)
                      (list candidate)
 
-                     true (throw (Exception. "don't know what to do with this; type=" (type candidate))))]
+                     true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))]
            lazy-returned-sequence)
-         (gen-all label (rest alternatives) filter-against filter-fn))))))
+         (gen-all (rest alternatives) label filter-against filter-fn))))))
 
 (log/info "done.")

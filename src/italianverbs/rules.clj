@@ -87,20 +87,20 @@
                        :comp 'my-vp-transitive})
 
 (defn sc []
-  (take 1 (gen-all nil my-vp-past-trans)))
+  (take 1 (gen-all my-vp-past-trans)))
 
 (defn vpt []
-  (take 1 (gen-all nil vp-transitive)))
+  (take 1 (gen-all vp-transitive)))
 
 ;; -- aliases --
 (def ds declarative-sentence)
 
 ;; -- useful functions
 (defn generate-sentences []
-  (gen-all nil (shuffle declarative-sentence)))
+  (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (take 1 (gen-all nil (shuffle declarative-sentence))))
+  (take 1 (gen-all (shuffle declarative-sentence))))
 
 (defn random-sentences [n]
   (repeatedly n (fn [] (random-sentence))))
