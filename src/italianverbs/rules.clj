@@ -50,7 +50,7 @@
 ;; for testing.
 
 (ns-unmap 'italianverbs.rules 'my-vp-transitive)
-(ns-unmap 'italianverbs.rules 'supercool)
+(ns-unmap 'italianverbs.rules 'myvp-past-trans)
 (ns-unmap 'italianverbs.rules 'mynp)
 (ns-unmap 'italianverbs.rules 'mydets)
 
@@ -82,12 +82,12 @@
                            :comp 'mynp
                            :head 'mytransitive-verbs})
 
-(rewrite-as supercool {:schema 'hh21
+(rewrite-as my-vp-past-trans {:schema 'hh21
                        :head 'aux-verbs
                        :comp 'my-vp-transitive})
 
 (defn sc []
-  (take 1 (gen-all 'supercool supercool)))
+  (take 1 (gen-all 'my-vp-past-trans my-vp-past-trans)))
 
 (defn vpt []
   (take 1 (gen-all 'vpt vp-transitive)))
