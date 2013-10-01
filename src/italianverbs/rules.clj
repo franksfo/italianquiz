@@ -43,10 +43,9 @@
                 :label 'vp
                 :head 'aux-verbs
                 :comp 'intransitive-verbs})
-;; uncomment once 'supercool' works on its own.
-;(rewrite-as vp {:schema 'hh21
-;                :head 'aux-verbs
-;                :comp 'vp-transitive})
+(rewrite-as vp {:schema 'hh21
+                :head 'aux-verbs
+                :comp 'vp-transitive})
 
 ;; for testing.
 
