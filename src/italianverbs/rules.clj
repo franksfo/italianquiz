@@ -26,7 +26,6 @@
                 :label 'np
                 :comp 'dets
                 :head 'common-nouns})
-
 (rewrite-as np 'propernouns)
 (rewrite-as np 'pronouns)
 
@@ -54,18 +53,27 @@
 (ns-unmap 'italianverbs.rules 'mynp)
 (ns-unmap 'italianverbs.rules 'mydets)
 
-(def pizza (filter (fn [lexeme]
-                     (= "pizza" (unify/get-in lexeme '(:italian :italian))))
-                   common-nouns))
+(rewrite-as myds-sentence {:schema 'cc10
+                           :label 'declarative-sentence
+                           :post-unify-fn sent-impl
+                           :comp 'mynp1
+                           :head 'myvp})
 
+(rewrite-as mynp1 {:schema 'cc10
+                   :label 'mynp
+                   :comp 'mydets
+                   :head 'donna})
 (def mydets (filter (fn [lexeme]
                      (= "la" (unify/get-in lexeme '(:italian))))
                    dets))
 
-(rewrite-as mynp {:schema 'cc10
-                  :label 'mynp
-                  :comp 'mydets
-                  :head 'pizza})
+(def donna (filter (fn [lexeme]
+                     (= "donna" (unify/get-in lexeme '(:italian :italian))))
+                   common-nouns))
+
+(rewrite-as myvp {:schema 'hh21
+                  :comp 'mynp2
+                  :head 'mytransitive-verbs})
 
 (def mytransitive-verbs
   (filter (fn [candidate]
@@ -74,23 +82,14 @@
             (= "mangiare" (unify/get-in candidate '(:italian :infinitive))))
           transitive-verbs))
 
-(rewrite-as vp-transitive {:schema 'hh21
-                           :comp 'np
-                           :head 'transitive-verbs})
+(rewrite-as mynp2 {:schema 'cc10
+                   :label 'mynp2
+                   :comp 'mydets
+                   :head 'pizza})
 
-(rewrite-as my-vp-transitive {:schema 'hh21
-                           :comp 'mynp
-                           :head 'mytransitive-verbs})
-
-(rewrite-as my-vp-past-trans {:schema 'hh21
-                       :head 'aux-verbs
-                       :comp 'my-vp-transitive})
-
-(defn sc []
-  (take 1 (gen-all my-vp-past-trans)))
-
-(defn vpt []
-  (take 1 (gen-all vp-transitive)))
+(def pizza (filter (fn [lexeme]
+                     (= "pizza" (unify/get-in lexeme '(:italian :italian))))
+                   common-nouns))
 
 ;; -- aliases --
 (def ds declarative-sentence)
