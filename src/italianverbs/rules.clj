@@ -4,10 +4,10 @@
         [italianverbs.grammar]
         [italianverbs.lexicon :only (it1)]
         [italianverbs.ug]
-        [italianverbs.unify :only (get-in)] ;; REMOVE AFTER FIRST in-package error.
         [italianverbs.morphology :only (fo)])
   (:require [clojure.tools.logging :as log]
-))
+            [italianverbs.unify :as unify])
+)
 
 (log/info "started loading rules.")
 
@@ -18,23 +18,29 @@
 (ns-unmap 'italianverbs.rules 'vp-transitive)
 
 (rewrite-as declarative-sentence {:schema 'cc10
+                                  :label 'declarative-sentence
+                                  :post-unify-fn sent-impl
                                   :comp 'np
                                   :head 'vp})
 (rewrite-as np {:schema 'cc10
+                :label 'np
                 :comp 'dets
                 :head 'common-nouns})
 
 (rewrite-as np 'propernouns)
 (rewrite-as np 'pronouns)
 
-;(rewrite-as vp 'intransitive-verbs)
+(rewrite-as vp 'intransitive-verbs)
 (rewrite-as vp {:schema 'hh21
+                :label 'vp
                 :comp 'np
                 :head 'transitive-verbs})
 (rewrite-as vp {:schema 'ch21
+                :label 'vp
                 :comp 'pronouns
                 :head 'transitive-verbs})
 (rewrite-as vp {:schema 'hh21
+                :label 'vp
                 :head 'aux-verbs
                 :comp 'intransitive-verbs})
 ;; uncomment once 'supercool' works on its own.
@@ -50,14 +56,15 @@
 (ns-unmap 'italianverbs.rules 'mydets)
 
 (def pizza (filter (fn [lexeme]
-                     (= "pizza" (get-in lexeme '(:italian :italian))))
+                     (= "pizza" (unify/get-in lexeme '(:italian :italian))))
                    common-nouns))
 
 (def mydets (filter (fn [lexeme]
-                     (= "la" (get-in lexeme '(:italian))))
+                     (= "la" (unify/get-in lexeme '(:italian))))
                    dets))
 
 (rewrite-as mynp {:schema 'cc10
+                  :label 'mynp
                   :comp 'mydets
                   :head 'pizza})
 
@@ -65,12 +72,13 @@
   (filter (fn [candidate]
             ;; filter Vs to reduce number of candidates we need to filter:
             ;; (only transitive verbs)
-            (= "mangiare" (get-in candidate '(:italian :infinitive))))
+            (= "mangiare" (unify/get-in candidate '(:italian :infinitive))))
           transitive-verbs))
 
 (rewrite-as vp-transitive {:schema 'hh21
                            :comp 'np
                            :head 'transitive-verbs})
+
 (rewrite-as my-vp-transitive {:schema 'hh21
                            :comp 'mynp
                            :head 'mytransitive-verbs})

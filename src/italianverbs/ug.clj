@@ -359,9 +359,9 @@
   "returns true iff there is some head H such that parent => H candidate-comp succeeds."
   (if (not (empty? heads))
     (or
-     (not (fail? (sent-impl (moreover-comp (moreover-head parent
-                                                                     (first heads))
-                                                  candidate-comp))))
+     (not (fail? (moreover-comp (moreover-head parent
+                                               (first heads))
+                                candidate-comp)))
      (find-some-head-for parent (rest heads) candidate-comp))))
 
 ;; standard rule-caching disclaimer:
@@ -428,9 +428,9 @@
 (defn gen15 [phrase heads comps]
   (do
     (log/info (str "gen15 start: " (get-in phrase '(:comment)) "," (type heads) "," (type comps)))
-    (gen14 phrase heads comps sent-impl 0)))
+    (gen14 phrase heads comps nil 0)))
 
-(defn gen17 [phrase heads comps]
+(defn gen17 [phrase heads comps post-unify-fn]
   (log/info (str "gen17: phrase:" phrase))
   (log/info (str "gen17: seq? heads:" (seq? heads)))
   (cond (seq? heads)
@@ -439,11 +439,11 @@
             (lazy-cat
              (do
                (log/info (str "will filter comps using phrase's filter function: " (:comp-filter-fn phrase)))
-               (gen14 phrase (list head) comps sent-impl 0)))
-             (gen17 phrase (rest heads) comps)))
+               (gen14 phrase (list head) comps post-unify-fn 0)))
+             (gen17 phrase (rest heads) comps post-unify-fn)))
 
         true
-        (gen14 phrase heads comps sent-impl 0)))
+        (gen14 phrase heads comps post-unify-fn 0)))
 
 (defn base-ch21 []
   (gen15 ch21 ch21-heads ch21-comps))
@@ -506,6 +506,7 @@
   (if (first alternatives)
     (let [candidate (first alternatives)]
       (log/info (str "gen-all: label: " label "; candidate: " (log-candidate-form label candidate)))
+      (log/info (str "gen-all: post-unify: " (if (map? candidate) (:post-unify-fn candidate))))
       (let [filter-fn (if filter-fn
                         filter-fn
                         (if filter-against
@@ -545,9 +546,9 @@
 
 
                        (log/info (str "doing gen17 with schema: " schema))
-
-                       ;; (eval schema) is a 3-node tree as described above: schema is a symbol (e.g. 'cc10 whose
-                       ;; value is the tree, thus allowing us to access that value with (eval schema).
+                       ;; (eval schema) is a 3-node tree (parent and two children) as described
+                       ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
+                       ;; allowing us to access that value with (eval schema).
                        (gen17 (eval schema)
 
                               ;; head:
@@ -563,7 +564,8 @@
                                            (if (symbol? comp)
                                              (lazy-shuffle (eval comp)) (lazy-shuffle comp))
                                            nil
-                                           filter-by)))))
+                                           filter-by)))
+                              (:post-unify-fn candidate)))
 
                      (map? candidate)
                      (list candidate)

@@ -797,7 +797,7 @@
                   (gen13 1 phrases lexicon)
                   lexicon)))
 
-(defn gen14-inner [phrase-with-head complements complement-filter-fn sent-impl recursion-level]
+(defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level]
   (let [debug (log/info (str "gen14-inner begin: recursion level: " recursion-level))
         debug (log/info (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
         recursion-level (+ 1 recursion-level)
@@ -887,14 +887,14 @@
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
                                (fo comp) " => TRUE")))
-              (let [with-impl (sent-impl result)]
+              (let [with-impl (if post-unify-fn (post-unify-fn result) result)]
                   (if (unify/fail? with-impl)
-                    (do (log/warn (str "result: " (fo result) " was not fail, but its sent-impl *was* fail: continuing without this one."))
-                        (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))
+                    (do (log/warn (str "result: " (fo result) " was not fail, but its (post-unify-fn) returned fail."))
+                        (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level))
                     (lazy-seq
                      (cons
                       with-impl
-                      (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))))
+                      (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level))))))
             (do
               (log/info (str "gen14-inner: fail: " result))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
@@ -911,9 +911,9 @@
                                " + "
                                (fo comp) " => FAIL.")))
 
-              (gen14-inner phrase-with-head rest-complements complement-filter-fn sent-impl recursion-level))))))))
+              (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level))))))))
 
-(defn gen14 [phrase heads complements sent-impl recursion-level]
+(defn gen14 [phrase heads complements post-unify-fn recursion-level]
   (if (or (fn? heads) (not (empty? heads)))
     (do
       (log/info (str "gen14: starting now: recursion-level: " recursion-level))
@@ -956,18 +956,18 @@
                    (gen14-inner phrase-with-head
                                 complements
                                 filter-function
-                                sent-impl 0)))
+                                post-unify-fn 0)))
                (gen14 phrase
                       rest-heads
                       complements
-                      sent-impl
+                      post-unify-fn
                       recursion-level)))
             (do
               (log/info (str "gen14: FAIL: continuing with rest of heads."))
               (gen14 phrase
                      rest-heads
                      complements
-                   sent-impl
+                   post-unify-fn
                    recursion-level))))))))
 
 ;; see example usage in grammar.clj.
