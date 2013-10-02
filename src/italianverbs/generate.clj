@@ -872,8 +872,9 @@
               (log/debug (str "gen14-inner: unifies: recursion level: " recursion-level))
               (log/debug (str "gen14-inner: unifies head: " (fo phrase-with-head)))
               (log/debug (str "gen14-inner: unifies comp: " (fo comp)))
+              ;; test: in italian, is complement first?
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
-                ;; italian comp first.
+                ;; yes, italian strings complement is first.
                 (log/debug (str "gen14-inner:"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo comp)

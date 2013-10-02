@@ -233,8 +233,11 @@
           (log/debug (str "comp-filter-fn:complement-synsem (from head): " complement-synsem))
           (log/debug (str "comp-filter-fn:complement-category (from head): " complement-category))
           (log/debug (str "comp-filter-fn:complement-sem: " complement-sem))
-          (log/info (str "comp-filter-fn:complement's italian initial must be: " complement-italian-initial))
-          (log/info (str "comp-filter-fn:RESULT OF FILTER: " (fo phrase-with-head) " + " (fo comp) " = " result))
+          (log/debug (str "comp-filter-fn:complement's italian initial must be: " complement-italian-initial))
+          (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
+            (log/info (str "comp-filter-fn:RESULT OF FILTER: " (fo comp) " + " (fo phrase-with-head) " = " result))
+            ;; else, head is first
+            (log/info (str "comp-filter-fn:RESULT OF FILTER: "  (fo phrase-with-head) " + " (fo comp) " = " result)))
 
           (if result
             ;; complement was compatible with the filter: not filtered out.
@@ -248,7 +251,7 @@
             ;; complement was incompatible with the filter and thus filtered out:
             (do
               (log/debug (str "FILTER OUT: " (fo comp)))
-              result)))))))
+              result))))))))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -438,9 +441,9 @@
     (gen14 phrase heads comps nil 0)))
 
 (defn gen17 [phrase heads comps post-unify-fn]
-  (log/info (str "gen17: phrase:" (:comment phrase)))
-  (log/info (str "gen17: seq? heads:" (seq? heads)))
-  (log/info (str "gen17: fn? heads:" (fn? heads)))
+  (log/debug (str "gen17: phrase:" (:comment phrase)))
+  (log/debug (str "gen17: seq? heads:" (seq? heads)))
+  (log/debug (str "gen17: fn? heads:" (fn? heads)))
   (cond (seq? heads)
         (let [head (first heads)]
           (if head
@@ -497,24 +500,24 @@
               ~comp)))
 
 
-(defn log-candidate-form [label candidate]
+(defn log-candidate-form [candidate]
   (cond (and (map? candidate)
              (:schema candidate)
              (:head candidate)
              (:comp candidate))
-        (str "label: " label
-             "H:" (:head candidate) " , "
+        (str (:label candidate) " -> "
+             "H:" (:head candidate) " "
              "C:" (:comp candidate))
         (map? candidate)
-        (str "candidate: " (fo candidate))
+        (str " candidate: " (fo candidate))
         true
-        (str "label: " label "; candidate: " candidate)))
+        (str " candidate: " candidate)))
 
 (defn gen-all [alternatives & [label filter-against filter-fn]]
   (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
-      (log/info (str "gen-all:" (log-candidate-form label candidate)))
+      (log/info (str "gen-all: " (log-candidate-form candidate)))
       (if (and (map? candidate) (:post-unify-fn candidate))
         (log/info (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
       (let [filter-fn (if filter-fn
@@ -530,7 +533,7 @@
 
                           ;; no filter was desired by the caller: just use the pass-through filter.
                           ;; TODO: just return nil and don't filter below.
-                          (do (log/warn (str "using pass-thru filter for " (log-candidate-form label candidate)))
+                          (do (log/warn (str "using pass-thru filter for " (log-candidate-form candidate)))
                               (fn [x] true))))]
         (lazy-cat
          (let [lazy-returned-sequence
@@ -543,8 +546,8 @@
                      (let [schema (:schema candidate)
                            head (:head candidate)
                            comp (:comp candidate)
-                           debug (log/info (log-candidate-form label candidate))
-                           debug (log/info (str "candidate rewrite rule: " candidate))]
+                           debug (log/info (log-candidate-form candidate))
+                           debug (log/debug (str "candidate rewrite rule: " candidate))]
 
                        ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
                        ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
@@ -558,7 +561,7 @@
                        ;; 2) a sequence of lexemes.
 
 
-                       (log/info (str "doing gen17 with schema: " schema))
+                       (log/debug (str "phrase: " (:label candidate)  "; schema: " schema))
                        ;; (eval schema) is a 3-node tree (parent and two children) as described
                        ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                        ;; allowing us to access that value with (eval schema).
