@@ -40,7 +40,7 @@
 (def dets
   (filter (fn [lexeme]
             (= (get-in lexeme '(:synsem :cat)) :det))
-          cc10-heads))
+          cc10-comps))
 
 (def propernouns-and-pronouns
   ;; TODO: more compile-time filtering
