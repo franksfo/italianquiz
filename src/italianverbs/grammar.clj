@@ -29,7 +29,7 @@
          (it1 "vedere")
         ))
 
-(log/info "begin italian-english specifics.")
+(log/info "begin italian-english specific lexical categories..")
 
 (def common-nouns
   (filter (fn [lexeme]
@@ -90,3 +90,5 @@
                  (= (unify/get-in candidate '(:synsem :cat)) :verb)
                  (= (unify/get-in candidate '(:synsem :aux)) true)))
           hh21-heads))
+
+(log/info "done italian-english specific lexical categories.")
