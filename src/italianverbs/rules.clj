@@ -15,7 +15,7 @@
 (ns-unmap 'italianverbs.rules 'declarative-sentence)
 (ns-unmap 'italianverbs.rules 'np)
 (ns-unmap 'italianverbs.rules 'vp)
-(ns-unmap 'italianverbs.rules 'vp-transitive)
+(ns-unmap 'italianverbs.rules 'transitive-vp)
 
 (rewrite-as declarative-sentence {:schema 'cc10
                                   :label 'declarative-sentence
@@ -30,10 +30,11 @@
 (rewrite-as np 'pronouns)
 
 (rewrite-as vp 'intransitive-verbs)
-(rewrite-as vp {:schema 'hh21
-                :label 'vp
-                :comp 'np
-                :head 'transitive-verbs})
+(rewrite-as vp 'transitive-vp)
+(rewrite-as transitive-vp {:schema 'hh21
+                           :label 'vp
+                           :comp 'np
+                           :head 'transitive-verbs})
 (rewrite-as vp {:schema 'ch21
                 :label 'vp
                 :comp 'pronouns
@@ -44,7 +45,7 @@
                 :comp 'intransitive-verbs})
 (rewrite-as vp {:schema 'hh21
                 :head 'aux-verbs
-                :comp 'vp-transitive})
+                :comp 'transitive-vp})
 
 ;; for testing.
 
@@ -99,6 +100,7 @@
   (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
+  (log/info "STARTED random-sentence.")
   (take 1 (gen-all (shuffle declarative-sentence))))
 
 (defn random-sentences [n]
