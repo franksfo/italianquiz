@@ -15,7 +15,7 @@
             [clojure.string :as string])
 )
 
-(def phrase-times-lexicon-cache true)
+(def phrase-times-lexicon-cache false)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
@@ -236,9 +236,9 @@
 
           (if result
             ;; complement was compatible with the filter: not filtered out.
-            (do (log/info (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
-                (log/info (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
-                (log/info (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+            (do (log/debug (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
+                (log/debug (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
+                (log/debug (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                                "TRUE" ;; emphasize for ease of readability in logs.
                                ))
                 result)
@@ -423,10 +423,12 @@
 
 (if phrase-times-lexicon-cache
   (do
-    (log/debug (str "ch21-heads: " (.size ch21-heads)))
-    (log/debug (str "ch21-comps: " (.size ch21-comps)))
-    (log/debug (str "cc10-heads:" (.size cc10-heads)))
-    (log/debug (str "cc10-comps:" (.size cc10-comps)))))
+    (log/info "pre-compiling phrase-lex caches..")
+    (log/info (str "ch21-heads: " (.size ch21-heads)))
+    (log/info (str "ch21-comps: " (.size ch21-comps)))
+    (log/info (str "cc10-heads: " (.size cc10-heads)))
+    (log/info (str "cc10-comps: " (.size cc10-comps)))
+    (log/info "done pre-compiling phrase-lex caches.")))
 
 (defn gen15 [phrase heads comps]
   (do
@@ -436,6 +438,7 @@
 (defn gen17 [phrase heads comps post-unify-fn]
   (log/info (str "gen17: phrase:" (:comment phrase)))
   (log/info (str "gen17: seq? heads:" (seq? heads)))
+  (log/info (str "gen17: fn? heads:" (fn? heads)))
   (cond (seq? heads)
         (let [head (first heads)]
           (if head
@@ -509,12 +512,13 @@
   (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
-      (log/info (str "gen-all: label: " label "; " (log-candidate-form label candidate)))
-      (log/info (str "gen-all: post-unify: " (if (map? candidate) (:post-unify-fn candidate))))
+      (log/info (str "gen-all:" (log-candidate-form label candidate)))
+      (if (and (map? candidate) (:post-unify-fn candidate))
+        (log/info (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
       (let [filter-fn (if filter-fn
                         filter-fn
                         (if filter-against
-                          ;; create a function using the filter-against we were given.
+                          ;; create a function using the filter-against map that we were given:
                           (fn [x]
                             (let [debug (log/debug (str "filtering: " x))
                                   debug (log/debug (str "against: " filter-against))
@@ -523,7 +527,8 @@
                               (not (unify/fail? result))))
 
                           ;; no filter was desired by the caller: just use the pass-through filter.
-                          (do (log/warn (str "using pass-thru filter for " label))
+                          ;; TODO: just return nil and don't filter below.
+                          (do (log/warn (str "using pass-thru filter for " (log-candidate-form label candidate)))
                               (fn [x] true))))]
         (lazy-cat
          (let [lazy-returned-sequence
@@ -535,7 +540,9 @@
                           (not (nil? (:schema candidate))))
                      (let [schema (:schema candidate)
                            head (:head candidate)
-                           comp (:comp candidate)]
+                           comp (:comp candidate)
+                           debug (log/info (log-candidate-form label candidate))
+                           debug (log/info (str "candidate rewrite rule: " candidate))]
 
                        ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
                        ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
@@ -558,12 +565,11 @@
                               ;; head:
                               (fn [] (filter filter-fn
                                               (gen-all (lazy-shuffle (eval head))
-                                                       (str label " : " schema " -> " head " (H)"))))
+                                                       (str label ":" schema " -> " head " (H)"))))
 
                               ;; complement:
                               (fn [filter-by]
                                 (do
-                                  (log/info (str "COMPLEMENT SHOULD BE FILTERED BY:" filter-by))
                                   (gen-all (if (symbol? comp)
                                              (lazy-shuffle (eval comp)) (lazy-shuffle comp))
                                            (str label " : " schema " -> " comp " (C)")
