@@ -500,26 +500,32 @@
               ~comp)))
 
 
-(defn log-candidate-form [candidate]
+(defn log-candidate-form [candidate & [label]]
   (cond (and (map? candidate)
              (:schema candidate)
              (:head candidate)
              (:comp candidate))
-        (str (:label candidate) " -> "
-             "H:" (:head candidate) " "
-             "C:" (:comp candidate))
+        (if (= \c (nth (str (:schema candidate)) 0))
+          (str (:label candidate) " -> "
+               "C:" (:comp candidate) " "
+               "H:" (:head candidate))
+          (str (:label candidate) " -> "
+               "H:" (:head candidate) " "
+               "C:" (:comp candidate)))
         (map? candidate)
         (str " candidate: " (fo candidate))
         true
-        (str " candidate: " candidate)))
+        (str " candidate:" candidate)))
 
 (defn gen-all [alternatives & [label filter-against filter-fn]]
   (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
       (log/info (str "gen-all: " (log-candidate-form candidate)))
+      (log/info (str "gen-all: type of candidate: " (type candidate)))
+      (if filter-fn (log/info (str "gen-all: filter-fn: " filter-fn)))
       (if (and (map? candidate) (:post-unify-fn candidate))
-        (log/info (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
+        (log/debug (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
       (let [filter-fn (if filter-fn
                         filter-fn
                         (if filter-against
@@ -533,7 +539,7 @@
 
                           ;; no filter was desired by the caller: just use the pass-through filter.
                           ;; TODO: just return nil and don't filter below.
-                          (do (log/warn (str "using pass-thru filter for " (log-candidate-form candidate)))
+                          (do (log/debug (str "using pass-thru filter for " (log-candidate-form candidate)))
                               (fn [x] true))))]
         (lazy-cat
          (let [lazy-returned-sequence
@@ -546,7 +552,6 @@
                      (let [schema (:schema candidate)
                            head (:head candidate)
                            comp (:comp candidate)
-                           debug (log/info (log-candidate-form candidate))
                            debug (log/debug (str "candidate rewrite rule: " candidate))]
 
                        ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
@@ -561,7 +566,7 @@
                        ;; 2) a sequence of lexemes.
 
 
-                       (log/debug (str "phrase: " (:label candidate)  "; schema: " schema))
+                       (log/info (str "gen-all calling gen17 with: H: " head "; C: " comp "; label: " (:label candidate)))
                        ;; (eval schema) is a 3-node tree (parent and two children) as described
                        ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                        ;; allowing us to access that value with (eval schema).
