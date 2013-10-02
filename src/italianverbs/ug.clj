@@ -213,6 +213,8 @@
           complement-italian-initial (unify/get-in phrase-with-head '(:comp :italian :initial) :top)]
 
       (fn [comp]
+        ;; temporarily disable filter for testing
+        (or true
         (let [result
               (and
                (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
