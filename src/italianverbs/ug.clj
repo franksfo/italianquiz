@@ -545,8 +545,19 @@
         (lazy-cat
          (let [lazy-returned-sequence
                (cond (symbol? candidate)
-                     (lazy-shuffle
-                      (filter filter-fn (eval candidate)))
+                     (do
+                       (log/info "candidate is a symbol: " candidate)
+                       (log/info "candidate's eval type is: " (type (eval candidate)))
+                       (if (seq? (eval candidate))
+                         (do
+                           (if (list? candidate)
+                             (log/info "candidate is a list: " (eval candidate))
+                             (log/info "candidate is not a list (i.e. is lazy)"))
+                           (log/info (str label " -> candidate -> "))
+                           (gen-all
+                            (lazy-shuffle
+                             (filter filter-fn (eval candidate)))
+                            (str label " -> candidate -> ")))))
 
                      (and (map? candidate)
                           (not (nil? (:schema candidate))))
