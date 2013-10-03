@@ -521,7 +521,7 @@
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
       (log/info (str "gen-all: " (log-candidate-form candidate)))
-      (log/info (str "gen-all:  type of candidate "
+      (log/debug (str "gen-all:  type of candidate "
                      (if (symbol? candidate) (str "'" candidate)) ": " (type candidate)))
       (if filter-fn (log/info (str "gen-all: filter-fn: " filter-fn)))
       (if (and (map? candidate) (:post-unify-fn candidate))
