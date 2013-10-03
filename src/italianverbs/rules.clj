@@ -12,13 +12,8 @@
 
 (log/info "started loading rules.")
 
-;; undefine any previous values: TODO: should be a one-liner.
-(ns-unmap 'italianverbs.rules 'declarative-sentence)
-(ns-unmap 'italianverbs.rules 'np)
-(ns-unmap 'italianverbs.rules 'vp)
-(ns-unmap 'italianverbs.rules 'transitive-vp)
-
 ;; possible expansions of sentence (for now, only declarative sentences):
+(ns-unmap 'italianverbs.rules 'declarative-sentence)
 (rewrite-as declarative-sentence {:schema 'cc10
                                   :label 'declarative-sentence
                                   :post-unify-fn sent-impl
@@ -27,8 +22,8 @@
 
 ;; possible expansions of np (noun phrase):
 ;;
+(ns-unmap 'italianverbs.rules 'np)
 (rewrite-as np {:schema 'cc10
-                :label 'np
                 :comp 'dets
                 :head 'common-nouns})
 (rewrite-as np 'propernouns)
@@ -36,31 +31,36 @@
 
 ;; possible expansions of vp (verb phrase):
 ;;
+(ns-unmap 'italianverbs.rules 'vp)
+
 (rewrite-as vp 'intransitive-verbs)
-(rewrite-as vp 'transitive-vp)
+(rewrite-as vp 'modal-vp)
 (rewrite-as vp 'past-vp)
+(rewrite-as vp 'transitive-vp)
 (rewrite-as vp {:schema 'ch21
                 :label 'vp
                 :comp 'pronouns
                 :head 'transitive-verbs})
-(rewrite-as vp {:schema 'hh21
-                :label 'vp
-                :head 'modal-verbs
-                :comp 'intransitive-verbs})
-(rewrite-as vp {:schema 'hh21
-                :head 'modal-verbs
-                :comp 'transitive-vp})
-(rewrite-as vp {:schema 'hh21
-                :head 'modal-verbs
-                :comp 'past-vp})
+
+(ns-unmap 'italianverbs.rules 'modal-vp)
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp
+                      :head 'modal-verbs
+                      :comp 'intransitive-verbs})
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp
+                      :head 'modal-verbs
+                      :comp 'transitive-vp})
 
 ;; possible expansions of transitive vp (verb phrase):
 ;;
+;; undefine any previous values: TODO: should be a one-liner.
+(ns-unmap 'italianverbs.rules 'transitive-vp)
 (rewrite-as transitive-vp {:schema 'hh21
-                           :label 'transitive-vp
                            :comp 'np
                            :head 'transitive-verbs})
 
+(ns-unmap 'italianverbs.rules 'past-vp)
 (rewrite-as past-vp {:schema 'hh21
                      :label 'past-vp
                      :head 'aux-verbs
@@ -69,7 +69,10 @@
                      :label 'past-vp
                      :head 'aux-verbs
                      :comp 'transitive-vp})
-
+(rewrite-as past-vp {:schema 'hh21
+                     :label 'past-vp
+                     :head 'aux-verbs
+                     :comp 'modal-vp})
 
 ;; for testing.
 
