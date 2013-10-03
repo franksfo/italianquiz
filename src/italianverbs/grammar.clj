@@ -99,4 +99,9 @@
                  (= (unify/get-in candidate '(:synsem :subcat :2 :cat)) :verb)))
           hh21-heads))
 
+(def sent-adverbs
+  (filter (fn [candidate]
+            (= (unify/get-in candidate '(:synsem :cat)) :sent-modifier))
+          hh10-heads))
+
 (log/info "done italian-english specific lexical categories.")
