@@ -340,16 +340,25 @@
           input)
      (= input :top) input
      true
-     (let [finitize (if (or (= (unify/get-in input '(:synsem :infl))
-                               :top)
-                            (= (unify/get-in input '(:synsem :infl))
-                               :infinitive))
-                      (first (take 1 (shuffle
-                                      (list
-                                            {:synsem {:infl :futuro}}
-                                            {:synsem {:infl :imperfetto}}
-                                            {:synsem {:infl :present}}
-                                            )))))]
+     (let [finitize
+           (cond (or (= (unify/get-in input '(:synsem :infl))
+                        :top)
+                     (= (unify/get-in input '(:synsem :infl))
+                        :infinitive))
+
+                 (first (take 1 (shuffle
+                                 (list
+                                  {:synsem {:infl :futuro}}
+                                  {:synsem {:infl :imperfetto}}
+                                  {:synsem {:infl :present}}
+                                  ))))
+                 ;; special additional case for 'potere' exclude :imperfetto.
+                 (= (unify/get-in input '(:synsem :infl :not))
+                    :imperfetto)
+                 (first (take 1 (shuffle
+                                 (list
+                                  {:synsem {:infl :futuro}}
+                                  {:synsem {:infl :present}})))))]
        (let [merged
              (if (= input :fail) :fail
                  (unify/merge input finitize))]
