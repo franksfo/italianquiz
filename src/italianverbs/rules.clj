@@ -3,6 +3,7 @@
   (:use [italianverbs.generate :only (rewrite-as)]
         [italianverbs.grammar]
         [italianverbs.lexicon :only (it1)]
+        [clojure.repl :only (source)]
         [italianverbs.ug]
         [italianverbs.morphology :only (fo)])
   (:require [clojure.tools.logging :as log]
@@ -35,23 +36,23 @@
 
 ;; possible expansions of vp (verb phrase):
 ;
-;(rewrite-as vp 'intransitive-verbs)
+(rewrite-as vp 'intransitive-verbs)
 
 (rewrite-as vp 'transitive-vp)
 
-;(rewrite-as vp {:schema 'ch21
-;                :label 'vp
-;                :comp 'pronouns
-;                :head 'transitive-verbs})
+(rewrite-as vp {:schema 'ch21
+                :label 'vp
+                :comp 'pronouns
+                :head 'transitive-verbs})
 
-;(rewrite-as vp {:schema 'hh21
-;                :label 'vp
-;                :head 'aux-verbs
-;                :comp 'intransitive-verbs})
+(rewrite-as vp {:schema 'hh21
+                :label 'vp
+                :head 'aux-verbs
+                :comp 'intransitive-verbs})
 
-;(rewrite-as vp {:schema 'hh21
-;                :head 'aux-verbs
-;                :comp 'transitive-vp})
+(rewrite-as vp {:schema 'hh21
+                :head 'aux-verbs
+                :comp 'transitive-vp})
 
 ;; possible expansions of transitive vp (verb phrase):
 (rewrite-as transitive-vp {:schema 'hh21
