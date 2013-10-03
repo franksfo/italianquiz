@@ -1,6 +1,6 @@
 (ns italianverbs.rules
   (:refer-clojure :exclude [get-in resolve])
-  (:use [italianverbs.generate :only (rewrite-as)]
+  (:use [italianverbs.generate :only (rewrite-as gen-all)]
         [italianverbs.grammar]
         [italianverbs.lexicon :only (it1)]
         [clojure.repl :only (source)]
