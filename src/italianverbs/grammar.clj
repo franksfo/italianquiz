@@ -91,4 +91,12 @@
                  (= (unify/get-in candidate '(:synsem :aux)) true)))
           hh21-heads))
 
+(def modal-verbs
+  (filter (fn [candidate]
+            (and (not (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound)))
+                 (= (unify/get-in candidate '(:synsem :cat)) :verb)
+                 (= (unify/get-in candidate '(:synsem :aux) false) false)
+                 (= (unify/get-in candidate '(:synsem :subcat :2 :cat)) :verb)))
+          hh21-heads))
+
 (log/info "done italian-english specific lexical categories.")

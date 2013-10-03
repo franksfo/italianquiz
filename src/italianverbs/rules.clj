@@ -36,19 +36,26 @@
 
 ;; possible expansions of vp (verb phrase):
 ;;
-(rewrite-as vp 'intransitive-verbs)
-(rewrite-as vp 'transitive-vp)
-(rewrite-as vp {:schema 'ch21
-                :label 'vp
-                :comp 'pronouns
-                :head 'transitive-verbs})
+;(rewrite-as vp 'intransitive-verbs)
+;(rewrite-as vp 'transitive-vp)
+;(rewrite-as vp {:schema 'ch21
+;                :label 'vp
+;                :comp 'pronouns
+;                :head 'transitive-verbs})
+;(rewrite-as vp {:schema 'hh21
+;                :label 'vp
+;                :head 'aux-verbs
+;                :comp 'intransitive-verbs})
+;(rewrite-as vp {:schema 'hh21
+;                :head 'aux-verbs
+;                :comp 'transitive-vp})
 (rewrite-as vp {:schema 'hh21
                 :label 'vp
-                :head 'aux-verbs
+                :head 'modal-verbs
                 :comp 'intransitive-verbs})
-(rewrite-as vp {:schema 'hh21
-                :head 'aux-verbs
-                :comp 'transitive-vp})
+;(rewrite-as vp {:schema 'hh21
+;                :head 'modal-verbs
+;                :comp 'transitive-vp})
 
 ;; possible expansions of transitive vp (verb phrase):
 ;;
