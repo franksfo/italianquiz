@@ -1016,22 +1016,22 @@
              (:head candidate)
              (:comp candidate))
         (if (= \c (nth (str (:schema candidate)) 0))
-          (str (:label candidate) " -> "
+          (str (if label (:label candidate) " -> ")
                "C:" (:comp candidate) " "
                "H:" (:head candidate))
-          (str (:label candidate) " -> "
+          (str (if label (:label candidate) " -> ")
                "H:" (:head candidate) " "
                "C:" (:comp candidate)))
         (map? candidate)
-        (str " candidate: " (fo candidate))
+        (str " candidate: " (if label (str label " -> ")) (fo candidate))
         true
-        (str " candidate:" candidate)))
+        (str " candidate:" (if label (str label " -> ")) candidate)))
 
 (defn gen-all [alternatives & [label filter-against filter-fn]]
   (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
-      (log/info (str "gen-all: " (log-candidate-form candidate)))
+      (log/info (str "gen-all: " (log-candidate-form candidate label)))
       (log/debug (str "gen-all:  type of candidate "
                      (if (symbol? candidate) (str "'" candidate)) ": " (type candidate)))
       (if filter-fn (log/debug (str "gen-all: filter-fn: " filter-fn)))
@@ -1116,7 +1116,6 @@
            lazy-returned-sequence)
          (gen-all (rest alternatives) label filter-against filter-fn))))))
 
-(log/info "compiling gen-ch21..")
 (defmacro gen-ch21 [head comp]
   `(do ~(log/info "gen-ch21 macro compile-time.")
        (gen15 ch21
