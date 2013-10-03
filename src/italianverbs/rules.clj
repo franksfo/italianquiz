@@ -117,7 +117,7 @@
   (log/info "STARTED random-sentence.")
   (take 1 (gen-all (shuffle declarative-sentence))))
 
-(defn random-sentences [n]
-  (repeatedly n (fn [] (random-sentence))))
+(defn random-sentences [ & n]
+  (repeatedly (if (first n) (first n) 1000) (fn [] (random-sentence))))
 
 (log/info "done loading rules.")
