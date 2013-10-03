@@ -74,6 +74,16 @@
                      :head 'aux-verbs
                      :comp 'modal-vp})
 
+(ns-unmap 'italianverbs.rules 'sentence-with-modifier)
+(rewrite-as sentence-with-modifier {:schema 'hh10
+                                    :label 'sentence-with-modifier
+                                    :head 'sent-adverbs
+                                    :comp 'declarative-sentence})
+(rewrite-as sentence-with-modifier {:schema 'cc10
+                                    :label 'sentence-with-modifier
+                                    :head 'sent-adverbs
+                                    :comp 'declarative-sentence})
+
 ;; for testing.
 
 (ns-unmap 'italianverbs.rules 'my-vp-transitive)
