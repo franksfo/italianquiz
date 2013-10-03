@@ -989,3 +989,149 @@
          (cons elem
                (lazy-shuffle (concat prior (rest remainder)))))))))
 
+(defn gen15 [phrase heads comps]
+  (do
+    (log/info (str "gen15 start: " (get-in phrase '(:comment)) "," (type heads)))
+    (gen14 phrase heads comps nil 0)))
+
+(defn gen17 [phrase heads comps post-unify-fn]
+  (log/debug (str "gen17: phrase:" (:comment phrase)))
+  (log/debug (str "gen17: seq? heads:" (seq? heads)))
+  (log/debug (str "gen17: fn? heads:" (fn? heads)))
+  (cond (seq? heads)
+        (let [head (first heads)]
+          (if head
+            (lazy-cat
+             (do
+               (log/info (str "will filter comps using phrase's filter function: " (:comp-filter-fn phrase)))
+               (gen14 phrase (list head) comps post-unify-fn 0)))
+             (gen17 phrase (rest heads) comps post-unify-fn)))
+
+        true
+        (gen14 phrase heads comps post-unify-fn 0)))
+
+(defn log-candidate-form [candidate & [label]]
+  (cond (and (map? candidate)
+             (:schema candidate)
+             (:head candidate)
+             (:comp candidate))
+        (if (= \c (nth (str (:schema candidate)) 0))
+          (str (:label candidate) " -> "
+               "C:" (:comp candidate) " "
+               "H:" (:head candidate))
+          (str (:label candidate) " -> "
+               "H:" (:head candidate) " "
+               "C:" (:comp candidate)))
+        (map? candidate)
+        (str " candidate: " (fo candidate))
+        true
+        (str " candidate:" candidate)))
+
+(defn gen-all [alternatives & [label filter-against filter-fn]]
+  (if (first alternatives)
+    (let [candidate (first alternatives)
+          label (if label label (if (map? label) (:label candidate)))]
+      (log/info (str "gen-all: " (log-candidate-form candidate)))
+      (log/debug (str "gen-all:  type of candidate "
+                     (if (symbol? candidate) (str "'" candidate)) ": " (type candidate)))
+      (if filter-fn (log/debug (str "gen-all: filter-fn: " filter-fn)))
+      (if (and (map? candidate) (:post-unify-fn candidate))
+        (log/debug (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
+      (let [filter-fn (if filter-fn
+                        filter-fn
+                        (if filter-against
+                          ;; create a function using the filter-against map that we were given:
+                          (fn [x]
+                            (let [debug (log/debug (str "filtering: " x))
+                                  debug (log/debug (str "against: " filter-against))
+                                  result (lexfn/unify x filter-against)
+                                  debug (log/debug (str "result: " result))]
+                              (not (unify/fail? result))))
+
+                          ;; no filter was desired by the caller: just use the pass-through filter.
+                          ;; TODO: just return nil and don't filter below.
+                          (do (log/debug (str "using pass-thru filter for " (log-candidate-form candidate)))
+                              (fn [x] true))))]
+        (lazy-cat
+         (let [lazy-returned-sequence
+               (cond (symbol? candidate)
+                     (do
+                       (log/info "candidate is a symbol: " candidate)
+                       (log/info "candidate's eval type is: " (type (eval candidate)))
+                       (if (seq? (eval candidate))
+                         (do
+                           (if (list? candidate)
+                             (log/info "candidate is a list: " (eval candidate))
+                             (log/info "candidate is not a list (i.e. is lazy)"))
+                           (log/info (str label " -> " candidate " -> "))
+                           (gen-all
+                            (lazy-shuffle
+                             (filter filter-fn (eval candidate)))
+                            (str label " -> candidate -> ")))))
+
+                     (and (map? candidate)
+                          (not (nil? (:schema candidate))))
+                     (let [schema (:schema candidate)
+                           head (:head candidate)
+                           comp (:comp candidate)
+                           debug (log/debug (str "candidate rewrite rule: " candidate))]
+
+                       ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
+                       ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
+                       ;; in a particular order (i.e. either head is first or complement is first).
+                       ;; head is either 1) or 2):
+                       ;; 1) a rule consisting of a schema, a head rule, and a comp rule.
+                       ;; 2) a sequence of lexemes.
+
+                       ;; comp is either 1) or 2):
+                       ;; 1) a rule consisting of a schema, a head rule, and a comp rule.
+                       ;; 2) a sequence of lexemes.
+
+
+                       (log/info (str "gen-all calling gen17 with: H: " head "; C: " comp "; label: " (:label candidate)))
+                       ;; (eval schema) is a 3-node tree (parent and two children) as described
+                       ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
+                       ;; allowing us to access that value with (eval schema).
+                       (gen17 (eval schema)
+
+                              ;; head:
+                              (fn [] (filter filter-fn
+                                              (gen-all (lazy-shuffle (eval head))
+                                                       (str label ":" schema " -> " head " (H)"))))
+
+                              ;; complement:
+                              (fn [filter-by]
+                                (do
+                                  (gen-all (if (symbol? comp)
+                                             (lazy-shuffle (eval comp)) (lazy-shuffle comp))
+                                           (str label " : " schema " -> " comp " (C)")
+                                           nil
+                                           filter-by)))
+                              (:post-unify-fn candidate)))
+
+                     (map? candidate)
+                     (list candidate)
+
+                     true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))]
+           lazy-returned-sequence)
+         (gen-all (rest alternatives) label filter-against filter-fn))))))
+
+(log/info "compiling gen-ch21..")
+(defmacro gen-ch21 [head comp]
+  `(do ~(log/info "gen-ch21 macro compile-time.")
+       (gen15 ch21
+              ~head
+              ~comp)))
+
+(defmacro gen-hh21 [head comp]
+  `(do ~(log/info "gen-hh21 macro compile-time.")
+       (gen15 hh21
+              ~head
+              ~comp)))
+
+(defmacro gen-cc10 [head comp]
+  `(do ~(log/info "gen-cc10 macro compile-time.")
+       (gen15 cc10
+              ~head
+              ~comp)))
+
