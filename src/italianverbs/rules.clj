@@ -114,7 +114,6 @@
   (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (log/info "STARTED random-sentence.")
   (take 1 (gen-all (shuffle declarative-sentence))))
 
 (defn random-sentences [ & n]

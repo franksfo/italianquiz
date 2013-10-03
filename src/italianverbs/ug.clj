@@ -552,7 +552,7 @@
                            (if (list? candidate)
                              (log/info "candidate is a list: " (eval candidate))
                              (log/info "candidate is not a list (i.e. is lazy)"))
-                           (log/info (str label " -> candidate -> "))
+                           (log/info (str label " -> " candidate " -> "))
                            (gen-all
                             (lazy-shuffle
                              (filter filter-fn (eval candidate)))
