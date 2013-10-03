@@ -26,7 +26,7 @@
                                   :head 'vp})
 
 ;; possible expansions of np (noun phrase):
-;
+;;
 (rewrite-as np {:schema 'cc10
                 :label 'np
                 :comp 'dets
@@ -35,26 +35,23 @@
 (rewrite-as np 'pronouns)
 
 ;; possible expansions of vp (verb phrase):
-;
+;;
 (rewrite-as vp 'intransitive-verbs)
-
 (rewrite-as vp 'transitive-vp)
-
 (rewrite-as vp {:schema 'ch21
                 :label 'vp
                 :comp 'pronouns
                 :head 'transitive-verbs})
-
 (rewrite-as vp {:schema 'hh21
                 :label 'vp
                 :head 'aux-verbs
                 :comp 'intransitive-verbs})
-
 (rewrite-as vp {:schema 'hh21
                 :head 'aux-verbs
                 :comp 'transitive-vp})
 
 ;; possible expansions of transitive vp (verb phrase):
+;;
 (rewrite-as transitive-vp {:schema 'hh21
                            :label 'vp
                            :comp 'np
