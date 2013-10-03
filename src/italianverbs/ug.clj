@@ -301,9 +301,10 @@
   (unify
    subcat-1-principle
    head-principle
-   italian-head-last
-   english-head-last
-   {:comment "hh10"}))
+   italian-head-first
+   english-head-first
+   {:comment "hh10"
+    :comp-filter-fn standard-filter-fn}))
 
 (def hh21
   (unify
@@ -394,9 +395,16 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def hh21-heads
-  (if false
+  (if true
     (filter (fn [lex]
               (not (fail? (unify hh21 {:head lex}))))
+            lex/lexicon)
+    lex/lexicon))
+
+(def hh10-heads
+  (if true
+    (filter (fn [lex]
+              (not (fail? (unify hh10 {:head lex}))))
             lex/lexicon)
     lex/lexicon))
 
