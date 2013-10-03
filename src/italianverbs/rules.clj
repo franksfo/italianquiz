@@ -17,11 +17,15 @@
 (ns-unmap 'italianverbs.rules 'vp)
 (ns-unmap 'italianverbs.rules 'transitive-vp)
 
+;; possible expansions of sentence (for now, only declarative sentences):
 (rewrite-as declarative-sentence {:schema 'cc10
                                   :label 'declarative-sentence
                                   :post-unify-fn sent-impl
                                   :comp 'np
                                   :head 'vp})
+
+;; possible expansions of np (noun phrase):
+;
 (rewrite-as np {:schema 'cc10
                 :label 'np
                 :comp 'dets
@@ -29,23 +33,32 @@
 (rewrite-as np 'propernouns)
 (rewrite-as np 'pronouns)
 
-(rewrite-as vp 'intransitive-verbs)
+;; possible expansions of vp (verb phrase):
+;
+;(rewrite-as vp 'intransitive-verbs)
+
 (rewrite-as vp 'transitive-vp)
+
+;(rewrite-as vp {:schema 'ch21
+;                :label 'vp
+;                :comp 'pronouns
+;                :head 'transitive-verbs})
+
+;(rewrite-as vp {:schema 'hh21
+;                :label 'vp
+;                :head 'aux-verbs
+;                :comp 'intransitive-verbs})
+
+;(rewrite-as vp {:schema 'hh21
+;                :head 'aux-verbs
+;                :comp 'transitive-vp})
+
+;; possible expansions of transitive vp (verb phrase):
 (rewrite-as transitive-vp {:schema 'hh21
                            :label 'vp
                            :comp 'np
                            :head 'transitive-verbs})
-(rewrite-as vp {:schema 'ch21
-                :label 'vp
-                :comp 'pronouns
-                :head 'transitive-verbs})
-(rewrite-as vp {:schema 'hh21
-                :label 'vp
-                :head 'aux-verbs
-                :comp 'intransitive-verbs})
-(rewrite-as vp {:schema 'hh21
-                :head 'aux-verbs
-                :comp 'transitive-vp})
+
 
 ;; for testing.
 
