@@ -234,9 +234,9 @@
           (log/debug (str "comp-filter-fn:complement-sem: " complement-sem))
           (log/debug (str "comp-filter-fn:complement's italian initial must be: " complement-italian-initial))
           (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
-            (log/info (str "comp-filter-fn:RESULT OF FILTER: " (fo comp) " + " (fo phrase-with-head) " = " result))
+            (log/debug (str "comp-filter-fn:RESULT OF FILTER: " (fo comp) " + " (fo phrase-with-head) " = " result))
             ;; else, head is first
-            (log/info (str "comp-filter-fn:RESULT OF FILTER: "  (fo phrase-with-head) " + " (fo comp) " = " result)))
+            (log/debug (str "comp-filter-fn:RESULT OF FILTER: "  (fo phrase-with-head) " + " (fo comp) " = " result)))
 
           (if result
             ;; complement was compatible with the filter: not filtered out.
