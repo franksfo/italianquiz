@@ -1031,7 +1031,9 @@
   (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
-      (log/info (str "gen-all: " (log-candidate-form candidate label)))
+      (if (and (map? candidate)
+               (nil? (:schema candidate)));; don't log lexical candidates: too many of them.
+        (log/info (str "gen-all: " (log-candidate-form candidate label))))
       (log/debug (str "gen-all:  type of candidate "
                      (if (symbol? candidate) (str "'" candidate)) ": " (type candidate)))
       (if filter-fn (log/debug (str "gen-all: filter-fn: " filter-fn)))
@@ -1051,7 +1053,8 @@
                           ;; no filter was desired by the caller: just use the pass-through filter.
                           ;; TODO: just return nil and don't filter below.
                           (do (log/debug (str "using pass-thru filter for " (log-candidate-form candidate)))
-                              (fn [x] true))))]
+                              (fn [x] true))))
+            ]
         (lazy-cat
          (let [lazy-returned-sequence
                (cond (symbol? candidate)
@@ -1071,7 +1074,8 @@
 
                      (and (map? candidate)
                           (not (nil? (:schema candidate))))
-                     (let [schema (:schema candidate)
+                     (let [debug (log/info "candidate is a rewrite rule.")
+                           schema (:schema candidate)
                            head (:head candidate)
                            comp (:comp candidate)
                            debug (log/debug (str "candidate rewrite rule: " candidate))]
@@ -1110,7 +1114,9 @@
                               (:post-unify-fn candidate)))
 
                      (map? candidate)
-                     (list candidate)
+                     (do
+                       (log/debug (str "candidate is just a plain map:" (fo candidate)))
+                       (list candidate))
 
                      true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))]
            lazy-returned-sequence)
