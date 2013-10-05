@@ -1060,13 +1060,13 @@
                (cond (symbol? candidate)
                      (do
                        (log/info "candidate is a symbol: " candidate)
-                       (log/info "candidate's eval type is: " (type (eval candidate)))
+                       (log/debug "candidate's eval type is: " (type (eval candidate)))
                        (if (seq? (eval candidate))
                          (do
-                           (if (list? candidate)
+                           (if (list? (eval candidate))
                              (log/info "candidate is a list: " (eval candidate))
-                             (log/info "candidate is not a list (i.e. is lazy)"))
-                           (log/info (str label " -> " candidate " -> "))
+                             (log/info "candidate is a seq but not a list (a lazyseq)"))
+                           (log/debug (str label " -> " candidate " -> "))
                            (gen-all
                             (lazy-shuffle
                              (filter filter-fn (eval candidate)))
@@ -1074,7 +1074,7 @@
 
                      (and (map? candidate)
                           (not (nil? (:schema candidate))))
-                     (let [debug (log/info "candidate is a rewrite rule.")
+                     (let [debug (log/info (str "candidate: " (:label candidate) " is a rewrite rule."))
                            schema (:schema candidate)
                            head (:head candidate)
                            comp (:comp candidate)
