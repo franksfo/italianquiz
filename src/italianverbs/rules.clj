@@ -5,7 +5,7 @@
         [italianverbs.lexicon :only (it1)]
         [clojure.repl :only (source)]
         [italianverbs.ug]
-        [italianverbs.morphology :only (fo)])
+        [italianverbs.morphology :only (fo fof)])
   (:require [clojure.tools.logging :as log]
             [italianverbs.unify :as unify])
 )

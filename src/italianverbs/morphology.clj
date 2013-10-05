@@ -1662,7 +1662,12 @@
               (formattare (rest expressions)))))))))
 
 (defn fo [expressions]
-  (formattare expressions))
+    (formattare expressions))
+
+(defn fof [expressions]
+  (let [retval (time (formattare expressions))]
+    (log/info "FINISHED FORMATTING") ;; acts as a delimiter for this sentence's generation for debugging purposes.
+    retval))
 
 (defn finalize [expr]
   (if (= :fail expr)
