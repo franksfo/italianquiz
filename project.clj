@@ -2,6 +2,10 @@
   :description "Italian language learning app"
   :plugins [[lein-ring "0.7.3"]]
   :dependencies [[org.clojure/clojure "1.5.1"]
+
+;; http://stackoverflow.com/questions/3782970/how-can-i-display-the-definition-of-a-function-in-clojure-at-the-repl
+;                  [org.clojure/repl] 
+
                  [compojure "1.1.3"]
                  [congomongo "0.2.0"]
                  [clojail "1.0.6"]
