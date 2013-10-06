@@ -1666,7 +1666,7 @@
 
 (defn fof [expressions]
   (let [retval (time (formattare expressions))]
-    (log/info "FINISHED FORMATTING") ;; acts as a delimiter for this sentence's generation for debugging purposes.
+    (log/info (str "FINISHED FORMATTING: " retval)) ;; acts as a delimiter for this sentence's generation for debugging purposes.
     retval))
 
 (defn finalize [expr]
