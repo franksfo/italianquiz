@@ -1023,17 +1023,20 @@
                "H:" (:head candidate) " "
                "C:" (:comp candidate)))
         (map? candidate)
-        (str " candidate: " (if label (str label " -> ")) (fo candidate))
+        (str (if label (str label)))
         true
-        (str " candidate:" (if label (str label " -> ")) candidate)))
+        (str (if label (str label)))))
 
-(defn gen-all [alternatives & [label filter-against filter-fn]]
+(defn gen-all [alternatives label & [filter-against filter-fn]]
   (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
+      (if (and (nil? (:schema candidate))
+               (map? candidate))
+        (log/info (str "gen-all: " label ": " (fo candidate))))
       (if (and (map? candidate)
                (nil? (:schema candidate)));; don't log lexical candidates: too many of them.
-        (log/info (str "gen-all: " (log-candidate-form candidate label))))
+        (log/debug (str "gen-all: " (log-candidate-form candidate label))))
       (log/debug (str "gen-all:  type of candidate "
                      (if (symbol? candidate) (str "'" candidate)) ": " (type candidate)))
       (if filter-fn (log/debug (str "gen-all: filter-fn: " filter-fn)))
@@ -1059,22 +1062,22 @@
          (let [lazy-returned-sequence
                (cond (symbol? candidate)
                      (do
-                       (log/info "candidate is a symbol: " candidate)
+                       (log/debug "candidate is a symbol: " candidate)
                        (log/debug "candidate's eval type is: " (type (eval candidate)))
                        (if (seq? (eval candidate))
                          (do
                            (if (list? (eval candidate))
-                             (log/info "candidate is a list: " (eval candidate))
-                             (log/info "candidate is a seq but not a list (a lazyseq)"))
+                             (log/debug "candidate:" candidate " is a list: " (eval candidate))
+                             (log/debug "candidate:" candidate " is a seq but not a list (a lazyseq)"))
                            (log/debug (str label " -> " candidate " -> "))
                            (gen-all
                             (lazy-shuffle
                              (filter filter-fn (eval candidate)))
-                            (str label " -> candidate -> ")))))
+                            (str label " -> " candidate)))))
 
                      (and (map? candidate)
                           (not (nil? (:schema candidate))))
-                     (let [debug (log/info (str "candidate: " (:label candidate) " is a rewrite rule."))
+                     (let [debug (log/debug (str "gen-all: " label " -> " (:label candidate)))
                            schema (:schema candidate)
                            head (:head candidate)
                            comp (:comp candidate)
@@ -1092,7 +1095,9 @@
                        ;; 2) a sequence of lexemes.
 
 
-                       (log/info (str "gen-all calling gen17 with: H: " head "; C: " comp "; label: " (:label candidate)))
+                       (if (nil? (:label candidate))
+                         (log/info (str "gen-all: expanding " label " -> H: " head "; C: " comp))
+                         (log/info (str "gen-all: expanding " (:label candidate) " -> H: " head "; C: " comp)))
                        ;; (eval schema) is a 3-node tree (parent and two children) as described
                        ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                        ;; allowing us to access that value with (eval schema).
@@ -1101,14 +1106,18 @@
                               ;; head:
                               (fn [] (filter filter-fn
                                               (gen-all (lazy-shuffle (eval head))
-                                                       (str label ":" schema " -> " head " (H)"))))
+                                                       (if false ;; show or don't show schema (e.g. cc10)
+                                                         (str label ":" schema " -> [H " head "]")
+                                                         (str label " -> [H " head "]")))))
 
                               ;; complement:
                               (fn [filter-by]
                                 (do
                                   (gen-all (if (symbol? comp)
                                              (lazy-shuffle (eval comp)) (lazy-shuffle comp))
-                                           (str label " : " schema " -> " comp " (C)")
+                                           (if false ;; show or don't show schema (e.g. cc10)
+                                             (str label " : " schema " -> [C " comp "]")
+                                             (str label " -> [C " comp "]"))
                                            nil
                                            filter-by)))
                               (:post-unify-fn candidate)))
