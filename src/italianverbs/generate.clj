@@ -717,6 +717,32 @@
               debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
           :fail)))))
 
+(defn moreover-head-diagnostics [parent child]
+  (if true
+    (log/info "foo")
+  (do
+    (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
+    (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
+    (log/debug (str "moreover-head (candidate) head:" (fo child)))
+    (let [;parent (unify/copy parent)
+                                        ;child (unify/copy child)
+          result (lexfn/unify parent
+                              {:head child}
+                              {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
+      (if (not (unify/fail? result))
+        (let [debug (log/debug (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+          (merge {:head-filled true}
+                 result))
+        (let [debug (log/debug (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
+              fail-path (unify/fail-path result)
+              debug (log/debug (str " fail-path: " fail-path))
+              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
+              debug (log/debug (str " head: " child))
+              debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
+              debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
+          :fail))))))
+
 (defn moreover-comp [parent child]
   (log/debug (str "moreover-comp parent: " (fo parent)))
   (log/debug (str "moreover-comp comp:" (fo child)))
@@ -938,11 +964,11 @@
               ]
           (if (not is-fail?)
             (do
-              (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
+              (log/info (str "gen14: head: " (fo (dissoc head :serialized))
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment))) ")")
                              " added successfully to " (unify/get-in phrase '(:comment)) "."))
-              (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
+              (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment)) ")")
                                "")))
@@ -962,7 +988,8 @@
                       post-unify-fn
                       recursion-level)))
             (do
-              (log/debug (str "gen14: FAIL: continuing with rest of heads."))
+              (log/info (str "gen14: FAIL WITH HEAD: " (fo head)))
+              (log/info (str "gen14: fail diagnostics:" (moreover-head-diagnostics phrase head)))
               (gen14 phrase
                      rest-heads
                      complements
@@ -1040,6 +1067,15 @@
       (log/debug (str "gen-all:  type of candidate "
                      (if (symbol? candidate) (str "'" candidate)) ": " (type candidate)))
       (if filter-fn (log/debug (str "gen-all: filter-fn: " filter-fn)))
+      (if (and (nil? filter-fn)
+               (nil? filter-against))
+        (log/warn (str "gen-all: NO FILTERING ON CANDIDATE: "
+                       (cond (and (nil? (:schema candidate))
+                                  (map? candidate))
+                             (fo candidate)
+                             true candidate))))
+
+
       (if (and (map? candidate) (:post-unify-fn candidate))
         (log/debug (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
       (let [filter-fn (if filter-fn
@@ -1118,7 +1154,7 @@
                                            (if false ;; show or don't show schema (e.g. cc10)
                                              (str label " : " schema " -> [C " comp "]")
                                              (str label " -> [C " comp "]"))
-                                           nil
+                                           (if true nil filter-against)
                                            filter-by)))
                               (:post-unify-fn candidate)))
 
