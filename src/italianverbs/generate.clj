@@ -728,8 +728,8 @@
                               {:head child}
                               {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
       (if (not (unify/fail? result))
-        (let [debug (log/info (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/info (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+        (let [debug (log/debug (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
           (merge {:head-filled true}
                  result))
         (let [debug (log/debug (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
@@ -851,7 +851,7 @@
                             filtered-complements
                             ;; filter the complements according to the complement-filter-fn.
                             (filter (fn [complement]
-                                      (log/info (str "FILTERING COMPLEMENT: " complement))
+                                      (log/debug (str "FILTERING COMPLEMENT: " complement))
                                       (apply
                                        (apply complement-filter-fn (list phrase-with-head))
                                        (list complement)))
