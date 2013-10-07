@@ -858,10 +858,12 @@
                                     complements))
                           (= (type complements)
                              clojure.lang.PersistentVector)
-                          (do (log/info (str "gen14-inner: filtering vector."))
-                              (filter (fn [complement]
-                                        true)
-                                      (list (first complements))))
+                          (do (log/debug (str "gen14-inner: filtering vector."))
+                              (if filtered-complements
+                                filtered-complements
+                                (filter (fn [complement]
+                                          true)
+                                        (list (first complements)))))
                           :else
                           (let [error-message (str "neither fn?, seq? nor vector: " (type complements))]
                             (do (log/error error-message)
