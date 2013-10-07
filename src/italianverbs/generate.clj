@@ -821,7 +821,7 @@
                   (gen13 1 phrases lexicon)
                   lexicon)))
 
-(defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level]
+(defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level [ & filtered-complements]]
   (let [debug (log/debug (str "gen14-inner begin: recursion level: " recursion-level))
         debug (log/debug (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
         recursion-level (+ 1 recursion-level)
@@ -847,19 +847,21 @@
                           (do (log/debug (str "gen14-inner: treating complements as a fn."))
                               (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
                           (seq? complements)
-                          ;; filter the complements according to the complement-filter-fn.
-                          (filter (fn [complement]
-                                    (log/debug (str "FILTERING COMPLEMENT: " complement))
-                                    (apply
-                                     (apply complement-filter-fn (list phrase-with-head))
-                                     (list complement)))
-                                  complements)
+                          (if filtered-complements
+                            filtered-complements
+                            ;; filter the complements according to the complement-filter-fn.
+                            (filter (fn [complement]
+                                      (log/info (str "FILTERING COMPLEMENT: " complement))
+                                      (apply
+                                       (apply complement-filter-fn (list phrase-with-head))
+                                       (list complement)))
+                                    complements))
                           (= (type complements)
                              clojure.lang.PersistentVector)
-                          (do (log/debug (str "gen14-inner: filtering vector."))
+                          (do (log/info (str "gen14-inner: filtering vector."))
                               (filter (fn [complement]
                                         true)
-                                      complements))
+                                      (list (first complements))))
                           :else
                           (let [error-message (str "neither fn?, seq? nor vector: " (type complements))]
                             (do (log/error error-message)
@@ -913,11 +915,11 @@
               (let [with-impl (if post-unify-fn (post-unify-fn result) result)]
                   (if (unify/fail? with-impl)
                     (do (log/warn (str "result: " (fo result) " was not fail, but its (post-unify-fn) returned fail."))
-                        (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level))
+                        (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level nil))
                     (lazy-seq
                      (cons
                       with-impl
-                      (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level))))))
+                      (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level rest-complements))))))
             (do
               (log/debug (str "gen14-inner: fail: " result))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
@@ -934,7 +936,7 @@
                                " + "
                                (fo comp) " => FAIL.")))
 
-              (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level))))))))
+              (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level rest-complements))))))))
 
 (defn gen14 [phrase heads complements post-unify-fn recursion-level]
   (if (or (fn? heads) (not (empty? heads)))
@@ -979,7 +981,7 @@
                    (gen14-inner phrase-with-head
                                 complements
                                 filter-function
-                                post-unify-fn 0)))
+                                post-unify-fn 0 nil)))
                (gen14 phrase
                       rest-heads
                       complements
@@ -1150,11 +1152,14 @@
                        (gen17 (eval schema)
 
                               ;; head:
-                              (fn [] (filter filter-fn
-                                              (gen-all (lazy-shuffle (eval head))
-                                                       (if false ;; show or don't show schema (e.g. cc10)
-                                                         (str label ":" schema " -> {H:" head "}")
-                                                         (str label " -> {H:" head "}")))))
+                              (fn []
+                                (do
+                                  (log/info (str "GONNA DO THE FILTER: " filter-fn))
+                                  (filter filter-fn
+                                          (gen-all (lazy-shuffle (eval head))
+                                                   (if false ;; show or don't show schema (e.g. cc10)
+                                                     (str label ":" schema " -> {H:" head "}")
+                                                     (str label " -> {H:" head "}"))))))
 
                               ;; complement:
                               (fn [filter-by]
