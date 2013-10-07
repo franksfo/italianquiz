@@ -76,13 +76,22 @@
 
 (ns-unmap 'italianverbs.rules 'sentence-with-modifier)
 (rewrite-as sentence-with-modifier {:schema 'hh10
-                                    :label 'sentence-with-modifier
+                                    :label 'sentence-with-modifier-left
                                     :head 'sent-adverbs
                                     :comp 'declarative-sentence})
 (rewrite-as sentence-with-modifier {:schema 'cc10
-                                    :label 'sentence-with-modifier
+                                    :label 'sentence-with-modifier-right
                                     :head 'sent-adverbs
-                                    :comp 'declarative-sentence})
+                                    :comp 'declarative-sentence-no-sent-impl})
+
+(ns-unmap 'italianverbs.rules 'declarative-sentence-no-sent-impl)
+(rewrite-as declarative-sentence-no-sent-impl {:schema 'cc10
+                                               :label 'declarative-sentence-no-sent-impl
+                                               :post-unify-fn sent-impl
+                                               :comp 'np
+                                               :head 'vp})
+
+
 
 ;; for testing.
 
