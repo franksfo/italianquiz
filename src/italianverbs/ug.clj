@@ -249,7 +249,7 @@
 
             ;; complement was incompatible with the filter and thus filtered out:
             (do
-              (log/info (str "FILTER OUT: " (fo comp)))
+              (log/info (str "FILTER OUT: " (:comment comp) " : " (fo comp) " against phrase-with-head: " (:comment phrase-with-head) " :" (fo phrase-with-head)))
               result)))))))
 
 (def hc-agreement
