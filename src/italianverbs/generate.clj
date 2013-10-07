@@ -718,20 +718,18 @@
           :fail)))))
 
 (defn moreover-head-diagnostics [parent child]
-  (if true
-    (log/info "foo")
   (do
-    (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
-    (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/debug (str "moreover-head (candidate) head:" (fo child)))
+    (log/info (str "moreover-head (candidate) parent: " (fo parent)))
+    (log/info (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
+    (log/info (str "moreover-head (candidate) head:" (fo child)))
     (let [;parent (unify/copy parent)
                                         ;child (unify/copy child)
           result (lexfn/unify parent
                               {:head child}
                               {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
       (if (not (unify/fail? result))
-        (let [debug (log/debug (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+        (let [debug (log/info (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+              debug (log/info (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
           (merge {:head-filled true}
                  result))
         (let [debug (log/debug (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
@@ -741,7 +739,7 @@
               debug (log/debug (str " head: " child))
               debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
               debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
-          :fail))))))
+          :fail)))))
 
 (defn moreover-comp [parent child]
   (log/debug (str "moreover-comp parent: " (fo parent)))
@@ -1067,14 +1065,26 @@
       (log/debug (str "gen-all:  type of candidate "
                      (if (symbol? candidate) (str "'" candidate)) ": " (type candidate)))
       (if filter-fn (log/debug (str "gen-all: filter-fn: " filter-fn)))
-      (if (and (nil? filter-fn)
-               (nil? filter-against))
-        (log/warn (str "gen-all: NO FILTERING ON CANDIDATE: "
-                       (cond (and (nil? (:schema candidate))
-                                  (map? candidate))
-                             (fo candidate)
-                             true candidate))))
 
+      (if (and (or filter-fn filter-against)
+               (map? candidate)
+               (:schema candidate)) ;; a rule, not a lexeme.
+        (log/debug (str "gen-all: FILTERING ON CANDIDATE RULE:"
+                        (fo candidate))))
+
+      (if (and (nil? filter-fn)
+               (nil? filter-against)
+               (map? candidate)
+               (nil? (:schema candidate))) ;; a lexeme, not a rule.
+        (log/debug (str "gen-all: NO FILTERING ON CANDIDATE LEXEME: "
+                       (fo candidate))))
+
+      (if (and (nil? filter-fn)
+               (nil? filter-against)
+               (map? candidate)
+               (:schema candidate)) ;; a rule, not a lexeme.
+        (log/warn (str "gen-all: NO FILTERING ON CANDIDATE RULE: "
+                       candidate)))
 
       (if (and (map? candidate) (:post-unify-fn candidate))
         (log/debug (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
@@ -1132,8 +1142,8 @@
 
 
                        (if (nil? (:label candidate))
-                         (log/info (str "gen-all: expanding " label " -> H: " head "; C: " comp))
-                         (log/info (str "gen-all: expanding " (:label candidate) " -> H: " head "; C: " comp)))
+                         (log/info (str "gen-all: expanding: [" label " -> H: " head "; C: " comp "] using filter-fn: " filter-fn))
+                         (log/info (str "gen-all: expanding: [" (:label candidate) " -> H: " head "; C: " comp "] using filter-fn: " filter-fn)))
                        ;; (eval schema) is a 3-node tree (parent and two children) as described
                        ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                        ;; allowing us to access that value with (eval schema).
@@ -1143,8 +1153,8 @@
                               (fn [] (filter filter-fn
                                               (gen-all (lazy-shuffle (eval head))
                                                        (if false ;; show or don't show schema (e.g. cc10)
-                                                         (str label ":" schema " -> [H " head "]")
-                                                         (str label " -> [H " head "]")))))
+                                                         (str label ":" schema " -> {H:" head "}")
+                                                         (str label " -> {H:" head "}")))))
 
                               ;; complement:
                               (fn [filter-by]
@@ -1152,8 +1162,8 @@
                                   (gen-all (if (symbol? comp)
                                              (lazy-shuffle (eval comp)) (lazy-shuffle comp))
                                            (if false ;; show or don't show schema (e.g. cc10)
-                                             (str label " : " schema " -> [C " comp "]")
-                                             (str label " -> [C " comp "]"))
+                                             (str label " : " schema " -> {C:" comp "}")
+                                             (str label " -> {C: " comp "}"))
                                            (if true nil filter-against)
                                            filter-by)))
                               (:post-unify-fn candidate)))

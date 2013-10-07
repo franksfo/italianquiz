@@ -240,16 +240,16 @@
 
           (if result
             ;; complement was compatible with the filter: not filtered out.
-            (do (log/debug (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
-                (log/debug (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
-                (log/debug (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+            (do ;(log/info (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
+                ;(log/info (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
+                (log/info (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                                "TRUE" ;; emphasize for ease of readability in logs.
                                ))
                 result)
 
             ;; complement was incompatible with the filter and thus filtered out:
             (do
-              (log/debug (str "FILTER OUT: " (fo comp)))
+              (log/info (str "FILTER OUT: " (fo comp)))
               result)))))))
 
 (def hc-agreement
