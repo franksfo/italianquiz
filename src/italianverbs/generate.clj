@@ -719,27 +719,27 @@
 
 (defn moreover-head-diagnostics [parent child]
   (do
-    (log/info (str "moreover-head (candidate) parent: " (fo parent)))
-    (log/info (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/info (str "moreover-head (candidate) head:" (fo child)))
+    (log/info (str "moreover-head-diagnostics (candidate) parent: " (fo parent)))
+    (log/info (str "moreover-head-diagnostics (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
+    (log/info (str "moreover-head-diagnostics (candidate) head:" (fo child)))
     (let [;parent (unify/copy parent)
                                         ;child (unify/copy child)
           result (lexfn/unify parent
                               {:head child}
                               {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
       (if (not (unify/fail? result))
-        (let [debug (log/debug (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+        (let [debug (log/debug (str "moreover-head-diagnostics " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+              debug (log/debug (str "moreover-head-diagnostics (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
           (merge {:head-filled true}
                  result))
-        (let [debug (log/debug (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
+        (let [debug (log/debug (str "moreover-head-diagnostics " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
               fail-path (unify/fail-path result)
-              debug (log/debug (str " fail-path: " fail-path))
-              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/debug (str " head: " child))
-              debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
-              debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
-          :fail)))))
+              debug (log/info (str " fail-path: " fail-path))
+              debug (log/info (str " path to head-value-at-fail:" (rest fail-path)))
+              debug (log/info (str " head: " child))
+              debug (log/info (str " head-value-at-fail: " (unify/get-in child (rest fail-path) :top)))
+              debug (log/info (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
+          result)))))  ;; note that we return result rather than :fail, for diagnostics. Note that unify/fail? = true for result if we got here.
 
 (defn moreover-comp [parent child]
   (log/debug (str "moreover-comp parent: " (fo parent)))
@@ -966,11 +966,11 @@
               ]
           (if (not is-fail?)
             (do
-              (log/info (str "gen14: head: " (fo (dissoc head :serialized))
+              (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment))) ")")
                              " added successfully to " (unify/get-in phrase '(:comment)) "."))
-              (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
+              (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment)) ")")
                                "")))
@@ -991,12 +991,12 @@
                       recursion-level)))
             (do
               (log/info (str "gen14: FAIL WITH HEAD: " (fo head)))
-              (log/info (str "gen14: fail diagnostics:" (moreover-head-diagnostics phrase head)))
+              (moreover-head-diagnostics phrase head)
               (gen14 phrase
                      rest-heads
                      complements
-                   post-unify-fn
-                   recursion-level))))))))
+                     post-unify-fn
+                     recursion-level))))))))
 
 ;; see example usage in grammar.clj.
 (defmacro rewrite-as [name value]
@@ -1062,7 +1062,7 @@
           label (if label label (if (map? label) (:label candidate)))]
       (if (and (nil? (:schema candidate))
                (map? candidate))
-        (log/info (str "gen-all: " label ": " (fo candidate))))
+        (log/debug (str "gen-all: " label ": " (fo candidate))))
       (if (and (map? candidate)
                (nil? (:schema candidate)));; don't log lexical candidates: too many of them.
         (log/debug (str "gen-all: " (log-candidate-form candidate label))))
@@ -1156,7 +1156,7 @@
                               ;; head:
                               (fn []
                                 (do
-                                  (log/info (str "GONNA DO THE FILTER: " filter-fn))
+                                  (log/info (str "filtering head: " head ".."))
                                   (filter filter-fn
                                           (gen-all (lazy-shuffle (eval head))
                                                    (if false ;; show or don't show schema (e.g. cc10)
