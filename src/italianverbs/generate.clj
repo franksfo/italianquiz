@@ -1076,6 +1076,10 @@
         (log/debug (str "gen-all: FILTERING ON CANDIDATE RULE:"
                         (fo candidate))))
 
+      (if (and (map? candidate)
+               (:schema candidate))
+        (log/info (str "gen-all: candidate: " (:schema candidate) " is a rule.")))
+
       (if (and (nil? filter-fn)
                (nil? filter-against)
                (map? candidate)
