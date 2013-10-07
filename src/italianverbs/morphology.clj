@@ -1666,6 +1666,7 @@
 
 (defn fof [expressions]
   (let [retval (time (formattare expressions))]
+    (log/info (str "tense info: " (fs/get-in expressions '(:comp :synsem :sem :tense))))
     (log/info (str "FINISHED FORMATTING: " retval)) ;; acts as a delimiter for this sentence's generation for debugging purposes.
     retval))
 
