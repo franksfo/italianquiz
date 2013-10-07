@@ -142,4 +142,7 @@
 (defn random-sentences [ & n]
   (repeatedly (if (first n) (first n) 1000) (fn [] (random-sentence))))
 
+(defn dev-work [ & n]
+  (take 1 (repeatedly #(fof (take 1 (gen-all (shuffle sentence-with-modifier) "ds"))))))
+
 (log/info "done loading rules.")
