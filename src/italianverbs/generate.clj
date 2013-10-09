@@ -1150,24 +1150,23 @@
 
 
                        (if (nil? (:label candidate))
-                         (log/info (str "gen-all: expanding: [" label " -> H: " head "; C: " comp "] using filter-fn: " filter-fn))
-                         (log/info (str "gen-all: expanding: [" (:label candidate) " -> H: " head "; C: " comp "] using filter-fn: " filter-fn)))
+                         (log/info (str "gen-all: expanding: [" label " -> H: " head "; C: " comp "]"))
+                         (log/info (str "gen-all: expanding: [" (:label candidate) " -> H: " head "; C: " comp "]")))
                        ;; (eval schema) is a 3-node tree (parent and two children) as described
                        ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                        ;; allowing us to access that value with (eval schema).
                        (gen17 (eval schema)
-
-                              ;; head:
+                              ;; head (1) (see below for complements)
                               (fn []
-                                (do
-                                  (log/info (str "filtering head: " head ".."))
-                                  (filter filter-fn
-                                          (gen-all (lazy-shuffle (eval head))
-                                                   (if false ;; show or don't show schema (e.g. cc10)
-                                                     (str label ":" schema " -> {H:" head "}")
-                                                     (str label " -> {H:" head "}"))))))
+                                (gen-all (lazy-shuffle (eval head))
+                                         (if false ;; show or don't show schema (e.g. cc10)
+                                           (str label ":" schema " -> {H:" head "}")
+                                           (str label " -> {H:" head "}"))
+                                         nil
+                                         filter-fn))
 
-                              ;; complement:
+                              ;; complement: filter-by will filter candidate complements according to each head
+                              ;; generated in immediately above, in (1).
                               (fn [filter-by]
                                 (do
                                   (gen-all (if (symbol? comp)
