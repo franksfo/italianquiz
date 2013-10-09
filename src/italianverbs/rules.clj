@@ -33,14 +33,14 @@
 ;;
 (ns-unmap 'italianverbs.rules 'vp)
 
-(rewrite-as vp 'intransitive-verbs)
+;(rewrite-as vp 'intransitive-verbs)
 (rewrite-as vp 'modal-vp)
-(rewrite-as vp 'past-vp)
-(rewrite-as vp 'transitive-vp)
-(rewrite-as vp {:schema 'ch21
-                :label 'vp
-                :comp 'pronouns
-                :head 'transitive-verbs})
+;(rewrite-as vp 'past-vp)
+;(rewrite-as vp 'transitive-vp)
+;(rewrite-as vp {:schema 'ch21
+;                :label 'vp
+;                :comp 'pronouns
+;                :head 'transitive-verbs})
 
 (ns-unmap 'italianverbs.rules 'modal-vp)
 (rewrite-as modal-vp {:schema 'hh21
