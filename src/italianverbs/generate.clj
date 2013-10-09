@@ -957,8 +957,8 @@
                         heads)
             head (first heads)
             rest-heads (rest heads)]
-        (let [logging (log/debug (str "gen14: head candidate: " (fo head)))
-              logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+        (let [logging (log/info (str "gen14: head candidate: " (fo head)))
+              logging (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
               phrase-with-head (moreover-head phrase head)
               is-fail? (unify/fail? phrase-with-head)
               debug (log/debug (str "gen14: fail? phrase-with-head:"
@@ -966,23 +966,24 @@
               ]
           (if (not is-fail?)
             (do
-              (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
+              (log/info (str "gen14: head: " (fo (dissoc head :serialized))
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment))) ")")
                              " added successfully to " (unify/get-in phrase '(:comment)) "."))
-              (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
+              (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment)) ")")
                                "")))
               (lazy-cat
                (do
-                 (log/debug (str "gen14: about to call gen14-inner with phrase-with-head: " (fo phrase-with-head) " and complements type=: " (type complements)))
+                 (log/debug (str "gen14: about to call gen14-inner with phrase-with-head: " (fo phrase-with-head) " and complements type= " (type complements)))
                  (if (= (type complements) clojure.lang.PersistentVector)
                    (log/debug (str "gen14: complements is a vector with size: " (.size complements))))
-                 (let [filter-function (unify/get-in phrase '(:comp-filter-fn))]
+                 (let [complement-filter-function (unify/get-in phrase '(:comp-filter-fn))]
+                   (log/info (str "gen14: looking for complements of: " (fo phrase-with-head)))
                    (gen14-inner phrase-with-head
                                 complements
-                                filter-function
+                                complement-filter-function
                                 post-unify-fn 0 nil)))
                (gen14 phrase
                       rest-heads
@@ -990,7 +991,7 @@
                       post-unify-fn
                       recursion-level)))
             (do
-              (log/info (str "gen14: FAIL WITH HEAD: " (fo head)))
+              (log/debug (str "gen14: FAIL WITH HEAD: " (fo head)))
               (moreover-head-diagnostics phrase head)
               (gen14 phrase
                      rest-heads
@@ -1024,9 +1025,9 @@
     (gen14 phrase heads comps nil 0)))
 
 (defn gen17 [phrase heads comps post-unify-fn]
-  (log/debug (str "gen17: phrase:" (:comment phrase)))
-  (log/debug (str "gen17: seq? heads:" (seq? heads)))
-  (log/debug (str "gen17: fn? heads:" (fn? heads)))
+  (log/info (str "gen17: phrase:" (:comment phrase)))
+  (log/info (str "gen17: seq? heads:" (seq? heads)))
+  (log/info (str "gen17: fn? heads:" (fn? heads)))
   (cond (seq? heads)
         (let [head (first heads)]
           (if head
@@ -1078,7 +1079,7 @@
 
       (if (and (map? candidate)
                (:schema candidate))
-        (log/info (str "gen-all: candidate: " (:schema candidate) " is a rule.")))
+        (log/info (str "gen-all: candidate: " candidate " is a rule.")))
 
       (if (and (nil? filter-fn)
                (nil? filter-against)
@@ -1094,23 +1095,25 @@
         (log/warn (str "gen-all: NO FILTERING ON CANDIDATE RULE: "
                        candidate)))
 
-      (if (and (map? candidate) (:post-unify-fn candidate))
+      (if (and (map? candidate)
+               (:post-unify-fn candidate))
         (log/debug (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
+
       (let [filter-fn (if filter-fn
-                        filter-fn
+                        filter-fn ;; use the given filter-fn to filter complement lexemes.
                         (if filter-against
-                          ;; create a function using the filter-against map that we were given:
-                          (fn [x]
-                            (let [debug (log/debug (str "filtering: " x))
-                                  debug (log/debug (str "against: " filter-against))
-                                  result (lexfn/unify x filter-against)
+                          ;; create a filter function given the passed filter-against map to filter complement lexemes..
+                          (fn [complement-lexeme]
+                            (let [debug (log/info (str "filtering: " complement-lexeme))
+                                  debug (log/info (str "against: " filter-against))
+                                  result (lexfn/unify complement-lexeme filter-against)
                                   debug (log/debug (str "result: " result))]
                               (not (unify/fail? result))))
 
                           ;; no filter was desired by the caller: just use the pass-through filter.
                           ;; TODO: just return nil and don't filter below.
                           (do (log/debug (str "using pass-thru filter for " (log-candidate-form candidate)))
-                              (fn [complement-lexeme] 
+                              (fn [complement-lexeme]
                                 (log/info (str label " : " (fo complement-lexeme) " is passed through."))
                                 true))))
             ]
@@ -1128,12 +1131,16 @@
                            (log/debug (str label " -> " candidate " -> "))
                            (gen-all
                             (lazy-shuffle
-                             (filter filter-fn (eval candidate)))
-                            (str label " -> " candidate)))))
+                             (eval candidate))
+                            (str label " -> " candidate)
+                            nil
+                            filter-fn))
+
+                         (throw (Exception. (str "candidate: " candidate " did not evaluate to a sequence - please define it as such.")))))
 
                      (and (map? candidate)
                           (not (nil? (:schema candidate))))
-                     (let [debug (log/debug (str "gen-all: " label " -> " (:label candidate)))
+                     (let [debug (log/info (str "gen-all: " label ": expanding:" candidate))
                            schema (:schema candidate)
                            head (:head candidate)
                            comp (:comp candidate)
@@ -1176,14 +1183,16 @@
                                            (if false ;; show or don't show schema (e.g. cc10)
                                              (str label " : " schema " -> {C:" comp "}")
                                              (str label " -> {C: " comp "}"))
-                                           (if true nil filter-against)
+                                           nil
                                            filter-by)))
+
                               (:post-unify-fn candidate)))
 
                      (map? candidate)
                      (do
-                       (log/debug (str "candidate is just a plain map:" (fo candidate)))
-                       (list candidate))
+                       (log/debug (str label ": leaf: " (fo candidate) " : filtering it with: " filter-fn))
+                       (if (not (nil? filter-against)) (log/debug (str label ": candidate is just a plain map:" (fo candidate) " : filtering it against: " filter-against)))
+                       (filter filter-fn (list candidate)))
 
                      true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))]
            lazy-returned-sequence)
