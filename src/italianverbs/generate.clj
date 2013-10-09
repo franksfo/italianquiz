@@ -836,7 +836,9 @@
         debug-inner (log/debug (str "gen14-inner: map? complements: " (map? complements)))
         debug-inner (if (= (type complements)
                            clojure.lang.PersistentVector)
-                      (log/debug (str "gen14-inner: vector? complements: " (= (type complements) clojure.lang.PersistentVector) " with size: " (.size complements))))
+                      (log/debug (str "gen14-inner: vector? complements: "
+                                      (= (type complements) clojure.lang.PersistentVector)
+                                      " with size: " (.size complements))))
         maps-as-complements-not-allowed
         (if (map? complements)
           ;; TODO: support map by simply re-calling with a list with one element: the map.
@@ -888,7 +890,7 @@
     (log/debug (str "gen14-inner: comp-emptiness: " empty-complements))
     (log/debug (str "(fo phrase-with-head): " (fo phrase-with-head)))
     (log/debug (str "complement(comment): " (unify/get-in complement '(:comment))))
-    (log/debug (str "complement: " (fo complement)))
+    (log/info (str "complement: " (fo complement)))
     (if (not empty-complements)
       (let [comp complement]
         (let [result
@@ -943,21 +945,23 @@
 (defn gen14 [phrase heads complements post-unify-fn recursion-level]
   (if (or (fn? heads) (not (empty? heads)))
     (do
-      (log/debug (str "gen14: starting now: recursion-level: " recursion-level))
-      (log/debug (str "gen14: type of heads: " (type heads)))
-      (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
-      (log/debug (str "gen14: fo(first phrase): " (fo phrase)))
-      (log/debug (str "gen14: type of comps: " (type complements)))
-      (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
+      (log/info (str "gen14: starting now: recursion-level: " recursion-level))
+      (log/info (str "gen14: type of heads: " (type heads)))
+      (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+      (log/info (str "gen14: fo(first phrase): " (fo phrase)))
+      (log/info (str "gen14: type of comps: " (type complements)))
+      (log/info (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
             heads (cond (fn? heads)
-                        (do (log/debug "gen14: treating head's value (fn) as a lazy seq and doing (take 1 (apply nil)) on it to get first of the heads.")
+                        (do (log/info "gen14: treating head's value (fn) and doing (take 1 (apply nil)) on it to get first of the heads.")
                             (apply heads nil))
                         :else
                         heads)
+            debug (log/info "HEADS: " (fo heads))
             head (first heads)
             rest-heads (rest heads)]
-        (let [logging (log/info (str "gen14: head candidate: " (fo head)))
+        (let [check (if (nil? head) (throw (Exception. (str "head candidate is null."))))
+              logging (log/info (str "gen14: head candidate: " (fo head)))
               logging (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
               phrase-with-head (moreover-head phrase head)
               is-fail? (unify/fail? phrase-with-head)
@@ -970,7 +974,7 @@
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment))) ")")
                              " added successfully to " (unify/get-in phrase '(:comment)) "."))
-              (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) "=> head: " (fo head)
+              (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) " => head: " (fo head)
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment)) ")")
                                "")))
@@ -1014,7 +1018,7 @@
             [prior remainder]
             (split-at rand-pos coll)
             elem (nth coll rand-pos)]
-        (log/debug (str "lazy-shuff: " (fo elem)))
+        (log/debug (str "lazy-shuff: element chosen:" elem))
         (lazy-seq
          (cons elem
                (lazy-shuffle (concat prior (rest remainder)))))))))
@@ -1058,7 +1062,11 @@
         (str (if label (str label)))))
 
 (defn gen-all [alternatives label & [filter-against filter-fn]]
-  (if (first alternatives)
+  (do
+    (if (not (first alternatives))
+      (log/info "exhausted all possibilities for: " label))
+
+    (if (first alternatives)
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
       (if (and (nil? (:schema candidate))
@@ -1167,6 +1175,9 @@
                        (gen17 (eval schema)
                               ;; head (1) (see below for complements)
                               (fn []
+                                (log/info "realizing head arg for gen-17 using symbol: " head)
+                                (log/info "type of symbol's eval is:" (type (eval head)))
+                                (log/info "count of symbol's eval is:" (count (eval head)))
                                 (gen-all (lazy-shuffle (eval head))
                                          (if false ;; show or don't show schema (e.g. cc10)
                                            (str label ":" schema " -> {H:" head "}")
@@ -1196,7 +1207,7 @@
 
                      true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))]
            lazy-returned-sequence)
-         (gen-all (rest alternatives) label filter-against filter-fn))))))
+         (gen-all (rest alternatives) label filter-against filter-fn)))))))
 
 (defmacro gen-ch21 [head comp]
   `(do ~(log/info "gen-ch21 macro compile-time.")
