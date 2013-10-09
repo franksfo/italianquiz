@@ -1110,7 +1110,9 @@
                           ;; no filter was desired by the caller: just use the pass-through filter.
                           ;; TODO: just return nil and don't filter below.
                           (do (log/debug (str "using pass-thru filter for " (log-candidate-form candidate)))
-                              (fn [x] true))))
+                              (fn [complement-lexeme] 
+                                (log/info (str label " : " (fo complement-lexeme) " is passed through."))
+                                true))))
             ]
         (lazy-cat
          (let [lazy-returned-sequence
