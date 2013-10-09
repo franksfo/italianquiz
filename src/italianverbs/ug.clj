@@ -274,6 +274,7 @@
    italian-head-last
    english-head-last
    {:comment "cc10"
+    :comp {:synsem {:subcat '()}}
     :comp-filter-fn standard-filter-fn}))
 
 (def ch21
@@ -304,6 +305,7 @@
    italian-head-first
    english-head-first
    {:comment "hh10"
+    :comp {:synsem {:subcat '()}}
     :comp-filter-fn standard-filter-fn}))
 
 (def hh21

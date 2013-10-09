@@ -596,12 +596,14 @@
      :english "some"}
 
     {:synsem {:cat :sent-modifier
-              :subcat {:1 {:sem {:tense :future}}}}
+              :subcat {:1 {:sem {:tense :future}
+                           :subcat '()}}}
      :italian "domani"
      :english "tomorrow"}
 
     {:synsem {:cat :sent-modifier
-              :subcat {:1 {:sem {:tense :future}}}}
+              :subcat {:1 {:sem {:tense :future}
+                           :subcat '()}}}
      :italian "dopodomani"
      :english "the day after tomorrow"}
 
@@ -935,7 +937,8 @@
 
       {:synsem {:cat :sent-modifier
                 :subcat {:1 {:sem {:tense :past
-                                   :activity true}}}}
+                                   :activity true}
+                             :subcat '()}}}
        :italian "ieri"
        :english "yesterday"}
 
@@ -1033,7 +1036,8 @@
 
       {:synsem {:cat :sent-modifier
                 :subcat {:1 {:sem {:tense :past
-                                   :activity true}}}}
+                                   :activity true}
+                             :subcat '()}}}
        :italian "l'altro ieri"
        :english "the day before yesterday"}
 
@@ -1783,14 +1787,16 @@
       {:synsem {:cat :sent-modifier
                 :subcat {:1 {:infl :present
                              :sem {:activity true
-                                   :tense :past}}}}
+                                   :tense :past}
+                             :subcat '()}}}
        :italian "qualche volta"
        :english "sometimes"}
 
       {:synsem {:cat :sent-modifier
                 :subcat {:1 {:infl :present
                              :sem {:activity true
-                                   :tense :present}}}}
+                                   :tense :present}
+                             :subcat '()}}}
        :italian "qualche volta"
        :english "sometimes"}
 
@@ -2118,7 +2124,8 @@
 
       (unify {:italian "stamattina"
               :synsem {:cat :sent-modifier
-                       :subcat {:1 {:sem {:tense :past
+                       :subcat {:1 {:subcat '()
+                                    :sem {:tense :past
                                           :activity true}}}}
               :english "this morning"})
 
@@ -2315,7 +2322,8 @@
 
 
       {:synsem {:cat :sent-modifier
-                :subcat {:1 {:sem {:tense :past
+                :subcat {:1 {:subcat '()
+                             :sem {:tense :past
                                    :activity true}}}}
        :italian "tre giorni fa"
        :english "three days ago"}
