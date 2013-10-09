@@ -206,7 +206,8 @@
 
 (def standard-filter-fn
   (fn [phrase-with-head]
-    (let [complement-synsem (unify/get-in phrase-with-head '(:comp :synsem) :top)
+    (let [debug (log/debug (str "standard-filter-fn IS BEING CREATED NOW WITH phrase-with-head: " (fo phrase-with-head)))
+          complement-synsem (unify/get-in phrase-with-head '(:comp :synsem) :top)
           complement-category (unify/get-in complement-synsem '(:cat) :top)
           complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))
           complement-essere-type (unify/get-in complement-synsem '(:essere) :top)
@@ -240,16 +241,16 @@
 
           (if result
             ;; complement was compatible with the filter: not filtered out.
-            (do ;(log/info (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
-                ;(log/info (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
-                (log/info (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+            (do ;(log/debug (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
+                ;(log/debug (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
+                (log/debug (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                                "TRUE" ;; emphasize for ease of readability in logs.
                                ))
                 result)
 
             ;; complement was incompatible with the filter and thus filtered out:
             (do
-              (log/info (str "FILTER OUT: " (:comment comp) " : " (fo comp) " against phrase-with-head: " (:comment phrase-with-head) " :" (fo phrase-with-head)))
+              (log/debug (str "FILTER OUT: " (:comment comp) " : " (fo comp) " against phrase-with-head: " (:comment phrase-with-head) " :" (fo phrase-with-head)))
               result)))))))
 
 (def hc-agreement
