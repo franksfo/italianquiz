@@ -211,11 +211,32 @@
           complement-category (unify/get-in complement-synsem '(:cat) :top)
           complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))
           complement-essere-type (unify/get-in complement-synsem '(:essere) :top)
-          complement-italian-initial (unify/get-in phrase-with-head '(:comp :italian :initial) :top)]
+          complement-italian-initial (unify/get-in phrase-with-head '(:comp :italian :initial) :top)
+
+
+          debug (log/debug (str "cond1: " (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
+                                                            complement-category)))))
+          debug (log/debug (str "cond2: " (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
+                                                            complement-sem)))))
+          debug (log/debug (str "cond3: " (not (fail? (unify (unify/get-in comp '(:synsem :essere) :top)
+                                                            complement-essere-type)))))
+          debug (log/debug (str "cond4: " (not (fail? (unify (unify/get-in comp '(:italian :initial) :top)
+                                                            complement-italian-initial)))))]
+
 
       (fn [comp]
 
-        (let [result
+        (let [debug1 (log/debug (str "cond1: " (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
+                                                                complement-category)))))
+              debug2 (log/debug (str "cond2: " (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
+                                                                 complement-sem)))))
+              debug2p5 (log/debug (str "complement-sem: " (unify/get-in comp '(:synsem :sem) :top)))
+              debug2p5 (log/debug (str "complement-sem (expected): " complement-sem))
+              debug3 (log/debug (str "cond3: " (not (fail? (unify (unify/get-in comp '(:synsem :essere) :top)
+                                                                 complement-essere-type)))))
+              debug4 (log/debug (str "cond4: " (not (fail? (unify (unify/get-in comp '(:italian :initial) :top)
+                                                                 complement-italian-initial)))))
+              result
               (and
                (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
                                   complement-category)))
@@ -235,9 +256,9 @@
           (log/debug (str "comp-filter-fn:complement-sem: " complement-sem))
           (log/debug (str "comp-filter-fn:complement's italian initial must be: " complement-italian-initial))
           (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
-            (log/debug (str "comp-filter-fn:RESULT OF FILTER: " (fo comp) " + " (fo phrase-with-head) " = " result))
+            (log/info (str "comp-filter-fn:RESULT OF FILTER: " (fo comp) " + " (fo phrase-with-head) " = " result))
             ;; else, head is first
-            (log/debug (str "comp-filter-fn:RESULT OF FILTER: "  (fo phrase-with-head) " + " (fo comp) " = " result)))
+            (log/info (str "comp-filter-fn:RESULT OF FILTER: "  (fo phrase-with-head) " + " (fo comp) " = " result)))
 
           (if result
             ;; complement was compatible with the filter: not filtered out.

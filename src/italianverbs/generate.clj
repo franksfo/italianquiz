@@ -695,26 +695,26 @@
 
 (defn moreover-head [parent child]
   (do
-    (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
-    (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/debug (str "moreover-head (candidate) head:" (fo child)))
+    (log/info (str "moreover-head (candidate) parent: " (fo parent)))
+    (log/info (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
+    (log/info (str "moreover-head (candidate) head:" (fo child)))
     (let [;parent (unify/copy parent)
                                         ;child (unify/copy child)
           result (lexfn/unify parent
                               {:head child}
                               {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
       (if (not (unify/fail? result))
-        (let [debug (log/debug (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+        (let [debug (log/info (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+              debug (log/info (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
           (merge {:head-filled true}
                  result))
-        (let [debug (log/debug (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
+        (let [debug (log/info (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
               fail-path (unify/fail-path result)
-              debug (log/debug (str " fail-path: " fail-path))
-              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/debug (str " head: " child))
-              debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
-              debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
+              debug (log/info (str " fail-path: " fail-path))
+              debug (log/info (str " path to head-value-at-fail:" (rest fail-path)))
+              debug (log/info (str " head: " child))
+              debug (log/info (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
+              debug (log/info (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
           :fail)))))
 
 (defn moreover-head-diagnostics [parent child]
@@ -742,8 +742,8 @@
           result)))))  ;; note that we return result rather than :fail, for diagnostics. Note that unify/fail? = true for result if we got here.
 
 (defn moreover-comp [parent child]
-  (log/debug (str "moreover-comp parent: " (fo parent)))
-  (log/debug (str "moreover-comp comp:" (fo child)))
+  (log/info (str "moreover-comp parent: " (fo parent)))
+  (log/info (str "moreover-comp comp:" (fo child)))
   (let [result
         (lexfn/unify parent
                      {:comp child}
@@ -751,12 +751,15 @@
     (if (not (unify/fail? result))
       (let [debug (log/debug (str "moreover-comp " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
             debug (log/debug (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
-        (merge {:comp-filled true}
-               result))
+        (let [result
+              (merge {:comp-filled true}
+                     result)]
+          (log/info (str "moreover-comp (SUCCESS) merged result: " (fo result)))
+          result))
       (do
-        (log/debug "moreover-comp: fail at: " (unify/fail-path result))
-        (log/debug "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
-        (log/debug "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
+        (log/info "moreover-comp: fail at: " (unify/fail-path result))
+        (log/info "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
+        (log/info "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
         :fail))))
 
 (defn over3 [parent child]
@@ -899,19 +902,19 @@
                comp)]
           (if (not (unify/fail? result))
             (do
-              (log/debug (str "gen14-inner: unifies: recursion level: " recursion-level))
-              (log/debug (str "gen14-inner: unifies head: " (fo phrase-with-head)))
-              (log/debug (str "gen14-inner: unifies comp: " (fo comp)))
+              (log/info (str "gen14-inner: unifies: recursion level: " recursion-level))
+              (log/info (str "gen14-inner: unifies head: " (fo phrase-with-head)))
+              (log/info (str "gen14-inner: unifies comp: " (fo comp)))
               ;; test: in italian, is complement first?
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; yes, italian strings complement is first.
-                (log/debug (str "gen14-inner:"
+                (log/info (str "gen14-inner:"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo comp)
                                " + "
                                (fo (unify/get-in phrase-with-head '(:head))) " => TRUE"))
                 ;; italian head first.
-                (log/debug (str "gen14-inner:"
+                (log/info (str "gen14-inner:"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
@@ -925,7 +928,7 @@
                       with-impl
                       (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level rest-complements))))))
             (do
-              (log/debug (str "gen14-inner: fail: " result))
+              (log/info (str "gen14-inner: fail: " result))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; comp first ('c' is first character of comment):
                 (log/debug (str "gen14-inner :"
@@ -952,7 +955,7 @@
       (log/info (str "gen14: type of comps: " (type complements)))
       (log/info (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
-            debug (log/info "HEADS1: " heads)
+            debug (log/debug "HEADS1: " heads)
             heads (cond (fn? heads)
                         (do (log/info "gen14: treating head's value a fn and doing (take 1 (apply nil)) on it to get first of the heads.")
                             (apply heads nil))
@@ -1013,17 +1016,17 @@
 ;; thanks to Boris V. Schmid for lazy-shuffle:
 ;; https://groups.google.com/forum/#!topic/clojure/riyVxj1Qbbs
 (defn lazy-shuffle [coll]
-  (shuffle coll))
-;  (let [size (count coll)]
- ;   (if (> size 0)
- ;     (let [rand-pos (rand-int size)
- ;           [prior remainder]
- ;           (split-at rand-pos coll)
- ;           elem (nth coll rand-pos)]
- ;       (log/debug (str "lazy-shuff: element chosen:" elem))
-  ;      (lazy-seq
- ;        (cons elem
- ;              (lazy-shuffle (concat prior (rest remainder)))))))))
+;  (shuffle coll))
+  (let [size (count coll)]
+    (if (> size 0)
+      (let [rand-pos (rand-int size)
+            [prior remainder]
+            (split-at rand-pos coll)
+            elem (nth coll rand-pos)]
+        (log/debug (str "lazy-shuff: element chosen:" elem))
+        (lazy-seq
+         (cons elem
+               (lazy-shuffle (concat prior (rest remainder)))))))))
 
 (defn gen15 [phrase heads comps]
   (do
@@ -1065,12 +1068,16 @@
 
 (defn gen-all [alternatives label & [filter-against filter-fn]]
   (do
+    (log/debug (str "ALTS: " alternatives))
+    (log/debug (str "FIRST ALTS: " (first alternatives)))
     (if (not (first alternatives))
       (log/info "exhausted all possibilities for: " label))
 
     (if (first alternatives)
-    (let [candidate (first alternatives)
+    (let [debug (log/debug (str "OK THERE IS ONE ALT AT LEAST."))
+          candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
+      (log/debug (str "TYPE OF CANDIDATE: " (type candidate)))
       (if (and (nil? (:schema candidate))
                (map? candidate))
         (log/debug (str "gen-all: " label ": " (fo candidate))))
@@ -1089,13 +1096,13 @@
 
       (if (and (map? candidate)
                (:schema candidate))
-        (log/info (str "gen-all: candidate: " candidate " is a rule.")))
+        (log/debug (str "gen-all: candidate: " candidate " is a rule.")))
 
       (if (and (nil? filter-fn)
                (nil? filter-against)
                (map? candidate)
                (nil? (:schema candidate))) ;; a lexeme, not a rule.
-        (log/debug (str "gen-all: NO FILTERING ON CANDIDATE LEXEME: "
+        (log/info (str "gen-all: NO FILTERING ON CANDIDATE LEXEME: "
                        (fo candidate))))
 
       (if (and (nil? filter-fn)
@@ -1127,6 +1134,7 @@
                                 (log/info (str label " : " (fo complement-lexeme) " is passed through."))
                                 true))))
             ]
+        (log/debug (str "GOT HERE: CANDIDATE: " candidate))
         (lazy-cat
          (let [lazy-returned-sequence
                (cond (symbol? candidate)
@@ -1178,8 +1186,8 @@
                               ;; head (1) (see below for complements)
                               (fn []
                                 (log/info "realizing head arg for gen-17 using symbol: " head)
-                                (log/info "type of symbol's eval is:" (type (eval head)))
-                                (log/info "count of symbol's eval is:" (count (eval head)))
+                                ;(log/info "type of symbol's eval is:" (type (eval head)))
+                                ;(log/info "count of symbol's eval is:" (count (eval head)))
                                 (gen-all (lazy-shuffle (eval head))
                                          (if false ;; show or don't show schema (e.g. cc10)
                                            (str label ":" schema " -> {H:" head "}")
@@ -1204,8 +1212,11 @@
                      (map? candidate)
                      (do
                        (log/debug (str label ": leaf: " (fo candidate) " : filtering it with: " filter-fn))
-                       (if (not (nil? filter-against)) (log/debug (str label ": candidate is just a plain map:" (fo candidate) " : filtering it against: " filter-against)))
-                       (filter filter-fn (list candidate)))
+                       (log/debug (str label ": leaf: " (fo candidate)))
+                       (if (not (nil? filter-against)) (log/info (str label ": candidate is just a plain map:" (fo candidate) " : filtering it against: " filter-against)))
+                       (let [filtered (filter filter-fn (list candidate))]
+                         (log/debug (str "after filtering: emptiness of singleton list: " (empty? filtered)))
+                         filtered))
 
                      true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))]
            lazy-returned-sequence)

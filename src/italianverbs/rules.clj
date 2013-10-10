@@ -43,10 +43,10 @@
 ;                :head 'transitive-verbs})
 
 (ns-unmap 'italianverbs.rules 'modal-vp)
-(rewrite-as modal-vp {:schema 'hh21
-                      :label 'modal-vp
-                      :head 'modal-verbs
-                      :comp 'intransitive-verbs})
+;(rewrite-as modal-vp {:schema 'hh21
+;                      :label 'modal-vp
+;                      :head 'modal-verbs
+;                      :comp 'intransitive-verbs})
 (rewrite-as modal-vp {:schema 'hh21
                       :label 'modal-vp
                       :head 'modal-verbs
