@@ -2507,7 +2507,7 @@
                               :past "wanted to"}}
         :synsem {:essere false
                  :sem {:pred :volere
-                       :activity false
+                       :activity true
                        :discrete false
                        :subj {:animate true}}}}))
 ))
