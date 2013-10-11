@@ -849,8 +849,13 @@
             (log/debug error-message)
             (throw (Exception. error-message))))
         complements (cond (fn? complements)
-                          (do (log/debug (str "gen14-inner: treating complements as a fn."))
+
+                          (do (log/info (str "gen14-inner: treating complements as a fn."))
+
+                              ;; probably don't need lazy-seq here, so simply leaving this here, commented out, in case I'm wrong:
+                              ;; (lazy-seq (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
                               (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
+
                           (seq? complements)
                           (if filtered-complements
                             filtered-complements
