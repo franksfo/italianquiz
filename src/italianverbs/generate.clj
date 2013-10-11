@@ -695,33 +695,33 @@
 
 (defn moreover-head [parent child]
   (do
-    (log/info (str "moreover-head (candidate) parent: " (fo parent)))
-    (log/info (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/info (str "moreover-head (candidate) head:" (fo child)))
+    (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
+    (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
+    (log/debug (str "moreover-head (candidate) head:" (fo child)))
     (let [;parent (unify/copy parent)
                                         ;child (unify/copy child)
           result (lexfn/unify parent
                               {:head child}
                               {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
       (if (not (unify/fail? result))
-        (let [debug (log/info (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/info (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+        (let [debug (log/debug (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
           (merge {:head-filled true}
                  result))
-        (let [debug (log/info (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
+        (let [debug (log/debug (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
               fail-path (unify/fail-path result)
-              debug (log/info (str " fail-path: " fail-path))
-              debug (log/info (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/info (str " head: " child))
-              debug (log/info (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
-              debug (log/info (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
+              debug (log/debug (str " fail-path: " fail-path))
+              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
+              debug (log/debug (str " head: " child))
+              debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
+              debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
           :fail)))))
 
 (defn moreover-head-diagnostics [parent child]
   (do
-    (log/info (str "moreover-head-diagnostics (candidate) parent: " (fo parent)))
-    (log/info (str "moreover-head-diagnostics (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/info (str "moreover-head-diagnostics (candidate) head:" (fo child)))
+    (log/debug (str "moreover-head-diagnostics (candidate) parent: " (fo parent)))
+    (log/debug (str "moreover-head-diagnostics (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
+    (log/debug (str "moreover-head-diagnostics (candidate) head:" (fo child)))
     (let [;parent (unify/copy parent)
                                         ;child (unify/copy child)
           result (lexfn/unify parent
@@ -734,16 +734,16 @@
                  result))
         (let [debug (log/debug (str "moreover-head-diagnostics " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
               fail-path (unify/fail-path result)
-              debug (log/info (str " fail-path: " fail-path))
-              debug (log/info (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/info (str " head: " child))
-              debug (log/info (str " head-value-at-fail: " (unify/get-in child (rest fail-path) :top)))
-              debug (log/info (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
+              debug (log/debug (str " fail-path: " fail-path))
+              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
+              debug (log/debug (str " head: " child))
+              debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path) :top)))
+              debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
           result)))))  ;; note that we return result rather than :fail, for diagnostics. Note that unify/fail? = true for result if we got here.
 
 (defn moreover-comp [parent child]
-  (log/info (str "moreover-comp parent: " (fo parent)))
-  (log/info (str "moreover-comp comp:" (fo child)))
+  (log/debug (str "moreover-comp parent: " (fo parent)))
+  (log/debug (str "moreover-comp comp:" (fo child)))
   (let [result
         (lexfn/unify parent
                      {:comp child}
@@ -754,12 +754,12 @@
         (let [result
               (merge {:comp-filled true}
                      result)]
-          (log/info (str "moreover-comp (SUCCESS) merged result: " (fo result)))
+          (log/debug (str "moreover-comp (SUCCESS) merged result: " (fo result)))
           result))
       (do
-        (log/info "moreover-comp: fail at: " (unify/fail-path result))
-        (log/info "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
-        (log/info "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
+        (log/debug "moreover-comp: fail at: " (unify/fail-path result))
+        (log/debug "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
+        (log/debug "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
         :fail))))
 
 (defn over3 [parent child]
@@ -898,7 +898,7 @@
     (log/debug (str "gen14-inner: comp-emptiness: " empty-complements))
     (log/debug (str "(fo phrase-with-head): " (fo phrase-with-head)))
     (log/debug (str "complement(comment): " (unify/get-in complement '(:comment))))
-    (log/info (str "complement: " (fo complement)))
+    (log/debug (str "complement: " (fo complement)))
     (if (not empty-complements)
       (let [comp complement]
         (let [result
@@ -907,19 +907,19 @@
                comp)]
           (if (not (unify/fail? result))
             (do
-              (log/info (str "gen14-inner: unifies: recursion level: " recursion-level))
-              (log/info (str "gen14-inner: unifies head: " (fo phrase-with-head)))
-              (log/info (str "gen14-inner: unifies comp: " (fo comp)))
+              (log/debug (str "gen14-inner: unifies: recursion level: " recursion-level))
+              (log/debug (str "gen14-inner: unifies head: " (fo phrase-with-head)))
+              (log/debug (str "gen14-inner: unifies comp: " (fo comp)))
               ;; test: in italian, is complement first?
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; yes, italian strings complement is first.
-                (log/info (str "gen14-inner:"
+                (log/debug (str "gen14-inner:"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo comp)
                                " + "
                                (fo (unify/get-in phrase-with-head '(:head))) " => TRUE"))
                 ;; italian head first.
-                (log/info (str "gen14-inner:"
+                (log/debug (str "gen14-inner:"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
@@ -933,7 +933,7 @@
                       with-impl
                       (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level rest-complements))))))
             (do
-              (log/info (str "gen14-inner: fail: " result))
+              (log/debug (str "gen14-inner: fail: " result))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; comp first ('c' is first character of comment):
                 (log/debug (str "gen14-inner :"
@@ -953,25 +953,25 @@
 (defn gen14 [phrase heads complements post-unify-fn recursion-level]
   (if (or (fn? heads) (not (empty? heads)))
     (do
-      (log/info (str "gen14: starting now: recursion-level: " recursion-level))
-      (log/info (str "gen14: type of heads: " (type heads)))
-      (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
-      (log/info (str "gen14: fo(first phrase): " (fo phrase)))
-      (log/info (str "gen14: type of comps: " (type complements)))
-      (log/info (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
+      (log/debug (str "gen14: starting now: recursion-level: " recursion-level))
+      (log/debug (str "gen14: type of heads: " (type heads)))
+      (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+      (log/debug (str "gen14: fo(first phrase): " (fo phrase)))
+      (log/debug (str "gen14: type of comps: " (type complements)))
+      (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
             debug (log/debug "HEADS1: " heads)
             heads (cond (fn? heads)
-                        (do (log/info "gen14: treating head's value a fn and doing (take 1 (apply nil)) on it to get first of the heads.")
+                        (do (log/debug "gen14: treating head's value a fn and doing (take 1 (apply nil)) on it to get first of the heads.")
                             (apply heads nil))
                         :else
                         heads)
-            debug (log/info "HEADS: " (fo heads))
+            debug (log/debug "HEADS: " (fo heads))
             head (first heads)
             rest-heads (rest heads)]
         (let [check (if (nil? head) (throw (Exception. (str "head candidate is null; heads: " heads))))
-              logging (log/info (str "gen14: head candidate: " (fo head)))
-              logging (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+              logging (log/debug (str "gen14: head candidate: " (fo head)))
+              logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
               phrase-with-head (moreover-head phrase head)
               is-fail? (unify/fail? phrase-with-head)
               debug (log/debug (str "gen14: fail? phrase-with-head:"
@@ -979,11 +979,11 @@
               ]
           (if (not is-fail?)
             (do
-              (log/info (str "gen14: head: " (fo (dissoc head :serialized))
+              (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment))) ")")
                              " added successfully to " (unify/get-in phrase '(:comment)) "."))
-              (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) " => head: " (fo head)
+              (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) " => head: " (fo head)
                              (if (unify/get-in head '(:comment))
                                (str "(" (unify/get-in head '(:comment)) ")")
                                "")))
@@ -993,7 +993,7 @@
                  (if (= (type complements) clojure.lang.PersistentVector)
                    (log/debug (str "gen14: complements is a vector with size: " (.size complements))))
                  (let [complement-filter-function (unify/get-in phrase '(:comp-filter-fn))]
-                   (log/info (str "gen14: looking for complements of: " (fo phrase-with-head)))
+                   (log/debug (str "gen14: looking for complements of: " (fo phrase-with-head)))
                    (gen14-inner phrase-with-head
                                 complements
                                 complement-filter-function
@@ -1035,19 +1035,19 @@
 
 (defn gen15 [phrase heads comps]
   (do
-    (log/info (str "gen15 start: " (get-in phrase '(:comment)) "," (type heads)))
+    (log/debug (str "gen15 start: " (get-in phrase '(:comment)) "," (type heads)))
     (gen14 phrase heads comps nil 0)))
 
 (defn gen17 [phrase heads comps post-unify-fn]
-  (log/info (str "gen17: phrase:" (:comment phrase)))
-  (log/info (str "gen17: seq? heads:" (seq? heads)))
-  (log/info (str "gen17: fn? heads:" (fn? heads)))
+  (log/debug (str "gen17: phrase:" (:comment phrase)))
+  (log/debug (str "gen17: seq? heads:" (seq? heads)))
+  (log/debug (str "gen17: fn? heads:" (fn? heads)))
   (cond (seq? heads)
         (let [head (first heads)]
           (if head
             (lazy-cat
              (do
-               (log/info (str "will filter comps using phrase's filter function: " (:comp-filter-fn phrase)))
+               (log/debug (str "will filter comps using phrase's filter function: " (:comp-filter-fn phrase)))
                (gen14 phrase (list head) comps post-unify-fn 0)))
              (gen17 phrase (rest heads) comps post-unify-fn)))
 
@@ -1076,7 +1076,7 @@
     (log/debug (str "ALTS: " alternatives))
     (log/debug (str "FIRST ALTS: " (first alternatives)))
     (if (not (first alternatives))
-      (log/info "exhausted all possibilities for: " label))
+      (log/debug "exhausted all possibilities for: " label))
 
     (if (first alternatives)
     (let [debug (log/debug (str "OK THERE IS ONE ALT AT LEAST."))
@@ -1107,7 +1107,7 @@
                (nil? filter-against)
                (map? candidate)
                (nil? (:schema candidate))) ;; a lexeme, not a rule.
-        (log/info (str "gen-all: NO FILTERING ON CANDIDATE LEXEME: "
+        (log/debug (str "gen-all: NO FILTERING ON CANDIDATE LEXEME: "
                        (fo candidate))))
 
       (if (and (nil? filter-fn)
@@ -1129,12 +1129,12 @@
                             (let [debug (log/info (str "filtering: " complement-lexeme))
                                   debug (log/info (str "against: " filter-against))
                                   result (lexfn/unify complement-lexeme filter-against)
-                                  debug (log/debug (str "result: " result))]
+                                  debug (log/info (str "result: " result))]
                               (not (unify/fail? result))))
 
                           ;; no filter was desired by the caller: just use the pass-through filter.
                           ;; TODO: just return nil and don't filter below.
-                          (do (log/debug (str "using pass-thru filter for " (log-candidate-form candidate)))
+                          (do (log/info (str "using pass-thru filter for " (log-candidate-form candidate)))
                               (fn [complement-lexeme]
                                 (log/info (str label " : " (fo complement-lexeme) " is passed through."))
                                 true))))
@@ -1163,7 +1163,7 @@
 
                      (and (map? candidate)
                           (not (nil? (:schema candidate))))
-                     (let [debug (log/info (str "gen-all: " label ": expanding:" candidate))
+                     (let [debug (log/debug (str "gen-all: " label ": expanding:" candidate))
                            schema (:schema candidate)
                            head (:head candidate)
                            comp (:comp candidate)
@@ -1182,17 +1182,17 @@
 
 
                        (if (nil? (:label candidate))
-                         (log/info (str "gen-all: expanding: [" label " -> H: " head "; C: " comp "]"))
-                         (log/info (str "gen-all: expanding: [" (:label candidate) " -> H: " head "; C: " comp "]")))
+                         (log/debug (str "gen-all: expanding: [" label " -> H: " head "; C: " comp "]"))
+                         (log/debug (str "gen-all: expanding: [" (:label candidate) " -> H: " head "; C: " comp "]")))
                        ;; (eval schema) is a 3-node tree (parent and two children) as described
                        ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                        ;; allowing us to access that value with (eval schema).
                        (gen17 (eval schema)
                               ;; head (1) (see below for complements)
                               (fn []
-                                (log/info "realizing head arg for gen-17 using symbol: " head)
-                                ;(log/info "type of symbol's eval is:" (type (eval head)))
-                                ;(log/info "count of symbol's eval is:" (count (eval head)))
+                                (log/debug "realizing head arg for gen-17 using symbol: " head)
+                                ;(log/debug "type of symbol's eval is:" (type (eval head)))
+                                ;(log/debug "count of symbol's eval is:" (count (eval head)))
                                 (gen-all (lazy-shuffle (eval head))
                                          (if false ;; show or don't show schema (e.g. cc10)
                                            (str label ":" schema " -> {H:" head "}")
@@ -1218,7 +1218,7 @@
                      (do
                        (log/debug (str label ": leaf: " (fo candidate) " : filtering it with: " filter-fn))
                        (log/debug (str label ": leaf: " (fo candidate)))
-                       (if (not (nil? filter-against)) (log/info (str label ": candidate is just a plain map:" (fo candidate) " : filtering it against: " filter-against)))
+                       (if (not (nil? filter-against)) (log/debug (str label ": candidate is just a plain map:" (fo candidate) " : filtering it against: " filter-against)))
                        (let [filtered (filter filter-fn (list candidate))]
                          (log/debug (str "after filtering: emptiness of singleton list: " (empty? filtered)))
                          filtered))
@@ -1228,19 +1228,19 @@
          (gen-all (rest alternatives) label filter-against filter-fn)))))))
 
 (defmacro gen-ch21 [head comp]
-  `(do ~(log/info "gen-ch21 macro compile-time.")
+  `(do ~(log/debug "gen-ch21 macro compile-time.")
        (gen15 ch21
               ~head
               ~comp)))
 
 (defmacro gen-hh21 [head comp]
-  `(do ~(log/info "gen-hh21 macro compile-time.")
+  `(do ~(log/debug "gen-hh21 macro compile-time.")
        (gen15 hh21
               ~head
               ~comp)))
 
 (defmacro gen-cc10 [head comp]
-  `(do ~(log/info "gen-cc10 macro compile-time.")
+  `(do ~(log/debug "gen-cc10 macro compile-time.")
        (gen15 cc10
               ~head
               ~comp)))
