@@ -20,6 +20,12 @@
                                   :comp 'np
                                   :head 'vp})
 
+(ns-unmap 'italianverbs.rules 'sentence-with-modifier)
+(rewrite-as sentence-with-modifier {:schema 'hh10
+                                    :label 'sentence-with-modifier-left
+                                    :head 'sent-adverbs
+                                    :comp 'declarative-sentence})
+
 ;; possible expansions of np (noun phrase):
 ;;
 (ns-unmap 'italianverbs.rules 'np)
@@ -33,20 +39,20 @@
 ;;
 (ns-unmap 'italianverbs.rules 'vp)
 
-;(rewrite-as vp 'intransitive-verbs)
+(rewrite-as vp 'intransitive-verbs)
 (rewrite-as vp 'modal-vp)
-;(rewrite-as vp 'past-vp)
-;(rewrite-as vp 'transitive-vp)
-;(rewrite-as vp {:schema 'ch21
-;                :label 'vp
-;                :comp 'pronouns
-;                :head 'transitive-verbs})
+(rewrite-as vp 'past-vp)
+(rewrite-as vp 'transitive-vp)
+(rewrite-as vp {:schema 'ch21
+                :label 'vp
+                :comp 'pronouns
+                :head 'transitive-verbs})
 
 (ns-unmap 'italianverbs.rules 'modal-vp)
-;(rewrite-as modal-vp {:schema 'hh21
-;                      :label 'modal-vp
-;                      :head 'modal-verbs
-;                      :comp 'intransitive-verbs})
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp
+                      :head 'modal-verbs
+                      :comp 'intransitive-verbs})
 (rewrite-as modal-vp {:schema 'hh21
                       :label 'modal-vp
                       :head 'modal-verbs
@@ -74,25 +80,6 @@
                      :head 'aux-verbs
                      :comp 'modal-vp})
 
-(ns-unmap 'italianverbs.rules 'sentence-with-modifier)
-(rewrite-as sentence-with-modifier {:schema 'hh10
-                                    :label 'sentence-with-modifier-left
-                                    :head 'sent-adverbs
-                                    :comp 'declarative-sentence})
-(rewrite-as sentence-with-modifier {:schema 'cc10
-                                    :label 'sentence-with-modifier-right
-                                    :head 'sent-adverbs
-                                    :comp 'declarative-sentence-no-sent-impl})
-
-(ns-unmap 'italianverbs.rules 'declarative-sentence-no-sent-impl)
-(rewrite-as declarative-sentence-no-sent-impl {:schema 'cc10
-                                               :label 'declarative-sentence-no-sent-impl
-                                               :post-unify-fn sent-impl
-                                               :comp 'np
-                                               :head 'vp})
-
-
-
 ;; for testing.
 
 (ns-unmap 'italianverbs.rules 'my-vp-transitive)
@@ -102,7 +89,7 @@
 
 (rewrite-as myds-sentence {:schema 'cc10
                            :label 'declarative-sentence
-                           :post-unify-fn sent-impl
+                           :post-unify-fn 'mysent-impl
                            :comp 'mynp1
                            :head 'myvp})
 
@@ -129,6 +116,13 @@
             (= "mangiare" (unify/get-in candidate '(:italian :infinitive))))
           transitive-verbs))
 
+(def mysent-adverbs
+  (filter (fn [candidate]
+            ;; filter Vs to reduce number of candidates we need to filter:
+            ;; (only transitive verbs)
+            (= "stamattina" (unify/get-in candidate '(:italian))))
+          sent-adverbs))
+
 (rewrite-as mynp2 {:schema 'cc10
                    :label 'mynp2
                    :comp 'mydets
@@ -141,12 +135,16 @@
 ;; -- aliases --
 (def ds declarative-sentence)
 
+(ns-unmap 'italianverbs.rules 'sents)
+(rewrite-as sents 'ds)
+(rewrite-as sents 'sentence-with-modifier)
+
 ;; -- useful functions
 (defn generate-sentences []
   (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (take 1 (gen-all (shuffle declarative-sentence))))
+  (take 1 (gen-all (shuffle sents) "sents")))
 
 (defn random-sentences [ & n]
   (repeatedly (if (first n) (first n) 1000) (fn [] (random-sentence))))
