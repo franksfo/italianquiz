@@ -259,10 +259,10 @@
 
           (let [fail-path-result ""] ;; TODO: show fail diagnostics.
             (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
-              (log/info (str "comp-filter-fn:RESULT OF FILTER: " (fo comp) " + " (fo phrase-with-head) " = " result
+              (log/debug (str "comp-filter-fn:RESULT OF FILTER: " (fo comp) " + " (fo phrase-with-head) " = " result
                              fail-path-result))
               ;; else, head is first
-              (log/info (str "comp-filter-fn:RESULT OF FILTER: "  (fo phrase-with-head) " + " (fo comp) " = " result
+              (log/debug (str "comp-filter-fn:RESULT OF FILTER: "  (fo phrase-with-head) " + " (fo comp) " = " result
                              fail-path-result))))
 
           (if result
