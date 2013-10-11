@@ -240,8 +240,8 @@
               (and
                (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
                                   complement-category)))
-               (not (fail? (unify (unify/get-in comp '(:synsem :sem) :top)
-                                  complement-sem)))
+               (not (fail? (unify (sem-impl (unify/get-in comp '(:synsem :sem) :top))
+                                  (sem-impl complement-sem))))
                (not (fail? (unify (unify/get-in comp '(:synsem :essere) :top)
                                   complement-essere-type)))
                (not (fail? (unify (unify/get-in comp '(:italian :initial) :top)
