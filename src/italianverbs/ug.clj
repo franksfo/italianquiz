@@ -350,10 +350,10 @@
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def ch21-heads
   (if phrase-times-lexicon-cache
-    (filter (fn [lex]
-              (not (fail? (unify ch21 {:head lex}))))
-            lex/lexicon)
-    lex/lexicon))
+    (lazy-seq (filter (fn [lex]
+                        (not (fail? (unify ch21 {:head lex}))))
+                      lex/lexicon)
+              lex/lexicon)))
 
 (defn sentence-impl [input]
   "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
@@ -414,24 +414,25 @@
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def ch21-comps
   (if phrase-times-lexicon-cache
-    (filter (fn [lex]
-              (find-some-head-for ch21 ch21-heads lex))
-            (filter (fn [lex]
-                      (not (fail? (unify ch21 {:comp lex}))))
-                    lex/lexicon))
-    lex/lexicon))
+    (lazy-seq
+     (filter (fn [lex]
+               (find-some-head-for ch21 ch21-heads lex))
+             (filter (fn [lex]
+                       (not (fail? (unify ch21 {:comp lex}))))
+                     lex/lexicon))
+     lex/lexicon)))
 
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def hh21-heads
-  (if true
-    (filter (fn [lex]
-              (not (fail? (unify hh21 {:head lex}))))
-            lex/lexicon)
-    lex/lexicon))
+  (lazy-seq    
+   (filter (fn [lex]
+             (not (fail? (unify hh21 {:head lex}))))
+           lex/lexicon)
+   lex/lexicon))
 
 (def hh10-heads
-  (if true
+  (lazy-seq
     (filter (fn [lex]
               (not (fail? (unify hh10 {:head lex}))))
             lex/lexicon)

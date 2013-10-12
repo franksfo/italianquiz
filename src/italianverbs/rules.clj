@@ -23,7 +23,7 @@
 (ns-unmap 'italianverbs.rules 'sentence-with-modifier)
 (rewrite-as sentence-with-modifier {:schema 'hh10
                                     :label 'sentence-with-modifier-left
-                                    :head 'sent-adverbs
+                                    :head 'mysent-adverbs
                                     :comp 'declarative-sentence})
 
 ;; possible expansions of np (noun phrase):
@@ -40,7 +40,7 @@
 (ns-unmap 'italianverbs.rules 'vp)
 
 (rewrite-as vp 'intransitive-verbs)
-(rewrite-as vp 'modal-vp)
+;(rewrite-as vp 'modal-vp)
 (rewrite-as vp 'past-vp)
 (rewrite-as vp 'transitive-vp)
 (rewrite-as vp {:schema 'ch21
@@ -51,11 +51,11 @@
 (ns-unmap 'italianverbs.rules 'modal-vp)
 (rewrite-as modal-vp {:schema 'hh21
                       :label 'modal-vp
-                      :head 'modal-verbs
+                      :head 'mymodal-verbs
                       :comp 'intransitive-verbs})
 (rewrite-as modal-vp {:schema 'hh21
                       :label 'modal-vp
-                      :head 'modal-verbs
+                      :head 'mymodal-verbs
                       :comp 'transitive-vp})
 
 ;; possible expansions of transitive vp (verb phrase):
@@ -75,10 +75,10 @@
                      :label 'past-vp
                      :head 'aux-verbs
                      :comp 'transitive-vp})
-(rewrite-as past-vp {:schema 'hh21
-                     :label 'past-vp
-                     :head 'aux-verbs
-                     :comp 'modal-vp})
+;(rewrite-as past-vp {:schema 'hh21
+;                     :label 'past-vp
+;                     :head 'aux-verbs
+;                     :comp 'modal-vp})
 
 ;; for testing.
 
@@ -86,6 +86,8 @@
 (ns-unmap 'italianverbs.rules 'myvp-past-trans)
 (ns-unmap 'italianverbs.rules 'mynp)
 (ns-unmap 'italianverbs.rules 'mydets)
+
+(ns-unmap 'italianverbs.rules 'mymodal-verbs)
 
 (rewrite-as myds-sentence {:schema 'cc10
                            :label 'declarative-sentence
@@ -115,6 +117,14 @@
             ;; (only transitive verbs)
             (= "mangiare" (unify/get-in candidate '(:italian :infinitive))))
           transitive-verbs))
+
+(def mymodal-verbs
+  (filter (fn [candidate]
+            ;; filter Vs to reduce number of candidates we need to filter:
+            ;; (only transitive verbs)
+            (= "volere" (unify/get-in candidate '(:italian :infinitive))))
+          modal-verbs))
+
 
 (def mysent-adverbs
   (filter (fn [candidate]
