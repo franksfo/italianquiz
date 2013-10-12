@@ -89,12 +89,14 @@
           (log/info (str "moreover-comp (SUCCESS) merged result: " (fo result)))
           result))
       (do
-        (log/info "moreover-comp: fail at: " (unify/fail-path result))
+        (log/debug "moreover-comp: fail at: " (unify/fail-path result))
         (if (unify/get-in child '(:head))
           (throw (Exception. (str "failed to add complement: " (fo child) "  to: phrase: " (fo parent)
                                   ". Failed path was: " (unify/fail-path result)
                                   ". Value of parent at path is: "
-                                  (unify/get-in parent (unify/fail-path result))))))
+                                  (unify/get-in parent (unify/fail-path result))
+                                  "; Synsem of child is: "
+                                  (unify/get-in child '(:synsem) :top)))))
         (log/debug "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
         (log/debug "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
         :fail))))

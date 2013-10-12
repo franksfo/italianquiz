@@ -15,7 +15,7 @@
             [clojure.string :as string])
 )
 
-(def phrase-times-lexicon-cache true)
+(def phrase-times-lexicon-cache false)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
@@ -212,6 +212,8 @@
           complement-sem (sem-impl (unify/get-in complement-synsem '(:sem) :top))
           complement-essere-type (unify/get-in complement-synsem '(:essere) :top)
           complement-italian-initial (unify/get-in phrase-with-head '(:comp :italian :initial) :top)
+          complement-agr (unify/get-in complement-synsem '(:agr) :top)
+          complement-activity (unify/get-in complement-synsem '(:sem :activity) :top)
 
 
           debug (log/debug (str "cond1: " (not (fail? (unify (unify/get-in comp '(:synsem :cat) :top)
@@ -245,7 +247,18 @@
                (not (fail? (unify (unify/get-in comp '(:synsem :essere) :top)
                                   complement-essere-type)))
                (not (fail? (unify (unify/get-in comp '(:italian :initial) :top)
-                                  complement-italian-initial))))]
+                                  complement-italian-initial)))
+
+               (not (fail? (unify (unify/get-in comp '(:synsem :agr) :top)
+                                  complement-agr)))
+
+               (not (fail? (unify (unify/get-in comp '(:synsem :sem :activity) :top)
+                                  complement-activity))))
+
+
+              ]
+
+
 
           (log/debug (str "comp-filter-fn:phrase-with-head:" (fo phrase-with-head)))
           (log/debug (str "comp-filter-fn:phrase-with-head's first arg" (unify/get-in phrase-with-head '(:head :synsem :subcat :1) :wtf)))
@@ -269,7 +282,7 @@
             ;; complement was compatible with the filter: not filtered out.
             (do ;(log/debug (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
                 ;(log/debug (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
-                (log/debug (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
+                (log/info (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
                                "TRUE" ;; emphasize for ease of readability in logs.
                                ))
                 result)
@@ -425,7 +438,7 @@
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def hh21-heads
-  (lazy-seq    
+  (lazy-seq
    (filter (fn [lex]
              (not (fail? (unify hh21 {:head lex}))))
            lex/lexicon)
