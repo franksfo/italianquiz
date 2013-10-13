@@ -41,12 +41,12 @@
 
 (rewrite-as vp 'intransitive-verbs)
 ;(rewrite-as vp 'modal-vp)
-(rewrite-as vp 'past-vp)
-(rewrite-as vp 'transitive-vp)
-(rewrite-as vp {:schema 'ch21
-                :label 'vp
-                :comp 'pronouns
-                :head 'transitive-verbs})
+;(rewrite-as vp 'past-vp)
+;(rewrite-as vp 'transitive-vp)
+;(rewrite-as vp {:schema 'ch21
+;                :label 'vp
+;                :comp 'pronouns
+;                :head 'transitive-verbs})
 
 (ns-unmap 'italianverbs.rules 'modal-vp)
 (rewrite-as modal-vp {:schema 'hh21
@@ -146,7 +146,7 @@
 (def ds declarative-sentence)
 
 (ns-unmap 'italianverbs.rules 'sents)
-(rewrite-as sents 'ds)
+;(rewrite-as sents 'ds)
 (rewrite-as sents 'sentence-with-modifier)
 
 ;; -- useful functions
@@ -154,7 +154,7 @@
   (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (take 1 (gen-all (shuffle sents) "sents")))
+  (take 1 (gen-all (shuffle sents) "sents" :top)))
 
 (defn random-sentences [ & n]
   (repeatedly (if (first n) (first n) 1000) (fn [] (random-sentence))))
