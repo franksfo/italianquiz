@@ -470,7 +470,7 @@
                                   (log/debug (str label " : " (fo complement-lexeme) " is passed through."))
                                   true))))
               ]
-          (log/debug (str "gen-all: HEAD CANDIDATE: " candidate))
+          (log/debug (str "gen-all: HEAD CANDIDATE: " (fo candidate)))
           (lazy-cat
            (let [lazy-returned-sequence
                  (cond (symbol? candidate)
