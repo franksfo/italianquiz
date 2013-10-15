@@ -119,56 +119,12 @@
    :else
    (moreover-head parent child)))
 
-(defn gen13 [depth phrases lexicon]
-  (if (>= depth 0) ;; screen out negative numbers to prevent infinite recursion.
-    (if (> depth 0)
-      (concat
-       (gen13 (- depth 1) phrases
-              lexicon (gen13 (- depth 1) phrases lexicon))
-;       (gen13 (- depth 1) phrases
-;              (gen13 (- depth 1) phrases lexicon))
-;       (gen13 (- depth 1) phrases
-;              (gen13 (- depth 1) phrases)
-;              (gen13 (- depth 1) phrases)))
-       )
-      ;; depth == 0: no more recursion.
-      (do
-          (remove (fn [phr] (unify/fail? phr))
-                  (flatten
-                   (map (fn [phrase]
-                          (if (head-filled-in? phrase)
-                            (map (fn [lexeme]
-                                   (moreover-comp phrase lexeme))
-                                 lexicon)
-                            ;; else: head is not filled in: fill it in.
-                            (map (fn [lexeme]
-                                   (moreover-head phrase lexeme))
-                                 lexicon)))
-                        phrases)))))))
-
-(defn cleanup [phrases]
-  (remove (fn [phr] (or (= (unify/get-in phr '(:english :a)) :top)
-                        (= (unify/get-in phr '(:english :b)) :top)
-                        (= (unify/get-in phr '(:italian :a)) :top)
-                        (= (unify/get-in phr '(:italian :b)) :top)))
-          phrases))
-
-(defn double-apply [depth phrases lexicon]
-  (cleanup (gen13 0
-                  (gen13 0 phrases lexicon)
-                  lexicon)))
-
-(defn triple-apply [depth phrases lexicon]
-  (cleanup (gen13 0
-                  (gen13 1 phrases lexicon)
-                  lexicon)))
-
 (defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level [ & filtered-complements]]
   (let [debug (log/debug (str "gen14-inner begin: recursion level: " recursion-level))
-        debug (log/debug (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
+        debug (log/info (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
         recursion-level (+ 1 recursion-level)
-        debug-inner (log/debug (str "gen14-inner: type of complements: " (type complements)))
-        debug-inner (log/debug (str "gen14-inner: complement-filter-fn: " complement-filter-fn))
+        debug-inner (log/info (str "gen14-inner: type of complements: " (type complements)))
+        debug-inner (log/info (str "gen14-inner: complement-filter-fn: " complement-filter-fn))
         check-filter-fn (if (nil? complement-filter-fn)
                           (let [error-message (str "complement-filter-fn is nil.")]
                             (log/debug error-message)
@@ -188,7 +144,7 @@
             (log/debug error-message)
             (throw (Exception. error-message))))
         complements (cond (fn? complements)
-                          (do (log/debug (str "gen14-inner: treating complements as a fn."))
+                          (do (log/info (str "gen14-inner: treating complements as a fn."))
 
                               ;; probably don't need lazy-seq here, so simply leaving this here, commented out, in case I'm wrong:
                               ;; (lazy-seq (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
@@ -198,23 +154,28 @@
                           (if filtered-complements
                             (filter (fn [complement]
                                       (log/debug (str "FILTERING COMPLEMENT(2x): " (fo complement)))
+                                      (log/debug (str "COMPLEMENT-FILTER-FN: " complement-filter-fn))
                                       (apply
-                                       (apply complement-filter-fn (list phrase-with-head))
+                                       (let [intermediate-result (apply complement-filter-fn (list phrase-with-head))]
+                                         (log/debug (str "ARGUMENT (phrase-with-head)" phrase-with-head))
+                                         (log/debug (str "ARGUMENT (fo (phrase-with-head))" (fo phrase-with-head)))
+                                         (log/debug (str "INTERMED-RESULT: " intermediate-result))
+                                         (fn [x] intermediate-result))
                                        (list complement)))
                                     filtered-complements)
                             ;; filter the complements according to the complement-filter-fn.
                             (filter (fn [complement]
-                                      (log/debug (str "FILTERING COMPLEMENT(1x): " (fo complement)))
+                                      (log/info (str "FILTERING COMPLEMENT(1x): " (fo complement)))
                                       (apply
                                        (apply complement-filter-fn (list phrase-with-head))
                                        (list complement)))
                                     complements))
                           (= (type complements)
                              clojure.lang.PersistentVector)
-                          (do (log/debug (str "gen14-inner: filtering vector."))
+                          (do (log/info (str "gen14-inner: filtering vector."))
                               (if filtered-complements
                                 (filter (fn [complement]
-                                          (log/debug (str "FILTERING COMPLEMENT(2x): " (fo complement)))
+                                          (log/info (str "FILTERING COMPLEMENT(2x): " (fo complement)))
                                           (apply
                                            (apply complement-filter-fn (list phrase-with-head))
                                            (list complement)))
@@ -321,6 +282,7 @@
               logging (log/debug (str "gen14: head candidate: " (fo head)))
               logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
               phrase-with-head (moreover-head phrase head)
+              debug (log/debug "GOT HERE AFTER moreover-head.")
               is-fail? (unify/fail? phrase-with-head)
               debug (log/debug (str "gen14: fail? phrase-with-head:"
                                    is-fail?))
@@ -447,33 +409,33 @@
         (log/debug (str "TYPE OF CANDIDATE: " (type candidate)))
         (if (and (nil? (:schema candidate))
                  (map? candidate))
-          (log/info (str "gen-all: " label ": " (fo candidate))))
+          (log/debug (str "gen-all: " label ": " (fo candidate))))
         (if (and (map? candidate)
                  (nil? (:schema candidate)));; don't log lexical candidates: too many of them.
-          (log/info (str "gen-all: " (log-candidate-form candidate label))))
-        (log/info (str "gen-all:  type of candidate "
+          (log/debug (str "gen-all: " (log-candidate-form candidate label))))
+        (log/debug (str "gen-all:  type of candidate "
                         (if (symbol? candidate) (str "'" candidate)) ": " (type candidate)))
         (if filter-fn (log/debug (str "gen-all: filter-fn: " filter-fn)))
 
-        (log/info (str "TYPE OF CANDIDATE2: " (type candidate)))
+        (log/debug (str "TYPE OF CANDIDATE2: " (type candidate)))
 
-        (if (not (nil? filter-against)) (log/info (str "filter-against: " filter-against)))
+        (if (not (nil? filter-against)) (log/debug (str "filter-against: " filter-against)))
 
         (if (and (or filter-fn filter-against)
                  (map? candidate)
                  (:schema candidate)) ;; a rule, not a lexeme.
-          (log/info (str "gen-all: FILTERING ON CANDIDATE RULE:"
-                          (fo candidate))))
+          (log/debug (str "gen-all: FILTERING ON CANDIDATE RULE:"
+                          candidate)))
 
         (if (and (map? candidate)
                  (:schema candidate))
-          (log/info (str "gen-all: candidate: " candidate " is a rule.")))
+          (log/debug (str "gen-all: candidate: " candidate " is a rule.")))
 
         (if (and (nil? filter-fn)
                  (nil? filter-against)
                  (map? candidate)
                  (nil? (:schema candidate))) ;; a lexeme, not a rule.
-          (log/info (str "gen-all: NO FILTERING ON CANDIDATE LEXEME: "
+          (log/debug (str "gen-all: NO FILTERING ON CANDIDATE LEXEME: "
                           (fo candidate))))
 
         (if (and (nil? filter-fn)
@@ -492,10 +454,13 @@
                           (if filter-against
                             ;; create a filter function given the passed filter-against map to filter complement lexemes..
                             (fn [complement-lexeme]
-                              (let [debug (log/info (str "filtering: " complement-lexeme))
-                                    debug (log/info (str "against: " filter-against))
+                              (let [debug (log/debug (str "filtering: " complement-lexeme))
+                                    debug (log/debug (str "against: " filter-against))
                                     result (lexfn/unify complement-lexeme filter-against)
-                                    debug (log/info (str "result: " result))]
+                                    debug (log/debug (str "result: " result))
+                                    debug (if (unify/fail? result)
+                                            (log/debug (str " fail-path: " (unify/fail-path result))))]
+
                                 (not (unify/fail? result))))
 
                             ;; no filter was desired by the caller: just use the pass-through filter.
@@ -505,7 +470,7 @@
                                   (log/debug (str label " : " (fo complement-lexeme) " is passed through."))
                                   true))))
               ]
-          (log/info (str "gen-all: HEAD CANDIDATE: " candidate))
+          (log/debug (str "gen-all: HEAD CANDIDATE: " candidate))
           (lazy-cat
            (let [lazy-returned-sequence
                  (cond (symbol? candidate)
@@ -568,15 +533,18 @@
                                                  (unify/get-in (lexfn/unify filter-against
                                                                             {:head inner-filter-against})
                                                                '(:head) :top)]
-                                             (log/info (str "gen-all(head): derivation: "
+                                             (if (unify/fail? retval)
+                                               (throw (Exception. (str "unifying inner and outer filters is unexpectedly fail: " retval))))
+                                             (log/debug (str "filtering with retval: " retval))
+                                             (log/debug (str "gen-all(head): derivation: "
                                                             (if false ;; show or don't show schema (e.g. cc10)
                                                               (str label ":" schema " -> {H:" head "}")
                                                               (str label " -> {H:" head "}"))))
-                                             (log/info (str "gen-all(head): filter-against (outer): "
+                                             (log/debug (str "gen-all(head): filter-against (outer): "
                                                             filter-against))
-                                             (log/info (str "gen-all(head): filter-against (inner): "
+                                             (log/debug (str "gen-all(head): filter-against (inner): "
                                                             inner-filter-against))
-                                             (log/info (str "gen-all(head): filter-against (retval):"
+                                             (log/debug (str "gen-all(head): filter-against (retval):"
                                                             retval))
                                              retval)
                                            filter-fn))
@@ -602,10 +570,16 @@
                        (map? candidate)
                        (do
                          (log/debug (str label ": leaf: " (fo candidate) " : filtering it with: " filter-fn))
-                         (log/debug (str label ": leaf: " (fo candidate)))
+                         (log/info (str label ": leaf: " (fo candidate)))
                          (if (not (nil? filter-against)) (log/debug (str label ": candidate is just a plain map:" (fo candidate) " : filtering it against: " filter-against)))
-                         (let [filtered (filter filter-fn (list candidate))]
+                         (let [filtered (filter 
+                                         (fn [candidate]
+                                           (not (unify/fail? (lexfn/unify filter-against candidate))))
+                                         (list candidate))]
                            (log/debug (str "after filtering: emptiness of singleton list: " (empty? filtered)))
+                           (if (empty? filtered)
+                             (str " fail path is:  " (unify/fail-path (lexfn/unify candidate filter-against))))
+                           (log/debug (str "OK, DONE FILTERING."))
                            filtered))
 
                        true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))]
