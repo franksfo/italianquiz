@@ -121,7 +121,7 @@
 
 (defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level [ & filtered-complements]]
   (let [debug (log/debug (str "gen14-inner begin: recursion level: " recursion-level))
-        debug (log/info (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
+        debug (log/debug (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
         recursion-level (+ 1 recursion-level)
         debug-inner (log/debug (str "gen14-inner: type of complements: " (type complements)))
         debug-inner (log/debug (str "gen14-inner: complement-filter-fn: " complement-filter-fn))
@@ -144,8 +144,7 @@
             (log/debug error-message)
             (throw (Exception. error-message))))
         complements (cond (fn? complements)
-                          (do (log/info (str "gen14-inner: treating complements as a fn."))
-
+                          (do (log/debug (str "gen14-inner: treating complements as a fn."))
                               ;; probably don't need lazy-seq here, so simply leaving this here, commented out, in case I'm wrong:
                               ;; (lazy-seq (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
                               (apply complements (list phrase-with-head)))
@@ -245,13 +244,13 @@
               (log/debug (str "gen14-inner: fail: " result))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; comp first ('c' is first character of comment):
-                (log/debug (str "gen14-inner :"
+                (log/info (str "gen14-inner :"
                                 (get-in phrase-with-head '(:comment)) " => "
                                 (fo comp)
                                 " + "
                                 (fo (unify/get-in phrase-with-head '(:head))) " => false"))
                 ;; head first ('c' is not first character of comment):
-                (log/debug (str "gen14-inner :"
+                (log/info (str "gen14-inner :"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
@@ -262,13 +261,15 @@
 (defn gen14 [phrase heads complements filter-against post-unify-fn recursion-level]
   (if (or (fn? heads) (not (empty? heads)))
     (do
+      (if (unify/fail? phrase)
+        (throw (Exception. (str "gen14: phrase is fail: " phrase))))
       (log/debug (str "gen14: starting now: recursion-level: " recursion-level))
       (log/debug (str "gen14: type of heads: " (type heads)))
-      (log/info (str "gen14: filter-against: " filter-against))
-      (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
-      (log/info (str "gen14: fo(first phrase): " (fo phrase)))
+      (log/debug (str "gen14: filter-against: " filter-against))
+      (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+      (log/debug (str "gen14: fo(first phrase): " (fo phrase)))
       (log/debug (str "gen14: type of comps: " (type complements)))
-      (log/info (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
+      (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
             phrase (lexfn/unify phrase
                                 filter-against
@@ -280,7 +281,10 @@
                         (let [filter-against
                               (unify/get-in phrase
                                             '(:head) :top)]
-                          (log/info (str "gen14: PHRASE IS:" phrase))
+                          (log/debug (str "gen14: PHRASE IS:" phrase))
+                          (if (unify/fail? filter-against)
+                            (throw (Exception. (str "should not have gotten here: filter-against is failure:"
+                                                    filter-against "; " (unify/fail-path filter-against)))))
                           (log/info (str "gen14: treating heads as a function and applying against filter:"  filter-against))
                           (apply heads (list filter-against)))
                         :else
@@ -289,13 +293,11 @@
             head (first heads)
             rest-heads (rest heads)]
         (let [check (if (nil? head) (log/warn "head candidate is null - heads was a function, which, when called, returned an empty set of candidates."))
-              logging (log/info (str "gen14: head candidate: " (fo head)))
-              logging (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+              logging (log/debug (str "gen14: head candidate: " (fo head)))
+              logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
               phrase-with-head (moreover-head phrase head)
-              debug (log/info (str "gen14: phrase-with-head: " phrase-with-head))
+              debug (log/debug (str "gen14: phrase-with-head: " (fo phrase-with-head)))
               is-fail? (unify/fail? phrase-with-head)
-              debug (log/info (str "gen14: fail? phrase-with-head:"
-                                   is-fail?))
               ]
           (if (nil? head)
             nil
@@ -371,9 +373,9 @@
 
 (defn gen17 [phrase heads comps filter-against post-unify-fn]
   (log/info (str "gen17: phrase:" (:comment phrase)))
-  (log/info (str "gen17: filter-against:" filter-against))
-  (log/info (str "gen17: seq? heads:" (seq? heads)))
-  (log/info (str "gen17: fn? heads:" (fn? heads)))
+  (log/debug (str "gen17: filter-against:" filter-against))
+  (log/debug (str "gen17: seq? heads:" (seq? heads)))
+  (log/debug (str "gen17: fn? heads:" (fn? heads)))
   (cond (seq? heads)
         (let [head (first heads)]
           (if head
@@ -410,7 +412,9 @@
   (do
     (if (nil? filter-against)
       (throw (Exception. (str "no filter-against given for " label "; alternatives: " alternatives))))
-    (log/info (str "gen-all: " label " : filter-against: " filter-against))
+    (if (unify/fail? filter-against)
+      (throw (Exception. (str "filter-against is fail:" filter-against))))
+    (log/debug (str "gen-all: " label " : filter-against: " filter-against))
     (log/debug (str "ALTS: " alternatives))
     (log/debug (str "FIRST ALTS: " (first alternatives)))
     (if (not (first alternatives))
@@ -510,10 +514,14 @@
                        (gen17 (eval schema)
                               ;; head (1) (see below for complements)
                               (fn [inner-filter-against]
-                                (log/info "gen-all: using head for gen-17: " head)
-                                (log/info "gen-all: filtering head arg against: " filter-against)
-                                (log/info "type of symbol's eval is:" (type (eval head)))
-                                (log/info (if (seq? (eval head))
+                                (log/info (str "getting started inside closure with filter:" inner-filter-against))
+                                (if (unify/fail? inner-filter-against)
+                                  (throw (Exception. (str "inner-filter-against is fail:" inner-filter-against))))
+
+                                (log/debug "gen-all: using head for gen-17: " head)
+                                (log/debug "gen-all: filtering head arg against: " filter-against)
+                                (log/debug "type of symbol's eval is:" (type (eval head)))
+                                (log/debug (if (seq? (eval head))
                                             (str "first of head: " (fo (first (eval head))))))
                                 (gen-all (lazy-shuffle (eval head))
                                          (if false ;; show or don't show schema (e.g. cc10)
@@ -524,16 +532,21 @@
                                                                           {:head inner-filter-against})
                                                              '(:head) :top)]
                                            (if (unify/fail? retval)
-                                             (throw (Exception. (str "unifying inner and outer filters is unexpectedly fail: " retval))))
+                                             (throw
+                                              (Exception. (str "unifying inner and outer filters is unexpectedly fail: "
+                                                               retval "; inner=" inner-filter-against "; outer="
+                                                               filter-against "; fail-path: " (unify/fail-path retval)
+                                                               "; outer-filter value:"
+                                                               (unify/get-in filter-against (unify/fail-path retval))))))
                                            (log/debug (str "gen-all(head): derivation: "
                                                            (if false ;; show or don't show schema (e.g. cc10)
                                                              (str label ":" schema " -> {H:" head "}")
                                                              (str label " -> {H:" head "}"))))
-                                           (log/info (str "gen-all(head): filter-against (outer): "
+                                           (log/debug (str "gen-all(head): filter-against (outer): "
                                                            filter-against))
-                                           (log/info (str "gen-all(head): filter-against (inner): "
+                                           (log/debug (str "gen-all(head): filter-against (inner): "
                                                            inner-filter-against))
-                                           (log/info (str "gen-all(head): filter-against (retval):"
+                                           (log/debug (str "gen-all(head): filter-against (retval):"
                                                            retval))
                                            retval)))
 
@@ -558,21 +571,21 @@
 
                      (map? candidate)
                      (do
-                       (log/info (str "gen-all: filter-against:" filter-against))
+                       (log/debug (str "gen-all: filter-against:" filter-against))
                        (if (not (nil? filter-against))
                          (log/debug (str "gen-all: " label " candidate is just a plain map:" (fo candidate) ": filtering it against: " filter-against)))
                        (let [filtered
                              (let [result (lexfn/unify filter-against candidate)
                                    is-fail (unify/fail? result)]
-                               (log/info (str "unifying: " (fo candidate) " against: " filter-against))
-                               (log/info (str "gen-all: " label " leaf: " (fo candidate) " "
+                               (log/debug (str "unifying: " (fo candidate) " against: " filter-against))
+                               (log/debug (str "gen-all: " label " leaf: " (fo candidate) " "
                                               (if is-fail " failed to unify." " succeeded.")))
                                (if is-fail
-                                 (log/info (str "FAILED AT: " (unify/fail-path result))))
+                                 (log/debug (str " failed at: " (unify/fail-path result))))
                                (if is-fail
-                                 (log/info (str "leaf's value:" (unify/get-in candidate (unify/fail-path result)))))
+                                 (log/debug (str "  leaf's value: " (unify/get-in candidate (unify/fail-path result)))))
                                (if is-fail
-                                 (log/info (str "filter's value:" (unify/get-in filter-against (unify/fail-path result)))))
+                                 (log/debug (str "  filter's value: " (unify/get-in filter-against (unify/fail-path result)))))
                                (if (not is-fail)
                                  (list candidate) ;; if unified, then return a list with one member: the candidate
                                         ;; otherwise, an empty list
