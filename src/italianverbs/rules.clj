@@ -32,8 +32,8 @@
 (rewrite-as np {:schema 'cc10
                 :comp 'dets
                 :head 'common-nouns})
-(rewrite-as np 'propernouns)
-(rewrite-as np 'pronouns)
+;(rewrite-as np 'propernouns)
+;(rewrite-as np 'pronouns)
 
 ;; possible expansions of vp (verb phrase):
 ;;
@@ -88,23 +88,27 @@
 (ns-unmap 'italianverbs.rules 'mydets)
 
 (ns-unmap 'italianverbs.rules 'mymodal-verbs)
+(ns-unmap 'italianverbs.rules 'mynouns)
+(ns-unmap 'italianverbs.rules 'mynp1)
 
 (rewrite-as myds-sentence {:schema 'cc10
                            :label 'declarative-sentence
                            :post-unify-fn 'mysent-impl
-                           :comp 'mynp1
-                           :head 'myvp})
+                           :comp 'np
+                           :head 'vp})
 
 (rewrite-as mynp1 {:schema 'cc10
                    :label 'mynp
                    :comp 'mydets
-                   :head 'donna})
+                   :head 'mynouns})
 (def mydets (filter (fn [lexeme]
-                     (= "la" (unify/get-in lexeme '(:italian))))
+                      (or (= "la" (unify/get-in lexeme '(:italian)))
+                          (= "un" (unify/get-in lexeme '(:italian)))))
                    dets))
 
-(def donna (filter (fn [lexeme]
-                     (= "donna" (unify/get-in lexeme '(:italian :italian))))
+(def mynouns (filter (fn [lexeme]
+                     (or (= "donna" (unify/get-in lexeme '(:italian :italian)))
+                         (= "cane" (unify/get-in lexeme '(:italian :italian)))))
                    common-nouns))
 
 (rewrite-as myvp {:schema 'hh21
