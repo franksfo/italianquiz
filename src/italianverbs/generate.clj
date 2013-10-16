@@ -509,8 +509,8 @@
                        (gen17 (eval schema)
                               ;; head (1) (see below for complements)
                               (fn [inner-filter-against]
-                                (log/debug "gen-all:realizing head arg for gen-17 using symbol: " head)
-                                (log/debug "gen-all: filtering head arg against: " filter-against)
+                                (log/info "gen-all:realizing head arg for gen-17 using symbol: " head)
+                                (log/info "gen-all: filtering head arg against: " filter-against)
                                         ;(log/debug "type of symbol's eval is:" (type (eval head)))
                                         ;(log/debug "count of symbol's eval is:" (count (eval head)))
                                 (gen-all (lazy-shuffle (eval head))
