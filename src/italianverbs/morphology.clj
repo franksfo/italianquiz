@@ -1639,9 +1639,10 @@
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
-  (do
-    (symbol? expressions)
-    expressions
+  (cond
+   (symbol? expressions)
+   expressions
+   true
     (if (and (= (type expressions) clojure.lang.LazySeq)
              (not (empty? expressions)))
       (cons
