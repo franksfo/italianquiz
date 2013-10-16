@@ -2010,25 +2010,25 @@
               :italian {:italian "ragazzo"}
               :english {:english "guy"}})
 
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             masculine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :ragazzino
-                             :child true}}
-              :italian {:italian "ragazzino"}
-              :english {:english "little boy"}})
+;      (unify agreement-noun
+;             common-noun
+;             countable-noun
+;             masculine-noun
+;             {:synsem {:sem human}}
+;             {:synsem {:sem {:pred :ragazzino
+;                             :child true}}
+;              :italian {:italian "ragazzino"}
+;              :english {:english "little boy"}})
 
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             feminine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :ragazzina
-                             :child true}}
-              :italian {:italian "ragazzina"}
-              :english {:english "little girl"}})
+;      (unify agreement-noun
+;             common-noun
+;             countable-noun
+;             feminine-noun
+;             {:synsem {:sem human}}
+;             {:synsem {:sem {:pred :ragazzina
+;                             :child true}}
+;              :italian {:italian "ragazzina"}
+;              :english {:english "little girl"}})
 
       (unify agreement-noun
              common-noun
