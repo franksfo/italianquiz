@@ -244,13 +244,13 @@
               (log/debug (str "gen14-inner: fail: " result))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; comp first ('c' is first character of comment):
-                (log/info (str "gen14-inner :"
+                (log/debug (str "gen14-inner :"
                                 (get-in phrase-with-head '(:comment)) " => "
                                 (fo comp)
                                 " + "
                                 (fo (unify/get-in phrase-with-head '(:head))) " => false"))
                 ;; head first ('c' is not first character of comment):
-                (log/info (str "gen14-inner :"
+                (log/debug (str "gen14-inner :"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
@@ -307,7 +307,7 @@
                                 (if (unify/get-in head '(:comment))
                                   (str "(" (unify/get-in head '(:comment))) ")")
                                 " added successfully to " (unify/get-in phrase '(:comment)) "."))
-                (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) " => head: " (fo head)
+                (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) " => head: " (fo head)
                                 (if (unify/get-in head '(:comment))
                                   (str "(" (unify/get-in head '(:comment)) ")")
                                   "")))
@@ -464,7 +464,7 @@
                  (:post-unify-fn candidate))
           (log/debug (str "gen-all: post-unify filter exists : " (:post-unify-fn candidate))))
 
-        (log/debug (str "gen-all: HEAD CANDIDATE: " (fo candidate)))
+        (log/info (str "gen-all: " (log-candidate-form candidate label) " HEAD CANDIDATE: " (fo candidate)))
         (lazy-cat
          (let [lazy-returned-sequence
                (cond (symbol? candidate)
