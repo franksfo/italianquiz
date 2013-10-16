@@ -32,8 +32,8 @@
 (rewrite-as np {:schema 'cc10
                 :comp 'dets
                 :head 'common-nouns})
-;(rewrite-as np 'propernouns)
-;(rewrite-as np 'pronouns)
+(rewrite-as np 'propernouns)
+(rewrite-as np 'pronouns)
 
 ;; possible expansions of vp (verb phrase):
 ;;
@@ -41,8 +41,8 @@
 
 (rewrite-as vp 'intransitive-verbs)
 ;(rewrite-as vp 'modal-vp)
-;(rewrite-as vp 'past-vp)
-;(rewrite-as vp 'transitive-vp)
+(rewrite-as vp 'past-vp)
+(rewrite-as vp 'transitive-vp)
 ;(rewrite-as vp {:schema 'ch21
 ;                :label 'vp
 ;                :comp 'pronouns
