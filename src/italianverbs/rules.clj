@@ -1,6 +1,6 @@
 (ns italianverbs.rules
   (:refer-clojure :exclude [get-in resolve])
-  (:use [italianverbs.generate :only (rewrite-as gen-all)]
+  (:use [italianverbs.generate :only (rewrite-as gen-all lazy-shuffle)]
         [italianverbs.grammar]
         [italianverbs.lexicon :only (it1)]
         [clojure.repl :only (source)]
@@ -32,8 +32,8 @@
 (rewrite-as np {:schema 'cc10
                 :comp 'dets
                 :head 'common-nouns})
-(rewrite-as np 'propernouns)
-(rewrite-as np 'pronouns)
+;(rewrite-as np 'propernouns)
+;(rewrite-as np 'pronouns)
 
 ;; possible expansions of vp (verb phrase):
 ;;
