@@ -29,11 +29,15 @@
 ;; possible expansions of np (noun phrase):
 ;;
 (ns-unmap 'italianverbs.rules 'np)
+(ns-unmap 'italianverbs.rules 'np-subj)
+(ns-unmap 'italianverbs.rules 'np-obj)
 (rewrite-as np {:schema 'cc10
                 :comp 'dets
                 :head 'common-nouns})
-;(rewrite-as np 'propernouns)
-;(rewrite-as np 'pronouns)
+(rewrite-as np 'propernouns)
+(rewrite-as np 'pronouns)
+(rewrite-as np-subj 'pronouns)
+(rewrite-as np-obj 'propernouns)
 
 ;; possible expansions of vp (verb phrase):
 ;;
@@ -63,7 +67,7 @@
 ;; undefine any previous values: TODO: should be a one-liner.
 (ns-unmap 'italianverbs.rules 'transitive-vp)
 (rewrite-as transitive-vp {:schema 'hh21
-                           :comp 'np
+                           :comp 'np-obj
                            :head 'transitive-verbs})
 
 (ns-unmap 'italianverbs.rules 'past-vp)
@@ -75,10 +79,10 @@
                      :label 'past-vp
                      :head 'aux-verbs
                      :comp 'transitive-vp})
-;(rewrite-as past-vp {:schema 'hh21
-;                     :label 'past-vp
-;                     :head 'aux-verbs
-;                     :comp 'modal-vp})
+(rewrite-as past-vp {:schema 'hh21
+                     :label 'past-vp
+                     :head 'aux-verbs
+                     :comp 'modal-vp})
 
 ;; for testing.
 
