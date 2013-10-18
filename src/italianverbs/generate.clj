@@ -33,8 +33,8 @@
     (let [;parent (unify/copy parent)
                                         ;child (unify/copy child)
           result (lexfn/unify parent
-                              {:head child}
-                              {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
+                              (lexfn/unify {:head child}
+                                           {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
       (if (not (unify/fail? result))
         (let [debug (log/debug (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
               debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
@@ -57,8 +57,8 @@
     (let [;parent (unify/copy parent)
                                         ;child (unify/copy child)
           result (lexfn/unify parent
-                              {:head child}
-                              {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
+                              (lexfn/unify {:head child}
+                                           {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
       (if (not (unify/fail? result))
         (let [debug (log/debug (str "moreover-head-diagnostics " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
               debug (log/debug (str "moreover-head-diagnostics (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
@@ -78,8 +78,8 @@
   (log/debug (str "moreover-comp comp:" (fo child)))
   (let [result
         (lexfn/unify parent
-                     {:comp child}
-                     {:comp {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}})]
+                     (lexfn/unify {:comp child}
+                                  {:comp {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
     (if (not (unify/fail? result))
       (let [debug (log/debug (str "moreover-comp " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
             debug (log/debug (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
@@ -235,7 +235,7 @@
   (if (or (fn? heads) (not (empty? heads)))
     (do
       (if (unify/fail? phrase)
-        (throw (Exception. (str "gen14: phrase is fail: " phrase))))
+        (throw (Exception. (str "gen14: phrase is fail: " (type phrase)))))
       (log/debug (str "gen14: starting now: recursion-level: " recursion-level))
       (log/debug (str "gen14: type of heads: " (type heads)))
       (log/debug (str "gen14: filter-against: " filter-against))
@@ -245,19 +245,20 @@
       (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
             phrase (lexfn/unify phrase
-                                filter-against
-                                {:synsem {:sem (lexfn/sem-impl
-                                                (lexfn/unify
-                                                 (get-in phrase '(:synsem :sem) :top)
-                                                 (get-in filter-against '(:synsem :sem) :top)))}})
+                                (lexfn/unify
+                                 filter-against
+                                 {:synsem {:sem (lexfn/sem-impl
+                                                 (lexfn/unify
+                                                  (get-in phrase '(:synsem :sem) :top)
+                                                  (get-in filter-against '(:synsem :sem) :top)))}}))
             heads (cond (fn? heads)
                         (let [filter-against
                               (unify/get-in phrase
                                             '(:head) :top)]
                           (log/debug (str "gen14: PHRASE IS:" phrase))
                           (if (unify/fail? filter-against)
-                            (throw (Exception. (str "Reload ug: filter-against is failure:"
-                                                    filter-against "; " (unify/fail-path filter-against)))))
+                            (throw (Exception. (str "Reload ug: filter-against contains :fail:"
+                                                    filter-against "     at    " (unify/fail-path filter-against)))))
                           (log/debug (str "gen14: treating heads as a function and applying against filter:"  filter-against))
                           (apply heads (list filter-against)))
                         :else
@@ -388,8 +389,10 @@
                ;; (eval schema) is a 3-node tree (parent and two children) as described
                ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                ;; allowing us to access that value with (eval schema).
+               (log/info (str "testing for schema being fail: " schema))
                (if (unify/fail? (eval schema))
-                 (throw (Exception. (str "schema: " schema " is fail: " (unify/fail-path (eval schema))) " : to fix, reload ug.")))
+                 (throw (Exception.)))
+               ;; (str "schema: " (if (fn? schema) "fn" schema) " is fail: " (unify/fail-path (eval schema))) " : to fix, reload ug.")))
                (lazy-seq
                (gen17 (eval schema)
 
