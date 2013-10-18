@@ -1642,6 +1642,8 @@
   (cond
    (symbol? expressions)
    expressions
+   (fn? expressions)
+   expressions
    true
     (if (and (= (type expressions) clojure.lang.LazySeq)
              (not (empty? expressions)))
