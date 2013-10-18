@@ -122,6 +122,7 @@
 (defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level [ & filtered-complements]]
   (let [debug (log/info (str "gen14-inner begin: recursion level: " recursion-level))
         debug (log/info (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
+        debug (log/debug (str "gen14-inner complements: " (fo complements)))
         recursion-level (+ 1 recursion-level)
         debug-inner (log/debug (str "gen14-inner: type of complements: " (type complements)))
         debug-inner (log/debug (str "gen14-inner: complement-filter-fn: " complement-filter-fn))
@@ -143,53 +144,26 @@
           (let [error-message (str "complements should be either a sequence or a function: maps not supported at this time.")]
             (log/debug error-message)
             (throw (Exception. error-message))))
-        complements (cond (fn? complements)
-                          (do (log/debug (str "gen14-inner: treating complements as a fn."))
-                              ;; probably don't need lazy-seq here, so simply leaving this here, commented out, in case I'm wrong:
-                              ;; (lazy-seq (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
-                              (apply complements (list phrase-with-head)))
+        complements (if filtered-complements filtered-complements
+                        (cond (fn? complements)
+                              (do (log/debug (str "gen14-inner: treating complements as a fn."))
+                                  ;; probably don't need lazy-seq here, so simply leaving this here, commented out, in case I'm wrong:
+                                  ;; (lazy-seq (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
+                                  (apply complements (list phrase-with-head)))
 
-                          (seq? complements)
-                          (if filtered-complements
-                            (filter (fn [complement]
-                                      (log/debug (str "FILTERING COMPLEMENT(2x): " (fo complement)))
-                                      (log/debug (str "COMPLEMENT-FILTER-FN: " complement-filter-fn))
-                                      (apply
-                                       (let [intermediate-result (apply complement-filter-fn (list phrase-with-head))]
-                                         (log/debug (str "ARGUMENT (phrase-with-head)" phrase-with-head))
-                                         (log/debug (str "ARGUMENT (fo (phrase-with-head))" (fo phrase-with-head)))
-                                         (log/debug (str "INTERMED-RESULT: " intermediate-result))
-                                         (fn [x] intermediate-result))
-                                       (list complement)))
-                                    filtered-complements)
-                            ;; filter the complements according to the complement-filter-fn.
-                            (filter (fn [complement]
-                                      (log/info (str "FILTERING COMPLEMENT(1x): " (fo complement)))
-                                      (apply
-                                       (apply complement-filter-fn (list phrase-with-head))
-                                       (list complement)))
-                                    complements))
-                          (= (type complements)
-                             clojure.lang.PersistentVector)
-                          (do (log/info (str "gen14-inner: filtering vector."))
-                              (if filtered-complements
-                                (filter (fn [complement]
-                                          (log/info (str "FILTERING COMPLEMENT(2x): " (fo complement)))
-                                          (apply
-                                           (apply complement-filter-fn (list phrase-with-head))
-                                           (list complement)))
-                                        filtered-complements)
-                                (filter (fn [complement]
-                                          true)
-                                        (list (first complements)))))
-                          :else
-                          (let [error-message (str "neither fn?, seq? nor vector: " (type complements))]
-                            (do (log/error error-message)
-                                (throw (Exception. error-message)))))
+                              (seq? complements)
+                              (filter (fn [complement]
+                                        (log/info (str "FILTERING COMPLEMENT: " (fo complement)))
+                                        (apply
+                                         (fn [x] (apply complement-filter-fn (list phrase-with-head)))
+                                         (list complement)))
+                                      filtered-complements)
+                              :else
+                              (let [error-message (str "neither fn? nor seq?: " (type complements))]
+                                (do (log/error error-message)
+                                    (throw (Exception. error-message))))))
         empty-complements
-        (if (fn? complements)
-          (empty? (apply complements nil))
-          (empty? complements))
+        (empty? complements)
         complement
         (cond (fn? complements)
               (first (apply complements nil))
