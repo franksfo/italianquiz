@@ -237,7 +237,9 @@
         (let [check (if (nil? head) (log/warn "head candidate is null - heads was a function, which, when called, returned an empty set of candidates."))
               logging (log/debug (str "gen14: head candidate: " (fo head)))
               logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
-              phrase-with-head (moreover-head phrase head)
+              phrase-with-head (if (not (nil? head))
+                                 (moreover-head phrase head)
+                                 :fail)
               debug (log/debug (str "gen14: phrase-with-head: " (fo phrase-with-head)))
               is-fail? (unify/fail? phrase-with-head)
               ]
