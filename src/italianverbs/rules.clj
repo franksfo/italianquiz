@@ -96,20 +96,13 @@
   (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (first (take 1 (gen-all (shuffle sents) "sents" :top))))
+  (take 1 (gen-all (shuffle sents) "sents" :top)))
+
+(defn gen-with [constraint]
+  (take 1 (gen-all (shuffle sents) "sents" constraint)))
 
 (defn random-sentences [ & n]
-  (repeatedly (if (first n) (first n) 1000) (fn [] (random-sentence))))
-
-(defn dev-work [ & n]
-  (take 1 (repeatedly #(fof (take 1 (gen-all (shuffle sentence-with-modifier) "ds"))))))
-
-(defn check []
-  (or
-   (and (unify/fail? cc10) (list 'cc10 (unify/fail-path cc10)))
-   (and (unify/fail? ch21) (list 'ch21 (unify/fail-path ch21)))
-   (and (unify/fail? hc11) (list 'hc11 (unify/fail-path hc11)))
-   (and (unify/fail? hh10) (list 'hh10 (unify/fail-path hh10)))
-   (and (unify/fail? hh21) (list 'hh21 (unify/fail-path hh21)))))
+  (repeatedly (if (first n) (first n) 1000)
+              #(random-sentence)))
 
 (log/info "done loading rules.")

@@ -191,13 +191,13 @@
               (log/debug (str "gen14-inner: fail: " result))
               (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
                 ;; comp first ('c' is first character of comment):
-                (log/info (str "gen14-inner :"
+                (log/debug (str "gen14-inner :"
                                 (get-in phrase-with-head '(:comment)) " => "
                                 (fo comp)
                                 " + "
                                 (fo (unify/get-in phrase-with-head '(:head))) " => FAIL"))
                 ;; head first ('c' is not first character of comment):
-                (log/info (str "gen14-inner :"
+                (log/debug (str "gen14-inner :"
                                (get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
@@ -217,12 +217,11 @@
       (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
             phrase (lexfn/unify phrase
-                                (lexfn/unify
-                                 filter-against
-                                 {:synsem {:sem (lexfn/sem-impl
-                                                 (lexfn/unify
-                                                  (get-in phrase '(:synsem :sem) :top)
-                                                  (get-in filter-against '(:synsem :sem) :top)))}}))
+                                filter-against
+                                {:synsem {:sem (lexfn/sem-impl
+                                                (lexfn/unify
+                                                 (get-in phrase '(:synsem :sem) :top)
+                                                 (get-in filter-against '(:synsem :sem) :top)))}})
             heads (cond (fn? heads)
                         (let [filter-against
                               (unify/get-in phrase
@@ -324,6 +323,7 @@
         (str (if label (str label)))))
 
 (defn gen-all [alternatives label filter-against]
+  (log/info (str "FILTER-AGAINST: " filter-against))
   (if (not (empty? alternatives))
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
@@ -331,7 +331,7 @@
        (cond (and (symbol? candidate)
                   (seq? (eval candidate)))
              (do
-               (log/info (str "gen-all: candidate: " candidate " evals to a seq."))
+               (log/debug (str "gen-all: candidate: " candidate " evals to a seq."))
                (gen-all
                 (lazy-shuffle
                  (eval candidate))
@@ -390,7 +390,7 @@
                (if (not (unify/fail? result))
                  (do (log/info (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": ok."))
                      (list result))
-                 (do (log/info (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
+                 (do (log/debug (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
                      nil)))
 
              true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))
