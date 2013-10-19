@@ -55,11 +55,11 @@
 (ns-unmap 'italianverbs.rules 'modal-vp)
 (rewrite-as modal-vp {:schema 'hh21
                       :label 'modal-vp
-                      :head 'mymodal-verbs
+                      :head 'modal-verbs
                       :comp 'intransitive-verbs})
 (rewrite-as modal-vp {:schema 'hh21
                       :label 'modal-vp
-                      :head 'mymodal-verbs
+                      :head 'modal-verbs
                       :comp 'transitive-vp})
 
 ;; possible expansions of transitive vp (verb phrase):
@@ -84,77 +84,11 @@
                      :head 'aux-verbs
                      :comp 'modal-vp})
 
-;; for testing.
-
-(ns-unmap 'italianverbs.rules 'my-vp-transitive)
-(ns-unmap 'italianverbs.rules 'myvp-past-trans)
-(ns-unmap 'italianverbs.rules 'mynp)
-(ns-unmap 'italianverbs.rules 'mydets)
-
-(ns-unmap 'italianverbs.rules 'mymodal-verbs)
-(ns-unmap 'italianverbs.rules 'mynouns)
-(ns-unmap 'italianverbs.rules 'mynp1)
-
-(rewrite-as myds-sentence {:schema 'cc10
-                           :label 'declarative-sentence
-                           :post-unify-fn 'mysent-impl
-                           :comp 'np
-                           :head 'vp})
-
-(rewrite-as mynp1 {:schema 'cc10
-                   :label 'mynp
-                   :comp 'mydets
-                   :head 'mynouns})
-(def mydets (filter (fn [lexeme]
-                      (or (= "la" (unify/get-in lexeme '(:italian)))
-                          (= "un" (unify/get-in lexeme '(:italian)))))
-                   dets))
-
-(def mynouns (filter (fn [lexeme]
-                     (or (= "donna" (unify/get-in lexeme '(:italian :italian)))
-                         (= "cane" (unify/get-in lexeme '(:italian :italian)))))
-                   common-nouns))
-
-(rewrite-as myvp {:schema 'hh21
-                  :comp 'mynp2
-                  :head 'mytransitive-verbs})
-
-(def mytransitive-verbs
-  (filter (fn [candidate]
-            ;; filter Vs to reduce number of candidates we need to filter:
-            ;; (only transitive verbs)
-            (= "mangiare" (unify/get-in candidate '(:italian :infinitive))))
-          transitive-verbs))
-
-(def mymodal-verbs
-  (filter (fn [candidate]
-            ;; filter Vs to reduce number of candidates we need to filter:
-            ;; (only transitive verbs)
-            (= "volere" (unify/get-in candidate '(:italian :infinitive))))
-          modal-verbs))
-
-
-(def mysent-adverbs
-  (filter (fn [candidate]
-            ;; filter Vs to reduce number of candidates we need to filter:
-            ;; (only transitive verbs)
-            (= "stamattina" (unify/get-in candidate '(:italian))))
-          sent-adverbs))
-
-(rewrite-as mynp2 {:schema 'cc10
-                   :label 'mynp2
-                   :comp 'mydets
-                   :head 'pizza})
-
-(def pizza (filter (fn [lexeme]
-                     (= "pizza" (unify/get-in lexeme '(:italian :italian))))
-                   common-nouns))
-
 ;; -- aliases --
 (def ds declarative-sentence)
 
 (ns-unmap 'italianverbs.rules 'sents)
-;(rewrite-as sents 'ds)
+(rewrite-as sents 'ds)
 (rewrite-as sents 'sentence-with-modifier)
 
 ;; -- useful functions
@@ -162,12 +96,20 @@
   (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (take 1 (gen-all (shuffle sents) "sents" :top)))
+  (first (take 1 (gen-all (shuffle sents) "sents" :top))))
 
 (defn random-sentences [ & n]
   (repeatedly (if (first n) (first n) 1000) (fn [] (random-sentence))))
 
 (defn dev-work [ & n]
   (take 1 (repeatedly #(fof (take 1 (gen-all (shuffle sentence-with-modifier) "ds"))))))
+
+(defn check []
+  (or
+   (and (unify/fail? cc10) (list 'cc10 (unify/fail-path cc10)))
+   (and (unify/fail? ch21) (list 'ch21 (unify/fail-path ch21)))
+   (and (unify/fail? hc11) (list 'hc11 (unify/fail-path hc11)))
+   (and (unify/fail? hh10) (list 'hh10 (unify/fail-path hh10)))
+   (and (unify/fail? hh21) (list 'hh21 (unify/fail-path hh21)))))
 
 (log/info "done loading rules.")
