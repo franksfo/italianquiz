@@ -596,12 +596,14 @@
      :english "some"}
 
     {:synsem {:cat :sent-modifier
+              :sem {:pred :domani}
               :subcat {:1 {:sem {:tense :future}
                            :subcat '()}}}
      :italian "domani"
      :english "tomorrow"}
 
     {:synsem {:cat :sent-modifier
+              :sem {:pred :dopodomani}
               :subcat {:1 {:sem {:tense :future}
                            :subcat '()}}}
      :italian "dopodomani"
@@ -936,6 +938,7 @@
        :english "your (pl) "}
 
       {:synsem {:cat :sent-modifier
+                :sem {:pred :ieri}
                 :subcat {:1 {:sem {:tense :past
                                    :activity true}
                              :subcat '()}}}
@@ -1034,12 +1037,18 @@
        :english "I"
        :italian "io"}
 
-      {:synsem {:cat :sent-modifier
-                :subcat {:1 {:sem {:tense :past
-                                   :activity true}
-                             :subcat '()}}}
-       :italian "l'altro ieri"
-       :english "the day before yesterday"}
+      (let [modified (ref :top)]
+        (unify
+         {:synsem {:subcat {:1 {:sem modified}}
+                   :sem {:pred :laltro-ieri
+                         :modified modified}}}
+
+         {:synsem {:cat :sent-modifier
+                   :subcat {:1 {:sem {:tense :past
+                                      :activity true}
+                                :subcat '()}}}
+          :italian "l'altro ieri"
+          :english "the day before yesterday"}))
 
       ;; note: no gender: "loro" in either case of masc or fem.
       {:synsem {:cat cat-of-pronoun
@@ -1785,6 +1794,7 @@
                          :subj {:animate true}}}}))
 
       {:synsem {:cat :sent-modifier
+                :sem {:pred :qualche-volta-past}
                 :subcat {:1 {:infl :present
                              :sem {:activity true
                                    :tense :past}
@@ -1793,6 +1803,7 @@
        :english "sometimes"}
 
       {:synsem {:cat :sent-modifier
+                :sem {:pred :qualche-volta-present}
                 :subcat {:1 {:infl :present
                              :sem {:activity true
                                    :tense :present}
@@ -2124,6 +2135,7 @@
 
       (unify {:italian "stamattina"
               :synsem {:cat :sent-modifier
+                       :sem {:pred :stamattina}
                        :subcat {:1 {:subcat '()
                                     :sem {:tense :past
                                           :activity true}}}}
@@ -2322,6 +2334,7 @@
 
 
       {:synsem {:cat :sent-modifier
+                :sem {:pred :tre-giorni-fa}
                 :subcat {:1 {:subcat '()
                              :sem {:tense :past
                                    :activity true}}}}
