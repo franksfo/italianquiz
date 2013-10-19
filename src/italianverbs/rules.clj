@@ -107,4 +107,7 @@
   (repeatedly (if (first n) (first n) 1000)
               #(random-sentence)))
 
+(defn sentence []
+  (take 1 (gen-all (shuffle sents) "sents" :top)))
+
 (log/info "done loading rules.")
