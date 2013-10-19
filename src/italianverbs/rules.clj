@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [get-in resolve])
   (:use [italianverbs.generate :only (rewrite-as gen-all lazy-shuffle)]
         [italianverbs.grammar]
-        [italianverbs.lexiconfn :only (unify)]
+        [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.lexicon :only (it1)]
         [clojure.repl :only (source)]
         [italianverbs.unify :only (get-in)]
@@ -95,6 +95,6 @@
 
 ;; -- useful functions
 (defn sentence [ & with ]
-  (first (take 1 (gen-all (shuffle sents) "sents" (if with with :top)))))
+  (first (take 1 (gen-all (shuffle sents) "sents" (if with with :top) sem-impl))))
 
 (log/info "done loading rules.")

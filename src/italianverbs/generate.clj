@@ -5,17 +5,15 @@
   (:require
    [clojure.tools.logging :as log]
    [italianverbs.lev :as lev]
-   ;; TODO: remove this: generate should not need access to lexfn/ at all.
-   [italianverbs.lexiconfn :as lexfn]
-   ;; TODO: remove this: generate should not need access to morph/ at all.
-   [italianverbs.morphology :as morph]
    [italianverbs.unify :as unify]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
-   ;; TODO: remove this: generate should not need access to lex/ at all.
-   [italianverbs.lexicon :as lex]
    [italianverbs.search :as search]
    [clojure.string :as string]))
+
+(defn unify [ & args]
+  "like fs/unify, but fs/copy each argument before unifying."
+  (apply unify/unifyc args))
 
 (defn printfs [fs & filename]
   "print a feature structure to a file. filename will be something easy to derive from the fs."
@@ -25,48 +23,48 @@
 (defn plain [expr]
   {:plain expr})
 
-(defn moreover-head [parent child]
+(defn moreover-head [parent child lexfn-sem-impl]
   (do
-    (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
-    (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/debug (str "moreover-head (candidate) head child sem:" (unify/get-in child '(:synsem :sem))))
-    (log/debug (str "moreover-head (candidate) head:" (fo child)))
-    (let [result (lexfn/unify parent
-                              (lexfn/unify {:head child}
-                                           {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
+    (log/info (str "moreover-head (candidate) parent: " (fo parent)))
+    (log/info (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
+    (log/info (str "moreover-head (candidate) head child sem:" (unify/get-in child '(:synsem :sem))))
+    (log/info (str "moreover-head (candidate) head:" (fo child)))
+    (let [result (unify parent
+                              (unify {:head child}
+                                           {:head {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
       (if (not (unify/fail? result))
-        (let [debug (log/debug (str "moreover-head " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+        (let [debug (log/info (str "moreover-head " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+              debug (log/info (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
           (merge {:head-filled true}
                  result))
-        (let [debug (log/debug (str "moreover-head " (fo child) "/" (unify/get-in parent '(:comment)) "," (fo child) "/" (unify/get-in child '(:comment))))
+        (let [debug (log/info (str "moreover-head " (fo child) "/" (unify/get-in parent '(:comment)) "," (fo child) "/" (unify/get-in child '(:comment))))
               fail-path (unify/fail-path result)
-              debug (log/debug (str " fail-path: " fail-path))
-              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/debug (str " head: " child))
-              debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
-              debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
+              debug (log/info (str " fail-path: " fail-path))
+              debug (log/info (str " path to head-value-at-fail:" (rest fail-path)))
+              debug (log/info (str " head: " child))
+              debug (log/info (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
+              debug (log/info (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
           (do
-            (log/debug (str "FAIL: " fail-path))
+            (log/info (str "FAIL: " fail-path))
             :fail))))))
 
-(defn moreover-comp [parent child]
-  (log/debug (str "moreover-comp parent: " (fo parent)))
-  (log/debug (str "moreover-comp comp:" (fo child)))
+(defn moreover-comp [parent child lexfn-sem-impl]
+  (log/info (str "moreover-comp parent: " (fo parent)))
+  (log/info (str "moreover-comp comp:" (fo child)))
   (let [result
-        (lexfn/unify parent
-                     (lexfn/unify {:comp child}
-                                  {:comp {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
+        (unify parent
+                     (unify {:comp child}
+                                  {:comp {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
     (if (not (unify/fail? result))
-      (let [debug (log/debug (str "moreover-comp " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-            debug (log/debug (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+      (let [debug (log/info (str "moreover-comp " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
+            debug (log/info (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
         (let [result
               (merge {:comp-filled true}
                      result)]
-          (log/debug (str "moreover-comp (SUCCESS) merged result: " (fo result)))
+          (log/info (str "moreover-comp (SUCCESS) merged result: " (fo result)))
           result))
       (do
-        (log/debug "moreover-comp: fail at: " (unify/fail-path result))
+        (log/info "moreover-comp: fail at: " (unify/fail-path result))
         (if (unify/get-in child '(:head))
           (throw (Exception. (str "failed to add complement: " (fo child) "  to: phrase: " (fo parent)
                                   ". Failed path was: " (unify/fail-path result)
@@ -74,63 +72,63 @@
                                   (unify/get-in parent (unify/fail-path result))
                                   "; Synsem of child is: "
                                   (unify/get-in child '(:synsem) :top)))))
-        (log/debug "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
-        (log/debug "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
+        (log/info "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
+        (log/info "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
         :fail))))
 
-(defn over3 [parent child]
-  (log/debug (str "string? child: " (string? child)))
-  (log/debug (str "seq? child: " (string? child)))
+(defn over3 [parent child lexfn-sem-impl]
+  (log/info (str "string? child: " (string? child)))
+  (log/info (str "seq? child: " (string? child)))
   (cond
    (string? child) (map (fn [each-child]
-                          (over3 parent each-child))
+                          (over3 parent each-child lexfn-sem-impl))
                         (lex/it1 child))
 
    (seq? child) (map (fn [each-child]
-                       (over3 parent each-child))
+                       (over3 parent each-child lexfn-sem-impl))
                      child)
 
    (= (unify/get-in parent '(:head-filled)) true) ;; won't work in general: only works if complement is first (e.g. cc10)
-   (moreover-comp parent child)
+   (moreover-comp parent child lexfn-sem-impl)
 
    :else
-   (moreover-head parent child)))
+   (moreover-head parent child lexfn-sem-impl)))
 
-(defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level [ & filtered-complements]]
-  (let [debug (log/debug (str "gen14-inner begin: recursion level: " recursion-level))
-        debug (log/debug (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
-        debug (log/debug (str "gen14-inner complements: " (fo complements)))
+(defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level
+                   lexfn-sem-impl [ & filtered-complements]]
+  (let [debug (log/info (str "gen14-inner begin: recursion level: " recursion-level))
+        debug (log/info (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
         recursion-level (+ 1 recursion-level)
-        debug-inner (log/debug (str "gen14-inner: type of complements: " (type complements)))
-        debug-inner (log/debug (str "gen14-inner: complement-filter-fn: " complement-filter-fn))
+        debug-inner (log/info (str "gen14-inner: type of complements: " (type complements)))
+        debug-inner (log/info (str "gen14-inner: complement-filter-fn: " complement-filter-fn))
         check-filter-fn (if (nil? complement-filter-fn)
                           (let [error-message (str "complement-filter-fn is nil.")]
-                            (log/debug error-message)
+                            (log/info error-message)
                             (throw (Exception. error-message))))
-        debug-inner (log/debug (str "gen14-inner: fn? complements: " (fn? complements)))
-        debug-inner (log/debug (str "gen14-inner: seq? complements: " (seq? complements)))
-        debug-inner (log/debug (str "gen14-inner: map? complements: " (map? complements)))
+        debug-inner (log/info (str "gen14-inner: fn? complements: " (fn? complements)))
+        debug-inner (log/info (str "gen14-inner: seq? complements: " (seq? complements)))
+        debug-inner (log/info (str "gen14-inner: map? complements: " (map? complements)))
         debug-inner (if (= (type complements)
                            clojure.lang.PersistentVector)
-                      (log/debug (str "gen14-inner: vector? complements: "
+                      (log/info (str "gen14-inner: vector? complements: "
                                       (= (type complements) clojure.lang.PersistentVector)
                                       " with size: " (.size complements))))
         maps-as-complements-not-allowed
         (if (map? complements)
           ;; TODO: support map by simply re-calling with a list with one element: the map.
           (let [error-message (str "complements should be either a sequence or a function: maps not supported at this time.")]
-            (log/debug error-message)
+            (log/info error-message)
             (throw (Exception. error-message))))
         complements (if filtered-complements filtered-complements
                         (cond (fn? complements)
-                              (do (log/debug (str "gen14-inner: treating complements as a fn."))
+                              (do (log/info (str "gen14-inner: treating complements as a fn."))
                                   ;; probably don't need lazy-seq here, so simply leaving this here, commented out, in case I'm wrong:
                                   ;; (lazy-seq (apply complements (list (apply complement-filter-fn (list phrase-with-head)))))
                                   (apply complements (list phrase-with-head)))
 
                               (seq? complements)
                               (filter (fn [complement]
-                                        (log/debug (str "FILTERING COMPLEMENT: " (fo complement)))
+                                        (log/info (str "FILTERING COMPLEMENT: " (fo complement)))
                                         (apply
                                          (fn [x] (apply complement-filter-fn (list phrase-with-head)))
                                          (list complement)))
@@ -148,119 +146,124 @@
               (first complements)
               (= (type complements) clojure.lang.PersistentVector)
               (first complements))
-        debug-inner (log/debug "gen14-inner: before doing (rest complements)..")
+        debug-inner (log/info "gen14-inner: before doing (rest complements)..")
         rest-complements
         (if (fn? complements)
           (lazy-seq (rest (apply complements nil)))
           (lazy-seq (rest complements)))
-        debug-inner (log/debug "gen14-inner: after doing (rest complements)..")]
-    (log/debug (str "gen14-inner: comp-emptiness: " empty-complements))
-    (log/debug (str "(fo phrase-with-head): " (fo phrase-with-head)))
-    (log/debug (str "complement(comment): " (unify/get-in complement '(:comment))))
-    (log/debug (str "complement: " (fo complement)))
+        debug-inner (log/info "gen14-inner: after doing (rest complements)..")]
+    (log/info (str "gen14-inner: comp-emptiness: " empty-complements))
+    (log/info (str "(fo phrase-with-head): " (fo phrase-with-head)))
+    (log/info (str "complement(comment): " (unify/get-in complement '(:comment))))
+    (log/info (str "complement: " (fo complement)))
     (if (not empty-complements)
       (let [comp complement]
         (let [result
-              (moreover-comp
-               phrase-with-head
-               comp)]
+              (moreover-comp phrase-with-head comp lexfn-sem-impl)]
           (if (not (unify/fail? result))
             (do
-              (log/debug (str "gen14-inner: unifies: recursion level: " recursion-level))
-              (log/debug (str "gen14-inner: unifies head: " (fo phrase-with-head)))
-              (log/debug (str "gen14-inner: unifies comp: " (fo comp)))
+              (log/info (str "gen14-inner: unifies: recursion level: " recursion-level))
+              (log/info (str "gen14-inner: unifies head: " (fo phrase-with-head)))
+              (log/info (str "gen14-inner: unifies comp: " (fo comp)))
               ;; test: in italian, is complement first?
               (if (= \c (nth (unify/get-in phrase-with-head '(:comment)) 0))
                 ;; yes, italian strings complement is first.
-                (log/debug (str "gen14-inner:"
+                (log/info (str "gen14-inner:"
                                (unify/get-in phrase-with-head '(:comment)) " => "
                                (fo comp)
                                " + "
                                (fo (unify/get-in phrase-with-head '(:head))) " => TRUE"))
                 ;; italian head first.
-                (log/debug (str "gen14-inner:"
+                (log/info (str "gen14-inner:"
                                (unify/get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
                                (fo comp) " => TRUE")))
               (let [with-impl (if post-unify-fn (post-unify-fn result) result)]
                   (if (unify/fail? with-impl)
-                    (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level nil)
+
+                    ;; adding comp to this phrase failed: continue with the rest of the complements.
+                    (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn
+                                 recursion-level lexfn-sem-impl nil)
+
+
                     (lazy-seq
                      (cons
                       with-impl
-                      (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level rest-complements))))))
+                      (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn
+                                   recursion-level lexfn-sem-impl rest-complements))))))
             (do
-              (log/debug (str "gen14-inner: fail: " result))
+              (log/info (str "gen14-inner: fail: " result))
               (if (= \c (nth (unify/get-in phrase-with-head '(:comment)) 0))
                 ;; comp first ('c' is first character of comment):
-                (log/debug (str "gen14-inner :"
+                (log/info (str "gen14-inner :"
                                 (unify/get-in phrase-with-head '(:comment)) " => "
                                 (fo comp)
                                 " + "
                                 (fo (unify/get-in phrase-with-head '(:head))) " => FAIL"))
                 ;; head first ('c' is not first character of comment):
-                (log/debug (str "gen14-inner :"
+                (log/info (str "gen14-inner :"
                                (unify/get-in phrase-with-head '(:comment)) " => "
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
                                (fo comp) " => FAIL.")))
 
-              (lazy-seq (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level rest-complements)))))))))
+              (lazy-seq (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level 
+                                      lexfn-sem-impl rest-complements)))))))))
 
-(defn gen14 [phrase heads complements filter-against post-unify-fn recursion-level]
-  (log/debug (str "gen14: phrase: " (:comment phrase) "; heads type: " (type heads)))
-  (log/debug (str "gen14: filter-against: " filter-against))
-  (log/debug (str "gen14: fn? heads:" (fn? heads)))
-  (log/debug (str "gen14: not empty? heads: " (and (not (fn? heads)) (not (empty? heads)))))
+(defn gen14 [phrase heads complements filter-against post-unify-fn recursion-level lexfn-sem-impl]
+  (log/info (str "gen14: phrase: " (:comment phrase) "; heads type: " (type heads)))
+  (log/info (str "gen14: filter-against: " filter-against))
+  (log/info (str "gen14: fn? heads:" (fn? heads)))
+  (log/info (str "gen14: not empty? heads: " (and (not (fn? heads)) (not (empty? heads)))))
   (if (or (fn? heads) (not (empty? heads)))
     (do
-      (log/debug (str "gen14: starting now: recursion-level: " recursion-level))
-      (log/debug (str "gen14: type of heads: " (type heads)))
-      (log/debug (str "gen14: filter-against: " filter-against))
-      (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
-      (log/debug (str "gen14: fo(first phrase): " (fo phrase)))
-      (log/debug (str "gen14: type of comps: " (type complements)))
-      (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
+      (log/info (str "gen14: starting now: recursion-level: " recursion-level))
+      (log/info (str "gen14: type of heads: " (type heads)))
+      (log/info (str "gen14: filter-against: " filter-against))
+      (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+      (log/info (str "gen14: fo(first phrase): " (fo phrase)))
+      (log/info (str "gen14: type of comps: " (type complements)))
+      (log/info (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
-            phrase (lexfn/unify phrase
+            phrase (unify phrase
                                 filter-against
-                                {:synsem {:sem (lexfn/sem-impl
-                                                (lexfn/unify
+                                {:synsem {:sem (lexfn-sem-impl
+                                                (unify
                                                  (unify/get-in phrase '(:synsem :sem) :top)
                                                  (unify/get-in filter-against '(:synsem :sem) :top)))}})
-            debug (log/debug "gen14: TYPE OF HEADS (before eval): " (type heads))
+            debug (log/info "gen14: TYPE OF HEADS (before eval): " (type heads))
             heads (cond (fn? heads)
                         (let [filter-against
                               (unify/get-in phrase
                                             '(:head) :top)]
-                          (log/debug (str "gen14: PHRASE IS:" phrase))
-                          (log/debug (str "gen14: treating heads as a function and applying against filter:"  filter-against))
+                          (log/info (str "gen14: PHRASE IS:" phrase))
+                          (log/info (str "gen14: treating heads as a function and applying against filter:"  filter-against))
                           (apply heads (list filter-against)))
                         :else
                         heads)
-            debug (log/debug "gen14: TYPE OF HEADS (after eval): " (type heads))
+            debug (log/info "gen14: TYPE OF HEADS (after eval): " (type heads))
             head (first heads)]
         (let [check (if (nil? head) (log/warn "gen14: head candidate is null - heads was a function, which, when called, returned an empty set of candidates."))
-              logging (log/debug (str "gen14: head candidate: " (fo head)))
-              logging (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
+              logging (log/info (str "gen14: head candidate: " (fo head)))
+              logging (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment))))
               phrase-with-head (if (not (nil? head))
-                                 (moreover-head phrase head)
+                                 (moreover-head phrase head lexfn-sem-impl)
                                  :fail)
-              debug (log/debug (str "gen14: phrase-with-head: " (fo phrase-with-head)))
+              debug (log/info (str "gen14: phrase-with-head: " (fo phrase-with-head)))
               is-fail? (unify/fail? phrase-with-head)
-              debug (log/debug (str "gen14: head is-nil? " (nil? head)))
-              debug (log/debug (str "gen14: phrase-with-head is-fail? " is-fail?))
+              debug (log/info (str "gen14: head is-nil? " (nil? head)))
+              debug (log/info (str "gen14: phrase-with-head is-fail? " is-fail?))
               ]
           (if (nil? head)
             nil
             (if (not is-fail?)
               (do
-                (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
+                (log/info (str "gen14: head: " (fo (dissoc head :serialized))
                                 (if (unify/get-in head '(:comment))
                                   (str "(" (unify/get-in head '(:comment))) ")")
                                 " added successfully to " (unify/get-in phrase '(:comment)) "."))
-                (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) " => head: " (fo head)
+                (log/info (str "gen14: phrase: " (unify/get-in phrase '(:comment)) " => head: " (fo head)
                                 (if (unify/get-in head '(:comment))
                                   (str "(" (unify/get-in head '(:comment)) ")")
                                   "")))
@@ -273,24 +276,25 @@
                    (gen14-inner phrase-with-head
                                 complements
                                 (apply applied-complement-filter-fn (list phrase-with-head))
-                                post-unify-fn 0 nil))
+                                post-unify-fn 0 lexfn-sem-impl nil))
                  (gen14 phrase
                         (rest heads)
                         complements
                         filter-against
                         post-unify-fn
-                        recursion-level)))
+                        recursion-level
+                        lexfn-sem-impl)))
               (do
-                (log/debug (str "gen14: head unification failed: trying rest of heads."))
+                (log/info (str "gen14: head unification failed: trying rest of heads."))
                 (gen14 phrase
                        (rest heads)
                        complements
                        filter-against
                        post-unify-fn
-                       recursion-level)))))))
+                       recursion-level
+                       lexfn-sem-impl)))))))
     (do
-      (log/debug (str "gen14: done."))
-      (if false (throw (Exception. "got here"))))))
+      (log/info (str "gen14: done.")))))
 
 ;; see example usage in grammar.clj.
 (defmacro rewrite-as [name value]
@@ -312,14 +316,9 @@
          (cons elem
                (lazy-shuffle (concat prior (rest remainder)))))))))
 
-(defn gen15 [phrase heads comps]
-  (do
-    (log/debug (str "gen15 start: " (unify/get-in phrase '(:comment)) "," (type heads)))
-    (gen14 phrase heads comps nil 0)))
-
-(defn gen17 [phrase heads comps filter-against post-unify-fn]
+(defn gen17 [phrase heads comps filter-against post-unify-fn lexfn-sem-impl]
   (log/info (str "gen17: phrase: " (:comment phrase)))
-  (gen14 phrase heads comps filter-against post-unify-fn 0))
+  (gen14 phrase heads comps filter-against post-unify-fn 0 lexfn-sem-impl))
 
 (defn log-candidate-form [candidate & [label]]
   (cond (and (map? candidate)
@@ -340,7 +339,7 @@
         true
         (str (if label (str label)))))
 
-(defn gen-all [alternatives label filter-against]
+(defn gen-all [alternatives label filter-against lexfn-sem-impl]
   (if (and (not (empty? alternatives))
            (first alternatives))
     (let [candidate (first alternatives)
@@ -349,20 +348,20 @@
        (cond (and (symbol? candidate)
                   (seq? (eval candidate)))
              (do
-               (log/debug (str "gen-all: candidate: " candidate " evals to a seq."))
+               (log/info (str "gen-all: candidate: " candidate " evals to a seq."))
                (gen-all
                 (lazy-shuffle
                  (eval candidate))
                 (str label " -> " candidate)
-                filter-against))
+                filter-against lexfn-sem-impl))
 
              (and (map? candidate)
                   (not (nil? (:schema candidate))))
              (let [schema (:schema candidate)
                    head (:head candidate)
                    comp (:comp candidate)]
-               (log/debug (str "gen-all: candidate is a schema: " candidate))
-               (log/debug (str "gen-all: filter-against: " filter-against))
+               (log/info (str "gen-all: candidate is a schema: " candidate))
+               (log/info (str "gen-all: filter-against: " filter-against))
                ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
                ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
                ;; in a particular order (i.e. either head is first or complement is first).
@@ -380,18 +379,19 @@
                (gen17 (unify/copy (eval schema))
                       ;; head (1) (see below for complements)
                       (fn [inner-filter-against]
-                        (log/debug (str "INNER-FILTER-AGAINST: " inner-filter-against))
-                        (let [intermediate (lexfn/unify filter-against
+                        (log/info (str "INNER-FILTER-AGAINST: " inner-filter-against))
+                        (let [intermediate (unify filter-against
                                                         {:head inner-filter-against})
                               shuffled-heads (lazy-shuffle (eval head))]
-                          (log/debug (str "INTERMEDIATE: " intermediate))
-                          (log/debug (str "FIRST HEAD: " (first shuffled-heads)))
+                          (log/info (str "INTERMEDIATE: " intermediate))
+                          (log/info (str "FIRST HEAD: " (first shuffled-heads)))
                           (gen-all shuffled-heads
                                    (if false ;; show or don't show schema (e.g. cc10)
                                      (str label ":" schema " -> {H:" head "}")
                                      (str label " -> {H:" head "}"))
                                    (unify/get-in intermediate
-                                                 '(:head) :top))))
+                                                 '(:head) :top)
+                                   lexfn-sem-impl)))
 
                       ;; complement: filter-by will filter candidate complements according to each head
                       ;; generated in immediately above, in (1).
@@ -402,40 +402,46 @@
                                    (str label " : " schema " -> {C:" comp "}")
                                    (str label " -> {C: " comp "}"))
                                  (unify/get-in
-                                  (lexfn/unify filter-against
-                                               parent-with-head) '(:comp) :top)))
+                                  (unify filter-against
+                                               parent-with-head) '(:comp) :top)
+                                 lexfn-sem-impl))
                       filter-against
 
-                      (:post-unify-fn candidate)))
+                      (:post-unify-fn candidate)
+
+                      lexfn-sem-impl
+))
 
              (and (map? candidate)
                   (not (nil? filter-against)))
-             (let [result (lexfn/unify filter-against candidate)]
+             (let [result (unify filter-against candidate)]
                (if (not (unify/fail? result))
                  (do (log/info (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": ok."))
                      (list result))
-                 (do (log/debug (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
+                 (do (log/info (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
                      nil)))
 
              true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))
        (if (not (empty? (rest alternatives)))
-         (gen-all (rest alternatives) label filter-against))))))
+         (gen-all (rest alternatives) label filter-against lexfn-sem-impl))))))
+
+(defn generate [alternatives lexfn-sem-impl]
+  (gen-all alternatives "" :top lexfn-sem-impl))
 
 (defmacro gen-ch21 [head comp]
-  `(do ~(log/debug "gen-ch21 macro compile-time.")
+  `(do ~(log/info "gen-ch21 macro compile-time.")
        (gen15 ch21
               ~head
               ~comp)))
 
 (defmacro gen-hh21 [head comp]
-  `(do ~(log/debug "gen-hh21 macro compile-time.")
+  `(do ~(log/info "gen-hh21 macro compile-time.")
        (gen15 hh21
               ~head
               ~comp)))
 
 (defmacro gen-cc10 [head comp]
-  `(do ~(log/debug "gen-cc10 macro compile-time.")
+  `(do ~(log/info "gen-cc10 macro compile-time.")
        (gen15 cc10
               ~head
               ~comp)))
-
