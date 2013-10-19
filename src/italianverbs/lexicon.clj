@@ -595,19 +595,21 @@
      :italian "di il"
      :english "some"}
 
-    {:synsem {:cat :sent-modifier
-              :sem {:pred :domani}
-              :subcat {:1 {:sem {:tense :future}
-                           :subcat '()}}}
-     :italian "domani"
-     :english "tomorrow"}
+    (unify sentential-adverb
+           {:synsem {:cat :sent-modifier
+                     :sem {:pred :domani}
+                     :subcat {:1 {:sem {:tense :future}
+                                  :subcat '()}}}
+            :italian "domani"
+            :english "tomorrow"})
 
-    {:synsem {:cat :sent-modifier
-              :sem {:pred :dopodomani}
-              :subcat {:1 {:sem {:tense :future}
-                           :subcat '()}}}
-     :italian "dopodomani"
-     :english "the day after tomorrow"}
+    (unify sentential-adverb
+           {:synsem {:cat :sent-modifier
+                     :sem {:pred :dopodomani}
+                     :subcat {:1 {:sem {:tense :future}
+                                  :subcat '()}}}
+            :italian "dopodomani"
+            :english "the day after tomorrow"})
 
     (unify agreement-noun
            common-noun
@@ -937,13 +939,12 @@
        :italian "i vostri"
        :english "your (pl) "}
 
-      {:synsem {:cat :sent-modifier
-                :sem {:pred :ieri}
-                :subcat {:1 {:sem {:tense :past
-                                   :activity true}
-                             :subcat '()}}}
-       :italian "ieri"
-       :english "yesterday"}
+      (unify sentential-adverb
+             {:synsem {:sem {:pred :ieri}
+                       :subcat {:1 {:sem {:tense :past
+                                          :activity true}}}}
+              :italian "ieri"
+              :english "yesterday"})
 
       {:synsem {:cat :det
                 :def :def
@@ -1037,18 +1038,12 @@
        :english "I"
        :italian "io"}
 
-      (let [modified (ref :top)]
-        (unify
-         {:synsem {:subcat {:1 {:sem modified}}
-                   :sem {:pred :laltro-ieri
-                         :modified modified}}}
-
-         {:synsem {:cat :sent-modifier
-                   :subcat {:1 {:sem {:tense :past
-                                      :activity true}
-                                :subcat '()}}}
-          :italian "l'altro ieri"
-          :english "the day before yesterday"}))
+      (unify sentential-adverb
+             {:synsem {:sem {:pred :laltro-ieri}
+                       :subcat {:1 {:sem {:tense :past
+                                          :activity true}}}}
+              :italian "l'altro ieri"
+              :english "the day before yesterday"})
 
       ;; note: no gender: "loro" in either case of masc or fem.
       {:synsem {:cat cat-of-pronoun
@@ -2641,3 +2636,7 @@
 (defn en [english]
   (lookup {:english english}))
 
+;; grammar builds a bunch of filtered lazy-seqs.
+;; if lexicon changes, these lazy-seqs should be re-initialized
+;; by reloading grammar.
+(load "grammar")

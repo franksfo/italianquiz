@@ -721,6 +721,16 @@
         ]
     map))
 
+(def sentential-adverb
+  (let [subj (ref :top)
+        obj (ref :top)]
+    {:synsem {:cat :sent-modifier
+              :sem {:subj subj
+                    :obj obj}
+                  :subcat {:1 {:sem {:subj subj
+                                     :obj obj}
+                               :subcat '()}}}}))
+
 ;; italian and english are strings, featuremap is a map of key->values.
 (defn add [italian english & featuremaps]
   (let [merged
