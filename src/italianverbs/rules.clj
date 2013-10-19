@@ -2,8 +2,10 @@
   (:refer-clojure :exclude [get-in resolve])
   (:use [italianverbs.generate :only (rewrite-as gen-all lazy-shuffle)]
         [italianverbs.grammar]
+        [italianverbs.lexiconfn :only (unify)]
         [italianverbs.lexicon :only (it1)]
         [clojure.repl :only (source)]
+        [italianverbs.unify :only (get-in)]
         [italianverbs.ug]
         [italianverbs.morphology :only (fo fof)])
   (:require [clojure.tools.logging :as log]
