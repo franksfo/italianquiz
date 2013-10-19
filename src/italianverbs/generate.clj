@@ -220,8 +220,9 @@
                                 filter-against
                                 {:synsem {:sem (lexfn/sem-impl
                                                 (lexfn/unify
-                                                 (get-in phrase '(:synsem :sem) :top)
-                                                 (get-in filter-against '(:synsem :sem) :top)))}})
+                                                 (unify/get-in phrase '(:synsem :sem) :top)
+                                                 (unify/get-in filter-against '(:synsem :sem) :top)))}})
+            debug (log/info "gen14: TYPE OF HEADS (before eval): " (type heads))
             heads (cond (fn? heads)
                         (let [filter-against
                               (unify/get-in phrase
