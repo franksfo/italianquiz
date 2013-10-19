@@ -30,9 +30,7 @@
     (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
     (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
     (log/debug (str "moreover-head (candidate) head:" (fo child)))
-    (let [;parent (unify/copy parent)
-                                        ;child (unify/copy child)
-          result (lexfn/unify parent
+    (let [result (lexfn/unify parent
                               (lexfn/unify {:head child}
                                            {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
       (if (not (unify/fail? result))
@@ -48,30 +46,6 @@
               debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
               debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
           :fail)))))
-
-(defn moreover-head-diagnostics [parent child]
-  (do
-    (log/debug (str "moreover-head-diagnostics (candidate) parent: " (fo parent)))
-    (log/debug (str "moreover-head-diagnostics (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/debug (str "moreover-head-diagnostics (candidate) head:" (fo child)))
-    (let [;parent (unify/copy parent)
-                                        ;child (unify/copy child)
-          result (lexfn/unify parent
-                              (lexfn/unify {:head child}
-                                           {:head {:synsem {:sem (lexfn/sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
-      (if (not (unify/fail? result))
-        (let [debug (log/debug (str "moreover-head-diagnostics " (get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/debug (str "moreover-head-diagnostics (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
-          (merge {:head-filled true}
-                 result))
-        (let [debug (log/debug (str "moreover-head-diagnostics " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
-              fail-path (unify/fail-path result)
-              debug (log/debug (str " fail-path: " fail-path))
-              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/debug (str " head: " child))
-              debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path) :top)))
-              debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
-          result)))))  ;; note that we return result rather than :fail, for diagnostics. Note that unify/fail? = true for result if we got here.
 
 (defn moreover-comp [parent child]
   (log/debug (str "moreover-comp parent: " (fo parent)))
@@ -120,8 +94,8 @@
    (moreover-head parent child)))
 
 (defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level [ & filtered-complements]]
-  (let [debug (log/info (str "gen14-inner begin: recursion level: " recursion-level))
-        debug (log/info (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
+  (let [debug (log/debug (str "gen14-inner begin: recursion level: " recursion-level))
+        debug (log/debug (str "gen14-inner phrase-with-head: " (fo phrase-with-head)))
         debug (log/debug (str "gen14-inner complements: " (fo complements)))
         recursion-level (+ 1 recursion-level)
         debug-inner (log/debug (str "gen14-inner: type of complements: " (type complements)))
@@ -153,7 +127,7 @@
 
                               (seq? complements)
                               (filter (fn [complement]
-                                        (log/info (str "FILTERING COMPLEMENT: " (fo complement)))
+                                        (log/debug (str "FILTERING COMPLEMENT: " (fo complement)))
                                         (apply
                                          (fn [x] (apply complement-filter-fn (list phrase-with-head)))
                                          (list complement)))
@@ -362,7 +336,7 @@
        (cond (and (symbol? candidate)
                   (seq? (eval candidate)))
              (do
-               (log/info (str "candidate: " candidate " evals to a seq."))
+               (log/info (str "gen-all: candidate: " candidate " evals to a seq."))
                (gen-all
                 (lazy-shuffle
                  (eval candidate))
@@ -389,13 +363,11 @@
                ;; (eval schema) is a 3-node tree (parent and two children) as described
                ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                ;; allowing us to access that value with (eval schema).
-               (log/info (str "testing for schema being fail: " schema))
+               (log/info (str "gen-all: testing for schema: " schema " being fail."))
                (if (unify/fail? (eval schema))
-                 (throw (Exception.)))
+                 (throw (Exception. (str "schema is fail."))))
                ;; (str "schema: " (if (fn? schema) "fn" schema) " is fail: " (unify/fail-path (eval schema))) " : to fix, reload ug.")))
-               (lazy-seq
-               (gen17 (eval schema)
-
+               (gen17 (unify/copy (eval schema))
                       ;; head (1) (see below for complements)
                       (fn [inner-filter-against]
                         (gen-all (lazy-shuffle (eval head))
@@ -419,15 +391,15 @@
                                                parent-with-head) '(:comp) :top)))
                       filter-against
 
-                      (:post-unify-fn candidate))))
+                      (:post-unify-fn candidate)))
 
              (and (map? candidate)
                   (not (nil? filter-against)))
              (let [result (lexfn/unify filter-against candidate)]
                (if (not (unify/fail? result))
-                 (do (log/info (str "gen-all:" (log-candidate-form candidate label) " -> " (fo candidate) ": ok."))
+                 (do (log/info (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": ok."))
                      (list result))
-                 (do (log/info (str "gen-all:" (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
+                 (do (log/info (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
                      nil)))
 
              true (throw (Exception. (str "don't know what to do with this; type=" (type candidate)))))
