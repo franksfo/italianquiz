@@ -208,8 +208,6 @@
 (defn gen14 [phrase heads complements filter-against post-unify-fn recursion-level]
   (if (or (fn? heads) (not (empty? heads)))
     (do
-      (if (unify/fail? phrase)
-        (throw (Exception. (str "gen14: phrase is fail: " (type phrase)))))
       (log/debug (str "gen14: starting now: recursion-level: " recursion-level))
       (log/debug (str "gen14: type of heads: " (type heads)))
       (log/debug (str "gen14: filter-against: " filter-against))
@@ -230,9 +228,6 @@
                               (unify/get-in phrase
                                             '(:head) :top)]
                           (log/debug (str "gen14: PHRASE IS:" phrase))
-                          (if (unify/fail? filter-against)
-                            (throw (Exception. (str "Reload ug: filter-against contains :fail:"
-                                                    filter-against "     at    " (unify/fail-path filter-against)))))
                           (log/debug (str "gen14: treating heads as a function and applying against filter:"  filter-against))
                           (apply heads (list filter-against)))
                         :else
@@ -363,10 +358,6 @@
                ;; (eval schema) is a 3-node tree (parent and two children) as described
                ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                ;; allowing us to access that value with (eval schema).
-               (log/info (str "gen-all: testing for schema: " schema " being fail."))
-               (if (unify/fail? (eval schema))
-                 (throw (Exception. (str "schema is fail."))))
-               ;; (str "schema: " (if (fn? schema) "fn" schema) " is fail: " (unify/fail-path (eval schema))) " : to fix, reload ug.")))
                (gen17 (unify/copy (eval schema))
                       ;; head (1) (see below for complements)
                       (fn [inner-filter-against]
