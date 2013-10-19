@@ -98,7 +98,7 @@
   (gen-all (shuffle declarative-sentence)))
 
 (defn random-sentence []
-  (take 1 (gen-all (shuffle sents) "sents" :top)))
+  (first (take 1 (gen-all (shuffle sents) "sents" :top))))
 
 (defn gen-with [constraint]
   (take 1 (gen-all (shuffle sents) "sents" constraint)))
