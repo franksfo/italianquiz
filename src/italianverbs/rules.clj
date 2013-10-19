@@ -94,20 +94,7 @@
 (rewrite-as sents 'sentence-with-modifier)
 
 ;; -- useful functions
-(defn generate-sentences []
-  (gen-all (shuffle declarative-sentence)))
-
-(defn random-sentence []
-  (first (take 1 (gen-all (shuffle sents) "sents" :top))))
-
-(defn gen-with [constraint]
-  (take 1 (gen-all (shuffle sents) "sents" constraint)))
-
-(defn random-sentences [ & n]
-  (repeatedly (if (first n) (first n) 1000)
-              #(random-sentence)))
-
-(defn sentence []
-  (take 1 (gen-all (shuffle sents) "sents" :top)))
+(defn sentence [ & with ]
+  (first (take 1 (gen-all (shuffle sents) "sents" (if with with :top)))))
 
 (log/info "done loading rules.")
