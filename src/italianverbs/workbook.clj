@@ -23,7 +23,7 @@
                                  ;; TODO: how can I show the stack trace for the
                                  ;; attempt to process the expression?
                                  (catch Exception e
-                                   (log/error (str "failed to sandbox-load-string: " expr))
+                                   (log/error (str "failed to sandbox-load-string: " expr ":" e))
                                    (str e)))]
                            (list
                             (str
@@ -80,7 +80,7 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (random-sentence)))"
+          "(fo (sentence)))"
           )]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka

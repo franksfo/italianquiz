@@ -3,7 +3,7 @@
   (:use [clojure.set :only (union intersection)]
         [clojure.core :exclude (get-in resolve merge)]
         [italianverbs.generate :only (moreover-head moreover-comp gen14 over3 rewrite-as lazy-shuffle)]
-        [italianverbs.lexicon :only (it1)]
+        [italianverbs.lexicon]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
         [italianverbs.ug]
@@ -11,23 +11,8 @@
         )
 
   (:require [clojure.tools.logging :as log]
-            [italianverbs.lexicon :as lex]
             [italianverbs.unify :as unify]
-            [clojure.string :as string])
-)
-
-(def tinylex
-  (union ;(it1 "aiutare")
-         (it1 "andare")
-         (it1 "dormire")
-         (it1 "la")
-         (it1 "il")
-         (it1 "io")
-         (it1 "ragazzo")
-         (it1 "ragazza")
-         (it1 "un")
-         (it1 "vedere")
-        ))
+            [clojure.string :as string]))
 
 (log/info "begin italian-english specific lexical categories..")
 
@@ -63,12 +48,6 @@
                  (not (= (unify/get-in lexeme '(:synsem :pronoun)) true))))
           propernouns-and-pronouns))
 
-(def intransitive-verbs
-  (filter (fn [candidate]
-            (and (= :notfound (unify/get-in candidate '(:synsem :subcat :2 :cat) :notfound))
-                 (= (unify/get-in candidate '(:synsem :cat)) :verb)))
-          lex/lexicon))
-
 (def transitive-verbs
   (filter (fn [candidate]
             ;; filter Vs to reduce number of candidates we need to filter:
@@ -82,7 +61,7 @@
   (filter (fn [lexeme]
             (and (= (get-in lexeme '(:synsem :cat)) :verb)
                  (= (get-in lexeme '(:synsem :subcat :2)) '())))
-          lex/lexicon))
+          all-in-lexicon))
 
 (def aux-verbs
   (filter (fn [candidate]

@@ -1,6 +1,6 @@
 (ns italianverbs.rules
   (:refer-clojure :exclude [get-in resolve])
-  (:use [italianverbs.generate :only (rewrite-as gen-all lazy-shuffle)]
+  (:use [italianverbs.generate :only (rewrite-as gen-all lazy-shuffle over3)]
         [italianverbs.grammar]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.lexicon :only (it1)]
@@ -8,9 +8,7 @@
         [italianverbs.unify :only (get-in)]
         [italianverbs.ug]
         [italianverbs.morphology :only (fo fof)])
-  (:require [clojure.tools.logging :as log]
-            [italianverbs.unify :as unify])
-)
+  (:require [clojure.tools.logging :as log]))
 
 (log/info "started loading rules.")
 
@@ -96,5 +94,8 @@
 ;; -- useful functions
 (defn sentence [ & with ]
   (first (take 1 (gen-all (shuffle sents) "sents" (if with with :top) sem-impl))))
+
+(defn over [parent child1 child2]
+  (over3 (over3 parent child1) child2 sem-impl it1))
 
 (log/info "done loading rules.")

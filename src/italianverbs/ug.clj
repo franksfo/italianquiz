@@ -2,18 +2,16 @@
   (:refer-clojure :exclude [get-in resolve])
   (:use [clojure.set :only (union intersection)]
         [clojure.core :exclude (get-in resolve merge)]
-        [italianverbs.generate :only (moreover-head moreover-comp gen14 gen15 gen17 lazy-shuffle)]
+        [italianverbs.generate :only (moreover-head moreover-comp gen14 gen17 lazy-shuffle)]
         [italianverbs.lexicon :only (it1)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
-        [italianverbs.unify :only (copy fail? serialize get-in fail-path)]
-        )
+        [italianverbs.unify :only (copy fail? serialize get-in fail-path)])
 
   (:require [clojure.tools.logging :as log]
             [italianverbs.lexicon :as lex]
             [italianverbs.unify :as unify]
-            [clojure.string :as string])
-)
+            [clojure.string :as string]))
 
 (def phrase-times-lexicon-cache false)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
@@ -405,6 +403,8 @@
            lex/lexicon)
    lex/lexicon))
 
+(def all-in-lexicon lex/lexicon)
+
 (def hh10-heads
   (lazy-seq
     (filter (fn [lex]
@@ -456,27 +456,5 @@
     (log/info (str "ch10-comps.."))
     (log/info (str "cc10-comps: " (.size cc10-comps)))
     (log/info "done pre-compiling phrase-lex caches.")))
-
-(defn base-ch21 []
-  (gen15 ch21 ch21-heads ch21-comps))
-
-(defn base-cc10 [use-filter]
-  (gen15 cc10
-         (filter use-filter
-                 cc10-heads)
-         cc10-comps))
-
-(defn base-cc10-random-nofilter []
-  (gen15 cc10
-         (shuffle cc10-heads)
-         (shuffle cc10-comps)))
-
-(defn base-cc10-random [use-filter]
-  (do
-    (log/debug "base-cc10-random: start: filtering cc10 heads.")
-    (gen15 cc10
-           (filter use-filter
-                   (lazy-shuffle cc10-heads))
-           (lazy-shuffle cc10-comps))))
 
 (log/info "done.")

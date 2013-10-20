@@ -2546,73 +2546,6 @@
              (= (fs/get-in lex '(:synsem :cat)) :adjective)))
           lexicon))
 
-(def nouns (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :noun)) lexicon))
-(def common-nouns (filter (fn [lex] (and (= (fs/get-in lex '(:synsem :cat)) :noun)
-                                         (= (fs/get-in lex '(:synsem :subcat :1 :cat)) :det)))
-                            lexicon))
-(def dets (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :determiner)) lexicon))
-
-(def animate-nouns
-  (filter (fn [lex]
-            (let [sem (fs/get-in lex '(:synsem :sem))
-                  sem-impl (sem-impl sem)]
-              (= (fs/get-in sem-impl '(:animate)) true)))
-          nouns))
-
-(def human-nouns
-  (filter (fn [lex]
-            (let [sem (fs/get-in lex '(:synsem :sem))
-                  sem-impl (sem-impl sem)]
-              (= (fs/get-in sem-impl '(:human)) true)))
-          nouns))
-
-(def temporal-glue
-  (filter (fn [lex]
-            (= (fs/get-in lex '(:synsem :cat)) :temporal-glue))
-          lexicon))
-
-(def adjs
-  (filter (fn [lex]
-            (= (fs/get-in lex '(:synsem :cat)) :adjective))
-          lexicon))
-
-(def adverbs
-  (filter (fn [lex]
-            (= (fs/get-in lex '(:synsem :cat)) :adverb))
-          lexicon))
-
-(def dets
-  (filter (fn [lex]
-            (= (fs/get-in lex '(:synsem :cat)) :det))
-          lexicon))
-
-(def verbs
-  (filter (fn [lex]
-            (= (fs/get-in lex '(:synsem :cat)) :verb))
-          lexicon))
-
-(def nouns
-  (filter (fn [lex]
-            (= (fs/get-in lex '(:synsem :cat)) :noun))
-          lexicon))
-
-(def intensifiers
-  (filter (fn [lex]
-            (= (fs/get-in lex '(:synsem :cat)) :intensifier))
-          lexicon))
-
-(def preps
-  (filter (fn [lex]
-            (= (fs/get-in lex '(:synsem :cat)) :prep))
-          lexicon))
-
-(def propernouns-and-pronouns
-  (filter (fn [lex]
-            (and (= (fs/get-in lex '(:synsem :cat)) :noun)
-                 (= (fs/get-in lex '(:synsem :subcat)) '())))
-          lexicon))
-
-
 (defn lookup [query]
   (lookup-in query lexicon))
 
@@ -2636,7 +2569,20 @@
 (defn en [english]
   (lookup {:english english}))
 
+(def tinylex
+  (union ;(it1 "aiutare")
+         (it1 "andare")
+         (it1 "dormire")
+         (it1 "la")
+         (it1 "il")
+         (it1 "io")
+         (it1 "ragazzo")
+         (it1 "ragazza")
+         (it1 "un")
+         (it1 "vedere")
+        ))
+
 ;; grammar builds a bunch of filtered lazy-seqs.
 ;; if lexicon changes, these lazy-seqs should be re-initialized
 ;; by reloading grammar.
-(load "grammar")
+;(load "grammar")

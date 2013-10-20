@@ -2,7 +2,8 @@
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's :where clause.
 (ns italianverbs.quiz
-  (:use [hiccup core page])
+  (:use [hiccup core page]
+        [italianverbs.rules :only (ds sentence-with-modifier)])
   (:require [somnium.congomongo :as db]
             [clojure.tools.logging :as log]
             [italianverbs.lev :as lev]
@@ -11,6 +12,7 @@
             [italianverbs.lexiconfn :as lexfn]
             [base.html :as basehtml]
             [italianverbs.html :as html]
+            [italianverbs.rules :as rules]
             [italianverbs.xml :as xml]
             [italianverbs.generate :as gen]
             [ring.util.codec :as url]
@@ -313,26 +315,26 @@
    production
    (random-sentence)
    true
-   (gram/random-sentence)
+   (rules/sentence)
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)
    (che-tempo)
-   (= question-type :espressioni)
-   (gen/espressioni)
-   (= question-type :infinitivo)
-   (gen/random-infinitivo)
-   (= question-type :futuro)
-   (gen/random-futuro-semplice)
-   (= question-type :ora)
-   (let [hour (rand-int 12)
-         minute (* (rand-int 12) 5)
-         ampm (if (= (rand-int 2) 0)
-                "am"
-                "pm")
-         hour (if (= hour 0) 12 hour)]
-    {:english (gram/english-time hour minute ampm)
-     :italian (gram/italian-time hour minute ampm)})
+;   (= question-type :espressioni)
+;   (gen/espressioni)
+;   (= question-type :infinitivo)
+;   (gen/random-infinitivo)
+;   (= question-type :futuro)
+;   (gen/random-futuro-semplice)
+;   (= question-type :ora)
+;   (let [hour (rand-int 12)
+;         minute (* (rand-int 12) 5)
+;         ampm (if (= (rand-int 2) 0)
+;                "am"
+;                "pm")
+;         hour (if (= hour 0) 12 hour)]
+;    {:english (gram/english-time hour minute ampm)
+;     :italian (gram/italian-time hour minute ampm)})
    (= question-type :mese)
    (lexfn/choose-lexeme {:month true})
    (= question-type :giorni)
@@ -668,6 +670,6 @@
          (controls session nil "submit_quiz_filters('#controls_container','#controls_form');"))))
 
 ;; need to do this to get the workbook to work, for some reason.
-(def do-the-minimum (take 1 (gram/minimal-grammatical-initialization)))
+;(def do-the-minimum (take 1 (gram/minimal-grammatical-initialization)))
 
 

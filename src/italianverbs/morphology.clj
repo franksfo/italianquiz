@@ -4,7 +4,10 @@
    [italianverbs.unify :as fs]
    [clojure.core :as core]
    [clojure.tools.logging :as log]
-   [clojure.string :as string]))
+   [clojure.string :as string])
+  (:use
+   [clojure.core :exclude (get-in)]
+   [italianverbs.unify :only (get-in)]))
 
 (defn strip [str]
   "remove heading and trailing whitespace"

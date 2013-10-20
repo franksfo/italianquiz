@@ -5,16 +5,11 @@
         [italianverbs.generate]
         [italianverbs.morphology]
         [italianverbs.grammar]
-        [italianverbs.lexiconfn :only (unify)]))
+        [italianverbs.rules]))
 
 (deftest io-dormo
-  (let [result (first (take 1
-                            (generate
-                             (unify s-present {:synsem {;; TODO: :cat :verb is a workaround for overgeneration due
-                                                        ;; to generation redesign.
-                                                        :cat :verb
-                                                        :sem {:pred :dormire
-                                                              :subj {:pred :io}}}}))))]
+  (let [result (sentence {:synsem {:sem {:pred :dormire
+                                         :subj {:pred :io}}}})]
     (is (not (unify/fail? result)))
     (is (= (unify/get-in (finalize result) '(:italian)) "io dormo"))
     (is (= (unify/get-in (finalize result) '(:english)) "I sleep"))))
@@ -83,12 +78,12 @@
            "lei è più ricca di Giorgio"))))
 
 (deftest fare-bene
-  (let [result (first (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare
+  (let [result (first (take 1 (generate (unifyc s-past {:synsem {:sem {:pred :fare
                                                                       :mod {:pred :bene}}}}))))]
     (is (successful result))))
 
 (deftest fare-bene-vendere-casa
-  (let [result (first (take 1 (generate (unify s-past {:synsem {:sem {:pred :fare
+  (let [result (first (take 1 (generate (unifyc s-past {:synsem {:sem {:pred :fare
                                                                       :obj {:pred :vendere
                                                                             :obj {:pred :casa}}}}}))))]
     (is (successful result))))
@@ -217,5 +212,3 @@
         cane-rosso (first (over gram/nbar "cane" "rosso"))]
     (is (= (add-child-where cane) :comp))
     (is (nil? (add-child-where cane-rosso)))))
-
-

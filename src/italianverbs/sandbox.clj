@@ -1,7 +1,7 @@
 (ns italianverbs.sandbox
   (:refer-clojure :exclude [get-in merge resolve find])
   (:use
-   [italianverbs.lexicon]
+   [italianverbs.lexicon :only (it1)]
    ;; Prohibit generate/printfs because it writes directly to the filesystem:
    ;; attacker could DOS server by filling up filesystem.
    ;; Also exclude 'generate' so that we can define a wrapper for it in the sandbox,
@@ -9,10 +9,11 @@
    [italianverbs.generate :exclude [printfs]]
    [italianverbs.grammar]
    [italianverbs.lexiconfn]
-   [italianverbs.test.grammar]
    [italianverbs.test.lexicon]
    [italianverbs.html]
    [italianverbs.morphology]
+   [italianverbs.rules]
+   [italianverbs.ug]
    [italianverbs.unify :only (fail?)]
    [clojail.core :only [sandbox]]
    [clojail.testers])
@@ -23,7 +24,6 @@
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [clojure.set :as set]
-   [italianverbs.test.generate :as tgen]
    [clojure.string :as string]
    [clojure.tools.logging :as log]))
 
