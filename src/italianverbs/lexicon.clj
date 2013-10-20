@@ -2549,7 +2549,7 @@
 (defn lookup [query]
   (lookup-in query lexicon))
 
-(defn it1 [italian]
+(defn it [italian]
   "same as it but no type conversion of singleton sets to take the first member."
   (let [result
         (union (set (lookup {:italian italian}))
@@ -2559,27 +2559,22 @@
                (set (lookup {:italian {:irregular {:passato italian}}})))]
     result))
 
-(defn it [italian]
-  (let [result (it1 italian)]
-    (if (= (.size result) 1)
-      (first result) ;; simply return first member rather than singleton-set:
-      ;; makes it easier to work with by end-users using with generate/* functions.
-      result)))
+(def it1 it) ; backwards compatibility
 
 (defn en [english]
   (lookup {:english english}))
 
 (def tinylex
-  (union ;(it1 "aiutare")
-         (it1 "andare")
-         (it1 "dormire")
-         (it1 "la")
-         (it1 "il")
-         (it1 "io")
-         (it1 "ragazzo")
-         (it1 "ragazza")
-         (it1 "un")
-         (it1 "vedere")
+  (union ;(it "aiutare")
+         (it "andare")
+         (it "dormire")
+         (it "la")
+         (it "il")
+         (it "io")
+         (it "ragazzo")
+         (it "ragazza")
+         (it "un")
+         (it "vedere")
         ))
 
 ;; grammar builds a bunch of filtered lazy-seqs.

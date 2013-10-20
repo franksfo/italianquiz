@@ -2,8 +2,7 @@
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's :where clause.
 (ns italianverbs.quiz
-  (:use [hiccup core page]
-        [italianverbs.rules :only (ds sentence-with-modifier)])
+  (:use [hiccup core page])
   (:require [somnium.congomongo :as db]
             [clojure.tools.logging :as log]
             [italianverbs.lev :as lev]
@@ -309,13 +308,16 @@
         sentences (db/fetch :sentences)]
     (nth sentences (rand-int count))))
 
+(def ds rules/ds)
+(def sentence-with-modifier rules/sentence-with-modifier)
+
 (defn generate [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    production
    (random-sentence)
    true
-   (rules/sentence)
+   (rules/sentence :top)
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)

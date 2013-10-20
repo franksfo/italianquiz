@@ -3,7 +3,7 @@
   (:use [clojure.set :only (union intersection)]
         [clojure.core :exclude (get-in resolve merge)]
         [italianverbs.generate :only (moreover-head moreover-comp gen14 gen17 lazy-shuffle)]
-        [italianverbs.lexicon :only (it1)]
+        [italianverbs.lexicon :only (it)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
         [italianverbs.unify :only (copy fail? serialize get-in fail-path)])

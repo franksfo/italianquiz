@@ -1,5 +1,6 @@
 (ns italianverbs.workbook
   (:use [hiccup core]
+        [clojure.core :exclude (get-in)]
         [clojure.set])
   (:require
    [somnium.congomongo :as mongo]
@@ -80,7 +81,8 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (sentence)))"
+          ""
+;          "(fo (sentence)))"
           )]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
