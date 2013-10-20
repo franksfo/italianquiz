@@ -14,7 +14,7 @@
    [italianverbs.morphology]
    [italianverbs.rules]
    [italianverbs.ug]
-   [italianverbs.unify :only (fail?)]
+   [italianverbs.unify :only (fail? fail-path)]
    [clojail.core :only [sandbox]]
    [clojail.testers])
   (:require
@@ -31,6 +31,8 @@
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
 ;;    http://docs.oracle.com/javase/6/docs/api/overview-summary.html
 ;;    http://richhickey.github.com/clojure/api-index.html
+
+(def noun-phrase cc10)
 
 (def workbook-sandbox
   (sandbox

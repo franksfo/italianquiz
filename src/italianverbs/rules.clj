@@ -96,6 +96,6 @@
   (first (take 1 (gen-all (shuffle sents) "sents" (if with with :top) sem-impl))))
 
 (defn over [parent child1 child2]
-  (over3 (over3 parent child1) child2 sem-impl it))
+  (over3 (over3 parent child1 sem-impl it) child2 sem-impl it))
 
 (log/info "done loading rules.")

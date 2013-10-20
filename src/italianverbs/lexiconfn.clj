@@ -1,7 +1,6 @@
 (ns italianverbs.lexiconfn
   (:use [clojure.set]
-        [clojure.core :exclude (get-in)]
-        [italianverbs.unify :only (get-in)])
+        [clojure.core :exclude (get-in)])
   (:require
    [clojure.set :as set]
    [clojure.tools.logging :as log]

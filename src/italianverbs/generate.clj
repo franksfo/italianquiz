@@ -1,7 +1,6 @@
 (ns italianverbs.generate
   (:use [clojure.stacktrace]
         [italianverbs.morphology :only (fo)]
-        [italianverbs.unify :only (get-in)]
         [clojure.core :exclude (get-in)])
   (:require
    [clojure.tools.logging :as log]
@@ -78,12 +77,17 @@
         :fail))))
 
 (defn over3 [parent child lexfn-sem-impl lex-it1]
-  (log/debug (str "string? child: " (string? child)))
-  (log/debug (str "seq? child: " (string? child)))
+  (log/info (str "string? child: " (string? child)))
+  (log/info (str "seq? child: " (string? child)))
   (cond
    (string? child) (map (fn [each-child]
-                          (over3 parent each-child lexfn-sem-impl lex-it1))
+                          (let [debug (log/info (str "each-child:" each-child))]
+                            (over3 parent each-child lexfn-sem-impl lex-it1)))
                         (lex-it1 child))
+
+   (set? child) (map (fn [each-child]
+                       (over3 parent each-child lexfn-sem-impl lex-it1))
+                     (seq child))
 
    (seq? child) (map (fn [each-child]
                        (over3 parent each-child lexfn-sem-impl lex-it1))
