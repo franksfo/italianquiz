@@ -2,7 +2,13 @@
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's :where clause.
 (ns italianverbs.quiz
-  (:use [hiccup core page])
+  (:use [hiccup core page]
+        [italianverbs.generate]
+        [italianverbs.grammar]
+        [italianverbs.morphology]
+        [italianverbs.ug]
+        [italianverbs.rules]
+        )
   (:require [somnium.congomongo :as db]
             [clojure.tools.logging :as log]
             [italianverbs.lev :as lev]
@@ -308,10 +314,7 @@
         sentences (db/fetch :sentences)]
     (nth sentences (rand-int count))))
 
-(def ds rules/ds)
-(def sentence-with-modifier rules/sentence-with-modifier)
-
-(defn generate [question-type]
+(defn generate-question [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    production
@@ -517,7 +520,7 @@
                      (do
                        (log/info "nothing in queue; generating new question.")
                        (let [type (random-guess-type session)]
-                         (store-question (generate type) session nil))))]
+                         (store-question (generate-question type) session nil))))]
       (let [qid (:_id question)]
         (log/debug (str "qid: " qid))
         (str "<div id='question_text'>" (:question question) "</div>"
@@ -529,7 +532,7 @@
         (let [queue (db/fetch :queue :where {:session session})]
           (or (nil? queue)
               (< (.size (db/fetch :queue :where {:session session})) 3)))
-      (let [question-pair (generate (random-guess-type session))
+      (let [question-pair (generate-question (random-guess-type session))
             question (get question-pair :english)
             answer (get question-pair :italian)]
         (log/info "adding question to queue.")

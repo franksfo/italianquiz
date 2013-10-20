@@ -203,7 +203,7 @@
         (let [type (if (quiz/question-type (get request :query-params))
                      (quiz/question-type (get request :query-params))
                      (quiz/random-guess-type (session/request-to-session request)))
-              question (quiz/generate type)]
+              question (quiz/generate-question type)]
           (quiz/guess question request "xml"))
         :status 200
         :headers {"Content-Type" "text/xml;charset=utf-8"}
@@ -238,7 +238,7 @@
        {
         :body
         (let [type (quiz/random-guess-type)
-              question (quiz/generate type)]
+              question (quiz/generate-question type)]
           (quiz/guess question request "tr"))
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
