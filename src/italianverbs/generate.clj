@@ -345,10 +345,23 @@
            (first alternatives))
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
+      (log/info (str "GOT HERE1: " (type candidate)))
+      (log/info (str "GOT HERE2: " (symbol? candidate)))
+      (if (symbol? candidate)
+        (log/info (str "SYMBOL: " candidate)))
+      (if (symbol? candidate)
+        (log/info (str "EVAL: " (eval candidate))))
+      (if (symbol? candidate)
+        (log/info (str "EVAL2: " (eval candidate))))
+      (cond (and (symbol? candidate)
+                 (seq? (eval candidate)))
+            (log/info (str "XX"))
+            true (log/info true "YY"))
       (lazy-cat
        (cond (and (symbol? candidate)
                   (seq? (eval candidate)))
              (do
+               (log/info "GOT HERE..")
                (log/debug (str "gen-all: candidate: " candidate " evals to a seq."))
                (gen-all
                 (lazy-shuffle
