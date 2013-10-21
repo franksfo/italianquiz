@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <meta name="description" content="" />
+    <meta name="author" content="Eugene Koontz" />
+
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+    <link href="presentation.css" rel="stylesheet" />
+    <link href="images.css" rel="stylesheet" />
+  </head>
+  <body>
+
+    <!--
+	Thanks to Bartek Szopka (http://bartaz.github.com) for impress.js.
+      -->
+    <div id="impress" class="impress-not-supported">
+
+      <div class="fallback-message">
+        <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+        <p>For the best experience please use the latest <b>Chrome</b> or <b>Safari</b> browser. Firefox 10 will also handle it.</p>
+      </div>
+
+      <div id="current" class="step slide" data-x="0" data-y="0">
+	<h1>Motivation</h1>
+        <h2>Learn foreign languages by translation</h2>
+
+        <a href="http://hiro-tan.org/italian/">Quiz: http://hiro-tan.org/italian</a>
+
+      </div>
+
+      <div id="cfg" class="step slide" data-x="1000" data-y="0">
+	<h1>Natural Language Sentence Generation</h1>
+        <h2>Context-Free Grammars</h2>
+        <ul class="rules">
+          <li>Sentence &rarr; NounPhrase VerbPhrase</li>
+          <li>VerbPhrase &rarr; Verb NounPhrase</li>
+          <li>NounPhrase &rarr; Determiner Noun</li>
+        </ul>
+
+        <div class="img cfg-tree" >
+        </div>
+
+
+      </div>
+
+      <div id="agreement" class="step slide" data-x="2000" data-y="0">
+        <h1>Problem: Agreement</h1>
+
+        <ul>
+          <li>La donna (the woman)</li>
+          <li>* Il donna</li>
+        </ul>
+
+        <ul class="rules" style="margin-top:1em">
+          <li>FemNounPhrase &rarr; FemDeterminer FemNoun</li>
+          <li>MascNounPhrase &rarr; MascDeterminer MascNoun</li>
+
+          <div class="img tworules" />
+
+        </ul>
+
+      </div>
+
+      <div id="unif" class="step slide" data-x="3000" data-y="0">
+	<h1>Unification Grammars</h1>
+
+        <h2>Structure Sharing</h2>
+
+        <ul class="rules" style="font-size:75%">
+          <li>NounPhrase[gender=x] &rarr; Determiner[gender=x] Noun[gender=x]
+        </ul>
+
+        <div class="img gender-agr-dag">
+        </div>
+
+        <p>
+          Sentence generation = grammar + lexicon + unification
+        </p>
+
+
+      </div>
+
+      <div id="implementation" class="step slide" data-x="4000" data-y="0">
+	<h1>Clojure maps and refs</h1>
+
+        <h2>Map: set of key-value pairs, with nesting: trees</h2>
+        <h2>Maps + Refs = Directed Acyclic Graphs</h2>
+        <h2>Workbook demo</h2>
+
+      </div>
+
+      <div id="repl" class="step slide" data-x="5000" data-y="0">
+	<h1>Sentence Generation demo in the REPL</h1>
+
+        <h2>Simple cases</h2>
+
+        <ul class="code">
+          <li>(sentence)</li>
+          <li>(nounphrase)</li>
+        </ul>
+
+        <h2>With filters</h2>
+        <ul class="code">
+          <li>(sentence {:synsem {:sem {:pred :dormire}})</li>
+          <li>(nounphrase {:synsem {:sem {:pred :donna}}})</li>
+        </ul>
+      </div>
+
+      <div id="details" class="step slide" data-x="6000" data-y="0">
+	<h1>Implementation Details</h1>
+        <h2>Lazy Sequences</h2>
+        <ul class="code">
+          <li><tt>(take num lazy-seq) =&gt; seq</tt></li>
+          <li><tt>(repeatedly fn) =&gt; lazy-seq </tt></li>
+        </ul>
+
+        <h2>MongoDB Serialization</h2>
+        <ul class="code">
+          <li>(serialize)</li>
+          <li>(deserialize)</li>
+        </ul>
+        <h3>Serialize: Turn a DAG into a tree + metadata</h3>
+        <h3>Deserialize: Turn a tree + metadata into a DAG</h3>
+
+      </div>
+      <div id="Links"  class="step slide" data-x="7000" data-y="0">
+        <h1>Source Code</h1>
+        <h2><a href="https://github.com/ekoontz/italianquiz">
+            https://github.com/ekoontz/italianquiz</a></h2>
+
+        <h1>Demo Site</h1>
+        <h2><a href="http://hiro-tan.org/italian">http://hiro-tan.org/italian</a></h2>
+
+        <h2>Head Driven Phrase Structure Grammar:</h2>
+        <ul>
+          <li>
+            <a href="http://en.wikipedia.org/wiki/Head-driven_phrase_structure_grammar">
+              http://en.wikipedia.org/wiki/Head-driven_phrase_structure_grammar
+              </a>
+          </li>
+          <li>
+            <a href="http://hpsg.stanford.edu">
+              http://hpsg.stanford.edu
+            </a>
+          </li>
+          </ul>
+        <h2>Clojail: <a href="http://github.com/flatland/clojail">
+            http://github.com/flatland/clojail
+        </a></h2>
+        <h2>Congomongo:
+          <a href="http://github.com/aboekhoff/congomongo">
+            http://github.com/aboekhoff/congomongo</a></h2>
+      </div>
+<!--      <div id="" class="step slide" data-x="6000" data-y="0">
+	<h1></h1>
+      </div>-->
+
+
+
+
+
+      <div class="hint">
+	<p>Use a spacebar or arrow keys to navigate</p>
+      </div>
+
+      <script src="js/impress.js"></script>
+
+  </body>
+</html>
+
+
