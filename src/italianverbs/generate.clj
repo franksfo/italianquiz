@@ -321,10 +321,6 @@
          (cons elem
                (lazy-shuffle (concat prior (rest remainder)))))))))
 
-(defn gen17 [phrase heads comps filter-against post-unify-fn lexfn-sem-impl]
-  (log/debug (str "gen17: phrase: " (:comment phrase)))
-  (gen14 phrase heads comps filter-against post-unify-fn 0 lexfn-sem-impl))
-
 (defn log-candidate-form [candidate & [label]]
   (cond (and (map? candidate)
              (:schema candidate)
@@ -381,7 +377,7 @@
                ;; (eval schema) is a 3-node tree (parent and two children) as described
                ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
                ;; allowing us to access that value with (eval schema).
-               (gen17 (unify/copy (eval schema))
+               (gen14 (unify/copy (eval schema))
                       ;; head (1) (see below for complements)
                       (fn [inner-filter-against]
                         (log/debug (str "INNER-FILTER-AGAINST: " inner-filter-against))
@@ -413,6 +409,8 @@
                       filter-against
 
                       (:post-unify-fn candidate)
+
+                      0
 
                       lexfn-sem-impl
 ))
