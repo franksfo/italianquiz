@@ -5,7 +5,7 @@
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.lexicon :only (it)]
         [clojure.repl :only (source)]
-        [italianverbs.unify :only (get-in)]
+        [italianverbs.unify :only (get-in serialize deserialize copy)]
         [italianverbs.ug]
         [italianverbs.morphology :only (fo fof)])
   (:require [clojure.tools.logging :as log]))
@@ -90,6 +90,9 @@
 ;; -- useful functions
 (defn sentence [ & [ with ]]
   (first (take 1 (gen-all (shuffle sents) "sents" (if with with :top) sem-impl))))
+
+(defn nounphrase [ & [ with ]]
+  (first (take 1 (gen-all (shuffle np) "nps" (if with with :top) sem-impl))))
 
 (defn over [parent child1 child2]
   (over3 (over3 parent child1 sem-impl it) child2 sem-impl it))
