@@ -569,14 +569,18 @@
               (log/info (str "LAZY-SHUFFLE: " (lazy-shuffle (eval candidate))))
               (log/info (str "filter-against: " filter-against))
               (log/info (str "lexfn-sem-impl: " lexfn-sem-impl))
-              (log/info (str "calling stuff.."))
-              (myfoo (lazy-shuffle (eval candidate))
-                     (str label " -> " candidate)
-                     filter-against lexfn-sem-impl)
-              (log/info (str "done calling stuff.")))
-            true (log/info true "YY"))))
-
-  42)
+              (log/info (str "calling stuff.."))))
+      (if (and (not (empty? alternatives))
+               (first alternatives))
+        (let [debug (log/info (str "myfoo: alternatives is not empty."))
+              candidate (first alternatives)
+              label (if label label (if (map? label) (:label candidate)))
+              debug (log/info (str "myfoo: candidate: " candidate " : " label))
+              debug (log/info (str "symbol? candidate:" (symbol? candidate)))
+              debug (log/info (str "map? candidate:" (map? candidate)))
+              debug (log/info (str "not nil schema:" (not (nil? (:schema candidate)))))]
+          (log/info (str "done calling stuff."))))
+      42)))
 ;  (gen-all alternatives "" :top lexfn-sem-impl))
 
 (defmacro gen-ch21 [head comp]
