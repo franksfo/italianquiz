@@ -379,28 +379,8 @@
             result12
             (log/info "COND 12.")
 
-            result13
-            (try
-              (log/info "COND 13.")
-              (catch Exception e))
-
-
             result14
-            (try
-              (cond true
-                    (log/info "COND14."))
-              (catch Exception e
-                (log/info (str "CAUGHT EXCEPTION: " e))))
-
-
-            result15
-            (try
-              (lazy-cat
-               (cond true
-                     (log/info "COND1."))
-               )
-              (catch Exception e
-                (log/info (str "CAUGHT EXCEPTION: " e))))
+            (log/info "COND14.")
 
             result2
             (lazy-cat
@@ -415,7 +395,7 @@
                        (eval candidate))
                       (str label " -> " candidate)
                       filter-against lexfn-sem-impl))
-                   
+
                    true
                    (do (log/info "welp.")
                        nil)
@@ -460,8 +440,6 @@
                    nil))]
         (log/info (str "RESULT:" result))))
     (log/info (str "alternatives are empty."))))
-
-
 
 (defn gen-all [alternatives label filter-against lexfn-sem-impl]
   (if (and (not (empty? alternatives))
@@ -572,8 +550,34 @@
        (if (not (empty? (rest alternatives)))
          (gen-all (rest alternatives) label filter-against lexfn-sem-impl))))))
 
-(defn generate [alternatives lexfn-sem-impl]
-  (gen-all alternatives "" :top lexfn-sem-impl))
+(defn generate [alternatives label filter-against lexfn-sem-impl]
+  (if (and (not (empty? alternatives))
+           (first alternatives))
+    (let [candidate (first alternatives)
+          label (if label label (if (map? label) (:label candidate)))]
+      (log/info (str "GOT HERE1: " (type candidate)))
+      (log/info (str "GOT HERE2: " (symbol? candidate)))
+      (if (symbol? candidate)
+        (log/info (str "SYMBOL: " candidate)))
+      (if (symbol? candidate)
+        (log/info (str "EVAL: " (eval candidate))))
+      (if (symbol? candidate)
+        (log/info (str "EVAL2: " (eval candidate))))
+      (cond (and (symbol? candidate)
+                 (seq? (eval candidate)))
+            (do
+              (log/info (str "LAZY-SHUFFLE: " (lazy-shuffle (eval candidate))))
+              (log/info (str "filter-against: " filter-against))
+              (log/info (str "lexfn-sem-impl: " lexfn-sem-impl))
+              (log/info (str "calling stuff.."))
+              (myfoo (lazy-shuffle (eval candidate))
+                     (str label " -> " candidate)
+                     filter-against lexfn-sem-impl)
+              (log/info (str "done calling stuff.")))
+            true (log/info true "YY"))))
+
+  42)
+;  (gen-all alternatives "" :top lexfn-sem-impl))
 
 (defmacro gen-ch21 [head comp]
   `(do ~(log/debug "gen-ch21 macro compile-time.")
