@@ -217,7 +217,7 @@
                                       lexfn-sem-impl rest-complements)))))))))
 
 (defn gen14 [phrase heads complements filter-against post-unify-fn recursion-level lexfn-sem-impl]
-  (log/debug (str "gen14: phrase: " (:comment phrase) "; heads type: " (type heads)))
+  (log/info (str "gen14: phrase: " (:comment phrase) "; heads type: " (type heads)))
   (log/debug (str "gen14: filter-against: " filter-against))
   (log/debug (str "gen14: fn? heads:" (fn? heads)))
   (log/debug (str "gen14: not empty? heads: " (and (not (fn? heads)) (not (empty? heads)))))
@@ -340,6 +340,129 @@
         true
         (str (if label (str label)))))
 
+(defn myfoo [alternatives label filter-against lexfn-sem-impl]
+  (log/info (str "myfoo: alternatives: " alternatives))
+  (log/info (str "myfoo: label: " label))
+  (log/info (str "myfoo: filter-against: " filter-against))
+  (log/info (str "myfoo: lexfn-sem-impl: " lexfn-sem-impl))
+
+  (if (and (not (empty? alternatives))
+           (first alternatives))
+    (let [debug (log/info (str "myfoo: alternatives is not empty."))
+          candidate (first alternatives)
+          label (if label label (if (map? label) (:label candidate)))
+          debug (log/info (str "myfoo: candidate: " candidate " : " label))
+          debug (log/info (str "symbol? candidate:" (symbol? candidate)))
+          debug (log/info (str "map? candidate:" (map? candidate)))
+          debug (log/info (str "not nil schema:" (not (nil? (:schema candidate)))))
+          ]
+      
+
+      (cond (and (symbol? candidate)
+                 (seq? (eval candidate)))
+            (do
+              (log/info (str "LAZY-SHUFFLE: " (lazy-shuffle (eval candidate))))
+              (log/info (str "filter-against: " filter-against))
+              (log/info (str "lexfn-sem-impl: " lexfn-sem-impl))
+              (log/info (str "calling stuff.."))
+              (myfoo (lazy-shuffle (eval candidate))
+                     (str label " -> " candidate)
+                     filter-against lexfn-sem-impl)
+              (log/info (str "done calling stuff."))))
+
+      (let [debug
+            (log/info "HELLO.")
+            result1
+            (lazy-cat
+             '(a b))
+
+            result12
+            (log/info "COND 12.")
+
+            result13
+            (try
+              (log/info "COND 13.")
+              (catch Exception e))
+
+
+            result14
+            (try
+              (cond true
+                    (log/info "COND14."))
+              (catch Exception e
+                (log/info (str "CAUGHT EXCEPTION: " e))))
+
+
+            result15
+            (try
+              (lazy-cat
+               (cond true
+                     (log/info "COND1."))
+               )
+              (catch Exception e
+                (log/info (str "CAUGHT EXCEPTION: " e))))
+
+            result2
+            (lazy-cat
+             (cond (and false (symbol? candidate)
+                        (seq? (eval candidate)))
+
+                   (do
+                     (log/info "gen-all: making recursive call with eval of candidate.")
+                     (log/debug (str "gen-all: candidate: " candidate " evals to a seq."))
+                     (myfoo
+                      (lazy-shuffle
+                       (eval candidate))
+                      (str label " -> " candidate)
+                      filter-against lexfn-sem-impl))
+                   
+                   true
+                   (do (log/info "welp.")
+                       nil)
+
+                   (and (map? candidate)
+                        (not (nil? (:schema candidate))))
+                   (do (log/info "WTF.")
+                       nil)))
+
+            result3
+            (log/info "post-lazycat")
+;             (cond (and (map? candidate)
+;                        (not (nil? (:schema candidate))))
+;                   (log/info "WTF0")))
+            result
+            (lazy-cat
+             (cond (and (symbol? candidate)
+                        (seq? (eval candidate)))
+
+                   (do
+                     (log/info "GOT HERE..")
+                     (log/debug (str "gen-all: candidate: " candidate " evals to a seq."))
+                     (myfoo
+                      (lazy-shuffle
+                       (eval candidate))
+                      (str label " -> " candidate)
+                      filter-against lexfn-sem-impl))
+
+                   (and (map? candidate)
+                        (not (nil? (:schema candidate))))
+                   (log/info "WTF.")
+;                   (let [schema (:schema candidate)
+;                         head (:head candidate)
+;                         comp (:comp candidate)]
+;                     (log/info (str "gen-all: candidate is a schema: " candidate))
+;                     (log/info (str "gen-all: filter-against: " filter-against)))
+
+
+
+
+                   true
+                   nil))]
+        (log/info (str "RESULT:" result))))
+    (log/info (str "alternatives are empty."))))
+
+
+
 (defn gen-all [alternatives label filter-against lexfn-sem-impl]
   (if (and (not (empty? alternatives))
            (first alternatives))
@@ -355,7 +478,15 @@
         (log/info (str "EVAL2: " (eval candidate))))
       (cond (and (symbol? candidate)
                  (seq? (eval candidate)))
-            (log/info (str "XX"))
+            (do
+              (log/info (str "LAZY-SHUFFLE: " (lazy-shuffle (eval candidate))))
+              (log/info (str "filter-against: " filter-against))
+              (log/info (str "lexfn-sem-impl: " lexfn-sem-impl))
+              (log/info (str "calling stuff.."))
+              (myfoo (lazy-shuffle (eval candidate))
+                     (str label " -> " candidate)
+                     filter-against lexfn-sem-impl)
+              (log/info (str "done calling stuff.")))
             true (log/info true "YY"))
       (lazy-cat
        (cond (and (symbol? candidate)

@@ -32,24 +32,25 @@
 ;;    http://docs.oracle.com/javase/6/docs/api/overview-summary.html
 ;;    http://richhickey.github.com/clojure/api-index.html
 
-(def noun-phrase cc10)
-
 (def workbook-sandbox
   (sandbox
    (conj
     clojail.testers/secure-tester-without-def
-    (blacklist-nses '[clojure.main
-                      java
-                      javax
-                      org.omg
-                      org.w3c
-                      org.xml
+    (blacklist-nses '[
+;                      clojure.main
+;                      java
+;                      javax
+;                      org.omg
+;                      org.w3c
+;                      org.xml
                       ])
-    (blacklist-objects [clojure.lang.Compiler
-                        clojure.lang.Ref
-                        clojure.lang.Reflector
-                        clojure.lang.Namespace
-                        clojure.lang.Var clojure.lang.RT]))
+    (blacklist-objects [
+;                        clojure.lang.Compiler
+;                        clojure.lang.Ref
+;                        clojure.lang.Reflector
+;                        clojure.lang.Namespace
+;                        clojure.lang.Var clojure.lang.RT
+                        ]))
    ;; TODO: make this configurable:
    ;;   might want to have a value for production usage lower/higher than
    ;;   for development usage.
