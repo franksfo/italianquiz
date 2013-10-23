@@ -446,26 +446,6 @@
            (first alternatives))
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
-      (log/info (str "GOT HERE1: " (type candidate)))
-      (log/info (str "GOT HERE2: " (symbol? candidate)))
-      (if (symbol? candidate)
-        (log/info (str "SYMBOL: " candidate)))
-      (if (symbol? candidate)
-        (log/info (str "EVAL: " (eval candidate))))
-      (if (symbol? candidate)
-        (log/info (str "EVAL2: " (eval candidate))))
-      (cond (and (symbol? candidate)
-                 (seq? (eval candidate)))
-            (do
-              (log/info (str "LAZY-SHUFFLE: " (lazy-shuffle (eval candidate))))
-              (log/info (str "filter-against: " filter-against))
-              (log/info (str "lexfn-sem-impl: " lexfn-sem-impl))
-              (log/info (str "calling stuff.."))
-              (myfoo (lazy-shuffle (eval candidate))
-                     (str label " -> " candidate)
-                     filter-against lexfn-sem-impl)
-              (log/info (str "done calling stuff.")))
-            true (log/info true "YY"))
       (lazy-cat
        (cond (and (symbol? candidate)
                   (seq? (eval candidate)))
@@ -551,37 +531,24 @@
          (gen-all (rest alternatives) label filter-against lexfn-sem-impl))))))
 
 (defn generate [alternatives label filter-against lexfn-sem-impl]
+  (log/info (str "GENERATE: alts:" alternatives))
+  (log/info (str "GENERATE: label:" label))
   (if (and (not (empty? alternatives))
            (first alternatives))
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
-      (log/info (str "GOT HERE1: " (type candidate)))
-      (log/info (str "GOT HERE2: " (symbol? candidate)))
-      (if (symbol? candidate)
-        (log/info (str "SYMBOL: " candidate)))
-      (if (symbol? candidate)
-        (log/info (str "EVAL: " (eval candidate))))
-      (if (symbol? candidate)
-        (log/info (str "EVAL2: " (eval candidate))))
-      (cond (and (symbol? candidate)
-                 (seq? (eval candidate)))
-            (do
-              (log/info (str "LAZY-SHUFFLE: " (lazy-shuffle (eval candidate))))
-              (log/info (str "filter-against: " filter-against))
-              (log/info (str "lexfn-sem-impl: " lexfn-sem-impl))
-              (log/info (str "calling stuff.."))))
-      (if (and (not (empty? alternatives))
-               (first alternatives))
-        (let [debug (log/info (str "myfoo: alternatives is not empty."))
-              candidate (first alternatives)
-              label (if label label (if (map? label) (:label candidate)))
-              debug (log/info (str "myfoo: candidate: " candidate " : " label))
-              debug (log/info (str "symbol? candidate:" (symbol? candidate)))
-              debug (log/info (str "map? candidate:" (map? candidate)))
-              debug (log/info (str "not nil schema:" (not (nil? (:schema candidate)))))]
-          (log/info (str "done calling stuff."))))
-      42)))
-;  (gen-all alternatives "" :top lexfn-sem-impl))
+      (lazy-cat
+       (cond (and (symbol? candidate)
+                  (seq? (eval candidate)))
+             (do 
+               (log/info (str "candidate: " candidate))
+               (gen-all
+                (lazy-shuffle
+                 (eval candidate))
+                (str label " -> " candidate)
+                filter-against lexfn-sem-impl))
+             true
+             nil)))))
 
 (defmacro gen-ch21 [head comp]
   `(do ~(log/debug "gen-ch21 macro compile-time.")
