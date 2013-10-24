@@ -1,6 +1,6 @@
 (ns italianverbs.rules
   (:refer-clojure :exclude [get-in resolve])
-  (:use [italianverbs.generate :only (rewrite-as gen-all lazy-shuffle over3)]
+  (:use [italianverbs.generate :only (rewrite-as generate lazy-shuffle over3)]
         [italianverbs.grammar]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.lexicon :only (it)]
@@ -92,10 +92,10 @@
   (take 1 (shuffle sents)))
 
 (defn sentence [ & [ with ]]
-  (first (take 1 (gen-all (shuffle sents) "sents" (if with with :top) sem-impl))))
+  (first (take 1 (generate (shuffle sents) "sents" (if with with :top) sem-impl))))
 
 (defn nounphrase [ & [ with ]]
-  (first (take 1 (gen-all (shuffle np) "nps" (if with with :top) sem-impl))))
+  (first (take 1 (generate (shuffle np) "nps" (if with with :top) sem-impl))))
 
 (defn over [parent child1 child2]
   (over3 (over3 parent child1 sem-impl it) child2 sem-impl it))

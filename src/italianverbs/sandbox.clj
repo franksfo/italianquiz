@@ -57,16 +57,8 @@
    :timeout 10000 ;; for development, set high (1,000,000 = 1000 seconds)
    :namespace 'italianverbs.sandbox))
 
-;; working on:
-;; (workbook-sandbox (read-string "(generate sents 'sents' :top sem-impl)"))
-
-;; does not yet work (but ultimate goal) : (workbook-sandbox (read-string "(sentence)"))
-;; this works for some reason:
-
-;(workbook-sandbox (read-string "(fo (take 1 (gen-all (shuffle sents) \"sents\" :top sem-impl)))"))
-;; non sandbox:
-(fo (take 1 (gen-all (shuffle sents) "sents" :top sem-impl)))
-(fo (take 1 (repeatedly #(take 1 (gen-all (shuffle sents) "sents" :top sem-impl)))))
+(fo (take 1 (generate (shuffle sents) "sents" :top sem-impl)))
+(fo (take 1 (repeatedly #(take 1 (generate (shuffle sents) "sents" :top sem-impl)))))
 
 
 

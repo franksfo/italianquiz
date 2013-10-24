@@ -13,7 +13,7 @@
             [italianverbs.unify :as unify]
             [clojure.string :as string]))
 
-(def phrase-times-lexicon-cache false)
+(def phrase-times-lexicon-cache true)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
@@ -378,8 +378,10 @@
   (if (not (empty? heads))
     (or
      (not (fail? (moreover-comp (moreover-head parent
-                                               (first heads))
-                                candidate-comp)))
+                                               (first heads)
+                                               sem-impl)
+                                candidate-comp
+                                sem-impl)))
      (find-some-head-for parent (rest heads) candidate-comp))))
 
 ;; standard rule-caching disclaimer:

@@ -340,132 +340,25 @@
         true
         (str (if label (str label)))))
 
-(defn myfoo [alternatives label filter-against lexfn-sem-impl]
-  (log/info (str "myfoo: alternatives: " alternatives))
-  (log/info (str "myfoo: label: " label))
-  (log/info (str "myfoo: filter-against: " filter-against))
-  (log/info (str "myfoo: lexfn-sem-impl: " lexfn-sem-impl))
+(declare generate)
 
-  (if (and (not (empty? alternatives))
-           (first alternatives))
-    (let [debug (log/info (str "myfoo: alternatives is not empty."))
-          candidate (first alternatives)
-          label (if label label (if (map? label) (:label candidate)))
-          debug (log/info (str "myfoo: candidate: " candidate " : " label))
-          debug (log/info (str "symbol? candidate:" (symbol? candidate)))
-          debug (log/info (str "map? candidate:" (map? candidate)))
-          debug (log/info (str "not nil schema:" (not (nil? (:schema candidate)))))
-          ]
-      
-
-      (cond (and (symbol? candidate)
-                 (seq? (eval candidate)))
-            (do
-              (log/info (str "LAZY-SHUFFLE: " (lazy-shuffle (eval candidate))))
-              (log/info (str "filter-against: " filter-against))
-              (log/info (str "lexfn-sem-impl: " lexfn-sem-impl))
-              (log/info (str "calling stuff.."))
-              (myfoo (lazy-shuffle (eval candidate))
-                     (str label " -> " candidate)
-                     filter-against lexfn-sem-impl)
-              (log/info (str "done calling stuff."))))
-
-      (let [debug
-            (log/info "HELLO.")
-            result1
-            (lazy-cat
-             '(a b))
-
-            result12
-            (log/info "COND 12.")
-
-            result14
-            (log/info "COND14.")
-
-            result2
-            (lazy-cat
-             (cond (and false (symbol? candidate)
-                        (seq? (eval candidate)))
-
-                   (do
-                     (log/info "gen-all: making recursive call with eval of candidate.")
-                     (log/debug (str "gen-all: candidate: " candidate " evals to a seq."))
-                     (myfoo
-                      (lazy-shuffle
-                       (eval candidate))
-                      (str label " -> " candidate)
-                      filter-against lexfn-sem-impl))
-
-                   true
-                   (do (log/info "welp.")
-                       nil)
-
-                   (and (map? candidate)
-                        (not (nil? (:schema candidate))))
-                   (do (log/info "WTF.")
-                       nil)))
-
-            result3
-            (log/info "post-lazycat")
-;             (cond (and (map? candidate)
-;                        (not (nil? (:schema candidate))))
-;                   (log/info "WTF0")))
-            result
-            (lazy-cat
-             (cond (and (symbol? candidate)
-                        (seq? (eval candidate)))
-
-                   (do
-                     (log/info "GOT HERE..")
-                     (log/debug (str "gen-all: candidate: " candidate " evals to a seq."))
-                     (myfoo
-                      (lazy-shuffle
-                       (eval candidate))
-                      (str label " -> " candidate)
-                      filter-against lexfn-sem-impl))
-
-                   (and (map? candidate)
-                        (not (nil? (:schema candidate))))
-                   (log/info "WTF.")
-;                   (let [schema (:schema candidate)
-;                         head (:head candidate)
-;                         comp (:comp candidate)]
-;                     (log/info (str "gen-all: candidate is a schema: " candidate))
-;                     (log/info (str "gen-all: filter-against: " filter-against)))
-
-
-
-
-                   true
-                   nil))]
-        (log/info (str "RESULT:" result))))
-    (log/info (str "alternatives are empty."))))
-
-(defn something-with-eval [sym]
-  (eval sym))
-
-(declare gen-all)
-
-(defn gen-all-candidate [candidate label filter-against lexfn-sem-impl]
-  (log/info "gen-all-candidate: candidate with type: " (type candidate))
+(defn generate-from-candidate [candidate label filter-against lexfn-sem-impl]
+  (log/info "generate-from-candidate: candidate with type: " (type candidate))
   (cond (and (symbol? candidate)
              (seq? (eval candidate)))
-        (do
-          (log/info (str "gen-all: candidate: " candidate " evals to a seq."))
-          (log/info  (str "calling gen-all with:" (eval candidate)))
-          (gen-all
-           (lazy-shuffle
-            (eval candidate))
-           (str label " -> " candidate)
-           filter-against lexfn-sem-impl))
+        (generate
+         (lazy-shuffle
+          (eval candidate))
+         (str label " -> " candidate)
+         filter-against lexfn-sem-impl)
 
         (and (map? candidate)
              (not (nil? (:schema candidate))))
         (let [schema (:schema candidate)
               head (:head candidate)
               comp (:comp candidate)]
-          (log/debug (str "gen-all: candidate is a schema: " candidate))
-          (log/debug (str "gen-all: filter-against: " filter-against))
+          (log/debug (str "generate: candidate is a schema: " candidate))
+          (log/debug (str "generate: filter-against: " filter-against))
           ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
           ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
           ;; in a particular order (i.e. either head is first or complement is first).
@@ -489,7 +382,7 @@
                          shuffled-heads (lazy-shuffle (eval head))]
                      (log/debug (str "INTERMEDIATE: " intermediate))
                      (log/debug (str "FIRST HEAD: " (first shuffled-heads)))
-                     (gen-all shuffled-heads
+                     (generate shuffled-heads
                               (if false ;; show or don't show schema (e.g. cc10)
                                 (str label ":" schema " -> {H:" head "}")
                                 (str label " -> {H:" head "}"))
@@ -500,7 +393,7 @@
                  ;; complement: filter-by will filter candidate complements according to each head
                  ;; generated in immediately above, in (1).
                  (fn [parent-with-head]
-                   (gen-all (if (symbol? comp)
+                   (generate (if (symbol? comp)
                               (lazy-shuffle (eval comp)) (lazy-shuffle comp))
                             (if false ;; show or don't show schema (e.g. cc10)
                               (str label " : " schema " -> {C:" comp "}")
@@ -517,51 +410,21 @@
              (not (nil? filter-against)))
         (let [result (unifyc filter-against candidate)]
           (if (not (unify/fail? result))
-            (do (log/info (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": ok."))
+            (do (log/info (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate) ": ok."))
                 (list result))
-            (do (log/debug (str "gen-all: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
+            (do (log/debug (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
                 nil)))
         true (throw (Exception. (str "don't know what to do with this; type=" (type candidate))))))
 
-(defn gen-all [alternatives label filter-against lexfn-sem-impl]
-  (log/info "gen-all: start.")
-  (log/info "gen-all: (empty? alternatives):" (empty? alternatives))
-  (log/info "gen-all: (first alternatives):" (first alternatives))
-  (log/info "gen-all: (symbol? candidate):" (symbol? (first alternatives)))
-  (log/info "gen-all: label: " label)
-  (if (symbol? (first alternatives))
-    (do (log/info "candidate is a symbol: " (first alternatives))
-        (log/info "gen-all: (eval (first alternatives)):" (eval (first alternatives))))
-    (log/info "gen-all: candidate is not a symbol."))
-
+(defn generate [alternatives label filter-against lexfn-sem-impl]
   (if (and (not (empty? alternatives))
            (first alternatives))
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
         (lazy-cat
-         (gen-all-candidate candidate label filter-against lexfn-sem-impl)
+         (generate-from-candidate candidate label filter-against lexfn-sem-impl)
          (if (not (empty? (rest alternatives)))
-           (gen-all (rest alternatives) label filter-against lexfn-sem-impl))))))
-
-(defn generate [alternatives label filter-against lexfn-sem-impl]
-  (log/info (str "GENERATE: alts:" alternatives))
-  (log/info (str "GENERATE: label:" label))
-  (if (and (not (empty? alternatives))
-           (first alternatives))
-    (let [candidate (first alternatives)
-          label (if label label (if (map? label) (:label candidate)))]
-      (lazy-cat
-       (cond (and (symbol? candidate)
-                  (seq? (eval candidate)))
-             (do
-               (log/info (str "candidate: " candidate))
-               (gen-all
-                (lazy-shuffle
-                 (eval candidate))
-                (str label " -> " candidate)
-                filter-against lexfn-sem-impl))
-             true
-             nil)))))
+           (generate (rest alternatives) label filter-against lexfn-sem-impl))))))
 
 (defmacro gen-ch21 [head comp]
   `(do ~(log/debug "gen-ch21 macro compile-time.")
