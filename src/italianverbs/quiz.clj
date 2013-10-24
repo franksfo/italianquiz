@@ -320,7 +320,12 @@
    production
    (random-sentence)
    true
-   (rules/sentence :top)
+   (do
+     ;; magic from: http://stackoverflow.com/questions/8868872/clojure-symbol-evaluation-error
+     (use 'italianverbs.rules)
+     (use 'italianverbs.ug)
+     (use 'italianverbs.grammar)
+     (finalize (rules/sentence)))
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)
@@ -528,6 +533,7 @@
 
 (defn fillqueue [request]
   (let [session (session/request-to-session request)]
+    (log/info (str "filling queue with request: " request))
     (while
         (let [queue (db/fetch :queue :where {:session session})]
           (or (nil? queue)
@@ -676,5 +682,3 @@
 
 ;; need to do this to get the workbook to work, for some reason.
 ;(def do-the-minimum (take 1 (gram/minimal-grammatical-initialization)))
-
-
