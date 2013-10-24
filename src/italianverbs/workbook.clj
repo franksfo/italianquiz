@@ -11,7 +11,7 @@
    [italianverbs.sandbox :as sandbox]
    [italianverbs.lev :as lev]))
 
-(defn workbookq [expr attrs]
+(defn workbookq [expr]
   (do
     ;; TODO: add timing information for each evaluation.
     (log/info (str "workbookq: evaluating expression: " expr))
@@ -87,4 +87,4 @@
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
-         (workbookq search-query nil))]])))
+         (workbookq search-query))]])))

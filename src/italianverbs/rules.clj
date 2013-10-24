@@ -91,7 +91,6 @@
 (defn foo []
   (take 1 (shuffle sents)))
 
-
 (defn sentence [ & [ with ]]
   (first (take 1 (gen-all (shuffle sents) "sents" (if with with :top) sem-impl))))
 

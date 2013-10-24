@@ -301,7 +301,7 @@
     (do
       (log/debug (str "gen14: done.")))))
 
-;; see example usage in grammar.clj.
+;; see example usage in rules.clj.
 (defmacro rewrite-as [name value]
   (if (ns-resolve *ns* (symbol (str name)))
     `(def ~name (cons ~value ~name))
@@ -441,17 +441,36 @@
         (log/info (str "RESULT:" result))))
     (log/info (str "alternatives are empty."))))
 
+(defn something-with-eval [sym]
+  (eval sym))
+
 (defn gen-all [alternatives label filter-against lexfn-sem-impl]
+  (log/info "gen-all: start.")
+  (log/info "gen-all: (empty? alternatives):" (empty? alternatives))
+  (log/info "gen-all: (first alternatives):" (first alternatives))
+  (log/info "gen-all: (symbol? candidate):" (symbol? (first alternatives)))
+  (log/info "gen-all: (eval (first alternatives)):" (eval (first alternatives)))
+
   (if (and (not (empty? alternatives))
            (first alternatives))
     (let [candidate (first alternatives)
           label (if label label (if (map? label) (:label candidate)))]
+      (log/info "gen-all: non-empty alternatives and there's a candidate with type: " (type (eval candidate))  " in the list of alternatives (1).")))
+
+  (if (and (not (empty? alternatives))
+           (first alternatives))
+    (let [candidate (first alternatives)
+          label (if label label (if (map? label) (:label candidate)))]
+      (log/info "gen-all: non-empty alternatives and there's a candidate with type: " (type (eval candidate))  " in the list of alternatives.")
       (lazy-cat
        (cond (and (symbol? candidate)
                   (seq? (eval candidate)))
              (do
                (log/info "GOT HERE..")
-               (log/debug (str "gen-all: candidate: " candidate " evals to a seq."))
+               (log/info (str "gen-all: candidate: " candidate " evals to a seq."))
+               (log/info  (str "calling gen-all with:" (eval candidate)))
+;               (log/info (str "calling gen-all with:"
+;                              (lazy-shuffle (eval candidate))))
                (gen-all
                 (lazy-shuffle
                  (eval candidate))
