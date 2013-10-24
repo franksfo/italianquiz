@@ -11,7 +11,7 @@
    [italianverbs.sandbox :as sandbox]
    [italianverbs.lev :as lev]))
 
-(defn workbookq [expr]
+(defn workbookq [expr notused]
   (do
     ;; TODO: add timing information for each evaluation.
     (log/info (str "workbookq: evaluating expression: " expr))

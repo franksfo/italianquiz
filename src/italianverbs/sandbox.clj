@@ -62,4 +62,8 @@
 
 ;; does not yet work (but ultimate goal) : (workbook-sandbox (read-string "(sentence)"))
 ;; this works for some reason:
+
 ;(workbook-sandbox (read-string "(fo (take 1 (gen-all (shuffle sents) \"sents\" :top sem-impl)))"))
+;; non sandbox:
+(fo (take 1 (gen-all (shuffle sents) "sents" :top sem-impl)))
+
