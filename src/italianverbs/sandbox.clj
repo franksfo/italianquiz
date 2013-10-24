@@ -66,4 +66,7 @@
 ;(workbook-sandbox (read-string "(fo (take 1 (gen-all (shuffle sents) \"sents\" :top sem-impl)))"))
 ;; non sandbox:
 (fo (take 1 (gen-all (shuffle sents) "sents" :top sem-impl)))
+(fo (take 1 (repeatedly #(take 1 (gen-all (shuffle sents) "sents" :top sem-impl)))))
+
+
 
