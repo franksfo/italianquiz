@@ -2,21 +2,11 @@
 ;; generate/ should not depend on those - the grammar and lexicon are independent of
 ;; generation.
 (ns italianverbs.test.generate
-  (:refer-clojure :exclude [get-in merge resolve])
-  (:use [clojure.test]
-        [italianverbs.unify]
-        [italianverbs.generate])
+  (:use [clojure.test])
   (:require
    [clojure.tools.logging :as log]
-   [clojure.string :as string]
-   [clojure.set :as set]
-   [somnium.congomongo :as mongo]
-   [italianverbs.html :as html]
    [italianverbs.unify :as unify]
-   [italianverbs.lexiconfn :as lexfn]
-   [italianverbs.grammar :as gram]
-   [italianverbs.morphology :as morph]
-   [italianverbs.search :as search]))
+   [italianverbs.lexiconfn :as lexfn]))
 
 (deftest stack-overflow-error
     "merge has a problem: we hit StackOverflowError java.util.regex.Pattern$BmpCharProperty.match (Pattern.java:3366) when this test is run.
