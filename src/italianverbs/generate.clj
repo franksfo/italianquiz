@@ -217,7 +217,7 @@
                                       lexfn-sem-impl rest-complements)))))))))
 
 (defn gen14 [phrase heads complements filter-against post-unify-fn recursion-level lexfn-sem-impl]
-  (log/info (str "gen14: phrase: " (:comment phrase) "; heads type: " (type heads)))
+  (log/debug (str "gen14: phrase: " (:comment phrase) "; heads type: " (type heads)))
   (log/debug (str "gen14: filter-against: " filter-against))
   (log/debug (str "gen14: fn? heads:" (fn? heads)))
   (log/debug (str "gen14: not empty? heads: " (and (not (fn? heads)) (not (empty? heads)))))
@@ -343,7 +343,7 @@
 (declare generate)
 
 (defn generate-from-candidate [candidate label filter-against lexfn-sem-impl]
-  (log/info "generate-from-candidate: candidate with type: " (type candidate))
+  (log/debug "generate-from-candidate: candidate with type: " (type candidate))
   (cond (and (symbol? candidate)
              (seq? (eval candidate)))
         (generate

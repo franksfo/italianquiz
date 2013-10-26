@@ -1,14 +1,16 @@
 (ns italianverbs.rules
-  (:refer-clojure :exclude [get-in resolve])
-  (:use [italianverbs.generate :only (rewrite-as generate lazy-shuffle over3)]
-        [italianverbs.grammar]
-        [italianverbs.lexiconfn :only (unify sem-impl)]
-        [italianverbs.lexicon :only (it)]
-        [clojure.repl :only (source)]
-        [italianverbs.unify :only (get-in serialize deserialize copy)]
-        [italianverbs.ug]
-        [italianverbs.morphology :only (fo fof)])
-  (:require [clojure.tools.logging :as log]))
+;  (:refer-clojure :exclude [get-in])
+  (:require [clojure.tools.logging :as log]
+            [clojure.core :as core])
+  (:use 
+   [italianverbs.generate :only (rewrite-as generate lazy-shuffle over3)]
+   [italianverbs.grammar :only (aux-verbs common-nouns dets intransitive-verbs modal-verbs pronouns propernouns sent-adverbs transitive-verbs)]
+   [italianverbs.lexiconfn :only (sem-impl)]
+   [italianverbs.lexicon :only (it)]
+   [italianverbs.morphology :only (fo)]
+   [italianverbs.unify]
+   [italianverbs.ug :only (cc10 ch21 hh10 hh10 hh21 sent-impl)]
+))
 
 (log/info "started loading rules.")
 
@@ -88,7 +90,7 @@
 (rewrite-as sents 'sentence-with-modifier)
 
 ;; -- useful functions
-(defn foo []
+(defn rules []
   (take 1 (shuffle sents)))
 
 (defn sentence [ & [ with ]]
@@ -101,3 +103,4 @@
   (over3 (over3 parent child1 sem-impl it) child2 sem-impl it))
 
 (log/info "done loading rules.")
+
