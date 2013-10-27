@@ -1,22 +1,21 @@
 (ns italianverbs.workbook
   (:refer-clojure :exclude [get-in merge resolve find])
   (:require
-   [hiccup.core :refer :all]
+   [clojail.core :refer [sandbox]]
+   [clojail.testers :refer :all]
    [clojure.set :refer :all]
    [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; we can use core's get-in as 'core/get-in'
+   [clojure.string :as string]
+   [clojure.tools.logging :as log]
+   [hiccup.core :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
    [italianverbs.morphology :refer [fo]]
    [italianverbs.rules :refer :all]
-   [italianverbs.unify :refer :all]
    [italianverbs.ug :refer :all]
-   [somnium.congomongo :as mongo]
-   [clojail.core :refer [sandbox]]
-   [clojail.testers :refer :all]
-   [clojure.tools.logging :as log]
-   [clojure.string :as string]
-))
+   [italianverbs.unify :refer :all]
+   [somnium.congomongo :as mongo]))
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
