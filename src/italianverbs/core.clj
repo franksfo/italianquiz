@@ -14,7 +14,6 @@
    [italianverbs.html :as ihtml]
    [italianverbs.search :as search]
    [italianverbs.workbook :as workbook]
-   [italianverbs.sandbox :as sandbox]
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
    ))
