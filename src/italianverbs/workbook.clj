@@ -4,6 +4,7 @@
    [hiccup.core :refer :all]
    [clojure.set :refer :all]
    [clojure.core :exclude [get-in]]
+   [clojure.core :as core] ;; we can use core's get-in as 'core/get-in'
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
    [italianverbs.morphology :refer [fo]]
