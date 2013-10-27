@@ -1,11 +1,10 @@
 (ns italianverbs.unify
   (:refer-clojure :exclude [get-in merge resolve])
-  (:use [clojure.set]
-        [clojure.core :exclude [get-in resolve merge]]
-        [clojure.tools.logging])
   (:require
-   [clojure.tools.logging :as log]
-   [clojure.string :as string]))
+   [italianverbs.unify :refer :all]
+   [clojure.set :refer :all]
+   [clojure.string :as string]
+   [clojure.tools.logging :as log]))
 
 (defn get-head [sign]
   (if (get sign :head)
