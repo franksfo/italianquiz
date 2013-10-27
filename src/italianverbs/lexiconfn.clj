@@ -1,11 +1,13 @@
 (ns italianverbs.lexiconfn
-  (:use [clojure.set]
-        [clojure.core :exclude (get-in)])
+  (:refer-clojure :exclude [get-in merge resolve find])
+  (:use [clojure.set])
   (:require
    [clojure.set :as set]
    [clojure.tools.logging :as log]
+   [clojure.core :as core]
    [italianverbs.morphology :as morph]
-   [italianverbs.unify :as fs]
+   ;; We redefine unify here: TODO: just use unifyc where appropriate.
+   [italianverbs.unify :as unify :exclude (unify)]
    [somnium.congomongo :as mongo]))
 
 ;; begin db-specific stuff. for now, mongodb; might switch/parameterize later.
@@ -13,8 +15,8 @@
 (mongo/make-connection "mydb" :host "localhost")
 
 (defn unify [ & args]
-  "like fs/unify, but fs/copy each argument before unifying."
-  (apply fs/unifyc args))
+  "like unify/unify, but unify/copy each argument before unifying."
+  (apply unify/unifyc args))
 
 (defn encode-where-query [& where]
   "encode a query as a set of index queries."
@@ -23,14 +25,14 @@
 (defn fetch2 [& where]
   (let [where (encode-where-query where)]
     (mapcat (fn [entry]
-              (let [deserialized (fs/deserialize (:entry entry))]
-                (if (not (= (fs/unify deserialized where) :fail))
+              (let [deserialized (unify/deserialize (:entry entry))]
+                (if (not (= (unify deserialized where) :fail))
                   (list deserialized))))
             (mongo/fetch :lexicon))))
 
 (defn fetch-all []
   (mapcat (fn [entry]
-            (let [deserialized (fs/deserialize (:entry entry))]
+            (let [deserialized (unify/deserialize (:entry entry))]
               (list deserialized)))
           (mongo/fetch :lexicon)))
 
@@ -48,7 +50,7 @@
   (mongo/destroy! :lexicon {}))
 
 (defn add-lexeme [fs]
-  (mongo/insert! :lexicon {:entry (fs/serialize fs)})
+  (mongo/insert! :lexicon {:entry (unify/serialize fs)})
   fs)
 
 ;; end db-specific stuff.
@@ -114,13 +116,13 @@
   (cond
    (= input :top) input
    true
-   (let [activity (if (= (fs/get-in input '(:activity))
+   (let [activity (if (= (unify/get-in input '(:activity))
                          true)
                     {:animate false
                      :artifact false
                      :consumable false
                      :part-of-human-body false})
-         animate (if (= (fs/get-in input '(:animate))
+         animate (if (= (unify/get-in input '(:animate))
                         true)
                    {:activity false
                     :artifact false
@@ -131,32 +133,32 @@
                     :drinkable false
                     :speakable false
                     :place false}{})
-         artifact (if (= (fs/get-in input '(:artifact))
+         artifact (if (= (unify/get-in input '(:artifact))
                          true)
                     {:animate false
                      :activity false
                      :physical-object true}{})
 
-         buyable (if (= (fs/get-in input '(:buyable))
+         buyable (if (= (unify/get-in input '(:buyable))
                         true)
                    {:human false
                     :part-of-human-body false})
 
-         city (if (= (fs/get-in input '(:city))
+         city (if (= (unify/get-in input '(:city))
                      true)
                 {:place true
                  :human false
                  :animate false
                  :legible false})
 
-         clothing (if (= (fs/get-in input '(:clothing))
+         clothing (if (= (unify/get-in input '(:clothing))
                          true)
                     {:animate false
                      :place false
                      :physical-object true}{})
 
 
-         consumable (if (= (fs/get-in input '(:consumable)) true)
+         consumable (if (= (unify/get-in input '(:consumable)) true)
                       {:activity false
                        :buyable true
                        :furniture false
@@ -165,32 +167,32 @@
                        :physical-object true
                        :speakable false})
 
-         consumable-false (if (= (fs/get-in input '(:consumable)) false)
+         consumable-false (if (= (unify/get-in input '(:consumable)) false)
                             {:drinkable false
                              :edible false} {})
 
          drinkable
          ;; drinkables are always mass nouns.
-         (if (= (fs/get-in input '(:drinkable)) true)
+         (if (= (unify/get-in input '(:drinkable)) true)
            {:mass true})
 
          drinkable-xor-edible-1
          ;; things are either drinkable or edible, but not both (except for weird foods
          ;; like pudding or soup). (part 1: edible)
-         (if (and (= (fs/get-in input '(:edible)) true)
-                  (= (fs/get-in input '(:drinkable) :notfound) :notfound))
+         (if (and (= (unify/get-in input '(:edible)) true)
+                  (= (unify/get-in input '(:drinkable) :notfound) :notfound))
            {:drinkable false}{})
 
          drinkable-xor-edible-2
          ;; things are either drinkable or edible, but not both (except for weird foods
          ;; like pudding or soup). (part 2: drinkable)
-         (if (and (= (fs/get-in input '(:drinkable)) true)
-                  (= (fs/get-in input '(:edible) :notfound) :notfound))
+         (if (and (= (unify/get-in input '(:drinkable)) true)
+                  (= (unify/get-in input '(:edible) :notfound) :notfound))
            {:edible false})
 
          ;; qualities of foods and drinks.
-         edible (if (or (= (fs/get-in input '(:edible)) true)
-                        (= (fs/get-in input '(:drinkable)) true))
+         edible (if (or (= (unify/get-in input '(:edible)) true)
+                        (= (unify/get-in input '(:drinkable)) true))
                   {:consumable true
                    :human false
                    :pet false
@@ -200,7 +202,7 @@
                    :furniture false
                    :part-of-human-body false}{})
 
-         furniture (if (= (fs/get-in input '(:furniture))
+         furniture (if (= (unify/get-in input '(:furniture))
                           true)
                      {:artifact true
                       :animate false
@@ -211,7 +213,7 @@
                       :place false
                       :speakable false})
 
-         human (if (= (fs/get-in input '(:human))
+         human (if (= (unify/get-in input '(:human))
                       true)
                  {:activity false
                   :buyable false
@@ -222,14 +224,14 @@
                   :drinkable false
                   :speakable false
                   :place false}{})
-         inanimate (if (= (fs/get-in input '(:animate))
+         inanimate (if (= (unify/get-in input '(:animate))
                            false)
                      {:human false
                       :part-of-human-body false}{})
 
          ;; legible(x) => artifact(x),drinkable(x,false),edible(x,false),human(x,false)
          legible
-         (if (= (fs/get-in input '(:legible)) true)
+         (if (= (unify/get-in input '(:legible)) true)
            {:artifact true
             :drinkable false
             :human false
@@ -238,7 +240,7 @@
             :edible false})
 
          material-false
-         (if (= (fs/get-in input '(:material)) :false)
+         (if (= (unify/get-in input '(:material)) :false)
            {:edible false
             :animate false
             :drinkable false
@@ -246,19 +248,19 @@
             :visible false})
 
          non-places (if (or
-                         (= (fs/get-in input '(:legible)) true)
-                         (= (fs/get-in input '(:part-of-human-body)) true)
-                         (= (fs/get-in input '(:pred)) :fiore)
-                         (= (fs/get-in input '(:pred)) :scala))
+                         (= (unify/get-in input '(:legible)) true)
+                         (= (unify/get-in input '(:part-of-human-body)) true)
+                         (= (unify/get-in input '(:pred)) :fiore)
+                         (= (unify/get-in input '(:pred)) :scala))
                    {:place false})
 
          ;; artifact(x,false) => legible(x,false)
          not-legible-if-not-artifact
-         (if (= (fs/get-in input '(:artifact)) false)
+         (if (= (unify/get-in input '(:artifact)) false)
            {:legible false})
 
          part-of-human-body
-         (if (= (fs/get-in input '(:part-of-human-body)) true)
+         (if (= (unify/get-in input '(:part-of-human-body)) true)
            {:speakable false
             :buyable false
             :animate false
@@ -268,14 +270,14 @@
             :artifact false})
 
          ;; we don't eat pets (unless things get so desperate that they aren't pets anymore)
-         pets (if (= (fs/get-in input '(:pet))
+         pets (if (= (unify/get-in input '(:pet))
                      true)
                 {:edible false
                  :buyable true
                  :physical-object true
                  })
 
-         place (if (= (fs/get-in input '(:place))
+         place (if (= (unify/get-in input '(:place))
                       true)
                  {:activity false
                   :animate false
@@ -288,12 +290,13 @@
          ]
      (let [merged
            (if (= input :fail) :fail
-               (fs/merge input animate artifact buyable city clothing consumable consumable-false drinkable
-                         drinkable-xor-edible-1 drinkable-xor-edible-2
-                         edible furniture human inanimate
-                         legible material-false non-places
-                         not-legible-if-not-artifact part-of-human-body pets place
-                         ))]
+               ;; don't need the features of unify/merge (at least not yet), so use core/merge.
+               (core/merge input animate artifact buyable city clothing consumable consumable-false drinkable
+                           drinkable-xor-edible-1 drinkable-xor-edible-2
+                           edible furniture human inanimate
+                           legible material-false non-places
+                           not-legible-if-not-artifact part-of-human-body pets place
+                      ))]
        (log/debug (str "sem-impl so far: " merged))
        (if (not (= merged input)) ;; TODO: make this check more efficient: count how many rules were hit
          ;; rather than equality-check to see if merged has changed.
@@ -562,8 +565,8 @@
       (let [first-val (first coll)]
         (if (nil? first-val)
           matches
-          (let [result (fs/match (fs/copy query) (fs/copy first-val))]
-            (if (not (fs/fail? result))
+          (let [result (unify/match (unify/copy query) (unify/copy first-val))]
+            (if (not (unify/fail? result))
               (recur (rest coll)
                      (cons first-val matches))
               (recur (rest coll)
@@ -580,7 +583,7 @@
         ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
         ;; (except for mass nouns which are only singular)
         number (ref :top)
-        ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (fs/match) with
+        ;; common nouns are neither nominative or accusative. setting their case to :top allows them to (match) with
         ;; verbs' case specifications like {:case {:not :acc}} or {:case {:not :nom}}.
         case (ref :top)
         person (ref :top)
@@ -679,25 +682,25 @@
   ;; the :number value equal to :top, then set it to :singular, because
   ;; a noun is canonically singular.
   ;; TODO: remove this first test: probably doesn't match anything
-  ;; - should be (get-in map '(:synsem :cat)), not (:cat map).
+  ;; - should be (unify/get-in map '(:synsem :cat)), not (:cat map).
   (let [map
-        (if (or (= (fs/get-in map '(:synsem :cat)) :det)
-                (= (fs/get-in map '(:synsem :cat)) :adverb))
+        (if (or (= (unify/get-in map '(:synsem :cat)) :det)
+                (= (unify/get-in map '(:synsem :cat)) :adverb))
           (unify
            subcat0
            map)
           map)
 
         map
-        (if (and (= (fs/get-in map '(:synsem :cat)) :adjective)
-                 (not (= (fs/get-in map '(:synsem :sem :comparative)) true)))
+        (if (and (= (unify/get-in map '(:synsem :cat)) :adjective)
+                 (not (= (unify/get-in map '(:synsem :sem :comparative)) true)))
           (unify
            subcat0
            map)
           map)
 
         map
-        (if (= (fs/get-in map '(:synsem :cat)) :sent-modifier)
+        (if (= (unify/get-in map '(:synsem :cat)) :sent-modifier)
           (unify
            {:synsem {:subcat {:1 {:cat :verb
                                   :subcat '()}
@@ -707,9 +710,9 @@
 
         ;; in italian, prepositions are always initial (might not need this)
         map
-        (if (= (fs/get-in map '(:synsem :cat)) :prep)
+        (if (= (unify/get-in map '(:synsem :cat)) :prep)
           map map)
-;          (let [italian (fs/get-in map '(:italian))]
+;          (let [italian (unify/get-in map '(:italian))]
 ;            (if (string? italian)
 ;              (merge map
 ;                     {:italian {:italian italian
@@ -734,8 +737,8 @@
 ;; italian and english are strings, featuremap is a map of key->values.
 (defn add [italian english & featuremaps]
   (let [merged
-        (apply fs/merge
-               (concat (map #'fs/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
+        (apply unify/merge
+               (concat (map #'unify/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
                        (list {:english english}
                              {:italian italian})))]
     (add-lexeme (implied merged))))
@@ -750,8 +753,9 @@
     (add-infl
      italian
      (rest types)
-     (merge (first types) result))
+     (unify/merge (first types) result))
     (add italian nil result)))
+
 (defn add-plural [fs types & [italian-plural english-plural]]
   (add
    (if italian-plural italian-plural
@@ -759,7 +763,7 @@
                           (get fs :gender)))
    (if english-plural english-plural
      (english-pluralize (get fs :english)))
-   (fs/merge
+   (unify/merge
     types
     fs
     {:det {:number :plural}}
@@ -768,7 +772,7 @@
 (defn add-with-plural [italian english featuremap types & [italian-plural english-plural]]
   (add-plural
    (add italian english
-        (fs/merge
+        (unify/merge
          types
          featuremap
          {:det {:number :singular}}
@@ -786,5 +790,5 @@
      italian
      english
      (rest types)
-     (merge (first types) result))
-    (add italian nil (merge {:english english} result))))
+     (unify/merge (first types) result))
+    (add italian nil (unify/merge {:english english} result))))

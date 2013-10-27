@@ -5,16 +5,19 @@
    [clojail.testers :refer :all]
    [clojure.set :refer :all]
    [clojure.core :exclude [get-in]]
-   [clojure.core :as core] ;; we can use core's get-in as 'core/get-in'
+   [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [hiccup.core :refer :all]
+   [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
+   [italianverbs.lexicon :refer :all]
+   [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [fo]]
    [italianverbs.rules :refer :all]
    [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer :all]
+   [italianverbs.unify :refer :all :exclude [unify]]
    [somnium.congomongo :as mongo]))
 
 ;; Sandbox specification derived from:
@@ -41,12 +44,14 @@
                         clojure.lang.Var clojure.lang.RT
                         ]))
    :refer-clojure false
+   ;; for development-only: for production, use much smaller value.
+   :timeout 100000
    :namespace 'italianverbs.workbook))
 
 (defn workbookq [expr notused]
   (do
     ;; TODO: add timing information for each evaluation.
-    (log/info (str "workbookq: evaluating expression: " expr))
+    (log/info (str "workbookq: evaluating expression: \"" expr "\""))
     (if expr
       (let [output
             (string/join " "
@@ -101,7 +106,7 @@
                               ;; evaluation.
                               (str "<div style='font-family:monospace'>" loaded " (<b>" (type loaded) "</b>)" "</div>"))
                              "</div>"))))]
-        (log/info (str "workbookq: done evaluating: " expr))
+        (log/info (str "workbookq: done evaluating: \"" expr "\""))
         output))))
 
 (defn workbook-ui [request]
@@ -120,4 +125,15 @@
        (if search-query
          (workbookq search-query))]])))
 
+;; seem to need this sometimes, to avoid initialization errors:
 (def populate-ns (sentence))
+
+;; tree-building functions: useful for developing grammars.
+
+(defn over [parent child]
+  (generate (shuffle parent) "parent" {:comp child} sem-impl))
+
+;(defn over [parent child1 child2]
+;  (over3 (over3 parent child1 sem-impl it) child2 sem-impl it))
+
+

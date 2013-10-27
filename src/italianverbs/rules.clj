@@ -102,8 +102,5 @@
 (defn nounphrase [ & [ with ]]
   (first (take 1 (generate (shuffle np) "nps" (if with with :top) sem-impl))))
 
-(defn over [parent child1 child2]
-  (over3 (over3 parent child1 sem-impl it) child2 sem-impl it))
-
 (log/info "done loading rules.")
 

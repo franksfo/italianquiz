@@ -1,19 +1,16 @@
 (ns italianverbs.generate
+  (:refer-clojure :exclude [get-in merge resolve find])
   (:use [clojure.stacktrace]
-        [italianverbs.morphology :only (fo)]
-        [clojure.core :exclude (get-in)])
+        [italianverbs.morphology :only (fo)])
   (:require
    [clojure.tools.logging :as log]
    [italianverbs.lev :as lev]
+   [italianverbs.unify :refer :all]
    [italianverbs.unify :as unify]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
    [italianverbs.search :as search]
    [clojure.string :as string]))
-
-(defn unifyc [ & args]
-  "like fs/unify, but fs/copy each argument before unifying."
-  (apply unify/unifyc args))
 
 (defn printfs [fs & filename]
   "print a feature structure to a file. filename will be something easy to derive from the fs."
@@ -410,7 +407,7 @@
              (not (nil? filter-against)))
         (let [result (unifyc filter-against candidate)]
           (if (not (unify/fail? result))
-            (do (log/info (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate) ": ok."))
+            (do (log/info (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate)))
                 (list result))
             (do (log/debug (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
                 nil)))
