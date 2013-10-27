@@ -120,3 +120,4 @@
        (if search-query
          (workbookq search-query))]])))
 
+(def populate-ns (sentence))
