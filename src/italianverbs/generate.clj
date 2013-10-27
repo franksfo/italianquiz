@@ -96,6 +96,8 @@
    :else
    (moreover-head parent child lexfn-sem-impl)))
 
+(declare gen14-inner)
+
 (defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level
                    lexfn-sem-impl [ & filtered-complements]]
   (let [debug (log/debug (str "gen14-inner begin: recursion level: " recursion-level))
@@ -337,6 +339,7 @@
         true
         (str (if label (str label)))))
 
+(def foo (gen14-inner (list) (list) (fn [x] false)  (fn [x] false) 0 nil nil))
 (declare generate)
 
 (defn generate-from-candidate [candidate label filter-against lexfn-sem-impl]
