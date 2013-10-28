@@ -130,10 +130,9 @@
 
 ;; tree-building functions: useful for developing grammars.
 
-(defn over [parent child]
-  (generate (shuffle parent) "parent" {:comp child} sem-impl))
-
-;(defn over [parent child1 child2]
-;  (over3 (over3 parent child1 sem-impl it) child2 sem-impl it))
+(defn over [parent child1 child2]
+  (generate (shuffle (filter #'map? parent))
+            "parent" {:head (first (it child2))
+                      :comp (first (it child1))} sem-impl))
 
 
