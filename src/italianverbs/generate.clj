@@ -414,6 +414,14 @@
                 (list result))
             (do (log/debug (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
                 nil)))
+        (and (map? candidate)
+             (nil? filter-against))
+        (let [result candidate]
+          (if (not (unify/fail? result))
+            (do (log/info (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate)))
+                (list result))
+            (do (log/debug (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate) ": failed."))
+                nil)))
         true (throw (Exception. (str "don't know what to do with this; type=" (type candidate))))))
 
 (defn generate [alternatives label filter-against lexfn-sem-impl]
