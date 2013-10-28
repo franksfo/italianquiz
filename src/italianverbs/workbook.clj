@@ -130,9 +130,46 @@
 
 ;; tree-building functions: useful for developing grammars.
 
-(defn over [parent child1 child2]
-  (generate (shuffle (filter #'map? parent))
-            "parent" {:head (first (it child2))
-                      :comp (first (it child1))} sem-impl))
+(defn into-list-of-maps [arg]
+  (cond
+
+   (seq? arg)
+   arg
+
+   (map? arg)
+   (list arg)
+
+   (string? arg)
+   (seq (it arg))
+
+   (nil? arg)
+   (list :top)
+
+   (keyword? arg)
+   (list arg)
+
+   true (throw (Exception. (str "into-map: don't know what to do with a " (type arg) ".")))))
+
+(defn over-each-child2 [parent child1s child2]
+  (if (not (empty? child1s))
+    (lazy-cat
+     (generate (shuffle (filter #'map? parent))
+               "parent" {:head child2
+                         :comp (first child1s)} sem-impl)
+     (over-each-child2 parent (rest child1s) child2))))
+
+(defn over-each-child1 [parent child1s child2s]
+  (if (not (empty? child2s))
+    (lazy-cat
+     (over-each-child2 parent child1s (first child2s))
+     (over-each-child1 parent child1s (rest child2s)))))
+
+(defn over [parent child1 & [child2]]
+  (let [child1 (into-list-of-maps child1)
+        child2 (into-list-of-maps child2)]
+    (log/info (str "over: child2: " child2))
+    (over-each-child1 parent child1 child2)))
+
+
 
 
