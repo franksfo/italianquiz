@@ -150,25 +150,35 @@
 
    true (throw (Exception. (str "into-map: don't know what to do with a " (type arg) ".")))))
 
-(defn over-each-child2 [parent child1s child2]
+(defn over-each-parent [parents child1 child2]
+  (if (not (empty? parents))
+    (let [parent (first parents)]
+      (if (map? parent) ;; if not map, so-called 'parent' is simply a terminal: e.g. 'pronouns', which is a sequence of lexical entries.
+        (lazy-cat
+         (let [head child2
+               comp child1]
+           (generate (list parent)
+                     "parent" {:head head
+                               :comp comp} sem-impl))
+         (over-each-parent (rest parents) child1 child2))
+        (over-each-parent (rest parents) child1 child2)))))
+
+(defn over-each-child2 [parents child1s child2]
   (if (not (empty? child1s))
     (lazy-cat
-     (generate (shuffle (filter #'map? parent))
-               "parent" {:head child2
-                         :comp (first child1s)} sem-impl)
-     (over-each-child2 parent (rest child1s) child2))))
+     (over-each-parent parents (first child1s) child2)
+     (over-each-child2 parents (rest child1s) child2))))
 
-(defn over-each-child1 [parent child1s child2s]
+(defn over-each-child1 [parents child1s child2s]
   (if (not (empty? child2s))
     (lazy-cat
-     (over-each-child2 parent child1s (first child2s))
-     (over-each-child1 parent child1s (rest child2s)))))
+     (over-each-child2 parents child1s (first child2s))
+     (over-each-child1 parents child1s (rest child2s)))))
 
-(defn over [parent child1 & [child2]]
+(defn over [parents child1 & [child2]]
   (let [child1 (into-list-of-maps child1)
         child2 (into-list-of-maps child2)]
-    (log/info (str "over: child2: " child2))
-    (over-each-child1 parent child1 child2)))
+    (over-each-child1 parents child1 child2)))
 
 
 
