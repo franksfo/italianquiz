@@ -44,29 +44,36 @@
    (list arg)
 
    true (throw (Exception. (str "into-map: don't know what to do with a " (type arg) ".")))))
+
 (defn over-each-parent [parents child1 child2]
   (if (not (empty? parents))
     (let [parent (first parents)]
-      (if (map? parent) ;; if not map, so-called 'parent' is simply a terminal: e.g. 'pronouns', which is a sequence of lexical entries.
-        (lazy-cat
-         (let [head
-               (cond
-                (= \c (nth (str (:schema parent)) 0))
-                child2
+      (lazy-cat
+       (cond (map? parent) ;; if not map, so-called 'parent' is simply a terminal: e.g. 'pronouns', which is a sequence of lexical entries.
+             ;; figure out whether head is child1 or child2:
+             (let [head
+                   (cond
+                    (= \c (nth (str (:schema parent)) 0))
+                    child2
 
-                (= \h (nth (str (:schema parent)) 0))
-                child1
+                    (= \h (nth (str (:schema parent)) 0))
+                    child1
 
-                true
-                (throw (Exception. (str "Don't know what the head-vs-complement ordering is for parent: " parent))))
-               comp
-               (if (= head child1)
-                 child2 child1)]
-           (generate (list parent)
-                     "parent" {:head head
-                               :comp comp} sem-impl))
-         (over-each-parent (rest parents) child1 child2))
-        (over-each-parent (rest parents) child1 child2)))))
+                    true
+                    (throw (Exception. (str "Don't know what the head-vs-complement ordering is for parent: " parent))))
+                   comp
+                   (if (= head child1)
+                     child2 child1)]
+               (generate (list parent)
+                         "parent" {:head head
+                                   :comp comp} sem-impl))
+             ;; TODO: if parent is a symbol, evaluate.
+             (symbol? parent)
+             (over-each-parent (eval parent) child1 child2)
+             true
+             (throw (Exception. (str "Don't know what to do with parents: " parents))))
+
+       (over-each-parent (rest parents) child1 child2)))))
 
 (defn over-each-child2 [parents child1s child2]
   (if (not (empty? child1s))
@@ -85,7 +92,8 @@
         child2 (into-list-of-maps child2)]
     (over-each-child1 parents child1 child2)))
 
-
+(defn demo-generation []
+  (fo (over np {:synsem {:gender :masc :number :sing}} {:synsem {:sem {:human true}}})))
 
 
 ;; Sandbox specification derived from:
@@ -113,7 +121,7 @@
                         ]))
    :refer-clojure false
    ;; for development-only: for production, use much smaller value.
-   :timeout 100000
+   :timeout 10000
    :namespace 'italianverbs.workbook))
 (defn workbookq [expr notused]
   (do
