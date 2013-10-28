@@ -45,12 +45,21 @@
 
    true (throw (Exception. (str "into-map: don't know what to do with a " (type arg) ".")))))
 
+;; TODO: move all of these (over-X) functions to their own namespace.
 (defn over-each-parent [parents child1 child2]
   (if (not (empty? parents))
     (let [parent (first parents)]
+      (log/info (str "parent: " parent))
       (lazy-cat
-       (cond (map? parent) ;; if not map, so-called 'parent' is simply a terminal: e.g. 'pronouns', which is a sequence of lexical entries.
-             ;; figure out whether head is child1 or child2:
+       (cond (and (map? parent)
+                  (not (nil? (:serialized parent))))
+             ;; In this case, supposed 'parent' is really a lexical item: for now, definition of 'lexical item' is,
+             ;; it has a non-nil value for :serialized - just return nil, nothing else to do.
+             nil
+
+             (and (map? parent)
+                  (not (nil? (:schema parent))))
+                  ;; figure out whether head is child1 or child2:
              (let [head
                    (cond
                     (= \c (nth (str (:schema parent)) 0))
@@ -67,11 +76,29 @@
                (generate (list parent)
                          "parent" {:head head
                                    :comp comp} sem-impl))
-             ;; TODO: if parent is a symbol, evaluate.
+
+             ;; if parent is a symbol, evaluate it; should evaluate to a list of expansions (which might also be symbols, etc).
              (symbol? parent)
              (over-each-parent (eval parent) child1 child2)
+
+             ;; cc10
+             (and (map? parent)
+                  (not (nil? (:italian parent)))
+                  (not (nil? (:english parent)))
+                  (= (core/get-in parent '(:comp :italian))
+                     (core/get-in parent '(:italian :a)))
+                  (= (core/get-in parent '(:comp :english))
+                     (core/get-in parent '(:english :a))))
+             (do
+               (generate (list cc10)
+                         "parent"
+                         {:head child2
+                          :comp child1}
+                         sem-impl))
+
+
              true
-             (throw (Exception. (str "Don't know what to do with parents: " parents))))
+             (throw (Exception. (str "Don't know what to do with parent: " parent))))
 
        (over-each-parent (rest parents) child1 child2)))))
 
@@ -90,11 +117,16 @@
 (defn over [parents child1 & [child2]]
   (let [child1 (into-list-of-maps child1)
         child2 (into-list-of-maps child2)]
-    (over-each-child1 parents child1 child2)))
+    (over-each-child1 (if (seq? parents)
+                        (shuffle parents)
+                        (list parents))
+                      child1 child2)))
 
 (defn demo-generation []
-  (fo (over np {:synsem {:gender :masc :number :sing}} {:synsem {:sem {:human true}}})))
+  (fo (take 1 (over np {:synsem {:gender :masc :number :sing}} {:synsem {:sem {:human true}}})))
+  (fo (take 1 (over sents {:synsem {:agr {:gender :masc}}} "dormire"))))
 
+(fo (take 1 (over sents {:synsem {:agr {:gender :masc}}} "dormire")))
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
