@@ -20,6 +20,74 @@
    [italianverbs.unify :refer :all :exclude [unify]]
    [somnium.congomongo :as mongo]))
 
+;; seem to need this sometimes, to avoid initialization errors:
+(def populate-ns (sentence))
+
+;; tree-building functions: useful for developing grammars.
+
+(defn into-list-of-maps [arg]
+  (cond
+
+   (seq? arg)
+   arg
+
+   (map? arg)
+   (list arg)
+
+   (string? arg)
+   (seq (it arg))
+
+   (nil? arg)
+   (list :top)
+
+   (keyword? arg)
+   (list arg)
+
+   true (throw (Exception. (str "into-map: don't know what to do with a " (type arg) ".")))))
+(defn over-each-parent [parents child1 child2]
+  (if (not (empty? parents))
+    (let [parent (first parents)]
+      (if (map? parent) ;; if not map, so-called 'parent' is simply a terminal: e.g. 'pronouns', which is a sequence of lexical entries.
+        (lazy-cat
+         (let [head
+               (cond
+                (= \c (nth (str (:schema parent)) 0))
+                child2
+
+                (= \h (nth (str (:schema parent)) 0))
+                child1
+
+                true
+                (throw (Exception. (str "Don't know what the head-vs-complement ordering is for parent: " parent))))
+               comp
+               (if (= head child1)
+                 child2 child1)]
+           (generate (list parent)
+                     "parent" {:head head
+                               :comp comp} sem-impl))
+         (over-each-parent (rest parents) child1 child2))
+        (over-each-parent (rest parents) child1 child2)))))
+
+(defn over-each-child2 [parents child1s child2]
+  (if (not (empty? child1s))
+    (lazy-cat
+     (over-each-parent parents (first child1s) child2)
+     (over-each-child2 parents (rest child1s) child2))))
+
+(defn over-each-child1 [parents child1s child2s]
+  (if (not (empty? child2s))
+    (lazy-cat
+     (over-each-child2 parents child1s (first child2s))
+     (over-each-child1 parents child1s (rest child2s)))))
+
+(defn over [parents child1 & [child2]]
+  (let [child1 (into-list-of-maps child1)
+        child2 (into-list-of-maps child2)]
+    (over-each-child1 parents child1 child2)))
+
+
+
+
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
 ;;    http://docs.oracle.com/javase/6/docs/api/overview-summary.html
@@ -47,7 +115,6 @@
    ;; for development-only: for production, use much smaller value.
    :timeout 100000
    :namespace 'italianverbs.workbook))
-
 (defn workbookq [expr notused]
   (do
     ;; TODO: add timing information for each evaluation.
@@ -124,62 +191,3 @@
       [:div#workbooka
        (if search-query
          (workbookq search-query))]])))
-
-;; seem to need this sometimes, to avoid initialization errors:
-(def populate-ns (sentence))
-
-;; tree-building functions: useful for developing grammars.
-
-(defn into-list-of-maps [arg]
-  (cond
-
-   (seq? arg)
-   arg
-
-   (map? arg)
-   (list arg)
-
-   (string? arg)
-   (seq (it arg))
-
-   (nil? arg)
-   (list :top)
-
-   (keyword? arg)
-   (list arg)
-
-   true (throw (Exception. (str "into-map: don't know what to do with a " (type arg) ".")))))
-
-(defn over-each-parent [parents child1 child2]
-  (if (not (empty? parents))
-    (let [parent (first parents)]
-      (if (map? parent) ;; if not map, so-called 'parent' is simply a terminal: e.g. 'pronouns', which is a sequence of lexical entries.
-        (lazy-cat
-         (let [head child2
-               comp child1]
-           (generate (list parent)
-                     "parent" {:head head
-                               :comp comp} sem-impl))
-         (over-each-parent (rest parents) child1 child2))
-        (over-each-parent (rest parents) child1 child2)))))
-
-(defn over-each-child2 [parents child1s child2]
-  (if (not (empty? child1s))
-    (lazy-cat
-     (over-each-parent parents (first child1s) child2)
-     (over-each-child2 parents (rest child1s) child2))))
-
-(defn over-each-child1 [parents child1s child2s]
-  (if (not (empty? child2s))
-    (lazy-cat
-     (over-each-child2 parents child1s (first child2s))
-     (over-each-child1 parents child1s (rest child2s)))))
-
-(defn over [parents child1 & [child2]]
-  (let [child1 (into-list-of-maps child1)
-        child2 (into-list-of-maps child2)]
-    (over-each-child1 parents child1 child2)))
-
-
-
-
