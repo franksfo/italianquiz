@@ -1678,15 +1678,20 @@
     retval))
 
 (defn finalize [expr]
-  (if (= :fail expr)
-    :fail
-    (let [english
-          (get-english-1 (fs/get-in expr '(:english)))
+  (if (seq? expr)
+    (map (fn [x]
+           (finalize x))
+         expr)
+    (if (= :fail expr)
+      :fail
+      (let [english
+            (get-english-1 (fs/get-in expr '(:english)))
         italian
-          (get-italian-1 (fs/get-in expr '(:italian)))]
-      (log/debug (str "input expr: " (fo expr)))
-      (log/debug (str "finalized english: " english))
-      (log/debug (str "finalized italian: " italian))
-      (merge expr
-             {:italian italian
-              :english english}))))
+            (get-italian-1 (fs/get-in expr '(:italian)))]
+        (log/debug (str "input expr: " (fo expr)))
+        (log/debug (str "finalized english: " english))
+        (log/debug (str "finalized italian: " italian))
+        (merge expr
+               {:italian italian
+                :english english})))))
+
