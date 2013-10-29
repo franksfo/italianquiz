@@ -6,7 +6,7 @@
   ;; TODO: :use is deprecated: instead, do:
   ;; (:require [somenamespace :refer :all]) for each of the below.
   (:use
-   [italianverbs.generate :only (rewrite-as generate lazy-shuffle over3)]
+   [italianverbs.generate :only (rewrite-as generate lazy-shuffle)]
    [italianverbs.grammar :only (aux-verbs common-nouns dets intransitive-verbs modal-verbs pronouns propernouns sent-adverbs transitive-verbs)]
    [italianverbs.lexiconfn :only (sem-impl)]
    [italianverbs.lexicon :only (it)]

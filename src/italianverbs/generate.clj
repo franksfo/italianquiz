@@ -73,29 +73,6 @@
         (log/debug "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
         :fail))))
 
-(defn over3 [parent child lexfn-sem-impl lex-it1]
-  (log/info (str "string? child: " (string? child)))
-  (log/info (str "seq? child: " (string? child)))
-  (cond
-   (string? child) (map (fn [each-child]
-                          (let [debug (log/info (str "each-child:" each-child))]
-                            (over3 parent each-child lexfn-sem-impl lex-it1)))
-                        (lex-it1 child))
-
-   (set? child) (map (fn [each-child]
-                       (over3 parent each-child lexfn-sem-impl lex-it1))
-                     (seq child))
-
-   (seq? child) (map (fn [each-child]
-                       (over3 parent each-child lexfn-sem-impl lex-it1))
-                     child)
-
-   (= (unify/get-in parent '(:head-filled)) true) ;; won't work in general: only works if complement is first (e.g. cc10)
-   (moreover-comp parent child lexfn-sem-impl)
-
-   :else
-   (moreover-head parent child lexfn-sem-impl)))
-
 (declare gen14-inner)
 
 (defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level
@@ -212,7 +189,7 @@
                                " + "
                                (fo comp) " => FAIL.")))
 
-              (lazy-seq (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level 
+              (lazy-seq (gen14-inner phrase-with-head rest-complements complement-filter-fn post-unify-fn recursion-level
                                       lexfn-sem-impl rest-complements)))))))))
 
 (defn gen14 [phrase heads complements filter-against post-unify-fn recursion-level lexfn-sem-impl]
