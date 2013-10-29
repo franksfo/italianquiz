@@ -12,7 +12,7 @@
    [italianverbs.lexicon :only (it)]
    [italianverbs.morphology :only (fo)]
    [italianverbs.unify]
-   [italianverbs.ug :only (cc10 ch21 hh10 hh10 hh21 sent-impl)]
+   [italianverbs.ug :only (cc10 ch21 hc11 hh10 hh10 hh21 sent-impl)]
    ))
 
 (log/info "started loading rules.")
@@ -37,8 +37,16 @@
 (rewrite-as np {:schema 'cc10
                 :comp 'dets
                 :head 'common-nouns})
+(rewrite-as np {:schema 'cc10
+                :comp 'dets
+                :head 'nbar})
 (rewrite-as np 'propernouns)
 (rewrite-as np 'pronouns)
+
+(ns-unmap 'italianverbs.rules 'nbar)
+(rewrite-as nbar {:schema 'hc11
+                  :comp 'adjectives
+                  :head 'common-nouns})
 
 ;; possible expansions of vp (verb phrase):
 ;;

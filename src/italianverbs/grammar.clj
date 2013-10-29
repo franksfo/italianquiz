@@ -16,6 +16,11 @@
 
 (log/info "begin italian-english specific lexical categories..")
 
+(def adjectives ;; italian comp-last for now (hc11-comps)
+  (filter (fn [lexeme]
+            (= (get-in lexeme '(:synsem :cat)) :adjective))
+          hc11-comps))
+
 (def common-nouns
   (filter (fn [lexeme]
             (and (= (get-in lexeme '(:synsem :cat)) :noun)

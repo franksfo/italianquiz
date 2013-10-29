@@ -308,7 +308,8 @@
    {
     :schema-symbol 'hc11 ;; used by over-each-parent to know where to put children.
     :first :head
-    :comment "hc11"}))
+    :comment "hc11"
+    :comp-filter-fn standard-filter-fn}))
 
 (def hh10
   (unify
@@ -343,6 +344,14 @@
                         (not (fail? (unify ch21 {:head lex}))))
                       lex/lexicon)
               lex/lexicon)))
+
+(def hc11-comps
+  (if phrase-times-lexicon-cache
+    (lazy-seq (filter (fn [lex]
+                        (not (fail? (unify hc11 {:comp lex}))))
+                      lex/lexicon)
+              lex/lexicon)
+    lex/lexicon))
 
 (defn sentence-impl [input]
   "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
