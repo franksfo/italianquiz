@@ -273,6 +273,14 @@
    italian-head-last
    english-head-last
    {:comment "cc10"
+
+    ;; TODO: using :schema-symbol below - cannot use :schema for some reason; need to figure out why.
+    ;; if you try to use :schema, I get:
+    ;; java.util.concurrent.ExecutionException: java.lang.RuntimeException:
+    ;; Can't embed object in code, maybe print-dup not defined: clojure.lang.Ref@11819f3c
+
+    :schema-symbol 'cc10 ;; used by over-each-parent to know where to put children.
+    :first :comp
     :comp {:synsem {:subcat '()}}
     :comp-filter-fn standard-filter-fn}))
 
@@ -284,6 +292,8 @@
    english-head-first
    {:comp {:synsem {:subcat '()
                     :pronoun true}}
+    :schema-symbol 'ch21 ;; used by over-each-parent to know where to put children.
+    :first :comp
     :comment "ch21"
     :comp-filter-fn standard-filter-fn}))
 
@@ -295,7 +305,10 @@
    comp-modifies-head
    italian-head-first
    english-head-last
-   {:comment "hc11"}))
+   {
+    :schema-symbol 'hc11 ;; used by over-each-parent to know where to put children.
+    :first :head
+    :comment "hc11"}))
 
 (def hh10
   (unify
@@ -304,6 +317,8 @@
    italian-head-first
    english-head-first
    {:comment "hh10"
+    :schema-symbol 'hh10 ;; used by over-each-parent to know where to put children.
+    :first :head
     :comp {:synsem {:subcat '()}}
     :comp-filter-fn standard-filter-fn}))
 
@@ -314,6 +329,8 @@
    italian-head-first
    english-head-first
    {:comment "hh21"
+    :schema-symbol 'hh21 ;; used by over-each-parent to know where to put children.
+    :first :head
     :comp-filter-fn standard-filter-fn}))
 
 ;; -- END SCHEMA DEFINITIONS

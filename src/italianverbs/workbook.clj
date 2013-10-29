@@ -81,20 +81,17 @@
              (symbol? parent)
              (over-each-parent (eval parent) child1 child2)
 
-             ;; cc10
+             ;; if parent is map, do introspection: figure out the schema from the :schema-symbol attribute,
+             ;; and figure out head-comp ordering from :first attribute.
              (and (map? parent)
-                  (not (nil? (:italian parent)))
-                  (not (nil? (:english parent)))
-                  (= (core/get-in parent '(:comp :italian))
-                     (core/get-in parent '(:italian :a)))
-                  (= (core/get-in parent '(:comp :english))
-                     (core/get-in parent '(:english :a))))
-             (do
-               (generate (list cc10)
-                         "parent"
-                         {:head child2
-                          :comp child1}
-                         sem-impl))
+                  (not (nil? (:schema-symbol parent))))
+             (generate (list (eval (:schema-symbol parent)))
+                       "parent"
+                       {:head (if (= (:first parent) :head)
+                                child1 child2)
+                        :comp (if (= (:first parent) :head)
+                                child2 child1)}
+                       sem-impl)
 
 
              true
