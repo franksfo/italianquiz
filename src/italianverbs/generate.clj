@@ -316,7 +316,6 @@
         true
         (str (if label (str label)))))
 
-(def foo (gen14-inner (list) (list) (fn [x] false)  (fn [x] false) 0 nil nil))
 (declare generate)
 
 (defn generate-from-candidate [candidate label filter-against lexfn-sem-impl]
