@@ -31,6 +31,9 @@
    (seq? arg)
    arg
 
+   (set? arg)
+   (seq arg)
+
    (map? arg)
    (list arg)
 
