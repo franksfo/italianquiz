@@ -77,7 +77,8 @@
 ;; TODO: more filtering
 (def adverbial-verbs
   (filter (fn [lexeme]
-            (= (get-in lexeme '(:synsem :cat)) :verb))
+            (and (= (get-in lexeme '(:synsem :cat)) :verb)
+                 (= (get-in lexeme '(:italian :infinitive)) "fare")))
           all-in-lexicon))
 
 (def adverbs
