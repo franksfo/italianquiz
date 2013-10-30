@@ -53,7 +53,7 @@
 ;;    /        \
 ;; H subcat<1>  C[1]
 (def subcat-1-principle
-  (let [comp-synsem (ref {:subcat '()})]
+  (let [comp-synsem (ref :top)]
     {:synsem {:subcat '()}
      :head {:synsem {:subcat {:1 comp-synsem
                               :2 '()}}}
@@ -320,7 +320,6 @@
    {:comment "hh10"
     :schema-symbol 'hh10 ;; used by over-each-parent to know where to put children.
     :first :head
-    :comp {:synsem {:subcat '()}}
     :comp-filter-fn standard-filter-fn}))
 
 (def hh21
