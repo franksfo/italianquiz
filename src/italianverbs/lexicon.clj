@@ -598,7 +598,8 @@
     (unify sentential-adverb
            {:synsem {:cat :sent-modifier
                      :sem {:pred :domani}
-                     :subcat {:1 {:sem {:tense :future}
+                     :subcat {:1 {:infl :futuro
+                                  :sem {:tense :future}
                                   :subcat '()}}}
             :italian "domani"
             :english "tomorrow"})
@@ -606,7 +607,8 @@
     (unify sentential-adverb
            {:synsem {:cat :sent-modifier
                      :sem {:pred :dopodomani}
-                     :subcat {:1 {:sem {:tense :future}
+                     :subcat {:1 {:infl :futuro
+                                  :sem {:tense :future}
                                   :subcat '()}}}
             :italian "dopodomani"
             :english "the day after tomorrow"})
@@ -941,7 +943,8 @@
 
       (unify sentential-adverb
              {:synsem {:sem {:pred :ieri}
-                       :subcat {:1 {:sem {:tense :past
+                       :subcat {:1 {:infl :past
+                                    :sem {:tense :past
                                           :activity true}}}}
               :italian "ieri"
               :english "yesterday"})
@@ -1040,7 +1043,8 @@
 
       (unify sentential-adverb
              {:synsem {:sem {:pred :laltro-ieri}
-                       :subcat {:1 {:sem {:tense :past
+                       :subcat {:1 {:infl :past
+                                    :sem {:tense :past
                                           :activity true}}}}
               :italian "l'altro ieri"
               :english "the day before yesterday"})
@@ -2128,10 +2132,22 @@
               :italian {:italian "spiaggia"}
               :english {:english "beach"}})
 
+      ;; stamattina (this morning) could be either
+      ;; past or present.
       (unify {:italian "stamattina"
               :synsem {:cat :sent-modifier
                        :sem {:pred :stamattina}
                        :subcat {:1 {:subcat '()
+                                    :infl :futuro
+                                    :sem {:tense :future
+                                          :activity true}}}}
+              :english "this morning"})
+
+      (unify {:italian "stamattina"
+              :synsem {:cat :sent-modifier
+                       :sem {:pred :stamattina}
+                       :subcat {:1 {:subcat '()
+                                    :infl :past
                                     :sem {:tense :past
                                           :activity true}}}}
               :english "this morning"})
@@ -2331,6 +2347,7 @@
       {:synsem {:cat :sent-modifier
                 :sem {:pred :tre-giorni-fa}
                 :subcat {:1 {:subcat '()
+                             :infl :past
                              :sem {:tense :past
                                    :activity true}}}}
        :italian "tre giorni fa"
