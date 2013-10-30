@@ -208,11 +208,11 @@
       (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
             phrase (unifyc phrase
-                                filter-against
-                                {:synsem {:sem (lexfn-sem-impl
-                                                (unifyc
-                                                 (unify/get-in phrase '(:synsem :sem) :top)
-                                                 (unify/get-in filter-against '(:synsem :sem) :top)))}})
+                           filter-against
+                           {:synsem {:sem (lexfn-sem-impl
+                                           (unifyc
+                                            (unify/get-in phrase '(:synsem :sem) :top)
+                                            (unify/get-in filter-against '(:synsem :sem) :top)))}})
             debug (log/debug "gen14: TYPE OF HEADS (before eval): " (type heads))
             heads (cond (fn? heads)
                         (let [filter-against
