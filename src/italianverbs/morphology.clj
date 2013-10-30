@@ -1008,6 +1008,7 @@
     (fs/get-in word '(:a))
     (fs/get-in word '(:b))
     (string? (fs/get-in word '(:a :irregular :past)))
+    (= (fs/get-in word '(:a :irregular :past)) "could have")
     (string? (fs/get-in word '(:b :irregular :past)))
     (= (fs/get-in word '(:a :infl)) :past))
    (string/join " " (list (fs/get-in word '(:a :irregular :past))
@@ -1140,7 +1141,7 @@
    (str "[" (fs/get-in word '(:irregular :past :2sing)) "]")
 
    (= :top (fs/get-in word '(:infl)))
-   (str (fs/get-in word '(:infinitive)) )
+   (fs/get-in word '(:infinitive))
 
    ;; irregular past (2): a different inflection for each persons/numbers.
    (and (= :past (fs/get-in word '(:infl)))
@@ -1673,8 +1674,8 @@
 (defn fof [expressions]
   (let [retval (lazy-seq (list (formattare expressions)))
         total-time (time (first retval))]
-    (log/info (str "tense info: " (fs/get-in expressions '(:comp :synsem :sem :tense))))
-    (log/info (str "FINISHED FORMATTING: " (first retval))) ;; acts as a delimiter for this sentence's generation for debugging purposes.
+    (log/debug (str "tense info: " (fs/get-in expressions '(:comp :synsem :sem :tense))))
+    (log/debug (str "FINISHED FORMATTING: " (first retval))) ;; acts as a delimiter for this sentence's generation for debugging purposes.
     retval))
 
 (defn finalize [expr]
