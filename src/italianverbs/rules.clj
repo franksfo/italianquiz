@@ -2,19 +2,14 @@
   (:refer-clojure :exclude [get-in merge resolve])
   (:require [clojure.tools.logging :as log]
             [clojure.core :as core]
-            [italianverbs.unify :refer :all]
-            [italianverbs.grammar :refer :all])
-  ;; TODO: :use is deprecated: instead, do:
-  ;; (:require [somenamespace :refer :all]) for each of the below.
-  (:use
-   [italianverbs.generate :only (rewrite-as generate lazy-shuffle)]
-;   [italianverbs.grammar :only (aux-verbs common-nouns dets intransitive-verbs modal-verbs pronouns propernouns sent-adverbs transitive-verbs)]
-   [italianverbs.lexiconfn :only (sem-impl)]
-   [italianverbs.lexicon :only (it)]
-   [italianverbs.morphology :only (fo)]
-   [italianverbs.unify]
-   [italianverbs.ug :only (cc10 ch21 hc11 hh10 hh10 hh21 sent-impl)]
-   ))
+            [italianverbs.generate :refer :all]
+            [italianverbs.grammar :refer :all]
+            [italianverbs.lexicon :refer :all]
+            [italianverbs.lexiconfn :refer :all]
+            [italianverbs.morphology :refer :all]
+            [italianverbs.ug :refer :all]
+            [italianverbs.unify :refer :all :exclude [unify]]
+            ))
 
 (log/info "started loading rules.")
 
