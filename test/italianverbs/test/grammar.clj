@@ -1,31 +1,41 @@
 (ns italianverbs.test.grammar
+  (:refer-clojure :exclude [get-in resolve merge])
   (:require
-   [italianverbs.unify :as unify])
-  (:use [clojure.test]
-        [italianverbs.generate]
-        [italianverbs.morphology]
-        [italianverbs.grammar]
-        [italianverbs.rules]))
+   [clojure.test :refer :all]
+   [clojure.tools.logging :as log]
+   [clojure.string :as string]
+   [italianverbs.generate :refer :all]
+   [italianverbs.grammar :refer :all]
+   [italianverbs.lexicon :refer :all]
+   [italianverbs.lexiconfn :refer :all]
+   [italianverbs.morphology :refer :all]
+   [italianverbs.rules :refer :all]
+   [italianverbs.workbook :refer :all]
+   [italianverbs.ug :refer :all]
+   [italianverbs.unify :refer :all :exclude [unify]]))
 
 (deftest io-dormo
   (let [result (sentence {:synsem {:sem {:pred :dormire
                                          :subj {:pred :io}}}})]
-    (is (not (unify/fail? result)))
-    (is (= (unify/get-in (finalize result) '(:italian)) "io dormo"))
-    (is (= (unify/get-in (finalize result) '(:english)) "I sleep"))))
+    (is (not (fail? result)))
+    (is (= (get-in (finalize result) '(:italian)) "io dormo"))
+    (is (= (get-in (finalize result) '(:english)) "I sleep"))))
 
 (defn successful [result]
   (or (not (map? result))
-      (not (unify/fail? result)))
+      (not (fail? result)))
   (or (not (seq? result))
       (not (nil? (seq result)))))
 
+
+(def vp-plus-adverb hh32)
 (def fare-bene (over vp-plus-adverb "fare" "bene"))
 (deftest fare-bene-test
   (is (successful fare-bene)))
 
+(def prep-plus-verb-inf hh10)
 (def a-vendere-la-casa (over prep-plus-verb-inf "a"
-                             (over vp
+                             (over hh21
                                    "vendere"
                                    (over np "la" "casa"))))
 (deftest a-vendere-la-casa-test
@@ -38,7 +48,7 @@
 
 (def avere-fare-bene-a-vendere-la-casa
   ;; TODO: should not have to look for second or first member: (over) should handle it.
-  (second (over vp-aux "avere" fare-bene-a-vendere-la-casa)))
+  (second (over hh21 "avere" fare-bene-a-vendere-la-casa)))
 
 (deftest avere-fare-bene-a-vendere-la-casa-test
   (is (successful avere-fare-bene-a-vendere-la-casa)))
@@ -56,13 +66,13 @@
 
 (deftest tu-hai-fatto-bene-a-vendere-la-casa-test
   (is (successful tu-hai-fatto-bene-a-vendere-la-casa))
-  (let [english (unify/get-in (finalize (unify/copy tu-hai-fatto-bene-a-vendere-la-casa))
+  (let [english (get-in (finalize (copy tu-hai-fatto-bene-a-vendere-la-casa))
                               '(:english))]
     ;; TODO: figure out why extra space is being generated after "you".
     (is (or (= english "you  (&#x2642;) did well to sell the house")
             (= english "you  (&#x2640;) did well to sell the house"))))
   (is (= "tu hai fatto bene a vendere la casa"
-         (unify/get-in (finalize (unify/copy tu-hai-fatto-bene-a-vendere-la-casa))
+         (get-in (finalize (copy tu-hai-fatto-bene-a-vendere-la-casa))
                        '(:italian)))))
 
 (deftest adj-agreement-with-subject
