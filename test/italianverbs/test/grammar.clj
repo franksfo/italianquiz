@@ -113,7 +113,7 @@
 (def np cc10)
 ;; tests moved from (generate) namespace to here.
 (deftest il-libro
-  (let [il-libro (morph/finalize (first (over np "il" "libro")))]
+  (let [il-libro (finalize (first (over np "il" "libro")))]
     (is (not (fail? il-libro)))
     (is (= "il libro"
            (get-in il-libro '(:italian))))
@@ -121,7 +121,7 @@
            (get-in il-libro '(:english))))))
 
 (deftest il-cane
-  (let [il-cane (morph/finalize (first (over np "il" "cane")))]
+  (let [il-cane (finalize (first (over np "il" "cane")))]
     (is (not (fail? il-cane)))
     (is (= "il cane"
            (get-in il-cane '(:italian))))
@@ -129,15 +129,16 @@
            (get-in il-cane '(:english))))))
 
 (deftest i-cani
-  (let [i-cani (morph/finalize (first (over np "i" "cane")))]
+  (let [i-cani (finalize (first (over np "i" "cane")))]
     (is (not (fail? i-cani)))
     (is (= "i cani"
            (get-in i-cani '(:italian))))
     (is (= "the dogs"
            (get-in i-cani '(:english))))))
 
+(def nbar hc11)
 (deftest il-cane-nero
-  (let [il-cane-nero (morph/finalize (first (over np "il" (over gram/nbar "cane" "nero"))))]
+  (let [il-cane-nero (finalize (first (over np "il" (over nbar "cane" "nero"))))]
     (is (not (fail? il-cane-nero)))
     (is (= "il cane nero"
            (get-in il-cane-nero '(:italian))))
@@ -145,7 +146,7 @@
            (get-in il-cane-nero '(:english))))))
 
 (deftest i-cani-neri
-  (let [i-cani-neri (morph/finalize (first (over np "i" (over gram/nbar "cane" "nero"))))]
+  (let [i-cani-neri (finalize (first (over np "i" (over nbar "cane" "nero"))))]
     (is (not (fail? i-cani-neri)))
     (is (= "i cani neri"
            (get-in i-cani-neri '(:italian))))
@@ -153,69 +154,74 @@
            (get-in i-cani-neri '(:english))))))
 
 (deftest all-children-done-old-style-1
-  (is (nil? (add-child-where (first (over gram/nbar "studente" "brutto"))))))
+  (is (nil? (add-child-where (first (over nbar "studente" "brutto"))))))
 
 (deftest all-children-done-old-style-2
-  (is (nil? (add-child-where (first (over np "i" (over gram/nbar "studente" "brutto")))))))
+  (is (nil? (add-child-where (first (over np "i" (over nbar "studente" "brutto")))))))
 
 (deftest gli-studenti-brutti
   (is (= "gli studenti brutti"
-         (get-in (morph/finalize (first (over np "i" (over gram/nbar "studente" "brutto"))))
+         (get-in (finalize (first (over np "i" (over nbar "studente" "brutto"))))
                  '(:italian)))))
 
 (def s-present cc10)
 (deftest io-sogno
-  (let [io-sogno (morph/finalize (first (over s-present "io" "sognare")))]
+  (let [io-sogno (finalize (first (over s-present "io" "sognare")))]
     (is (= "io sogno"
            (get-in io-sogno '(:italian))))
     (is (= "I dream"
            (get-in io-sogno '(:english))))))
 
+(def vp-pron ch21)
 (deftest lei-ci-vede
-  (let [lei-ci-vede (morph/finalize (first (over s-present "lei" (over gram/vp-pron "ci" "vedere"))))]
+  (let [lei-ci-vede (finalize (first (over s-present "lei" (over vp-pron "ci" "vedere"))))]
     (is (= "lei ci vede"
            (get-in lei-ci-vede '(:italian))))
     (is (= "she sees us"
            (get-in lei-ci-vede '(:english))))))
 
+(def vp hh21)
 (deftest io-parlo-la-parola
-  (let [parlare-la-parola (first (over gram/vp "parlare" (over gram/np "la" "parola")))
+  (let [parlare-la-parola (first (over vp "parlare" (over np "la" "parola")))
         io-parlo-la-parola (first
                             (over s-present "io"
-                                  (over gram/vp "parlare" (over gram/np "la" "parola"))))]
+                                  (over vp "parlare" (over np "la" "parola"))))]
 
     (is (nil? (add-child-where parlare-la-parola)))
 
     (is (nil? (add-child-where io-parlo-la-parola)))
 
     (is (= "io parlo la parola"
-           (get-in (morph/finalize io-parlo-la-parola) '(:italian))))
+           (get-in (finalize io-parlo-la-parola) '(:italian))))
     (is (= "I speak the word"
-           (get-in (morph/finalize io-parlo-la-parola) '(:english))))
+           (get-in (finalize io-parlo-la-parola) '(:english))))
   ))
 
 (deftest loro-hanno-il-pane
   (let [loro-hanno-il-pane (first (over s-present "loro"
-                                        (over gram/vp "avere" (over gram/np "il" "pane"))))
-        hanno-il-pane (first (over gram/vp "avere" (over gram/np "il" "pane")))]
+                                        (over vp "avere" (over np "il" "pane"))))
+        hanno-il-pane (first (over vp "avere" (over np "il" "pane")))]
     (is (nil? (add-child-where hanno-il-pane)))
     (is (nil? (add-child-where loro-hanno-il-pane)))
     (is (= "loro hanno il pane"
-           (get-in (morph/finalize loro-hanno-il-pane) '(:italian))))
+           (get-in (finalize loro-hanno-il-pane) '(:italian))))
 ;    (is (= "they have the bread"
 ;           (get-in loro-hanno-il-pane '(:english)))
   ))
 
 (deftest generate-nbar
-  (let [nbar (take 1 (generate gram/nbar))]
+  (let [nbar (take 1 (generate nbar))]
     (is (not (fail? nbar)))))
 
 (deftest generate-np
-  (let [np (take 1 (generate gram/np))]
+  (let [np (take 1 (generate np))]
     (is (not (fail? np)))))
 
+(def vp-present hh21)
+(def s-present cc10)
+
 (deftest generate-vp
-  (let [vp (take 1 (generate gram/vp-present))]
+  (let [vp (take 1 (generate vp-present))]
     (is (not (fail? vp)))))
 
 (deftest generate-s-present
@@ -223,7 +229,7 @@
     (is (not (fail? sentence)))))
 
 (deftest add-child-where-1
-  (let [cane (first (over gram/nbar "cane"))
-        cane-rosso (first (over gram/nbar "cane" "rosso"))]
+  (let [cane (first (over nbar "cane"))
+        cane-rosso (first (over nbar "cane" "rosso"))]
     (is (= (add-child-where cane) :comp))
     (is (nil? (add-child-where cane-rosso)))))
