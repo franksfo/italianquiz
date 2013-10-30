@@ -2,12 +2,13 @@
   (:refer-clojure :exclude [get-in merge resolve])
   (:require [clojure.tools.logging :as log]
             [clojure.core :as core]
-            [italianverbs.unify :refer :all])
+            [italianverbs.unify :refer :all]
+            [italianverbs.grammar :refer :all])
   ;; TODO: :use is deprecated: instead, do:
   ;; (:require [somenamespace :refer :all]) for each of the below.
   (:use
    [italianverbs.generate :only (rewrite-as generate lazy-shuffle)]
-   [italianverbs.grammar :only (aux-verbs common-nouns dets intransitive-verbs modal-verbs pronouns propernouns sent-adverbs transitive-verbs)]
+;   [italianverbs.grammar :only (aux-verbs common-nouns dets intransitive-verbs modal-verbs pronouns propernouns sent-adverbs transitive-verbs)]
    [italianverbs.lexiconfn :only (sem-impl)]
    [italianverbs.lexicon :only (it)]
    [italianverbs.morphology :only (fo)]
@@ -60,6 +61,22 @@
                 :label 'vp
                 :comp 'pronouns
                 :head 'transitive-verbs})
+(rewrite-as vp {:schema 'hh21
+                :label 'vp-prep
+                :comp 'pp
+                :head 'vp-adv})
+
+(ns-unmap 'italianverbs.rules 'vp-adv)
+(rewrite-as vp-adv {:schema 'hh32
+                    :label 'vp-adv
+                    :comp 'adverbs
+                    :head 'adverbial-verbs})
+
+(ns-unmap 'italianverbs.rules 'pp)
+(rewrite-as pp {:schema 'hh10
+                :label 'pp
+                :comp 'vp
+                :head 'prepositions})
 
 (ns-unmap 'italianverbs.rules 'modal-vp)
 (rewrite-as modal-vp {:schema 'hh21

@@ -32,6 +32,12 @@
             (= (get-in lexeme '(:synsem :cat)) :det))
           cc10-comps))
 
+(def prepositions
+  ;; TODO: more compile-time filtering
+  (filter (fn [lexeme]
+            (= (unify/get-in lexeme '(:synsem :cat)) :prep))
+          all-in-lexicon))
+
 (def propernouns-and-pronouns
   ;; TODO: more compile-time filtering
   (filter (fn [lexeme]
@@ -66,6 +72,17 @@
   (filter (fn [lexeme]
             (and (= (get-in lexeme '(:synsem :cat)) :verb)
                  (= (get-in lexeme '(:synsem :subcat :2)) '())))
+          all-in-lexicon))
+
+;; TODO: more filtering
+(def adverbial-verbs
+  (filter (fn [lexeme]
+            (= (get-in lexeme '(:synsem :cat)) :verb))
+          all-in-lexicon))
+
+(def adverbs
+  (filter (fn [lexeme]
+            (= (get-in lexeme '(:synsem :cat)) :adverb))
           all-in-lexicon))
 
 (def aux-verbs

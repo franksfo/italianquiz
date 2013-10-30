@@ -333,6 +333,17 @@
     :first :head
     :comp-filter-fn standard-filter-fn}))
 
+(def hh32
+  (unify
+   subcat-5-principle
+   head-principle
+   italian-head-first
+   english-head-first
+   {:comment "hh32"
+    :schema-symbol 'hh32 ;; used by over-each-parent to know where to put children.
+    :first :head
+    :comp-filter-fn standard-filter-fn}))
+
 ;; -- END SCHEMA DEFINITIONS
 
 ;; standard rule-caching disclaimer:
