@@ -87,6 +87,8 @@
     (is (= (strip (get-italian (get-in (first lei-e-piu-ricca-di-giorgio) '(:italian))))
            "lei è più ricca di Giorgio"))))
 
+(def s-past cc10)
+
 (deftest fare-bene
   (let [result (first (take 1 (generate (unifyc s-past {:synsem {:sem {:pred :fare
                                                                       :mod {:pred :bene}}}}))))]
@@ -107,9 +109,11 @@
 ;(fo (take 1 (gen21 (take 1 (gen21 (shuffle lexicon) (shuffle lexicon)))
 ;                              (shuffle lexicon)))))
 
+
+(def np cc10)
 ;; tests moved from (generate) namespace to here.
 (deftest il-libro
-  (let [il-libro (morph/finalize (first (over gram/np "il" "libro")))]
+  (let [il-libro (morph/finalize (first (over np "il" "libro")))]
     (is (not (fail? il-libro)))
     (is (= "il libro"
            (get-in il-libro '(:italian))))
@@ -117,7 +121,7 @@
            (get-in il-libro '(:english))))))
 
 (deftest il-cane
-  (let [il-cane (morph/finalize (first (over gram/np "il" "cane")))]
+  (let [il-cane (morph/finalize (first (over np "il" "cane")))]
     (is (not (fail? il-cane)))
     (is (= "il cane"
            (get-in il-cane '(:italian))))
@@ -125,7 +129,7 @@
            (get-in il-cane '(:english))))))
 
 (deftest i-cani
-  (let [i-cani (morph/finalize (first (over gram/np "i" "cane")))]
+  (let [i-cani (morph/finalize (first (over np "i" "cane")))]
     (is (not (fail? i-cani)))
     (is (= "i cani"
            (get-in i-cani '(:italian))))
@@ -133,7 +137,7 @@
            (get-in i-cani '(:english))))))
 
 (deftest il-cane-nero
-  (let [il-cane-nero (morph/finalize (first (over gram/np "il" (over gram/nbar "cane" "nero"))))]
+  (let [il-cane-nero (morph/finalize (first (over np "il" (over gram/nbar "cane" "nero"))))]
     (is (not (fail? il-cane-nero)))
     (is (= "il cane nero"
            (get-in il-cane-nero '(:italian))))
@@ -141,7 +145,7 @@
            (get-in il-cane-nero '(:english))))))
 
 (deftest i-cani-neri
-  (let [i-cani-neri (morph/finalize (first (over gram/np "i" (over gram/nbar "cane" "nero"))))]
+  (let [i-cani-neri (morph/finalize (first (over np "i" (over gram/nbar "cane" "nero"))))]
     (is (not (fail? i-cani-neri)))
     (is (= "i cani neri"
            (get-in i-cani-neri '(:italian))))
@@ -152,22 +156,23 @@
   (is (nil? (add-child-where (first (over gram/nbar "studente" "brutto"))))))
 
 (deftest all-children-done-old-style-2
-  (is (nil? (add-child-where (first (over gram/np "i" (over gram/nbar "studente" "brutto")))))))
+  (is (nil? (add-child-where (first (over np "i" (over gram/nbar "studente" "brutto")))))))
 
 (deftest gli-studenti-brutti
   (is (= "gli studenti brutti"
-         (get-in (morph/finalize (first (over gram/np "i" (over gram/nbar "studente" "brutto"))))
+         (get-in (morph/finalize (first (over np "i" (over gram/nbar "studente" "brutto"))))
                  '(:italian)))))
 
+(def s-present cc10)
 (deftest io-sogno
-  (let [io-sogno (morph/finalize (first (over gram/s-present "io" "sognare")))]
+  (let [io-sogno (morph/finalize (first (over s-present "io" "sognare")))]
     (is (= "io sogno"
            (get-in io-sogno '(:italian))))
     (is (= "I dream"
            (get-in io-sogno '(:english))))))
 
 (deftest lei-ci-vede
-  (let [lei-ci-vede (morph/finalize (first (over gram/s-present "lei" (over gram/vp-pron "ci" "vedere"))))]
+  (let [lei-ci-vede (morph/finalize (first (over s-present "lei" (over gram/vp-pron "ci" "vedere"))))]
     (is (= "lei ci vede"
            (get-in lei-ci-vede '(:italian))))
     (is (= "she sees us"
@@ -176,7 +181,7 @@
 (deftest io-parlo-la-parola
   (let [parlare-la-parola (first (over gram/vp "parlare" (over gram/np "la" "parola")))
         io-parlo-la-parola (first
-                            (over gram/s-present "io"
+                            (over s-present "io"
                                   (over gram/vp "parlare" (over gram/np "la" "parola"))))]
 
     (is (nil? (add-child-where parlare-la-parola)))
@@ -190,7 +195,7 @@
   ))
 
 (deftest loro-hanno-il-pane
-  (let [loro-hanno-il-pane (first (over gram/s-present "loro"
+  (let [loro-hanno-il-pane (first (over s-present "loro"
                                         (over gram/vp "avere" (over gram/np "il" "pane"))))
         hanno-il-pane (first (over gram/vp "avere" (over gram/np "il" "pane")))]
     (is (nil? (add-child-where hanno-il-pane)))
@@ -214,7 +219,7 @@
     (is (not (fail? vp)))))
 
 (deftest generate-s-present
-  (let [sentence (take 1 (generate gram/s-present))]
+  (let [sentence (take 1 (generate s-present))]
     (is (not (fail? sentence)))))
 
 (deftest add-child-where-1
