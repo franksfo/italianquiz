@@ -2052,7 +2052,7 @@
        transitive
        {:italian {:infinitive "ricordare"}
         :english {:infinitive "to remember"
-                  :irregular {:past-particle "remembered"}}
+                  :irregular {:past-participle "remembered"}}
         :synsem {:essere false
                  :sem {:subj {:human true}
                        :obj {:animate true}
@@ -2062,7 +2062,7 @@
        transitive
        {:italian {:infinitive "ricordare"}
         :english {:infinitive "to remember"
-                  :irregular {:past-particle "remembered"}}
+                  :irregular {:past-participle "remembered"}}
         :synsem {:essere false
                  :sem {:subj {:human true}
                        :obj {:legible true}

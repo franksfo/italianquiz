@@ -410,7 +410,7 @@
                                    :3plur "andranno"}}}
     :english {:infinitive "to go"
               :irregular {:past "went"
-                          :past-particle "gone"}}
+                          :past-participle "gone"}}
     :synsem {:essere true
              :sem {:subj {:animate true}
                    :activity false ;; because "I was going when (something happened) .." sounds weird.
