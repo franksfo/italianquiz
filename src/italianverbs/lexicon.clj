@@ -745,7 +745,7 @@
        verb-subjective
        essere-common
        {:notes "essere-aux"}
-       {:synsem {:infl :present
+       {:synsem {:infl :present ;; TODO: consider relaxing this by allowing other inflections.
                  :subcat {:2 {:essere true}}}
         :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
                   :hidden true}}) ;; gets removed by morphological rules.
@@ -943,8 +943,7 @@
 
       (unify sentential-adverb
              {:synsem {:sem {:pred :ieri}
-                       :subcat {:1 {:infl :past
-                                    :sem {:tense :past
+                       :subcat {:1 {:sem {:tense :past
                                           :activity true}}}}
               :italian "ieri"
               :english "yesterday"})
@@ -1043,8 +1042,7 @@
 
       (unify sentential-adverb
              {:synsem {:sem {:pred :laltro-ieri}
-                       :subcat {:1 {:infl :past
-                                    :sem {:tense :past
+                       :subcat {:1 {:sem {:tense :past
                                           :activity true}}}}
               :italian "l'altro ieri"
               :english "the day before yesterday"})
@@ -2147,8 +2145,7 @@
               :synsem {:cat :sent-modifier
                        :sem {:pred :stamattina}
                        :subcat {:1 {:subcat '()
-                                    :infl :past
-                                    :sem {:tense :past
+                                    :sem {:tense :past  ;; could be passato prossimo (avere/essere + verb) or imperfetto
                                           :activity true}}}}
               :english "this morning"})
 
@@ -2347,7 +2344,6 @@
       {:synsem {:cat :sent-modifier
                 :sem {:pred :tre-giorni-fa}
                 :subcat {:1 {:subcat '()
-                             :infl :past
                              :sem {:tense :past
                                    :activity true}}}}
        :italian "tre giorni fa"
