@@ -53,6 +53,8 @@
 (deftest avere-fare-bene-a-vendere-la-casa-test
   (is (successful avere-fare-bene-a-vendere-la-casa)))
 
+(def s-past cc10)
+
 (def tu-hai-fatto-bene-a-vendere-la-casa
   ;; TODO: (over) can't take a sequence as the 2nd argument, so can't do this (commented-out):
                                         ;  (let [result (over s-past "tu" avere-fare-bene-a-vendere-la-casa)]
@@ -86,8 +88,6 @@
                                 (over prep-phrase "di" "Giorgio")))))]
     (is (= (strip (get-italian (get-in (first lei-e-piu-ricca-di-giorgio) '(:italian))))
            "lei è più ricca di Giorgio"))))
-
-(def s-past cc10)
 
 (deftest fare-bene
   (let [result (first (take 1 (generate (unifyc s-past {:synsem {:sem {:pred :fare
