@@ -1,6 +1,7 @@
 (ns italianverbs.test.grammar
   (:refer-clojure :exclude [get-in resolve merge])
   (:require
+   [clojure.core :exclude (get-in resolve merge)]
    [clojure.test :refer :all]
    [clojure.tools.logging :as log]
    [clojure.string :as string]
@@ -76,6 +77,8 @@
   (is (= "tu hai fatto bene a vendere la casa"
          (get-in (finalize (copy tu-hai-fatto-bene-a-vendere-la-casa))
                        '(:italian)))))
+
+(def s-past cc10)
 
 (deftest adj-agreement-with-subject
   "adjectives must agree with subjects - tests this behavior with intermediate 'meno ricco' between the subject and the adjective."
