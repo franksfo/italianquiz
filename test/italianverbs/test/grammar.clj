@@ -79,6 +79,7 @@
                        '(:italian)))))
 
 (def s-past cc10)
+(def s-present cc10)
 
 (deftest adj-agreement-with-subject
   "adjectives must agree with subjects - tests this behavior with intermediate 'meno ricco' between the subject and the adjective."
@@ -167,7 +168,6 @@
          (get-in (finalize (first (over np "i" (over nbar "studente" "brutto"))))
                  '(:italian)))))
 
-(def s-present cc10)
 (deftest io-sogno
   (let [io-sogno (finalize (first (over s-present "io" "sognare")))]
     (is (= "io sogno"
