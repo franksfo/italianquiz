@@ -177,7 +177,8 @@
                              "</div>"
                              "<div class='evalresult'>"
                              (cond
-                              (and (seq? loaded)
+
+                              (and (or (seq? loaded) (set? loaded))
                                    (> (.size loaded) 1))
                               (str "<ol class='workbook'>"
                                    (string/join " "
@@ -185,6 +186,7 @@
                                                        (str "<li>" (html/tablize elem) "</li>"))
                                                      (seq loaded)))
                                    "</ol>")
+
                               (= (type loaded)
                                  clojure.lang.LazySeq)
                               (string/join " "
@@ -193,8 +195,7 @@
                                                 (seq loaded)))
 
                               (or (list? loaded)
-                                  (= (type loaded) clojure.lang.Cons)
-                                  (set? loaded))
+                                  (= (type loaded) clojure.lang.Cons))
                               (string/join " "
                                            (map (fn [elem]
                                                   (html/tablize elem))
