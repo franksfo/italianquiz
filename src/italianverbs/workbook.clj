@@ -52,7 +52,7 @@
 (defn over-each-parent [parents child1 child2]
   (if (not (empty? parents))
     (let [parent (first parents)]
-      (log/info (str "parent: " parent))
+      (log/debug (str "parent: " parent))
       (lazy-cat
        (cond (and (map? parent)
                   (not (nil? (:serialized parent))))
@@ -121,6 +121,10 @@
                         (shuffle parents)
                         (list parents))
                       child1 child2)))
+
+;; (take 1 (overall "domani" (overall "io" (overall "avere" (overall "potere" "dormire")))))))
+(defn overall [child1 & [child2]]
+  (over (list cc10 ch21 hc11 hh10 hh21 hh32) child1 child2))
 
 (defn demo-generation []
   (fo (take 1 (over np {:synsem {:gender :masc :number :sing}} {:synsem {:sem {:human true}}})))
