@@ -178,7 +178,7 @@
                              "<div class='evalresult'>"
                              (cond
 
-                              (and (or (seq? loaded) (set? loaded))
+                              (and (or (set? loaded) (seq? loaded))
                                    (> (.size loaded) 1))
                               (str "<ol class='workbook'>"
                                    (string/join " "
@@ -194,7 +194,7 @@
                                                   (html/tablize elem))
                                                 (seq loaded)))
 
-                              (or (list? loaded)
+                              (or (list? loaded) (set? loaded)
                                   (= (type loaded) clojure.lang.Cons))
                               (string/join " "
                                            (map (fn [elem]
