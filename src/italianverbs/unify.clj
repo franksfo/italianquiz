@@ -21,10 +21,9 @@
 (defn get-in [in-map path & [not-found]]
   "same as clojure.core (get-in), but it resolves references if need be."
   (if (seq? in-map)
-    (do (log/info (str "got here: doing seq: " in-map))
-        (map (fn [each]
-               (get-in each path not-found))
-             in-map))
+    (map (fn [each]
+           (get-in each path not-found))
+         in-map)
     (let [result
           (if (first path)
             (let [result (get in-map (first path) not-found)]
