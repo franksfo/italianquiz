@@ -101,6 +101,11 @@
      (= :fail (second args))
      :fail
 
+     (seq? val1)
+     (map (fn [each]
+            (unify each val2))
+          val1)
+
      (and (map? val1)
           (map? val2))
      (let [tmp-result
@@ -765,9 +770,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
   (let [serialized (serialize input-map)]
     serialized))
 
-(defn copy [map]
-  (log/debug (str "copy: " map))
-  (deserialize (serialize map)))
+(defn copy [input]
+  (log/debug (str "copy: " input))
+  (cond (seq? input)
+        (map (fn [each]
+               (copy each))
+             input)
+        true
+        (deserialize (serialize input))))
 
 (defn trunc [serialized]
   "create a new serialized map with all paths removed that are non-immediate."
