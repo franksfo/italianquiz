@@ -8,8 +8,7 @@
             [italianverbs.lexiconfn :refer :all]
             [italianverbs.morphology :refer :all]
             [italianverbs.ug :refer :all]
-            [italianverbs.unify :refer :all :exclude [unify]]
-            ))
+            [italianverbs.unify :refer :all :exclude [unify]]))
 
 (log/info "started loading rules.")
 
