@@ -102,8 +102,7 @@
 
      (and (= val1 '())
           (= val2 :top))
-     (do  (log/info (str "SUCCESS: val1=" val1 "; val2=" val2))
-          val1)
+     val1
 
      (and (= val1 '())
           (= val2 '()))
@@ -111,9 +110,7 @@
 
 
      (and (= val1 '()))
-     (do
-       (log/info (str "FAILING: val1=" val1 "; val2=" val2))
-       :fail)
+     :fail
 
      (and (= val1 nil)
           (= val2 :top))
