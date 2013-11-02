@@ -157,17 +157,6 @@
       verb-aux-type
       verb-subjective
       avere-common
-      {:takes :one-arg}
-      {:synsem {:infl :present
-                :subcat {:2 {:essere false}}}
-       :english {:hidden true}})
-
-     ;; "avere": auxiliary-verb: takes transitive verb (2 args)
-     (unify
-      verb-aux-type-2
-      verb-subjective
-      avere-common
-      {:takes :two-args}
       {:synsem {:infl :present
                 :subcat {:2 {:essere false}}}
        :english {:hidden true}})
@@ -785,7 +774,8 @@
           (unify
            transitive
            fare-common
-           {:synsem {:subcat {:3 '()}}}
+           {:synsem {:subcat {:2 {:cat :noun}
+                              :3 '()}}}
            {:english {:infinitive "to do"
                       :irregular {:past-participle "done"
                                   :past "did"
@@ -806,7 +796,8 @@
           (unify
            transitive
            fare-common
-           {:synsem {:subcat {:3 '()}}}
+           {:synsem {:subcat {:2 {:cat :noun}
+                              :3 '()}}}
            {:english {:infinitive "to make"
                       :irregular {:past "made"}}
             :synsem {:cat :verb
@@ -2577,6 +2568,7 @@
 (defn en [english]
   (lookup {:english english}))
 
+;; TODO: get 'aiutare' working again.
 (def tinylex
   (union ;(it "aiutare")
          (it "andare")
