@@ -74,6 +74,11 @@
                  (= (get-in lexeme '(:synsem :subcat :2)) '())))
           all-in-lexicon))
 
+(def intensifiers
+  (filter (fn [lexeme]
+            (= (get-in lexeme '(:synsem :cat)) :intensifier))
+          all-in-lexicon))
+
 ;; TODO: more filtering
 (def adverbial-verbs
   (filter (fn [lexeme]

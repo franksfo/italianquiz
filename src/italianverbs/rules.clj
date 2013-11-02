@@ -60,16 +60,31 @@
                 :comp 'pp
                 :head 'vp-adv})
 
+(rewrite-as vp {:schema 'hh21
+                :label 'vp-intensifier
+                :comp 'intensifier-phrase
+                :head 'transitive-verbs}) ;; TODO: restrict to e.g. 'copula verbs' or 'essere'
+
 (ns-unmap 'italianverbs.rules 'vp-adv)
 (rewrite-as vp-adv {:schema 'hh32
                     :label 'vp-adv
                     :comp 'adverbs
                     :head 'adverbial-verbs})
 
+(ns-unmap 'italianverbs.rules 'intensifier-phrase)
+(rewrite-as intensifier-phrase {:schema 'hh21
+                            :label 'intensifier-phrase
+                            :comp 'adj-phrase
+                            :head 'intensifiers})
+
 (ns-unmap 'italianverbs.rules 'pp)
 (rewrite-as pp {:schema 'hh10
                 :label 'pp
                 :comp 'vp
+                :head 'prepositions})
+(rewrite-as pp {:schema 'hh10
+                :label 'pp
+                :comp 'np
                 :head 'prepositions})
 
 (ns-unmap 'italianverbs.rules 'modal-vp)
@@ -103,6 +118,18 @@
                      :label 'past-vp
                      :head 'aux-verbs
                      :comp 'modal-vp})
+
+
+(ns-unmap 'italianverbs.rules 'adj-phrase)
+(rewrite-as adj-phrase {:schema 'hh21
+                        :label 'adj-phrase
+                        :head 'adjectives
+                        :comp 'pp})
+
+;; Working on this:
+;;
+;; (fo (take 1 (generate (shuffle adj-phrase) "adj-phase" :top sem-impl)))
+
 
 ;; -- aliases --
 (def ds declarative-sentence)

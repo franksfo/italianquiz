@@ -554,6 +554,21 @@
                :initial true}
      :english "than"}
 
+    {:synsem {:cat :prep
+              :sem {:pred :di
+                    :comparative true}
+              :subcat {:1 {:cat :noun
+                           :subcat '()
+                           :def {:not :partitivo} ;; avoid alliteration like "di delle ragazze (of some women)"
+                           :agr {:case :disj} ;; pronouns must be disjunctive (me/te/lui/lei...etc)
+                           ;; non-pronouns will unify with this constraint.
+                           ;; TODO: remove this constraint: for debugging only.
+                           :sem {:human true}}
+                       :2 '()}}
+     :italian {:italian "di"
+               :initial true}
+     :english "than"}
+
     {:synsem {:cat :det
               :def :partitivo
               :number :plur

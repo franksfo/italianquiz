@@ -80,6 +80,8 @@
 
 (def s-past cc10)
 (def s-present cc10)
+(def intensifier-phrase hh21)
+(def adj-phrase hh21)
 
 (deftest adj-agreement-with-subject
   "adjectives must agree with subjects - tests this behavior with intermediate 'meno ricco' between the subject and the adjective."
