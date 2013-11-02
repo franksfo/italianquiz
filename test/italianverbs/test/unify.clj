@@ -627,4 +627,22 @@ when run from a REPL."
        :english {:infl infl}
        :synsem {:infl infl}}))))
 
+(deftest nil-and-top
+  ;; ...should return emptylist.
+  (is (= nil
+         (unify nil :top))))
 
+(deftest nil-and-anything-except-top
+  ;; ...should return :fail.
+  (is (fail?
+       (unify nil {:foo 42}))))
+
+(deftest emptylist-and-top
+  ;; ...should return emptylist.
+  (is (= '()
+         (unify '() :top))))
+
+(deftest emptylist-and-anything-except-top
+  ;; ...should return :fail.
+  (is (fail?
+       (unify '() {:foo 42}))))
