@@ -80,7 +80,6 @@
 
 (def s-past cc10)
 (def s-present cc10)
-(def intensifier-phrase hh21)
 (def adj-phrase hh21)
 
 (deftest adj-agreement-with-subject
