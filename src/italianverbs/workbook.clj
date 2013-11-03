@@ -59,7 +59,7 @@
              ;; In this case, supposed 'parent' is really a lexical item: for now, definition of 'lexical item' is,
              ;; it has a non-nil value for :serialized - just return nil, nothing else to do.
              nil
-
+;; TODO add log/warn or log/error here
              (and (map? parent)
                   (not (nil? (:schema parent))))
                   ;; figure out whether head is child1 or child2:
@@ -197,7 +197,8 @@
                     (not (nil? (:serialized parent))))
                ;; In this case, supposed 'parent' is really a lexical item: for now, definition of 'lexical item' is,
                ;; it has a non-nil value for :serialized - just return nil, nothing else to do.
-               nil
+ ;; TODO: add log/warn or log/error here   
+           nil
 
                (and (map? parent)
                     (not (nil? (:schema parent))))
