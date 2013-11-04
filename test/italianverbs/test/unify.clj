@@ -646,3 +646,12 @@ when run from a REPL."
   ;; ...should return :fail.
   (is (fail?
        (unify '() {:foo 42}))))
+
+(deftest set-and-top
+  (is (= (unify #{1 2 3} :top)
+         #{1 2 3})))
+
+(deftest set-and-set-is-intersection
+  (is (= (unify #{1 2} #{2 3})
+     #{2})))
+

@@ -119,6 +119,10 @@
      (= val1 nil)
      :fail
 
+     (and (set? val1)
+          (set? val2))
+     (intersection val1 val2)
+
      (nil? args) nil
 
      (= (.count args) 1)
