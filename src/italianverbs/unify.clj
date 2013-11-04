@@ -469,23 +469,6 @@
     (log/debug (str "retvalD: " retval))
     retval))
 
-(defn set-paths [fs paths val]
-  (let [path (first paths)]
-    (if path
-      (set-paths (assoc-in fs path val) (rest paths) val)
-      fs)))
-
-(defn encode-refs [fs inv-fs]
-  (if (first inv-fs)
-    (let [ref-pair (first inv-fs)]
-      ;; ref-pair: <value, set-of-pairs-that-point-to-this-reference> >
-      (let [value (first ref-pair)
-            paths (second ref-pair)]
-       (encode-refs
-        (set-paths fs paths value)
-        (rest inv-fs))))
-     fs))
-
 (def ^:dynamic *exclude-keys* #{:_id})
 
 (defn deref-map [input]
