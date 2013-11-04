@@ -162,12 +162,21 @@
    (let [children child]
      (filter (fn [result]
                (not (fail? result)))
-             (map (fn [child]
-                    (overc parent child))
-                  children)))
+             (reduce #'concat
+                     (map (fn [child]
+                            (overc parent child))
+                          children))))
+
+   (and
+    (keyword? child)
+    (= child :top))
+   (list parent)
+
+   (keyword? child)
+   (list :fail)
 
    true
-   (list (moreover-comp parent child sem-impl))))
+   (moreover-comp parent child sem-impl)))
 
 (defn overhc [parent head comp]
   (log/debug (str "overhc parent: " parent))
@@ -209,7 +218,8 @@
                          comp
                          (if (= head child1)
                            child2 child1)]
-                     (overhc parent head comp))
+                     (filter (fn [each] (not (fail? each)))
+                             (overhc parent head comp)))
 
                    ;; if parent is a symbol, evaluate it; should evaluate to a list of expansions (which might also be symbols, etc).
                    (symbol? parent)
@@ -219,11 +229,13 @@
                    ;; and figure out head-comp ordering from :first attribute.
                    (and (map? parent)
                         (not (nil? (:schema-symbol parent))))
-                   (overhc parent
-                           (if (= (:first parent) :head)
-                             child1 child2)
-                           (if (= (:first parent) :head)
-                             child2 child1))
+                   (filter (fn [each]
+                             (not (fail? each)))
+                           (overhc parent
+                                   (if (= (:first parent) :head)
+                                     child1 child2)
+                                   (if (= (:first parent) :head)
+                                     child2 child1)))
                    true
                    (throw (Exception. (str "Don't know what to do with parent: " parent))))
 
