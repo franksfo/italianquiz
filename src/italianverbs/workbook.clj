@@ -290,6 +290,9 @@
                              "<div class='evalresult'>"
                              (cond
 
+                              (set? loaded)
+                              (html/tablize loaded)
+
                               (and (or (set? loaded) (seq? loaded))
                                    (> (.size loaded) 1))
                               (str "<ol class='workbook'>"
@@ -312,13 +315,17 @@
                                            (map (fn [elem]
                                                   (html/tablize elem))
                                                 loaded))
+
                               (= (type loaded) clojure.lang.Var)
                               (str (eval loaded))
+
                               (and (map? loaded)
                                    (= (keys loaded) '(:plain)))
                               (str "<div style='font-family:monospace'>" (strip-refs (:plain loaded)) "</div>")
+
                               (map? loaded)
                               (html/tablize loaded)
+
                               (= (type loaded) nil)
                               (str "<b>nil</b>")
                               :else

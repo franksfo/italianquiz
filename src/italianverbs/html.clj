@@ -83,7 +83,8 @@
 
 ;; TODO: use multimethod based on arg's type.
 (defn tablize [arg & [path serialized opts]]
-  ;; set defaults.
+  (log/debug (str "rendering arg: " arg " with type: " (type arg)))
+ ;; set defaults.
   ;; (TODO: in which contexts are we passing an already-serialized arg?)
   ;; if not already serialized, then serialize:
   (let [serialized (if (nil? serialized)
@@ -111,7 +112,13 @@
                                   (tablize each-arg path (fs/serialize each-arg) opts))
                                 (seq arg))))
      (set? arg)
-     (tablize (first arg) path serialized opts)
+     (reduce #'str
+             (concat (list "<table><tr><td>{</td><td>")
+                     (string/join "</td><td>" (map (fn [each]
+                                      (tablize each path serialized opts))
+                                    (seq arg)))
+                     (list "</td><td>}</td></tr></table>")))
+
      (or (set? arg)
          (list? arg)
          (= (type arg) clojure.lang.Cons))
