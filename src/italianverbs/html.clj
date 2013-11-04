@@ -131,16 +131,6 @@
       (not (= :italian (last path)))
       (not (= :english (last path)))
 
-      ;; this long set of (nots) is to prevent matching :extend:
-      ;; TODO: might be possible to remove this.
-      ;; :extends will have features :a,:b,:c,..
-      (not (= :a (last path)))
-      (not (= :b (last path)))
-      (not (= :c (last path)))
-      (not (= :d (last path)))
-      (not (= :e (last path)))
-      (not (= :f (last path)))
-      (not (= :g (last path)))
       (not (= :none (:head arg :none)))
       (not (= :none (:comp arg :none)))
       (= :none (:1 arg :none))
