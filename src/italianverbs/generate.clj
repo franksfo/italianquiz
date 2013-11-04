@@ -24,11 +24,11 @@
   (do
     (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
     (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/debug (str "moreover-head (candidate) head child sem:" (unify/get-in child '(:synsem :sem))))
+    (log/debug (str "moreover-head (candidate) head child sem:" (unify/get-in child '(:synsem :sem) :top)))
     (log/debug (str "moreover-head (candidate) head:" (fo child)))
     (let [result (unifyc parent
                               (unifyc {:head child}
-                                           {:head {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
+                                           {:head {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem) :top))}}}))]
       (if (not (unify/fail? result))
         (let [debug (log/debug (str "moreover-head " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
               debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
@@ -48,18 +48,21 @@
 (defn moreover-comp [parent child lexfn-sem-impl]
   (log/debug (str "moreover-comp parent: " (fo parent)))
   (log/debug (str "moreover-comp comp:" (fo child)))
+  (log/debug (str "moreover-comp type parent: " (type parent)))
+  (log/debug (str "moreover-comp type comp:" (type child)))
   (let [result
         (unifyc parent
-                     (unifyc {:comp child}
-                                  {:comp {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem)))}}}))]
+                (unifyc {:comp child}
+                        {:comp {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem) :top))}}}))]
     (if (not (unify/fail? result))
       (let [debug (log/debug (str "moreover-comp " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
             debug (log/debug (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
         (let [result
               (merge {:comp-filled true}
                      result)]
-          (log/debug (str "moreover-comp (SUCCESS) merged result: " (fo result)))
-          result))
+          (log/debug (str "moreover-comp (SUCCESS) merged result:(fo) " (fo result)))
+          (log/debug (str "moreover-comp (SUCCESS) merged result: " result)))
+          result)
       (do
         (log/debug "moreover-comp: fail at: " (unify/fail-path result))
         (if (unify/get-in child '(:head))
@@ -69,7 +72,7 @@
                                   (unify/get-in parent (unify/fail-path result))
                                   "; Synsem of child is: "
                                   (unify/get-in child '(:synsem) :top)))))
-        (log/debug "moreover-comp: complement synsem: " (unify/get-in child '(:synsem)))
+        (log/debug "moreover-comp: complement synsem: " (unify/get-in child '(:synsem) :top))
         (log/debug "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
         :fail))))
 
