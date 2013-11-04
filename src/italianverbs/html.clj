@@ -114,7 +114,7 @@
      (set? arg)
      (reduce #'str
              (concat (list "<table><tr><td>{</td><td>")
-                     (string/join "</td><td>" (map (fn [each]
+                     (string/join ",</td><td>" (map (fn [each]
                                       (tablize each path serialized opts))
                                     (seq arg)))
                      (list "</td><td>}</td></tr></table>")))
