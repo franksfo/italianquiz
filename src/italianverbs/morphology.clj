@@ -1644,6 +1644,8 @@
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
   (cond
+   (keyword? expressions)
+   expressions
    (symbol? expressions)
    expressions
    (fn? expressions)
