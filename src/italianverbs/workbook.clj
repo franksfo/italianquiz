@@ -129,6 +129,7 @@
 (fo (take 1 (over-gen sents {:synsem {:agr {:gender :masc}}} "dormire")))
 
 (defn overh [parent child]
+  (log/debug (str "overh child: " child))
   (cond
    (string? child)
    (overh parent (it child))
@@ -145,9 +146,11 @@
                   children)))
 
    true
-   (moreover-head parent child sem-impl)))
+   (list (moreover-head parent child sem-impl))))
 
 (defn overc [parent child]
+  (log/debug (str "overc parent: " (fo parent)))
+  (log/debug (str "overc child: " child))
   (cond
    (string? child)
    (overc parent (it child))
@@ -164,9 +167,75 @@
                   children)))
 
    true
-   (moreover-comp parent child sem-impl)))
+   (list (moreover-comp parent child sem-impl))))
+
+(defn overhc [parent head comp]
+  (log/debug (str "overhc parent: " parent))
+  (log/debug (str "overhc head: " head))
+  (log/debug (str "overhc comp: " comp))
+  (reduce #'concat
+          (map (fn [each-with-head]
+                 (overc each-with-head comp))
+               (overh parent head))))
+
+(defn over [parents child1 & [child2]]
+  (if (nil? child2) (over parents child1 :top)
+      (if (map? parents)
+        (over (list parents) child1 child2)
+        (if (not (empty? parents))
+          (let [parent (first parents)]
+            (log/debug (str "over: parent: " parent))
+            (lazy-cat
+             (cond (and (map? parent)
+                        (not (nil? (:serialized parent))))
+                   ;; In this case, supposed 'parent' is really a lexical item: for now, definition of 'lexical item' is,
+                   ;; it has a non-nil value for :serialized - just return nil, nothing else to do.
+
+                   (throw (Exception. (str "Don't know what to do with this parent: " parent)))
+
+                   (and (map? parent)
+                        (not (nil? (:schema parent))))
+                   ;; figure out whether head is child1 or child2:
+                   (let [head
+                         (cond
+                          (= \c (nth (str (:schema parent)) 0))
+                          child2
+
+                          (= \h (nth (str (:schema parent)) 0))
+                          child1
+
+                          true
+                          (throw (Exception. (str "Don't know what the head-vs-complement ordering is for parent: " parent))))
+                         comp
+                         (if (= head child1)
+                           child2 child1)]
+                     (overhc parent head comp))
+
+                   ;; if parent is a symbol, evaluate it; should evaluate to a list of expansions (which might also be symbols, etc).
+                   (symbol? parent)
+                   (over (eval parent) child1 child2)
+
+                   ;; if parent is map, do introspection: figure out the schema from the :schema-symbol attribute,
+                   ;; and figure out head-comp ordering from :first attribute.
+                   (and (map? parent)
+                        (not (nil? (:schema-symbol parent))))
+                   (overhc parent
+                           (if (= (:first parent) :head)
+                             child1 child2)
+                           (if (= (:first parent) :head)
+                             child2 child1))
+                   true
+                   (throw (Exception. (str "Don't know what to do with parent: " parent))))
+
+             (over (rest parents) child1 child2)))))))
+
+;; (take 1 (overall "domani" (overall "io" (overall "avere" (overall "potere" "dormire")))))))
+(defn overall [child1 & [child2]]
+  (over (list cc10 ch21 hc11 hh10 hh21 hh32) child1 child2))
 
 (defn overha [child1 & [child2]]
+  (log/debug (str "overha child1: " child1))
+  (log/debug (str "overha child2: " child2))
   (let [with-head
         (reduce #'concat
                 (map (fn [parent]
@@ -178,67 +247,6 @@
                      (overc each-with-head child2))
                    with-head))
       with-head)))
-
-(defn overhc [parent head comp]
-  (reduce #'concat
-          (map (fn [each-with-head]
-                 (overc each-with-head comp))
-               (overh parent head))))
-
-
-(defn over [parents child1 child2]
-  (if (map? parents)
-    (over (list parents) child1 child2)
-    (if (not (empty? parents))
-      (let [parent (first parents)]
-        (log/debug (str "parent: " parent))
-        (lazy-cat
-         (cond (and (map? parent)
-                    (not (nil? (:serialized parent))))
-               ;; In this case, supposed 'parent' is really a lexical item: for now, definition of 'lexical item' is,
-               ;; it has a non-nil value for :serialized - just return nil, nothing else to do.
-
-               (throw (Exception. (str "Don't know what to do with this parent: " parent)))
-
-               (and (map? parent)
-                    (not (nil? (:schema parent))))
-               ;; figure out whether head is child1 or child2:
-               (let [head
-                     (cond
-                      (= \c (nth (str (:schema parent)) 0))
-                      child2
-
-                      (= \h (nth (str (:schema parent)) 0))
-                      child1
-
-                      true
-                      (throw (Exception. (str "Don't know what the head-vs-complement ordering is for parent: " parent))))
-                     comp
-                     (if (= head child1)
-                       child2 child1)]
-                 (overhc parent head comp))
-
-               ;; if parent is a symbol, evaluate it; should evaluate to a list of expansions (which might also be symbols, etc).
-               (symbol? parent)
-               (over (eval parent) child1 child2)
-
-               ;; if parent is map, do introspection: figure out the schema from the :schema-symbol attribute,
-               ;; and figure out head-comp ordering from :first attribute.
-               (and (map? parent)
-                    (not (nil? (:schema-symbol parent))))
-               (overhc parent
-                       (if (= (:first parent) :head)
-                         child1 child2)
-                       (if (= (:first parent) :head)
-                       child2 child1))
-               true
-               (throw (Exception. (str "Don't know what to do with parent: " parent))))
-
-         (over (rest parents) child1 child2))))))
-
-;; (take 1 (overall "domani" (overall "io" (overall "avere" (overall "potere" "dormire")))))))
-(defn overall [child1 & [child2]]
-  (over (list cc10 ch21 hc11 hh10 hh21 hh32) child1 child2))
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
