@@ -15,6 +15,7 @@
 ;; possible expansions of sentence (for now, only declarative sentences):
 (ns-unmap 'italianverbs.rules 'declarative-sentence)
 (rewrite-as declarative-sentence {:schema 'cc10
+                                  :constraints {:synsem {:infl #{:present,:futuro,:imperfetto}}}
                                   :label 'declarative-sentence
                                   :post-unify-fn sent-impl
                                   :comp 'np
