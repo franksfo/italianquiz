@@ -526,7 +526,6 @@
         true
         (str "(regpast:TODO):" stem)))
 
-     
      (and (= (fs/get-in word '(:infl)) :present)
           (= person :1st) (= number :sing)
           (string? (fs/get-in word '(:irregular :present :1sing))))
