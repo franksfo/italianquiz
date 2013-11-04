@@ -469,20 +469,6 @@
     (log/debug (str "retvalD: " retval))
     retval))
 
-(defn unify-and-apply [maps]
-  "merge maps, and then apply the function (:fn merged) to the merged map."
-  (let [merged
-        (eval `(unify ~@maps))
-        fn (:fn merged)
-        eval-fn (if (and fn (= (type fn) java.lang.String))
-                  (eval (symbol fn)) ;; string->fn (since a fn cannot (yet) be
-                  fn)] ;; otherwise, assume it's a function.
-    (if (:fn merged)
-      (unify merged
-             (apply eval-fn
-                    (list merged)))
-      maps)))
-
 (defn set-paths [fs paths val]
   (let [path (first paths)]
     (if path
