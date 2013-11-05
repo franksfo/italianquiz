@@ -163,7 +163,7 @@
                                (fo (unify/get-in phrase-with-head '(:head)))
                                " + "
                                (fo comp) " => TRUE")))
-              (let [with-impl (if post-unify-fn (post-unify-fn result) result)]
+              (let [with-impl (if (and false post-unify-fn) (post-unify-fn result) result)]
                   (if (unify/fail? with-impl)
 
                     ;; adding comp to this phrase failed: continue with the rest of the complements.
@@ -413,22 +413,23 @@
 
 (defn generate [alternatives label filter-against lexfn-sem-impl]
   (if (and (not (empty? alternatives))
-           (first alternatives))
+           (first alternatives));; TODO: (first alternatives) is redundant?
     (let [candidate (first alternatives)
-          filter-against (if (:constraints candidate)
-                           (do
-                             (log/info (str "using constraints: " (:constraints candidate)))
-                             (log/info (str "using filter-against: " filter-against))
-                             (log/info (str "result: " (unifyc filter-against
-                                                               (:constraints candidate))))
-                             (unifyc filter-against)
-                                     (:constraints candidate))
-                           filter-against)
-          label (if label label (if (map? label) (:label candidate)))]
-        (lazy-cat
-         (generate-from-candidate candidate label filter-against lexfn-sem-impl)
-         (if (not (empty? (rest alternatives)))
-           (generate (rest alternatives) label filter-against lexfn-sem-impl))))))
+          constraints (if (:constraints candidate)
+                        (:constraints candidate)
+                        :top)
+          filter-against (do
+                           (log/debug (str "using constraints: " (:constraints candidate)))
+                           (log/debug (str "using filter-against: " filter-against))
+                           (unifyc filter-against constraints))
+          label (if label label (if (map? label) (:label candidate)))
+          debug (if (fail? filter-against)
+                  (log/debug (str "WILL IGNORE THIS FAILURE: " filter-against)))]
+      (lazy-cat
+       (if (not (fail? filter-against))
+         (generate-from-candidate candidate label filter-against lexfn-sem-impl))
+       (if (not (empty? (rest alternatives)))
+         (generate (rest alternatives) label filter-against lexfn-sem-impl))))))
 
 (defmacro gen-ch21 [head comp]
   `(do ~(log/debug "gen-ch21 macro compile-time.")
