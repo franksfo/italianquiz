@@ -62,7 +62,9 @@
           (if (= fs :fail) true
               (do
                 (defn failr? [fs keys]
-                  (if (and (not (nil? keys)) (> (.size keys) 0))
+;                  (log/error (str "FAILR: fs: " fs))
+;                  (log/error (str "FAILR: keys: " keys))
+                  (if (first keys)
                     (if (fail? (get-in fs (list (first keys))))
                       true
                       (failr? fs (rest keys)))
