@@ -148,9 +148,13 @@
    true
    (list (moreover-head parent child sem-impl))))
 
+;; Haskell-looking signature:
+;; (parent:map) X (child:{set,seq,fs}) => list:map
 (defn overc [parent child]
   (log/debug (str "overc parent: " (fo parent)))
   (log/debug (str "overc child: " child))
+  (log/debug (str "overc parent type: " (type parent)))
+  (log/debug (str "overc child type: " (type child)))
   (cond
    (string? child)
    (overc parent (it child))
@@ -163,8 +167,8 @@
      (filter (fn [result]
                (not (fail? result)))
              (reduce #'concat
-                     (map (fn [child]
-                            (overc parent child))
+                     (map (fn [each-child]
+                            (overc parent each-child))
                           children))))
 
    (and
@@ -176,7 +180,7 @@
    (list :fail)
 
    true
-   (moreover-comp parent child sem-impl)))
+   (list (moreover-comp parent child sem-impl))))
 
 (defn overhc [parent head comp]
   (log/debug (str "overhc parent: " parent))
