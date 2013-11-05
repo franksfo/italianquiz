@@ -14,9 +14,27 @@
 
 ;; possible expansions of sentence (for now, only declarative sentences):
 (ns-unmap 'italianverbs.rules 'declarative-sentence)
+
+;; TODO: translate ':present' into Italian.
 (rewrite-as declarative-sentence {:schema 'cc10
-                                  :constraints {:synsem {:infl #{:present,:futuro,:imperfetto}}}
-                                  :label 'declarative-sentence
+                                  :constraints {:synsem {:infl :present}}
+                                  :label 'ds-present
+                                  :post-unify-fn sent-impl
+                                  :comp 'np
+                                  :head 'vp})
+
+(rewrite-as declarative-sentence {:schema 'cc10
+                                  :constraints {:synsem {:sem {:tense :futuro}
+                                                         :infl :futuro}}
+                                  :label 'ds-futuro
+                                  :post-unify-fn sent-impl
+                                  :comp 'np
+                                  :head 'vp})
+
+(rewrite-as declarative-sentence {:schema 'cc10
+                                  :constraints {:synsem {:sem {:tense :past}
+                                                         :infl :imperfetto}}
+                                  :label 'ds-imperfetto
                                   :post-unify-fn sent-impl
                                   :comp 'np
                                   :head 'vp})
@@ -53,9 +71,25 @@
 (rewrite-as vp 'past-vp)
 (rewrite-as vp 'transitive-vp)
 (rewrite-as vp {:schema 'ch21
-                :label 'vp
+                :label 'vp-plus-pronoun-present
+                :constraints {:synsem {:infl :present}
+                              :sem {:tense :present}}
                 :comp 'pronouns
                 :head 'transitive-verbs})
+(rewrite-as vp {:schema 'ch21
+                :label 'vp-plus-pronoun-future
+                :constraints {:synsem {:infl :futuro}
+                              :sem {:tense :futuro}}
+                :comp 'pronouns
+                :head 'transitive-verbs})
+(rewrite-as vp {:schema 'ch21
+                :label 'vp-plus-pronoun-future
+                :constraints {:synsem {:infl :imperfetto}
+                              :sem {:tense :past}}
+                :comp 'pronouns
+                :head 'transitive-verbs})
+;; TODO: add vp -> pronoun vp-past
+
 (rewrite-as vp {:schema 'hh21
                 :label 'vp-prep
                 :comp 'pp
@@ -74,9 +108,9 @@
 
 (ns-unmap 'italianverbs.rules 'intensifier-phrase)
 (rewrite-as intensifier-phrase {:schema 'hh21
-                            :label 'intensifier-phrase
-                            :comp 'adj-phrase
-                            :head 'intensifiers})
+                                :label 'intensifier-phrase
+                                :comp 'adj-phrase
+                                :head 'intensifiers})
 
 (ns-unmap 'italianverbs.rules 'pp)
 (rewrite-as pp {:schema 'hh10
@@ -90,12 +124,41 @@
 
 (ns-unmap 'italianverbs.rules 'modal-vp)
 (rewrite-as modal-vp {:schema 'hh21
-                      :label 'modal-vp
+                      :label 'modal-vp-present
                       :head 'modal-verbs
+                      :constraints {:synsem {:infl :present
+                                             :sem {:tense :present}}}
                       :comp 'intransitive-verbs})
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp-future
+                      :head 'modal-verbs
+                      :constraints {:synsem {:infl :futuro
+                                             :sem {:tense :futuro}}}
+                      :comp 'intransitive-verbs})
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp-future
+                      :head 'modal-verbs
+                      :constraints {:synsem {:infl :imperfetto
+                                             :sem {:tense :imperfetto}}}
+                      :comp 'intransitive-verbs})
+
 (rewrite-as modal-vp {:schema 'hh21
                       :label 'modal-vp
                       :head 'modal-verbs
+                      :constraints {:synsem {:infl :present
+                                             :sem {:tense :present}}}
+                      :comp 'transitive-vp})
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp
+                      :head 'modal-verbs
+                      :constraints {:synsem {:infl :futuro
+                                             :sem {:tense :futuro}}}
+                      :comp 'transitive-vp})
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp
+                      :head 'modal-verbs
+                      :constraints {:synsem {:infl :imperfetto
+                                             :sem {:tense :imperfetto}}}
                       :comp 'transitive-vp})
 
 ;; possible expansions of transitive vp (verb phrase):
@@ -108,18 +171,23 @@
 
 (ns-unmap 'italianverbs.rules 'past-vp)
 (rewrite-as past-vp {:schema 'hh21
+                     :constraints {:synsem {:sem {:tense :present}}
+                                   :comp {:infl :past}}
                      :label 'past-vp
                      :head 'aux-verbs
                      :comp 'intransitive-verbs})
 (rewrite-as past-vp {:schema 'hh21
+                     :constraints {:synsem {:sem {:tense :past}}
+                                   :comp {:infl :past}}
                      :label 'past-vp
                      :head 'aux-verbs
                      :comp 'transitive-vp})
 (rewrite-as past-vp {:schema 'hh21
+                     :constraints {:synsem {:sem {:tense :past}}
+                                   :comp {:infl :past}}
                      :label 'past-vp
                      :head 'aux-verbs
                      :comp 'modal-vp})
-
 
 (ns-unmap 'italianverbs.rules 'adj-phrase)
 (rewrite-as adj-phrase {:schema 'hh21
