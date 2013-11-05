@@ -323,6 +323,9 @@
 
 (defn generate-from-candidate [candidate label filter-against lexfn-sem-impl]
   (log/debug "generate-from-candidate: candidate with type: " (type candidate))
+  (log/debug "generate-from-candidate: map? candidate: " (map? candidate))
+  (log/debug "generate-from-candidate: (nil? :schema) candidate: " (nil? (:schema candidate)))
+  (log/debug "generate-from-candidate: (nil? filter-against)" (nil? filter-against))
   (cond (and (symbol? candidate)
              (seq? (eval candidate)))
         (generate
@@ -387,7 +390,12 @@
                  lexfn-sem-impl))
         (and (map? candidate)
              (not (nil? filter-against)))
-        (let [result (unifyc filter-against candidate)]
+        (let [debug (log/debug (str "going to unifyc with filter-against: " filter-against))
+              debug (log/debug (str "going to unifyc with candidate: " candidate))
+              debug (log/debug (str "copy filter-against: " (copy filter-against)))
+              debug (log/debug (str "copy candidate: " (copy candidate)))
+              debug (log/debug (str "OK: done copying."))
+              result (unifyc filter-against candidate)]
           (if (not (unify/fail? result))
             (do (log/info (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate)))
                 (list result))
@@ -407,6 +415,15 @@
   (if (and (not (empty? alternatives))
            (first alternatives))
     (let [candidate (first alternatives)
+          filter-against (if (:constraints candidate)
+                           (do
+                             (log/info (str "using constraints: " (:constraints candidate)))
+                             (log/info (str "using filter-against: " filter-against))
+                             (log/info (str "result: " (unifyc filter-against
+                                                               (:constraints candidate))))
+                             (unifyc filter-against)
+                                     (:constraints candidate))
+                           filter-against)
           label (if label label (if (map? label) (:label candidate)))]
         (lazy-cat
          (generate-from-candidate candidate label filter-against lexfn-sem-impl)
