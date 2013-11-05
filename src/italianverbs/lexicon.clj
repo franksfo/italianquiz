@@ -603,7 +603,7 @@
            {:synsem {:cat :sent-modifier
                      :sem {:pred :domani}
                      :subcat {:1 {:infl :futuro
-                                  :sem {:tense :future}
+                                  :sem {:tense :futuro}
                                   :subcat '()}}}
             :italian "domani"
             :english "tomorrow"})
