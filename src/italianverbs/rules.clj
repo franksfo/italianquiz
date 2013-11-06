@@ -25,7 +25,7 @@
                             {:synsem {:infl :imperfetto
                                       :sem {:tense :past}}}}
              :label 'decl-sent
-              :comp 'np
+             :comp 'np
              :head 'vp})
 
 (ns-unmap 'italianverbs.rules 'sentence-with-modifier)
