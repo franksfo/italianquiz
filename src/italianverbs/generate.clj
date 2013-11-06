@@ -339,8 +339,9 @@
         (let [schema (:schema candidate)
               head (:head candidate)
               comp (:comp candidate)]
-          (log/debug (str "generate: candidate is a schema: " candidate))
+          (log/debug (str "generate: candidate is a schema: " schema))
           (log/debug (str "generate: filter-against: " filter-against))
+          (log/debug (str "generate: eval schema: " (eval schema)))
           ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
           ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
           ;; in a particular order (i.e. either head is first or complement is first).
@@ -355,10 +356,37 @@
           ;; (eval schema) is a 3-node tree (parent and two children) as described
           ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
           ;; allowing us to access that value with (eval schema).
+          (log/debug (str "going to copy the thing.."))
+          (log/debug (str "here is a copy.." (unify/copy (eval schema))))
+
+          (log/debug (str "here is a function(1i): "
+                          (fn [inner-filter-against]
+;                            (log/debug (str "inner-filter-against: " inner-filter-against))
+                            42)))
+
+          (log/debug (str "survived the function creation!"))
+
+          (log/debug (str "here is a function: "
+                          (fn [inner-filter-against]
+                            (let [intermediate (unifyc filter-against
+                                                       {:head inner-filter-against})
+                                  shuffled-heads (lazy-shuffle (eval head))]
+                     (generate shuffled-heads
+                               (if false ;; show or don't show schema (e.g. cc10)
+                                 (str label ":" schema " -> {H:" head "}")
+                                 (str label " -> {H:" head "}"))
+                               (unify/get-in intermediate
+                                             '(:head) :top)
+                               lexfn-sem-impl)))))
+
+
+          (log/debug (str "survived the function creation(2)!"))
+
+
           (gen14 (unify/copy (eval schema))
                  ;; head (1) (see below for complements)
                  (fn [inner-filter-against]
-                   (log/debug (str "INNER-FILTER-AGAINST: " inner-filter-against))
+                   (log/debug (str "inner-filter-against: " inner-filter-against))
                    (let [intermediate (unifyc filter-against
                                               {:head inner-filter-against})
                          shuffled-heads (lazy-shuffle (eval head))]
@@ -416,10 +444,11 @@
            (first alternatives));; TODO: (first alternatives) is redundant?
     (let [candidate (first alternatives)
           constraints (if (:constraints candidate)
-                        (:constraints candidate)
+                        :top
+;                        (:constraints candidate)
                         :top)
           filter-against (do
-                           (log/debug (str "using constraints: " (:constraints candidate)))
+                           (log/debug (str "using constraints: " constraints))
                            (log/debug (str "using filter-against: " filter-against))
                            (unifyc filter-against constraints))
           label (if label label (if (map? label) (:label candidate)))
