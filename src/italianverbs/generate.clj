@@ -197,7 +197,8 @@
 
 (defn gen14 [phrase heads complements filter-against post-unify-fn recursion-level lexfn-sem-impl]
   (log/debug (str "gen14: phrase: " (:comment phrase) "; heads type: " (type heads)))
-  (log/debug (str "gen14: filter-against: " filter-against))
+  (log/debug (str "next.."))
+;  (log/debug (str "gen14: filter-against: " filter-against))
   (log/debug (str "gen14: fn? heads:" (fn? heads)))
   (log/debug (str "gen14: not empty? heads: " (and (not (fn? heads)) (not (empty? heads)))))
   (if (or (fn? heads) (not (empty? heads)))
@@ -243,17 +244,20 @@
             nil
             (if (not is-fail?)
               (do
-                (log/debug (str "gen14: head: " (fo (dissoc head :serialized))
-                                (if (unify/get-in head '(:comment))
-                                  (str "(" (unify/get-in head '(:comment))) ")")
-                                " added successfully to " (unify/get-in phrase '(:comment)) "."))
-                (log/debug (str "gen14: phrase: " (unify/get-in phrase '(:comment)) " => head: " (fo head)
-                                (if (unify/get-in head '(:comment))
-                                  (str "(" (unify/get-in head '(:comment)) ")")
-                                  "")))
                 (lazy-cat
                  (let [complement-filter-function (unify/get-in phrase '(:comp-filter-fn))
+
+                       ;;
+                       ;; you cannot log/ anything here: even if disabled at runtime with (if false)
+                       ;; as below:
+                       ;;   debug (if false (log/debug "hello"))
+
+                       ;; TODO: improve the following comment: not sure what it means anymore.
                        ;; enhance with (get-in phrase-with-head's value for the possible complements:
+                       ;; TODO: this seems wrong: we are applying
+                       ;; a function to some arg (list phrase-with-head),
+                       ;; and then applying the result (complement-filter-function)
+                       ;; to the same arg (list phrase-with-head).
                        applied-complement-filter-fn (apply
                                                      complement-filter-function
                                                      (list phrase-with-head))]
@@ -386,12 +390,9 @@
           (gen14 (unify/copy (eval schema))
                  ;; head (1) (see below for complements)
                  (fn [inner-filter-against]
-                   (log/debug (str "inner-filter-against: " inner-filter-against))
                    (let [intermediate (unifyc filter-against
                                               {:head inner-filter-against})
                          shuffled-heads (lazy-shuffle (eval head))]
-                     (log/debug (str "INTERMEDIATE: " intermediate))
-                     (log/debug (str "FIRST HEAD: " (first shuffled-heads)))
                      (generate shuffled-heads
                               (if false ;; show or don't show schema (e.g. cc10)
                                 (str label ":" schema " -> {H:" head "}")
@@ -418,12 +419,8 @@
                  lexfn-sem-impl))
         (and (map? candidate)
              (not (nil? filter-against)))
-        (let [debug (log/debug (str "going to unifyc with filter-against: " filter-against))
-              debug (log/debug (str "going to unifyc with candidate: " candidate))
-              debug (log/debug (str "copy filter-against: " (copy filter-against)))
-              debug (log/debug (str "copy candidate: " (copy candidate)))
-              debug (log/debug (str "OK: done copying."))
-              result (unifyc filter-against candidate)]
+        (let [result (unifyc filter-against candidate)
+              debug (log/debug (str "result of filter-against and candidate: " result))]
           (if (not (unify/fail? result))
             (do (log/info (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate)))
                 (list result))
