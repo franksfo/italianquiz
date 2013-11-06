@@ -204,52 +204,28 @@
 
 (def standard-filter-fn
   (fn [additional-phrase-with-head]
-    (do (log/debug (str "additional filtering thanks to: " (fo additional-phrase-with-head)))
-        (fn [phrase-with-head]
-          (let [phrase-with-head (unify additional-phrase-with-head
-                                        phrase-with-head)]
-            (do
-              (log/debug (str "FILTERING COMPS AGAINST PHRASE-WITH-HEAD: " (fo phrase-with-head) " (" (get-in phrase-with-head '(:comment)) ")"))
-              (if (fail? phrase-with-head)
-                (throw (Exception. (str "phrase-with-head is fail: " phrase-with-head)))
-                (log/debug (str "phrase-with-head is not fail - good!")))
-              (fn [comp]
-                (let [result
-                      {:essere
-                       (unify (unify/get-in phrase-with-head '(:comp :synsem :essere) :top)
-                              (unify/get-in comp '(:synsem :essere) :top))
-                       :agr
-                       (unify (unify/get-in phrase-with-head '(:comp :synsem :agr) :top)
-                              (unify/get-in comp '(:synsem :agr) :top))
-                       :sem
-                       (unify (sem-impl (unify/get-in phrase-with-head '(:comp :synsem :sem) :top))
-                              (sem-impl (unify/get-in comp '(:synsem :sem) :top)))}]
-                  (let [fail-path-result ""] ;; TODO: show fail diagnostics.
-                    (if (= \c (nth (get-in phrase-with-head '(:comment)) 0))
-                      (log/debug (str "comp-filter-fn:RESULT OF FILTER: " (fo comp) " + " (fo phrase-with-head) " = " (fail? result)
-                                     fail-path-result))
-                      ;; else, head is first
-                      (log/debug (str "comp-filter-fn:RESULT OF FILTER: "  (fo phrase-with-head) " + " (fo comp) " = " (if (fail? result) :fail
-                                                                                                                      "success")
-                                     fail-path-result))))
-
-                  (if (not (fail? result))
-                    ;; complement was compatible with the filter: not filtered out.
-                    (do ;(log/debug (str "FILTER IN: standard-filter-fn: complement-synsem category:" complement-category))
-                                        ;(log/debug (str "FILTER IN: standard-filter-fn: complement-synsem sem:" complement-sem))
-                      (log/debug (str "FILTER IN: head: " (fo phrase-with-head) " filtering comp: " (fo comp) " => "
-                                     "TRUE" ;; emphasize for ease of readability in logs.
-                                     ))
-                      true)
-
-                    ;; complement was incompatible with the filter and thus filtered out:
-                    (do
-                      (log/debug (str "FILTER OUT: phrase-with-head:" (:comment phrase-with-head) " cannot take comp:" (fo comp)))
-                      (log/debug (str "FAILED RESULT: " result))
-                      (log/debug (str " FILTER OUT: fail-path is: " (fail-path result)))
-                      (log/debug (str " FILTER OUT: parent-with-head's value at fail-path is: "
-                                     (unify/get-in result (fail-path result))))
-                      false))))))))))
+    (fn [phrase-with-head]
+      (let [phrase-with-head (unify additional-phrase-with-head
+                                    phrase-with-head)]
+        (do
+          (if (fail? phrase-with-head)
+            (throw (Exception. (str "phrase-with-head is fail: " phrase-with-head))))
+          (fn [comp]
+            (let [result
+                  {:essere
+                   (unify (unify/get-in phrase-with-head '(:comp :synsem :essere) :top)
+                          (unify/get-in comp '(:synsem :essere) :top))
+                   :agr
+                   (unify (unify/get-in phrase-with-head '(:comp :synsem :agr) :top)
+                          (unify/get-in comp '(:synsem :agr) :top))
+                   :sem
+                   (unify (sem-impl (unify/get-in phrase-with-head '(:comp :synsem :sem) :top))
+                          (sem-impl (unify/get-in comp '(:synsem :sem) :top)))}]
+              (if (not (fail? result))
+                ;; complement was compatible with the filter: not filtered out.
+                true
+                ;; complement was incompatible with the filter and thus filtered out:
+                false))))))))
 
 (def hc-agreement
   (let [agr (ref :top)]
