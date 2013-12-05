@@ -390,6 +390,9 @@
 
      :else :fail)))
 
+(defn ref? [val]
+  (= (type val) clojure.lang.Ref))
+
 (defn merge [& args]
   "warning: {} is the identity value, not nil; that is: (merge X {}) => X, but (merge X nil) => nil, (not X)."
   (let [val1 (first args)
@@ -946,6 +949,81 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
    true
    fs))
+
+(defn get-all-ref-tuples [fs & [path]]
+  "returns list of ref:val:path tuples."
+  (let [path (if path path nil)]
+    (cond
+     (and (map? fs)
+          (not (empty? fs))
+          (:ref fs))
+     (list {:ref (:ref fs)
+            :val (:val fs)
+            :path path})
+     (and (map? fs)
+          (not (empty? fs)))
+     (let [key (first (first fs))
+           val (key fs)]
+       (concat
+        (get-all-ref-tuples val (concat path (list key)))
+        (get-all-ref-tuples (dissoc fs key) path)))
+     true nil)))
+
+(defn get-all-refs-for [fs]
+  "get the set of refs in a normalized fs"
+  (apply union
+         (map (fn [tuple]
+                (set (list (:ref tuple))))
+              (get-all-ref-tuples fs))))
+
+(defn cartesian [set1 set2]
+  "for x in set1, y in set2, conj each x and each y"
+  (cond (empty? set1) set2
+        (empty? set2) set1
+        true
+        (apply union
+               (map (fn [each-map-in-set-1]
+                      (set (map (fn [each-map-in-set-2]
+                                  (conj each-map-in-set-1 each-map-in-set-2))
+                                set2)))
+                    set1))))
+(defn get-unified-value-for [fs ref]
+  "get all values to be unified for the given ref in the given normalized fs."
+  (reduce unify
+          (apply concat
+                 (map (fn [tuple]
+                        (let [tuple-ref (:ref tuple)]
+                          (if (= tuple-ref ref)
+                            (list (:val tuple)))))
+                      (get-all-ref-tuples fs)))))
+
+(defn copy-with-ref-substitute [fs old-ref new-ref]
+  "create new fs, but with new-ref substituted for every occurance of {:ref ref,:val X}"
+  (cond 
+   (and (map? fs)
+        (not (empty? fs))
+        (not (nil? (:ref fs)))
+        (= (:ref fs) old-ref))
+   new-ref
+        
+   (and (map? fs)
+        (not (empty? fs)))
+   (let [key (first (first fs))
+         val (key fs)]
+     (conj {key (copy-with-ref-substitute val old-ref new-ref)}
+           (copy-with-ref-substitute (dissoc fs key) old-ref new-ref)))
+   true
+   fs))
+
+(defn copy-with-assignments [fs assignments]
+  (if (not (empty? assignments))
+    (let [assignment (first assignments)
+          old-ref (:ref assignment)
+          new-ref (ref (:val assignment))]
+      (copy-with-assignments
+       (copy-with-ref-substitute fs old-ref new-ref)
+       (rest assignments)))
+    fs))
 
 (defn step2 [fs]
   "step2.."
