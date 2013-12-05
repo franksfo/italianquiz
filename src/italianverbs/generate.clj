@@ -451,6 +451,7 @@
                            (log/debug (str "using filter-against: " filter-against))
                            (unifyc filter-against constraints))
           label (if label label (if (map? label) (:label candidate)))
+          debug (log/debug (str "filter-against U constraints: " filter-against))
           debug (if (fail? filter-against)
                   (log/debug (str "WILL IGNORE THIS FAILURE: " filter-against)))]
       (lazy-cat
