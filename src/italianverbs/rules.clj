@@ -20,8 +20,8 @@
             {:schema 'cc10
              :constraints #{{:synsem {:infl :present
                                       :sem {:tense :present}}}
-;                            {:synsem {:infl :present
-;                                      :sem {:tense :past}}}
+                            {:synsem {:infl :present
+                                      :sem {:tense :past}}}
                             {:synsem {:infl :futuro
                                       :sem {:tense :futuro}}}
                             {:synsem {:infl :imperfetto
@@ -114,6 +114,8 @@
 ;; undefine any previous values: TODO: should be a one-liner.
 (ns-unmap 'italianverbs.rules 'transitive-vp)
 (rewrite-as transitive-vp {:schema 'hh21
+;                           :constraints #{{:synsem {:sem {:tense :past}
+;                                                    :infl :past}}}
                            :comp 'np
                            :head 'transitive-verbs})
 (ns-unmap 'italianverbs.rules 'past-vp)
@@ -156,6 +158,9 @@
 
 (defn nounphrase [ & [ with ]]
   (first (take 1 (generate (shuffle np) "nps" (if with with :top) sem-impl))))
+
+(defn gen [parent & [with]]
+  (first (take 1 (generate (shuffle parent) "" (if with with :top) sem-impl))))
 
 (log/info "done loading rules.")
 
