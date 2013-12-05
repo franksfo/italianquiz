@@ -916,3 +916,102 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    :else
    map-with-refs))
 
+(defn step1 [fs]
+  "val-ref: turn every ref to a set into a map with two keys: :ref and :val."
+  (cond
+
+   (set? fs)
+   (set (map (fn [each]
+               (step1 each))
+             fs))
+
+   (and (ref? fs)
+        (set? @fs))
+   (set (map (fn [each]
+               {:val (step1 each)
+                :ref fs})
+             @fs))
+
+   (ref? fs)
+   {:val (step1 @fs)
+    :ref fs}
+
+   (and (map? fs)
+        (not (empty? fs)))
+   (let [key (first (first fs))
+         val (key fs)]
+     (conj
+      {key (step1 val)}
+      (step1 (dissoc fs key))))
+
+   true
+   fs))
+
+(defn step2 [fs]
+  "step2.."
+  (cond
+
+   (and (set? fs)
+        (not (empty? fs)))
+   (union
+    (step2 (first fs))
+    (step2 (set (rest fs))))
+
+   (and (map? fs)
+        (not (empty? fs)))
+   (let [key (first (first fs))
+         val (step2 (key fs))]
+     (cond
+
+      (and (set? val)
+           (empty? val))
+      val
+
+      (set? val)
+      (cartesian
+       (union
+        #{{key (first val)}}
+        (step2 {key (set (rest val))}))
+       (step2 (dissoc fs key)))
+
+      true
+      (cartesian
+       (set (list {key val}))
+       (step2 (dissoc fs key)))))
+
+   (and (seq? fs)
+        (empty? fs))
+   fs
+
+   (and (set? fs)
+        (empty? fs))
+   fs
+
+   true
+   (set (list fs))))
+
+(defn expand-disj [input]
+  (let [step2-set (step2 (step1 input))
+        refs-per-fs
+        (zipmap (seq step2-set)
+                (map (fn [each-member]
+                       (get-all-refs-for each-member))
+                     step2-set))
+
+        unified-values (map (fn [each-fs]
+                              {:fs each-fs
+                               :assignments 
+                               (map (fn [each-ref-in-fs]
+                                      {:ref each-ref-in-fs
+                                    :val (get-unified-value-for each-fs each-ref-in-fs)})
+                                    (get refs-per-fs each-fs))})
+                            step2-set)]
+    (filter (fn [each]
+              (not (fail? each)))
+            (map (fn [each-tuple]
+                   (let [fs (:fs each-tuple)
+                         assignments (:assignments each-tuple)]
+                     (copy-with-assignments fs assignments)))
+                 unified-values))))
+
+
