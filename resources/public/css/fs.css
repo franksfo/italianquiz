@@ -297,3 +297,22 @@ td.hc {
     font-weight:bold;
     font-size:150%;
 }
+
+div.set {
+    float:left;
+}
+
+
+div.set div {
+    padding-right:0.5em;
+    float:left;
+}
+
+div.set div.member {
+}
+
+div.set div.delimiter {
+    padding-top:15%;
+    border:0px dashed green;
+    vertical-align:middle;
+}
