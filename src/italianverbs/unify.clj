@@ -141,6 +141,16 @@
             (unify each val2))
           val1)
 
+
+     ;; This is the canonical unification case: unifying two DAGs
+     ;; (maps with possible references within them).
+     ;;
+     ;; merge-with: http://clojuredocs.org/clojure_core/clojure.core/merge-with
+     ;;
+     ;; "Returns a map that consists of the rest of the maps conj-ed onto
+     ;; the first. If a key occurs in more than one map, the mapping(s)
+     ;; from the latter (left-to-right) will be combined with the mapping in
+     ;; the result by calling (f val-in-result val-in-latter)."
      (and (map? val1)
           (map? val2))
      (let [tmp-result
@@ -227,12 +237,14 @@
      (= val1 "top") val2
      (= val2 "top") val1
 
+     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
      ;; :foo,"foo" => :foo
      (and (= (type val1) clojure.lang.Keyword)
           (= (type val2) java.lang.String)
           (= (string/replace-first (str val1) ":" "") val2))
      val1
 
+     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
      ;; "foo",:foo => :foo
      (and (= (type val2) clojure.lang.Keyword)
           (= (type val1) java.lang.String)
@@ -265,9 +277,19 @@
 ;       (println (str "(" val1 ", " val2 ") => :fail"))
        :fail))))
 
+;; unify vs. merge:
+;;
+;; case 1:
+;; (fs/unify {:a 42} {:a 42 :b 43})
+;; => {:a 42 :b 43}
+;;  and:
 ;; (fs/match {:a 42} {:a 42 :b 43})
 ;; => {:b 43, :a 42} ; ok: val2 specializes val1.
-
+;;
+;; case 2:
+;; (fs/unify {:a 42 :b 43} {:a 42})
+;; => {:a 42 :b 43}
+;;  but:
 ;; (fs/match {:a 42 :b 43} {:a 42})
 ;; => :fail          ; fail: val2 does not specialize val1.
 
@@ -758,18 +780,36 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (let [;debug (println (str "SERIALIZING: " input-map))
             ser (ser-intermed input-map)]
         ;; ser is a intermediate (but fully-serialized) representation
-        ;; as a map:
-        ;; { path1 => value1
-        ;;   path2 => value2
-        ;;   nil   => skeleton}
+        ;; of the input map, as a map from pathsets to reference-free maps
+        ;; (maps which have no references within them).
+
+        ;; In place of the references in the original map, the reference-free
+        ;; maps have simply a dummy value (the value :top) stored where the
+        ;; the reference is in the input-map.
         ;;
-        ;; The skeleton (immediately above) is the _input-map_, but with
-        ;; the dummy placeholder value :top substituted for each occurance
-        ;; of a reference in _input-map_.
+        ;; ser:
         ;;
-        ;; We now sort _ser_ in a shortest-path-first order, so that,
-        ;; during de-serialization, all assignments will happen in this
-        ;; same correct order.
+        ;;   pathset    |  value
+        ;; -------------+---------
+        ;;   pathset1   => value1
+        ;;   pathset2   => value2
+        ;;      ..         ..
+        ;;   nil        => outermost_map
+        ;;
+        ;; Each pathset is a set of paths to a shared value, the value
+        ;; shared by all paths in that pathset.
+        ;;
+        ;; The last row shown is for the outermost_map that represents
+        ;; the entire input, which is why its pathset is nil.
+         ;;
+        ;; However, ser is not sorted by path length: it needs to be
+        ;; sorted so that, when deserialization is done, assignment
+        ;; will occur in the correct order: shortest path first.
+
+        ;; Thefore, we now sort _ser_ in a shortest-path-first order, so that
+         ;; during de-serialization, all assignments will happen in this
+         ;; same correct order.
+
         (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))))
 
 (defn optimized-ser [input-map]
