@@ -129,7 +129,7 @@
 (fo (take 1 (over-gen sents {:synsem {:agr {:gender :masc}}} "dormire")))
 
 (defn overh [parent child]
-  (log/debug (str "overh child: " child))
+  (log/debug (str "overh child: " (fo child)))
   (cond
    (string? child)
    (overh parent (it child))
@@ -153,7 +153,7 @@
 ;; (parent:map) X (child:{set,seq,fs}) => list:map
 (defn overc [parent child]
   (log/debug (str "overc parent: " (fo parent)))
-  (log/debug (str "overc child: " child))
+  (log/debug (str "overc child: " (fo child)))
   (log/debug (str "overc parent type: " (type parent)))
   (log/debug (str "overc child type: " (type child)))
   (cond
@@ -251,8 +251,8 @@
   (over (list cc10 ch21 hc11 hh10 hh21 hh32) child1 child2))
 
 (defn overha [child1 & [child2]]
-  (log/debug (str "overha child1: " child1))
-  (log/debug (str "overha child2: " child2))
+  (log/debug (str "overha child1: " (fo child1)))
+  (log/debug (str "overha child2: " (fo child2)))
   (let [with-head
         (reduce #'concat
                 (map (fn [parent]
