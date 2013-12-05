@@ -107,11 +107,12 @@
                                 (seq arg))))
      (set? arg)
      (reduce #'str
-             (concat (list "<table><tr><td>{</td><td>")
-                     (string/join ",</td><td>" (map (fn [each]
-                                                      (tablize each path (fs/serialize each) opts))
-                                                    (seq arg)))
-                     (list "</td><td>}</td></tr></table>")))
+             (concat (list "<div class='set'><div class='delimiter'>{</div><div class='member'>")
+                     (string/join "</div><div class='delimiter'>,</div><div class='member'>"
+                                  (map (fn [each]
+                                         (tablize each path (fs/serialize each) opts))
+                                       (seq arg)))
+                     (list "</div><div class='delimiter'>}</div></div>")))
 
      (or (list? arg)
          (= (type arg) clojure.lang.Cons))
