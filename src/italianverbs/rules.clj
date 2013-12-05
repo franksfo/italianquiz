@@ -143,7 +143,7 @@
 
 (ns-unmap 'italianverbs.rules 'sents)
 (rewrite-as sents 'ds)
-;(rewrite-as sents 'sentence-with-modifier)
+(rewrite-as sents 'sentence-with-modifier)
 
 ;; -- useful functions
 (defn rules []
