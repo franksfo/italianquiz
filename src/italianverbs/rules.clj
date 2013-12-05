@@ -20,6 +20,8 @@
             {:schema 'cc10
              :constraints #{{:synsem {:infl :present
                                       :sem {:tense :present}}}
+;                            {:synsem {:infl :present
+;                                      :sem {:tense :past}}}
                             {:synsem {:infl :futuro
                                       :sem {:tense :futuro}}}
                             {:synsem {:infl :imperfetto
