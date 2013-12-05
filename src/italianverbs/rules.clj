@@ -54,9 +54,21 @@
 ;; possible expansions of vp (verb phrase):
 ;;
 (ns-unmap 'italianverbs.rules 'vp)
+
 (rewrite-as vp 'intransitive-verbs)
+(rewrite-as vp 'modal-vp)
 (rewrite-as vp 'past-vp)
 (rewrite-as vp 'transitive-vp)
+
+(ns-unmap 'italianverbs.rules 'modal-vp)
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp
+                      :head 'modal-verbs
+                      :comp 'intransitive-verbs})
+(rewrite-as modal-vp {:schema 'hh21
+                      :label 'modal-vp
+                      :head 'modal-verbs
+                      :comp 'transitive-vp})
 
 ;; possible expansions of transitive vp (verb phrase):
 ;;
