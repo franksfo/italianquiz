@@ -141,9 +141,10 @@
    (let [children child]
      (filter (fn [result]
                (not (fail? result)))
-             (map (fn [child]
-                    (overh parent child))
-                  children)))
+             (reduce #'concat
+                     (map (fn [child]
+                            (overh parent child))
+                          children))))
 
    true
    (list (moreover-head parent child sem-impl))))
@@ -198,7 +199,7 @@
         (if (not (empty? parents))
           (let [parent (first parents)]
             (log/debug (str "over: parent: " parent))
-            (lazy-cat
+            (concat
              (cond (and (map? parent)
                         (not (nil? (:serialized parent))))
                    ;; In this case, supposed 'parent' is really a lexical item: for now, definition of 'lexical item' is,
