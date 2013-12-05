@@ -55,6 +55,15 @@
 ;;
 (ns-unmap 'italianverbs.rules 'vp)
 (rewrite-as vp 'intransitive-verbs)
+(rewrite-as vp 'transitive-vp)
+
+;; possible expansions of transitive vp (verb phrase):
+;;
+;; undefine any previous values: TODO: should be a one-liner.
+(ns-unmap 'italianverbs.rules 'transitive-vp)
+(rewrite-as transitive-vp {:schema 'hh21
+                           :comp 'np
+                           :head 'transitive-verbs})
 
 ;; -- aliases --
 (def ds declarative-sentence)
