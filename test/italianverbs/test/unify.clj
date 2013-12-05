@@ -655,3 +655,52 @@ when run from a REPL."
   (is (= (unify #{1 2} #{2 3})
      #{2})))
 
+(deftest step1-test
+  (let [myref (ref #{1 2})
+        input {:a myref
+               :b #{{:c myref} {:d 3}}}
+        result (step1 input)]
+    (is (map? result))
+    (is (set? (get-in result '(:a))))
+    (is (set? (get-in result '(:b))))
+    (is (= myref (:ref (first (get-in result '(:a))))))
+    (is (= myref (:ref (second (get-in result '(:a))))))
+    (is (or (= 1 (:val (first (get-in result '(:a)))))
+            (= 2 (:val (first (get-in result '(:a)))))))
+    (is (= 2 (.size (get-in result '(:b)))))
+))
+
+(deftest step2-test
+  (let [myref (ref #{1 2})
+        input {:a myref
+               :b #{{:c myref} {:d 3}}}
+        result (step1 input)
+        step2-result (step2 result)]
+    (is (set? step2-result))
+    (is (= (.size step2-result) 6))))
+
+(deftest test-final
+  (let [input
+        (let [myref (ref #{1 2})]
+          {:a myref
+           :b #{{:c myref} {:d 3}}})
+        final (expand-disj input)]
+    (= (.size final) 2)))
+
+(def parent
+  (let [catref (ref :top)]
+    {:head {:cat catref}
+     :cat catref}))
+
+(def disj-cat #{{:cat :noun}
+                {:cat :verb}})
+
+(def parent-with-disj
+  (let [catref (ref #{{:cat :noun}
+                      {:cat :verb}})]
+    {:head {:cat catref}
+     :cat catref}))
+
+(deftest category-disjunction
+  (let [result (expand-disj parent-with-disj)]
+    (is (= (.size result) 2))))
