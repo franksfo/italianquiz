@@ -58,13 +58,12 @@
                 (unifyc {:comp child}
                         {:comp {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem) :top))}}}))]
     (if (not (unify/fail? result))
-      (let [debug (log/debug (str "moreover-comp " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-            debug (log/debug (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
+      (let [debug (log/trace (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
         (let [result
               (merge {:comp-filled true}
                      result)]
           (log/debug (str "moreover-comp (SUCCESS) merged result:(fo) " (fo result)))
-          (log/debug (str "moreover-comp (SUCCESS) merged result: " result)))
+          )
           result)
       (do
         (log/debug "moreover-comp: fail at: " (unify/fail-path result))
@@ -211,9 +210,9 @@
       (log/debug (str "gen14: type of comps: " (type complements)))
       (log/debug (str "gen14: emptyness of comps: " (and (not (fn? complements)) (empty? complements))))
       (let [recursion-level (+ 1 recursion-level)
-            debug (log/debug (str "gen14: phrase-unify first arg: " phrase))
-            debug (log/debug (str "gen14: phrase-unify second arg: " filter-against))
-            debug (log/debug (str "gen14: phrase-unify third arg: " 
+            debug (log/debug (str "gen14: phrase-unify first arg: " (fo phrase)))
+            debug (log/trace (str "gen14: phrase-unify second arg: " filter-against))
+            debug (log/trace (str "gen14: phrase-unify third arg: "
                                   {:synsem {:sem (lexfn-sem-impl
                                                   (unifyc
                                                    (unify/get-in phrase '(:synsem :sem) :top)
@@ -226,7 +225,6 @@
                                             (unifyc
                                              (unify/get-in phrase '(:synsem :sem) :top)
                                              (unify/get-in filter-against '(:synsem :sem) :top)))}}))
-            debug (log/debug (str "gen14: unified phrase: " phrase))
             debug (log/debug (str "gen14: unified phrase fail?: " (fail? phrase)))
             debug (log/debug "gen14: TYPE OF HEADS (before eval): " (type heads))
             heads (cond (fn? heads)
@@ -234,8 +232,7 @@
                               filter-against
                               (unify/get-in phrase
                                             '(:head) :top)]
-                          (log/debug (str "gen14: filter-against:" filter-against))
-                          (log/debug (str "gen14: phrase:" phrase))
+                          (log/debug (str "gen14: phrase:" (fo phrase)))
                           (log/debug (str "gen14: treating heads as a function and applying against filter:"  filter-against))
                           (apply heads (list filter-against)))
                         :else
@@ -257,7 +254,7 @@
                           applied-complement-filter-fn (apply
                                                         complement-filter-function
                                                         (list phrase-with-head))]
-                      (log/debug (str "applied-complement-filter-fn: " applied-complement-filter-fn)))
+                      (log/debug (str "applied-complement-filter-fn type: " (type applied-complement-filter-fn))))
               debug (log/debug (str "SURVIVED do apply..."))
 
              ]
@@ -365,7 +362,6 @@
               head (:head candidate)
               comp (:comp candidate)]
           (log/debug (str "generate: candidate is a schema: " schema))
-          (log/debug (str "generate: filter-against: " filter-against))
           ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
           ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
           ;; in a particular order (i.e. either head is first or complement is first).
@@ -422,7 +418,7 @@
         (and (map? candidate)
              (not (nil? filter-against)))
         (let [result (unifyc filter-against candidate)
-              debug (log/debug (str "result of filter-against and candidate: " result))]
+              debug (log/debug (str "result of filter-against and candidate unified successfully? " (not (fail? result))))]
           (if (not (unify/fail? result))
             (do (log/info (str "generate: " (log-candidate-form candidate label) " -> " (fo candidate)))
                 (list result))
@@ -460,11 +456,10 @@
 
           filter-against (do
                            (log/debug (str "using constraints-choose-one: " constraints-choose-one))
-                           (log/debug (str "using filter-against: " (list filter-against)))
                            (unifyc filter-against constraints-choose-one))
 
           label (if label label (if (map? label) (:label candidate)))
-          debug (log/debug (str "filter-against U constraints: " filter-against))
+          debug (log/trace (str "filter-against U constraints: " filter-against))
           debug (if (fail? filter-against)
                   (log/debug (str "WILL IGNORE THIS FAILURE: " filter-against)))
           ]
