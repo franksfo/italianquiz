@@ -18,6 +18,8 @@
     (spit filename (html/static-page (html/tablize fs) filename))))
 
 (defn plain [expr]
+  "simply map expr in a map with one key :plain, whose value is expr.
+   workbook/workbookq will format this accordingly."
   {:plain expr})
 
 (defn moreover-head [parent child lexfn-sem-impl]
@@ -26,9 +28,10 @@
     (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
     (log/debug (str "moreover-head (candidate) head child sem:" (unify/get-in child '(:synsem :sem) :top)))
     (log/debug (str "moreover-head (candidate) head:" (fo child)))
-    (let [result (unifyc parent
-                              (unifyc {:head child}
-                                           {:head {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem) :top))}}}))]
+    (let [result
+          (unifyc parent
+                  (unifyc {:head child}
+                          {:head {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem) :top))}}}))]
       (if (not (unify/fail? result))
         (let [debug (log/debug (str "moreover-head " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
               debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
