@@ -454,23 +454,19 @@
                 (:constraints candidate)
                 true
                 :top)
-          debug
-          (if (symbol? candidate)
-            (log/debug (str "checking constraints of symbol: " candidate)))
-          debug
-          (log/debug (str ":constraints feature: "
-                          (cond (and (symbol? candidate)
-                                     (map? (eval candidate)))
-                                (:constraints (eval candidate))
-                                (map? candidate)
-                                (:constraints candidate)
-                                true
-                                (str (type candidate) " is neither a map nor a symbol representing a map."))))
+
+          ;; TODO: rather than (first), treat as lazy-sequence: make constraints a first-order param
+          ;; of (generate), and (take 1) on this param to get the constraints-choose-one.
+          constraints-choose-one
+          (if (set? constraints-feature)
+            (first (shuffle constraints-feature))
+            :top)
 
           filter-against (do
                            (log/debug (str "using constraints: " constraints))
+                           (log/debug (str "using constraints-choose-one: " constraints-choose-one))
                            (log/debug (str "using filter-against: " (list filter-against)))
-                           (unifyc filter-against constraints))
+                           (unifyc filter-against constraints-choose-one))
 
           label (if label label (if (map? label) (:label candidate)))
           debug (log/debug (str "filter-against U constraints: " filter-against))
