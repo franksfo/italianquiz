@@ -16,7 +16,10 @@
 
 (defn unify [ & args]
   "like unify/unify, but unify/copy each argument before unifying."
-  (apply unify/unifyc args))
+  (do
+    (log/debug (str "(lexfn)unify args: " args))
+    (log/debug (str "(lexfn)unify first arg: " (first args)))
+    (apply unify/unifyc args)))
 
 (defn encode-where-query [& where]
   "encode a query as a set of index queries."
@@ -478,99 +481,98 @@
                            :infl :past}}}}))
 
 (def essere-common
-  (unify
-   {:synsem {:essere true}
-    :italian {:infinitive "essere"
-              :essere true
-              :irregular {:present {:1sing "sono"
-                                    :2sing "sei"
-                                    :3sing "è"
-                                    :1plur "siamo"
-                                    :2plur "siete"
-                                    :3plur "sono"}
-                          :passato "stato"
-                          :imperfetto {:1sing "ero"
-                                       :2sing "eri"
-                                       :3sing "era"
-                                       :1plur "eravamo"
-                                       :2plur "eravate"
-                                       :3plur "erano"}
-                          :futuro {:1sing "sarò"
-                                   :2sing "sarai"
-                                   :3sing "sarà"
-                                   :1plur "saremo"
-                                   :2plur "sarete"
-                                   :3plur "saranno"}}}
-    :english {:infinitive "to be"
-              :irregular {:present {:1sing "am"
-                                    :2sing "are"
-                                    :3sing "is"
-                                    :1plur "are"
+  {:synsem {:essere true}
+   :italian {:infinitive "essere"
+             :essere true
+             :irregular {:present {:1sing "sono"
+                                   :2sing "sei"
+                                   :3sing "è"
+                                   :1plur "siamo"
+                                   :2plur "siete"
+                                   :3plur "sono"}
+                         :passato "stato"
+                         :imperfetto {:1sing "ero"
+                                      :2sing "eri"
+                                      :3sing "era"
+                                      :1plur "eravamo"
+                                      :2plur "eravate"
+                                      :3plur "erano"}
+                         :futuro {:1sing "sarò"
+                                  :2sing "sarai"
+                                  :3sing "sarà"
+                                  :1plur "saremo"
+                                  :2plur "sarete"
+                                  :3plur "saranno"}}}
+   :english {:infinitive "to be"
+             :irregular {:present {:1sing "am"
+                                   :2sing "are"
+                                   :3sing "is"
+                                   :1plur "are"
                                     :2plur "are"
-                                    :3plur "are"}
-                          :past {:participle "been"
-                                 :1sing "was"
-                                 :2sing "were"
-                                 :3sing "was"
-                                 :1plur "were"
-                                 :2plur "were"
-                                 :3plur "were"}}}}))
+                                   :3plur "are"}
+                         :past {:participle "been"
+                                :1sing "was"
+                                :2sing "were"
+                                :3sing "was"
+                                :1plur "were"
+                                :2plur "were"
+                                :3plur "were"}}}})
 
-          (def fare-common
-            ;; factor out common stuff from all senses of "fare".
-            {:synsem {:essere false}
-             :italian {:infinitive "fare"
-                       :irregular {:passato "fatto"
-                                   :present {:1sing "facio"
-                                             :2sing "fai"
-                                             :3sing "fa"
-                                             :1plur "facciamo"
-                                             :2plur "fate"
-                                             :3plur "fanno"}
-                                   :imperfetto {:1sing "facevo"
-                                                :2sing "facevi"
-                                                :3sing "faceva"
-                                                :1plur "facevamo"
-                                                :2plur "facevate"
-                                                :3plur "facevano"}
-                                   :futuro {:1sing "farò"
-                                            :2sing "farai"
-                                            :3sing "farà"
-                                            :1plur "faremo"
-                                            :2plur "farete"
-                                            :3plur "faranno"}}}})
-      ;; factor out common stuff from all senses of "venire".
-      (def venire-common
-        {:italian {:infinitive "venire"
-                   :irregular {:passato "venuto"
-                               :futuro  {:1sing "verrò"
-                                         :2sing "verrai"
-                                         :3sing "verrà"
-                                         :1plur "verremo"
-                                         :2plur "verrete"
-                                         :3plur "verranno"}
-                               :present {:1sing "vengo"
-                                         :2sing "vieni"
-                                         :3sing "viene"
-                                         :1plur "veniamo"
-                                         :2plur "venete"
-                                         :3plur "vengono"}}}
-         :english {:infinitive "to come"
-                   :irregular {:past "came"}}})
+(def fare-common
+  ;; factor out common stuff from all senses of "fare".
+  {:synsem {:essere false}
+   :italian {:infinitive "fare"
+             :irregular {:passato "fatto"
+                         :present {:1sing "facio"
+                                   :2sing "fai"
+                                   :3sing "fa"
+                                   :1plur "facciamo"
+                                   :2plur "fate"
+                                   :3plur "fanno"}
+                         :imperfetto {:1sing "facevo"
+                                      :2sing "facevi"
+                                      :3sing "faceva"
+                                      :1plur "facevamo"
+                                      :2plur "facevate"
+                                      :3plur "facevano"}
+                         :futuro {:1sing "farò"
+                                  :2sing "farai"
+                                  :3sing "farà"
+                                  :1plur "faremo"
+                                  :2plur "farete"
+                                  :3plur "faranno"}}}})
+;; factor out common stuff from all senses of "venire".
+(def venire-common
+  {:italian {:infinitive "venire"
+             :irregular {:passato "venuto"
+                         :futuro  {:1sing "verrò"
+                                   :2sing "verrai"
+                                   :3sing "verrà"
+                                   :1plur "verremo"
+                                   :2plur "verrete"
+                                   :3plur "verranno"}
+                         :present {:1sing "vengo"
+                                   :2sing "vieni"
+                                   :3sing "viene"
+                                   :1plur "veniamo"
+                                   :2plur "venete"
+                                   :3plur "vengono"}}}
+   :english {:infinitive "to come"
+             :irregular {:past "came"}}})
 
 (def lookup-in
   "find all members of the collection that matches with query successfully."
   (fn [query collection]
     (loop [coll collection matches nil]
-      (let [first-val (first coll)]
-        (if (nil? first-val)
-          matches
-          (let [result (unify/match (unify/copy query) (unify/copy first-val))]
-            (if (not (unify/fail? result))
-              (recur (rest coll)
-                     (cons first-val matches))
-              (recur (rest coll)
-                     matches))))))))
+      (if (not (empty? coll))
+        (let [first-val (first coll)
+              result (unify/match (unify/copy query) (unify/copy first-val))]
+          (if (not (unify/fail? result))
+            (recur (rest coll)
+                   (cons first-val matches))
+            (recur (rest coll)
+                   matches)))
+        matches))))
 
 ;(declare lexicon)
 
@@ -606,11 +608,10 @@
            :english {:cat cat
                      :agr agr}})
         common
-        (unify
-         {:synsem {:cat :noun
-                   :agr {:person :3rd}
-                   :subcat {:1 {:cat :det}
-                            :2 '()}}})
+        {:synsem {:cat :noun
+                  :agr {:person :3rd}
+                  :subcat {:1 {:cat :det}
+                           :2 '()}}}
 
         masculine {:synsem {:agr {:gender :masc}}}
         feminine {:synsem {:agr {:gender :fem}}}
@@ -633,12 +634,12 @@
                common
                {:synsem {:sem {:number :sing
                                :drinkable true}}})]
-          {:agreement agreement
-           :common common
-           :countable countable
-           :drinkable drinkable
-           :feminine feminine
-           :masculine masculine}))
+    {:agreement agreement
+     :common common
+     :countable countable
+     :drinkable drinkable
+     :feminine feminine
+     :masculine masculine}))
 
 (def proper-noun
   {:synsem {:cat :noun
