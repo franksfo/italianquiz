@@ -1,46 +1,58 @@
 (ns italianverbs.lexicon
   (:refer-clojure :exclude [get-in merge resolve find])
-  (:use [italianverbs.lexiconfn]
-        [clojure.set]
-        [clojure.test])
   (:require
+   [clojure.core :as core]
+   [clojure.set :refer :all]
    [clojure.tools.logging :as log]
-   [italianverbs.unify :as fs]))
+   [italianverbs.lexiconfn :refer :all]
+   [italianverbs.unify :refer :all :exclude (unify)]))
 
 ;; WARNING: clear blows away entire lexicon in backing store (mongodb).
 (clear!)
 
 (def lexicon
 
-  (map (fn [entry]
-         (log/debug "serializing entry.")
-         (let [italian (fs/get-in entry '(:italian))
-               entry
-               (conj
-                {:italian (if (string? italian)
-                            {:italian italian}
-                            italian)}
-                (dissoc
-                 (if (not (= :none (get entry :serialized :none)))
-                   (conj {:serialized (fs/serialize entry)}
-                         entry)
-                   (conj {:serialized (fs/serialize (dissoc entry :serialized))}
-                         entry))
-                 :italian))]
-           (implied entry)))
-        (list
+  ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
+  ;; default shown is (not (nil? entry)) i.e. no restrictions except that an entry must be non-nil.
+  ;;  (currently there is one nil below: "chiunque (anyone)").
+  (filter (fn [entry]
+            (or false
+                (not (nil? entry))))
 
-         {:synsem {:cat :prep
-                   :sem {:pred :a
+          ;; TODO: move this fn to lexiconfn: keep any code out of the lexicon proper.
+          ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
+          (map (fn [entry]
+                 (if (fail? entry)
+                   (log/warn (str "entry: " entry " is fail?=true."))
+                   (do
+                     (log/debug (str "serializing entry: " entry))
+                     (let [italian (get-in entry '(:italian))
+                           entry
+                           (conj
+                            {:italian (if (string? italian)
+                                        {:italian italian}
+                                        italian)}
+                    (dissoc
+                     (if (not (= :none (get entry :serialized :none)))
+                       (conj {:serialized (serialize entry)}
+                             entry)
+                       (conj {:serialized (serialize (dissoc entry :serialized))}
+                         entry))
+                     :italian))]
+                       (log/debug (str "successfully serialized: " entry))
+                       (implied entry)))))
+               (list
+            {:synsem {:cat :prep
+                      :sem {:pred :a
                          :mod {:pred :a}
                          :comparative false}
                    :subcat {:1 {:cat :noun
                                 :subcat '()
                                 :sem {:place true}}
                             :2 '()}}
-          :italian {:initial true
-                    :italian "a"}
-          :english "to"}
+             :italian {:initial true
+                       :italian "a"}
+             :english "to"}
 
 ;        {:synsem {:cat :prep
 ;                  :sem {:pred :in}
@@ -1025,7 +1037,7 @@
        :english {:english "mobile phone"}
        :italian {:italian "cellulare"}})
 
-      {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it.
+      {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it (TODO).
                 :pronoun true
                 :agr {:case :nom
                       :person :3rd
@@ -2536,9 +2548,8 @@
                  :sem {:pred :volere
                        :activity true
                        :discrete false
-                       :subj {:animate true}}}}))
-))
-
+                       :subj {:animate true}}}}))))
+)
 ;; (def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
 ;;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
 ;;(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
@@ -2554,15 +2565,15 @@
 ;     lexicon)
 
 (def adjs-final-in-italian ;; e.g. "blanco" in "nero blanco"
-  (filter (fn [lex] (= (fs/get-in lex '(:synsem :cat)) :adjective)) lexicon))
+  (filter (fn [lex] (= (get-in lex '(:synsem :cat)) :adjective)) lexicon))
 (def adjs ;; backwards compatibility: use adjs-final-in-italian when the more
   ;; specific use is done.
   adjs-final-in-italian)
 (def adjs-initial-in-italian  ;; e.g. "nuovo" in "nuovo cellulare"
   (filter (fn [lex]
             (and
-             (= (fs/get-in lex '(:italian :initial)) :true)
-             (= (fs/get-in lex '(:synsem :cat)) :adjective)))
+             (= (get-in lex '(:italian :initial)) :true)
+             (= (get-in lex '(:synsem :cat)) :adjective)))
           lexicon))
 
 (defn lookup [query]
