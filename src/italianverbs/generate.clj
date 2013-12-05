@@ -252,7 +252,15 @@
               is-fail? (unify/fail? phrase-with-head)
               debug (log/debug (str "gen14: head is-nil? " (nil? head)))
               debug (log/debug (str "gen14: phrase-with-head is-fail? " is-fail?))
-              ]
+              debug (log/debug (str "comp-filter-fn: " (unify/get-in phrase '(:comp-filter-fn))))
+              debug (let [complement-filter-function (unify/get-in phrase '(:comp-filter-fn))
+                          applied-complement-filter-fn (apply
+                                                        complement-filter-function
+                                                        (list phrase-with-head))]
+                      (log/debug (str "applied-complement-filter-fn: " applied-complement-filter-fn)))
+              debug (log/debug (str "SURVIVED do apply..."))
+
+             ]
           (if (nil? head)
             nil
             (if (not is-fail?)
@@ -358,7 +366,6 @@
               comp (:comp candidate)]
           (log/debug (str "generate: candidate is a schema: " schema))
           (log/debug (str "generate: filter-against: " filter-against))
-          (log/debug (str "generate: eval schema: " (eval schema)))
           ;; schema is a tree with 3 nodes: a parent and two children: a head child, and a comp child.
           ;; all possible schemas are defined above, after the "BEGIN SCHEMA DEFINITIONS" comment.
           ;; in a particular order (i.e. either head is first or complement is first).
@@ -370,36 +377,18 @@
           ;; 1) a rule consisting of a schema, a head rule, and a comp rule.
           ;; 2) a sequence of lexemes.
 
+
+          ;; do some type checks
+          (if (not (symbol? schema))
+            (throw (Exception. (str "schema is not a symbol: " schema))))
+
+          (log/debug (str "going to call gen14 from g-f-c: filter-against: " filter-against))
+          (log/debug (str "going to call gen14 from g-f-c: schema: " schema))
+          (log/debug (str "going to call gen14 from g-f-c: head: " head))
+
           ;; (eval schema) is a 3-node tree (parent and two children) as described
           ;; above: schema is a symbol (e.g. 'cc10 whose value is the tree, thus
           ;; allowing us to access that value with (eval schema).
-          (log/debug (str "going to copy the thing.."))
-          (log/debug (str "here is a copy.." (unify/copy (eval schema))))
-
-          (log/debug (str "here is a function(1i): "
-                          (fn [inner-filter-against]
-;                            (log/debug (str "inner-filter-against: " inner-filter-against))
-                            42)))
-
-          (log/debug (str "survived the function creation!"))
-
-          (log/debug (str "here is a function: "
-                          (fn [inner-filter-against]
-                            (let [intermediate (unifyc filter-against
-                                                       {:head inner-filter-against})
-                                  shuffled-heads (lazy-shuffle (eval head))]
-                     (generate shuffled-heads
-                               (if false ;; show or don't show schema (e.g. cc10)
-                                 (str label ":" schema " -> {H:" head "}")
-                                 (str label " -> {H:" head "}"))
-                               (unify/get-in intermediate
-                                             '(:head) :top)
-                               lexfn-sem-impl)))))
-
-
-          (log/debug (str "survived the function creation(2)!"))
-
-
           (gen14 (unify/copy (eval schema))
                  ;; head (1) (see below for complements)
                  (fn [inner-filter-against]
