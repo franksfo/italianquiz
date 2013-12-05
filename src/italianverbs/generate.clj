@@ -459,11 +459,10 @@
           ;; of (generate), and (take 1) on this param to get the constraints-choose-one.
           constraints-choose-one
           (if (set? constraints-feature)
-            (first (shuffle constraints-feature))
+            (first (shuffle (expand-disj constraints-feature)))
             :top)
 
           filter-against (do
-                           (log/debug (str "using constraints: " constraints))
                            (log/debug (str "using constraints-choose-one: " constraints-choose-one))
                            (log/debug (str "using filter-against: " (list filter-against)))
                            (unifyc filter-against constraints-choose-one))
