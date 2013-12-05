@@ -446,14 +446,43 @@
                         :top
 ;                        (:constraints candidate)
                         :top)
+          constraints-feature
+          (cond (and (symbol? candidate)
+                     (map? (eval candidate)))
+                (:constraints (eval candidate))
+                (map? candidate)
+                (:constraints candidate)
+                true
+                :top)
+          debug
+          (if (symbol? candidate)
+            (log/debug (str "checking constraints of symbol: " candidate)))
+          debug
+          (log/debug (str ":constraints feature: "
+                          (cond (and (symbol? candidate)
+                                     (map? (eval candidate)))
+                                (:constraints (eval candidate))
+                                (map? candidate)
+                                (:constraints candidate)
+                                true
+                                (str (type candidate) " is neither a map nor a symbol representing a map."))))
+
           filter-against (do
                            (log/debug (str "using constraints: " constraints))
-                           (log/debug (str "using filter-against: " filter-against))
+                           (log/debug (str "using filter-against: " (list filter-against)))
                            (unifyc filter-against constraints))
+
           label (if label label (if (map? label) (:label candidate)))
           debug (log/debug (str "filter-against U constraints: " filter-against))
           debug (if (fail? filter-against)
-                  (log/debug (str "WILL IGNORE THIS FAILURE: " filter-against)))]
+                  (log/debug (str "WILL IGNORE THIS FAILURE: " filter-against)))
+          debug
+          (if (and (map? candidate)
+                   (:constraints candidate))
+            (log/debug (str "Constraints expanded have size: "
+                            (.size (expand-disj (:constraints candidate)))
+                            "; first is: " (first (expand-disj (:constraints candidate))))))
+          ]
       (lazy-cat
        (if (not (fail? filter-against))
          (generate-from-candidate candidate label filter-against lexfn-sem-impl))
