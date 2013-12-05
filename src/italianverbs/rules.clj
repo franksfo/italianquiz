@@ -55,6 +55,7 @@
 ;;
 (ns-unmap 'italianverbs.rules 'vp)
 (rewrite-as vp 'intransitive-verbs)
+(rewrite-as vp 'past-vp)
 (rewrite-as vp 'transitive-vp)
 
 ;; possible expansions of transitive vp (verb phrase):
@@ -64,6 +65,19 @@
 (rewrite-as transitive-vp {:schema 'hh21
                            :comp 'np
                            :head 'transitive-verbs})
+(ns-unmap 'italianverbs.rules 'past-vp)
+(rewrite-as past-vp {:schema 'hh21
+                     :label 'past-vp
+                     :head 'aux-verbs
+                     :comp 'intransitive-verbs})
+(rewrite-as past-vp {:schema 'hh21
+                     :label 'past-vp
+                     :head 'aux-verbs
+                     :comp 'transitive-vp})
+(rewrite-as past-vp {:schema 'hh21
+                     :label 'past-vp
+                     :head 'aux-verbs
+                     :comp 'modal-vp})
 
 ;; -- aliases --
 (def ds declarative-sentence)
