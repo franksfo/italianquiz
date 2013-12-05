@@ -1118,7 +1118,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
         unified-values (map (fn [each-fs]
                               {:fs each-fs
-                               :assignments 
+                               :assignments
                                (map (fn [each-ref-in-fs]
                                       {:ref each-ref-in-fs
                                     :val (get-unified-value-for each-fs each-ref-in-fs)})
