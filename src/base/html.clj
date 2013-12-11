@@ -77,7 +77,6 @@
               (powered-by "workbook" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/workbook.clj")]
              [:td {:colspan "1"}
               "others.."]]]]]]
-
          [:tr
           [:td
            (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbsgrammar.clj")]
