@@ -138,7 +138,7 @@
   ))
 
 (deftest generate-nbar
-  (let [nbar-test (take 1 (generate nbar))]
+  (let [nbar-test (take 1 (generate (list nbar) "nbar" :top sem-impl))]
     (is (not (fail? nbar-test)))))
 
 (deftest generate-np-test
