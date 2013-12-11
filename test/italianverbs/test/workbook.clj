@@ -13,16 +13,6 @@
 
 (def seed-phrases (list 'cc10))
 
-(deftest test-gen14-1
-  (let [result (first (take 1
-                            (gen14 cc10
-                                   (list (it "io") (it "dormire"))
-                                   (list (it "io") (it "dormire"))
-                                   :top
-                                   sent-impl 0
-                                   sem-impl)))]
-    (is (or (= "Io dormo (I sleep)." (first (fo result)))
-            (= "Io dormirò (I will sleep)." (first (fo result)))))))
 
 
 (defn functions-as-seqs-test []
