@@ -1,7 +1,7 @@
 (ns italianverbs.test.sandbox
   (:refer-clojure :exclude [get-in merge resolve find])
   (:use [clojure.test]
-        [italianverbs.sandbox]))
+        [italianverbs.workbook]))
 
 (ns italianverbs.sandbox
   (:refer-clojure :exclude [get-in merge resolve find])
