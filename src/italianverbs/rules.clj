@@ -61,10 +61,13 @@
 (rewrite-as vp 'modal-vp)
 (rewrite-as vp 'past-vp)
 (rewrite-as vp 'transitive-vp)
-(rewrite-as vp {:schema 'ch21
-                :label 'vp
-                :comp 'pronouns
-                :head 'transitive-verbs})
+(rewrite-as vp 'trans-vp-with-pron)
+
+(ns-unmap 'italianverbs.rules 'trans-vp-with-pron)
+(rewrite-as trans-vp-with-pron {:schema 'ch21
+                                :label 'vp
+                                :comp 'pronouns
+                                :head 'transitive-verbs})
 
 (rewrite-as vp {:schema 'hh21
                 :label 'vp-prep
