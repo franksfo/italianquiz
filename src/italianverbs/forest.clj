@@ -33,10 +33,23 @@
   (let [choice (choose-at-random set)]
     (cond (in? choice parents)
           {:sch choice
-           :a (one-tree set)
-           :b (one-tree set)}
+           :h (one-tree set)
+           :c (one-tree set)}
           true
           choice)))
+
+(defn choose-head [parent set]
+  {:h (choose-at-random set)})
+
+(defn all-trees [tree-with-head set]
+  (if (not (empty? set))
+    (lazy-seq
+     (cons
+      (unifyc tree-with-head
+              {:c (first set)})
+      (all-trees tree-with-head (rest set))))))
+
+(def upl (union parents lex))
 
 (defn forest [set]
   "generate a lazy sequence of trees"
