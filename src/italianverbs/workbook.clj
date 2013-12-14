@@ -1,14 +1,18 @@
 (ns italianverbs.workbook
-  (:refer-clojure :exclude [get-in merge resolve find])
+  (:refer-clojure :exclude [get-in merge resolve find parents])
   (:require
-   [clojail.core :refer [sandbox]]
-   [clojail.testers :refer :all]
-   [clojure.set :refer :all]
    [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
+
+   [clojure.set :refer :all]
    [clojure.string :as string]
+
+   [clojail.core :refer [sandbox]]
+   [clojail.testers :refer :all]
    [clojure.tools.logging :as log]
    [hiccup.core :refer :all]
+
+   [italianverbs.forest :refer :all]
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
@@ -18,6 +22,7 @@
    [italianverbs.rules :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]
+
    [somnium.congomongo :as mongo]))
 
 ;; seem to need this sometimes, to avoid initialization errors:
