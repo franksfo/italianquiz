@@ -66,6 +66,16 @@
     (one-tree set)
     (forest set))))
 
+(def pl (union parents lex))
+
+(defn h1d1 [set]
+  "head-first,depth-first generation"
+  ;; 1. choose a head H
+  ;; 2. find the subset S of set which can be complement of H.
+  ;; 3. P = lazy-seq: (h1d1 S)
+  nil)
+
+
 (defn do-a-bunch []
   (take 5 (forest (union parents lex))))
 
