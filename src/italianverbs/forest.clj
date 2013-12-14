@@ -49,6 +49,14 @@
               {:c (first set)})
       (all-trees tree-with-head (rest set))))))
 
+(defn all-heads-and-parents [parent set]
+  "generate all possible head-parent combinations."
+  (lazy-seq
+   (cons
+    (unifyc parent
+            {:h (first set)})
+    (all-heads-and-parents parent set))))
+
 (def upl (union parents lex))
 
 (defn forest [set]
