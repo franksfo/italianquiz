@@ -1,13 +1,16 @@
 (ns italianverbs.forest
-  (:refer-clojure :exclude [get-in merge resolve find])
+  (:refer-clojure :exclude [get-in merge resolve find parents])
   (:use [clojure.set]
         [clojure.stacktrace]
         [italianverbs.generate]
         [italianverbs.grammar]
+        [italianverbs.lexicon]
         [italianverbs.morphology :only (fo)]
         [italianverbs.ug])
   (:require
+   [clojure.core :as core]
    [clojure.tools.logging :as log]
+
    [italianverbs.lev :as lev]
    [italianverbs.unify :refer :all]
    [italianverbs.unify :as unify]
@@ -23,8 +26,13 @@
     (first (shuffle set))))
 
 ;(def parents (list hh10 hh21))
-(def parents (set (list 'hh10 'hh21)))
-(def lex (set (list 'a 'b 'c)))
+;(def parents (set (list 'hh10 'hh21)))
+
+;(def parents (set (list 'cc10)))
+;(def lex (set (list 'io 'tu 'dormire)))
+
+(def parents (set (list cc10)))
+(def lex (union (it "io") (it "tu") (it "dormire")))
 
 (defn in? [member of-set]
   (not (empty? (intersection (set (list member)) of-set))))
@@ -68,13 +76,37 @@
 
 (def pl (union parents lex))
 
-(defn h1d1 [set]
+(defn choose-at-random-with-depth [parents lex depth]
+  (let [rand (rand-int 10)]
+    (cond (= depth 0)
+          (cond (> rand 3)
+                (first (shuffle parents))
+                true
+                (first (shuffle lex)))
+          (= depth 1)
+          (cond (> rand 5)
+                (first (shuffle parents))
+                true
+                (first (shuffle lex)))
+          (= depth 2)
+          (cond (> rand 7)
+                (first (shuffle parents))
+                true
+                (first (shuffle lex)))
+          true
+          (cond (> rand 8)
+                (first (shuffle parents))
+                true
+                (first (shuffle lex))))))
+
+(defn h1d1 [parents lex & [depth]]
   "head-first,depth-first generation"
-  (let [choice (choose-at-random set)]
+  (let [depth (if depth depth 0)
+        choice (choose-at-random-with-depth parents lex depth)]
     (cond (in? choice parents)
           ;; this is a sub-tree: generate its head.
-          {:sch choice
-           :h (h1d1 set)}
+          (unifyc choice
+                  {:head (h1d1 parents lex)})
           true
           ;; not a subtree: done.
           choice)))
@@ -82,8 +114,4 @@
 (defn do-a-bunch []
   (take 5 (forest (union parents lex))))
 
-
-
-
-
-
+;(h1d1 parents lex 0)
