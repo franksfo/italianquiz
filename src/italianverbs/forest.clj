@@ -79,7 +79,7 @@
 (defn choose-at-random-with-depth [parents lex depth]
   (let [rand (rand-int 10)]
     (cond (= depth 0)
-          (cond (> rand 3)
+          (cond (> rand 1)
                 (first (shuffle parents))
                 true
                 (first (shuffle lex)))
