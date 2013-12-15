@@ -48,7 +48,11 @@
             (log/debug (str "FAIL: " fail-path))
             :fail))))))
 
-(def *throw-exception-if-failed-to-add-path* false)
+;; Might be useful to set the following variable to true,
+;; if doing grammar development and it would be unexpected
+;; to have a failing result from calling (moreove-comp)
+;; with certain arguments.
+(def *throw-exception-if-failed-to-add-complement* false)
 
 (defn moreover-comp [parent child lexfn-sem-impl]
   (log/debug (str "moreover-comp parent: " (fo parent)))
@@ -70,7 +74,7 @@
       (do
         (log/debug "moreover-comp: fail at: " (unify/fail-path result))
         (if (and
-             *throw-exception-if-failed-to-add-path*
+             *throw-exception-if-failed-to-add-complement*
              (unify/get-in child '(:head)))
           (throw (Exception. (str "failed to add complement: " (fo child) "  to: phrase: " (fo parent)
                                   ". Failed path was: " (unify/fail-path result)
