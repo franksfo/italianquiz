@@ -297,12 +297,12 @@ td.hc {
 }
 
 div.set {
+    min-width:4em;
     float:left;
 }
 
 
 div.set div {
-    padding-right:0.5em;
     float:left;
 }
 
@@ -310,7 +310,7 @@ div.set div.member {
 }
 
 div.set div.delimiter {
-    padding-top:15%;
+    float:left;
     border:0px dashed green;
     vertical-align:middle;
 }
