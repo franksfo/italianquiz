@@ -198,6 +198,11 @@
                (overh parent head))))
 
 (defn over [parents child1 & [child2]]
+  (cond (vector? child1)
+        (over parents (set child1) child2)
+        (vector? child2)
+        (over parents child1 (set child2))
+        true
   (if (nil? child2) (over parents child1 :top)
       (if (map? parents)
         (over (list parents) child1 child2)
@@ -249,7 +254,7 @@
                    true
                    (throw (Exception. (str "Don't know what to do with parent: " parent))))
 
-             (over (rest parents) child1 child2)))))))
+             (over (rest parents) child1 child2))))))))
 
 ;; (take 1 (overall "domani" (overall "io" (overall "avere" (overall "potere" "dormire")))))))
 (defn overall [child1 & [child2]]
