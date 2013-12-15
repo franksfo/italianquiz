@@ -704,3 +704,9 @@ when run from a REPL."
 (deftest category-disjunction
   (let [result (expand-disj parent-with-disj)]
     (is (= (.size result) 2))))
+
+(deftest unify-with-set-test
+  (let [result (unify {:b 42}
+                      (expand-disj {:c #{1 2}}))]
+    (is (set? result))))
+

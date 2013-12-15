@@ -91,6 +91,12 @@
           (cons (first fs-keys) (fail-path (get-in fs (list (first fs-keys)))))
           (fail-path fs (rest fs-keys)))))))
 
+(defn has-set? [fs]
+  (cond (map? fs)
+        false
+        true
+        false))
+
 ;; TODO: many code paths below only look at val1 and val2, and ignore rest of args beyond that.
 ;; either consider all args, or change signature of (unify) to take only val1 val2.
 ;; see also lexiconfn/unify (probably will change signature, but make lexiconfn/unify handle
@@ -104,6 +110,18 @@
     (log/debug (str "unify val1: " val1))
     (log/debug (str "      val2: " val2))
     (cond
+
+     (and (not (set? val1))
+          (set? val2))
+     (set (map (fn [each]
+                 (unify val1 each))
+               val2))
+
+     (and (not (set? val1))
+          (has-set? val2))
+     (set (map (fn [each]
+                 (unify val1 each))
+               (expand-disj val2))
 
      (and (= val1 '())
           (= val2 :top))
@@ -1042,13 +1060,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn copy-with-ref-substitute [fs old-ref new-ref]
   "create new fs, but with new-ref substituted for every occurance of {:ref ref,:val X}"
-  (cond 
+  (cond
    (and (map? fs)
         (not (empty? fs))
         (not (nil? (:ref fs)))
         (= (:ref fs) old-ref))
    new-ref
-        
+
    (and (map? fs)
         (not (empty? fs)))
    (let [key (first (first fs))
