@@ -35,7 +35,10 @@
                                {:synsem {:infl :present
                                          :sem {:tense :present}}}))))
 
-(def lex (union (it "io") (it "tu") (it "lui") (it "lei") (it "dormire") (it "sognare")))
+(def lex (union (it "il") (it "cane") (it "i")
+                ;(it "io") (it "tu")
+; (it "lui") (it "lei")
+ (it "dormire") (it "sognare")))
 ;(def lex (union (it "io") (it "dormire")))
 
 (defn in? [member of-set]
@@ -111,7 +114,7 @@
   (let [depth (if depth depth 0)
         head-spec (if head-spec head-spec :top)
         choice (choose-at-random-with-depth parents lex depth)]
-    (log/info (str "h1d1 at depth: " depth))
+    (log/debug (str "h1d1 at depth: " depth))
     (cond (in? choice parents)
           ;; this is a sub-tree: generate its head.
           (let [chosen-phrase choice
