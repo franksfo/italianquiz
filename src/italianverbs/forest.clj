@@ -113,6 +113,33 @@
                 true
                 (first (shuffle lex))))))
 
+
+(defn next-gen-with-depth [parents lex depth]
+  (let [rand (rand-int 10)]
+    (cond (= depth 0) ;; depth 0: branch with 80% probability
+          (cond (> rand 1)
+                (lazy-cat parents lex)
+                true
+                (lazy-cat lex parents))
+
+          (= depth 2) ;; depth 1: branch with 40% probabilty
+          (cond (> rand 5)
+                (lazy-cat parents lex)
+                true
+                (lazy-cat lex parents))
+
+          (= depth 2) ;; depth 2: branch with 20% probability
+          (cond (> rand 7)
+                (lazy-cat parents lex)
+                true
+                (lazy-cat lex parents))
+
+          true ;; greater depth: branch with 10% probability
+          (cond (> rand 8)
+                (lazy-cat parents lex)
+                true
+                (lazy-cat lex parents)))))
+
 (defn h1d1 [parents lex & [depth head-spec]]
   "head-first,depth-first generation"
   (let [depth (if depth depth 0)
@@ -150,6 +177,53 @@
           true
           ;; not a subtree: done.
           (unifyc choice head-spec))))
+
+(declare h1d1s)
+(defn h1d1s-1 [parents lex depth head-spec choice]
+  (if (not (empty? choice))
+    (lazy-seq
+     (cons
+      (let [choice (first choice)]
+        (cond (in? choice parents)
+              ;; this is a sub-tree: generate its head.
+              (let [chosen-phrase choice
+
+                    debug (log/debug (str "h1d1: phrase: " (get-in chosen-phrase '(:comment))))
+
+                    head (h1d1 parents lex (+ depth 1) head-spec)
+
+                    debug (log/debug (str "h1d1: head: " (fo head)))
+
+                    head (if (fail? head) :fail head)
+
+                    phrase-with-head
+                    (if (and (not (fail? head))
+                             (not (fail? chosen-phrase)))
+                      (unifyc chosen-phrase
+                              {:head head})
+                      :fail)
+
+                    debug (log/debug (str "h1d1: phrase-with-head: " (fo phrase-with-head)))
+
+                    comp (if (fail? phrase-with-head)
+                           :fail
+                           (h1d1s parents lex 0 (get-in phrase-with-head '(:comp))))]
+                (if (fail? comp)
+                  :fail
+                  (unifyc phrase-with-head
+                          {:comp comp})))
+              true
+              ;; not a subtree: done.
+              (unifyc choice head-spec)))
+      (h1d1s-1 (parents lex depth head-spec (rest choice)))))))
+
+(defn h1d1s [parents lex & [depth head-spec]]
+  "head-first,depth-first generation, but return a lazy seq rather than just one try"
+  (let [depth (if depth depth 0)
+        head-spec (if head-spec head-spec :top)
+        choice (next-gen-with-depth parents lex depth)]
+    (log/debug (str "h1d1 at depth: " depth))
+    (h1d1s-1 parents lex depth choice)))
 
 (defn do-a-bunch []
   (take 5 (forest (union parents lex))))
