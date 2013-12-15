@@ -375,8 +375,8 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (sentence)))"
-          )]
+          "(h1d1 parents lex 0)")
+          ]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
