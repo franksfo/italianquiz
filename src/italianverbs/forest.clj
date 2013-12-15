@@ -211,7 +211,8 @@
                 (if (fail? comp)
                   :fail
                   (unifyc phrase-with-head
-                          {:comp comp})))
+                          {:comp comp}))) ;; note: comp is a lazy seq: confirm that this works: look
+              ;; at implementation of (unify/unify)
               true
               ;; not a subtree: done.
               (unifyc choice head-spec)))
