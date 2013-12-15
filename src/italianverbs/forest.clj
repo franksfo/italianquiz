@@ -31,9 +31,13 @@
 ;(def parents (set (list 'cc10)))
 ;(def lex (set (list 'io 'tu 'dormire)))
 
-(def parents (set (list (unify cc10
+(def parents (set (list (unifyc cc10
                                {:synsem {:infl :present
-                                         :sem {:tense :present}}}))))
+                                         :cat :verb
+                                         :sem {:tense :present}}})
+
+                        (unifyc cc10
+                               {:synsem {:cat :noun}}))))
 
 (def lex (union (it "il") (it "cane") (it "i")
                 ;(it "io") (it "tu")
@@ -145,3 +149,26 @@
 
 ;(fo (remove (fn [x] (= :notfound (get-in x '(:head) :notfound)))
 ;     (take 100 (repeatedly #(h1d1 parents lex 0))))))))
+
+(defn keep-trying []
+  (let [result (h1d1 parents lex 0)]
+    (if (fail? result)
+      (keep-trying)
+      result)))
+
+(defn keep-trying-phrase []
+  (let [result (h1d1 parents lex 0
+                     {:synsem {:cat :verb}})]
+    (if (or (fail? result)
+            (= :notfound (get-in result '(:head) :notfound)))
+      (keep-trying-phrase)
+      result)))
+
+;; Problem: why is it that i can generate "i cani sognano" with the following:
+;;
+;;(fo (over parents (over parents lex lex) lex))
+;;
+;; but not with:
+;;(fo (take 100 (repeatedly #(keep-trying-phrase))))
+;;
+
