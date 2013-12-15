@@ -95,6 +95,9 @@
 ;; either consider all args, or change signature of (unify) to take only val1 val2.
 ;; see also lexiconfn/unify (probably will change signature, but make lexiconfn/unify handle
 ;; have signature [& args] and pass to unify/unify with appropriate translation.
+;;
+;; TODO: support sets and lazy sequences.
+;;
 (defn unify [& args]
   (let [val1 (first args)
         val2 (second args)]
