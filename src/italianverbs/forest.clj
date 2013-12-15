@@ -122,14 +122,24 @@
     (cond (in? choice parents)
           ;; this is a sub-tree: generate its head.
           (let [chosen-phrase choice
+
                 debug (log/debug (str "h1d1: phrase: " (get-in chosen-phrase '(:comment))))
+
                 head (h1d1 parents lex (+ depth 1) head-spec)
+
                 debug (log/debug (str "h1d1: head: " (fo head)))
+
                 head (if (fail? head) :fail head)
+
                 phrase-with-head
-                (unifyc chosen-phrase
-                        {:head head})
+                (if (and (not (fail? head))
+                         (not (fail? chosen-phrase)))
+                  (unifyc chosen-phrase
+                          {:head head})
+                  :fail)
+
                 debug (log/debug (str "h1d1: phrase-with-head: " (fo phrase-with-head)))
+
                 comp (if (fail? phrase-with-head)
                        :fail
                        (h1d1 parents lex 0 (get-in phrase-with-head '(:comp))))]
