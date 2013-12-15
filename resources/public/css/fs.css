@@ -7,9 +7,6 @@ table.fs {
     border-collapse:collapse;
 }
 
-th {
-}
-
 td {
 }
 
@@ -28,6 +25,7 @@ table.map {
 }
 
 table.map th {
+    max-width:5em;
     background: lightgreen;
     border: 2px solid lightgreen;
     text-align:right;
