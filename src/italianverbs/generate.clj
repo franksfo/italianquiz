@@ -48,6 +48,8 @@
             (log/debug (str "FAIL: " fail-path))
             :fail))))))
 
+(def *throw-exception-if-failed-to-add-path* false)
+
 (defn moreover-comp [parent child lexfn-sem-impl]
   (log/debug (str "moreover-comp parent: " (fo parent)))
   (log/debug (str "moreover-comp comp:" (fo child)))
@@ -67,7 +69,9 @@
           result)
       (do
         (log/debug "moreover-comp: fail at: " (unify/fail-path result))
-        (if (unify/get-in child '(:head))
+        (if (and
+             *throw-exception-if-failed-to-add-path*
+             (unify/get-in child '(:head)))
           (throw (Exception. (str "failed to add complement: " (fo child) "  to: phrase: " (fo parent)
                                   ". Failed path was: " (unify/fail-path result)
                                   ". Value of parent at path is: "
