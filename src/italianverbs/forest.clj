@@ -31,8 +31,12 @@
 ;(def parents (set (list 'cc10)))
 ;(def lex (set (list 'io 'tu 'dormire)))
 
-(def parents (set (list cc10)))
-(def lex (union (it "io") (it "tu") (it "dormire")))
+(def parents (set (list (unify cc10
+                               {:synsem {:infl :present
+                                         :sem {:tense :present}}}))))
+
+(def lex (union (it "io") (it "tu") (it "lui") (it "lei") (it "dormire") (it "sognare")))
+;(def lex (union (it "io") (it "dormire")))
 
 (defn in? [member of-set]
   (not (empty? (intersection (set (list member)) of-set))))
@@ -78,40 +82,63 @@
 
 (defn choose-at-random-with-depth [parents lex depth]
   (let [rand (rand-int 10)]
-    (cond (= depth 0)
-          (cond (> rand 1)
+    (cond (= depth 0) ;; depth 0: branch with 80% probability
+          (cond (> rand 0)
                 (first (shuffle parents))
                 true
                 (first (shuffle lex)))
-          (= depth 1)
+
+          (= depth 1) ;; depth 1: branch with 40% probabilty
           (cond (> rand 5)
                 (first (shuffle parents))
                 true
                 (first (shuffle lex)))
-          (= depth 2)
+
+          (= depth 2) ;; depth 2: branch with 20% probability
           (cond (> rand 7)
                 (first (shuffle parents))
                 true
                 (first (shuffle lex)))
-          true
+
+          true ;; greater depth: branch with 10% probability
           (cond (> rand 8)
                 (first (shuffle parents))
                 true
                 (first (shuffle lex))))))
 
-(defn h1d1 [parents lex & [depth]]
+(defn h1d1 [parents lex & [depth head-spec]]
   "head-first,depth-first generation"
   (let [depth (if depth depth 0)
+        head-spec (if head-spec head-spec :top)
         choice (choose-at-random-with-depth parents lex depth)]
+    (log/info (str "h1d1 at depth: " depth))
     (cond (in? choice parents)
           ;; this is a sub-tree: generate its head.
-          (unifyc choice
-                  {:head (h1d1 parents lex)})
+          (let [chosen-phrase choice
+                debug (log/debug (str "h1d1: phrase: " (get-in chosen-phrase '(:comment))))
+                head (h1d1 parents lex (+ depth 1) head-spec)
+                debug (log/debug (str "h1d1: head: " (fo head)))
+                head (if (fail? head) :fail head)
+                phrase-with-head
+                (unifyc chosen-phrase
+                        {:head head})
+                debug (log/debug (str "h1d1: phrase-with-head: " (fo phrase-with-head)))
+                comp (if (fail? phrase-with-head)
+                       :fail
+                       (h1d1 parents lex 0 (get-in phrase-with-head '(:comp))))]
+            (if (fail? comp)
+              :fail
+              (unifyc phrase-with-head
+                      {:comp comp})))
           true
           ;; not a subtree: done.
-          choice)))
+          (unifyc choice head-spec))))
 
 (defn do-a-bunch []
   (take 5 (forest (union parents lex))))
 
 ;(h1d1 parents lex 0)
+;(fo (remove fail? (take 100 (repeatedly #(h1d1 parents lex 0)))))
+
+;(fo (remove (fn [x] (= :notfound (get-in x '(:head) :notfound)))
+;     (take 100 (repeatedly #(h1d1 parents lex 0))))))))
