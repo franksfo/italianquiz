@@ -52,7 +52,7 @@
 ;; if doing grammar development and it would be unexpected
 ;; to have a failing result from calling (moreove-comp)
 ;; with certain arguments.
-(def *throw-exception-if-failed-to-add-complement* false)
+(def ^:dynamic *throw-exception-if-failed-to-add-complement* false)
 
 (defn moreover-comp [parent child lexfn-sem-impl]
   (log/debug (str "moreover-comp parent: " (fo parent)))
