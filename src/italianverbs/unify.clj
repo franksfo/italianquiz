@@ -91,11 +91,27 @@
           (cons (first fs-keys) (fail-path (get-in fs (list (first fs-keys)))))
           (fail-path fs (rest fs-keys)))))))
 
+(defn any? [fn members]
+  (if (not (empty? members))
+    (or (fn (first members))
+        (any? fn (rest members)))
+
+    ;; members is empty.
+    false))
+
+(defn ref? [val]
+  (= (type val) clojure.lang.Ref))
+
 (defn has-set? [fs]
   (cond (map? fs)
-        false
+        (or (any? set? (vals fs))
+            (any? has-set? (vals fs)))
+        (ref? fs)
+        (has-set? @fs)
         true
         false))
+
+(declare expand-disj) ;; needed by unify.
 
 ;; TODO: many code paths below only look at val1 and val2, and ignore rest of args beyond that.
 ;; either consider all args, or change signature of (unify) to take only val1 val2.
@@ -121,7 +137,7 @@
           (has-set? val2))
      (set (map (fn [each]
                  (unify val1 each))
-               (expand-disj val2))
+               (expand-disj val2)))
 
      (and (= val1 '())
           (= val2 :top))
@@ -432,9 +448,6 @@
      (= val1 val2) val1
 
      :else :fail)))
-
-(defn ref? [val]
-  (= (type val) clojure.lang.Ref))
 
 (defn merge [& args]
   "warning: {} is the identity value, not nil; that is: (merge X {}) => X, but (merge X nil) => nil, (not X)."

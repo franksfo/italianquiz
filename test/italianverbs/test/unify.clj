@@ -707,6 +707,14 @@ when run from a REPL."
 
 (deftest unify-with-set-test
   (let [result (unify {:b 42}
-                      (expand-disj {:c #{1 2}}))]
+                      {:c #{1 2}})]
+    (is (set? result))
+    (is (= 2 (.size result)))
+    (is (or (= (get-in (first result) '(:c)) 1)
+            (= (get-in (first result) '(:c)) 2)))))
+
+(deftest unify-with-set-test2
+  (let [result (unify {:b 42}
+                      {:c #{1 2}})]
     (is (set? result))))
 
