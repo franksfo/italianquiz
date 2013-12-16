@@ -210,21 +210,26 @@
                            (h1d1s parents lex 0 (get-in phrase-with-head '(:comp))))]
                 (if (fail? comp)
                   :fail
+
+                  ;; note: comp is a lazy seq; we coerce it and fully expand it to a set.
+                  ;; ideally, unify should deal with lazy sequences, then we would not need to
+                  ;; expand to a set here.
                   (unifyc phrase-with-head
-                          {:comp comp}))) ;; note: comp is a lazy seq: confirm that this works: look
+                          {:comp (set comp)})))
+
               ;; at implementation of (unify/unify)
               true
               ;; not a subtree: done.
               (unifyc choice head-spec)))
-      (h1d1s-1 (parents lex depth head-spec (rest choice)))))))
+      (h1d1s-1 parents lex depth head-spec (rest choice))))))
 
 (defn h1d1s [parents lex & [depth head-spec]]
   "head-first,depth-first generation, but return a lazy seq rather than just one try"
   (let [depth (if depth depth 0)
         head-spec (if head-spec head-spec :top)
         choice (next-gen-with-depth parents lex depth)]
-    (log/debug (str "h1d1 at depth: " depth))
-    (h1d1s-1 parents lex depth choice)))
+    (log/info (str "h1d1 at depth: " depth))
+    (h1d1s-1 parents lex depth head-spec choice)))
 
 (defn do-a-bunch []
   (take 5 (forest (union parents lex))))
