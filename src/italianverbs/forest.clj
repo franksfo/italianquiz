@@ -1,24 +1,26 @@
 (ns italianverbs.forest
   (:refer-clojure :exclude [get-in merge resolve find parents])
-  (:use [clojure.set]
-        [clojure.stacktrace]
-        [italianverbs.generate]
-        [italianverbs.grammar]
-        [italianverbs.lexicon]
-        [italianverbs.morphology :only (fo)]
-        [italianverbs.ug])
   (:require
    [clojure.core :as core]
+   [clojure.set :refer :all]
+   [clojure.stacktrace :refer :all]
+   [clojure.string :as string]
    [clojure.tools.logging :as log]
 
-   [italianverbs.lev :as lev]
-   [italianverbs.unify :refer :all]
-   [italianverbs.unify :as unify]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
+
+   [italianverbs.generate :refer :all]
+   [italianverbs.grammar :refer :all]
+   [italianverbs.lexicon :refer :all]
+   [italianverbs.morphology :refer :all]
    [italianverbs.over :refer :all]
+
+   [italianverbs.lev :as lev]
    [italianverbs.search :as search]
-   [clojure.string :as string]))
+   [italianverbs.ug :refer :all]
+   [italianverbs.unify :refer :all]
+   [italianverbs.unify :as unify]))
 
 (defn choose-at-random [set & [distrib]]
   "choose one from amongst set using a probability distribution."
