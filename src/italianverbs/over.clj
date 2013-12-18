@@ -117,6 +117,14 @@
 (defn overh [parent child]
   (log/debug (str "overh child: " (fo child)))
   (cond
+
+   (or (set? parent)
+       (seq? parent))
+   (apply concat
+          (map (fn [each-parent]
+                 (overh each-parent child))
+               parent))
+
    (string? child)
    (overh parent (it child))
 
@@ -143,6 +151,13 @@
   (log/debug (str "overc parent type: " (type parent)))
   (log/debug (str "overc child type: " (type child)))
   (cond
+   (or (set? parent)
+       (seq? parent))
+   (apply concat
+          (map (fn [each-parent]
+                 (overc each-parent child))
+               parent))
+
    (string? child)
    (overc parent (it child))
 
