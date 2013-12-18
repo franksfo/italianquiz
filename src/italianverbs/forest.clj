@@ -16,6 +16,7 @@
    [italianverbs.unify :as unify]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
+   [italianverbs.over :refer :all]
    [italianverbs.search :as search]
    [clojure.string :as string]))
 
@@ -193,7 +194,7 @@
   (cond (in? choice parents)
         ;; this is a sub-tree: generate its head.
         (let [chosen-phrase choice
-              
+
               debug (log/debug (str "h1d1: phrase: " (get-in chosen-phrase '(:comment))))
 
               head (h1d1 parents lex (+ depth 1) head-spec)
@@ -310,4 +311,10 @@
 ;; but not with:
 ;;(fo (take 100 (repeatedly #(keep-trying-phrase))))
 ;;
+
+(defn il-libro []
+  (over parents lex lex))
+
+
+
 

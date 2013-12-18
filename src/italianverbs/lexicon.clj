@@ -2576,6 +2576,7 @@
              (= (get-in lex '(:synsem :cat)) :adjective)))
           lexicon))
 
+;; TODO: move to lexiconfn.
 (defn lookup [query]
   (lookup-in query lexicon))
 

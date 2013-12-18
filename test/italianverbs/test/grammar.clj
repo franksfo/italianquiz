@@ -10,6 +10,7 @@
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer :all]
+   [italianverbs.over :refer :all]
    [italianverbs.rules :refer :all]
    [italianverbs.workbook :refer :all]
    [italianverbs.ug :refer :all]
