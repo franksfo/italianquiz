@@ -179,6 +179,55 @@
           (unifyc choice head-spec))))
 
 (declare h1d1s)
+
+;; trying to figure out why h1d1s-1 doesn't work..
+(defn h1d1s-2 [parents lex depth head-spec choices]
+  (if (not (empty? choices))
+    (lazy-seq
+     (cons
+      (let [choice (first choices)]
+        choice)
+      (h1d1s-2 parents lex depth head-spec (rest choices))))))
+
+(defn partly [parents lex depth head-spec choice]
+  (cond (in? choice parents)
+        ;; this is a sub-tree: generate its head.
+        (let [chosen-phrase choice
+              
+              debug (log/debug (str "h1d1: phrase: " (get-in chosen-phrase '(:comment))))
+
+              head (h1d1 parents lex (+ depth 1) head-spec)
+
+              debug (log/debug (str "h1d1: head: " (fo head)))
+
+              head (if (fail? head) :fail head)
+
+              phrase-with-head
+              (if (and (not (fail? head))
+                       (not (fail? chosen-phrase)))
+                (unifyc chosen-phrase
+                        {:head head})
+                :fail)
+
+              debug (log/debug (str "h1d1: phrase-with-head: " (fo phrase-with-head)))
+
+              comp (if (fail? phrase-with-head)
+                     :fail
+                     (h1d1s parents lex 0 (get-in phrase-with-head '(:comp))))]
+          (if (fail? comp)
+            :fail
+
+            ;; note: comp is a lazy seq; we coerce it and fully expand it to a set.
+            ;; ideally, unify should deal with lazy sequences, then we would not need to
+            ;; expand to a set here.
+            (unifyc phrase-with-head
+                    {:comp (set comp)})))
+
+        ;; at implementation of (unify/unify)
+        true
+        ;; not a subtree: done.
+        (unifyc choice head-spec)))
+
 (defn h1d1s-1 [parents lex depth head-spec choice]
   (if (not (empty? choice))
     (lazy-seq
@@ -227,9 +276,9 @@
   "head-first,depth-first generation, but return a lazy seq rather than just one try"
   (let [depth (if depth depth 0)
         head-spec (if head-spec head-spec :top)
-        choice (next-gen-with-depth parents lex depth)]
+        choices (next-gen-with-depth parents lex depth)]
     (log/info (str "h1d1 at depth: " depth))
-    (h1d1s-1 parents lex depth head-spec choice)))
+    (h1d1s-1 parents lex depth head-spec choices)))
 
 (defn do-a-bunch []
   (take 5 (forest (union parents lex))))
