@@ -321,7 +321,7 @@
 (defn lightning-bolt [head phrases & [depth lexion]]
   (let [depth (if depth depth 0)
         lexicon (if lexicon lexicon lex)]
-    (let [rand (random-int 10)]
+    (let [rand (rand-int 10)]
       (cond
        (= depth 0)
        (cond (> rand 1)
