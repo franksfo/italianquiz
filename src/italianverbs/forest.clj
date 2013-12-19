@@ -348,9 +348,54 @@
                                                  head))))
                             lexicon)))
 
-       true
-       ;; do rest..
-))))
+       (= depth 1)
+       (cond (> rand 3)
+             ;; descend recursively with 40% probability.
+             (let [recursive-head (lightning-bolt head
 
+                                                  ;; filter out phrases for which head cannot be a head,
+                                                  ;; because they would fail anyway in recursive
+                                                  ;; lightning-bolt call.
+                                                  (overh phrases head)
+
+
+                                                  (+ 1 depth)
+                                                  lexicon)]
+               (overh phrases
+                      recursive-head))
+
+
+             true
+             ;; don't descend with 60% probability
+             (overh phrases
+                    (filter (fn [lexeme]
+                              (not (fail? (unify lexeme
+                                                 head))))
+                            lexicon)))
+       true
+
+       (cond false
+             ;; descend with 0% probability
+             (let [recursive-head (lightning-bolt head
+
+                                                  ;; filter out phrases for which head cannot be a head,
+                                                  ;; because they would fail anyway in recursive
+                                                  ;; lightning-bolt call.
+                                                  (overh phrases head)
+
+
+                                                  (+ 1 depth)
+                                                  lexicon)]
+               (overh phrases
+                      recursive-head))
+
+
+             true
+             ;; don't descend with 100% probability
+             (overh phrases
+                    (filter (fn [lexeme]
+                              (not (fail? (unify lexeme
+                                                 head))))
+                            lexicon)))))))
 
 
