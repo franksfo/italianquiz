@@ -318,5 +318,39 @@
   (over parents lex lex))
 
 
+(defn lightning-bolt [head phrases & [depth lexion]]
+  (let [depth (if depth depth 0)
+        lexicon (if lexicon lexicon lex)]
+    (let [rand (random-int 10)]
+      (cond
+       (= depth 0)
+       (cond (> rand 1)
+             ;; descend recursively with 80% probability.
+             (let [recursive-head (lightning-bolt head
+
+                                                  ;; filter out phrases for which head cannot be a head,
+                                                  ;; because they would fail anyway in recursive
+                                                  ;; lightning-bolt call.
+                                                  (overh phrases head)
+
+
+                                                  (+ 1 depth)
+                                                  lexicon)]
+               (overh phrases
+                      recursive-head))
+
+
+             true
+             ;; don't descend with 20% probability
+             (overh phrases
+                    (filter (fn [lexeme]
+                              (not (fail? (unify lexeme
+                                                 head))))
+                            lexicon)))
+
+       true
+       ;; do rest..
+))))
+
 
 
