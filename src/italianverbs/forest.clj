@@ -318,15 +318,19 @@
   (over parents lex lex))
 
 
-(defn lightning-bolt [head phrases & [depth lexion]]
+(defn lightning-bolt [head phrases & [depth lexicon]]
   (let [depth (if depth depth 0)
         lexicon (if lexicon lexicon lex)]
+    (log/info (str "lightning-bolt with depth: " depth))
+    (log/info (str "lightning-bolt with phrases: " (seq (map (fn [x] (get-in x '(:comment))) phrases))))
+    (log/info (str "lightning-bolt with lexicon: " (seq (map (fn [x] (fo x)) (seq lexicon)))))
     (let [rand (rand-int 10)]
       (cond
        (= depth 0)
-       (cond (> rand 1)
+       (cond (> rand -1)
              ;; descend recursively with 80% probability.
-             (let [recursive-head (lightning-bolt head
+             (let [debug (log/info (str "branching at depth 0."))
+                   recursive-head (lightning-bolt head
 
                                                   ;; filter out phrases for which head cannot be a head,
                                                   ;; because they would fail anyway in recursive
@@ -335,7 +339,10 @@
 
 
                                                   (+ 1 depth)
-                                                  lexicon)]
+                                                  lexicon)
+                   debug (log/info (str "recursive-head: " (fo recursive-head)))]
+               ;; TODO: this is returning nil: need to figure out
+               ;; why: (overh parents (overh parents lex)) returns empty.
                (overh phrases
                       recursive-head))
 
@@ -344,20 +351,22 @@
              ;; don't descend with 20% probability
              (overh phrases
                     (filter (fn [lexeme]
-                              (not (fail? (unify lexeme
-                                                 head))))
+                              (not (fail? (unifyc lexeme
+                                                  head))))
                             lexicon)))
 
        (= depth 1)
-       (cond (> rand 3)
+       (cond (> rand 10)
              ;; descend recursively with 40% probability.
-             (let [recursive-head (lightning-bolt head
+             (let [debug (log/info (str "branching at depth 1.a."))
+                   do-overh (overh phrases head)
+                   debug (log/info (str "do-overh: " overh))
+                   recursive-head (lightning-bolt head
 
                                                   ;; filter out phrases for which head cannot be a head,
                                                   ;; because they would fail anyway in recursive
                                                   ;; lightning-bolt call.
-                                                  (overh phrases head)
-
+                                                  do-overh
 
                                                   (+ 1 depth)
                                                   lexicon)]
@@ -367,13 +376,18 @@
 
              true
              ;; don't descend with 60% probability
-             (overh phrases
-                    (filter (fn [lexeme]
-                              (not (fail? (unify lexeme
-                                                 head))))
-                            lexicon)))
-       true
+             (do
+               (log/info (str "branching at depth 1.b."))
+               (log/info (str "head: " head))
+               (let [result (overh phrases
+                                   (filter (fn [lexeme]
+                                             (not (fail? (unifyc lexeme
+                                                                 head))))
+                                           lexicon))]
+                 (log/info (str "result: " (fo result)))
+                 result)))
 
+       true
        (cond false
              ;; descend with 0% probability
              (let [recursive-head (lightning-bolt head
@@ -394,8 +408,8 @@
              ;; don't descend with 100% probability
              (overh phrases
                     (filter (fn [lexeme]
-                              (not (fail? (unify lexeme
-                                                 head))))
+                              (not (fail? (unifyc lexeme
+                                                  head))))
                             lexicon)))))))
 
 
