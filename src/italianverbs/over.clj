@@ -120,10 +120,10 @@
 
    (or (set? parent)
        (seq? parent))
-   (apply concat
-          (map (fn [each-parent]
-                 (overh each-parent child))
-               parent))
+   (reduce concat
+           (map (fn [each-parent]
+                  (overh each-parent child))
+                parent))
 
    (string? child)
    (overh parent (it child))
@@ -135,13 +135,14 @@
    (let [children child]
      (filter (fn [result]
                (not (fail? result)))
-             (reduce #'concat
+             (reduce concat
                      (map (fn [child]
                             (overh parent child))
                           children))))
 
    true
-   (list (moreover-head parent child sem-impl))))
+   (list 
+    (moreover-head parent child sem-impl))))
 
 ;; Haskell-looking signature:
 ;; (parent:map) X (child:{set,seq,fs}) => list:map
