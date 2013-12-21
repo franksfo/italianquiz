@@ -13,5 +13,11 @@
     (is (not (empty? bolts)))))
 
 
+(deftest lightning2
+  (let [bolts (lightningb :top parents)]
+    (is (not (empty? bolts)))))
+
+
+
 
 

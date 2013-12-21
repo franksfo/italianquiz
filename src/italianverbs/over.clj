@@ -114,16 +114,48 @@
                         (list parents))
                       child1 child2)))
 
+(defn mylazycat [one two]
+  (lazy-cat one two))
+
+(declare overh)
+
+(defn over-each-parent [parents child]
+  (if (not (empty? parents))
+    (let [each-parent (first parents)]
+      (lazy-seq
+       (cons
+        (overh each-parent child)
+        (over-each-parent (rest parents) child))))))
+
+(defn over-each-child [parent children]
+  (if (not (empty? children))
+    (let [each-child (first children)]
+      (lazy-seq
+       (cons
+        (overh parent each-child)
+        (over-each-child parent (rest children)))))))
+
 (defn overh [parent child]
-  (log/debug (str "overh child: " (fo child)))
+  (log/debug (str "overh parent type: " (type parent)))
+  (log/debug (str "overh child  type: " (type child)))
+
+  (log/debug (str "set? parent:" (set? parent)))
+  (log/debug (str "seq? child:" (seq? parent)))
+
+  (if (map? parent)
+    (if (get-in parent '(:comment))
+      (log/debug (str "parent:" (get-in parent '(:comment)))))
+    (log/debug (str "parent:" (fo parent))))
+  (if (map? child)
+    (log/debug (str "child: " (fo child))))
+
   (cond
 
    (or (set? parent)
        (seq? parent))
-   (reduce concat
-           (map (fn [each-parent]
-                  (overh each-parent child))
-                parent))
+   (let [parents parent]
+     (reduce mylazycat
+             (over-each-parent parents child)))
 
    (string? child)
    (overh parent (it child))
@@ -133,15 +165,14 @@
 
    (seq? child)
    (let [children child]
+     (log/debug (str "child is a seq - actual type is " (type child)))
      (filter (fn [result]
                (not (fail? result)))
-             (reduce concat
-                     (map (fn [child]
-                            (overh parent child))
-                          children))))
+             (reduce mylazycat
+                     (over-each-child parent children))))
 
    true
-   (list 
+   (list
     (moreover-head parent child sem-impl))))
 
 ;; Haskell-looking signature:

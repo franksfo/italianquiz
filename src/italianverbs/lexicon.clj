@@ -23,7 +23,8 @@
           ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
           (map (fn [entry]
                  (if (fail? entry)
-                   (log/warn (str "entry: " entry " is fail?=true."))
+                   (log/warn (str "Ignoring this entry because (fail?=true): " entry))
+                   ;; else, not fail, so add to lexicon.
                    (do
                      (log/debug (str "serializing entry: " entry))
                      (let [italian (get-in entry '(:italian))
