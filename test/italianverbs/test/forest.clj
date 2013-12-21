@@ -9,8 +9,8 @@
    [italianverbs.unify :refer :all]))
 
 (deftest lightning1
-  (let [bolt (filter (fn [x] (= "cc10" (get-in x '(:comment)))) (overh parents (overh parents lex)))]
-    (is (not (empty? bolt)))))
+  (let [bolts (filter (fn [x] (= "cc10" (get-in x '(:comment)))) (overh parents (overh parents lex)))]
+    (is (not (empty? bolts)))))
 
 
 
