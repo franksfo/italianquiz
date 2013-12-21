@@ -35,17 +35,21 @@
 ;(def lex (set (list 'io 'tu 'dormire)))
 
 (def parents (set (list (unifyc cc10
-                               {:synsem {:infl :present
-                                         :cat :verb
-                                         :sem {:tense :present}}})
+                                {:synsem {:infl :present
+                                          :cat :verb
+                                          :sem {:tense :present}}})
+                        (unifyc hh21
+                                {:synsem {:infl :present
+                                          :cat :verb
+                                          :sem {:tense :present}}})
 
                         (unifyc cc10
-                               {:synsem {:cat :noun}}))))
+                                {:synsem {:cat :noun}}))))
 
 (def lex (union (it "il") (it "cane") (it "i")
                 (it "io") (it "tu")
 ; (it "lui") (it "lei")
- (it "dormire") (it "sognare")))
+ (it "dormire") (it "sognare") (it "mangiare")))
 ;(def lex (union (it "io") (it "dormire")))
 
 (defn in? [member of-set]
