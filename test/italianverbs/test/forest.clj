@@ -14,8 +14,8 @@
 
 
 (deftest lightning2
-  (let [bolts (lightningb :top parents)]
-    (is (not (empty? bolts)))))
+  (let [bolt (take 1 (lightningb :top parents))]
+    (is (not (nil? bolt)))))
 
 
 
