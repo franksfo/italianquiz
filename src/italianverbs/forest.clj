@@ -321,6 +321,16 @@
 (defn il-libro []
   (over parents lex lex))
 
+(defn lightningb [head phrases & [depth lexicon]]
+  (let [depth (if depth depth 0)
+        lexicon (if lexicon lexicon lex)]
+    (let [recursive-head
+          (cond (= depth 0)
+                (lightningb head phrases (+ 1 depth) lexicon)
+                true
+                (overh parents lex))]
+      (let [bolts (overh parents recursive-head)]
+        bolts))))
 
 (defn lightning-bolt [head phrases & [depth lexicon]]
   (let [depth (if depth depth 0)
