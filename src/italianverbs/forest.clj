@@ -332,12 +332,18 @@
                  (lightningb head phrases (+ 1 depth) lexicon)
                  (overh parents lex))
 
-                true
+
+                (= depth 1)
                 (lazy-cat
-                 (overh parents lex)
-                 (lightningb head phrases (+ 1 depth) lexicon)))]
+                 (lightningb head phrases (+ 1 depth) lexicon)
+                 (overh parents lex))
+
+                true  ;; bounded depth: 2.
+                (overh parents lex))]
+
+
       (let [debug (log/debug (str "lightningb: recursive head type: " (type recursive-head)))]
-        (lazy-seq (overh parents recursive-head))))))
+        (overh parents recursive-head)))))
 
 (defn lightning-bolt [head phrases & [depth lexicon]]
   (let [depth (if depth depth 0)
