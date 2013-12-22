@@ -134,8 +134,8 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(h1d1 parents lex 0)")
-          ]
+          "(fo-ps (lightningb :top parents))")
+        ]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
