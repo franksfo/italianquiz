@@ -321,31 +321,33 @@
 (defn il-libro []
   (over parents lex lex))
 
-(defn lightningb [head phrases & [depth lexicon]]
+(defn lightningb [& [head phrases depth lexicon]]
   (let [depth (if depth depth 0)
-        lexicon (if lexicon lexicon lex)]
+        head (if head head :top)
+        lexicon (if lexicon lexicon lex)
+        phrases (if phrases phrases parents)]
     (let [debug (log/debug (str "lightningb: start"))
           debug (log/debug (str "lightningb depth: " depth))
           recursive-head
           (cond (= depth 0)
                 (lazy-cat
                  (lightningb head phrases (+ 1 depth) lexicon)
-                 (overh parents lex))
+                 (overh phrases lex))
 
 
                 (< depth 2)
                 (lazy-cat
                  (lightningb head phrases (+ 1 depth) lexicon)
-                 (overh parents lex))
+                 (overh phrases lex))
 
                 true  ;; bounded depth: if depth is greater than any matched above, don't branch any more.
-                (overh parents lex))]
+                (overh phrases lex))]
 
 
       (let [debug (log/debug (str "lightningb: recursive head type: " (type recursive-head)))
             debug (log/debug (str "-- /depth: " depth))
             debug (log/debug (str "lightningb: end"))]
-        (overh parents recursive-head)))))
+        (overh phrases recursive-head)))))
 
 (defn lightning-bolt [head phrases & [depth lexicon]]
   (let [depth (if depth depth 0)
