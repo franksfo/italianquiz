@@ -324,7 +324,7 @@
 (defn lightningb [head phrases & [depth lexicon]]
   (let [depth (if depth depth 0)
         lexicon (if lexicon lexicon lex)]
-    (let [debug (log/debug (str "-- lightningb --"))
+    (let [debug (log/debug (str "lightningb: start"))
           debug (log/debug (str "lightningb depth: " depth))
           recursive-head
           (cond (= depth 0)
@@ -342,7 +342,9 @@
                 (overh parents lex))]
 
 
-      (let [debug (log/debug (str "lightningb: recursive head type: " (type recursive-head)))]
+      (let [debug (log/debug (str "lightningb: recursive head type: " (type recursive-head)))
+            debug (log/debug (str "-- /depth: " depth))
+            debug (log/debug (str "lightningb: end"))]
         (overh parents recursive-head)))))
 
 (defn lightning-bolt [head phrases & [depth lexicon]]
