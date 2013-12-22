@@ -1617,8 +1617,17 @@
                (subs s 1))))))
 
 (defn fo-ps [expr]
-  "show the phrase-structure of a feature structure, e.g [hh21 'mangiare (to eat)' [cc10 'il (the)' 'pane(bread)']]"
+  "show the phrase-structure of a phrase structure tree, e.g [hh21 'mangiare (to eat)' [cc10 'il (the)' 'pane(bread)']]"
   (cond
+
+   (or (set? expr)
+       (seq? expr))
+   (reduce (fn [x y]
+             ;; show a bar (|) between each phrase structure tree (assuming each member of expr is a phrase structure tree).
+             (str x " | " y))
+           (map (fn [each]
+                  (fo-ps each))
+                expr))
 
    (and (map? expr)
         (:comment expr))
