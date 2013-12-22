@@ -18,7 +18,7 @@
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
-   [italianverbs.morphology :refer [finalize fo]]
+   [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.over :refer :all]
    [italianverbs.rules :refer :all]
    [italianverbs.ug :refer :all]
