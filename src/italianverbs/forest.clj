@@ -341,24 +341,20 @@
           debug (log/debug (str "lightningb lexicon: " (fo lexicon)))
           recursive-head
           (cond (= depth 0)
-                (lazy-cat
-                 (lightningb head phrases (+ 1 depth) lexicon)
-                 (overh phrases lexicon))
-
+                (lightningb head phrases (+ 1 depth) lexicon)
 
                 (< depth 2)
-                (lazy-cat
-                 (lightningb head phrases (+ 1 depth) lexicon)
-                 (overh phrases lexicon))
+                (lightningb head phrases (+ 1 depth) lexicon)
 
                 true  ;; bounded depth: if depth is greater than any matched above, don't branch any more.
-                (overh phrases lexicon))]
-
+                nil)]
 
       (let [debug (log/debug (str "lightningb: recursive head type: " (type recursive-head)))
             debug (log/debug (str "-- /depth: " depth))
             debug (log/debug (str "lightningb: end"))]
-        (overh phrases recursive-head)))))
+        (lazy-cat
+         (overh phrases lexicon)
+         (overh phrases recursive-head))))))
 
 (defn lightning-bolt [head phrases & [depth lexicon]]
   (let [depth (if depth depth 0)
