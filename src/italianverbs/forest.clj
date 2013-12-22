@@ -330,7 +330,7 @@
           (cond (= depth 0)
                 (lazy-cat
                  (lightningb head phrases (+ 1 depth) lexicon)
-                 (lazy-seq (overh parents lex)))
+                 (overh parents lex))
 
                 true
                 (lazy-cat

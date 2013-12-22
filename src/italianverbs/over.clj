@@ -120,26 +120,29 @@
 (declare overh)
 
 (defn over-each-parent [parents child]
+  (log/debug (str "over-each-parent: parents type: " (type parents)))
+  (log/debug (str "over-each-parent: child type: " (type child)))
   (if (not (empty? parents))
     (let [each-parent (first parents)]
-      (lazy-seq
-       (cons
-        (overh each-parent child)
-        (over-each-parent (rest parents) child))))))
+      (lazy-cat
+       (overh each-parent child)
+       (over-each-parent (rest parents) child)))))
 
 (defn over-each-child [parent children]
+  (log/debug (str "over-each-child: parent type: " (type parent)))
+  (log/debug (str "over-each-child: children type: " (type children)))
   (if (not (empty? children))
     (let [each-child (first children)]
-      (lazy-seq
-       (cons
-        (overh parent each-child)
-        (over-each-child parent (rest children)))))))
+      (lazy-cat
+       (overh parent each-child)
+       (over-each-child parent (rest children))))))
 
 (defn overh [parent child]
   (log/debug (str "overh parent type: " (type parent)))
   (log/debug (str "overh child  type: " (type child)))
 
   (log/debug (str "set? parent:" (set? parent)))
+  (log/debug (str "seq? parent:" (seq? parent)))
   (log/debug (str "seq? child:" (seq? parent)))
 
   (if (map? parent)
@@ -154,8 +157,7 @@
    (or (set? parent)
        (seq? parent))
    (let [parents parent]
-     (reduce mylazycat
-             (over-each-parent parents child)))
+     (over-each-parent parents child))
 
    (string? child)
    (overh parent (it child))
@@ -172,8 +174,10 @@
                      (over-each-child parent children))))
 
    true
-   (list
-    (moreover-head parent child sem-impl))))
+   (do
+     (log/debug (str "overh default case for parent=" parent "; child=" child))
+     (list
+      (moreover-head parent child sem-impl)))))
 
 ;; Haskell-looking signature:
 ;; (parent:map) X (child:{set,seq,fs}) => list:map
