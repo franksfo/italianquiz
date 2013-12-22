@@ -13,6 +13,7 @@
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer :all]
+   [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer :all]
    [italianverbs.over :refer :all]
 
@@ -324,24 +325,34 @@
 (defn lightningb [& [head phrases depth lexicon]]
   (let [depth (if depth depth 0)
         head (if head head :top)
-        lexicon (if lexicon lexicon lex)
+        lexicon (if lexicon
+                  lexicon
+                  (filter (fn [lexeme]
+                            (not (fail? (unifyc
+                                         head
+                                         (unifyc
+                                          {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
+                                          lexeme)))))
+                          lex))
         phrases (if phrases phrases parents)]
     (let [debug (log/debug (str "lightningb: start"))
+          debug (log/debug (str "lightningb head: " head))
           debug (log/debug (str "lightningb depth: " depth))
+          debug (log/debug (str "lightningb lexicon: " (fo lexicon)))
           recursive-head
           (cond (= depth 0)
                 (lazy-cat
                  (lightningb head phrases (+ 1 depth) lexicon)
-                 (overh phrases lex))
+                 (overh phrases lexicon))
 
 
                 (< depth 2)
                 (lazy-cat
                  (lightningb head phrases (+ 1 depth) lexicon)
-                 (overh phrases lex))
+                 (overh phrases lexicon))
 
                 true  ;; bounded depth: if depth is greater than any matched above, don't branch any more.
-                (overh phrases lex))]
+                (overh phrases lexicon))]
 
 
       (let [debug (log/debug (str "lightningb: recursive head type: " (type recursive-head)))
@@ -444,3 +455,4 @@
                             lexicon)))))))
 
 
+(def edible (get-in (first (lightningb)) '(:head :comp)))
