@@ -1622,6 +1622,7 @@
 
    (or (set? expr)
        (seq? expr))
+   ;; expr is a sequence or set: assume each is a phrase structure tree and show each.
    (reduce (fn [x y]
              ;; show a bar (|) between each phrase structure tree (assuming each member of expr is a phrase structure tree).
              (str x " | " y))
@@ -1630,24 +1631,45 @@
                 expr))
 
    (and (map? expr)
+        (:comment expr)
+        (= (get-in expr '(:italian :a))
+           (get-in expr '(:comp :italian))))
+   ;; complement first
+   (str "[" (:comment expr) " "
+        (fo-ps (get-in expr '(:comp)))
+        " "
+        (fo-ps (get-in expr '(:head)))
+        "]")
+
+   (and (map? expr)
         (:comment expr))
+   ;; head first ('else' case of above.)
    (str "[" (:comment expr) " "
         (fo-ps (get-in expr '(:head)))
         " "
         (fo-ps (get-in expr '(:comp)))
         "]")
 
-        (and
-         (map? expr)
-         (:italian expr)
-         (:english expr))
-        (str (get-english-1 (get-in expr '(:english)))
-             " ("
-             (get-italian-1 (get-in expr '(:italian)))
-             ")")
+   (and
+    (map? expr)
+    (:italian expr)
+    (:english expr))
+   (str (get-italian-1 (get-in expr '(:italian)))
+        " ("
+        (get-english-1 (get-in expr '(:english)))
+        ")")
 
-        true
-        expr))
+   (and
+    (map? expr)
+    (:italian expr)
+    (:english expr))
+   (str (get-italian-1 (get-in expr '(:italian)))
+        " ("
+        (get-english-1 (get-in expr '(:english)))
+        ")")
+
+   true
+   expr))
 
 
 (defn formattare-1 [expr]
