@@ -89,7 +89,8 @@
 (def subcat-2-principle
   (let [comp-synsem (ref {:cat :top})
         parent-subcat (ref {:cat :top})]
-    {:synsem {:subcat {:1 parent-subcat}}
+    {:synsem {:subcat {:1 parent-subcat
+                       :2 '()}}
      :head {:synsem {:subcat {:1 parent-subcat
                               :2 comp-synsem
                               :3 '()}}}
@@ -105,9 +106,11 @@
         subcat-2 (ref {:subcat {:1 subcat-1
                                 :2 subcat-3}})]
     {:synsem {:subcat {:1 subcat-1
-                       :2 subcat-3}}
+                       :2 subcat-3
+                       :3 '()}}
      :head {:synsem {:subcat {:1 subcat-1
-                              :2 subcat-2}}}
+                              :2 subcat-2
+                              :3 '()}}}
      :comp {:synsem subcat-2}}))
 
 ;;     subcat<1>
