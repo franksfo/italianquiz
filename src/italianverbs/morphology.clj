@@ -946,7 +946,7 @@
   (cond
 
    (= word :top)
-   ""
+   ".."
 
    ;; "to do [past]" + "well" => "did well"
    (and (= (get-in word '(:cat)) :verb)
