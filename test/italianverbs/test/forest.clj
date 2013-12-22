@@ -5,6 +5,7 @@
    [italianverbs.generate :as generate]
    [clojure.tools.logging :as log]
    [italianverbs.forest :refer :all]
+   [italianverbs.morphology :refer (fo)]
    [italianverbs.over :refer :all]
    [italianverbs.unify :refer :all]))
 
