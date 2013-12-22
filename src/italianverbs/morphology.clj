@@ -1616,20 +1616,21 @@
           (str (.toUpperCase (subs s 0 1))
                (subs s 1))))))
 
-;; TODO: Move to morphology, same as (formattare) below.
 (defn formattare-1 [expr]
   (cond
-   (fail? expr)
-   "<tt>fail</tt>"
+   (= :fail expr)
+   expr
    :else
-   (let [english
+   (let [failed-warning (if (fail? expr) (str "FAILED: " expr " ") "")
+         comment (if (:comment expr) (str "[" (:comment expr) "] ") "")
+         english
          (capitalize
           (get-english-1 (get-in expr '(:english))))
          italian
          (capitalize
           (get-italian-1 (get-in expr '(:italian))))]
      (string/trim
-      (str italian " (" english ").")))))
+      (str failed-warning comment italian " (" english ").")))))
 
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
