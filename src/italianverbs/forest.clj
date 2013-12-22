@@ -333,12 +333,12 @@
                  (overh parents lex))
 
 
-                (= depth 1)
+                (< depth 2)
                 (lazy-cat
                  (lightningb head phrases (+ 1 depth) lexicon)
                  (overh parents lex))
 
-                true  ;; bounded depth: 2.
+                true  ;; bounded depth: if depth is greater than any matched above, don't branch any more.
                 (overh parents lex))]
 
 
