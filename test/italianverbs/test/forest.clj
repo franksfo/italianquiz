@@ -1,5 +1,5 @@
 (ns italianverbs.test.forest
-  (:refer-clojure :exclude [get-in merge resolve find])
+  (:refer-clojure :exclude [get-in merge resolve find parents])
   (:use [clojure.test])
   (:require
    [italianverbs.generate :as generate]
