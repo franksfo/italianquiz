@@ -47,7 +47,7 @@
                                 {:synsem {:cat :noun}}))))
 
 (def lex (union (it "il") (it "cane") (it "i")
-                (it "io") (it "tu")
+                (it "io") (it "pane") (it "tu")
 ; (it "lui") (it "lei")
  (it "dormire") (it "sognare") (it "mangiare")))
 ;(def lex (union (it "io") (it "dormire")))
