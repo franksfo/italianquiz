@@ -40,7 +40,6 @@
 
    true (throw (Exception. (str "into-map: don't know what to do with a " (type arg) ".")))))
 
-;; TODO: move all of these (over-X) functions to their own namespace.
 (defn over-each-parent [parents child1 child2]
   (if (not (empty? parents))
     (let [parent (first parents)]
@@ -124,18 +123,27 @@
   (log/debug (str "over-each-parent: child type: " (type child)))
   (if (not (empty? parents))
     (let [each-parent (first parents)]
+      (log/debug (str "over-each-parent: each-parent type:" (type (first parents))))
+      (log/debug (str "over-each-parent: child type:" (type child)))
       (lazy-cat
        (overh each-parent child)
-       (over-each-parent (rest parents) child)))))
+       (over-each-parent (rest parents) child)))
+    (do
+      (log/debug (str "over-each-parent: done. returning nil"))
+      nil)))
 
 (defn over-each-child [parent children]
   (log/debug (str "over-each-child: parent type: " (type parent)))
   (log/debug (str "over-each-child: children type: " (type children)))
   (if (not (empty? children))
     (let [each-child (first children)]
+      (log/debug (str "over-each-child: each-parent?: " (:comment (first children))))
       (lazy-cat
        (overh parent each-child)
-       (over-each-child parent (rest children))))))
+       (over-each-child parent (rest children))))
+    (do
+      (log/debug (str "over-each-child: done. returning nil."))
+      nil)))
 
 (defn overh [parent child]
   (log/debug (str "overh parent type: " (type parent)))
@@ -154,28 +162,36 @@
 
   (cond
 
-   (or (set? parent)
-       (seq? parent))
+
+   (set? parent)
+   (let [parents (lazy-seq parent)]
+     (filter (fn [result]
+               (not (fail? result)))
+             (over-each-parent parents child)))
+
+   (seq? parent)
    (let [parents parent]
-     (over-each-parent parents child))
+     (filter (fn [result]
+               (not (fail? result)))
+             (over-each-parent parents child)))
 
    (string? child)
    (overh parent (it child))
 
    (set? child)
-   (overh parent (seq child))
+   (do (log/debug "child is a set: converting to a seq.")
+       (overh parent (lazy-seq child)))
 
    (seq? child)
    (let [children child]
      (log/debug (str "child is a seq - actual type is " (type child)))
      (filter (fn [result]
                (not (fail? result)))
-             (reduce mylazycat
-                     (over-each-child parent children))))
+             (over-each-child parent children)))
 
    true
    (do
-     (log/debug (str "overh default case for parent=" parent "; child=" child))
+     (log/debug (str "overh: parent and child are both maps: put child under parent. Parent=" (:comment parent) "; child=" (fo child)))
      (list
       (moreover-head parent child sem-impl)))))
 
