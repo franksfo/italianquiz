@@ -1616,6 +1616,31 @@
           (str (.toUpperCase (subs s 0 1))
                (subs s 1))))))
 
+(defn fo-ps [expr]
+  "show the phrase-structure of a feature structure, e.g [hh21 'mangiare (to eat)' [cc10 'il (the)' 'pane(bread)']]"
+  (cond
+
+   (and (map? expr)
+        (:comment expr))
+   (str "[" (:comment expr) " "
+        (fo-ps (get-in expr '(:head)))
+        " "
+        (fo-ps (get-in expr '(:comp)))
+        "]")
+
+        (and
+         (map? expr)
+         (:italian expr)
+         (:english expr))
+        (str (get-english-1 (get-in expr '(:english)))
+             " ("
+             (get-italian-1 (get-in expr '(:italian)))
+             ")")
+
+        true
+        expr))
+
+
 (defn formattare-1 [expr]
   (cond
    (= :fail expr)
