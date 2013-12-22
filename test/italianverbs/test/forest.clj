@@ -18,7 +18,8 @@
   (let [bolt (take 1 (lightningb :top parents))]
     (is (not (nil? bolt)))))
 
-
+(deftest lightning3
+  (= 6 (.size (lightningb :top parents))))
 
 
 
