@@ -117,6 +117,7 @@
   (lazy-cat one two))
 
 (declare overh)
+(declare overc)
 
 (defn over-each-parent [parents child]
   (log/debug (str "over-each-parent: parents type: " (type parents)))
@@ -134,7 +135,7 @@
 
 (defn over-each-head-child [parent children]
   (log/debug (str "over-each-head-child: parent type: " (type parent)))
-  (log/debug (str "over-each-head-child: children type: " (type children)))
+  (log/debug (str "over-each-head-child: head children type: " (type children)))
   (if (not (empty? children))
     (let [each-child (first children)]
       (log/debug (str "over-each-head-child: each-parent?: " (:comment (first children))))
@@ -145,6 +146,19 @@
       (log/debug (str "over-each-head-child: done. returning nil."))
       nil)))
 
+(defn over-each-comp-child [parent children]
+  (log/debug (str "over-each-comp-child: parent type: " (type parent)))
+  (log/debug (str "over-each-comp-child: comp children type: " (type children)))
+  (if (not (empty? children))
+    (let [each-child (first children)]
+      (log/debug (str "over-each-comp-child: each-parent?: " (:comment (first children))))
+      (lazy-cat
+       (overc parent each-child)
+       (over-each-comp-child parent (rest children))))
+    (do
+      (log/debug (str "over-each-comp-child: done. returning nil."))
+      nil)))
+
 (defn overh [parent head]
   "add given head as the head child of the phrase: parent."
   (log/debug (str "overh parent type: " (type parent)))
@@ -152,7 +166,7 @@
 
   (log/debug (str "set? parent:" (set? parent)))
   (log/debug (str "seq? parent:" (seq? parent)))
-  (log/debug (str "seq? head:" (seq? parent)))
+  (log/debug (str "seq? head:" (seq? head)))
 
   (if (map? parent)
     (if (get-in parent '(:comment))
@@ -162,7 +176,6 @@
     (log/debug (str "head: " (fo head))))
 
   (cond
-
 
    (or
     (seq? parent)
@@ -194,46 +207,56 @@
 
 ;; Haskell-looking signature:
 ;; (parent:map) X (child:{set,seq,fs}) => list:map
-(defn overc [parent child]
-  (log/debug (str "overc parent: " (fo parent)))
-  (log/debug (str "overc child: " (fo child)))
+;; TODO: verify that the above commentn about the signature
+;; is still true.
+(defn overc [parent comp]
+  "add given child as the comp child of the phrase: parent."
   (log/debug (str "overc parent type: " (type parent)))
-  (log/debug (str "overc child type: " (type child)))
+  (log/debug (str "overc comp  type: " (type comp)))
+
+  (log/debug (str "set? parent:" (set? parent)))
+  (log/debug (str "seq? parent:" (seq? parent)))
+  (log/debug (str "seq? comp:" (seq? comp)))
+
+  (if (map? parent)
+    (if (get-in parent '(:comment))
+      (log/debug (str "parent:" (get-in parent '(:comment)))))
+    (log/debug (str "parent:" (fo parent))))
+  (if (map? comp)
+    (log/debug (str "comp: " (fo comp))))
+
   (cond
-   (or (set? parent)
-       (seq? parent))
-   (apply concat
-          (map (fn [each-parent]
-                 (overc each-parent child))
-               parent))
 
-   (string? child)
-   (overc parent (it child))
-
-   (set? child)
-   (overc parent (seq child))
-
-   (seq? child)
-   (let [children child]
+   (or
+    (seq? parent)
+    (set? parent))
+   (let [parents (lazy-seq parent)]
      (filter (fn [result]
                (not (fail? result)))
-             (reduce #'concat
-                     (map (fn [each-child]
-                            (overc parent each-child))
-                          children))))
+             (over-each-parent parents comp)))
 
-   (and
-    (keyword? child)
-    (= child :top))
-   (list parent)
+   (string? comp)
+   (overc parent (it comp))
 
-   (keyword? child)
-   (list :fail)
+   (set? comp)
+   (do (log/debug "comp is a set: converting to a seq.")
+       (overc parent (lazy-seq comp)))
+
+   (seq? comp)
+   (let [comp-children comp]
+     (log/debug (str "comp is a seq - actual type is " (type comp)))
+     (filter (fn [result]
+               (not (fail? result)))
+             (over-each-comp-child parent comp-children)))
 
    true
-   (list (moreover-comp parent child sem-impl))))
+   (do
+     (log/debug (str "overh: parent and comp are both maps: put comp under parent. Parent=" (:comment parent) "; comp=" (fo comp)))
+     (list
+      (moreover-comp parent comp sem-impl)))))
 
 (defn overhc [parent head comp]
+  "TODO: reimplement as (overc (overh head) comp)"
   (log/debug (str "overhc parent: " parent))
   (log/debug (str "overhc head: " head))
   (log/debug (str "overhc comp: " comp))
