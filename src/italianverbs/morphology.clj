@@ -1688,7 +1688,7 @@
          (capitalize
           (get-italian-1 (get-in expr '(:italian))))]
      (string/trim
-      (str failed-warning comment italian " (" english ").")))))
+      (str failed-warning italian " (" english ").")))))
 
 ;;; e.g.:
 ;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
