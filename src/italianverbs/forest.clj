@@ -344,13 +344,7 @@
         head (if head head :top)
         lexicon (if lexicon
                   lexicon
-                  (filter (fn [lexeme]
-                            (not (fail? (unifyc
-                                         head
-                                         (unifyc
-                                          {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
-                                          lexeme)))))
-                          lex))
+                  lex)
         phrases (if phrases phrases parents)]
     (let [debug (log/debug (str "lightningb: start"))
           debug (log/debug (str "lightningb head: " head))
@@ -368,21 +362,37 @@
 
       (let [debug (log/debug (str "lightningb: recursive head type: " (type recursive-head)))
             debug (log/debug (str "-- /depth: " depth))
-            debug (log/debug (str "lightningb: end"))]
+            debug (log/debug (str "lightningb: end"))
+            with-lexical-heads (overh phrases
+                                      (filter (fn [lexeme]
+                                                (not (fail? (unifyc
+                                                             head
+                                                             (unifyc
+                                                              {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
+                                                              lexeme)))))
+                                              lexicon))
+            with-lexical-comps (overc with-lexical-heads lexicon)
+            debug (log/debug (str "with-lexical-heads: " (fo-ps with-lexical-heads)))
+            debug (log/debug (str "with-lexical-comps: " (fo-ps with-lexical-comps)))]
         (lazy-cat
-         ;; both head and comp are lexemes.
-         (let [with-lexical-heads
-               (overh phrases lexicon)]
-           (overc with-lexical-heads (if true :top lexicon)))
 
+         ;; 1. both head and comp are lexemes.
+         with-lexical-comps
 
-         ;; head is a lexeme, comp is a phrase.
-;         (let [with-lexical-heads
-;               (overh phrases lexicon)]
-;           (overc with-lexical-heads (lightningb ...)))
+         ;; 2. head is a lexeme, comp is a phrase.
+         (mapcat (fn [with-lexical-head]
+                   (overc with-lexical-head
+                          (lightningb
+                           (remove-path-from
+                            (get-in with-lexical-head '(:comp))
+                            '(:synsem :subcat)))))
+                 with-lexical-heads)
 
-         ;; head is a phrase, comp is a lexeme.
+         ;; 3. head is a phrase, comp is a lexeme.
          (overhc phrases recursive-head lexicon))))))
+
+;; 4. head is a phrase, comp is a phrase (TODO)
+;;         (overhc phrases recursive-head lexicon))))))
 
 (defn lightning-bolt [head phrases & [depth lexicon]]
   (let [depth (if depth depth 0)
