@@ -398,7 +398,7 @@
          ;; 3. head is a phrase, comp is a lexeme.
          (overhc phrases recursive-head lexicon)
 
-         ;; 4. head is a phrase, comp is a phrase
+         ;; 4. head is a phrase, comp is a phrase.
          (overhc phrases recursive-head (comp-phrases recursive-head phrases lexicon)))))))
 
 (defn lightning-bolt [head phrases & [depth lexicon]]
