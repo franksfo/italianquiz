@@ -119,18 +119,32 @@
 (declare overh)
 (declare overc)
 
-(defn over-each-parent [parents child]
-  (log/debug (str "over-each-parent: parents type: " (type parents)))
-  (log/debug (str "over-each-parent: child type: " (type child)))
+(defn over-each-parent-head [parents head]
+  (log/debug (str "over-each-parent-head: parents type: " (type parents)))
+  (log/debug (str "over-each-parent-head: head type: " (type head)))
   (if (not (empty? parents))
     (let [each-parent (first parents)]
-      (log/debug (str "over-each-parent: each-parent type:" (type (first parents))))
-      (log/debug (str "over-each-parent: child type:" (type child)))
+      (log/debug (str "over-each-parent-head: each-parent type:" (type (first parents))))
+      (log/debug (str "over-each-parent-head: head type:" (type head)))
       (lazy-cat
-       (overh each-parent child)
-       (over-each-parent (rest parents) child)))
+       (overh each-parent head)
+       (over-each-parent-head (rest parents) head)))
     (do
-      (log/debug (str "over-each-parent: done. returning nil"))
+      (log/debug (str "over-each-parent-head: done. returning nil"))
+      nil)))
+
+(defn over-each-parent-comp [parents comp]
+  (log/debug (str "over-each-parent-comp: parents type: " (type parents)))
+  (log/debug (str "over-each-parent-comp: comp type: " (type comp)))
+  (if (not (empty? parents))
+    (let [each-parent (first parents)]
+      (log/debug (str "over-each-parent-comp: each-parent type:" (type (first parents))))
+      (log/debug (str "over-each-parent-comp: comp type:" (type comp)))
+      (lazy-cat
+       (overc each-parent comp)
+       (over-each-parent-comp (rest parents) comp)))
+    (do
+      (log/debug (str "over-each-parent-comp: done. returning nil"))
       nil)))
 
 (defn over-each-head-child [parent children]
@@ -183,7 +197,7 @@
    (let [parents (lazy-seq parent)]
      (filter (fn [result]
                (not (fail? result)))
-             (over-each-parent parents head)))
+             (over-each-parent-head parents head)))
 
    (string? head)
    (overh parent (it head))
@@ -233,7 +247,7 @@
    (let [parents (lazy-seq parent)]
      (filter (fn [result]
                (not (fail? result)))
-             (over-each-parent parents comp)))
+             (over-each-parent-comp parents comp)))
 
    (string? comp)
    (overc parent (it comp))
@@ -256,14 +270,7 @@
       (moreover-comp parent comp sem-impl)))))
 
 (defn overhc [parent head comp]
-  "TODO: reimplement as (overc (overh head) comp)"
-  (log/debug (str "overhc parent: " parent))
-  (log/debug (str "overhc head: " head))
-  (log/debug (str "overhc comp: " comp))
-  (reduce #'concat
-          (map (fn [each-with-head]
-                 (overc each-with-head comp))
-               (overh parent head))))
+  (overc (overh parent head) comp))
 
 (defn over [parents child1 & [child2]]
   (cond (vector? child1)
