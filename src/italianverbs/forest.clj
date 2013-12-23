@@ -370,8 +370,19 @@
             debug (log/debug (str "-- /depth: " depth))
             debug (log/debug (str "lightningb: end"))]
         (lazy-cat
-         (overh phrases lexicon)
-         (overh phrases recursive-head))))))
+         ;; both head and comp are lexemes.
+         (let [with-lexical-heads
+               (overh phrases lexicon)]
+           (overc with-lexical-heads (if true :top lexicon)))
+
+
+         ;; head is a lexeme, comp is a phrase.
+;         (let [with-lexical-heads
+;               (overh phrases lexicon)]
+;           (overc with-lexical-heads (lightningb ...)))
+
+         ;; head is a phrase, comp is a lexeme.
+         (overhc phrases recursive-head lexicon))))))
 
 (defn lightning-bolt [head phrases & [depth lexicon]]
   (let [depth (if depth depth 0)
