@@ -322,6 +322,23 @@
 (defn il-libro []
   (over parents lex lex))
 
+;; TODO: move to unify
+(defn remove-path-from [fs path]
+  "dissoc a path from a map; e.g.: (remove-path-from {:a {:b 42 :c 43}} '(:a :b)) => {:a {:c 43}}."
+  (if (and (not (empty? fs))
+           (not (empty? path)))
+    (let [feature (first path)]
+      (cond (ref? fs)
+            (remove-path-from @fs path)
+            (map? fs)
+            (cond
+             (empty? (rest path))
+             (dissoc fs feature)
+             (not (= :notfound (get-in fs (list feature) :notfound)))
+             (conj
+              {feature (remove-path-from (get-in fs (list feature)) (rest path))}
+              (dissoc fs feature)))))))
+
 (defn lightningb [& [head phrases depth lexicon]]
   (let [depth (if depth depth 0)
         head (if head head :top)
