@@ -1678,7 +1678,6 @@
    expr
    :else
    (let [failed-warning (if (fail? expr) (str "FAILED: " expr " ") "")
-         comment (if (:comment expr) (str "[" (:comment expr) "] ") "")
          english
          (capitalize
           (get-english-1 (get-in expr '(:english))))
@@ -1720,7 +1719,7 @@
               (formattare (rest expressions)))))))))
 
 (defn fo [expressions]
-    (formattare expressions))
+  (formattare expressions))
 
 (defn fof [expressions]
   (let [retval (lazy-seq (list (formattare expressions)))
