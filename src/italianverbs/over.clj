@@ -145,20 +145,21 @@
       (log/debug (str "over-each-child: done. returning nil."))
       nil)))
 
-(defn overh [parent child]
+(defn overh [parent head]
+  "add given head as the head child of the phrase: parent."
   (log/debug (str "overh parent type: " (type parent)))
-  (log/debug (str "overh child  type: " (type child)))
+  (log/debug (str "overh head  type: " (type head)))
 
   (log/debug (str "set? parent:" (set? parent)))
   (log/debug (str "seq? parent:" (seq? parent)))
-  (log/debug (str "seq? child:" (seq? parent)))
+  (log/debug (str "seq? head:" (seq? parent)))
 
   (if (map? parent)
     (if (get-in parent '(:comment))
       (log/debug (str "parent:" (get-in parent '(:comment)))))
     (log/debug (str "parent:" (fo parent))))
-  (if (map? child)
-    (log/debug (str "child: " (fo child))))
+  (if (map? head)
+    (log/debug (str "head: " (fo head))))
 
   (cond
 
@@ -167,33 +168,33 @@
    (let [parents (lazy-seq parent)]
      (filter (fn [result]
                (not (fail? result)))
-             (over-each-parent parents child)))
+             (over-each-parent parents head)))
 
    (seq? parent)
    (let [parents parent]
      (filter (fn [result]
                (not (fail? result)))
-             (over-each-parent parents child)))
+             (over-each-parent parents head)))
 
-   (string? child)
-   (overh parent (it child))
+   (string? head)
+   (overh parent (it head))
 
-   (set? child)
-   (do (log/debug "child is a set: converting to a seq.")
-       (overh parent (lazy-seq child)))
+   (set? head)
+   (do (log/debug "head is a set: converting to a seq.")
+       (overh parent (lazy-seq head)))
 
-   (seq? child)
-   (let [children child]
-     (log/debug (str "child is a seq - actual type is " (type child)))
+   (seq? head)
+   (let [head-children head]
+     (log/debug (str "head is a seq - actual type is " (type head)))
      (filter (fn [result]
                (not (fail? result)))
-             (over-each-child parent children)))
+             (over-each-child parent head-children)))
 
    true
    (do
-     (log/debug (str "overh: parent and child are both maps: put child under parent. Parent=" (:comment parent) "; child=" (fo child)))
+     (log/debug (str "overh: parent and head are both maps: put head under parent. Parent=" (:comment parent) "; head=" (fo head)))
      (list
-      (moreover-head parent child sem-impl)))))
+      (moreover-head parent head sem-impl)))))
 
 ;; Haskell-looking signature:
 ;; (parent:map) X (child:{set,seq,fs}) => list:map
