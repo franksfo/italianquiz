@@ -1620,8 +1620,11 @@
   "show the phrase-structure of a phrase structure tree, e.g [hh21 'mangiare (to eat)' [cc10 'il (the)' 'pane(bread)']]"
   (cond
 
-   (or (set? expr)
-       (seq? expr))
+   (and
+    (or (set? expr)
+        (seq? expr))
+    (not (empty? expr)))
+
    ;; expr is a sequence or set: assume each is a phrase structure tree and show each.
    (reduce (fn [x y]
              ;; show a bar (|) between each phrase structure tree (assuming each member of expr is a phrase structure tree).
