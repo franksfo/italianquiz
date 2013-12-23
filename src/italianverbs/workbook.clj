@@ -53,8 +53,8 @@
                         clojure.lang.Var clojure.lang.RT
                         ]))
    :refer-clojure false
-   ;; using 30000 for development: for production, use much smaller value.
-   :timeout 30000
+   ;; using 60000 for development: for production, use much smaller value.
+   :timeout 120000
    :namespace 'italianverbs.workbook))
 (defn workbookq [expr notused]
   (do
