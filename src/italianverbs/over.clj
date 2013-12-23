@@ -132,17 +132,17 @@
       (log/debug (str "over-each-parent: done. returning nil"))
       nil)))
 
-(defn over-each-child [parent children]
-  (log/debug (str "over-each-child: parent type: " (type parent)))
-  (log/debug (str "over-each-child: children type: " (type children)))
+(defn over-each-head-child [parent children]
+  (log/debug (str "over-each-head-child: parent type: " (type parent)))
+  (log/debug (str "over-each-head-child: children type: " (type children)))
   (if (not (empty? children))
     (let [each-child (first children)]
-      (log/debug (str "over-each-child: each-parent?: " (:comment (first children))))
+      (log/debug (str "over-each-head-child: each-parent?: " (:comment (first children))))
       (lazy-cat
        (overh parent each-child)
-       (over-each-child parent (rest children))))
+       (over-each-head-child parent (rest children))))
     (do
-      (log/debug (str "over-each-child: done. returning nil."))
+      (log/debug (str "over-each-head-child: done. returning nil."))
       nil)))
 
 (defn overh [parent head]
@@ -188,7 +188,7 @@
      (log/debug (str "head is a seq - actual type is " (type head)))
      (filter (fn [result]
                (not (fail? result)))
-             (over-each-child parent head-children)))
+             (over-each-head-child parent head-children)))
 
    true
    (do
