@@ -164,14 +164,10 @@
   (cond
 
 
-   (set? parent)
+   (or
+    (seq? parent)
+    (set? parent))
    (let [parents (lazy-seq parent)]
-     (filter (fn [result]
-               (not (fail? result)))
-             (over-each-parent parents head)))
-
-   (seq? parent)
-   (let [parents parent]
      (filter (fn [result]
                (not (fail? result)))
              (over-each-parent parents head)))
