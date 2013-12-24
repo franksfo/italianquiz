@@ -355,28 +355,45 @@
                lexicon))
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
 
-(defn lightningb [& [head phrases depth lexicon]]
+(declare lightningb)
+(declare lightning-bolt)
+
+(defn lb [ & [head phrases depth lexicon]]
   (let [depth (if depth depth 0)
         head (if head head :top)
         lexicon (if lexicon lexicon lex)
         phrases (if phrases phrases parents)]
-    (let [debug (log/debug (str "lightningb: start"))
-          debug (log/debug (str "lightningb head: " (fo head)))
-          debug (log/debug (str "lightningb depth: " depth))
-          debug (log/debug (str "lightningb lexicon: " (fo lexicon)))
+    (lightning-bolt head phrases depth lexicon)))
+
+(defn lightningb [ & [head phrases depth lexicon] ]
+  (let [depth (if depth depth 0)
+        head (if head head :top)
+        lexicon (if lexicon lexicon lex)
+        phrases (if phrases phrases parents)]
+    (lightning-bolt head phrases depth lexicon)))
+
+(defn lightning-bolt [ & [head phrases depth lexicon] ]
+  (let [depth (if depth depth 0)
+        head (if head head :top)
+        lexicon (if lexicon lexicon lex)
+        phrases (if phrases phrases parents)]
+    (let [debug (log/debug (str "lightning-bolt: start"))
+          debug (log/debug (str "lightning-bolt head: " (fo head)))
+          debug (log/debug (str "lightning-bolt depth: " depth))
+          debug (log/debug (str "lightning-bolt lexicon: " (fo lexicon)))
           recursive-head
           (cond (= depth 0)
-                (lightningb head phrases (+ 1 depth) lexicon)
+                (lightning-bolt head phrases (+ 1 depth) lexicon)
 
                 (< depth 2)
-                (lightningb head phrases (+ 1 depth) lexicon)
+                (lightning-bolt head phrases (+ 1 depth) lexicon)
 
                 true  ;; bounded depth: if depth is greater than any matched above, don't branch any more.
                 nil)]
 
-      (let [debug (log/debug (str "lightningb: recursive head type: " (type recursive-head)))
+      (let [debug (log/debug (str "lightning-bolt: recursive head type: " (type recursive-head)))
             debug (log/debug (str "-- /depth: " depth))
-            debug (log/debug (str "lightningb: end"))
+            debug (log/debug (str "lightning-bolt: end"))
             with-lexical-heads (overh phrases
                                       (filter (fn [lexeme]
                                                 (not (fail? (unifyc
@@ -399,99 +416,3 @@
          ;; 4. head is a phrase, comp is a phrase.
          (overhc phrases recursive-head (comp-phrases recursive-head phrases lexicon)))))))
 
-(defn lightning-bolt [head phrases & [depth lexicon]]
-  (let [depth (if depth depth 0)
-        lexicon (if lexicon lexicon lex)]
-    (log/info (str "lightning-bolt with depth: " depth))
-    (log/info (str "lightning-bolt with phrases: " (seq (map (fn [x] (get-in x '(:comment))) phrases))))
-    (log/info (str "lightning-bolt with lexicon: " (seq (map (fn [x] (fo x)) (seq lexicon)))))
-    (let [rand (rand-int 10)]
-      (cond
-       (= depth 0)
-       (cond (> rand -1)
-             ;; descend recursively with 80% probability.
-             (let [debug (log/info (str "branching at depth 0."))
-                   recursive-head (lightning-bolt head
-
-                                                  ;; filter out phrases for which head cannot be a head,
-                                                  ;; because they would fail anyway in recursive
-                                                  ;; lightning-bolt call.
-                                                  (overh phrases head)
-
-
-                                                  (+ 1 depth)
-                                                  lexicon)
-                   debug (log/info (str "recursive-head: " (fo recursive-head)))]
-               ;; TODO: this is returning nil: need to figure out
-               ;; why: (overh parents (overh parents lex)) returns empty.
-               (overh phrases
-                      recursive-head))
-
-
-             true
-             ;; don't descend with 20% probability
-             (overh phrases
-                    (filter (fn [lexeme]
-                              (not (fail? (unifyc lexeme
-                                                  head))))
-                            lexicon)))
-
-       (= depth 1)
-       (cond (> rand 10)
-             ;; descend recursively with 40% probability.
-             (let [debug (log/info (str "branching at depth 1.a."))
-                   do-overh (overh phrases head)
-                   debug (log/info (str "do-overh: " overh))
-                   recursive-head (lightning-bolt head
-
-                                                  ;; filter out phrases for which head cannot be a head,
-                                                  ;; because they would fail anyway in recursive
-                                                  ;; lightning-bolt call.
-                                                  do-overh
-
-                                                  (+ 1 depth)
-                                                  lexicon)]
-               (overh phrases
-                      recursive-head))
-
-
-             true
-             ;; don't descend with 60% probability
-             (do
-               (log/info (str "branching at depth 1.b."))
-               (log/info (str "head: " head))
-               (let [result (overh phrases
-                                   (filter (fn [lexeme]
-                                             (not (fail? (unifyc lexeme
-                                                                 head))))
-                                           lexicon))]
-                 (log/info (str "result: " (fo result)))
-                 result)))
-
-       true
-       (cond false
-             ;; descend with 0% probability
-             (let [recursive-head (lightning-bolt head
-
-                                                  ;; filter out phrases for which head cannot be a head,
-                                                  ;; because they would fail anyway in recursive
-                                                  ;; lightning-bolt call.
-                                                  (overh phrases head)
-
-
-                                                  (+ 1 depth)
-                                                  lexicon)]
-               (overh phrases
-                      recursive-head))
-
-
-             true
-             ;; don't descend with 100% probability
-             (overh phrases
-                    (filter (fn [lexeme]
-                              (not (fail? (unifyc lexeme
-                                                  head))))
-                            lexicon)))))))
-
-
-(def edible (get-in (first (lightningb)) '(:head :comp)))

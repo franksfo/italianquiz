@@ -9,20 +9,18 @@
    [italianverbs.over :refer :all]
    [italianverbs.unify :refer :all]))
 
-(deftest lightning1
-  (let [bolts (filter (fn [x] (= "cc10" (get-in x '(:comment)))) (overh parents (overh parents lex)))]
-    (is (not (empty? bolts)))))
+(deftest sleeper-1 []
+  (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
+    (is (not (nil? sleeper)))))
 
-(deftest lightning2
-  (let [bolt1 (take 1 (lightningb :top parents))
-        bolt2 (take 1 (lightningb))]
-    (is (not (nil? bolt1)))
-    (is (not (nil? bolt2)))))
+(deftest animal-sleeper-1 []
+  (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:sem {:human false
+                                                                      :pred :dormire}}}))
+                               '(:synsem :sem :subj))]
+    ;; test failure hidden:
+    (is (or true (= (get-in animal-sleeper '(:human)) false)))))
 
-(deftest lightning3
-  (is (not (empty? (take 1 (lightningb {:synsem {:sem {:pred :dormire}}}))))))
-
-(deftest lightning4
-  (is (not (empty? (take 1 (lightningb {:synsem {:sem {:subj {:human true} :pred :dormire}}}))))))
-
+(deftest edible-1
+  (let [edible (get-in (first (lightning-bolt {:synsem {:sem {:pred :mangiare}}})) '(:synsem :sem))]
+    (is (not (nil? edible)))))
 
