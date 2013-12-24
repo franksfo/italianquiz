@@ -35,3 +35,11 @@
   (let [edible (get-in (first (lightning-bolt {:synsem {:sem {:pred :mangiare}}})) '(:synsem :sem))]
     (is (not (nil? edible)))))
 
+(deftest animal-eater-1 []
+  (let [eating-semantics (get-in (first (lightning-bolt {:synsem {:sem {:subj {:human false}
+                                                                        :pred :mangiare}}}))
+                                 '(:synsem :sem))]
+    (is (= (get-in eating-semantics '(:subj :human)) false))))
+
+
+
