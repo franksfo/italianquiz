@@ -372,13 +372,26 @@
         phrases (if phrases phrases parents)]
     (lightning-bolt head phrases depth lexicon)))
 
+(defn map-lexicon [head lexicon]
+  "TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon."
+  (filter (fn [lexeme]
+            (not (fail? lexeme)))
+          (map (fn [lexeme]
+                 (unifyc
+                  head
+                  (unifyc
+                   {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
+                   lexeme)))
+               lexicon)))
+
 (defn lightning-bolt [ & [head phrases depth lexicon] ]
   (let [depth (if depth depth 0)
         head (if head head :top)
         lexicon (if lexicon lexicon lex)
         phrases (if phrases phrases parents)]
     (let [debug (log/debug (str "lightning-bolt: start"))
-          debug (log/debug (str "lightning-bolt head: " (fo head)))
+          debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
+          debug (log/info (str "lightning-bolt head: " head))
           debug (log/debug (str "lightning-bolt depth: " depth))
           debug (log/debug (str "lightning-bolt lexicon: " (fo lexicon)))
           recursive-head
@@ -394,14 +407,10 @@
       (let [debug (log/debug (str "lightning-bolt: recursive head type: " (type recursive-head)))
             debug (log/debug (str "-- /depth: " depth))
             debug (log/debug (str "lightning-bolt: end"))
-            with-lexical-heads (overh phrases
-                                      (filter (fn [lexeme]
-                                                (not (fail? (unifyc
-                                                             head
-                                                             (unifyc
-                                                              {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
-                                                              lexeme)))))
-                                              lexicon))]
+            debug (log/debug (str "head's sem-impl: " (sem-impl (get-in head '(:synsem :sem)))))
+            with-lexical-heads (overh phrases (map-lexicon head lexicon))
+            debug (log/debug (str "first phrase with lexical heads: " (first with-lexical-heads)))]
+
         (lazy-cat
 
          ;; 1. both head and comp are lexemes.
