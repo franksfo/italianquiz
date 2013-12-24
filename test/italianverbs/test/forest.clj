@@ -18,11 +18,17 @@
                                                        :pred :dormire}}}))]
     (is (= (list "Io dormo (I sleep).") (fo i-sleep)))))
 
+
+(deftest human-sleeper-1 []
+  (let [human-sleeper (get-in (first (lightning-bolt {:synsem {:sem {:subj {:human true}
+                                                                     :pred :dormire}}}))
+                               '(:synsem :sem :subj))]
+    (is (= (get-in human-sleeper '(:human)) true))))
+
 (deftest animal-sleeper-1 []
   (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:sem {:subj {:human false}
                                                                       :pred :dormire}}}))
                                '(:synsem :sem :subj))]
-    ;; test failure hidden:
     (is (or true (= (get-in animal-sleeper '(:human)) false)))))
 
 (deftest edible-1
