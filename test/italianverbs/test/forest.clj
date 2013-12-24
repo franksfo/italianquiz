@@ -13,8 +13,13 @@
   (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
     (is (not (nil? sleeper)))))
 
+(deftest i-sleep-1 []
+  (let [i-sleep (first (lightning-bolt {:synsem {:sem {:subj {:pred :io}
+                                                       :pred :dormire}}}))]
+    (is (= (list "Io dormo (I sleep).") (fo i-sleep)))))
+
 (deftest animal-sleeper-1 []
-  (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:sem {:human false
+  (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:sem {:subj {:human false}
                                                                       :pred :dormire}}}))
                                '(:synsem :sem :subj))]
     ;; test failure hidden:
