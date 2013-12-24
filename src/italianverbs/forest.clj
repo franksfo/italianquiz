@@ -325,24 +325,38 @@
 ;; TODO: move to unify
 (defn remove-path-from [fs & [paths]]
   "dissoc a path from a map; e.g.: (remove-path-from {:a {:b 42 :c 43}} '(:a :b)) => {:a {:c 43}}."
-  (if (not (empty? paths))
-    (let [path (first paths)]
-      (remove-path-from
-       (if (and (not (empty? fs))
-                (not (empty? path)))
-         (let [feature (first path)]
-           (cond (ref? fs)
-                 (remove-path-from @fs (list path))
-                 (map? fs)
-                 (cond
-                  (empty? (rest path))
-                  (dissoc fs feature)
-                  (not (= :notfound (get-in fs (list feature) :notfound)))
-                  (conj
-                   {feature (remove-path-from (get-in fs (list feature)) (list (rest path)))}
-                   (dissoc fs feature))))))
-       (rest paths)))
-    fs))
+  (let [debug (log/info (str "remove path from fs: " fs " with paths: " paths))]
+  (cond (ref? fs)
+        (remove-path-from @fs paths)
+        (keyword? fs)
+        fs
+        (empty? fs)
+        :top
+
+
+        (not (empty? paths))
+        (let [path (first paths)]
+          (remove-path-from
+           (cond (keyword fs)
+                 fs
+                 (and (map? fs)
+                      (not (empty? fs))
+                      (not (empty? path)))
+                 (let [feature (first path)]
+                   (cond (ref? fs)
+                         (remove-path-from @fs (list path))
+                         (map? fs)
+                         (cond
+                          (empty? (rest path))
+                          (dissoc fs feature)
+                          (not (= :notfound (get-in fs (list feature) :notfound)))
+                          (conj
+                           {feature (remove-path-from (get-in fs (list feature)) (list (rest path)))}
+                           (dissoc fs feature)))))
+                 true (throw (Exception. (str "don't know what to do with this input argument (fs): " fs))))
+           (rest paths)))
+        true
+        fs)))
 
 (declare lightningb)
 (declare lightning-bolt)
@@ -357,9 +371,9 @@
                (remove-path-from
                 (get-in phrase-with-head '(:comp))
                 '((:synsem :subcat)
-;;TODO: Fix: doesn't work for some reason:
-;                  (:english :initial)
-                  (:italian :initial)))
+                  (:english :initial)
+                  (:italian :initial)
+                  ))
                all-phrases
                0
                lexicon))
