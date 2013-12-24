@@ -358,9 +358,7 @@
 (defn lightningb [& [head phrases depth lexicon]]
   (let [depth (if depth depth 0)
         head (if head head :top)
-        lexicon (if lexicon
-                  lexicon
-                  lex)
+        lexicon (if lexicon lexicon lex)
         phrases (if phrases phrases parents)]
     (let [debug (log/debug (str "lightningb: start"))
           debug (log/debug (str "lightningb head: " (fo head)))
