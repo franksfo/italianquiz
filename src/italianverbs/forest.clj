@@ -323,40 +323,45 @@
   (over parents lex lex))
 
 ;; TODO: move to unify
-(defn remove-path-from [fs path]
+(defn remove-path-from [fs & [paths]]
   "dissoc a path from a map; e.g.: (remove-path-from {:a {:b 42 :c 43}} '(:a :b)) => {:a {:c 43}}."
-  (if (and (not (empty? fs))
-           (not (empty? path)))
-    (let [feature (first path)]
-      (cond (ref? fs)
-            (remove-path-from @fs path)
-            (map? fs)
-            (cond
-             (empty? (rest path))
-             (dissoc fs feature)
-             (not (= :notfound (get-in fs (list feature) :notfound)))
-             (conj
-              {feature (remove-path-from (get-in fs (list feature)) (rest path))}
-              (dissoc fs feature)))))))
+  (if (not (empty? paths))
+    (let [path (first paths)]
+      (remove-path-from
+       (if (and (not (empty? fs))
+                (not (empty? path)))
+         (let [feature (first path)]
+           (cond (ref? fs)
+                 (remove-path-from @fs (list path))
+                 (map? fs)
+                 (cond
+                  (empty? (rest path))
+                  (dissoc fs feature)
+                  (not (= :notfound (get-in fs (list feature) :notfound)))
+                  (conj
+                   {feature (remove-path-from (get-in fs (list feature)) (list (rest path)))}
+                   (dissoc fs feature))))))
+       (rest paths)))
+    fs))
 
 (declare lightningb)
+(declare lightning-bolt)
 
 (defn comp-phrases [phrases-with-heads all-phrases lexicon]
   (if (not (empty? phrases-with-heads))
     (let [phrase-with-head (first phrases-with-heads)]
+      (log/info (str "comp-phrases: looking for phrases with phrase-with-head's comp: " (get-in phrase-with-head '(:comp))))
       (lazy-cat
        (overc phrase-with-head
-              (lightningb
+              (lightning-bolt
                (remove-path-from
                 (get-in phrase-with-head '(:comp))
-                '(:synsem :subcat))
+                '((:synsem :subcat)
+                  (:italian :initial)))
                all-phrases
                0
                lexicon))
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
-
-(declare lightningb)
-(declare lightning-bolt)
 
 (defn lb [ & [head phrases depth lexicon]]
   (let [depth (if depth depth 0)
