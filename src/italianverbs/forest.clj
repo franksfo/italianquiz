@@ -35,17 +35,21 @@
 ;(def parents (set (list 'cc10)))
 ;(def lex (set (list 'io 'tu 'dormire)))
 
-(def parents (set (list (unifyc cc10
-                                {:synsem {:infl :present
-                                          :cat :verb
-                                          :sem {:tense :present}}})
-                        (unifyc hh21
-                                {:synsem {:infl :present
-                                          :cat :verb
-                                          :sem {:tense :present}}})
+(def parents (set (list (merge (unifyc cc10
+                                       {:synsem {:infl :present
+                                                 :cat :verb
+                                                 :sem {:tense :present}}})
+                               {:comment "parent1/cc10"})
 
-                        (unifyc cc10
-                                {:synsem {:cat :noun}}))))
+                        (merge (unifyc hh21
+                                       {:synsem {:infl :present
+                                                 :cat :verb
+                                                 :sem {:tense :present}}})
+                               {:comment "parent2/hh21"})
+
+                        (merge (unifyc cc10
+                                       {:synsem {:cat :noun}})
+                               {:comment "parent3/cc10"}))))
 
 (def lex (union (it "il") (it "cane") (it "i")
                 (it "io") (it "pane") (it "tu")
@@ -367,7 +371,7 @@
   (if (not (empty? phrases-with-heads))
     (let [phrase-with-head (first phrases-with-heads)]
       (log/debug (str "comp-phrases: looking for phrases with phrase-with-head's comp: " (get-in phrase-with-head '(:comp))))
-      (log/info (str "comp-phrases: looking for phrases with phrase-with-head: " (fo-ps phrase-with-head)))
+      (log/info (str "comp-phrases: looking for complements with phrase-with-head: " (fo-ps phrase-with-head)))
       (lazy-cat
        (overc phrase-with-head
               (lightning-bolt
@@ -413,10 +417,9 @@
         head (if head head :top)
         lexicon (if lexicon lexicon lex)
         phrases (if phrases phrases parents)]
-    (let [debug (log/debug (str "lightning-bolt: start"))
-          debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
+    (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
           debug (log/debug (str "lightning-bolt head: " head))
-          debug (log/debug (str "lightning-bolt depth: " depth))
+          debug (log/info (str "lightning-bolt depth: " depth))
           debug (log/debug (str "lightning-bolt lexicon: " (fo lexicon)))
           recursive-head
           (cond (= depth 0)
@@ -433,7 +436,12 @@
             debug (log/debug (str "lightning-bolt: end"))
             debug (log/debug (str "head's sem-impl: " (sem-impl (get-in head '(:synsem :sem)))))
             with-lexical-heads (overh phrases (map-lexicon head lexicon))
-            debug (log/debug (str "first phrase with lexical heads: " (first with-lexical-heads)))]
+            debug (log/debug (str "first phrase with lexical heads: " (first with-lexical-heads)))
+            case-1 (overc with-lexical-heads lexicon)
+            debug (log/info (str "with-lexical-heads: " (fo-ps (seq with-lexical-heads)))) ;; REALIZES
+            debug (log/info (str "recursive-head: " (fo-ps (seq recursive-head)))) ;; REALIZES
+            debug (log/info (str "size of case-1 output: " (.size case-1)));; REALIZES
+            debug (log/info (str "case-1 output:" (fo-ps (seq case-1))))];; REALIZES
 
         (lazy-cat
 
@@ -447,5 +455,8 @@
          (overhc phrases recursive-head lexicon)
 
          ;; 4. head is a phrase, comp is a phrase.
-         (overhc phrases recursive-head (comp-phrases recursive-head phrases lexicon)))))))
+         (overhc phrases recursive-head (comp-phrases (overh phrases recursive-head) phrases lexicon)))))))
+
+
+
 
