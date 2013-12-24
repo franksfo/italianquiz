@@ -398,7 +398,7 @@
         phrases (if phrases phrases parents)]
     (let [debug (log/debug (str "lightning-bolt: start"))
           debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
-          debug (log/info (str "lightning-bolt head: " head))
+          debug (log/debug (str "lightning-bolt head: " head))
           debug (log/debug (str "lightning-bolt depth: " depth))
           debug (log/debug (str "lightning-bolt lexicon: " (fo lexicon)))
           recursive-head
