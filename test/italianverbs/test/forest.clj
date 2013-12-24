@@ -29,7 +29,7 @@
   (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:sem {:subj {:human false}
                                                                       :pred :dormire}}}))
                                '(:synsem :sem :subj))]
-    (is (or true (= (get-in animal-sleeper '(:human)) false)))))
+    (is (= (get-in animal-sleeper '(:human)) false))))
 
 (deftest edible-1
   (let [edible (get-in (first (lightning-bolt {:synsem {:sem {:pred :mangiare}}})) '(:synsem :sem))]
