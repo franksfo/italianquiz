@@ -357,6 +357,8 @@
                (remove-path-from
                 (get-in phrase-with-head '(:comp))
                 '((:synsem :subcat)
+;;TODO: Fix: doesn't work for some reason:
+;                  (:english :initial)
                   (:italian :initial)))
                all-phrases
                0
