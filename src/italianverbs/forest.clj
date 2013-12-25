@@ -436,13 +436,7 @@
             debug (log/debug (str "lightning-bolt: end"))
             debug (log/debug (str "head's sem-impl: " (sem-impl (get-in head '(:synsem :sem)))))
             with-lexical-heads (overh phrases (map-lexicon head lexicon))
-            debug (log/debug (str "first phrase with lexical heads: " (first with-lexical-heads)))
-            case-1 (overc with-lexical-heads lexicon)
-            debug (log/info (str "with-lexical-heads: " (fo-ps (seq with-lexical-heads)))) ;; REALIZES
-            debug (log/info (str "recursive-head: " (fo-ps (seq recursive-head)))) ;; REALIZES
-            debug (log/info (str "size of case-1 output: " (.size case-1)));; REALIZES
-            debug (log/info (str "case-1 output:" (fo-ps (seq case-1))))];; REALIZES
-
+            debug (log/debug (str "first phrase with lexical heads: " (first with-lexical-heads)))]
         (lazy-cat
 
          ;; 1. both head and comp are lexemes.
