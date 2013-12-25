@@ -455,7 +455,7 @@
          (overhc phrases recursive-head lexicon)
 
          ;; 4. head is a phrase, comp is a phrase.
-         (overhc phrases recursive-head (comp-phrases (overh phrases recursive-head) phrases lexicon)))))))
+         (comp-phrases (overh phrases recursive-head) phrases lexicon))))))
 
 
 
