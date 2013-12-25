@@ -1166,4 +1166,40 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                      (copy-with-assignments fs assignments)))
                  unified-values))))
 
+(defn remove-path-from [fs & [paths]]
+  "dissoc a path from a map; e.g.: (remove-path-from {:a {:b 42 :c 43}} '(:a :b)) => {:a {:c 43}}."
+  (let [debug (log/debug (str "remove path from fs: " fs " with paths: " paths))]
+    (cond (empty? paths)
+          fs
+
+          (ref? fs)
+          (remove-path-from @fs paths)
+
+          (keyword? fs)
+          fs
+
+          (empty? fs)
+          :top
+
+          true
+          (let [path (first paths)]
+            (remove-path-from
+             (cond (keyword fs)
+                   fs
+                   (and (map? fs)
+                        (not (empty? fs))
+                        (not (empty? path)))
+                   (let [feature (first path)]
+                     (cond (ref? fs)
+                           (remove-path-from @fs (list path))
+                           (map? fs)
+                           (cond
+                            (empty? (rest path))
+                            (dissoc fs feature)
+                            (not (= :notfound (get-in fs (list feature) :notfound)))
+                            (conj
+                             {feature (remove-path-from (get-in fs (list feature)) (list (rest path)))}
+                             (dissoc fs feature)))))
+                   true (throw (Exception. (str "don't know what to do with this input argument (fs): " fs))))
+             (rest paths))))))
 
