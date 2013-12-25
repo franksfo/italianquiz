@@ -168,6 +168,7 @@
   (log/debug (str "set? parent:" (set? parent)))
   (log/debug (str "seq? parent:" (seq? parent)))
   (log/debug (str "seq? head:" (seq? head)))
+  (log/debug (str "vector? head:" (vector? head)))
 
   (if (map? parent)
     (if (get-in parent '(:comment))
@@ -180,7 +181,8 @@
 
    (or
     (seq? parent)
-    (set? parent))
+    (set? parent)
+    (vector? parent))
    (let [parents (lazy-seq parent)]
      (filter (fn [result]
                (not (fail? result)))
@@ -189,7 +191,8 @@
    (string? head)
    (overh parent (it head))
 
-   (set? head)
+   (or (set? head)
+       (vector? head))
    (do (log/debug "head is a set: converting to a seq.")
        (overh parent (lazy-seq head)))
 
@@ -230,7 +233,8 @@
 
    (or
     (seq? parent)
-    (set? parent))
+    (set? parent)
+    (vector? parent))
    (let [parents (lazy-seq parent)]
      (filter (fn [result]
                (not (fail? result)))
@@ -239,7 +243,8 @@
    (string? comp)
    (overc parent (it comp))
 
-   (set? comp)
+   (or (set? comp)
+       (vector? comp))
    (do (log/debug "comp is a set: converting to a seq.")
        (overc parent (lazy-seq comp)))
 
