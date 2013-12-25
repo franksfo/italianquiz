@@ -134,7 +134,7 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (take 1 (lightning-bolt {:synsem {:sem {:subj {:human false} :pred :dormire}}})))")
+          "(fo (take 2 (lightning-bolt {:synsem {:sem {:subj {:pred :cane} :pred :mangiare}}})))")
         ]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka

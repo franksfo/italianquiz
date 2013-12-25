@@ -84,12 +84,9 @@
     (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
           debug (log/debug (str "lightning-bolt head: " head))
           debug (log/info (str "lightning-bolt depth: " depth))
-          debug (log/debug (str "lightning-bolt lexicon: " (fo lexicon)))
+          debug (log/info (str "lightning-bolt lexicon: " (fo lexicon)))
           recursive-head
-          (cond (= depth 0)
-                (lightning-bolt head lexicon phrases (+ 1 depth))
-
-                (< depth 2)
+          (cond (< depth 2)
                 (lightning-bolt head lexicon phrases (+ 1 depth))
 
                 true  ;; bounded depth: if depth is greater than any matched above, don't branch any more.
