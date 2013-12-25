@@ -22,6 +22,7 @@
    workbook/workbookq will format this accordingly."
   {:plain expr})
 
+;; TODO: move to (over)
 (defn moreover-head [parent child lexfn-sem-impl]
   (do
     (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
@@ -41,7 +42,7 @@
               fail-path (unify/fail-path result)
               debug (log/debug (str " fail-path: " fail-path))
               debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/debug (str " head: " child))
+              debug (log/debug (str " head: " (fo child)))
               debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
               debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
           (do
@@ -54,6 +55,7 @@
 ;; with certain arguments.
 (def ^:dynamic *throw-exception-if-failed-to-add-complement* false)
 
+;; TODO: move to (over)
 (defn moreover-comp [parent child lexfn-sem-impl]
   (log/debug (str "moreover-comp parent: " (fo parent)))
   (log/debug (str "moreover-comp comp:" (fo child)))
