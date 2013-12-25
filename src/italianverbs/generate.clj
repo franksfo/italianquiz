@@ -9,6 +9,7 @@
    [italianverbs.unify :as unify]
    [italianverbs.config :as config]
    [italianverbs.html :as html]
+   [italianverbs.over :refer (moreover-head moreover-comp)]
    [italianverbs.search :as search]
    [clojure.string :as string]))
 
@@ -21,72 +22,6 @@
   "simply map expr in a map with one key :plain, whose value is expr.
    workbook/workbookq will format this accordingly."
   {:plain expr})
-
-;; TODO: move to (over)
-(defn moreover-head [parent child lexfn-sem-impl]
-  (do
-    (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
-    (log/debug (str "moreover-head (candidate) parent sem: " (unify/get-in parent '(:synsem :sem) :no-semantics)))
-    (log/debug (str "moreover-head (candidate) head child sem:" (unify/get-in child '(:synsem :sem) :top)))
-    (log/debug (str "moreover-head (candidate) head:" (fo child)))
-    (let [result
-          (unifyc parent
-                  (unifyc {:head child}
-                          {:head {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem) :top))}}}))]
-      (if (not (unify/fail? result))
-        (let [debug (log/debug (str "moreover-head " (unify/get-in parent '(:comment)) " (SUCCESS) result sem: " (unify/get-in result '(:synsem :sem))))
-              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
-          (merge {:head-filled true}
-                 result))
-        (let [debug (log/debug (str "moreover-head " (fo child) "/" (unify/get-in parent '(:comment)) "," (fo child) "/" (unify/get-in child '(:comment))))
-              fail-path (unify/fail-path result)
-              debug (log/debug (str " fail-path: " fail-path))
-              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/debug (str " head: " (fo child)))
-              debug (log/debug (str " head-value-at-fail: " (unify/get-in child (rest fail-path))))
-              debug (log/debug (str " parent-value-at-fail: " (unify/get-in parent fail-path)))]
-          (do
-            (log/debug (str "FAIL: " fail-path))
-            :fail))))))
-
-;; Might be useful to set the following variable to true,
-;; if doing grammar development and it would be unexpected
-;; to have a failing result from calling (moreove-comp)
-;; with certain arguments.
-(def ^:dynamic *throw-exception-if-failed-to-add-complement* false)
-
-;; TODO: move to (over)
-(defn moreover-comp [parent child lexfn-sem-impl]
-  (log/debug (str "moreover-comp parent: " (fo parent)))
-  (log/debug (str "moreover-comp comp:" (fo child)))
-  (log/debug (str "moreover-comp type parent: " (type parent)))
-  (log/debug (str "moreover-comp type comp:" (type child)))
-  (let [result
-        (unifyc parent
-                (unifyc {:comp child}
-                        {:comp {:synsem {:sem (lexfn-sem-impl (unify/get-in child '(:synsem :sem) :top))}}}))]
-    (if (not (unify/fail? result))
-      (let [debug (log/trace (str "moreover-comp (SUCCESS) parent (2x) sem: " (unify/get-in parent '(:synsem :sem))))]
-        (let [result
-              (merge {:comp-filled true}
-                     result)]
-          (log/debug (str "moreover-comp (SUCCESS) merged result:(fo) " (fo result)))
-          )
-          result)
-      (do
-        (log/debug "moreover-comp: fail at: " (unify/fail-path result))
-        (if (and
-             *throw-exception-if-failed-to-add-complement*
-             (unify/get-in child '(:head)))
-          (throw (Exception. (str "failed to add complement: " (fo child) "  to: phrase: " (fo parent)
-                                  ". Failed path was: " (unify/fail-path result)
-                                  ". Value of parent at path is: "
-                                  (unify/get-in parent (unify/fail-path result))
-                                  "; Synsem of child is: "
-                                  (unify/get-in child '(:synsem) :top)))))
-        (log/debug "moreover-comp: complement synsem: " (unify/get-in child '(:synsem) :top))
-        (log/debug "moreover-comp:  parent value: " (unify/get-in parent (unify/fail-path result)))
-        :fail))))
 
 (defn gen14-inner [phrase-with-head complements complement-filter-fn post-unify-fn recursion-level
                    lexfn-sem-impl [ & filtered-complements]]

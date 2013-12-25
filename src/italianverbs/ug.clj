@@ -2,10 +2,11 @@
   (:refer-clojure :exclude [get-in resolve])
   (:use [clojure.set :only (union intersection)]
         [clojure.core :exclude (get-in resolve merge)]
-        [italianverbs.generate :only (moreover-head moreover-comp gen14 lazy-shuffle)]
+        [italianverbs.generate :only (gen14 lazy-shuffle)]
         [italianverbs.lexicon :only (it)]
         [italianverbs.lexiconfn :only (unify sem-impl)]
         [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
+        [italianverbs.over :only (moreover-head moreover-comp)]
         [italianverbs.unify :only (copy fail? serialize get-in fail-path)])
 
   (:require [clojure.tools.logging :as log]

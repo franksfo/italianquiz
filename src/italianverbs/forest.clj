@@ -10,7 +10,6 @@
    [italianverbs.config :as config]
    [italianverbs.html :as html]
 
-   [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer (sem-impl)]
