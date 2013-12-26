@@ -79,7 +79,8 @@
          (overc with-lexical-heads lexicon)
 
          ;; 2. head is a lexeme, comp is a phrase.
-         (comp-phrases with-lexical-heads phrases lexicon)
+         (if (< depth maxdepth)
+           (comp-phrases with-lexical-heads phrases lexicon))
 
          (if (< depth maxdepth)
            ;; 3. head is a phrase, comp is a lexeme.
