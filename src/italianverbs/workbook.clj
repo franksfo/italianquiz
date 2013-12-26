@@ -12,7 +12,7 @@
    [clojure.tools.logging :as log]
    [hiccup.core :refer :all]
 
-   [italianverbs.forest :refer :all]
+   [italianverbs.forest :exclude (lightning-bolt)]
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
@@ -20,6 +20,9 @@
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.over :refer :all]
+
+   [italianverbs.test.forest :refer :all]
+
    [italianverbs.rules :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]

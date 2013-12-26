@@ -11,37 +11,14 @@
    [italianverbs.html :as html]
 
    [italianverbs.grammar :refer :all]
-   [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer :all]
    [italianverbs.over :refer :all]
 
    [italianverbs.lev :as lev]
    [italianverbs.search :as search]
-   [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]
    [italianverbs.unify :as unify]))
-
-(def parents (set (list (merge (unifyc cc10
-                                       {:synsem {:infl :present
-                                                 :cat :verb
-                                                 :sem {:tense :present}}})
-                               {:comment "parent1/cc10"})
-
-                        (merge (unifyc hh21
-                                       {:synsem {:infl :present
-                                                 :cat :verb
-                                                 :sem {:tense :present}}})
-                               {:comment "parent2/hh21"})
-
-                        (merge (unifyc cc10
-                                       {:synsem {:cat :noun}})
-                               {:comment "parent3/cc10"}))))
-
-(def lex (seq (union (it "il") (it "cane") (it "i")
-                     (it "io") (it "pane") (it "tu")
-                     (it "lui") (it "lei")
-                     (it "dormire") (it "sognare") (it "mangiare"))))
 
 (defn map-lexicon [head lexicon]
   "TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon."
@@ -84,9 +61,7 @@
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
   (let [maxdepth 2
         depth (if depth depth 0)
-        head (if head head :top)
-        lexicon (if lexicon lexicon lex)
-        phrases (if phrases phrases parents)]
+        head (if head head :top)]
     (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
           debug (log/debug (str "lightning-bolt head: " head))
           debug (log/info (str "lightning-bolt depth: " depth "; head: " (fo head) "; head sem: " (get-in head '(:synsem :sem))))]
@@ -115,15 +90,11 @@
 
 (defn lb [ & [head lexicon phrases depth]]
   (let [depth (if depth depth 0)
-        head (if head head :top)
-        lexicon (if lexicon lexicon lex)
-        phrases (if phrases phrases parents)]
+        head (if head head :top)]
     (lightning-bolt head lexicon phrases depth)))
 
 (defn lightningb [ & [head lexicon phrases depth]]
   (let [depth (if depth depth 0)
-        head (if head head :top)
-        lexicon (if lexicon lexicon lex)
-        phrases (if phrases phrases parents)]
+        head (if head head :top)]
     (lightning-bolt head lexicon phrases depth)))
 

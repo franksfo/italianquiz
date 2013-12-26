@@ -1,13 +1,47 @@
 (ns italianverbs.test.forest
   (:refer-clojure :exclude [get-in merge resolve find parents])
-  (:use [clojure.test])
   (:require
-   [italianverbs.generate :as generate]
+   [clojure.set :refer :all]
+   [clojure.test :refer :all]
    [clojure.tools.logging :as log]
-   [italianverbs.forest :refer :all]
+
+   [italianverbs.generate :as generate]
+   [italianverbs.forest :exclude (lightning-bolt) ]
+   [italianverbs.forest :as forest]
+   [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer :all]
+   [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]))
+
+(def parents (set (list (merge (unifyc cc10
+                                       {:synsem {:infl :present
+                                                 :cat :verb
+                                                 :sem {:tense :present}}})
+                               {:comment "parent1/cc10"})
+
+                        (merge (unifyc hh21
+                                       {:synsem {:infl :present
+                                                 :cat :verb
+                                                 :sem {:tense :present}}})
+                               {:comment "parent2/hh21"})
+
+                        (merge (unifyc cc10
+                                       {:synsem {:cat :noun}})
+                               {:comment "parent3/cc10"}))))
+
+(def lex (seq (union (it "il") (it "cane") (it "i")
+                     (it "io") (it "pane") (it "tu")
+                     (it "lui") (it "lei")
+                     (it "dormire") (it "sognare") (it "mangiare"))))
+
+(defn lightning-bolt [ & [head lexicon phrases depth] ]
+  (let [maxdepth 2
+        depth (if depth depth 0)
+        lexicon (if lexicon lexicon lex)
+        phrases (if phrases phrases parents)
+        head (if head head :top)]
+    (forest/lightning-bolt head lexicon phrases depth)))
 
 (deftest sleeper-1 []
   (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
