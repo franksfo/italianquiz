@@ -59,45 +59,44 @@
 
 (defn comp-phrases [phrases-with-heads all-phrases lexicon]
   (if (not (empty? phrases-with-heads))
-    (let [phrase-with-head (first phrases-with-heads)]
+    (let [phrase-with-head (first phrases-with-heads)
+          remove-some-paths
+          (remove-path-from
+           (get-in phrase-with-head '(:comp))
+           '((:synsem :subcat)
+             (:english :initial)
+             (:italian :initial)))]
+
       (log/debug (str "comp-phrases: looking for phrases with phrase-with-head's comp: " (get-in phrase-with-head '(:comp))))
       (log/info (str "comp-phrases: looking for complements with phrase-with-head: " (fo-ps phrase-with-head)))
       (log/info (str "comp-phrases: phrase-with-head sem: " (get-in phrase-with-head '(:synsem :sem))))
+      (log/info (str "comp-phrases: after non-head-feature removal: " remove-some-paths))
+
       (lazy-cat
        (overc phrase-with-head
               (lightning-bolt
-               (remove-path-from
-                (get-in phrase-with-head '(:comp))
-                '((:synsem :subcat)
-                  (:english :initial)
-                  (:italian :initial)
-                  ))
+               remove-some-paths
                lexicon
                all-phrases
                0))
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
 
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
-  (let [depth (if depth depth 0)
+  (let [maxdepth 2
+        depth (if depth depth 0)
         head (if head head :top)
         lexicon (if lexicon lexicon lex)
         phrases (if phrases phrases parents)]
     (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
           debug (log/debug (str "lightning-bolt head: " head))
-          debug (log/info (str "lightning-bolt depth: " depth "; head: " (fo head) "; head sem: " (get-in head '(:synsem :sem))))
-          recursive-head
-          (cond (< depth 2)
-                (lightning-bolt head lexicon phrases (+ 1 depth))
+          debug (log/info (str "lightning-bolt depth: " depth "; head: " (fo head) "; head sem: " (get-in head '(:synsem :sem))))]
 
-                true  ;; bounded depth: if depth is greater than any matched above, don't branch any more.
-                nil)]
-
-      (let [debug (log/debug (str "lightning-bolt: recursive head type: " (type recursive-head)))
-            debug (log/debug (str "-- /depth: " depth))
+      (let [debug (log/debug (str "-- /depth: " depth))
             debug (log/debug (str "lightning-bolt: end"))
             debug (log/debug (str "head's sem-impl: " (sem-impl (get-in head '(:synsem :sem)))))
             with-lexical-heads (overh phrases (map-lexicon head lexicon))
-            debug (log/debug (str "first phrase with lexical heads: " (first with-lexical-heads)))]
+;            debug (log/info (str "overh phrases with lexical heads (size=" (.size with-lexical-heads)  ") : " (fo-ps with-lexical-heads)))
+            ]
         (lazy-cat
 
          ;; 1. both head and comp are lexemes.
@@ -106,11 +105,13 @@
          ;; 2. head is a lexeme, comp is a phrase.
          (comp-phrases with-lexical-heads phrases lexicon)
 
-         ;; 3. head is a phrase, comp is a lexeme.
-         (overhc phrases recursive-head lexicon)
+         (if (< depth maxdepth)
+           ;; 3. head is a phrase, comp is a lexeme.
+           (overhc phrases (lightning-bolt head lexicon phrases (+ 1 depth)) lexicon))
 
          ;; 4. head is a phrase, comp is a phrase.
-         (comp-phrases (overh phrases recursive-head) phrases lexicon))))))
+         (if (< depth maxdepth)
+           (comp-phrases (overh phrases (lightning-bolt head lexicon phrases (+ 1 depth))) phrases lexicon)))))))
 
 (defn lb [ & [head lexicon phrases depth]]
   (let [depth (if depth depth 0)
