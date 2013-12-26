@@ -123,12 +123,12 @@
 ;; TODO: support lazy sequences and vectors
 ;;
 (defn unify [& args]
+  (if (empty? (rest args)) (first args))
   (let [val1 (first args)
         val2 (second args)]
     (log/debug (str "unify val1: " val1))
     (log/debug (str "      val2: " val2))
     (cond
-
      (set? val1)
      (set (filter (fn [each]
                     (not (fail? each)))
@@ -475,9 +475,44 @@
 
 (defn merge [& args]
   "warning: {} is the identity value, not nil; that is: (merge X {}) => X, but (merge X nil) => nil, (not X)."
+  (if (empty? (rest args)) (first args))
   (let [val1 (first args)
         val2 (second args)]
     (cond
+
+     (set? val1)
+     (set (filter (fn [each]
+                    (not (fail? each)))
+                  (reduce union
+                          (map (fn [each]
+                                 (let [result (merge (copy each) (copy val2))]
+                                   (cond (set? result)
+                                         result
+                                         (seq? result)
+                                         (set result)
+                                         true
+                                         (set (list result)))))
+                               val1))))
+
+     (set? val2)
+     (set (filter (fn [each]
+                    (not (fail? each)))
+                  (reduce union
+                          (map (fn [each]
+                                 (let [result (merge (copy each) (copy val1))]
+                                   (cond (set? result)
+                                         result
+                                         (seq? result)
+                                         (set result)
+                                         true
+                                         (set (list result)))))
+                               val2))))
+
+     (has-set? val1)
+     (merge (expand-disj val1) val2)
+
+     (has-set? val2)
+     (merge val1 (expand-disj val2))
 
      (= (.count args) 1)
      (first args)
@@ -775,16 +810,23 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
        (sort-shortest-path-ascending-r serialization (rest path-length-pairs))))))
 
 (defn ser-intermed [input-map]
-  (let [top-level (skeletize input-map)
-        rsk (ref-skel-map input-map)
-        sk (map (fn [ref-skel]
-                  (:skel ref-skel))
-                (keys rsk))]
-    (merge
-     {nil top-level}
-     (zipmap
-      (vals rsk)
-      sk))))
+  (cond (has-set? input-map)
+        (ser-intermed (expand-disj input-map))
+        (set? input-map)
+        (set (map (fn [each]
+                    (ser-intermed each))
+                  input-map))
+        true
+        (let [top-level (skeletize input-map)
+              rsk (ref-skel-map input-map)
+              sk (map (fn [ref-skel]
+                        (:skel ref-skel))
+                      (keys rsk))]
+          (merge
+           {nil top-level}
+           (zipmap
+            (vals rsk)
+            sk)))))
 
 (defn create-shared-values [serialized]
   (map (fn [paths-vals]
@@ -831,44 +873,52 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
              all))))
 
 (defn serialize [input-map]
-  (let [memoized (get input-map :serialized :none)]
-    (if (not (= memoized :none))
-      (let [debug (log/debug "using cached serialization!")]
-        memoized)
-      (let [;debug (println (str "SERIALIZING: " input-map))
-            ser (ser-intermed input-map)]
+  (cond
+   (set? input-map)
+   (set (map (fn [each]
+               (serialize each))
+             input-map))
+   (has-set? input-map)
+   (serialize (expand-disj input-map))
+
+   true
+   (let [memoized (get input-map :serialized :none)]
+     (if (not (= memoized :none))
+       (let [debug (log/debug "using cached serialization!")]
+         memoized)
+       (let [ser (ser-intermed input-map)]
         ;; ser is a intermediate (but fully-serialized) representation
-        ;; of the input map, as a map from pathsets to reference-free maps
-        ;; (maps which have no references within them).
+         ;; of the input map, as a map from pathsets to reference-free maps
+         ;; (maps which have no references within them).
 
-        ;; In place of the references in the original map, the reference-free
-        ;; maps have simply a dummy value (the value :top) stored where the
-        ;; the reference is in the input-map.
-        ;;
-        ;; ser:
-        ;;
-        ;;   pathset    |  value
-        ;; -------------+---------
-        ;;   pathset1   => value1
-        ;;   pathset2   => value2
-        ;;      ..         ..
-        ;;   nil        => outermost_map
-        ;;
-        ;; Each pathset is a set of paths to a shared value, the value
-        ;; shared by all paths in that pathset.
-        ;;
-        ;; The last row shown is for the outermost_map that represents
-        ;; the entire input, which is why its pathset is nil.
+         ;; In place of the references in the original map, the reference-free
+         ;; maps have simply a dummy value (the value :top) stored where the
+         ;; the reference is in the input-map.
          ;;
-        ;; However, ser is not sorted by path length: it needs to be
-        ;; sorted so that, when deserialization is done, assignment
-        ;; will occur in the correct order: shortest path first.
+         ;; ser:
+         ;;
+         ;;   pathset    |  value
+         ;; -------------+---------
+         ;;   pathset1   => value1
+         ;;   pathset2   => value2
+         ;;      ..         ..
+         ;;   nil        => outermost_map
+         ;;
+         ;; Each pathset is a set of paths to a shared value, the value
+         ;; shared by all paths in that pathset.
+         ;;
+         ;; The last row shown is for the outermost_map that represents
+         ;; the entire input, which is why its pathset is nil.
+         ;;
+         ;; However, ser is not sorted by path length: it needs to be
+         ;; sorted so that, when deserialization is done, assignment
+         ;; will occur in the correct order: shortest path first.
 
-        ;; Thefore, we now sort _ser_ in a shortest-path-first order, so that
+         ;; Thefore, we now sort _ser_ in a shortest-path-first order, so that
          ;; during de-serialization, all assignments will happen in this
          ;; same correct order.
 
-        (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser))))))
+         (sort-shortest-path-ascending-r ser (sort-by-max-lengths ser)))))))
 
 (defn optimized-ser [input-map]
   "generate a better serialized form that removes intermediate refs (refs to other refs)"
