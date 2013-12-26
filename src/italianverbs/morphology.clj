@@ -134,6 +134,7 @@
 ;      (throw (Exception. (str ":a's initial is false: (:a should always be initial=true)."))))
 
     (cond
+     (= word :top) ".."
 
      (ref? word)
      (get-italian-1 @word)
