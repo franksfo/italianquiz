@@ -45,11 +45,8 @@
              (:english :initial)
              (:italian :initial)))]
 
-      (log/debug (str "comp-phrases: looking for phrases with phrase-with-head's comp: " (get-in phrase-with-head '(:comp))))
-      (log/info (str "comp-phrases: looking for complements with phrase-with-head: " (fo-ps phrase-with-head)))
-      (log/info (str "comp-phrases: phrase-with-head sem: " (get-in phrase-with-head '(:synsem :sem))))
-      (log/info (str "comp-phrases: after non-head-feature removal: " remove-some-paths))
-
+      (log/debug (str "comp-phrases: looking for phrases with phrase-with-head's comp: "
+                      remove-some-paths))
       (lazy-cat
        (overc phrase-with-head
               (lightning-bolt
@@ -71,7 +68,7 @@
             debug (log/debug (str "lightning-bolt: end"))
             debug (log/debug (str "head's sem-impl: " (sem-impl (get-in head '(:synsem :sem)))))
             with-lexical-heads (overh phrases (map-lexicon head lexicon))
-;            debug (log/info (str "overh phrases with lexical heads (size=" (.size with-lexical-heads)  ") : " (fo-ps with-lexical-heads)))
+;;            debug (log/info (str "overh phrases with lexical heads (size=" (.size with-lexical-heads)  ") : " (fo-ps with-lexical-heads))) ;; realizes
             ]
         (lazy-cat
 
@@ -83,8 +80,10 @@
            (comp-phrases with-lexical-heads phrases lexicon))
 
          (if (< depth maxdepth)
-           ;; 3. head is a phrase, comp is a lexeme.
-           (overhc phrases (lightning-bolt head lexicon phrases (+ 1 depth)) lexicon))
+           ;; 3. head is a phrase, comp is a lexeme:
+           (overhc phrases
+                   (lightning-bolt head lexicon phrases (+ 1 depth)) ;; head
+                   lexicon)) ;; complement (the lexicon).
 
          ;; 4. head is a phrase, comp is a phrase.
          (if (< depth maxdepth)
