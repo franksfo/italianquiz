@@ -724,4 +724,7 @@ when run from a REPL."
     (is (not (fail? (first result))))
     (is (not (fail? (second result))))))
 
+(deftest serialized-set
+  (let [result (serialize (set (list 1 2)))]
+    (is (= result #{((nil 1)) ((nil 2))}))))
 
