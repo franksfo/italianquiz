@@ -16,7 +16,9 @@
 (deftest i-sleep-1 []
   (let [i-sleep (first (lightning-bolt {:synsem {:sem {:subj {:pred :io}
                                                        :pred :dormire}}}))]
-    (is (= (list "Io dormo (I sleep).") (fo i-sleep)))))
+    (is (or (= (list "Io dormo (I sleep).") (fo i-sleep))
+            (= (list "Io dormirò (I will sleep).") (fo i-sleep))
+            (= (list "Io dormivo (I was sleeping).") (fo i-sleep))))))
 
 
 (deftest human-sleeper-1 []
