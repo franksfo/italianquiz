@@ -56,6 +56,7 @@
                0))
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
 
+;; TODO: add param to memoize (overh phrases (map lexicon head lexicon)).
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
   (let [maxdepth 2
         depth (if depth depth 0)
