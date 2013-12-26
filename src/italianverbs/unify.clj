@@ -858,19 +858,23 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 ;; Note that (deserialize) should be able to cope with
 ;; both lists and arrays (i.e. just assume a sequence).
 (defn deserialize [serialized]
-  (let [base (second (first serialized))]
-    (apply merge-debug
-           (let [all
-                 (cons base
-                       (flatten
-                        (map (fn [paths-val]
-                               (let [paths (first paths-val)
-                                     val (ref (second paths-val))]
-                                 (map (fn [path]
-                                        (create-path-in path val))
-                                      paths)))
-                             (rest serialized))))]
-             all))))
+  (cond (set? serialized)
+        (set (map (fn [each]
+                    (deserialize each))
+                  serialized))
+        true (let [base (second (first serialized))]
+               (apply merge-debug
+                      (let [all
+                            (cons base
+                                  (flatten
+                                   (map (fn [paths-val]
+                                          (let [paths (first paths-val)
+                                                val (ref (second paths-val))]
+                                            (map (fn [path]
+                                                   (create-path-in path val))
+                                                 paths)))
+                                        (rest serialized))))]
+                        all)))))
 
 (defn serialize [input-map]
   (cond
