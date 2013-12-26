@@ -62,6 +62,7 @@
     (let [phrase-with-head (first phrases-with-heads)]
       (log/debug (str "comp-phrases: looking for phrases with phrase-with-head's comp: " (get-in phrase-with-head '(:comp))))
       (log/info (str "comp-phrases: looking for complements with phrase-with-head: " (fo-ps phrase-with-head)))
+      (log/info (str "comp-phrases: phrase-with-head sem: " (get-in phrase-with-head '(:synsem :sem))))
       (lazy-cat
        (overc phrase-with-head
               (lightning-bolt
@@ -84,7 +85,6 @@
     (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
           debug (log/debug (str "lightning-bolt head: " head))
           debug (log/info (str "lightning-bolt depth: " depth))
-          debug (log/info (str "lightning-bolt lexicon: " (fo lexicon)))
           recursive-head
           (cond (< depth 2)
                 (lightning-bolt head lexicon phrases (+ 1 depth))
