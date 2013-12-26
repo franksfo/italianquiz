@@ -655,11 +655,15 @@ when run from a REPL."
   (is (= (unify #{1 2} #{2 3})
      #{2})))
 
-(deftest step1-test
+(deftest serialized-set
+  (let [result (serialize (set (list 1 2)))]
+    (is (= result #{(list (list nil 1)) (list (list nil 2))}))))
+
+(deftest refset2map-test
   (let [myref (ref #{1 2})
         input {:a myref
                :b #{{:c myref} {:d 3}}}
-        result (step1 input)]
+        result (refset2map input)]
     (is (map? result))
     (is (set? (get-in result '(:a))))
     (is (set? (get-in result '(:b))))
@@ -674,7 +678,7 @@ when run from a REPL."
   (let [myref (ref #{1 2})
         input {:a myref
                :b #{{:c myref} {:d 3}}}
-        result (step1 input)
+        result (refset2map input)
         step2-result (step2 result)]
     (is (set? step2-result))
     (is (= (.size step2-result) 6))))
@@ -723,8 +727,4 @@ when run from a REPL."
     (is (= (.size result) 2))
     (is (not (fail? (first result))))
     (is (not (fail? (second result))))))
-
-(deftest serialized-set
-  (let [result (serialize (set (list 1 2)))]
-    (is (= result #{((nil 1)) ((nil 2))}))))
 
