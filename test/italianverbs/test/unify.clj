@@ -718,3 +718,10 @@ when run from a REPL."
                       {:c #{1 2}})]
     (is (set? result))))
 
+(deftest unify-with-set-and-ref
+  (let [result (unifyc {:a (ref :top)} {:a {:b #{1 2}}})]
+    (is (= (.size result) 2))
+    (is (not (fail? (first result))))
+    (is (not (fail? (second result))))))
+
+

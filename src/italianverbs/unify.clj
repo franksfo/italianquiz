@@ -112,13 +112,15 @@
         false))
 
 (declare expand-disj) ;; needed by unify.
+(declare copy)
+(declare unifyc)
 
 ;; TODO: many code paths below only look at val1 and val2, and ignore rest of args beyond that.
 ;; either consider all args, or change signature of (unify) to take only val1 val2.
 ;; see also lexiconfn/unify (probably will change signature, but make lexiconfn/unify handle
 ;; have signature [& args] and pass to unify/unify with appropriate translation.
 ;;
-;; TODO: support sets and lazy sequences.
+;; TODO: support lazy sequences and vectors
 ;;
 (defn unify [& args]
   (let [val1 (first args)
@@ -127,17 +129,39 @@
     (log/debug (str "      val2: " val2))
     (cond
 
-     (and (not (set? val1))
-          (set? val2))
-     (set (map (fn [each]
-                 (unify val1 each))
-               val2))
+     (set? val1)
+     (set (filter (fn [each]
+                    (not (fail? each)))
+                  (reduce union
+                          (map (fn [each]
+                                 (let [result (unifyc each val2)]
+                                   (cond (set? result)
+                                         result
+                                         (seq? result)
+                                         (set result)
+                                         true
+                                         (set (list result)))))
+                               val1))))
 
-     (and (not (set? val1))
-          (has-set? val2))
-     (set (map (fn [each]
-                 (unify val1 each))
-               (expand-disj val2)))
+     (set? val2)
+     (set (filter (fn [each]
+                    (not (fail? each)))
+                  (reduce union
+                          (map (fn [each]
+                                 (let [result (unifyc each val1)]
+                                   (cond (set? result)
+                                         result
+                                         (seq? result)
+                                         (set result)
+                                         true
+                                         (set (list result)))))
+                               val2))))
+
+     (has-set? val1)
+     (unify (expand-disj val1) val2)
+
+     (has-set? val2)
+     (unify val1 (expand-disj val2))
 
      (and (= val1 '())
           (= val2 :top))
@@ -202,7 +226,7 @@
      (do (dosync
           (alter val1
                  (fn [x] (unify @val1 val2))))
-         ;; alternative to the above (not tested yet):  (fn [x] (unify (fs/copy @val1) val2))))
+         ;; alternative to the above (not tested yet):  (fn [x] (unify (copy @val1) val2))))
          ;; TODO: why is this false-disabled? (document and test) or remove
          (if (and false (fail? @val1)) :fail
          val1))
@@ -857,6 +881,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         (map (fn [each]
                (copy each))
              input)
+        (has-set? input)
+        (set
+         (map (fn [each]
+                (copy each))
+              (expand-disj input)))
         true
         (deserialize (serialize input))))
 
@@ -1158,13 +1187,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                     :val (get-unified-value-for each-fs each-ref-in-fs)})
                                     (get refs-per-fs each-fs))})
                             step2-set)]
-    (filter (fn [each]
-              (not (fail? each)))
-            (map (fn [each-tuple]
-                   (let [fs (:fs each-tuple)
-                         assignments (:assignments each-tuple)]
-                     (copy-with-assignments fs assignments)))
-                 unified-values))))
+    (set (filter (fn [each]
+                   (not (fail? each)))
+                 (map (fn [each-tuple]
+                        (let [fs (:fs each-tuple)
+                              assignments (:assignments each-tuple)]
+                          (copy-with-assignments fs assignments)))
+                      unified-values)))))
 
 (defn remove-path-from [fs & [paths]]
   "dissoc a path from a map; e.g.: (remove-path-from {:a {:b 42 :c 43}} '(:a :b)) => {:a {:c 43}}."
