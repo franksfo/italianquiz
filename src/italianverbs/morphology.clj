@@ -410,7 +410,6 @@
      (get-in word '(:irregular :imperfetto :3plur))
 
 
-     
      ;; regular imperfetto sense
      (and (= (get-in word '(:infl)) :imperfetto)
           (get-in word '(:infinitive)))

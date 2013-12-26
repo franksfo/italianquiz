@@ -78,7 +78,8 @@
 (def plural
   {:number :plural})
 (def present
-  {:cat :verb :infl :present})
+  {:cat :verb
+   :infl :present})
 
 (defn italian-pluralize [singular gender]
   (cond
