@@ -1277,8 +1277,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                            (remove-path-from @fs (list path))
                            (map? fs)
                            (cond
+                            (and
+                             (empty? (rest path))
+                             (empty? (dissoc fs feature)))
+                            :top
+
                             (empty? (rest path))
                             (dissoc fs feature)
+
                             (not (= :notfound (get-in fs (list feature) :notfound)))
                             (conj
                              {feature (remove-path-from (get-in fs (list feature)) (list (rest path)))}
