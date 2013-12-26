@@ -22,6 +22,7 @@
 
 (defn map-lexicon [head lexicon]
   "TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon."
+  (log/info (str "mapping lexicon using head with synsem: " (get-in head '(:synsem))))
   (filter (fn [lexeme]
             (not (fail? lexeme)))
           (map (fn [lexeme]
@@ -88,6 +89,7 @@
          (if (< depth maxdepth)
            (comp-phrases (overh phrases (lightning-bolt head lexicon phrases (+ 1 depth))) phrases lexicon)))))))
 
+;; aliases that are easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
   (let [depth (if depth depth 0)
         head (if head head :top)]
