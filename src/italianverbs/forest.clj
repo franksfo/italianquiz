@@ -60,34 +60,44 @@
   (let [maxdepth 2
         depth (if depth depth 0)
         head (if head head :top)]
-    (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
-          debug (log/debug (str "lightning-bolt head: " head))
-          debug (log/info (str "lightning-bolt depth: " depth "; head: " (fo head) "; head sem: " (get-in head '(:synsem :sem))))]
+    (cond
 
-      (let [debug (log/debug (str "-- /depth: " depth))
-            debug (log/debug (str "lightning-bolt: end"))
-            debug (log/debug (str "head's sem-impl: " (sem-impl (get-in head '(:synsem :sem)))))
-            with-lexical-heads (overh phrases (map-lexicon head lexicon))
-;;            debug (log/info (str "overh phrases with lexical heads (size=" (.size with-lexical-heads)  ") : " (fo-ps with-lexical-heads))) ;; realizes
-            ]
-        (lazy-cat
+     ;; optimization: if a head's :cat is in a set of certain categories (e.g. :det),
+     ;; don't try to create phrases with it: just return nil.
+     (= (get-in head '(:synsem :cat)) :det)
+     nil
 
-         ;; 1. both head and comp are lexemes.
-         (overc with-lexical-heads lexicon)
+     true
+     (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
+           debug (log/debug (str "lightning-bolt head: " head))
+           debug (log/info (str "lightning-bolt depth: " depth "; head: " (fo head) "; head sem: " (get-in head '(:synsem :sem))))]
 
-         ;; 2. head is a lexeme, comp is a phrase.
-         (if (< depth maxdepth)
-           (comp-phrases with-lexical-heads phrases lexicon))
+       (let [debug (log/debug (str "-- /depth: " depth))
+             debug (log/debug (str "lightning-bolt: end"))
+             debug (log/debug (str "head's sem-impl: " (sem-impl (get-in head '(:synsem :sem)))))
+             with-lexical-heads
+             (overh phrases (map-lexicon head lexicon))
 
-         (if (< depth maxdepth)
-           ;; 3. head is a phrase, comp is a lexeme:
-           (overhc phrases
-                   (lightning-bolt head lexicon phrases (+ 1 depth)) ;; head
-                   lexicon)) ;; complement (the lexicon).
+             ;;            debug (log/info (str "overh phrases with lexical heads (size=" (.size with-lexical-heads)  ") : " (fo-ps with-lexical-heads))) ;; realizes
+             ]
+         (lazy-cat
 
-         ;; 4. head is a phrase, comp is a phrase.
-         (if (< depth maxdepth)
-           (comp-phrases (overh phrases (lightning-bolt head lexicon phrases (+ 1 depth))) phrases lexicon)))))))
+          ;; 1. both head and comp are lexemes.
+          (overc with-lexical-heads lexicon)
+
+          ;; 2. head is a lexeme, comp is a phrase.
+          (if (< depth maxdepth)
+            (comp-phrases with-lexical-heads phrases lexicon))
+
+          (if (< depth maxdepth)
+            ;; 3. head is a phrase, comp is a lexeme:
+            (overhc phrases
+                    (lightning-bolt head lexicon phrases (+ 1 depth)) ;; head
+                    lexicon)) ;; complement (the lexicon).
+
+          ;; 4. head is a phrase, comp is a phrase.
+          (if (< depth maxdepth)
+            (comp-phrases (overh phrases (lightning-bolt head lexicon phrases (+ 1 depth))) phrases lexicon))))))))
 
 ;; aliases that are easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
