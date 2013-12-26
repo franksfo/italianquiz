@@ -84,7 +84,7 @@
         phrases (if phrases phrases parents)]
     (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
           debug (log/debug (str "lightning-bolt head: " head))
-          debug (log/info (str "lightning-bolt depth: " depth))
+          debug (log/info (str "lightning-bolt depth: " depth "; head: " (fo head) "; head sem: " (get-in head '(:synsem :sem))))
           recursive-head
           (cond (< depth 2)
                 (lightning-bolt head lexicon phrases (+ 1 depth))
