@@ -1022,24 +1022,24 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    :else
    map-with-refs))
 
-(defn step1 [fs]
-  "val-ref: turn every ref to a set into a map with two keys: :ref and :val."
+(defn refset2map [fs]
+  "Turn every ref to a set into a map with two keys: :ref and :val."
   (cond
 
    (set? fs)
    (set (map (fn [each]
-               (step1 each))
+               (refset2map each))
              fs))
 
    (and (ref? fs)
         (set? @fs))
    (set (map (fn [each]
-               {:val (step1 each)
+               {:val (refset2map each)
                 :ref fs})
              @fs))
 
    (ref? fs)
-   {:val (step1 @fs)
+   {:val (refset2map @fs)
     :ref fs}
 
    (and (map? fs)
@@ -1047,8 +1047,8 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (let [key (first (first fs))
          val (key fs)]
      (conj
-      {key (step1 val)}
-      (step1 (dissoc fs key))))
+      {key (refset2map val)}
+      (refset2map (dissoc fs key))))
 
    true
    fs))
@@ -1172,7 +1172,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (set (list fs))))
 
 (defn expand-disj [input]
-  (let [step2-set (step2 (step1 input))
+  (let [step2-set (step2 (refset2map input))
         refs-per-fs
         (zipmap (seq step2-set)
                 (map (fn [each-member]
