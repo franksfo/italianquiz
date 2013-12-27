@@ -122,6 +122,7 @@
 ;;
 ;; TODO: support lazy sequences and vectors
 ;;
+;; TODO: use commute to allow faster concurrent access: Rathore, p. 133.
 (defn unify [& args]
   (if (empty? (rest args)) (first args))
   (let [val1 (first args)
