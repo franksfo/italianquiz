@@ -79,8 +79,8 @@
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
   (let [maxdepth 2
         depth (if depth depth 0)
-        lexicon (if lexicon lexicon lex)
-        phrases (if phrases phrases parents)
+        lexicon (if lexicon lexicon (shuffle lex))
+        phrases (if phrases phrases (shuffle parents))
         head (if head head :top)]
     (forest/lightning-bolt head lexicon phrases depth)))
 
