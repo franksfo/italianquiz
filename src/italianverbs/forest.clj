@@ -86,19 +86,14 @@
           ;; 1. both head and comp are lexemes, i.e. leaves, immediately below a parent:
           one-level-trees
 
-          ;; TODO: factor out common parts of these two below calls to comp-phrases so there is less redundant computation:
-          ;; 2. head is a lexeme, comp is a phrase:
+          ;; 2. comp is phrase; head is either a lexeme or a phrase.
           (if (< depth maxdepth)
-            (comp-phrases with-lexical-heads phrases lexicon))
+            (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon))
 
           ;; 3. head is a phrase, comp is a lexeme:
           (if (< depth maxdepth)
             (overc phrases-with-head
-                   lexicon)) ;; complement (the lexicon).
-
-          ;; 4. head is a phrase, comp is a phrase:
-          (if (< depth maxdepth)
-            (comp-phrases phrases-with-head phrases lexicon)))))))
+                   lexicon))))))) ;; complement (the lexicon).
 
 ;; aliases that are easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
