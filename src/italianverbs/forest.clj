@@ -80,18 +80,13 @@
                              (let [recursive-head-lightning-bolt
                                    (lightning-bolt head lexicon phrases (+ 1 depth)
                                                    one-level-trees with-lexical-heads)]
-                               (overh phrases recursive-head-lightning-bolt)))
-
-;           debug (log/info (str "size of one-level-trees: " (.size (overc with-lexical-heads lexicon))))
-;           debug (log/info (str "one-level-trees: " (fo-ps (overc with-lexical-heads lexicon))))
-
-           ]
+                               (overh phrases recursive-head-lightning-bolt)))]
          (lazy-cat
 
-          ;; 1. both head and comp are lexemes, i.e. leaves, immediately below a parent.
+          ;; 1. both head and comp are lexemes, i.e. leaves, immediately below a parent:
           one-level-trees
 
-          ;; 2. head is a lexeme, comp is a phrase.
+          ;; 2. head is a lexeme, comp is a phrase:
           (if (< depth maxdepth)
             (comp-phrases with-lexical-heads phrases lexicon))
 
@@ -100,7 +95,7 @@
             (overc phrases-with-head
                    lexicon)) ;; complement (the lexicon).
 
-          ;; 4. head is a phrase, comp is a phrase.
+          ;; 4. head is a phrase, comp is a phrase:
           (if (< depth maxdepth)
             (comp-phrases phrases-with-head
                           phrases lexicon)))))))
