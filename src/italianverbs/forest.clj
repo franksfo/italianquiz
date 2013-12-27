@@ -27,7 +27,7 @@
   (log/debug (str "updating lexicon index: key: " key))
   (log/debug (str "updating lexicon index: val: " val))
   (send-off lexicon-index (fn [current-index new-key new-val] (conj current-index {new-key new-val})) key val)
-  (log/debug (str "updated lexicon-index; new size is: " (.size (deref lexicon-index)))))
+  (log/info (str "updated lexicon-index; new size is: " (.size (deref lexicon-index)))))
 
 (defn map-lexicon [head lexicon]
   "TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon."
