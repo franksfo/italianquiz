@@ -14,34 +14,50 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]))
 
-(def parents (set (list (merge (unifyc cc10
-                                       {:synsem {:infl :present
-                                                 :cat :verb
-                                                 :sem {:tense :present}}})
-                               {:comment "parent1/cc10"})
+(def parents (list (merge (unifyc cc10
+                                  {:synsem {:infl :present
+                                            :cat :verb
+                                            :sem {:tense :present}}})
+                          {:comment "parent1/cc10/present"})
 
-                        ;; TODO: futuro sentences not being generated for some reason.
-;                        (merge (unifyc cc10
-;                                       {:synsem {:infl :futuro
-;                                                 :cat :verb
-;                                                 :sem {:tense :future}}})
-;                               {:comment "parent1/cc10"})
+                   (merge (unifyc cc10
+                                  {:synsem {:infl :futuro
+                                            :cat :verb}})
+                          {:comment "parent1/cc10/future"})
 
-                        (merge (unifyc hh21
-                                       {:synsem {:infl :present
-                                                 :cat :verb
-                                                 :sem {:tense :present}}})
-                               {:comment "parent2/hh21"})
+                   (merge (unifyc cc10
+                                  {:synsem {:infl :imperfetto
+                                            :cat :verb}})
+                          {:comment "parent1/cc10/imperfetto"})
 
-;                        (merge (unifyc hh21
-;                                       {:synsem {:infl :futuro
-;                                                 :cat :verb
-;                                                 :sem {:tense :futuro}}})
-;                               {:comment "parent2/hh21"})
+                   (merge (unifyc hh21
+                                  {:synsem {:infl :present
+                                            :cat :verb}})
+                          {:comment "parent2/hh21/present"})
 
-                        (merge (unifyc cc10
-                                       {:synsem {:cat :noun}})
-                               {:comment "parent3/cc10"}))))
+                   (merge (unifyc hh21
+                                  {:synsem {:infl :futuro
+                                            :cat :verb}})
+                          {:comment "parent2/hh21/future"})
+
+                   (merge (unifyc hh21
+                                  {:synsem {:infl :imperfetto
+                                            :cat :verb}})
+                          {:comment "parent2/hh21/imperfetto"})
+
+                   (merge (unifyc cc10
+                                  {:synsem {:cat :noun}})
+                          {:comment "parent3/cc10"})))
+
+(def vp-future (first (filter (fn [x]
+                                (= (:comment x) "parent2/hh21/future"))
+                              parents)))
+(def s-future (first (filter (fn [x]
+                                (= (:comment x) "parent1/cc10/future"))
+                              parents)))
+(def np1 (first (filter (fn [x]
+                         (= (:comment x) "parent3/cc10"))
+                       parents)))
 
 (def lex (seq (union (it "dormire")
                      (it "cane")
