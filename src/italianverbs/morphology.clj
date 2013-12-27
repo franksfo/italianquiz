@@ -338,7 +338,7 @@
         (do (log/warn (str "get-italian-1 could not match: " word))
         word)))
 
-     ;; regular futuro tense
+     ;; regular inflection of futuro.
      (and (= (get-in word '(:infl)) :futuro)
           (get-in word '(:infinitive)))
      (let [infinitive (get-in word '(:infinitive))
