@@ -30,10 +30,20 @@
                                        {:synsem {:cat :noun}})
                                {:comment "parent3/cc10"}))))
 
-(def lex (seq (union (it "il") (it "cane") (it "i")
-                     (it "io") (it "pane") (it "tu")
-                     (it "lui") (it "lei")
-                     (it "dormire") (it "sognare") (it "mangiare"))))
+(def lex (seq (union (it "dormire")
+                     (it "cane")
+                     (it "gatto")
+                     (it "i")
+                     (it "il")
+                     (it "io")
+                     (it "la")
+                     (it "lei")
+                     (it "lui")
+                     (it "mangiare")
+                     (it "pane")
+                     (it "pasta")
+                     (it "sognare")
+                     (it "tu"))))
 
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
   (let [maxdepth 2
@@ -46,6 +56,10 @@
 (deftest sleeper-1 []
   (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
     (is (not (nil? sleeper)))))
+                     (it "ragazza")
+                     (it "ragazzo")
+                     (it "ragazza")
+                     (it "ragazzo")
 
 (deftest i-sleep-1 []
   (let [i-sleep (first (lightning-bolt {:synsem {:sem {:subj {:pred :io}
