@@ -92,7 +92,9 @@
            debug (log/debug (str "lightning-bolt head: " head))
            debug (log/info (str "lightning-bolt depth: " depth "; head sem: " (get-in head '(:synsem :sem))))
            with-lexical-heads (overh phrases lexemes-for-head)
-           recursive-head-lightning-bolt (if (< depth maxdepth) (lightning-bolt head lexicon phrases (+ 1 depth)))]
+           overh-recursive (if (< depth maxdepth)
+                             (let [recursive-head-lightning-bolt (lightning-bolt head lexicon phrases (+ 1 depth))]
+                               (overh phrases recursive-head-lightning-bolt)))]
          (lazy-cat
 
           ;; 1. both head and comp are lexemes.
@@ -102,15 +104,14 @@
           (if (< depth maxdepth)
             (comp-phrases with-lexical-heads phrases lexicon))
 
+          ;; 3. head is a phrase, comp is a lexeme:
           (if (< depth maxdepth)
-            ;; 3. head is a phrase, comp is a lexeme:
-            (overhc phrases
-                    recursive-head-lightning-bolt ;; head
-                    lexicon)) ;; complement (the lexicon).
+            (overc overh-recursive
+                   lexicon)) ;; complement (the lexicon).
 
           ;; 4. head is a phrase, comp is a phrase.
           (if (< depth maxdepth)
-            (comp-phrases (overh phrases recursive-head-lightning-bolt) ;; head
+            (comp-phrases overh-recursive
                           phrases lexicon)))))))
 
 ;; aliases that are easier to use in a repl:
