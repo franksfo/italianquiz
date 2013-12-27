@@ -81,19 +81,22 @@
                                    (lightning-bolt head lexicon phrases (+ 1 depth)
                                                    one-level-trees with-lexical-heads)]
                                (overh phrases recursive-head-lightning-bolt)))]
-         (lazy-cat
 
-          ;; 1. both head and comp are lexemes, i.e. leaves, immediately below a parent:
-          one-level-trees
+       ;; TODO: allow order to vary: note the inner: (lazy-cat with-lexical-heads phrases-with-head) below.
 
-          ;; 2. comp is phrase; head is either a lexeme or a phrase.
-          (if (< depth maxdepth)
-            (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon))
+       (lazy-cat
 
-          ;; 3. head is a phrase, comp is a lexeme:
-          (if (< depth maxdepth)
-            (overc phrases-with-head
-                   lexicon))))))) ;; complement (the lexicon).
+        ;; 1. both head and comp are lexemes, i.e. leaves, immediately below a parent:
+        one-level-trees
+
+        ;; 2. comp is phrase; head is either a lexeme or a phrase.
+        (if (< depth maxdepth)
+          (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon))
+
+        ;; 3. head is a phrase, comp is a lexeme:
+        (if (< depth maxdepth)
+          (overc phrases-with-head
+                 lexicon))))))) ;; complement (the lexicon).
 
 ;; aliases that are easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
