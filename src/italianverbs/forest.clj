@@ -86,6 +86,7 @@
           ;; 1. both head and comp are lexemes, i.e. leaves, immediately below a parent:
           one-level-trees
 
+          ;; TODO: factor out common parts of these two below calls to comp-phrases so there is less redundant computation:
           ;; 2. head is a lexeme, comp is a phrase:
           (if (< depth maxdepth)
             (comp-phrases with-lexical-heads phrases lexicon))
@@ -97,8 +98,7 @@
 
           ;; 4. head is a phrase, comp is a phrase:
           (if (< depth maxdepth)
-            (comp-phrases phrases-with-head
-                          phrases lexicon)))))))
+            (comp-phrases phrases-with-head phrases lexicon)))))))
 
 ;; aliases that are easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
