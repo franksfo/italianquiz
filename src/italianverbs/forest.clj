@@ -20,36 +20,17 @@
    [italianverbs.unify :refer :all]
    [italianverbs.unify :as unify]))
 
-;; agents allow asynchronous, independent changes:  Rathore, p. 131
-(def lexicon-index (agent {}))
-
-(defn update-lexicon-index [key val]
-  (log/debug (str "updating lexicon index: key: " key))
-  (log/debug (str "updating lexicon index: val: " val))
-  (send-off lexicon-index (fn [current-index new-key new-val] (conj current-index {new-key new-val})) key val)
-  (log/info (str "updated lexicon-index; new size is: " (.size (deref lexicon-index)))))
-
 (defn map-lexicon [head lexicon]
   "TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon."
-  (let [stripped (strip-refs head)
-        cached-value (get (deref lexicon-index) stripped :not-in-cache)]
-    (if (not (= cached-value :not-in-cache))
-      (do
-        (log/debug "returning cached value.")
-        cached-value)
-      (let [debug (log/debug (str "no cached value found: mapping over lexicon and caching result."))
-            retval
-            (filter (fn [lexeme]
-                      (not (fail? lexeme)))
-                (map (fn [lexeme]
-                       (unifyc
-                        head
-                        (unifyc
-                         {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
-                         lexeme)))
-                     lexicon))]
-        (update-lexicon-index (strip-refs head) retval)
-        retval))))
+  (filter (fn [lexeme]
+            (not (fail? lexeme)))
+          (map (fn [lexeme]
+                 (unifyc
+                  head
+                  (unifyc
+                   {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
+                   lexeme)))
+               lexicon)))
 
 (declare lightning-bolt)
 
