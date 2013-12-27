@@ -21,11 +21,11 @@
                                {:comment "parent1/cc10"})
 
                         ;; TODO: futuro sentences not being generated for some reason.
-                        (merge (unifyc cc10
-                                       {:synsem {:infl :futuro
-                                                 :cat :verb
-                                                 :sem {:tense :future}}})
-                               {:comment "parent1/cc10"})
+;                        (merge (unifyc cc10
+;                                       {:synsem {:infl :futuro
+;                                                 :cat :verb
+;                                                 :sem {:tense :future}}})
+;                               {:comment "parent1/cc10"})
 
                         (merge (unifyc hh21
                                        {:synsem {:infl :present
@@ -33,11 +33,11 @@
                                                  :sem {:tense :present}}})
                                {:comment "parent2/hh21"})
 
-                        (merge (unifyc hh21
-                                       {:synsem {:infl :futuro
-                                                 :cat :verb
-                                                 :sem {:tense :futuro}}})
-                               {:comment "parent2/hh21"})
+;                        (merge (unifyc hh21
+;                                       {:synsem {:infl :futuro
+;                                                 :cat :verb
+;                                                 :sem {:tense :futuro}}})
+;                               {:comment "parent2/hh21"})
 
                         (merge (unifyc cc10
                                        {:synsem {:cat :noun}})
