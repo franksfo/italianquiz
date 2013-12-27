@@ -43,6 +43,12 @@
                      (it "pane")
                      (it "pasta")
                      (it "sognare")
+                     (it "ragazza")
+                     (it "ragazzo")
+                     (it "ragazza")
+                     (it "ragazzo")
+                     (it "ragazza")
+                     (it "ragazzo")
                      (it "tu"))))
 
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
@@ -56,10 +62,6 @@
 (deftest sleeper-1 []
   (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
     (is (not (nil? sleeper)))))
-                     (it "ragazza")
-                     (it "ragazzo")
-                     (it "ragazza")
-                     (it "ragazzo")
 
 (deftest i-sleep-1 []
   (let [i-sleep (first (lightning-bolt {:synsem {:sem {:subj {:pred :io}
