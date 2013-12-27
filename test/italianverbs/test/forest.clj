@@ -58,10 +58,6 @@
                      (it "sognare")
                      (it "ragazza")
                      (it "ragazzo")
-                     (it "ragazza")
-                     (it "ragazzo")
-                     (it "ragazza")
-                     (it "ragazzo")
                      (it "tu"))))
 
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
