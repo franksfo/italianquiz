@@ -75,7 +75,7 @@
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
 
 ;; TODO: add param to memoize (overh phrases (map lexicon head lexicon)).
-(defn lightning-bolt [ & [head lexicon phrases depth] ]
+(defn lightning-bolt [ & [head lexicon phrases depth one-level-trees with-lexical-heads] ]
   (let [maxdepth 2
         depth (if depth depth 0)
         head (if head head :top)
@@ -91,14 +91,25 @@
      (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
            debug (log/debug (str "lightning-bolt head: " head))
            debug (log/info (str "lightning-bolt depth: " depth "; head sem: " (get-in head '(:synsem :sem))))
-           with-lexical-heads (overh phrases lexemes-for-head)
+           with-lexical-heads (if with-lexical-heads with-lexical-heads
+                                  (overh phrases lexemes-for-head))
+
+           one-level-trees (if one-level-trees one-level-trees
+                               (overc with-lexical-heads lexicon))
+
            overh-recursive (if (< depth maxdepth)
-                             (let [recursive-head-lightning-bolt (lightning-bolt head lexicon phrases (+ 1 depth))]
-                               (overh phrases recursive-head-lightning-bolt)))]
+                             (let [recursive-head-lightning-bolt
+                                   (lightning-bolt head lexicon phrases (+ 1 depth) one-level-trees with-lexical-heads)]
+                               (overh phrases recursive-head-lightning-bolt)))
+
+;           debug (log/info (str "size of one-level-trees: " (.size (overc with-lexical-heads lexicon))))
+;           debug (log/info (str "one-level-trees: " (fo-ps (overc with-lexical-heads lexicon))))
+
+           ]
          (lazy-cat
 
-          ;; 1. both head and comp are lexemes.
-          (overc with-lexical-heads lexicon)
+          ;; 1. both head and comp are lexemes, i.e. leaves below a parent.
+          one-level-trees
 
           ;; 2. head is a lexeme, comp is a phrase.
           (if (< depth maxdepth)
