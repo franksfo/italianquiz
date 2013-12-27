@@ -74,12 +74,11 @@
                0))
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
 
-;; TODO: add param to memoize (overh phrases (map lexicon head lexicon)).
-(defn lightning-bolt [ & [head lexicon phrases depth one-level-trees with-lexical-heads] ]
+(defn lightning-bolt [ & [head lexicon phrases depth one-level-trees with-lexical-heads lexemes-for-head] ]
   (let [maxdepth 2
         depth (if depth depth 0)
         head (if head head :top)
-        lexemes-for-head (map-lexicon head lexicon)]
+        lexemes-for-head (if lexemes-for-head lexemes-for-head (map-lexicon head lexicon))]
     (cond
 
      ;; optimization: if a head's :cat is in a set of certain categories (e.g. :det),
@@ -89,7 +88,7 @@
 
      true
      (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
-           debug (log/debug (str "lightning-bolt head: " head))
+           debug (log/info (str "lightning-bolt head: " head))
            debug (log/info (str "lightning-bolt depth: " depth "; head sem: " (get-in head '(:synsem :sem))))
            with-lexical-heads (if with-lexical-heads with-lexical-heads
                                   (overh phrases lexemes-for-head))
@@ -99,7 +98,8 @@
 
            phrases-with-head (if (< depth maxdepth)
                              (let [recursive-head-lightning-bolt
-                                   (lightning-bolt head lexicon phrases (+ 1 depth) one-level-trees with-lexical-heads)]
+                                   (lightning-bolt head lexicon phrases (+ 1 depth)
+                                                   one-level-trees with-lexical-heads lexemes-for-head)]
                                (overh phrases recursive-head-lightning-bolt)))
 
 ;           debug (log/info (str "size of one-level-trees: " (.size (overc with-lexical-heads lexicon))))
