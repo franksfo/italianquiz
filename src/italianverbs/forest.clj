@@ -97,7 +97,7 @@
            one-level-trees (if one-level-trees one-level-trees
                                (overc with-lexical-heads lexicon))
 
-           overh-recursive (if (< depth maxdepth)
+           phrases-with-head (if (< depth maxdepth)
                              (let [recursive-head-lightning-bolt
                                    (lightning-bolt head lexicon phrases (+ 1 depth) one-level-trees with-lexical-heads)]
                                (overh phrases recursive-head-lightning-bolt)))
@@ -117,12 +117,12 @@
 
           ;; 3. head is a phrase, comp is a lexeme:
           (if (< depth maxdepth)
-            (overc overh-recursive
+            (overc phrases-with-head
                    lexicon)) ;; complement (the lexicon).
 
           ;; 4. head is a phrase, comp is a phrase.
           (if (< depth maxdepth)
-            (comp-phrases overh-recursive
+            (comp-phrases phrases-with-head
                           phrases lexicon)))))))
 
 ;; aliases that are easier to use in a repl:
