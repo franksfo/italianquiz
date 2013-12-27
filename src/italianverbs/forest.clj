@@ -55,11 +55,10 @@
                0))
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
 
-(defn lightning-bolt [ & [head lexicon phrases depth one-level-trees with-lexical-heads lexemes-for-head] ]
+(defn lightning-bolt [ & [head lexicon phrases depth one-level-trees with-lexical-heads]]
   (let [maxdepth 2
         depth (if depth depth 0)
-        head (if head head :top)
-        lexemes-for-head (if lexemes-for-head lexemes-for-head (map-lexicon head lexicon))]
+        head (if head head :top)]
     (cond
 
      ;; optimization: if a head's :cat is in a set of certain categories (e.g. :det),
@@ -72,7 +71,7 @@
            debug (log/info (str "lightning-bolt head: " head))
            debug (log/info (str "lightning-bolt depth: " depth "; head sem: " (get-in head '(:synsem :sem))))
            with-lexical-heads (if with-lexical-heads with-lexical-heads
-                                  (overh phrases lexemes-for-head))
+                                  (overh phrases (map-lexicon head lexicon)))
 
            one-level-trees (if one-level-trees one-level-trees
                                (overc with-lexical-heads lexicon))
@@ -80,7 +79,7 @@
            phrases-with-head (if (< depth maxdepth)
                              (let [recursive-head-lightning-bolt
                                    (lightning-bolt head lexicon phrases (+ 1 depth)
-                                                   one-level-trees with-lexical-heads lexemes-for-head)]
+                                                   one-level-trees with-lexical-heads)]
                                (overh phrases recursive-head-lightning-bolt)))
 
 ;           debug (log/info (str "size of one-level-trees: " (.size (overc with-lexical-heads lexicon))))
@@ -89,7 +88,7 @@
            ]
          (lazy-cat
 
-          ;; 1. both head and comp are lexemes, i.e. leaves below a parent.
+          ;; 1. both head and comp are lexemes, i.e. leaves, immediately below a parent.
           one-level-trees
 
           ;; 2. head is a lexeme, comp is a phrase.
