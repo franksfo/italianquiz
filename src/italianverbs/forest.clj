@@ -75,12 +75,11 @@
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
 
 ;; TODO: add param to memoize (overh phrases (map lexicon head lexicon)).
-(defn lightning-bolt [ & [head lexicon phrases depth lexemes-for-head ] ]
+(defn lightning-bolt [ & [head lexicon phrases depth] ]
   (let [maxdepth 2
         depth (if depth depth 0)
         head (if head head :top)
-        lexemes-for-head (if lexemes-for-head lexemes-for-head
-                             (map-lexicon head lexicon))]
+        lexemes-for-head (map-lexicon head lexicon)]
     (cond
 
      ;; optimization: if a head's :cat is in a set of certain categories (e.g. :det),
@@ -98,8 +97,6 @@
              debug (log/debug (str "head's sem-impl: " (sem-impl (get-in head '(:synsem :sem)))))
              with-lexical-heads
              (overh phrases lexemes-for-head)
-
-             ;;            debug (log/info (str "overh phrases with lexical heads (size=" (.size with-lexical-heads)  ") : " (fo-ps with-lexical-heads))) ;; realizes
              ]
          (lazy-cat
 
@@ -113,7 +110,7 @@
           (if (< depth maxdepth)
             ;; 3. head is a phrase, comp is a lexeme:
             (overhc phrases
-                    (lightning-bolt head lexicon phrases (+ 1 depth) with-lexical-heads) ;; head
+                    (lightning-bolt head lexicon phrases (+ 1 depth)) ;; head
                     lexicon)) ;; complement (the lexicon).
 
           ;; 4. head is a phrase, comp is a phrase.
