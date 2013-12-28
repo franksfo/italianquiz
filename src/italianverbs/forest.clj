@@ -80,23 +80,89 @@
                              (let [recursive-head-lightning-bolt
                                    (lightning-bolt head lexicon phrases (+ 1 depth)
                                                    one-level-trees with-lexical-heads)]
-                               (overh phrases recursive-head-lightning-bolt)))]
+                               (overh phrases recursive-head-lightning-bolt)))
+           rand-order (rand-int 3)
+           ]
 
        ;; TODO: allow order to vary: note the inner: (lazy-cat with-lexical-heads phrases-with-head) below.
+       (cond (< depth maxdepth)
+             (cond (= rand-order 0)
+                   (lazy-cat
+                    ;; 1. just a parent over 2 lexemes.
+                    one-level-trees
 
-       (lazy-cat
+                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)
 
-        ;; 1. both head and comp are lexemes, i.e. leaves, immediately below a parent:
-        one-level-trees
+                    ;; 3. head is a phrase, comp is a lexeme.
+                    (overc phrases-with-head
+                           lexicon)) ;; complement (the lexicon).
 
-        ;; 2. comp is phrase; head is either a lexeme or a phrase.
-        (if (< depth maxdepth)
-          (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon))
+                   (= rand-order 1)
+                   (lazy-cat
 
-        ;; 3. head is a phrase, comp is a lexeme:
-        (if (< depth maxdepth)
-          (overc phrases-with-head
-                 lexicon))))))) ;; complement (the lexicon).
+
+                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)
+
+                    ;; 1. just a parent over 2 lexemes.
+                    one-level-trees
+
+                    ;; 3. head is a phrase, comp is a lexeme.
+                    (overc phrases-with-head
+                           lexicon)) ;; complement (the lexicon).
+
+
+                   (= rand-order 2)
+                   (lazy-cat
+
+                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)
+
+
+                    ;; 3. head is a phrase, comp is a lexeme.
+                    (overc phrases-with-head
+                           lexicon) ;; complement (the lexicon).
+
+                    ;; 1. just a parent over 2 lexemes.
+                    one-level-trees)
+
+
+                   (= rand-order 3)
+                   (lazy-cat
+
+                    ;; 3. head is a phrase, comp is a lexeme.
+                    (overc phrases-with-head
+                           lexicon) ;; complement (the lexicon).
+
+
+                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)
+
+
+
+                    ;; 1. just a parent over 2 lexemes.
+                    one-level-trees)
+
+                   true
+                   (lazy-cat
+
+
+
+                    ;; 3. head is a phrase, comp is a lexeme.
+                    (overc phrases-with-head
+                           lexicon) ;; complement (the lexicon).
+
+                    ;; 1. just a parent over 2 lexemes.
+                    one-level-trees
+
+                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)))
+
+
+             true
+             one-level-trees)))))
+
 
 ;; aliases that are easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
