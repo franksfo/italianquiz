@@ -84,6 +84,21 @@
         head (if head head :top)]
     (forest/lightning-bolt head lexicon phrases depth)))
 
+(defn keep-trying [ & [head ] ]
+  (let [head (if head head :top)
+        try (first (take 1 (lightning-bolt head)))]
+    (cond (fail? try)
+          (do
+            (log/warn (str "lightning failed: " try "; retrying."))
+            (keep-trying head))
+          (not (empty? (get-in try '(:synsem :subcat))))
+          (do
+            (log/warn (str "lightning returned a partial phrase, continuing."))
+            (keep-trying head))
+
+          true
+          try)))
+
 (deftest sleeper-1 []
   (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
     (is (not (nil? sleeper)))))
