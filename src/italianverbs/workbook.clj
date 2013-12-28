@@ -57,7 +57,7 @@
                         ]))
    :refer-clojure false
    ;; using 60000 for development: for production, use much smaller value.
-   :timeout 120000
+   :timeout 60000
    :namespace 'italianverbs.workbook))
 (defn workbookq [expr notused]
   (do
