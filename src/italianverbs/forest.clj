@@ -81,10 +81,11 @@
                                    (lightning-bolt head lexicon phrases (+ 1 depth)
                                                    one-level-trees with-lexical-heads)]
                                (overh phrases recursive-head-lightning-bolt)))
-           rand-order (rand-int 3)
+           rand-order (rand-int 4)
            ]
 
        ;; TODO: allow order to vary: note the inner: (lazy-cat with-lexical-heads phrases-with-head) below.
+       ;; TODO: add scrambling of the call: (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon) below.
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
                    (lazy-cat
