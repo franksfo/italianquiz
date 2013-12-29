@@ -20,34 +20,34 @@
                                             :sem {:tense :present}}})
                           {:comment "parent1/cc10/present"})
 
-                   (merge (unifyc cc10
-                                  {:synsem {:infl :futuro
-                                            :cat :verb}})
-                          {:comment "parent1/cc10/future"})
+;                   (merge (unifyc cc10
+;                                  {:synsem {:infl :futuro
+;                                            :cat :verb}})
+;                          {:comment "parent1/cc10/future"})
 
-                   (merge (unifyc cc10
-                                  {:synsem {:infl :imperfetto
-                                            :cat :verb}})
-                          {:comment "parent1/cc10/imperfetto"})
+;                   (merge (unifyc cc10
+;                                  {:synsem {:infl :imperfetto
+;                                            :cat :verb}})
+;                          {:comment "parent1/cc10/imperfetto"})
 
                    (merge (unifyc hh21
                                   {:synsem {:infl :present
                                             :cat :verb}})
                           {:comment "parent2/hh21/present"})
 
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :futuro
-                                            :cat :verb}})
-                          {:comment "parent2/hh21/future"})
+;                   (merge (unifyc hh21
+;                                  {:synsem {:infl :futuro
+;                                            :cat :verb}})
+;                          {:comment "parent2/hh21/future"})
 
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :imperfetto
-                                            :cat :verb}})
-                          {:comment "parent2/hh21/imperfetto"})
+;                   (merge (unifyc hh21
+;                                  {:synsem {:infl :imperfetto
+;                                            :cat :verb}})
+;                          {:comment "parent2/hh21/imperfetto"})
 
                    (merge (unifyc cc10
                                   {:synsem {:cat :noun}})
-                          {:comment "parent3/cc10"})))
+                          {:comment "parent3/cc10/np"})))
 
 (def vp-future (first (filter (fn [x]
                                 (= (:comment x) "parent2/hh21/future"))
@@ -56,7 +56,7 @@
                                 (= (:comment x) "parent1/cc10/future"))
                               parents)))
 (def np1 (first (filter (fn [x]
-                         (= (:comment x) "parent3/cc10"))
+                         (= (:comment x) "parent3/cc10/np"))
                        parents)))
 
 (def lex (seq (union (it "dormire")
@@ -75,6 +75,24 @@
                      (it "ragazza")
                      (it "ragazzo")
                      (it "tu"))))
+
+(def depth0
+  (filter (fn [phrase]
+            (empty? (get-in phrase '(:synsem :subcat))))
+          parents))
+
+(def depth1
+  (filter (fn [phrase]
+            (and (not (empty? (get-in phrase '(:synsem :subcat))))
+                 (empty? (get-in phrase '(:synsem :subcat :2)))))
+          parents))
+
+(def depth2
+  (filter (fn [phrase]
+            (and (not (empty? (get-in phrase '(:synsem :subcat))))
+                 (not (empty? (get-in phrase '(:synsem :subcat :2))))
+                 (empty? (get-in phrase '(:synsem :subcat :3)))))
+          parents))
 
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
   (let [maxdepth 2

@@ -68,15 +68,14 @@
                         (and (not (empty? (get-in phrase '(:synsem :subcat))))
                              (empty? (get-in phrase '(:synsem :subcat :2)))))
                       phrases)
-              (= depth 2)
-              (filter (fn [phrase]
-                        (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                             (not (empty? (get-in phrase '(:synsem :subcat :2))))
-                             (empty? (get-in phrase '(:synsem :subcat :3)))))
-                      phrases)
               true
               phrases)
-        head (if head head :top)]
+        head (if head head :top)
+        debug (log/info (str ""))
+        debug (log/info (str "lightning-bolt depth: " depth "; head: " head))
+        debug (log/info (str "lightning-bolt head: " head))
+        debug (log/info (str "headed-phrases-at-this-depth: " (.size headed-phrases-at-this-depth)))
+        ]
     (cond
 
      ;; optimization: if a head's :cat is in a set of certain categories (e.g. :det),
@@ -85,12 +84,7 @@
      nil
 
      true
-     (let [debug (log/debug (str "lightning-bolt head (fo): " (fo head)))
-           debug (log/info (str "lightning-bolt head: " head))
-           debug (log/info (str "lightning-bolt depth: " depth "; head sem: " (get-in head '(:synsem :sem))))
-           debug (log/info (str "number of phrases: " (.size phrases)))
-           debug (log/info (str "headed-phrases-at-this-depth: " (.size headed-phrases-at-this-depth)))
-           with-lexical-heads (if with-lexical-heads with-lexical-heads
+     (let [with-lexical-heads (if with-lexical-heads with-lexical-heads
                                   (overh headed-phrases-at-this-depth (map-lexicon head lexicon)))
 
            one-level-trees (if one-level-trees one-level-trees
@@ -103,6 +97,9 @@
                                (overh phrases recursive-head-lightning-bolt)))
            rand-order (rand-int 4)
 ;           rand-order 0
+
+           debug (log/info (str "lexical-headed-phrases: " (fo-ps with-lexical-heads)))
+
            ]
 
        ;; TODO: add scrambling of the call: (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon) below.
