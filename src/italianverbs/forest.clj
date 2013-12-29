@@ -64,6 +64,14 @@
                     0))
             (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))))
 
+(defn get-bolts [heads lexicon phrases depth one-level-trees with-lexical-heads]
+  (if (not (empty? heads))
+    (log/debug (str "do-bolts with first heads: " (first heads)))
+    (lazy-seq
+     (cons
+      (lightning-bolt (first heads) lexicon phrases depth one-level-trees with-lexical-heads)
+      (get-bolts (rest heads) lexicon phrases depth one-level-trees with-lexical-heads)))))
+
 (defn lightning-bolt [ & [head lexicon phrases depth one-level-trees with-lexical-heads]]
   (let [maxdepth 2
         depth (if depth depth 0)
@@ -109,11 +117,14 @@
 
            phrases-with-head (if (< depth maxdepth)
                                (let [debug (log/debug (str "recursing for phrases-with-head at depth:" depth " with head: " head))
-                                     recursive-head-lightning-bolt
-                                     (lightning-bolt head lexicon phrases (+ 1 depth)
-                                                     one-level-trees with-lexical-heads)]
+                                     ;; REALIZES:
+                                     ;; debug (log/debug (str "doing bolts with: " (fo-ps with-lexical-heads)))
+                                     bolts (get-bolts (map (fn [each-phrase]
+                                                         (get-in each-phrase '(:head)))
+                                                       with-lexical-heads)
+                                                  lexicon phrases depth one-level-trees with-lexical-heads)]
                                  (let [debug (log/debug (str "doing overh on headed-phrases at depth:" depth))]
-                                   (overh headed-phrases-at-this-depth recursive-head-lightning-bolt))))
+                                   (overh headed-phrases-at-this-depth bolts))))
            rand-order (rand-int 4)
 ;           rand-order 0
 

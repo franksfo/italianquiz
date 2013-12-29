@@ -208,7 +208,7 @@
 
    true
    (do
-     (log/info (str "overh: parent and head are both maps: put head under parent. Parent=" (:comment parent) "; head=" (fo head)))
+     (log/info (str "overh: parent=" (:comment parent) "; head=" (fo head)))
      (list
       (moreover-head parent head sem-impl)))))
 
@@ -260,7 +260,7 @@
 
    true
    (do
-     (log/debug (str "overh: parent and comp are both maps: put comp under parent. Parent=" (:comment parent) "; comp=" (fo comp)))
+     (log/debug (str "overc: parent=" (:comment parent) "; comp=" (fo comp)))
      (list
       (moreover-comp parent comp sem-impl)))))
 
