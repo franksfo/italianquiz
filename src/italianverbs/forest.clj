@@ -78,12 +78,11 @@
                              (empty? (get-in phrase '(:synsem :subcat :2)))))
                       phrases)
               true
-              phrases)
+              '())
         head (if head head :top)
-        debug (log/info (str ""))
-        debug (log/info (str "lightning-bolt depth: " depth "; head: " head))
-        debug (log/info (str "lightning-bolt head: " head))
-        debug (log/info (str "headed-phrases-at-this-depth: " (.size headed-phrases-at-this-depth)))
+        debug (log/debug (str "-lb-start-"))
+        debug (log/debug (str "lightning-bolt depth:" depth "; head: " head))
+        debug (log/debug (str "lightning-bolt head:" head))
         ]
     (cond
 
@@ -93,21 +92,31 @@
      nil
 
      true
-     (let [with-lexical-heads (if with-lexical-heads with-lexical-heads
-                                  (overh headed-phrases-at-this-depth (map-lexicon head lexicon)))
+     (let [with-lexical-heads (if with-lexical-heads
+                                (do
+                                  (log/debug (str "using cached with-lexical-heads at depth:" depth))
+                                  with-lexical-heads)
+                                  (do
+                                    (log/debug (str "finding with-lexical-heads at depth:" depth))
+                                    (let [result (overh headed-phrases-at-this-depth (map-lexicon head lexicon))]
+                                      ;; REALIZES:
+;                                      (log/debug (str " lexical-headed-phrases at depth :" depth ": " (.size result) " : "
+;                                                     (fo-ps result)))
+                                      result)))
 
            one-level-trees (if one-level-trees one-level-trees
                                (overc with-lexical-heads lexicon))
 
            phrases-with-head (if (< depth maxdepth)
-                             (let [recursive-head-lightning-bolt
-                                   (lightning-bolt head lexicon phrases (+ 1 depth)
-                                                   one-level-trees with-lexical-heads)]
-                               (overh phrases recursive-head-lightning-bolt)))
+                               (let [debug (log/debug (str "recursing for phrases-with-head at depth:" depth " with head: " head))
+                                     recursive-head-lightning-bolt
+                                     (lightning-bolt head lexicon phrases (+ 1 depth)
+                                                     one-level-trees with-lexical-heads)]
+                                 (let [debug (log/debug (str "doing overh on headed-phrases at depth:" depth))]
+                                   (overh headed-phrases-at-this-depth recursive-head-lightning-bolt))))
            rand-order (rand-int 4)
 ;           rand-order 0
 
-           debug (log/info (str "lexical-headed-phrases: " (fo-ps with-lexical-heads)))
 
            ]
 

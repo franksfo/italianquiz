@@ -111,6 +111,9 @@
               debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (get-in parent '(:synsem :sem))))]
           (merge {:head-filled true}
                  result))
+
+        ;; attempt to put head under parent failed: provide diagnostics through log/debug messages.
+        ;; TODO: make (fail-path) call part of each log/debug message to avoid computing it if log/debug is not enabled.
         (let [debug (log/debug (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
               fail-path (fail-path result)
               debug (log/debug (str " fail-path: " fail-path))
@@ -119,7 +122,7 @@
               debug (log/debug (str " head-value-at-fail: " (get-in child (rest fail-path))))
               debug (log/debug (str " parent-value-at-fail: " (get-in parent fail-path)))]
           (do
-            (log/debug (str "FAIL: " fail-path))
+            (log/debug (str "fail-path: " fail-path))
             :fail))))))
 
 ;; Might be useful to set the following variable to true,
