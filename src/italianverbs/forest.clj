@@ -44,16 +44,25 @@
              (:english :initial)
              (:italian :initial)))]
 
-      (log/debug (str "comp-phrases: looking for phrases with phrase-with-head's comp: "
-                      remove-some-paths))
-      (lazy-cat
-       (overc phrase-with-head
-              (lightning-bolt
-               remove-some-paths
-               lexicon
-               all-phrases
-               0))
-       (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))
+      (cond
+
+       ;; Lexemes with certain grammatical categories (for now, only :det) cannot be heads of
+       ;; a phrase, but only lexemes that are complements of a phrase, so save time by not trying
+       ;; to recursively generate phrases that are headed with such lexemes.
+       (= :det (get-in phrase-with-head (:comp :synsem :cat)))
+       (comp-phrases (rest phrases-with-heads) all-phrases lexicon)
+
+       true
+       (do (log/debug (str "comp-phrases: looking for phrases with phrase-with-head's comp: "
+                           remove-some-paths))
+           (lazy-cat
+            (overc phrase-with-head
+                   (lightning-bolt
+                    remove-some-paths
+                    lexicon
+                    all-phrases
+                    0))
+            (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))))
 
 (defn lightning-bolt [ & [head lexicon phrases depth one-level-trees with-lexical-heads]]
   (let [maxdepth 2
