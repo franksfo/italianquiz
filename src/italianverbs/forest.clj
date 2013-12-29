@@ -66,7 +66,7 @@
 
 (defn get-bolts [heads lexicon phrases depth one-level-trees with-lexical-heads]
   (if (not (empty? heads))
-    (log/debug (str "do-bolts with first heads: " (first heads)))
+    (log/debug (str "do-bolts with first heads: " (fo heads)))
     (lazy-seq
      (cons
       (lightning-bolt (first heads) lexicon phrases depth one-level-trees with-lexical-heads)
@@ -122,7 +122,7 @@
                                      bolts (get-bolts (map (fn [each-phrase]
                                                          (get-in each-phrase '(:head)))
                                                        with-lexical-heads)
-                                                  lexicon phrases depth one-level-trees with-lexical-heads)]
+                                                      lexicon phrases depth one-level-trees with-lexical-heads)]
                                  (let [debug (log/debug (str "doing overh on headed-phrases at depth:" depth))]
                                    (overh headed-phrases-at-this-depth bolts))))
            rand-order (rand-int 4)
