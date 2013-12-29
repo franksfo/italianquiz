@@ -49,7 +49,7 @@
        ;; Lexemes with certain grammatical categories (for now, only :det) cannot be heads of
        ;; a phrase, but only lexemes that are complements of a phrase, so save time by not trying
        ;; to recursively generate phrases that are headed with such lexemes.
-       (= :det (get-in phrase-with-head (:comp :synsem :cat)))
+       (= :det (get-in remove-path-from (:synsem :cat)))
        (comp-phrases (rest phrases-with-heads) all-phrases lexicon)
 
        true
@@ -121,6 +121,7 @@
            ]
 
        ;; TODO: add scrambling of the call: (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon) below.
+       (log/debug (str "lightning-bolt rand-order: " rand-order))
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
                    (lazy-cat

@@ -18,32 +18,32 @@
                                   {:synsem {:infl :present
                                             :cat :verb
                                             :sem {:tense :present}}})
-                          {:comment "parent1/cc10/present"})
+                          {:comment "parent1/cc10/s-present"})
 
 ;                   (merge (unifyc cc10
 ;                                  {:synsem {:infl :futuro
 ;                                            :cat :verb}})
-;                          {:comment "parent1/cc10/future"})
+;                          {:comment "parent1/cc10/s-future"})
 
 ;                   (merge (unifyc cc10
 ;                                  {:synsem {:infl :imperfetto
 ;                                            :cat :verb}})
-;                          {:comment "parent1/cc10/imperfetto"})
+;                          {:comment "parent1/cc10/s-imperfetto"})
 
                    (merge (unifyc hh21
                                   {:synsem {:infl :present
                                             :cat :verb}})
-                          {:comment "parent2/hh21/present"})
+                          {:comment "parent2/hh21/vp-present"})
 
 ;                   (merge (unifyc hh21
 ;                                  {:synsem {:infl :futuro
 ;                                            :cat :verb}})
-;                          {:comment "parent2/hh21/future"})
+;                          {:comment "parent2/hh21/vp-future"})
 
 ;                   (merge (unifyc hh21
 ;                                  {:synsem {:infl :imperfetto
 ;                                            :cat :verb}})
-;                          {:comment "parent2/hh21/imperfetto"})
+;                          {:comment "parent2/hh21/vp-imperfetto"})
 
                    (merge (unifyc cc10
                                   {:synsem {:cat :noun}})

@@ -208,7 +208,7 @@
 
    true
    (do
-     (log/debug (str "overh: parent and head are both maps: put head under parent. Parent=" (:comment parent) "; head=" (fo head)))
+     (log/info (str "overh: parent and head are both maps: put head under parent. Parent=" (:comment parent) "; head=" (fo head)))
      (list
       (moreover-head parent head sem-impl)))))
 
