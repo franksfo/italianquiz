@@ -153,9 +153,9 @@
            (let [head (dissoc-paths head '((:synsem :subcat)
                                            (:english :initial)
                                            (:italian :initial)))]
-             (overh headed-parents-at-this-depth (map-lexicon head lexicon)))
+             (overh headed-parents-at-this-depth (map-lexicon head (lazy-shuffle lexicon))))
 
-           one-level-trees (overc parents-with-lexical-heads lexicon)
+           one-level-trees (overc parents-with-lexical-heads (lazy-shuffle lexicon))
 
            parents-with-phrasal-head (if (< depth maxdepth)
                                        (let [bolts (get-bolts (map (fn [each-phrase]
@@ -173,7 +173,7 @@
                                    (lazy-cat parents-with-lexical-heads parents-with-phrasal-head)
                                    true
                                    (lazy-cat parents-with-phrasal-head parents-with-lexical-heads))
-                             phrases lexicon)
+                             phrases (lazy-shuffle lexicon))
 
           ]
 
@@ -190,7 +190,7 @@
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
-                           lexicon) ;; complement (the lexicon).
+                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
 
                     "hLcL"
                     (cond (= rand-parent-type-order 0)
@@ -209,7 +209,7 @@
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
-                           lexicon) ;; complement (the lexicon).
+                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
 
                     (cond (= rand-parent-type-order 0)
                           (str "hLcP " "hPcP")
@@ -226,8 +226,7 @@
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
-                           lexicon) ;; complement (the lexicon).
-
+                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees
 
@@ -243,7 +242,7 @@
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
-                           lexicon) ;; complement (the lexicon).
+                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
 
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
@@ -264,7 +263,7 @@
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
-                           lexicon) ;; complement (the lexicon).
+                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
 
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees

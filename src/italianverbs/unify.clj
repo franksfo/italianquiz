@@ -1297,3 +1297,17 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                    true (throw (Exception. (str "dissoc-paths: don't know what to do with this input argument (fs): " fs))))
              (rest paths))))))
 
+;; thanks to Boris V. Schmid for lazy-shuffle:
+;; https://groups.google.com/forum/#!topic/clojure/riyVxj1Qbbs
+(defn lazy-shuffle [coll]
+;  (shuffle coll))
+  (let [size (count coll)]
+    (if (> size 0)
+      (let [rand-pos (rand-int size)
+            [prior remainder]
+            (split-at rand-pos coll)
+            elem (nth coll rand-pos)]
+        (lazy-seq
+         (cons elem
+               (lazy-shuffle (concat prior (rest remainder)))))))))
+
