@@ -64,12 +64,12 @@
                 0))
         (comp-phrases (rest phrases-with-heads) all-phrases lexicon))))))
 
-(defn get-bolts [heads lexicon phrases depth one-level-trees]
+(defn get-bolts [heads lexicon phrases depth]
   (if (not (empty? heads))
     (lazy-seq
      (cons
-      (lightning-bolt (first heads) lexicon phrases depth one-level-trees)
-      (get-bolts (rest heads) lexicon phrases depth one-level-trees)))))
+      (lightning-bolt (first heads) lexicon phrases depth)
+      (get-bolts (rest heads) lexicon phrases depth)))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -110,7 +110,7 @@
         true
         (str "hPcL + "  (decode-gen-ordering2 rand2) " + hLcL")))
 
-(defn lightning-bolt [ & [head lexicon phrases depth one-level-trees]]
+(defn lightning-bolt [ & [head lexicon phrases depth]]
   (log/debug (str "--lb---depth: " depth))
   (log/debug (str "--lb---head: " head))
   (let [maxdepth 2
@@ -152,19 +152,16 @@
            parents-with-lexical-heads
            (let [head (dissoc-paths head '((:synsem :subcat)
                                            (:english :initial)
-                                           (:italian :initial)))
-                 result (overh headed-parents-at-this-depth (map-lexicon head lexicon))]
-                 result)
+                                           (:italian :initial)))]
+             (overh headed-parents-at-this-depth (map-lexicon head lexicon)))
 
-           one-level-trees (if one-level-trees one-level-trees
-                               (overc parents-with-lexical-heads lexicon))
+           one-level-trees (overc parents-with-lexical-heads lexicon)
 
            parents-with-phrasal-head (if (< depth maxdepth)
                                        (let [bolts (get-bolts (map (fn [each-phrase]
                                                                      (get-in each-phrase '(:head)))
                                                                    headed-parents-at-this-depth)
-                                                              lexicon phrases (+ 1 depth)
-                                                              one-level-trees)]
+                                                              lexicon phrases (+ 1 depth))]
                                          (let [debug (log/trace (str "creating parents-with-phrasal-head at depth:" depth))]
                                            (overh headed-parents-at-this-depth bolts))))
 
