@@ -112,7 +112,7 @@
 
 (defn lightning-bolt [ & [head lexicon phrases depth]]
   (log/debug (str "--lb---depth: " depth))
-  (log/debug (str "--lb---head: " head))
+  (log/debug (str "--lb---head cat: " (get-in head '(:synsem :cat))))
   (let [maxdepth 2
         depth (if depth depth 0)
 
