@@ -38,7 +38,7 @@
   (if (not (empty? phrases-with-heads))
     (let [phrase-with-head (first phrases-with-heads)
           remove-some-paths
-          (remove-path-from
+          (dissoc-paths
            (get-in phrase-with-head '(:comp))
            '((:synsem :subcat)
              (:english :initial)
@@ -156,15 +156,11 @@
              (do
                parents-with-lexical-heads)
              (do
-               (let [head (remove-path-from head '((:synsem :subcat)
+               (let [head (dissoc-paths head '((:synsem :subcat)
                                                    (:english :initial)
                                                    (:italian :initial)))
                      result (overh headed-parents-at-this-depth (map-lexicon head lexicon))]
                  result)))
-
-           debug (log/debug (str "lb@" depth " with " (remove-path-from head '((:synsem :subcat)
-                                                                               (:english :initial)
-                                                                               (:italian :initial)))  "  : size of parents-with-lexical-heads: " (.size parents-with-lexical-heads)))
 
            one-level-trees (if one-level-trees one-level-trees
                                (overc parents-with-lexical-heads lexicon))

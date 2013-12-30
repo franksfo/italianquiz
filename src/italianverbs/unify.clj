@@ -1250,14 +1250,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                           (copy-with-assignments fs assignments)))
                       unified-values)))))
 
-(defn remove-path-from [fs & [paths]]
-  "dissoc a path from a map; e.g.: (remove-path-from {:a {:b 42 :c 43}} '(:a :b)) => {:a {:c 43}}."
+(defn dissoc-paths [fs & [paths]]
+  "dissoc a path from a map; e.g.: (dissoc-paths {:a {:b 42 :c 43}} '(:a :b)) => {:a {:c 43}}."
   (let [debug (log/debug (str "remove path from fs: " fs " with paths: " paths))]
     (cond (empty? paths)
           fs
 
           (ref? fs)
-          (remove-path-from @fs paths)
+          (dissoc-paths @fs paths)
 
           (keyword? fs)
           fs
@@ -1267,7 +1267,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
           true
           (let [path (first paths)]
-            (remove-path-from
+            (dissoc-paths
              (cond (keyword fs)
                    fs
                    (and (map? fs)
@@ -1275,7 +1275,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                         (not (empty? path)))
                    (let [feature (first path)]
                      (cond (ref? fs)
-                           (remove-path-from @fs (list path))
+                           (dissoc-paths @fs (list path))
                            (map? fs)
                            (cond
                             (and
@@ -1288,12 +1288,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
                             (not (= :notfound (get-in fs (list feature) :notfound)))
                             (conj
-                             {feature (remove-path-from (get-in fs (list feature)) (list (rest path)))}
+                             {feature (dissoc-paths (get-in fs (list feature)) (list (rest path)))}
                              (dissoc fs feature))
 
                             true
-                            (remove-path-from fs (rest paths)))))
+                            (dissoc-paths fs (rest paths)))))
 
-                   true (throw (Exception. (str "remove-path-from: don't know what to do with this input argument (fs): " fs))))
+                   true (throw (Exception. (str "dissoc-paths: don't know what to do with this input argument (fs): " fs))))
              (rest paths))))))
 
