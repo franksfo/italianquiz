@@ -58,33 +58,15 @@
                          (= (:comment x) "parent3/cc10/np"))
                        parents)))
 
-(def lex (seq (union (it "acqua")
-                     (it "aiutare")
-                     (it "amare")
-                     (it "amico")
-                     (it "avere")
-                     (it "bere")
-                     (it "birra")
-                     (it "bracio")
-                     (it "calzoni")
-                     (it "camicia")
-                     (it "cane")
-                     (it "comprare")
-                     (it "dormire")
-                     (it "gatto")
-                     (it "i")
-                     (it "il")
-                     (it "io")
-                     (it "la")
-                     (it "lei")
-                     (it "lui")
-                     (it "mangiare")
-                     (it "pane")
-                     (it "pasta")
-                     (it "sognare")
-                     (it "ragazza")
-                     (it "ragazzo")
-                     (it "tu"))))
+(def lex (seq (union (set (filter (fn [each]
+                                    (= :det (get-in each '(:synsem :cat))))
+                                  lexicon))
+                     (set (filter (fn [each]
+                                    (= :noun (get-in each '(:synsem :cat))))
+                                  lexicon))
+                     (set (filter (fn [each]
+                                    (= :verb (get-in each '(:synsem :cat))))
+                                  lexicon)))))
 
 (def depth0
   (filter (fn [phrase]
