@@ -267,10 +267,13 @@
              (over-each-comp-child parent comp-children)))
 
    true
-   (do
-     (log/debug (str "overc: parent=" (:comment parent) "; comp=" (fo comp)))
-     (list
-      (moreover-comp parent comp sem-impl)))))
+   (let [result (moreover-comp parent comp sem-impl)
+         is-fail? (fail? result)]
+     (log/info (str "overc: parent=" (:comment parent) "; comp=[" (fo comp) "]=> " (if (fail? result)
+                                                                                     ":fail"
+                                                                                     (fo result))))
+     (if (not is-fail?)
+       (list result)))))
 
 (defn overhc [parent head comp]
   (overc (overh parent head) comp))
