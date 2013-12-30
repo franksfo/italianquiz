@@ -210,9 +210,11 @@
              (over-each-head-child parent head-children)))
 
    true
+   ;; TODO: 'true' here assumes that both parent and head are maps: make this assumption explicit,
+   ;; and save 'true' for errors.
    (let [result (moreover-head parent head sem-impl)
          is-fail? (fail? result)]
-     (log/debug (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if (fail? result)
+     (log/info (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if (fail? result)
                                                                                      ":fail"
                                                                                      (fo result))))
      (if (not is-fail?)

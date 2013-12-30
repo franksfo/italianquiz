@@ -78,19 +78,23 @@
         true
         "hPcP + hLcP"))
 
-
-(defn try-all [seq1 seq2 seq3]
+;; TODO: make option to just call (lazy-cat seq1 seq2 seq3) for efficiency:
+;; this is simply a diagnostic tool.
+(defn try-all [seq1 seq2 seq3 seq1-label seq2-label seq3-label]
   (if (not (empty? seq1))
     (let [first-of-seq1 (first seq1)]
       (do
-        (log/debug (str "seq1 has a candidate:" (fo-ps first-of-seq1)))
+        (log/debug (str "seq1 ("seq1-label") has a candidate:" (fo-ps first-of-seq1)))
         (lazy-seq
          (cons
           first-of-seq1
-          (try-all (rest seq1) seq2 seq3)))))
-    (if (or seq2 seq3)
+          (try-all (rest seq1) seq2 seq3 seq1-label seq2-label seq3-label)))))
+    (if seq2
       (try-all
-       seq2 seq3 nil))))
+       seq2 seq3 nil seq2-label seq3-label nil)
+      (if seq3
+        (try-all
+         seq3 nil nil seq3-label nil nil)))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-generation-ordering [rand1 rand2]
@@ -184,7 +188,14 @@
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
-                           lexicon)) ;; complement (the lexicon).
+                           lexicon) ;; complement (the lexicon).
+
+                    "hLcL"
+                    (cond (= rand-parent-type-order 0)
+                          (str "hLcP " "hPcP")
+                          true
+                          (str "hPcP " "hLcP"))
+                    "hPcL")
 
                    (= rand-order 1)
                    (try-all
@@ -196,7 +207,14 @@
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
-                           lexicon)) ;; complement (the lexicon).
+                           lexicon) ;; complement (the lexicon).
+
+                    (cond (= rand-parent-type-order 0)
+                          (str "hLcP " "hPcP")
+                          true
+                          (str "hPcP " "hLcP"))
+                    "hLcL"
+                    "hPcL")
 
                    (= rand-order 2)
                    (try-all
@@ -209,8 +227,14 @@
                            lexicon) ;; complement (the lexicon).
 
                     ;; 1. just a parent over 2 lexemes.
-                    one-level-trees)
+                    one-level-trees
 
+                    (cond (= rand-parent-type-order 0)
+                          (str "hLcP " "hPcP")
+                          true
+                          (str "hPcP " "hLcP"))
+                    "hPcL"
+                    "hLcL")
 
                    (= rand-order 3)
                    (try-all
@@ -224,7 +248,14 @@
                     the-comp-phrases
 
                     ;; 1. just a parent over 2 lexemes.
-                    one-level-trees)
+                    one-level-trees
+
+                    (cond (= rand-parent-type-order 0)
+                          (str "hLcP" "hPcP")
+                          true
+                          (str "hPcP" "hLcP"))
+                    "hPcL"
+                    "hLcL")
 
                    true
                    (try-all
@@ -237,11 +268,17 @@
                     one-level-trees
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    the-comp-phrases))
+                    the-comp-phrases
+
+                    (cond (= rand-parent-type-order 0)
+                          (str "hLcP" "hPcP")
+                          true
+                          (str "hPcP" "hLcP"))
+                    "hLcL"
+                    "hPcL"))
 
              true
              one-level-trees)))))
-
 
 ;; aliases that are easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
