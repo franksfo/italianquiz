@@ -72,12 +72,14 @@
       (lightning-bolt (first heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)
       (get-bolts (rest heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)))))
 
+;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
   (cond (= rand2 0)
         "hL/cP + hP/cP"
         true
-        "hP/cP + hL/cp"))
+        "hP/cP + hL/cP"))
 
+;; TODO: move this to inside lightning-bolt.
 (defn decode-generation-ordering [rand1 rand2]
   (cond (= rand1 0)
         (str "hL/cL + " (decode-gen-ordering2 rand2) " + hP/cL")
@@ -86,7 +88,7 @@
         (= rand 2)
         (str (decode-gen-ordering2 rand2) " + hP/cL + hLcL")
         true
-        (str "hP/cL + hLcL + " (decode-gen-ordering2 rand2))))
+        (str "hP/cL + "  (decode-gen-ordering2 rand2) " + hLcL")))
 
 (defn lightning-bolt [ & [head lexicon phrases depth one-level-trees parents-with-lexical-heads]]
   (let [maxdepth 2
@@ -159,8 +161,6 @@
 
        ;; TODO: add scrambling of the call: (lazy-cat parents-with-lexical-heads parents-with-phrasal-head) phrases lexicon) below.
        (log/debug (str "lightning-bolt rand-order: " (decode-generation-ordering rand-order rand-parent-type-order)))
-;       (log/trace (str "emptyness of one-level-trees: " (empty? one-level-trees)))
-;       (log/trace (str "emptyness of the-comp-phrases: " (empty? the-comp-phrases)))
 
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
