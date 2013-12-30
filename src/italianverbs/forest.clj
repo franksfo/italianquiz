@@ -80,7 +80,7 @@
 
 ;; TODO: make option to just call (lazy-cat seq1 seq2 seq3) for efficiency:
 ;; this is simply a diagnostic tool.
-(defn try-all [seq1 seq2 seq3 seq1-label seq2-label seq3-label]
+(defn try-all-debug [seq1 seq2 seq3 seq1-label seq2-label seq3-label]
   (if (not (empty? seq1))
     (let [first-of-seq1 (first seq1)]
       (do
@@ -88,13 +88,16 @@
         (lazy-seq
          (cons
           first-of-seq1
-          (try-all (rest seq1) seq2 seq3 seq1-label seq2-label seq3-label)))))
+          (try-all-debug (rest seq1) seq2 seq3 seq1-label seq2-label seq3-label)))))
     (if seq2
-      (try-all
+      (try-all-debug
        seq2 seq3 nil seq2-label seq3-label nil)
       (if seq3
-        (try-all
+        (try-all-debug
          seq3 nil nil seq3-label nil nil)))))
+
+(defn try-all [seq1 seq2 seq3 seq1-label seq2-label seq3-label]
+  (lazy-cat seq1 seq2 seq3))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-generation-ordering [rand1 rand2]
@@ -114,22 +117,23 @@
         depth (if depth depth 0)
 
         headed-parents-at-this-depth
-        (map (fn [phrase]
-                  ;; TODO: possibly: remove-paths such as subcat from head: would make it easier to call with lexemes:
-                  ;; e.g. "generate a sentence whose head is 'mangiare'".
-                  (let [result (unifyc phrase head)]
-                    (if (not (fail? result)) result :fail)))
-                (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
-                      (filter (fn [phrase]
-                                (empty? (get-in phrase '(:synsem :subcat))))
-                              phrases)
-                      (= depth 1)
-                      (filter (fn [phrase]
-                                (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                                     (empty? (get-in phrase '(:synsem :subcat :2)))))
-                              phrases)
-                      true
-                      '()))
+        (filter (fn [each]
+                  (not (fail? each)))
+                (map (fn [phrase]
+                       ;; TODO: possibly: remove-paths such as subcat from head: would make it easier to call with lexemes:
+                       ;; e.g. "generate a sentence whose head is 'mangiare'".
+                       (unifyc phrase head))
+                     (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
+                           (filter (fn [phrase]
+                                     (empty? (get-in phrase '(:synsem :subcat))))
+                                   phrases)
+                           (= depth 1)
+                           (filter (fn [phrase]
+                                     (and (not (empty? (get-in phrase '(:synsem :subcat))))
+                                          (empty? (get-in phrase '(:synsem :subcat :2)))))
+                                   phrases)
+                           true
+                           '())))
         head (if head head :top)
         ]
 
@@ -164,9 +168,8 @@
                                          (let [debug (log/trace (str "creating parents-with-phrasal-head at depth:" depth))]
                                            (overh headed-parents-at-this-depth bolts))))
 
-           rand-order (rand-int 4)
-
-           rand-parent-type-order (rand-int 2)
+           rand-order (if true (rand-int 4) 1)
+           rand-parent-type-order (if true (rand-int 2) 1)
 
            the-comp-phrases (comp-phrases
                              (cond (= rand-parent-type-order 0)
