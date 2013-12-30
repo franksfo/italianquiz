@@ -65,8 +65,6 @@
         (comp-phrases (rest phrases-with-heads) all-phrases lexicon))))))
 
 (defn get-bolts [heads lexicon phrases depth one-level-trees parents-with-lexical-heads]
-  (log/debug (str "get-bolts: heads size: " (.size heads))) ;;; REALIZES
-  (log/debug (str "calling get-bolts with depth: " depth " and first head: " (first heads)))
   (if (not (empty? heads))
     (lazy-seq
      (cons
@@ -116,10 +114,11 @@
         depth (if depth depth 0)
 
         headed-parents-at-this-depth
-        (filter (fn [phrase]
+        (map (fn [phrase]
                   ;; TODO: possibly: remove-paths such as subcat from head: would make it easier to call with lexemes:
                   ;; e.g. "generate a sentence whose head is 'mangiare'".
-                  (not (fail? (unifyc phrase head))))
+                  (let [result (unifyc phrase head)]
+                    (if (not (fail? result)) result :fail)))
                 (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
                       (filter (fn [phrase]
                                 (empty? (get-in phrase '(:synsem :subcat))))
@@ -133,10 +132,6 @@
                       '()))
         head (if head head :top)
         ]
-
-    (log/debug (str "--lb---headed-parents-at-this-depth: (size): " (.size headed-parents-at-this-depth))) ;; REALIZES
-    (log/debug (str "--lb---headed-parents-at-this-depth: (first): " (fo-ps (first headed-parents-at-this-depth))))
-
 
     (cond
 
@@ -157,8 +152,8 @@
                parents-with-lexical-heads)
              (do
                (let [head (dissoc-paths head '((:synsem :subcat)
-                                                   (:english :initial)
-                                                   (:italian :initial)))
+                                               (:english :initial)
+                                               (:italian :initial)))
                      result (overh headed-parents-at-this-depth (map-lexicon head lexicon))]
                  result)))
 
@@ -166,18 +161,15 @@
                                (overc parents-with-lexical-heads lexicon))
 
            parents-with-phrasal-head (if (< depth maxdepth)
-                               (let [debug (log/debug (str "doing bolts : " (fo-ps (first headed-parents-at-this-depth)))) ;; REALIZES:
-                                     debug (log/debug (str "doing bolts with (first) head: " (get-in (first headed-parents-at-this-depth)
-                                                                                          '(:head))))
-                                     bolts (get-bolts (map (fn [each-phrase]
-                                                             (get-in each-phrase '(:head)))
-                                                           headed-parents-at-this-depth)
-                                                      lexicon phrases (+ 1 depth) one-level-trees parents-with-lexical-heads)]
-                                 (let [debug (log/trace (str "creating parents-with-phrasal-head at depth:" depth))]
-                                   (overh headed-parents-at-this-depth bolts))))
+                                       (let [bolts (get-bolts (map (fn [each-phrase]
+                                                                     (get-in each-phrase '(:head)))
+                                                                   headed-parents-at-this-depth)
+                                                              lexicon phrases (+ 1 depth)
+                                                              one-level-trees parents-with-lexical-heads)]
+                                         (let [debug (log/trace (str "creating parents-with-phrasal-head at depth:" depth))]
+                                           (overh headed-parents-at-this-depth bolts))))
 
            rand-order (rand-int 4)
-;           rand-order 0
 
            rand-parent-type-order (rand-int 2)
 
@@ -191,7 +183,6 @@
           ]
 
        (log/debug (str "lightning-bolt rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(" rand-order "/" rand-parent-type-order ")"))
-       (log/debug (str "lightning-bolt parents-with-lexical-heads at depth:" depth " is: " (.size parents-with-lexical-heads))) ;; REALIZES
 
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
