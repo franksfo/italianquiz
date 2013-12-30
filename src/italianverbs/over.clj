@@ -289,7 +289,7 @@
         (over (list parents) child1 child2)
         (if (not (empty? parents))
           (let [parent (first parents)]
-            (log/debug (str "over: parent: " parent))
+            (log/trace (str "over: parent: " parent))
             (concat
              (cond (and (map? parent)
                         (not (nil? (:serialized parent))))
