@@ -49,48 +49,64 @@
        ;; Lexemes with certain grammatical categories (for now, only :det) cannot be heads of
        ;; a phrase, but only lexemes that are complements of a phrase, so save time by not trying
        ;; to recursively generate phrases that are headed with such lexemes.
-       (= :det (get-in remove-path-from (:synsem :cat)))
-       (comp-phrases (rest phrases-with-heads) all-phrases lexicon)
+       (= :det (get-in remove-some-paths '(:synsem :cat)))
+       (do
+         (log/trace (str "this cannot be head of a phrase: " remove-some-paths))
+         (comp-phrases (rest phrases-with-heads) all-phrases lexicon))
 
        true
-       (do (log/debug (str "comp-phrases: looking for phrases with phrase-with-head's comp: "
-                           remove-some-paths))
-           (lazy-cat
-            (overc phrase-with-head
-                   (lightning-bolt
-                    remove-some-paths
-                    lexicon
-                    all-phrases
-                    0))
-            (comp-phrases (rest phrases-with-heads) all-phrases lexicon)))))))
+       (lazy-cat
+        (overc phrase-with-head
+               (lightning-bolt
+                remove-some-paths
+                lexicon
+                all-phrases
+                0))
+        (comp-phrases (rest phrases-with-heads) all-phrases lexicon))))))
 
-(defn get-bolts [heads lexicon phrases depth one-level-trees with-lexical-heads]
+(defn get-bolts [heads lexicon phrases depth one-level-trees parents-with-lexical-heads]
   (if (not (empty? heads))
-    (log/debug (str "do-bolts with first heads: " (fo heads)))
+    (log/debug (str "do-bolts with first heads: " (fo (first heads))))
     (lazy-seq
      (cons
-      (lightning-bolt (first heads) lexicon phrases depth one-level-trees with-lexical-heads)
-      (get-bolts (rest heads) lexicon phrases depth one-level-trees with-lexical-heads)))))
+      (lightning-bolt (first heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)
+      (get-bolts (rest heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)))))
 
-(defn lightning-bolt [ & [head lexicon phrases depth one-level-trees with-lexical-heads]]
+(defn decode-gen-ordering2 [rand2]
+  (cond (= rand2 0)
+        "hL/cP + hP/cP"
+        true
+        "hP/cP + hL/cp"))
+
+(defn decode-generation-ordering [rand1 rand2]
+  (cond (= rand1 0)
+        (str "hL/cL + " (decode-gen-ordering2 rand2) " + hP/cL")
+        (= rand 1)
+        (str (decode-gen-ordering2 rand2) " + hL/cL + hP/cL")
+        (= rand 2)
+        (str (decode-gen-ordering2 rand2) " + hP/cL + hLcL")
+        true
+        (str "hP/cL + hLcL + " (decode-gen-ordering2 rand2))))
+
+(defn lightning-bolt [ & [head lexicon phrases depth one-level-trees parents-with-lexical-heads]]
   (let [maxdepth 2
         depth (if depth depth 0)
-        headed-phrases-at-this-depth
-        (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
-              (filter (fn [phrase]
-                        (empty? (get-in phrase '(:synsem :subcat))))
-                      phrases)
-              (= depth 1)
-              (filter (fn [phrase]
-                        (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                             (empty? (get-in phrase '(:synsem :subcat :2)))))
-                      phrases)
-              true
-              '())
+        headed-parents-at-this-depth
+        (filter (fn [phrase]
+                  (not (fail? (unifyc phrase {:head head}))))
+                (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
+                      (filter (fn [phrase]
+                                (empty? (get-in phrase '(:synsem :subcat))))
+                              phrases)
+                      (= depth 1)
+                      (filter (fn [phrase]
+                                (and (not (empty? (get-in phrase '(:synsem :subcat))))
+                                     (empty? (get-in phrase '(:synsem :subcat :2)))))
+                              phrases)
+                      true
+                      '()))
         head (if head head :top)
-        debug (log/debug (str "-lb-start-"))
-        debug (log/debug (str "lightning-bolt depth:" depth "; head: " head))
-        debug (log/debug (str "lightning-bolt head:" head))
+        debug (log/debug (str "-lb-start- depth:" depth "; head: " head))
         ]
     (cond
 
@@ -100,39 +116,52 @@
      nil
 
      true
-     (let [with-lexical-heads (if with-lexical-heads
+     (let [parents-with-lexical-heads (if parents-with-lexical-heads
                                 (do
-                                  (log/debug (str "using cached with-lexical-heads at depth:" depth))
-                                  with-lexical-heads)
+                                  (log/debug (str "using cached parents-with-lexical-heads at depth:" depth))
+                                  parents-with-lexical-heads)
                                   (do
-                                    (log/debug (str "finding with-lexical-heads at depth:" depth))
-                                    (let [result (overh headed-phrases-at-this-depth (map-lexicon head lexicon))]
+                                    (log/debug (str "finding parents-with-lexical-heads with head: " head " at depth:" depth))
+                                    (let [result (overh headed-parents-at-this-depth (map-lexicon head lexicon))]
                                       ;; REALIZES:
-;                                      (log/debug (str " lexical-headed-phrases at depth :" depth ": " (.size result) " : "
+;                                      (log/debug (str "lb:lexical-headed-parents at depth :" depth ": " (.size result) " : "
 ;                                                     (fo-ps result)))
                                       result)))
 
            one-level-trees (if one-level-trees one-level-trees
-                               (overc with-lexical-heads lexicon))
+                               (do
+                                 (log/debug (str "lb:doing one-level-trees for head: " head))
+                                 (overc parents-with-lexical-heads lexicon)))
 
-           phrases-with-head (if (< depth maxdepth)
-                               (let [debug (log/debug (str "recursing for phrases-with-head at depth:" depth " with head: " head))
+           parents-with-phrasal-head (if (< depth maxdepth)
+                               (let [debug (log/debug (str "recursing for parents-with-phrasal-head at depth:" depth " with head: " head))
                                      ;; REALIZES:
-                                     ;; debug (log/debug (str "doing bolts with: " (fo-ps with-lexical-heads)))
+                                     ;; debug (log/debug (str "doing bolts with: " (fo-ps parents-with-lexical-heads)))
                                      bolts (get-bolts (map (fn [each-phrase]
                                                          (get-in each-phrase '(:head)))
-                                                       with-lexical-heads)
-                                                      lexicon phrases depth one-level-trees with-lexical-heads)]
-                                 (let [debug (log/debug (str "doing overh on headed-phrases at depth:" depth))]
-                                   (overh headed-phrases-at-this-depth bolts))))
+                                                       parents-with-lexical-heads)
+                                                      lexicon phrases depth one-level-trees parents-with-lexical-heads)]
+                                 (let [debug (log/trace (str "creating parents-with-phrasal-head at depth:" depth))]
+                                   (overh headed-parents-at-this-depth bolts))))
            rand-order (rand-int 4)
 ;           rand-order 0
 
+           rand-parent-type-order (rand-int 2)
 
-           ]
+           the-comp-phrases (comp-phrases
+                             (cond (= rand-parent-type-order 0)
+                                   (lazy-cat parents-with-lexical-heads parents-with-phrasal-head)
+                                   true
+                                   (lazy-cat parents-with-phrasal-head parents-with-lexical-heads))
+                             phrases lexicon)
 
-       ;; TODO: add scrambling of the call: (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon) below.
-       (log/debug (str "lightning-bolt rand-order: " rand-order))
+          ]
+
+       ;; TODO: add scrambling of the call: (lazy-cat parents-with-lexical-heads parents-with-phrasal-head) phrases lexicon) below.
+       (log/debug (str "lightning-bolt rand-order: " (decode-generation-ordering rand-order rand-parent-type-order)))
+;       (log/trace (str "emptyness of one-level-trees: " (empty? one-level-trees)))
+;       (log/trace (str "emptyness of the-comp-phrases: " (empty? the-comp-phrases)))
+
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
                    (lazy-cat
@@ -140,36 +169,32 @@
                     one-level-trees
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)
+                    the-comp-phrases
 
                     ;; 3. head is a phrase, comp is a lexeme.
-                    (overc phrases-with-head
+                    (overc parents-with-phrasal-head
                            lexicon)) ;; complement (the lexicon).
 
                    (= rand-order 1)
                    (lazy-cat
-
-
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)
+                    the-comp-phrases
 
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees
 
                     ;; 3. head is a phrase, comp is a lexeme.
-                    (overc phrases-with-head
+                    (overc parents-with-phrasal-head
                            lexicon)) ;; complement (the lexicon).
-
 
                    (= rand-order 2)
                    (lazy-cat
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)
-
+                    the-comp-phrases
 
                     ;; 3. head is a phrase, comp is a lexeme.
-                    (overc phrases-with-head
+                    (overc parents-with-phrasal-head
                            lexicon) ;; complement (the lexicon).
 
                     ;; 1. just a parent over 2 lexemes.
@@ -180,14 +205,12 @@
                    (lazy-cat
 
                     ;; 3. head is a phrase, comp is a lexeme.
-                    (overc phrases-with-head
+                    (overc parents-with-phrasal-head
                            lexicon) ;; complement (the lexicon).
 
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)
-
-
+                    the-comp-phrases
 
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees)
@@ -195,17 +218,15 @@
                    true
                    (lazy-cat
 
-
-
                     ;; 3. head is a phrase, comp is a lexeme.
-                    (overc phrases-with-head
+                    (overc parents-with-phrasal-head
                            lexicon) ;; complement (the lexicon).
 
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    (comp-phrases (lazy-cat with-lexical-heads phrases-with-head) phrases lexicon)))
+                    the-comp-phrases))
 
 
              true

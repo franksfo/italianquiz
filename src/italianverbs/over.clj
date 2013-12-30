@@ -182,6 +182,9 @@
 
   (cond
 
+   (nil? head)
+   nil
+
    (or
     (seq? parent)
     (set? parent)
@@ -207,10 +210,13 @@
              (over-each-head-child parent head-children)))
 
    true
-   (do
-     (log/info (str "overh: parent=" (:comment parent) "; head=" (fo head)))
-     (list
-      (moreover-head parent head sem-impl)))))
+   (let [result (moreover-head parent head sem-impl)
+         is-fail? (fail? result)]
+     (log/info (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if (fail? result)
+                                                                                     ":fail"
+                                                                                     (fo result))))
+     (if (not is-fail?)
+       (list result)))))
 
 ;; Haskell-looking signature:
 ;; (parent:map) X (child:{set,seq,fs}) => list:map
