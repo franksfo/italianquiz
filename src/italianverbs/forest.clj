@@ -66,11 +66,12 @@
 
 (defn get-bolts [heads lexicon phrases depth one-level-trees parents-with-lexical-heads]
   (if (not (empty? heads))
-    (log/debug (str "do-bolts with first heads: " (fo (first heads))))
-    (lazy-seq
-     (cons
-      (lightning-bolt (first heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)
-      (get-bolts (rest heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)))))
+    (do
+      (log/debug (str "do-bolts with first heads: " (fo (first heads))))
+      (lazy-seq
+       (cons
+        (lightning-bolt (first heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)
+        (get-bolts (rest heads) lexicon phrases depth one-level-trees parents-with-lexical-heads))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -131,11 +132,11 @@
 
            parents-with-phrasal-head (if (< depth maxdepth)
                                (let [;; REALIZES:
-                                     ;; debug (log/debug (str "doing bolts with: " (fo-ps parents-with-lexical-heads)))
+                                     ;;debug (log/debug (str "doing bolts with: " (fo-ps parents-with-lexical-heads)))
                                      bolts (get-bolts (map (fn [each-phrase]
-                                                         (get-in each-phrase '(:head)))
-                                                       parents-with-lexical-heads)
-                                                      lexicon phrases depth one-level-trees parents-with-lexical-heads)]
+                                                             (get-in each-phrase '(:head)))
+                                                           parents-with-lexical-heads)
+                                                      lexicon phrases (+ 1 depth) one-level-trees parents-with-lexical-heads)]
                                  (let [debug (log/trace (str "creating parents-with-phrasal-head at depth:" depth))]
                                    (overh headed-parents-at-this-depth bolts))))
            rand-order (rand-int 4)
@@ -153,7 +154,7 @@
           ]
 
        ;; TODO: add scrambling of the call: (lazy-cat parents-with-lexical-heads parents-with-phrasal-head) phrases lexicon) below.
-       (log/debug (str "lightning-bolt rand-order: " (decode-generation-ordering rand-order rand-parent-type-order)))
+       (log/debug (str "lightning-bolt rand-order at depth:" depth " is :" (decode-generation-ordering rand-order rand-parent-type-order)))
 
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
