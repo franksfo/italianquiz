@@ -152,12 +152,19 @@
      (let [debug (log/debug (str "lb start: depth:" depth "; head: " head))
            debug (log/debug (str "parents: " (.size headed-parents-at-this-depth) "; " (fo-ps headed-parents-at-this-depth)))
            parents-with-lexical-heads
-           (if parents-with-lexical-heads
+           (if (and false parents-with-lexical-heads)
              (do
                parents-with-lexical-heads)
              (do
-               (let [result (overh headed-parents-at-this-depth (map-lexicon head lexicon))]
+               (let [head (remove-path-from head '((:synsem :subcat)
+                                                   (:english :initial)
+                                                   (:italian :initial)))
+                     result (overh headed-parents-at-this-depth (map-lexicon head lexicon))]
                  result)))
+
+           debug (log/debug (str "lb@" depth " with " (remove-path-from head '((:synsem :subcat)
+                                                                               (:english :initial)
+                                                                               (:italian :initial)))  "  : size of parents-with-lexical-heads: " (.size parents-with-lexical-heads)))
 
            one-level-trees (if one-level-trees one-level-trees
                                (overc parents-with-lexical-heads lexicon))
@@ -188,6 +195,7 @@
           ]
 
        (log/debug (str "lightning-bolt rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(" rand-order "/" rand-parent-type-order ")"))
+       (log/debug (str "lightning-bolt parents-with-lexical-heads at depth:" depth " is: " (.size parents-with-lexical-heads))) ;; REALIZES
 
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
