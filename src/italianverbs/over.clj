@@ -165,13 +165,13 @@
 
 (defn overh [parent head]
   "add given head as the head child of the phrase: parent."
-  (log/debug (str "overh parent type: " (type parent)))
-  (log/debug (str "overh head  type: " (type head)))
+  (log/trace (str "overh parent type: " (type parent)))
+  (log/trace (str "overh head  type: " (type head)))
 
-  (log/debug (str "set? parent:" (set? parent)))
-  (log/debug (str "seq? parent:" (seq? parent)))
-  (log/debug (str "seq? head:" (seq? head)))
-  (log/debug (str "vector? head:" (vector? head)))
+  (log/trace (str "set? parent:" (set? parent)))
+  (log/trace (str "seq? parent:" (seq? parent)))
+  (log/trace (str "seq? head:" (seq? head)))
+  (log/trace (str "vector? head:" (vector? head)))
 
   (if (map? parent)
     (if (get-in parent '(:comment))
@@ -214,7 +214,7 @@
    ;; and save 'true' for errors.
    (let [result (moreover-head parent head sem-impl)
          is-fail? (fail? result)]
-     (log/info (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if (fail? result)
+     (log/debug (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if (fail? result)
                                                                                      ":fail"
                                                                                      (fo result))))
      (if (not is-fail?)
@@ -226,12 +226,12 @@
 ;; is still true.
 (defn overc [parent comp]
   "add given child as the comp child of the phrase: parent."
-  (log/debug (str "overc parent type: " (type parent)))
-  (log/debug (str "overc comp  type: " (type comp)))
+  (log/trace (str "overc parent type: " (type parent)))
+  (log/trace (str "overc comp  type: " (type comp)))
 
-  (log/debug (str "set? parent:" (set? parent)))
-  (log/debug (str "seq? parent:" (seq? parent)))
-  (log/debug (str "seq? comp:" (seq? comp)))
+  (log/trace (str "set? parent:" (set? parent)))
+  (log/trace (str "seq? parent:" (seq? parent)))
+  (log/trace (str "seq? comp:" (seq? comp)))
 
   (if (map? parent)
     (if (get-in parent '(:comment))
@@ -269,7 +269,7 @@
    true
    (let [result (moreover-comp parent comp sem-impl)
          is-fail? (fail? result)]
-     (log/info (str "overc: parent=" (:comment parent) "; comp=[" (fo comp) "]=> " (if (fail? result)
+     (log/debug (str "overc: parent=" (:comment parent) "; comp=[" (fo comp) "]=> " (if (fail? result)
                                                                                      ":fail"
                                                                                      (fo result))))
      (if (not is-fail?)
