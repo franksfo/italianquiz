@@ -43,86 +43,86 @@
 (declare overc)
 
 (defn over-each-parent-head [parents head]
-  (log/debug (str "over-each-parent-head: parents type: " (type parents)))
-  (log/debug (str "over-each-parent-head: head type: " (type head)))
+  (log/trace (str "over-each-parent-head: parents type: " (type parents)))
+  (log/trace (str "over-each-parent-head: head type: " (type head)))
   (if (not (empty? parents))
     (let [each-parent (first parents)]
-      (log/debug (str "over-each-parent-head: each-parent type:" (type (first parents))))
-      (log/debug (str "over-each-parent-head: head type:" (type head)))
+      (log/trace (str "over-each-parent-head: each-parent type:" (type (first parents))))
+      (log/trace (str "over-each-parent-head: head type:" (type head)))
       (lazy-cat
        (overh each-parent head)
        (over-each-parent-head (rest parents) head)))
     (do
-      (log/debug (str "over-each-parent-head: done. returning nil"))
+      (log/trace (str "over-each-parent-head: done. returning nil"))
       nil)))
 
 (defn over-each-parent-comp [parents comp]
-  (log/debug (str "over-each-parent-comp: parents type: " (type parents)))
-  (log/debug (str "over-each-parent-comp: comp type: " (type comp)))
+  (log/trace (str "over-each-parent-comp: parents type: " (type parents)))
+  (log/trace (str "over-each-parent-comp: comp type: " (type comp)))
   (if (not (empty? parents))
     (let [each-parent (first parents)]
-      (log/debug (str "over-each-parent-comp: each-parent type:" (type (first parents))))
-      (log/debug (str "over-each-parent-comp: comp type:" (type comp)))
+      (log/trace (str "over-each-parent-comp: each-parent type:" (type (first parents))))
+      (log/trace (str "over-each-parent-comp: comp type:" (type comp)))
       (lazy-cat
        (overc each-parent comp)
        (over-each-parent-comp (rest parents) comp)))
     (do
-      (log/debug (str "over-each-parent-comp: done. returning nil"))
+      (log/trace (str "over-each-parent-comp: done. returning nil"))
       nil)))
 
 (defn over-each-head-child [parent children]
-  (log/debug (str "over-each-head-child: parent type: " (type parent)))
-  (log/debug (str "over-each-head-child: head children type: " (type children)))
+  (log/trace (str "over-each-head-child: parent type: " (type parent)))
+  (log/trace (str "over-each-head-child: head children type: " (type children)))
   (if (not (empty? children))
     (let [each-child (first children)]
-      (log/debug (str "over-each-head-child: each-parent?: " (:comment (first children))))
+      (log/trace (str "over-each-head-child: each-parent?: " (:comment (first children))))
       (lazy-cat
        (overh parent each-child)
        (over-each-head-child parent (rest children))))
     (do
-      (log/debug (str "over-each-head-child: done. returning nil."))
+      (log/trace (str "over-each-head-child: done. returning nil."))
       nil)))
 
 (defn over-each-comp-child [parent children]
-  (log/debug (str "over-each-comp-child: parent type: " (type parent)))
-  (log/debug (str "over-each-comp-child: comp children type: " (type children)))
+  (log/trace (str "over-each-comp-child: parent type: " (type parent)))
+  (log/trace (str "over-each-comp-child: comp children type: " (type children)))
   (if (not (empty? children))
     (let [each-child (first children)]
-      (log/debug (str "over-each-comp-child: each-parent?: " (:comment (first children))))
+      (log/trace (str "over-each-comp-child: each-parent?: " (:comment (first children))))
       (lazy-cat
        (overc parent each-child)
        (over-each-comp-child parent (rest children))))
     (do
-      (log/debug (str "over-each-comp-child: done. returning nil."))
+      (log/trace (str "over-each-comp-child: done. returning nil."))
       nil)))
 
 (defn moreover-head [parent child lexfn-sem-impl]
   (do
-    (log/debug (str "moreover-head (candidate) parent: " (fo parent)))
-    (log/debug (str "moreover-head (candidate) parent sem: " (get-in parent '(:synsem :sem) :no-semantics)))
-    (log/debug (str "moreover-head (candidate) head child sem:" (get-in child '(:synsem :sem) :top)))
-    (log/debug (str "moreover-head (candidate) head:" (fo child)))
+    (log/trace (str "moreover-head (candidate) parent: " (fo parent)))
+    (log/trace (str "moreover-head (candidate) parent sem: " (get-in parent '(:synsem :sem) :no-semantics)))
+    (log/trace (str "moreover-head (candidate) head child sem:" (get-in child '(:synsem :sem) :top)))
+    (log/trace (str "moreover-head (candidate) head:" (fo child)))
     (let [result
           (unifyc parent
                   (unifyc {:head child}
                           {:head {:synsem {:sem (lexfn-sem-impl (get-in child '(:synsem :sem) :top))}}}))]
       (if (not (fail? result))
-        (let [debug (log/debug (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (get-in result '(:synsem :sem))))
-              debug (log/debug (str "moreover-head (SUCCESS) parent (2x) sem: " (get-in parent '(:synsem :sem))))]
+        (let [debug (log/trace (str "moreover-head " (get-in parent '(:comment)) " (SUCCESS) result sem: " (get-in result '(:synsem :sem))))
+              debug (log/trace (str "moreover-head (SUCCESS) parent (2x) sem: " (get-in parent '(:synsem :sem))))]
           (merge {:head-filled true}
                  result))
 
         ;; attempt to put head under parent failed: provide diagnostics through log/debug messages.
         ;; TODO: make (fail-path) call part of each log/debug message to avoid computing it if log/debug is not enabled.
-        (let [debug (log/debug (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
+        (let [debug (log/trace (str "moreover-head " (fo child) "/" (get-in parent '(:comment)) "," (fo child) "/" (get-in child '(:comment))))
               fail-path (fail-path result)
-              debug (log/debug (str " fail-path: " fail-path))
-              debug (log/debug (str " path to head-value-at-fail:" (rest fail-path)))
-              debug (log/debug (str " head: " (fo child)))
-              debug (log/debug (str " head-value-at-fail: " (get-in child (rest fail-path))))
-              debug (log/debug (str " parent-value-at-fail: " (get-in parent fail-path)))]
+              debug (log/trace (str " fail-path: " fail-path))
+              debug (log/trace (str " path to head-value-at-fail:" (rest fail-path)))
+              debug (log/trace (str " head: " (fo child)))
+              debug (log/trace (str " head-value-at-fail: " (get-in child (rest fail-path))))
+              debug (log/trace (str " parent-value-at-fail: " (get-in parent fail-path)))]
           (do
-            (log/debug (str "fail-path: " fail-path))
+            (log/trace (str "fail-path: " fail-path))
             :fail))))))
 
 ;; Might be useful to set the following variable to true,
@@ -132,10 +132,10 @@
 (def ^:dynamic *throw-exception-if-failed-to-add-complement* false)
 
 (defn moreover-comp [parent child lexfn-sem-impl]
-  (log/debug (str "moreover-comp parent: " (fo parent)))
-  (log/debug (str "moreover-comp comp:" (fo child)))
-  (log/debug (str "moreover-comp type parent: " (type parent)))
-  (log/debug (str "moreover-comp type comp:" (type child)))
+  (log/trace (str "moreover-comp parent: " (fo parent)))
+  (log/trace (str "moreover-comp comp:" (fo child)))
+  (log/trace (str "moreover-comp type parent: " (type parent)))
+  (log/trace (str "moreover-comp type comp:" (type child)))
   (let [result
         (unifyc parent
                 (unifyc {:comp child}
@@ -145,11 +145,11 @@
         (let [result
               (merge {:comp-filled true}
                      result)]
-          (log/debug (str "moreover-comp (SUCCESS) merged result:(fo) " (fo result)))
+          (log/trace (str "moreover-comp (SUCCESS) merged result:(fo) " (fo result)))
           )
           result)
       (do
-        (log/debug "moreover-comp: fail at: " (fail-path result))
+        (log/trace "moreover-comp: fail at: " (fail-path result))
         (if (and
              *throw-exception-if-failed-to-add-complement*
              (get-in child '(:head)))
@@ -159,8 +159,8 @@
                                   (get-in parent (fail-path result))
                                   "; Synsem of child is: "
                                   (get-in child '(:synsem) :top)))))
-        (log/debug "moreover-comp: complement synsem: " (get-in child '(:synsem) :top))
-        (log/debug "moreover-comp:  parent value: " (get-in parent (fail-path result)))
+        (log/trace "moreover-comp: complement synsem: " (get-in child '(:synsem) :top))
+        (log/trace "moreover-comp:  parent value: " (get-in parent (fail-path result)))
         :fail))))
 
 (defn overh [parent head]
@@ -175,10 +175,10 @@
 
   (if (map? parent)
     (if (get-in parent '(:comment))
-      (log/debug (str "parent:" (get-in parent '(:comment)))))
-    (log/debug (str "parent:" (fo parent))))
+      (log/trace (str "parent:" (get-in parent '(:comment)))))
+    (log/trace (str "parent:" (fo parent))))
   (if (map? head)
-    (log/debug (str "head: " (fo head))))
+    (log/trace (str "head: " (fo head))))
 
   (cond
 
@@ -199,12 +199,12 @@
 
    (or (set? head)
        (vector? head))
-   (do (log/debug "head is a set: converting to a seq.")
+   (do (log/trace "head is a set: converting to a seq.")
        (overh parent (lazy-seq head)))
 
    (seq? head)
    (let [head-children head]
-     (log/debug (str "head is a seq - actual type is " (type head)))
+     (log/trace (str "head is a seq - actual type is " (type head)))
      (filter (fn [result]
                (not (fail? result)))
              (over-each-head-child parent head-children)))
@@ -236,9 +236,9 @@
   (if (map? parent)
     (if (get-in parent '(:comment))
       (log/debug (str "parent:" (get-in parent '(:comment)))))
-    (log/debug (str "parent:" (fo parent))))
+    (log/trace (str "parent:" (fo parent))))
   (if (map? comp)
-    (log/debug (str "comp: " (fo comp))))
+    (log/trace (str "comp: " (fo comp))))
 
   (cond
 
@@ -256,12 +256,12 @@
 
    (or (set? comp)
        (vector? comp))
-   (do (log/debug "comp is a set: converting to a seq.")
+   (do (log/trace "comp is a set: converting to a seq.")
        (overc parent (lazy-seq comp)))
 
    (seq? comp)
    (let [comp-children comp]
-     (log/debug (str "comp is a seq - actual type is " (type comp)))
+     (log/trace (str "comp is a seq - actual type is " (type comp)))
      (filter (fn [result]
                (not (fail? result)))
              (over-each-comp-child parent comp-children)))
