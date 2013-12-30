@@ -10,7 +10,6 @@
    [italianverbs.forest :as forest]
    [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.over :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]))
 

@@ -13,7 +13,7 @@
    [italianverbs.grammar :refer :all]
    [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer :all]
-   [italianverbs.over :refer :all]
+   [italianverbs.over :refer (overc overh)]
 
    [italianverbs.lev :as lev]
    [italianverbs.search :as search]
