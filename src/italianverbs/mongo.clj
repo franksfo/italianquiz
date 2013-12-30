@@ -9,10 +9,10 @@
    [italianverbs.morphology :as morph]
    ;; We redefine unify here: TODO: just use unifyc where appropriate.
    [italianverbs.unify :as unify :exclude (unify)]
-   [somnium.congomongo :as mongo]))
+   [somnium.congomongo :as congo]))
 
-(mongo/mongo! :db "mydb")
-(mongo/make-connection "mydb" :host "localhost")
+(congo/mongo! :db "mydb")
+(congo/make-connection "mydb" :host "localhost")
 
 (defn fetch2 [& where]
   (let [where (encode-where-query where)]
@@ -20,29 +20,29 @@
               (let [deserialized (unify/deserialize (:entry entry))]
                 (if (not (= (unify deserialized where) :fail))
                   (list deserialized))))
-            (mongo/fetch :lexicon))))
+            (congo/fetch :lexicon))))
 
 (defn fetch-all []
   (mapcat (fn [entry]
             (let [deserialized (unify/deserialize (:entry entry))]
               (list deserialized)))
-          (mongo/fetch :lexicon)))
+          (congo/fetch :lexicon)))
 
 (defn fetch [& where]
   (if where
-    (mongo/fetch :lexicon :where (first where))
-    (mongo/fetch :lexicon)))
+    (congo/fetch :lexicon :where (first where))
+    (congo/fetch :lexicon)))
 
 (defn fetch-one [& where]
   (if where
-    (mongo/fetch-one :lexicon :where (first where))
-    (mongo/fetch-one :lexicon)))
+    (congo/fetch-one :lexicon :where (first where))
+    (congo/fetch-one :lexicon)))
 
 (defn clear! [& args]
-  (mongo/destroy! :lexicon {}))
+  (congo/destroy! :lexicon {}))
 
 (defn add-lexeme [fs]
-  (mongo/insert! :lexicon {:entry (unify/serialize fs)})
+  (congo/insert! :lexicon {:entry (unify/serialize fs)})
   fs)
 
 (defn choose-lexeme [ & [struct dummy]]

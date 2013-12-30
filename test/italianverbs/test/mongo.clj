@@ -1,12 +1,12 @@
-(ns italianverbs.test.lexiconfn
-  (:use [clojure.test]
-        [italianverbs.lexiconfn])
+(ns italianverbs.test.mongo
+  (:use [clojure.test])
   (:require
-   [somnium.congomongo :as mongo]
+   [italianverbs.mongo :as mongo]
    [italianverbs.unify :as fs]))
 
 ;; TODO: for testing, consider some kind of mongodb mocking of some kind,
 ;; so that no actual mongodb connection would be necessary.
+;; TODO: move mongo-related tests out of italianverbs.test.lexiconfn and into italianverbs.test.mongo.
 
 ;(deftest parlare ;; A lexical entry for the word: 'parlare'
 ;  (let [merge-and-parla
@@ -17,9 +17,9 @@
 
 (deftest minimal-insert-and-deserialize
   (let [testmap {:a 42}]
-    (clear!)
-    (add-lexeme testmap)
-    (let [deserialized (fs/deserialize (:entry (mongo/fetch-one :lexicon)))]
+    (mongo/clear!)
+    (mongo/add-lexeme testmap)
+    (let [deserialized (fs/deserialize (:entry (mongo/fetch-one)))]
       (is (not (nil? deserialized)))
       (is (= deserialized {:a 42}))
       (is (= deserialized testmap)))))
@@ -27,9 +27,9 @@
 (deftest insert-and-deserialize-with-shared
   (let [ref1 (ref 42)
         testmap {:a ref1}]
-    (clear!)
-    (add-lexeme testmap)
-    (let [deserialized (fs/deserialize (:entry (mongo/fetch-one :lexicon)))
+    (mongo/clear!)
+    (mongo/add-lexeme testmap)
+    (let [deserialized (fs/deserialize (:entry (mongo/fetch-one)))
           deserialized-ref (get deserialized :a)]
       (is (= (type deserialized-ref) clojure.lang.Ref))
       (let [dereferenced @deserialized-ref]
@@ -48,9 +48,9 @@
             :italian {:a ref3
                       :b ref2}
             :infl :infinitive}
-        clear-lexicon (clear!)
-        add-lexical-entry (add-lexeme vp)
-        lookup-lexicon (mongo/fetch-one :lexicon)
+        clear-lexicon (mongo/clear!)
+        add-lexical-entry (mongo/add-lexeme vp)
+        lookup-lexicon (mongo/fetch-one)
         deserialized (fs/deserialize (:entry lookup-lexicon))
         ]
     (is (not (nil? vp)))
@@ -63,8 +63,8 @@
 (deftest compiti
   (let [compiti {:italian "compiti"
                  :english "homework"}
-        add-lexical-entry (add-lexeme compiti)
-        lookup-lexicon (mongo/fetch-one :lexicon)
+        add-lexical-entry (mongo/add-lexeme compiti)
+        lookup-lexicon (mongo/fetch-one)
         deserialized (fs/deserialize (:entry lookup-lexicon))]
   (is (not (nil? add-lexical-entry)))
   (is (not (nil? lookup-lexicon)))

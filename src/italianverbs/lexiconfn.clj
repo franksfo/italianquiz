@@ -689,3 +689,7 @@
 
 (defn choose-lexeme [specification]
   nil)
+
+(defn add-lexeme [fs]
+  nil)
+
