@@ -65,6 +65,8 @@
         (comp-phrases (rest phrases-with-heads) all-phrases lexicon))))))
 
 (defn get-bolts [heads lexicon phrases depth one-level-trees parents-with-lexical-heads]
+  (log/debug (str "get-bolts: heads size: " (.size heads))) ;;; REALIZES
+  (log/debug (str "calling get-bolts with depth: " depth " and first head: " (first heads)))
   (if (not (empty? heads))
     (lazy-seq
      (cons
@@ -108,13 +110,16 @@
         (str "hPcL + "  (decode-gen-ordering2 rand2) " + hLcL")))
 
 (defn lightning-bolt [ & [head lexicon phrases depth one-level-trees parents-with-lexical-heads]]
+  (log/debug (str "--lb---depth: " depth))
+  (log/debug (str "--lb---head: " head))
   (let [maxdepth 2
         depth (if depth depth 0)
+
         headed-parents-at-this-depth
         (filter (fn [phrase]
                   ;; TODO: possibly: remove-paths such as subcat from head: would make it easier to call with lexemes:
                   ;; e.g. "generate a sentence whose head is 'mangiare'".
-                  (not (fail? (unifyc phrase {:head head}))))
+                  (not (fail? (unifyc phrase head))))
                 (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
                       (filter (fn [phrase]
                                 (empty? (get-in phrase '(:synsem :subcat))))
@@ -128,6 +133,11 @@
                       '()))
         head (if head head :top)
         ]
+
+    (log/debug (str "--lb---headed-parents-at-this-depth: (size): " (.size headed-parents-at-this-depth))) ;; REALIZES
+    (log/debug (str "--lb---headed-parents-at-this-depth: (first): " (fo-ps (first headed-parents-at-this-depth))))
+
+
     (cond
 
      ;; optimization: if a head's :cat is in a set of certain categories (e.g. :det),
@@ -153,14 +163,16 @@
                                (overc parents-with-lexical-heads lexicon))
 
            parents-with-phrasal-head (if (< depth maxdepth)
-                               (let [;; REALIZES:
-                                     ;;debug (log/debug (str "doing bolts with: " (fo-ps parents-with-lexical-heads)))
+                               (let [debug (log/debug (str "doing bolts : " (fo-ps (first headed-parents-at-this-depth)))) ;; REALIZES:
+                                     debug (log/debug (str "doing bolts with (first) head: " (get-in (first headed-parents-at-this-depth)
+                                                                                          '(:head))))
                                      bolts (get-bolts (map (fn [each-phrase]
                                                              (get-in each-phrase '(:head)))
-                                                           parents-with-lexical-heads)
+                                                           headed-parents-at-this-depth)
                                                       lexicon phrases (+ 1 depth) one-level-trees parents-with-lexical-heads)]
                                  (let [debug (log/trace (str "creating parents-with-phrasal-head at depth:" depth))]
                                    (overh headed-parents-at-this-depth bolts))))
+
            rand-order (rand-int 4)
 ;           rand-order 0
 
@@ -175,7 +187,7 @@
 
           ]
 
-       (log/debug (str "lightning-bolt rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order)))
+       (log/debug (str "lightning-bolt rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(" rand-order "/" rand-parent-type-order ")"))
 
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
