@@ -66,12 +66,10 @@
 
 (defn get-bolts [heads lexicon phrases depth one-level-trees parents-with-lexical-heads]
   (if (not (empty? heads))
-    (do
-      (log/debug (str "do-bolts with first heads: " (fo (first heads))))
-      (lazy-seq
-       (cons
-        (lightning-bolt (first heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)
-        (get-bolts (rest heads) lexicon phrases depth one-level-trees parents-with-lexical-heads))))))
+    (lazy-seq
+     (cons
+      (lightning-bolt (first heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)
+      (get-bolts (rest heads) lexicon phrases depth one-level-trees parents-with-lexical-heads)))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -80,10 +78,24 @@
         true
         "hPcP + hLcP"))
 
+
+(defn try-all [seq1 seq2 seq3]
+  (if (not (empty? seq1))
+    (let [first-of-seq1 (first seq1)]
+      (do
+        (log/debug (str "seq1 has a candidate:" (fo-ps first-of-seq1)))
+        (lazy-seq
+         (cons
+          first-of-seq1
+          (try-all (rest seq1) seq2 seq3)))))
+    (if (or seq2 seq3)
+      (try-all
+       seq2 seq3 nil))))
+
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-generation-ordering [rand1 rand2]
   (cond (= rand1 0)
-        (str "hL/L + " (decode-gen-ordering2 rand2) " + hPcL")
+        (str "hLcL + " (decode-gen-ordering2 rand2) " + hPcL")
         (= rand 1)
         (str (decode-gen-ordering2 rand2) " + hLcL + hPcL")
         (= rand 2)
@@ -96,6 +108,8 @@
         depth (if depth depth 0)
         headed-parents-at-this-depth
         (filter (fn [phrase]
+                  ;; TODO: possibly: remove-paths such as subcat from head: would make it easier to call with lexemes:
+                  ;; e.g. "generate a sentence whose head is 'mangiare'".
                   (not (fail? (unifyc phrase {:head head}))))
                 (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
                       (filter (fn [phrase]
@@ -109,7 +123,6 @@
                       true
                       '()))
         head (if head head :top)
-        debug (log/debug (str "-lb-start- depth:" depth "; head: " head))
         ]
     (cond
 
@@ -118,8 +131,13 @@
      (= (get-in head '(:synsem :cat)) :det)
      nil
 
+     (= 0 (.size headed-parents-at-this-depth))
+     nil
+
      true
-     (let [parents-with-lexical-heads
+     (let [debug (log/debug (str "lb start: depth:" depth "; head: " head))
+           debug (log/debug (str "parents: " (.size headed-parents-at-this-depth) "; " (fo-ps headed-parents-at-this-depth)))
+           parents-with-lexical-heads
            (if parents-with-lexical-heads
              (do
                parents-with-lexical-heads)
@@ -153,12 +171,11 @@
 
           ]
 
-       ;; TODO: add scrambling of the call: (lazy-cat parents-with-lexical-heads parents-with-phrasal-head) phrases lexicon) below.
-       (log/debug (str "lightning-bolt rand-order at depth:" depth " is :" (decode-generation-ordering rand-order rand-parent-type-order)))
+       (log/debug (str "lightning-bolt rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order)))
 
        (cond (< depth maxdepth)
              (cond (= rand-order 0)
-                   (lazy-cat
+                   (try-all
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees
 
@@ -170,7 +187,7 @@
                            lexicon)) ;; complement (the lexicon).
 
                    (= rand-order 1)
-                   (lazy-cat
+                   (try-all
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
                     the-comp-phrases
 
@@ -182,7 +199,7 @@
                            lexicon)) ;; complement (the lexicon).
 
                    (= rand-order 2)
-                   (lazy-cat
+                   (try-all
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
                     the-comp-phrases
@@ -196,7 +213,7 @@
 
 
                    (= rand-order 3)
-                   (lazy-cat
+                   (try-all
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
@@ -210,7 +227,7 @@
                     one-level-trees)
 
                    true
-                   (lazy-cat
+                   (try-all
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
@@ -221,7 +238,6 @@
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
                     the-comp-phrases))
-
 
              true
              one-level-trees)))))
