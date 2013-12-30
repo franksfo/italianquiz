@@ -1289,7 +1289,11 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                             (not (= :notfound (get-in fs (list feature) :notfound)))
                             (conj
                              {feature (remove-path-from (get-in fs (list feature)) (list (rest path)))}
-                             (dissoc fs feature)))))
+                             (dissoc fs feature))
+
+                            true
+                            (remove-path-from fs (rest paths)))))
+
                    true (throw (Exception. (str "remove-path-from: don't know what to do with this input argument (fs): " fs))))
              (rest paths))))))
 
