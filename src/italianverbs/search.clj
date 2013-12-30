@@ -2,13 +2,13 @@
   (:use [hiccup core]
         [clojure.set])
   (:require
-   [somnium.congomongo :as mongo]
    [clojure.tools.logging :as log]
    [clojure.string :as string]
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
-   [italianverbs.lev :as lev]))
+   [italianverbs.lev :as lev]
+   [italianverbs.mongo :refer (choose-lexeme fetch)]))
 
 ;;(duck/spit "verbs.html"
 ;;      (html/static-page
@@ -85,7 +85,7 @@
                    constraints)
            (map (fn [entry]
                   (fs/deserialize (:entry entry)))
-                (lexfn/fetch)))) ;; <- fetch the entire lexicon (!)
+                (fetch)))) ;; <- fetch the entire lexicon (!)
 
 (defn query-with-lexicon [lexicon & constraints]
   "search the supplied lexicon for entries matching constraints."
@@ -145,10 +145,10 @@
                    (concat
                     (map (fn [attr]
                            (let [constraints {(keyword attr) search-exp}
-                                 results (lexfn/choose-lexeme constraints)]
+                                 results (choose-lexeme constraints)]
                              (if (and results
                                       (not (= (get results :cat) :error))) ;; currently 'no results found' is a {:cat :error}.
-                               (html/tablize (lexfn/choose-lexeme constraints)))))
+                               (html/tablize (choose-lexeme constraints)))))
                          (string/split (if attrs attrs "italian english") #"[ ]+"))
                     (mapcat (fn [search-term]
                               (let [grammatical-terminology-term (get
