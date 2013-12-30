@@ -212,7 +212,7 @@
    true
    (let [result (moreover-head parent head sem-impl)
          is-fail? (fail? result)]
-     (log/info (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if (fail? result)
+     (log/debug (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if (fail? result)
                                                                                      ":fail"
                                                                                      (fo result))))
      (if (not is-fail?)
