@@ -145,7 +145,6 @@
 
      true
      (let [debug (log/debug (str "lb start: depth:" depth "; head: " head))
-           debug (log/debug (str "parents: " (.size headed-parents-at-this-depth) "; " (fo-ps headed-parents-at-this-depth)))
            parents-with-lexical-heads
            (let [head (dissoc-paths head '((:synsem :subcat)
                                            (:english :initial)
