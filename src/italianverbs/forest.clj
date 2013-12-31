@@ -74,7 +74,7 @@
 (defn get-parents-with-phrasal-head [headed-parents-at-this-depth lexicon phrases depth]
   (if (not (empty? headed-parents-at-this-depth))
     (lazy-cat
-     (let [bolts (lightning-bolt (first headed-parents-at-this-depth)
+     (let [bolts (lightning-bolt (get-in (first headed-parents-at-this-depth) '(:head))
                                  lexicon phrases (+ 1 depth))]
        (overh headed-parents-at-this-depth bolts))
      (get-parents-with-phrasal-head (rest headed-parents-at-this-depth) lexicon phrases depth))))
