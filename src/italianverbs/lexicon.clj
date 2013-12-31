@@ -7,7 +7,7 @@
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.unify :refer :all :exclude (unify)]))
 
-;; WARNING: clear blows away entire lexicon in backing store (mongodb).
+;; WARNING: clear blows away entire lexicon in backing store (mongodb or some other db).
 (clear!)
 
 (def lexicon
