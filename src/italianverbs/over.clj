@@ -235,7 +235,7 @@
 
   (if (map? parent)
     (if (get-in parent '(:comment))
-      (log/debug (str "parent:" (get-in parent '(:comment)))))
+      (log/trace (str "parent:" (get-in parent '(:comment)))))
     (log/trace (str "parent:" (fo parent))))
   (if (map? comp)
     (log/trace (str "comp: " (fo comp))))
