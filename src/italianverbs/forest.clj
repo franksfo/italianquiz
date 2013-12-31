@@ -102,8 +102,7 @@
         (str "hPcL + "  (decode-gen-ordering2 rand2) " + hLcL")))
 
 (defn lightning-bolt [ & [head lexicon phrases depth]]
-  (log/debug (str "--lb---depth: " depth))
-  (log/debug (str "--lb---head cat: " (get-in head '(:synsem :cat))))
+  (log/info (str "lb depth: " depth "; cat: " (get-in head '(:synsem :cat))))a
   (let [maxdepth 2
         depth (if depth depth 0)
 
@@ -272,7 +271,7 @@
              true
              one-level-trees)))))
 
-;; aliases that are easier to use in a repl:
+;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
   (let [depth (if depth depth 0)
         head (if head head :top)]
