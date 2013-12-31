@@ -1,24 +1,14 @@
 (ns italianverbs.forest
   (:refer-clojure :exclude [get-in merge resolve find parents])
   (:require
-   [clojure.core :as core]
    [clojure.set :refer :all]
-   [clojure.stacktrace :refer :all]
-   [clojure.string :as string]
    [clojure.tools.logging :as log]
-
+   ;; italianverbs.config is not used yet but hopefully will be in the future.
    [italianverbs.config :as config]
-   [italianverbs.html :as html]
-
-   [italianverbs.grammar :refer :all]
    [italianverbs.lexiconfn :refer (sem-impl)]
-   [italianverbs.morphology :refer :all]
+   [italianverbs.morphology :refer (fo-ps)]
    [italianverbs.over :refer (overc overh)]
-
-   [italianverbs.lev :as lev]
-   [italianverbs.search :as search]
-   [italianverbs.unify :refer :all]
-   [italianverbs.unify :as unify]))
+   [italianverbs.unify :refer :all]))
 
 (defn map-lexicon [head lexicon]
   "TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon."
