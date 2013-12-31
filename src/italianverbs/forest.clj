@@ -54,13 +54,6 @@
                 0))
         (comp-phrases (rest phrases-with-heads) all-phrases lexicon))))))
 
-(defn get-bolts [heads lexicon phrases depth]
-  (if (not (empty? heads))
-    (lazy-seq
-     (cons
-      (lightning-bolt (first heads) lexicon phrases depth)
-      (get-bolts (rest heads) lexicon phrases depth)))))
-
 (defn get-parents-with-phrasal-head [headed-parents-at-this-depth lexicon phrases depth]
   (if (not (empty? headed-parents-at-this-depth))
     (lazy-cat
