@@ -125,9 +125,10 @@
         info (log/debug "get-italian-1: input word: " word)
         ]
 
-    (log/debug (str "a? " (get-in word '(:a))))
-    (log/debug (str "b? " (get-in word '(:b))))
-    (log/debug (str "analysis: " analysis))
+    (if (and false get-in word '(:a))
+      (do (log/info (str "a? " (get-in word '(:a))))
+          (log/info (str "b? " (get-in word '(:b))))
+          (log/info (str "analysis: " analysis))))
 
     ;; throw exception if contradictory facts are found:
 ;    (if (= (get-in word '(:a :initial) false))
@@ -1676,17 +1677,19 @@
 
 
 (defn formattare-1 [expr]
+  (log/trace (str "doing f-1 on: " expr))
   (cond
    (= :fail expr)
    expr
+
    :else
    (let [failed-warning (if (fail? expr) (str "FAILED: " expr " ") "")
-         english
-         (capitalize
-          (get-english-1 (get-in expr '(:english))))
          italian
          (capitalize
-          (get-italian-1 (get-in expr '(:italian))))]
+          (get-italian-1 (get-in expr '(:italian))))
+         english
+         (capitalize
+          (get-english-1 (get-in expr '(:english))))]
      (string/trim
       (str failed-warning italian " (" english ").")))))
 

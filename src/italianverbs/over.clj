@@ -214,6 +214,10 @@
    ;; and save 'true' for errors.
    (let [result (moreover-head parent head sem-impl)
          is-fail? (fail? result)]
+     (log/debug (str "overh result keys: " (if (map? result) (keys result) "(not a map)")))
+     (log/debug (str "overh italian value: " (if (map? result) (get-in result '(:italian)) "(not a map)")))
+     (log/info (str "overh italian :a value: " (if (map? result) (get-in result '(:italian :a)) "(not a map)")))
+     (log/info (str "overh italian :b value: " (if (map? result) (get-in result '(:italian :b)) "(not a map)")))
      (log/info (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if (fail? result)
                                                                                      ":fail"
                                                                                      (fo result))))
