@@ -651,6 +651,16 @@
                      :discrete false
                      :pred :dormire}}})
 
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem human}}
+           {:synsem {:sem {:pred :dottore
+                           :child false}}
+            :italian {:italian "dottore"}
+            :english {:english "doctor"}}))
+
     (unify
      verb-subjective
      modal
@@ -695,15 +705,6 @@
           comp-sem (ref
                     {:activity false
                      :discrete false})]
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             masculine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :dottore
-                             :child false}}
-              :italian {:italian "dottore"}
-              :english {:english "doctor"}}))
 
       ;; essere: adjective
       ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry.
