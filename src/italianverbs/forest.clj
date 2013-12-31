@@ -170,7 +170,7 @@
                                         headed-parents-at-this-depth
                                         lexicon
                                         phrases
-                                        (+ 1 depth)))
+                                        depth))
 
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
