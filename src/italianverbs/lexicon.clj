@@ -659,7 +659,7 @@
            {:synsem {:sem {:pred :dottore
                            :child false}}
             :italian {:italian "dottore"}
-            :english {:english "doctor"}}))
+            :english {:english "doctor"}})
 
     (unify
      verb-subjective
@@ -718,9 +718,8 @@
                               :sem comp-sem
                               :subcat {:1 subject
                                        :2 '()}}}
-                 :sem comp-sem
-                 }
-        })
+                 :sem {:pred :essere
+                       :obj comp-sem}}}))
 
       ;; essere: copula
       (let [gender (ref :top)
@@ -747,16 +746,21 @@
 
       ;; essere: intensifier
       ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
-      (unify
-       essere-common
-       {:notes "essere-intensifer"}
-       {:synsem {:cat :verb
-                 :subcat {:1 subject
-                          :2 {:cat :intensifier
-                              :sem comp-sem
-                              :subcat {:1 subject
-                                       :2 '()}}}
-                 :sem comp-sem}})
+      (let [subject (ref {:cat :noun})
+            comp-sem (ref
+                      {:activity false
+                       :discrete false})]
+        (unify
+         essere-common
+         {:notes "essere-intensifer"
+          :synsem {:cat :verb
+                   :subcat {:1 subject
+                            :2 {:cat :intensifier
+                                :sem comp-sem
+                                :subcat {:1 subject
+                                         :2 '()}}}
+                   :sem {:pred :intensifier
+                         :obj comp-sem}}}))
 
       (unify
        verb-aux-type
@@ -2550,8 +2554,8 @@
                  :sem {:pred :volere
                        :activity true
                        :discrete false
-                       :subj {:animate true}}}}))))
-)
+                       :subj {:animate true}}}})))))
+
 ;; (def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
 ;;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
 ;;(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
