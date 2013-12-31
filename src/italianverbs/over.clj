@@ -269,9 +269,11 @@
    true
    (let [result (moreover-comp parent comp sem-impl)
          is-fail? (fail? result)]
-     (log/debug (str "overc: parent=" (:comment parent) "; comp=[" (fo comp) "]=> " (if (fail? result)
-                                                                                     ":fail"
-                                                                                     (fo result))))
+     (log/debug (str "overc: parent=" (:comment parent)
+                     ";head=[" (fo (get-in parent '(:head)))
+                     "]; comp=[" (fo comp) "]=> " (if (fail? result)
+                                                    ":fail"
+                                                    (fo result))))
      (if (not is-fail?)
        (list result)))))
 
