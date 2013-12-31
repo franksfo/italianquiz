@@ -926,7 +926,7 @@
                  common-noun
                  countable-noun
                  masculine-noun
-                 {:synsem {:sem (unify animal {:pred :granchi
+                 {:synsem {:sem (unify animal {:pred :granchio
                                                :pet false})} ;; I had hermit crabs as pets..
                   :italian {:italian "granchio"
                             :irregular {:plur "granchi"}}
