@@ -25,7 +25,6 @@
 
    [italianverbs.test.forest :refer :all]
 
-
    [somnium.congomongo :as mongo]))
 
 ;; seem to need this sometimes, to avoid initialization errors:
