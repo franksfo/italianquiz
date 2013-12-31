@@ -128,8 +128,9 @@
         (filter (fn [each]
                   (not (fail? each)))
                 (map (fn [phrase]
-                       ;; TODO: possibly: remove-paths such as subcat from head: would make it easier to call with lexemes:
-                       ;; e.g. "generate a sentence whose head is 'mangiare'".
+                       ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
+                       ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
+                       ;; head param of (lightning-bolt)".
                        (unifyc phrase head))
                      (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
                            (filter (fn [phrase]
