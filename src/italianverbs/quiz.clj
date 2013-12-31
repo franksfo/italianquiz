@@ -9,7 +9,7 @@
         [italianverbs.ug]
         [italianverbs.rules]
         )
-  (:require [somnium.congomongo :as db]
+  (:require [somnium.congomongo :as db] ;; TODO: provide database abstraction over mongo and other possible backing stores.
             [clojure.tools.logging :as log]
             [italianverbs.lev :as lev]
             [italianverbs.session :as session]
