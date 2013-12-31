@@ -102,7 +102,7 @@
         (str "hPcL + "  (decode-gen-ordering2 rand2) " + hLcL")))
 
 (defn lightning-bolt [ & [head lexicon phrases depth]]
-  (log/info (str "lb depth: " depth "; cat: " (get-in head '(:synsem :cat))))a
+  (log/info (str "lb depth: " depth "; cat: " (get-in head '(:synsem :cat))))
   (let [maxdepth 2
         depth (if depth depth 0)
 
