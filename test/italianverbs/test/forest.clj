@@ -45,14 +45,17 @@
                           {:comment "vp-imperfetto"})
 
 
-                   (merge (unifyc hc11
-                                  {:synsem {:cat :noun}
-                                   :comp {:synsem {:cat :adjective}}})
-                          {:comment "nbar"})
-
                    (merge (unifyc cc10
                                   {:synsem {:cat :noun}})
-                          {:comment "noun phrase"})))
+                          {:comment "noun phrase"})
+
+                   (merge (unifyc hc11
+                                  (let [head-synsem {:cat :noun}]
+                                    {:synsem head-synsem
+                                     :comp {:synsem {:mod head-synsem}}}))
+                          {:comment "nbar"})
+
+))
 
 (def vp-future (first (filter (fn [x]
                                 (= (:comment x) "parent2/hh21/future"))

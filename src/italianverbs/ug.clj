@@ -26,15 +26,18 @@
   (let [head-cat (ref :top)
         head-essere (ref :top)
         head-is-pronoun (ref :top)
-        head-sem (ref :top)]
+        head-sem (ref :top)
+        sem-mod (ref :top)]
     {:synsem {:cat head-cat
               :essere head-essere
               :pronoun head-is-pronoun
-              :sem head-sem}
+              :sem head-sem
+              :sem-mod sem-mod}
      :head {:synsem {:cat head-cat
                      :essere head-essere
                      :pronoun head-is-pronoun
-                     :sem head-sem}}}))
+                     :sem head-sem
+                     :sem-mod sem-mod}}}))
 
 ;;    [1]
 ;;   /   \
@@ -240,9 +243,14 @@
             :synsem {:agr agr}}}))
 
 (def comp-modifies-head
-  (let [head-semantics (ref :top)]
-    {:head {:synsem {:sem head-semantics}}
-     :comp {:synsem {:sem {:mod head-semantics}}}}))
+  (let [head-semantics (ref :top)
+        pred-of-mod (ref :top)
+        mod-semantics {:pred pred-of-mod
+                       :mod head-semantics}]
+    {:synsem {:sem-mod {:pred pred-of-mod
+                        :obj head-semantics}}
+     :head {:synsem {:sem head-semantics}}
+     :comp {:synsem {:sem mod-semantics}}}))
 
 ;; -- BEGIN SCHEMA DEFINITIONS
 
