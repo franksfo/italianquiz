@@ -17,36 +17,36 @@
                                   {:synsem {:infl :present
                                             :cat :verb
                                             :sem {:tense :present}}})
-                          {:comment "parent1/cc10/s-present"})
+                          {:comment "s-present"})
 
                    (merge (unifyc cc10
                                   {:synsem {:infl :futuro
                                             :cat :verb}})
-                          {:comment "parent1/cc10/s-future"})
+                          {:comment "s-future"})
 
                    (merge (unifyc cc10
                                   {:synsem {:infl :imperfetto
                                             :cat :verb}})
-                          {:comment "parent1/cc10/s-imperfetto"})
+                          {:comment "s-imperfetto"})
 
                    (merge (unifyc hh21
                                   {:synsem {:infl :present
                                             :cat :verb}})
-                          {:comment "parent2/hh21/vp-present"})
+                          {:comment "vp-present"})
 
                    (merge (unifyc hh21
                                   {:synsem {:infl :futuro
                                             :cat :verb}})
-                          {:comment "parent2/hh21/vp-future"})
+                          {:comment "vp-future"})
 
                    (merge (unifyc hh21
                                   {:synsem {:infl :imperfetto
                                             :cat :verb}})
-                          {:comment "parent2/hh21/vp-imperfetto"})
+                          {:comment "vp-imperfetto"})
 
                    (merge (unifyc cc10
                                   {:synsem {:cat :noun}})
-                          {:comment "parent3/cc10/np"})))
+                          {:comment "np"})))
 
 (def vp-future (first (filter (fn [x]
                                 (= (:comment x) "parent2/hh21/future"))
