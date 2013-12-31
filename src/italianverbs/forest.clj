@@ -42,8 +42,8 @@
            (get-in phrase-with-head '(:comp))
            '((:synsem :subcat)
              (:english :initial)
-             (:italian :initial)))]
-
+             (:italian :initial)))
+          debug (log/debug (str "comp-phrases: phrase-with-head (minus subcat, english-initial and italian-initial): " remove-some-paths))]
       (cond
 
        ;; Lexemes with certain grammatical categories (for now, only :det) cannot be heads of
@@ -70,6 +70,14 @@
      (cons
       (lightning-bolt (first heads) lexicon phrases depth)
       (get-bolts (rest heads) lexicon phrases depth)))))
+
+(defn get-parents-with-phrasal-head [headed-parents-at-this-depth lexicon phrases depth]
+  (if (not (empty? headed-parents-at-this-depth))
+    (lazy-cat
+     (let [bolts (lightning-bolt (first headed-parents-at-this-depth)
+                                 lexicon phrases (+ 1 depth))]
+       (overh headed-parents-at-this-depth bolts))
+     (get-parents-with-phrasal-head (rest headed-parents-at-this-depth) lexicon phrases depth))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -158,12 +166,11 @@
            one-level-trees (overc parents-with-lexical-heads (lazy-shuffle lexicon))
 
            parents-with-phrasal-head (if (< depth maxdepth)
-                                       (let [bolts (get-bolts (map (fn [each-phrase]
-                                                                     (get-in each-phrase '(:head)))
-                                                                   headed-parents-at-this-depth)
-                                                              lexicon phrases (+ 1 depth))]
-                                         (let [debug (log/trace (str "creating parents-with-phrasal-head at depth:" depth))]
-                                           (overh headed-parents-at-this-depth bolts))))
+                                       (get-parents-with-phrasal-head
+                                        headed-parents-at-this-depth
+                                        lexicon
+                                        phrases
+                                        (+ 1 depth)))
 
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
