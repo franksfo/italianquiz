@@ -1699,15 +1699,6 @@
         (get-english-1 (get-in expr '(:english)))
         ")")
 
-   (and
-    (map? expr)
-    (:italian expr)
-    (:english expr))
-   (str (get-italian-1 (get-in expr '(:italian)))
-        " ("
-        (get-english-1 (get-in expr '(:english)))
-        ")")
-
    true
    expr))
 
