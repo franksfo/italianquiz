@@ -1,17 +1,18 @@
 (ns italianverbs.test.forest
   (:refer-clojure :exclude [get-in merge resolve find parents])
   (:require
-   [clojure.set :refer :all]
+   [clojure.set :refer (union)]
    [clojure.test :refer :all]
    [clojure.tools.logging :as log]
 
    [italianverbs.generate :as generate]
    [italianverbs.forest :exclude (lightning-bolt) ]
    [italianverbs.forest :as forest]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.lexicon :refer (lexicon)]
    [italianverbs.morphology :refer (fo fo-ps)]
+   [italianverbs.over :refer (overh overc)]
    [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer :all]))
+   [italianverbs.unify :refer (fail? get-in merge unifyc)]))
 
 (def parents (list (merge (unifyc cc10
                                   {:synsem {:infl :present
