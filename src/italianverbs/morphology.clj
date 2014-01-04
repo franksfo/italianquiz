@@ -130,11 +130,18 @@
           (log/info (str "b? " (get-in word '(:b))))
           (log/info (str "analysis: " analysis))))
 
+    (log/debug (str "word's a is a string? " (get-in word '(:a)) " => " (string? (get-in word '(:a)))))
+    (log/debug (str "word's b is a map? " (get-in word '(:b)) " => " (map? (get-in word '(:b)))))
+
+    (log/debug (str "word's a italian is a string? " (get-in word '(:a :italian)) " => " (string? (get-in word '(:a :italian)))))
+
+
     ;; throw exception if contradictory facts are found:
 ;    (if (= (get-in word '(:a :initial) false))
 ;      (throw (Exception. (str ":a's initial is false: (:a should always be initial=true)."))))
 
     (cond
+
      (= word :top) ".."
 
      (ref? word)
@@ -156,6 +163,13 @@
           (map? (get-in word '(:b))))
      (get-italian (get-in word '(:a))
                   (get-in word '(:b)))
+
+     (and (string? (get-in word '(:a :italian)))
+          (map? (get-in word '(:b))))
+     (do
+       (get-italian (get-in word '(:a :italian))
+                    (get-in word '(:b))))
+
 
      (and (map? (get-in word '(:a)))
           (map? (get-in word '(:b))))
@@ -724,7 +738,7 @@
         info-a (log/debug (str "get-italian: a: " a))
         info-b (if b (log/debug (str "get-italian: b: " b)))
 
-        it-b (log/debug "it-b is string? " (string? (get-in b '(:italian))))
+        it-b (log/debug "it-a is string? " (string? (get-in a '(:italian))))
         it-b (log/debug "it-b is string? " (string? (get-in b '(:italian))))
 
         cat-a (log/debug (str "cat a:" (get-in a '(:cat))))
@@ -738,6 +752,7 @@
           (re-find #"^[aeiou]" (get-in b '(:italian))))
      (str "gli " b)
 
+     ;; TODO: cleanup & remove.
      (and false ;; going to throw out this logic: will use :initial and rule schemata instead.
           (= :verb (get-in a '(:cat)))
           (= :noun (get-in b '(:cat)))
@@ -934,6 +949,14 @@
      (and (string? (get-in a '(:italian)))
           (string? b))
      (str (get-in a '(:italian)) " " b)
+
+     (and (string? a)
+          (map? b))
+     (str a " ..")
+
+     (and (string? b)
+          (map? a))
+     (str " .." b)
 
      true
      {:a (if (nil? a) :top a)
@@ -1335,6 +1358,11 @@
     (log/debug (str "a is modal?: " (= true (get-in a '(:modal)))))
     (cond
 
+     (and (map? a)
+          (nil? (get-in a '(:english)))
+          (string? (get-in b '(:english))))
+     (str ".. " (get-in b '(:english)))
+
      (and (string? re-a)
           (map? re-b)
           (not (nil? (get-in re-b '(:a))))
@@ -1385,6 +1413,14 @@
 
      (and (string? re-a) (string? (get-in re-b '(:english))))
      (str re-a " " (get-in re-b '(:english)))
+
+     (and (string? a)
+          (map? b))
+     (str a " ..")
+
+     (and (string? b)
+          (map? a))
+     (str ".. " b)
 
      :else
      {:a (if (nil? a) :top a)
