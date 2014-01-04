@@ -138,7 +138,7 @@
      (= (get-in head '(:synsem :cat)) :det)
      nil
 
-     (= 0 (.size headed-parents-at-this-depth))
+     (empty? headed-parents-at-this-depth)
      nil
 
      true
