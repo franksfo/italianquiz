@@ -101,30 +101,33 @@
         true
         (str "hPcL + "  (decode-gen-ordering2 rand2) " + hLcL")))
 
+(defn parents-at-this-depth [head phrases depth]
+  "subset of phrases possible at this depth where the phrase's head is the given head."
+  (filter (fn [each]
+            (not (fail? each)))
+          (map (fn [phrase]
+                 ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
+                 ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
+                 ;; head param of (lightning-bolt)".
+                 (unifyc phrase head))
+               (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
+                     (filter (fn [phrase]
+                               (empty? (get-in phrase '(:synsem :subcat))))
+                             phrases)
+                     (= depth 1)
+                     (filter (fn [phrase]
+                               (and (not (empty? (get-in phrase '(:synsem :subcat))))
+                                    (empty? (get-in phrase '(:synsem :subcat :2)))))
+                             phrases)
+                     true
+                     '()))))
+
 (defn lightning-bolt [ & [head lexicon phrases depth]]
   (log/info (str "lb depth: " depth "; cat: " (get-in head '(:synsem :cat))))
   (let [maxdepth 2
         depth (if depth depth 0)
 
-        headed-parents-at-this-depth
-        (filter (fn [each]
-                  (not (fail? each)))
-                (map (fn [phrase]
-                       ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
-                       ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
-                       ;; head param of (lightning-bolt)".
-                       (unifyc phrase head))
-                     (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
-                           (filter (fn [phrase]
-                                     (empty? (get-in phrase '(:synsem :subcat))))
-                                   phrases)
-                           (= depth 1)
-                           (filter (fn [phrase]
-                                     (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                                          (empty? (get-in phrase '(:synsem :subcat :2)))))
-                                   phrases)
-                           true
-                           '())))
+        headed-parents-at-this-depth (parents-at-this-depth head phrases depth)
         head (if head head :top)
         ]
 
