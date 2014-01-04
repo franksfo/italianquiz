@@ -59,14 +59,19 @@
 ))
 
 (def vp-future (first (filter (fn [x]
-                                (= (:comment x) "parent2/hh21/future"))
+                                (= (:comment x) "vp-future"))
                               parents)))
 (def s-future (first (filter (fn [x]
-                                (= (:comment x) "parent1/cc10/future"))
+                                (= (:comment x) "s-future"))
                               parents)))
 (def np1 (first (filter (fn [x]
-                         (= (:comment x) "parent3/cc10/np"))
+                         (= (:comment x) "np"))
                        parents)))
+
+
+(def nbar1 (first (filter (fn [x]
+                            (= (:comment x) "nbar"))
+                          parents)))
 
 (def lex (seq (union (set (filter (fn [each]
                                     (= :adjective (get-in each '(:synsem :cat))))
