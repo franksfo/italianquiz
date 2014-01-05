@@ -979,7 +979,8 @@
    (and (map? word)
         (nil? (:a word))
         (nil? (:b word))
-        (nil? (:english word)))
+        (nil? (:english word))
+        (nil? (:infinitive word)))
    ".."
 
    ;; "to do [past]" + "well" => "did well"
