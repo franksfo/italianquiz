@@ -66,15 +66,6 @@
                 ))
         (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here))))))
 
-(defn get-parents-with-phrasal-head [headed-parents-at-this-depth lexicon phrases depth]
-  (if (not (empty? headed-parents-at-this-depth))
-    (lazy-cat
-     ;; TODO: add path-to-here logging param to call of lightning-bolt.
-     (let [bolts (lightning-bolt (get-in (first headed-parents-at-this-depth) '(:head))
-                                 lexicon phrases (+ 1 depth))]
-       (overh headed-parents-at-this-depth bolts))
-     (get-parents-with-phrasal-head (rest headed-parents-at-this-depth) lexicon phrases depth))))
-
 (defn parents-with-lexical-head-map [parents lexicon phrases depth]
   (if (not (empty? parents))
     (let [parent (first parents)]
