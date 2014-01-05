@@ -10,17 +10,19 @@
    [italianverbs.over :refer (overc overh)]
    [italianverbs.unify :refer :all]))
 
-(defn map-lexicon [head lexicon]
-  "TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon."
-  (filter (fn [lexeme]
-            (not (fail? lexeme)))
-          (map (fn [lexeme]
-                 (unifyc
-                  head
-                  (unifyc
-                   {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
-                   lexeme)))
-               lexicon)))
+;; TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon.
+(defn get-lexicon-of-heads [head lexicon]
+  (let [head (dissoc-paths head '((:synsem :subcat)
+                                  (:english :initial)
+                                  (:italian :initial)))]
+    (filter (fn [lexeme]
+              (not (fail?
+                    (unifyc
+                     head
+                     (unify
+                      {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
+                      (copy lexeme))))))
+            lexicon)))
 
 (declare lightning-bolt)
 
@@ -153,13 +155,18 @@
                      true
                      '()))))
 
-(defn lightning-bolt [ & [head lexicon phrases depth path-to-here]]
+(defn lightning-bolt [ & [head lexicon phrases depth path-to-here lexicon-of-heads]]
   (log/info (str "lb depth: " depth "; cat: " (get-in head '(:synsem :cat))))
   (let [maxdepth 2
         depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head phrases depth)
         head (if head head :top)
         path-to-here (if path-to-here path-to-here (str "[" head "]"))
+
+        ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
+        ;; that would cause unification failure because they are specific to the desired final top-level phrase,
+        ;; not the lexical entry.
+        lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-heads head lexicon))
         ]
 
     (cond
@@ -195,6 +202,7 @@
            debug (log/debug (str "size of parents-with-comp-phrases:" (.size parents-with-comp-phrases)))
            debug (log/debug (str "parents-with-comp-phrases:" (seq parents-with-comp-phrases)))
 
+           ;; TODO: add lexicon-of-heads to this call.
            parents-with-phrasal-head-map (if (< depth maxdepth)
                                            (get-parents-with-phrasal-head-map
                                             parents-at-this-depth
@@ -204,10 +212,7 @@
 
            parents-with-lexical-head-map (parents-with-lexical-head-map
                                           parents-at-this-depth
-                                          (let [head (dissoc-paths head '((:synsem :subcat)
-                                                                          (:english :initial)
-                                                                          (:italian :initial)))]
-                                            (map-lexicon head (lazy-shuffle lexicon)))
+                                          lexicon-of-heads
                                           phrases
                                           depth)
 
