@@ -781,26 +781,26 @@
                                  :place false
                                  :pred :esso})
                     :subcat '()}
-           :english "it"
-           :italian {:italian "esso"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
+       :english "it"
+       :italian {:italian "esso"
+                 :cat cat-of-pronoun
+                 :case disjunctive-case-of-pronoun}}
 
-          ;; non human masculine and feminine forms
-          {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :person :3rd
-                          :gender :masc
-                          :number :plur}
-                    :sem {:human false
-                          :place false
-                          :pred :essi}
-                    :subcat '()}
-           :english "them"
-           :italian {:italian "essi"
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
+      ;; non human masculine and feminine forms
+      {:synsem {:cat cat-of-pronoun
+                :pronoun true
+                :agr {:case disjunctive-case-of-pronoun
+                      :person :3rd
+                      :gender :masc
+                      :number :plur}
+                :sem {:human false
+                      :place false
+                      :pred :essi}
+                :subcat '()}
+       :english "them"
+       :italian {:italian "essi"
+                 :cat cat-of-pronoun
+                 :case disjunctive-case-of-pronoun}}
 
 
           ;; fare (to do)
