@@ -74,15 +74,17 @@
               :headed-phrases (overh parent lexicon)}
              (parents-with-lexical-head-map (rest parents) lexicon phrases depth))))))
 
-(defn get-parents-with-phrasal-head-map [parents lexicon phrases depth]
+(defn get-parents-with-phrasal-head-map [parents lexicon phrases depth path-to-here lexicon-of-heads]
   (if (not (empty? parents))
     (let [parent (first parents)]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
-                                                          lexicon phrases (+ 1 depth))]
+                                                          lexicon phrases (+ 1 depth)
+                                                          (str path-to-here "/" (get-in parent '(:head)))
+                                                          lexicon-of-heads)]
                                 (overh parents bolts))}
-             (get-parents-with-phrasal-head-map (rest parents) lexicon phrases depth))))))
+             (get-parents-with-phrasal-head-map (rest parents) lexicon phrases depth path-to-here lexicon-of-heads))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -199,7 +201,9 @@
                                             parents-at-this-depth
                                             lexicon
                                             phrases
-                                            depth))
+                                            depth
+                                            path-to-here
+                                            lexicon-of-heads))
 
            parents-with-lexical-head-map (parents-with-lexical-head-map
                                           parents-at-this-depth
