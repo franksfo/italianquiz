@@ -24,42 +24,42 @@
 
 (declare lightning-bolt)
 
-(defn comp-phrases [parents all-phrases lexicon]
+(defn comp-phrases [parents all-phrases lexicon & [iter path-to-here]]
   (if (not (empty? parents))
-    (let [parent (first parents)
-          remove-some-paths
+    (let [iter (if (nil? iter) 0 iter)
+          path-to-here (if path-to-here path-to-here ":none")
+          parent (first parents)
+          comp-spec
           (dissoc-paths
            (get-in parent '(:comp))
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))
-          comp-spec remove-some-paths ;; TODO: remove-some-paths is not a good variable name, use comp-spec instead.
-          debug (log/debug (str "comp-phrases: parent: " (fo-ps parent)))
+          debug (log/debug (str "comp-phrases: iter:" iter ": parent: " (fo-ps parent) ": path-to-here: " path-to-here))
           no-top-values (remove-top-values comp-spec)
-          debug (log/debug (str "comp-spec: " no-top-values))]
+          debug (log/debug (str "comp-spec: iter:" iter ":" no-top-values))]
       (cond
 
        ;; Lexemes with certain grammatical categories (for now, only :det) cannot be heads of
        ;; a phrase, but only lexemes that are complements of a phrase, so save time by not trying
        ;; to recursively generate phrases that are headed with such lexemes.
-       (= :det (get-in remove-some-paths '(:synsem :cat)))
+       (= :det (get-in comp-spec '(:synsem :cat)))
        (do
-         (log/debug (str "comp-phrases: cannot be head of a phrase: cat="
-                         (get-in remove-some-paths '(:synsem :cat))))
-         (comp-phrases (rest parents) all-phrases lexicon))
+         (log/trace (str "comp-phrases: cannot be head of a phrase: cat="
+                         (get-in comp-spec '(:synsem :cat))))
+         (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here))
 
        true
        (lazy-cat
-        (let [lb (lightning-bolt
-                  remove-some-paths
-                  lexicon
-                  all-phrases
-                  0)]
-          (if (not (empty? lb))
-            (overc parent lb)))
-        (comp-phrases (rest parents) all-phrases lexicon))))
-    (do (log/debug (str "comp-phrases: finished with all parents: returning nil."))
-        nil)))
+        (overc parent
+               (lightning-bolt
+                comp-spec
+                lexicon
+                all-phrases
+                0
+                (str path-to-here "/[" no-top-values "]")
+                ))
+        (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here))))))
 
 (defn get-parents-with-phrasal-head [headed-parents-at-this-depth lexicon phrases depth]
   (if (not (empty? headed-parents-at-this-depth))
@@ -95,7 +95,7 @@
          order seq3 nil nil seq3-label nil nil)))))
 
 (defn try-all [order seq1 seq2 seq3 seq1-label seq2-label seq3-label]
-  (if true
+  (if false
     (try-all-debug order seq1 seq2 seq3 seq1-label seq2-label seq3-label)
     (lazy-cat seq1 seq2 seq3)))
 
@@ -131,13 +131,13 @@
                      true
                      '()))))
 
-(defn lightning-bolt [ & [head lexicon phrases depth]]
+(defn lightning-bolt [ & [head lexicon phrases depth path-to-here]]
   (log/info (str "lb depth: " depth "; cat: " (get-in head '(:synsem :cat))))
   (let [maxdepth 2
         depth (if depth depth 0)
-
         parents-at-this-depth (parents-at-this-depth head phrases depth)
         head (if head head :top)
+        path-to-here (if path-to-here path-to-here (str "[" head "]"))
         ]
 
     (cond
@@ -153,7 +153,7 @@
        nil)
 
      true
-     (let [debug (log/debug (str "lb start: depth:" depth "; head: " head))
+     (let [debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values head)))
            debug (log/debug (str "parents-at-this-depth: " (fo-ps parents-at-this-depth)))
            parents-with-lexical-heads
            (let [head (dissoc-paths head '((:synsem :subcat)
@@ -179,7 +179,7 @@
                                    (lazy-cat parents-with-lexical-heads parents-with-phrasal-head)
                                    true
                                    (lazy-cat parents-with-phrasal-head parents-with-lexical-heads))
-                             phrases (lazy-shuffle lexicon))
+                             phrases (lazy-shuffle lexicon) 0 path-to-here)
 
           ]
 
