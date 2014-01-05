@@ -62,7 +62,7 @@
                 lexicon
                 all-phrases
                 0
-                (str path-to-here "/[" no-top-values "]")
+                (str path-to-here "/" no-top-values "")
                 ))
         (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here))))))
 
@@ -154,7 +154,7 @@
         depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head phrases depth)
         head (if head head :top)
-        path-to-here (if path-to-here path-to-here (str "[" head "]"))
+        path-to-here (if path-to-here path-to-here head)
 
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
