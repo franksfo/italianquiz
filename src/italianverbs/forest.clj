@@ -67,10 +67,29 @@
 (defn get-parents-with-phrasal-head [headed-parents-at-this-depth lexicon phrases depth]
   (if (not (empty? headed-parents-at-this-depth))
     (lazy-cat
+     ;; TODO: add path-to-here logging param to call of lightning-bolt.
      (let [bolts (lightning-bolt (get-in (first headed-parents-at-this-depth) '(:head))
                                  lexicon phrases (+ 1 depth))]
        (overh headed-parents-at-this-depth bolts))
      (get-parents-with-phrasal-head (rest headed-parents-at-this-depth) lexicon phrases depth))))
+
+(defn parents-with-lexical-head-map [parents lexicon phrases depth]
+  (if (not (empty? parents))
+    (let [parent (first parents)]
+      (lazy-seq
+       (cons {:parent parent
+              :headed-phrases (overh parent lexicon)}
+             (parents-with-lexical-head-map (rest parents) lexicon phrases depth))))))
+
+(defn get-parents-with-phrasal-head-map [parents lexicon phrases depth]
+  (if (not (empty? parents))
+    (let [parent (first parents)]
+      (lazy-seq
+       (cons {:parent parent
+              :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
+                                                          lexicon phrases (+ 1 depth))]
+                                (overh parents bolts))}
+             (get-parents-with-phrasal-head-map (rest parents) lexicon phrases depth))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -176,21 +195,34 @@
            debug (log/debug (str "size of parents-with-comp-phrases:" (.size parents-with-comp-phrases)))
            debug (log/debug (str "parents-with-comp-phrases:" (seq parents-with-comp-phrases)))
 
-           parents-with-lexical-heads
-           (let [head (dissoc-paths head '((:synsem :subcat)
-                                           (:english :initial)
-                                           (:italian :initial)))]
-             (overh parents-at-this-depth (map-lexicon head (lazy-shuffle lexicon))))
+           parents-with-phrasal-head-map (if (< depth maxdepth)
+                                           (get-parents-with-phrasal-head-map
+                                            parents-at-this-depth
+                                            lexicon
+                                            phrases
+                                            depth))
+
+           parents-with-lexical-head-map (parents-with-lexical-head-map
+                                          parents-at-this-depth
+                                          (let [head (dissoc-paths head '((:synsem :subcat)
+                                                                          (:english :initial)
+                                                                          (:italian :initial)))]
+                                            (map-lexicon head (lazy-shuffle lexicon)))
+                                          phrases
+                                          depth)
+
+           parents-with-phrasal-head (mapcat (fn [each-kv]
+                                               (let [phrases (:headed-phrases each-kv)]
+                                                 phrases))
+                                             parents-with-phrasal-head-map)
+
+           parents-with-lexical-heads (mapcat (fn [each-kv]
+                                                (let [phrases (:headed-phrases each-kv)]
+                                                  phrases))
+                                              parents-with-lexical-head-map)
 
            one-level-trees (if (not (empty? parents-with-lexical-heads))
                              (overc parents-with-lexical-heads (lazy-shuffle lexicon)))
-
-           parents-with-phrasal-head (if (< depth maxdepth)
-                                       (get-parents-with-phrasal-head
-                                        parents-at-this-depth
-                                        lexicon
-                                        phrases
-                                        depth))
 
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
