@@ -10,18 +10,21 @@
    [italianverbs.over :refer (overc overh)]
    [italianverbs.unify :refer :all]))
 
-;; TODO: determine if this is done lazily or not: it should. If not, will have to do laziness with (lazy-seq (cons..) over the lexicon.
-(defn get-lexicon-of-heads [head lexicon]
-  (let [head (dissoc-paths head '((:synsem :subcat)
+;; TODO: determine if this is done lazily or not: it should; if not,
+;; will have to do laziness with (lazy-seq (cons..) over the lexicon.
+(defn get-lexicon-of-head-spec [head-spec lexicon]
+  (let [head-spec (dissoc-paths head-spec '((:synsem :subcat)
                                   (:english :initial)
                                   (:italian :initial)))]
     (filter (fn [lexeme]
-              (not (fail?
-                    (unifyc
-                     head
-                     (unify
-                      {:synsem {:sem (sem-impl (get-in head '(:synsem :sem)))}}
-                      (copy lexeme))))))
+              (and (not (= :det (get-in lexeme '(:synsem :cat)))) ;; dets don't have preds, making them likely to match head-spec without this.
+                   (not (= true (get-in lexeme '(:synsem :aux)))) ;; auxs also don't have preds, same tendency applies.
+                   (not (fail?
+                         (unifyc
+                          head-spec
+                          (unify
+                           {:synsem {:sem (sem-impl (get-in head-spec '(:synsem :sem)))}}
+                           (copy lexeme)))))))
             lexicon)))
 
 (declare lightning-bolt)
@@ -150,6 +153,21 @@
                      true
                      '()))))
 
+(defn parents-with-phrasal-complements [parents-with-lexical-heads parents-with-phrasal-heads
+                                        rand-parent-type-order head-lexemes]
+  (log/debug (str "parents-with-phrasal-complements with head-lexemes:" (.size head-lexemes)))
+  (let [parents-with-lexical-heads (filter (fn [parent]
+                                             true)
+                                           parents-with-lexical-heads)
+        parents-with-phrasal-heads (filter (fn [parent]
+                                             true)
+                                           parents-with-phrasal-heads)]
+    (cond (= rand-parent-type-order 0)
+          (lazy-cat parents-with-lexical-heads parents-with-phrasal-heads)
+          true
+          (lazy-cat parents-with-phrasal-heads parents-with-lexical-heads))))
+
+
 (defn lightning-bolt [ & [head lexicon phrases depth path-to-here lexicon-of-heads]]
   (log/info (str "lb depth: " depth "; cat: " (get-in head '(:synsem :cat))))
   (let [maxdepth 2
@@ -161,7 +179,7 @@
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
         ;; not the lexical entry.
-        lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-heads head lexicon))
+        lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))
         ]
 
     (cond
@@ -220,11 +238,9 @@
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
 
-           comp-phrases (comp-phrases
-                         (cond (= rand-parent-type-order 0)
-                               (lazy-cat parents-with-lexical-heads parents-with-phrasal-head)
-                               true
-                               (lazy-cat parents-with-phrasal-head parents-with-lexical-heads))
+           comp-phrases (comp-phrases (parents-with-phrasal-complements
+                                       parents-with-phrasal-head parents-with-lexical-heads rand-parent-type-order
+                                       lexicon-of-heads)
                          phrases (lazy-shuffle lexicon) 0 path-to-here)
 
           ]
