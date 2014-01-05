@@ -1077,6 +1077,31 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    :else
    map-with-refs))
 
+(defn remove-top-values [fs]
+  "Use case is logging where we don't care about uninformative key->value pairs where value is simply :top. Also strips refs for readability."
+  (cond
+
+   (= fs {})
+   {}
+
+   (map? fs)
+   (let [map-keys (sort (keys fs))]
+     (let [first-key (first (keys fs))
+           val (get fs first-key)]
+       (if (= val :top) ;; remove-top-values: core action of this function.
+         (remove-top-values (dissoc fs first-key))
+         ;; else, KV is not :top, so keep it.
+       (conj
+        {first-key (remove-top-values val)}
+        (remove-top-values (dissoc fs first-key))))))
+
+   (= (type fs) clojure.lang.Ref)
+   ;; strip refs for readability.
+   (remove-top-values (deref fs))
+
+   :else
+   fs))
+
 (defn refset2map [fs]
   "Turn every ref to a set into a map with two keys: :ref and :val."
   (cond

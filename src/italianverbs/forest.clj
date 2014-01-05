@@ -33,8 +33,10 @@
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))
+          comp-spec remove-some-paths ;; TODO: remove-some-paths is not a good variable name, use comp-spec instead.
           debug (log/debug (str "comp-phrases: parent: " (fo-ps parent)))
-          debug (log/debug (str "comp-phrases: comp specification: " remove-some-paths))]
+          no-top-values (remove-top-values comp-spec)
+          debug (log/debug (str "comp-spec: " no-top-values))]
       (cond
 
        ;; Lexemes with certain grammatical categories (for now, only :det) cannot be heads of
