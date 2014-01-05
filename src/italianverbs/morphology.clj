@@ -719,6 +719,10 @@
    (get-italian (get-in word '(:a))
                 (get-in word '(:b)))
 
+   (and (map? word)
+        (nil? (:italian word)))
+   ".."
+
    (or
     (= (get-in word '(:agr :case)) {:not :acc})
     (= (get-in word '(:agr)) :top))
@@ -970,6 +974,12 @@
   (cond
 
    (= word :top)
+   ".."
+
+   (and (map? word)
+        (nil? (:a word))
+        (nil? (:b word))
+        (nil? (:english word)))
    ".."
 
    ;; "to do [past]" + "well" => "did well"
@@ -1358,11 +1368,6 @@
     (log/debug (str "a is modal?: " (= true (get-in a '(:modal)))))
     (cond
 
-     (and (map? a)
-          (nil? (get-in a '(:english)))
-          (string? (get-in b '(:english))))
-     (str ".. " (get-in b '(:english)))
-
      (and (string? re-a)
           (map? re-b)
           (not (nil? (get-in re-b '(:a))))
@@ -1413,14 +1418,6 @@
 
      (and (string? re-a) (string? (get-in re-b '(:english))))
      (str re-a " " (get-in re-b '(:english)))
-
-     (and (string? a)
-          (map? b))
-     (str a " ..")
-
-     (and (string? b)
-          (map? a))
-     (str ".. " b)
 
      :else
      {:a (if (nil? a) :top a)
