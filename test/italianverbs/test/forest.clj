@@ -8,7 +8,7 @@
    [italianverbs.generate :as generate]
    [italianverbs.forest :exclude (lightning-bolt) ]
    [italianverbs.forest :as forest]
-   [italianverbs.lexicon :refer (lexicon)]
+   [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overh overc)]
    [italianverbs.ug :refer :all]
@@ -53,10 +53,17 @@
                    (merge (unifyc hc11
                                   (let [head-synsem {:cat :noun}]
                                     {:synsem head-synsem
-                                     :comp {:synsem {:mod head-synsem}}}))
+                                     :comp {:synsem {:cat :adjective
+                                                     :mod head-synsem}}}))
                           {:comment "nbar"})
 
 ))
+
+(def minip (filter (fn [x]
+                     (or
+                      (= (:comment x) "noun phrase")
+                      (= (:comment x) "nbar")))
+                   parents))
 
 (def vp-future (first (filter (fn [x]
                                 (= (:comment x) "vp-future"))
@@ -85,6 +92,14 @@
                      (set (filter (fn [each]
                                     (= :verb (get-in each '(:synsem :cat))))
                                   lexicon)))))
+
+(def minil (filter (fn [x]
+                     (or
+                      (= (get-in x '(:synsem :sem :pred)) :gatto)
+                      (= (get-in x '(:italian)) "il")
+                      (= (get-in x '(:synsem :sem :pred)) :rosso)))
+
+                   lex))
 
 (def depth0
   (filter (fn [phrase]
