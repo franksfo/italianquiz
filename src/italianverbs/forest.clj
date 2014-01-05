@@ -47,12 +47,14 @@
        ;; a phrase, but only lexemes that are complements of a phrase, so save time by not trying
        ;; to recursively generate phrases that are headed with such lexemes.
        (or (= :det (get-in comp-spec '(:synsem :cat)))
-           ;; needed/not needed?
-           (and false (= :adjective (get-in comp-spec '(:synsem :cat)))))
+           (= :adjective (get-in comp-spec '(:synsem :cat))))
        (do
-         (log/debug (str "comp-phrases: cannot be head of a phrase: cat="
+         (log/error (str "comp-phrases: cannot be head of a phrase: cat="
                          (get-in comp-spec '(:synsem :cat))))
-         (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here))
+         (if true;; TODO: add top-level 'throw-exception-or-not' switch.
+           (throw (Exception. (str (str "Rat-hole detected: comp-phrases: cannot be head of a phrase: cat="
+                                        (get-in comp-spec '(:synsem :cat))))))
+           (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here)))
 
        true
        (lazy-cat
@@ -163,15 +165,6 @@
         ]
 
     (cond
-
-     ;; optimization: if a head's :cat is in a set of certain categories (e.g. :det),
-     ;; don't try to create phrases with it: just return nil.
-     (= (get-in head '(:synsem :cat)) :det)
-     nil
-
-     ;; needed/not needed?
-     (and false (= (get-in head '(:synsem :cat)) :adjective))
-     nil
 
      (empty? parents-at-this-depth)
      (do
