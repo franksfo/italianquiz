@@ -47,13 +47,15 @@
 
 
                    (merge (unifyc cc10
-                                  {:synsem {:cat :noun}})
+                                  {:synsem {:cat :noun}
+                                   :phrasal-comps false}) ;; rathole prevention
                           {:comment "noun phrase"})
 
                    (merge (unifyc hc11
                                   (let [head-synsem {:cat :noun}]
                                     {:synsem head-synsem
-                                     :comp {:synsem {:cat :adjective
+                                     :phrasal-comps false ;; rathole prevention
+                                     :comp {:synsem {:cat :adjective ;; probably not needed with above rathole prevention.
                                                      :mod head-synsem}}}))
                           {:comment "nbar"})
 

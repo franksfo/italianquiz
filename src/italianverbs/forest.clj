@@ -35,17 +35,20 @@
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))
-          debug (log/debug (str "comp-phrases: iter:" iter ": parent: " (fo-ps parent) ": path-to-here: " path-to-here))
+          debug (log/debug (str "comp-phrases: iter:" iter ": parent: " (fo-ps parent)))
+          debug (log/debug (str "comp-phrases: iter:" iter ": path-to-here: " path-to-here))
           no-top-values (remove-top-values comp-spec)
-          debug (log/debug (str "comp-spec: iter:" iter ":" no-top-values))]
+          debug (log/debug (str "comp-spec   : iter:" iter ":" no-top-values))]
       (cond
 
        ;; Lexemes with certain grammatical categories (for now, only :det) cannot be heads of
        ;; a phrase, but only lexemes that are complements of a phrase, so save time by not trying
        ;; to recursively generate phrases that are headed with such lexemes.
-       (= :det (get-in comp-spec '(:synsem :cat)))
+       (or (= :det (get-in comp-spec '(:synsem :cat)))
+           ;; needed/not needed?
+           (and false (= :adjective (get-in comp-spec '(:synsem :cat)))))
        (do
-         (log/trace (str "comp-phrases: cannot be head of a phrase: cat="
+         (log/debug (str "comp-phrases: cannot be head of a phrase: cat="
                          (get-in comp-spec '(:synsem :cat))))
          (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here))
 
@@ -147,6 +150,10 @@
      (= (get-in head '(:synsem :cat)) :det)
      nil
 
+     ;; needed/not needed?
+     (and false (= (get-in head '(:synsem :cat)) :adjective))
+     nil
+
      (empty? parents-at-this-depth)
      (do
        (log/debug (str "lb: returning nil since parents-at-this-depth is empty."))
@@ -155,6 +162,20 @@
      true
      (let [debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values head)))
            debug (log/debug (str "parents-at-this-depth: " (fo-ps parents-at-this-depth)))
+           debug (log/debug (str "size of categories of comps of parents:"
+                                 (.size (map (fn [parent]
+                                               (get-in parent '(:comp :synsem :cat)))
+                                             parents-at-this-depth))))
+
+           parents-with-comp-phrases (filter (fn [parent]
+                                               (let [cat (get-in parent '(:comp :synsem :cat))]
+                                                 (and (not (= cat :det))
+                                                      (not (= cat :adjective)))))
+                                             parents-at-this-depth)
+
+           debug (log/debug (str "size of parents-with-comp-phrases:" (.size parents-with-comp-phrases)))
+           debug (log/debug (str "parents-with-comp-phrases:" (seq parents-with-comp-phrases)))
+
            parents-with-lexical-heads
            (let [head (dissoc-paths head '((:synsem :subcat)
                                            (:english :initial)
@@ -174,12 +195,12 @@
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
 
-           the-comp-phrases (comp-phrases
-                             (cond (= rand-parent-type-order 0)
-                                   (lazy-cat parents-with-lexical-heads parents-with-phrasal-head)
-                                   true
-                                   (lazy-cat parents-with-phrasal-head parents-with-lexical-heads))
-                             phrases (lazy-shuffle lexicon) 0 path-to-here)
+           comp-phrases (comp-phrases
+                         (cond (= rand-parent-type-order 0)
+                               (lazy-cat parents-with-lexical-heads parents-with-phrasal-head)
+                               true
+                               (lazy-cat parents-with-phrasal-head parents-with-lexical-heads))
+                         phrases (lazy-shuffle lexicon) 0 path-to-here)
 
           ]
 
@@ -193,7 +214,7 @@
                     one-level-trees
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    the-comp-phrases
+                    comp-phrases
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
@@ -210,7 +231,7 @@
                    (try-all
                     rand-order
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    the-comp-phrases
+                    comp-phrases
 
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees
@@ -230,7 +251,7 @@
                    (try-all
                     rand-order
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    the-comp-phrases
+                    comp-phrases
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
@@ -254,7 +275,7 @@
 
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    the-comp-phrases
+                    comp-phrases
 
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees
@@ -277,7 +298,7 @@
                     one-level-trees
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    the-comp-phrases
+                    comp-phrases
 
                     (cond (= rand-parent-type-order 0)
                           (str "hLcP" "hPcP")
