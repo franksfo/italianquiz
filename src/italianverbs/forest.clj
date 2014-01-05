@@ -42,7 +42,8 @@
        ;; to recursively generate phrases that are headed with such lexemes.
        (= :det (get-in remove-some-paths '(:synsem :cat)))
        (do
-         (log/debug (str "comp-phrases: this cannot be head of a phrase: " remove-some-paths " - trying rest of phrases."))
+         (log/debug (str "comp-phrases: cannot be head of a phrase: cat="
+                         (get-in remove-some-paths '(:synsem :cat))))
          (comp-phrases (rest parents) all-phrases lexicon))
 
        true
