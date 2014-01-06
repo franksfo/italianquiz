@@ -212,19 +212,6 @@
                                                (get-in parent '(:comp :synsem :cat)))
                                              parents-at-this-depth))))
 
-           ;; TODO: remove: parents-with-comp-phrases: not used.
-           parents-with-comp-phrases (filter (fn [parent]
-                                               (let [cat (get-in parent '(:comp :synsem :cat))]
-                                                 (and
-                                                  (not (= false (get-in parent '(:comp :phrasal))))
-                                                  (not (= cat :det))
-                                                  (not (= cat :adjective)))))
-                                             parents-at-this-depth)
-
-;;           debug (log/debug (str "size of parents-with-comp-phrases:" (.size parents-with-comp-phrases))) ;; REALIZES
-;;           debug (log/debug (str "parents-with-comp-phrases:" (seq parents-with-comp-phrases))) ;; REALIZES
-
-           ;; TODO: add lexicon-of-heads to this call.
            parents-with-phrasal-head-map (if (< depth maxdepth)
                                            (get-parents-with-phrasal-head-map
                                             parents-at-this-depth
