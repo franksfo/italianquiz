@@ -184,19 +184,16 @@
 
 
 (defn lightning-bolt [ & [head lexicon phrases depth path-to-here lexicon-of-heads]]
-  (log/info (str "lb depth: " depth "; cat: " (get-in head '(:synsem :cat))))
   (let [maxdepth 2
         depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head phrases depth)
         head (if head head :top)
         path-to-here (if path-to-here path-to-here head)
-
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
         ;; not the lexical entry.
-        lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))
-        ]
-
+        lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))]
+    (log/info (str "lb depth: " depth ";" path-to-here))
     (cond
 
      (empty? parents-at-this-depth)
