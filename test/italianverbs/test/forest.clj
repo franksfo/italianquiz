@@ -55,7 +55,7 @@
                                   (let [head-synsem {:cat :noun}]
                                     {:synsem head-synsem
                                      :comp {:phrasal false ;; rathole prevention
-                                            :synsem {:cat :adjective ;; probably not needed with above rathole prevention.
+                                            :synsem {:cat :adjective
                                                      :mod head-synsem}}}))
                           {:comment "nbar"})
 

@@ -239,7 +239,6 @@
                                                     phrases)))
                                               parents-with-lexical-head-map)
 
-
            parents-with-phrasal-head-for-comp-phrases (mapcat (fn [each-kv]
                                                                 (let [parent (:parent each-kv)]
                                                                   (if (not (= false (get-in parent '(:comp :phrasal))))
