@@ -82,49 +82,18 @@
                             (= (:comment x) "nbar"))
                           grammar)))
 
-(def lex (seq (union (set (filter (fn [each]
-                                    (= :adjective (get-in each '(:synsem :cat))))
-                                  lexicon))
-                     (set (filter (fn [each]
-                                    (= :det (get-in each '(:synsem :cat))))
-                                  lexicon))
-                     (set (filter (fn [each]
-                                    (= :noun (get-in each '(:synsem :cat))))
-                                  lexicon))
-                     (set (filter (fn [each]
-                                    (= :verb (get-in each '(:synsem :cat))))
-                                  lexicon)))))
-
 (def minil (filter (fn [x]
                      (or
                       (= (get-in x '(:synsem :sem :pred)) :gatto)
                       (= (get-in x '(:italian)) "il")
                       (= (get-in x '(:synsem :sem :pred)) :rosso)))
 
-                   lex))
+                   lexicon))
 
-(def depth0
-  (filter (fn [phrase]
-            (empty? (get-in phrase '(:synsem :subcat))))
-          grammar))
-
-(def depth1
-  (filter (fn [phrase]
-            (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                 (empty? (get-in phrase '(:synsem :subcat :2)))))
-          grammar))
-
-(def depth2
-  (filter (fn [phrase]
-            (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                 (not (empty? (get-in phrase '(:synsem :subcat :2))))
-                 (empty? (get-in phrase '(:synsem :subcat :3)))))
-          grammar))
-
-(defn lightning-bolt [ & [head lexicon phrases depth] ]
+(defn lightning-bolt [ & [head lex phrases depth] ]
   (let [maxdepth 2
         depth (if depth depth 0)
-        lexicon (if lexicon lexicon (shuffle lex))
+        lexicon (if lex lex (shuffle lexicon))
         phrases (if phrases phrases (shuffle grammar))
         head (if head head :top)]
     (forest/lightning-bolt head lexicon phrases depth)))
