@@ -17,14 +17,12 @@
                                             (:english :initial)
                                             (:italian :initial)))]
     (filter (fn [lexeme]
-              (and (not (= :det (get-in lexeme '(:synsem :cat)))) ;; dets don't have preds, making them likely to match head-spec without this.
-                   (not (= true (get-in lexeme '(:synsem :aux)))) ;; auxs also don't have preds, same tendency applies.
-                   (not (fail?
-                         (unifyc
-                          head-spec
-                          (unify
-                           {:synsem {:sem (sem-impl (get-in head-spec '(:synsem :sem)))}}
-                           (copy lexeme)))))))
+              (not (fail?
+                    (unifyc
+                     head-spec
+                     (unify
+                      {:synsem {:sem (sem-impl (get-in head-spec '(:synsem :sem)))}}
+                      (copy lexeme))))))
             lexicon)))
 
 (declare lightning-bolt)
@@ -45,32 +43,15 @@
           no-top-values (remove-top-values (dissoc-paths comp-spec '((:english :initial)
                                                                      (:italian :initial))))
           debug (log/debug (str "comp-spec   : iter:" iter ":" no-top-values))]
-      (cond
-
-       ;; Lexemes with certain grammatical categories (for now, only :det) cannot be heads of
-       ;; a phrase, but only lexemes that are complements of a phrase, so save time by not trying
-       ;; to recursively generate phrases that are headed with such lexemes.
-       (or (= :det (get-in comp-spec '(:synsem :cat)))
-           (= :adjective (get-in comp-spec '(:synsem :cat))))
-       (do
-         (log/error (str "comp-phrases: cannot be head of a phrase: cat="
-                         (get-in comp-spec '(:synsem :cat))))
-         (if true ;; TODO: add top-level 'throw-exception-or-not' switch.
-           (throw (Exception. (str (str "Rat-hole detected: comp-phrases: cannot be head of a phrase: cat="
-                                        (get-in comp-spec '(:synsem :cat))))))
-           (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here)))
-
-       true
-       (lazy-cat
-        (overc parent
-               (lightning-bolt
-                comp-spec
-                lexicon
-                all-phrases
-                0
-                (str path-to-here "/[C " no-top-values "]")
-                ))
-        (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here))))))
+      (lazy-cat
+       (overc parent
+              (lightning-bolt
+               comp-spec
+               lexicon
+               all-phrases
+               0
+               (str path-to-here "/[C " no-top-values "]")))
+       (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here)))))
 
 (defn parents-with-lexical-head-map [parents lexicon phrases depth]
   (if (not (empty? parents))
@@ -203,12 +184,6 @@
 
      true
      (let [debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values head)))
-           debug (log/debug (str "parents-at-this-depth: " (fo-ps parents-at-this-depth)))
-           debug (log/debug (str "size of categories of comps of parents:"
-                                 (.size (map (fn [parent]
-                                               (get-in parent '(:comp :synsem :cat)))
-                                             parents-at-this-depth))))
-
            parents-with-phrasal-head-map (if (< depth maxdepth)
                                            (get-parents-with-phrasal-head-map
                                             parents-at-this-depth
