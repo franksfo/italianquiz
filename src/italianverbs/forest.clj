@@ -14,8 +14,8 @@
 ;; will have to do laziness with (lazy-seq (cons..) over the lexicon.
 (defn get-lexicon-of-head-spec [head-spec lexicon]
   (let [head-spec (dissoc-paths head-spec '((:synsem :subcat)
-                                  (:english :initial)
-                                  (:italian :initial)))]
+                                            (:english :initial)
+                                            (:italian :initial)))]
     (filter (fn [lexeme]
               (and (not (= :det (get-in lexeme '(:synsem :cat)))) ;; dets don't have preds, making them likely to match head-spec without this.
                    (not (= true (get-in lexeme '(:synsem :aux)))) ;; auxs also don't have preds, same tendency applies.
@@ -42,7 +42,8 @@
              (:italian :initial)))
           debug (log/debug (str "comp-phrases: iter:" iter ": parent: " (fo-ps parent)))
           debug (log/debug (str "comp-phrases: iter:" iter ": path-to-here: " path-to-here))
-          no-top-values (remove-top-values comp-spec)
+          no-top-values (remove-top-values (dissoc-paths comp-spec '((:english :initial)
+                                                                     (:italian :initial))))
           debug (log/debug (str "comp-spec   : iter:" iter ":" no-top-values))]
       (cond
 
@@ -54,7 +55,7 @@
        (do
          (log/error (str "comp-phrases: cannot be head of a phrase: cat="
                          (get-in comp-spec '(:synsem :cat))))
-         (if true;; TODO: add top-level 'throw-exception-or-not' switch.
+         (if true ;; TODO: add top-level 'throw-exception-or-not' switch.
            (throw (Exception. (str (str "Rat-hole detected: comp-phrases: cannot be head of a phrase: cat="
                                         (get-in comp-spec '(:synsem :cat))))))
            (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here)))
@@ -67,7 +68,7 @@
                 lexicon
                 all-phrases
                 0
-                (str path-to-here "/" no-top-values "")
+                (str path-to-here "/[C " no-top-values "]")
                 ))
         (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here))))))
 
@@ -86,7 +87,11 @@
        (cons {:parent parent
               :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
-                                                          (str path-to-here "/" (get-in parent '(:head)))
+                                                          (str path-to-here "/[H "
+                                                               (remove-top-values
+                                                                (dissoc-paths (get-in parent '(:head))
+                                                                              '((:english :initial)
+                                                                                (:italian :initial)))) "]")
                                                           lexicon-of-heads)]
                                 (overh parents bolts))}
              (get-parents-with-phrasal-head-map (rest parents) lexicon phrases depth path-to-here lexicon-of-heads))))))
@@ -155,12 +160,22 @@
 
 (defn parents-with-phrasal-complements [parents-with-lexical-heads parents-with-phrasal-heads
                                         rand-parent-type-order head-lexemes]
-  (log/debug (str "parents-with-phrasal-complements with head-lexemes:" (.size head-lexemes)))
+;;  (log/debug (str "parents-with-phrasal-complements with head-lexemes:" (.size head-lexemes))) ;; REALIZES.
   (let [parents-with-lexical-heads (filter (fn [parent]
-                                             true)
+                                             (if (= false (get-in parent '(:comp :phrasal)))
+                                               (do
+                                                 (log/debug (str "this parent: " (fo-ps parent)
+                                                                 " cannot have a phrasal comp; omitting."))
+                                                 false)
+                                               true))
                                            parents-with-lexical-heads)
         parents-with-phrasal-heads (filter (fn [parent]
-                                             true)
+                                             (if (= false (get-in parent '(:comp :phrasal)))
+                                               (do
+                                                 (log/debug (str "this parent: " (fo-ps parent)
+                                                                 " cannot have a phrasal comp; omitting."))
+                                                 false)
+                                               true))
                                            parents-with-phrasal-heads)]
     (cond (= rand-parent-type-order 0)
           (lazy-cat parents-with-lexical-heads parents-with-phrasal-heads)
@@ -197,14 +212,17 @@
                                                (get-in parent '(:comp :synsem :cat)))
                                              parents-at-this-depth))))
 
+           ;; TODO: remove: parents-with-comp-phrases: not used.
            parents-with-comp-phrases (filter (fn [parent]
                                                (let [cat (get-in parent '(:comp :synsem :cat))]
-                                                 (and (not (= cat :det))
-                                                      (not (= cat :adjective)))))
+                                                 (and
+                                                  (not (= false (get-in parent '(:comp :phrasal))))
+                                                  (not (= cat :det))
+                                                  (not (= cat :adjective)))))
                                              parents-at-this-depth)
 
-           debug (log/debug (str "size of parents-with-comp-phrases:" (.size parents-with-comp-phrases)))
-           debug (log/debug (str "parents-with-comp-phrases:" (seq parents-with-comp-phrases)))
+;;           debug (log/debug (str "size of parents-with-comp-phrases:" (.size parents-with-comp-phrases))) ;; REALIZES
+;;           debug (log/debug (str "parents-with-comp-phrases:" (seq parents-with-comp-phrases))) ;; REALIZES
 
            ;; TODO: add lexicon-of-heads to this call.
            parents-with-phrasal-head-map (if (< depth maxdepth)
@@ -241,11 +259,11 @@
            comp-phrases (comp-phrases (parents-with-phrasal-complements
                                        parents-with-phrasal-head parents-with-lexical-heads rand-parent-type-order
                                        lexicon-of-heads)
-                         phrases (lazy-shuffle lexicon) 0 path-to-here)
+                                      phrases (lazy-shuffle lexicon) 0 path-to-here)
 
           ]
 
-       (log/debug (str "lightning-bolt rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(" rand-order "/" rand-parent-type-order ")"))
+       (log/debug (str "lightning-bolt rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
 
        (cond (< depth maxdepth)
              (cond (= rand-order 0)

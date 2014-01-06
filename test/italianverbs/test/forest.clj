@@ -14,7 +14,7 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (fail? get-in merge unifyc)]))
 
-(def parents (list (merge (unifyc cc10
+(def grammar (list (merge (unifyc cc10
                                   {:synsem {:infl :present
                                             :cat :verb
                                             :sem {:tense :present}}})
@@ -48,14 +48,14 @@
 
                    (merge (unifyc cc10
                                   {:synsem {:cat :noun}
-                                   :phrasal-comps false}) ;; rathole prevention
+                                   :comp {:phrasal false}}) ;; rathole prevention
                           {:comment "noun phrase"})
 
                    (merge (unifyc hc11
                                   (let [head-synsem {:cat :noun}]
                                     {:synsem head-synsem
-                                     :phrasal-comps false ;; rathole prevention
-                                     :comp {:synsem {:cat :adjective ;; probably not needed with above rathole prevention.
+                                     :comp {:phrasal false ;; rathole prevention
+                                            :synsem {:cat :adjective ;; probably not needed with above rathole prevention.
                                                      :mod head-synsem}}}))
                           {:comment "nbar"})
 
@@ -65,22 +65,22 @@
                      (or
                       (= (:comment x) "noun phrase")
                       (= (:comment x) "nbar")))
-                   parents))
+                   grammar))
 
 (def vp-future (first (filter (fn [x]
                                 (= (:comment x) "vp-future"))
-                              parents)))
+                              grammar)))
 (def s-future (first (filter (fn [x]
                                 (= (:comment x) "s-future"))
-                              parents)))
+                              grammar)))
 (def np1 (first (filter (fn [x]
                          (= (:comment x) "np"))
-                       parents)))
+                       grammar)))
 
 
 (def nbar1 (first (filter (fn [x]
                             (= (:comment x) "nbar"))
-                          parents)))
+                          grammar)))
 
 (def lex (seq (union (set (filter (fn [each]
                                     (= :adjective (get-in each '(:synsem :cat))))
@@ -106,26 +106,26 @@
 (def depth0
   (filter (fn [phrase]
             (empty? (get-in phrase '(:synsem :subcat))))
-          parents))
+          grammar))
 
 (def depth1
   (filter (fn [phrase]
             (and (not (empty? (get-in phrase '(:synsem :subcat))))
                  (empty? (get-in phrase '(:synsem :subcat :2)))))
-          parents))
+          grammar))
 
 (def depth2
   (filter (fn [phrase]
             (and (not (empty? (get-in phrase '(:synsem :subcat))))
                  (not (empty? (get-in phrase '(:synsem :subcat :2))))
                  (empty? (get-in phrase '(:synsem :subcat :3)))))
-          parents))
+          grammar))
 
 (defn lightning-bolt [ & [head lexicon phrases depth] ]
   (let [maxdepth 2
         depth (if depth depth 0)
         lexicon (if lexicon lexicon (shuffle lex))
-        phrases (if phrases phrases (shuffle parents))
+        phrases (if phrases phrases (shuffle grammar))
         head (if head head :top)]
     (forest/lightning-bolt head lexicon phrases depth)))
 
