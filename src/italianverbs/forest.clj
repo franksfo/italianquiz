@@ -241,24 +241,43 @@
                                           depth)
 
            parents-with-phrasal-head (mapcat (fn [each-kv]
-                                               (let [phrases (:headed-phrases each-kv)]
-                                                 phrases))
+                                               (let [parent (:parent each-kv)]
+                                                 (let [phrases (:headed-phrases each-kv)]
+                                                   phrases)))
                                              parents-with-phrasal-head-map)
 
            parents-with-lexical-heads (mapcat (fn [each-kv]
-                                                (let [phrases (:headed-phrases each-kv)]
-                                                  phrases))
+                                                (let [parent (:parent each-kv)]
+                                                  (let [phrases (:headed-phrases each-kv)]
+                                                    phrases)))
                                               parents-with-lexical-head-map)
 
-           one-level-trees (if (not (empty? parents-with-lexical-heads))
-                             (overc parents-with-lexical-heads (lazy-shuffle lexicon)))
+
+           parents-with-phrasal-head-for-comp-phrases (mapcat (fn [each-kv]
+                                                                (let [parent (:parent each-kv)]
+                                                                  (if (not (= false (get-in parent '(:comp :phrasal))))
+                                                                    (let [phrases (:headed-phrases each-kv)]
+                                                                      phrases))))
+                                                              parents-with-phrasal-head-map)
+
+           parents-with-lexical-heads-for-comp-phrases (mapcat (fn [each-kv]
+                                                                 (let [parent (:parent each-kv)]
+                                                                   (if (not (= false (get-in parent '(:comp :phrasal))))
+                                                                     (let [phrases (:headed-phrases each-kv)]
+                                                                       phrases))))
+                                                               parents-with-lexical-head-map)
+
+
+           one-level-trees
+           (overc parents-with-lexical-heads (lazy-shuffle lexicon))
 
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
 
            comp-phrases (comp-phrases (parents-with-phrasal-complements
-                                       parents-with-phrasal-head parents-with-lexical-heads rand-parent-type-order
-                                       lexicon-of-heads)
+                                       parents-with-phrasal-head-for-comp-phrases
+                                       parents-with-lexical-heads-for-comp-phrases
+                                       rand-parent-type-order lexicon-of-heads)
                                       phrases (lazy-shuffle lexicon) 0 path-to-here)
 
           ]
