@@ -141,22 +141,11 @@
 
 (defn parents-with-phrasal-complements [parents-with-lexical-heads parents-with-phrasal-heads
                                         rand-parent-type-order head-lexemes]
-;;  (log/debug (str "parents-with-phrasal-complements with head-lexemes:" (.size head-lexemes))) ;; REALIZES.
   (let [parents-with-lexical-heads (filter (fn [parent]
-                                             (if (= false (get-in parent '(:comp :phrasal)))
-                                               (do
-                                                 (log/debug (str "this parent: " (fo-ps parent)
-                                                                 " cannot have a phrasal comp; omitting."))
-                                                 false)
-                                               true))
+                                             (not (= false (get-in parent '(:comp :phrasal)))))
                                            parents-with-lexical-heads)
         parents-with-phrasal-heads (filter (fn [parent]
-                                             (if (= false (get-in parent '(:comp :phrasal)))
-                                               (do
-                                                 (log/debug (str "this parent: " (fo-ps parent)
-                                                                 " cannot have a phrasal comp; omitting."))
-                                                 false)
-                                               true))
+                                             (not (= false (get-in parent '(:comp :phrasal)))))
                                            parents-with-phrasal-heads)]
     (cond (= rand-parent-type-order 0)
           (lazy-cat parents-with-lexical-heads parents-with-phrasal-heads)
@@ -178,9 +167,7 @@
     (cond
 
      (empty? parents-at-this-depth)
-     (do
-       (log/debug (str "lb: returning nil since parents-at-this-depth is empty."))
-       nil)
+     nil
 
      true
      (let [debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values head)))
