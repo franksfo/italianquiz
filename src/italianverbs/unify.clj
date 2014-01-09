@@ -58,24 +58,36 @@
 (defn fail? [fs]
   "(fail? fs) <=> true if at least one of fs's path's value is :fail."
   (if (= :fail fs) true
-      (if (seq? fs) false
-          (if (= fs :fail) true
-              (do
-                (defn failr? [fs keys]
-;                  (log/error (str "FAILR: fs: " fs))
-;                  (log/error (str "FAILR: keys: " keys))
-                  (if (first keys)
-                    (if (fail? (get-in fs (list (first keys))))
-                      true
-                      (failr? fs (rest keys)))
-                    false))
-                (cond
-                 (= fs :fail) true
-                 (map? fs)
-                 (failr? fs (keys fs))
-                 (= (type fs) clojure.lang.Ref)
-                 (fail? @fs)
-                 :else false))))))
+      (if (seq? fs) false ;; a sequence is never fail.
+          (if (= fs :fail) true ;; :fail is always fail.
+              ;; otherwise, check recursively.
+              (let [debug
+                    (log/info (str "doing fail? " fs " with type:" fs))
+
+                    result
+                    (do
+                      (defn failr? [fs keys]
+                        (if (first keys)
+                          (do
+                            (log/error (str "getting fail? for key: " (first keys)))
+                            (if (fail? (get-in fs (list (first keys))))
+                              true
+                              (failr? fs (rest keys))))
+                          false)) ;; empty list of keys => not fail
+                      (cond
+                       (= fs :fail) true
+                       (and (map? fs) (not (empty? (keys fs))))
+
+                       (failr? fs (keys fs))
+                       (= (type fs) clojure.lang.Ref)
+
+                       (do
+                         (log/info (str "traversing ref: " fs))
+                         (fail? @fs))
+                       :else false))]
+
+                (log/info (str "result of doing fail? on " fs " => " result))
+                result)))))
 
 (defn nonfail [maps]
   (filter (fn [each-map]
@@ -129,6 +141,13 @@
         val2 (second args)]
     (log/debug (str "unify val1: " val1))
     (log/debug (str "      val2: " val2))
+    (log/debug (str "set? val1:" (set? val1)))
+    (log/debug (str "set? val2:" (set? val2)))
+    (log/debug (str "has-set? val1:" (has-set? val1)))
+    (log/debug (str "has-set? val2:" (has-set? val2)))
+    (log/debug (str "= val1 '()? " (= val1 '())))
+    (log/debug (str "= val2 :top? " (= val2 :top)))
+    (log/debug (str "= val2 '()? " (= val2 '())))
     (cond
      (set? val1)
      (set (filter (fn [each]
@@ -215,26 +234,32 @@
      ;; the result by calling (f val-in-result val-in-latter)."
      (and (map? val1)
           (map? val2))
-     (let [tmp-result
+     (let [debug (log/debug "map? val1 true; map? val2 true")
+           tmp-result
            (reduce #(merge-with unify %1 %2) args)]
+       (log/debug (str "tmp-result: " tmp-result))
        (if (not (nil? (some #{:fail} (vals tmp-result))))
          :fail
-         (do ;(println (str "no fail in: " vals))
-           tmp-result)))
+         tmp-result))
      (and
       (= (type val1) clojure.lang.Ref)
       (not (= (type val2) clojure.lang.Ref)))
-     (do (dosync
+     (do
+       (log/debug (str "val1 is a ref, but not val2."))
+       (dosync
           (alter val1
                  (fn [x] (unify @val1 val2))))
          ;; alternative to the above (not tested yet):  (fn [x] (unify (copy @val1) val2))))
          ;; TODO: why is this false-disabled? (document and test) or remove
          (if (and false (fail? @val1)) :fail
          val1))
+
      (and
       (= (type val2) clojure.lang.Ref)
       (not (= (type val1) clojure.lang.Ref)))
-     (do (dosync
+     (do
+       (log/debug (str "val2 is a ref, but not val1."))
+       (dosync
           (alter val2
                  (fn [x] (unify val1 @val2))))
          ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
@@ -246,6 +271,7 @@
       (= (type val1) clojure.lang.Ref)
       (= (type val2) clojure.lang.Ref))
      (do
+       (log/debug (str "val1 and val2 are both refs."))
        (if (or (= val1 val2) ;; same reference.
                (= val1 @val2)) ;; val1 <- val2
          val1
@@ -253,6 +279,7 @@
            val2
            (do
              (log/debug (str "unifying two refs: " val1 " and " val2))
+             (log/debug (str " whose values are: " @val1 " and " @val2))
              (dosync
               (alter val1
                      (fn [x] (unify @val1 @val2))))
@@ -260,6 +287,7 @@
               (alter val2
                      (fn [x] val1))) ;; note that now val2 is a ref to a ref.
              (log/debug (str "returning ref: " val1))
+             ;; TODO: remove, since it's disabled, or add a global setting to en/dis-able.
              (if (and false (fail? @val1)) :fail
              val1)))))
 
@@ -1101,6 +1129,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
    :else
    fs))
+
+(defn remove-top-values-log [fs]
+  (log/info (str "remove-top-values: input: " fs))
+  (let [result (remove-top-values fs)]
+    (log/info (str "remove-top-values: output: " result))
+    result))
 
 (defn refset2map [fs]
   "Turn every ref to a set into a map with two keys: :ref and :val."
