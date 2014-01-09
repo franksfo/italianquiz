@@ -40,7 +40,7 @@
              (:italian :initial)))
           debug (log/debug (str "comp-phrases: iter:" iter ": parent: " (fo-ps parent)))
           debug (log/debug (str "comp-phrases: iter:" iter ": path-to-here: " path-to-here))
-          no-top-values (remove-top-values (dissoc-paths comp-spec '((:english :initial)
+          no-top-values (remove-top-values-log (dissoc-paths comp-spec '((:english :initial)
                                                                      (:italian :initial))))
           debug (log/debug (str "comp-spec   : iter:" iter ":" no-top-values))]
       (lazy-cat
@@ -69,11 +69,12 @@
               :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           (str path-to-here "/[H "
-                                                               (remove-top-values
+                                                               (remove-top-values-log
                                                                 (dissoc-paths (get-in parent '(:head))
                                                                               '((:english :initial)
                                                                                 (:italian :initial)))) "]")
                                                           lexicon-of-heads)]
+                                (log/debug "got some bolts..")
                                 (overh parents bolts))}
              (get-parents-with-phrasal-head-map (rest parents) lexicon phrases depth path-to-here lexicon-of-heads))))))
 
@@ -120,6 +121,7 @@
 
 (defn parents-at-this-depth [head phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
+  (log/debug (str "parents-at-this-depth.."))
   (filter (fn [each]
             (not (fail? each)))
           (map (fn [phrase]
@@ -158,19 +160,23 @@
         depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head phrases depth)
         head (if head head :top)
-        path-to-here (if path-to-here path-to-here head)
+        path-to-here (if path-to-here path-to-here (remove-top-values-log head))
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
         ;; not the lexical entry.
         lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))]
-    (log/info (str "lb depth: " depth ";" path-to-here))
+    (log/info (str "lb depth: " depth ";@" path-to-here))
+    (log/info (str "parents at this depth emptyness: " (empty? parents-at-this-depth)))
     (cond
 
      (empty? parents-at-this-depth)
-     nil
+     (do
+       (log/info "welp, parents are empty. returning.")
+       nil)
 
      true
-     (let [debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values head)))
+     (let [debug (log/debug (str "gonna try to remove top values now.."))
+           debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values-log head)))
            parents-with-phrasal-head-map (if (< depth maxdepth)
                                            (get-parents-with-phrasal-head-map
                                             parents-at-this-depth
