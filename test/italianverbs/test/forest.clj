@@ -12,7 +12,7 @@
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overh overc)]
    [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer (fail? get-in merge unifyc)]))
+   [italianverbs.unify :refer (fail? get-in merge unify unifyc remove-top-values)]))
 
 (def grammar (list (merge (unifyc cc10
                                   {:synsem {:infl :present
