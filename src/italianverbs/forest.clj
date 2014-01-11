@@ -71,14 +71,18 @@
 
 (defn get-parents-with-phrasal-head-map [parents lexicon phrases depth path-to-here lexicon-of-heads]
   (if (not (empty? parents))
-    (let [parent (first parents)]
+    (let [parent (first parents)
+          debug (log/debug (str "g-p-w-p-h-m@" path-to-here ": " (fo-ps parent)))]
       (lazy-seq
        (cons {:parent parent
-              :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
+              :headed-phrases (let [path-to-here (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
+                                    bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
-                                                          (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
+                                                          path-to-here
                                                           lexicon-of-heads)]
-                                (log/debug "got some bolts..")
+                                (if (empty? bolts)
+                                  (log/trace "g-p-w-p-h-m@" path-to-here ": " (fo-ps parent) " => bolts are empty.")
+                                  (log/debug "g-p-w-p-h-m@" path-to-here ": bolts for parent: " (fo-ps parent) " => non-empty."))
                                 (overh parents bolts))}
              (get-parents-with-phrasal-head-map (rest parents) lexicon phrases depth path-to-here lexicon-of-heads))))))
 
@@ -125,25 +129,29 @@
 
 (defn parents-at-this-depth [head phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (log/debug (str "parents-at-this-depth.."))
-  (filter (fn [each]
-            (not (fail? each)))
-          (map (fn [phrase]
-                 ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
-                 ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
-                 ;; head param of (lightning-bolt)".
-                 (unifyc phrase head))
-               (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
-                     (filter (fn [phrase]
-                               (empty? (get-in phrase '(:synsem :subcat))))
-                             phrases)
-                     (= depth 1)
-                     (filter (fn [phrase]
-                               (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                                    (empty? (get-in phrase '(:synsem :subcat :2)))))
-                             phrases)
-                     true
-                     '()))))
+  (log/debug (str "parents-at-this-depth (depth=" depth ") starting with head: " (show-spec head)))
+  (let [result
+        (filter (fn [each]
+                  (not (fail? each)))
+                (map (fn [phrase]
+                       ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
+                       ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
+                       ;; head param of (lightning-bolt)".
+                       (unifyc phrase head))
+                     (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
+                           (filter (fn [phrase]
+                                     (empty? (get-in phrase '(:synsem :subcat))))
+                                   phrases)
+                           (= depth 1)
+                           (filter (fn [phrase]
+                                     (and (not (empty? (get-in phrase '(:synsem :subcat))))
+                                          (empty? (get-in phrase '(:synsem :subcat :2)))))
+                                   phrases)
+                           true
+                           '())))]
+    ;; REALIZES:
+;    (log/trace (str "parents-at-this-depth (depth=" depth ") for head: " (show-spec head) " returning result with size: " (.size result)))
+    result))
 
 (defn parents-with-phrasal-complements [parents-with-lexical-heads parents-with-phrasal-heads
                                         rand-parent-type-order head-lexemes]
@@ -169,14 +177,13 @@
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
         ;; not the lexical entry.
         lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))]
-    (log/info (str "lb depth: " depth ";@" path-to-here))
     (cond
 
      (empty? parents-at-this-depth)
      nil
 
      true
-     (let [debug (log/debug (str "gonna try to remove top values now.."))
+     (let [debug (log/info (str "lb depth: " depth ";@" path-to-here))
            debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values-log head)))
            parents-with-phrasal-head-map (if (< depth maxdepth)
                                            (get-parents-with-phrasal-head-map
