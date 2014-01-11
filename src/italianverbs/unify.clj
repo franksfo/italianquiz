@@ -66,11 +66,15 @@
         (= fs :fail) true ;; :fail is always fail.
         (fn? fs) false ;; a function is never fail.
 
-        (and (ref? fs)
-             (map? @fs)
-             (= (resolve fs) (resolve (:subj (resolve fs)))))
-        (throw (Exception. (str "Fatal error: cycle detected in map with keys: " (keys @fs) "; without cycle: "
-                                (dissoc @fs :subj))))
+        ;; TODO: make cycle-checking work with other features (not just :subj).
+        (and
+         (log/debug (str "cycle-detect:"
+                         (and (ref? fs)
+                              (map? @fs)
+                              (= (resolve fs) (resolve (:subj (resolve fs)))))
+                         (throw (Exception. (str "Fatal error: cycle detected in map with keys: " (keys @fs) "; without cycle: "
+                                                 (dissoc @fs :subj))))))
+         false) false
 
         (ref? fs)
         (do
@@ -80,27 +84,7 @@
         :else
         ;; otherwise, check recursively.
         (let [debug
-              (log/debug (str "doing fail? on map with keys: " (keys fs) "; size=" (.size (keys fs))))
-              debug
-              (if (and (= (.size (keys fs)) 4)
-                       (not (= :notfound (:animate fs :notfound)))
-                       (not (= :notfound (:mod fs :notfound)))
-                       (not (= :notfound (:pred fs :notfound)))
-                       (not (= :notfound (:subj fs :notfound)))
-                       (ref? (:subj fs)))
-                (do
-                  (log/error (str "CRASH IS COMING."))
-                  (log/error (str "minus subj: " (dissoc fs :subj)))
-                  (log/error (str "subj: " (:subj fs)))
-                  (if (ref? (:subj fs))
-                    (log/error (str "type of subj ref: " (type @(:subj fs)))))
-                  (if (ref? @(:subj fs))
-                    (log/error (str "type of subj ref ref: " (type @@(:subj fs)))))
-                  (if (ref? @(:subj fs))
-                    (log/error (str "::equal to fs: " (= @@(:subj fs) fs))))
-
-
-                  (log/error (str "pred: " (:pred fs)))))]
+              (log/debug (str "doing fail? on map with keys: " (keys fs) "; size=" (.size (keys fs))))]
           (do
             (defn failr? [fs keys]
               (and (not (empty? keys))
