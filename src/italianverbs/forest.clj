@@ -27,6 +27,19 @@
 
 (declare lightning-bolt)
 
+(defn show-spec [spec]
+  (remove-top-values-log (dissoc-paths spec '((:english :initial)
+                                              (:italian :initial)
+                                              (:synsem :subcat)
+                                              (:synsem :sem-mod)
+                                              (:synsem :essere)
+                                              (:synsem :agr)
+                                              (:synsem :pronoun)
+                                              (:synsem :sem :tense)
+                                              (:synsem :sem :obj :tense)
+                                              (:synsem :sem :mod)
+                                              (:synsem :infl)))))
+
 (defn comp-phrases [parents all-phrases lexicon & [iter path-to-here]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
@@ -37,12 +50,7 @@
            (get-in parent '(:comp))
            '((:synsem :subcat)
              (:english :initial)
-             (:italian :initial)))
-          debug (log/debug (str "comp-phrases: iter:" iter ": parent: " (fo-ps parent)))
-          debug (log/debug (str "comp-phrases: iter:" iter ": path-to-here: " path-to-here))
-          no-top-values (remove-top-values-log (dissoc-paths comp-spec '((:english :initial)
-                                                                     (:italian :initial))))
-          debug (log/debug (str "comp-spec   : iter:" iter ":" no-top-values))]
+             (:italian :initial)))]
       (lazy-cat
        (overc parent
               (lightning-bolt
@@ -50,7 +58,7 @@
                lexicon
                all-phrases
                0
-               (str path-to-here "/[C " no-top-values "]")))
+               (str path-to-here "/[C " (show-spec comp-spec) "]")))
        (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here)))))
 
 (defn parents-with-lexical-head-map [parents lexicon phrases depth]
@@ -68,11 +76,7 @@
        (cons {:parent parent
               :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
-                                                          (str path-to-here "/[H "
-                                                               (remove-top-values-log
-                                                                (dissoc-paths (get-in parent '(:head))
-                                                                              '((:english :initial)
-                                                                                (:italian :initial)))) "]")
+                                                          (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
                                                           lexicon-of-heads)]
                                 (log/debug "got some bolts..")
                                 (overh parents bolts))}
@@ -166,13 +170,10 @@
         ;; not the lexical entry.
         lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))]
     (log/info (str "lb depth: " depth ";@" path-to-here))
-    (log/info (str "parents at this depth emptyness: " (empty? parents-at-this-depth)))
     (cond
 
      (empty? parents-at-this-depth)
-     (do
-       (log/info "welp, parents are empty. returning.")
-       nil)
+     nil
 
      true
      (let [debug (log/debug (str "gonna try to remove top values now.."))

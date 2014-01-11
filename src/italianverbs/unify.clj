@@ -52,42 +52,65 @@
    true
    sign))
 
+(defn ref? [val]
+  (= (type val) clojure.lang.Ref))
+
 ;; TODO: use multi-methods.
 ;; TODO: keep list of already-seen references to avoid
 ;; cost of traversing substructures more than once.
 (defn fail? [fs]
   "(fail? fs) <=> true if at least one of fs's path's value is :fail."
-  (if (= :fail fs) true
-      (if (seq? fs) false ;; a sequence is never fail.
-          (if (= fs :fail) true ;; :fail is always fail.
-              ;; otherwise, check recursively.
-              (let [debug
-                    (log/info (str "doing fail? " fs " with type:" fs))
+  (log/debug (str "doing fail? " fs " with type: " (type fs)))
+  (cond (= :fail fs) true
+        (seq? fs) false ;; a sequence is never fail.
+        (= fs :fail) true ;; :fail is always fail.
+        (fn? fs) false ;; a function is never fail.
 
-                    result
-                    (do
-                      (defn failr? [fs keys]
-                        (if (first keys)
-                          (do
-                            (log/error (str "getting fail? for key: " (first keys)))
-                            (if (fail? (get-in fs (list (first keys))))
-                              true
-                              (failr? fs (rest keys))))
-                          false)) ;; empty list of keys => not fail
-                      (cond
-                       (= fs :fail) true
-                       (and (map? fs) (not (empty? (keys fs))))
+        (and (ref? fs)
+             (map? @fs)
+             (= (resolve fs) (resolve (:subj (resolve fs)))))
+        (throw (Exception. (str "Fatal error: cycle detected in map with keys: " (keys @fs) "; without cycle: "
+                                (dissoc @fs :subj))))
 
-                       (failr? fs (keys fs))
-                       (= (type fs) clojure.lang.Ref)
+        (ref? fs)
+        (do
+          (fail? @fs))
+        (not (map? fs)) false
 
-                       (do
-                         (log/info (str "traversing ref: " fs))
-                         (fail? @fs))
-                       :else false))]
+        :else
+        ;; otherwise, check recursively.
+        (let [debug
+              (log/debug (str "doing fail? on map with keys: " (keys fs) "; size=" (.size (keys fs))))
+              debug
+              (if (and (= (.size (keys fs)) 4)
+                       (not (= :notfound (:animate fs :notfound)))
+                       (not (= :notfound (:mod fs :notfound)))
+                       (not (= :notfound (:pred fs :notfound)))
+                       (not (= :notfound (:subj fs :notfound)))
+                       (ref? (:subj fs)))
+                (do
+                  (log/error (str "CRASH IS COMING."))
+                  (log/error (str "minus subj: " (dissoc fs :subj)))
+                  (log/error (str "subj: " (:subj fs)))
+                  (if (ref? (:subj fs))
+                    (log/error (str "type of subj ref: " (type @(:subj fs)))))
+                  (if (ref? @(:subj fs))
+                    (log/error (str "type of subj ref ref: " (type @@(:subj fs)))))
+                  (if (ref? @(:subj fs))
+                    (log/error (str "::equal to fs: " (= @@(:subj fs) fs))))
 
-                (log/info (str "result of doing fail? on " fs " => " result))
-                result)))))
+
+                  (log/error (str "pred: " (:pred fs)))))]
+          (do
+            (defn failr? [fs keys]
+              (and (not (empty? keys))
+                   (or (fail? (get fs (first keys)))
+                       (failr? fs (rest keys)))))
+            (cond
+             (= fs :fail) true
+             (map? fs)
+             (failr? fs (keys fs))
+             :else false)))))
 
 (defn nonfail [maps]
   (filter (fn [each-map]
@@ -110,9 +133,6 @@
 
     ;; members is empty.
     false))
-
-(defn ref? [val]
-  (= (type val) clojure.lang.Ref))
 
 (defn has-set? [fs]
   (cond (map? fs)
