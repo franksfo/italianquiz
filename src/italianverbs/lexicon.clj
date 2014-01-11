@@ -43,6 +43,8 @@
                        (log/debug (str "successfully serialized: " entry))
                        (implied entry)))))
                (list
+
+
             {:synsem {:cat :prep
                       :sem {:pred :a
                          :mod {:pred :a}
@@ -55,19 +57,20 @@
                        :italian "a"}
              :english "to"}
 
-;        {:synsem {:cat :prep
-;                  :sem {:pred :in}
-;                  :subcat {:1 {:cat :noun
-;                               :sem {:city true}}}}
-;         ;; this overrides the prep-phrase's extends, which are too general
-;         ;; for this lexical entry "a"/"in".
-;         :extend {:prep-phrase {:a {:head :prepositions
-;                                    :comp :proper-nouns}}}
-;         :italian "a"
-;         :english "in"}
+        {:synsem {:cat :prep
+                  :sem {:pred :in}
+                  :subcat {:1 {:cat :noun
+                               :sem {:city true}}}}
+         ;; this overrides the prep-phrase's extends, which are too general
+         ;; for this lexical entry "a"/"in".
+         :extend {:prep-phrase {:a {:head :prepositions
+                                    :comp :proper-nouns}}}
+         :italian "a"
+         :english "in"}
 
-   ;; e.g. "a ridere": tu hai fatto bene [a ridere] (you did well to laugh)"
-   (let [complement-semantics (ref {:mod {:pred :a}})]
+        ;; e.g. "a ridere": tu hai fatto bene a ridere (you did well to laugh)"
+   (let [complement-semantics (ref {:pred :a
+                                    :mod {:pred :a}})]
      {:synsem {:cat :prep
                :sem complement-semantics
                :subcat {:1 {:cat :verb
@@ -1696,7 +1699,8 @@
              {:italian {:italian "professore"}
               :english {:english "professor"
                         :note " (&#x2642;)"}}) ;; unicode male symbol
-      (let [complement-semantics (ref {:mod {:pred :per}})]
+
+      (let [complement-semantics (ref {:pred :per :mod {:pred :per}})]
         (unify
          {:synsem {:cat :prep
                    :sem complement-semantics
