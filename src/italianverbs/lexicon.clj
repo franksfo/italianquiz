@@ -46,8 +46,7 @@
 
 
             {:synsem {:cat :prep
-                      :sem {:pred :a
-                         :mod {:pred :a}
+                      :sem {:mod {:pred :a}
                          :comparative false}
                    :subcat {:1 {:cat :noun
                                 :subcat '()
@@ -1700,7 +1699,7 @@
               :english {:english "professor"
                         :note " (&#x2642;)"}}) ;; unicode male symbol
 
-      (let [complement-semantics (ref {:pred :per :mod {:pred :per}})]
+      (let [complement-semantics (ref {:mod {:pred :per}})]
         (unify
          {:synsem {:cat :prep
                    :sem complement-semantics
