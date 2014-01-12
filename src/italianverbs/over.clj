@@ -174,10 +174,10 @@
 
   (if (map? parent)
     (if (get-in parent '(:comment))
-      (log/trace (str "parent:" (get-in parent '(:comment)))))
-    (log/trace (str "parent:" (fo parent))))
+      (log/debug (str "parent:" (get-in parent '(:comment)))))
+    (log/debug (str "parent:" (fo parent))))
   (if (map? head)
-    (log/trace (str "head: " (fo head))))
+    (log/debug (str "head: " (fo head))))
 
   (cond
 
