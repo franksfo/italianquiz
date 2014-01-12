@@ -54,25 +54,25 @@
       (lazy-cat
        (overc parent
               (lightning-bolt
-               comp-spec
-               lexicon
-               all-phrases
-               0
+               comp-spec lexicon
+               all-phrases 0
                (str path-to-here "/[C " (show-spec comp-spec) "]")))
        (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here)))))
 
-(defn parents-with-lexical-head-map [parents lexicon phrases depth]
+(defn lexical-headed-phrases [parents lexicon phrases depth]
+  "return a lazy seq of phrases (maps) whose heads are lexemes."
   (if (not (empty? parents))
     (let [parent (first parents)]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (overh parent lexicon)}
-             (parents-with-lexical-head-map (rest parents) lexicon phrases depth))))))
+             (lexical-headed-phrases (rest parents) lexicon phrases depth))))))
 
-(defn get-parents-with-phrasal-head-map [parents lexicon phrases depth path-to-here lexicon-of-heads]
+(defn phrasal-headed-phrases [parents lexicon phrases depth path-to-here lexicon-of-heads]
+  "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents)
-          debug (log/debug (str "g-p-w-p-h-m@" path-to-here ": " (fo-ps parent)))]
+          debug (log/debug (str "phrasal-headed-parents@" path-to-here ": " (fo-ps parent)))]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [path-to-here (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
@@ -81,10 +81,10 @@
                                                           path-to-here
                                                           lexicon-of-heads)]
                                 (if (empty? bolts)
-                                  (log/trace "g-p-w-p-h-m@" path-to-here ": " (fo-ps parent) " => bolts are empty.")
-                                  (log/debug "g-p-w-p-h-m@" path-to-here ": bolts for parent: " (fo-ps parent) " => non-empty."))
+                                  (log/trace "phrasal-headed-parents@" path-to-here ": " (fo-ps parent) " => bolts are empty.")
+                                  (log/debug "phrasal-headed-parents@" path-to-here ": bolts for parent: " (fo-ps parent) " => non-empty."))
                                 (overh parents bolts))}
-             (get-parents-with-phrasal-head-map (rest parents) lexicon phrases depth path-to-here lexicon-of-heads))))))
+             (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here lexicon-of-heads))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -186,7 +186,7 @@
      (let [debug (log/info (str "lb depth: " depth ";@" path-to-here))
            debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values-log head)))
            parents-with-phrasal-head-map (if (< depth maxdepth)
-                                           (get-parents-with-phrasal-head-map
+                                           (phrasal-headed-phrases
                                             parents-at-this-depth
                                             lexicon
                                             phrases
@@ -194,7 +194,7 @@
                                             path-to-here
                                             lexicon-of-heads))
 
-           parents-with-lexical-head-map (parents-with-lexical-head-map
+           lexical-headed-phrases (lexical-headed-phrases
                                           parents-at-this-depth
                                           lexicon-of-heads
                                           phrases
@@ -210,7 +210,7 @@
                                                 (let [parent (:parent each-kv)]
                                                   (let [phrases (:headed-phrases each-kv)]
                                                     phrases)))
-                                              parents-with-lexical-head-map)
+                                              lexical-headed-phrases)
 
            parents-with-phrasal-head-for-comp-phrases (mapcat (fn [each-kv]
                                                                 (let [parent (:parent each-kv)]
@@ -224,7 +224,7 @@
                                                                    (if (not (= false (get-in parent '(:comp :phrasal))))
                                                                      (let [phrases (:headed-phrases each-kv)]
                                                                        phrases))))
-                                                               parents-with-lexical-head-map)
+                                                               lexical-headed-phrases)
 
 
            one-level-trees
