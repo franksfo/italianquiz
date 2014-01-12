@@ -131,6 +131,20 @@
 (declare copy)
 (declare unifyc)
 
+(defn get-refs-in [input]
+  (cond
+   (ref? input)
+   (union
+    (set (list input))
+    (get-refs-in @input))
+   (map? input)
+   (union
+    (set (filter #(ref? %) (vals input)))
+    (set (mapcat (fn [each] (get-refs-in each))
+                 (vals input))))
+   :else
+   nil))
+
 ;; TODO: many code paths below only look at val1 and val2, and ignore rest of args beyond that.
 ;; either consider all args, or change signature of (unify) to take only val1 val2.
 ;; see also lexiconfn/unify (probably will change signature, but make lexiconfn/unify handle
@@ -245,6 +259,24 @@
        (if (not (nil? (some #{:fail} (vals tmp-result))))
          :fail
          tmp-result))
+
+     ;; val1 is a ref, val2 is a map that contains val1: return fail.
+     (and (ref? val1)
+          (map? val2)
+          (some #(= val1 %) (get-refs-in val2)))
+     (do
+       (log/debug (str "unification would create a cycle: returning fail."))
+     :fail)
+
+     (and (ref? val2)
+          (map? val1)
+          (some #(= val2 %) (get-refs-in val1)))
+     (do
+       (log/debug (str "unification would create a cycle: returning fail."))
+     :fail)
+
+
+     ;; val1 is a ref, val2 is not a ref.
      (and
       (= (type val1) clojure.lang.Ref)
       (not (= (type val2) clojure.lang.Ref)))
@@ -258,6 +290,7 @@
          (if (and false (fail? @val1)) :fail
          val1))
 
+     ;; val2 is a ref, val1 is not a ref.
      (and
       (= (type val2) clojure.lang.Ref)
       (not (= (type val1) clojure.lang.Ref)))
@@ -274,10 +307,15 @@
      (and
       (= (type val1) clojure.lang.Ref)
       (= (type val2) clojure.lang.Ref))
-     (do
+     (let [refs-in-val1 (get-refs-in @val1)
+           refs-in-val2 (get-refs-in @val2)]
+
        (log/debug (str "val1 and val2 are both refs."))
        (log/debug (str "=? val1 val2 : " (= val1 val2)))
        (log/debug (str "=? val1 @val2 : " (= val1 @val2)))
+
+       (log/debug (str " refs of @val1: " refs-in-val1))
+       (log/debug (str " refs of @val2: " refs-in-val2))
 
        (cond
         (or (= val1 val2) ;; same reference.
@@ -287,21 +325,18 @@
         (= @val1 val2) ;; val1 -> val2
         val2
 
-        (and (map? @val1)
-             (:a @val1) val2)
-        (do
-          (log/debug (str "GONNA AVOID A CYCLE AND JUST RETURN FAIL."))
-          :fail)
-        (and (map? @val2)
-             (:a @val2) val1)
-        (do
-          (log/debug (str "GONNA AVOID A CYCLE AND JUST RETURN FAIL."))
-          :fail)
+        (some #(= val2 %) refs-in-val1)
+        :fail
+
+        (some #(= val1 %) refs-in-val2)
+        :fail
 
         :else
         (do
           (log/debug (str "unifying two refs: " val1 " and " val2))
           (log/debug (str " whose values are: " @val1 " and " @val2))
+          (log/debug (str " refs of @val1: " (get-refs-in @val1)))
+          (log/debug (str " refs of @val2: " (get-refs-in @val2)))
           (dosync
            (alter val1
                   (fn [x] (unify @val1 @val2))))
