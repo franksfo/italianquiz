@@ -127,7 +127,7 @@
 
 ;; Might be useful to set the following variable to true,
 ;; if doing grammar development and it would be unexpected
-;; to have a failing result from calling (moreove-comp)
+;; to have a failing result from calling (moreover-comp)
 ;; with certain arguments.
 (def ^:dynamic *throw-exception-if-failed-to-add-complement* false)
 
