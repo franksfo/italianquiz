@@ -9,8 +9,9 @@
    [italianverbs.forest :exclude (lightning-bolt) ]
    [italianverbs.forest :as forest]
    [italianverbs.lexicon :refer (lexicon it en)]
+   [italianverbs.lexiconfn :exclude (unify)]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.over :refer (overh overc)]
+   [italianverbs.over :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (fail? get-in merge unify unifyc remove-top-values)]))
 
@@ -63,13 +64,15 @@
 
 (def minip (filter (fn [x]
                      (or
-                      (= (:comment x) "noun phrase")
-                      (= (:comment x) "nbar")))
+                      (= (:comment x) "vp-imperfetto")))
                    grammar))
 
 (def vp-future (first (filter (fn [x]
                                 (= (:comment x) "vp-future"))
                               grammar)))
+(def vp-imperfetto (first (filter (fn [x]
+                                    (= (:comment x) "vp-imperfetto"))
+                                  grammar)))
 (def s-future (first (filter (fn [x]
                                 (= (:comment x) "s-future"))
                               grammar)))
@@ -84,10 +87,8 @@
 
 (def minil (filter (fn [x]
                      (or
-                      (= (get-in x '(:synsem :sem :pred)) :gatto)
-                      (= (get-in x '(:italian)) "il")
-                      (= (get-in x '(:synsem :sem :pred)) :rosso)))
-
+                      (= (get-in x '(:italian :italian)) "per")
+                      (= (get-in x '(:italian :infinitive)) "volere")))
                    lexicon))
 
 (defn lightning-bolt [ & [head lex phrases depth] ]
