@@ -43,12 +43,10 @@
 (declare overc)
 
 (defn over-each-parent-head [parents head]
-  (log/trace (str "over-each-parent-head: parents type: " (type parents)))
-  (log/trace (str "over-each-parent-head: head type: " (type head)))
   (if (not (empty? parents))
     (let [each-parent (first parents)]
-      (log/trace (str "over-each-parent-head: each-parent type:" (type (first parents))))
-      (log/trace (str "over-each-parent-head: head type:" (type head)))
+      (log/debug (str "over-each-parent-head: each-parent type:" (type (first parents))))
+      (log/debug (str "over-each-parent-head: head type:" (type head)))
       (lazy-cat
        (overh each-parent head)
        (over-each-parent-head (rest parents) head)))
