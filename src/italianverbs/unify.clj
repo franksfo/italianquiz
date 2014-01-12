@@ -68,7 +68,7 @@
 
         ;; TODO: make cycle-checking work with other features (not just :subj).
         (and
-         (log/debug (str "cycle-detect:"
+         (log/trace (str "cycle-detect:"
                          (and (ref? fs)
                               (map? @fs)
                               (= (resolve fs) (resolve (:subj (resolve fs)))))
@@ -276,24 +276,42 @@
       (= (type val2) clojure.lang.Ref))
      (do
        (log/debug (str "val1 and val2 are both refs."))
-       (if (or (= val1 val2) ;; same reference.
-               (= val1 @val2)) ;; val1 <- val2
-         val1
-         (if (= @val1 val2) ;; val1 -> val2
-           val2
-           (do
-             (log/debug (str "unifying two refs: " val1 " and " val2))
-             (log/debug (str " whose values are: " @val1 " and " @val2))
-             (dosync
-              (alter val1
-                     (fn [x] (unify @val1 @val2))))
-             (dosync
-              (alter val2
-                     (fn [x] val1))) ;; note that now val2 is a ref to a ref.
-             (log/debug (str "returning ref: " val1))
-             ;; TODO: remove, since it's disabled, or add a global setting to en/dis-able.
-             (if (and false (fail? @val1)) :fail
-             val1)))))
+       (log/debug (str "=? val1 val2 : " (= val1 val2)))
+       (log/debug (str "=? val1 @val2 : " (= val1 @val2)))
+
+       (cond
+        (or (= val1 val2) ;; same reference.
+            (= val1 @val2)) ;; val1 <- val2
+        val1
+
+        (= @val1 val2) ;; val1 -> val2
+        val2
+
+        (and (map? @val1)
+             (:a @val1) val2)
+        (do
+          (log/debug (str "GONNA AVOID A CYCLE AND JUST RETURN FAIL."))
+          :fail)
+        (and (map? @val2)
+             (:a @val2) val1)
+        (do
+          (log/debug (str "GONNA AVOID A CYCLE AND JUST RETURN FAIL."))
+          :fail)
+
+        :else
+        (do
+          (log/debug (str "unifying two refs: " val1 " and " val2))
+          (log/debug (str " whose values are: " @val1 " and " @val2))
+          (dosync
+           (alter val1
+                  (fn [x] (unify @val1 @val2))))
+          (dosync
+           (alter val2
+                  (fn [x] val1))) ;; note that now val2 is a ref to a ref.
+          (log/debug (str "returning ref: " val1))
+          ;; TODO: remove, since it's disabled, or add a global setting to en/dis-able.
+          (if (and false (fail? @val1)) :fail
+              val1))))
 
      ;; convoluted way of expressing: "if val1 has the form: {:not X}, then .."
      (not (= :notfound (:not val1 :notfound)))
