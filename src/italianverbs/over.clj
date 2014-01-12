@@ -269,6 +269,7 @@
        (vector? comp))
    (do (log/trace "comp is a set: converting to a seq.")
        (overc parent (lazy-seq comp)))
+   (nil? comp) nil
 
    (seq? comp)
    (let [comp-children comp]
