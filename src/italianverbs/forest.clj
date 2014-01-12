@@ -40,11 +40,15 @@
                                               (:synsem :sem :mod)
                                               (:synsem :infl)))))
 
-(defn comp-phrases [parents all-phrases lexicon & [iter path-to-here]]
+(defn build-lex-sch-cache []
+  {})
+
+(defn comp-phrases [parents all-phrases lexicon & [iter path-to-here cache]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
           path-to-here (if path-to-here path-to-here ":none")
           parent (first parents)
+          cache (if cache cache (build-lex-sch-cache))
           comp-spec
           (dissoc-paths
            (get-in parent '(:comp))
@@ -56,19 +60,20 @@
               (lightning-bolt
                comp-spec lexicon
                all-phrases 0
-               (str path-to-here "/[C " (show-spec comp-spec) "]")))
-       (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here)))))
+               (str path-to-here "/[C " (show-spec comp-spec) "]") nil cache))
+       (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here cache)))))
 
-(defn lexical-headed-phrases [parents lexicon phrases depth]
+(defn lexical-headed-phrases [parents lexicon phrases depth cache]
   "return a lazy seq of phrases (maps) whose heads are lexemes."
   (if (not (empty? parents))
-    (let [parent (first parents)]
+    (let [parent (first parents)
+          cache (if cache cache (build-lex-sch-cache))]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (overh parent lexicon)}
-             (lexical-headed-phrases (rest parents) lexicon phrases depth))))))
+             (lexical-headed-phrases (rest parents) lexicon phrases depth cache))))))
 
-(defn phrasal-headed-phrases [parents lexicon phrases depth path-to-here lexicon-of-heads]
+(defn phrasal-headed-phrases [parents lexicon phrases depth path-to-here lexicon-of-heads cache]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents)
@@ -79,12 +84,12 @@
                                     bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           path-to-here
-                                                          lexicon-of-heads)]
+                                                          lexicon-of-heads cache)]
                                 (if (empty? bolts)
                                   (log/trace "phrasal-headed-parents@" path-to-here ": " (fo-ps parent) " => bolts are empty.")
                                   (log/debug "phrasal-headed-parents@" path-to-here ": bolts for parent: " (fo-ps parent) " => non-empty."))
                                 (overh parents bolts))}
-             (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here lexicon-of-heads))))))
+             (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here lexicon-of-heads cache))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -166,8 +171,7 @@
           true
           (lazy-cat parents-with-phrasal-heads parents-with-lexical-heads))))
 
-
-(defn lightning-bolt [ & [head lexicon phrases depth path-to-here lexicon-of-heads]]
+(defn lightning-bolt [ & [head lexicon phrases depth path-to-here lexicon-of-heads cache]]
   (let [maxdepth 2
         depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head phrases depth)
@@ -176,7 +180,8 @@
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
         ;; not the lexical entry.
-        lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))]
+        lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))
+        cache (if cache cache (build-lex-sch-cache))]
     (cond
 
      (empty? parents-at-this-depth)
@@ -192,13 +197,15 @@
                                             phrases
                                             depth
                                             path-to-here
-                                            lexicon-of-heads))
+                                            lexicon-of-heads
+                                            cache))
 
            lexical-headed-phrases (lexical-headed-phrases
                                           parents-at-this-depth
                                           lexicon-of-heads
                                           phrases
-                                          depth)
+                                          depth
+                                          cache)
 
            parents-with-phrasal-head (mapcat (fn [each-kv]
                                                (let [parent (:parent each-kv)]
@@ -237,7 +244,7 @@
                                        parents-with-phrasal-head-for-comp-phrases
                                        parents-with-lexical-heads-for-comp-phrases
                                        rand-parent-type-order lexicon-of-heads)
-                                      phrases (lazy-shuffle lexicon) 0 path-to-here)
+                                      phrases (lazy-shuffle lexicon) 0 path-to-here cache)
 
           ]
 
