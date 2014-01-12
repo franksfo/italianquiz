@@ -217,7 +217,7 @@
      (log/trace (str "overh italian value: " (if (map? result) (get-in result '(:italian)) "(not a map)")))
      (log/trace (str "overh italian :a value: " (if (map? result) (get-in result '(:italian :a)) "(not a map)")))
      (log/trace (str "overh italian :b value: " (if (map? result) (get-in result '(:italian :b)) "(not a map)")))
-     (log/trace (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if is-fail?
+     (log/debug (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if is-fail?
                                                                                      ":fail"
                                                                                      (fo result))))
 
@@ -285,7 +285,7 @@
    true
    (let [result (moreover-comp parent comp sem-impl)
          is-fail? (fail? result)]
-     (log/trace (str "overc: parent=" (:comment parent)
+     (log/debug (str "overc: parent=" (:comment parent)
                      ";head=[" (fo (get-in parent '(:head)))
                      "]; comp=[" (fo comp) "]=> " (if (fail? result)
                                                     ":fail"
