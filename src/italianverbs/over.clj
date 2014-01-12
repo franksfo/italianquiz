@@ -132,10 +132,10 @@
 (def ^:dynamic *throw-exception-if-failed-to-add-complement* false)
 
 (defn moreover-comp [parent child lexfn-sem-impl]
-  (log/debug (str "moreover-comp parent: " (fo parent)))
-  (log/debug (str "moreover-comp comp:" (fo child)))
-  (log/debug (str "moreover-comp type parent: " (type parent)))
-  (log/debug (str "moreover-comp type comp:" (type child)))
+  (log/trace (str "moreover-comp parent: " (fo parent)))
+  (log/trace (str "moreover-comp comp:" (fo child)))
+  (log/trace (str "moreover-comp type parent: " (type parent)))
+  (log/trace (str "moreover-comp type comp:" (type child)))
 
   (let [result
         (unifyc parent
@@ -215,11 +215,11 @@
    ;; and save 'true' for errors.
    (let [result (moreover-head parent head sem-impl)
          is-fail? (fail? result)]
-     (log/debug (str "overh result keys: " (if (map? result) (keys result) "(not a map)")))
-     (log/debug (str "overh italian value: " (if (map? result) (get-in result '(:italian)) "(not a map)")))
-     (log/debug (str "overh italian :a value: " (if (map? result) (get-in result '(:italian :a)) "(not a map)")))
-     (log/debug (str "overh italian :b value: " (if (map? result) (get-in result '(:italian :b)) "(not a map)")))
-     (log/debug (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if is-fail?
+     (log/trace (str "overh result keys: " (if (map? result) (keys result) "(not a map)")))
+     (log/trace (str "overh italian value: " (if (map? result) (get-in result '(:italian)) "(not a map)")))
+     (log/trace (str "overh italian :a value: " (if (map? result) (get-in result '(:italian :a)) "(not a map)")))
+     (log/trace (str "overh italian :b value: " (if (map? result) (get-in result '(:italian :b)) "(not a map)")))
+     (log/trace (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if is-fail?
                                                                                      ":fail"
                                                                                      (fo result))))
 
@@ -247,14 +247,14 @@
 
   (if (map? parent)
     (if (get-in parent '(:comment))
-      (log/debug (str "parent:" (get-in parent '(:comment)))))
-    (log/debug (str "parent:" (fo parent))))
+      (log/trace (str "parent:" (get-in parent '(:comment)))))
+    (log/trace (str "parent:" (fo parent))))
   (if (map? comp)
-    (log/debug (str "comp: " (fo comp))))
+    (log/trace (str "comp: " (fo comp))))
 
-  (log/debug (str "type of parent: " (type parent)))
-  (log/debug (str "type of comp  : " (type comp)))
-  (log/debug (str "nil? comp  : " (nil? comp)))
+  (log/trace (str "type of parent: " (type parent)))
+  (log/trace (str "type of comp  : " (type comp)))
+  (log/trace (str "nil? comp  : " (nil? comp)))
 
 
   (cond
@@ -287,7 +287,7 @@
    true
    (let [result (moreover-comp parent comp sem-impl)
          is-fail? (fail? result)]
-     (log/debug (str "overc: parent=" (:comment parent)
+     (log/trace (str "overc: parent=" (:comment parent)
                      ";head=[" (fo (get-in parent '(:head)))
                      "]; comp=[" (fo comp) "]=> " (if (fail? result)
                                                     ":fail"
