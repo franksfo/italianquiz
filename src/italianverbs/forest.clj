@@ -26,7 +26,7 @@
                                               (:synsem :infl)))))
 
 (defn build-lex-sch-cache [phrases lexicon]
-  (log/info (str "building cache.."))
+  (log/info (str "building cache (" (.size phrases) ")"))
   (if (not (empty? phrases))
     (conj
      {(:comment (first phrases))
