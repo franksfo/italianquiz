@@ -96,7 +96,7 @@
 (defn lightning-bolt [ & [head lex phrases depth cache] ]
   (let [maxdepth 2
         depth (if depth depth 0)
-        lexicon (if lex lex (shuffle lexicon))
+        lexicon (if lex lex lexicon)
         phrases (if phrases phrases (shuffle grammar))
         head (if head head :top)
         cache (if cache cache test-cache)]
