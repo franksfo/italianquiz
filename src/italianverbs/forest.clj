@@ -127,7 +127,7 @@
               :headed-phrases (overh parent (get-lex parent :head cache lexicon))}
              (lexical-headed-phrases (rest parents) lexicon phrases depth cache))))))
 
-(defn phrasal-headed-phrases [parents lexicon phrases depth path-to-here lexicon-of-heads cache]
+(defn phrasal-headed-phrases [parents lexicon phrases depth path-to-here cache]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents)
@@ -139,12 +139,12 @@
                                     bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           path-to-here
-                                                          lexicon-of-heads cache)]
+                                                          nil cache)]
                                 (if (empty? bolts)
                                   (log/trace "phrasal-headed-parents@" path-to-here ": " (fo-ps parent) " => bolts are empty.")
                                   (log/debug "phrasal-headed-parents@" path-to-here ": bolts for parent: " (fo-ps parent) " => non-empty."))
                                 (overh parents bolts))}
-             (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here lexicon-of-heads cache))))))
+             (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here cache))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -253,7 +253,6 @@
                                             phrases
                                             depth
                                             path-to-here
-                                            lexicon-of-heads
                                             cache))
 
            lexical-headed-phrases (lexical-headed-phrases
