@@ -91,13 +91,16 @@
                       (= (get-in x '(:italian :infinitive)) "volere")))
                    lexicon))
 
-(defn lightning-bolt [ & [head lex phrases depth] ]
+(def test-cache (forest/build-lex-sch-cache grammar lexicon))
+
+(defn lightning-bolt [ & [head lex phrases depth cache] ]
   (let [maxdepth 2
         depth (if depth depth 0)
         lexicon (if lex lex (shuffle lexicon))
         phrases (if phrases phrases (shuffle grammar))
-        head (if head head :top)]
-    (forest/lightning-bolt head lexicon phrases depth)))
+        head (if head head :top)
+        cache (if cache cache test-cache)]
+    (forest/lightning-bolt head lexicon phrases depth "" cache)))
 
 (defn keep-trying [ & [head ] ]
   (let [head (if head head :top)
