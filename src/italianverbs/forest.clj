@@ -336,8 +336,8 @@
                     comp-phrases
 
                     ;; 3. head is a phrase, comp is a lexeme.
-                    (overc parents-with-phrasal-head
-                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
+                    (overc-with-cache parents-with-phrasal-head
+                                      cache lexicon) ;; complement (the lexicon).
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees
 
