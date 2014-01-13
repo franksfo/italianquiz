@@ -214,7 +214,7 @@
     result))
 
 (defn parents-with-phrasal-complements [parents-with-lexical-heads parents-with-phrasal-heads
-                                        rand-parent-type-order head-lexemes]
+                                        rand-parent-type-order]
   (let [parents-with-lexical-heads (filter (fn [parent]
                                              (not (= false (get-in parent '(:comp :phrasal)))))
                                            parents-with-lexical-heads)
@@ -298,7 +298,7 @@
            comp-phrases (comp-phrases (parents-with-phrasal-complements
                                        parents-with-phrasal-head-for-comp-phrases
                                        parents-with-lexical-heads-for-comp-phrases
-                                       rand-parent-type-order lexicon-of-heads)
+                                       rand-parent-type-order)
                                       phrases (lazy-shuffle lexicon) 0 path-to-here cache)
 
           ]
