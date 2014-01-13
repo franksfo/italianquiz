@@ -82,6 +82,13 @@
                          lexicon))]
     result))
 
+(defn overc-with-cache [parents cache lexicon]
+  (if (not (empty? parents))
+    (lazy-seq
+     (let [parent (first parents)]
+       (lazy-cat (overc parent (lazy-shuffle (get-lex parent :comp cache lexicon)))
+                 (overc-with-cache (rest parents) cache lexicon))))))
+
 (defn comp-phrases [parents all-phrases lexicon & [iter path-to-here cache]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
@@ -275,9 +282,8 @@
                                                                lexical-headed-phrases)
 
 
-           ;; TODO: use cache
            one-level-trees
-           (overc parents-with-lexical-heads (lazy-shuffle lexicon))
+           (overc-with-cache parents-with-lexical-heads cache lexicon)
 
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
@@ -302,10 +308,8 @@
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
                     comp-phrases
 
-                    ;; TODO: use cache.
                     ;; 3. head is a phrase, comp is a lexeme.
-                    (overc parents-with-phrasal-head
-                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
+                    (overc-with-cache parents-with-phrasal-head cache lexicon)
 
                     "hLcL"
                     (cond (= rand-parent-type-order 0)
