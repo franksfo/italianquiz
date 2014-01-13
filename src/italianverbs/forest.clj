@@ -6,7 +6,7 @@
    ;; italianverbs.config is not used yet but hopefully will be in the future.
    [italianverbs.config :as config]
    [italianverbs.lexiconfn :refer (sem-impl)]
-   [italianverbs.morphology :refer (fo-ps)]
+   [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overc overh)]
    [italianverbs.unify :refer :all]))
 
@@ -41,19 +41,46 @@
                                               (:synsem :infl)))))
 
 (defn build-lex-sch-cache [phrases lexicon]
-  {})
+  (log/info (str "building cache.."))
+  (if (not (empty? phrases))
+    (conj
+     {(:comment (first phrases))
+      {:comp
+       (filter (fn [lex]
+                 (not (fail? (unifyc (first phrases)
+                                     {:comp lex}))))
+               lexicon)
+       :head
+       (filter (fn [lex]
+                 (not (fail? (unifyc (first phrases)
+                                     {:head lex}))))
+               lexicon)}}
+     (build-lex-sch-cache (rest phrases) lexicon))
+    {}))
 
 (defn get-lex [schema head-or-comp cache lexicon]
-  (do
-    (log/info (str "get-lex schema:" (get-in schema '(:comment))))
-    (log/info (str "get-lex cache size: " (.size cache)))
-    (if (= :comp head-or-comp)
-      (log/info (str "get-lex comp cache size: " (if (:comp (schema cache))
-                                                   (.size (:comp (schema cache)))
-                                                   0))))
-    (let [result lexicon]
-      (log/info (str "returning result of size: " (.size result)))
-      result)))
+  (let [result (cond (= :head head-or-comp)
+                     (if (and (= :head head-or-comp)
+                              (not (nil? (:head (get cache (:comment schema))))))
+                       (do
+                         (log/info (str "get-lex hit: head for schema: " (:comment schema)))
+                         (:head (get cache (:comment schema))))
+                       (do
+                         (log/warn (str "CACHE MISS 1"))
+                         lexicon))
+                     (= :comp head-or-comp)
+                     (if (and (= :comp head-or-comp)
+                                (not (nil? (:comp (get cache (:comment schema))))))
+                       (do
+                         (log/info (str "get-lex hit: comp for schema: " (:comment schema)))
+                         (:comp (get cache (:comment schema))))
+                       (do
+                         (log/warn (str "CACHE MISS 2"))
+                         lexicon))
+                     true
+                     (do (log/warn (str "CACHE MISS 3"))
+                         lexicon))]
+    result))
 
 (defn comp-phrases [parents all-phrases lexicon & [iter path-to-here cache]]
   (if (not (empty? parents))
@@ -82,14 +109,14 @@
           cache (if cache cache (build-lex-sch-cache phrases lexicon))]
       (lazy-seq
        (cons {:parent parent
-              ;; :headed-phrases (overh parent (get-lex parent :head cache lexicon))}
-              :headed-phrases (overh parent lexicon)}
+              :headed-phrases (overh parent (get-lex parent :head cache lexicon))}
              (lexical-headed-phrases (rest parents) lexicon phrases depth cache))))))
 
 (defn phrasal-headed-phrases [parents lexicon phrases depth path-to-here lexicon-of-heads cache]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents)
+          cache (if cache cache (build-lex-sch-cache phrases lexicon))
           debug (log/debug (str "phrasal-headed-parents@" path-to-here ": " (fo-ps parent)))]
       (lazy-seq
        (cons {:parent parent
@@ -215,11 +242,11 @@
                                             cache))
 
            lexical-headed-phrases (lexical-headed-phrases
-                                          parents-at-this-depth
-                                          lexicon-of-heads
-                                          phrases
-                                          depth
-                                          cache)
+                                   parents-at-this-depth
+                                   lexicon-of-heads
+                                   phrases
+                                   depth
+                                   cache)
 
            parents-with-phrasal-head (mapcat (fn [each-kv]
                                                (let [parent (:parent each-kv)]
@@ -248,6 +275,7 @@
                                                                lexical-headed-phrases)
 
 
+           ;; TODO: use cache
            one-level-trees
            (overc parents-with-lexical-heads (lazy-shuffle lexicon))
 
@@ -274,6 +302,7 @@
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
                     comp-phrases
 
+                    ;; TODO: use cache.
                     ;; 3. head is a phrase, comp is a lexeme.
                     (overc parents-with-phrasal-head
                            (lazy-shuffle lexicon)) ;; complement (the lexicon).
@@ -295,6 +324,7 @@
                     one-level-trees
 
                     ;; 3. head is a phrase, comp is a lexeme.
+                    ;; TODO: use cache
                     (overc parents-with-phrasal-head
                            (lazy-shuffle lexicon)) ;; complement (the lexicon).
 
@@ -328,6 +358,7 @@
                    (try-all
                     rand-order
                     ;; 3. head is a phrase, comp is a lexeme.
+                    ;; TODO: use cache:
                     (overc parents-with-phrasal-head
                            (lazy-shuffle lexicon)) ;; complement (the lexicon).
 
@@ -349,6 +380,7 @@
                    (try-all
                     rand-order
                     ;; 3. head is a phrase, comp is a lexeme.
+                    ;; TODO: use cache
                     (overc parents-with-phrasal-head
                            (lazy-shuffle lexicon)) ;; complement (the lexicon).
 
