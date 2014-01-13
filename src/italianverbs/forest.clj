@@ -99,7 +99,7 @@
               (lightning-bolt
                comp-spec (get-lex parent :comp cache lexicon)
                all-phrases 0
-               (str path-to-here "/[C " (show-spec comp-spec) "]") nil cache))
+               (str path-to-here "/[C " (show-spec comp-spec) "]") cache))
        (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here cache)))))
 
 (defn lexical-headed-phrases [parents lexicon phrases depth cache]
@@ -124,7 +124,7 @@
                                     bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           path-to-here
-                                                          nil cache)]
+                                                          cache)]
                                 (if (empty? bolts)
                                   (log/trace "phrasal-headed-parents@" path-to-here ": " (fo-ps parent) " => bolts are empty.")
                                   (log/debug "phrasal-headed-parents@" path-to-here ": bolts for parent: " (fo-ps parent) " => non-empty."))
@@ -212,7 +212,7 @@
           (lazy-cat parents-with-phrasal-heads parents-with-lexical-heads))))
 
 ;; TODO: s/head/head-spec/
-(defn lightning-bolt [ & [head lexicon phrases depth path-to-here lexicon-of-heads cache]]
+(defn lightning-bolt [ & [head lexicon phrases depth path-to-here cache]]
   (let [maxdepth 2
         depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head phrases depth)
