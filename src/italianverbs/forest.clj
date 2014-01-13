@@ -89,6 +89,14 @@
        (lazy-cat (overc parent (lazy-shuffle (get-lex parent :comp cache lexicon)))
                  (overc-with-cache (rest parents) cache lexicon))))))
 
+(defn overh-with-cache [parents cache lexicon]
+  (if (not (empty? parents))
+    (lazy-seq
+     (let [parent (first parents)]
+       (lazy-cat (overh parent (lazy-shuffle (get-lex parent :head cache lexicon)))
+                 (overh-with-cache (rest parents) cache lexicon))))))
+
+
 (defn comp-phrases [parents all-phrases lexicon & [iter path-to-here cache]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
