@@ -329,8 +329,7 @@
 
                     ;; 3. head is a phrase, comp is a lexeme.
                     ;; TODO: use cache
-                    (overc parents-with-phrasal-head
-                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
+                    (overc-with-cache parents-with-phrasal-head cache lexicon)
 
                     (cond (= rand-parent-type-order 0)
                           (str "hLcP " "hPcP")
@@ -362,9 +361,7 @@
                    (try-all
                     rand-order
                     ;; 3. head is a phrase, comp is a lexeme.
-                    ;; TODO: use cache:
-                    (overc parents-with-phrasal-head
-                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
+                    (overc-with-cache parents-with-phrasal-head cache lexicon)
 
 
                     ;; 2. comp is phrase; head is either a lexeme or a phrase.
@@ -384,9 +381,7 @@
                    (try-all
                     rand-order
                     ;; 3. head is a phrase, comp is a lexeme.
-                    ;; TODO: use cache
-                    (overc parents-with-phrasal-head
-                           (lazy-shuffle lexicon)) ;; complement (the lexicon).
+                    (overc-with-cache parents-with-phrasal-head cache lexicon)
 
                     ;; 1. just a parent over 2 lexemes.
                     one-level-trees
