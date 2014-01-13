@@ -257,7 +257,7 @@
 
            lexical-headed-phrases (lexical-headed-phrases
                                    parents-at-this-depth
-                                   lexicon-of-heads
+                                   lexicon
                                    phrases
                                    depth
                                    cache)
