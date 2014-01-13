@@ -10,21 +10,6 @@
    [italianverbs.over :refer (overc overh)]
    [italianverbs.unify :refer :all]))
 
-;; TODO: determine if this is done lazily or not: it should; if not,
-;; will have to do laziness with (lazy-seq (cons..) over the lexicon.
-(defn get-lexicon-of-head-spec [head-spec lexicon]
-  (let [head-spec (dissoc-paths head-spec '((:synsem :subcat)
-                                            (:english :initial)
-                                            (:italian :initial)))]
-    (filter (fn [lexeme]
-              (not (fail?
-                    (unifyc
-                     head-spec
-                     (unify
-                      {:synsem {:sem (sem-impl (get-in head-spec '(:synsem :sem)))}}
-                      (copy lexeme))))))
-            lexicon)))
-
 (declare lightning-bolt)
 
 (defn show-spec [spec]
@@ -236,7 +221,6 @@
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
         ;; not the lexical entry.
-        lexicon-of-heads (if lexicon-of-heads lexicon-of-heads (get-lexicon-of-head-spec head lexicon))
         cache (if cache cache (build-lex-sch-cache phrases lexicon))]
     (cond
 
