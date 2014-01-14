@@ -156,5 +156,5 @@
                                  '(:synsem :sem))]
     (is (= (get-in eating-semantics '(:subj :human)) false))))
 
-
-
+(defn get-cached []
+  (fo (:head (get test-cache "vp-infinitive"))))
