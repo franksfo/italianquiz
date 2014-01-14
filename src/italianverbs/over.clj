@@ -45,8 +45,8 @@
 (defn over-each-parent-head [parents head]
   (if (not (empty? parents))
     (let [each-parent (first parents)]
-      (log/debug (str "over-each-parent-head: each-parent type:" (type (first parents))))
-      (log/debug (str "over-each-parent-head: head type:" (type head)))
+      (log/trace (str "over-each-parent-head: each-parent type:" (type (first parents))))
+      (log/trace (str "over-each-parent-head: head type:" (type head)))
       (lazy-cat
        (overh each-parent head)
        (over-each-parent-head (rest parents) head)))
@@ -174,10 +174,11 @@
 
   (if (map? parent)
     (if (get-in parent '(:comment))
-      (log/debug (str "parent:" (get-in parent '(:comment)))))
-    (log/debug (str "parent:" (fo parent))))
+      (log/trace (str "overh: parent:" (get-in parent '(:comment))))))
   (if (map? head)
-    (log/debug (str "head: " (fo head))))
+    (if (get-in head '(:comment))
+      (log/trace (str "overh: head: " (get-in head '(:comment))))
+      (log/trace (str "overh: head: " (fo head)))))
 
   (cond
 
@@ -217,9 +218,8 @@
      (log/trace (str "overh italian value: " (if (map? result) (get-in result '(:italian)) "(not a map)")))
      (log/trace (str "overh italian :a value: " (if (map? result) (get-in result '(:italian :a)) "(not a map)")))
      (log/trace (str "overh italian :b value: " (if (map? result) (get-in result '(:italian :b)) "(not a map)")))
-     (log/debug (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if is-fail?
-                                                                                     ":fail"
-                                                                                     (fo result))))
+     (if is-fail?
+       (log/debug (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> :fail")))
 
      ;; at INFO level, don't show fails; only successful results.
      (if (not is-fail?)
@@ -285,19 +285,15 @@
    true
    (let [result (moreover-comp parent comp sem-impl)
          is-fail? (fail? result)]
-     (log/debug (str "overc: parent=" (:comment parent)
-                     ";head=[" (fo (get-in parent '(:head)))
-                     "]; comp=[" (fo comp) "]=> " (if (fail? result)
-                                                    ":fail"
-                                                    (fo result))))
-
+     (if is-fail?
+       (log/debug (str "overc: parent=" (:comment parent)
+                       ";head=[" (fo (get-in parent '(:head)))
+                       "]; comp=[" (fo comp) "]=> :fail")))
 
      (if (not is-fail?)
        (log/info (str "overc: parent=" (:comment parent)
                       ";head=[" (fo (get-in parent '(:head)))
-                      "]; comp=[" (fo comp) "]=> " (if is-fail?
-                                                     ":fail"
-                                                     (fo result)))))
+                      "]; comp=[" (fo comp) "]=> " (fo result))))
 
      (if (not is-fail?)
        (list result)))))
