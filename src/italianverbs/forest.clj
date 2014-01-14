@@ -125,9 +125,6 @@
                                                           lexicon phrases (+ 1 depth)
                                                           path-to-here
                                                           cache)]
-                                (if (empty? bolts)
-                                  (log/trace "phrasal-headed-parents@" path-to-here ": " (fo-ps parent) " => bolts are empty.")
-                                  (log/debug "phrasal-headed-parents@" path-to-here ": bolts for parent: " (fo-ps parent) " => non-empty."))
                                 (overh parents bolts))}
              (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here cache))))))
 
