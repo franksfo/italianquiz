@@ -32,6 +32,11 @@
                           {:comment "s-imperfetto"})
 
                    (merge (unifyc hh21
+                                  {:synsem {:infl :infinitive
+                                            :cat :verb}})
+                          {:comment "vp-infinitive"})
+
+                   (merge (unifyc hh21
                                   {:synsem {:infl :present
                                             :cat :verb}})
                           {:comment "vp-present"})

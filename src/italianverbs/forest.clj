@@ -182,12 +182,14 @@
                        (unifyc phrase head))
                      (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
                            (filter (fn [phrase]
-                                     (empty? (get-in phrase '(:synsem :subcat))))
+                                     (or true
+                                     (empty? (get-in phrase '(:synsem :subcat)))))
                                    phrases)
                            (= depth 1)
                            (filter (fn [phrase]
+                                     (or true
                                      (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                                          (empty? (get-in phrase '(:synsem :subcat :2)))))
+                                          (empty? (get-in phrase '(:synsem :subcat :2))))))
                                    phrases)
                            true
                            '())))]
