@@ -482,6 +482,7 @@
      (do (dosync
           (alter val1
                  (fn [x] (match @val1 val2))))
+         ;; TODO: remove or parameterize this false-disabled code.
          (if (and false (fail? @val1)) :fail
              val1))
      (and
@@ -1186,10 +1187,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    fs))
 
 (defn remove-top-values-log [fs]
-  (log/info (str "remove-top-values: input: " fs))
+  (log/debug (str "remove-top-values: input: " fs))
   (let [result (remove-top-values fs)]
-    (log/info (str "remove-top-values: output: " result))
-    result))
+    (log/debug (str "remove-top-values: output: " result))
+    ;; TODO: should not need to re-call this: workaround for the fact that remove-top-values doesn't work correctly,
+    ;; but does seem to work correctly if called again on its own output.
+    (remove-top-values result)))
 
 (defn refset2map [fs]
   "Turn every ref to a set into a map with two keys: :ref and :val."
