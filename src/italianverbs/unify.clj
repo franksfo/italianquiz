@@ -286,8 +286,9 @@
           (alter val1
                  (fn [x] (unify @val1 val2))))
          ;; alternative to the above (not tested yet):  (fn [x] (unify (copy @val1) val2))))
-         (if (fail? @val1) :fail
-             val1))
+         ;; TODO: why is this false-disabled? (document and test) or remove
+         (if (and false (fail? @val1)) :fail
+         val1))
 
      ;; val2 is a ref, val1 is not a ref.
      (and
@@ -299,8 +300,9 @@
           (alter val2
                  (fn [x] (unify val1 @val2))))
          ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
-         (if (fail? @val2) :fail
-             val2))
+         ;; TODO: why is this false-disabled? (document and test) or remove.
+         (if (and false (fail? @val2)) :fail
+         val2))
 
      (and
       (= (type val1) clojure.lang.Ref)
