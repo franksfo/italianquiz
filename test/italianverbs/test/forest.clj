@@ -107,6 +107,13 @@
         cache (if cache cache test-cache)]
     (forest/lightning-bolt head lexicon phrases depth "" cache)))
 
+(defn gen-sentence [ & head ]
+  (let [head (if head head :top)]
+    (take 1 (lightning-bolt (unifyc head
+                                    {:synsem {:cat :verb
+                                              :subcat '()}})))))
+
+
 (defn keep-trying [ & [head ] ]
   (let [head (if head head :top)
         try (first (take 1 (lightning-bolt head)))]
