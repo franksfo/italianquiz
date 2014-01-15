@@ -117,7 +117,7 @@
   (if (not (empty? parents))
     (let [parent (first parents)
           cache (if cache cache (build-lex-sch-cache phrases lexicon))
-          debug (log/debug (str "phrasal-headed-parents@" path-to-here ": " (fo-ps parent)))]
+          debug (log/debug (str "phrasal-headed-parents[" depth "]@" path-to-here ": " (fo-ps parent)))]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [path-to-here (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
@@ -171,7 +171,7 @@
 
 (defn parents-at-this-depth [head phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (log/debug (str "parents-at-this-depth (depth=" depth ") starting with head: " (show-spec head)))
+  (log/debug (str "parents-at-this-depth[" depth "] starting with head: " (show-spec head)))
   (let [result
         (filter (fn [each]
                   (not (fail? each)))
