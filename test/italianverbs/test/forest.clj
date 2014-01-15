@@ -78,8 +78,14 @@
 (def vp-imperfetto (first (filter (fn [x]
                                     (= (:comment x) "vp-imperfetto"))
                                   grammar)))
+(def vp-present (first (filter (fn [x]
+                                 (= (:comment x) "vp-present"))
+                               grammar)))
 (def s-future (first (filter (fn [x]
                                 (= (:comment x) "s-future"))
+                              grammar)))
+(def s-present (first (filter (fn [x]
+                                (= (:comment x) "s-present"))
                               grammar)))
 (def np1 (first (filter (fn [x]
                          (= (:comment x) "np"))
@@ -134,7 +140,8 @@
     (is (not (nil? sleeper)))))
 
 (deftest i-sleep-1 []
-  (let [i-sleep (first (lightning-bolt {:synsem {:sem {:subj {:pred :io}
+  (let [i-sleep (first (lightning-bolt {:synsem {:subcat '()
+                                                 :sem {:subj {:pred :io}
                                                        :pred :dormire}}}))]
     (is (or (= (list "Io dormo (I sleep).") (fo i-sleep))
             (= (list "Io dormirò (I will sleep).") (fo i-sleep))
@@ -142,23 +149,28 @@
 
 
 (deftest human-sleeper-1 []
-  (let [human-sleeper (get-in (first (lightning-bolt {:synsem {:sem {:subj {:human true}
+  (let [human-sleeper (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                               :sem {:subj {:human true}
                                                                      :pred :dormire}}}))
                                '(:synsem :sem :subj))]
-    (is (= (get-in human-sleeper '(:human)) true))))
+    (is (= (get-in human-sleeper '(:human)) true))
+    (is (= (get-in human-sleeper '(:animate)) true))
 
 (deftest animal-sleeper-1 []
-  (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:sem {:subj {:human false}
+  (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                                :sem {:subj {:human false}
                                                                       :pred :dormire}}}))
                                '(:synsem :sem :subj))]
     (is (= (get-in animal-sleeper '(:human)) false))))
 
 (deftest edible-1
-  (let [edible (get-in (first (lightning-bolt {:synsem {:sem {:pred :mangiare}}})) '(:synsem :sem))]
-    (is (not (nil? edible)))))
+  (let [edible (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                        :sem {:pred :mangiare}}})) '(:synsem :sem))]
+    (is (not (nil? edible)))))))
 
 (deftest animal-eater-1 []
-  (let [eating-semantics (get-in (first (lightning-bolt {:synsem {:sem {:subj {:human false}
+  (let [eating-semantics (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                                  :sem {:subj {:human false}
                                                                         :pred :mangiare}}}))
                                  '(:synsem :sem))]
     (is (= (get-in eating-semantics '(:subj :human)) false))))
