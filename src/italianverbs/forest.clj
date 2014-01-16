@@ -44,6 +44,7 @@
     {}))
 
 (defn get-lex [schema head-or-comp cache lexicon]
+  (log/info (str "get-lex for schema: " (:comment schema)))
   (let [result (cond (= :head head-or-comp)
                      (if (and (= :head head-or-comp)
                               (not (nil? (:head (get cache (:comment schema))))))
@@ -67,21 +68,6 @@
                          lexicon))]
     (lazy-shuffle result)))
 
-(defn overc-with-cache [parents cache lexicon]
-  (if (not (empty? parents))
-    (lazy-seq
-     (let [parent (first parents)]
-       (lazy-cat (overc parent (lazy-shuffle (get-lex parent :comp cache lexicon)))
-                 (overc-with-cache (rest parents) cache lexicon))))))
-
-(defn overh-with-cache [parents cache lexicon]
-  (if (not (empty? parents))
-    (lazy-seq
-     (let [parent (first parents)]
-       (lazy-cat (overh parent (lazy-shuffle (get-lex parent :head cache lexicon)))
-                 (overh-with-cache (rest parents) cache lexicon))))))
-
-
 (defn comp-phrases [parents all-phrases lexicon & [iter path-to-here cache]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
@@ -93,7 +79,8 @@
            (get-in parent '(:comp))
            '((:synsem :subcat)
              (:english :initial)
-             (:italian :initial)))]
+             (:italian :initial)))
+          debug (log/debug (str "comp-phrases with parent: " (:comment parent) "@" path-to-here))]
       (lazy-cat
        (overc parent
               (lightning-bolt
