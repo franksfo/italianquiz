@@ -19,7 +19,7 @@
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.over :refer :all]
-   [italianverbs.rules :refer :all :exclude [np]]
+   [italianverbs.rules :refer :all :exclude [np nbar]]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]
 
