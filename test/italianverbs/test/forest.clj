@@ -12,8 +12,80 @@
    [italianverbs.lexiconfn :exclude (unify)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer :all]
-   [italianverbs.ug :refer :all]
+   [italianverbs.ug :refer :all :exclude (np)]
    [italianverbs.unify :refer (fail? get-in merge unify unifyc remove-top-values)]))
+
+;; 1 (of 3): define functions.
+;; TODO: move all functions from here to italianverbs.forest
+
+(declare lightning-bolt)
+(declare test-cache)
+
+(defn gen-sentence [ & head ]
+  (let [head (if head head :top)]
+    (take 1 (lightning-bolt (unifyc head
+                                    {:synsem {:cat :verb
+                                              :subcat '()}})))))
+
+(defn keep-trying [ & [head ] ]
+  (let [head (if head head :top)
+        try (first (take 1 (lightning-bolt head)))]
+    (cond (fail? try)
+          (do
+            (log/warn (str "lightning failed: " try "; retrying."))
+            (keep-trying head))
+          (not (empty? (get-in try '(:synsem :subcat))))
+          (do
+            (log/warn (str "lightning returned a partial phrase, continuing."))
+            (keep-trying head))
+
+          true
+          try)))
+
+(deftest sleeper-1 []
+  (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
+    (is (not (nil? sleeper)))))
+
+(deftest i-sleep-1 []
+  (let [i-sleep (first (lightning-bolt {:synsem {:subcat '()
+                                                 :sem {:subj {:pred :io}
+                                                       :pred :dormire}}}))]
+    (is (or (= (list "Io dormo (I sleep).") (fo i-sleep))
+            (= (list "Io dormirò (I will sleep).") (fo i-sleep))
+            (= (list "Io dormivo (I was sleeping).") (fo i-sleep))))))
+
+
+(deftest human-sleeper-1 []
+  (let [human-sleeper (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                               :sem {:subj {:human true}
+                                                                     :pred :dormire}}}))
+                               '(:synsem :sem :subj))]
+    (is (= (get-in human-sleeper '(:human)) true))
+    (is (= (get-in human-sleeper '(:animate)) true))
+
+(deftest animal-sleeper-1 []
+  (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                                :sem {:subj {:human false}
+                                                                      :pred :dormire}}}))
+                               '(:synsem :sem :subj))]
+    (is (= (get-in animal-sleeper '(:human)) false))))
+
+(deftest edible-1
+  (let [edible (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                        :sem {:pred :mangiare}}})) '(:synsem :sem))]
+    (is (not (nil? edible)))))))
+
+(deftest animal-eater-1 []
+  (let [eating-semantics (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                                  :sem {:subj {:human false}
+                                                                        :pred :mangiare}}}))
+                                 '(:synsem :sem))]
+    (is (= (get-in eating-semantics '(:subj :human)) false))))
+
+(defn get-cached []
+  (fo (:head (get test-cache "vp-infinitive"))))
+
+;; 2 grammar and lexicon
 
 (def grammar (list (merge (unifyc cc10
                                   {:synsem {:infl :present
@@ -87,8 +159,8 @@
 (def s-present (first (filter (fn [x]
                                 (= (:comment x) "s-present"))
                               grammar)))
-(def np1 (first (filter (fn [x]
-                         (= (:comment x) "np"))
+(def np (first (filter (fn [x]
+                         (= (:comment x) "noun phrase"))
                        grammar)))
 
 
@@ -102,6 +174,8 @@
                       (= (get-in x '(:italian :infinitive)) "volere")))
                    lexicon))
 
+
+;; 3 grammar runtime
 (def test-cache (forest/build-lex-sch-cache grammar lexicon))
 
 (defn lightning-bolt [ & [head lex phrases depth cache] ]
@@ -112,68 +186,3 @@
         head (if head head :top)
         cache (if cache cache test-cache)]
     (forest/lightning-bolt head lexicon phrases depth "" cache)))
-
-(defn gen-sentence [ & head ]
-  (let [head (if head head :top)]
-    (take 1 (lightning-bolt (unifyc head
-                                    {:synsem {:cat :verb
-                                              :subcat '()}})))))
-
-
-(defn keep-trying [ & [head ] ]
-  (let [head (if head head :top)
-        try (first (take 1 (lightning-bolt head)))]
-    (cond (fail? try)
-          (do
-            (log/warn (str "lightning failed: " try "; retrying."))
-            (keep-trying head))
-          (not (empty? (get-in try '(:synsem :subcat))))
-          (do
-            (log/warn (str "lightning returned a partial phrase, continuing."))
-            (keep-trying head))
-
-          true
-          try)))
-
-(deftest sleeper-1 []
-  (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
-    (is (not (nil? sleeper)))))
-
-(deftest i-sleep-1 []
-  (let [i-sleep (first (lightning-bolt {:synsem {:subcat '()
-                                                 :sem {:subj {:pred :io}
-                                                       :pred :dormire}}}))]
-    (is (or (= (list "Io dormo (I sleep).") (fo i-sleep))
-            (= (list "Io dormirò (I will sleep).") (fo i-sleep))
-            (= (list "Io dormivo (I was sleeping).") (fo i-sleep))))))
-
-
-(deftest human-sleeper-1 []
-  (let [human-sleeper (get-in (first (lightning-bolt {:synsem {:subcat '()
-                                                               :sem {:subj {:human true}
-                                                                     :pred :dormire}}}))
-                               '(:synsem :sem :subj))]
-    (is (= (get-in human-sleeper '(:human)) true))
-    (is (= (get-in human-sleeper '(:animate)) true))
-
-(deftest animal-sleeper-1 []
-  (let [animal-sleeper (get-in (first (lightning-bolt {:synsem {:subcat '()
-                                                                :sem {:subj {:human false}
-                                                                      :pred :dormire}}}))
-                               '(:synsem :sem :subj))]
-    (is (= (get-in animal-sleeper '(:human)) false))))
-
-(deftest edible-1
-  (let [edible (get-in (first (lightning-bolt {:synsem {:subcat '()
-                                                        :sem {:pred :mangiare}}})) '(:synsem :sem))]
-    (is (not (nil? edible)))))))
-
-(deftest animal-eater-1 []
-  (let [eating-semantics (get-in (first (lightning-bolt {:synsem {:subcat '()
-                                                                  :sem {:subj {:human false}
-                                                                        :pred :mangiare}}}))
-                                 '(:synsem :sem))]
-    (is (= (get-in eating-semantics '(:subj :human)) false))))
-
-(defn get-cached []
-  (fo (:head (get test-cache "vp-infinitive"))))
