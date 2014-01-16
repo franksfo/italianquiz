@@ -303,9 +303,9 @@
 
 (defn over [parents child1 & [child2]]
   (cond (vector? child1)
-        (over parents (set child1) child2)
+        (over parents (seq child1) child2)
         (vector? child2)
-        (over parents child1 (set child2))
+        (over parents child1 (seq child2))
         true
   (if (nil? child2) (over parents child1 :top)
       (if (map? parents)
