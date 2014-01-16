@@ -13,7 +13,7 @@
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer :all]
    [italianverbs.ug :refer :all :exclude (np)]
-   [italianverbs.unify :refer (fail? get-in merge unify unifyc remove-top-values)]))
+   [italianverbs.unify :refer (fail? get-in lazy-shuffle merge remove-top-values unify unifyc)]))
 
 ;; 1 (of 3): define functions.
 ;; TODO: move all functions from here to italianverbs.forest
@@ -145,9 +145,11 @@
                       (= (:comment x) "vp-imperfetto")))
                    grammar))
 
-(map (fn [rule]
+;; TODO: calling (.size) because (map) is lazy, and I want to realize
+;; the sequence - must be a better way to loop over the grammar.
+(.size (map (fn [rule]
        (intern *ns* (symbol (:comment rule)) rule))
-     grammar)
+     grammar))
 
 (def minil (filter (fn [x]
                      (or
