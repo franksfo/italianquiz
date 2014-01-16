@@ -48,7 +48,7 @@
                      (if (and (= :head head-or-comp)
                               (not (nil? (:head (get cache (:comment schema))))))
                        (do
-                         (log/debug (str "get-lex hit: head for schema: " (:comment schema)))
+                         (log/trace (str "get-lex hit: head for schema: " (:comment schema)))
                          (:head (get cache (:comment schema))))
                        (do
                          (log/warn (str "CACHE MISS 1"))
@@ -57,7 +57,7 @@
                      (if (and (= :comp head-or-comp)
                               (not (nil? (:comp (get cache (:comment schema))))))
                        (do
-                         (log/debug (str "get-lex hit: comp for schema: " (:comment schema)))
+                         (log/trace (str "get-lex hit: comp for schema: " (:comment schema)))
                          (:comp (get cache (:comment schema))))
                        (do
                          (log/warn (str "CACHE MISS 2"))
