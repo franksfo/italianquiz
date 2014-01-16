@@ -139,34 +139,15 @@
 
 ))
 
+;; minip and minil are for testing (move 'real' grammar out of test and into grammar).
 (def minip (filter (fn [x]
                      (or
                       (= (:comment x) "vp-imperfetto")))
                    grammar))
 
-(def vp-future (first (filter (fn [x]
-                                (= (:comment x) "vp-future"))
-                              grammar)))
-(def vp-imperfetto (first (filter (fn [x]
-                                    (= (:comment x) "vp-imperfetto"))
-                                  grammar)))
-(def vp-present (first (filter (fn [x]
-                                 (= (:comment x) "vp-present"))
-                               grammar)))
-(def s-future (first (filter (fn [x]
-                                (= (:comment x) "s-future"))
-                              grammar)))
-(def s-present (first (filter (fn [x]
-                                (= (:comment x) "s-present"))
-                              grammar)))
-(def np (first (filter (fn [x]
-                         (= (:comment x) "noun phrase"))
-                       grammar)))
-
-
-(def nbar1 (first (filter (fn [x]
-                            (= (:comment x) "nbar"))
-                          grammar)))
+(map (fn [rule]
+       (intern *ns* (symbol (:comment rule)) rule))
+     grammar)
 
 (def minil (filter (fn [x]
                      (or
