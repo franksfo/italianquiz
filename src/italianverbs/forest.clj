@@ -252,7 +252,7 @@
 
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
-           log (log/debug (str "calling comp-phrases with path-to-here: " path-to-here))
+           log (log/debug (str "->cp:" path-to-here))
            comp-phrases (comp-phrases (parents-with-phrasal-complements
                                        parents-with-phrasal-head-for-comp-phrases
                                        parents-with-lexical-heads-for-comp-phrases
