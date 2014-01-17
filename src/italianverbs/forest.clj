@@ -175,10 +175,12 @@
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon phrases depth path-to-here cache]]
   (let [maxdepth 2
+        head (if head head :top)
+        remove-top-values (remove-top-values-log head)
+        log (log/debug (str "lightning-bolt head=" remove-top-values "; path=" path-to-here "; depth=" depth))
         depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head phrases depth)
-        head (if head head :top)
-        path-to-here (if path-to-here path-to-here (remove-top-values-log head))
+        path-to-here (if path-to-here path-to-here "-ROOT-")
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
         ;; not the lexical entry.
@@ -189,7 +191,7 @@
      nil
 
      true
-     (let [debug (log/info (str "lb depth: " depth ";@" path-to-here))
+     (let [debug (log/info (str "lb depth: " depth ";path: " path-to-here))
            debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values-log head)))
            parents-with-phrasal-head-map (if (< depth maxdepth)
                                            (phrasal-headed-phrases
