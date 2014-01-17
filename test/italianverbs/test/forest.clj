@@ -123,7 +123,6 @@
                                             :cat :verb}})
                           {:comment "vp-imperfetto"})
 
-
                    (merge (unifyc cc10
                                   {:synsem {:cat :noun}
                                    :comp {:phrasal false}}) ;; rathole prevention

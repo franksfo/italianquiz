@@ -1174,12 +1174,18 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    (let [map-keys (sort (keys fs))]
      (let [first-key (first (keys fs))
            val (get fs first-key)]
-       (if (= val :top) ;; remove-top-values: core action of this function.
-         (remove-top-values (dissoc fs first-key))
+       (cond
+        (= val :top) ;; remove-top-values: core action of this function.
+        (remove-top-values (dissoc fs first-key))
+
+        (= first-key :comp-filter-fn) ;; TODO: deprecate and remove comp-filter-fn.
+        (remove-top-values (dissoc fs first-key))
+
          ;; else, KV is not :top, so keep it.
-       (conj
-        {first-key (remove-top-values val)}
-        (remove-top-values (dissoc fs first-key))))))
+        true
+        (conj
+         {first-key (remove-top-values val)}
+         (remove-top-values (dissoc fs first-key))))))
 
    (= (type fs) clojure.lang.Ref)
    ;; strip refs for readability.

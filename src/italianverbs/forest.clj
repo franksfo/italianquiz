@@ -26,7 +26,6 @@
                                               (:synsem :infl)))))
 
 (defn build-lex-sch-cache [phrases lexicon]
-  (log/info (str "building cache (" (.size phrases) ")"))
   (if (not (empty? phrases))
     (conj
      {(:comment (first phrases))
@@ -43,32 +42,41 @@
      (build-lex-sch-cache (rest phrases) lexicon))
     {}))
 
-(defn comp-phrases [parents all-phrases lexicon & [iter path-to-here cache]]
+(defn comp-phrases [parents phrases lexicon & [iter path-to-here cache]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
-          path-to-here (if path-to-here path-to-here ":none")
+          path-to-here (cond (nil? path-to-here)
+                             "/"
+                             (= "" path-to-here)
+                             "/"
+                             true path-to-here)
           parent (first parents)
-          cache (if cache cache (build-lex-sch-cache all-phrases lexicon))
+          cache (if cache cache
+                    (do
+                      (log/info (str "building cache (" (.size phrases) ")"))
+                      (build-lex-sch-cache phrases lexicon)))
           comp-spec
           (dissoc-paths
            (get-in parent '(:comp))
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))
-          debug (log/debug (str "comp-phrases with parent: " (:comment parent) "@" path-to-here))]
+          debug (log/debug (str path-to-here "[H " (fo (get-in parent '(:head)))))]
       (lazy-cat
        (overc parent
               (lightning-bolt
                comp-spec (get-lex parent :comp cache lexicon)
-               all-phrases 0
+               phrases 0
                (str path-to-here "/[C " (show-spec comp-spec) "]") cache))
-       (comp-phrases (rest parents) all-phrases lexicon (+ 1 iter) path-to-here cache)))))
+       (comp-phrases (rest parents) phrases lexicon (+ 1 iter) path-to-here cache)))))
 
 (defn lexical-headed-phrases [parents lexicon phrases depth cache]
   "return a lazy seq of phrases (maps) whose heads are lexemes."
   (if (not (empty? parents))
     (let [parent (first parents)
-          cache (if cache cache (build-lex-sch-cache phrases lexicon))]
+          cache (if cache cache
+                    (do (log/info (str "building cache (" (.size phrases) ")"))
+                        (build-lex-sch-cache phrases lexicon)))]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (overh parent (get-lex parent :head cache lexicon))}
@@ -78,11 +86,12 @@
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents)
-          cache (if cache cache (build-lex-sch-cache phrases lexicon))
-          debug (log/debug (str "phrasal-headed-parents[" depth "]@" path-to-here ": " (fo-ps parent)))]
+          cache (if cache cache
+                    (let [log (log/info (str "building cache (" (.size phrases) ")"))]
+                      (build-lex-sch-cache phrases lexicon)))]
       (lazy-seq
        (cons {:parent parent
-              :headed-phrases (let [path-to-here (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
+              :headed-phrases (let [path-to-here (str path-to-here "[H " (show-spec (get-in parent '(:head))) "]")
                                     bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           path-to-here
@@ -133,7 +142,7 @@
 
 (defn parents-at-this-depth [head phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (log/debug (str "parents-at-this-depth[" depth "] starting with head: " (show-spec head)))
+  (log/trace (str "parents-at-this-depth[" depth "] starting with head: " (show-spec head)))
   (let [result
         (filter (fn [each]
                   (not (fail? each)))
@@ -177,10 +186,14 @@
   (let [maxdepth 2
         head (if head head :top)
         remove-top-values (remove-top-values-log head)
-        log (log/debug (str "lightning-bolt head=" remove-top-values "; path=" path-to-here "; depth=" depth))
+        path-to-here (cond (nil? path-to-here)
+                           "/"
+                           (= "" path-to-here)
+                           "/"
+                           true path-to-here)
+        log (log/debug (str "lightning-bolt " path-to-here "[" remove-top-values "]"))
         depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head phrases depth)
-        path-to-here (if path-to-here path-to-here "-ROOT-")
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
         ;; not the lexical entry.
@@ -191,9 +204,7 @@
      nil
 
      true
-     (let [debug (log/info (str "lb depth: " depth ";path: " path-to-here))
-           debug (log/debug (str "lb start: depth:" depth "; head: " (remove-top-values-log head)))
-           parents-with-phrasal-head-map (if (< depth maxdepth)
+     (let [parents-with-phrasal-head-map (if (< depth maxdepth)
                                            (phrasal-headed-phrases
                                             parents-at-this-depth
                                             lexicon
@@ -241,7 +252,7 @@
 
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
-
+           log (log/debug (str "PASSING THE PATH TO HERE: " path-to-here))
            comp-phrases (comp-phrases (parents-with-phrasal-complements
                                        parents-with-phrasal-head-for-comp-phrases
                                        parents-with-lexical-heads-for-comp-phrases
