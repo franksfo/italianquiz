@@ -61,7 +61,7 @@
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))
-          debug (log/debug (str path-to-here "[H " (fo (get-in parent '(:head)))))]
+          debug (log/debug (str path-to-here "/[H " (fo (get-in parent '(:head)))))]
       (lazy-cat
        (overc parent
               (lightning-bolt
@@ -186,13 +186,14 @@
   (let [maxdepth 2
         head (if head head :top)
         remove-top-values (remove-top-values-log head)
+        depth (if depth depth 0)
         path-to-here (cond (nil? path-to-here)
                            "/"
                            (= "" path-to-here)
                            "/"
                            true path-to-here)
-        log (log/debug (str "lightning-bolt " path-to-here "[" remove-top-values "]"))
-        depth (if depth depth 0)
+        log (log/debug (str "lightning-bolt d" depth ":" path-to-here "/[H " remove-top-values "]"))
+
         parents-at-this-depth (parents-at-this-depth head phrases depth)
         ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
         ;; that would cause unification failure because they are specific to the desired final top-level phrase,
