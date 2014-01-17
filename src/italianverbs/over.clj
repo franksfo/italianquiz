@@ -361,3 +361,43 @@
              (over (rest parents) child1 child2))))))))
 
 
+(defn get-lex [schema head-or-comp cache lexicon]
+  (log/info (str "get-lex for schema: " (:comment schema)))
+  (let [result (cond (= :head head-or-comp)
+                     (if (and (= :head head-or-comp)
+                              (not (nil? (:head (get cache (:comment schema))))))
+                       (do
+                         (log/trace (str "get-lex hit: head for schema: " (:comment schema)))
+                         (:head (get cache (:comment schema))))
+                       (do
+                         (log/warn (str "CACHE MISS 1"))
+                         lexicon))
+                     (= :comp head-or-comp)
+                     (if (and (= :comp head-or-comp)
+                              (not (nil? (:comp (get cache (:comment schema))))))
+                       (do
+                         (log/trace (str "get-lex hit: comp for schema: " (:comment schema)))
+                         (:comp (get cache (:comment schema))))
+                       (do
+                         (log/warn (str "CACHE MISS 2"))
+                         lexicon))
+                     true
+                     (do (log/warn (str "CACHE MISS 3"))
+                         lexicon))]
+    (lazy-shuffle result)))
+
+(defn overc-with-cache [parents cache lexicon]
+  (if (not (empty? parents))
+    (lazy-seq
+     (let [parent (first parents)]
+       (lazy-cat (overc parent (lazy-shuffle (get-lex parent :comp cache lexicon)))
+                 (overc-with-cache (rest parents) cache lexicon))))))
+
+(defn overh-with-cache [parents cache lexicon]
+  (if (not (empty? parents))
+    (lazy-seq
+     (let [parent (first parents)]
+       (lazy-cat (overh parent (lazy-shuffle (get-lex parent :head cache lexicon)))
+                 (overh-with-cache (rest parents) cache lexicon))))))
+
+

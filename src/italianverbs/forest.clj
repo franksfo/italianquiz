@@ -7,7 +7,7 @@
    [italianverbs.config :as config]
    [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.over :refer (overc overh)]
+   [italianverbs.over :refer (overc overh get-lex overc-with-cache overh-with-cache)]
    [italianverbs.unify :refer :all]))
 
 (declare lightning-bolt)
@@ -42,31 +42,6 @@
                lexicon)}}
      (build-lex-sch-cache (rest phrases) lexicon))
     {}))
-
-(defn get-lex [schema head-or-comp cache lexicon]
-  (log/info (str "get-lex for schema: " (:comment schema)))
-  (let [result (cond (= :head head-or-comp)
-                     (if (and (= :head head-or-comp)
-                              (not (nil? (:head (get cache (:comment schema))))))
-                       (do
-                         (log/trace (str "get-lex hit: head for schema: " (:comment schema)))
-                         (:head (get cache (:comment schema))))
-                       (do
-                         (log/warn (str "CACHE MISS 1"))
-                         lexicon))
-                     (= :comp head-or-comp)
-                     (if (and (= :comp head-or-comp)
-                              (not (nil? (:comp (get cache (:comment schema))))))
-                       (do
-                         (log/trace (str "get-lex hit: comp for schema: " (:comment schema)))
-                         (:comp (get cache (:comment schema))))
-                       (do
-                         (log/warn (str "CACHE MISS 2"))
-                         lexicon))
-                     true
-                     (do (log/warn (str "CACHE MISS 3"))
-                         lexicon))]
-    (lazy-shuffle result)))
 
 (defn comp-phrases [parents all-phrases lexicon & [iter path-to-here cache]]
   (if (not (empty? parents))
