@@ -67,7 +67,7 @@
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))
-          debug (log/debug (str "in comp-phrases with with spec: " (show-spec comp-spec) " for head: " path-to-here "/[H " (fo (get-in parent '(:head))) "]"))]
+          debug (log/debug (str "in comp-phrases with spec: " (show-spec comp-spec) " for head: " path-to-here "/[H " (fo (get-in parent '(:head))) "]"))]
       (lazy-cat
        (overc parent
               (lightning-bolt
@@ -116,25 +116,25 @@
 
 ;; TODO: make option to just call (lazy-cat seq1 seq2 seq3) for efficiency:
 ;; this is simply a diagnostic tool.
-(defn try-all-debug [order seq1 seq2 seq3 seq1-label seq2-label seq3-label]
+(defn try-all-debug [order seq1 seq2 seq3 seq1-label seq2-label seq3-label path]
   (if (not (empty? seq1))
     (let [first-of-seq1 (first seq1)]
       (do
-        (log/debug (str "seq1 ("seq1-label") has a candidate:" (fo-ps first-of-seq1)))
+        (log/debug (str "seq1 ("seq1-label"@" path ") has a candidate:" (fo-ps first-of-seq1)))
         (lazy-seq
          (cons
           first-of-seq1
-          (try-all-debug order (rest seq1) seq2 seq3 seq1-label seq2-label seq3-label)))))
+          (try-all-debug order (rest seq1) seq2 seq3 seq1-label seq2-label seq3-label path)))))
     (if seq2
       (try-all-debug order
-       seq2 seq3 nil seq2-label seq3-label nil)
+       seq2 seq3 nil seq2-label seq3-label nil path)
       (if seq3
         (try-all-debug
-         order seq3 nil nil seq3-label nil nil)))))
+         order seq3 nil nil seq3-label nil nil path)))))
 
-(defn try-all [order seq1 seq2 seq3 seq1-label seq2-label seq3-label]
-  (if false
-    (try-all-debug order seq1 seq2 seq3 seq1-label seq2-label seq3-label)
+(defn try-all [order seq1 seq2 seq3 seq1-label seq2-label seq3-label path]
+  (if true
+    (try-all-debug order seq1 seq2 seq3 seq1-label seq2-label seq3-label path)
     (lazy-cat seq1 seq2 seq3)))
 
 ;; TODO: move this to inside lightning-bolt.
@@ -267,15 +267,16 @@
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
            log (log/trace (str "->cp:" (str path-to-here "/[H" remove-top-values)))
+           path-with-head (str path-to-here "/[H" remove-top-values "]")
            with-phrasal-comps (comp-phrases (parents-with-phrasal-complements
                                              parents-with-phrasal-heads-for-comp-phrases
                                              parents-with-lexical-heads-for-comp-phrases
                                              rand-parent-type-order)
-                                            phrases (lazy-shuffle lexicon) 0 (str path-to-here "/[H" remove-top-values) cache)
+                                            phrases (lazy-shuffle lexicon) 0 path-with-head cache)
 
           ]
 
-       (log/debug (str "lightning-bolt: rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
+       (log/debug (str "lb@" path-with-head ": rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
 
        (let [result
              (cond (< depth maxdepth)
@@ -299,7 +300,7 @@
                                     (str "hLcP " "hPcP")
                                     true
                                     (str "hPcP " "hLcP"))
-                              "hPcL"))
+                              "hPcL" path-with-head))
 
                          (= rand-order 1)
                          (do (log/debug (str "doing comp-phrases first(1)."))
@@ -320,7 +321,7 @@
                                     true
                                     (str "hPcP " "hLcP"))
                               "hLcL"
-                              "hPcL"))
+                              "hPcL" path-with-head))
 
                          (= rand-order 2)
                          (do (log/debug (str "doing comp-phrases first(2)"))
@@ -340,10 +341,10 @@
                                     true
                                     (str "hPcP " "hLcP"))
                               "hPcL"
-                              "hLcL"))
+                              "hLcL" path-with-head))
 
                          (= rand-order 3)
-                         (do (log/debug (str "doing phrasal head, lexical complement first(3)"))
+                         (do (log/debug (str "doing (phrasal head, lexical complement) first(3)"))
                              (try-all
                               rand-order
                               ;; 3. head is a phrase, comp is a lexeme.
@@ -360,10 +361,10 @@
                                     true
                                     (str "hPcP" "hLcP"))
                               "hPcL"
-                              "hLcL"))
+                              "hLcL" path-with-head))
 
                          true
-                         (do (log/debug (str "doing phrasal head, phrasal complement first (4)"))
+                         (do (log/debug (str "doing (phrasal head, phrasal complement) first (4)"))
                              (try-all
                               rand-order
                               ;; 3. head is a phrase, comp is a lexeme.
@@ -380,7 +381,7 @@
                                     true
                                     (str "hPcP" "hLcP"))
                               "hLcL"
-                              "hPcL")))
+                              "hPcL" path-with-head)))
 
                    true
                    (do
