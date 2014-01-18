@@ -120,7 +120,7 @@
   (if (not (empty? seq1))
     (let [first-of-seq1 (first seq1)]
       (do
-        (log/debug (str "seq1 ("seq1-label"@" path ") has a candidate:" (fo-ps first-of-seq1)))
+        (log/debug (str "try-all ("seq1-label"@" path ") candidate:" (fo-ps first-of-seq1)))
         (lazy-seq
          (cons
           first-of-seq1
@@ -288,17 +288,17 @@
                               rand-order
                               ;; 1. just a parent over 2 lexemes.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d" depth " one-level(0,0)"))
+                                (log/debug (str "lb:result@" path-with-head ";d" depth " one-level(0,0)"))
                                 one-level-trees)
 
                               ;; 2. comp is phrase; head is either a lexeme or a phrase.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d" depth " with-phrasal-comps(0,1)"))
+                                (log/debug (str "lb:result@" path-with-head ";d" depth " with-phrasal-comps(0,1)"))
                                 with-phrasal-comps)
 
                               ;; 3. head is a phrase, comp is a lexeme.
                               (do
-                                (log/debug (str "lb@ " path-with-head ";d" depth " with-phrasal-comps(0,2)"))
+                                (log/debug (str "lb:result@ " path-with-head ";d" depth " with-phrasal-comps(0,2)"))
                                 (overc-with-cache parents-with-phrasal-head cache lexicon))
 
                               "hLcL"
@@ -314,17 +314,17 @@
                               rand-order
                               ;; 2. comp is phrase; head is either a lexeme or a phrase.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d" depth " with-phrasal-comps(1,0)"))
+                                (log/debug (str "lb:result@" path-with-head ";d" depth " with-phrasal-comps(1,0)"))
                                 with-phrasal-comps)
 
                               ;; 1. just a parent over 2 lexemes.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d " depth " with one-level-trees(1,1)"))
+                                (log/debug (str "lb:result@" path-with-head ";d " depth " with one-level-trees(1,1)"))
                                 one-level-trees)
 
                               ;; 3. head is a phrase, comp is a lexeme.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d " depth " with one-level-trees(1,2)"))
+                                (log/debug (str "lb:result@" path-with-head ";d " depth " with one-level-trees(1,2)"))
                                 (overc-with-cache parents-with-phrasal-head cache lexicon))
 
                               (cond (= rand-parent-type-order 0)
@@ -340,17 +340,17 @@
                               rand-order
                               ;; 2. comp is phrase; head is either a lexeme or a phrase.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d " depth " with phrasal-comps(2,0)"))
+                                (log/debug (str "lb:result@" path-with-head ";d " depth " with phrasal-comps(2,0)"))
                                 with-phrasal-comps)
 
                               ;; 3. head is a phrase, comp is a lexeme.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d " depth " with phrasal head and lexical comp (2,1)"))
+                                (log/debug (str "lb:result@" path-with-head ";d " depth " with phrasal head and lexical comp (2,1)"))
                                 (overc-with-cache parents-with-phrasal-head
                                                   cache lexicon)) ;; complement (the lexicon).
                               ;; 1. just a parent over 2 lexemes.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d " depth " with one-level-trees (2,2)"))
+                                (log/debug (str "lb:result@" path-with-head ";d " depth " with one-level-trees (2,2)"))
                                 one-level-trees)
 
                               (cond (= rand-parent-type-order 0)
