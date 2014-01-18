@@ -23,9 +23,13 @@
 
 (defn gen-sentence [ & head ]
   (let [head (if head head :top)]
-    (take 1 (lightning-bolt (unifyc head
-                                    {:synsem {:cat :verb
-                                              :subcat '()}})))))
+    (log/debug (str "gen-sentence start with head: " head))
+    (let [result
+          (take 1 (lightning-bolt (unifyc head
+                                          {:synsem {:cat :verb
+                                                    :subcat '()}})))]
+      (log/debug (str "gen-sentence done with head: " head ": " (fo result)))
+      result)))
 
 (defn keep-trying [ & [head ] ]
   (let [head (if head head :top)
