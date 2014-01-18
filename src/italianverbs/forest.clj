@@ -42,7 +42,7 @@
      (build-lex-sch-cache (rest phrases) lexicon))
     {}))
 
-(defn comp-phrases [parents phrases lexicon & [iter path-to-here cache]]
+(defn headed-phrase-add-comp [parents phrases lexicon & [iter path-to-here cache]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
 
@@ -67,14 +67,14 @@
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))
-          debug (log/debug (str "in comp-phrases with spec: " (show-spec comp-spec) " for head: " path-to-here "/[H " (fo (get-in parent '(:head))) "]"))]
+          debug (log/debug (str "in headed-phrase-add-comp with spec: " (show-spec comp-spec) " for head: " path-to-here "/[H " (fo (get-in parent '(:head))) "]"))]
       (lazy-cat
        (overc parent
               (lightning-bolt
                comp-spec (get-lex parent :comp cache lexicon)
                phrases 0
                (str path-to-here "/[C " (show-spec comp-spec) "]") cache))
-       (comp-phrases (rest parents) phrases lexicon (+ 1 iter) path-to-here cache)))))
+       (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) path-to-here cache)))))
 
 (defn lexical-headed-phrases [parents lexicon phrases depth cache]
   "return a lazy seq of phrases (maps) whose heads are lexemes."
@@ -125,10 +125,10 @@
          (cons
           first-of-seq1
           (try-all-debug order (rest seq1) seq2 seq3 seq1-label seq2-label seq3-label path)))))
-    (if seq2
+    (if (not (empty? seq2))
       (try-all-debug order
        seq2 seq3 nil seq2-label seq3-label nil path)
-      (if seq3
+      (if (not (empty? seq3))
         (try-all-debug
          order seq3 nil nil seq3-label nil nil path)))))
 
@@ -268,7 +268,7 @@
            rand-parent-type-order (if true (rand-int 2) 1)
            log (log/trace (str "->cp:" (str path-to-here "/[H" remove-top-values)))
            path-with-head (str path-to-here "/[H" remove-top-values "]")
-           with-phrasal-comps (comp-phrases (parents-with-phrasal-complements
+           with-phrasal-comps (headed-phrase-add-comp (parents-with-phrasal-complements
                                              parents-with-phrasal-heads-for-comp-phrases
                                              parents-with-lexical-heads-for-comp-phrases
                                              rand-parent-type-order)
@@ -287,13 +287,19 @@
                              (try-all
                               rand-order
                               ;; 1. just a parent over 2 lexemes.
-                              one-level-trees
+                              (do
+                                (log/debug (str "lb@" path-with-head ";d" depth " one-level(0,0)"))
+                                one-level-trees)
 
                               ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                              with-phrasal-comps
+                              (do
+                                (log/debug (str "lb@" path-with-head ";d" depth " with-phrasal-comps(0,1)"))
+                                with-phrasal-comps)
 
                               ;; 3. head is a phrase, comp is a lexeme.
-                              (overc-with-cache parents-with-phrasal-head cache lexicon)
+                              (do
+                                (log/debug (str "lb@ " path-with-head ";d" depth " with-phrasal-comps(0,2)"))
+                                (overc-with-cache parents-with-phrasal-head cache lexicon))
 
                               "hLcL"
                               (cond (= rand-parent-type-order 0)
@@ -303,18 +309,23 @@
                               "hPcL" path-with-head))
 
                          (= rand-order 1)
-                         (do (log/debug (str "doing comp-phrases first(1)."))
+                         (do (log/debug (str "doing headed-phrase-add-comp first(1)."))
                              (try-all
                               rand-order
                               ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                              with-phrasal-comps
+                              (do
+                                (log/debug (str "lb@" path-with-head ";d" depth " with-phrasal-comps(1,0)"))
+                                with-phrasal-comps)
 
                               ;; 1. just a parent over 2 lexemes.
-                              one-level-trees
+                              (do
+                                (log/debug (str "lb@" path-with-head ";d " depth " with one-level-trees(1,1)"))
+                                one-level-trees)
 
                               ;; 3. head is a phrase, comp is a lexeme.
-                              ;; TODO: use cache
-                              (overc-with-cache parents-with-phrasal-head cache lexicon)
+                              (do
+                                (log/debug (str "lb@" path-with-head ";d " depth " with one-level-trees(1,2)"))
+                                (overc-with-cache parents-with-phrasal-head cache lexicon))
 
                               (cond (= rand-parent-type-order 0)
                                     (str "hLcP " "hPcP")
@@ -324,11 +335,13 @@
                               "hPcL" path-with-head))
 
                          (= rand-order 2)
-                         (do (log/debug (str "doing comp-phrases first(2)"))
+                         (do (log/debug (str "doing headed-phrase-add-comp first(2)"))
                              (try-all
                               rand-order
                               ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                              with-phrasal-comps
+                              (do
+                                (log/debug (str "lb@" path-with-head ";d " depth " with one-level-trees(2,0)"))
+                                with-phrasal-comps)
 
                               ;; 3. head is a phrase, comp is a lexeme.
                               (overc-with-cache parents-with-phrasal-head
