@@ -67,7 +67,7 @@
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))
-          debug (log/debug (str "comp-phrases: " path-to-here "/[H " (fo (get-in parent '(:head)))))]
+          debug (log/debug (str "in comp-phrases with with spec: " (show-spec comp-spec) " for head: " path-to-here "/[H " (fo (get-in parent '(:head))) "]"))]
       (lazy-cat
        (overc parent
               (lightning-bolt
