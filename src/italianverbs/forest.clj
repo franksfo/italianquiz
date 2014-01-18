@@ -85,7 +85,7 @@
                         (build-lex-sch-cache phrases lexicon)))]
       (lazy-seq
        (do
-         (log/debug (str "lexical-headed-phrases: with parent: " (first parent)))
+         (log/debug (str "lexical-headed-phrases: with parent: " (fo-ps parent)))
          (cons {:parent parent
                 :headed-phrases (overh parent (get-lex parent :head cache lexicon))}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache)))))))
@@ -242,12 +242,12 @@
                                               lexical-headed-phrases)
 
            ;; TODO: (lazy-shuffle) this
-           parents-with-phrasal-head-for-comp-phrases (mapcat (fn [each-kv]
-                                                                (let [parent (:parent each-kv)]
-                                                                  (if (not (= false (get-in parent '(:comp :phrasal))))
-                                                                    (let [phrases (:headed-phrases each-kv)]
-                                                                      phrases))))
-                                                              parents-with-phrasal-head-map)
+           parents-with-phrasal-heads-for-comp-phrases (mapcat (fn [each-kv]
+                                                                 (let [parent (:parent each-kv)]
+                                                                   (if (not (= false (get-in parent '(:comp :phrasal))))
+                                                                     (let [phrases (:headed-phrases each-kv)]
+                                                                       phrases))))
+                                                               parents-with-phrasal-head-map)
 
            ;; TODO: (lazy-shuffle) this
            parents-with-lexical-heads-for-comp-phrases (mapcat (fn [each-kv]
@@ -264,118 +264,126 @@
            rand-order (if true (rand-int 4) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
            log (log/trace (str "->cp:" (str path-to-here "/[H" remove-top-values)))
-           comp-phrases (comp-phrases (parents-with-phrasal-complements
-                                       parents-with-phrasal-head-for-comp-phrases
-                                       parents-with-lexical-heads-for-comp-phrases
-                                       rand-parent-type-order)
-                                      phrases (lazy-shuffle lexicon) 0 (str path-to-here "/[H" remove-top-values) cache)
+           with-phrasal-comps (comp-phrases (parents-with-phrasal-complements
+                                             parents-with-phrasal-heads-for-comp-phrases
+                                             parents-with-lexical-heads-for-comp-phrases
+                                             rand-parent-type-order)
+                                            phrases (lazy-shuffle lexicon) 0 (str path-to-here "/[H" remove-top-values) cache)
 
           ]
 
        (log/debug (str "lightning-bolt: rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
-       (log/debug (str "lightning-bolt:" path-to-here ": first one-level-tree: " (fo (first one-level-trees))))
 
+       (let [result
+             (cond (< depth maxdepth)
+                   (cond (= rand-order 0)
+                         (do (log/debug (str "lb: doing one-level first(0)."))
+                             (log/debug (str "lb" path-to-here ": first one-level-tree: " (fo (first one-level-trees))))
 
-       (cond (< depth maxdepth)
-             (cond (= rand-order 0)
-                   (try-all
-                    rand-order
-                    ;; 1. just a parent over 2 lexemes.
-                    one-level-trees
+                             (try-all
+                              rand-order
+                              ;; 1. just a parent over 2 lexemes.
+                              one-level-trees
 
-                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    comp-phrases
+                              ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                              with-phrasal-comps
 
-                    ;; 3. head is a phrase, comp is a lexeme.
-                    (overc-with-cache parents-with-phrasal-head cache lexicon)
+                              ;; 3. head is a phrase, comp is a lexeme.
+                              (overc-with-cache parents-with-phrasal-head cache lexicon)
 
-                    "hLcL"
-                    (cond (= rand-parent-type-order 0)
-                          (str "hLcP " "hPcP")
-                          true
-                          (str "hPcP " "hLcP"))
-                    "hPcL")
+                              "hLcL"
+                              (cond (= rand-parent-type-order 0)
+                                    (str "hLcP " "hPcP")
+                                    true
+                                    (str "hPcP " "hLcP"))
+                              "hPcL"))
 
-                   (= rand-order 1)
-                   (try-all
-                    rand-order
-                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    comp-phrases
+                         (= rand-order 1)
+                         (do (log/debug (str "doing comp-phrases first(1)."))
+                             (try-all
+                              rand-order
+                              ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                              with-phrasal-comps
 
-                    ;; 1. just a parent over 2 lexemes.
-                    one-level-trees
+                              ;; 1. just a parent over 2 lexemes.
+                              one-level-trees
 
-                    ;; 3. head is a phrase, comp is a lexeme.
-                    ;; TODO: use cache
-                    (overc-with-cache parents-with-phrasal-head cache lexicon)
+                              ;; 3. head is a phrase, comp is a lexeme.
+                              ;; TODO: use cache
+                              (overc-with-cache parents-with-phrasal-head cache lexicon)
 
-                    (cond (= rand-parent-type-order 0)
-                          (str "hLcP " "hPcP")
-                          true
-                          (str "hPcP " "hLcP"))
-                    "hLcL"
-                    "hPcL")
+                              (cond (= rand-parent-type-order 0)
+                                    (str "hLcP " "hPcP")
+                                    true
+                                    (str "hPcP " "hLcP"))
+                              "hLcL"
+                              "hPcL"))
 
-                   (= rand-order 2)
-                   (try-all
-                    rand-order
-                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    comp-phrases
+                         (= rand-order 2)
+                         (do (log/debug (str "doing comp-phrases first(2)"))
+                             (try-all
+                              rand-order
+                              ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                              with-phrasal-comps
 
-                    ;; 3. head is a phrase, comp is a lexeme.
-                    (overc-with-cache parents-with-phrasal-head
-                                      cache lexicon) ;; complement (the lexicon).
-                    ;; 1. just a parent over 2 lexemes.
-                    one-level-trees
+                              ;; 3. head is a phrase, comp is a lexeme.
+                              (overc-with-cache parents-with-phrasal-head
+                                                cache lexicon) ;; complement (the lexicon).
+                              ;; 1. just a parent over 2 lexemes.
+                              one-level-trees
 
-                    (cond (= rand-parent-type-order 0)
-                          (str "hLcP " "hPcP")
-                          true
-                          (str "hPcP " "hLcP"))
-                    "hPcL"
-                    "hLcL")
+                              (cond (= rand-parent-type-order 0)
+                                    (str "hLcP " "hPcP")
+                                    true
+                                    (str "hPcP " "hLcP"))
+                              "hPcL"
+                              "hLcL"))
 
-                   (= rand-order 3)
-                   (try-all
-                    rand-order
-                    ;; 3. head is a phrase, comp is a lexeme.
-                    (overc-with-cache parents-with-phrasal-head cache lexicon)
+                         (= rand-order 3)
+                         (do (log/debug (str "doing phrasal head, lexical complement first(3)"))
+                             (try-all
+                              rand-order
+                              ;; 3. head is a phrase, comp is a lexeme.
+                              (overc-with-cache parents-with-phrasal-head cache lexicon)
 
+                              ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                              with-phrasal-comps
 
-                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    comp-phrases
+                              ;; 1. just a parent over 2 lexemes.
+                              one-level-trees
 
-                    ;; 1. just a parent over 2 lexemes.
-                    one-level-trees
+                              (cond (= rand-parent-type-order 0)
+                                    (str "hLcP" "hPcP")
+                                    true
+                                    (str "hPcP" "hLcP"))
+                              "hPcL"
+                              "hLcL"))
 
-                    (cond (= rand-parent-type-order 0)
-                          (str "hLcP" "hPcP")
-                          true
-                          (str "hPcP" "hLcP"))
-                    "hPcL"
-                    "hLcL")
+                         true
+                         (do (log/debug (str "doing phrasal head, phrasal complement first (4)"))
+                             (try-all
+                              rand-order
+                              ;; 3. head is a phrase, comp is a lexeme.
+                              (overc-with-cache parents-with-phrasal-head cache lexicon)
+
+                              ;; 1. just a parent over 2 lexemes.
+                              one-level-trees
+
+                              ;; 2. comp is phrase; head is either a lexeme or a phrase.
+                              with-phrasal-comps
+
+                              (cond (= rand-parent-type-order 0)
+                                    (str "hLcP" "hPcP")
+                                    true
+                                    (str "hPcP" "hLcP"))
+                              "hLcL"
+                              "hPcL")))
 
                    true
-                   (try-all
-                    rand-order
-                    ;; 3. head is a phrase, comp is a lexeme.
-                    (overc-with-cache parents-with-phrasal-head cache lexicon)
-
-                    ;; 1. just a parent over 2 lexemes.
-                    one-level-trees
-
-                    ;; 2. comp is phrase; head is either a lexeme or a phrase.
-                    comp-phrases
-
-                    (cond (= rand-parent-type-order 0)
-                          (str "hLcP" "hPcP")
-                          true
-                          (str "hPcP" "hLcP"))
-                    "hLcL"
-                    "hPcL"))
-
-             true
-             one-level-trees)))))
+                   (do
+                     (log/debug (str "lb: reached max depth@" path-to-here "/[H" remove-top-values))
+                     (log/debug (str "returning one-level-trees, the first of which is: " (first one-level-trees)))))]
+         result)))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
