@@ -150,7 +150,7 @@
 
 (defn parents-at-this-depth [head phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (log/trace (str "parents-at-this-depth[" depth "] starting with head: " (show-spec head)))
+  (log/debug (str "parents-at-this-depth d" depth " starting with head: " (show-spec head)))
   (let [result
         (filter (fn [each]
                   (not (fail? each)))
@@ -210,10 +210,13 @@
     (cond
 
      (empty? parents-at-this-depth)
-     nil
+     (do (log/debug "lb: no parents at depth:" depth ";returning empty list.")
+         nil)
 
      true
-     (let [parents-with-phrasal-head-map (if (< depth maxdepth)
+     (let [debug (log/debug (str "lightning-bolt d" depth ":" path-to-here "/[H " remove-top-values "]; first parent at this depth: "
+                                 (fo-ps (first parents-at-this-depth))))
+           parents-with-phrasal-head-map (if (< depth maxdepth)
                                            (phrasal-headed-phrases
                                             parents-at-this-depth
                                             lexicon
