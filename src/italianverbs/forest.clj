@@ -340,14 +340,18 @@
                               rand-order
                               ;; 2. comp is phrase; head is either a lexeme or a phrase.
                               (do
-                                (log/debug (str "lb@" path-with-head ";d " depth " with one-level-trees(2,0)"))
+                                (log/debug (str "lb@" path-with-head ";d " depth " with phrasal-comps(2,0)"))
                                 with-phrasal-comps)
 
                               ;; 3. head is a phrase, comp is a lexeme.
-                              (overc-with-cache parents-with-phrasal-head
-                                                cache lexicon) ;; complement (the lexicon).
+                              (do
+                                (log/debug (str "lb@" path-with-head ";d " depth " with phrasal head and lexical comp (2,1)"))
+                                (overc-with-cache parents-with-phrasal-head
+                                                  cache lexicon)) ;; complement (the lexicon).
                               ;; 1. just a parent over 2 lexemes.
-                              one-level-trees
+                              (do
+                                (log/debug (str "lb@" path-with-head ";d " depth " with one-level-trees (2,2)"))
+                                one-level-trees)
 
                               (cond (= rand-parent-type-order 0)
                                     (str "hLcP " "hPcP")
