@@ -384,20 +384,19 @@
                      true
                      (do (log/warn (str "CACHE MISS 3"))
                          lexicon))]
-    (lazy-shuffle (lazy-seq result))))
+    (lazy-seq result)))
 
 (defn overc-with-cache [parents cache lexicon]
   (if (not (empty? parents))
-    (lazy-seq
-     (let [parent (first parents)]
-       (lazy-cat (overc parent (lazy-shuffle (get-lex parent :comp cache lexicon)))
-                 (overc-with-cache (rest parents) cache lexicon))))))
+    (let [parent (first parents)]
+      (lazy-cat (overc parent (get-lex parent :comp cache lexicon))
+                (overc-with-cache (rest parents) cache lexicon)))))
 
 (defn overh-with-cache [parents cache lexicon]
   (if (not (empty? parents))
     (lazy-seq
      (let [parent (first parents)]
-       (lazy-cat (overh parent (lazy-shuffle (get-lex parent :head cache lexicon)))
+       (lazy-cat (overh parent (get-lex parent :head cache lexicon))
                  (overh-with-cache (rest parents) cache lexicon))))))
 
 

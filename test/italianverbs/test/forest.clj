@@ -155,8 +155,10 @@
                           {:comment "noun phrase"})
 
                    (merge (unifyc hc11
-                                  (let [head-synsem {:cat :noun}]
+                                  (let [head-synsem {:cat :noun
+                                                     :modified true}]
                                     {:synsem head-synsem
+                                     :head {:synsem {:modified false}}
                                      :comp {:phrasal false ;; rathole prevention
                                             :synsem {:cat :adjective
                                                      :mod head-synsem}}}))
