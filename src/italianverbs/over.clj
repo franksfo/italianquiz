@@ -384,7 +384,7 @@
                      true
                      (do (log/warn (str "CACHE MISS 3"))
                          lexicon))]
-    (lazy-shuffle result)))
+    (lazy-shuffle (lazy-seq result))))
 
 (defn overc-with-cache [parents cache lexicon]
   (if (not (empty? parents))

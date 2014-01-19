@@ -31,6 +31,28 @@
       (log/debug (str "gen-sentence done with head: " head ": " (fo result)))
       result)))
 
+(defn gen-np [ & head ]
+  (let [head (if head head :top)]
+    (log/debug (str "gen-np start with head: " head))
+    (let [result
+          (take 1 (lightning-bolt (unifyc head
+                                          {:synsem {:cat :noun
+                                                    :subcat '()}})))]
+      (log/debug (str "gen-sentence done with head: " head ": " (fo result)))
+      result)))
+
+
+(defn gen-nbar [ & head ]
+  (let [head (if head head :top)]
+    (log/debug (str "gen-np start with head: " head))
+    (let [result
+          (take 1 (lightning-bolt (unifyc head
+                                          {:synsem {:cat :noun
+                                                    :subcat {:1 :top
+                                                             :2 '()}}})))]
+      (log/debug (str "gen-sentence done with head: " head ": " (fo result)))
+      result)))
+
 (defn keep-trying [ & [head ] ]
   (let [head (if head head :top)
         try (first (take 1 (lightning-bolt head)))]
