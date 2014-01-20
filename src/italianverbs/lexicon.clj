@@ -196,6 +196,17 @@
              :italian {:italian "amico"}
              :english {:english "friend"}})
 
+
+     (unify proper-noun
+            {:synsem {:sem {:pred :antonio
+                            :human true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
+             :italian "Antonio"
+             :english "Antonio"})
+
+
      ;; comparative:
      (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
            complement-sem (ref {:pred :di
