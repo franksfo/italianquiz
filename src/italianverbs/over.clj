@@ -362,12 +362,16 @@
 
 
 (defn get-lex [schema head-or-comp cache lexicon]
+  (if (not (map? schema))
+    (throw (Exception. (str "'schema' not a map: " schema))))
   (log/info (str "get-lex for schema: " (:comment schema)))
+  (if (nil? (:comment schema))
+    (log/error (str "no schema for: " schema)))
   (let [result (cond (= :head head-or-comp)
                      (if (and (= :head head-or-comp)
                               (not (nil? (:head (get cache (:comment schema))))))
                        (do
-                         (log/trace (str "get-lex hit: head for schema: " (:comment schema)))
+                         (log/info (str "get-lex hit: head for schema: " (:comment schema)))
                          (:head (get cache (:comment schema))))
                        (do
                          (log/warn (str "CACHE MISS 1"))
@@ -376,7 +380,7 @@
                      (if (and (= :comp head-or-comp)
                               (not (nil? (:comp (get cache (:comment schema))))))
                        (do
-                         (log/trace (str "get-lex hit: comp for schema: " (:comment schema)))
+                         (log/debug (str "get-lex hit: comp for schema: " (:comment schema)))
                          (:comp (get cache (:comment schema))))
                        (do
                          (log/warn (str "CACHE MISS 2"))
@@ -386,17 +390,28 @@
                          lexicon))]
     (lazy-seq result)))
 
+(defn overc-with-cache-1 [parent lex]
+  (log/debug (str "GOT HERE IN overc-with-cache-1 parent type: " (type parent)))
+  (if (not (empty? lex))
+    (lazy-cat (overc parent (first lex))
+              (overc-with-cache-1 parent (rest lex)))))
+
 (defn overc-with-cache [parents cache lexicon]
+  (log/debug (str "GOT HERE IN overc-with-cache with parents type: " (type parents)))
   (if (not (empty? parents))
     (let [parent (first parents)]
-      (lazy-cat (overc parent (get-lex parent :comp cache lexicon))
+      (lazy-cat (overc-with-cache-1 parent (get-lex parent :comp cache lexicon))
                 (overc-with-cache (rest parents) cache lexicon)))))
+
+(defn overh-with-cache-1 [parent lex]
+  (if (not (empty? lex))
+    (lazy-seq (cons (overh parent (first lex))
+                    (overh-with-cache-1 parent (rest lex))))))
 
 (defn overh-with-cache [parents cache lexicon]
   (if (not (empty? parents))
     (lazy-seq
      (let [parent (first parents)]
-       (lazy-cat (overh parent (get-lex parent :head cache lexicon))
+       (lazy-cat (overh-with-cache-1 parent (get-lex parent :head cache lexicon))
                  (overh-with-cache (rest parents) cache lexicon))))))
-
 

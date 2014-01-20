@@ -70,6 +70,7 @@
           debug (log/debug (str "in headed-phrase-add-comp with spec: " (show-spec comp-spec) " for head: " path-to-here "/[H " (fo (get-in parent '(:head))) "]"))
           debug (log/debug (str "ABOUT TO CALL LB FROM headed-phrase-add-comp@" path-to-here))
 ]
+      (log/debug (str "ABOUT TO CALL get-lex FROM headed-phrase-add-comp."))
       (lazy-cat
        (overc parent
               (lightning-bolt
@@ -266,7 +267,11 @@
                                                                        phrases))))
                                                                parents-with-phrasal-head-map)
 
-           ;; TODO: (lazy-shuffle) this
+           debug (log/debug (str "type of parents-with-phrasal-heads-for-comp-phrases:" (type parents-with-phrasal-heads-for-comp-phrases)))
+           debug (log/debug (str "type of (first parents-with-phrasal-heads-for-comp-phrases):" (type (first parents-with-phrasal-heads-for-comp-phrases))))
+           debug (if (empty? parents-with-phrasal-heads-for-comp-phrases)
+                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is empty.")))
+
            parents-with-lexical-heads-for-comp-phrases (mapcat (fn [each-kv]
                                                                  (let [parent (:parent each-kv)]
                                                                    (if (not (= false (get-in parent '(:comp :phrasal))))
@@ -274,41 +279,70 @@
                                                                        phrases))))
                                                                lexical-headed-phrases)
 
+           debug (log/debug (str "type of parents-with-lexical-heads-for-comp-phrases:" (type parents-with-lexical-heads-for-comp-phrases)))
+           debug (log/debug (str "type of (first parents-with-lexical-heads-for-comp-phrases):" (type (first parents-with-lexical-heads-for-comp-phrases))))
+           debug (if (empty? parents-with-lexical-heads-for-comp-phrases)
+                   (log/warn (str "parents-with-lexical-heads-for-comp-phrases is empty.")))
 
            one-level-trees
-           (overc-with-cache parents-with-lexical-heads cache lexicon)
+           (if (not (empty? parents-with-lexical-heads))
+             (overc-with-cache parents-with-lexical-heads cache lexicon))
 
            rand-order (if true (rand-int 3) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
            log (log/trace (str "->cp:" (str path-to-here "/[H" remove-top-values)))
            path-with-head (str path-to-here "/[H" remove-top-values "]")
            debug (log/debug (str "lb about to do with-phrasal-comps @" path-with-head ";d" depth))
+
            with-phrasal-comps (headed-phrase-add-comp (parents-with-phrasal-complements
-                                             parents-with-phrasal-heads-for-comp-phrases
-                                             parents-with-lexical-heads-for-comp-phrases
-                                             rand-parent-type-order)
-                                            phrases (lazy-shuffle lexicon) 0 path-with-head cache)
+                                                       parents-with-phrasal-heads-for-comp-phrases
+                                                       parents-with-lexical-heads-for-comp-phrases
+                                                       rand-parent-type-order)
+                                                      phrases (lazy-shuffle lexicon) 0 path-with-head cache)
            debug (log/debug (str "lb done: with-phrasal-comps @" path-with-head ";d" depth))
 
           ]
 
        (log/debug (str "lb@" path-with-head ": rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
+       (log/debug (str "EMPTYNESS OF WITH-PHRASAL-COMPS: " (empty? with-phrasal-comps)))
+       (log/debug (str "EMPTYNESS OF ADDING A LEXEME TO A PHRASAL HEAD: " (empty? (overc-with-cache parents-with-phrasal-head cache lexicon))))
+       (log/debug (str "EMPTYNESS OF ONE-LEVEL-TREES: " (empty? one-level-trees)))
+       (log/debug (str "LAZYCATTING..."))
+
+
+       (if (and (= rand-order 2)
+                (empty? with-phrasal-comps)
+                (not (empty? (overc-with-cache parents-with-phrasal-head cache lexicon)))
+                (not (empty? one-level-trees)))
+         (do
+           (log/error (str "HIT A POSSIBLE PROBLEM.."))
+           (log/error (str "GOING TO TRY TO GET ONE OF THE OVERC-WITH-CACHES...first parents-with-phrasal-head: " (fo-ps (first parents-with-phrasal-head))))
+
+           (log/error (str "THE VERY FIRST OVERC-WITH-CACHE IS: " (fo (first (overc-with-cache parents-with-phrasal-head cache lexicon)))))
+
+           (log/error (str "THE VERY FIRST one-level-trees IS: " (fo (first one-level-trees))))
+           (if false (throw (Exception. (str "RATHOLISH.."))))))
+
 
        (cond (= rand-order 0)
              (lazy-cat
               with-phrasal-comps
               (overc-with-cache parents-with-phrasal-head cache lexicon)
               one-level-trees)
+
              (= rand-order 1)
              (lazy-cat
               (overc-with-cache parents-with-phrasal-head cache lexicon)
               with-phrasal-comps
               one-level-trees)
+
              (= rand-order 2)
              (lazy-cat
-              one-level-trees)
+              one-level-trees
               (overc-with-cache parents-with-phrasal-head cache lexicon)
-              with-phrasal-comps)))))
+
+
+              with-phrasal-comps))))))
 
 
 
