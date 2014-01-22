@@ -21,6 +21,9 @@
 (declare lightning-bolt)
 (declare test-cache)
 
+;; takes forever (figure out why)
+;;(fo (take 1 (lightning-bolt {:synsem {:cat :verb :subcat '() :sem {:pred :aiutare :subj {:pred :amico}}}})))
+
 (defn gen-sentence [ & head ]
   (let [head (if head head :top)]
     (log/debug (str "gen-sentence start with head: " head))
