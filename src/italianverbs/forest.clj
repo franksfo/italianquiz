@@ -270,7 +270,9 @@
                                                                parents-with-phrasal-head-map)
 
            debug (if (empty? parents-with-phrasal-heads-for-comp-phrases)
-                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is empty.")))
+                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is empty@" path-with-head))
+                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is not empty@" path-with-head)))
+
 
            parents-with-lexical-heads-for-comp-phrases (mapcat (fn [each-kv]
                                                                  (let [parent (:parent each-kv)]
@@ -278,10 +280,6 @@
                                                                      (let [phrases (:headed-phrases each-kv)]
                                                                        phrases))))
                                                                lexical-headed-phrases)
-
-           debug (if (empty? parents-with-lexical-heads-for-comp-phrases)
-                   (log/warn (str "parents-with-lexical-heads-for-comp-phrases is empty."))
-                   (log/warn (str "parents-with-lexical-heads-for-comp-phrases is not empty.")))
 
            one-level-trees
            (if (not (empty? parents-with-lexical-heads))
@@ -291,6 +289,11 @@
            rand-parent-type-order (if true (rand-int 2) 1)
            log (log/trace (str "->cp:" (str path-to-here "/[H" remove-top-values)))
            path-with-head (str path-to-here "/[H" remove-top-values "]")
+
+           debug (if (empty? parents-with-lexical-heads-for-comp-phrases)
+                   (log/debug (str "parents-with-lexical-heads-for-comp-phrases is empty@" path-with-head))
+                   (log/debug (str "parents-with-lexical-heads-for-comp-phrases is not empty@" path-with-head)))
+
            debug (log/debug (str "lb about to do with-phrasal-comps @" path-with-head ";d" depth))
 
            with-phrasal-comps (headed-phrase-add-comp (parents-with-phrasal-complements
