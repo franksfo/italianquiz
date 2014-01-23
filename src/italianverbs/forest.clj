@@ -222,7 +222,7 @@
     (cond
 
      (empty? parents-at-this-depth)
-     (do (log/debug "lb: no parents at depth:" depth ";returning empty list.")
+     (do (log/debug "lb: no parents with depth:" depth "@" path-to-here ";returning empty list.")
          nil)
 
      true
@@ -270,8 +270,8 @@
                                                                parents-with-phrasal-head-map)
 
            debug (if (empty? parents-with-phrasal-heads-for-comp-phrases)
-                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is empty@" path-with-head))
-                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is not empty@" path-with-head)))
+                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is empty@" path-to-here))
+                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is not empty@" path-to-here)))
 
 
            parents-with-lexical-heads-for-comp-phrases (mapcat (fn [each-kv]
@@ -328,14 +328,15 @@
                 (not (empty? one-level-trees)))
          (do
            (log/error (str "HIT A POSSIBLE PROBLEM.."))
-           (log/error (str "GOING TO TRY TO GET ONE OF THE OVERC-WITH-CACHES...first parents-with-phrasal-head: " (fo-ps (first parents-with-phrasal-head))))
+           (log/error (str "The first parent with a phrasal head is: " (fo-ps (first parents-with-phrasal-head))))
 
            (if (not (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head))
-             (log/error (str "The first add-LC-to-HC is: " (fo (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
+             (log/error (str "The first add-LC-to-HC@" path-to-here " is: " (fo (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
 
            (if (not (empty? one-level-trees))
-             (log/error (str "The first add-LC-to-HL is: " (fo (first one-level-trees)))))
-           (log/error (str "The first one-level-trees IS: " (fo (first one-level-trees))))
+             (log/error (str "The first add-LC-to-HL@" path-to-here " is: " (fo (first one-level-trees)))))
+
+           (log/error (str "The first one-level-trees@" path-to-here " is: " (fo (first one-level-trees))))
 
            (if false (throw (Exception. (str "RATHOLISH.."))))))
 
