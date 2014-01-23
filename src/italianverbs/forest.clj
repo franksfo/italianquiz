@@ -68,9 +68,9 @@
              (:english :initial)
              (:italian :initial)))
           debug (log/debug (str "in headed-phrase-add-comp with spec: " (show-spec comp-spec) " for head: " path-to-here "/[H " (fo (get-in parent '(:head))) "]"))
-          debug (log/debug (str "ABOUT TO CALL LB FROM headed-phrase-add-comp@" path-to-here))
+          debug (log/debug (str "About to call lb from headed-phrase-add-comp@" path-to-here))
 ]
-      (log/debug (str "ABOUT TO CALL get-lex FROM headed-phrase-add-comp."))
+      (log/debug (str "About to call get-lex from headed-phrase-add-comp."))
       (lazy-cat
        (overc parent
               (lightning-bolt
@@ -103,14 +103,14 @@
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [path-to-here (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
-                                    debug (log/debug (str "ABOUT TO CALL LB FROM phrasal-headed-phrases@" path-to-here))
+                                    debug (log/debug (str "About to call lb from phrasal-headed-phrases@" path-to-here))
                                     bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           path-to-here
                                                           cache)]
                                 (overh parents bolts))}
              (do
-               (log/debug (str "DONE CALLING LB FROM phrasal-headed-phrases; proceeding with rest of parents."))
+               (log/debug (str "Done calling phrasal-headed-phrases; proceeding with rest of parents."))
                (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here cache)))))))
 
 ;; TODO: move this to inside lightning-bolt.
@@ -301,13 +301,22 @@
                                                       phrases (lazy-shuffle lexicon) 0 path-with-head cache)
            debug (log/debug (str "lb done: with-phrasal-comps @" path-with-head ";d" depth))
 
+
+           adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head (overc-with-cache parents-with-phrasal-head cache lexicon)
+
+
           ]
 
        (log/debug (str "lb@" path-with-head ": rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
-       (log/debug (str "EMPTYNESS OF WITH-PHRASAL-COMPS: " (empty? with-phrasal-comps)))
-       (log/debug (str "EMPTYNESS OF ADDING A LEXEME TO A PHRASAL HEAD: " (empty? (overc-with-cache parents-with-phrasal-head cache lexicon))))
-       (log/debug (str "EMPTYNESS OF ONE-LEVEL-TREES: " (empty? one-level-trees)))
-       (log/debug (str "LAZYCATTING..."))
+       (if (empty? with-phrasal-comps)
+         (log/debug (str "lb: there are no phrasal comps: " (empty? with-phrasal-comps)))
+         (log/debug (str "lb@" path-with-head " has one or more with-phrasal-comps")))
+
+       (if (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)
+         (log/debug (str "lb@"path-with-head": could not add a lexeme to any parent with a phrasal-head."))
+         (log/debug (str "lb@"path-with-head": has one or more possibile ways to attach a lexeme to a complement.")))
+
+       (log/debug (str "lazycat starting"))
 
 
        (if (and (= rand-order 2)
@@ -318,9 +327,13 @@
            (log/error (str "HIT A POSSIBLE PROBLEM.."))
            (log/error (str "GOING TO TRY TO GET ONE OF THE OVERC-WITH-CACHES...first parents-with-phrasal-head: " (fo-ps (first parents-with-phrasal-head))))
 
-           (log/error (str "THE VERY FIRST OVERC-WITH-CACHE IS: " (fo (first (overc-with-cache parents-with-phrasal-head cache lexicon)))))
+           (if (not (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head))
+             (log/error (str "The first add-LC-to-HC is: " (fo (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
 
-           (log/error (str "THE VERY FIRST one-level-trees IS: " (fo (first one-level-trees))))
+           (if (not (empty? one-level-trees))
+             (log/error (str "The first add-LC-to-HL is: " (fo (first one-level-trees)))))
+           (log/error (str "The first one-level-trees IS: " (fo (first one-level-trees))))
+
            (if false (throw (Exception. (str "RATHOLISH.."))))))
 
 
