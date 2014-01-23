@@ -314,7 +314,7 @@
        (if (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)
          (log/debug (str "lb@"path-with-head": could not add a lexeme to any parent with a phrasal-head."))
          (log/debug (str "lb@"path-with-head": has one or more possibile ways to attach a lexeme as a complement. The first is: " (fo-ps (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)) " with the lexical complement being: "
-                         (fo (get-in (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head))))))
+                         (fo (get-in (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head) '(:comp))))))
 
        (log/debug (str "lazycat starting"))
 
