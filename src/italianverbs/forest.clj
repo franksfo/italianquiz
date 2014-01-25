@@ -66,17 +66,14 @@
            (get-in parent '(:comp))
            '((:synsem :subcat)
              (:english :initial)
-             (:italian :initial)))
-          debug (log/debug (str "in headed-phrase-add-comp with spec: " (show-spec comp-spec) " for head: " path-to-here "/[H " (fo (get-in parent '(:head))) "]"))
-          debug (log/debug (str "About to call lb from headed-phrase-add-comp@" path-to-here))
-]
+             (:italian :initial)))]
       (log/debug (str "About to call get-lex from headed-phrase-add-comp."))
       (lazy-cat
        (overc parent
               (lightning-bolt
                comp-spec (get-lex parent :comp cache lexicon)
                phrases 0
-               (str path-to-here "/[C " (show-spec comp-spec) "]") cache))
+               (str path-to-here "/[C " (show-spec comp-spec) "]") cache (conj path-with-head-vec (str "C " " " (show-spec comp-spec)))))
        (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) path-to-here cache path-with-head-vec)))))
 
 (defn lexical-headed-phrases [parents lexicon phrases depth cache path-as-vec]
@@ -163,7 +160,8 @@
 
 (defn parents-at-this-depth [head phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (log/debug (str "parents-at-this-depth starting."))
+  (log/debug (str "looking for the subset of phrases that satisfies subcat: " (get-in (remove-top-values head) '(:synsem :subcat))
+                  " and cat: " (get-in (remove-top-values head) '(:synsem :cat))))
   (let [result
         (filter (fn [each]
                   (not (fail? each)))
@@ -216,9 +214,9 @@
         remove-top-values (remove-top-values-log head)
         depth (if depth depth 0)
         path-as-vec (if path-as-vec (conj path-as-vec
-                                          (str "H " remove-top-values))
+                                          (str "H" depth " " remove-top-values))
                         ;; first element of path.
-                        [ (str "H " remove-top-values)])
+                        [ (str "H" depth " " remove-top-values)])
         path-to-here (cond (nil? path-to-here)
                            "" ;; root path
                            (= "" path-to-here)
@@ -303,7 +301,7 @@
            rand-parent-type-order (if true (rand-int 2) 1)
            log (log/trace (str "->cp:" (str path-to-here "/[H" remove-top-values)))
            path-with-head (str path-to-here "/[H" remove-top-values "]")
-           path-with-head-vec (conj path-as-vec "[H " remove-top-values "]")
+           path-with-head-vec (conj path-as-vec (str "H" depth " " remove-top-values))
 
            debug (if (empty? parents-with-lexical-heads-for-comp-phrases)
                    (log/debug (str "parents-with-lexical-heads-for-comp-phrases is empty"))
@@ -331,12 +329,9 @@
          (log/debug (str "lb has one or more with-phrasal-comps.")))
 
        (if (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)
-         (log/debug (str "lb : could not add a lexeme to any parent with a phrasal-head: " path-with-head))
+         (log/debug (str "lb : could not add a lexeme to any parent."))
          (log/debug (str "lb has one or more possible ways to attach a lexeme as a complement. The first is: " (fo-ps (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)) " with the lexical complement being: "
                          (fo (get-in (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head) '(:comp))))))
-
-       (log/debug (str "lazycat starting"))
-
 
        (if (and (= rand-order 2)
                 (empty? with-phrasal-comps)

@@ -364,14 +364,14 @@
 (defn get-lex [schema head-or-comp cache lexicon]
   (if (not (map? schema))
     (throw (Exception. (str "'schema' not a map: " schema))))
-  (log/info (str "get-lex for schema: " (:comment schema)))
+  (log/debug (str "get-lex for schema: " (:comment schema)))
   (if (nil? (:comment schema))
     (log/error (str "no schema for: " schema)))
   (let [result (cond (= :head head-or-comp)
                      (if (and (= :head head-or-comp)
                               (not (nil? (:head (get cache (:comment schema))))))
                        (do
-                         (log/info (str "get-lex hit: head for schema: " (:comment schema)))
+                         (log/debug (str "get-lex hit: head for schema: " (:comment schema)))
                          (:head (get cache (:comment schema))))
                        (do
                          (log/warn (str "CACHE MISS 1"))
