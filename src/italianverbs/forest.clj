@@ -244,7 +244,7 @@
                                    depth
                                    cache)
 
-           debug (log/debug(str "lb begin parents-with-phrasal-head@" path-to-here))
+           debug (log/debug (str "lb begin parents-with-phrasal-head@" path-to-here))
            parents-with-phrasal-head (mapcat (fn [each-kv]
                                                (let [parent (:parent each-kv)]
                                                  (let [phrases (:headed-phrases each-kv)]
@@ -311,13 +311,14 @@
 
        (log/debug (str "lb@" path-with-head ": rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order) "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
        (if (empty? with-phrasal-comps)
-         (log/debug (str "lb: there are no phrasal comps: " (empty? with-phrasal-comps)))
-         (log/debug (str "lb@" path-with-head " has one or more with-phrasal-comps")))
+         (log/debug (str "lb: there are no phrasal comps: " (empty? with-phrasal-comps) "@" path-with-head))
+         (log/debug (str "lb has one or more with-phrasal-comps@" path-with-head)))
 
        (if (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)
-         (log/debug (str "lb@"path-with-head": could not add a lexeme to any parent with a phrasal-head."))
-         (log/debug (str "lb@"path-with-head": has one or more possibile ways to attach a lexeme as a complement. The first is: " (fo-ps (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)) " with the lexical complement being: "
-                         (fo (get-in (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head) '(:comp))))))
+         (log/debug (str "lb : could not add a lexeme to any parent with a phrasal-head: " path-with-head))
+         (log/debug (str "lb has one or more possible ways to attach a lexeme as a complement. The first is: " (fo-ps (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)) " with the lexical complement being: "
+                         (fo (get-in (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head) '(:comp)))
+                         "@" path-with-head)))
 
        (log/debug (str "lazycat starting"))
 
