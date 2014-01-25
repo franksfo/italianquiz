@@ -388,7 +388,7 @@
                      true
                      (do (log/warn (str "CACHE MISS 3"))
                          lexicon))]
-    (lazy-seq result)))
+    (lazy-shuffle result)))
 
 (defn overc-with-cache-1 [parent lex]
   (log/debug (str "GOT HERE IN overc-with-cache-1 parent type: " (type parent)))
