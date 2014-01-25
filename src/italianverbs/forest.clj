@@ -53,16 +53,20 @@
           comp-spec
           (dissoc-paths
            (get-in parent '(:comp))
-           '((:synsem :subcat)
-             (:english :initial)
-             (:italian :initial)))]
-      (lazy-cat
-       (overc parent
-              (lightning-bolt
-               comp-spec (get-lex parent :comp cache lexicon)
-               phrases 0
-               cache (conj path-with-head-vec (str "C " " " (show-spec comp-spec)))))
-       (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path-with-head-vec)))))
+           ;; TODO: do we need to dissoc these paths from the comp spec?
+           '((:english :initial)
+             (:italian :initial)))
+          comps (lightning-bolt
+                 comp-spec (get-lex parent :comp cache lexicon)
+                 phrases 0
+                 cache (conj path-with-head-vec (str "C " " " (show-spec comp-spec))))]
+      (if (not (empty? comps))
+        (do
+          (log/debug (str "headed-phrase-add-comp: first comp is: " (fo-ps (first comps)) " which we will add to parent: " (fo-ps parent)))
+          (lazy-cat
+           (overc parent comps)
+           (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path-with-head-vec)))
+        (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path-with-head-vec)))))
 
 (defn lexical-headed-phrases [parents lexicon phrases depth cache path-as-vec]
   "return a lazy seq of phrases (maps) whose heads are lexemes."
@@ -325,6 +329,8 @@
            (log/error (str "HIT A POSSIBLE PROBLEM; rand-order=" rand-order))
            (log/error (str "THE COMPLEMENT WAS: " (fo (get-in (first one-level-trees) '(:comp)))))
            (log/error (str "The first add-LC-to-LH is: " (fo (first one-level-trees))))
+           (log/error (str "The first add-LC-to-LH synsem is: " (show-spec (get-in (first one-level-trees) '(:synsem)))))
+           (log/error (str "The head spec is: " (show-spec head)))
            (if true (throw (Exception. (str "RATHOLISH.."))))))
 
 
