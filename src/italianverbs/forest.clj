@@ -305,7 +305,7 @@
                      (log/debug (str "no way to attach a lexeme as a complement to any parent with a phrasal head."))
                      (log/trace (str "no way to attach a lexeme as a complement to any parent with a phrasal head, but there "
                                      "were no parents with phrasal heads anyway, and you can't attach a lexeme to nothing.")))
-                   (log/debug (str "success attaching a lexeme as a complement to a parent with a phrasal head; first is:"
+                   (log/debug (str "success attaching a lexeme as a complement to a parent with a phrasal head; first is: "
                                    (fo-ps (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
 
 
@@ -317,19 +317,22 @@
 
        (if (and (= rand-order 2)
                 (empty? with-phrasal-comps)
+                (not (empty? parents-with-phrasal-head))
+                (= (first (fo (get-in (first one-level-trees) '(:comp)))) "Alto (Tall).")
                 (not (empty? (overc-with-cache parents-with-phrasal-head cache lexicon)))
                 (not (empty? one-level-trees)))
          (do
-           (log/error (str "HIT A POSSIBLE PROBLEM.."))
+           (log/error (str "HIT A POSSIBLE PROBLEM; rand-order=" rand-order))
+           (log/error (str "THE COMPLEMENT WAS: " (fo (get-in (first one-level-trees) '(:comp)))))
            (log/error (str "The first parent with a phrasal head is: " (fo-ps (first parents-with-phrasal-head))))
 
            (if (not (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head))
-             (log/error (str "The first add-LC-to-HC is: " (fo (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
+             (log/error (str "The first add-LC-to-PH is: " (fo (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
 
            (if (not (empty? one-level-trees))
-             (log/error (str "The first add-LC-to-HL is: " (fo (first one-level-trees)))))
+             (log/error (str "The first add-LC-to-LH is: " (fo (first one-level-trees)))))
 
-           (if false (throw (Exception. (str "RATHOLISH.."))))))
+           (if true (throw (Exception. (str "RATHOLISH.."))))))
 
 
        (cond (= rand-order 0)
