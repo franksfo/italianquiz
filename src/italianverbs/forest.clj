@@ -67,7 +67,6 @@
            '((:synsem :subcat)
              (:english :initial)
              (:italian :initial)))]
-      (log/debug (str "About to call get-lex from headed-phrase-add-comp."))
       (lazy-cat
        (overc parent
               (lightning-bolt
@@ -84,10 +83,13 @@
                     (do (log/warn (str "lexical-headed-parents given null cache: building cache from: (" (.size phrases) ")"))
                         (build-lex-sch-cache phrases lexicon)))]
       (lazy-seq
-       (do
-         (log/debug (str "lexical-headed-phrases: with parent: " (fo-ps parent)))
+       (let [result (overh parent (get-lex parent :head cache lexicon))
+             debug (if (empty? result)
+                     (log/debug (str "could not add a lexeme as a head to parent: " (fo-ps parent)))
+                     (log/debug (str "success adding a lexeme as a head to a parent; result is: " (fo-ps (first result)))))]
+
          (cons {:parent parent
-                :headed-phrases (overh parent (get-lex parent :head cache lexicon))}
+                :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path-as-vec)))))))
 
 (defn phrasal-headed-phrases [parents lexicon phrases depth path-to-here cache path-to-here-vec]
@@ -107,9 +109,7 @@
                                                           cache
                                                           path-to-here-vec)]
                                 (overh parents bolts))}
-             (do
-               (log/debug (str "Done calling phrasal-headed-phrases; proceeding with rest of parents."))
-               (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here cache path-to-here-vec)))))))
+             (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here cache path-to-here-vec))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -160,8 +160,6 @@
 
 (defn parents-at-this-depth [head phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (log/debug (str "looking for the subset of phrases that satisfies subcat: " (get-in (remove-top-values head) '(:synsem :subcat))
-                  " and cat: " (get-in (remove-top-values head) '(:synsem :cat))))
   (let [result
         (filter (fn [each]
                   (not (fail? each)))
@@ -216,7 +214,7 @@
         path-as-vec (if path-as-vec (conj path-as-vec
                                           (str "H" depth " " remove-top-values))
                         ;; first element of path.
-                        [ (str "H" depth " " remove-top-values)])
+                        [])
         path-to-here (cond (nil? path-to-here)
                            "" ;; root path
                            (= "" path-to-here)
@@ -263,15 +261,18 @@
                                                    phrases)))
                                              parents-with-phrasal-head-map)
 
-           debug (log/debug (str "lb done with parents-with-phrasal-head"))
+           debug (if (empty? parents-with-phrasal-head)
+                   (log/debug (str "phrases where head is itself a phrase is empty."))
+                   (log/debug (str "phrases where head is itself a phrase is not empty; first is: " (fo-ps (first parents-with-phrasal-head)))))
 
-           debug (log/debug (str "lb begin parents-with-lexical-heads"))
            parents-with-lexical-heads (mapcat (fn [each-kv]
                                                 (let [parent (:parent each-kv)]
                                                   (let [phrases (:headed-phrases each-kv)]
                                                     phrases)))
                                               lexical-headed-phrases)
-           debug (log/debug (str "lb done with parents-with-lexical-head"))
+           debug (if (empty? parents-with-lexical-heads)
+                   (log/debug (str "phrases where head is a lexeme is empty."))
+                   (log/debug (str "phrases where head is a lexeme is not empty; first is: " (fo-ps (first parents-with-lexical-heads)))))
 
            ;; TODO: (lazy-shuffle) this
            parents-with-phrasal-heads-for-comp-phrases (mapcat (fn [each-kv]
@@ -282,8 +283,8 @@
                                                                parents-with-phrasal-head-map)
 
            debug (if (empty? parents-with-phrasal-heads-for-comp-phrases)
-                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is empty"))
-                   (log/warn (str "parents-with-phrasal-heads-for-comp-phrases is not empty")))
+                   (log/debug (str "parents-with-phrasal-heads-for-comp-phrases is empty."))
+                   (log/debug (str "parents-with-phrasal-heads-for-comp-phrases is not empty; first is: " (fo-ps (first parents-with-phrasal-heads-for-comp-phrases)))))
 
 
            parents-with-lexical-heads-for-comp-phrases (mapcat (fn [each-kv]
@@ -292,6 +293,13 @@
                                                                      (let [phrases (:headed-phrases each-kv)]
                                                                        phrases))))
                                                                lexical-headed-phrases)
+
+           debug (if (empty? parents-with-lexical-heads-for-comp-phrases)
+                   (if (not (empty? lexical-headed-phrases))
+                     (log/debug (str "parents-with-lexical-heads-for-comp-phrases is empty."))
+                     (log/trace (str "parents-with-lexical-heads-for-comp-phrases is empty, because it's a subset of an empty set (lexical-headed-phrases)")))
+                   (log/debug (str "parents-with-lexical-heads-for-comp-phrases is not empty; first is: "
+                                   (fo-ps (first parents-with-lexical-heads-for-comp-phrases)))))
 
            one-level-trees
            (if (not (empty? parents-with-lexical-heads))
@@ -303,35 +311,32 @@
            path-with-head (str path-to-here "/[H" remove-top-values "]")
            path-with-head-vec (conj path-as-vec (str "H" depth " " remove-top-values))
 
-           debug (if (empty? parents-with-lexical-heads-for-comp-phrases)
-                   (log/debug (str "parents-with-lexical-heads-for-comp-phrases is empty"))
-                   (log/debug (str "parents-with-lexical-heads-for-comp-phrases is not empty")))
-
-           debug (log/debug (str "lb about to do with-phrasal-comps."))
-
            with-phrasal-comps (headed-phrase-add-comp (parents-with-phrasal-complements
                                                        parents-with-phrasal-heads-for-comp-phrases
                                                        parents-with-lexical-heads-for-comp-phrases
                                                        rand-parent-type-order)
                                                       phrases (lazy-shuffle lexicon) 0 path-with-head cache path-with-head-vec)
-           debug (log/debug (str "lb done with-phrasal-comps"))
 
+           debug (if (empty? with-phrasal-comps)
+                   (log/debug (str "with-phrasal-comps is empty."))
+                   (log/debug (str "with-phrasal-comps is not empty; first is: " (fo-ps (first with-phrasal-comps)))))
 
            adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head (overc-with-cache parents-with-phrasal-head cache lexicon)
+
+           debug (if (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)
+                   (if (not (empty? parents-with-phrasal-head))
+                     (log/debug (str "no way to attach a lexeme as a complement to any parent with a phrasal head."))
+                     (log/trace (str "no way to attach a lexeme as a complement to any parent with a phrasal head, but there "
+                                     "were no parents with phrasal heads anyway, and you can't attach a lexeme to nothing.")))
+                   (log/debug (str "success attaching a lexeme as a complement to a parent with a phrasal head; first is:"
+                                   (fo-ps (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
+
 
 
           ]
 
        (log/debug (str "rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order)
                        "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
-       (if (empty? with-phrasal-comps)
-         (log/debug (str "lb: there are no phrasal comps."))
-         (log/debug (str "lb has one or more with-phrasal-comps.")))
-
-       (if (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)
-         (log/debug (str "lb : could not add a lexeme to any parent."))
-         (log/debug (str "lb has one or more possible ways to attach a lexeme as a complement. The first is: " (fo-ps (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)) " with the lexical complement being: "
-                         (fo (get-in (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head) '(:comp))))))
 
        (if (and (= rand-order 2)
                 (empty? with-phrasal-comps)
