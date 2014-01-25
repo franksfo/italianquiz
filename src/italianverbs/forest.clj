@@ -324,14 +324,7 @@
          (do
            (log/error (str "HIT A POSSIBLE PROBLEM; rand-order=" rand-order))
            (log/error (str "THE COMPLEMENT WAS: " (fo (get-in (first one-level-trees) '(:comp)))))
-           (log/error (str "The first parent with a phrasal head is: " (fo-ps (first parents-with-phrasal-head))))
-
-           (if (not (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head))
-             (log/error (str "The first add-LC-to-PH is: " (fo (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
-
-           (if (not (empty? one-level-trees))
-             (log/error (str "The first add-LC-to-LH is: " (fo (first one-level-trees)))))
-
+           (log/error (str "The first add-LC-to-LH is: " (fo (first one-level-trees))))
            (if true (throw (Exception. (str "RATHOLISH.."))))))
 
 
