@@ -102,7 +102,6 @@
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [path-to-here (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
-                                    debug (log/debug (str "About to call lb from phrasal-headed-phrases."))
                                     bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           path-to-here
