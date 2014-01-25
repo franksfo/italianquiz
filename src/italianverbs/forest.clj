@@ -42,20 +42,9 @@
      (build-lex-sch-cache (rest phrases) lexicon))
     {}))
 
-(defn headed-phrase-add-comp [parents phrases lexicon & [iter path-to-here cache path-with-head-vec]]
+(defn headed-phrase-add-comp [parents phrases lexicon & [iter cache path-with-head-vec]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
-
-          debug (if (nil? path-to-here)  (log/warn (str "COMP-PHRASES PATH-TO-HERE IS NULL.")))
-          debug (if (= "" path-to-here)  (do (log/error (str "COMP-PHRASES PATH-TO-HERE IS EMPTYSTRING."))
-                                             (throw (Exception. (str "COMP-PHRASES PATH-TO-HERE IS EMPTYSTRING.")))))
-          debug (if (= "/" path-to-here) (log/warn (str "COMP-PHRASES PATH-TO-HERE IS SLASH.")))
-
-          path-to-here (cond (nil? path-to-here)
-                             "/"
-                             (= "" path-to-here)
-                             "/"
-                             true path-to-here)
           parent (first parents)
           cache (if cache cache
                     (do
@@ -72,8 +61,8 @@
               (lightning-bolt
                comp-spec (get-lex parent :comp cache lexicon)
                phrases 0
-               (str path-to-here "/[C " (show-spec comp-spec) "]") cache (conj path-with-head-vec (str "C " " " (show-spec comp-spec)))))
-       (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) path-to-here cache path-with-head-vec)))))
+               cache (conj path-with-head-vec (str "C " " " (show-spec comp-spec)))))
+       (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path-with-head-vec)))))
 
 (defn lexical-headed-phrases [parents lexicon phrases depth cache path-as-vec]
   "return a lazy seq of phrases (maps) whose heads are lexemes."
@@ -92,7 +81,7 @@
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path-as-vec)))))))
 
-(defn phrasal-headed-phrases [parents lexicon phrases depth path-to-here cache path-to-here-vec]
+(defn phrasal-headed-phrases [parents lexicon phrases depth cache path-to-here-vec]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents)
@@ -101,14 +90,12 @@
                       (build-lex-sch-cache phrases lexicon)))]
       (lazy-seq
        (cons {:parent parent
-              :headed-phrases (let [path-to-here (str path-to-here "/[H " (show-spec (get-in parent '(:head))) "]")
-                                    bolts (lightning-bolt (get-in parent '(:head))
+              :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
-                                                          path-to-here
                                                           cache
                                                           path-to-here-vec)]
                                 (overh parents bolts))}
-             (phrasal-headed-phrases (rest parents) lexicon phrases depth path-to-here cache path-to-here-vec))))))
+             (phrasal-headed-phrases (rest parents) lexicon phrases depth cache path-to-here-vec))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -205,7 +192,7 @@
         (log-path-as-vec (rest path) (+ depth 1))))))
 
 ;; TODO: s/head/head-spec/
-(defn lightning-bolt [ & [head lexicon phrases depth path-to-here cache path-as-vec]]
+(defn lightning-bolt [ & [head lexicon phrases depth cache path-as-vec]]
   (let [maxdepth 2
         head (if head head :top)
         remove-top-values (remove-top-values-log head)
@@ -214,11 +201,6 @@
                                           (str "H" depth " " remove-top-values))
                         ;; first element of path.
                         [])
-        path-to-here (cond (nil? path-to-here)
-                           "" ;; root path
-                           (= "" path-to-here)
-                           "" ;; root path
-                           true path-to-here)
         log (log-path-as-vec path-as-vec)
 
         parents-at-this-depth (parents-at-this-depth head phrases depth)
@@ -241,7 +223,6 @@
                                             lexicon
                                             phrases
                                             depth
-                                            path-to-here
                                             cache
                                             path-as-vec))
 
@@ -253,7 +234,6 @@
                                    cache
                                    path-as-vec)
 
-           debug (log/debug (str "lb begin parents-with-phrasal-head"))
            parents-with-phrasal-head (mapcat (fn [each-kv]
                                                (let [parent (:parent each-kv)]
                                                  (let [phrases (:headed-phrases each-kv)]
@@ -306,15 +286,13 @@
 
            rand-order (if true (rand-int 3) 1)
            rand-parent-type-order (if true (rand-int 2) 1)
-           log (log/trace (str "->cp:" (str path-to-here "/[H" remove-top-values)))
-           path-with-head (str path-to-here "/[H" remove-top-values "]")
            path-with-head-vec (conj path-as-vec (str "H" depth " " remove-top-values))
 
            with-phrasal-comps (headed-phrase-add-comp (parents-with-phrasal-complements
                                                        parents-with-phrasal-heads-for-comp-phrases
                                                        parents-with-lexical-heads-for-comp-phrases
                                                        rand-parent-type-order)
-                                                      phrases (lazy-shuffle lexicon) 0 path-with-head cache path-with-head-vec)
+                                                      phrases (lazy-shuffle lexicon) 0 cache path-with-head-vec)
 
            debug (if (empty? with-phrasal-comps)
                    (log/debug (str "with-phrasal-comps is empty."))
