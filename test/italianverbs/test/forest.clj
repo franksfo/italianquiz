@@ -202,4 +202,4 @@
         phrases (if phrases phrases (shuffle grammar))
         head (if head head :top)
         cache (if cache cache test-cache)]
-    (forest/lightning-bolt head lexicon phrases depth "" cache)))
+    (forest/lightning-bolt head lexicon phrases depth cache)))
