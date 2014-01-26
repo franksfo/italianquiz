@@ -154,6 +154,8 @@
 (rewrite-as sents 'ds)
 (rewrite-as sents 'sentence-with-modifier)
 
+;; TODO: s/unifyc/unify/
+
 (def grammar (list (merge (unifyc cc10
                                   {:synsem {:infl :present
                                             :cat :verb
@@ -225,6 +227,12 @@
                                             :synsem {:cat :adjective
                                                      :mod head-synsem}}}))
                           {:comment "nbar"})
+
+
+                   (merge (unifyc hh10
+                                  {:synsem {:cat :prep}})
+                          {:comment "prepositional-phrase"})
+
 
 ))
 
