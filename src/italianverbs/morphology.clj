@@ -1654,12 +1654,9 @@
     (not (empty? expr)))
 
    ;; expr is a sequence or set: assume each is a phrase structure tree and show each.
-   (reduce (fn [x y]
-             ;; show a bar (|) between each phrase structure tree (assuming each member of expr is a phrase structure tree).
-             (str x " | " y))
-           (map (fn [each]
-                  (fo-ps each))
-                expr))
+   (map (fn [each]
+          (fo-ps each))
+        expr)
 
    (and (map? expr)
         (:comment expr)
