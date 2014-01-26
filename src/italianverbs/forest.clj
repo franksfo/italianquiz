@@ -193,7 +193,8 @@
     (if (> (.size path) 0)
       (do
         (log/info (str "LB@[" depth "]: " (first path)))
-        (log-path-as-vec (rest path) (+ depth 1))))))
+        (log-path-as-vec (rest path) (+ depth 1)))
+      (log/info (str ""))))) ;; blank line after printing bolt.
 
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon phrases depth cache path-as-vec]]

@@ -21,12 +21,9 @@
 (declare lightning-bolt)
 (declare test-cache)
 
-;; takes forever (figure out why)
-;;(fo (take 1 (lightning-bolt {:synsem {:cat :verb :subcat '() :sem {:pred :aiutare :subj {:pred :amico}}}})))
-
-
-;; use this one also for studying/logging.
-;; (fo (take 1 (lightning-bolt {:synsem {:cat :verb, :subcat () :sem {:pred :dormire :subj {:pred :amico}}}})))
+; (fo (take 1 (lightning-bolt {:synsem {:cat :verb, :subcat () :sem {:pred :dormire :subj {:pred :amico}}}})))
+; (fo (take 1 (lightning-bolt {:synsem {:cat :verb, :subcat () :sem {:pred :mangiare :subj {:pred :amico}}}})))
+; (fo (take 1 (lightning-bolt {:synsem {:cat :verb, :subcat () :sem {:pred :aiutare :subj {:pred :amico}}}})))
 
 (defn gen-sentence [ & head ]
   (let [head (if head head :top)]
