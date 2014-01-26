@@ -168,12 +168,14 @@
 
                    (merge (unifyc cc10
                                   {:synsem {:infl :futuro
-                                            :cat :verb}})
+                                            :cat :verb
+                                            :sem {:tense :future}}})
                           {:comment "s-future"})
 
                    (merge (unifyc cc10
                                   {:synsem {:infl :imperfetto
-                                            :cat :verb}})
+                                            :cat :verb
+                                            :sem {:tense :past}}})
                           {:comment "s-imperfetto"})
 
                    (merge (unifyc hh21
