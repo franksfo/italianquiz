@@ -45,16 +45,18 @@
                (list
 
 
-            {:synsem {:cat :prep
-                      :sem {:mod {:pred :a}
-                         :comparative false}
-                   :subcat {:1 {:cat :noun
-                                :subcat '()
-                                :sem {:place true}}
-                            :2 '()}}
-             :italian {:initial true
-                       :italian "a"}
-             :english "to"}
+                (let [location (ref {:place true})]
+                  {:synsem {:cat :prep
+                            :sem {:mod {:pred :a}
+                                  :obj location
+                                  :comparative false}
+                            :subcat {:1 {:cat :noun
+                                         :subcat '()
+                                         :sem location}
+                                     :2 '()}}
+                   :italian {:initial true
+                             :italian "a"}
+                   :english "to"})
 
         {:synsem {:cat :prep
                   :sem {:pred :in}
