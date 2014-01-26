@@ -13,6 +13,7 @@
    [hiccup.core :refer :all]
 
    [italianverbs.forest :as forest :exclude [lightning-bolt]]
+   [italianverbs.forest :refer :all :exclude [lightning-bolt]]
    [italianverbs.generate :refer :all :exclude [generate]]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
@@ -29,13 +30,7 @@
 ;; seem to need this sometimes, to avoid initialization errors:
 ;(def populate-ns (sentence))
 
-
-
-(def workbook-cache (forest/build-lex-sch-cache grammar lexicon))
-
-(defn generate [ & [head]]
-  (let [head (if head head :top)]
-    (first (take 1 (forest/lightning-bolt head lexicon (shuffle grammar) 0 workbook-cache)))))
+(def workbook-cache (build-lex-sch-cache grammar lexicon))
 
 (defn lightning-bolt [ & [head lex phrases depth cache] ]
   (let [maxdepth 2
@@ -45,6 +40,11 @@
         head (if head head :top)
         cache (if cache cache workbook-cache)]
     (forest/lightning-bolt head lexicon phrases depth cache)))
+
+(defn generate [ & [head]]
+  (let [head (if head head :top)]
+    (first (take 1 (lightning-bolt head lexicon (shuffle grammar) 0 workbook-cache)))))
+
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
