@@ -161,6 +161,12 @@
                           {:comment "s-present"})
 
                    (merge (unifyc cc10
+                                  {:synsem {:infl :present
+                                            :cat :verb
+                                            :sem {:tense :past}}})
+                          {:comment "s-aux"})
+
+                   (merge (unifyc cc10
                                   {:synsem {:infl :futuro
                                             :cat :verb}})
                           {:comment "s-future"})
