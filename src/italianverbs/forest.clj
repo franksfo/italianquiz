@@ -78,11 +78,7 @@
                     (do (log/warn (str "lexical-headed-parents given null cache: building cache from: (" (.size phrases) ")"))
                         (build-lex-sch-cache phrases lexicon)))]
       (lazy-seq
-       (let [result (overh parent (get-lex parent :head cache lexicon))
-             debug (if can-log-if-in-sandbox-mode
-                     (if (empty? result)
-                       (log/debug (str "could not add a lexeme as a head to parent: " (fo-ps parent)))
-                       (log/debug (str "success adding a lexeme as a head to a parent; result is: " (fo-ps (first result))))))]
+       (let [result (overh parent (get-lex parent :head cache lexicon))]
          (cons {:parent parent
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
