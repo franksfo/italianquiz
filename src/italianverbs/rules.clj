@@ -170,7 +170,7 @@
 (log/info "done loading rules.")
 
 
-(def grammar-new (list (merge (unifyc cc10
+(def grammar (list (merge (unifyc cc10
                                   {:synsem {:infl :present
                                             :cat :verb
                                             :sem {:tense :present}}})
@@ -223,4 +223,4 @@
 
 ))
 
-(def generate-cache (forest/build-lex-sch-cache grammar-new lexicon))
+(def generate-cache (forest/build-lex-sch-cache grammar lexicon))

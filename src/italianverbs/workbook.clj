@@ -13,17 +13,15 @@
    [hiccup.core :refer :all]
 
    [italianverbs.generate :refer :all]
-;   [italianverbs.grammar :refer :all]
+   [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.over :refer :all]
-   [italianverbs.rules :refer :all :exclude [np nbar]]
+   [italianverbs.rules :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]
-
-   [italianverbs.test.forest :refer :all]
 
    [somnium.congomongo :as mongo]))
 
