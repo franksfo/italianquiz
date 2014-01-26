@@ -1,0 +1,9 @@
+ProxyPreserveHost on
+ProxyPass /italian http://localhost:3000
+ProxyPassReverse /italian http://localhost:3000
+
+<Location /italian>
+	  Options All
+	  Order allow,deny
+	  allow from all
+</Location>
