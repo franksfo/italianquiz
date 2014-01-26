@@ -12,7 +12,7 @@
    [italianverbs.lexiconfn :exclude (unify)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer :all]
-   [italianverbs.ug :refer :all :exclude (np)]
+   [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (fail? get-in lazy-shuffle merge remove-top-values unify unifyc)]))
 
 ;; 1 (of 3): define functions.
