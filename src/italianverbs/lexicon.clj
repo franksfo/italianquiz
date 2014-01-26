@@ -924,7 +924,8 @@
                  common-noun
                  countable-noun
                  masculine-noun
-                 {:synsem {:sem {:legible false
+                 {:synsem {:sem {:animate false
+                                 :legible false
                                  :artifact false
                                  :buyable false
                                  :speakable false
