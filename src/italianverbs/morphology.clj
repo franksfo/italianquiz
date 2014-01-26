@@ -164,13 +164,6 @@
      (get-italian (get-in word '(:a))
                   (get-in word '(:b)))
 
-     (and (string? (get-in word '(:a :italian)))
-          (map? (get-in word '(:b))))
-     (do
-       (get-italian (get-in word '(:a :italian))
-                    (get-in word '(:b))))
-
-
      (and (map? (get-in word '(:a)))
           (map? (get-in word '(:b))))
      (get-italian

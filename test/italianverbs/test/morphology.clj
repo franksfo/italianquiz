@@ -749,3 +749,49 @@
                              :case :nom}}]
     (is (= (get-english-1 did-well-past) "did well"))))
 
+(deftest le-professoresse-robuste
+  (let [lpr {:a "le"
+            :b {:a {:agr {:person :3rd, 
+                          :gender :fem,
+                          :case :top, 
+                          :number :plur}, 
+                    :initial true, 
+                    :italian "professoressa", 
+                    :cat :noun}
+                :b {:initial false, 
+                    :italian "robusto", 
+                    :cat :adjective, 
+                    :agr {:person :3rd, 
+                          :gender :fem, 
+                          :case :top, 
+                          :number :plur}}
+                :initial false}, 
+            :person :3rd, 
+            :gender :fem, 
+            :case :top, 
+            :number :plur}]
+    (is (= (get-italian lpr) "le professoresse robuste "))))
+
+
+(deftest la-professoressa-corta
+  (let [lpr {:a "la"
+            :b {:a {:agr {:person :3rd, 
+                          :gender :fem,
+                          :case :top, 
+                          :number :sing}, 
+                    :initial true, 
+                    :italian "professoressa", 
+                    :cat :noun}
+                :b {:initial false, 
+                    :italian "corto", 
+                    :cat :adjective, 
+                    :agr {:person :3rd, 
+                          :gender :fem, 
+                          :case :top, 
+                          :number :sing}}
+                :initial false}, 
+            :person :3rd, 
+            :gender :fem, 
+            :case :top, 
+            :number :sing}]
+    (is (= (get-italian lpr) "la professoressa corta "))))
