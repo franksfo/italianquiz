@@ -13,7 +13,7 @@
    [hiccup.core :refer :all]
 
    [italianverbs.generate :refer :all]
-   [italianverbs.grammar :refer :all]
+;   [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
