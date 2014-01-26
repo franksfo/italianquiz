@@ -5,7 +5,6 @@
    [clojure.test :refer :all]
    [clojure.tools.logging :as log]
 
-   [italianverbs.generate :as generate]
    [italianverbs.forest :exclude (lightning-bolt) ]
    [italianverbs.forest :as forest]
    [italianverbs.lexicon :refer (lexicon it en)]
