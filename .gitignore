@@ -8,3 +8,5 @@ target/repl-port
 target/repl-port
 
 target/repl-port
+
+target/stale/extract-native.dependencies
