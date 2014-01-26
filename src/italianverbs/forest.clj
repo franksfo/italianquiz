@@ -26,6 +26,14 @@
                                               (:synsem :infl)))))
 
 (defn build-lex-sch-cache [phrases lexicon]
+  "Build a mapping of phrases onto subsets of the lexicon. The two values (subsets of the lexicon) to be
+   generated for each key (phrase) are: 
+   1. the subset of the lexicon that can be the head of this phrase.
+   2. the subset of the lexicon that can be the complement of this phrase.
+
+   End result is a set of phrase => {:comp subset-of-lexicon 
+                                     :head subset-of-lexicon}. 
+"
   (if (not (empty? phrases))
     (conj
      {(:comment (first phrases))
