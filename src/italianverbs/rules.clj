@@ -201,7 +201,7 @@
                    (merge (unifyc cc10
                                   {:synsem {:cat :noun}
                                    :comp {:phrasal false}}) ;; rathole prevention
-                          {:comment "noun phrase"})
+                          {:comment "noun-phrase"})
 
                    (merge (unifyc hc11
                                   (let [head-synsem {:cat :noun
