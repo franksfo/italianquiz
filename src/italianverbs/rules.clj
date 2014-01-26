@@ -185,8 +185,15 @@
 
                    (merge (unifyc hh21
                                   {:synsem {:infl :present
+                                            :sem {:tense :present}
                                             :cat :verb}})
                           {:comment "vp-present"})
+
+                   (merge (unifyc hh21
+                                  {:synsem {:infl :present
+                                            :sem {:tense :past}
+                                            :cat :verb}})
+                          {:comment "vp-aux"})
 
                    (merge (unifyc hh21
                                   {:synsem {:infl :futuro
@@ -197,6 +204,12 @@
                                   {:synsem {:infl :imperfetto
                                             :cat :verb}})
                           {:comment "vp-imperfetto"})
+
+                   (merge (unifyc hh21
+                                  {:synsem {:infl :past
+                                            :cat :verb}})
+                          {:comment "vp-past"})
+
 
                    (merge (unifyc cc10
                                   {:synsem {:cat :noun}
