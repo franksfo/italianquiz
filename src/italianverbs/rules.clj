@@ -11,7 +11,8 @@
             [italianverbs.ug :refer :all]
             [italianverbs.unify :refer :all :exclude [unify]]))
 
-(log/info "started loading rules.")
+;; TODO: remove rewrite-as.
+;; TODO: fold this into grammar.clj.
 
 ;; possible expansions of sentence (for now, only declarative sentences):
 (ns-unmap 'italianverbs.rules 'declarative-sentence)
@@ -236,7 +237,8 @@
 
 ))
 
-;; define this once so that 
+;; this rule-cache is defined outside any function so that all functions can share
+;; a single cache.
 (def rule-cache (forest/build-lex-sch-cache grammar lexicon))
 
 (defn generate [ & [head]]
