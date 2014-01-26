@@ -30,6 +30,9 @@
 (defn wrap-div [string]
   (str "<div class='test'>" string "</div>"))
 
+;; could be e.g. "/italian/" if you have a shared web host:
+(def application-prefix "")
+
 (defroutes main-routes
 ;   "A handler processes the request map and returns a response map."
 ; http://groups.google.com/group/compojure/browse_thread/thread/3c507da23540da6e

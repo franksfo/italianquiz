@@ -154,22 +154,6 @@
 (rewrite-as sents 'ds)
 (rewrite-as sents 'sentence-with-modifier)
 
-;; -- useful functions
-(defn rules []
-  (take 1 (shuffle sents)))
-
-(defn sentence [ & [ with ]]
-  (first (take 1 (generate (shuffle sents) "sents" (if with with :top) sem-impl))))
-
-(defn nounphrase [ & [ with ]]
-  (first (take 1 (generate (shuffle np) "nps" (if with with :top) sem-impl))))
-
-(defn gen [parent & [with]]
-  (first (take 1 (generate (shuffle parent) "" (if with with :top) sem-impl))))
-
-(log/info "done loading rules.")
-
-
 (def grammar (list (merge (unifyc cc10
                                   {:synsem {:infl :present
                                             :cat :verb
@@ -224,3 +208,23 @@
 ))
 
 (def generate-cache (forest/build-lex-sch-cache grammar lexicon))
+;; -- useful functions
+(defn rules []
+  (take 1 (shuffle sents)))
+
+(def rule-cache (forest/build-lex-sch-cache grammar lexicon))
+
+(defn generate [ & [head]]
+  (let [head (if head head :top)]
+    (first (take 1 (forest/lightning-bolt head lexicon (shuffle grammar) 0 rule-cache)))))
+
+(defn sentence [ & [ with ]]
+  (first (take 1 (generate (shuffle sents) "sents" (if with with :top) sem-impl))))
+
+(defn nounphrase [ & [ with ]]
+  (first (take 1 (generate (shuffle np) "nps" (if with with :top) sem-impl))))
+
+(defn gen [parent & [with]]
+  (first (take 1 (generate (shuffle parent) "" (if with with :top) sem-impl))))
+
+(log/info "done loading rules.")

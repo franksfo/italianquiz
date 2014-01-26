@@ -12,14 +12,15 @@
    [clojure.tools.logging :as log]
    [hiccup.core :refer :all]
 
-   [italianverbs.generate :refer :all]
+   [italianverbs.forest :as forest :exclude [lightning-bolt]]
+   [italianverbs.generate :refer :all :exclude [generate]]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.over :refer :all]
-   [italianverbs.rules :refer :all]
+   [italianverbs.rules :refer :all :exclude [generate]]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]
 
@@ -27,6 +28,23 @@
 
 ;; seem to need this sometimes, to avoid initialization errors:
 ;(def populate-ns (sentence))
+
+
+
+(def workbook-cache (forest/build-lex-sch-cache grammar lexicon))
+
+(defn generate [ & [head]]
+  (let [head (if head head :top)]
+    (first (take 1 (forest/lightning-bolt head lexicon (shuffle grammar) 0 workbook-cache)))))
+
+(defn lightning-bolt [ & [head lex phrases depth cache] ]
+  (let [maxdepth 2
+        depth (if depth depth 0)
+        lexicon (if lex lex lexicon)
+        phrases (if phrases phrases (shuffle grammar))
+        head (if head head :top)
+        cache (if cache cache workbook-cache)]
+    (forest/lightning-bolt head lexicon phrases depth cache)))
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
@@ -56,6 +74,7 @@
    :timeout 60000
 ;   :timeout 15000
    :namespace 'italianverbs.workbook))
+
 (defn workbookq [expr notused]
   (do
     ;; TODO: add timing information for each evaluation.

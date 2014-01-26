@@ -25,13 +25,6 @@
    workbook/workbookq will format this accordingly."
   {:plain expr})
 
-(defn generate [grammar lexicon cache & [head depth] ]
-  (let [maxdepth 2
-        depth (if depth depth 0)
-        head (if head head :top)
-        cache (if cache cache (forest/build-lex-sch-cache grammar lexicon))]
-    (forest/lightning-bolt head lexicon grammar depth cache)))
-
 ;; see example usage in rules.clj.
 (defmacro rewrite-as [name value]
   (if (ns-resolve *ns* (symbol (str name)))

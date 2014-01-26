@@ -12,7 +12,6 @@
    [italianverbs.morphology :refer :all]
    [italianverbs.over :refer :all]
    [italianverbs.rules :refer :all]
-   [italianverbs.workbook :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]))
 
