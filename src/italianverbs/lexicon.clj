@@ -919,6 +919,20 @@
                   :italian "Giorgio"
                   :english "Giorgio"})
 
+
+          (unify agreement-noun
+                 common-noun
+                 countable-noun
+                 masculine-noun
+                 {:synsem {:sem {:legible false
+                                 :artifact false
+                                 :buyable false
+                                 :speakable false
+                                 :pred :giorno}}}
+                 {:italian {:italian "giorno"}
+                  :english {:english "day"}})
+
+
           (unify agreement-noun
                  common-noun
                  countable-noun

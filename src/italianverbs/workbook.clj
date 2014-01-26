@@ -153,7 +153,7 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (take 1 (lightning-bolt)))")
+          "(fo (take 1 (repeatedly #(generate))))")
         ]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka

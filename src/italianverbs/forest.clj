@@ -68,6 +68,8 @@
            (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path)))
         (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path)))))
 
+(def can-log-if-in-sandbox-mode false)
+
 (defn lexical-headed-phrases [parents lexicon phrases depth cache path]
   "return a lazy seq of phrases (maps) whose heads are lexemes."
   (if (not (empty? parents))
@@ -77,10 +79,10 @@
                         (build-lex-sch-cache phrases lexicon)))]
       (lazy-seq
        (let [result (overh parent (get-lex parent :head cache lexicon))
-             debug (if (empty? result)
-                     (log/debug (str "could not add a lexeme as a head to parent: " (fo-ps parent)))
-                     (log/debug (str "success adding a lexeme as a head to a parent; result is: " (fo-ps (first result)))))]
-
+             debug (if can-log-if-in-sandbox-mode
+                     (if (empty? result)
+                       (log/debug (str "could not add a lexeme as a head to parent: " (fo-ps parent)))
+                       (log/debug (str "success adding a lexeme as a head to a parent; result is: " (fo-ps (first result))))))]
          (cons {:parent parent
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
