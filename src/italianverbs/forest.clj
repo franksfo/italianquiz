@@ -64,10 +64,18 @@
            ;; TODO: do we need to dissoc these paths from the comp spec?
            '((:english :initial)
              (:italian :initial)))
-          comps (lightning-bolt
-                 comp-spec (get-lex parent :comp cache lexicon)
-                 phrases 0
-                 cache (conj path (str "C " " " (show-spec comp-spec))))]
+
+          comps 
+          (deref
+           (future
+
+          (lightning-bolt
+           comp-spec (get-lex parent :comp cache lexicon)
+           phrases 0
+           cache (conj path (str "C " " " (show-spec comp-spec))))
+))
+
+]
       (if (not (empty? comps))
         (do
           (log/debug (str "headed-phrase-add-comp: first comp is: " (fo-ps (first comps)) " which we will add to parent: " (fo-ps parent)))
@@ -100,10 +108,17 @@
                       (build-lex-sch-cache phrases lexicon)))]
       (lazy-seq
        (cons {:parent parent
-              :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
+              :headed-phrases (let [bolts 
+
+(deref (future
+(lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           cache
-                                                          path)]
+                                                          path)
+
+))
+
+]
                                 (overh parents bolts))}
              (phrasal-headed-phrases (rest parents) lexicon phrases depth cache path))))))
 
