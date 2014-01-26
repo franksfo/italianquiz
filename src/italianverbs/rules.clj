@@ -236,11 +236,7 @@
 
 ))
 
-(def generate-cache (forest/build-lex-sch-cache grammar lexicon))
-;; -- useful functions
-(defn rules []
-  (take 1 (shuffle sents)))
-
+;; define this once so that 
 (def rule-cache (forest/build-lex-sch-cache grammar lexicon))
 
 (defn generate [ & [head]]
@@ -251,9 +247,6 @@
   (generate {:synsem {:cat :verb :subcat '()}}))
 
 (defn nounphrase [ & [ with ]]
-  (first (take 1 (generate {:synsem {:cat :noun}}))))
+  (generate (first (take 1 (generate {:synsem {:cat :noun :subcat '()}})))))
 
-(defn gen [parent & [with]]
-  (first (take 1 (generate (shuffle parent) "" (if with with :top) sem-impl))))
 
-(log/info "done loading rules.")
