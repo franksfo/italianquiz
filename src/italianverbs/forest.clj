@@ -66,8 +66,7 @@
              (:italian :initial)))
 
           comps 
-          (deref
-           (future
+          (deref (future
 
           (lightning-bolt
            comp-spec (get-lex parent :comp cache lexicon)
