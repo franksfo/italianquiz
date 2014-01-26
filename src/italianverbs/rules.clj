@@ -219,10 +219,10 @@
     (first (take 1 (forest/lightning-bolt head lexicon (shuffle grammar) 0 rule-cache)))))
 
 (defn sentence [ & [ with ]]
-  (first (take 1 (generate (shuffle sents) "sents" (if with with :top) sem-impl))))
+  (generate {:synsem {:cat :verb :subcat '()}}))
 
 (defn nounphrase [ & [ with ]]
-  (first (take 1 (generate (shuffle np) "nps" (if with with :top) sem-impl))))
+  (first (take 1 (generate {:synsem {:cat :noun}}))))
 
 (defn gen [parent & [with]]
   (first (take 1 (generate (shuffle parent) "" (if with with :top) sem-impl))))
