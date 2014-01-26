@@ -101,8 +101,7 @@
                               (set? loaded)
                               (html/tablize loaded)
 
-                              (and (or (set? loaded) (seq? loaded))
-                                   (> (.size loaded) 1))
+                              (or (set? loaded) (seq? loaded))
                               (str "<ol class='workbook'>"
                                    (string/join " "
                                                 (map (fn [elem]
