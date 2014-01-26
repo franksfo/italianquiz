@@ -42,7 +42,7 @@
      (build-lex-sch-cache (rest phrases) lexicon))
     {}))
 
-(defn headed-phrase-add-comp [parents phrases lexicon & [iter cache path-with-vec]]
+(defn headed-phrase-add-comp [parents phrases lexicon & [iter cache path]]
   (if (not (empty? parents))
     (let [iter (if (nil? iter) 0 iter)
           parent (first parents)
@@ -59,16 +59,16 @@
           comps (lightning-bolt
                  comp-spec (get-lex parent :comp cache lexicon)
                  phrases 0
-                 cache (conj path-with-vec (str "C " " " (show-spec comp-spec))))]
+                 cache (conj path (str "C " " " (show-spec comp-spec))))]
       (if (not (empty? comps))
         (do
           (log/debug (str "headed-phrase-add-comp: first comp is: " (fo-ps (first comps)) " which we will add to parent: " (fo-ps parent)))
           (lazy-cat
            (overc parent comps)
-           (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path-with-vec)))
-        (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path-with-vec)))))
+           (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path)))
+        (headed-phrase-add-comp (rest parents) phrases lexicon (+ 1 iter) cache path)))))
 
-(defn lexical-headed-phrases [parents lexicon phrases depth cache path-as-vec]
+(defn lexical-headed-phrases [parents lexicon phrases depth cache path]
   "return a lazy seq of phrases (maps) whose heads are lexemes."
   (if (not (empty? parents))
     (let [parent (first parents)
@@ -85,7 +85,7 @@
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
 
-(defn phrasal-headed-phrases [parents lexicon phrases depth cache path-to-here-vec]
+(defn phrasal-headed-phrases [parents lexicon phrases depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents)
@@ -97,9 +97,9 @@
               :headed-phrases (let [bolts (lightning-bolt (get-in parent '(:head))
                                                           lexicon phrases (+ 1 depth)
                                                           cache
-                                                          path-to-here-vec)]
+                                                          path)]
                                 (overh parents bolts))}
-             (phrasal-headed-phrases (rest parents) lexicon phrases depth cache path-to-here-vec))))))
+             (phrasal-headed-phrases (rest parents) lexicon phrases depth cache path))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -258,7 +258,8 @@
                    (log/debug (str "phrases where head is a lexeme is empty."))
                    (log/debug (str "phrases where head is a lexeme is not empty; first is: " (fo-ps (first parents-with-lexical-heads)))))
 
-           ;; TODO: (lazy-shuffle) this
+           ;; TODO: (lazy-shuffle) this.
+           ;; TODO: cache this.
            parents-with-phrasal-heads-for-comp-phrases (mapcat (fn [each-kv]
                                                                  (let [parent (:parent each-kv)]
                                                                    (if (not (= false (get-in parent '(:comp :phrasal))))
