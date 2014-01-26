@@ -19,9 +19,9 @@
    [:div
     (if username
       [:div "Benvenuti, " username "."
-       [:a {:href "/italian/session/clear/"} "Logout"]
+       [:a {:href "/session/clear/"} "Logout"]
        ]
-      [:a {:href "/italian/session/set/"} "Login"]
+      [:a {:href "/session/set/"} "Login"]
       )]))
 
 (defn menubar [session-row relative-url]
@@ -30,22 +30,22 @@
 ;    "URL:" relative-url
     [:div
      (if (= relative-url "/quiz/") {:class "selected"})
-     [:a {:href "/italian/quiz/"} "Quiz"]]
+     [:a {:href "/quiz/"} "Quiz"]]
 ;    [:div
 ;     (if (= relative-url "/lexicon/") {:class "selected"})
-;     [:a {:href "/italian/lexicon/"} "Lexicon"  ] ]
+;     [:a {:href "/lexicon/"} "Lexicon"  ] ]
 ;    [:div
 ;     (if (= relative-url "/search/") {:class "selected"})
-;     [:a {:href "/italian/search/"} "Search"  ] ]
+;     [:a {:href "/search/"} "Search"  ] ]
     [:div
      (if (= relative-url "/workbook/") {:class "selected"})
-     [:a {:href "/italian/workbook/"} "Libro di Lavoro"  ] ]
+     [:a {:href "/workbook/"} "Libro di Lavoro"  ] ]
 ;    [:div
 ;     (if (= relative-url "/preferiti/") {:class "selected"})
-;     [:a {:href "/italian/preferiti/"} "I tuoi preferiti"]]
+;     [:a {:href "/preferiti/"} "I tuoi preferiti"]]
     [:div
      (if (= relative-url "/about/") {:class "selected"})
-     [:a {:href "/italian/about/"} "Che è?"  ] ]
+     [:a {:href "/about/"} "Che è?"  ] ]
     ]))
 
 (defn powered-by [name link]
@@ -165,17 +165,17 @@
                  (if (and title (not (= title "")))
                      ": " "")
                  "imparare l'italiano")]
-    [:script {:type "text/javascript" :src "/italian/js/jquery-1.6.4.min.js"}]
-    [:script {:type "text/javascript" :src "/italian/js/autogrow.js"}]
-    [:script {:type "text/javascript" :src "/italian/js/quiz.js"}]
-    [:script {:type "text/javascript" :src "/italian/js/workbook.js"}]
-    [:script {:type "text/javascript" :src "/italian/js/search.js"}]
+    [:script {:type "text/javascript" :src "/js/jquery-1.6.4.min.js"}]
+    [:script {:type "text/javascript" :src "/js/autogrow.js"}]
+    [:script {:type "text/javascript" :src "/js/quiz.js"}]
+    [:script {:type "text/javascript" :src "/js/workbook.js"}]
+    [:script {:type "text/javascript" :src "/js/search.js"}]
     ; enable this 'reset.css' at some point.
                                         ;    (include-css "/italian/css/reset.css")
-    (include-css "/italian/css/style.css")
-    (include-css "/italian/css/layout.css")
-    (include-css "/italian/css/fs.css")
-    (include-css "/italian/css/quiz.css")
+    (include-css "/css/style.css")
+    (include-css "/css/layout.css")
+    (include-css "/css/fs.css")
+    (include-css "/css/quiz.css")
     ]
    [:body
     {:onload

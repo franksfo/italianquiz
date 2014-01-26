@@ -17,7 +17,7 @@ function submit_user_response(form_input_id) {
         data: {guess: guess, qid: $("#question_id").val()},
         type: "POST",
         contentType: "application/x-www-form-urlencoded;charset=utf-8",
-        url: "/italian/quiz/evaluate/",
+        url: "/quiz/evaluate/",
         success: function (content) {
             $("#quiz_table").prepend(content);
         }
@@ -35,7 +35,7 @@ function get_next_question() {
 
     $.ajax({
         dataType: "html",
-        url: "/italian/quiz/question/",
+        url: "/quiz/question/",
         success: function (content) {
             $("#ajax_question").html(content);
 	    hint = content; // TODO: hintize.
@@ -47,7 +47,7 @@ function get_next_question() {
     // while user thinks about current question (filled in above), fill queue in the background so that user doesn't need to wait very long for the next question.
     $.ajax({
         dataType: "html",
-        url: "/italian/quiz/fillqueue/",
+        url: "/quiz/fillqueue/",
         success: function (content) {
             $("#queue_size").remove();
             $("#qa").append("<div id='queue_size'>xx</div>");
@@ -80,7 +80,7 @@ function ajax_quiz(hint) {
 function show_quiz_preferences() {
     $.ajax({
         dataType: "html",
-        url: "/italian/quiz/filter/",
+        url: "/quiz/filter/",
         success: function (content) {
             $("#controls_container").html(content);
         }
@@ -91,7 +91,7 @@ function show_question_types() {
     $.ajax({
         dataType: "html",
         type: "GET",
-        url: "/italian/quiz/filter/?format=titlebar",
+        url: "/quiz/filter/?format=titlebar",
         success: function (content) {
             $("#quizbanner").html(content);
         }
@@ -104,7 +104,7 @@ function submit_quiz_filters(container, form) {
         data: $(form).serialize(),
         type: "POST",
         contentType: "application/x-www-form-urlencoded;charset=utf-8",
-        url: "/italian/quiz/filter/",
+        url: "/quiz/filter/",
         success: function (content) {
             $(container).html(content);
 

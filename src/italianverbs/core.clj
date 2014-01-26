@@ -41,7 +41,7 @@
        request
        ;; response map
        {:status 302
-        :headers {"Location" "/italian/quiz/"}})
+        :headers {"Location" "/quiz/"}})
 
   (GET "/preferiti/"
        request
@@ -68,21 +68,21 @@
                 (quiz/quiz request))
         :status (if (session/request-to-session request)
                   200
-                  (do (log/info "No existing session - you must be new here. Redirecting to /italian/session/set.")
+                  (do (log/info "No existing session - you must be new here. Redirecting to /session/set.")
                       302))
         :headers (if (session/request-to-session request)
                    {"Content-Type" "text/html;charset=utf-8"}
-                   {"Location" "/italian/session/set/"})})
+                   {"Location" "/session/set/"})})
 
   (GET "/quiz"
        request
        {:status 302
-        :headers {"Location" "/italian/quiz/"}})
+        :headers {"Location" "/quiz/"}})
 
   (GET "/search"
        request
        {:status 302
-        :headers {"Location" "/italian/search/"}})
+        :headers {"Location" "/search/"}})
 
   (GET "/search/"
        request
@@ -96,12 +96,6 @@
         :body (search/searchq (get (get request :query-params) "search")
                               (get (get request :query-params) "attrs"))
         :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  ;; <workbook>
-  (GET "/workbook"
-       request
-       {:status 302
-        :headers {"Location" "/italian/workbook/"}})
 
   (GET "/workbook/"
        request
@@ -152,7 +146,7 @@
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
         :body (quiz/show-controls (session/request-to-session request)
-                                  (get request :query-params) "/italian/quiz/filter/" "Quiz")
+                                  (get request :query-params) "/quiz/filter/" "Quiz")
         }
        )
 
@@ -161,7 +155,7 @@
        {
         :side-effect (quiz/set-filters (session/request-to-session request) request)
         :status 302
-        :headers {"Location" "/italian/quiz/filter/"}
+        :headers {"Location" "/quiz/filter/"}
         }
        )
 
@@ -181,7 +175,7 @@
         :side-effect (session/register request)
         :session (get request :session)
         :status 302
-        :headers {"Location" "/italian/?msg=set"}
+        :headers {"Location" "/?msg=set"}
         })
 
   (GET "/session/clear/"
@@ -266,14 +260,6 @@
   ;; browser at http://localhost:3000/italian/quiz:
   ;; Assuming that Apache Server Proxying is set
   ;; up (see README), redirect to http://localhost/italian/
-  (GET "/italian/quiz/"
-       request
-       {:status 302
-        :headers {"Location" (str "http://" server-hostname "/italian/")}})
-  (GET "/italian/workbook/"
-       request
-       {:status 302
-        :headers {"Location" (str "http://" server-hostname "/italian/")}})
 
   ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. ")))
