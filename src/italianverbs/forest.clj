@@ -7,7 +7,7 @@
    [italianverbs.config :as config]
    [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.over :refer (overc overh get-lex overc-with-cache overh-with-cache)]
+   [italianverbs.over :refer (overc overh get-lex get-head-phrases-of overc-with-cache overh-with-cache)]
    [italianverbs.unify :refer :all]))
 
 (declare lightning-bolt)
@@ -110,13 +110,14 @@
 (defn phrasal-headed-phrases [parents lexicon phrases depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
-    (let [parent (first parents)]
+    (let [parent (first parents)
+          headed-phrases-of-parent (get-head-phrases-of parent cache)]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [bolts 
                                     (deref (future
                                              (lightning-bolt (get-in parent '(:head))
-                                                             lexicon phrases (+ 1 depth)
+                                                             lexicon headed-phrases-of-parent (+ 1 depth)
                                                              cache
                                                              path)))]
                                 (overh parents bolts))}

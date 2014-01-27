@@ -390,6 +390,9 @@
                          lexicon))]
     (lazy-shuffle result)))
 
+(defn get-head-phrases-of [parent cache]
+  (lazy-shuffle (:headed-phrases (get cache (:comment parent)))))
+
 (defn overc-with-cache-1 [parent lex]
   (log/debug (str "GOT HERE IN overc-with-cache-1 parent type: " (type parent)))
   (if (not (empty? lex))
