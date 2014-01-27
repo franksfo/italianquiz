@@ -21,29 +21,9 @@
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.over :refer :all]
-   [italianverbs.rules :refer :all :exclude [generate]]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]
-
    [somnium.congomongo :as mongo]))
-
-;; seem to need this sometimes, to avoid initialization errors:
-;(def populate-ns (sentence))
-
-(def workbook-cache (build-lex-sch-cache grammar lexicon))
-
-(defn lightning-bolt [ & [head lex phrases depth cache] ]
-  (let [maxdepth 2
-        depth (if depth depth 0)
-        lexicon (if lex lex lexicon)
-        phrases (if phrases phrases (shuffle grammar))
-        head (if head head :top)
-        cache (if cache cache workbook-cache)]
-    (forest/lightning-bolt head lexicon phrases depth cache)))
-
-(defn generate [ & [head]]
-  (let [head (if head head :top)]
-    (first (take 1 (lightning-bolt head lexicon (shuffle grammar) 0 workbook-cache)))))
 
 
 ;; Sandbox specification derived from:

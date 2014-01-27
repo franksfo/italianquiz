@@ -143,10 +143,10 @@
                         :label 'adj-phrase
                         :head 'adjectives
                         :comp 'pp})
-+;; Working on this:
-+;;
-+;; (fo (take 1 (generate (shuffle adj-phrase) "adj-phase" :top sem-impl)))
-+
+;; Working on this:
+;;
+;; (fo (take 1 (generate (shuffle adj-phrase) "adj-phase" :top sem-impl)))
+
 
 ;; -- aliases --
 (def ds declarative-sentence)
@@ -154,101 +154,4 @@
 (ns-unmap 'italianverbs.rules 'sents)
 (rewrite-as sents 'ds)
 (rewrite-as sents 'sentence-with-modifier)
-
-;; TODO: s/unifyc/unify/
-
-(def grammar (list (merge (unifyc cc10
-                                  {:synsem {:infl :present
-                                            :cat :verb
-                                            :sem {:tense :present}}})
-                          {:comment "s-present"})
-
-                   (merge (unifyc cc10
-                                  {:synsem {:infl :present
-                                            :cat :verb
-                                            :sem {:tense :past}}})
-                          {:comment "s-aux"})
-
-                   (merge (unifyc cc10
-                                  {:synsem {:infl :futuro
-                                            :cat :verb
-                                            :sem {:tense :future}}})
-                          {:comment "s-future"})
-
-                   (merge (unifyc cc10
-                                  {:synsem {:infl :imperfetto
-                                            :cat :verb
-                                            :sem {:tense :past}}})
-                          {:comment "s-imperfetto"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :infinitive
-                                            :cat :verb}})
-                          {:comment "vp-infinitive"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :present
-                                            :sem {:tense :present}
-                                            :cat :verb}})
-                          {:comment "vp-present"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :present
-                                            :sem {:tense :past}
-                                            :cat :verb}})
-                          {:comment "vp-aux"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :futuro
-                                            :cat :verb}})
-                          {:comment "vp-future"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :imperfetto
-                                            :cat :verb}})
-                          {:comment "vp-imperfetto"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :past
-                                            :cat :verb}})
-                          {:comment "vp-past"})
-
-
-                   (merge (unifyc cc10
-                                  {:synsem {:cat :noun}
-                                   :comp {:phrasal false}}) ;; rathole prevention
-                          {:comment "noun-phrase"})
-
-                   (merge (unifyc hc11
-                                  (let [head-synsem {:cat :noun
-                                                     :modified true}]
-                                    {:synsem head-synsem
-                                     :head {:synsem {:modified false}}
-                                     :comp {:phrasal false ;; rathole prevention
-                                            :synsem {:cat :adjective
-                                                     :mod head-synsem}}}))
-                          {:comment "nbar"})
-
-
-                   (merge (unifyc hh10
-                                  {:synsem {:cat :prep}})
-                          {:comment "prepositional-phrase"})
-
-
-))
-
-;; this rule-cache is defined outside any function so that all functions can share
-;; a single cache.
-(def rule-cache (forest/build-lex-sch-cache grammar lexicon))
-
-(defn generate [ & [head]]
-  (let [head (if head head :top)]
-    (first (take 1 (forest/lightning-bolt head lexicon (shuffle grammar) 0 rule-cache)))))
-
-(defn sentence [ & [ with ]]
-  (generate {:synsem {:cat :verb :subcat '()}}))
-
-(defn nounphrase [ & [ with ]]
-  (generate (first (take 1 (generate {:synsem {:cat :noun :subcat '()}})))))
-
 

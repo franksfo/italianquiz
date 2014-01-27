@@ -6,9 +6,8 @@
         [italianverbs.generate]
         [italianverbs.grammar]
         [italianverbs.morphology]
-        [italianverbs.ug]
+        [italianverbs.ug])
         [italianverbs.rules]
-        )
   (:require [somnium.congomongo :as db] ;; TODO: provide database abstraction over mongo and other possible backing stores.
             [clojure.tools.logging :as log]
             [italianverbs.lev :as lev]
@@ -325,7 +324,7 @@
      (use 'italianverbs.rules)
      (use 'italianverbs.ug)
      (use 'italianverbs.grammar)
-     (finalize (rules/sentence)))
+     (finalize (sentence)))
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)

@@ -709,6 +709,14 @@ when run from a REPL."
   (let [result (expand-disj parent-with-disj)]
     (is (= (.size result) 2))))
 
+(deftest expand-constraints
+  (let [constraints {:constraints #{{:synsem {:infl :futuro
+                                              :sem {:tense :futuro}}}
+                                    {:synsem {:infl :present
+                                              :sem {:tense :present}}}}}
+        constraints-expanded (expand-disj constraints)]
+    (is (= (.size constraints-expanded) 2))))
+
 (deftest unify-with-set-test
   (let [result (unify {:b 42}
                       {:c #{1 2}})]
@@ -741,8 +749,6 @@ when run from a REPL."
     (is (fail? (unifyc foo1 foo2)))
     (is (fail? (unify (copy foo1) (copy foo2))))
     (is (fail? (unify foo1 foo2)))))
-
-
 
 
 
