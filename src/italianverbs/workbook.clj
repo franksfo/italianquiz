@@ -3,7 +3,6 @@
   (:require
    [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
-
    [clojure.set :refer :all]
    [clojure.string :as string]
 
@@ -12,9 +11,8 @@
    [clojure.tools.logging :as log]
    [hiccup.core :refer :all]
 
-   [italianverbs.forest :as forest :exclude [lightning-bolt]]
    [italianverbs.forest :refer :all :exclude [lightning-bolt]]
-   [italianverbs.generate :refer :all :exclude [generate]]
+   [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer :all]
@@ -24,7 +22,6 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]
    [somnium.congomongo :as mongo]))
-
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76

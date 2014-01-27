@@ -92,18 +92,4 @@
 
 ))
 
-;; this rule-cache is defined outside any function so that all functions can share
-;; a single cache.
-(def rule-cache (forest/build-lex-sch-cache grammar lexicon))
-
-(defn generate [ & [head]]
-  (let [head (if head head :top)]
-    (first (take 1 (forest/lightning-bolt head lexicon (shuffle grammar) 0 rule-cache)))))
-
-(defn sentence [ & [ with ]]
-  (generate {:synsem {:cat :verb :subcat '()}}))
-
-(defn nounphrase [ & [ with ]]
-  (generate (first (take 1 (generate {:synsem {:cat :noun :subcat '()}})))))
-
 

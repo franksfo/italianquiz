@@ -2,23 +2,21 @@
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's :where clause.
 (ns italianverbs.quiz
-  (:use [hiccup core page]
-        [italianverbs.generate]
-        [italianverbs.grammar]
-        [italianverbs.morphology]
-        [italianverbs.ug])
-  (:require [somnium.congomongo :as db] ;; TODO: provide database abstraction over mongo and other possible backing stores.
+  (:require [base.html :as basehtml]
+            [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [italianverbs.lev :as lev]
-            [italianverbs.session :as session]
-            [italianverbs.grammar :as gram]
-            [italianverbs.lexiconfn :as lexfn]
-            [base.html :as basehtml]
+            [hiccup.core :refer :all]
+            [hiccup.page :refer :all]
+            [italianverbs.generate :refer (sentence)]
+            [italianverbs.grammar :refer :all]
             [italianverbs.html :as html]
+            [italianverbs.lev :as lev]
+            [italianverbs.lexiconfn :as lexfn]
+            [italianverbs.morphology :refer (finalize)]
+            [italianverbs.session :as session]
             [italianverbs.xml :as xml]
-            [italianverbs.generate :as gen]
-            [ring.util.codec :as url]
-            [clojure.string :as string]))
+            [somnium.congomongo :as db] ;; TODO: provide database abstraction over mongo and other possible backing stores.
+            ))
 
 (def production false)
 ;; ^^ true: pick a pre-generated question from mongodb

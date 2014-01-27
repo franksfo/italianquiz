@@ -7,9 +7,9 @@
 
    [italianverbs.forest :exclude (lightning-bolt) ]
    [italianverbs.forest :as forest]
+   [italianverbs.grammar :refer (grammar)]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer (lexicon it en)]
-   [italianverbs.lexiconfn :exclude (unify)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer :all]
    [italianverbs.ug :refer :all]
@@ -25,8 +25,16 @@
    workbook/workbookq will format this accordingly."
   {:plain expr})
 
-;; see example usage in rules.clj.
-(defmacro rewrite-as [name value]
-  (if (ns-resolve *ns* (symbol (str name)))
-    `(def ~name (cons ~value ~name))
-    `(def ~name (list ~value))))
+;; this rule-cache is defined outside any function so that all functions can share
+;; a single cache.
+(def rule-cache (forest/build-lex-sch-cache grammar lexicon))
+
+(defn generate [ & [head]]
+  (let [head (if head head :top)]
+    (first (take 1 (forest/lightning-bolt head lexicon (shuffle grammar) 0 rule-cache)))))
+
+(defn sentence [ & [ with ]]
+  (generate {:synsem {:cat :verb :subcat '()}}))
+
+(defn nounphrase [ & [ with ]]
+  (generate (first (take 1 (generate {:synsem {:cat :noun :subcat '()}})))))
