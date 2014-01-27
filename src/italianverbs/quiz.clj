@@ -7,7 +7,6 @@
         [italianverbs.grammar]
         [italianverbs.morphology]
         [italianverbs.ug])
-        [italianverbs.rules]
   (:require [somnium.congomongo :as db] ;; TODO: provide database abstraction over mongo and other possible backing stores.
             [clojure.tools.logging :as log]
             [italianverbs.lev :as lev]
@@ -16,7 +15,6 @@
             [italianverbs.lexiconfn :as lexfn]
             [base.html :as basehtml]
             [italianverbs.html :as html]
-            [italianverbs.rules :as rules]
             [italianverbs.xml :as xml]
             [italianverbs.generate :as gen]
             [ring.util.codec :as url]
@@ -321,7 +319,6 @@
    true
    (do
      ;; magic from: http://stackoverflow.com/questions/8868872/clojure-symbol-evaluation-error
-     (use 'italianverbs.rules)
      (use 'italianverbs.ug)
      (use 'italianverbs.grammar)
      (finalize (sentence)))

@@ -11,8 +11,7 @@
             [italianverbs.ug :refer :all]
             [italianverbs.unify :refer :all :exclude [unify]]))
 
-;; TODO: remove rewrite-as.
-;; TODO: fold this into grammar.clj.
+;; TODO: remove this file; going away.
 
 ;; possible expansions of sentence (for now, only declarative sentences):
 (ns-unmap 'italianverbs.rules 'declarative-sentence)
