@@ -27,7 +27,7 @@
 
 ;; this rule-cache is defined outside any function so that all functions can share
 ;; a single cache.
-(def rule-cache (forest/build-lex-sch-cache grammar lexicon))
+(def rule-cache (forest/build-lex-sch-cache grammar lexicon grammar))
 
 (defn generate [ & [head]]
   (let [head (if head head :top)]

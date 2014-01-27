@@ -189,7 +189,7 @@
 
 
 ;; 3 grammar runtime
-(def test-cache (forest/build-lex-sch-cache grammar lexicon))
+(def test-cache (forest/build-lex-sch-cache grammar lexicon grammar))
 
 (defn lightning-bolt [ & [head lex phrases depth cache] ]
   (let [maxdepth 2

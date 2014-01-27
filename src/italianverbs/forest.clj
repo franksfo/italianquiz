@@ -25,15 +25,14 @@
                                               (:synsem :sem :mod)
                                               (:synsem :infl)))))
 
-(defn build-lex-sch-cache [phrases lexicon]
+(defn build-lex-sch-cache [phrases lexicon all-phrases]
   "Build a mapping of phrases onto subsets of the lexicon. The two values (subsets of the lexicon) to be
    generated for each key (phrase) are: 
    1. the subset of the lexicon that can be the head of this phrase.
    2. the subset of the lexicon that can be the complement of this phrase.
 
    End result is a set of phrase => {:comp subset-of-lexicon 
-                                     :head subset-of-lexicon}. 
-"
+                                     :head subset-of-lexicon}."
   (if (not (empty? phrases))
     (conj
      {(:comment (first phrases))
@@ -42,12 +41,25 @@
                  (not (fail? (unifyc (first phrases)
                                      {:comp lex}))))
                lexicon)
+
+       :comp-phrases
+       (filter (fn [comp-phrase]
+                 (not (fail? (unifyc (first phrases)
+                                     {:comp comp-phrase}))))
+               all-phrases)
+
+       :head-phrases
+       (filter (fn [head-phrase]
+                 (not (fail? (unifyc (first phrases)
+                                     {:head head-phrase}))))
+               all-phrases)
+
        :head
        (filter (fn [lex]
                  (not (fail? (unifyc (first phrases)
                                      {:head lex}))))
                lexicon)}}
-     (build-lex-sch-cache (rest phrases) lexicon))
+     (build-lex-sch-cache (rest phrases) lexicon all-phrases))
     {}))
 
 (defn headed-phrase-add-comp [parents phrases lexicon & [iter cache path]]
@@ -67,14 +79,11 @@
 
           comps 
           (deref (future
+                   (lightning-bolt
+                    comp-spec (get-lex parent :comp cache lexicon)
+                    phrases 0
+                    cache (conj path (str "C " " " (show-spec comp-spec))))))]
 
-          (lightning-bolt
-           comp-spec (get-lex parent :comp cache lexicon)
-           phrases 0
-           cache (conj path (str "C " " " (show-spec comp-spec))))
-))
-
-]
       (if (not (empty? comps))
         (do
           (log/debug (str "headed-phrase-add-comp: first comp is: " (fo-ps (first comps)) " which we will add to parent: " (fo-ps parent)))
@@ -101,23 +110,15 @@
 (defn phrasal-headed-phrases [parents lexicon phrases depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
-    (let [parent (first parents)
-          cache (if cache cache
-                    (let [log (log/info (str "building cache (" (.size phrases) ")"))]
-                      (build-lex-sch-cache phrases lexicon)))]
+    (let [parent (first parents)]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [bolts 
-
-(deref (future
-(lightning-bolt (get-in parent '(:head))
-                                                          lexicon phrases (+ 1 depth)
-                                                          cache
-                                                          path)
-
-))
-
-]
+                                    (deref (future
+                                             (lightning-bolt (get-in parent '(:head))
+                                                             lexicon phrases (+ 1 depth)
+                                                             cache
+                                                             path)))]
                                 (overh parents bolts))}
              (phrasal-headed-phrases (rest parents) lexicon phrases depth cache path))))))
 
@@ -340,21 +341,6 @@
        (log/debug (str "rand-order at depth:" depth " is: " (decode-generation-ordering rand-order rand-parent-type-order)
                        "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
 
-       (if (and (= rand-order 2)
-                (empty? with-phrasal-comps)
-                (not (empty? parents-with-phrasal-head))
-                (= (first (fo (get-in (first one-level-trees) '(:comp)))) "Alto (Tall).")
-                (not (empty? (overc-with-cache parents-with-phrasal-head cache lexicon)))
-                (not (empty? one-level-trees)))
-         (do
-           (log/error (str "HIT A POSSIBLE PROBLEM; rand-order=" rand-order))
-           (log/error (str "THE COMPLEMENT WAS: " (fo (get-in (first one-level-trees) '(:comp)))))
-           (log/error (str "The first add-LC-to-LH is: " (fo (first one-level-trees))))
-           (log/error (str "The first add-LC-to-LH synsem is: " (show-spec (get-in (first one-level-trees) '(:synsem)))))
-           (log/error (str "The head spec is: " (show-spec head)))
-           (if true (throw (Exception. (str "RATHOLISH.."))))))
-
-
        (cond (= rand-order 0)
              (lazy-cat
               with-phrasal-comps
@@ -371,18 +357,7 @@
              (lazy-cat
               one-level-trees
               (overc-with-cache parents-with-phrasal-head cache lexicon)
-
-
               with-phrasal-comps))))))
-
-
-
-
-; rathole:
-;       (lazy-cat
-;        with-phrasal-comps
-;        one-level-trees
-;        (overc-with-cache parents-with-phrasal-head cache lexicon))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
