@@ -11,7 +11,7 @@
 
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
-   [italianverbs.morphology :refer [finalize fo]]
+   [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.unify :refer :all :exclude [unify]]))
 
 ;; tree-building functions: useful for developing grammars.
@@ -360,7 +360,6 @@
 
              (over (rest parents) child1 child2))))))))
 
-
 (defn get-lex [schema head-or-comp cache lexicon]
   (if (not (map? schema))
     (throw (Exception. (str "'schema' not a map: " schema))))
@@ -371,7 +370,7 @@
                      (if (and (= :head head-or-comp)
                               (not (nil? (:head (get cache (:comment schema))))))
                        (do
-                         (log/debug (str "get-lex hit: head for schema: " (:comment schema)))
+                         (log/trace (str "get-lex hit: head for schema: " (:comment schema)))
                          (:head (get cache (:comment schema))))
                        (do
                          (log/warn (str "CACHE MISS 1"))
@@ -380,7 +379,7 @@
                      (if (and (= :comp head-or-comp)
                               (not (nil? (:comp (get cache (:comment schema))))))
                        (do
-                         (log/debug (str "get-lex hit: comp for schema: " (:comment schema)))
+                         (log/trace (str "get-lex hit: comp for schema: " (:comment schema)))
                          (:comp (get cache (:comment schema))))
                        (do
                          (log/warn (str "CACHE MISS 2"))
@@ -391,16 +390,27 @@
     (lazy-shuffle result)))
 
 (defn get-head-phrases-of [parent cache]
-  (lazy-shuffle (:headed-phrases (get cache (:comment parent)))))
+  (let [result (:head-phrases (get cache (:comment parent)))
+        result (if (nil? result) (list) result)]
+    (if (empty? result)
+      (log/warn (str "headed-phrases of parent: " (:comment parent) " is empty.")))
+    (lazy-shuffle result)))
+
+(defn get-comp-phrases-of [parent cache]
+  (let [result (:comp-phrases (get cache (:comment parent)))
+        result (if (nil? result) (list) result)]
+    (if (empty? result)
+      (log/warn (str "comp-phrases of parent: " (:comment parent) " is empty.")))
+    (lazy-shuffle result)))
 
 (defn overc-with-cache-1 [parent lex]
-  (log/debug (str "GOT HERE IN overc-with-cache-1 parent type: " (type parent)))
+  (log/trace (str "overc-with-cache-1 with parent: " (fo-ps parent)))
   (if (not (empty? lex))
     (lazy-cat (overc parent (first lex))
               (overc-with-cache-1 parent (rest lex)))))
 
 (defn overc-with-cache [parents cache lexicon]
-  (log/debug (str "GOT HERE IN overc-with-cache with parents type: " (type parents)))
+  (log/trace (str "overc-with-cache with parents type: " (type parents)))
   (if (not (empty? parents))
     (let [parent (first parents)]
       (lazy-cat (overc-with-cache-1 parent (get-lex parent :comp cache lexicon))

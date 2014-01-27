@@ -7,7 +7,7 @@
    [italianverbs.config :as config]
    [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.over :refer (overc overh get-lex get-head-phrases-of overc-with-cache overh-with-cache)]
+   [italianverbs.over :refer (get-comp-phrases-of overc overh get-lex get-head-phrases-of overc-with-cache overh-with-cache)]
    [italianverbs.unify :refer :all]))
 
 (declare lightning-bolt)
@@ -77,11 +77,18 @@
            '((:english :initial)
              (:italian :initial)))
 
+          comp-phrases-for-parent (get-comp-phrases-of parent cache)
+          comp-phrases-for-parent (if (nil? comp-phrases-for-parent) (list)
+                                      comp-phrases-for-parent)
+
+          debug (log/error (str "SIZE OF COMP-PHRASES-FOR-PARENT:" (:comment parent) " IS " (.size comp-phrases-for-parent)))
+
           comps 
           (deref (future
                    (lightning-bolt
                     comp-spec (get-lex parent :comp cache lexicon)
-                    phrases 0
+                    comp-phrases-for-parent
+                    0
                     cache (conj path (str "C " " " (show-spec comp-spec))))))]
 
       (if (not (empty? comps))
@@ -111,7 +118,12 @@
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents)
-          headed-phrases-of-parent (get-head-phrases-of parent cache)]
+          headed-phrases-of-parent (get-head-phrases-of parent cache)
+          headed-phrases-of-parent (if (nil? headed-phrases-of-parent)
+                                     (list)
+                                     headed-phrases-of-parent)
+;          headed-phrases-of-parent phrases
+          ]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [bolts 
@@ -225,15 +237,13 @@
         remove-top-values (remove-top-values-log head)
         depth (if depth depth 0)
         path (if path (conj path
-                                          (str "H" depth " " remove-top-values))
-                        ;; first element of path.
-                        [ (str "H" depth " " remove-top-values) ])
+                            (str "H" depth " " remove-top-values))
+                 ;; first element of path:
+                 [ (str "H" depth " " remove-top-values) ])
         log (log-path path)
 
         parents-at-this-depth (parents-at-this-depth head phrases depth)
-        ;; the subset of the lexicon that matches the head-spec, with a few paths removed from the head-spec
-        ;; that would cause unification failure because they are specific to the desired final top-level phrase,
-        ;; not the lexical entry.
+
         cache (if cache cache (build-lex-sch-cache phrases lexicon))]
     (cond
 
