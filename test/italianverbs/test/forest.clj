@@ -7,6 +7,7 @@
 
    [italianverbs.forest :exclude (lightning-bolt) ]
    [italianverbs.forest :as forest]
+   [italianverbs.grammar :refer (grammar)]
    [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.lexiconfn :exclude (unify)]
    [italianverbs.morphology :refer (fo fo-ps)]
@@ -114,62 +115,7 @@
 (defn get-cached []
   (fo (:head (get test-cache "vp-infinitive"))))
 
-;; 2 grammar and lexicon
-
-(def grammar (list (merge (unifyc cc10
-                                  {:synsem {:infl :present
-                                            :cat :verb
-                                            :sem {:tense :present}}})
-                          {:comment "s-present"})
-
-                   (merge (unifyc cc10
-                                  {:synsem {:infl :futuro
-                                            :cat :verb}})
-                          {:comment "s-future"})
-
-                   (merge (unifyc cc10
-                                  {:synsem {:infl :imperfetto
-                                            :cat :verb}})
-                          {:comment "s-imperfetto"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :infinitive
-                                            :cat :verb}})
-                          {:comment "vp-infinitive"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :present
-                                            :cat :verb}})
-                          {:comment "vp-present"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :futuro
-                                            :cat :verb}})
-                          {:comment "vp-future"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :imperfetto
-                                            :cat :verb}})
-                          {:comment "vp-imperfetto"})
-
-                   (merge (unifyc cc10
-                                  {:synsem {:cat :noun}
-                                   :comp {:phrasal false}}) ;; rathole prevention
-                          {:comment "noun phrase"})
-
-                   (merge (unifyc hc11
-                                  (let [head-synsem {:cat :noun
-                                                     :modified true}]
-                                    {:synsem head-synsem
-                                     :head {:synsem {:modified false}}
-                                     :comp {:phrasal false ;; rathole prevention
-                                            :synsem {:cat :adjective
-                                                     :mod head-synsem}}}))
-                          {:comment "nbar"})
-
-))
-
-;; minip and minil are for testing (move 'real' grammar out of test and into grammar).
+;; minip and minil are for testing.
 (def minip (filter (fn [x]
                      (or
                       (= (:comment x) "vp-imperfetto")))
