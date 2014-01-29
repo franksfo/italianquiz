@@ -42,6 +42,12 @@
   (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
     (is (not (nil? sleeper)))))
 
+(defn sleep1 []
+  (first (lightning-bolt {:synsem {:subcat '()
+                                   :cat :verb
+                                   :sem {:subj {:pred :io}
+                                         :pred :dormire}}})))
+
 (deftest i-sleep-1 []
   (let [i-sleep (first (lightning-bolt {:synsem {:subcat '()
                                                  :cat :verb
