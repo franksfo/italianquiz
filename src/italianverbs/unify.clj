@@ -1390,6 +1390,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
           (empty? fs)
           :top
 
+          (seq? fs)
+          (cons (dissoc-paths (first fs))
+                (dissoc-paths (rest fs)))
+
           true
           (let [path (first paths)]
             (dissoc-paths
@@ -1436,3 +1440,15 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
          (cons elem
                (lazy-shuffle (concat prior (rest remainder)))))))))
 
+(defn show-spec [spec]
+  (remove-top-values-log (dissoc-paths spec '((:english :initial)
+                                              (:italian :initial)
+                                              (:synsem :subcat)
+                                              (:synsem :sem-mod)
+                                              (:synsem :essere)
+                                              (:synsem :agr)
+                                              (:synsem :pronoun)
+                                              (:synsem :sem :tense)
+                                              (:synsem :sem :obj :tense)
+                                              (:synsem :sem :mod)
+                                              (:synsem :infl)))))

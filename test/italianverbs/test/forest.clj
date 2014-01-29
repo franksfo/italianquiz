@@ -5,13 +5,14 @@
    [clojure.test :refer :all]
    [clojure.tools.logging :as log]
 
+   [italianverbs.cache :refer :all]
    [italianverbs.forest :exclude (lightning-bolt)]
    [italianverbs.forest :as forest]
    [italianverbs.grammar :refer (grammar)]
    [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.lexiconfn :exclude (unify)]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.over :refer :all]
+   [italianverbs.over :as over]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (fail? get-in lazy-shuffle merge remove-top-values unify unifyc)]))
 

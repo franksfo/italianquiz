@@ -4,26 +4,13 @@
    [clojure.set :refer :all]
    [clojure.tools.logging :as log]
    ;; italianverbs.config is not used yet but hopefully will be in the future.
+   [italianverbs.cache :refer (get-comp-phrases-of get-head-phrases-of get-lex overc overh overc-with-cache overh-with-cache)]
    [italianverbs.config :as config]
    [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.over :refer (get-comp-phrases-of overc overh get-lex get-head-phrases-of overc-with-cache overh-with-cache)]
    [italianverbs.unify :refer :all]))
 
 (declare lightning-bolt)
-
-(defn show-spec [spec]
-  (remove-top-values-log (dissoc-paths spec '((:english :initial)
-                                              (:italian :initial)
-                                              (:synsem :subcat)
-                                              (:synsem :sem-mod)
-                                              (:synsem :essere)
-                                              (:synsem :agr)
-                                              (:synsem :pronoun)
-                                              (:synsem :sem :tense)
-                                              (:synsem :sem :obj :tense)
-                                              (:synsem :sem :mod)
-                                              (:synsem :infl)))))
 
 (defn build-lex-sch-cache [phrases lexicon all-phrases]
   "Build a mapping of phrases onto subsets of the lexicon. The two values (subsets of the lexicon) to be
