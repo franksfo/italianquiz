@@ -244,7 +244,7 @@
 
         parents-at-this-depth (parents-at-this-depth head phrases depth)
 
-        cache (if cache cache (build-lex-sch-cache phrases lexicon))]
+        cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))]
     (cond
 
      (empty? parents-at-this-depth)

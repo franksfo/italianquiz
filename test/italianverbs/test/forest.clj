@@ -5,7 +5,7 @@
    [clojure.test :refer :all]
    [clojure.tools.logging :as log]
 
-   [italianverbs.forest :exclude (lightning-bolt) ]
+   [italianverbs.forest :exclude (lightning-bolt)]
    [italianverbs.forest :as forest]
    [italianverbs.grammar :refer (grammar)]
    [italianverbs.lexicon :refer (lexicon it en)]
@@ -15,62 +15,28 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (fail? get-in lazy-shuffle merge remove-top-values unify unifyc)]))
 
-;; 1 (of 3): define functions.
-;; TODO: move all functions from here to italianverbs.forest
+;; minip and minil are for testing.
+(def minip (filter (fn [x]
+                     (or
+                      (= (:comment x) "vp-imperfetto")))
+                   grammar))
 
-(declare lightning-bolt)
-(declare test-cache)
+(def minil (filter (fn [x]
+                     (or
+                      (= (get-in x '(:italian :italian)) "per")
+                      (= (get-in x '(:italian :infinitive)) "volere")))
+                   lexicon))
 
-; (fo (take 1 (lightning-bolt {:synsem {:cat :verb, :subcat () :sem {:pred :dormire :subj {:pred :amico}}}})))
-; (fo (take 1 (lightning-bolt {:synsem {:cat :verb, :subcat () :sem {:pred :mangiare :subj {:pred :amico}}}})))
-; (fo (take 1 (lightning-bolt {:synsem {:cat :verb, :subcat () :sem {:pred :aiutare :subj {:pred :amico}}}})))
+;; TODO: calling (.size) because (map) is lazy, and I want to realize
+;; the sequence - must be a better way to loop over the grammar and realize the result.
+(.size (map (fn [rule]
+       (intern *ns* (symbol (:comment rule)) rule))
+     grammar))
 
-(defn gen-sentence [ & head ]
-  (let [head (if head head :top)]
-    (log/debug (str "gen-sentence start with head: " head))
-    (let [result
-          (take 1 (lightning-bolt (unifyc head
-                                          {:synsem {:cat :verb
-                                                    :subcat '()}})))]
-      (log/debug (str "gen-sentence done with head: " head ": " (fo result)))
-      result)))
+(def test-cache (forest/build-lex-sch-cache grammar lexicon grammar))
 
-(defn gen-np [ & head ]
-  (let [head (if head head :top)]
-    (log/debug (str "gen-np start with head: " head))
-    (let [result
-          (take 1 (lightning-bolt (unifyc head
-                                          {:synsem {:cat :noun
-                                                    :subcat '()}})))]
-      (log/debug (str "gen-sentence done with head: " head ": " (fo result)))
-      result)))
-
-
-(defn gen-nbar [ & head ]
-  (let [head (if head head :top)]
-    (log/debug (str "gen-np start with head: " head))
-    (let [result
-          (take 1 (lightning-bolt (unifyc head
-                                          {:synsem {:cat :noun
-                                                    :subcat {:1 :top
-                                                             :2 '()}}})))]
-      (log/debug (str "gen-sentence done with head: " head ": " (fo result)))
-      result)))
-
-(defn keep-trying [ & [head ] ]
-  (let [head (if head head :top)
-        try (first (take 1 (lightning-bolt head)))]
-    (cond (fail? try)
-          (do
-            (log/warn (str "lightning failed: " try "; retrying."))
-            (keep-trying head))
-          (not (empty? (get-in try '(:synsem :subcat))))
-          (do
-            (log/warn (str "lightning returned a partial phrase, continuing."))
-            (keep-trying head))
-
-          true
-          try)))
+(defn lightning-bolt [spec]
+  (forest/lightning-bolt spec lexicon grammar 0 test-cache))
 
 (deftest sleeper-1 []
   (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
@@ -78,10 +44,13 @@
 
 (deftest i-sleep-1 []
   (let [i-sleep (first (lightning-bolt {:synsem {:subcat '()
+                                                 :cat :verb
                                                  :sem {:subj {:pred :io}
                                                        :pred :dormire}}}))]
+
     (is (or (= (list "Io dormo (I sleep).") (fo i-sleep))
             (= (list "Io dormirò (I will sleep).") (fo i-sleep))
+            (= (list "Io ho dormito (I slept).") (fo i-sleep))
             (= (list "Io dormivo (I was sleeping).") (fo i-sleep))))))
 
 
@@ -111,37 +80,3 @@
                                                                         :pred :mangiare}}}))
                                  '(:synsem :sem))]
     (is (= (get-in eating-semantics '(:subj :human)) false))))
-
-(defn get-cached []
-  (fo (:head (get test-cache "vp-infinitive"))))
-
-;; minip and minil are for testing.
-(def minip (filter (fn [x]
-                     (or
-                      (= (:comment x) "vp-imperfetto")))
-                   grammar))
-
-;; TODO: calling (.size) because (map) is lazy, and I want to realize
-;; the sequence - must be a better way to loop over the grammar.
-(.size (map (fn [rule]
-       (intern *ns* (symbol (:comment rule)) rule))
-     grammar))
-
-(def minil (filter (fn [x]
-                     (or
-                      (= (get-in x '(:italian :italian)) "per")
-                      (= (get-in x '(:italian :infinitive)) "volere")))
-                   lexicon))
-
-
-;; 3 grammar runtime
-(def test-cache (forest/build-lex-sch-cache grammar lexicon grammar))
-
-(defn lightning-bolt [ & [head lex phrases depth cache] ]
-  (let [maxdepth 2
-        depth (if depth depth 0)
-        lexicon (if lex lex lexicon)
-        phrases (if phrases phrases (shuffle grammar))
-        head (if head head :top)
-        cache (if cache cache test-cache)]
-    (forest/lightning-bolt head lexicon phrases depth cache)))
