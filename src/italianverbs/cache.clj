@@ -20,19 +20,26 @@
 (def comp-cache {})
 
 (defn overh [parent head]
-  (if (not (seq? head))
+  (if (or true (not (seq? head)))
     (over/overh parent head)
     (do
       (log/debug (str "overh head: " (show-spec (get-in parent '(:head :synsem)))))
-      (log/debug (str "overh size of head: " (.size head)))
+      (log/debug (str "overh head fo: " (fo-ps parent)))
+      (log/debug (str "overh size of head candidates: " (.size head)))
       (let [result (over/overh parent head)]
-        (if (not (nil? result))
-          (log/trace (str "overh size of result: " (.size result))))
+        (log/debug (str "survivor type is: " result))
+        (if (seq? result) 
+          (log/debug (str "overh size of survivors: " (.size result))))
+        (if (seq? result)
+          (if (> (.size result) 0)
+            (log/debug (str "survivors are nonempty."))
+            (log/debug (str "survivors are empty."))))
         result))))
 
 (defn overc [parent comp]
-  (if (not (seq? comp))
-    (over/overc parent comp)
+  (if (or true (not (seq? comp)))
+    (do (log/trace (str "comp is not a seq; returning over/overc directly."))
+        (over/overc parent comp))
     (do
       (log/debug (str "overc comp: " (show-spec (get-in parent '(:comp :synsem)))))
       (if (not (nil? comp))
