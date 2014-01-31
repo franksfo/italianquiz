@@ -1,6 +1,7 @@
 (ns italianverbs.forest
-  (:refer-clojure :exclude [get-in merge resolve find parents])
+  (:refer-clojure :exclude [get-in deref merge resolve find future parents])
   (:require
+   [clojure.core :as core]
    [clojure.set :refer :all]
    [clojure.tools.logging :as log]
    ;; italianverbs.config is not used yet but hopefully will be in the future.
@@ -48,6 +49,16 @@
                lexicon)}}
      (build-lex-sch-cache (rest phrases) lexicon all-phrases))
     {}))
+
+(defn deref [thing]
+  (if false
+    (core/deref thing)
+    thing))
+
+(defn future [thing]
+  (if false
+    (core/future thing)
+    thing))
 
 (defn headed-phrase-add-comp [parents phrases lexicon & [iter cache path]]
   (if (not (empty? parents))
