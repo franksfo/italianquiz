@@ -1,26 +1,41 @@
 (ns italianverbs.forest
-  (:refer-clojure :exclude [get-in deref merge resolve find future parents])
+  (:refer-clojure :exclude [get-in deref merge resolve find future parents rand-int])
   (:require
    [clojure.core :as core]
    [clojure.set :refer :all]
    [clojure.tools.logging :as log]
-   ;; italianverbs.config is not used yet but hopefully will be in the future.
    [italianverbs.cache :refer (get-comp-phrases-of get-head-phrases-of get-lex overc overh overc-with-cache overh-with-cache)]
-   [italianverbs.config :as config]
    [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.unify :refer :all]))
+   [italianverbs.unify :as unify]
+   [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec)]))
 
 (def concurrent false)
 (defn deref [thing]
   (if concurrent
     (core/deref thing)
     thing))
-
 (defn future [thing]
   (if concurrent
     (core/future thing)
     thing))
+
+(def random-order true)
+(defn rand-int [range constant]
+  (if random-order
+    (core/rand-int range)
+    constant))
+
+(defn unifyc [& args]
+  (if (first args) 
+    (log/debug (str "forest-unify 1 " (fo-ps (first args)))))
+  (if (first args) 
+    (log/debug (str "forest-unify 1 " (fo (first args)))))
+  (if (second args) 
+    (log/debug (str "forest-unify 2 " (fo-ps (second args)))))
+  (if (second args) 
+    (log/debug (str "forest-unify 2 " (fo (second args)))))
+  (apply unify/unifyc args))
 
 (declare lightning-bolt)
 
@@ -245,8 +260,8 @@
 
         depth (if depth depth 0)
 
-        rand-order (if true (rand-int 3) 1)
-        rand-parent-type-order (if true (rand-int 2) 1)
+        rand-order (rand-int 3 1)
+        rand-parent-type-order (rand-int 2 1)
 
         log (log/debug (str "rand-order at depth:" depth " is: "
                             (decode-generation-ordering rand-order rand-parent-type-order)
