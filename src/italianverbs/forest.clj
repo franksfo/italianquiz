@@ -11,6 +11,17 @@
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.unify :refer :all]))
 
+(def concurrent false)
+(defn deref [thing]
+  (if concurrent
+    (core/deref thing)
+    thing))
+
+(defn future [thing]
+  (if concurrent
+    (core/future thing)
+    thing))
+
 (declare lightning-bolt)
 
 (defn build-lex-sch-cache [phrases lexicon all-phrases]
@@ -49,16 +60,6 @@
                lexicon)}}
      (build-lex-sch-cache (rest phrases) lexicon all-phrases))
     {}))
-
-(defn deref [thing]
-  (if false
-    (core/deref thing)
-    thing))
-
-(defn future [thing]
-  (if false
-    (core/future thing)
-    thing))
 
 (defn headed-phrase-add-comp [parents phrases lexicon & [iter cache path]]
   (if (not (empty? parents))
