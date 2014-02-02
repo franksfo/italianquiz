@@ -20,7 +20,7 @@
     (core/future thing)
     thing))
 
-(def random-order true)
+(def random-order false)
 (defn rand-int [range constant]
   (if random-order
     (core/rand-int range)
@@ -95,7 +95,7 @@
           comp-phrases-for-parent (if (nil? comp-phrases-for-parent) (list)
                                       comp-phrases-for-parent)
 
-          debug (log/error (str "SIZE OF COMP-PHRASES-FOR-PARENT:" (:comment parent) " IS " (.size comp-phrases-for-parent)))
+;;          debug (log/trace (str "SIZE OF COMP-PHRASES-FOR-PARENT:" (:comment parent) " IS " (.size comp-phrases-for-parent)))
 
           comps 
           (deref (future
@@ -220,7 +220,7 @@
                            true
                            '())))]
     ;; REALIZES:
-    (log/trace (str "parents-at-this-depth (depth=" depth ") for head: " (show-spec head) " returning result with size: " (.size result)))
+;    (log/trace (str "parents-at-this-depth (depth=" depth ") for head: " (show-spec head) " returning result with size: " (.size result)))
     result))
 
 (defn parents-with-phrasal-complements [parents-with-lexical-heads parents-with-phrasal-heads
@@ -260,8 +260,8 @@
 
         depth (if depth depth 0)
 
-        rand-order (rand-int 3 1)
-        rand-parent-type-order (rand-int 2 1)
+        rand-order (rand-int 3 0)
+        rand-parent-type-order (rand-int 2 0)
 
         log (log/debug (str "rand-order at depth:" depth " is: "
                             (decode-generation-ordering rand-order rand-parent-type-order)
