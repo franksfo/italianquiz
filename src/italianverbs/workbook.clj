@@ -129,7 +129,7 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (take 1 (repeatedly #(generate))))")
+          "(fo (take 1 (repeatedly #(sentence))))")
         ]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
