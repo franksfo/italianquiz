@@ -11,7 +11,7 @@
    [clojure.tools.logging :as log]
    [hiccup.core :refer :all]
 
-   [italianverbs.forest :refer :all :exclude [lightning-bolt unifyc]]
+   [italianverbs.forest :refer :all :exclude [lightning-bolt unifyc deref future rand-int]]
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
