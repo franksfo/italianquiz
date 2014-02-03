@@ -49,6 +49,12 @@
                                    :sem {:subj {:pred :io}
                                          :pred :dormire}}})))
 
+(defn sleep2 []
+  (first (lightning-bolt {:synsem {:subcat '()
+                                   :cat :verb
+                                   :sem {:pred :dormire}}})))
+
+
 (deftest i-sleep-1 []
   (let [i-sleep (first (lightning-bolt {:synsem {:subcat '()
                                                  :cat :verb
