@@ -369,18 +369,6 @@
                  (log/debug (str "cP is not empty; first is: " (fo-ps (first with-phrasal-comps)))))
                with-phrasal-comps))
 
-           adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head (overc-with-cache (parents-with-phrasal-head) cache lexicon)
-
-           debug (if (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)
-                   (if (not (empty? (parents-with-phrasal-head)))
-                     (log/debug (str "no way to attach a lexeme as a complement to any parent with a phrasal head."))
-                     (log/trace (str "no way to attach a lexeme as a complement to any parent with a phrasal head, but there "
-                                     "were no parents with phrasal heads anyway, and you can't attach a lexeme to nothing.")))
-                   (log/debug (str "success attaching a lexeme as a complement to a parent with a phrasal head; first is: "
-                                   (fo-ps (first adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)))))
-
-
-
           ]
 
        (cond (= rand-order 0) ;; hLcL + rand2 + hPcL
