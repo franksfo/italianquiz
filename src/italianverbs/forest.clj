@@ -20,7 +20,7 @@
     (core/future thing)
     thing))
 
-(def random-order false)
+(def random-order true)
 (defn rand-int [range constant]
   (if random-order
     (core/rand-int range)
@@ -29,12 +29,8 @@
 (defn unifyc [& args]
   (if (first args) 
     (log/debug (str "forest-unify 1 " (fo-ps (first args)))))
-  (if (first args) 
-    (log/debug (str "forest-unify 1 " (fo (first args)))))
   (if (second args) 
     (log/debug (str "forest-unify 2 " (fo-ps (second args)))))
-  (if (second args) 
-    (log/debug (str "forest-unify 2 " (fo (second args)))))
   (apply unify/unifyc args))
 
 (declare lightning-bolt)
