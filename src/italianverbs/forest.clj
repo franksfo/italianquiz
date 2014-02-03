@@ -10,7 +10,7 @@
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec)]))
 
-(def concurrent false)
+(def concurrent true)
 (defn deref [thing]
   (if concurrent
     (core/deref thing)
@@ -28,9 +28,9 @@
 
 (defn unifyc [& args]
   (if (first args) 
-    (log/debug (str "forest-unify 1 " (fo-ps (first args)))))
+    (log/trace (str "forest-unify 1 " (fo-ps (first args)))))
   (if (second args) 
-    (log/debug (str "forest-unify 2 " (fo-ps (second args)))))
+    (log/trace (str "forest-unify 2 " (fo-ps (second args)))))
   (apply unify/unifyc args))
 
 (declare lightning-bolt)
