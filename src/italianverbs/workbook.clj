@@ -20,8 +20,7 @@
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.over :refer :all]
    [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer :all :exclude [unify]]
-   [somnium.congomongo :as mongo]))
+   [italianverbs.unify :refer :all :exclude [unify]]))
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76

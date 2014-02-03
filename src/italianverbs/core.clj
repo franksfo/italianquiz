@@ -1,6 +1,5 @@
 (ns italianverbs.core
   (:use [compojure.core]
-        [somnium.congomongo]
         [hiccup core])
   (:require
    [clojure.string :as string]

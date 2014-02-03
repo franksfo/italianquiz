@@ -8,6 +8,8 @@
 
                  [compojure "1.1.3"]
                  [congomongo "0.2.0"]
+                 [org.clojure/java.jdbc "0.0.6"]
+                 [org.xerial/sqlite-jdbc "3.7.2"]
                  [clojail "1.0.6"]
                  [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
                                                     javax.jms/jms
