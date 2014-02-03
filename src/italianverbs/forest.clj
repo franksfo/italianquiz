@@ -309,14 +309,17 @@
                                  (fo-ps (first parents-with-phrasal-head)))))
                parents-with-phrasal-head))
 
-           parents-with-lexical-heads (mapcat (fn [each-kv]
-                                                (let [parent (:parent each-kv)]
-                                                  (let [phrases (:headed-phrases each-kv)]
-                                                    phrases)))
-                                              lexical-headed-phrases)
-           debug (if (empty? parents-with-lexical-heads)
-                   (log/debug (str "hL: empty."))
-                   (log/debug (str "hL: nonempty; first: " (fo-ps (first parents-with-lexical-heads)))))
+           parents-with-lexical-heads 
+           (fn []
+             (let [parents-with-lexical-heads (mapcat (fn [each-kv]
+                                                        (let [parent (:parent each-kv)]
+                                                          (let [phrases (:headed-phrases each-kv)]
+                                                            phrases)))
+                                                      lexical-headed-phrases)]
+               (if (empty? parents-with-lexical-heads)
+                 (log/debug (str "hL: empty."))
+                 (log/debug (str "hL: nonempty; first: " (fo-ps (first parents-with-lexical-heads)))))
+               parents-with-lexical-heads))
 
            ;; TODO: (lazy-shuffle) this.
            ;; TODO: cache this.
@@ -332,23 +335,18 @@
                    (log/debug (str "cP is nonempty; first: " (fo-ps (first parents-with-phrasal-heads-for-comp-phrases)))))
 
 
-           parents-with-lexical-heads-for-comp-phrases (mapcat (fn [each-kv]
-                                                                 (let [parent (:parent each-kv)]
-                                                                   (if (not (= false (get-in parent '(:comp :phrasal))))
-                                                                     (let [phrases (:headed-phrases each-kv)]
-                                                                       phrases))))
-                                                               lexical-headed-phrases)
-
-           debug (if (empty? parents-with-lexical-heads-for-comp-phrases)
-                   (if (not (empty? lexical-headed-phrases))
-                     (log/debug (str "hL: empty and also parents-with-lexical-heads-for-comp-phrases is also empty."))
-                     (log/debug (str "hL is nonempty but parents-with-lexical-heads-for-comp-phrases is empty; " 
-                                     " first of p-w-l-h-f-c-p is: " 
-                                     (fo-ps (first parents-with-lexical-heads-for-comp-phrases))))))
+           parents-with-lexical-heads-for-comp-phrases 
+           (fn [] (mapcat (fn [each-kv]
+                            (let [parent (:parent each-kv)]
+                              (if (not (= false (get-in parent '(:comp :phrasal))))
+                                (let [phrases (:headed-phrases each-kv)]
+                                  phrases))))
+                          lexical-headed-phrases))
 
            one-level-trees
            (fn []
-             (let [one-level-trees
+             (let [parents-with-lexical-heads (parents-with-lexical-heads)
+                   one-level-trees
                    (if (not (empty? parents-with-lexical-heads))
                      (overc-with-cache parents-with-lexical-heads cache lexicon))]
                (if (empty? one-level-trees)
@@ -361,7 +359,7 @@
              (let [with-phrasal-comps
                    (headed-phrase-add-comp (parents-with-phrasal-complements
                                             parents-with-phrasal-heads-for-comp-phrases
-                                            parents-with-lexical-heads-for-comp-phrases
+                                            (parents-with-lexical-heads-for-comp-phrases)
                                             rand-parent-type-order)
                                            phrases (lazy-shuffle lexicon) 0 cache path)]
                (if (empty? with-phrasal-comps)
