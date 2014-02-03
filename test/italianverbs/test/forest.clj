@@ -28,12 +28,6 @@
                       (= (get-in x '(:italian :infinitive)) "volere")))
                    lexicon))
 
-;; TODO: calling (.size) because (map) is lazy, and I want to realize
-;; the sequence - must be a better way to loop over the grammar and realize the result.
-(.size (map (fn [rule]
-       (intern *ns* (symbol (:comment rule)) rule))
-     grammar))
-
 (def test-cache (forest/build-lex-sch-cache grammar lexicon grammar))
 
 (defn lightning-bolt [spec]
@@ -71,6 +65,7 @@
 
 (deftest human-sleeper-1 []
   (let [human-sleeper (get-in (first (lightning-bolt {:synsem {:subcat '()
+                                                               :cat :verb
                                                                :sem {:subj {:human true}
                                                                      :pred :dormire}}}))
                                '(:synsem :sem :subj))]

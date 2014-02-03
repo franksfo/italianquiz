@@ -92,4 +92,11 @@
 
 ))
 
+;; This allows us to refer to individual grammar rules within grammar
+;; by symbols like "vp-present" (e.g. (over vp-present lexicon)).
+;; TODO: calling (.size) because (map) is lazy, and I want to realize
+;; the sequence - must be a better way to loop over the grammar and realize the result.
+(.size (map (fn [rule]
+       (intern *ns* (symbol (:comment rule)) rule))
+     grammar))
 

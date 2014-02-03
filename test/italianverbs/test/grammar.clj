@@ -25,12 +25,6 @@
 (deftest fare-bene-test
   (is (successful fare-bene)))
 
-(def s-past cc10)
-
-(def s-past cc10)
-(def s-present cc10)
-(def adj-phrase-test hh21)
-
 (def np-test cc10)
 ;; tests moved from (generate) namespace to here.
 (deftest il-libro
