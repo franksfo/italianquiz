@@ -345,18 +345,27 @@
                                      (fo-ps (first parents-with-lexical-heads-for-comp-phrases))))))
 
            one-level-trees
-           (if (not (empty? parents-with-lexical-heads))
-             (overc-with-cache parents-with-lexical-heads cache lexicon))
+           (fn []
+             (let [one-level-trees
+                   (if (not (empty? parents-with-lexical-heads))
+                     (overc-with-cache parents-with-lexical-heads cache lexicon))]
+               (if (empty? one-level-trees)
+                 (log/debug (str "one-level-trees is empty."))
+                 (log/debug (str "one-level-trees is not empty; first is: " (fo (first one-level-trees)))))
+               one-level-trees))
 
-           with-phrasal-comps (headed-phrase-add-comp (parents-with-phrasal-complements
-                                                       parents-with-phrasal-heads-for-comp-phrases
-                                                       parents-with-lexical-heads-for-comp-phrases
-                                                       rand-parent-type-order)
-                                                      phrases (lazy-shuffle lexicon) 0 cache path)
-
-           debug (if (empty? with-phrasal-comps)
-                   (log/debug (str "cP is empty."))
-                   (log/debug (str "cP is not empty; first is: " (fo-ps (first with-phrasal-comps)))))
+           with-phrasal-comps 
+           (fn []
+             (let [with-phrasal-comps
+                   (headed-phrase-add-comp (parents-with-phrasal-complements
+                                            parents-with-phrasal-heads-for-comp-phrases
+                                            parents-with-lexical-heads-for-comp-phrases
+                                            rand-parent-type-order)
+                                           phrases (lazy-shuffle lexicon) 0 cache path)]
+               (if (empty? with-phrasal-comps)
+                 (log/debug (str "cP is empty."))
+                 (log/debug (str "cP is not empty; first is: " (fo-ps (first with-phrasal-comps)))))
+               with-phrasal-comps))
 
            adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head (overc-with-cache parents-with-phrasal-head cache lexicon)
 
@@ -374,22 +383,22 @@
 
        (cond (= rand-order 0) ;; hLcL + rand2 + hPcL
              (lazy-cat
-              one-level-trees
-              with-phrasal-comps
+              (one-level-trees)
+              (with-phrasal-comps)
               (overc-with-cache parents-with-phrasal-head cache lexicon))
 
 
              (= rand-order 1) ;; rand2 + hLcL + hPcL
              (lazy-cat
-              with-phrasal-comps
-              one-level-trees
+              (with-phrasal-comps)
+              (one-level-trees)
               (overc-with-cache parents-with-phrasal-head cache lexicon))
 
              (= rand-order 2) ;; hPcL + rand2 + hLcL
              (lazy-cat
               (overc-with-cache parents-with-phrasal-head cache lexicon)
-              with-phrasal-comps
-              one-level-trees))))))
+              (with-phrasal-comps)
+              (one-level-trees)))))))
 
 
 ;; aliases that might be easier to use in a repl:
