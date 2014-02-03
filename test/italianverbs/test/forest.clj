@@ -40,7 +40,9 @@
   (forest/lightning-bolt spec lexicon grammar 0 test-cache))
 
 (deftest sleeper-1 []
-  (let [sleeper (get-in (first (lightning-bolt {:synsem {:sem {:pred :dormire}}})) '(:synsem :sem :subj))]
+  (let [sleeper (get-in (first (lightning-bolt {:synsem {:cat :verb
+                                                         :subcat '()
+                                                         :sem {:pred :dormire}}})) '(:synsem :sem :subj))]
     (is (not (nil? sleeper)))))
 
 (defn sleep1 []
