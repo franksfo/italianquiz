@@ -372,23 +372,25 @@
 
           ]
 
-       (cond (= rand-order 0)
-             (lazy-cat
-              with-phrasal-comps
-              (overc-with-cache parents-with-phrasal-head cache lexicon)
-              one-level-trees)
-
-             (= rand-order 1)
-             (lazy-cat
-              (overc-with-cache parents-with-phrasal-head cache lexicon)
-              with-phrasal-comps
-              one-level-trees)
-
-             (= rand-order 2)
+       (cond (= rand-order 0) ;; hLcL + rand2 + hPcL
              (lazy-cat
               one-level-trees
+              with-phrasal-comps
+              (overc-with-cache parents-with-phrasal-head cache lexicon))
+
+
+             (= rand-order 1) ;; rand2 + hLcL + hPcL
+             (lazy-cat
+              with-phrasal-comps
+              one-level-trees
+              (overc-with-cache parents-with-phrasal-head cache lexicon))
+
+             (= rand-order 2) ;; hPcL + rand2 + hLcL
+             (lazy-cat
               (overc-with-cache parents-with-phrasal-head cache lexicon)
-              with-phrasal-comps))))))
+              with-phrasal-comps
+              one-level-trees))))))
+
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
