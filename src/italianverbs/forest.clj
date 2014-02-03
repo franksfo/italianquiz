@@ -352,7 +352,7 @@
              (let [parents-with-lexical-heads (parents-with-lexical-heads)
                    one-level-trees
                    (if (not (empty? parents-with-lexical-heads))
-                     (overc-with-cache parents-with-lexical-heads cache lexicon))]
+                     (overc-with-cache parents-with-lexical-heads cache (lazy-shuffle lexicon)))]
                (if (empty? one-level-trees)
                  (log/debug (str "one-level-trees is empty."))
                  (log/debug (str "one-level-trees is not empty; first is: " (fo (first one-level-trees)))))
