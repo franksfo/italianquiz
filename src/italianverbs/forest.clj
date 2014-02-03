@@ -267,7 +267,7 @@
                             (decode-generation-ordering rand-order rand-parent-type-order)
                             "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
 
-        parents-at-this-depth (parents-at-this-depth head phrases depth)
+        parents-at-this-depth (lazy-shuffle (parents-at-this-depth head phrases depth))
 
         cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))]
     (cond
