@@ -296,16 +296,18 @@
                                    cache
                                    path)
 
-           parents-with-phrasal-head (mapcat (fn [each-kv]
-                                               (let [parent (:parent each-kv)]
-                                                 (let [phrases (:headed-phrases each-kv)]
-                                                   phrases)))
-                                             parents-with-phrasal-head-map)
-
-           debug (if (empty? parents-with-phrasal-head)
-                   (log/debug (str "hP: empty."))
-                   (log/debug (str "hP: nonempty; first:"
-                                   (fo-ps (first parents-with-phrasal-head)))))
+           parents-with-phrasal-head 
+           (fn []
+             (let [parents-with-phrasal-head (mapcat (fn [each-kv]
+                                                       (let [parent (:parent each-kv)]
+                                                         (let [phrases (:headed-phrases each-kv)]
+                                                           phrases)))
+                                                     parents-with-phrasal-head-map)]
+               (if (empty? parents-with-phrasal-head)
+                 (log/debug (str "hP: empty."))
+                 (log/debug (str "hP: nonempty; first:"
+                                 (fo-ps (first parents-with-phrasal-head)))))
+               parents-with-phrasal-head))
 
            parents-with-lexical-heads (mapcat (fn [each-kv]
                                                 (let [parent (:parent each-kv)]
@@ -367,10 +369,10 @@
                  (log/debug (str "cP is not empty; first is: " (fo-ps (first with-phrasal-comps)))))
                with-phrasal-comps))
 
-           adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head (overc-with-cache parents-with-phrasal-head cache lexicon)
+           adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head (overc-with-cache (parents-with-phrasal-head) cache lexicon)
 
            debug (if (empty? adding-a-lexeme-complement-to-a-parent-with-a-phrasal-head)
-                   (if (not (empty? parents-with-phrasal-head))
+                   (if (not (empty? (parents-with-phrasal-head)))
                      (log/debug (str "no way to attach a lexeme as a complement to any parent with a phrasal head."))
                      (log/trace (str "no way to attach a lexeme as a complement to any parent with a phrasal head, but there "
                                      "were no parents with phrasal heads anyway, and you can't attach a lexeme to nothing.")))
@@ -385,18 +387,18 @@
              (lazy-cat
               (one-level-trees)
               (with-phrasal-comps)
-              (overc-with-cache parents-with-phrasal-head cache lexicon))
+              (overc-with-cache (parents-with-phrasal-head) cache lexicon))
 
 
              (= rand-order 1) ;; rand2 + hLcL + hPcL
              (lazy-cat
               (with-phrasal-comps)
               (one-level-trees)
-              (overc-with-cache parents-with-phrasal-head cache lexicon))
+              (overc-with-cache (parents-with-phrasal-head) cache lexicon))
 
              (= rand-order 2) ;; hPcL + rand2 + hLcL
              (lazy-cat
-              (overc-with-cache parents-with-phrasal-head cache lexicon)
+              (overc-with-cache (parents-with-phrasal-head) cache lexicon)
               (with-phrasal-comps)
               (one-level-trees)))))))
 
