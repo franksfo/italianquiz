@@ -288,7 +288,7 @@
            (fn []
              (let [lexical-headed-phrases (lexical-headed-phrases
                                            parents-at-this-depth
-                                           lexicon
+                                           (lazy-shuffle lexicon)
                                            phrases
                                            depth
                                            cache
