@@ -12,11 +12,35 @@
 
 ;; TODO: s/unifyc/unify/
 
-(def grammar (list (merge (unifyc cc10
-                                  {:synsem {:infl :present
-                                            :cat :verb
-                                            :sem {:tense :present}}})
-                          {:comment "s-present"})
+(def grammar (list (merge (unifyc hh21
+                                  {:synsem {:cat :adjective}})
+                          {:comment "adjective-phrase"})
+                                           
+                   (merge (unifyc cc10
+                                  {:synsem {:cat :noun}
+                                   :comp {:phrasal false}}) ;; rathole prevention
+                          {:comment "noun-phrase"})
+
+                   (merge (unifyc hh21
+                                  (let [head-synsem {:cat :intensifier
+                                                     :modified true}]
+                                    {:synsem head-synsem}))
+                          {:comment "intensifier-phrase"})
+
+                   (merge (unifyc hc11
+                                  (let [head-synsem {:cat :noun
+                                                     :modified true}]
+                                    {:synsem head-synsem
+                                     :head {:synsem {:modified false}}
+                                     :comp {:phrasal false ;; rathole prevention
+                                            :synsem {:cat :adjective
+                                                     :mod head-synsem}}}))
+                          {:comment "nbar"})
+
+                   (merge (unifyc hh10
+                                  {:synsem {:cat :prep}})
+                          {:comment "prepositional-phrase"})
+
 
                    (merge (unifyc cc10
                                   {:synsem {:infl :present
@@ -36,16 +60,16 @@
                                             :sem {:tense :past}}})
                           {:comment "s-imperfetto"})
 
+                    (merge (unifyc cc10
+                                  {:synsem {:infl :present
+                                            :cat :verb
+                                            :sem {:tense :present}}})
+                          {:comment "s-present"})
+
                    (merge (unifyc hh21
                                   {:synsem {:infl :infinitive
                                             :cat :verb}})
                           {:comment "vp-infinitive"})
-
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :present
-                                            :sem {:tense :present}
-                                            :cat :verb}})
-                          {:comment "vp-present"})
 
                    (merge (unifyc hh21
                                   {:synsem {:infl :present
@@ -68,26 +92,14 @@
                                             :cat :verb}})
                           {:comment "vp-past"})
 
-
-                   (merge (unifyc cc10
-                                  {:synsem {:cat :noun}
-                                   :comp {:phrasal false}}) ;; rathole prevention
-                          {:comment "noun-phrase"})
-
-                   (merge (unifyc hc11
-                                  (let [head-synsem {:cat :noun
-                                                     :modified true}]
-                                    {:synsem head-synsem
-                                     :head {:synsem {:modified false}}
-                                     :comp {:phrasal false ;; rathole prevention
-                                            :synsem {:cat :adjective
-                                                     :mod head-synsem}}}))
-                          {:comment "nbar"})
+                   (merge (unifyc hh21
+                                  {:synsem {:infl :present
+                                            :sem {:tense :present}
+                                            :cat :verb}})
+                          {:comment "vp-present"})
 
 
-                   (merge (unifyc hh10
-                                  {:synsem {:cat :prep}})
-                          {:comment "prepositional-phrase"})
+
 
 
 ))
