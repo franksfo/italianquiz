@@ -12,7 +12,12 @@
 
 ;; TODO: s/unifyc/unify/
 
-(def grammar (list (merge (unifyc cc10
+(def grammar (list (merge (unifyc hh21
+                                  {:synsem {:cat :adjective}})
+                          {:comment "adjective-phrase"})
+                                           
+
+                    (merge (unifyc cc10
                                   {:synsem {:infl :present
                                             :cat :verb
                                             :sem {:tense :present}}})
