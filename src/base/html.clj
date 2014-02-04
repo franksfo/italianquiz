@@ -6,6 +6,7 @@
             [clojure.tools.logging :as log]
             [hiccup.page :as hpage]
             [clojure.set :as set]
+            [italianverbs.db :refer (fetch)]
             [italianverbs.session :as session]
             [clojure.string :as string]))
 
