@@ -332,6 +332,7 @@
             :synsem {:sem {:obj obj-sem}
                      :infl infl
                      :subcat {:2 {:sem obj-sem
+                                  :subcat '()
                                   :cat :intensifier}}}})))
 
 (def transitive-but-with-prepositional-phrase-instead-of-noun
@@ -343,6 +344,7 @@
             :synsem {:sem {:obj obj-sem}
                      :infl infl
                      :subcat {:2 {:sem obj-sem
+                                  :subcat '()
                                   :cat :prep}
                               :3 '()}}})))
 
