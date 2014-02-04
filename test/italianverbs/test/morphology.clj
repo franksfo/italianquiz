@@ -795,3 +795,27 @@
             :case :top, 
             :number :sing}]
     (is (= (get-italian lpr) "la professoressa corta "))))
+
+(deftest la-casa-nuova
+  (let [la-casa-nuova {:a "la"
+                       :b {:a {:agr {:case :top, 
+                                     :number :sing, 
+                                     :person :3rd, 
+                                     :gender :fem},
+                               :initial true, 
+                               :italian "casa", 
+                               :cat :noun}
+                           :b {:italian "nuovo", 
+                               :initial false, 
+                               :cat :adjective, 
+                               :agr {:case :top
+                                     :number :sing
+                                     :gender :fem
+                                     :person :3rd}}
+                           :initial false}, 
+                       :person :3rd, 
+                       :gender :fem, 
+                       :case :top, 
+                       :number :sing}]
+    (is (= (string/trim (get-italian la-casa-nuova)) "la casa nuova"))))
+
