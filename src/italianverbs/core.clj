@@ -6,6 +6,7 @@
    [clojure.tools.logging :as log]
    [compojure.route :as route]
    [compojure.handler :as handler]
+   [italianverbs.db :refer (fetch)]
    [italianverbs.generate :as gen]
    [italianverbs.lev :as lev]
    [italianverbs.xml :as xml]
