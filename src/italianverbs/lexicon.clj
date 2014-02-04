@@ -1612,19 +1612,13 @@
                                     :number :plur
                                     :def :def}}}})
 
-      {:italian {:italian "nuovo"
-                 :initial true}
-       :english {:english "new"}
-       :synsem {:cat :adjective
-                :sem {:pred :nuovo
-                      :mod {:artifact true}}}}
-
-      {:italian {:italian "nuovo"
-                 :initial false}
-       :english {:english "new"}
-       :synsem {:cat :adjective
-                :sem {:pred :nuovo
-                      :mod {:artifact true}}}}
+      (unify adjective
+             {:italian {:italian "nuovo"
+                        :initial true}
+              :english {:english "new"}
+              :synsem {:cat :adjective
+                       :sem {:pred :nuovo
+                             :mod {:artifact true}}}})
 
       {:synsem {:cat :noun
                 :pronoun true
