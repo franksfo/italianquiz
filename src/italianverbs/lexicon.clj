@@ -1,13 +1,179 @@
 (ns italianverbs.lexicon
   (:refer-clojure :exclude [get-in merge resolve find])
   (:require
-   [clojure.core :as core]
-   [clojure.set :refer :all]
+   [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
-   [italianverbs.lexiconfn :refer :all]
-   [italianverbs.unify :refer :all :exclude (unify)]))
+   [italianverbs.lexiconfn :refer (adjective 
+                                   agreement-noun
+                                   animal
+                                   clear! 
+                                   cat-of-pronoun
+                                   common-noun
+                                   countable-noun
+                                   disjunctive-case-of-pronoun
+                                   drinkable-noun
+                                   feminine-noun
+                                   human
+                                   implied 
+                                   intransitive lookup-in 
+                                   masculine-noun
+                                   modal
+                                   noun pronoun-acc
+                                   pronoun-noun proper-noun
+                                   sentential-adverb
+                                   subcat0 transitive unify
+                                   verb
+                                   verb-aux-type
+                                   verb-subjective
+                                             )]
+   [italianverbs.unify :refer (fail? serialize)]))
 
-;; WARNING: clear blows away entire lexicon in backing store (mongodb or some other db).
+(declare lexicon)
+
+(defn lookup [query]
+  (lookup-in query lexicon))
+
+(defn it [italian]
+  "same as it but no type conversion of singleton sets to take the first member."
+  (let [result
+        (union (set (lookup {:italian italian}))
+               (set (lookup {:italian {:infinitive italian}}))
+               (set (lookup {:italian {:infinitive {:infinitive italian}}}))
+               (set (lookup {:italian {:italian italian}}))
+               (set (lookup {:italian {:irregular {:passato italian}}})))]
+    result))
+
+(def it1 it) ; backwards compatibility
+
+(defn en [english]
+  (lookup {:english english}))
+
+(def andare-common
+   {:italian {:infinitive "andare"
+              :essere true
+              :irregular {:present {:1sing "vado"
+                                    :2sing "vai"
+                                    :3sing "va"
+                                    :1plur "andiamo"
+                                    :2plur "andate"
+                                    :3plur "vanno"}
+                          :futuro {:1sing "andrò"
+                                   :2sing "andrai"
+                                   :3sing "andrà"
+                                   :1plur "andremo"
+                                   :2plur "andrete"
+                                   :3plur "andranno"}}}
+    :english {:infinitive "to go"
+              :irregular {:past "went"
+                          :past-participle "gone"}}
+    :synsem {:essere true
+             :sem {:subj {:animate true}
+                   :activity false ;; because "I was going when (something happened) .." sounds weird.
+                   :pred :andare
+                   :discrete false
+                   :motion false}}})
+
+(def avere-common
+  {:synsem {:essere false
+            :cat :verb}
+   :italian {:infinitive "avere"
+             :irregular {:passato "avuto"
+                         :present {:1sing "ho"
+                                   :2sing "hai"
+                                   :3sing "ha"
+                                   :1plur "abbiamo"
+                                   :2plur "avete"
+                                   :3plur "hanno"}}}
+   :english {:infinitive "to have"
+             :irregular {:past "had"
+                         :present {:1sing "have"
+                                   :2sing "have"
+                                   :3sing "has"
+                                   :1plur "have"
+                                   :2plur "have"
+                                   :3plur "have"}}}})
+
+(def essere-common
+  {:synsem {:essere true}
+   :italian {:infinitive "essere"
+             :essere true
+             :irregular {:present {:1sing "sono"
+                                   :2sing "sei"
+                                   :3sing "è"
+                                   :1plur "siamo"
+                                   :2plur "siete"
+                                   :3plur "sono"}
+                         :passato "stato"
+                         :imperfetto {:1sing "ero"
+                                      :2sing "eri"
+                                      :3sing "era"
+                                      :1plur "eravamo"
+                                      :2plur "eravate"
+                                      :3plur "erano"}
+                         :futuro {:1sing "sarò"
+                                  :2sing "sarai"
+                                  :3sing "sarà"
+                                  :1plur "saremo"
+                                  :2plur "sarete"
+                                  :3plur "saranno"}}}
+   :english {:infinitive "to be"
+             :irregular {:present {:1sing "am"
+                                   :2sing "are"
+                                   :3sing "is"
+                                   :1plur "are"
+                                    :2plur "are"
+                                   :3plur "are"}
+                         :past {:participle "been"
+                                :1sing "was"
+                                :2sing "were"
+                                :3sing "was"
+                                :1plur "were"
+                                :2plur "were"
+                                :3plur "were"}}}})
+
+(def fare-common
+  ;; factor out common stuff from all senses of "fare".
+  {:synsem {:essere false}
+   :italian {:infinitive "fare"
+             :irregular {:passato "fatto"
+                         :present {:1sing "facio"
+                                   :2sing "fai"
+                                   :3sing "fa"
+                                   :1plur "facciamo"
+                                   :2plur "fate"
+                                   :3plur "fanno"}
+                         :imperfetto {:1sing "facevo"
+                                      :2sing "facevi"
+                                      :3sing "faceva"
+                                      :1plur "facevamo"
+                                      :2plur "facevate"
+                                      :3plur "facevano"}
+                         :futuro {:1sing "farò"
+                                  :2sing "farai"
+                                  :3sing "farà"
+                                  :1plur "faremo"
+                                  :2plur "farete"
+                                  :3plur "faranno"}}}})
+
+(def venire-common
+  {:italian {:infinitive "venire"
+             :irregular {:passato "venuto"
+                         :futuro  {:1sing "verrò"
+                                   :2sing "verrai"
+                                   :3sing "verrà"
+                                   :1plur "verremo"
+                                   :2plur "verrete"
+                                   :3plur "verranno"}
+                         :present {:1sing "vengo"
+                                   :2sing "vieni"
+                                   :3sing "viene"
+                                   :1plur "veniamo"
+                                   :2plur "venete"
+                                   :3plur "vengono"}}}
+   :english {:infinitive "to come"
+             :irregular {:past "came"}}})
+
+
 (clear!)
 
 (def lexicon
@@ -57,6 +223,7 @@
                    :italian {:initial true
                              :italian "a"}
                    :english "to"})
+
 
         {:synsem {:cat :prep
                   :sem {:pred :in}
@@ -981,6 +1148,7 @@
            :italian "i miei"
            :english "my"}
 
+
       {:synsem {:cat :det
                 :def :possessive
                 :gender :masc
@@ -1273,6 +1441,7 @@
                  :cat pronoun-noun
                  :case pronoun-acc}}
 
+
       (unify
        intransitive
        {:italian {:infinitive "lavorare"}
@@ -1386,7 +1555,7 @@
        :italian {:italian "lei"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
-
+ 
       {:synsem {:cat :noun
                 :pronoun true
                 :agr {:case :nom
@@ -1574,17 +1743,17 @@
                         :cat :adjective}})
 
       {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :person :1st
-                          :number :plur}
-                    :sem (unify human {:pred :noi})
-                    :subcat '()}
-           :english "us"
-           :italian {:italian "noi"
-                     :pronoun true
-                     :cat cat-of-pronoun
-                     :case disjunctive-case-of-pronoun}}
+                :pronoun true
+                :agr {:case disjunctive-case-of-pronoun
+                      :person :1st
+                      :number :plur}
+                :sem (unify human {:pred :noi})
+                :subcat '()}
+       :english "us"
+       :italian {:italian "noi"
+                 :pronoun true
+                 :cat cat-of-pronoun
+                 :case disjunctive-case-of-pronoun}}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -1596,1037 +1765,8 @@
        :english "we"
        :italian "noi"}
 
+))))
 
-      ;; inherently plural.
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             {:synsem {:sem {:pred :notizie
-                             :buyable false
-                             :legible true}}
-              ;; "notizia" would probably also work, since it
-              ;; would be pluralized by morphology to "notizie".
-              :italian {:italian "notizie"}
-              :english {:english "new"}} ;; "news" (will be pluralized by morphology to "news").
-             {:synsem {:subcat {:1 {:cat :det
-                                    :number :plur
-                                    :def :def}}}})
-
-      (unify adjective
-             {:italian {:italian "nuovo"
-                        :initial true}
-              :english {:english "new"}
-              :synsem {:cat :adjective
-                       :sem {:pred :nuovo
-                             :mod {:artifact true}}}})
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :agr {:case :nom
-                      :person :3rd
-                      :number :sing}
-                :sem (unify human {:pred :ognuno})
-                :subcat '()}
-       :english "everyone"
-       :italian "ognuno"}
-
-      (unify proper-noun
-             {:synsem {:sem {:pred :paola
-                             :human true}
-                       :agr {:number :sing
-                             :person :3rd
-                             :gender :fem}}
-              :italian "Paola"
-              :english "Paola"})
-
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             feminine-noun
-             {:synsem {:sem {:legible true
-                             :buyable false
-                             :speakable true
-                             :pred :parola}}}
-             {:italian {:italian "parola"}
-              :english {:english "word"}})
-
-      ;; inherently singular.
-      (unify agreement-noun
-             common-noun
-             masculine-noun
-             {:synsem {:sem (sem-impl {:pred :pane
-                                       :edible true
-                                       :artifact true})}
-              :italian {:italian "pane"}
-              :english {:english "bread"}}
-             {:synsem {:subcat {:1 {:cat :det
-                                    :number :sing
-                                    :def :def}}}})
-
-      (let [parlare
-            (unify
-             transitive
-             {:italian {:infinitive "parlare"}
-              :english {:infinitive "to speak"
-                        :irregular {:past "spoke"}}
-              :synsem {:essere false
-                       :sem {:pred :parlare
-                             :subj {:human true}
-                             :obj {:speakable true}}}})]
-        parlare)
-
-      ;; inherently singular.
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             {:synsem {:sem (sem-impl {:pred :pasta
-                                       :edible true
-                                       :artifact true})}
-              :italian {:italian "pasta"}
-              :english {:english "pasta"}}
-             {:synsem {:subcat {:1 {:cat :det
-                                    :number :sing
-                                    :def :def}}}}
-           )
-
-      (unify
-       intransitive
-       {:italian {:infinitive "pensare"}
-        :english {:infinitive "to think"
-                  :irregular {:past "thought"}}
-        :synsem {:essere false
-                 :sem {:pred :pensare
-                       :discrete false
-                       :subj {:human true}}}})
-
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             feminine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :professoressa
-                             :child false}}
-              :italian {:italian "professoressa"}
-              :english {:english "professor"
-                        :note " (&#x2640;)"}}) ;; unicode female symbol
-
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             masculine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :professore
-                             :child false}}}
-             {:italian {:italian "professore"}
-              :english {:english "professor"
-                        :note " (&#x2642;)"}}) ;; unicode male symbol
-
-      (let [complement-semantics (ref {:mod {:pred :per}})]
-        (unify
-         {:synsem {:cat :prep
-                   :sem complement-semantics
-                   :subcat {:1 {:cat :verb
-                                :sem complement-semantics
-                                :infl :infinitive
-                                :subcat {:1 :top
-                                         :2 '()}}
-                            :2 '()}}
-          :italian "per"
-          :english ""}))
-
-      ;; perdere
-      (unify
-       (:transitive verb)
-       {:italian {:infinitive "perdere"
-                  :irregular {:passato "perso"}}
-        :english {:infinitive "to lose"
-                  :irregular {:past "lost"
-                              :past-participle "lost"}}
-        :synsem {:essere false
-                 :sem {:pred :perdere
-                       :activity false
-                       :deliberate false ;; you don't lose things on purpose.
-                       :discrete true
-                       :subj {:human true}
-                       :obj {:animate false}}}}) ;; mostly you don't lose humans or animals, or you do, and it's too sad to put in here.
-
-      ;; non-comparative
-      ;; TODO: add comparative
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :piccolo
-                             :comparative false
-                             :mod {:physical-object true
-                                   :mass false}}}
-              :italian {:italian "piccolo"
-                        :cat :adjective}
-              :english {:english "small"
-                        :cat :adjective}})
-
-      ;; "pizza" can be either mass or countable.
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             {:synsem {:sem {:pred :pizza
-                             :edible true
-                             :artifact true}}
-              :italian {:italian "pizza"}
-              :english {:english "pizza"}})
-
-      (let [human (ref :top)
-            animate (ref :top)]
-        {:synsem {:sem {:human human
-                        :animate animate}
-                  :cat :intensifier
-                  :subcat {:1 {:cat :adjective
-                               :sem {:comparative true
-                                     :human human
-                                     :animate animate}}
-                           :2 '()}}
-         :italian "più"
-         :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
-         })
-
-      (let [human (ref :top)
-            animate (ref :top)
-            subj-semantics (ref {:human human
-                                 :animate animate})
-            obj-semantics (ref {:comparative true
-                                :human human
-                                :animate animate})
-            adj-semantics (ref :top)]
-        {:synsem {:cat :intensifier
-                  :sem {:pred :più
-                        :modifies adj-semantics
-                        :arg1 subj-semantics
-                        :arg2 obj-semantics}
-                  :subcat {:1 {:cat :noun
-                               :sem subj-semantics}
-                           :2 {:cat :adjective
-                               :sem {:arg1 subj-semantics
-                                     :pred adj-semantics
-                                     :arg2 obj-semantics}}}}
-         :italian "più"
-         :english "more"
-         })
-
-      (let [pred-of-complement (ref :top)]
-        (unify
-         verb-subjective
-         modal
-         {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
-         {:italian {:infinitive "potere"
-                    :irregular {:present {:1sing "posso"
-                                          :2sing "puoi"
-                                          :3sing "può"
-                                          :1plur "possiamo"
-                                          :2plur "potete"
-                                          :3plur "possono"}}}
-          :english {:infinitive "to be able to"
-                    :irregular {:past "could have"
-                                ;; TODO: enhance morphology.clj to handle one irregular for all agreements: {:present "can"}.
-                                :present {:1sing "can"
-                                          :2sing "can"
-                                          :3sing "can"
-                                          :1plur "can"
-                                          :2plur "can"
-                                          :3plur "can"}}}
-          :synsem {:subcat {:2 {:sem {:pred pred-of-complement}}}
-                   :essere false
-                   :sem {:pred {:pred pred-of-complement
-                                :mod :potere}
-                         :activity false
-                         :discrete false
-                         :subj {:animate true}}}}))
-
-      {:synsem {:cat :sent-modifier
-                :sem {:pred :qualche-volta-past}
-                :subcat {:1 {:infl :present
-                             :sem {:activity true
-                                   :tense :past}
-                             :subcat '()}}}
-       :italian "qualche volta"
-       :english "sometimes"}
-
-      {:synsem {:cat :sent-modifier
-                :sem {:pred :qualche-volta-present}
-                :subcat {:1 {:infl :present
-                             :sem {:activity true
-                                   :tense :present}
-                             :subcat '()}}}
-       :italian "qualche volta"
-       :english "sometimes"}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :agr {:case :nom
-                      :person :3rd
-                      :number :sing}
-                :sem {:human false
-                      :animate false ;; otherwise we get weird things like "something will see my ladder".
-                      :place false ;; otherwise we get "i went to something"
-                      :pred :qualcuno}
-                :subcat '()}
-       :english "something"
-       :italian "qualcosa"}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :agr {:case :nom
-                      :person :3rd
-                      :number :sing}
-                :sem (unify human {:pred :qualcuno})
-                :subcat '()}
-       :english "someone"
-       :italian "qualcuno"}
-
-      {:synsem {:cat :det
-                :def :partitivo
-                :mass false
-                :number :sing}
-       :italian "qualche"
-       :english "some"}
-
-;      {:italian "quando"
-;       :english "when"
-;       :synsem {:cat :temporal-glue
-;                :sem {:pred :quando}
-;                :subcat {:1 {:cat :verb
-;                             :infl :imperfetto
-;                             :sem {:activity true}
-;                             :subcat '()}
-;                         :2 {:cat :verb
-;                             :infl :present
-;                             :sem {:aspect :passato
-;                                   :discrete true
-;                                   :tense :past}
-;                             :subcat '()}}}}
-
-      {:synsem {:cat :det
-                :def :demonstrativo
-                :gender :fem
-                :number :sing}
-       :italian "quella"
-       :english "that"}
-
-      {:synsem {:cat :det
-                :def :demonstrativo
-                :gender :fem
-                :number :plur}
-       :italian "quelle"
-       :english "those"}
-
-      {:synsem {:cat :det
-                :def :demonstrativo
-                :gender :masc
-                :number :plur}
-       :italian "quelli"
-       :english "those"}
-
-      {:synsem {:cat :det
-                :def :demonstrativo
-                :gender :masc
-                :number :sing}
-       :italian "quello"
-       :english "that"}
-
-      {:synsem {:cat :det
-                :def :demonstrativo
-                :gender :fem
-                :number :sing}
-       :italian "questa"
-       :english "this"}
-
-      {:synsem {:cat :det
-                :def :demonstrativo
-                :gender :fem
-                :number :plur}
-       :italian "queste"
-       :english "these"}
-
-      {:synsem {:cat :det
-                :def :demonstrativo
-                :gender :masc
-                :number :plur}
-       :italian "questi"
-       :english "these"}
-
-      {:synsem {:cat :det
-                :def :demonstrativo
-                :gender :masc
-                :number :sing}
-       :italian "questo"
-       :english "this"}
-
-      ;; non-comparative
-      (unify adjective
-             {:synsem {:sem {:pred :ricco
-                             :comparative false
-                             :mod {:human true}}} ;; TODO between with comparative/non-comparative rather than duplicating.
-              :italian {:italian "ricco"}
-              :english {:english "rich"}})
-
-      ;; comparative:
-      (let [complement-complement-sem (ref {:human true}) ;; only humans can be rich.
-            complement-sem (ref {:pred :di
-                                 :mod complement-complement-sem})
-            subject-sem (ref {:human true})] ;; only humans can be rich.
-        (unify adjective
-               {:synsem {:sem {:pred :ricco
-                         :comparative true
-                               :arg1 subject-sem
-                               :arg2 complement-complement-sem}
-                         :subcat {:1 {:cat :noun
-                                      :sem subject-sem}
-                                  :2 {:cat :prep
-                                      :sem complement-sem}}}
-                :italian {:italian "ricco"}
-                :english {:english "rich"}}))
-
-      (unify
-       intransitive
-       {:italian {:infinitive "ridere"
-                  :irregular {:passato "riso"}}
-        :english {:infinitive "to laugh"
-                  :irregular {:past "laughed"}}
-        :synsem {:essere false
-                 :sem {:subj {:human true}
-                       :pred :ridere
-                       :discrete true
-                       }}})
-
-      (unify proper-noun
-             {:synsem {:sem {:pred :roma
-                             :buyable false
-                             ;; getting tired of people "making Rome" sentences.
-                             :actifact false
-
-                                        ;                            :artifact true ;; but wasn't built in a day..
-                             :city true}
-                       :agr {:number :sing
-                             :person :3rd
-                             :gender :masc}}
-              :italian {:italian "Roma"}
-              :english {:english "Rome"}})
-
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :rosso
-                             :comparative false
-                             :mod {:physical-object true
-                                   :human false}}}
-              :italian {:italian "rosso"}
-              :english {:english "red"}})
-
-      ;; non-comparative
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :robusto
-                             :comparative false
-                             :activity false
-                             :mod {:animate true}}}
-              :italian {:italian "robusto"
-                        :cat :adjective}
-              :english {:english "large-built"
-                        :cat :adjective}})
-
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :rumorosa
-                             :comparative false
-                           :mod {:animate true}}}
-              :italian {:italian "rumoroso"
-                        :cat :adjective}
-              :english {:english "noisy"
-                        :cat :adjective}})
-
-      ;; comparative:
-      (let [complement-complement-sem (ref {:human true}) ;; only animals can be noisy.
-            complement-sem (ref {:pred :di
-                                 :mod complement-complement-sem})
-            subject-sem (ref {:animate true})] ;; only animals can be noisy.
-        (unify adjective
-               {:synsem {:sem {:pred :semplice
-                               :comparative true
-                               :arg1 subject-sem
-                               :arg2 complement-complement-sem}
-                         :subcat {:1 {:cat :noun
-                                      :sem subject-sem}
-                                  :2 {:cat :prep
-                                      :sem complement-sem}}}
-                :italian {:italian "rumoroso"}
-                :english {:english "noisy"}}))
-
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             masculine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :ragazzo
-                             :child false}}
-              :italian {:italian "ragazzo"}
-              :english {:english "guy"}})
-
-;      (unify agreement-noun
-;             common-noun
-;             countable-noun
-;             masculine-noun
-;             {:synsem {:sem human}}
-;             {:synsem {:sem {:pred :ragazzino
-;                             :child true}}
-;              :italian {:italian "ragazzino"}
-;              :english {:english "little boy"}})
-
-;      (unify agreement-noun
-;             common-noun
-;             countable-noun
-;             feminine-noun
-;             {:synsem {:sem human}}
-;             {:synsem {:sem {:pred :ragazzina
-;                             :child true}}
-;              :italian {:italian "ragazzina"}
-;              :english {:english "little girl"}})
-
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             feminine-noun
-            {:synsem {:sem human}}
-            {:synsem {:sem {:pred :ragazza
-                            :child false}}
-             :italian {:italian "ragazza"}
-             :english {:english "girl"}})
-
-      (unify
-       transitive
-       {:italian {:infinitive "ricordare"}
-        :english {:infinitive "to remember"
-                  :irregular {:past-participle "remembered"}}
-        :synsem {:essere false
-                 :sem {:subj {:human true}
-                       :obj {:animate true}
-                       :pred :ricordare}}})
-
-      (unify
-       transitive
-       {:italian {:infinitive "ricordare"}
-        :english {:infinitive "to remember"
-                  :irregular {:past-participle "remembered"}}
-        :synsem {:essere false
-                 :sem {:subj {:human true}
-                       :obj {:legible true}
-                       :pred :ricordare}}})
-
-      (unify
-       transitive
-       {:italian {:infinitive "scrivere"}
-        :english {:infinitive "to write"
-                  :irregular {:past "wrote"}}
-        :synsem {:essere false
-                 :sem {:pred :scrivere
-                       :subj {:human true}
-                       :obj {:legible true
-                             :writable true}}}})
-
-      (unify
-       transitive
-       {:italian {:infinitive "seguire"}
-        :english {:infinitive "to follow"}
-        :synsem {:essere false
-                 :sem {:pred :seguire
-                       :subj {:animate true}
-                       :obj {:animate true}}}})
-
-
-      ;; comparative:
-      (let [complement-complement-sem (ref {:human true}) ;; only humans can be naive.
-            complement-sem (ref {:pred :di
-                                 :mod complement-complement-sem})
-            subject-sem (ref {:human true})] ;; only humans can be naive.
-        (unify adjective
-               {:synsem {:sem {:pred :semplice
-                               :comparative true
-                               :arg1 subject-sem
-                               :arg2 complement-complement-sem}
-                         :subcat {:1 {:cat :noun
-                                      :sem subject-sem}
-                                  :2 {:cat :prep
-                                      :sem complement-sem}}}
-                :italian {:italian "semplice"}
-                :english {:english "naive"}}))
-
-      ;; non-comparative:
-      (unify adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :semplice
-                             :comparative false
-                             :mod {:human true}}}
-              :italian {:italian "semplice"
-                        :cat :adjective}
-              :english {:english "naive"
-                        :cat :adjective}})
-
-
-      (unify (:agreement noun)
-             (:common noun)
-             (:countable noun)
-             (:feminine noun)
-             {:synsem {:sem {:pred :spiaggia
-                             :buyable false
-                             :artifact false
-                             :city false
-                             :place true}}
-              :italian {:italian "spiaggia"}
-              :english {:english "beach"}})
-
-      ;; stamattina (this morning) could be either
-      ;; past or present.
-      (unify {:italian "stamattina"
-              :synsem {:cat :sent-modifier
-                       :sem {:pred :stamattina}
-                       :subcat {:1 {:subcat '()
-                                    :infl :futuro
-                                    :sem {:tense :future
-                                          :activity true}}}}
-              :english "this morning"})
-
-      (unify {:italian "stamattina"
-              :synsem {:cat :sent-modifier
-                       :sem {:pred :stamattina}
-                       :subcat {:1 {:subcat '()
-                                    :sem {:tense :past  ;; could be passato prossimo (avere/essere + verb) or imperfetto
-                                          :activity true}}}}
-              :english "this morning"})
-
-      (unify (:agreement noun)
-             (:common noun)
-             (:countable noun)
-             (:feminine noun)
-             {:synsem {:sem {:pred :strada
-                             :buyable false ;; a street's too big/valuable to own.
-                             :artifact true
-                             :city false
-                             :place true}}
-              :italian {:italian "strada"}
-              :english {:english "street"}})
-
-      ;; stradale
-      (unify (:agreement noun)
-             (:common noun)
-             (:countable noun)
-             (:masculine noun)
-             {:synsem {:sem {:pred :stradale
-                             :buyable false ;; a road's too big/valuable to own.
-                             :artifact true
-                             :city false
-                             :place true}}
-              :italian {:italian "stradale"}
-              :english {:english "road"}})
-
-
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             countable-noun
-             {:synsem {:sem {:artifact true
-                             :consumable false
-                             :legible false
-                             :speakable false
-                             :pred :scala}}
-              :italian {:italian "scala"}
-              :english {:english "ladder"}})
-
-      (unify agreement-noun
-             common-noun
-             masculine-noun
-             countable-noun
-             {:synsem {:sem {:pred :sciopero
-                             :human false ;; should not need this: material=false.
-                             :buyable false ;; should not need this: material=false.
-                             :drinkable false ;; should not need this: material=false.
-                             :edible false  ;; should not need this: material=false.
-                             :legible false
-                             :artifact false
-                             :material false
-                             :political true
-                             :animate false;; should not need this: material=false.
-                             :speakable false;; should not need this: material=false.
-                             }}}
-             {:italian {:italian "sciopero"}
-              :english {:english "strike"}})
-
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             countable-noun
-             {:synsem {:sem {:furniture true
-                             :pred :sedia}}
-              :italian {:italian "sedia"}
-              :english {:english "chair"}})
-
-      (unify
-       (:transitive verb)
-       {:italian {:infinitive "sostenere"
-                  :irregular {:passato "sostenuto"
-                              :present {:1sing "sostengo"
-                                        :2sing "sostengi"
-                                        :3sing "sostenga"
-                                        :1plur "sosteniamo"
-                                        :2plur "sostenete"
-                                        :3plur "sostengono"}}}
-        :english {:infinitive "to support"}
-
-        :synsem {:essere false
-                 :sem {:pred :sostenere
-                       :activity true
-                       :discrete false
-                       :subj {:human true}
-                       :obj {:sem {:human true
-                                   :political true}}}}})
-
-      (unify
-       intransitive
-       {:italian {:infinitive "sognare"}
-        :english {:infinitive "to dream"
-                  :irregular {:past "dreamt"}}
-        :synsem {:essere false
-                 :sem {:subj {:animate true}
-                       :discrete false
-                       :pred :sognare}}})
-
-      (unify agreement-noun
-             common-noun
-             masculine-noun
-             countable-noun
-             {:synsem {:agr {:number :plur}
-                       :sem {:human true
-                             :pred :suoceri}}
-              :italian {:italian "suoceri"}
-              :english {:english "parent-in-law" ;; note that this form is never used
-                        ;; because the agreement is fixed as plural, so only the
-                        ;; following irregular plural form will be used.
-                        :irregular {:plur "parents-in-law"}}})
-
-
-
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             countable-noun
-             {:synsem {:sem {:artifact true
-                             :consumable true
-                             :legible true
-                             :speakable true
-                             :pred :stravaganza}}
-              :italian {:italian "stravaganza"}
-              :english {:english "extravagant thing"}})
-
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             masculine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :studente
-                             :child false}}} ;; could be true, but not always. TODO: create separate sense for child=true.
-             {:italian {:italian "studente"}
-              :english {:english "student"}})
-
-      (unify agreement-noun
-             common-noun
-             masculine-noun
-             countable-noun
-             {:synsem {:sem {:furniture true
-                             :pred :tavolo}}
-              :italian {:italian "tavolo"}
-              :english {:english "table"}})
-
-      {:synsem {:cat cat-of-pronoun
-                :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :person :2nd
-                      :polite false
-                      :number :sing}
-                :sem (unify human {:pred :tu})
-                :subcat '()}
-       :english "you"
-       :italian {:italian "te"
-                 :cat cat-of-pronoun
-                 :case disjunctive-case-of-pronoun}}
-
-      {:synsem {:cat pronoun-noun
-                :pronoun true
-                :agr {:case pronoun-acc
-                      :person :2nd
-                      :number :sing}
-                :sem (unify human {:pred :tu})
-                :subcat '()}
-       :english "you"
-       :italian {:italian "ti"
-                 :initial true
-                 :cat pronoun-noun
-                 :case pronoun-acc}}
-
-      (unify agreement-noun
-             common-noun
-             feminine-noun
-             countable-noun
-             {:synsem {:sem {:furniture true
-                             :pred :tovaglia}}
-              :italian {:italian "tovaglia"}
-              :english {:english "tablecloth"
-                        ;; regular morphology would give us "tableclothes", so:
-                        :irregular {:plur "tablecloths"}}})
-
-      ;; something's wrong with conjugation of this verb.
-                                        ;(def telefonare
-                                        ;  (unify
-                                        ;   transitive
-                                        ;   {:italian {:italian "telefonare"}
-                                        ;    :english {:english "to call"}
-                                        ;    :synsem {:essere false
-                                        ;             :sem {:pred :telefonare
-                                        ;                   :subj {:human true}
-                                        ;                   :obj {:human true}}}}))
-
-
-
-      {:synsem {:cat :sent-modifier
-                :sem {:pred :tre-giorni-fa}
-                :subcat {:1 {:subcat '()
-                             :sem {:tense :past
-                                   :activity true}}}}
-       :italian "tre giorni fa"
-       :english "three days ago"}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :agr {:case :nom
-                      :gender :fem
-                      :person :2nd
-                      :number :sing}
-                :sem (unify human {:pred :tu})
-                :subcat '()}
-       :english {:english "you"
-                 :note " (&#x2640;)"} ;; unicode female symbol
-       :italian "tu"}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :agr {:case :nom
-                      :gender :masc
-                      :person :2nd
-                      :number :sing}
-                :sem (unify human {:pred :tu})
-                :subcat '()}
-       :english {:english "you"
-                 :note " (&#x2642;)"} ;; unicode male symbol
-       :italian "tu"}
-
-      {:synsem {:cat :det
-                :def :indef
-                :mass false
-                :gender :masc
-                :number :sing}
-       :italian "un"
-       :english "a"}
-
-      {:synsem {:cat :det
-                :def :indef
-                :mass false
-                :gender :fem
-                :number :sing}
-       :italian "una"
-       :english "a"}
-
-      (unify agreement-noun
-             common-noun
-             countable-noun
-             masculine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :uomo
-                             :child false}}
-              :italian {:irregular {:plur "uomini"}
-                        :italian "uomo"}
-              :english {:irregular {:plur "men"}
-                        :english "man"}})
-
-      (unify
-       transitive
-       {:italian {:infinitive "vedere"
-                  :irregular {:passato "visto"}}
-        :english {:infinitive "to see"
-                  :irregular {:past "saw"
-                              :past-participle "seen"}}
-        :synsem {:essere false
-                 :sem {:pred :vedere
-                       :activity false ;; "seeing" is not a continuous act but rather an instantaneous one.
-                       ;; "watching" is the continuous counterpart of "seeing"
-                       ;; TODO: check against Italian usage
-                       :subj {:animate true}
-                       :obj {:visible true}}}})
-
-    (unify
-     transitive
-     {:italian {:infinitive "vendere"}
-      :english {:infinitive "to sell"
-                :irregular {:past "sold"}}
-      :synsem {:essere false
-               :sem {:pred :vendere
-                     :subj {:human true}
-                     :obj {:buyable true}}}})
-
-    (unify
-     intransitive
-     venire-common
-     {:synsem {:essere true
-               :sem {:pred :venire
-                     :activity true
-                     :motion true
-                     :subj {:animate true}}}})
-
-    (unify
-     transitive-but-with-prepositional-phrase-instead-of-noun
-     venire-common
-     (let [complement-subject (ref {:animate true})
-           complement-semantics (ref {:subj complement-subject
-                                      :activity true
-                                      :motion false ;; otherwise we get weird things like "he came to go".
-                                      :deliberate true ;;;; you come somewhere to do something that you intended to do, not something that you do accidentally.
-                                      :mod {:pred :per}})] ;; takes 'per' as proposition.
-       {:synsem {:essere true
-                 :sem {:pred :venire
-                       :subj complement-subject
-                       :obj complement-semantics}
-                 :subcat {:2 {:sem complement-semantics}}}}))
-
-    {:synsem {:cat pronoun-noun
-              :pronoun true
-              :agr {:case pronoun-acc
-                    :person :2nd
-                    :number :plur}
-              :sem (unify human {:pred :voi})
-              :subcat '()}
-     :english "you all"
-     :italian {:italian "vi"
-               :initial true
-               :cat pronoun-noun
-               :case pronoun-acc}}
-
-    (unify
-     intransitive
-     {:italian {:infinitive "vivere"}
-      :english {:infinitive "to live"
-                :irregular {:past "lived"}}
-      :synsem {:essere true
-               :sem {:pred :vivere
-                     :deliberate false
-                     ;; TODO: activity=false for now, but other senses of 'vivere' could be activities, e.g.
-                     ;; adding PP (e.g. "vivevano in Milano (was living in Milano)")
-                     :activity false
-                     :discrete false
-                     :subj {:animate true}}}}) ;; TODO: change to living-thing: (e.g. plants are living but not animate)
-
-      (unify drinkable-noun
-             agreement-noun
-             masculine-noun
-             {:italian {:italian "vino"}
-              :english {:english "wine"}
-              :synsem {:sem {:pred :vino
-                             :artifact true}}})
-      {:synsem {:cat cat-of-pronoun
-                :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :person :2nd
-                      :number :plur}
-                :sem (unify human {:pred :voi})
-                :subcat '()}
-       :english "you all"
-       :italian {:italian "voi"
-                 :cat cat-of-pronoun
-                 :case disjunctive-case-of-pronoun}}
-
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :agr {:case :nom
-                      :person :2nd
-                      :number :plur}
-                :sem (unify human {:pred :voi})
-                :subcat '()}
-       :italian "voi"
-       :english "you all"}
-
-      (unify
-       verb-subjective
-       modal
-       {:italian {:infinitive "volere"
-                  :irregular {:present {:1sing "voglio"
-                                        :2sing "vuoi"
-                                        :3sing "vuole"
-                                        :1plur "vogliamo"
-                                        :2plur "volete"
-                                        :3plur "vogliono"}
-                              :past "voluto"}}
-        :english {:infinitive "to want to"
-                  :irregular {:present {:1sing "want to"
-                                        :2sing "want to"
-                                        :3sing "wants to"
-                                        :1plur "want to"
-                                        :2plur "want to"
-                                        :3plur "want to"}
-                              :past "wanted to"}}
-        :synsem {:essere false
-                 :sem {:pred :volere
-                       :activity true
-                       :discrete false
-                       :subj {:animate true}}}})))))
-
-;; (def tinylex (list (it "Napoli") (it "lui") (it "pensare")))
-;;(def tinylex (list (it "Napoli"))); (it "lui"))); (it "pensare")))
-;;(def tinylex (list (it "Napoli") (it "pensare") (it "Roma") (it "sognare") (it "dormire") (it "tavolo") (it "gatto") (it "lui") (it "lei")))
-;;(def tinylex (list (it "Napoli") (it "Roma") (it "io")))
-;(def tinylex (list (it "gatto") (it "uomo")))
-
-;; TODO: what is this doing? looks expensive.
-;(map (fn [lexeme]
-;       (let [italian (:italian lexeme)
-;             english (:english lexeme)]
-;         (add italian english
-;              lexeme)))
-;     lexicon)
-
-(def adjs-final-in-italian ;; e.g. "blanco" in "nero blanco"
-  (filter (fn [lex] (= (get-in lex '(:synsem :cat)) :adjective)) lexicon))
-(def adjs ;; backwards compatibility: use adjs-final-in-italian when the more
-  ;; specific use is done.
-  adjs-final-in-italian)
-(def adjs-initial-in-italian  ;; e.g. "nuovo" in "nuovo cellulare"
-  (filter (fn [lex]
-            (and
-             (= (get-in lex '(:italian :initial)) :true)
-             (= (get-in lex '(:synsem :cat)) :adjective)))
-          lexicon))
-
-;; TODO: move to lexiconfn.
-(defn lookup [query]
-  (lookup-in query lexicon))
-
-(defn it [italian]
-  "same as it but no type conversion of singleton sets to take the first member."
-  (let [result
-        (union (set (lookup {:italian italian}))
-               (set (lookup {:italian {:infinitive italian}}))
-               (set (lookup {:italian {:infinitive {:infinitive italian}}}))
-               (set (lookup {:italian {:italian italian}}))
-               (set (lookup {:italian {:irregular {:passato italian}}})))]
-    result))
-
-(def it1 it) ; backwards compatibility
-
-(defn en [english]
-  (lookup {:english english}))
-
-;; TODO: get 'aiutare' working again.
 (def tinylex
   (union ;(it "aiutare")
          (it "andare")
@@ -2639,8 +1779,3 @@
          (it "un")
          (it "vedere")
         ))
-
-;; grammar builds a bunch of filtered lazy-seqs.
-;; if lexicon changes, these lazy-seqs should be re-initialized
-;; by reloading grammar.
-;(load "grammar")
