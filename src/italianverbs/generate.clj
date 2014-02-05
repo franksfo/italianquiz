@@ -31,7 +31,7 @@
 
 (defn generate [ & [head]]
   (let [head (if head head :top)]
-    (first (take 1 (forest/lightning-bolt head lexicon (shuffle grammar) 0 rule-cache)))))
+    (first (take 1 (forest/lightning-bolt head lexicon (lazy-shuffle grammar) 0 rule-cache)))))
 
 (defn sentence [ & [ with ]]
   (generate {:synsem {:cat :verb :subcat '()}}))
