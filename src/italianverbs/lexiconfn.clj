@@ -387,22 +387,6 @@
                            :sem sem
                            :infl :past}}}}))
 
-(def lookup-in
-  "find all members of the collection that matches with query successfully."
-  (fn [query collection]
-    (loop [coll collection matches nil]
-      (if (not (empty? coll))
-        (let [first-val (first coll)
-              result (unify/match (unify/copy query) (unify/copy first-val))]
-          (if (not (unify/fail? result))
-            (recur (rest coll)
-                   (cons first-val matches))
-            (recur (rest coll)
-                   matches)))
-        matches))))
-
-;(declare lexicon)
-
 (def subject (ref {:cat :noun}))
 (def comp-sem (ref {:activity false
                     :discrete false}))
@@ -558,33 +542,6 @@
               :sem {:subj sentential-sem}
               :subcat {:1 {:sem sentential-sem
                            :subcat '()}}}}))
-
-
-;; stubs that are redefined by italianverbs/mongo or interfaces to other dbs.
-(defn clear! [])
-
-(declare lexicon)
-
-(defn set-lexicon [lex]
-  (intern *ns* (symbol "lexicon") lex))
-
-(defn lookup [query]
-  (lookup-in query lexicon))
-
-(defn it [italian]
-  "same as it but no type conversion of singleton sets to take the first member."
-  (let [result
-        (union (set (lookup {:italian italian}))
-               (set (lookup {:italian {:infinitive italian}}))
-               (set (lookup {:italian {:infinitive {:infinitive italian}}}))
-               (set (lookup {:italian {:italian italian}}))
-               (set (lookup {:italian {:irregular {:passato italian}}})))]
-    result))
-
-(def it1 it) ; backwards compatibility
-
-(defn en [english]
-  (lookup {:english english}))
 
 (def andare-common
    {:italian {:infinitive "andare"

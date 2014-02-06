@@ -7,7 +7,7 @@
    [clojure.string :as string]
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.lexicon :refer (it)]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer :all]
    [italianverbs.over :refer :all]
@@ -21,6 +21,7 @@
       (not (nil? (seq result)))))
 
 (def vp-plus-adverb hh32)
+;; TODO: "fare" or "bene" or both are not working: commented out next two expressions until fixed.
 (def fare-bene (over vp-plus-adverb "fare" "bene"))
 (deftest fare-bene-test
   (is (successful fare-bene)))

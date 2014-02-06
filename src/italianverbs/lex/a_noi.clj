@@ -1,40 +1,12 @@
-(ns italianverbs.lexicon_a_noi
+(ns italianverbs.lex.a_noi
   (:refer-clojure :exclude [get-in merge resolve find])
   (:require
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
-   [italianverbs.lexiconfn :refer (adjective 
-                                   agreement-noun
-                                   andare-common
-                                   animal
-                                   avere-common
-                                   clear! 
-                                   cat-of-pronoun
-                                   common-noun
-                                   countable-noun
-                                   disjunctive-case-of-pronoun
-                                   drinkable-noun
-                                   essere-common
-                                   fare-common
-                                   feminine-noun
-                                   human
-                                   implied 
-                                   intransitive 
-                                   lexicon
-                                   lookup-in 
-                                   masculine-noun
-                                   modal
-                                   noun pronoun-acc
-                                   pronoun-noun proper-noun
-                                   sentential-adverb
-                                   subcat0 transitive unify
-                                   verb
-                                   verb-aux-type
-                                   verb-subjective)]
-
+   [italianverbs.lexiconfn :refer :all]
    [italianverbs.unify :refer (fail? serialize)]))
 
-(def lexicon-a-noi
+(def a-noi
   (list
 
                 (let [location (ref {:place true})]

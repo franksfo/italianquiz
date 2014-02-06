@@ -1,5 +1,6 @@
 (ns italianverbs.ug
   (:refer-clojure :exclude [get-in resolve])
+  ;; TODO: convert :use to :require
   (:use [clojure.set :only (union intersection)]
         [clojure.core :exclude (get-in resolve merge)]
         [italianverbs.lexicon :only (it)]

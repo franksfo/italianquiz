@@ -3,7 +3,7 @@
 
   (:require [clojure.tools.logging :as log]
             [italianverbs.forest :as forest]
-            [italianverbs.lexicon :refer (lexicon)]
+            [italianverbs.lexicon :refer (it)]
             [italianverbs.ug :refer :all]
             [italianverbs.unify :refer (get-in unifyc)]
             [clojure.string :as string]))

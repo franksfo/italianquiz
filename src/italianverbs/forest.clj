@@ -5,6 +5,7 @@
    [clojure.set :refer :all]
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (get-comp-phrases-of get-head-phrases-of get-lex overc overh overc-with-cache overh-with-cache)]
+   [italianverbs.lexicon :refer (it)]
    [italianverbs.lexiconfn :refer (sem-impl)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.unify :as unify]
