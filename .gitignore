@@ -12,3 +12,7 @@ target/repl-port
 target/stale/extract-native.dependencies
 
 *.clj~
+
+*.txt#
+
+diff.txt
