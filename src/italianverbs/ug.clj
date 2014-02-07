@@ -269,8 +269,7 @@
 
     :schema-symbol 'cc10 ;; used by over-each-parent to know where to put children.
     :first :comp
-    :comp {:synsem {:subcat '()}}
-    :comp-filter-fn standard-filter-fn}))
+    :comp {:synsem {:subcat '()}}}))
 
 (def ch21
   (unify
@@ -282,8 +281,7 @@
                     :pronoun true}}
     :schema-symbol 'ch21 ;; used by over-each-parent to know where to put children.
     :first :comp
-    :comment "ch21"
-    :comp-filter-fn standard-filter-fn}))
+    :comment "ch21"}))
 
 (def hc11
   (unify
@@ -296,8 +294,7 @@
    {
     :schema-symbol 'hc11 ;; used by over-each-parent to know where to put children.
     :first :head
-    :comment "hc11"
-    :comp-filter-fn standard-filter-fn}))
+    :comment "hc11"}))
 
 (def hh10
   (unify
@@ -307,8 +304,7 @@
    english-head-first
    {:comment "hh10"
     :schema-symbol 'hh10 ;; used by over-each-parent to know where to put children.
-    :first :head
-    :comp-filter-fn standard-filter-fn}))
+    :first :head}))
 
 (def hh21
   (unify
@@ -318,8 +314,7 @@
    english-head-first
    {:comment "hh21"
     :schema-symbol 'hh21 ;; used by over-each-parent to know where to put children.
-    :first :head
-    :comp-filter-fn standard-filter-fn}))
+    :first :head}))
 
 (def hh32
   (unify
@@ -329,8 +324,7 @@
    english-head-first
    {:comment "hh32"
     :schema-symbol 'hh32 ;; used by over-each-parent to know where to put children.
-    :first :head
-    :comp-filter-fn standard-filter-fn}))
+    :first :head}))
 
 ;; -- END SCHEMA DEFINITIONS
 
