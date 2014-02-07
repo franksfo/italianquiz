@@ -61,6 +61,7 @@
            than-this (ref {:pred :di
                            :mod is-place})]
        (unify adjective
+              comparative
               {:synsem {:sem {:pred :affolato
                               :comparative true
                               :arg1 is-place
@@ -143,7 +144,7 @@
                 :subcat {:2 {:essere false}}}
        :english {:hidden true}})
 
-     ;; non-comparative:
+     ;; non-comparative (TODO: add comparative)
      (unify adjective
             subcat0
             {:synsem {:cat :adjective

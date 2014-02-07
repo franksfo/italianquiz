@@ -668,3 +668,13 @@
    :english {:infinitive "to come"
              :irregular {:past "came"}}})
 
+;; "Y is Xer than Z".
+(def comparative
+  {:synsem {:sem {:comparative true}
+            :cat :adjective
+            :subcat {:1 {:cat :noun}
+                     :2 {:cat :prep
+                         :subcat '()}}}})
+
+
+                  
