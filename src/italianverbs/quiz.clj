@@ -11,9 +11,12 @@
             [italianverbs.grammar :refer :all]
             [italianverbs.html :as html]
             [italianverbs.lev :as lev]
+            [italianverbs.lexicon :as lex]
+            [italianverbs.lexicon :refer (lexicon)]
             [italianverbs.lexiconfn :as lexfn]
             [italianverbs.morphology :refer (finalize)]
             [italianverbs.session :as session]
+            [italianverbs.unify :refer (lazy-shuffle)]
             [italianverbs.xml :as xml]
             [somnium.congomongo :as db] ;; TODO: provide database abstraction over mongo and other possible backing stores.
             ))
@@ -298,10 +301,10 @@
 ;;    (db/fetch-one :question :where {:_id (new org.bson.types.ObjectId qid)})))
 
 (defn oct2011 []
-  (lexfn/choose-lexeme {:oct2011 true}))
+  (lex/choose-lexeme {:oct2011 true}))
 
 (defn che-tempo []
-  (lexfn/choose-lexeme {:chetempo true}))
+  (lex/choose-lexeme {:chetempo true}))
 
 (defn random-sentence []
   "choose a random sentence generated via populate.clj/populate."
@@ -340,9 +343,9 @@
 ;    {:english (gram/english-time hour minute ampm)
 ;     :italian (gram/italian-time hour minute ampm)})
    (= question-type :mese)
-   (lexfn/choose-lexeme {:month true})
+   (lex/choose-lexeme {:month true})
    (= question-type :giorni)
-   (lexfn/choose-lexeme {:giorni-della-settimana true})))
+   (lex/choose-lexeme {:giorni-della-settimana true})))
 
 (defn- controls [session & [ form-action onclick ] ]
   (let [action (if form-action form-action "/italian/quiz/filter")

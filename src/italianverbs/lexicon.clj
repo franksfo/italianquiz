@@ -8,7 +8,7 @@
    [italianverbs.lex.notizie_potere :refer :all]
    [italianverbs.lex.qualche_volta_volere :refer :all]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (fail? get-in serialize)]))
+   [italianverbs.unify :refer (fail? get-in lazy-shuffle serialize)]))
 
 
 ;; stub that is redefined by italianverbs/mongo or interfaces to other dbs.
@@ -32,6 +32,9 @@
 
 (defn lookup [query]
   (lookup-in query lexicon))
+
+(defn choose-lexeme [spec]
+  (first (lazy-shuffle (lookup spec))))
 
 (defn it [italian]
   "same as it but no type conversion of singleton sets to take the first member."
