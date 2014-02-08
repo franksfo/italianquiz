@@ -819,3 +819,14 @@
                        :number :sing}]
     (is (= (string/trim (get-italian la-casa-nuova)) "la casa nuova"))))
 
+(deftest ai-tuoi-stradali 
+  (let [ai-tuoi-stradali {:a {:italian "a", :initial true}, 
+                          :b {:b {:italian "stradale", :cat :noun, 
+                                  :agr {:gender :masc, :person :3rd, 
+                                        :case :top, :number :plur}, 
+                                  :initial false},
+                              :initial false, 
+                              :a "i tuoi"}}]
+    (is (= (string/trim (get-italian ai-tuoi-stradali))
+           "ai tuoi stradali"))))
+

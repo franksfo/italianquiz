@@ -925,7 +925,7 @@
      (and (= a "a")
           (string? b)
           (re-find #"^i " b))
-     (str "ai " (string/replace b #"^il " ""))
+     (str "ai " (string/replace b #"^i " ""))
 
      (and (= a "a")
           (string? b)
