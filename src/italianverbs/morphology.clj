@@ -482,7 +482,8 @@
           (get-in word '(:essere) true)
           (or (= :notfound (get-in word '(:agr :number) :notfound))
               (= :top (get-in word '(:agr :number)))))
-     (str "[" (get-in word '(:irregular :passato)) "]")
+     ;; 'nei': not enough information.
+     (str "[nei1: " (get-in word '(:irregular :passato)) " (irreg past)]")
 
      ;; TODO: do not use brackets: if there's an error about there being
      ;; regular passato prossimo and essere-verb => NEI (not enough information): defer conjugation and keep as a map.
@@ -490,7 +491,8 @@
           (= (get-in word '(:essere)) true)
           (or (= :notfound (get-in word '(:agr :number) :notfound))
               (= :top (get-in word '(:agr :number)))))
-     (str "[" (get-in word '(:infinitive)) " (past)]")
+     ;; 'nei': not enough information.
+     (str "[nei2: " (get-in word '(:infinitive)) " (past)]")
 
      ;; conjugate irregular passato
      (and (= :past (get-in word '(:infl)))

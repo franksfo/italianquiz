@@ -487,6 +487,8 @@
 (def cat-of-pronoun (ref :noun))
 
 (def subcat0 {:synsem {:subcat '()}})
+(def subcat1 {:synsem {:subcat {:1 {:cat :top}
+                                :2 '()}}})
 
 (defn implied [map]
   "things to be added to lexical entries based on what's implied about them in order to canonicalize them."
@@ -507,7 +509,7 @@
         (if (and (= (unify/get-in map '(:synsem :cat)) :adjective)
                  (not (= (unify/get-in map '(:synsem :sem :comparative)) true)))
           (unify
-           subcat0
+           subcat1
            map)
           map)
 
@@ -589,9 +591,16 @@
                                    :3plur "have"}}}})
 
 (def essere-common
-  {:synsem {:essere true}
-   :italian {:infinitive "essere"
+  (let [infl (ref :top)
+        agr (ref :top)]
+  {:synsem {:essere true
+            :subcat {:1 {:agr agr}}
+            :agr agr
+            :infl infl}
+   :italian {:agr agr
              :essere true
+             :infinitive "essere"
+             :infl infl
              :irregular {:present {:1sing "sono"
                                    :2sing "sei"
                                    :3sing "è"
@@ -611,7 +620,8 @@
                                   :1plur "saremo"
                                   :2plur "sarete"
                                   :3plur "saranno"}}}
-   :english {:infinitive "to be"
+   :english {:agr agr
+             :infinitive "to be"
              :irregular {:present {:1sing "am"
                                    :2sing "are"
                                    :3sing "is"
@@ -624,7 +634,7 @@
                                 :3sing "was"
                                 :1plur "were"
                                 :2plur "were"
-                                :3plur "were"}}}})
+                                :3plur "were"}}}}))
 
 (def fare-common
   ;; factor out common stuff from all senses of "fare".
@@ -675,6 +685,12 @@
             :subcat {:1 {:cat :noun}
                      :2 {:cat :prep
                          :subcat '()}}}})
+
+;; "Y is X."
+;; TODO: put semantics here.
+(def non-comparative-adjective
+  subcat1)
+
 
 
                   

@@ -161,7 +161,7 @@
         {:infl :past
          :irregular {:passato "andato"}
          :essere true})
-       "[andato]")))
+       "[nei1: andato (irreg past)]")))
 
 (deftest plural-noun-singular
   "il studente => lo studente"
@@ -830,73 +830,12 @@
     (is (= (string/trim (get-italian ai-tuoi-stradali))
            "ai tuoi stradali"))))
 
-(deftest sono-stato-alto-di-voi
-  (let [sono-stato-alto-di-voi
-        {:b {:b {:b {:b {:italian "voi", 
-                         :case :disj,
-                         :cat :noun, 
-                         :initial false}, 
-                     :a {:initial true, 
-                         :italian "di"}, 
-                     :initial false}, 
-                 :a {:agr {:number :top, 
-                           :gender :top}, 
-                     :initial true, 
-                     :italian "alto", 
-                     :cat :adjective},
-                 :initial false}, 
-             :a {:essere true, 
-                 :initial true, 
-                 :irregular {:imperfetto {:2plur "eravate", 
-                                          :3sing "era", 
-                                          :2sing "eri",
-                                          :1sing "ero", 
-                                          :3plur "erano", 
-                                          :1plur "eravamo"}, 
-                             :passato "stato", 
-                             :present {:2plur "siete", 
-                                       :3sing "è", 
-                                       :2sing "sei", 
-                                       :1sing "sono", 
-                                       :3plur "sono",
-                                       :1plur "siamo"}, 
-                             :futuro {:2plur "sarete", 
-                                      :3sing "sarà", 
-                                      :2sing "sarai", 
-                                      :1sing "sarò", 
-                                      :3plur "saranno", 
-                                      :1plur "saremo"}}, 
-                 :infinitive "essere"},
-             :initial false}, 
-         :a {:agr {:person :1st, 
-                   :case :nom, 
-                   :number :sing}, 
-             :infinitive "essere", 
-             :essere true,
-             :aux true, 
-             :initial true, 
-             :irregular {:imperfetto {:2plur "eravate", 
-                                      :3sing "era", 
-                                      :2sing "eri", 
-                                      :1sing "ero", 
-                                      :3plur "erano", 
-                                      :1plur "eravamo"}, 
-                         :passato "stato", 
-                         :present {:2plur "siete", 
-                                   :3sing "è", 
-                                   :2sing "sei", 
-                                   :1sing "sono", 
-                                   :3plur "sono", 
-                                   :1plur "siamo"}, 
-                         :futuro {:2plur "sarete", 
-                                  :3sing "sarà", 
-                                  :2sing "sarai", 
-                                  :1sing "sarò", 
-                                  :3plur "saranno", 
-                                  :1plur "saremo"}}, 
-             :infl :present}, 
-         :initial false}]
-    
-   (is (= (string/trim (get-italian sono-stato-alto-di-voi))
-          "sono stato alto di voi"))))
+(deftest io-sono-stato-alto
+  ;; TODO: test also: "io sono stato alto di voi"
+  (let [io-sono-stato-alto
+{:a {:initial true, :italian "io"}, :b {:b {:b {:italian "alto", :cat :adjective, :agr {:case :nom, :number :sing, :gender :top, :person :1st}, :initial false}, :a {:essere true, :infl :past, :initial true, :irregular {:imperfetto {:2plur "eravate", :3sing "era", :2sing "eri", :1sing "ero", :3plur "erano", :1plur "eravamo"}, :passato "stato", :present {:2plur "siete", :3sing "è", :2sing "sei", :1sing "sono", :3plur "sono", :1plur "siamo"}, :futuro {:2plur "sarete", :3sing "sarà", :2sing "sarai", :1sing "sarò", :3plur "saranno", :1plur "saremo"}}, :infinitive "essere", :agr {:case :nom, :number :sing, :gender :top, :person :1st}}, :initial false}, :a {:agr {:case :nom, :number :sing, :gender :top, :person :1st}, :infinitive "essere", :essere true, :aux true, :initial true, :irregular {:imperfetto {:2plur "eravate", :3sing "era", :2sing "eri", :1sing "ero", :3plur "erano", :1plur "eravamo"}, :passato "stato", :present {:2plur "siete", :3sing "è", :2sing "sei", :1sing "sono", :3plur "sono", :1plur "siamo"}, :futuro {:2plur "sarete", :3sing "sarà", :2sing "sarai", :1sing "sarò", :3plur "saranno", :1plur "saremo"}}, :infl :present}, :initial false}}]
+    (is (= (string/trim (get-italian io-sono-stato-alto))
+           "io sono stato alto"))))
+
+
 
