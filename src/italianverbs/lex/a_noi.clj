@@ -4,6 +4,7 @@
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
    [italianverbs.lexiconfn :refer :all]
+   [italianverbs.morphology :refer :all] ;; for debugging
    [italianverbs.unify :refer (fail? serialize)]))
 
 (def a-noi
@@ -95,15 +96,24 @@
                        :subj {:human true}
                        :obj {:human true}}}})
 
-     ;; non-comparative
-     (unify adjective
-            subcat0
-            {:synsem {:cat :adjective
-                      :sem {:pred :alto
-                            :comparative false
-                            :mod {:human true}}}
-             :italian {:italian "alto"}
-             :english {:english "tall"}})
+     ;; non-comparative:
+     (let [subject-sem (ref {:human true}) ;; only humans can be tall.
+           subject-agr (ref :top)
+           ] 
+       (unify (unify adjective
+                     non-comparative-adjective
+                     {:synsem {:cat :adjective
+                               :sem {:pred :alto
+                                     :comparative false
+                                     :arg1 subject-sem
+                                     :mod {:human true}}
+                               :subcat {:1 {:cat :noun
+                                            :agr subject-agr
+                                            :sem subject-sem}
+                                        :2 '()}}
+                      :italian {:italian "alto"
+                                :agr subject-agr}
+                      :english {:english "tall"}})))
 
      ;; comparative:
      (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.

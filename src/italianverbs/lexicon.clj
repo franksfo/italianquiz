@@ -53,6 +53,10 @@
 
 (clear!)
 
+(load "lex/a_noi")
+(load "lex/notizie_potere")
+(load "lex/qualche_volta_volere")
+
 (def lexicon
 
    ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
