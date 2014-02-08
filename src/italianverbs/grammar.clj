@@ -4,6 +4,7 @@
   (:require [clojure.tools.logging :as log]
             [italianverbs.forest :as forest]
             [italianverbs.lexicon :refer (it)]
+            [italianverbs.lexiconfn :refer :all]
             [italianverbs.ug :refer :all]
             [italianverbs.unify :refer (get-in unifyc)]
             [clojure.string :as string]))
@@ -74,7 +75,8 @@
                    (merge (unifyc hh21
                                   {:synsem {:infl :present
                                             :sem {:tense :past}
-                                            :cat :verb}})
+                                            :cat :verb}
+                                   :head verb-aux-type})
                           {:comment "vp-aux"})
 
                    (merge (unifyc hh21
