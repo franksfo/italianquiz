@@ -683,6 +683,7 @@
     (let [subject (ref {:cat :noun})
           comp-sem (ref
                     {:activity false
+                     :comparative false ;; to avoid *"essere alto di.." (but "essere meno alto di.." is ok)
                      :discrete false})]
 
       ;; essere: adjective
