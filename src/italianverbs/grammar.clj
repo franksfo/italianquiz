@@ -28,7 +28,7 @@
                                     {:synsem head-synsem}))
                           {:comment "intensifier-phrase"})
 
-                   (merge (unifyc hc11
+                   (merge (unifyc hc11-comp-subcat-1
                                   (let [head-synsem {:cat :noun
                                                      :modified true}]
                                     {:synsem head-synsem

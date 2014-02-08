@@ -20,6 +20,7 @@
   (or (not (seq? result))
       (not (nil? (seq result)))))
 
+;; TODO: use grammar-defined phrases, not these test-internal ones.
 (def vp-plus-adverb hh32)
 ;; TODO: "fare" or "bene" or both are not working: commented out next two expressions until fixed.
 (def fare-bene (over vp-plus-adverb "fare" "bene"))
@@ -52,7 +53,7 @@
     (is (= "the dogs"
            (get-in i-cani '(:english))))))
 
-(def nbar-test hc11)
+(def nbar-test hc11-comp-subcat-1)
 (deftest il-cane-nero
   (let [il-cane-nero (finalize (first (over np-test "il" (over nbar-test "cane" "nero"))))]
     (is (not (fail? il-cane-nero)))

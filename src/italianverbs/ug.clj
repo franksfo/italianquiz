@@ -86,6 +86,21 @@
      :head {:synsem {:subcat {:1 subcat
                               :2 '()}}}}))
 
+
+;;     subcat<1>
+;;     /      \
+;;    /        \
+;; H subcat<1>  C<>
+(def subcat-1-1-principle-comp-subcat-1
+  (let [subcat (ref :top)]
+    {:synsem {:subcat {:1 subcat
+                       :2 '()}}
+     :comp {:synsem {:subcat {:1 :top
+                              :2 '()}}}
+     :head {:synsem {:subcat {:1 subcat
+                              :2 '()}}}}))
+
+
 ;;     subcat<1>
 ;;     /      \
 ;;    /        \
@@ -295,6 +310,22 @@
     :schema-symbol 'hc11 ;; used by over-each-parent to know where to put children.
     :first :head
     :comment "hc11"}))
+
+
+(def hc11-comp-subcat-1
+  (unify
+   subcat-1-1-principle-comp-subcat-1
+   hc-agreement
+   head-principle
+   comp-modifies-head
+   italian-head-first
+   english-head-last
+   {
+    :schema-symbol 'hc11-comp-subcat-1
+    :first :head
+    :comment "hc11-comp-subcat-1"}))
+
+
 
 (def hh10
   (unify
