@@ -16,3 +16,5 @@ target/stale/extract-native.dependencies
 *.txt#
 
 diff.txt
+
+.lein-failures
