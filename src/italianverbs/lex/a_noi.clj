@@ -63,7 +63,6 @@
        (unify adjective
               comparative
               {:synsem {:sem {:pred :affolato
-                              :comparative true
                               :arg1 is-place
                               :arg2 is-place}
                         :subcat {:1 {:cat :noun
@@ -96,6 +95,44 @@
                        :subj {:human true}
                        :obj {:human true}}}})
 
+     ;; non-comparative
+     (unify adjective
+            subcat0
+            {:synsem {:cat :adjective
+                      :sem {:pred :alto
+                            :comparative false
+                            :mod {:human true}}}
+             :italian {:italian "alto"}
+             :english {:english "tall"}})
+
+     ;; comparative:
+     (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
+           complement-sem (ref {:pred :di
+                                :mod complement-complement-sem})
+           subject-sem (ref {:human true})] ;; only humans can be tall.
+       (unify adjective
+              comparative
+              {:synsem {:sem {:pred :alto
+                              :arg1 subject-sem
+                              :arg2 complement-complement-sem}
+                        :subcat {:1 {:cat :noun
+                                     :sem subject-sem}
+                                 :2 {:cat :prep
+                                     :sem complement-sem}}}
+               :italian {:italian "alto"}
+               :english {:english "tall"}}))
+
+
+     (unify agreement-noun
+            common-noun
+            countable-noun
+            masculine-noun
+            {:synsem {:sem {:pred :amico
+                            :human true
+                            :child false}}
+             :italian {:italian "amico"}
+             :english {:english "friend"}})
+
       (unify
       transitive
       {:italian {:infinitive "amare"}
@@ -125,6 +162,15 @@
                                :cat :prep}}}})
       {:note "andare-pp"})
 
+     (unify proper-noun
+            {:synsem {:sem {:pred :antonio
+                            :human true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :masc}}
+             :italian "Antonio"
+             :english "Antonio"})
+
      ;; "avere": to possess something buyable
      (unify
       transitive
@@ -144,54 +190,6 @@
                 :subcat {:2 {:essere false}}}
        :english {:hidden true}})
 
-     ;; non-comparative (TODO: add comparative)
-     (unify adjective
-            subcat0
-            {:synsem {:cat :adjective
-                      :sem {:pred :alto
-                            :comparative false
-                            :mod {:human true}}}
-             :italian {:italian "alto"}
-             :english {:english "tall"}})
-
-     (unify agreement-noun
-            common-noun
-            countable-noun
-            masculine-noun
-            {:synsem {:sem {:pred :amico
-                            :human true
-                            :child false}}
-             :italian {:italian "amico"}
-             :english {:english "friend"}})
-
-
-     (unify proper-noun
-            {:synsem {:sem {:pred :antonio
-                            :human true}
-                      :agr {:number :sing
-                            :person :3rd
-                            :gender :masc}}
-             :italian "Antonio"
-             :english "Antonio"})
-
-
-     ;; comparative:
-     (let [complement-complement-sem (ref {:human true}) ;; only humans can be tall.
-           complement-sem (ref {:pred :di
-                                :mod complement-complement-sem})
-           subject-sem (ref {:human true})] ;; only humans can be tall.
-       (unify adjective
-              {:synsem {:sem {:pred :alto
-                              :comparative true
-                              :arg1 subject-sem
-                              :arg2 complement-complement-sem}
-                        :subcat {:1 {:cat :noun
-                                     :sem subject-sem}
-                                 :2 {:cat :prep
-                                     :sem complement-sem}}}
-               :italian {:italian "alto"}
-               :english {:english "tall"}}))
-
      ;; non-comparative
      (unify adjective
             subcat0
@@ -206,8 +204,8 @@
                                 :mod complement-complement-sem})
            subject-sem (ref :top)] ;; subject can be anything.
        (unify adjective
+              comparative
               {:synsem {:sem {:pred :bello
-                              :comparative true
                               :arg1 subject-sem
                               :arg2 complement-complement-sem}
                         :subcat {:1 {:cat :noun
@@ -445,8 +443,8 @@
                                 :mod complement-complement-sem})
            subject-sem (ref {:place true})]
        (unify adjective
+              comparative
               {:synsem {:sem {:pred :contento
-                              :comparative true
                               :arg1 subject-sem
                               :arg2 complement-complement-sem}
                         :subcat {:1 {:cat :noun
@@ -472,8 +470,8 @@
                                :mod complement-complement-sem})
           subject-sem (ref {:human true})] ;; only humans can be short.
       (unify adjective
+             comparative
              {:synsem {:sem {:pred :corto
-                             :comparative true
                              :arg1 subject-sem
                              :arg2 complement-complement-sem}
                        :subcat {:1 {:cat :noun

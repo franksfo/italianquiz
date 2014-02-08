@@ -1,10 +1,7 @@
 (ns italianverbs.lex.qualche_volta_volere
   (:refer-clojure :exclude [get-in merge resolve find])
   (:require
-   [clojure.set :refer (union)]
-   [clojure.tools.logging :as log]
-   [italianverbs.lexiconfn :refer :all]
-   [italianverbs.unify :refer (fail? serialize)]))
+   [italianverbs.lexiconfn :refer :all]))
 
 (def qualche_volta-volere
   (list
@@ -141,8 +138,8 @@
                                  :mod complement-complement-sem})
             subject-sem (ref {:human true})] ;; only humans can be rich.
         (unify adjective
+               comparative
                {:synsem {:sem {:pred :ricco
-                         :comparative true
                                :arg1 subject-sem
                                :arg2 complement-complement-sem}
                          :subcat {:1 {:cat :noun
@@ -215,8 +212,8 @@
                                  :mod complement-complement-sem})
             subject-sem (ref {:animate true})] ;; only animals can be noisy.
         (unify adjective
+               comparative
                {:synsem {:sem {:pred :semplice
-                               :comparative true
                                :arg1 subject-sem
                                :arg2 complement-complement-sem}
                          :subcat {:1 {:cat :noun
@@ -313,8 +310,8 @@
                                  :mod complement-complement-sem})
             subject-sem (ref {:human true})] ;; only humans can be naive.
         (unify adjective
+               comparative
                {:synsem {:sem {:pred :semplice
-                               :comparative true
                                :arg1 subject-sem
                                :arg2 complement-complement-sem}
                          :subcat {:1 {:cat :noun

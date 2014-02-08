@@ -1,10 +1,6 @@
 (ns italianverbs.lex.notizie_potere
-  (:refer-clojure :exclude [get-in merge resolve find])
   (:require
-   [clojure.set :refer (union)]
-   [clojure.tools.logging :as log]
-   [italianverbs.lexiconfn :refer :all]
-   [italianverbs.unify :refer (fail? serialize)]))
+   [italianverbs.lexiconfn :refer :all]))
 
 (def notizie-potere
   (list
