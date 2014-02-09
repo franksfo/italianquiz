@@ -2,8 +2,12 @@ Agreement:
    is:         "le mie pizze sono meno bello di vostra melanzana nera"
    should be:  "le mie pizze sono meno belle di vostra melanzana nera"
 
+   is:         "la tua casa piccola è stata rosso"
+   should be:  "la tua casa piccola è stata rossa"
+
 Semantics:
    is:  "delle ragazze rumorose vengono a birra" (non-place)
    should be:  "delle ragazze rumorose vengono a Napoli" (place)
+
 
 
