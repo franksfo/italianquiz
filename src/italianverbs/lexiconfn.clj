@@ -6,15 +6,38 @@
    [clojure.tools.logging :as log]
    [clojure.core :as core]
    [italianverbs.morphology :as morph]
-   ;; We redefine unify here: TODO: just use unifyc where appropriate.
-   [italianverbs.unify :as unify :exclude (unify)]))
+   [italianverbs.unify :refer :all :exclude (unify)])) ;; exclude unify because we redefine it here using unifyc (copy each arg)
 
 (defn unify [ & args]
   "like unify/unify, but unify/copy each argument before unifying."
   (do
     (log/debug (str "(lexfn)unify args: " args))
     (log/debug (str "(lexfn)unify first arg: " (first args)))
-    (apply unify/unifyc args)))
+    (apply unifyc args)))
+
+(defn cache-serialization [entry]
+  "Copying ((unify/copy)ing) lexical entries during generation or parsing is done by serializing and then deserializing. 
+storing a deserialized form of each lexical entry avoids the need to serialize every time."
+  (if (fail? entry)
+    (log/warn (str "Ignoring this lexeme because (fail?=true): " entry))
+    ;; else, not fail, so add to lexicon.
+    (do
+      (log/debug (str "serializing entry: " entry))
+      (let [italian (get-in entry '(:italian))
+            entry
+            (conj
+             {:italian (if (string? italian)
+                         {:italian italian}
+                         italian)}
+             (dissoc
+              (if (not (= :none (get entry :serialized :none)))
+                (conj {:serialized (serialize entry)}
+                      entry)
+                (conj {:serialized (serialize (dissoc entry :serialized))}
+                      entry))
+              :italian))]
+        (log/debug (str "successfully serialized: " entry))
+        entry))))
 
 (defn encode-where-query [& where]
   "encode a query as a set of index queries."
@@ -70,13 +93,13 @@
   (cond
    (= input :top) input
    true
-   (let [activity (if (= (unify/get-in input '(:activity))
+   (let [activity (if (= (get-in input '(:activity))
                          true)
                     {:animate false
                      :artifact false
                      :consumable false
                      :part-of-human-body false})
-         animate (if (= (unify/get-in input '(:animate))
+         animate (if (= (get-in input '(:animate))
                         true)
                    {:activity false
                     :artifact false
@@ -87,32 +110,32 @@
                     :drinkable false
                     :speakable false
                     :place false}{})
-         artifact (if (= (unify/get-in input '(:artifact))
+         artifact (if (= (get-in input '(:artifact))
                          true)
                     {:animate false
                      :activity false
                      :physical-object true}{})
 
-         buyable (if (= (unify/get-in input '(:buyable))
+         buyable (if (= (get-in input '(:buyable))
                         true)
                    {:human false
                     :part-of-human-body false})
 
-         city (if (= (unify/get-in input '(:city))
+         city (if (= (get-in input '(:city))
                      true)
                 {:place true
                  :human false
                  :animate false
                  :legible false})
 
-         clothing (if (= (unify/get-in input '(:clothing))
+         clothing (if (= (get-in input '(:clothing))
                          true)
                     {:animate false
                      :place false
                      :physical-object true}{})
 
 
-         consumable (if (= (unify/get-in input '(:consumable)) true)
+         consumable (if (= (get-in input '(:consumable)) true)
                       {:activity false
                        :buyable true
                        :furniture false
@@ -121,32 +144,32 @@
                        :physical-object true
                        :speakable false})
 
-         consumable-false (if (= (unify/get-in input '(:consumable)) false)
+         consumable-false (if (= (get-in input '(:consumable)) false)
                             {:drinkable false
                              :edible false} {})
 
          drinkable
          ;; drinkables are always mass nouns.
-         (if (= (unify/get-in input '(:drinkable)) true)
+         (if (= (get-in input '(:drinkable)) true)
            {:mass true})
 
          drinkable-xor-edible-1
          ;; things are either drinkable or edible, but not both (except for weird foods
          ;; like pudding or soup). (part 1: edible)
-         (if (and (= (unify/get-in input '(:edible)) true)
-                  (= (unify/get-in input '(:drinkable) :notfound) :notfound))
+         (if (and (= (get-in input '(:edible)) true)
+                  (= (get-in input '(:drinkable) :notfound) :notfound))
            {:drinkable false}{})
 
          drinkable-xor-edible-2
          ;; things are either drinkable or edible, but not both (except for weird foods
          ;; like pudding or soup). (part 2: drinkable)
-         (if (and (= (unify/get-in input '(:drinkable)) true)
-                  (= (unify/get-in input '(:edible) :notfound) :notfound))
+         (if (and (= (get-in input '(:drinkable)) true)
+                  (= (get-in input '(:edible) :notfound) :notfound))
            {:edible false})
 
          ;; qualities of foods and drinks.
-         edible (if (or (= (unify/get-in input '(:edible)) true)
-                        (= (unify/get-in input '(:drinkable)) true))
+         edible (if (or (= (get-in input '(:edible)) true)
+                        (= (get-in input '(:drinkable)) true))
                   {:consumable true
                    :human false
                    :pet false
@@ -156,7 +179,7 @@
                    :furniture false
                    :part-of-human-body false}{})
 
-         furniture (if (= (unify/get-in input '(:furniture))
+         furniture (if (= (get-in input '(:furniture))
                           true)
                      {:artifact true
                       :animate false
@@ -167,7 +190,7 @@
                       :place false
                       :speakable false})
 
-         human (if (= (unify/get-in input '(:human))
+         human (if (= (get-in input '(:human))
                       true)
                  {:activity false
                   :buyable false
@@ -178,14 +201,14 @@
                   :drinkable false
                   :speakable false
                   :place false}{})
-         inanimate (if (= (unify/get-in input '(:animate))
+         inanimate (if (= (get-in input '(:animate))
                            false)
                      {:human false
                       :part-of-human-body false}{})
 
          ;; legible(x) => artifact(x),drinkable(x,false),edible(x,false),human(x,false)
          legible
-         (if (= (unify/get-in input '(:legible)) true)
+         (if (= (get-in input '(:legible)) true)
            {:artifact true
             :drinkable false
             :human false
@@ -194,7 +217,7 @@
             :edible false})
 
          material-false
-         (if (= (unify/get-in input '(:material)) :false)
+         (if (= (get-in input '(:material)) :false)
            {:edible false
             :animate false
             :drinkable false
@@ -202,19 +225,19 @@
             :visible false})
 
          non-places (if (or
-                         (= (unify/get-in input '(:legible)) true)
-                         (= (unify/get-in input '(:part-of-human-body)) true)
-                         (= (unify/get-in input '(:pred)) :fiore)
-                         (= (unify/get-in input '(:pred)) :scala))
+                         (= (get-in input '(:legible)) true)
+                         (= (get-in input '(:part-of-human-body)) true)
+                         (= (get-in input '(:pred)) :fiore)
+                         (= (get-in input '(:pred)) :scala))
                    {:place false})
 
          ;; artifact(x,false) => legible(x,false)
          not-legible-if-not-artifact
-         (if (= (unify/get-in input '(:artifact)) false)
+         (if (= (get-in input '(:artifact)) false)
            {:legible false})
 
          part-of-human-body
-         (if (= (unify/get-in input '(:part-of-human-body)) true)
+         (if (= (get-in input '(:part-of-human-body)) true)
            {:speakable false
             :buyable false
             :animate false
@@ -224,14 +247,14 @@
             :artifact false})
 
          ;; we don't eat pets (unless things get so desperate that they aren't pets anymore)
-         pets (if (= (unify/get-in input '(:pet))
+         pets (if (= (get-in input '(:pet))
                      true)
                 {:edible false
                  :buyable true
                  :physical-object true
                  })
 
-         place (if (= (unify/get-in input '(:place))
+         place (if (= (get-in input '(:place))
                       true)
                  {:activity false
                   :animate false
@@ -244,7 +267,7 @@
          ]
      (let [merged
            (if (= input :fail) :fail
-               ;; don't need the features of unify/merge (at least not yet), so use core/merge.
+               ;; don't need the features of merge (at least not yet), so use core/merge.
                (core/merge input animate artifact buyable city clothing consumable consumable-false drinkable
                            drinkable-xor-edible-1 drinkable-xor-edible-2
                            edible furniture human inanimate
@@ -499,25 +522,25 @@
   ;; the :number value equal to :top, then set it to :singular, because
   ;; a noun is canonically singular.
   ;; TODO: remove this first test: probably doesn't match anything
-  ;; - should be (unify/get-in map '(:synsem :cat)), not (:cat map).
+  ;; - should be (get-in map '(:synsem :cat)), not (:cat map).
   (let [map
-        (if (or (= (unify/get-in map '(:synsem :cat)) :det)
-                (= (unify/get-in map '(:synsem :cat)) :adverb))
+        (if (or (= (get-in map '(:synsem :cat)) :det)
+                (= (get-in map '(:synsem :cat)) :adverb))
           (unify
            subcat0
            map)
           map)
 
         map
-        (if (and (= (unify/get-in map '(:synsem :cat)) :adjective)
-                 (not (= (unify/get-in map '(:synsem :sem :comparative)) true)))
+        (if (and (= (get-in map '(:synsem :cat)) :adjective)
+                 (not (= (get-in map '(:synsem :sem :comparative)) true)))
           (unify
            subcat1
            map)
           map)
 
         map
-        (if (= (unify/get-in map '(:synsem :cat)) :sent-modifier)
+        (if (= (get-in map '(:synsem :cat)) :sent-modifier)
           (unify
            {:synsem {:subcat {:1 {:cat :verb
                                   :subcat '()}
@@ -525,11 +548,11 @@
            map)
           map)
 
-        ;; in italian, prepositions are always initial (might not need this)
+        ;; in italian, prepositions are always initial (might not need this); TODO: cleanup this commented-out code.
         map
-        (if (= (unify/get-in map '(:synsem :cat)) :prep)
+        (if (= (get-in map '(:synsem :cat)) :prep)
           map map)
-;          (let [italian (unify/get-in map '(:italian))]
+;          (let [italian (get-in map '(:italian))]
 ;            (if (string? italian)
 ;              (merge map
 ;                     {:italian {:italian italian
@@ -694,7 +717,3 @@
 ;; TODO: put semantics here.
 (def non-comparative-adjective
   subcat1)
-
-
-
-                  
