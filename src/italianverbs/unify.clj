@@ -254,7 +254,7 @@
           (map? val2))
      (let [debug (log/debug "map? val1 true; map? val2 true")
            tmp-result
-           (reduce #(deref (future (merge-with unify %1 %2))) args)]
+           (reduce #(merge-with unify %1 %2) args)]
        (log/debug (str "tmp-result: " tmp-result))
        (if (not (nil? (some #{:fail} (vals tmp-result))))
          :fail
