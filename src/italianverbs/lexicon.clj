@@ -46,8 +46,6 @@
                (set (lookup {:italian {:irregular {:passato italian}}})))]
     result))
 
-(def it1 it) ; backwards compatibility
-
 (defn en [english]
   (lookup {:english english}))
 
