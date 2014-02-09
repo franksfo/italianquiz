@@ -1111,10 +1111,12 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn sorted-paths-1 [paths]
   (sort (fn [x y]
-          (if (< (.size x) (.size y))
-            true
-            (compare-bytewise (.getBytes (str x)) (.getBytes (str y)) 0)))
-        paths))
+          (let [size-x (.size x)
+                size-y (.size y)]
+            (cond (< (.size x) (.size y)) true
+                  (> (.size x) (.size y)) false
+                  true (compare-bytewise (.getBytes (str x)) (.getBytes (str y)) 0))))
+          paths))
 
 (defn sorted-paths [serialized path n index]
   (let [lookup (nth serialized index)
