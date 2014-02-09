@@ -10,32 +10,32 @@
 (def a-noi
   (list
 
-                (let [location (ref {:place true})]
-                  {:synsem {:cat :prep
-                            :sem {:pred :a
-                                  :obj location
-                                  :comparative false}
-                            :subcat {:1 {:cat :noun
-                                         :subcat '()
-                                         :sem location}
-                                     :2 '()}}
-                   :italian {:initial true
-                             :italian "a"}
-                   :english "to"})
+   (let [location (ref {:place true})]
+     {:synsem {:cat :prep
+               :sem {:pred :a
+                     :obj location
+                     :comparative false}
+               :subcat {:1 {:cat :noun
+                            :subcat '()
+                            :sem location}
+                        :2 '()}}
+      :italian {:initial true
+                :italian "a"}
+      :english "to"})
 
 
-        {:synsem {:cat :prep
-                  :sem {:pred :in}
-                  :subcat {:1 {:cat :noun
-                               :sem {:city true}}}}
-         ;; this overrides the prep-phrase's extends, which are too general
-         ;; for this lexical entry "a"/"in".
-         :extend {:prep-phrase {:a {:head :prepositions
-                                    :comp :proper-nouns}}}
-         :italian "a"
-         :english "in"}
+   {:synsem {:cat :prep
+             :sem {:pred :in}
+             :subcat {:1 {:cat :noun
+                          :sem {:city true}}}}
+    ;; this overrides the prep-phrase's extends, which are too general
+    ;; for this lexical entry "a"/"in".
+    :extend {:prep-phrase {:a {:head :prepositions
+                               :comp :proper-nouns}}}
+    :italian "a"
+    :english "in"}
 
-        ;; e.g. "a ridere": tu hai fatto bene a ridere (you did well to laugh)"
+   ;; e.g. "a ridere": tu hai fatto bene a ridere (you did well to laugh)"
    (let [complement-semantics (ref {:pred :a
                                     :mod {:pred :a}})]
      {:synsem {:cat :prep
@@ -180,6 +180,15 @@
                             :gender :masc}}
              :italian "Antonio"
              :english "Antonio"})
+
+     (unify proper-noun
+            {:synsem {:sem {:pred :antonia
+                            :human true}
+                      :agr {:number :sing
+                            :person :3rd
+                            :gender :fem}}
+             :italian "Antonia"
+             :english "Antonia"})
 
      ;; "avere": to possess something buyable
      (unify
