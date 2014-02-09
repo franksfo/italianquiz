@@ -622,6 +622,7 @@
                                   :3plur "saranno"}}}
    :english {:agr agr
              :infinitive "to be"
+             :infl infl
              :irregular {:present {:1sing "am"
                                    :2sing "are"
                                    :3sing "is"
