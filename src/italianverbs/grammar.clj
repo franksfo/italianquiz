@@ -99,8 +99,12 @@
                                             :cat :verb}})
                           {:comment "vp-present"})
 
-
-
+                   (merge (unifyc ch21
+                                  {:synsem {:cat :verb
+                                            :aux false}
+                                   :comp {:synsem {:cat :noun
+                                                   :pronoun true}}})
+                          {:comment "vp-pronoun"})
 
 
 ))
