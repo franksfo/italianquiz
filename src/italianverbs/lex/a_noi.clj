@@ -12,7 +12,7 @@
 
                 (let [location (ref {:place true})]
                   {:synsem {:cat :prep
-                            :sem {:mod {:pred :a}
+                            :sem {:pred :a
                                   :obj location
                                   :comparative false}
                             :subcat {:1 {:cat :noun
@@ -535,26 +535,6 @@
                       :cat :adjective}
             :english {:english "difficult"
                       :cat :adjective}})
-
-    ;; using di (1,2) to debug:
-    ;; * Questo professore è meno difficile di lo (This professor (♂) is less difficult than him).
-    ;; (should be lui, not lo).
-    {:synsem {:cat :prep
-              :sem {:pred :di
-                    :mod {:pred :di} ;; so that "venire" cannot match.
-                    :comparative true}
-              :subcat {:1 {:cat :verb ;; switched from :noun to :verb: to avoid "di" subcatting first arg as
-                           ;; if it were a verb, e.g. "Paola di la ragazza".
-                           :subcat '()
-                           :def {:not :partitivo} ;; avoid alliteration like "di delle ragazze (of some women)"
-                           :agr {:case :disj} ;; pronouns must be disjunctive (me/te/lui/lei...etc)
-                           ;; non-pronouns will unify with this constraint.
-                           ;; TODO: remove this constraint: for debugging only.
-                           :sem {:human true}}
-                       :2 '()}}
-     :italian {:italian "di"
-               :initial true}
-     :english "than"}
 
     {:synsem {:cat :prep
               :sem {:pred :di
