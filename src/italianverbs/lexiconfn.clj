@@ -516,6 +516,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (def subcat1 {:synsem {:subcat {:1 {:cat :top}
                                 :2 '()}}})
 
+;; TODO: move this to lexicon.clj
 (defn implied [map]
   "things to be added to lexical entries based on what's implied about them in order to canonicalize them."
   ;; for example, if a lexical entry is a noun with no :number value, or
