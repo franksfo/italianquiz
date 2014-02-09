@@ -309,6 +309,7 @@
                                   :cat :noun
                                   :agr {:case :acc}}}}})))
 
+;; TODO: not using this: either use or lose.
 (def transitive-but-with-adjective-instead-of-noun
   (unify verb-subjective
          (let [obj-sem (ref :top)
@@ -323,6 +324,7 @@
                                   :cat :adjective}
                               :3 '()}}})))
 
+;; TODO: not using this: either use or lose.
 (def transitive-but-with-intensifier-instead-of-noun
   (unify verb-subjective
          (let [obj-sem (ref :top)
@@ -335,6 +337,7 @@
                                   :subcat '()
                                   :cat :intensifier}}}})))
 
+;; TODO: not using this: either use or lose.
 (def transitive-but-with-prepositional-phrase-instead-of-noun
   (unify verb-subjective
          (let [obj-sem (ref :top)
@@ -593,49 +596,49 @@
 (def essere-common
   (let [infl (ref :top)
         agr (ref :top)]
-  {:synsem {:essere true
-            :subcat {:1 {:agr agr}}
-            :agr agr
-            :infl infl}
-   :italian {:agr agr
-             :essere true
-             :infinitive "essere"
-             :infl infl
-             :irregular {:present {:1sing "sono"
-                                   :2sing "sei"
-                                   :3sing "è"
-                                   :1plur "siamo"
-                                   :2plur "siete"
-                                   :3plur "sono"}
-                         :passato "stato"
-                         :imperfetto {:1sing "ero"
-                                      :2sing "eri"
-                                      :3sing "era"
-                                      :1plur "eravamo"
-                                      :2plur "eravate"
-                                      :3plur "erano"}
-                         :futuro {:1sing "sarò"
-                                  :2sing "sarai"
-                                  :3sing "sarà"
-                                  :1plur "saremo"
-                                  :2plur "sarete"
-                                  :3plur "saranno"}}}
-   :english {:agr agr
-             :infinitive "to be"
-             :infl infl
-             :irregular {:present {:1sing "am"
-                                   :2sing "are"
-                                   :3sing "is"
-                                   :1plur "are"
-                                    :2plur "are"
-                                   :3plur "are"}
-                         :past {:participle "been"
-                                :1sing "was"
-                                :2sing "were"
-                                :3sing "was"
-                                :1plur "were"
-                                :2plur "were"
-                                :3plur "were"}}}}))
+    {:synsem {:essere true
+              :subcat {:1 {:agr agr}}
+              :agr agr
+              :infl infl}
+     :italian {:agr agr
+               :essere true
+               :infinitive "essere"
+               :infl infl
+               :irregular {:present {:1sing "sono"
+                                     :2sing "sei"
+                                     :3sing "è"
+                                     :1plur "siamo"
+                                     :2plur "siete"
+                                     :3plur "sono"}
+                           :passato "stato"
+                           :imperfetto {:1sing "ero"
+                                        :2sing "eri"
+                                        :3sing "era"
+                                        :1plur "eravamo"
+                                        :2plur "eravate"
+                                        :3plur "erano"}
+                           :futuro {:1sing "sarò"
+                                    :2sing "sarai"
+                                    :3sing "sarà"
+                                    :1plur "saremo"
+                                    :2plur "sarete"
+                                    :3plur "saranno"}}}
+     :english {:agr agr
+               :infinitive "to be"
+               :infl infl
+               :irregular {:present {:1sing "am"
+                                     :2sing "are"
+                                     :3sing "is"
+                                     :1plur "are"
+                                     :2plur "are"
+                                     :3plur "are"}
+                           :past {:participle "been"
+                                  :1sing "was"
+                                  :2sing "were"
+                                  :3sing "was"
+                                  :1plur "were"
+                                  :2plur "were"
+                                  :3plur "were"}}}}))
 
 (def fare-common
   ;; factor out common stuff from all senses of "fare".
