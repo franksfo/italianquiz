@@ -3,13 +3,13 @@
   (:require
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
-   [italianverbs.lexiconfn :refer (implied)]
+   [italianverbs.lexiconfn :refer (cache-serialization implied)]
    [italianverbs.lex.a_noi :refer :all]
    [italianverbs.lex.notizie_potere :refer :all]
    [italianverbs.lex.qualche_volta_volere :refer :all]
+   [italianverbs.morphology :refer (fo)]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (fail? get-in lazy-shuffle serialize)]))
-
+   [italianverbs.unify :refer (fail? get-in isomorphic? lazy-shuffle ref? serialize)]))
 
 ;; stub that is redefined by italianverbs/mongo or interfaces to other dbs.
 (defn clear! [])
@@ -55,40 +55,40 @@
 (load "lex/notizie_potere")
 (load "lex/qualche_volta_volere")
 
+(defn put-a-bird-on-it [lexical-entry]
+  "example lexical entry transformer."
+  (cond (map? lexical-entry)
+        (conj {:bird 42}
+              lexical-entry)
+        true
+        lexical-entry))
+
+(defn transform [lexical-entry]
+  "keep transforming lexical entries until there's no changes (isomorphic? input result) => true"
+  (log/debug (str "Transforming: " (fo lexical-entry)))
+  (log/debug (str "transform: input :" lexical-entry))
+  (let [result lexical-entry
+        result (implied result)
+        result (put-a-bird-on-it result)
+        ]
+    (if (isomorphic? result lexical-entry)
+      (cache-serialization result)
+      (transform result))))
+
 (def lexicon
+  ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
+  ;; default shown is (not (nil? entry)) i.e. no restrictions except that an entry must be non-nil.
+  ;;  (currently there is one nil below: "chiunque (anyone)").
+  (filter (fn [entry]
+            (or false
+                (not (nil? entry))))
 
-   ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
-   ;; default shown is (not (nil? entry)) i.e. no restrictions except that an entry must be non-nil.
-   ;;  (currently there is one nil below: "chiunque (anyone)").
-   (filter (fn [entry]
-             (or false
-                 (not (nil? entry))))
-
-           ;; TODO: move this fn to lexiconfn: keep any code out of the lexicon proper.
-           ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
-           (map (fn [entry]
-                  (if (fail? entry)
-                   (log/warn (str "Ignoring this lexeme because (fail?=true): " entry))
-                   ;; else, not fail, so add to lexicon.
-                   (do
-                     (log/debug (str "serializing entry: " entry))
-                     (let [italian (get-in entry '(:italian))
-                           entry
-                           (conj
-                            {:italian (if (string? italian)
-                                        {:italian italian}
-                                        italian)}
-                    (dissoc
-                     (if (not (= :none (get entry :serialized :none)))
-                       (conj {:serialized (serialize entry)}
-                             entry)
-                       (conj {:serialized (serialize (dissoc entry :serialized))}
-                         entry))
-                     :italian))]
-                       (log/debug (str "successfully serialized: " entry))
-                       (implied entry)))))
+          ;; TODO: move this fn to lexiconfn: keep any code out of the lexicon proper.
+          ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
+          (map transform
                (concat
                 a-noi
                 notizie-potere
                 qualche_volta-volere
                 ))))
+
