@@ -5,7 +5,7 @@
    [clojure.set :as set]
    [clojure.tools.logging :as log]
    [clojure.core :as core]
-   [italianverbs.lexiconfn :refer (encode-where-query implied italian-pluralize english-pluralize unify)]
+   [italianverbs.lexiconfn :refer (encode-where-query italian-pluralize english-pluralize unify)]
    [italianverbs.morphology :as morph]
    ;; We redefine unify here: TODO: just use unifyc where appropriate.
    [italianverbs.unify :as unify :exclude (unify)]
@@ -68,8 +68,7 @@
                (concat (map #'unify/copy featuremaps) ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.
                        (list {:english english}
                              {:italian italian})))]
-    (add-lexeme (implied merged))))
-
+    (add-lexeme merged)))
 
 ;; _italian is a string; _types is a list of symbols (each of which is a map of key-values);
 ;; _result is an accumulator which contains the merge of all of the maps

@@ -516,55 +516,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (def subcat1 {:synsem {:subcat {:1 {:cat :top}
                                 :2 '()}}})
 
-;; TODO: move this to lexicon.clj
-(defn implied [map]
-  "things to be added to lexical entries based on what's implied about them in order to canonicalize them."
-  ;; for example, if a lexical entry is a noun with no :number value, or
-  ;; the :number value equal to :top, then set it to :singular, because
-  ;; a noun is canonically singular.
-  ;; TODO: remove this first test: probably doesn't match anything
-  ;; - should be (get-in map '(:synsem :cat)), not (:cat map).
-  (let [map
-        (if (or (= (get-in map '(:synsem :cat)) :det)
-                (= (get-in map '(:synsem :cat)) :adverb))
-          (unify
-           subcat0
-           map)
-          map)
-
-        map
-        (if (and (= (get-in map '(:synsem :cat)) :adjective)
-                 (not (= (get-in map '(:synsem :sem :comparative)) true)))
-          (unify
-           subcat1
-           map)
-          map)
-
-        map
-        (if (= (get-in map '(:synsem :cat)) :sent-modifier)
-          (unify
-           {:synsem {:subcat {:1 {:cat :verb
-                                  :subcat '()}
-                              :2 '()}}}
-           map)
-          map)
-
-        ;; in italian, prepositions are always initial (might not need this); TODO: cleanup this commented-out code.
-        map
-        (if (= (get-in map '(:synsem :cat)) :prep)
-          map map)
-;          (let [italian (get-in map '(:italian))]
-;            (if (string? italian)
-;              (merge map
-;                     {:italian {:italian italian
-;                                :initial true}})
-;              (unify map
-;                     {:italian italian}
-;                     {:italian {:initial true}})))
-;          map)
-        ]
-    map))
-
 (def sentential-adverb
   (let [sentential-sem (ref :top)]
     {:synsem {:cat :sent-modifier

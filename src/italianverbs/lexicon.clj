@@ -3,7 +3,7 @@
   (:require
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
-   [italianverbs.lexiconfn :refer (cache-serialization implied sem-impl)]
+   [italianverbs.lexiconfn :refer (cache-serialization sem-impl subcat0 subcat1)]
    [italianverbs.lex.a_noi :refer :all]
    [italianverbs.lex.notizie_potere :refer :all]
    [italianverbs.lex.qualche_volta_volere :refer :all]
@@ -72,19 +72,63 @@
         true
         lexical-entry))
 
+(defn implied [map]
+  "things to be added to lexical entries based on what's implied about them in order to canonicalize them."
+  ;; for example, if a lexical entry is a noun with no :number value, or
+  ;; the :number value equal to :top, then set it to :singular, because
+  ;; a noun is canonically singular.
+  ;; TODO: remove this first test: probably doesn't match anything
+  ;; - should be (get-in map '(:synsem :cat)), not (:cat map).
+  (let [map
+        (if (or (= (get-in map '(:synsem :cat)) :det)
+                (= (get-in map '(:synsem :cat)) :adverb))
+          (unifyc
+           subcat0
+           map)
+          map)
+
+        map
+        (if (and (= (get-in map '(:synsem :cat)) :adjective)
+                 (not (= (get-in map '(:synsem :sem :comparative)) true)))
+          (unifyc
+           subcat1
+           map)
+          map)
+
+        map
+        (if (= (get-in map '(:synsem :cat)) :sent-modifier)
+          (unifyc
+           {:synsem {:subcat {:1 {:cat :verb
+                                  :subcat '()}
+                              :2 '()}}}
+           map)
+          map)
+
+        ;; in italian, prepositions are always initial (might not need this); TODO: cleanup this commented-out code.
+        map
+        (if (= (get-in map '(:synsem :cat)) :prep)
+          map map)
+;          (let [italian (get-in map '(:italian))]
+;            (if (string? italian)
+;              (merge map
+;                     {:italian {:italian italian
+;                                :initial true}})
+;              (unify map
+;                     {:italian italian}
+;                     {:italian {:initial true}})))
+;          map)
+        ]
+    map))
+
 ;(def rules (list implied pronoun-rule put-a-bird-on-it sem-impl))
 (def rules (list implied pronoun-rule sem-impl))
-
-(defn do-all-rules [lexical-entry rules]
-  (if (not (empty? rules))
-    (do-all-rules (apply (first rules) (list lexical-entry)) (rest rules))
-    lexical-entry))
 
 (defn transform [lexical-entry]
   "keep transforming lexical entries until there's no changes (isomorphic? input result) => true"
   (log/debug (str "Transforming: " (fo lexical-entry)))
   (log/debug (str "transform: input :" lexical-entry))
-  (let [result (reduce (fn [rule] (apply rule (list lexical-entry))) rules)]
+  (let [result (reduce unifyc (map (fn [rule] (apply rule (list lexical-entry)))
+                                   rules))]
     (if (isomorphic? result lexical-entry)
       (cache-serialization result)
       (transform result))))
