@@ -3,13 +3,13 @@
   (:require
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
-   [italianverbs.lexiconfn :refer (cache-serialization implied)]
+   [italianverbs.lexiconfn :refer (cache-serialization implied sem-impl)]
    [italianverbs.lex.a_noi :refer :all]
    [italianverbs.lex.notizie_potere :refer :all]
    [italianverbs.lex.qualche_volta_volere :refer :all]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (fail? get-in isomorphic? lazy-shuffle ref? serialize)]))
+   [italianverbs.unify :refer (fail? get-in isomorphic? lazy-shuffle ref? serialize unifyc)]))
 
 ;; stub that is redefined by italianverbs/mongo or interfaces to other dbs.
 (defn clear! [])
@@ -55,6 +55,15 @@
 (load "lex/notizie_potere")
 (load "lex/qualche_volta_volere")
 
+(defn pronoun-rule [lexical-entry]
+  ;; subcat non-empty: pronoun is false
+  (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
+             (= (not (empty? (get-in lexical-entry '(:synsem :subcat)))))
+             (not (= (get-in lexical-entry '(:synsem :pronoun)) true)))
+        (unifyc lexical-entry {:synsem {:pronoun false}})
+        true
+        lexical-entry))
+
 (defn put-a-bird-on-it [lexical-entry]
   "example lexical entry transformer."
   (cond (map? lexical-entry)
@@ -63,14 +72,19 @@
         true
         lexical-entry))
 
+;(def rules (list implied pronoun-rule put-a-bird-on-it sem-impl))
+(def rules (list implied pronoun-rule sem-impl))
+
+(defn do-all-rules [lexical-entry rules]
+  (if (not (empty? rules))
+    (do-all-rules (apply (first rules) (list lexical-entry)) (rest rules))
+    lexical-entry))
+
 (defn transform [lexical-entry]
   "keep transforming lexical entries until there's no changes (isomorphic? input result) => true"
   (log/debug (str "Transforming: " (fo lexical-entry)))
   (log/debug (str "transform: input :" lexical-entry))
-  (let [result lexical-entry
-        result (implied result)
-        result (put-a-bird-on-it result)
-        ]
+  (let [result (reduce (fn [rule] (apply rule (list lexical-entry))) rules)]
     (if (isomorphic? result lexical-entry)
       (cache-serialization result)
       (transform result))))
