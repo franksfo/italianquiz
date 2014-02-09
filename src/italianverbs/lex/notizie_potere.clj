@@ -128,7 +128,7 @@
               :english {:english "professor"
                         :note " (&#x2642;)"}}) ;; unicode male symbol
 
-      (let [complement-semantics (ref {:mod {:pred :per}})]
+      (let [complement-semantics (ref {:pred :per})]
         (unify
          {:synsem {:cat :prep
                    :sem complement-semantics

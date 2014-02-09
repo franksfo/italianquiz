@@ -650,6 +650,8 @@
                      :motion true
                      :subj {:animate true}}}})
 
+    ;; TODO: add venire which takes PP with "a" (e.g. he comes to Venice)
+
     (unify
      transitive-but-with-prepositional-phrase-instead-of-noun
      venire-common
@@ -658,7 +660,7 @@
                                       :activity true
                                       :motion false ;; otherwise we get weird things like "he came to go".
                                       :deliberate true ;;;; you come somewhere to do something that you intended to do, not something that you do accidentally.
-                                      :mod {:pred :per}})] ;; takes 'per' as proposition.
+                                      :pred :per})] ;; takes 'per' as proposition.
        {:synsem {:essere true
                  :sem {:pred :venire
                        :subj complement-subject
