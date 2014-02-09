@@ -679,6 +679,7 @@
       ;; essere: adjective
       ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry.
       (unify
+       verb-subjective
        essere-common
        {
         :notes "essere-adjective"
@@ -721,6 +722,7 @@
                       {:activity false
                        :discrete false})]
         (unify
+         verb-subjective
          essere-common
          {:notes "essere-intensifer"
           :synsem {:cat :verb
