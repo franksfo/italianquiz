@@ -3,6 +3,8 @@
   (:use [italianverbs.unify])
   (:use [clojure.test]))
 
+;; TODO: add more tests for (isomorphic?)
+
 (deftest simple-merge-test
   (let [result (merge {:foo 99} {:bar 42})]
     (is (= (:foo result) 99))
@@ -750,5 +752,14 @@ when run from a REPL."
     (is (fail? (unify (copy foo1) (copy foo2))))
     (is (fail? (unify foo1 foo2)))))
 
+(deftest isomorphic-true1
+  (is (= true (isomorphic? {:a 42 :b 43 :c 44} {:a 42 :b 43 :c 44}))))
 
+(deftest isomorphic-false1
+  (is (= false (isomorphic? {:a 42 :b 43 :c 45} {:a 42 :b 43 :c 44}))))
 
+(deftest isomorphic-false2
+  (is (= false (isomorphic? {:a 42 :b 43} {:a 42 :b 43 :c 44}))))
+
+(deftest isomorphic-false3
+  (is (= false (isomorphic? {:a 42 :b 43 :c 44} {:a 42 :b 43}))))

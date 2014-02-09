@@ -1456,3 +1456,25 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                                                     (:synsem :sem :mod)
                                                     (:synsem :infl))))))
 
+(defn isomorphic? [a b]
+  (cond (and (map? a)
+             (map? b)
+             (empty? a)
+             (empty? b))
+        true  ;; two empty maps are equal
+        (and (map? a)
+             (map? b)
+             (or (empty? a)
+                 (empty? b)))
+        false ;; two maps whose key cardinality (different number of keys) is different are not equal.
+        (and (map? a)
+             (map? b))
+        (and (isomorphic? (get a (first (keys a))) ;; two maps are isomorphic if their keys' values are isomorphic.
+                          (get b (first (keys a))))
+             (isomorphic? (dissoc a (first (keys a)))
+                          (dissoc b (first (keys a)))))
+        (and (ref? a)
+             (ref? b))
+        (isomorphic? @a @b)
+        true
+        (= a b)))
