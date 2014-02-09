@@ -17,11 +17,6 @@
                                   {:synsem {:cat :adjective}})
                           {:comment "adjective-phrase"})
                                            
-                   (merge (unifyc cc10
-                                  {:synsem {:cat :noun}
-                                   :comp {:phrasal false}}) ;; rathole prevention
-                          {:comment "noun-phrase"})
-
                    (merge (unifyc hh21
                                   (let [head-synsem {:cat :intensifier
                                                      :modified true}]
@@ -38,10 +33,14 @@
                                                      :mod head-synsem}}}))
                           {:comment "nbar"})
 
+                   (merge (unifyc cc10
+                                  {:synsem {:cat :noun}
+                                   :comp {:phrasal false}}) ;; rathole prevention
+                          {:comment "noun-phrase"})
+
                    (merge (unifyc hh10
                                   {:synsem {:cat :prep}})
                           {:comment "prepositional-phrase"})
-
 
                    (merge (unifyc cc10
                                   {:synsem {:infl :present
