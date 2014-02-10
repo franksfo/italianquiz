@@ -87,6 +87,24 @@
                               :2 '()}}}}))
 
 
+;;     subcat<1,2>
+;;     /         \
+;;    /           \
+;; H subcat<1,3>  3:C<1,2>
+(def subcat-2-2-principle
+  (let [subcat1 (ref :top)
+        subcat2 (ref :top)
+        subcat3 (ref {:subcat {:1 subcat1
+                               :2 subcat2
+                               :3 '()}})]
+    {:synsem {:subcat {:1 subcat1
+                       :2 subcat2
+                       :3 '()}}
+     :comp {:synsem subcat3}
+     :head {:synsem {:subcat {:1 subcat1
+                              :2 subcat3
+                              :3 '()}}}}))
+
 ;;     subcat<1>
 ;;     /      \
 ;;    /        \
@@ -345,6 +363,16 @@
    english-head-first
    {:comment "hh21"
     :schema-symbol 'hh21 ;; used by over-each-parent to know where to put children.
+    :first :head}))
+
+(def hh22
+  (unify
+   subcat-2-2-principle
+   head-principle
+   italian-head-first
+   english-head-first
+   {:comment "hh22"
+    :schema-symbol 'hh22 ;; used by over-each-parent to know where to put children.
     :first :head}))
 
 (def hh32
