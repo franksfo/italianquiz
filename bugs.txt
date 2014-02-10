@@ -1,6 +1,15 @@
+Agreement:
+	is: "io l'ho ricordato" (where l' is "la")
+	should be: "io l'ho ricordata" (where l' is "la")
+
 Semantics:
    is:  "delle ragazze rumorose vengono a birra" (non-place)
    should be:  "delle ragazze rumorose vengono a Napoli" (place)
+
+   is:  "Antonia was less tall than Naples"
+   should be: "Antonia was less tall than (some human)"
+
+
 
 
 
