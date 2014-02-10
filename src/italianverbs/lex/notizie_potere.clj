@@ -181,20 +181,6 @@
               :english {:english "pizza"}})
 
       (let [human (ref :top)
-            animate (ref :top)]
-        {:synsem {:sem {:human human
-                        :animate animate}
-                  :cat :intensifier
-                  :subcat {:1 {:cat :adjective
-                               :sem {:comparative true
-                                     :human human
-                                     :animate animate}}
-                           :2 '()}}
-         :italian "più"
-         :english "more" ;; TODO: should be translated as "-er" (e.g. "richer")
-         })
-
-      (let [human (ref :top)
             animate (ref :top)
             subj-semantics (ref {:human human
                                  :animate animate})
@@ -214,7 +200,7 @@
                                      :pred adj-semantics
                                      :arg2 obj-semantics}}}}
          :italian "più"
-         :english "more"
+         :english "more" ;; TODO: better translation would use suffix "-er" (e.g. "taller") rather than "more" (e.g. "more tall")
          })
 
       (let [pred-of-complement (ref :top)]
