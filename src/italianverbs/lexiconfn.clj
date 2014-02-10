@@ -390,8 +390,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
               :essere essere-binary-categorization
               :subcat {:1 subject
                        :2 {:cat :verb
-                           :subcat {:1 subject
-                                    :2 '()}
+                           :subcat {:1 subject}
                            :sem sem
                            :infl :past}}}}))
 
