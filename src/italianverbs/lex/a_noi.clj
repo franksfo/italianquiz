@@ -713,7 +713,7 @@
                                 :agr {:gender gender
                                       :number number}}
                             :2 {:cat :noun
-                                :pronoun {:not true} ;; accusative pronouns cause unbounded depth-first searches on the subject side.
+                                :pronoun {:not true} ;; accusative pronouns cause unbounded depth-first searches on the subject side. (TODO: not sure if this problem is still present)
                                 :def {:not :demonstrativo}
                                 :agr {:gender gender
                                       :number number}}}
