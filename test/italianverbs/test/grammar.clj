@@ -62,3 +62,13 @@
     (is (= "the black dog"
            (get-in il-cane-nero '(:english))))))
 
+
+(def agreement-test-1
+  (let [result (first (over s-aux (over noun-phrase "la" "melanzana") (over vp-aux "essere" (over vp-past "essere" "nero"))))]
+    (is (= (get-italian-1 (get-in result '(:italian)))
+           "la melanzana è stata nera"))))
+
+(def agreement-test-2
+  (let [result (first (over s-aux (over noun-phrase "le" "melanzana") (over vp-aux "essere" (over vp-past "essere" "nero"))))]
+    (is (= (get-italian-1 (get-in result '(:italian)))
+           "le melanzane sono state nere"))))
