@@ -686,19 +686,27 @@
 
       ;; essere: adjective
       ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry.
-      (unify
-       verb-subjective
-       essere-common
-       {
-        :notes "essere-adjective"
-        :synsem {:cat :verb
-                 :subcat {:1 subject
-                          :2 {:cat :adjective
-                              :sem comp-sem
-                              :subcat {:1 subject
-                                       :2 '()}}}
-                 :sem {:pred :essere
-                       :obj comp-sem}}}))
+      (let [gender (ref :top)
+            number (ref :top)
+            subject (ref {:cat :noun
+                          :agr {:gender gender
+                                :number number}})]
+        (unify
+         verb-subjective
+         essere-common
+         {:synsem {:subcat {:1 {:agr {:gender gender
+                                      :number number}}}}}
+         {:notes "essere-adjective"
+          :synsem {:cat :verb
+                   :subcat {:1 subject
+                            :2 {:cat :adjective
+                                :agr {:gender gender
+                                      :number number}
+                                :sem comp-sem
+                                :subcat {:1 subject
+                                         :2 '()}}}
+                   :sem {:pred :essere
+                         :obj comp-sem}}})))
 
       ;; essere: copula
       (let [gender (ref :top)
