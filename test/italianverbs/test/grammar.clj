@@ -72,3 +72,9 @@
   (let [result (first (over s-aux (over noun-phrase "le" "melanzana") (over vp-aux "essere" (over vp-past "essere" "nero"))))]
     (is (= (get-italian-1 (get-in result '(:italian)))
            "le melanzane sono state nere"))))
+
+(def agreement-test-3
+  (let [result (first (over s-present (over noun-phrase "le mie" "pizza") (over vp-present "essere" (over intensifier-phrase "meno" "bello"))))]
+    (is (= (get-italian-1 (get-in result '(:italian)))
+           "le mie pizze sono meno belle"))))
+
