@@ -706,7 +706,7 @@
                    :sem {:pred :essere
                          :obj comp-sem}}})))
 
-      ;; essere: copula
+      ;; essere: copula ;; note that we don't enforce agreement the same here as we do in essere-adjective: TODO: try to make more consistent.
       (let [gender (ref :top)
             number (ref :top)
             human (ref :top)]
@@ -731,7 +731,11 @@
 
       ;; essere: intensifier
       ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
-      (let [subject (ref {:cat :noun})
+      (let [gender (ref :top)
+            number (ref :top)
+            subject (ref {:agr {:gender gender
+                                :number number}
+                          :cat :noun})
             comp-sem (ref
                       {:activity false
                        :discrete false})]
