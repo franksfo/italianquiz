@@ -95,7 +95,18 @@
         true
         lexical-entry))
 
-(def rules (list category-to-subcat pronoun-rule sem-impl))
+(defn intensifier-agreement [lexical-entry]
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :intensifier)
+        (unifyc
+         (let [agr (ref :top)]
+           {:synsem {:agr agr
+                     :subcat {:1 {:agr agr}
+                              :2 {:agr agr}}}})
+         lexical-entry)
+
+         true lexical-entry))
+
+(def rules (list category-to-subcat intensifier-agreement pronoun-rule sem-impl))
 
 (defn transform [lexical-entry]
   "keep transforming lexical entries until there's no changes (isomorphic? input result) => true"
