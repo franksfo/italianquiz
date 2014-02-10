@@ -694,8 +694,6 @@
         (unify
          verb-subjective
          essere-common
-         {:synsem {:subcat {:1 {:agr {:gender gender
-                                      :number number}}}}}
          {:notes "essere-adjective"
           :synsem {:cat :verb
                    :subcat {:1 subject
