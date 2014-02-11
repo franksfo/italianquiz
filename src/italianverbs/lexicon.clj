@@ -61,9 +61,18 @@
              (= (not (empty? (get-in lexical-entry '(:synsem :subcat)))))
              (not (= (get-in lexical-entry '(:synsem :pronoun)) true)))
         (unifyc lexical-entry
-                {:synsem {:pronoun false
-                          :subcat {:1 {:cat :det}
-                                   :2 '()}}})
+                (let [agr (ref :top)
+                      cat (ref :top)]
+                  {:synsem {:agr agr
+                            :cat cat
+                            :italian {:cat cat
+                                      :agr agr}
+                            :english {:cat cat
+                                      :agr agr}
+                            :pronoun false
+                            :subcat {:1 {:agr agr
+                                         :cat :det}
+                                     :2 '()}}}))
         true
         lexical-entry))
 
