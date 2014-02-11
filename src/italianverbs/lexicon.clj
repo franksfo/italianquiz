@@ -1,5 +1,5 @@
 (ns italianverbs.lexicon
-  (:refer-clojure :exclude [get-in merge resolve find])
+  (:refer-clojure :exclude [get-in resolve find])
   (:require
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
@@ -106,6 +106,16 @@
         true
         lexical-entry))
 
+(defn embed-phon [lexical-entry]
+  (cond (string? (get-in lexical-entry '(:english)))
+        (merge {:english {:english (get-in lexical-entry '(:english))}}
+               (embed-phon (dissoc lexical-entry ':english)))
+        (string? (get-in lexical-entry '(:italian)))
+        (merge {:italian {:italian (get-in lexical-entry '(:italian))}}
+               (embed-phon (dissoc lexical-entry ':italian)))
+        true
+        lexical-entry))
+
 (defn intensifier-agreement [lexical-entry]
   (cond (= (get-in lexical-entry '(:synsem :cat)) :intensifier)
         (unifyc
@@ -118,7 +128,11 @@
          true lexical-entry))
 
 (def rules (list category-to-subcat
-                 intensifier-agreement commonnoun semantic-implicature))
+                 commonnoun
+                 embed-phon
+                 intensifier-agreement
+                 semantic-implicature
+                 ))
 
 (defn transform [lexical-entry]
   "keep transforming lexical entries until there's no changes (isomorphic? input result) => true"
