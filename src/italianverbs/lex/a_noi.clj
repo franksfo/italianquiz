@@ -1505,6 +1505,12 @@
          :english "less"
          })
 
+      {:english "market"
+       :italian "mercato"
+       :synsem {:agr {:gender :masc}
+                :cat :noun
+                :sem {:place true}}}
+
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
                 :agr {:case disjunctive-case-of-pronoun
