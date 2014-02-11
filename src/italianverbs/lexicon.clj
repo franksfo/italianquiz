@@ -55,6 +55,14 @@
 (load "lex/notizie_potere")
 (load "lex/qualche_volta_volere")
 
+(defn default-is-singular [lexical-entry]
+  (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
+             (not (= (get-in lexical-entry '(:synsem :agr :number)) :plur)))
+        (unifyc lexical-entry
+                {:synsem {:agr {:number :sing}}})
+        true
+        lexical-entry))
+
 (defn pronoun-rule [lexical-entry]
   ;; subcat non-empty: pronoun is false
   (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
