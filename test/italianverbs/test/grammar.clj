@@ -79,12 +79,12 @@
            "le mie pizze sono meno belle"))))
 
 (def aux-with-agreement-1
-  (let [result (first (over s-aux "io" (over vp-pronoun-aux "lo" (over vp-aux-22 "avere" "ricordare"))))]
+  (let [result (first (over s-aux "io" (over vp-pronoun "lo" (over vp-aux-22 "avere" "ricordare"))))]
     (is (= (get-italian-1 (get-in result '(:italian)))
            "io l'ho ricordato"))))
 
 (def aux-with-agreement-2
-  (let [result (first (over s-aux "io" (over vp-pronoun-aux "la" (over vp-aux-22 "avere" "ricordare"))))]
+  (let [result (first (over s-aux "io" (over vp-pronoun "la" (over vp-aux-22 "avere" "ricordare"))))]
     (is (= (get-italian-1 (get-in result '(:italian)))
            "io l'ho ricordata"))))
 
