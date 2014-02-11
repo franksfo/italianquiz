@@ -1190,6 +1190,13 @@
        :italian "la tua"
        :english "your"}
 
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing}
+       :italian "la vostra"
+       :english "your (pl)"}
+
       {:synsem {:cat pronoun-noun
                 :pronoun true
                 :agr {:case pronoun-acc
@@ -1313,13 +1320,6 @@
                  :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
-
-      {:synsem {:cat :det
-                :def :possessive
-                :gender :fem
-                :number :sing}
-       :italian "la vostra"
-       :english "your (pl)"}
 
       {:synsem {:cat :det
                 :def :possessive
