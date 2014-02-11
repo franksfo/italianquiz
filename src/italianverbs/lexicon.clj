@@ -8,6 +8,7 @@
    [italianverbs.lex.notizie_potere :refer :all]
    [italianverbs.lex.qualche_volta_volere :refer :all]
    [italianverbs.morphology :refer (fo)]
+   [italianverbs.pos :refer :all]
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (fail? get-in isomorphic? lazy-shuffle ref? serialize unifyc)]))
 
@@ -51,6 +52,8 @@
 
 (clear!)
 
+(load "pos")
+
 (load "lex/a_noi")
 (load "lex/notizie_potere")
 (load "lex/qualche_volta_volere")
@@ -61,18 +64,11 @@
              (= (not (empty? (get-in lexical-entry '(:synsem :subcat)))))
              (not (= (get-in lexical-entry '(:synsem :pronoun)) true)))
         (unifyc lexical-entry
-                (let [agr (ref :top)
-                      cat (ref :top)]
-                  {:synsem {:agr agr
-                            :cat cat
-                            :italian {:cat cat
-                                      :agr agr}
-                            :english {:cat cat
-                                      :agr agr}
-                            :pronoun false
-                            :subcat {:1 {:agr agr
-                                         :cat :det}
-                                     :2 '()}}}))
+                (unifyc agreement-noun
+                        common-noun
+                        {:synsem {:pronoun false
+                                  :subcat {:1 {:cat :det}
+                                           :2 '()}}}))
         true
         lexical-entry))
 

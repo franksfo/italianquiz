@@ -5,6 +5,7 @@
             [italianverbs.forest :as forest]
             [italianverbs.lexicon :refer (it)]
             [italianverbs.lexiconfn :refer :all]
+            [italianverbs.pos :refer :all]
             [italianverbs.ug :refer :all]
             [italianverbs.unify :refer (get-in unifyc)]
             [clojure.string :as string]))

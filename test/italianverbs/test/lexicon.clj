@@ -5,11 +5,12 @@
   (:require
    [italianverbs.unify :as fs]
    [italianverbs.lexiconfn :as lexfn]
+   [italianverbs.pos :refer :all]
    [italianverbs.search :as search]))
 
 (def third-person {:person :3rd :cat :noun})
 
-(def artifact (fs/merge lexfn/common-noun {:artifact true}))
+(def artifact (fs/merge common-noun {:artifact true}))
 (def masc {:gender :masc})
 (def letto-fs (apply fs/merge
                      ;; copy here to prevent any structure sharing between new lexical entry on the one hand, and input featuremaps on the other.

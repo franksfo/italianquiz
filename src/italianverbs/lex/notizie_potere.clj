@@ -1,6 +1,7 @@
 (ns italianverbs.lex.notizie_potere
   (:require
-   [italianverbs.lexiconfn :refer :all]))
+   [italianverbs.lexiconfn :refer (unify)]
+   [italianverbs.pos :refer :all]))
 
 (def notizie-potere
   (list
@@ -61,9 +62,9 @@
       (unify agreement-noun
              common-noun
              masculine-noun
-             {:synsem {:sem (sem-impl {:pred :pane
-                                       :edible true
-                                       :artifact true})}
+             {:synsem {:sem {:pred :pane
+                             :edible true
+                             :artifact true}}
               :italian {:italian "pane"}
               :english {:english "bread"}}
              {:synsem {:subcat {:1 {:cat :det
@@ -86,9 +87,9 @@
       (unify agreement-noun
              common-noun
              feminine-noun
-             {:synsem {:sem (sem-impl {:pred :pasta
-                                       :edible true
-                                       :artifact true})}
+             {:synsem {:sem {:pred :pasta
+                             :edible true
+                             :artifact true}}
               :italian {:italian "pasta"}
               :english {:english "pasta"}}
              {:synsem {:subcat {:1 {:cat :det

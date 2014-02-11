@@ -1,11 +1,7 @@
 (ns italianverbs.lex.a_noi
-  (:refer-clojure :exclude [get-in merge resolve find])
   (:require
-   [clojure.set :refer (union)]
-   [clojure.tools.logging :as log]
    [italianverbs.lexiconfn :refer :all]
-   [italianverbs.morphology :refer :all] ;; for debugging
-   [italianverbs.unify :refer (fail? serialize)]))
+   [italianverbs.pos :refer :all]))
 
 (def a-noi
   (list

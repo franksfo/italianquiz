@@ -1,7 +1,7 @@
 (ns italianverbs.lex.qualche_volta_volere
-  (:refer-clojure :exclude [get-in merge resolve find])
   (:require
-   [italianverbs.lexiconfn :refer :all]))
+   [italianverbs.lexiconfn :refer :all]
+   [italianverbs.pos :refer :all]))
 
 (def qualche_volta-volere
   (list
