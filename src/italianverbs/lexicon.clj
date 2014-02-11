@@ -55,15 +55,7 @@
 (load "lex/notizie_potere")
 (load "lex/qualche_volta_volere")
 
-(defn default-is-singular [lexical-entry]
-  (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
-             (not (= (get-in lexical-entry '(:synsem :agr :number)) :plur)))
-        (unifyc lexical-entry
-                {:synsem {:agr {:number :sing}}})
-        true
-        lexical-entry))
-
-(defn pronoun-rule [lexical-entry]
+(defn commonnoun [lexical-entry]
   ;; subcat non-empty: pronoun is false
   (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
              (= (not (empty? (get-in lexical-entry '(:synsem :subcat)))))
@@ -120,8 +112,8 @@
 
          true lexical-entry))
 
-(def rules (list category-to-subcat default-is-singular
-                 intensifier-agreement pronoun-rule semantic-implicature))
+(def rules (list category-to-subcat
+                 intensifier-agreement commonnoun semantic-implicature))
 
 (defn transform [lexical-entry]
   "keep transforming lexical entries until there's no changes (isomorphic? input result) => true"
