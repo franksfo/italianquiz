@@ -1050,6 +1050,7 @@
                       :artifact true
                       :consumable false
                       :writable false
+                      :place false
                       :speakable false}}
        :english {:english "mobile phone"}
        :italian {:italian "cellulare"}})
