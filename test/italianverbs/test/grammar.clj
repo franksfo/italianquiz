@@ -85,7 +85,7 @@
 
 (def aux-with-agreement-2
   (let [result (first (over s-aux "io" (over vp-pronoun-aux "la" (over vp-aux-22 "avere" "ricordare"))))]
-    (is (= (or true (get-italian-1 (get-in result '(:italian))))
+    (is (= (get-italian-1 (get-in result '(:italian)))
            "io l'ho ricordata"))))
 
 

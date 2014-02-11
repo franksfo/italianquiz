@@ -78,11 +78,17 @@
                                    :head verb-aux-type})
                           {:comment "vp-aux"})
 
+                   ;; this rule is kind of complicated and made more so by
+                   ;; dependence on auxilary sense of "avere" which supplies the
+                   ;; obj-agr agreement between the object and the main (non-auxilary) verb.
                    (merge (unifyc hh22
-                                  {:synsem {:infl :present
-                                            :sem {:tense :past}
-                                            :cat :verb}
-                                   :head verb-aux-type})
+                                  (let [obj-agr (ref :top)]
+                                    {:synsem {:infl :present
+                                              :sem {:tense :past}
+                                              :subcat {:2 {:agr obj-agr}}
+                                              :cat :verb}
+                                     :italian {:b {:obj-agr obj-agr}}
+                                     :head verb-aux-type}))
                           {:comment "vp-aux-22"})
 
                    (merge (unifyc hh21

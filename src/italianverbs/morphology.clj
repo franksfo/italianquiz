@@ -23,6 +23,17 @@
   "compute the final character given a lexical entry and agreement info in :agr."
   (let [suffix (cond
 
+                (and (= (get-in word '(:obj-agr :gender)) :fem)
+                     (= (get-in word '(:obj-agr :number)) :sing))
+                "a"
+
+                (and (= (get-in word '(:obj-agr :gender)) :fem)
+                     (= (get-in word '(:obj-agr :number)) :plur))
+                "e"
+
+                (= (get-in word '(:obj-agr :number)) :plur)
+                "i"
+
                 (and (= (get-in word '(:agr :gender)) :fem)
                      (= (get-in word '(:agr :number)) :sing)
                      (= (get-in word '(:essere)) true))
@@ -73,50 +84,47 @@
         number (get-in word '(:agr :number))]
     {:person person
      :number number
-   :infinitive?    (and (= :infinitive (get-in word '(:infl)))
-                        (string? (get-in word '(:infinitive))))
+     :infinitive?    (and (= :infinitive (get-in word '(:infl)))
+                          (string? (get-in word '(:infinitive))))
 
-   :irregular-futuro?    (and
-                          (= (get-in word '(:infl)) :futuro)
-                          (map? (get-in word '(:irregular :futuro))))
+     :irregular-futuro?    (and
+                            (= (get-in word '(:infl)) :futuro)
+                            (map? (get-in word '(:irregular :futuro))))
 
-   :regular-futuro?    (and (= (get-in word '(:infl)) :futuro)
-                            (get-in word '(:infinitive)))
+     :regular-futuro?    (and (= (get-in word '(:infl)) :futuro)
+                              (get-in word '(:infinitive)))
 
-   :regular-imperfetto?    (and (= (get-in word '(:infl)) :imperfetto)
-                                (get-in word '(:infinitive)))
+     :regular-imperfetto?    (and (= (get-in word '(:infl)) :imperfetto)
+                                  (get-in word '(:infinitive)))
 
-   :irregular-past?    (and
-                        (= :past (get-in word '(:infl)))
-                        (string? (get-in word '(:irregular :past))))
+     :irregular-past?    (and
+                          (= :past (get-in word '(:infl)))
+                          (string? (get-in word '(:irregular :past))))
 
-   ;;nei: not enough information to conjugate.
-   :past-irregular-essere-type-nei
-   (and (= :past (get-in word '(:infl)))
-        (get-in word '(:irregular :passato))
-        (get-in word '(:essere) true)
-        (or (= :notfound (get-in word '(:agr :number) :notfound))
-            (= :top (get-in word '(:agr :number)))))
+     ;;nei: not enough information to conjugate.
+     :past-irregular-essere-type-nei
+     (and (= :past (get-in word '(:infl)))
+          (get-in word '(:irregular :passato))
+          (get-in word '(:essere) true)
+          (or (= :notfound (get-in word '(:agr :number) :notfound))
+              (= :top (get-in word '(:agr :number)))))
 
+     ;;nei: not enough information to conjugate.
+     :past-esseri-but-nei?
+     (and (= :past (get-in word '(:infl)))
+          (get-in word '(:essere) true)
+          (or (= :notfound (get-in word '(:agr :number) :notfound))
+              (= :top (get-in word '(:agr :number)))))
 
-   ;;nei: not enough information to conjugate.
-   :past-esseri-but-nei?
-   (and (= :past (get-in word '(:infl)))
-        (get-in word '(:essere) true)
-        (or (= :notfound (get-in word '(:agr :number) :notfound))
-            (= :top (get-in word '(:agr :number)))))
    :irregular-passato?
-   (and (= :past (get-in word '(:infl)))
-        (get-in word '(:irregular :passato)))
+     (and (= :past (get-in word '(:infl)))
+          (get-in word '(:irregular :passato)))
 
    :regular-passato
-   (= :past (get-in word '(:infl)))
+     (= :past (get-in word '(:infl)))
 
-   :present
-     (= (get-in word '(:infl)) :present)
-
-
-}))
+     :present
+     (= (get-in word '(:infl)) :present)}))
 
 (defn get-italian-1 [word]
   (let [analysis (analyze-italian-1 word)

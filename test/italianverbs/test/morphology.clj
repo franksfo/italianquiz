@@ -833,9 +833,72 @@
 (deftest io-sono-stato-alto
   ;; TODO: test also: "io sono stato alto di voi"
   (let [io-sono-stato-alto
-{:a {:initial true, :italian "io"}, :b {:b {:b {:italian "alto", :cat :adjective, :agr {:case :nom, :number :sing, :gender :top, :person :1st}, :initial false}, :a {:essere true, :infl :past, :initial true, :irregular {:imperfetto {:2plur "eravate", :3sing "era", :2sing "eri", :1sing "ero", :3plur "erano", :1plur "eravamo"}, :passato "stato", :present {:2plur "siete", :3sing "è", :2sing "sei", :1sing "sono", :3plur "sono", :1plur "siamo"}, :futuro {:2plur "sarete", :3sing "sarà", :2sing "sarai", :1sing "sarò", :3plur "saranno", :1plur "saremo"}}, :infinitive "essere", :agr {:case :nom, :number :sing, :gender :top, :person :1st}}, :initial false}, :a {:agr {:case :nom, :number :sing, :gender :top, :person :1st}, :infinitive "essere", :essere true, :aux true, :initial true, :irregular {:imperfetto {:2plur "eravate", :3sing "era", :2sing "eri", :1sing "ero", :3plur "erano", :1plur "eravamo"}, :passato "stato", :present {:2plur "siete", :3sing "è", :2sing "sei", :1sing "sono", :3plur "sono", :1plur "siamo"}, :futuro {:2plur "sarete", :3sing "sarà", :2sing "sarai", :1sing "sarò", :3plur "saranno", :1plur "saremo"}}, :infl :present}, :initial false}}]
+        ;; TODO: pretty-print (or better, find way to auto-pretty print):
+        {:a {:initial true, :italian "io"},
+         :b {:b {:b {:italian "alto",
+                     :cat :adjective,
+                     :agr {:case :nom,
+                           :number :sing,
+                           :gender :top,
+                           :person :1st},
+                     :initial false},
+                 :a {:essere true,
+                     :infl :past,
+                     :initial true,
+                     :irregular {:passato "stato",
+                                 :present {:2plur "siete",
+                                           :3sing "è",
+                                           :2sing "sei",
+                                           :1sing "sono",
+                                           :3plur "sono",
+                                           :1plur "siamo"}},
+                     :infinitive "essere",
+                     :agr {:case :nom,
+                           :number :sing,
+                           :gender :top,
+                           :person :1st}},
+                 :initial false},
+             :a {:agr {:case :nom,
+                       :number :sing,
+                       :gender :top,
+                       :person :1st},
+                 :infinitive "essere",
+                 :essere true,
+                 :aux true,
+                 :initial true,
+                 :irregular {:passato "stato",
+                             :present {:2plur "siete",
+                                       :3sing "è",
+                                       :2sing "sei",
+                                       :1sing "sono",
+                                       :3plur "sono",
+                                       :1plur "siamo"},
+                             :futuro {:2plur "sarete",
+                                      :3sing "sarà",
+                                      :2sing "sarai",
+                                      :1sing "sarò",
+                                      :3plur "saranno",
+                                      :1plur "saremo"}},
+                 :infl :present},
+             :initial false}}]
     (is (= (string/trim (get-italian io-sono-stato-alto))
            "io sono stato alto"))))
 
-
-
+(deftest object-agreement
+  "if the object is a pronoun, then agreement is with it, rather than with the subject.
+so in this example, will be feminine rather than masculine."
+  (let [ricordata
+        {:agr {:number :sing,
+               :gender :masc
+               :case :nom,
+               :person :1st},
+         :essere false,
+         :infinitive "ricordare"
+         :initial false,
+         :obj-agr {:number :sing,
+                   :gender :fem,
+                   :person :3rd,
+                   :case :acc},
+         :infl :past}]
+    (is (= (string/trim (get-italian ricordata))
+           "ricordata"))))

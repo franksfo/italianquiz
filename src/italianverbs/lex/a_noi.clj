@@ -200,14 +200,19 @@
                       :subj {:human true}
                       :obj {:buyable true}}}})
 
-     ;; "avere": auxiliary-verb: takes intransitive verb (1 arg)
-     (unify
-      verb-aux-type
-      verb-subjective
-      avere-common
-      {:synsem {:infl :present
-                :subcat {:2 {:essere false}}}
-       :english {:hidden true}})
+     ;; "avere": auxiliary-verb: take 2 args:
+     ;; 1. subject that is the same as the subject of 2.
+     ;; 2. a verb which may be transitive or intransitive.
+     (let [agr-of-obj-of-main-verb (ref :top)]
+       (unify
+        verb-aux-type
+        verb-subjective
+        avere-common
+        {:synsem {:infl :present
+                  :subcat {:2 {:agr agr-of-obj-of-main-verb
+                               :subcat {:2 {:agr agr-of-obj-of-main-verb}}
+                               :essere false}}}
+         :english {:hidden true}}))
 
      ;; non-comparative
      (unify adjective
