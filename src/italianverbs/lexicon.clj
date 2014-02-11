@@ -68,7 +68,10 @@
   (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
              (= (not (empty? (get-in lexical-entry '(:synsem :subcat)))))
              (not (= (get-in lexical-entry '(:synsem :pronoun)) true)))
-        (unifyc lexical-entry {:synsem {:pronoun false}})
+        (unifyc lexical-entry
+                {:synsem {:pronoun false
+                          :subcat {:1 {:cat :det}
+                                   :2 '()}}})
         true
         lexical-entry))
 
