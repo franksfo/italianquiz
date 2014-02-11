@@ -1131,6 +1131,13 @@
        :english "she"
        :italian "lei"}
 
+      {:english {:english "letter"}
+       :italian {:italian "lettera"}
+       :synsem {:agr {:gender :fem}
+                :cat :noun
+                :sem {:legible true
+                      :writable true}}}
+
       {:synsem {:cat :noun
                 :pronoun true
                 :agr {:case :nom
