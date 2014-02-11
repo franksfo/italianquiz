@@ -75,6 +75,9 @@
         true
         lexical-entry))
 
+(defn semantic-implicature [lexical-entry]
+  {:synsem {:sem (sem-impl (get-in lexical-entry '(:synsem :sem)))}})
+
 (defn put-a-bird-on-it [lexical-entry]
   "example lexical entry transformer."
   (cond (map? lexical-entry)
@@ -117,7 +120,8 @@
 
          true lexical-entry))
 
-(def rules (list category-to-subcat intensifier-agreement pronoun-rule sem-impl))
+(def rules (list category-to-subcat default-is-singular
+                 intensifier-agreement pronoun-rule semantic-implicature))
 
 (defn transform [lexical-entry]
   "keep transforming lexical entries until there's no changes (isomorphic? input result) => true"
