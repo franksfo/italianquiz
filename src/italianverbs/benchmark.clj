@@ -1,7 +1,8 @@
 (ns italianverbs.benchmark
   (:require
+   [italianverbs.cache :refer (over)]
    [italianverbs.grammar :refer (grammar)]
-   [italianverbs.cache :refer (over)]))
+   [italianverbs.lexicon :refer (lexicon)]))
 
 ;;
 ;; Usage:
@@ -22,9 +23,14 @@
                                                    "io"
                                                    "dormire")))))
 
+(defn print-language-stats []
+  (print (str "grammar size:" (.size grammar)))
+  (print (str "; lexicon size:" (.size lexicon))))
+
 (defn run-small [n]
   (let [result (take n (repeatedly #(benchmark-small-fn)))]
-    (.size result)))
+    (.size result)
+    (print-language-stats)))
 
 (def benchmark-medium-fn (fn [] (time (take 1 (over grammar
                                                     "io"
@@ -41,6 +47,9 @@
 (defn run-medium [n]
   (let [result
         (take n (repeatedly #(benchmark-medium-fn)))]
-    (.size result)))
+    (print (str "grammar size:" (.size grammar)))
+    (print (str "lexicon size:" (.size lexicon)))
+    (.size result)
+    (print-language-stats)))
 
 
