@@ -243,7 +243,7 @@
 
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon phrases depth cache path]]
-  (let [maxdepth 2
+  (let [maxdepth 5
         head (if head head :top)
         remove-top-values (remove-top-values-log head)
         debug (log/debug "")
@@ -275,7 +275,7 @@
      true
      (let [debug (log/debug (str "lightning-bolt first parent at this depth: "
                                  (fo-ps (first parents-at-this-depth))))
-           parents-with-phrasal-head-map (if (< depth maxdepth)
+           parents-with-phrasal-head-map (if (or true (< depth maxdepth))
                                            (phrasal-headed-phrases
                                             parents-at-this-depth
                                             lexicon
