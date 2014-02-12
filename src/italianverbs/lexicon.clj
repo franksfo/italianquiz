@@ -127,19 +127,37 @@
 
          true lexical-entry))
 
-(def rules (list category-to-subcat
-                 commonnoun
-                 embed-phon
-                 intensifier-agreement
-                 semantic-implicature
-                 ))
+;; This set of rules is monotonic and deterministic in the sense that
+;; iterative application of the set of rules will result in the input
+;; lexeme become more and more specific until it reaches a determinate
+;; fixed point, no matter what order we apply the rules. Given enough
+;; iterations, this same fixed point will be reached no matter which
+;; order the rules are applied, as long as all rules are applied at
+;; each iteration. This is guaranteed by using these rules below in
+;; (transform) so that the rules' outputs are reduced using unifyc.
+(def rules (list category-to-subcat commonnoun
+                 intensifier-agreement semantic-implicature))
+
+;; Modifying rules: so-named because they modify the lexical entry in
+;; such a way that is non-monotonic and dependent on the order of rule
+;; application. Because of these complications, avoid and use
+;; unifying-rules instead, where possible. Only to be used where
+;; (reduce unifyc ..) would not work, as with embed-phon, where
+;; {:italian <string>} needs to be turned into {:italian {:italian <string}},
+;; but unifying the input and output of the rule would be :fail.
+;; These rules are (reduce)d using merge rather than unifyc.
+(def modifying-rules (list embed-phon))
 
 (defn transform [lexical-entry]
-  "keep transforming lexical entries until there's no changes (isomorphic? input result) => true"
+  "keep transforming lexical entries until there's no changes. No changes is
+   defined as: (isomorphic? input output) => true, where output is one iteration's
+   applications of all of the rules."
   (log/debug (str "Transforming: " (fo lexical-entry)))
   (log/debug (str "transform: input :" lexical-entry))
   (let [result (reduce unifyc (map (fn [rule] (apply rule (list lexical-entry)))
-                                   rules))]
+                                   rules))
+        result (reduce merge  (map (fn [rule] (apply rule (list result)))
+                                   modifying-rules))]
     (if (isomorphic? result lexical-entry)
       (cache-serialization result)
       (transform result))))
