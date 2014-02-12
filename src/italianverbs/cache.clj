@@ -2,6 +2,8 @@
   (:refer-clojure :exclude [get-in merge resolve find parents])
   (:require
    [clojure.core :exclude [get-in]]
+
+   ;; TODO: comment is misleading in that we never call core/get-in from this file.
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
 
    [clojure.set :refer :all]
@@ -16,8 +18,14 @@
    [italianverbs.over :as over]
    [italianverbs.unify :refer :all :exclude [unify]]))
 
+;; For now, this cache is just a stub; no actual caching is done; it simply calls 
+;; the over/ equivalents of each of the defined functions.
+
 (def head-cache {})
 (def comp-cache {})
+
+(defn over [parents child1 & [child2]]
+  (over/over parents child1 child2))
 
 (defn overh [parent head]
   (if (or true (not (seq? head)))
