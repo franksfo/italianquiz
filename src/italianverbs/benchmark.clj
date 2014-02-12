@@ -3,6 +3,21 @@
    [italianverbs.grammar :refer (grammar)]
    [italianverbs.over :refer (over)]))
 
+;;
+;; Usage:
+;;
+;; user> (in-ns 'italianverbs.benchmark)
+;; #<Namespace italianverbs.benchmark>
+;; italianverbs.benchmark> (run-small 5)
+;; "Elapsed time: 3215.335 msecs"
+;; "Elapsed time: 3240.738 msecs"
+;; "Elapsed time: 3246.048 msecs"
+;; "Elapsed time: 3219.936 msecs"
+;; "Elapsed time: 3226.173 msecs"
+;; 5
+;; italianverbs.benchmark> 
+;;
+
 (def benchmark-small-fn (fn [] (time (take 1 (over grammar
                                                  "io"
                                                  "dormire")))))
