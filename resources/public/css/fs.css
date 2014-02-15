@@ -217,22 +217,22 @@ table {
 }
 
 div.evalresult {
-    margin-bottom:0.5em;
     background:rgb(210,255,255);
-    padding-top:0.5em;
-    padding-bottom:0.5em;
-    padding-left:0.5em;
-    padding-right:0.5em;
+    padding-top:0.05em;
+    padding-bottom:0.05em;
+    padding-left:0.05em;
+    padding-right:0.05em;
     width:80%;
     float:right;
     border:3px solid lightblue;
     -moz-border-radius: 25px;
     border-radius: 25px;
     overflow:auto;
+    margin-top:0.25em;
+    margin-bottom:0.25em;
 }
 
 div.evalinput {
-    margin-bottom:0.5em;
     background:white;
     padding-top:0.5em;
     padding-bottom:0.5em;
@@ -253,10 +253,14 @@ div.evalresult ul {
 }
 
 ol.workbook {
+    margin:0;
+    padding:0;
     float:left;
 }
 
 ol.workbook li {
+    padding:0;
+    margin:0;
     float:left;
     padding-left: 0.25em;
     border-top:0px solid green;
@@ -267,6 +271,8 @@ ol.workbook li {
 }
 
 ol.workbook {
+    margin:0.25em;
+    padding:0.25em;
     float:left;
     list-style: none;
    }
