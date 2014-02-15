@@ -24,6 +24,43 @@
 (def head-cache {})
 (def comp-cache {})
 
+(defn build-lex-sch-cache [phrases lexicon all-phrases]
+  "Build a mapping of phrases onto subsets of the lexicon. The two values (subsets of the lexicon) to be
+   generated for each key (phrase) are: 
+   1. the subset of the lexicon that can be the head of this phrase.
+   2. the subset of the lexicon that can be the complement of this phrase.
+
+   End result is a set of phrase => {:comp subset-of-lexicon 
+                                     :head subset-of-lexicon}."
+  (if (not (empty? phrases))
+    (conj
+     {(:comment (first phrases))
+      {:comp
+       (filter (fn [lex]
+                 (not (fail? (unifyc (first phrases)
+                                     {:comp lex}))))
+               lexicon)
+
+       :comp-phrases
+       (filter (fn [comp-phrase]
+                 (not (fail? (unifyc (first phrases)
+                                     {:comp comp-phrase}))))
+               all-phrases)
+
+       :head-phrases
+       (filter (fn [head-phrase]
+                 (not (fail? (unifyc (first phrases)
+                                     {:head head-phrase}))))
+               all-phrases)
+
+       :head
+       (filter (fn [lex]
+                 (not (fail? (unifyc (first phrases)
+                                     {:head lex}))))
+               lexicon)}}
+     (build-lex-sch-cache (rest phrases) lexicon all-phrases))
+    {}))
+
 (defn over [parents child1 & [child2]]
   (over/over parents child1 child2))
 

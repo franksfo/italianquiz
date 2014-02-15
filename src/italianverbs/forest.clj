@@ -4,7 +4,8 @@
    [clojure.core :as core]
    [clojure.set :refer :all]
    [clojure.tools.logging :as log]
-   [italianverbs.cache :refer (get-comp-phrases-of get-head-phrases-of get-lex overc overh overc-with-cache overh-with-cache)]
+   [italianverbs.cache :refer (build-lex-sch-cache get-comp-phrases-of get-head-phrases-of get-lex
+                                                   overc overh overc-with-cache overh-with-cache)]
    [italianverbs.lexicon :refer (it)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.unify :as unify]
@@ -34,43 +35,6 @@
   (apply unify/unifyc args))
 
 (declare lightning-bolt)
-
-(defn build-lex-sch-cache [phrases lexicon all-phrases]
-  "Build a mapping of phrases onto subsets of the lexicon. The two values (subsets of the lexicon) to be
-   generated for each key (phrase) are: 
-   1. the subset of the lexicon that can be the head of this phrase.
-   2. the subset of the lexicon that can be the complement of this phrase.
-
-   End result is a set of phrase => {:comp subset-of-lexicon 
-                                     :head subset-of-lexicon}."
-  (if (not (empty? phrases))
-    (conj
-     {(:comment (first phrases))
-      {:comp
-       (filter (fn [lex]
-                 (not (fail? (unifyc (first phrases)
-                                     {:comp lex}))))
-               lexicon)
-
-       :comp-phrases
-       (filter (fn [comp-phrase]
-                 (not (fail? (unifyc (first phrases)
-                                     {:comp comp-phrase}))))
-               all-phrases)
-
-       :head-phrases
-       (filter (fn [head-phrase]
-                 (not (fail? (unifyc (first phrases)
-                                     {:head head-phrase}))))
-               all-phrases)
-
-       :head
-       (filter (fn [lex]
-                 (not (fail? (unifyc (first phrases)
-                                     {:head lex}))))
-               lexicon)}}
-     (build-lex-sch-cache (rest phrases) lexicon all-phrases))
-    {}))
 
 (defn headed-phrase-add-comp [parents phrases lexicon & [iter cache path]]
   (if (not (empty? parents))
