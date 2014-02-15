@@ -43,11 +43,14 @@
                                   {:synsem {:cat :prep}})
                           {:comment "prepositional-phrase"})
 
-                   (merge (unifyc cc10
-                                  {:synsem {:infl :present
-                                            :cat :verb
-                                            :sem {:tense :past}}})
-                          {:comment "s-aux"})
+                   (let [aux (ref :true)]
+                     (merge (unifyc cc10
+                                    {:head {:aux aux}
+                                     :synsem {:aux aux
+                                              :infl :present
+                                              :cat :verb
+                                              :sem {:tense :past}}})
+                            {:comment "s-aux"}))
 
                    (merge (unifyc cc10
                                   {:synsem {:infl :futuro
@@ -72,12 +75,15 @@
                                             :cat :verb}})
                           {:comment "vp-infinitive"})
 
-                   (merge (unifyc hh21
-                                  {:synsem {:infl :present
-                                            :sem {:tense :past}
-                                            :cat :verb}
-                                   :head verb-aux-type})
-                          {:comment "vp-aux"})
+                   (let [aux (ref :true)]
+                     (merge (unifyc hh21
+                                    {:head {:aux aux}}
+                                    {:synsem {:aux aux
+                                              :infl :present
+                                              :sem {:tense :past}
+                                              :cat :verb}
+                                     :head verb-aux-type})
+                            {:comment "vp-aux"}))
 
                    ;; this rule is kind of complicated and made more so by
                    ;; dependence on auxilary sense of "avere" which supplies the

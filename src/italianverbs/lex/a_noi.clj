@@ -196,9 +196,9 @@
                       :subj {:human true}
                       :obj {:buyable true}}}})
 
-     ;; "avere": auxiliary-verb: take 2 args:
+     ;; "avere": auxiliary-verb: takes 2 args:
      ;; 1. subject that is the same as the subject of 2.
-     ;; 2. a verb which may be transitive or intransitive.
+     ;; 2. a transitive verb.
      (let [agr-of-obj-of-main-verb (ref :top)]
        (unify
         verb-aux-type
@@ -207,6 +207,19 @@
         {:synsem {:infl :present
                   :subcat {:2 {:agr agr-of-obj-of-main-verb
                                :subcat {:2 {:agr agr-of-obj-of-main-verb}}
+                               :essere false}}}
+         :english {:hidden true}}))
+
+     ;; "avere": auxiliary-verb: takes 2 args:
+     ;; 1. subject that is the same as the subject of 2.
+     ;; 2. an intransitive verb.
+     (let [agr-of-obj-of-main-verb (ref :top)]
+       (unify
+        verb-aux-type
+        verb-subjective
+        avere-common
+        {:synsem {:infl :present
+                  :subcat {:2 {:agr agr-of-obj-of-main-verb
                                :essere false}}}
          :english {:hidden true}}))
 
@@ -729,29 +742,6 @@
                          :discrete false
                          :subj {:human human}
                          :obj {:human human}}}}))
-
-      ;; essere: intensifier
-      ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
-      (let [gender (ref :top)
-            number (ref :top)
-            subject (ref {:agr {:gender gender
-                                :number number}
-                          :cat :noun})
-            comp-sem (ref
-                      {:activity false
-                       :discrete false})]
-        (unify
-         verb-subjective
-         essere-common
-         {:notes "essere-intensifer"
-          :synsem {:cat :verb
-                   :subcat {:1 subject
-                            :2 {:cat :intensifier
-                                :sem comp-sem
-                                :subcat {:1 subject
-                                         :2 '()}}}
-                   :sem {:pred :intensifier
-                         :obj comp-sem}}}))
 
       (unify
        verb-aux-type
