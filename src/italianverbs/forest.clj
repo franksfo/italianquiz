@@ -265,9 +265,8 @@
            parents-with-phrasal-head 
            (fn []
              (let [parents-with-phrasal-head (mapcat (fn [each-kv]
-                                                       (let [parent (:parent each-kv)]
-                                                         (let [phrases (:headed-phrases each-kv)]
-                                                           phrases)))
+                                                       (let [phrases (:headed-phrases each-kv)]
+                                                         phrases))
                                                      parents-with-phrasal-head-map)]
                (if (empty? parents-with-phrasal-head)
                  (log/debug (str "hP: empty."))
@@ -278,9 +277,8 @@
            parents-with-lexical-heads 
            (fn []
              (let [parents-with-lexical-heads (mapcat (fn [each-kv]
-                                                        (let [parent (:parent each-kv)]
-                                                          (let [phrases (:headed-phrases each-kv)]
-                                                            phrases)))
+                                                        (let [phrases (:headed-phrases each-kv)]
+                                                          phrases))
                                                       (lexical-headed-phrases))]
                (if (empty? parents-with-lexical-heads)
                  (log/debug (str "hL: empty."))
