@@ -209,7 +209,6 @@
           (= val2 '()))
      val1
 
-
      (and (= val1 '()))
      :fail
 
@@ -380,7 +379,8 @@
      (= val1 :top) val2
      (= val2 :top) val1
 
-     ;; these two rules are unfortunately necessary because of mongo/clojure storage of keywords as strings.
+     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
+     ;; these two rules are unfortunately necessary because of congomongo's storage of keywords as strings.
      (= val1 "top") val2
      (= val2 "top") val1
 
@@ -421,7 +421,6 @@
      :else ;; fail.
      (do
        (log/debug (str "(" val1 ", " val2 ") => :fail"))
-;       (println (str "(" val1 ", " val2 ") => :fail"))
        :fail))))
 
 ;; unify vs. merge:
