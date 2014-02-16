@@ -239,24 +239,21 @@
      true
      (let [debug (log/debug (str "lightning-bolt first parent at this depth: "
                                  (fo-ps (first parents-at-this-depth))))
-           parents-with-phrasal-head-map (if (or true (< depth maxdepth))
-                                           (phrasal-headed-phrases
-                                            parents-at-this-depth
-                                            lexicon
-                                            phrases
-                                            depth
-                                            cache
-                                            path))
+           parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth
+                                                                 lexicon
+                                                                 phrases
+                                                                 depth
+                                                                 cache
+                                                                 path)
 
            lexical-headed-phrases 
            (fn []
-             (let [lexical-headed-phrases (lexical-headed-phrases
-                                           parents-at-this-depth
-                                           (lazy-shuffle lexicon)
-                                           phrases
-                                           depth
-                                           cache
-                                           path)]
+             (let [lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth
+                                                                  (lazy-shuffle lexicon)
+                                                                  phrases
+                                                                  depth
+                                                                  cache
+                                                                  path)]
                (if (empty? lexical-headed-phrases)
                  (log/debug (str "no lexical-headed-phrases."))
                  (log/debug (str "lexical-headed-phrases is non-empty; the first is: " (fo (first lexical-headed-phrases)))))
