@@ -743,6 +743,31 @@
                          :subj {:human human}
                          :obj {:human human}}}}))
 
+      ;; essere: intensifier
+      ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
+      (let [gender (ref :top)
+            number (ref :top)
+            subject (ref {:agr {:gender gender
+                                :number number}
+                          :cat :noun})
+            comp-sem (ref
+                      {:activity false
+                       :discrete false})]
+        (unify
+         verb-subjective
+         essere-common
+         {:notes "essere-intensifer"
+          :synsem {:cat :verb
+                   :subcat {:1 subject
+                            :2 {:cat :intensifier
+                                :sem comp-sem
+                                :subcat {:1 subject
+                                         :2 '()}}}
+                   :sem {:pred :intensifier
+                         :obj comp-sem}}}))
+
+
+
       (unify
        verb-aux-type
        verb-subjective
