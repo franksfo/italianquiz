@@ -922,6 +922,7 @@
                                  :artifact false
                                  :buyable false
                                  :speakable false
+                                 :place false
                                  :pred :giorno}}}
                  {:italian {:italian "giorno"}
                   :english {:english "day"}})
