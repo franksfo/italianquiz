@@ -127,6 +127,37 @@
 
          true lexical-entry))
 
+(defn verb-rule [lexical-entry]
+  "every verb has at least a subject."
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
+        (unifyc
+         lexical-entry
+         (let [ref (ref :top)]
+           {:synsem {:subcat {:1 {:sem ref}}
+                     :sem {:subj ref}}}))
+        true
+        lexical-entry))
+
+(defn transitive-verb-rule [lexical-entry]
+  (cond (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
+        (unifyc
+         lexical-entry
+         (let [ref (ref :top)]
+           {:synsem {:subcat {:2 {:sem ref}}
+                     :sem {:obj ref}}}))
+        true
+        lexical-entry))
+
+(defn ditransitive-verb-rule [lexical-entry]
+  (cond (not (nil? (get-in lexical-entry '(:synsem :sem :iobj))))
+        (unifyc
+         lexical-entry
+         (let [ref (ref :top)]
+           {:synsem {:subcat {:3 {:sem ref}}
+                     :sem {:iobj ref}}}))
+        true
+        lexical-entry))
+
 ;; This set of rules is monotonic and deterministic in the sense that
 ;; iterative application of the set of rules will result in the input
 ;; lexeme become more and more specific until it reaches a determinate
@@ -136,7 +167,12 @@
 ;; each iteration. This is guaranteed by using these rules below in
 ;; (transform) so that the rules' outputs are reduced using unifyc.
 (def rules (list category-to-subcat commonnoun
-                 intensifier-agreement semantic-implicature))
+                 ditransitive-verb-rule
+                 intensifier-agreement
+                 semantic-implicature
+                 transitive-verb-rule
+                 verb-rule))
+
 
 ;; Modifying rules: so-named because they modify the lexical entry in
 ;; such a way that is non-monotonic and dependent on the order of rule

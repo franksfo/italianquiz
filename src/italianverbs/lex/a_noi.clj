@@ -525,6 +525,15 @@
             :english {:english "short"
                       :cat :adjective}})
 
+
+    {:italian {:infinitive "dare"}
+     :english {:infinitive "to give"}
+     :synsem {:cat :verb
+              :sem {:subj {:human true}
+                    :obj {:buyable true}
+                    :iobj {:animate true}}}}
+               
+
     (unify
      transitive
      {:italian {:infinitive "deludere"
@@ -917,7 +926,8 @@
                  common-noun
                  countable-noun
                  masculine-noun
-                 {:synsem {:sem {:animate false
+                 {:synsem {:sem {:activity false
+                                 :animate false
                                  :legible false
                                  :artifact false
                                  :buyable false
