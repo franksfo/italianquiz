@@ -231,6 +231,8 @@
 
         cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))]
     (cond
+     (> depth maxdepth)
+     nil
 
      (empty? parents-at-this-depth)
      (do (log/debug "lb: no parents with depth:" depth ";returning empty list.")
