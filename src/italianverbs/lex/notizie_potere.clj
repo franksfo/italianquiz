@@ -98,11 +98,11 @@
            )
 
       (unify
-       intransitive
        {:italian {:infinitive "pensare"}
         :english {:infinitive "to think"
                   :irregular {:past "thought"}}
-        :synsem {:essere false
+        :synsem {:cat :verb
+                 :essere false
                  :sem {:pred :pensare
                        :discrete false
                        :subj {:human true}}}})

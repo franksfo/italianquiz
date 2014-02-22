@@ -127,12 +127,30 @@
 
          true lexical-entry))
 
+(defn aux-verb-rule [lexical-entry]
+  (cond (= (get-in lexical-entry '(:synsem :aux)) true)
+        (unifyc lexical-entry
+                verb-aux-type)
+        true
+        lexical-entry))
+
 (defn verb-rule [lexical-entry]
   "every verb has at least a subject."
   (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
         (unifyc
          lexical-entry
          verb-subjective)
+        true
+        lexical-entry))
+
+(defn intransitive-verb-rule [lexical-entry]
+  (cond (and (= (get-in lexical-entry '(:synsem :cat))
+                :verb)
+             (= :none (get-in lexical-entry '(:synsem :sem :obj) :none))
+             (not (= true (get-in lexical-entry '(:synsem :aux)))))
+        (unifyc
+         lexical-entry
+         intransitive)
         true
         lexical-entry))
 
@@ -162,9 +180,11 @@
 ;; order the rules are applied, as long as all rules are applied at
 ;; each iteration. This is guaranteed by using these rules below in
 ;; (transform) so that the rules' outputs are reduced using unifyc.
-(def rules (list category-to-subcat commonnoun
+(def rules (list aux-verb-rule
+                 category-to-subcat commonnoun
                  ditransitive-verb-rule
                  intensifier-agreement
+                 intransitive-verb-rule
                  semantic-implicature
                  transitive-verb-rule
                  verb-rule))

@@ -642,11 +642,11 @@
                       :english "woman"}})
 
     (unify
-     intransitive
      {:italian {:infinitive "dormire"}
       :english {:infinitive "to sleep"
                 :irregular {:past "slept"}}
-      :synsem {:essere false
+      :synsem {:cat :verb
+               :essere false
                :sem {:subj {:animate true}
                      :discrete false
                      :pred :dormire}}})
@@ -765,14 +765,13 @@
                  :sem {:pred :intensifier
                        :obj comp-sem}}}))
 
-    (unify
-     verb-aux-type
-     verb-subjective
-     essere-common
-     {:notes "essere-aux"}
-     {:synsem {:infl :present ;; TODO: consider relaxing this by allowing other inflections.
-               :subcat {:2 {:essere true}}}
-      :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
+    (unify essere-common
+     {:notes "essere-aux"
+      :synsem {:cat :verb
+               :aux true}
+      :english {;; :infinitive value is just for documentation purposes: never reaches surface string due to 
+                ;; :hidden=true immediately below it.
+                :infinitive "to be" 
                 :hidden true}}) ;; gets removed by morphological rules.
     
     {:synsem {:cat cat-of-pronoun

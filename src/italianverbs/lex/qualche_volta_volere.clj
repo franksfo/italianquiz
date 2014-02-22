@@ -150,12 +150,12 @@
                 :english {:english "rich"}}))
 
       (unify
-       intransitive
        {:italian {:infinitive "ridere"
                   :irregular {:passato "riso"}}
         :english {:infinitive "to laugh"
                   :irregular {:past "laughed"}}
-        :synsem {:essere false
+        :synsem {:cat :verb
+                 :essere false
                  :sem {:subj {:human true}
                        :pred :ridere
                        :discrete true
@@ -451,11 +451,11 @@
                                    :political true}}}}})
 
       (unify
-       intransitive
        {:italian {:infinitive "sognare"}
         :english {:infinitive "to dream"
                   :irregular {:past "dreamt"}}
-        :synsem {:essere false
+        :synsem {:cat :verb
+                 :essere false
                  :sem {:subj {:animate true}
                        :discrete false
                        :pred :sognare}}})
@@ -642,9 +642,9 @@
                      :obj {:buyable true}}}})
 
     (unify
-     intransitive
      venire-common
-     {:synsem {:essere true
+     {:synsem {:cat :verb
+               :essere true
                :sem {:pred :venire
                      :activity true
                      :motion true
@@ -681,11 +681,11 @@
                :case pronoun-acc}}
 
     (unify
-     intransitive
      {:italian {:infinitive "vivere"}
       :english {:infinitive "to live"
                 :irregular {:past "lived"}}
-      :synsem {:essere true
+      :synsem {:cat verb
+               :essere true
                :sem {:pred :vivere
                      :deliberate false
                      ;; TODO: activity=false for now, but other senses of 'vivere' could be activities, e.g.
