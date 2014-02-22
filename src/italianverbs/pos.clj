@@ -184,24 +184,6 @@
                            :sem sem
                            :infl :past}}}}))
 
-(def verb-aux-type-2
-  (let [essere-binary-categorization (ref :top)
-        aux (ref true)
-        sem (ref {:tense :past})
-        subject (ref :top)
-        object (ref :top)]
-    {:italian {:aux aux
-               :essere essere-binary-categorization}
-     :synsem {:aux aux
-              :sem sem
-              :essere essere-binary-categorization
-              :subcat {:1 subject
-                       :2 {:cat :verb
-                           :subcat {:1 subject
-                                    :2 object}
-                           :sem sem
-                           :infl :past}}}}))
-
 ;; TODO: not using this: either use or lose.
 (def transitive-but-with-prepositional-phrase-instead-of-noun
   (unifyc verb-subjective
@@ -216,9 +198,9 @@
                                    :cat :prep}
                                :3 '()}}})))
 
-;; whether a verb has essere or avere as its
-;; auxiliary to form its passato-prossimo form:
-;; Must be encoded in both the :italian (for morphological agreement)
+;; Whether a verb has essere or avere as its
+;; auxiliary to form its passato-prossimo form
+;; must be encoded in both the :italian (for morphological agreement)
 ;; and the :synsem (for subcategorization by the appropriate aux verb).
 (def verb-aux-type
   (let [essere-binary-categorization (ref :top)
@@ -236,20 +218,9 @@
                            :sem sem
                            :infl :past}}}}))
 
-(def verb-aux-type-2
-  (let [essere-binary-categorization (ref :top)
-        aux (ref true)
-        sem (ref {:tense :past})
-        subject (ref :top)
-        object (ref :top)]
-    {:italian {:aux aux
-               :essere essere-binary-categorization}
-     :synsem {:aux aux
-              :sem sem
-              :essere essere-binary-categorization
-              :subcat {:1 subject
-                       :2 {:cat :verb
-                           :subcat {:1 subject
-                                    :2 object}
-                           :sem sem
-                           :infl :past}}}}))
+
+
+
+
+
+
