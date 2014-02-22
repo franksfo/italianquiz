@@ -180,6 +180,8 @@
               :essere essere-binary-categorization
               :subcat {:1 subject
                        :2 {:cat :verb
+                           :aux false
+                           :essere essere-binary-categorization
                            :subcat {:1 subject}
                            :sem sem
                            :infl :past}}}}))
