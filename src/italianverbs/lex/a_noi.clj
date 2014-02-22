@@ -82,15 +82,13 @@
              :english {:english "crowded"
                        :cat :adjective}})
 
-      (unify
-       transitive
-       {:italian {:infinitive "aiutare"}
-        :english {:infinitive "to help"}
-        :synsem {:essere false
-                 :sem {:pred :aiutare
-                       :activity true
-                       :subj {:human true}
-                       :obj {:human true}}}})
+     {:italian {:infinitive "aiutare"}
+      :english {:infinitive "to help"}
+      :synsem {:essere false
+               :sem {:pred :aiutare
+                     :activity true
+                     :subj {:human true}
+                     :obj {:human true}}}}
 
      ;; non-comparative:
      (let [subject-sem (ref {:human true}) ;; only humans can be tall.
