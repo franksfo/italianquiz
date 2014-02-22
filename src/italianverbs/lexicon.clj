@@ -132,9 +132,7 @@
   (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
         (unifyc
          lexical-entry
-         (let [ref (ref :top)]
-           {:synsem {:subcat {:1 {:sem ref}}
-                     :sem {:subj ref}}}))
+         verb-subjective)
         true
         lexical-entry))
 
@@ -142,9 +140,7 @@
   (cond (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
         (unifyc
          lexical-entry
-         (let [ref (ref :top)]
-           {:synsem {:subcat {:2 {:sem ref}}
-                     :sem {:obj ref}}}))
+         transitive)
         true
         lexical-entry))
 
