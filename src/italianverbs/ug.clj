@@ -491,17 +491,6 @@
             lex/lexicon)
     lex/lexicon))
 
-(def subject-verb-agreement
-  (let [infl (ref :top)
-        agr (ref {:case :nom})]
-    {:comp {:synsem {:agr agr}}
-     :head {:synsem {:subcat {:1 {:agr agr}}
-                     :infl infl}
-            :italian {:agr agr
-                      :infl infl}
-            :english {:agr agr
-                      :infl infl}}}))
-
 ;; standard rule-caching disclaimer:
 ;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
 (def cc10-heads
