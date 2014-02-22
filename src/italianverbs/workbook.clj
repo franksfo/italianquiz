@@ -20,6 +20,8 @@
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps get-english get-italian]]
    [italianverbs.over :refer :all]
+   ;; we excluded lightning-bolt from italianverbs.forest, so that we can use italianverbs.test.forest's instead:
+   [italianverbs.test.forest :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]))
 
