@@ -140,7 +140,7 @@
   (cond (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
         (unifyc
          lexical-entry
-         transitive)
+         transitive-but-object-cat-not-set)
         true
         lexical-entry))
 

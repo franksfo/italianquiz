@@ -83,8 +83,7 @@
         number (ref :top)]
     {:synsem {:cat adjective
               :agr {:gender gender
-                    :number number}
-              }
+                    :number number}}
      :italian {:cat adjective
                :agr {:number number
                      :gender gender}}
@@ -129,6 +128,19 @@
                                    :subcat '()
                                    :cat :noun
                                    :agr {:case :acc}}}}})))
+
+(def transitive-but-object-cat-not-set
+  (unifyc verb-subjective
+          (let [obj-sem (ref :top)
+                infl (ref :top)]
+            {:english {:infl infl}
+             :italian {:infl infl}
+             :synsem {:sem {:obj obj-sem}
+                      :infl infl
+                      :subcat {:2 {:sem obj-sem
+;                                   :subcat '()
+                                   :agr {:case :acc}}}}})))
+
 
 (def verb {:transitive transitive})
 

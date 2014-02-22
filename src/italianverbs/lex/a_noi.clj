@@ -699,101 +699,88 @@
                :cat cat-of-pronoun
                :case disjunctive-case-of-pronoun}}
 
-    (let [subject (ref {:cat :noun})
+    ;; essere: adjective
+    ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry.
+    (let [gender (ref :top)
+          number (ref :top)]
+      (unify
+       essere-common
+       {:notes "essere-adjective"
+        :synsem {:cat :verb
+                 :sem {:subj :top
+                       :obj :top}
+                 :subcat {:1 {:cat :noun
+                              :agr {:gender gender
+                                    :number number}}
+                          :2 {:cat :adjective
+                              :agr {:gender gender
+                                    :number number}}}}}))
+
+    ;; essere: copula ;; note that we don't enforce agreement the same here as we do in essere-adjective: TODO: try to make more consistent.
+    (let [gender (ref :top)
+          number (ref :top)
+          human (ref :top)]
+      (unify
+       transitive
+       essere-common
+       {:notes "copula" ;; significant only for debugging.
+        :synsem {:cat :verb
+                 :subcat {:1 {:cat :noun
+                              :agr {:gender gender
+                                    :number number}}
+                          :2 {:cat :noun
+                              :pronoun {:not true} ;; accusative pronouns cause unbounded depth-first searches on the subject side. (TODO: not sure if this problem is still present)
+                              :def {:not :demonstrativo}
+                              :agr {:gender gender
+                                    :number number}}}
+                 :sem {:pred :essere
+                       :activity false
+                       :discrete false
+                       :subj {:human human}
+                       :obj {:human human}}}}))
+
+    ;; essere: intensifier
+    ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
+    (let [gender (ref :top)
+          number (ref :top)
+          subject (ref {:agr {:gender gender
+                              :number number}
+                        :cat :noun})
           comp-sem (ref
                     {:activity false
-                     :comparative false ;; to avoid *"essere alto di.." (but "essere meno alto di.." is ok)
                      :discrete false})]
-
-      ;; essere: adjective
-      ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry.
-      (let [gender (ref :top)
-            number (ref :top)
-            subject (ref {:cat :noun
-                          :agr {:gender gender
-                                :number number}})]
-        (unify
-         verb-subjective
-         essere-common
-         {:notes "essere-adjective"
-          :synsem {:cat :verb
-                   :subcat {:1 subject
-                            :2 {:cat :adjective
-                                :agr {:gender gender
-                                      :number number}
-                                :sem comp-sem
-                                :subcat {:1 subject
-                                         :2 '()}}}
-                   :sem {:pred :essere
-                         :obj comp-sem}}})))
-
-      ;; essere: copula ;; note that we don't enforce agreement the same here as we do in essere-adjective: TODO: try to make more consistent.
-      (let [gender (ref :top)
-            number (ref :top)
-            human (ref :top)]
-        (unify
-         transitive
-         essere-common
-         {:notes "copula" ;; significant only for debugging.
-          :synsem {:cat :verb
-                   :subcat {:1 {:cat :noun
-                                :agr {:gender gender
-                                      :number number}}
-                            :2 {:cat :noun
-                                :pronoun {:not true} ;; accusative pronouns cause unbounded depth-first searches on the subject side. (TODO: not sure if this problem is still present)
-                                :def {:not :demonstrativo}
-                                :agr {:gender gender
-                                      :number number}}}
-                   :sem {:pred :essere
-                         :activity false
-                         :discrete false
-                         :subj {:human human}
-                         :obj {:human human}}}}))
-
-      ;; essere: intensifier
-      ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
-      (let [gender (ref :top)
-            number (ref :top)
-            subject (ref {:agr {:gender gender
-                                :number number}
-                          :cat :noun})
-            comp-sem (ref
-                      {:activity false
-                       :discrete false})]
-        (unify
-         verb-subjective
-         essere-common
-         {:notes "essere-intensifer"
-          :synsem {:cat :verb
-                   :subcat {:1 subject
-                            :2 {:cat :intensifier
-                                :sem comp-sem
-                                :subcat {:1 subject
-                                         :2 '()}}}
-                   :sem {:pred :intensifier
-                         :obj comp-sem}}}))
-
-
-
       (unify
-       verb-aux-type
        verb-subjective
        essere-common
-       {:notes "essere-aux"}
-       {:synsem {:infl :present ;; TODO: consider relaxing this by allowing other inflections.
-                 :subcat {:2 {:essere true}}}
-        :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
-                  :hidden true}}) ;; gets removed by morphological rules.
+       {:notes "essere-intensifer"
+        :synsem {:cat :verb
+                 :subcat {:1 subject
+                          :2 {:cat :intensifier
+                              :sem comp-sem
+                              :subcat {:1 subject
+                                       :2 '()}}}
+                 :sem {:pred :intensifier
+                       :obj comp-sem}}}))
 
-      {:synsem {:cat cat-of-pronoun
-                    :pronoun true
-                    :agr {:case disjunctive-case-of-pronoun
-                          :person :3rd
-                          :number :sing}
-                    :sem (unify {:human false
-                                 :place false
-                                 :pred :esso})
-                    :subcat '()}
+    (unify
+     verb-aux-type
+     verb-subjective
+     essere-common
+     {:notes "essere-aux"}
+     {:synsem {:infl :present ;; TODO: consider relaxing this by allowing other inflections.
+               :subcat {:2 {:essere true}}}
+      :english {:infinitive "to be" ;; just for documentation purposes: never reaches surface string due to :hidden=true.
+                :hidden true}}) ;; gets removed by morphological rules.
+    
+    {:synsem {:cat cat-of-pronoun
+              :pronoun true
+              :agr {:case disjunctive-case-of-pronoun
+                    :person :3rd
+                    :number :sing}
+              :sem (unify {:human false
+                           :place false
+                           :pred :esso})
+              :subcat '()}
        :english "it"
        :italian {:italian "esso"
                  :cat cat-of-pronoun
