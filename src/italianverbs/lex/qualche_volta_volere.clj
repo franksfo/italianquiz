@@ -25,8 +25,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :number :sing}
                 :sem {:human false
                       :animate false ;; otherwise we get weird things like "something will see my ladder".
@@ -38,8 +38,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :number :sing}
                 :sem (unify human {:pred :qualcuno})
                 :subcat '()}
@@ -508,8 +508,8 @@
 
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :person :2nd
+                :case disjunctive-case-of-pronoun
+                :agr {:person :2nd
                       :polite false
                       :number :sing}
                 :sem (unify human {:pred :tu})
@@ -521,8 +521,8 @@
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
-                :agr {:case pronoun-acc
-                      :person :2nd
+                :case pronoun-acc
+                :agr {:person :2nd
                       :number :sing}
                 :sem (unify human {:pred :tu})
                 :subcat '()}
@@ -566,8 +566,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :gender :fem
+                :case :nom
+                :agr {:gender :fem
                       :person :2nd
                       :number :sing}
                 :sem (unify human {:pred :tu})
@@ -578,8 +578,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :gender :masc
+                :case :nom
+                :agr {:gender :masc
                       :person :2nd
                       :number :sing}
                 :sem (unify human {:pred :tu})
@@ -669,8 +669,8 @@
 
     {:synsem {:cat pronoun-noun
               :pronoun true
-              :agr {:case pronoun-acc
-                    :person :2nd
+              :case pronoun-acc
+              :agr {:person :2nd
                     :number :plur}
               :sem (unify human {:pred :voi})
               :subcat '()}
@@ -703,8 +703,8 @@
                              :artifact true}}})
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :person :2nd
+                :case disjunctive-case-of-pronoun
+                :agr {:person :2nd
                       :number :plur}
                 :sem (unify human {:pred :voi})
                 :subcat '()}
@@ -716,8 +716,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :2nd
+                :case :nom
+                :agr {:person :2nd
                       :number :plur}
                 :sem (unify human {:pred :voi})
                 :subcat '()}

@@ -391,8 +391,8 @@
 
     {:synsem {:cat pronoun-noun
               :pronoun true
-              :agr {:case pronoun-acc
-                    :person :1st
+              :case pronoun-acc
+              :agr {:person :1st
                     :number :plur}
               :sem (unify human {:pred :noi})
                     :subcat '()}
@@ -572,7 +572,7 @@
               :subcat {:1 {:cat :noun
                            :subcat '()
                            :def {:not :partitivo} ;; avoid alliteration like "di delle ragazze (of some women)"
-                           :agr {:case :disj} ;; pronouns must be disjunctive (me/te/lui/lei...etc)
+                           :case :disj ;; pronouns must be disjunctive (me/te/lui/lei...etc)
                            ;; non-pronouns will unify with this constraint.
                            }
                        :2 '()}}
@@ -686,8 +686,8 @@
 
     {:synsem {:cat cat-of-pronoun
               :pronoun true
-              :agr {:case disjunctive-case-of-pronoun
-                    :person :3rd
+              :case disjunctive-case-of-pronoun
+              :agr {:person :3rd
                     :gender :fem
                     :number :plur}
               :sem {:human false
@@ -707,7 +707,8 @@
        essere-common
        {:notes "essere-adjective"
         :synsem {:cat :verb
-                 :sem {:subj :top
+                 :sem {:pred :essere
+                       :subj :top
                        :obj :top}
                  :subcat {:1 {:cat :noun
                               :agr {:gender gender
@@ -774,8 +775,8 @@
     
     {:synsem {:cat cat-of-pronoun
               :pronoun true
-              :agr {:case disjunctive-case-of-pronoun
-                    :person :3rd
+              :case disjunctive-case-of-pronoun
+              :agr {:person :3rd
                     :number :sing}
               :sem (unify {:human false
                            :place false
@@ -789,8 +790,8 @@
       ;; non human masculine and feminine forms
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :person :3rd
+                :case disjunctive-case-of-pronoun
+                :agr {:person :3rd
                       :gender :masc
                       :number :plur}
                 :sem {:human false
@@ -801,7 +802,6 @@
        :italian {:italian "essi"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
-
 
           ;; fare (to do)
           (unify
@@ -1064,8 +1064,8 @@
 
       {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it (TODO).
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :number :sing}
                 :sem (unify human {:pred :chiunque
                                    :elective-existential true})
@@ -1075,8 +1075,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :1st
+                :case :nom
+                :agr {:person :1st
                       :number :sing}
                 :sem (unify human {:pred :io})
                 :subcat '()}
@@ -1093,8 +1093,8 @@
       ;; note: no gender: "loro" in either case of masc or fem.
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :person :3rd
+                :case disjunctive-case-of-pronoun
+                :agr {:person :3rd
                       :number :plur}
                 :sem (unify human {:pred :lui})
                 :subcat '()}
@@ -1105,8 +1105,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :gender :masc
                       :number :sing}
                 :sem (unify human {:pred :lui})
@@ -1116,8 +1116,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :gender :masc
                       :number :sing}
                 :sem {:human false
@@ -1129,8 +1129,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :gender :fem
                       :number :sing}
                 :sem (unify human {:pred :lei})
@@ -1147,8 +1147,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :number :plur}
                 :sem (unify human {:pred :loro})
                 :subcat '()}
@@ -1214,8 +1214,8 @@
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
-                :agr {:case pronoun-acc
-                      :gender :masc
+                :case pronoun-acc
+                :agr {:gender :masc
                       :person :3rd
                       :number :sing}
                 :sem (unify human {:pred :lo})
@@ -1229,8 +1229,8 @@
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
-                :agr {:case pronoun-acc
-                      :gender :masc
+                :case pronoun-acc
+                :agr {:gender :masc
                       :person :3rd
                       :number :sing}
                 :sem {:human false
@@ -1247,8 +1247,8 @@
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
-                :agr {:case pronoun-acc
-                      :gender :fem
+                :case pronoun-acc
+                :agr {:gender :fem
                       :person :3rd
                       :number :sing}
                 :sem (unify human {:pred :lei})
@@ -1261,8 +1261,8 @@
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
-                :agr {:case pronoun-acc
-                      :gender :fem
+                :case pronoun-acc                      
+                :agr {:gender :fem
                       :person :3rd
                           :number :sing}
                 :sem {:human false
@@ -1289,8 +1289,8 @@
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
-                :agr {:case pronoun-acc
-                      :gender :fem
+                :case pronoun-acc
+                :agr {:gender :fem
                       :person :3rd
                       :number :plur}
                 :sem (unify human {:pred :lei})
@@ -1323,8 +1323,8 @@
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
-                :agr {:case pronoun-acc
-                      :gender :masc
+                :case pronoun-acc
+                :agr {:gender :masc
                       :person :3rd
                       :number :plur}
                 :sem (unify human {:pred :lui})
@@ -1359,8 +1359,8 @@
 
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :gender :fem
+                :case disjunctive-case-of-pronoun
+                :agr {:gender :fem
                       :person :2nd
                       :polite true
                       :number :sing}
@@ -1373,8 +1373,8 @@
 
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :gender :fem
+                :case disjunctive-case-of-pronoun
+                :agr {:gender :fem
                       :person :3rd
                       :number :sing}
                 :sem (unify human {:pred :lei})
@@ -1386,8 +1386,8 @@
  
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :gender :fem
                       :number :sing}
                 :sem {:human false
@@ -1450,8 +1450,8 @@
 
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :person :1st
+                :case disjunctive-case-of-pronoun
+                :agr {:person :1st
                       :number :sing}
                 :sem (unify human {:pred :io})
                 :subcat '()}
@@ -1463,8 +1463,8 @@
 
       {:synsem {:cat pronoun-noun
                 :pronoun true
-                :agr {:case pronoun-acc
-                      :person :1st
+                :case pronoun-acc
+                :agr {:person :1st
                       :number :sing}
                 :sem (unify human {:pred :io})
                 :subcat '()}
@@ -1528,8 +1528,8 @@
 
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :gender :masc
+                :case disjunctive-case-of-pronoun
+                :agr {:gender :masc
                       :person :3rd
                       :number :sing}
                 :sem (unify human {:pred :lui})
@@ -1554,7 +1554,7 @@
              {:synsem {:sem {:pred :napoli
                              :buyable false
                              :artifact false
-                             ;; getting tired of people "making Napoli"
+                             ;; getting tired of people "making Napoli":
                                         ;                            :artifact true
                              :city true}
                        :agr {:number :sing
@@ -1578,8 +1578,8 @@
 
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
-                :agr {:case disjunctive-case-of-pronoun
-                      :person :1st
+                :case disjunctive-case-of-pronoun
+                :agr {:person :1st
                       :number :plur}
                 :sem (unify human {:pred :noi})
                 :subcat '()}
@@ -1591,12 +1591,11 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :1st
+                :case :nom
+                :agr {:person :1st
                       :number :plur}
                 :sem (unify human {:pred :noi})
                 :subcat '()}
        :english "we"
        :italian "noi"}
 ))
-

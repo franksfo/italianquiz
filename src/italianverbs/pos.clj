@@ -17,10 +17,10 @@
               person (ref :top)
               agr (ref {:number number
                         :gender gender
-                        :case :top
                         :person person})
               cat (ref :top)]
           {:synsem {:cat cat
+                    :case :top
                     :subcat {:1 {:number number
                                  :person person
                                  :gender gender}}
@@ -97,18 +97,22 @@
 ;; they both have a subject, thus "subjective".
 (def verb-subjective
   (let [subj-sem (ref :top)
-        subject-agreement (ref {:case :nom})
+        subject-agreement (ref :nom)
         infl (ref :top)
+        agr (ref :top)
         essere-type (ref :top)]
-    {:italian {:agr subject-agreement :infl infl :essere essere-type}
-     :english {:agr subject-agreement :infl infl}
+    {:italian {:agr agr
+               :case subject-agreement :infl infl :essere essere-type}
+     :english {:agr agr
+               :case subject-agreement :infl infl}
      :synsem {:essere essere-type
               :infl infl
               :cat :verb
               :sem {:subj subj-sem}
               :subcat {:1 {:sem subj-sem
                            :cat :noun
-                           :agr subject-agreement}}}}))
+                           :agr agr
+                           :case subject-agreement}}}}))
 
 ;; intransitive: has subject but no object.
 (def intransitive
@@ -127,7 +131,7 @@
                       :subcat {:2 {:sem obj-sem
                                    :subcat '()
                                    :cat :noun
-                                   :agr {:case :acc}}}}})))
+                                   :case :acc}}}})))
 
 (def transitive-but-object-cat-not-set
   (unifyc verb-subjective
@@ -139,7 +143,7 @@
                       :infl infl
                       :subcat {:2 {:sem obj-sem
 ;                                   :subcat '()
-                                   :agr {:case :acc}}}}})))
+                                   :case :acc}}}})))
 
 
 (def verb {:transitive transitive})

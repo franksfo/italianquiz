@@ -30,8 +30,8 @@
 
       {:synsem {:cat :noun
                 :pronoun true
-                :agr {:case :nom
-                      :person :3rd
+                :case :nom
+                :agr {:person :3rd
                       :number :sing}
                 :sem (unify human {:pred :ognuno})
                 :subcat '()}

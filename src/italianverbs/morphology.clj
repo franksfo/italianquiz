@@ -727,7 +727,7 @@
    ".."
 
    (or
-    (= (get-in word '(:agr :case)) {:not :acc})
+    (= (get-in word '(:case)) {:not :acc})
     (= (get-in word '(:agr)) :top))
    ".."
 
