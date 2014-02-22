@@ -525,11 +525,13 @@
 
 
     {:italian {:infinitive "dare"}
-     :english {:infinitive "to give"}
+     :english {:infinitive "to give"
+               :irregular {:past "gave"}}
      :synsem {:cat :verb
               :sem {:subj {:human true}
+                    :iobj {:animate true}
                     :obj {:buyable true}
-                    :iobj {:animate true}}}}
+                    :pred :dare}}}
                
 
     (unify
