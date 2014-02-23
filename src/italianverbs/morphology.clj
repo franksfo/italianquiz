@@ -127,6 +127,9 @@
      (= (get-in word '(:infl)) :present)}))
 
 (defn get-italian-1 [word]
+  (if (seq? word)
+    (map get-italian-1
+         word)
   (let [analysis (analyze-italian-1 word)
         person (get-in word '(:agr :person))
         number (get-in word '(:agr :number))
@@ -585,9 +588,11 @@
         (and (= person :1st) (= number :sing)
              (string? (get-in word '(:irregular :present :1sing))))
         (get-in word '(:irregular :present :1sing))
+
         (and (= person :2nd) (= number :sing)
              (string? (get-in word '(:irregular :present :2sing))))
         (get-in word '(:irregular :present :2sing))
+
         (and (= person :3rd) (= number :sing)
              (string? (get-in word '(:irregular :present :3sing))))
         (get-in word '(:irregular :present :3sing))
@@ -595,9 +600,11 @@
         (and (= person :1st) (= number :plur)
              (string? (get-in word '(:irregular :present :1plur))))
         (get-in word '(:irregular :present :1plur))
+
         (and (= person :2nd) (= number :plur)
              (string? (get-in word '(:irregular :present :2plur))))
         (get-in word '(:irregular :present :2plur))
+
         (and (= person :3rd) (= number :plur)
              (string? (get-in word '(:irregular :present :3plur))))
         (get-in word '(:irregular :present :3plur))
@@ -735,7 +742,7 @@
    ;; in other words, if we've gotten this far, it's a bug.
    :else
    word)
-  ))
+  )))
 
 (defn get-italian [a & [ b ]]
   (let [a (if (nil? a) "" a)
