@@ -14,6 +14,14 @@
 
 ;; TODO: s/unifyc/unify/
 
+(defn aux-is-head-feature [phrase]
+  (cond (= :verb (get-in phrase '(:synsem :cat)))
+        (unifyc phrase
+                (let [ref (ref :top)]
+                  {:synsem {:aux ref}
+                   :head {:synsem {:aux ref}}}))
+        true phrase))
+
 (def grammar (list (merge (unifyc hh21
                                   {:synsem {:cat :adjective}})
                           {:comment "adjective-phrase"})
@@ -43,90 +51,99 @@
                                   {:synsem {:cat :prep}})
                           {:comment "prepositional-phrase"})
 
-                   (let [aux (ref :true)]
-                     (merge (unifyc cc10
-                                    {:head {:aux aux}
-                                     :synsem {:aux aux
-                                              :infl :present
-                                              :cat :verb
-                                              :sem {:tense :past}}})
-                            {:comment "s-aux"}))
+                   (merge (unifyc cc10
+                                  {:head {:synsem {:aux true}}
+                                   :synsem {:infl :present
+                                            :cat :verb
+                                            :sem {:tense :past}}})
+                          {:comment "s-aux"})
 
                    (merge (unifyc cc10
-                                  {:synsem {:infl :futuro
+                                  {:synsem {:aux false
+                                            :infl :futuro
                                             :cat :verb
                                             :sem {:tense :future}}})
                           {:comment "s-future"})
 
                    (merge (unifyc cc10
-                                  {:synsem {:infl :imperfetto
+                                  {:synsem {:aux false
+                                            :infl :imperfetto
                                             :cat :verb
                                             :sem {:tense :past}}})
                           {:comment "s-imperfetto"})
-
-                    (merge (unifyc cc10
-                                  {:synsem {:infl :present
+                   
+                   (merge (unifyc cc10
+                                  {:synsem {:aux false
+                                            :infl :present
                                             :cat :verb
                                             :sem {:tense :present}}})
                           {:comment "s-present"})
 
                    (merge (unifyc hh21
-                                  {:synsem {:infl :infinitive
+                                  {:synsem {:aux false
+                                            :infl :infinitive
                                             :cat :verb}})
                           {:comment "vp-infinitive"})
 
-                   (let [aux (ref :true)]
-                     (merge (unifyc hh21
-                                    {:head {:aux aux}}
-                                    {:synsem {:aux aux
-                                              :infl :present
-                                              :sem {:tense :past}
-                                              :cat :verb}
-                                     :head verb-aux})
-                            {:comment "vp-aux"}))
+                   (merge (unifyc hh21
+                                  {:synsem {:aux true
+                                            :infl :present
+                                            :sem {:tense :past}
+                                            :cat :verb}})
+                          {:comment "vp-aux"})
 
                    ;; this rule is kind of complicated and made more so by
                    ;; dependence on auxilary sense of "avere" which supplies the
                    ;; obj-agr agreement between the object and the main (non-auxilary) verb.
-                   (merge (unifyc hh22
-                                  (let [obj-agr (ref :top)]
-                                    {:synsem {:infl :present
-                                              :sem {:tense :past}
-                                              :subcat {:2 {:agr obj-agr}}
-                                              :cat :verb}
-                                     :italian {:b {:obj-agr obj-agr}}
-                                     :head verb-aux}))
-                          {:comment "vp-aux-22"})
+;                   (merge (unifyc hh22
+;                                  (let [obj-agr (ref :top)]
+;                                    {:synsem {:infl :present
+;                                              :sem {:tense :past}
+;                                              :subcat {:2 {:agr obj-agr}}
+;                                              :cat :verb}
+;                                     :italian {:b {:obj-agr obj-agr}}
+;                                     :head verb-aux}))
+;                          {:comment "vp-aux-22"})
 
                    (merge (unifyc hh21
-                                  {:synsem {:infl :futuro
+                                  {:synsem {:aux false
+                                            :infl :futuro
                                             :cat :verb}})
                           {:comment "vp-future"})
 
                    (merge (unifyc hh21
-                                  {:synsem {:infl :imperfetto
+                                  {:synsem {:aux false
+                                            :infl :imperfetto
                                             :cat :verb}})
                           {:comment "vp-imperfetto"})
 
                    (merge (unifyc hh21
-                                  {:synsem {:infl :past
+                                  {:synsem {:aux false
+                                            :infl :past
                                             :cat :verb}})
                           {:comment "vp-past"})
 
                    (merge (unifyc hh21
-                                  {:synsem {:infl :present
+                                  {:synsem {:aux false
+                                            :infl :present
                                             :sem {:tense :present}
                                             :cat :verb}})
                           {:comment "vp-present"})
 
                    (merge (unifyc ch21
-                                  {:synsem {:cat :verb
+                                  {:synsem {:aux false
+                                            :cat :verb
                                             :infl {:not :past}}
                                    :comp {:synsem {:cat :noun
                                                    :pronoun true}}})
                           {:comment "vp-pronoun"})
 
 ))
+
+(def grammar
+  (map (fn [phrase]
+         (aux-is-head-feature phrase))
+       grammar))
 
 ;; This allows us to refer to individual grammar rules within grammar
 ;; by symbols like "vp-present" (e.g. (over vp-present lexicon)).
