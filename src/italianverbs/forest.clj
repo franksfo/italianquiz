@@ -188,7 +188,7 @@
           true
           (lazy-cat parents-with-phrasal-heads parents-with-lexical-heads))))
 
-(defn log-path [path & [ depth]]
+(defn log-path [path log-fn & [ depth]]
   (let [depth (if depth depth 0)
         print-blank-line false]
     (if (> (.size path) 0)
@@ -196,10 +196,10 @@
             depth (:depth (first path))
             spec (:spec (first path))
             parents (fo-ps (:parents (first path)))]
-        (log/info (str "LB@[" depth "]: " h-or-c "; spec=" spec))
-        (log/info (str "   " parents))
-        (log-path (rest path) (+ depth 1)))
-      (if print-blank-line (log/info (str ""))))))
+        (log-fn (str "LB@[" depth "]: " h-or-c "; spec=" spec))
+        (log-fn (str "   " parents))
+        (log-path (rest path) log-fn (+ depth 1)))
+      (if print-blank-line (log-fn (str ""))))))
 
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon phrases depth cache path]]
@@ -254,7 +254,7 @@
                        :depth depth
                        :spec remove-top-values
                        :parents parents-at-this-depth}])
-           log (log-path path)
+           log (log-path path (fn [x] (log/debug x)))
 
            parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth
                                                                  lexicon
