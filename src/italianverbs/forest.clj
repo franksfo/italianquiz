@@ -51,7 +51,11 @@
            '((:english :initial)
              (:italian :initial)))
 
-          comp-phrases-for-parent (get-comp-phrases-of parent cache)
+          comp-phrases-for-parent (filter (fn [phrase]
+                                            (not (fail? phrase)))
+                                          (map (fn [phrase]
+                                                 (unifyc phrase comp-spec))
+                                               (get-comp-phrases-of parent cache)))
           comp-phrases-for-parent (if (nil? comp-phrases-for-parent) (list)
                                       comp-phrases-for-parent)
 
@@ -59,11 +63,15 @@
 
           comps 
           (deref (future
-                   (lightning-bolt
-                    comp-spec (get-lex parent :comp cache lexicon)
-                    comp-phrases-for-parent
-                    0
-                    cache (conj path (str "C " " " (show-spec comp-spec))))))]
+            (lightning-bolt
+             comp-spec (get-lex parent :comp cache lexicon)
+             comp-phrases-for-parent
+             0
+             cache (conj path 
+                         {:h-or-c "C"
+                          :depth 0
+                          :spec (show-spec comp-spec)
+                          :parents comp-phrases-for-parent}))))]
 
       (if (not (empty? comps))
         (do
@@ -156,32 +164,16 @@
         true
         (str "hPcL + "  (decode-gen-ordering2 rand2) " + hLcL")))
 
-(defn parents-at-this-depth [head phrases depth]
+(defn parents-at-this-depth [head-spec phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (let [result
-        (filter (fn [each]
-                  (not (fail? each)))
-                (map (fn [phrase]
-                       ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
-                       ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
-                       ;; head param of (lightning-bolt)".
-                       (unifyc phrase head))
-                     (cond (= depth 0) ;; if depth is 0 (top-level), only allow phrases with empty subcat.
-                           (filter (fn [phrase]
-                                     (or true
-                                     (empty? (get-in phrase '(:synsem :subcat)))))
-                                   phrases)
-                           (= depth 1)
-                           (filter (fn [phrase]
-                                     (or true
-                                     (and (not (empty? (get-in phrase '(:synsem :subcat))))
-                                          (empty? (get-in phrase '(:synsem :subcat :2))))))
-                                   phrases)
-                           true
-                           '())))]
-    ;; REALIZES:
-;    (log/trace (str "parents-at-this-depth (depth=" depth ") for head: " (show-spec head) " returning result with size: " (.size result)))
-    result))
+  (filter (fn [each-unified-parent]
+            (not (fail? each-unified-parent)))
+          (map (fn [each-phrase]
+                 (unifyc each-phrase head-spec))
+          ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
+          ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
+          ;; head param of (lightning-bolt)".
+               phrases)))
 
 (defn parents-with-phrasal-complements [parents-with-lexical-heads parents-with-phrasal-heads
                                         rand-parent-type-order]
@@ -196,12 +188,16 @@
           true
           (lazy-cat parents-with-phrasal-heads parents-with-lexical-heads))))
 
-(defn log-path [path & [ depth ]]
+(defn log-path [path & [ depth]]
   (let [depth (if depth depth 0)
         print-blank-line false]
     (if (> (.size path) 0)
-      (do
-        (log/info (str "LB@[" depth "]: " (first path)))
+      (let [h-or-c (:h-or-c (first path))
+            depth (:depth (first path))
+            spec (:spec (first path))
+            parents (fo-ps (:parents (first path)))]
+        (log/info (str "LB@[" depth "]: " h-or-c "; spec=" spec))
+        (log/info (str "   " parents))
         (log-path (rest path) (+ depth 1)))
       (if print-blank-line (log/info (str ""))))))
 
@@ -210,13 +206,6 @@
   (let [maxdepth 5
         head (if head head :top)
         remove-top-values (remove-top-values-log head)
-        debug (log/debug "")
-        debug (log/debug "===start===")
-        path (if path (conj path
-                            (str "H" depth " " remove-top-values))
-                 ;; first element of path:
-                 [ (str "H" depth " " remove-top-values) ])
-        log (log-path path)
 
         depth (if depth depth 0)
 
@@ -239,16 +228,7 @@
          nil)
 
      true
-     (let [debug (log/debug (str "lightning-bolt first parent at this depth: "
-                                 (fo-ps (first parents-at-this-depth))))
-           parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth
-                                                                 lexicon
-                                                                 phrases
-                                                                 depth
-                                                                 cache
-                                                                 path)
-
-           lexical-headed-phrases 
+     (let [lexical-headed-phrases 
            (fn []
              (let [lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth
                                                                   (lazy-shuffle lexicon)
@@ -260,6 +240,28 @@
                  (log/debug (str "no lexical-headed-phrases."))
                  (log/debug (str "lexical-headed-phrases is non-empty; the first is: " (fo (first lexical-headed-phrases)))))
                lexical-headed-phrases))
+
+
+           debug (log/debug "")
+           debug (log/debug "===start===")
+           path (if path (conj path
+                               {:h-or-c "H"
+                                :depth depth
+                                :spec remove-top-values
+                                :parents parents-at-this-depth})
+                    ;; first element of path:
+                    [ {:h-or-c "H"
+                       :depth depth
+                       :spec remove-top-values
+                       :parents parents-at-this-depth}])
+           log (log-path path)
+
+           parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth
+                                                                 lexicon
+                                                                 phrases
+                                                                 depth
+                                                                 cache
+                                                                 path)
 
            parents-with-phrasal-head 
            (fn []
