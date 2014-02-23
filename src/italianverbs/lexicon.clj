@@ -110,6 +110,12 @@
   (cond (string? (get-in lexical-entry '(:english)))
         (merge {:english {:english (get-in lexical-entry '(:english))}}
                (embed-phon (dissoc lexical-entry ':english)))
+
+        (and (string? (get-in lexical-entry '(:italian)))
+             (= :verb (get-in lexical-entry '(:synsem :cat))))
+        (merge {:italian {:infinitive (get-in lexical-entry '(:italian))}}
+               (embed-phon (dissoc lexical-entry ':italian)))
+
         (string? (get-in lexical-entry '(:italian)))
         (merge {:italian {:italian (get-in lexical-entry '(:italian))}}
                (embed-phon (dissoc lexical-entry ':italian)))
