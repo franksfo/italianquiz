@@ -85,6 +85,7 @@
      {:italian {:infinitive "aiutare"}
       :english {:infinitive "to help"}
       :synsem {:essere false
+               :disable :fail
                :sem {:pred :aiutare
                      :activity true
                      :subj {:human true}
