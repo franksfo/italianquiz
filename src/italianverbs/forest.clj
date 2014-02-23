@@ -203,7 +203,7 @@
 
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon phrases depth cache path]]
-  (let [maxdepth 5
+  (let [maxdepth 3
         head (if head head :top)
         remove-top-values (remove-top-values-log head)
 
