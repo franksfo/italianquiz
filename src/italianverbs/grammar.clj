@@ -131,11 +131,10 @@
                           {:comment "vp-present"})
 
                    (merge (unifyc ch21
-                                  {:synsem {:aux false
-                                            :cat :verb
-                                            :infl {:not :past}}
-                                   :comp {:synsem {:cat :noun
-                                                   :pronoun true}}})
+                                  {:comp {:synsem {:cat :noun
+                                                   :pronoun true}}
+                                   :synsem {:cat :verb
+                                            :infl {:not :past}}})
                           {:comment "vp-pronoun"})
 
 ))

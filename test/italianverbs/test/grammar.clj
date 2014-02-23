@@ -78,12 +78,12 @@
     (is (= (get-italian-1 (get-in result '(:italian)))
            "le mie pizze sono meno belle"))))
 
-(def aux-with-agreement-1
+(def aux-with-agreement-masculine-object
   (let [result (first (over s-aux "io" (over vp-pronoun "lo" (over vp-aux-22 "avere" "ricordare"))))]
     (is (= (get-italian-1 (get-in result '(:italian)))
            "io l'ho ricordato"))))
 
-(def aux-with-agreement-2
+(def aux-with-agreement-feminine-object
   (let [result (first (over s-aux "io" (over vp-pronoun "la" (over vp-aux-22 "avere" "ricordare"))))]
     (is (= (get-italian-1 (get-in result '(:italian)))
            "io l'ho ricordata"))))
