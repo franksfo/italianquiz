@@ -553,6 +553,7 @@
      :english {:infinitive "to give"
                :irregular {:past "gave"}}
      :synsem {:cat :verb
+              :essere false
               :sem {:subj {:human true}
                     :iobj {:animate true}
                     :obj {:buyable true}
@@ -1073,6 +1074,7 @@
        :english "your (pl) "}
 
       {:synsem {:cat :verb
+                :essere false
                 :sem {:pred :impazzire
                       :subj {:animate true}}}
        :italian "impazzire"
