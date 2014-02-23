@@ -388,6 +388,31 @@
              :english {:english "naughty"
                        :cat :adjective}})
 
+      ;; working on: "mi sono comprato un nuovo cellulare"
+      (unify agreement-noun
+             masculine-noun
+             common-noun
+             countable-noun
+      {:synsem {:cat :noun
+                :sem {:pred :cellulare
+                      :artifact true
+                      :consumable false
+                      :writable false
+                      :place false
+                      :speakable false}}
+       :english {:english "mobile phone"}
+       :italian {:italian "cellulare"}})
+
+      {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it (TODO).
+                :pronoun true
+                :case :nom
+                :agr {:person :3rd
+                      :number :sing}
+                :sem (unify human {:pred :chiunque
+                                   :elective-existential true})
+                :subcat '()}
+         :english "anyone"
+       :italian "chiunque"}
 
     {:synsem {:cat pronoun-noun
               :pronoun true
@@ -1047,32 +1072,11 @@
        :italian "il vostro"
        :english "your (pl) "}
 
-
-      ;; working on: "mi sono comprato un nuovo cellulare"
-      (unify agreement-noun
-             masculine-noun
-             common-noun
-             countable-noun
-      {:synsem {:cat :noun
-                :sem {:pred :cellulare
-                      :artifact true
-                      :consumable false
-                      :writable false
-                      :place false
-                      :speakable false}}
-       :english {:english "mobile phone"}
-       :italian {:italian "cellulare"}})
-
-      {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it (TODO).
-                :pronoun true
-                :case :nom
-                :agr {:person :3rd
-                      :number :sing}
-                :sem (unify human {:pred :chiunque
-                                   :elective-existential true})
-                :subcat '()}
-         :english "anyone"
-       :italian "chiunque"}
+      {:synsem {:cat :verb
+                :sem {:subj {:animate true}}}
+       :italian "impazzire"
+       :english {:infinitive "to go mad"
+                 :irregular {:past "went mad"}}}
 
       {:synsem {:cat :noun
                 :pronoun true
