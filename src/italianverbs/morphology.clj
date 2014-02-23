@@ -1664,9 +1664,10 @@
     (not (empty? expr)))
 
    ;; expr is a sequence or set: assume each is a phrase structure tree and show each.
-   (map (fn [each]
-          (fo-ps each))
-        expr)
+   (string/join " "
+                (map (fn [each]
+                       (fo-ps each))
+                     expr))
 
    (and (map? expr)
         (:comment expr)
