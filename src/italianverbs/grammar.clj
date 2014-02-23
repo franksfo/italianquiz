@@ -95,15 +95,15 @@
                    ;; this rule is kind of complicated and made more so by
                    ;; dependence on auxilary sense of "avere" which supplies the
                    ;; obj-agr agreement between the object and the main (non-auxilary) verb.
-;                   (merge (unifyc hh22
-;                                  (let [obj-agr (ref :top)]
-;                                    {:synsem {:infl :present
-;                                              :sem {:tense :past}
-;                                              :subcat {:2 {:agr obj-agr}}
-;                                              :cat :verb}
-;                                     :italian {:b {:obj-agr obj-agr}}
-;                                     :head verb-aux}))
-;                          {:comment "vp-aux-22"})
+                   (merge (unifyc hh22
+                                  (let [obj-agr (ref :top)]
+                                    {:synsem {:aux true
+                                              :infl :present
+                                              :sem {:tense :past}
+                                              :subcat {:2 {:agr obj-agr}}
+                                              :cat :verb}
+                                     :italian {:b {:obj-agr obj-agr}}}))
+                          {:comment "vp-aux-22"})
 
                    (merge (unifyc hh21
                                   {:synsem {:aux false
