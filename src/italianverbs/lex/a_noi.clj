@@ -199,7 +199,7 @@
      ;; 2. a transitive verb.
      (let [agr-of-obj-of-main-verb (ref :top)]
        (unify
-        verb-aux-type
+        verb-aux
         verb-subjective
         avere-common
         {:synsem {:infl :present
@@ -213,7 +213,7 @@
      ;; 2. an intransitive verb.
      (let [agr-of-obj-of-main-verb (ref :top)]
        (unify
-        verb-aux-type
+        verb-aux
         verb-subjective
         avere-common
         {:synsem {:infl :present
@@ -792,8 +792,8 @@
 
     (unify essere-common
      {:notes "essere-aux"
-      :synsem {:cat :verb
-               :aux true}
+      :synsem {:aux true
+               :cat :verb}
       :english {;; :infinitive value is just for documentation purposes: never reaches surface string due to 
                 ;; :hidden=true immediately below it.
                 :infinitive "to be" 
@@ -1073,7 +1073,8 @@
        :english "your (pl) "}
 
       {:synsem {:cat :verb
-                :sem {:subj {:animate true}}}
+                :sem {:pred :impazzire
+                      :subj {:animate true}}}
        :italian "impazzire"
        :english {:infinitive "to go mad"
                  :irregular {:past "went mad"}}}

@@ -130,7 +130,7 @@
 (defn aux-verb-rule [lexical-entry]
   (cond (= (get-in lexical-entry '(:synsem :aux)) true)
         (unifyc lexical-entry
-                verb-aux-type)
+                verb-aux)
         true
         lexical-entry))
 

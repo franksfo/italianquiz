@@ -82,7 +82,7 @@
                                               :infl :present
                                               :sem {:tense :past}
                                               :cat :verb}
-                                     :head verb-aux-type})
+                                     :head verb-aux})
                             {:comment "vp-aux"}))
 
                    ;; this rule is kind of complicated and made more so by
@@ -95,7 +95,7 @@
                                               :subcat {:2 {:agr obj-agr}}
                                               :cat :verb}
                                      :italian {:b {:obj-agr obj-agr}}
-                                     :head verb-aux-type}))
+                                     :head verb-aux}))
                           {:comment "vp-aux-22"})
 
                    (merge (unifyc hh21
