@@ -1479,3 +1479,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         (isomorphic? @a @b)
         true
         (= a b)))
+
+(defn label-of [parent]
+  (if (:rule parent) (:rule parent) (:comment parent)))

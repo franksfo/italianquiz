@@ -73,7 +73,7 @@
   (log/trace (str "over-each-head-child: head children type: " (type children)))
   (if (not (empty? children))
     (let [each-child (first children)]
-      (log/trace (str "over-each-head-child: each-parent?: " (:comment (first children))))
+      (log/trace (str "over-each-head-child: each-parent?: " (label-of (first children))))
       (lazy-cat
        (overh parent each-child)
        (over-each-head-child parent (rest children))))
@@ -86,7 +86,7 @@
   (log/trace (str "over-each-comp-child: comp children type: " (type children)))
   (if (not (empty? children))
     (let [each-child (first children)]
-      (log/trace (str "over-each-comp-child: each-parent?: " (:comment (first children))))
+      (log/trace (str "over-each-comp-child: each-parent?: " (label-of (first children))))
       (lazy-cat
        (overc parent each-child)
        (over-each-comp-child parent (rest children))))
@@ -213,17 +213,18 @@
    ;; TODO: 'true' here assumes that both parent and head are maps: make this assumption explicit,
    ;; and save 'true' for errors.
    (let [result (moreover-head parent head sem-impl)
-         is-fail? (fail? result)]
+         is-fail? (fail? result)
+         label (if (:rule parent) (:rule parent) (:comment parent))]
      (log/trace (str "overh result keys: " (if (map? result) (keys result) "(not a map)")))
      (log/trace (str "overh italian value: " (if (map? result) (get-in result '(:italian)) "(not a map)")))
      (log/trace (str "overh italian :a value: " (if (map? result) (get-in result '(:italian :a)) "(not a map)")))
      (log/trace (str "overh italian :b value: " (if (map? result) (get-in result '(:italian :b)) "(not a map)")))
      (if is-fail?
-       (log/debug (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> :fail")))
+       (log/debug (str "overh: parent=" label "; head=[" (fo head) "]=> :fail")))
 
      ;; at INFO level, don't show fails; only successful results.
      (if (not is-fail?)
-       (log/info (str "overh: parent=" (:comment parent) "; head=[" (fo head) "]=> " (if is-fail?
+       (log/info (str "overh: parent=" label "; head=[" (fo head) "]=> " (if is-fail?
                                                                                        ":fail"
                                                                                        (fo result)))))
 
@@ -286,12 +287,12 @@
    (let [result (moreover-comp parent comp sem-impl)
          is-fail? (fail? result)]
      (if is-fail?
-       (log/debug (str "overc: parent=" (:comment parent)
+       (log/debug (str "overc: parent=" (label-of parent)
                        ";head=[" (fo (get-in parent '(:head)))
                        "]; comp=[" (fo comp) "]=> :fail")))
 
      (if (not is-fail?)
-       (log/info (str "overc: parent=" (:comment parent)
+       (log/info (str "overc: parent=" (label-of parent)
                       ";head=[" (fo (get-in parent '(:head)))
                       "]; comp=[" (fo comp) "]=> " (fo result))))
 
