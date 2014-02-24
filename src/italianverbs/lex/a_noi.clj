@@ -706,7 +706,8 @@
                                       :1plur "have to"
                                       :2plur "have to"
                                       :3plur "have to"}}}
-      :synsem {:essere false ;; "io ho dovato..", not "io sono dovato.."
+      :synsem {:modal true
+               :essere false ;; "io ho dovato..", not "io sono dovato.."
                :sem {:pred :dovere
                      :activity false
                      :discrete false
@@ -1322,7 +1323,7 @@
        {:italian {:infinitive "leggere"
                   :irregular {:passato "letto"}}
         :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
-                  :irregular {:past "read"
+                  :irregular {:past "read (past)"
                               :note "(past)"}} ;; spelled "read" but pronounced like "red".
         :synsem {:essere false
                  :sem {:pred :leggere

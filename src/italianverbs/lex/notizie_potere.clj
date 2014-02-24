@@ -225,14 +225,14 @@
                                           :1plur "can"
                                           :2plur "can"
                                           :3plur "can"}}}
-          :synsem {:subcat {:2 {:sem {:pred pred-of-complement}}}
-                   :essere false
+          :synsem {:essere false
+                   :modal true
                    :sem {:pred {:pred pred-of-complement
                                 :mod :potere}
                          :activity false
                          :discrete false
-                         :subj {:animate true}}}}))
+                         :subj {:animate true}}
+                   :subcat {:2 {:sem {:pred pred-of-complement}}}}}))))
 
-))
 
 

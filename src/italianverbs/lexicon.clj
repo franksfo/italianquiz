@@ -122,17 +122,6 @@
         true
         lexical-entry))
 
-(defn intensifier-agreement [lexical-entry]
-  (cond (= (get-in lexical-entry '(:synsem :cat)) :intensifier)
-        (unifyc
-         (let [agr (ref :top)]
-           {:synsem {:agr agr
-                     :subcat {:1 {:agr agr}
-                              :2 {:agr agr}}}})
-         lexical-entry)
-
-         true lexical-entry))
-
 (defn aux-verb-rule [lexical-entry]
   "If a word's :synsem :aux is set to true, then auxify it (add all the
   things that are consequent on its being an aux verb.
@@ -148,14 +137,27 @@
         true
         lexical-entry))
 
-(defn verb-rule [lexical-entry]
-  "every verb has at least a subject."
-  (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
+(defn ditransitive-verb-rule [lexical-entry]
+  (cond (not (nil? (get-in lexical-entry '(:synsem :sem :iobj))))
         (unifyc
          lexical-entry
-         verb-subjective)
+         (let [ref (ref :top)]
+           {:synsem {:subcat {:3 {:sem ref}}
+                     :sem {:iobj ref}}}))
         true
         lexical-entry))
+
+
+(defn intensifier-agreement [lexical-entry]
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :intensifier)
+        (unifyc
+         (let [agr (ref :top)]
+           {:synsem {:agr agr
+                     :subcat {:1 {:agr agr}
+                              :2 {:agr agr}}}})
+         lexical-entry)
+
+         true lexical-entry))
 
 (defn intransitive-verb-rule [lexical-entry]
   (cond (and (= (get-in lexical-entry '(:synsem :cat))
@@ -168,6 +170,18 @@
         true
         lexical-entry))
 
+(defn modality-rule [lexical-entry]
+  "prevent ratholes like 'Potere ... potere dormire (To be able...to be able to sleep)'"
+  (cond (= true (get-in lexical-entry '(:synsem :modal)))
+        (unifyc
+         modal lexical-entry
+         {:synsem {:subcat {:2 {:modal false}}}})
+
+        (= :verb (get-in lexical-entry '(:synsem :cat)))
+        {:synsem {:modal false}}
+        true
+        lexical-entry))
+
 (defn transitive-verb-rule [lexical-entry]
   (cond (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
         (unifyc
@@ -176,13 +190,12 @@
         true
         lexical-entry))
 
-(defn ditransitive-verb-rule [lexical-entry]
-  (cond (not (nil? (get-in lexical-entry '(:synsem :sem :iobj))))
+(defn verb-rule [lexical-entry]
+  "every verb has at least a subject."
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
         (unifyc
          lexical-entry
-         (let [ref (ref :top)]
-           {:synsem {:subcat {:3 {:sem ref}}
-                     :sem {:iobj ref}}}))
+         verb-subjective)
         true
         lexical-entry))
 
@@ -199,6 +212,7 @@
                  ditransitive-verb-rule
                  intensifier-agreement
                  intransitive-verb-rule
+                 modality-rule
                  semantic-implicature
                  transitive-verb-rule
                  verb-rule))

@@ -156,6 +156,7 @@
                           :sem subj-sem})]
      {:synsem {:sem {:subj subj-sem
                      :obj vp-inf-sem}
+               :modal true
                :subcat {:1 subj-subcat
                         :2 {:sem vp-inf-sem
                             :cat :verb
