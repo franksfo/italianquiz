@@ -139,9 +139,19 @@
                    :head {:synsem {:aux ref}}}))
         true phrase))
 
+(defn modal-is-head-feature [phrase]
+  (cond (= :verb (get-in phrase '(:synsem :cat)))
+        (unifyc phrase
+                (let [ref (ref :top)]
+                  {:synsem {:modal ref}
+                   :head {:synsem {:modal ref}}}))
+        true phrase))
+
+
 (def grammar
   (map (fn [phrase]
-         (aux-is-head-feature phrase))
+         (modal-is-head-feature
+          (aux-is-head-feature phrase)))
        grammar))
 
 ;; This allows us to refer to individual grammar rules within grammar
