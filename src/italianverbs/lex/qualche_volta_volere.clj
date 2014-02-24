@@ -364,7 +364,8 @@
                                           :activity true}}}}
               :english "this morning"})
 
-      {:english "hang out"
+      {:english {:english "hang out"
+                 :irregular {:past "hung out"}}
        :italian "stendere"
        :synsem {:aux false
                 :cat :verb
