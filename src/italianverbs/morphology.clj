@@ -1677,6 +1677,27 @@
                      expr))
 
    (and (map? expr)
+        (:rule expr)
+        (= (get-in expr '(:italian :a))
+           (get-in expr '(:comp :italian))))
+   ;; complement first
+   (str "[" (:rule expr) " "
+        (fo-ps (get-in expr '(:comp)))
+        " "
+        (fo-ps (get-in expr '(:head)))
+        "]")
+
+   (and (map? expr)
+        (:rule expr))
+   ;; head first ('else' case of above.)
+   (str "[" (:rule expr) " "
+        (fo-ps (get-in expr '(:head)))
+        " "
+        (fo-ps (get-in expr '(:comp)))
+        "]")
+
+
+   (and (map? expr)
         (:comment expr)
         (= (get-in expr '(:italian :a))
            (get-in expr '(:comp :italian))))
