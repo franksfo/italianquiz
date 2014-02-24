@@ -372,7 +372,8 @@
                 :modal false
                 :sem {:pred :stendere
                       :subj {:human true}
-                      :obj {:pred :bucato}}}}
+                      :obj {:pred :bucato}}
+                :subcat {:2 {:cat :noun}}}}
 
       (unify (:agreement noun)
              (:common noun)
