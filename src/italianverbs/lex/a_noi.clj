@@ -327,6 +327,18 @@
              :english {:english "ugly"
                        :cat :adjective}})
 
+     {:italian "bucato"
+      :english "laundry"
+      :synsem {:cat :noun
+               :agr {:gender :masc}
+               :sem {:animate false
+                     :drinkable false
+                     :edible false
+                     :legible false
+                     :mass true
+                     :pred :bucato
+                     :speakable false}}}
+
      ;; inherently plural
      (unify agreement-noun
            common-noun

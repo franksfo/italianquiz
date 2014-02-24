@@ -364,6 +364,15 @@
                                           :activity true}}}}
               :english "this morning"})
 
+      {:english "hang out"
+       :italian "stendere"
+       :synsem {:aux false
+                :cat :verb
+                :modal false
+                :sem {:pred :stendere
+                      :subj {:human true}
+                      :obj {:pred :bucato}}}}
+
       (unify (:agreement noun)
              (:common noun)
              (:countable noun)
