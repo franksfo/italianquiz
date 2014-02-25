@@ -3,6 +3,7 @@
   (:require
    [clojure.core :as core]
    [clojure.set :refer :all]
+   [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache get-comp-phrases-of get-head-phrases-of get-lex
                                                    overc overh overc-with-cache overh-with-cache)]
@@ -50,6 +51,10 @@
            ;; TODO: do we need to dissoc these paths from the comp spec?
            '((:english :initial)
              (:italian :initial)))
+
+          debug (do (log/debug (str "hpac: parent: " headed-phrase-add-comp))
+                    (log/debug (str "hpac: comp-spec: " comp-spec)))
+
 
           comp-phrases-for-parent (filter (fn [phrase]
                                             (not (fail? phrase)))
@@ -105,12 +110,17 @@
                                      (list)
                                      headed-phrases-of-parent)
 ;          headed-phrases-of-parent phrases
+          head-spec (dissoc-paths (get-in parent '(:head))
+                                  '((:english :initial)
+                                    (:italian :initial)))
+          debug (log/debug (str "phrasal-headed-phrases: parent's head (dissoced): " head-spec))
+
           ]
       (lazy-seq
        (cons {:parent parent
               :headed-phrases (let [bolts 
                                     (deref (future
-                                             (lightning-bolt (get-in parent '(:head))
+                                             (lightning-bolt head-spec
                                                              lexicon headed-phrases-of-parent (+ 1 depth)
                                                              cache
                                                              path)))]
@@ -166,6 +176,8 @@
 
 (defn parents-at-this-depth [head-spec phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
+  (log/info (str "parents-at-this-depth: head-spec:" head-spec))
+  (log/info (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
   (filter (fn [each-unified-parent]
             (not (fail? each-unified-parent)))
           (map (fn [each-phrase]
@@ -206,7 +218,7 @@
   (let [maxdepth 3
         head (if head head :top)
         too-general (if (= head :top)
-                      (throw (Exception. (str "too general."))))
+                      (throw (Exception. (str ": head-spec is too general: " head))))
 
         remove-top-values (remove-top-values-log head)
 
@@ -228,7 +240,7 @@
      nil
 
      (empty? parents-at-this-depth)
-     (do (log/debug "lb: no parents with depth:" depth ";returning empty list.")
+     (do (log/debug "lb: no parents at depth:" depth ";returning empty list.")
          nil)
 
      true
@@ -242,7 +254,7 @@
                                                                   path)]
                (if (empty? lexical-headed-phrases)
                  (log/debug (str "no lexical-headed-phrases."))
-                 (log/debug (str "lexical-headed-phrases is non-empty; the first is: " (fo (first lexical-headed-phrases)))))
+                 (log/debug (str "lexical-headed-phrases is non-empty; the first is: " (fo-ps (:parent (first lexical-headed-phrases))))))
                lexical-headed-phrases))
 
 
@@ -260,12 +272,12 @@
                        :parents parents-at-this-depth}])
            log (log-path path (fn [x] (log/debug x)))
 
-           parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth
-                                                                 lexicon
-                                                                 phrases
-                                                                 depth
-                                                                 cache
-                                                                 path)
+           parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth lexicon
+                                                                 phrases depth
+                                                                 cache path)
+
+;           debug (do (log/debug (str "parents-with-phrasal-head-map size: " (.size parents-with-phrasal-head-map)))
+;                     (log/debug (str "parents-with-phrasal-head-map: " (string/join " " parents-with-phrasal-head-map))))
 
            parents-with-phrasal-head 
            (fn []
