@@ -335,9 +335,10 @@
                      :drinkable false
                      :edible false
                      :legible false
-                     :mass true
+                     :mass false
                      :pred :bucato
-                     :speakable false}}}
+                     :speakable false}
+               :subcat {:1 {:def :def}}}}
 
      ;; inherently plural
      (unify agreement-noun
@@ -1165,6 +1166,7 @@
        :synsem {:agr {:gender :fem}
                 :cat :noun
                 :sem {:legible true
+                      :pred :lettera
                       :writable true}}}
 
       {:synsem {:cat :noun
@@ -1546,7 +1548,8 @@
        :italian "mercato"
        :synsem {:agr {:gender :masc}
                 :cat :noun
-                :sem {:place true}}}
+                :sem {:place true
+                      :pred :mercato}}}
 
       {:synsem {:cat cat-of-pronoun
                 :pronoun true
