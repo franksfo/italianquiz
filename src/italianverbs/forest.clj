@@ -205,6 +205,9 @@
 (defn lightning-bolt [ & [head lexicon phrases depth cache path]]
   (let [maxdepth 3
         head (if head head :top)
+        too-general (if (= head :top)
+                      (throw (Exception. (str "too general."))))
+
         remove-top-values (remove-top-values-log head)
 
         depth (if depth depth 0)
@@ -216,7 +219,8 @@
                             (decode-generation-ordering rand-order rand-parent-type-order)
                             "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
 
-        parents-at-this-depth (lazy-shuffle (parents-at-this-depth head phrases depth))
+;        parents-at-this-depth (lazy-shuffle (parents-at-this-depth head phrases depth))
+        parents-at-this-depth (parents-at-this-depth head phrases depth)
 
         cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))]
     (cond
@@ -298,7 +302,7 @@
                                    phrases))))
                            parents-with-phrasal-head-map)]
                (if (empty? parents-with-phrasal-heads-for-comp-phrases)
-                 (log/debug (str "cP is empty."))
+                 (log/trace (str "cP is empty."))
                  (log/debug (str "cP is nonempty; first: " (fo-ps (first parents-with-phrasal-heads-for-comp-phrases)))))
                parents-with-phrasal-heads-for-comp-phrases))
 
