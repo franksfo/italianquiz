@@ -8,7 +8,7 @@
    [italianverbs.cache :refer (build-lex-sch-cache) ]
    [italianverbs.forest :exclude (lightning-bolt) ]
    [italianverbs.forest :as forest]
-   [italianverbs.grammar :refer (grammar)]
+   [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.morphology :refer (fo fo-ps)]
@@ -38,4 +38,5 @@
   (generate {:synsem {:cat :verb :subcat '()}}))
 
 (defn nounphrase [ & [ with ]]
-  (generate (first (take 1 (generate {:synsem {:cat :noun :subcat '()}})))))
+  (generate {:synsem {:cat :noun :subcat '()}}))
+
