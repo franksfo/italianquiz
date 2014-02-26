@@ -95,8 +95,10 @@
           cache (if cache cache
                     (do (log/warn (str "lexical-headed-parents given null cache: building cache from: (" (.size phrases) ")"))
                         (build-lex-sch-cache phrases lexicon)))]
+      (log/debug (str "lhp: checking parent: " (fo-ps parent)))
       (lazy-seq
        (let [result (overh parent (get-lex parent :head cache lexicon))]
+         (log/debug (str "lhp overh: " (fo-ps result)))
          (cons {:parent parent
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
@@ -225,6 +227,7 @@
         depth (if depth depth 0)
 
         rand-order (rand-int 3 0)
+
         rand-parent-type-order (rand-int 2 0)
 
         log (log/debug (str "rand-order at depth:" depth " is: "
@@ -257,6 +260,8 @@
                  (log/debug (str "lexical-headed-phrases is non-empty; the first is: " (fo-ps (:parent (first lexical-headed-phrases))))))
                lexical-headed-phrases))
 
+
+           lexical-headed-phrases (lexical-headed-phrases)
 
            debug (log/debug "")
            debug (log/debug "===start===")
@@ -291,12 +296,23 @@
                                  (fo-ps (first parents-with-phrasal-head)))))
                parents-with-phrasal-head))
 
+           debug (log/debug (str "size of lexical-headed-phrases: " (.size lexical-headed-phrases)))
+
+           debug (log/debug (str "lexical-headed-phrases: " (string/join (map (fn [phr] 
+                                                                                (fo-ps (:parent phr)))
+                                                                              lexical-headed-phrases))))
+
+
+           debug (log/debug (str "====="))
+           debug (log/debug (str "first lexical-headed-phrases: " (fo-ps (:parent (first lexical-headed-phrases)))))
+           debug (log/debug (str "====="))
+
            parents-with-lexical-heads 
            (fn []
              (let [parents-with-lexical-heads (mapcat (fn [each-kv]
                                                         (let [phrases (:headed-phrases each-kv)]
                                                           phrases))
-                                                      (lexical-headed-phrases))]
+                                                      lexical-headed-phrases)]
                (if (empty? parents-with-lexical-heads)
                  (log/debug (str "hL: empty."))
                  (log/debug (str "hL: nonempty; first: " (fo-ps (first parents-with-lexical-heads)))))
@@ -324,7 +340,7 @@
                               (if (not (= false (get-in parent '(:comp :phrasal))))
                                 (let [phrases (:headed-phrases each-kv)]
                                   phrases))))
-                          (lexical-headed-phrases)))
+                          lexical-headed-phrases))
 
            one-level-trees
            (fn []
