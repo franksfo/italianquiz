@@ -1088,13 +1088,15 @@
        :italian "il vostro"
        :english "your (pl) "}
 
+      ;; TODO: check that imperfect past: 'we were going mad' works.
       {:synsem {:cat :verb
                 :essere false
                 :sem {:pred :impazzire
                       :subj {:animate true}}}
        :italian "impazzire"
        :english {:infinitive "to go mad"
-                 :irregular {:past "went mad"}}}
+                 :irregular {:past "went mad"
+                             :part-participle "gone mad"}}}
 
       {:synsem {:cat :noun
                 :pronoun true
