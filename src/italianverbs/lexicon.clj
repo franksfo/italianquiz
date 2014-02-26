@@ -226,7 +226,7 @@
                  intensifier-agreement
                  intransitive-verb-rule
                  modality-rule
-                 noun-arguments-must-be-empty-subcat-or-mass
+                 noun-arguments-must-be-empty-subcat
                  semantic-implicature
                  transitive-verb-rule
                  verb-rule))
