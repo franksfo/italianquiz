@@ -30,6 +30,16 @@
 ;; a single cache.
 (def rule-cache (build-lex-sch-cache grammar lexicon grammar))
 
+(defn lightning-bolt [spec the-grammar the-lexicon]
+  (let [debug (log/info (str "Grammar: " (fo-ps the-grammar)))]
+    (forest/lightning-bolt spec the-lexicon the-grammar 0 rule-cache)))
+
+;; move to test
+(defn foo []
+  (lightning-bolt {:synsem {:cat :noun :subcat '()}} 
+                  (list noun-phrase nbar s-future) 
+                  (seq (union (it "il") (it "libro")))))
+
 (defn generate [ & [head]]
   (let [head (if head head :top)]
     (first (take 1 (forest/lightning-bolt head lexicon (lazy-shuffle grammar) 0 rule-cache)))))
