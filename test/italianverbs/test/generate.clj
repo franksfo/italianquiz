@@ -4,7 +4,12 @@
 (ns italianverbs.test.generate
   (:use [clojure.test])
   (:require
+   [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
+   [italianverbs.generate :refer :all]
+   [italianverbs.grammar :refer :all]
+   [italianverbs.lexicon :refer (lexicon it en)]
+   [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.unify :as unify]
    [italianverbs.lexiconfn :as lexfn]))
 
@@ -47,3 +52,11 @@
         {:italian {:infl infl}
          :english {:infl infl}
          :synsem {:infl infl}}))))
+
+;; move to test
+(deftest il-libro
+  (is (= "Il libro (The book)."
+         (first (fo (first (take 1 (lightning-bolt {:synsem {:cat :noun :subcat '()}}
+                                                   (list noun-phrase nbar s-future)
+                                                   (seq (union (it "il") (it "libro")))))))))))
+

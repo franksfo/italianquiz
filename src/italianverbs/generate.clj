@@ -26,19 +26,16 @@
    workbook/workbookq will format this accordingly."
   {:plain expr})
 
+;; no cache is used, so this version is relatively slow. use only with a small grammar and lexicon.
+(defn lightning-bolt [spec & [input-grammar input-lexicon]]
+  (let [debug (log/info (str "Grammar: " (fo-ps input-grammar)))
+        input-grammar (if input-grammar input-grammar grammar)
+        input-lexicon (if input-lexicon input-lexicon lexicon)]
+    (forest/lightning-bolt spec input-lexicon input-grammar)))
+
 ;; this rule-cache is defined outside any function so that all functions can share
 ;; a single cache.
 (def rule-cache (build-lex-sch-cache grammar lexicon grammar))
-
-(defn lightning-bolt [spec the-grammar the-lexicon]
-  (let [debug (log/info (str "Grammar: " (fo-ps the-grammar)))]
-    (forest/lightning-bolt spec the-lexicon the-grammar 0 rule-cache)))
-
-;; move to test
-(defn foo []
-  (lightning-bolt {:synsem {:cat :noun :subcat '()}} 
-                  (list noun-phrase nbar s-future) 
-                  (seq (union (it "il") (it "libro")))))
 
 (defn generate [ & [head]]
   (let [head (if head head :top)]
