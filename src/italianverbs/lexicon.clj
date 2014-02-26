@@ -182,6 +182,19 @@
         true
         lexical-entry))
 
+(defn noun-arguments-must-be-empty-subcat [lexical-entry]
+  "noun-headed arguments of verbs must either be empty subcat (e.g. either a NP such as 
+    'the dog' in 'sees the dog' and not 'sees dog'), or a mass noun (e.g. 'milk', which will
+    have an empty subcat."
+  ;; TODO: mass noun part not implemented yet.
+  (cond (and (= :verb (get-in lexical-entry '(:synsem :cat)))
+             (= :noun (get-in lexical-entry '(:synsem :subcat :2 :cat))))
+        (unifyc lexical-entry
+                {:synsem {:subcat {:2 {:subcat '()}}}})
+
+        true
+        lexical-entry))
+
 (defn transitive-verb-rule [lexical-entry]
   (cond (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
         (unifyc
@@ -213,6 +226,7 @@
                  intensifier-agreement
                  intransitive-verb-rule
                  modality-rule
+                 noun-arguments-must-be-empty-subcat-or-mass
                  semantic-implicature
                  transitive-verb-rule
                  verb-rule))
