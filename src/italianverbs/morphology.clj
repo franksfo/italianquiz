@@ -1667,7 +1667,16 @@
 
    (and
     (or (set? expr)
-        (seq? expr))
+        (seq? expr)
+        (vector? expr))
+    (empty? expr))
+   (str "")
+
+
+   (and
+    (or (set? expr)
+        (seq? expr)
+        (vector? expr))
     (not (empty? expr)))
 
    ;; expr is a sequence or set: assume each is a phrase structure tree and show each.
