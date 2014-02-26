@@ -34,7 +34,7 @@
                                      :head subset-of-lexicon}."
   (if (not (empty? phrases))
     (conj
-     {(:comment (first phrases))
+     {(:rule (first phrases))
       {:comp
        (filter (fn [lex]
                  (not (fail? (unifyc (first phrases)
@@ -97,25 +97,25 @@
 (defn get-lex [schema head-or-comp cache lexicon]
   (if (not (map? schema))
     (throw (Exception. (str "'schema' not a map: " schema))))
-  (log/debug (str "get-lex for schema: " (:comment schema)))
-  (if (nil? (:comment schema))
+  (log/debug (str "get-lex for schema: " (:rule schema)))
+  (if (nil? (:rule schema))
     (log/error (str "no schema for: " schema)))
   (let [result (cond (= :head head-or-comp)
                      (if (and (= :head head-or-comp)
-                              (not (nil? (:head (get cache (:comment schema))))))
+                              (not (nil? (:head (get cache (:rule schema))))))
                        (do
-                         (log/trace (str "get-lex hit: head for schema: " (:comment schema)))
-                         (:head (get cache (:comment schema))))
+                         (log/trace (str "get-lex hit: head for schema: " (:rule schema)))
+                         (:head (get cache (:rule schema))))
                        (do
                          (log/warn (str "CACHE MISS 1"))
                          lexicon))
 
                      (= :comp head-or-comp)
                      (if (and (= :comp head-or-comp)
-                              (not (nil? (:comp (get cache (:comment schema))))))
+                              (not (nil? (:comp (get cache (:rule schema))))))
                        (do
-                         (log/trace (str "get-lex hit: comp for schema: " (:comment schema)))
-                         (:comp (get cache (:comment schema))))
+                         (log/trace (str "get-lex hit: comp for schema: " (:rule schema)))
+                         (:comp (get cache (:rule schema))))
                        (do
                          (log/warn (str "CACHE MISS 2"))
                          lexicon))
@@ -126,7 +126,7 @@
     (lazy-shuffle result)))
 
 (defn get-head-phrases-of [parent cache]
-  (let [result (:head-phrases (get cache (:comment parent)))
+  (let [result (:head-phrases (get cache (:rule parent)))
         result (if (nil? result) (list) result)
         label (label-of parent)]
     (if (empty? result)
@@ -134,7 +134,7 @@
     (lazy-shuffle result)))
 
 (defn get-comp-phrases-of [parent cache]
-  (let [result (:comp-phrases (get cache (:comment parent)))
+  (let [result (:comp-phrases (get cache (:rule parent)))
         result (if (nil? result) (list) result)]
     (if (empty? result)
       (log/warn (str "comp-phrases of parent: " (label-of parent) " is empty.")))
