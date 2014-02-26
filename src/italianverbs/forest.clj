@@ -53,7 +53,7 @@
              (:italian :initial)))
 
           debug (do (log/debug (str "hpac: parent: " headed-phrase-add-comp))
-                    (log/debug (str "hpac: comp-spec: " comp-spec)))
+                    (log/debug (str "hpac: comp-spec: " (remove-top-values-log comp-spec))))
 
 
           comp-phrases-for-parent (filter (fn [phrase]
@@ -98,7 +98,6 @@
       (log/debug (str "lhp: checking parent: " (fo-ps parent)))
       (lazy-seq
        (let [result (overh parent (get-lex parent :head cache lexicon))]
-         (log/debug (str "lhp overh: " (fo-ps result)))
          (cons {:parent parent
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
@@ -178,8 +177,8 @@
 
 (defn parents-at-this-depth [head-spec phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (log/info (str "parents-at-this-depth: head-spec:" head-spec))
-  (log/info (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
+  (log/debug (str "parents-at-this-depth: head-spec:" (remove-top-values-log head-spec)))
+  (log/debug (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
   (filter (fn [each-unified-parent]
             (not (fail? each-unified-parent)))
           (map (fn [each-phrase]
@@ -219,6 +218,9 @@
 (defn lightning-bolt [ & [head lexicon phrases depth cache path]]
   (let [maxdepth 3
         head (if head head :top)
+        ;; TODO: will probably remove this or make it only turned on in special cases.
+        ;; lightning-bolt should be efficient enough to handle :top as a spec
+        ;; efficiently.
         too-general (if (= head :top)
                       (throw (Exception. (str ": head-spec is too general: " head))))
 
