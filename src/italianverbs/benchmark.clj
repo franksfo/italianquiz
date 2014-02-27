@@ -1,9 +1,10 @@
 (ns italianverbs.benchmark
   (:require
+   [clojure.set :refer (union)]
    [italianverbs.cache :refer (over)]
    [italianverbs.generate :refer :all]
-   [italianverbs.grammar :refer (grammar)]
-   [italianverbs.lexicon :refer (lexicon)]
+   [italianverbs.grammar :refer :all]
+   [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]))
 
 ;;
@@ -62,7 +63,12 @@
                                                             :tense :present}}})))))))
 
 
-
-
-
-
+(defn benchmark-small-sentence-2 [n]
+  (fo (take n (repeatedly (fn []
+                            (time (sentence {:synsem {:infl :present
+                                                      :sem {:pred :dormire
+                                                            :subj {:pred :io}
+                                                            :tense :present}}}
+                                            (seq (union (it "io")
+                                                        (it "dormire")))
+                                            (list s-present))))))))
