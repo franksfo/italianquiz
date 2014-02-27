@@ -1119,6 +1119,11 @@
      (str "will " stem))
 
    (and (= (get-in word '(:infl)) :imperfetto)
+        (get-in word '(:irregular :imperfect)))
+   (str (get-in word '(:irregular :imperfect)))
+
+
+   (and (= (get-in word '(:infl)) :imperfetto)
         (get-in word '(:infinitive)))
    (let [infinitive (get-in word '(:infinitive))
          stem (string/replace infinitive #"^to " "")

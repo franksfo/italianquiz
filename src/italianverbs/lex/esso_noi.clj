@@ -285,8 +285,10 @@
                       :subj {:animate true}}}
        :italian "impazzire"
        :english {:infinitive "to go mad"
-                 :irregular {:past "went mad"
-                             :part-participle "gone mad"}}}
+                 :irregular {:imperfect "was going mad"
+                             :past "went mad"
+                             :part-participle "gone mad"
+                             :present {:3sing "goes mad"}}}}
 
       {:synsem {:cat :noun
                 :pronoun true
