@@ -55,7 +55,8 @@
 
 (load "pos")
 
-(load "lex/a_noi")
+(load "lex/a_essere")
+(load "lex/esso_noi")
 (load "lex/notizie_potere")
 (load "lex/qualche_volta_volere")
 
