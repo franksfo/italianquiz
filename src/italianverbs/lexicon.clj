@@ -198,11 +198,18 @@
         lexical-entry))
 
 (defn pronoun-and-propernouns [lexical-entry]
-  (cond (or (= true (get-in lexical-entry '(:synsem :pronoun)))
-            (= true (get-in lexical-entry '(:synsem :propernoun))))
+  (cond (= true (get-in lexical-entry '(:synsem :pronoun)))
         (unifyc lexical-entry
                 {:synsem {:cat :noun
+                          :propernoun false
                           :subcat '()}})
+
+        (= true (get-in lexical-entry '(:synsem :propernoun)))
+        (unifyc lexical-entry
+                {:synsem {:cat :noun
+                          :pronoun false
+                          :subcat '()}})
+
         true
         lexical-entry))
 
