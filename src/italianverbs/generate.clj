@@ -37,13 +37,19 @@
 ;; a single cache.
 (def rule-cache (build-lex-sch-cache grammar lexicon grammar))
 
-(defn generate [ & [head]]
-  (let [head (if head head :top)]
-    (first (take 1 (forest/lightning-bolt head lexicon (lazy-shuffle grammar) 0 rule-cache)))))
+(defn generate [ & [head the-lexicon the-grammar]]
+  (let [head (if head head :top)
+        grammar (if the-grammar the-grammar grammar)
+        lexicon (if the-lexicon the-lexicon lexicon)]
+    (first (take 1 (forest/lightning-bolt head
+                                          (lazy-shuffle the-lexicon)
+                                          (lazy-shuffle grammar) 0 rule-cache)))))
 
-(defn sentence [ & [ with ]]
-  (let [with (if with with :top)]
-    (generate (unify with {:synsem {:cat :verb :subcat '()}}))))
+(defn sentence [ & [spec lexicon grammar]]
+  (let [spec (if spec spec :top)]
+    (generate (unify spec {:synsem {:cat :verb :subcat '()}})
+              lexicon
+              grammar)))
 
 (defn nounphrase [ & [ with ]]
   (generate {:synsem {:cat :noun :subcat '()}}))
