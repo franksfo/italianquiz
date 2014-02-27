@@ -42,7 +42,8 @@
     (first (take 1 (forest/lightning-bolt head lexicon (lazy-shuffle grammar) 0 rule-cache)))))
 
 (defn sentence [ & [ with ]]
-  (generate {:synsem {:cat :verb :subcat '()}}))
+  (let [with (if with with :top)]
+    (generate (unify with {:synsem {:cat :verb :subcat '()}}))))
 
 (defn nounphrase [ & [ with ]]
   (generate {:synsem {:cat :noun :subcat '()}}))
