@@ -236,7 +236,6 @@
                             (decode-generation-ordering rand-order rand-parent-type-order)
                             "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
 
-;        parents-at-this-depth (lazy-shuffle (parents-at-this-depth head phrases depth))
         parents-at-this-depth (parents-at-this-depth head phrases depth)
 
         cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))]
@@ -266,7 +265,7 @@
            lexical-headed-phrases (lexical-headed-phrases)
 
            debug (log/debug "")
-           debug (log/debug "===start===")
+           debug (log/info "===start===")
            path (if path (conj path
                                {:h-or-c "H"
                                 :depth depth
@@ -277,7 +276,7 @@
                        :depth depth
                        :spec remove-top-values
                        :parents parents-at-this-depth}])
-           log (log-path path (fn [x] (log/debug x)))
+           log (log-path path (fn [x] (log/info x)))
 
            parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth lexicon
                                                                  phrases depth
@@ -298,9 +297,12 @@
                                  (fo-ps (first parents-with-phrasal-head)))))
                parents-with-phrasal-head))
 
+           parents-with-phrasal-head
+           (parents-with-phrasal-head)
+
            debug (log/debug (str "size of lexical-headed-phrases: " (.size lexical-headed-phrases)))
 
-           debug (log/debug (str "lexical-headed-phrases: " (string/join (map (fn [phr] 
+           debug (log/info (str "lexical-headed-phrases: " (string/join (map (fn [phr] 
                                                                                 (fo-ps (:parent phr)))
                                                                               lexical-headed-phrases))))
 
@@ -374,18 +376,18 @@
              (lazy-cat
               (one-level-trees)
               (with-phrasal-comps)
-              (overc-with-cache (parents-with-phrasal-head) cache lexicon))
+              (overc-with-cache parents-with-phrasal-head cache lexicon))
 
 
              (= rand-order 1) ;; rand2 + hLcL + hPcL
              (lazy-cat
               (with-phrasal-comps)
               (one-level-trees)
-              (overc-with-cache (parents-with-phrasal-head) cache lexicon))
+              (overc-with-cache parents-with-phrasal-head cache lexicon))
 
              (= rand-order 2) ;; hPcL + rand2 + hLcL
              (lazy-cat
-              (overc-with-cache (parents-with-phrasal-head) cache lexicon)
+              (overc-with-cache parents-with-phrasal-head cache lexicon)
               (with-phrasal-comps)
               (one-level-trees)))))))
 
