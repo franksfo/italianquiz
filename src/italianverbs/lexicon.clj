@@ -63,7 +63,8 @@
   ;; subcat non-empty: pronoun is false
   (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
              (= (not (empty? (get-in lexical-entry '(:synsem :subcat)))))
-             (not (= (get-in lexical-entry '(:synsem :pronoun)) true)))
+             (not (= (get-in lexical-entry '(:synsem :pronoun)) true))
+             (not (= (get-in lexical-entry '(:synsem :propernoun)) true)))
         (unifyc lexical-entry
                 (unifyc agreement-noun
                         common-noun
@@ -148,7 +149,6 @@
         true
         lexical-entry))
 
-
 (defn intensifier-agreement [lexical-entry]
   (cond (= (get-in lexical-entry '(:synsem :cat)) :intensifier)
         (unifyc
@@ -196,6 +196,15 @@
         true
         lexical-entry))
 
+(defn pronoun-and-propernouns [lexical-entry]
+  (cond (or (= true (get-in lexical-entry '(:synsem :pronoun)))
+            (= true (get-in lexical-entry '(:synsem :propernoun))))
+        (unifyc lexical-entry
+                {:synsem {:cat :noun
+                          :subcat '()}})
+        true
+        lexical-entry))
+
 (defn transitive-verb-rule [lexical-entry]
   (cond (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
         (unifyc
@@ -213,6 +222,7 @@
         true
         lexical-entry))
 
+
 ;; This set of rules is monotonic and deterministic in the sense that
 ;; iterative application of the set of rules will result in the input
 ;; lexeme become more and more specific until it reaches a determinate
@@ -228,10 +238,10 @@
                  intransitive-verb-rule
                  modality-rule
                  noun-arguments-must-be-empty-subcat
+                 pronoun-and-propernouns
                  semantic-implicature
                  transitive-verb-rule
                  verb-rule))
-
 
 ;; Modifying rules: so-named because they modify the lexical entry in
 ;; such a way that is non-monotonic and dependent on the order of rule
@@ -254,7 +264,8 @@
         result (reduce merge  (map (fn [rule] (apply rule (list result)))
                                    modifying-rules))]
     (if (isomorphic? result lexical-entry)
-      (cache-serialization result)
+      (do (cache-serialization result)
+          result)
       (transform result))))
 
 (def lexicon
@@ -269,7 +280,8 @@
           ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
           (map transform
                (concat
-                a-noi
+                a-essere
+                esso-noi
                 notizie-potere
                 qualche_volta-volere
                 ))))
