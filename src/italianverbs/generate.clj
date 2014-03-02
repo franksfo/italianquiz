@@ -67,6 +67,13 @@
               grammar
               cache)))
 
-(defn nounphrase [ & [ with ]]
-  (generate {:synsem {:cat :noun :subcat '()}}))
+(defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
+  (let [spec (if spec spec :top)
+        lexicon (if the-lexicon the-lexicon lexicon)
+        grammar (if the-grammar the-grammar grammar)
+        cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))]
+    (generate {:synsem {:cat :noun :subcat '()}}
+              lexicon
+              grammar
+              cache)))
 
