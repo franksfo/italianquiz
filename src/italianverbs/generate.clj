@@ -37,21 +37,27 @@
 ;; a single cache.
 (def rule-cache (build-lex-sch-cache grammar lexicon grammar))
 
-(defn generate [ & [head the-lexicon the-grammar]]
+(defn generate [ & [head the-lexicon the-grammar cache]]
   (let [head (if head head :top)
         grammar (if the-grammar the-grammar grammar)
-        lexicon (if the-lexicon the-lexicon lexicon)]
+        lexicon (if the-lexicon the-lexicon lexicon)
+        cache (if cache cache rule-cache)] ;; if no cache supplied, use package-level cache 'rule-cache'.
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size the-grammar) "."))
     (first (take 1 (forest/lightning-bolt head
                                           (lazy-shuffle the-lexicon)
-                                          (lazy-shuffle grammar) 0 rule-cache)))))
+                                          (lazy-shuffle grammar) 0 cache)))))
 
 (defn sentence [ & [spec the-lexicon the-grammar cache]]
   (log/debug (str "sentence with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size the-grammar) "."))
+  (log/debug (str "cache:"
+                  (if cache
+                    (str "size: " (.size cache))
+                    (str "doesn't exist yet."))))
+
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar grammar)
