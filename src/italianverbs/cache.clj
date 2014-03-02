@@ -144,10 +144,11 @@
     (lazy-shuffle result)))
 
 (defn overc-with-cache-1 [parent lex]
-  (log/debug (str "overc-with-cache-1 with parent: " (fo-ps parent)))
   (if (not (empty? lex))
-    (lazy-cat (overc parent (first lex))
-              (overc-with-cache-1 parent (rest lex)))))
+    (do
+      (log/debug (str "overc-with-cache-1 with parent: " (fo-ps parent) " and lex: " (fo (first lex))))
+      (lazy-cat (overc parent (first lex))
+                (overc-with-cache-1 parent (rest lex))))))
 
 (defn overc-with-cache [parents cache lexicon]
   (if (not (empty? parents))
