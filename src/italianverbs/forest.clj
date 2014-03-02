@@ -102,10 +102,11 @@
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
 
-(defn phrasal-headed-phrases [parents lexicon phrases depth cache path]
+(defn phrasal-headed-phrases [parents lexicon grammar depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
-    (let [parent (first parents)
+    (let [parent (first parents) ;; realizes possibly?
+          debug (log/debug (str "phrasal-headed-phrases grammar: " (.size grammar)))
           headed-phrases-of-parent (get-head-phrases-of parent cache)
           headed-phrases-of-parent (if (nil? headed-phrases-of-parent)
                                      (list)
@@ -114,7 +115,7 @@
           head-spec (dissoc-paths (get-in parent '(:head))
                                   '((:english :initial)
                                     (:italian :initial)))
-          debug (log/debug (str "phrasal-headed-phrases: parent's head (dissoced): " head-spec))
+          debug (log/debug (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))
 
           ]
       (lazy-seq
@@ -126,7 +127,7 @@
                                                              cache
                                                              path)))]
                                 (overh parents bolts))}
-             (phrasal-headed-phrases (rest parents) lexicon phrases depth cache path))))))
+             (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -187,6 +188,11 @@
 
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon phrases depth cache path]]
+
+  (log/debug (str "lightning-bolt with lexicon size: " 
+                  (.size lexicon) " and grammar size: "
+                  (.size phrases) "."))
+
   (let [maxdepth 3
         head (if head head :top)
         ;; TODO: will probably remove this or make it only turned on in special cases.
@@ -196,6 +202,9 @@
                       (throw (Exception. (str ": head-spec is too general: " head))))
 
         log (log/info (str "PHRASES: " (fo-ps phrases)))
+
+        too-many (if (> (.size phrases) 1)
+                   (throw (Exception. (str " too many phrases: should have only been one."))))
 
         remove-top-values (remove-top-values-log head)
 
@@ -221,7 +230,13 @@
          nil)
 
      true
-     (let [lexical-headed-phrases 
+     (let [debug (log/debug (str "about to call lexical-headed-phrases with phrases size: " (.size phrases)))
+           debug (log/debug (str "about to call lexical-headed-phrases with parents-at-this-depth size: "
+                                 (.size parents-at-this-depth)))
+           debug (log/debug (str "about to call lexical-headed-phrases with lexicon size: "
+                                 (.size lexicon)))
+           
+           lexical-headed-phrases 
            (let [lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth
                                                                 (lazy-shuffle lexicon)
                                                                 phrases
@@ -233,8 +248,6 @@
                (log/debug (str "lexical-headed-phrases is non-empty; the first is: " (fo-ps (:parent (first lexical-headed-phrases))))))
              lexical-headed-phrases)
 
-           debug (log/debug "")
-           debug (log/info "===start===")
            path (if path (conj path
                                {:h-or-c "H"
                                 :depth depth

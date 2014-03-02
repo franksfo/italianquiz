@@ -41,15 +41,25 @@
   (let [head (if head head :top)
         grammar (if the-grammar the-grammar grammar)
         lexicon (if the-lexicon the-lexicon lexicon)]
+  (log/debug (str "generate with lexicon size: " 
+                  (.size the-lexicon) " and grammar size: "
+                  (.size the-grammar) "."))
     (first (take 1 (forest/lightning-bolt head
                                           (lazy-shuffle the-lexicon)
                                           (lazy-shuffle grammar) 0 rule-cache)))))
 
-(defn sentence [ & [spec lexicon grammar]]
-  (let [spec (if spec spec :top)]
+(defn sentence [ & [spec the-lexicon the-grammar cache]]
+  (log/debug (str "sentence with lexicon size: " 
+                  (.size the-lexicon) " and grammar size: "
+                  (.size the-grammar) "."))
+  (let [spec (if spec spec :top)
+        lexicon (if the-lexicon the-lexicon lexicon)
+        grammar (if the-grammar the-grammar grammar)
+        cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))]
     (generate (unify spec {:synsem {:cat :verb :subcat '()}})
               lexicon
-              grammar)))
+              grammar
+              cache)))
 
 (defn nounphrase [ & [ with ]]
   (generate {:synsem {:cat :noun :subcat '()}}))
