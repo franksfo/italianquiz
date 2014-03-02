@@ -64,8 +64,6 @@
           comp-phrases-for-parent (if (nil? comp-phrases-for-parent) (list)
                                       comp-phrases-for-parent)
 
-;;          debug (log/trace (str "SIZE OF COMP-PHRASES-FOR-PARENT:" (:comment parent) " IS " (.size comp-phrases-for-parent)))
-
           comps 
           (deref (future
             (lightning-bolt
@@ -95,6 +93,7 @@
           cache (if cache cache
                     (do (log/warn (str "lexical-headed-parents given null cache: building cache from: (" (.size phrases) ")"))
                         (build-lex-sch-cache phrases lexicon)))]
+      (log/debug (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
       (lazy-seq
        (let [result (overh parent (get-lex parent :head cache lexicon))]
          (cons {:parent parent
@@ -105,28 +104,27 @@
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? parents))
     (let [parent (first parents) ;; realizes possibly?
-          debug (log/debug (str "phrasal-headed-phrases grammar: " (.size grammar)))
+          debug (log/debug (str "phrasal-headed-phrases grammar size: " (.size grammar)))
           headed-phrases-of-parent (get-head-phrases-of parent cache)
           headed-phrases-of-parent (if (nil? headed-phrases-of-parent)
                                      (list)
                                      headed-phrases-of-parent)
-;          headed-phrases-of-parent phrases
           head-spec (dissoc-paths (get-in parent '(:head))
                                   '((:english :initial)
                                     (:italian :initial)))
           debug (log/debug (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))
 
           ]
-      (lazy-seq
-       (cons {:parent parent
-              :headed-phrases (let [bolts 
-                                    (deref (future
-                                             (lightning-bolt head-spec
-                                                             lexicon headed-phrases-of-parent (+ 1 depth)
-                                                             cache
-                                                             path)))]
-                                (overh parents bolts))}
-             (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path))))))
+      (conj
+       {parent (let [bolts 
+                     (deref (future
+                              (lightning-bolt head-spec
+                                              lexicon headed-phrases-of-parent (+ 1 depth)
+                                              cache
+                                              path)))]
+                 (overh parents bolts))}
+       (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)))
+    {}))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -148,7 +146,9 @@
 
 (defn parents-at-this-depth [head-spec phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
-  (log/debug (str "parents-at-this-depth: head-spec:" (remove-top-values-log head-spec)))
+  (if (nil? phrases)
+    (log/debug (str "no parents for spec: " (show-spec head-spec) " at depth: " depth)))
+  (log/debug (str "parents-at-this-depth: head-spec:" (show-spec head-spec)))
   (log/debug (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
   (filter (fn [each-unified-parent]
             (not (fail? each-unified-parent)))
@@ -181,153 +181,144 @@
             spec (:spec (first path))
             parents (fo-ps (:parents (first path)))]
         (log-fn (str "LB@[" depth "]: " h-or-c "; spec=" spec))
-        (log-fn (str "   " parents))
+        (log-fn (str "   parents: " parents))
         (log-path (rest path) log-fn (+ depth 1)))
       (if print-blank-line (log-fn (str ""))))))
 
+(def maxdepth 3)
+
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon grammar depth cache path]]
+  (cond (nil? lexicon)
+        (do
+          (log/warn "lightning-bolt: lexicon was nil.")
+          nil)
 
-  (log/debug (str "lightning-bolt with lexicon size: " 
-                  (.size lexicon) " and grammar size: "
-                  (.size grammar) "."))
+        (nil? grammar)
+        (do
+          (log/warn "lightning-bolt: grammar was nil.")
+          nil)
+        
+        (> depth maxdepth)
+        nil
 
-  (let [maxdepth 3
-        head (if head head :top)
-        ;; TODO: will probably remove this or make it only turned on in special cases.
-        ;; lightning-bolt should be efficient enough to handle :top as a spec
-        ;; efficiently.
-        too-general (if (= head :top)
-                      (throw (Exception. (str ": head-spec is too general: " head))))
+        (and (not (nil? lexicon))
+             (not (nil? grammar)))
+        (do
+          (log/debug (str "lightning-bolt with lexicon size: " 
+                          (.size lexicon) " and grammar size: "
+                          (.size grammar) "."))
+          (let [head (if head head :top)
+                ;; TODO: will probably remove this or make it only turned on in special cases.
+                ;; lightning-bolt should be efficient enough to handle :top as a spec
+                ;; efficiently.
+                too-general (if (= head :top)
+                              (if true nil
+                                  (throw (Exception. (str ": head-spec is too general: " head)))))
 
-        remove-top-values (remove-top-values-log head)
+                phrases grammar;; TODO: rename all uses of phrases to grammar.
+                
+                remove-top-values (remove-top-values-log head)
+                
+                depth (if depth depth 0)
+                
+                rand-order (rand-int 3 0)
+                
+                rand-parent-type-order (rand-int 2 0)
+                
+                log (log/debug (str "rand-order at depth:" depth " is: "
+                                    (decode-generation-ordering rand-order rand-parent-type-order)
+                                    "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
+            
+                parents-at-this-depth (parents-at-this-depth head grammar depth)]
+            (cond
+               (empty? parents-at-this-depth)
+               (do (log/debug "lb: no parents at depth:" depth ";returning empty list.")
+                   nil)
 
-        depth (if depth depth 0)
+               true
+               (let [cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))
+                     debug (log/debug (str "about to call lexical-headed-phrases: grammar= " (fo-ps grammar) "; "
+                                           "parents-at-this-depth= " (fo-ps parents-at-this-depth) "; lexicon of size: " (.size lexicon)))
+                     
+                     lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth
+                                                                    (lazy-shuffle lexicon)
+                                                                    phrases depth
+                                                                    cache path)
+               
+                     path (if path path [])
+                     path (if path (conj path
+                                         ;; add one element representing this call of lightning-bolt.
+                                         {:h-or-c "H"
+                                          :depth depth
+                                          :spec remove-top-values
+                                          :parents parents-at-this-depth}))
+                     log (log-path path (fn [x] (log/info x)))
+                     
+                     parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth lexicon
+                                                                           phrases depth
+                                                                           cache path)
+               
+                     parents-with-phrasal-head (vals parents-with-phrasal-head-map)
+                     
+                     parents-with-lexical-heads 
+                     (mapcat (fn [each-kv]
+                               (let [phrases (:headed-phrases each-kv)]
+                                 phrases))
+                             lexical-headed-phrases)
+                     
+                     ;; TODO: (lazy-shuffle) this.
+                     ;; TODO: cache this.
+                     parents-with-phrasal-heads-for-comp-phrases 
+                     parents-with-phrasal-head
+               
+                     parents-with-lexical-heads-for-comp-phrases 
+                     (fn [] (mapcat (fn [each-kv]
+                                      (let [parent (:parent each-kv)]
+                                        (if (not (= false (get-in parent '(:comp :phrasal))))
+                                          (let [phrases (:headed-phrases each-kv)]
+                                            phrases))))
+                                    lexical-headed-phrases))
+               
+                     one-level-trees
+                     (fn []
+                       (let [one-level-trees
+                             (if (not (empty? parents-with-lexical-heads))
+                               (overc-with-cache parents-with-lexical-heads cache (lazy-shuffle lexicon)))]
+                         one-level-trees))
 
-        rand-order (rand-int 3 0)
+                     with-phrasal-comps 
+                     (fn []
+                       (let [with-phrasal-comps
+                             (headed-phrase-add-comp (parents-with-phrasal-complements
+                                                      parents-with-phrasal-heads-for-comp-phrases
+                                                      (parents-with-lexical-heads-for-comp-phrases)
+                                                      rand-parent-type-order)
+                                                     phrases (lazy-shuffle lexicon) 0 cache path)]
+                         (if (empty? with-phrasal-comps)
+                           (log/debug (str "cP is empty."))
+                           (log/debug (str "cP is not empty; first is: " (fo-ps (first with-phrasal-comps)))))
+                         with-phrasal-comps))
+                     ]
 
-        rand-parent-type-order (rand-int 2 0)
-
-        log (log/debug (str "rand-order at depth:" depth " is: "
-                            (decode-generation-ordering rand-order rand-parent-type-order)
-                            "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
-        phrases grammar;; TODO: rename all uses of phrases to grammar.
-        parents-at-this-depth (parents-at-this-depth head phrases depth)
-
-        cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))]
-    (cond
-     (> depth maxdepth)
-     nil
-
-     (empty? parents-at-this-depth)
-     (do (log/debug "lb: no parents at depth:" depth ";returning empty list.")
-         nil)
-
-     true
-     (let [debug (log/debug (str "about to call lexical-headed-phrases with phrases size: " (.size phrases)))
-           debug (log/debug (str "about to call lexical-headed-phrases with parents-at-this-depth size: "
-                                 (.size parents-at-this-depth)))
-           debug (log/debug (str "about to call lexical-headed-phrases with lexicon size: "
-                                 (.size lexicon)))
-           
-           lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth
-                                                          (lazy-shuffle lexicon)
-                                                          phrases depth
-                                                          cache path)
-
-           path (if path (conj path
-                               {:h-or-c "H"
-                                :depth depth
-                                :spec remove-top-values
-                                :parents parents-at-this-depth})
-                    ;; first element of path:
-                    [ {:h-or-c "H"
-                       :depth depth
-                       :spec remove-top-values
-                       :parents parents-at-this-depth}])
-           log (log-path path (fn [x] (log/info x)))
-
-           parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth lexicon
-                                                                 phrases depth
-                                                                 cache path)
-
-           parents-with-phrasal-head 
-           (let [parents-with-phrasal-head (mapcat (fn [each-kv]
-                                                     (let [phrases (:headed-phrases each-kv)]
-                                                       phrases))
-                                                   parents-with-phrasal-head-map)]
-             parents-with-phrasal-head)
-
-           parents-with-lexical-heads 
-           (mapcat (fn [each-kv]
-                     (let [phrases (:headed-phrases each-kv)]
-                       phrases))
-                   lexical-headed-phrases)
-
-           ;; TODO: (lazy-shuffle) this.
-           ;; TODO: cache this.
-           parents-with-phrasal-heads-for-comp-phrases 
-           (fn [] 
-             (let [parents-with-phrasal-heads-for-comp-phrases 
-                   (mapcat (fn [each-kv]
-                             (let [parent (:parent each-kv)]
-                               (if (not (= false (get-in parent '(:comp :phrasal))))
-                                 (let [phrases (:headed-phrases each-kv)]
-                                   phrases))))
-                           parents-with-phrasal-head-map)]
-               (if (empty? parents-with-phrasal-heads-for-comp-phrases)
-                 (log/trace (str "cP is empty."))
-                 (log/debug (str "cP is nonempty; first: " (fo-ps (first parents-with-phrasal-heads-for-comp-phrases)))))
-               parents-with-phrasal-heads-for-comp-phrases))
-
-           parents-with-lexical-heads-for-comp-phrases 
-           (fn [] (mapcat (fn [each-kv]
-                            (let [parent (:parent each-kv)]
-                              (if (not (= false (get-in parent '(:comp :phrasal))))
-                                (let [phrases (:headed-phrases each-kv)]
-                                  phrases))))
-                          lexical-headed-phrases))
-
-           one-level-trees
-           (fn []
-             (let [one-level-trees
-                   (if (not (empty? parents-with-lexical-heads))
-                     (overc-with-cache parents-with-lexical-heads cache (lazy-shuffle lexicon)))]
-               one-level-trees))
-
-           with-phrasal-comps 
-           (fn []
-             (let [with-phrasal-comps
-                   (headed-phrase-add-comp (parents-with-phrasal-complements
-                                            (parents-with-phrasal-heads-for-comp-phrases)
-                                            (parents-with-lexical-heads-for-comp-phrases)
-                                            rand-parent-type-order)
-                                           phrases (lazy-shuffle lexicon) 0 cache path)]
-               (if (empty? with-phrasal-comps)
-                 (log/debug (str "cP is empty."))
-                 (log/debug (str "cP is not empty; first is: " (fo-ps (first with-phrasal-comps)))))
-               with-phrasal-comps))
-
-          ]
-
-       (cond (= rand-order 0) ;; hLcL + rand2 + hPcL
-             (lazy-cat
-              (one-level-trees)
-              (with-phrasal-comps)
-              (overc-with-cache parents-with-phrasal-head cache lexicon))
+           (cond (= rand-order 0) ;; hLcL + rand2 + hPcL
+                 (lazy-cat
+                  (one-level-trees)
+                  (with-phrasal-comps)
+                  (overc-with-cache parents-with-phrasal-head cache lexicon))
 
 
-             (= rand-order 1) ;; rand2 + hLcL + hPcL
-             (lazy-cat
-              (with-phrasal-comps)
-              (one-level-trees)
-              (overc-with-cache parents-with-phrasal-head cache lexicon))
+                 (= rand-order 1) ;; rand2 + hLcL + hPcL
+                 (lazy-cat
+                  (with-phrasal-comps)
+                  (one-level-trees)
+                  (overc-with-cache parents-with-phrasal-head cache lexicon))
 
-             (= rand-order 2) ;; hPcL + rand2 + hLcL
-             (lazy-cat
-              (overc-with-cache parents-with-phrasal-head cache lexicon)
-              (with-phrasal-comps)
-              (one-level-trees)))))))
+                 (= rand-order 2) ;; hPcL + rand2 + hLcL
+                 (lazy-cat
+                  (overc-with-cache parents-with-phrasal-head cache lexicon)
+                  (with-phrasal-comps)
+                  (one-level-trees)))))))))
 
 
 ;; aliases that might be easier to use in a repl:
