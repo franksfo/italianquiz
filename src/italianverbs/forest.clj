@@ -240,7 +240,7 @@
                 
                   depth (if depth depth 0)
                 
-                  rand-order (rand-int 3 0)
+                  rand-order (if false (rand-int 3 0) 2)
                 
                   rand-parent-type-order (rand-int 2 0)
                 
@@ -256,14 +256,11 @@
 
                true
                (let [cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))
-                     debug (log/debug (str "about to call lexical-headed-phrases: "
-                                           "parents-at-this-depth:" (fo-ps parents-at-this-depth) "; lexicon of size: " (.size lexicon)))
-                     
                      lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth
                                                                     (lazy-shuffle lexicon)
                                                                     phrases depth
                                                                     cache path)
-               
+
                      parents-with-phrasal-head-map (phrasal-headed-phrases parents-at-this-depth lexicon
                                                                            phrases depth
                                                                            cache path)
@@ -289,12 +286,17 @@
                      (if (not (empty? parents-with-lexical-heads))
                        (overc-with-cache parents-with-lexical-heads cache (lazy-shuffle lexicon)))
 
+                     debug (log/debug (str "Starting with-phrasal-comps.."))
+
                      with-phrasal-comps 
                      (add-comp-phrase-to-headed-phrase (parents-with-phrasal-complements
                                                         parents-with-phrasal-head
                                                         parents-with-lexical-heads-for-comp-phrases
                                                         rand-parent-type-order)
                                                        phrases (lazy-shuffle lexicon) 0 cache path)
+
+                     debug (log/debug (str "Done with with-phrasal-comps"))
+
                      ]
 
            (cond (= rand-order 0) ;; hLcL + rand2 + hPcL
