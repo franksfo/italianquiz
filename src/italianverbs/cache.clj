@@ -99,7 +99,7 @@
     #{}
     (do
       (if (not (map? schema))
-        (throw (Exception. (str "first arguments should have been a map, but instead was of type: " (type schema)))))
+        (throw (Exception. (str "first arguments should have been a map, but instead was of type: " (type schema) "; fo: " (fo schema)))))
       (log/debug (str "get-lex for schema: " (:rule schema)))
       (if (nil? (:rule schema))
         (log/error (str "no schema for: " schema)))
@@ -133,24 +133,23 @@
         result (if (nil? result) (list) result)
         label (label-of parent)]
     (if (empty? result)
-      (log/info (str "headed-phrases of parent: " label " is empty.")))
+      (log/debug (str "headed-phrases of parent: " label " is empty.")))
     (lazy-shuffle result)))
 
 (defn get-comp-phrases-of [parent cache]
   (let [result (:comp-phrases (get cache (:rule parent)))
         result (if (nil? result) (list) result)]
     (if (empty? result)
-      (log/warn (str "comp-phrases of parent: " (label-of parent) " is empty.")))
+      (log/debug (str "comp-phrases of parent: " (label-of parent) " is empty.")))
     (lazy-shuffle result)))
 
 (defn overc-with-cache-1 [parent lex]
-  (log/trace (str "overc-with-cache-1 with parent: " (fo-ps parent)))
+  (log/debug (str "overc-with-cache-1 with parent: " (fo-ps parent)))
   (if (not (empty? lex))
     (lazy-cat (overc parent (first lex))
               (overc-with-cache-1 parent (rest lex)))))
 
 (defn overc-with-cache [parents cache lexicon]
-  (log/trace (str "overc-with-cache with parents type: " (type parents)))
   (if (not (empty? parents))
     (let [parent (first parents)]
       (lazy-cat (overc-with-cache-1 parent (get-lex parent :comp cache lexicon))
