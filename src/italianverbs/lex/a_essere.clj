@@ -330,7 +330,8 @@
      {:italian "bucato"
       :english "laundry"
       :synsem {:cat :noun
-               :agr {:gender :masc}
+               :agr {:gender :masc
+                     :number :sing}
                :sem {:animate false
                      :drinkable false
                      :edible false
