@@ -177,17 +177,18 @@
 (defn parents-with-phrasal-complements-candidates [parents-with-lexical-heads parents-with-phrasal-heads
                                                    rand-parent-type-order]
   (if false (list)
-  (let [;parents-with-lexical-heads (filter (fn [parent]
-        ;                                     (not (= false (get-in parent '(:comp :phrasal)))))
-        ;                                   parents-with-lexical-heads)
-        ;parents-with-phrasal-heads (filter (fn [parent]
-        ;                                     (not (= false (get-in parent '(:comp :phrasal)))))
-        ;                                   parents-with-phrasal-heads)
-        ]
-    (cond (= rand-parent-type-order 0)
-          (lazy-cat parents-with-lexical-heads parents-with-phrasal-heads)
-          true
-          (lazy-cat parents-with-phrasal-heads parents-with-lexical-heads)))))
+      (let [parents-with-lexical-heads (filter (fn [parent]
+                                                 (do (log/debug "checking parent (1)")
+                                                     (not (= false (get-in parent '(:comp :phrasal))))))
+                                               parents-with-lexical-heads)
+            parents-with-phrasal-heads (filter (fn [parent]
+                                                 (do (log/debug "checking parent (2)")
+                                                     (not (= false (get-in parent '(:comp :phrasal))))))
+                                               parents-with-phrasal-heads)]
+        (cond (= rand-parent-type-order 0)
+              (lazy-cat parents-with-lexical-heads parents-with-phrasal-heads)
+              true
+              (lazy-cat parents-with-phrasal-heads parents-with-lexical-heads)))))
 
 (defn log-path [path log-fn & [ depth]]
   (let [depth (if depth depth 0)
