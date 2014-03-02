@@ -264,7 +264,7 @@
                                                                            phrases depth
                                                                            cache path)
                
-                     parents-with-phrasal-head (vals parents-with-phrasal-head-map)
+                     parents-with-phrasal-head (reduce concat (vals parents-with-phrasal-head-map))
                      
                      parents-with-lexical-heads 
                      (mapcat (fn [each-kv]
