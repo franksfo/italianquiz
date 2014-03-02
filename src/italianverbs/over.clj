@@ -237,8 +237,8 @@
 ;; is still true.
 (defn overc [parent comp]
   "add given child as the comp child of the phrase: parent."
-  (log/trace (str "overc parent type: " (type parent)))
-  (log/trace (str "overc comp  type: " (type comp)))
+  (log/debug (str "overc parent : " (fo-ps parent)))
+  (log/debug (str "overc comp : " (fo comp)))
 
   (log/trace (str "set? parent:" (set? parent)))
   (log/trace (str "seq? parent:" (seq? parent)))
@@ -267,6 +267,10 @@
      (filter (fn [result]
                (not (fail? result)))
              (over-each-parent-comp parents comp)))
+
+   (future? comp)
+   (do (log/warn (str "GOT HERE!!"))
+       (overc parent (deref comp)))
 
    (string? comp)
    (overc parent (it comp))
