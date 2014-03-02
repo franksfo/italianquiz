@@ -6,7 +6,7 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache get-comp-phrases-of get-head-phrases-of get-lex
-                                                   overc overh overc-with-cache overh-with-cache)]
+                                                   overc overh overc-with-cache)]
    [italianverbs.lexicon :refer (it)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.unify :as unify]
@@ -64,19 +64,21 @@
 
           comps 
           (if (not (empty? comp-phrases-for-parent))
-            (do
+            (let [debug (log/debug (str "about to call get-lex with parent: " parent))
+                  lexicon-for-comp (get-lex parent :comp cache lexicon)]
+              (log/debug "about to call get-lex with first arg: " parent)
               (log/debug (str "about to call lightning-bolt from add-comp-phrase-to-headed-phrase with head: " (show-spec comp-spec)
-                              "; grammar: " (fo-ps comp-phrases-for-parent) "; lexicon size: " (.size (get-lex parent :comp cache lexicon))))
+                              "; grammar: " (fo-ps comp-phrases-for-parent) "; lexicon size: " (.size lexicon-for-comp)))
               (deref (future
                        (lightning-bolt
-                        comp-spec (get-lex parent :comp cache lexicon)
+                        comp-spec lexicon-for-comp
                         comp-phrases-for-parent
                         0
                         cache (conj path 
                                     {:h-or-c "C"
                                      :depth 0
                                      :grammar comp-phrases-for-parent
-                                     :lexicon-size (.size (get-lex parent :comp cache lexicon))
+                                     :lexicon-size (.size lexicon-for-comp)
                                      :spec (show-spec comp-spec)
                                      :parents comp-phrases-for-parent})))))
             (list))]
@@ -94,9 +96,11 @@
           cache (if cache cache
                     (do (log/warn (str "lexical-headed-parents given null cache: building cache from: (" (.size phrases) ")"))
                         (build-lex-sch-cache phrases lexicon)))]
-      (log/trace (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
+      (log/debug (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
+      
       (lazy-seq
-       (let [result (overh parent (get-lex parent :head cache lexicon))]
+       (let [phrases-with-lexical-heads (get-lex parent :head cache lexicon)
+             result (overh parent phrases-with-lexical-heads)]
          (cons {:parent parent
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
@@ -272,11 +276,6 @@
                                  phrases))
                              lexical-headed-phrases)
                      
-                     ;; TODO: (lazy-shuffle) this.
-                     ;; TODO: cache this.
-                     parents-with-phrasal-heads-for-comp-phrases 
-                     parents-with-phrasal-head
-               
                      parents-with-lexical-heads-for-comp-phrases 
                      (mapcat (fn [each-kv]
                                (let [parent (:parent each-kv)]
@@ -292,7 +291,7 @@
 
                      with-phrasal-comps 
                      (add-comp-phrase-to-headed-phrase (parents-with-phrasal-complements
-                                                        parents-with-phrasal-heads-for-comp-phrases
+                                                        parents-with-phrasal-head
                                                         parents-with-lexical-heads-for-comp-phrases
                                                         rand-parent-type-order)
                                                        phrases (lazy-shuffle lexicon) 0 cache path)
@@ -303,7 +302,6 @@
                   one-level-trees
                   with-phrasal-comps
                   (overc-with-cache parents-with-phrasal-head cache lexicon))
-
 
                  (= rand-order 1) ;; rand2 + hLcL + hPcL
                  (lazy-cat
