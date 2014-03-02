@@ -76,3 +76,11 @@
                                               grammar
                                               (build-lex-sch-cache grammar lexicon grammar)))))))))
 
+
+(defn benchmark-3 [n]
+  (let [grammar (list noun-phrase nbar)]
+    (fo (take n (repeatedly #(time (nounphrase {:synsem {:sem {:pred :cane}}}
+                                               lexicon 
+                                               grammar
+                                               (build-lex-sch-cache grammar lexicon grammar))))))))
+ 
