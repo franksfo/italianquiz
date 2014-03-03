@@ -269,8 +269,7 @@
              (over-each-parent-comp parents comp)))
 
    (future? comp)
-   (do (log/warn (str "GOT HERE!!"))
-       (overc parent (deref comp)))
+   (overc parent (deref comp))
 
    (string? comp)
    (overc parent (it comp))
