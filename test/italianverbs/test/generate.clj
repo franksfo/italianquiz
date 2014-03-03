@@ -53,10 +53,8 @@
          :english {:infl infl}
          :synsem {:infl infl}}))))
 
-;; move to test
 (deftest il-libro
   (is (= "Il libro (The book)."
          (first (fo (first (take 1 (lightning-bolt {:synsem {:cat :noun :subcat '()}}
                                                    (list noun-phrase nbar s-future)
                                                    (seq (union (it "il") (it "libro")))))))))))
-
