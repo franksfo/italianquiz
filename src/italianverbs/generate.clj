@@ -50,18 +50,17 @@
                                           (lazy-shuffle grammar) 0 cache)))))
 
 (defn sentence [ & [spec the-lexicon the-grammar cache]]
-  (log/debug (str "sentence with lexicon size: " 
-                  (.size the-lexicon) " and grammar size: "
-                  (.size the-grammar) "."))
-  (log/debug (str "cache:"
-                  (if cache
-                    (str "size: " (.size cache))
-                    (str "doesn't exist yet."))))
-
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar grammar)
         cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))]
+    (log/debug (str "sentence with lexicon size: " 
+                    (.size lexicon) " and grammar size: "
+                    (.size grammar) "."))
+    (log/debug (str "cache:"
+                    (if cache
+                      (str "size: " (.size cache))
+                      (str "doesn't exist yet."))))
     (generate (unify spec {:synsem {:cat :verb :subcat '()}})
               lexicon
               grammar
@@ -72,7 +71,7 @@
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar grammar)
         cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))]
-    (generate {:synsem {:cat :noun :subcat '()}}
+    (generate (unify spec {:synsem {:cat :noun :subcat '()}})
               lexicon
               grammar
               cache)))
