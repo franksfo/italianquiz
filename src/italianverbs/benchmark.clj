@@ -82,3 +82,10 @@
                                     grammar
                                     (build-lex-sch-cache grammar lexicon grammar))))))))
 
+(defn benchmark-4 [n]
+  (fo (take n (repeatedly #(time (sentence {:synsem {:sem {:pred :mangiare
+                                                           :subj {:human true}}
+                                                     :subcat '()}}))))))
+
+
+
