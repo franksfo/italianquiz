@@ -758,6 +758,9 @@
                               :agr {:gender gender
                                     :number number}}
                           :2 {:cat :adjective
+                              :sem {:comparative false}
+                              :subcat {:1 :top
+                                       :2 '()}
                               :agr {:gender gender
                                     :number number}}}}}))
 
