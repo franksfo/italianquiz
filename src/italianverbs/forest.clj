@@ -12,7 +12,7 @@
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec)]))
 
-(def concurrent false)
+(def concurrent true)
 (defn deref [thing]
   (if concurrent
     (core/deref thing)
@@ -71,11 +71,10 @@
 
           comps 
           (if (not (empty? comp-phrases-for-parent))
-            (let [debug (log/debug (str "about to call get-lex with parent: " parent))
-                  lexicon-for-comp (get-lex parent :comp cache lexicon)]
-              (log/debug "about to call get-lex with first arg: " parent)
+            (let [lexicon-for-comp (get-lex parent :comp cache lexicon)]
               (log/debug (str "about to call lightning-bolt from add-comp-phrase-to-headed-phrase with head: " (show-spec comp-spec)
                               "; grammar: " (fo-ps comp-phrases-for-parent) "; lexicon size: " (.size lexicon-for-comp)))
+              (deref
               (future
                 (lightning-bolt
                  comp-spec lexicon-for-comp
@@ -87,14 +86,11 @@
                               :grammar comp-phrases-for-parent
                               :lexicon-size (.size lexicon-for-comp)
                               :spec (show-spec comp-spec)
-                              :parents comp-phrases-for-parent}))))
+                              :parents comp-phrases-for-parent})))))
             (list))]
 
       (lazy-cat
-       (do
-         (log/debug (str "phrasal-comps size for parent: " (fo-ps parent) " : " (.size comps)))
-         (if false (throw (Exception. "GOT HERE.")))
-         (overc parent comps))
+       (overc parent comps)
        (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path)))))
 
 (def can-log-if-in-sandbox-mode false)
@@ -106,7 +102,7 @@
           cache (if cache cache
                     (do (log/warn (str "lexical-headed-parents given null cache: building cache from: (" (.size phrases) ")"))
                         (build-lex-sch-cache phrases lexicon)))]
-      (log/debug (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
+      (log/trace (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
       
       (lazy-seq
        (let [phrases-with-lexical-heads (get-lex parent :head cache lexicon)
@@ -130,16 +126,17 @@
                                       '((:english :initial)
                                         (:italian :initial)))
               debug (log/trace (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))]
-          (lazy-cat
+          (lazy-seq
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase with parents: " (fo-ps parents)))
                  bolts 
-                 (future
+                 (deref (future
                    (lightning-bolt head-spec
                                    lexicon headed-phrases-of-parent (+ 1 depth)
                                    cache
-                                   path))]
-             (overh parents bolts))
-           (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)))))))
+                                   path)))]
+             (cons {:parent parent
+                    :headed-phrases (overh parents bolts)}
+                   (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)))))))))
 
 ;; TODO: move this to inside lightning-bolt.
 (defn decode-gen-ordering2 [rand2]
@@ -206,7 +203,7 @@
         (log-path (rest path) log-fn (+ depth 1)))
       (if print-blank-line (log-fn (str ""))))))
 
-(def maxdepth 3)
+(def maxdepth 4)
 
 (defn lazy-cat-them-all [vals]
   (if (not (empty? vals))
@@ -217,6 +214,7 @@
 
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon grammar depth cache path]]
+  (let [depth (if depth depth 0)]
   (cond (nil? lexicon)
         (do
           (log/warn "lightning-bolt: lexicon was nil.")
@@ -234,7 +232,7 @@
              (not (nil? grammar)))
         (do
 
-          (let [parents-at-this-depth (parents-at-this-depth head grammar depth)
+          (let [parents-at-this-depth (parents-at-this-depth head (shuffle grammar) depth)
 
                 path (if path path [])
                 path (if path (conj path
@@ -259,7 +257,7 @@
                 
                   depth (if depth depth 0)
                 
-                  rand-order (if false (rand-int 3 0) 1)
+                  rand-order (if true (rand-int 3 0) 1)
                 
                   rand-parent-type-order (rand-int 2 0)
                 
@@ -275,21 +273,27 @@
 
                true
                (let [cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))
-                     lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth
-                                                                    (lazy-shuffle lexicon)
-                                                                    phrases depth
-                                                                    cache path)
 
-                     parents-with-phrasal-head (phrasal-headed-phrases parents-at-this-depth lexicon
-                                                                       phrases depth
-                                                                       cache path)
+                     phrasal-headed-phrases (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
+                                                                    phrases depth cache path)
 
-                     parents-with-lexical-heads 
+                     parents-with-phrasal-heads-for-comp-phrases
+                     (mapcat (fn [each-kv]
+                               (let [parent (:parent each-kv)]
+                                 (if (not (= false (get-in parent '(:comp :phrasal))))
+                                   (let [phrases (:headed-phrases each-kv)]
+                                     phrases))))
+                             phrasal-headed-phrases)
+
+                     phrasal-headed-phrases
                      (mapcat (fn [each-kv]
                                (let [phrases (:headed-phrases each-kv)]
                                  phrases))
-                             lexical-headed-phrases)
-                     
+                             phrasal-headed-phrases)
+
+                     lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
+                                                                    phrases depth cache path)
+
                      parents-with-lexical-heads-for-comp-phrases 
                      (mapcat (fn [each-kv]
                                (let [parent (:parent each-kv)]
@@ -297,21 +301,24 @@
                                    (let [phrases (:headed-phrases each-kv)]
                                      phrases))))
                              lexical-headed-phrases)
+
+                     lexical-headed-phrases
+                     (mapcat (fn [each-kv]
+                               (let [phrases (:headed-phrases each-kv)]
+                                 phrases))
+                             lexical-headed-phrases)
+                     
                
                      ;; trees where both the head and comp are lexemes.
                      one-level-trees
-                     (if (not (empty? parents-with-lexical-heads))
-                       (overc-with-cache parents-with-lexical-heads cache (lazy-shuffle lexicon)))
-
-                     debug (log/debug (str "Starting parents-with-phrasal-complements.."))
+                     (if (not (empty? lexical-headed-phrases))
+                       (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon)))
 
                      parents-with-phrasal-complements-candidates
                      (parents-with-phrasal-complements-candidates
-                      parents-with-phrasal-head
+                      parents-with-phrasal-heads-for-comp-phrases
                       parents-with-lexical-heads-for-comp-phrases
                       rand-parent-type-order)
-
-                     debug (log/debug (str "Done with parents-with-phrasal-complements: type:" (type parents-with-phrasal-complements-candidates)))
 
                      ]
 
@@ -320,23 +327,23 @@
                   one-level-trees
                   (add-comp-phrase-to-headed-phrase parents-with-phrasal-complements-candidates
                                                     phrases (lazy-shuffle lexicon) 0 cache path)
-                  (overc-with-cache parents-with-phrasal-head cache lexicon))
+                  (overc-with-cache phrasal-headed-phrases cache lexicon))
 
                  (= rand-order 1) ;; rand2 + hLcL + hPcL
                  (lazy-cat
                   (add-comp-phrase-to-headed-phrase parents-with-phrasal-complements-candidates
                                                     phrases (lazy-shuffle lexicon) 0 cache path)
                   one-level-trees
-                  (overc-with-cache parents-with-phrasal-head cache lexicon))
+                  (overc-with-cache phrasal-headed-phrases cache lexicon))
 
                  (= rand-order 2) ;; hPcL + rand2 + hLcL
                  (lazy-cat
-                  (overc-with-cache parents-with-phrasal-head cache lexicon)
+                  (overc-with-cache phrasal-headed-phrases cache lexicon)
                   (add-comp-phrase-to-headed-phrase parents-with-phrasal-complements-candidates
                                                     phrases (lazy-shuffle lexicon) 0 cache path)
                   one-level-trees
 )
-))))))))
+)))))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
