@@ -55,15 +55,7 @@
     (.size result)
     (print-language-stats)))
 
-(defn benchmark-small-sentence [n]
-  (fo (take n (repeatedly (fn []
-                            (time (sentence {:synsem {:infl :present
-                                                      :sem {:pred :dormire 
-                                                            :subj {:pred :io}
-                                                            :tense :present}}})))))))
-
-
-(defn benchmark-small-sentence-2 [n]
+(defn benchmark-1 [n]
   (let [grammar (list s-present)
         lexicon (seq (union (it "io")
                             (it "dormire")))]
@@ -76,11 +68,17 @@
                                               grammar
                                               (build-lex-sch-cache grammar lexicon grammar)))))))))
 
-
-(defn benchmark-3 [n]
+(defn benchmark-2 [n]
   (let [grammar (list noun-phrase nbar)]
     (fo (take n (repeatedly #(time (nounphrase {:synsem {:sem {:pred :cane}}}
                                                lexicon 
                                                grammar
                                                (build-lex-sch-cache grammar lexicon grammar))))))))
  
+(defn benchmark-3 [n]
+  (let [grammar (list noun-phrase nbar)]
+    (fo (take n (repeatedly #(time (nounphrase :top
+                                    lexicon
+                                    grammar
+                                    (build-lex-sch-cache grammar lexicon grammar))))))))
+
