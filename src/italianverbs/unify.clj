@@ -20,19 +20,24 @@
 ;; TODO: need tests: many tests use (get-in), but need more dedicated tests for it alone.
 (defn get-in [in-map path & [not-found]]
   "same as clojure.core (get-in), but it resolves references if need be."
-  (if (seq? in-map)
-    (map (fn [each]
-           (get-in each path not-found))
-         in-map)
-    (let [result
-          (if (first path)
-            (let [result (get in-map (first path) not-found)]
-              (if (= result not-found) not-found
-                  (get-in (resolve result) (rest path) not-found)))
-            in-map)]
-      (if (= (type result) clojure.lang.Ref)
-        @result
-        result))))
+  (cond (seq? in-map)
+        (map (fn [each]
+               (get-in each path not-found))
+             in-map)
+        (set? in-map)
+        (set (map (fn [each]
+                    (get-in each path not-found))
+                  in-map))
+        true
+        (let [result
+              (if (first path)
+                (let [result (get in-map (first path) not-found)]
+                  (if (= result not-found) not-found
+                      (get-in (resolve result) (rest path) not-found)))
+                in-map)]
+          (if (= (type result) clojure.lang.Ref)
+            @result
+            result))))
 
 ;; following is deprecated in favor of just (get-in) (above).
 (defn get-in-r [map keys]
