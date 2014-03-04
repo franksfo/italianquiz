@@ -813,13 +813,10 @@
                        :obj comp-sem}}}))
 
     (unify essere-common
-     {:notes "essere-aux"
-      :synsem {:aux true
-               :cat :verb
-               :subcat {:1 {:essere true}
-                        :2 '()}}
-      :english {;; :infinitive value is just for documentation purposes: never reaches surface string due to 
-                ;; :hidden=true immediately below it.
-                :infinitive "to be" 
-                :hidden true}}) ;; gets removed by morphological rules.
-))
+           verb-aux
+           verb-subjective
+           {:english {;; :infinitive value is just for documentation purposes: never reaches surface string due to 
+                      ;; :hidden=true immediately below it.
+                      :infinitive "to be"
+                      :hidden true} ;; gets removed by morphological rules.
+            :notes "essere-aux"})))
