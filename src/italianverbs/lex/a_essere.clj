@@ -185,7 +185,7 @@
       :italian "Antonia"
       :english "Antonia"}
 
-     ;; "avere": to possess something buyable
+     ;; 1. "avere": to possess something buyable
      (unify
       transitive
       avere-common
@@ -195,32 +195,34 @@
                       :subj {:human true}
                       :obj {:buyable true}}}})
 
-     ;; "avere": auxiliary-verb: takes 2 args:
-     ;; 1. subject that is the same as the subject of 2.
-     ;; 2. a transitive verb.
+     ;; 2. "avere" that takes a transitive verb: e.g. "io l'ho vista (i saw her)"
      (let [agr-of-obj-of-main-verb (ref :top)]
        (unify
         verb-aux
         verb-subjective
         avere-common
-        {:synsem {:infl :present
+        {:note "avere(aux): takes trans"
+         :synsem {:infl :present
                   :subcat {:2 {:agr agr-of-obj-of-main-verb
                                :subcat {:2 {:agr agr-of-obj-of-main-verb}}
                                :essere false}}}
          :english {:hidden true}}))
 
+     ;; 3. "avere" that takes an intransitive verb or a transitive verb within a VP
+     ;;    with the object (e.g. "io ho dormito (i slept)" or "io ho [mangiato la pizza] (i ate the pizza)"
      ;; "avere": auxiliary-verb: takes 2 args:
      ;; 1. subject that is the same as the subject of 2.
      ;; 2. an intransitive verb.
-     (let [agr-of-obj-of-main-verb (ref :top)]
-       (unify
-        verb-aux
-        verb-subjective
-        avere-common
-        {:synsem {:infl :present
-                  :subcat {:2 {:agr agr-of-obj-of-main-verb
-                               :essere false}}}
-         :english {:hidden true}}))
+     (unify
+      verb-aux
+      verb-subjective
+      avere-common
+      {:note "avere(aux): takes intrans"
+       :synsem {:infl :present
+                :subcat {:2 {:essere false
+                             :subcat {:1 :top
+                                      :2 '()}}}}
+       :english {:hidden true}})
 
      ;; non-comparative
      (unify adjective
@@ -813,7 +815,9 @@
     (unify essere-common
      {:notes "essere-aux"
       :synsem {:aux true
-               :cat :verb}
+               :cat :verb
+               :subcat {:1 {:essere true}
+                        :2 '()}}
       :english {;; :infinitive value is just for documentation purposes: never reaches surface string due to 
                 ;; :hidden=true immediately below it.
                 :infinitive "to be" 
