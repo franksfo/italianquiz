@@ -34,7 +34,7 @@
 ;; TODO: make 1-5 a macro.
 (def all-possible-question-types
                                         ;  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
-    '(:mobili :mese :giorni :presente))
+    '(:futuro :giorni :mese :mobili :passato :presente))
 
 (def question-type-map
   {"mobili" {:sym :mobili :desc "furniture sentences"},
@@ -313,6 +313,21 @@
         sentences (db/fetch :sentences)]
     (nth sentences (rand-int count))))
 
+(defn question-type-to-sentence-spec [question-type]
+  (cond
+   (= question-type :futuro)
+   {:synsem {:infl :futuro}}
+   (= question-type :passato)
+   {:synsem {:infl :present
+             :sem {:tense :past}}}
+   (= question-type :presente)
+   {:synsem {:infl :present
+             :sem {:tense :present}}}
+   true
+   (do
+     (log/warn (str "no sentence specification semantics for question type: " question-type " : just using :top for spec."))
+     :top)))
+
 (defn generate-question [question-type]
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
@@ -321,8 +336,7 @@
    true
    (do
      (log/info (str "generate-question with type: " question-type))
-
-     (finalize (sentence)))
+     (finalize (sentence (question-type-to-sentence-spec question-type))))
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)
@@ -400,7 +414,7 @@
         [:tr
          (checkbox-col "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
          (checkbox-col "futuro" :futuro session "futuro semplice")  ;; e.g. "tornerai"
-;         (checkbox-col "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
+         (checkbox-col "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
 ;         (checkbox-col "infinitivo" :infinitivo session "infinitivo")  ;; e.g. "fare"
          ]
         ]
@@ -431,15 +445,14 @@
         debug (log/info "filtering by user's preferred filters: " filters)
         filtered-results (filter-by-criteria possible-question-types filters)]
     (if (> (count filtered-results) 0)
-      (do
-        (let [choice (first (shuffle filtered-results))]
-          (log/info (str "chose: " choice " from among the candidates: (" filtered-results ") that matched the user's filters."))))
+      filtered-results
       (do
         (log/warn (str "user's filters: (" filters ") are too restrictive: failed to generate anything that matched them. Just generating from all possible types instead."))
         all-possible-question-types))))
 
 (defn random-guess-type [session]
   (let [possible (possible-question-types session)]
+    (log/info (str "random-guess-type: " possible))
     (nth possible (rand-int (count possible)))))
 
 (defn url-decode [string]
@@ -498,17 +511,19 @@
         [:tr
          [:script js]]))))
 
+(def queue-is-on true)
+
 (defn get-question-from-queue [session]
-  (log/info "checking queue for question..")
-  (let [queued-question (db/fetch-one :queue
-                                      :where {:session session})]
-    (if (not (nil? queued-question))
-      (do
-        (log/info (str "found one with id: " (:_id queued-question)))
-        ;; remove from queue
-        (db/destroy! :queue {:_id (:_id queued-question)})
-        queued-question)
-      nil))) ;; no question found.
+  (if queue-is-on
+    (let [queued-question (db/fetch-one :queue
+                                        :where {:session session})]
+      (if (not (nil? queued-question))
+        (do
+          (log/info (str "found one with id: " (:_id queued-question)))
+          ;; remove from queue
+          (db/destroy! :queue {:_id (:_id queued-question)})
+          queued-question)
+        nil)))) ;; no question found: the caller will have to generate a new one.
 
 (defn question [request]
   ;; create a new question, store in backing store, and return an HTML fragment with the question's english form
@@ -521,14 +536,15 @@
   ;; :character-encoding :body
   (let [session (session/request-to-session request)
         question-from-queue (get-question-from-queue session)]
-    (let [question (if (and true question-from-queue)
+    (let [question (if question-from-queue
                      (do
                        (log/debug "found existing question in queue; using that.")
                        (store-question question-from-queue session nil))
                      (do
                        (log/debug "nothing in queue; generating new question.")
-                       (let [type (random-guess-type session)]
-                         (store-question (generate-question type) session nil))))]
+                       (let [random-type (random-guess-type session)]
+                         (log/info "storing question after generating with type: " random-type)
+                         (store-question (generate-question random-type) session nil))))]
       (let [qid (:_id question)]
         (log/debug (str "qid: " qid))
         (str "<div id='question_text'>" (:question question) "</div>"
@@ -541,7 +557,9 @@
         (let [queue (db/fetch :queue :where {:session session})]
           (or (nil? queue)
               (< (.size (db/fetch :queue :where {:session session})) 3)))
-      (let [question-pair (generate-question (random-guess-type session))
+      (let [random-guess-type (random-guess-type session) ;; chose a question type from amongst those specified by the user's preferences (accessible through session).
+            debug (log/debug (str "fillqueue: going to generate sentence with type: " random-guess-type))
+            question-pair (generate-question random-guess-type)
             question (get question-pair :english)
             answer (get question-pair :italian)]
         (log/info "adding question to queue.")
