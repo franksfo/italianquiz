@@ -232,7 +232,7 @@
              (not (nil? grammar)))
         (do
 
-          (let [parents-at-this-depth (parents-at-this-depth head (shuffle grammar) depth)
+          (let [parents-at-this-depth (parents-at-this-depth head (lazy-shuffle grammar) depth)
 
                 path (if path path [])
                 path (if path (conj path
@@ -243,7 +243,7 @@
                                      :lexicon-size (.size lexicon)
                                      :spec (show-spec head)
                                      :parents parents-at-this-depth}))]
-            (log-path path (fn [x] (log/info x)))
+            (log-path path (fn [x] (log/debug x)))
 
             (let [head (if head head :top)
                   ;; TODO: will probably remove this or make it only turned on in special cases.
