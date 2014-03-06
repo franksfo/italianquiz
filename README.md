@@ -32,30 +32,9 @@ sudo yum -y install mongo-10gen mongo-10gen-server
 sudo /etc/init.d/mongod start
 ```
 
-## Configure Apache HTTP
-
-We'll configure Apache to map /italian to our clojure webserver
-which we'll set up in the next section, which will listen on port
-3000.
-
-```
-echo "
-ProxyPreserveHost on
-ProxyPass /italian http://localhost:3000
-ProxyPassReverse /italian http://localhost:3000
-<Location /italian>
-  Options All
-  Order allow,deny
-  allow from all
-</Location>
-" > italianquiz.conf
-
-cat /etc/httpd/conf/httpd.conf italianquiz.conf > httpd.conf
-sudo cp httpd.conf /etc/httpd/conf
-sudo /etc/init.d/httpd restart
-```
-
 ## Install leiningen
+
+If you already have it, you can skip this section.
 
 ```
 mkdir -p bin
@@ -91,7 +70,7 @@ You should see output such as:
 Started server on port 3000
 ```
 
-At this point you may point your browser at http://yourhostname/italian and you are up and running!
+At this point you may point your browser at http://localhost:3000 and you are up and running!
 
 ## Enabling Workbook Mode
 
@@ -256,5 +235,32 @@ Structure sharing using Clojure refs
     user> mymap2
     {:a #<Ref@55187eb3: {:foo 100, :c 43}>, :b #<Ref@55187eb3: {:foo 100, :c 43}>}
     user>
+
+## Configure Apache HTTP
+
+Above we mentioned running on http://localhot:3000, but this explains how to 
+use Apache if you want to route the above to a public-facing webserver.
+We'll configure Apache to map /italian to our clojure webserver
+which we'll set up in the next section, which will listen on port
+3000.
+
+```
+echo "
+ProxyPreserveHost on
+ProxyPass /italian http://localhost:3000
+ProxyPassReverse /italian http://localhost:3000
+<Location /italian>
+  Options All
+  Order allow,deny
+  allow from all
+</Location>
+" > italianquiz.conf
+
+cat /etc/httpd/conf/httpd.conf italianquiz.conf > httpd.conf
+sudo cp httpd.conf /etc/httpd/conf
+sudo /etc/init.d/httpd restart
+```
+
+Then you app will be available at http://your.host.name/italian .
 
 
