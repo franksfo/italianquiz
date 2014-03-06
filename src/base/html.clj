@@ -84,6 +84,11 @@
            ]
           ]
          [:tr
+          [:td {:colspan "3"}
+           (powered-by "forest" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/forest.clj")
+           ]
+          ]
+         [:tr
           [:td
            (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbsgrammar.clj")]
           [:td {:rowspan "1"}
