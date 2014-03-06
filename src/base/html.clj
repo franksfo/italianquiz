@@ -77,26 +77,29 @@
               (powered-by "workbook" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/workbook.clj")]
              [:td {:colspan "1"}
               "others.."]]]]]]
+
          [:tr
-          [:td
-           (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbsgrammar.clj")]
-          [:td {:rowspan "2"}
-           (powered-by "lexicon" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/lexicon.clj")
-           ]
-          [:td {:rowspan "2"}
-           (powered-by "morphology" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/morphology.clj")
-           ]
-          ]
-         [:tr
-          [:td {:colspan "1"}
+          [:td {:colspan "3"}
            (powered-by "generate" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/generate.clj")
            ]
           ]
+         [:tr
+          [:td
+           (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbsgrammar.clj")]
+          [:td {:rowspan "1"}
+           (powered-by "lexicon" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/lexicon.clj")
+           ]
+          [:td {:rowspan "1"}
+           (powered-by "morphology" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/morphology.clj")
+           ]
+          ]
+
          [:tr
           [:td {:colspan "3"}
            (powered-by "unify" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/unify.clj")
            ]
           ]
+
          ]]]
      [:tr
       [:td {:colspan "2"}
