@@ -365,7 +365,9 @@
               :english "this morning"})
 
       {:english {:english "hang out"
-                 :irregular {:past "hung out"}}
+                 :irregular {:future "will hang out"
+                             :past "hung out"
+                             :present {:3sing "hangs out"}}}
        :italian "stendere"
        :synsem {:aux false
                 :cat :verb
