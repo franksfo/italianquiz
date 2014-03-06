@@ -742,7 +742,8 @@
        :italian "mercato"
        :synsem {:agr {:gender :masc}
                 :cat :noun
-                :sem {:place true
+                :sem {:buyable false ;; you can buy things *at* the market, but not the whole market.
+                      :place true
                       :pred :mercato}}}
 
       {:synsem {:cat cat-of-pronoun
