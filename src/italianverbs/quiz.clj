@@ -317,12 +317,11 @@
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    production
-   (random-sentence)
+   (random-sentence) ;; random-sentence takes from a queue of pre-generated sentences - see (random-sentence) for more details about this queue.
    true
    (do
-     ;; magic from: http://stackoverflow.com/questions/8868872/clojure-symbol-evaluation-error
-     (use 'italianverbs.ug)
-     (use 'italianverbs.grammar)
+     (log/info (str "generate-question with type: " question-type))
+
      (finalize (sentence)))
    (= question-type :oct2011)
    (oct2011)
@@ -426,13 +425,18 @@
 
 (defn possible-question-types [session]
   (let [possible-question-types all-possible-question-types
-        record (db/fetch-one :filter :where {:session session})
-        filters (if record
-                  (get record :form-params))
-        result (filter-by-criteria possible-question-types filters)]
-    (if (> (count result) 0)
-      result
-      all-possible-question-types)))
+        session (db/fetch-one :filter :where {:session session})
+        filters (if session
+                  (get session :form-params))
+        debug (log/info "filtering by user's preferred filters: " filters)
+        filtered-results (filter-by-criteria possible-question-types filters)]
+    (if (> (count filtered-results) 0)
+      (do
+        (let [choice (first (shuffle filtered-results))]
+          (log/info (str "chose: " choice " from among the candidates: (" filtered-results ") that matched the user's filters."))))
+      (do
+        (log/warn (str "user's filters: (" filters ") are too restrictive: failed to generate anything that matched them. Just generating from all possible types instead."))
+        all-possible-question-types))))
 
 (defn random-guess-type [session]
   (let [possible (possible-question-types session)]
@@ -519,10 +523,10 @@
         question-from-queue (get-question-from-queue session)]
     (let [question (if (and true question-from-queue)
                      (do
-                       (log/info "found existing question in queue; using that.")
+                       (log/debug "found existing question in queue; using that.")
                        (store-question question-from-queue session nil))
                      (do
-                       (log/info "nothing in queue; generating new question.")
+                       (log/debug "nothing in queue; generating new question.")
                        (let [type (random-guess-type session)]
                          (store-question (generate-question type) session nil))))]
       (let [qid (:_id question)]
