@@ -10,7 +10,7 @@
    [italianverbs.lexicon :refer (it)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec)]))
+   [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
 (def concurrent true)
 (defn deref [thing]
@@ -27,13 +27,6 @@
   (if random-order
     (core/rand-int range)
     constant))
-
-(defn unifyc [& args]
-  (if (first args) 
-    (log/trace (str "forest-unify 1 " (fo-ps (first args)))))
-  (if (second args) 
-    (log/trace (str "forest-unify 2 " (fo-ps (second args)))))
-  (apply unify/unifyc args))
 
 (declare lightning-bolt)
 
