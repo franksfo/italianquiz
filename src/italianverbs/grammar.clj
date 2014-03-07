@@ -21,17 +21,17 @@
 
                    (unifyc hh21
                            (let [head-synsem {:cat :intensifier
-                                              :modified true}]
+                                              :modified true}] ;; TODO: document what purpose :modified serves.
                              {:rule "intensifier-phrase"
                               :synsem head-synsem}))
 
                    (unifyc hc11-comp-subcat-1
                            (let [head-synsem {:cat :noun
                                               :modified true}]
-                             {:comp {:phrasal false ;; rathole prevention
+                             {:comp {:phrasal false ;; rathole prevention ;; TODO: see if this can be removed.
                                      :synsem {:cat :adjective
                                               :mod head-synsem}}
-                              :head {:synsem {:modified false}}
+                              :head {:synsem {:modified false}} ;; TODO: document what purpose :modified serves.
                               :rule "nbar"
                               :synsem head-synsem}))
 
