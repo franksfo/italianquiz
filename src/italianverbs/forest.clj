@@ -31,13 +31,17 @@
 (declare lightning-bolt)
 
 (defn add-comp-phrase-to-headed-phrase [parents phrases lexicon & [iter cache path]]
-  (log/debug (str "starting add-comp-phrase-to-headed-phrase."))
-  (log/debug (str "add-comp-phrase-to-headed-phrase: emptyness of parents: " (empty? parents)))
-
   (if (not (empty? parents))
-    (let [debug (if false (throw (Exception. "GOT HERE: INSIDE MAIN PART OF add-comp-phrase-to-headed-phrase.")))
+    (let [debug
+          (do
+            (log/debug (str "starting add-comp-phrase-to-headed-phrase."))
+            (log/debug (str "    with parent: " (fo-ps (first parents))))
+            (log/debug (str "    with phrases: " (fo-ps phrases)))
+            (log/debug (str "    with lexicon size: " (.size lexicon)))
+            (log/trace (str "add-comp-phrase-to-headed-phrase: emptyness of parents: " (empty? parents))))
+
+          debug (if false (throw (Exception. "GOT HERE: INSIDE MAIN PART OF add-comp-phrase-to-headed-phrase.")))
           debug (log/debug (str "add-comp-phrase-to-headed-phrase is non-empty.."))
-          debug (log/debug (str "emptyness of phrases: " (empty? phrases)))
           iter (if (nil? iter) 0 iter)
           parent (first parents)
 
@@ -210,7 +214,8 @@
 
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon grammar depth cache path]]
-  (let [depth (if depth depth 0)]
+  (let [depth (if depth depth 0)
+        parents-at-this-depth (parents-at-this-depth head (lazy-shuffle grammar) depth)]
   (cond (nil? lexicon)
         (do
           (log/warn "lightning-bolt: lexicon was nil.")
@@ -224,10 +229,13 @@
         (> depth maxdepth)
         nil
 
+        (= (.size parents-at-this-depth) 0)
+        nil
+
         true
         (do
 
-          (let [parents-at-this-depth (parents-at-this-depth head (lazy-shuffle grammar) depth)
+          (let [
 
                 path (if path path [])
                 path (if path (conj path
@@ -311,7 +319,7 @@
 
                      with-phrasal-complement
                      (add-comp-phrase-to-headed-phrase parents-with-phrasal-complements-candidates
-                                                       phrases (lazy-shuffle lexicon) 0 cache path)
+                                                       phrases lexicon 0 cache path)
 
                      hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
                      ]
