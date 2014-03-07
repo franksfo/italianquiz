@@ -41,7 +41,7 @@
             (log/trace (str "add-comp-phrase-to-headed-phrase: emptyness of parents: " (empty? parents))))
 
           debug (if false (throw (Exception. "GOT HERE: INSIDE MAIN PART OF add-comp-phrase-to-headed-phrase.")))
-          debug (log/debug (str "add-comp-phrase-to-headed-phrase is non-empty.."))
+          debug (log/trace (str "add-comp-phrase-to-headed-phrase is non-empty."))
           iter (if (nil? iter) 0 iter)
           parent (first parents)
 
@@ -57,7 +57,7 @@
              (:italian :initial)))
 
           debug (do (log/debug (str "add-comp-phrase-to-headed-phrase: parent: " (fo-ps parent)))
-                    (log/debug (str "add-comp-phrase-to-headed-phrase: comp-spec: " (show-spec comp-spec))))
+                    (log/debug (str "   with comp-spec: " (show-spec comp-spec))))
 
           comp-phrases-for-parent (if (not (= false (get-in comp-spec '(:phrasal))))
                                     (filter (fn [phrase]
