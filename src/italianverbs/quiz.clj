@@ -33,20 +33,27 @@
 ;; 5. add :my-new-question-type to all-possible-question-types (immediately below).
 ;; TODO: make 1-5 a macro.
 (def all-possible-question-types
-                                        ;  '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
-    '(:futuro :giorni :mese :mobili :passato :presente))
+  '(:futuro :giorni :imperfetto :mese :mobili :passato :presente))
+  ;; '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
 
 (def question-type-map
-  {"mobili" {:sym :mobili :desc "furniture sentences"},
-   "mese" {:sym :mese :desc "months of the year"},
+  {"futuro" {:sym :futuro, :desc "futuro semplice verbs",
+             :spec {:synsem {:infl :futuro}}},
    "giorni" {:sym :giorni, :desc "days of the week"},
+   "imperfetto" {:sym :imperfetto, :desc "imperfect verbs",
+                 :spec {:synsem {:infl :imperfetto}}},
+   "mese" {:sym :mese :desc "months of the year"},
+   "mobili" {:sym :mobili :desc "furniture sentences"},
    "possessives" {:sym :possessives, :desc "possessive pronouns"},
    "partitivo" {:sym :partitivo, :desc "partitive pronouns (e.g. 'degli uomini')"},
    "ora" {:sym :ora, :desc "clock times"},
    "infinitivo" {:sym :infinitivo, :desc "infinitive verbs"},
-   "passato" {:sym :passato, :desc "passato prossimo verbs"},
-   "futuro" {:sym :futuro, :desc "futuro semplice verbs"},
-   "presente" {:sym :presente, :desc "present tense verbs"},
+   "passato" {:sym :passato, :desc "passato prossimo verbs",
+              :spec {:synsem {:infl :present
+                              :sem {:tense :past}}}},
+
+   "presente" {:sym :presente, :desc "present tense verbs",
+               :spec {:synsem {:infl :presente}}},
    "espressioni" {:sym :espressioni, :desc "useful expressions"},
    "oct2011" {:sym :oct2011, :desc "recently-encountered vocabulary"},
    "chetempo" {:sym :chetempo, :desc "weather-related terms"}
@@ -317,9 +324,14 @@
   (cond
    (= question-type :futuro)
    {:synsem {:infl :futuro}}
+
+   (= question-type :imperfetto)
+   {:synsem {:infl :imperfetto}}
+
    (= question-type :passato)
    {:synsem {:infl :present
              :sem {:tense :past}}}
+
    (= question-type :presente)
    {:synsem {:infl :present
              :sem {:tense :present}}}
@@ -412,10 +424,12 @@
        [:h4 "Verbi"]
        [:table
         [:tr
-         (checkbox-col "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
-         (checkbox-col "futuro" :futuro session "futuro semplice")  ;; e.g. "tornerai"
-         (checkbox-col "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
 ;         (checkbox-col "infinitivo" :infinitivo session "infinitivo")  ;; e.g. "fare"
+         (checkbox-col "imperfetto" :imperfetto session "imperfetto")  ;; e.g. "andava"
+         (checkbox-col "futuro" :futuro session "futuro semplice")  ;; e.g. "tornerai"
+         (checkbox-col "passato" :passato session "passato prossimo")  ;; e.g. "io ho fatto"
+         (checkbox-col "presente" :presente session "presente indicativo" "")  ;; e.g. "io vado"
+
          ]
         ]
        ]
@@ -686,7 +700,7 @@
         filters (if record (get record :form-params))]
     (string/join " "
                   (map (fn [key]
-                         (if (get filters (keyword key))
+                         (if (get filters (keyword key)) ;; TODO: can remove (keyword) after question-type-map is converted to keywords.
                            (html
                             [:span {:class "qtype"} key ]
                             ;; allow for turning off filters from here (eventually).
