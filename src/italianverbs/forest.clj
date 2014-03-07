@@ -219,8 +219,7 @@
         (> depth maxdepth)
         nil
 
-        (and (not (nil? lexicon))
-             (not (nil? grammar)))
+        true
         (do
 
           (let [parents-at-this-depth (parents-at-this-depth head (lazy-shuffle grammar) depth)
