@@ -267,14 +267,17 @@
    applications of all of the rules."
   (log/debug (str "Transforming: " (fo lexical-entry)))
   (log/debug (str "transform: input :" lexical-entry))
-  (let [result (reduce unifyc (map (fn [rule]
-                                     (let [result (apply rule (list lexical-entry))]
-                                       (if (fail? result)
-                                         (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
-                                                            " to fail; fail path was: " (fail-path result)))
-                                             :fail)
-                                         result)))
-                                   rules))
+  (let [result (reduce #(if (or (fail? %1) (fail? %2))
+                          :fail
+                          (unifyc %1 %2))
+                       (map (fn [rule]
+                              (let [result (apply rule (list lexical-entry))]
+                                (if (fail? result)
+                                  (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
+                                                     " to fail; fail path was: " (fail-path result)))
+                                      :fail)
+                                  result)))
+                            rules))
         result (if (not (fail? result))
                  (reduce merge  (map (fn [rule]
                                        (let [result (apply rule (list result))]
