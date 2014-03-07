@@ -83,10 +83,19 @@
                                     (build-lex-sch-cache grammar lexicon grammar))))))))
 
 (defn benchmark-4 [n]
+  "currently very slow ~ 110 seconds"
   (fo (take n (repeatedly #(time (sentence {:synsem {:sem {:pred :mangiare
                                                            :subj {:pred :io}
                                                            :obj {:pred :pasta}}
                                                      :subcat '()}}))))))
 
 
-
+(defn benchmark-5 [n]
+  "currently too slow ~ 10-17 seconds"
+  "like benchmark-4, but trying to find the slow parts by constraining the spec."
+  (fo (take n (repeatedly #(time (sentence {:comp {:synsem {:sem-mod '()}}
+                                            :synsem {:sem {:obj {:pred :pasta}
+                                                           :pred :mangiare
+                                                           :subj {:pred :io}
+                                                           :tense :future}
+                                                     :subcat '()}}))))))
