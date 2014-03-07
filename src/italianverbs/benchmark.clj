@@ -84,7 +84,8 @@
 
 (defn benchmark-4 [n]
   (fo (take n (repeatedly #(time (sentence {:synsem {:sem {:pred :mangiare
-                                                           :subj {:human true}}
+                                                           :subj {:pred :io}
+                                                           :obj {:pred :pasta}}
                                                      :subcat '()}}))))))
 
 
