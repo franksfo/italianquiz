@@ -196,14 +196,12 @@
         (log-path (rest path) log-fn (+ depth 1)))
       (if print-blank-line (log-fn (str ""))))))
 
-(def maxdepth 4)
+(defn lazy-cats [lists]
+  (if (not (empty? lists))
+    (lazy-cat (first lists)
+              (lazy-cats (rest lists)))))
 
-(defn lazy-cat-them-all [vals]
-  (if (not (empty? vals))
-    (do
-      (log/info (str "lazy-cat-them-all: first first vals: " (fo (first (first vals)))))
-      (lazy-cat (first vals)
-                (lazy-cat-them-all (rest vals))))))
+(def maxdepth 4)
 
 ;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head lexicon grammar depth cache path]]
@@ -249,15 +247,7 @@
                   phrases grammar;; TODO: rename all uses of phrases to grammar.
                 
                   depth (if depth depth 0)
-                
-                  rand-order (if true (rand-int 3 0) 1)
-                
-                  rand-parent-type-order (rand-int 2 0)
-                
-                  log (log/debug (str "rand-order at depth:" depth " is: "
-                                      (decode-generation-ordering rand-order rand-parent-type-order)
-                                      "(rand-order=" rand-order ";rand-parent-type-order=" rand-parent-type-order ")"))
-            
+                            
                   ]
               (cond
                (empty? parents-at-this-depth)
@@ -307,36 +297,22 @@
                      (if (not (empty? lexical-headed-phrases))
                        (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon)))
 
+                     rand-parent-type-order (rand-int 2 0)
+
                      parents-with-phrasal-complements-candidates
                      (parents-with-phrasal-complements-candidates
                       parents-with-phrasal-heads-for-comp-phrases
                       parents-with-lexical-heads-for-comp-phrases
                       rand-parent-type-order)
 
-                     rand2
+                     with-phrasal-complement
                      (add-comp-phrase-to-headed-phrase parents-with-phrasal-complements-candidates
                                                        phrases (lazy-shuffle lexicon) 0 cache path)
 
                      hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
                      ]
-           (cond (= rand-order 0) ;; hLcL + rand2 + hPcL
-                 (lazy-cat
-                  one-level-trees
-                  rand2
-                  hpcl)
 
-                 (= rand-order 1) ;; rand2 + hLcL + hPcL
-                 (lazy-cat
-                  rand2
-                  one-level-trees
-                  hpcl)
-
-                 (= rand-order 2) ;; hPcL + rand2 + hLcL
-                 (lazy-cat
-                  hpcl
-                  rand2
-                  one-level-trees
-))))))))))
+                 (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl)))))))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
