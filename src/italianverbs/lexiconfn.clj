@@ -19,11 +19,11 @@
   "Copying ((unify/copy)ing) lexical entries during generation or parsing is done by serializing and then deserializing. 
 storing a deserialized form of each lexical entry avoids the need to serialize every time."
   (if (fail? entry)
-    ;; TODO: entry is just :fail, which isn't very helpful.
+    ;; TODO: better diagnostics: entry is just :fail, which isn't very helpful.
     (log/warn (str "Ignoring this lexeme because (fail?=true): " entry))
     ;; else, not fail, so add to lexicon.
     (do
-      (log/debug (str "serializing entry: " entry))
+      (log/info (str "Adding entry: " entry))
       (let [italian (get-in entry '(:italian))
             entry
             (conj

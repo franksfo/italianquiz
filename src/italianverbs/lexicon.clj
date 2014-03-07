@@ -11,7 +11,7 @@
    [italianverbs.morphology :refer (fo)]
    [italianverbs.pos :refer :all]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (fail? get-in isomorphic? lazy-shuffle ref? serialize unifyc)]))
+   [italianverbs.unify :refer (fail? fail-path get-in isomorphic? lazy-shuffle ref? serialize unifyc)]))
 
 ;; stub that is redefined by italianverbs/mongo or interfaces to other dbs.
 (defn clear! [])
@@ -267,14 +267,28 @@
    applications of all of the rules."
   (log/debug (str "Transforming: " (fo lexical-entry)))
   (log/debug (str "transform: input :" lexical-entry))
-  (let [result (reduce unifyc (map (fn [rule] (apply rule (list lexical-entry)))
+  (let [result (reduce unifyc (map (fn [rule]
+                                     (let [result (apply rule (list lexical-entry))]
+                                       (if (fail? result)
+                                         (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
+                                                            " to fail; fail path was: " (fail-path result)))
+                                             :fail)
+                                         result)))
                                    rules))
-        result (reduce merge  (map (fn [rule] (apply rule (list result)))
-                                   modifying-rules))]
-    (if (isomorphic? result lexical-entry)
-      (do (cache-serialization result)
-          result)
-      (transform result))))
+        result (if (not (fail? result))
+                 (reduce merge  (map (fn [rule]
+                                       (let [result (apply rule (list result))]
+                                         (if (fail? result)
+                                           (do (log/warn (str "merge-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
+                                                              " to fail; fail path was: " (fail-path result)))
+                                               :fail)
+                                           result)))
+                                     modifying-rules)))]
+    (if (fail? result) :fail
+        (if (isomorphic? result lexical-entry)
+          (do (cache-serialization result)
+              result)
+          (transform result)))))
 
 (def lexicon
   ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
