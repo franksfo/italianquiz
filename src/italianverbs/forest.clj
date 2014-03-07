@@ -65,8 +65,10 @@
           comps 
           (if (not (empty? comp-phrases-for-parent))
             (let [lexicon-for-comp (get-lex parent :comp cache lexicon)]
-              (log/debug (str "about to call lightning-bolt from add-comp-phrase-to-headed-phrase with head: " (show-spec comp-spec)
-                              "; grammar: " (fo-ps comp-phrases-for-parent) "; lexicon size: " (.size lexicon-for-comp)))
+              (log/debug (str "about to call lightning-bolt from add-comp-phrase-to-headed-phrase."))
+              (log/debug (str "  with head-spec: " (show-spec comp-spec)))
+              (log/debug (str "  with grammar: " (fo-ps comp-phrases-for-parent)))
+              (log/debug (str "  with lexicon size: " (.size lexicon-for-comp)))
               (deref
               (future
                 (lightning-bolt
@@ -120,7 +122,10 @@
                                         (:italian :initial)))
               debug (log/trace (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))]
           (lazy-seq
-           (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase with parents: " (fo-ps parents)))
+           (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
+                 debug (log/debug (str "  head-spec: " (show-spec head-spec)))
+                 debug (log/debug (str "  with grammar: " (fo-ps parents)))
+                 debug (log/debug (str "  with lexicon size: " (.size lexicon)))
                  bolts 
                  (deref (future
                    (lightning-bolt head-spec
