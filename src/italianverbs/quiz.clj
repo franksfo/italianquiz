@@ -37,34 +37,35 @@
   ;; '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
 
 (def question-type-map
-  {"futuro" {:sym :futuro, :desc "futuro semplice verbs",
+  {:futuro {:sym :futuro, :desc "futuro semplice verbs",
              :spec {:synsem {:infl :futuro}}},
-   "giorni" {:sym :giorni, :desc "days of the week"},
-   "imperfetto" {:sym :imperfetto, :desc "imperfect verbs",
+   :giorni {:sym :giorni, :desc "days of the week"},
+   :imperfetto {:sym :imperfetto, :desc "imperfect verbs",
                  :spec {:synsem {:infl :imperfetto}}},
-   "mese" {:sym :mese :desc "months of the year"},
-   "mobili" {:sym :mobili :desc "furniture sentences"},
-   "possessives" {:sym :possessives, :desc "possessive pronouns"},
-   "partitivo" {:sym :partitivo, :desc "partitive pronouns (e.g. 'degli uomini')"},
-   "ora" {:sym :ora, :desc "clock times"},
-   "infinitivo" {:sym :infinitivo, :desc "infinitive verbs"},
-   "passato" {:sym :passato, :desc "passato prossimo verbs",
+   :mese {:sym :mese :desc "months of the year"},
+   :mobili {:sym :mobili :desc "furniture sentences"},
+   :possessives {:sym :possessives, :desc "possessive pronouns"},
+   :partitivo {:sym :partitivo, :desc "partitive pronouns (e.g. 'degli uomini')"},
+   :ora {:sym :ora, :desc "clock times"},
+   :infinitivo {:sym :infinitivo, :desc "infinitive verbs"},
+   :passato {:sym :passato, :desc "passato prossimo verbs",
               :spec {:synsem {:infl :present
                               :sem {:tense :past}}}},
 
-   "presente" {:sym :presente, :desc "present tense verbs",
-               :spec {:synsem {:infl :presente}}},
-   "espressioni" {:sym :espressioni, :desc "useful expressions"},
-   "oct2011" {:sym :oct2011, :desc "recently-encountered vocabulary"},
-   "chetempo" {:sym :chetempo, :desc "weather-related terms"}
-   "cucina" {:sym :cucina, :desc "kitchen and food-related vocabulary"}
+   :presente {:sym :presente, :desc "present tense verbs",
+              :spec {:synsem {:infl :presente}}},
+   :espressioni {:sym :espressioni, :desc "useful expressions"},
+   :oct2011 {:sym :oct2011, :desc "recently-encountered vocabulary"},
+   :chetempo {:sym :chetempo, :desc "weather-related terms"}
+   :cucina {:sym :cucina, :desc "kitchen and food-related vocabulary"}
    })
 
 (defn question-type [params]
   (let [type-symbol (get params "type")]
     (if type-symbol
-      (if (get question-type-map type-symbol)
-        (get (get question-type-map type-symbol) :sym)))))
+      (let [question-type-details (get question-type-map (keyword type-symbol))]
+        (if question-type-details
+          (get question-type-details :sym))))))
 
 (defn types []
   "display all possible question types."
