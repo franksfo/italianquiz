@@ -1,11 +1,15 @@
 (ns italianverbs.benchmark
   (:require
    [clojure.set :refer (union)]
+
+   [clojure.tools.logging :as log]
+
    [italianverbs.cache :refer (build-lex-sch-cache over)]
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer :all]
-   [italianverbs.morphology :refer (fo fo-ps)]))
+   [italianverbs.morphology :refer (fo fo-ps)]
+   [italianverbs.unify :refer (unifyc)]))
 
 ;;
 ;; Usage:
@@ -21,6 +25,16 @@
 ;; 5
 ;; italianverbs.benchmark> 
 ;;
+
+(log/info "building cache..")
+(def cache nil)
+(def cache (build-lex-sch-cache grammar
+                                (map (fn [lexeme]
+                                       (unifyc lexeme
+                                               {:phrasal false}))
+                                     lexicon)
+                                grammar))
+(log/info "done building cache: " (keys cache))
 
 (def benchmark-small-fn (fn [] (time (take 1 (over grammar
                                                    "io"
@@ -66,36 +80,54 @@
                                                               :tense :present}}}
                                               lexicon
                                               grammar
-                                              (build-lex-sch-cache grammar lexicon grammar)))))))))
+                                              cache))))))))
 
 (defn benchmark-2 [n]
   (let [grammar (list noun-phrase nbar)]
     (fo (take n (repeatedly #(time (nounphrase {:synsem {:sem {:pred :cane}}}
                                                lexicon 
                                                grammar
-                                               (build-lex-sch-cache grammar lexicon grammar))))))))
+                                               cache)))))))
  
 (defn benchmark-3 [n]
   (let [grammar (list noun-phrase nbar)]
     (fo (take n (repeatedly #(time (nounphrase :top
                                     lexicon
                                     grammar
-                                    (build-lex-sch-cache grammar lexicon grammar))))))))
+                                    cache)))))))
+
 
 (defn benchmark-4 [n]
-  "currently very slow ~ 110 seconds"
-  (fo (take n (repeatedly #(time (sentence {:synsem {:sem {:pred :mangiare
-                                                           :subj {:pred :io}
-                                                           :obj {:pred :pasta}}
-                                                     :subcat '()}}))))))
-
-
-(defn benchmark-5 [n]
-  "currently too slow ~ 10-17 seconds"
-  "like benchmark-4, but trying to find the slow parts by constraining the spec."
-  (fo (take n (repeatedly #(time (sentence {:comp {:synsem {:sem-mod '()}}
+  "currently too slow ~ 3-23 seconds"
+  "try find the slow parts by constraining the spec."
+  (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal true}}}
                                             :synsem {:sem {:obj {:pred :pasta}
                                                            :pred :mangiare
                                                            :subj {:pred :io}
                                                            :tense :future}
-                                                     :subcat '()}}))))))
+                                                     :subcat '()}}
+                                           lexicon
+                                           grammar
+                                           cache))))))
+
+(defn benchmark-5 [n]
+  "currently too slow ~ 3-5 seconds"
+  "like benchmark-4, but trying to find the slow parts by constraining the spec."
+  (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal false}}}
+                                            :synsem {:sem {:obj {:pred :pasta}
+                                                           :pred :mangiare
+                                                           :subj {:pred :io}
+                                                           :tense :future}
+                                                     :subcat '()}}
+                                           lexicon
+                                           grammar
+                                           cache))))))
+
+(defn benchmark-6 [n]
+  (fo (take n (repeatedly #(time (nounphrase {:head {:phrasal false}}
+                                             lexicon
+                                             grammar
+                                             cache))))))
+
+
+
