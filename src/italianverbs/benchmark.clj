@@ -113,7 +113,22 @@
 (defn benchmark-5 [n]
   "currently too slow ~ 3-5 seconds"
   "like benchmark-4, but trying to find the slow parts by constraining the spec."
-  (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal false}}}
+  (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal false}}} ;; don't generate a noun+adj, just a noun.
+                                            :synsem {:sem {:obj {:pred :pasta}
+                                                           :pred :mangiare
+                                                           :subj {:pred :io}
+                                                           :tense :future}
+                                                     :subcat '()}}
+                                           lexicon
+                                           grammar
+                                           cache))))))
+
+
+(defn benchmark-5a [n]
+  "currently too slow ~ 1-5 seconds"
+  "like benchmark-4, but trying to find the slow parts by constraining the spec."
+  (fo (take n (repeatedly #(time (sentence {:comp {:phrasal false} ;; don't try to generate a phrasal form of 'io'
+                                            :head {:comp {:head {:phrasal false}}} ;; don't generate a noun+adj, just a noun.
                                             :synsem {:sem {:obj {:pred :pasta}
                                                            :pred :mangiare
                                                            :subj {:pred :io}
