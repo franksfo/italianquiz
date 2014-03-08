@@ -282,21 +282,6 @@
                                                                     (lazy-shuffle lexicon)
                                                                     phrases depth cache path)
 
-
-                     warn-if-empty (if (empty? lexical-headed-phrases)
-                                     (log/debug (str "Wow not a single lexical-headed-phrase!")))
-
-                     parents-with-lexical-heads-for-comp-phrases 
-                     (mapcat (fn [each-kv]
-                               (let [parent (:parent each-kv)]
-                                 (if (not (= false (get-in parent '(:comp :phrasal))))
-                                   (let [phrases (:headed-phrases each-kv)]
-                                     phrases)
-                                   (do
-                                     (log/trace (str "this phrase is marked comp-phrasal=false: " (fo-ps parent)))
-                                     '()))))
-                             lexical-headed-phrases)
-
                      lexical-headed-phrases
                      (mapcat (fn [each-kv]
                                (let [phrases (:headed-phrases each-kv)]
@@ -304,9 +289,8 @@
                              lexical-headed-phrases)
 
                      warn-if-empty (if (empty? lexical-headed-phrases)
-                                     (log/debug (str "Wow not a single lexical-headed-phrase(2)! given spec:" (show-spec head))))
-                     
-               
+                                     (log/debug (str "Wow not a single lexical-headed-phrase(1)! given spec: " (show-spec head))))
+
                      ;; trees where both the head and comp are lexemes.
                      one-level-trees
                      (if (not (empty? lexical-headed-phrases))
@@ -315,7 +299,7 @@
                      parents-with-phrasal-complements-candidates
                      (parents-with-phrasal-complements-candidates
                       parents-with-phrasal-heads-for-comp-phrases
-                      parents-with-lexical-heads-for-comp-phrases)
+                      lexical-headed-phrases)
 
                      debug 
                      (if (get-in head '(:comp))
