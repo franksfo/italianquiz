@@ -30,7 +30,7 @@
 
 (declare lightning-bolt)
 
-(defn add-comp-phrase-to-headed-phrase [parents phrases lexicon & [iter cache path]]
+(defn add-comp-phrase-to-headed-phrase [parents phrases lexicon & [iter cache path supplied-comp-spec]]
   (if (not (empty? parents))
     (let [debug
           (do
@@ -41,7 +41,7 @@
             (log/trace (str "add-comp-phrase-to-headed-phrase: emptyness of parents: " (empty? parents))))
 
           debug (if false (throw (Exception. "GOT HERE: INSIDE MAIN PART OF add-comp-phrase-to-headed-phrase.")))
-          debug (log/debug (str "add-comp-phrase-to-headed-phrase is non-empty.."))
+          debug (log/trace (str "add-comp-phrase-to-headed-phrase is non-empty."))
           iter (if (nil? iter) 0 iter)
           parent (first parents)
 
@@ -49,22 +49,32 @@
                     (do
                       (log/info (str "building cache (" (.size phrases) ")"))
                       (build-lex-sch-cache phrases lexicon)))
+
+          debug (log/debug (str "supplied comp-spec: " supplied-comp-spec))
+
+          debug (log/debug (str "parent's comp-spec: " (show-spec (get-in parent '(:comp)))))
+
           comp-spec
           (dissoc-paths
-           (get-in parent '(:comp))
+           (unifyc
+            (get-in parent '(:comp))
+            supplied-comp-spec)
            ;; TODO: do we need to dissoc these paths from the comp spec?
            '((:english :initial)
              (:italian :initial)))
 
           debug (do (log/debug (str "add-comp-phrase-to-headed-phrase: parent: " (fo-ps parent)))
-                    (log/debug (str "add-comp-phrase-to-headed-phrase: comp-spec: " (show-spec comp-spec))))
+                    (log/debug (str "   with comp-spec: " (show-spec comp-spec))))
 
           comp-phrases-for-parent (if (not (= false (get-in comp-spec '(:phrasal))))
                                     (filter (fn [phrase]
                                               (not (fail? phrase)))
                                             (map (fn [phrase]
                                                    (unifyc phrase comp-spec))
-                                                 (get-comp-phrases-of parent cache))))
+                                                 (get-comp-phrases-of parent cache)))
+                                    (do
+                                      (log/trace (str "the phrase '" (fo-ps parent) "' specifies a non-phrasal complement."))
+                                      '()))
 
           comps 
           (if (not (empty? comp-phrases-for-parent))
@@ -90,7 +100,7 @@
 
       (lazy-cat
        (overc parent comps)
-       (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path)))))
+       (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
 
 (def can-log-if-in-sandbox-mode false)
 
@@ -100,7 +110,11 @@
     (let [parent (first parents)
           cache (if cache cache
                     (do (log/warn (str "lexical-headed-parents given null cache: building cache from: (" (.size phrases) ")"))
-                        (build-lex-sch-cache phrases lexicon)))]
+                        (build-lex-sch-cache phrases 
+                                             (map (fn [lexeme]
+                                                    (unifyc lexeme
+                                                            {:phrasal false}))
+                                                  lexicon))))]
       (log/trace (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
       
       (lazy-seq
@@ -140,24 +154,6 @@
                     :headed-phrases (overh parents bolts)}
                    (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)))))))))
 
-;; TODO: move this to inside lightning-bolt.
-(defn decode-gen-ordering2 [rand2]
-  (cond (= rand2 0)
-        "hLcP + hPcP"
-        true
-        "hPcP + hLcP"))
-
-;; TODO: move this to inside lightning-bolt.
-(defn decode-generation-ordering [rand1 rand2]
-  (cond (= rand1 0)
-        (str "hLcL + " (decode-gen-ordering2 rand2) " + hPcL")
-        (= rand 1)
-        (str (decode-gen-ordering2 rand2) " + hLcL + hPcL")
-        (= rand 2)
-        (str (decode-gen-ordering2 rand2) " + hPcL + hLcL")
-        true
-        (str "hPcL + "  (decode-gen-ordering2 rand2) " + hLcL")))
-
 (defn parents-at-this-depth [head-spec phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
   (if (nil? phrases)
@@ -173,21 +169,22 @@
           ;; head param of (lightning-bolt)".
                phrases)))
 
-(defn parents-with-phrasal-complements-candidates [parents-with-lexical-heads parents-with-phrasal-heads
-                                                   rand-parent-type-order]
-  (if false (list)
-      (let [parents-with-lexical-heads (filter (fn [parent]
-                                                 (do (log/debug "checking parent (1)")
-                                                     (not (= false (get-in parent '(:comp :phrasal))))))
-                                               parents-with-lexical-heads)
-            parents-with-phrasal-heads (filter (fn [parent]
-                                                 (do (log/debug "checking parent (2)")
-                                                     (not (= false (get-in parent '(:comp :phrasal))))))
-                                               parents-with-phrasal-heads)]
-        (cond (= rand-parent-type-order 0)
-              (lazy-cat parents-with-lexical-heads parents-with-phrasal-heads)
-              true
-              (lazy-cat parents-with-phrasal-heads parents-with-lexical-heads)))))
+(defn lazy-cats [lists]
+  (if (not (empty? lists))
+    (lazy-cat (first lists)
+              (lazy-cats (rest lists)))))
+
+(defn parents-with-phrasal-complements-candidates [parents-with-lexical-heads parents-with-phrasal-heads]
+  (let [parents-with-lexical-heads (filter (fn [parent]
+                                             (do (log/trace "checking parent (1)")
+                                                 (not (= false (get-in parent '(:comp :phrasal))))))
+                                           parents-with-lexical-heads)
+        parents-with-phrasal-heads (filter (fn [parent]
+                                             (do (log/trace "checking parent (2)")
+                                                 (not (= false (get-in parent '(:comp :phrasal))))))
+                                           parents-with-phrasal-heads)]
+    (cond true
+          (lazy-cats (shuffle (list parents-with-lexical-heads parents-with-phrasal-heads))))))
 
 (defn log-path [path log-fn & [ depth]]
   (let [depth (if depth depth 0)
@@ -204,11 +201,6 @@
         (log-fn (str "   applicable rules: " (fo-ps parents)))
         (log-path (rest path) log-fn (+ depth 1)))
       (if print-blank-line (log-fn (str ""))))))
-
-(defn lazy-cats [lists]
-  (if (not (empty? lists))
-    (lazy-cat (first lists)
-              (lazy-cats (rest lists)))))
 
 (def maxdepth 4)
 
@@ -286,7 +278,8 @@
                                  phrases))
                              phrasal-headed-phrases)
 
-                     lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
+                     lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
+                                                                    (lazy-shuffle lexicon)
                                                                     phrases depth cache path)
 
                      parents-with-lexical-heads-for-comp-phrases 
@@ -294,7 +287,10 @@
                                (let [parent (:parent each-kv)]
                                  (if (not (= false (get-in parent '(:comp :phrasal))))
                                    (let [phrases (:headed-phrases each-kv)]
-                                     phrases))))
+                                     phrases)
+                                   (do
+                                     (log/trace (str "this phrase is marked comp-phrasal=false: " (fo-ps parent)))
+                                     '()))))
                              lexical-headed-phrases)
 
                      lexical-headed-phrases
@@ -309,17 +305,23 @@
                      (if (not (empty? lexical-headed-phrases))
                        (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon)))
 
-                     rand-parent-type-order (rand-int 2 0)
-
                      parents-with-phrasal-complements-candidates
                      (parents-with-phrasal-complements-candidates
                       parents-with-phrasal-heads-for-comp-phrases
-                      parents-with-lexical-heads-for-comp-phrases
-                      rand-parent-type-order)
+                      parents-with-lexical-heads-for-comp-phrases)
+
+                     debug 
+                     (if (get-in head '(:comp))
+                       (log/info (str "lb: head spec's comp-spec: " (get-in head '(:comp)) " to add-comp-phrase-to-headed-phrase.")))
 
                      with-phrasal-complement
                      (add-comp-phrase-to-headed-phrase parents-with-phrasal-complements-candidates
-                                                       phrases lexicon 0 cache path)
+                                                       phrases lexicon 0 cache path
+                                                       (if (not (= :notfound (get-in head '(:comp) :notfound)))
+                                                         (get-in head '(:comp))
+                                                         :top)
+
+)
 
                      hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
                      ]
