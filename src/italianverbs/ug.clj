@@ -18,6 +18,8 @@
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
+(def phrasal {:phrasal true})
+
 ;;    [1]
 ;;   /   \
 ;;  /     \
@@ -28,16 +30,17 @@
         head-is-pronoun (ref :top)
         head-sem (ref :top)
         sem-mod (ref :top)]
-    {:synsem {:cat head-cat
-              :essere head-essere
-              :pronoun head-is-pronoun
-              :sem head-sem
-              :sem-mod sem-mod}
-     :head {:synsem {:cat head-cat
+    (unify phrasal
+           {:synsem {:cat head-cat
                      :essere head-essere
                      :pronoun head-is-pronoun
                      :sem head-sem
-                     :sem-mod sem-mod}}}))
+                     :sem-mod sem-mod}
+            :head {:synsem {:cat head-cat
+                     :essere head-essere
+                            :pronoun head-is-pronoun
+                            :sem head-sem
+                            :sem-mod sem-mod}}})))
 
 ;;    [1]
 ;;   /   \
@@ -45,6 +48,7 @@
 ;; H[1]    C
 (def head-principle
   (unify head-principle-no-infl
+         phrasal
          (let [head-infl (ref :top)
                agr (ref :top)]
            {:synsem {:infl head-infl
@@ -331,19 +335,19 @@
 
 
 (def hc11-comp-subcat-1
-  (unify
-   subcat-1-1-principle-comp-subcat-1
-   hc-agreement
-   head-principle
-   comp-modifies-head
-   italian-head-first
-   english-head-last
-   {
-    :schema-symbol 'hc11-comp-subcat-1
-    :first :head
-    :comment "hc11-comp-subcat-1"}))
-
-
+  (let [subcat (ref :top)]
+    (unify
+     {:head {:synsem {:subcat {:1 subcat}}}
+      :comp {:synsem {:subcat {:1 subcat}}}}
+     subcat-1-1-principle-comp-subcat-1
+     hc-agreement
+     head-principle
+     comp-modifies-head
+     italian-head-first
+     english-head-last
+     {:schema-symbol 'hc11-comp-subcat-1
+      :first :head
+      :comment "hc11-comp-subcat-1"})))
 
 (def hh10
   (unify
