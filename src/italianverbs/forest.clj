@@ -174,7 +174,7 @@
     (lazy-cat (first lists)
               (lazy-cats (rest lists)))))
 
-(defn parents-with-phrasal-complements-candidates [parents-with-lexical-heads parents-with-phrasal-heads]
+(defn headed-phrases [parents-with-lexical-heads parents-with-phrasal-heads]
   (let [parents-with-lexical-heads (filter (fn [parent]
                                              (do (log/trace "checking parent (1)")
                                                  (not (= false (get-in parent '(:comp :phrasal))))))
@@ -183,8 +183,7 @@
                                              (do (log/trace "checking parent (2)")
                                                  (not (= false (get-in parent '(:comp :phrasal))))))
                                            parents-with-phrasal-heads)]
-    (cond true
-          (lazy-cats (shuffle (list parents-with-lexical-heads parents-with-phrasal-heads))))))
+    (lazy-cats (shuffle (list parents-with-lexical-heads parents-with-phrasal-heads)))))
 
 (defn log-path [path log-fn & [ depth]]
   (let [depth (if depth depth 0)
@@ -264,7 +263,7 @@
                      phrasal-headed-phrases (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
                                                                     phrases depth cache path)
 
-                     parents-with-phrasal-heads-for-comp-phrases
+                     parents-with-phrasal-heads-for-phasal-comps
                      (mapcat (fn [each-kv]
                                (let [parent (:parent each-kv)]
                                  (if (not (= false (get-in parent '(:comp :phrasal))))
@@ -296,9 +295,9 @@
                      (if (not (empty? lexical-headed-phrases))
                        (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon)))
 
-                     parents-with-phrasal-complements-candidates
-                     (parents-with-phrasal-complements-candidates
-                      parents-with-phrasal-heads-for-comp-phrases
+                     headed-phrases
+                     (headed-phrases
+                      parents-with-phrasal-heads-for-phasal-comps
                       lexical-headed-phrases)
 
                      debug 
@@ -306,7 +305,7 @@
                        (log/info (str "lb: head spec's comp-spec: " (get-in head '(:comp)) " to add-comp-phrase-to-headed-phrase.")))
 
                      with-phrasal-complement
-                     (add-comp-phrase-to-headed-phrase parents-with-phrasal-complements-candidates
+                     (add-comp-phrase-to-headed-phrase headed-phrases
                                                        phrases lexicon 0 cache path
                                                        (if (not (= :notfound (get-in head '(:comp) :notfound)))
                                                          (get-in head '(:comp))
