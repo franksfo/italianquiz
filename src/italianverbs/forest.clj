@@ -30,7 +30,7 @@
 
 (declare lightning-bolt)
 
-(defn add-comp-phrase-to-headed-phrase [parents phrases lexicon & [iter cache path]]
+(defn add-comp-phrase-to-headed-phrase [parents phrases lexicon & [iter cache path supplied-comp-spec]]
   (if (not (empty? parents))
     (let [debug
           (do
@@ -49,9 +49,14 @@
                     (do
                       (log/info (str "building cache (" (.size phrases) ")"))
                       (build-lex-sch-cache phrases lexicon)))
+
+          debug (log/debug (str "supplied comp-spec: " supplied-comp-spec))
+
           comp-spec
           (dissoc-paths
-           (get-in parent '(:comp))
+           (unifyc
+            (get-in parent '(:comp))
+            supplied-comp-spec)
            ;; TODO: do we need to dissoc these paths from the comp spec?
            '((:english :initial)
              (:italian :initial)))
@@ -64,7 +69,10 @@
                                               (not (fail? phrase)))
                                             (map (fn [phrase]
                                                    (unifyc phrase comp-spec))
-                                                 (get-comp-phrases-of parent cache))))
+                                                 (get-comp-phrases-of parent cache)))
+                                    (do
+                                      (log/trace (str "this phrase iscomp-phrasal=false: " (fo-ps parent)))
+                                      '()))
 
           comps 
           (if (not (empty? comp-phrases-for-parent))
@@ -90,7 +98,7 @@
 
       (lazy-cat
        (overc parent comps)
-       (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path)))))
+       (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
 
 (def can-log-if-in-sandbox-mode false)
 
