@@ -232,7 +232,7 @@
                 path (if path path [])
                 path (if path (conj path
                                     ;; add one element representing this call of lightning-bolt.
-                                    {:depth depth
+                                    {:depth (+ 1 depth)
                                      :grammar grammar
                                      :h-or-c "H"
                                      :lexicon-size (.size lexicon)
@@ -282,6 +282,10 @@
                                                                     (lazy-shuffle lexicon)
                                                                     phrases depth cache path)
 
+
+                     warn-if-empty (if (empty? lexical-headed-phrases)
+                                     (log/debug (str "Wow not a single lexical-headed-phrase!")))
+
                      parents-with-lexical-heads-for-comp-phrases 
                      (mapcat (fn [each-kv]
                                (let [parent (:parent each-kv)]
@@ -298,6 +302,9 @@
                                (let [phrases (:headed-phrases each-kv)]
                                  phrases))
                              lexical-headed-phrases)
+
+                     warn-if-empty (if (empty? lexical-headed-phrases)
+                                     (log/debug (str "Wow not a single lexical-headed-phrase(2)! given spec:" (show-spec head))))
                      
                
                      ;; trees where both the head and comp are lexemes.
