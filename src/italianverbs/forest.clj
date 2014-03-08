@@ -52,6 +52,8 @@
 
           debug (log/debug (str "supplied comp-spec: " supplied-comp-spec))
 
+          debug (log/debug (str "parent's comp-spec: " (show-spec (get-in parent '(:comp)))))
+
           comp-spec
           (dissoc-paths
            (unifyc
@@ -332,7 +334,7 @@
                       parents-with-lexical-heads-for-comp-phrases
                       rand-parent-type-order)
 
-                     debug (log/info (str "lb: passing comp-spec: " (get-in head '(:comp)) " to add-comp-phrase-to-headed-phrase."))
+                     debug (log/info (str "lb: head spec's comp-spec: " (get-in head '(:comp)) " to add-comp-phrase-to-headed-phrase."))
 
                      with-phrasal-complement
                      (add-comp-phrase-to-headed-phrase parents-with-phrasal-complements-candidates
