@@ -144,14 +144,3 @@
                                              grammar
                                              cache))))))
 
-
-(defn benchmark-5 [n]
-  "currently too slow ~ 10-17 seconds"
-  "like benchark-4, but trying to find the slow parts by constraining the spec."
-  (fo (take n (repeatedly #(time (sentence {:comp {:synsem {:sem-mod '()}}
-                                            :synsem {:sem {:pred :mangiare
-                                                           :tense :future
-                                                           :subj {:pred :io}
-                                                           :obj {:pred :pasta}}
-                                                     :subcat '()}}))))))
-
