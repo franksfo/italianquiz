@@ -151,8 +151,13 @@
 
 (defn overc-with-cache [parents cache lexicon]
   (if (not (empty? parents))
-    (let [parent (first parents)]
-      (lazy-cat (overc-with-cache-1 parent (get-lex parent :comp cache lexicon))
+    (let [parent (first parents)
+          use-spec {:synsem (get-in parent '(:comp :synsem))}
+          debug (log/debug (str "overc-with-cache filter by spec: " (show-spec use-spec)))]
+      (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
+                                                     (not (fail? (unifyc lexeme
+                                                                         use-spec))))
+                                                   (get-lex parent :comp cache lexicon)))
                 (overc-with-cache (rest parents) cache lexicon)))))
 
 (defn overh-with-cache-1 [parent lex]
