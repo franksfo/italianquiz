@@ -98,7 +98,7 @@
 
 
 (defn benchmark-4 [n]
-  "currently too slow ~ 1-5 seconds"
+  "currently too slow ~ 1-3 seconds"
   "try find the slow parts by constraining the spec."
   (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal true}}}
                                             :synsem {:sem {:obj {:pred :pasta}
@@ -111,7 +111,7 @@
                                            cache))))))
 
 (defn benchmark-5 [n]
-  "currently too slow ~ 1.5 seconds"
+  "currently too slow ~ .8 seconds"
   "like benchmark-4, but trying to find the slow parts by constraining the spec."
   (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal false}}} ;; don't generate a noun+adj, just a noun.
                                             :synsem {:sem {:obj {:pred :pasta}
@@ -125,7 +125,7 @@
 
 
 (defn benchmark-5a [n]
-  "currently too slow ~.9 seconds"
+  "currently too slow ~.6 seconds"
   "like benchmark-4, but trying to find the slow parts by constraining the spec."
   (fo (take n (repeatedly #(time (sentence {:comp {:phrasal false} ;; don't try to generate a phrasal form of 'io'
                                             :head {:comp {:head {:phrasal false}}} ;; don't generate a noun+adj, just a noun.
