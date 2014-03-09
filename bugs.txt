@@ -5,7 +5,9 @@ Semantics:
    is:  "Antonia was less tall than Naples"
    should be: "Antonia was less tall than (some human)"
 
-
+Morphology:
+	is: "you all was going mad"
+	should be: " you all were going mad"
 
 
 
