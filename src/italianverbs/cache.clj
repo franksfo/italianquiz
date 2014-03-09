@@ -81,7 +81,7 @@
         result))))
 
 (defn overc [parent comp]
-  (if (or true (not (seq? comp)))
+  (if (not (seq? comp))
     (do (log/trace (str "comp is not a seq; returning over/overc directly."))
         (over/overc parent comp))
     (do
