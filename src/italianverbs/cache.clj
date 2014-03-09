@@ -97,6 +97,7 @@
   (if (nil? schema)
     #{}
     (do
+      (log/debug (str "get-lex: " (:rule schema) " ; " head-or-comp))
       (if (not (map? schema))
         (throw (Exception. (str "first arguments should have been a map, but instead was of type: " (type schema) "; fo: " (fo schema)))))
       (log/trace (str "get-lex schema: " (:rule schema) " for: " head-or-comp))
@@ -106,7 +107,7 @@
                          (if (and (= :head head-or-comp)
                                   (not (nil? (:head (get cache (:rule schema))))))
                            (do
-                             (log/trace (str "get-lex hit: head for schema: " (:rule schema)))
+                             (log/debug (str "get-lex hit: head for schema: " (:rule schema)))
                              (:head (get cache (:rule schema))))
                            (do
                              (log/warn (str "CACHE MISS 1"))
@@ -116,7 +117,7 @@
                          (if (and (= :comp head-or-comp)
                                   (not (nil? (:comp (get cache (:rule schema))))))
                            (do
-                             (log/trace (str "get-lex hit: comp for schema: " (:rule schema)))
+                             (log/debug (str "get-lex hit: comp for schema: " (:rule schema)))
                              (:comp (get cache (:rule schema))))
                            (do
                              (log/warn (str "CACHE MISS 2"))
@@ -145,7 +146,8 @@
 (defn overc-with-cache-1 [parent lex]
   (if (not (empty? lex))
     (do
-      (log/trace (str "overc-with-cache-1 with parent: " (fo-ps parent) " and lex: " (fo (first lex))))
+      (log/trace (str "overc-with-cache-1 with parent: " (fo-ps parent) 
+                      " and lex: " (fo (first lex))))
       (lazy-cat (overc parent (first lex))
                 (overc-with-cache-1 parent (rest lex))))))
 
@@ -153,7 +155,8 @@
   (if (not (empty? parents))
     (let [parent (first parents)
           use-spec {:synsem (get-in parent '(:comp :synsem))}
-          debug (log/trace (str "overc-with-cache: parent: " (fo-ps parent) " ; filter by spec: " (show-spec use-spec)))]
+          debug (log/debug (str "overc-with-cache: parent: " (fo-ps parent) 
+                                " ; filter by spec: " (show-spec use-spec)))]
       (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
                                                      (not (fail? (unifyc lexeme
                                                                          use-spec))))
@@ -167,7 +170,7 @@
 
 (defn overh-with-cache [parents cache lexicon]
   (if (not (empty? parents))
-    (lazy-seq
-     (let [parent (first parents)]
-       (lazy-cat (overh-with-cache-1 parent (get-lex parent :head cache lexicon))
-                 (overh-with-cache (rest parents) cache lexicon))))))
+    (let [parent (first parents)]
+      (lazy-cat (overh-with-cache-1 parent (get-lex parent :head cache lexicon))
+                (overh-with-cache (rest parents) cache lexicon)))))
+
