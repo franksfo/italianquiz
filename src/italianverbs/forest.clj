@@ -6,7 +6,7 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache get-comp-phrases-of get-head-phrases-of get-lex
-                                                   overc overh overc-with-cache)]
+                                                   overc overh overh-with-cache overc-with-cache)]
    [italianverbs.lexicon :refer (it)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.unify :as unify]
@@ -118,9 +118,7 @@
       (log/trace (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
       
       (lazy-seq
-       (let [phrases-with-lexical-heads (get-lex parent :head cache lexicon)
-             result (overh parent phrases-with-lexical-heads)
-             debug (log/debug (str "lexical-headed-phrases: trying parent: " (fo-ps parent)))]
+       (let [result (overh-with-cache parent cache lexicon)]
          (cons {:parent parent
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
