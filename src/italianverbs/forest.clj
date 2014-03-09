@@ -119,7 +119,8 @@
       
       (lazy-seq
        (let [phrases-with-lexical-heads (get-lex parent :head cache lexicon)
-             result (overh parent phrases-with-lexical-heads)]
+             result (overh parent phrases-with-lexical-heads)
+             debug (log/debug (str "lexical-headed-phrases: trying parent: " (fo-ps parent)))]
          (cons {:parent parent
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
@@ -277,18 +278,24 @@
                                  phrases))
                              phrasal-headed-phrases)
 
+                     debug (log/debug "started looking for lexical-headed-phrases given grammar: " (fo-ps grammar))
+
                      lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
                                                                     (lazy-shuffle lexicon)
-                                                                    phrases depth cache path)
+                                                                    grammar depth cache path)
 
                      lexical-headed-phrases
                      (mapcat (fn [each-kv]
                                (let [phrases (:headed-phrases each-kv)]
                                  phrases))
                              lexical-headed-phrases)
+                     test (empty? lexical-headed-phrases)
+                     debug (log/debug "done looking for lexical-headed-phrases; found: " (.size lexical-headed-phrases))
 
                      warn-if-empty (if (empty? lexical-headed-phrases)
-                                     (log/debug (str "Wow not a single lexical-headed-phrase(1)! given spec: " (show-spec head))))
+                                     (do
+                                       (log/warn (str "Wow not a single lexical-headed-phrase(1)! given spec: " (show-spec head)))
+                                       (log/warn (str "  and given grammar: " (fo-ps grammar)))))
 
                      ;; trees where both the head and comp are lexemes.
                      one-level-trees
