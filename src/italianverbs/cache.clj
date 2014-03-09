@@ -168,9 +168,10 @@
     (lazy-seq (cons (overh parent (first lex))
                     (overh-with-cache-1 parent (rest lex))))))
 
-(defn overh-with-cache [parents cache lexicon]
-  (if (not (empty? parents))
-    (let [parent (first parents)]
-      (lazy-cat (overh-with-cache-1 parent (get-lex parent :head cache lexicon))
-                (overh-with-cache (rest parents) cache lexicon)))))
-
+(defn overh-with-cache [parent cache lexicon]
+  (let [phrases-with-lexical-heads (get-lex parent :head cache lexicon)
+        use-spec {:synsem (get-in parent '(:head :synsem))}]
+    (overh parent (filter (fn [lexeme]
+                            (not (fail? (unifyc lexeme
+                                                use-spec))))
+                          phrases-with-lexical-heads))))
