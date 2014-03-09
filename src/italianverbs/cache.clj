@@ -68,16 +68,16 @@
   (if (not (seq? head))
     (over/overh parent head)
     (do
-      (log/debug (str "overh head: " (show-spec (get-in parent '(:head :synsem)))))
-      (log/debug (str "overh head fo: " (fo-ps parent)))
-      (log/debug (str "overh size of head candidates: " (.size head)))
+      (log/trace (str "overh head: " (show-spec (get-in parent '(:head :synsem)))))
+      (log/trace (str "overh head fo: " (fo-ps parent)))
+      (log/trace (str "overh size of head candidates: " (.size head)))
       (let [result (over/overh parent head)]
-        (log/debug (str "survivor type is: " result))
+        (log/trace (str "survivor type is: " result))
         (if (seq? result) 
-          (do (log/debug (str "overh size of survivors: " (.size result))))
+          (do (log/trace (str "overh size of survivors: " (.size result))))
           (if (not (empty? result))
-            (log/debug (str "survivors are nonempty."))
-            (log/debug (str "survivors are empty."))))
+            (log/trace (str "survivors are nonempty."))
+            (log/trace (str "survivors are empty."))))
         result))))
 
 (defn overc [parent comp]
@@ -85,9 +85,9 @@
     (do (log/trace (str "comp is not a seq; returning over/overc directly."))
         (over/overc parent comp))
     (do
-      (log/debug (str "overc comp: " (show-spec (get-in parent '(:comp :synsem)))))
+      (log/trace (str "overc comp: " (show-spec (get-in parent '(:comp :synsem)))))
       (if (not (nil? comp))
-        (log/debug (str "overc size of comp: " (.size comp))))
+        (log/trace (str "overc size of comp: " (.size comp))))
       (let [result (over/overc parent comp)]
         (if (not (nil? result))
           (log/trace (str "overc size of result: " (.size result))))
@@ -99,7 +99,7 @@
     (do
       (if (not (map? schema))
         (throw (Exception. (str "first arguments should have been a map, but instead was of type: " (type schema) "; fo: " (fo schema)))))
-      (log/debug (str "get-lex for schema: " (:rule schema)))
+      (log/trace (str "get-lex schema: " (:rule schema) " for: " head-or-comp))
       (if (nil? (:rule schema))
         (log/error (str "no schema for: " schema)))
       (let [result (cond (= :head head-or-comp)
@@ -132,20 +132,20 @@
         result (if (nil? result) (list) result)
         label (label-of parent)]
     (if (empty? result)
-      (log/debug (str "headed-phrases of parent: " label " is empty.")))
+      (log/trace (str "headed-phrases of parent: " label " is empty.")))
     (lazy-shuffle result)))
 
 (defn get-comp-phrases-of [parent cache]
   (let [result (:comp-phrases (get cache (:rule parent)))
         result (if (nil? result) (list) result)]
     (if (empty? result)
-      (log/debug (str "comp-phrases of parent: " (label-of parent) " is empty.")))
+      (log/trace (str "comp-phrases of parent: " (label-of parent) " is empty.")))
     (lazy-shuffle result)))
 
 (defn overc-with-cache-1 [parent lex]
   (if (not (empty? lex))
     (do
-      (log/debug (str "overc-with-cache-1 with parent: " (fo-ps parent) " and lex: " (fo (first lex))))
+      (log/trace (str "overc-with-cache-1 with parent: " (fo-ps parent) " and lex: " (fo (first lex))))
       (lazy-cat (overc parent (first lex))
                 (overc-with-cache-1 parent (rest lex))))))
 
@@ -153,7 +153,7 @@
   (if (not (empty? parents))
     (let [parent (first parents)
           use-spec {:synsem (get-in parent '(:comp :synsem))}
-          debug (log/debug (str "overc-with-cache filter by spec: " (show-spec use-spec)))]
+          debug (log/trace (str "overc-with-cache: parent: " (fo-ps parent) " ; filter by spec: " (show-spec use-spec)))]
       (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
                                                      (not (fail? (unifyc lexeme
                                                                          use-spec))))
