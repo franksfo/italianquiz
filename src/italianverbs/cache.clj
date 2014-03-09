@@ -65,7 +65,7 @@
   (over/over parents child1 child2))
 
 (defn overh [parent head]
-  (if (or true (not (seq? head)))
+  (if (not (seq? head))
     (over/overh parent head)
     (do
       (log/debug (str "overh head: " (show-spec (get-in parent '(:head :synsem)))))
@@ -74,9 +74,8 @@
       (let [result (over/overh parent head)]
         (log/debug (str "survivor type is: " result))
         (if (seq? result) 
-          (log/debug (str "overh size of survivors: " (.size result))))
-        (if (seq? result)
-          (if (> (.size result) 0)
+          (do (log/debug (str "overh size of survivors: " (.size result))))
+          (if (not (empty? result))
             (log/debug (str "survivors are nonempty."))
             (log/debug (str "survivors are empty."))))
         result))))
