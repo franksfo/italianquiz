@@ -211,14 +211,11 @@
         use-spec {:synsem (get-in parent '(:head :synsem))}]
     (do
       (log/warn "overh-with-cache: cache miss for spec: " (show-spec use-spec))
-      (let [new-cache-entry
-            (filter (fn [lexeme]
-                      (not (fail? (unifyc lexeme
-                                          use-spec))))
-                    phrases-with-lexical-heads)
-            cache (add-subset-to-cache cache use-spec new-cache-entry)
-            retry (log/trace (str "Retry cache lookup: " (get-subset-from-cache
-                                                          cache use-spec)))]
-        (overh parent phrases-with-lexical-heads)))))
+      (overh parent
+             (filter (fn [lexeme]
+                       (not (fail? (unifyc lexeme
+                                           use-spec))))
+                     phrases-with-lexical-heads)))))
+
 
 
