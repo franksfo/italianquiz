@@ -219,5 +219,6 @@
             cache (add-subset-to-cache cache use-spec new-cache-entry)
             retry (log/trace (str "Retry cache lookup: " (get-subset-from-cache
                                                           cache use-spec)))]
-        [cache (overh parent phrases-with-lexical-heads)]))))
+        (overh parent phrases-with-lexical-heads)))))
+
 

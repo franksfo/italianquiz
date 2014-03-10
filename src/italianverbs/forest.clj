@@ -118,7 +118,7 @@
       (log/trace (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
       
       (lazy-seq
-       (let [[cache result] (overh-with-cache parent cache lexicon)]
+       (let [result (overh-with-cache parent cache lexicon)]
          (cons {:parent parent
                 :headed-phrases result}
                (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
