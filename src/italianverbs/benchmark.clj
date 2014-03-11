@@ -111,7 +111,7 @@
                                            cache))))))
 
 (defn benchmark-5 [n]
-  "currently too slow ~ .8 seconds"
+  "currently too slow ~ .5~.8 seconds"
   "like benchmark-4, but trying to find the slow parts by constraining the spec."
   (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal false}}} ;; don't generate a noun+adj, just a noun.
                                             :synsem {:sem {:obj {:pred :pasta}

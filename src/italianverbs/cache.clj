@@ -166,23 +166,6 @@
       (lazy-cat (overc parent (first lex))
                 (overc-with-cache-1 parent (rest lex))))))
 
-(defn overc-with-cache [parents cache lexicon]
-  (if (not (empty? parents))
-    (let [parent (first parents)
-          use-spec {:synsem (get-in parent '(:comp :synsem))}
-          debug (log/trace (str "overc-with-cache: parent: " (fo-ps parent) 
-                                " ; filter by spec: " (show-spec use-spec)))]
-      (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
-                                                     (not (fail? (unifyc lexeme
-                                                                         use-spec))))
-                                                   (get-lex parent :comp cache lexicon)))
-                (overc-with-cache (rest parents) cache lexicon)))))
-
-(defn overh-with-cache-1 [parent lex]
-  (if (not (empty? lex))
-    (lazy-seq (cons (overh parent (first lex))
-                    (overh-with-cache-1 parent (rest lex))))))
-
 (defn get-subset-from-cache [cache use-spec]
   (let [debug (log/warn (str "looking for use-spec 1: " use-spec))
         use-spec (get-in use-spec '(:synsem :cat))
@@ -192,21 +175,25 @@
       :notfound
       (get ls-part (show-spec use-spec) :notfound))))
 
+(defn overc-with-cache [parents cache lexicon]
+  (if (not (empty? parents))
+    (let [parent (first parents)
+          use-spec {:synsem (get-in parent '(:comp :synsem))}
+          lexicon (let [cached (get-subset-from-cache cache (show-spec use-spec))]
+                    (if (= cached :notfound)
+                      (get-lex parent :comp cache lexicon)
+                      cached))]
+      (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
+                                                     (not (fail? (unifyc lexeme
+                                                                         use-spec))))
+                                                   (lazy-shuffle lexicon)))
+                (overc-with-cache (rest parents) cache lexicon)))))
+
 (defn overh-with-cache [parent cache lexicon]
   (let [lexicon (get-lex parent :head cache lexicon)
-        use-spec {:synsem (get-in parent '(:head :synsem))}
-        lex-subset (get-subset-from-cache cache (show-spec use-spec))]
-    (if (not (= lex-subset :notfound))
-      (overh parent
-             (filter (fn [lexeme]
-                       (not (fail? (unifyc lexeme
-                                           use-spec))))
-                     lexicon))
-
-      (do
-        (log/warn "overh-with-cache: cache miss for spec: " (show-spec use-spec))
-        (overh parent
-               (filter (fn [lexeme]
-                         (not (fail? (unifyc lexeme
-                                             use-spec))))
-                       lexicon))))))
+        use-spec {:synsem (get-in parent '(:head :synsem))}]
+    (overh parent
+           (filter (fn [lexeme]
+                     (not (fail? (unifyc lexeme
+                                         use-spec))))
+                   (lazy-shuffle lexicon)))))
