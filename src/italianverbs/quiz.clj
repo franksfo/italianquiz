@@ -565,13 +565,15 @@
         (str "<div id='question_text'>" (:question question) "</div>"
              "<input type='text' id='question_id' value='" qid "'/>")))))
 
+(def fill-to 5)
+
 (defn fillqueue [request]
   (let [session (session/request-to-session request)]
     (log/info (str "filling queue with request: " request))
     (while
         (let [queue (db/fetch :queue :where {:session session})]
           (or (nil? queue)
-              (< (.size (db/fetch :queue :where {:session session})) 3)))
+              (< (.size (db/fetch :queue :where {:session session})) fill-to)))
       (let [random-guess-type (random-guess-type session) ;; chose a question type from amongst those specified by the user's preferences (accessible through session).
             debug (log/debug (str "fillqueue: going to generate sentence with type: " random-guess-type))
             question-pair (generate-question random-guess-type)
