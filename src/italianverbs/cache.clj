@@ -167,9 +167,9 @@
                 (overc-with-cache-1 parent (rest lex))))))
 
 (defn get-subset-from-cache [cache use-spec]
-  (let [debug (log/warn (str "looking for use-spec 1: " use-spec))
+  (let [debug (log/debug (str "looking for use-spec 1: " use-spec))
         use-spec (get-in use-spec '(:synsem :cat))
-        debug (log/warn (str "looking for use-spec 2: " use-spec))
+        debug (log/debug (str "looking for use-spec 2: " use-spec))
         ls-part (get cache :lexical-subsets :notfound)]
     (if (= :notfound ls-part)
       :notfound
