@@ -24,6 +24,21 @@
 (def head-cache {})
 (def comp-cache {})
 
+(defn specs-to-subsets [lexicon-of-heads lexicon]
+  (if (not (empty? lexicon-of-heads))
+    (let [lexeme (first lexicon-of-heads)]
+      (if (keyword? (show-spec (get-in lexeme '(:synsem :subcat :1 :cat))))
+        (conj {(show-spec (get-in lexeme '(:synsem :subcat :1 :cat)))
+               (filter (fn [each-lex]
+                         (not (fail? (unifyc (get-in each-lex '(:synsem :cat))
+                                             (get-in lexeme '(:synsem :subcat :1 :cat))))))
+                       lexicon)}
+              (specs-to-subsets (rest lexicon-of-heads)
+                                lexicon))
+        (specs-to-subsets (rest lexicon-of-heads)
+                          lexicon)))
+    {}))
+
 (defn build-lex-sch-cache [phrases lexicon all-phrases]
   "Build a mapping of phrases onto subsets of the lexicon. The two values (subsets of the lexicon) to be
    generated for each key (phrase) are: 
@@ -59,7 +74,7 @@
                                      {:head lex}))))
                lexicon)}}
      (build-lex-sch-cache (rest phrases) lexicon all-phrases))
-    {}))
+    {:lexical-subsets (specs-to-subsets lexicon lexicon)}))
 
 (defn over [parents child1 & [child2]]
   (over/over parents child1 child2))
@@ -169,53 +184,29 @@
                     (overh-with-cache-1 parent (rest lex))))))
 
 (defn get-subset-from-cache [cache use-spec]
-  (let [ls-part (get cache :lexical-subset :notfound)]
+  (let [debug (log/warn (str "looking for use-spec 1: " use-spec))
+        use-spec (get-in use-spec '(:synsem :cat))
+        debug (log/warn (str "looking for use-spec 2: " use-spec))
+        ls-part (get cache :lexical-subsets :notfound)]
     (if (= :notfound ls-part)
       :notfound
-      (do
-        (log/debug (str "LS PART: " ls-part))
-        (get ls-part (show-spec use-spec) :notfound)))))
-
-(defn add-subset-to-cache [cache use-spec subset]
-  (if (not (= subset :notfound))
-    (merge {:lexical-subset {(show-spec use-spec) subset}}
-           cache)
-    cache))
-
-(defn overh-with-cache-messedup [parent cache lexicon]
-  (let [phrases-with-lexical-heads (get-lex parent :head cache lexicon)
-        use-spec {:synsem (get-in parent '(:head :synsem))}]
-    (log/trace (str "overh-with-cache: parent:" (fo-ps parent) "; spec: " (show-spec use-spec)))
-    (let [cache-result (get-subset-from-cache cache use-spec)]
-      (log/debug (str "cache-result: " cache-result))
-      (cond (and false (not (= :notfound cache-result)))
-            (do
-              (log/warn (str "overh-with-cache: found: " use-spec))
-              [cache (overh parent
-                            cache-result)]
-            true
-            (do
-              (log/warn "overh-with-cache: cache miss for spec: " (show-spec use-spec))
-              (let [new-cache-entry
-                    (filter (fn [lexeme]
-                              (not (fail? (unifyc lexeme
-                                                  use-spec))))
-                            phrases-with-lexical-heads)
-                    cache (add-subset-to-cache cache use-spec new-cache-entry)
-                    retry (log/trace (str "Retry cache lookup: " (get-subset-from-cache
-                                                                  cache use-spec)))]
-                [cache (overh parent phrases-with-lexical-heads)])))))))
+      (get ls-part (show-spec use-spec) :notfound))))
 
 (defn overh-with-cache [parent cache lexicon]
-  (let [phrases-with-lexical-heads (get-lex parent :head cache lexicon)
-        use-spec {:synsem (get-in parent '(:head :synsem))}]
-    (do
-      (log/warn "overh-with-cache: cache miss for spec: " (show-spec use-spec))
+  (let [lexicon (get-lex parent :head cache lexicon)
+        use-spec {:synsem (get-in parent '(:head :synsem))}
+        lex-subset (get-subset-from-cache cache (show-spec use-spec))]
+    (if (not (= lex-subset :notfound))
       (overh parent
              (filter (fn [lexeme]
                        (not (fail? (unifyc lexeme
                                            use-spec))))
-                     phrases-with-lexical-heads)))))
+                     lexicon))
 
-
-
+      (do
+        (log/warn "overh-with-cache: cache miss for spec: " (show-spec use-spec))
+        (overh parent
+               (filter (fn [lexeme]
+                         (not (fail? (unifyc lexeme
+                                             use-spec))))
+                       lexicon))))))
