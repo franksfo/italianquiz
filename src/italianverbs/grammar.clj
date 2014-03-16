@@ -31,7 +31,8 @@
                              {:comp {:phrasal false ;; rathole prevention ;; TODO: see if this can be removed.
                                      :synsem {:cat :adjective
                                               :mod head-synsem}}
-                              :head {:synsem {:modified false}} ;; TODO: document what purpose :modified serves.
+                              :head {:phrasal false
+                                     :synsem {:modified false}} ;; TODO: document what purpose :modified serves.
                               :rule "nbar"
                               :synsem head-synsem}))
 
@@ -82,6 +83,7 @@
 
                    (unifyc hh21
                            {:rule "vp-aux"
+                            :head {:phrasal false}
                             :synsem {:aux true
                                      :infl :present
                                      :sem {:tense :past}
@@ -92,7 +94,8 @@
                    ;; obj-agr agreement between the object and the main (non-auxilary) verb.
                    (unifyc hh22
                            (let [obj-agr (ref :top)]
-                             {:rule "vp-aux-22"
+                             {:head {:phrasal false}
+                              :rule "vp-aux-22"
                               :synsem {:aux true
                                        :infl :present
                                        :sem {:tense :past}
@@ -126,11 +129,13 @@
                                      :cat :verb}})
 
                    (unifyc ch21
-                           {:comp {:synsem {:cat :noun
+                           {:comp {:phrasal false
+                                   :synsem {:cat :noun
                                             :pronoun true}}
                             :rule "vp-pronoun"
                             :synsem {:cat :verb
-                                     :infl {:not :past}}})))
+                                     :infl {:not :past}}})
+))
 
 
 (defn aux-is-head-feature [phrase]
