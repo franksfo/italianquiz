@@ -12,7 +12,7 @@
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
-(def concurrent true)
+(def concurrent false)
 (defn deref [thing]
   (if concurrent
     (core/deref thing)
@@ -37,7 +37,7 @@
             (log/debug (str "starting add-comp-phrase-to-headed-phrase."))
             (log/debug (str "    with parent: " (fo-ps (first parents))))
             (log/debug (str "    with phrases: " (fo-ps phrases)))
-            (log/debug (str "    with lexicon size: " (.size lexicon)))
+            (log/trace (str "    with lexicon size: " (.size lexicon)))
             (log/trace (str "add-comp-phrase-to-headed-phrase: emptyness of parents: " (empty? parents))))
 
           debug (if false (throw (Exception. "GOT HERE: INSIDE MAIN PART OF add-comp-phrase-to-headed-phrase.")))
@@ -82,7 +82,7 @@
               (log/debug (str "about to call lightning-bolt from add-comp-phrase-to-headed-phrase."))
               (log/debug (str "  with head-spec: " (show-spec comp-spec)))
               (log/debug (str "  with grammar: " (fo-ps comp-phrases-for-parent)))
-              (log/debug (str "  with lexicon size: " (.size lexicon-for-comp)))
+              (log/trace (str "  with lexicon size: " (.size lexicon-for-comp)))
               (deref
               (future
                 (lightning-bolt
@@ -141,8 +141,8 @@
           (lazy-seq
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
                  debug (log/debug (str "  head-spec: " (show-spec head-spec)))
-                 debug (log/debug (str "  with grammar: " (fo-ps parents)))
-                 debug (log/debug (str "  with lexicon size: " (.size lexicon)))
+                 debug (log/trace (str "  with grammar: " (fo-ps parents)))
+                 debug (log/trace (str "  with lexicon size: " (.size lexicon)))
                  bolts 
                  (deref (future
                    (lightning-bolt head-spec
@@ -181,8 +181,14 @@
         parents-with-phrasal-heads (filter (fn [parent]
                                              (do (log/trace "checking parent (2)")
                                                  (not (= false (get-in parent '(:comp :phrasal))))))
-                                           parents-with-phrasal-heads)]
-    (lazy-cats (shuffle (list parents-with-lexical-heads parents-with-phrasal-heads)))))
+                                           parents-with-phrasal-heads)
+        cats
+        (lazy-cats (shuffle (list parents-with-lexical-heads parents-with-phrasal-heads)))]
+    (do
+      (if (not (empty? cats))
+        (log/info (str "first cat: " (fo-ps (first cats))))
+        (log/info (str " no cats.")))
+      cats)))
 
 (defn log-path [path log-fn & [ depth]]
   (let [depth (if depth depth 0)
@@ -203,9 +209,10 @@
 (def maxdepth 4)
 
 ;; TODO: s/head/head-spec/
-(defn lightning-bolt [ & [head lexicon grammar depth cache path]]
+(defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
   (let [depth (if depth depth 0)
-        parents-at-this-depth (parents-at-this-depth head (lazy-shuffle grammar) depth)]
+        parents-at-this-depth (parents-at-this-depth head-spec
+                                                     (lazy-shuffle grammar) depth)]
   (cond (nil? lexicon)
         (do
           (log/warn "lightning-bolt: lexicon was nil.")
@@ -226,7 +233,7 @@
         (do
 
           (let [
-
+                head head-spec
                 path (if path path [])
                 path (if path (conj path
                                     ;; add one element representing this call of lightning-bolt.
@@ -236,15 +243,15 @@
                                      :lexicon-size (.size lexicon)
                                      :spec (show-spec head)
                                      :parents parents-at-this-depth}))]
-            (log-path path (fn [x] (log/debug x)))
+            (log-path path (fn [x] (log/trace x)))
 
             (let [head (if head head :top)
                   ;; TODO: will probably remove this or make it only turned on in special cases.
                   ;; lightning-bolt should be efficient enough to handle :top as a spec
                   ;; efficiently.
-                  too-general (if (= head :top)
+                  too-general (if (= head-spec :top)
                                 (if true nil
-                                    (throw (Exception. (str ": head-spec is too general: " head)))))
+                                    (throw (Exception. (str ": head-spec is too general: " head-spec)))))
 
                   phrases grammar;; TODO: rename all uses of phrases to grammar.
                 
@@ -276,7 +283,9 @@
                                  phrases))
                              phrasal-headed-phrases)
 
-                     debug (log/debug "started looking for lexical-headed-phrases given grammar: " (fo-ps grammar))
+                     debug (log/trace "started looking for lexical-headed-phrases given grammar: " 
+                                      (string/join ";" (map #(:rule %)
+                                           grammar)))
 
                      lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
                                                                     (lazy-shuffle lexicon)
@@ -288,11 +297,11 @@
                                  phrases))
                              lexical-headed-phrases)
                      test (empty? lexical-headed-phrases)
-                     debug (log/debug "done looking for lexical-headed-phrases; found: " (.size lexical-headed-phrases))
+                     debug (log/trace "done looking for lexical-headed-phrases; found: " (.size lexical-headed-phrases))
 
                      warn-if-empty (if (empty? lexical-headed-phrases)
                                      (do
-                                       (log/warn (str "Wow not a single lexical-headed-phrase(1)! given spec: " (show-spec head)))
+                                       (log/warn (str "Wow not a single lexical-headed-phrase(1)! given spec: " (show-spec head-spec)))
                                        (log/warn (str "  and given grammar: " (fo-ps grammar)))))
 
                      ;; trees where both the head and comp are lexemes.
@@ -300,25 +309,52 @@
                      (if (not (empty? lexical-headed-phrases))
                        (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon)))
 
+
+                     debug
+                     (if (not (empty? parents-with-phrasal-heads-for-phasal-comps))
+                       (log/info (str "looking for headed-phrases with first parents-with-phrasal-heads-for-phasal-comps being: " (fo-ps (first parents-with-phrasal-heads-for-phasal-comps))))
+                       (log/info (str "empty phrasal comps....!!")))
+
+                     debug
+                     (if (not (empty? lexical-headed-phrases))
+                       (log/info (str "looking for headed-phrases with lexical-headed-phrases:" (fo-ps (first lexical-headed-phrases))))
+                       (log/info (str "empty lexical phrases...!!")))
+
                      headed-phrases
                      (headed-phrases
                       parents-with-phrasal-heads-for-phasal-comps
                       lexical-headed-phrases)
 
                      debug 
-                     (if (get-in head '(:comp))
-                       (log/info (str "lb: head spec's comp-spec: " (get-in head '(:comp)) " to add-comp-phrase-to-headed-phrase.")))
+                     (if (get-in head-spec '(:comp))
+                       (log/info (str "lb: head spec's comp-spec: " (get-in head-spec '(:comp)) " to add-comp-phrase-to-headed-phrase.")))
 
                      with-phrasal-complement
                      (add-comp-phrase-to-headed-phrase headed-phrases
-                                                       phrases lexicon 0 cache path
-                                                       (if (not (= :notfound (get-in head '(:comp) :notfound)))
-                                                         (get-in head '(:comp))
-                                                         :top)
-
-)
+                                                       phrases lexicon (+ 1 depth) cache path
+                                                       (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
+                                                         (get-in head-spec '(:comp))
+                                                         :top))
 
                      hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
+
+                     debug (if (not (empty? one-level-trees)) 
+                             (log/debug (str "first one-level-tree: " (fo-ps (first one-level-trees)) " for grammar: " 
+                                            (string/join ";" (map #(:rule %)
+                                                           parents-at-this-depth))))
+                             (log/warn (str "no one-level trees for grammar: " 
+                                            (string/join ";" (map #(:rule %)
+                                                           parents-at-this-depth)))))
+
+                     debug (if (not (empty? with-phrasal-complement)) 
+                             (log/debug (str "first with-phrasal-complement: " (fo-ps (first with-phrasal-complement)) " for grammar: " (fo-ps parents-at-this-depth)))
+                             (log/warn (str "no with-phrasal-complements for grammar: " (fo-ps parents-at-this-depth))))
+
+                     debug (if (not (empty? hpcl)) 
+                             (log/debug (str "first hpcl: " (fo-ps (first hpcl)) " for grammar: " (fo-ps parents-at-this-depth)))
+                             (log/warn (str "no hpcl for grammar: " (fo-ps parents-at-this-depth))))
+
+
                      ]
 
                  (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl)))))))))))
