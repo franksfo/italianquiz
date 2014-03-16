@@ -168,10 +168,15 @@
           ;; head param of (lightning-bolt)".
                phrases)))
 
-(defn lazy-cats [lists]
+(defn lazy-cats [lists & [ show-first ]]
   (if (not (empty? lists))
-    (lazy-cat (first lists)
-              (lazy-cats (rest lists)))))
+    (if (not (empty? (first lists)))
+      (do
+        (if show-first
+          (log/info (str "lazy-cats: first: " (fo-ps (first (first lists))))))
+        (lazy-cat (first lists)
+                  (lazy-cats (rest lists))))
+      (lazy-cats (rest lists)))))
 
 (defn headed-phrases [parents-with-lexical-heads parents-with-phrasal-heads]
   (let [parents-with-lexical-heads (filter (fn [parent]
@@ -183,11 +188,12 @@
                                                  (not (= false (get-in parent '(:comp :phrasal))))))
                                            parents-with-phrasal-heads)
         cats
-        (lazy-cats (shuffle (list parents-with-lexical-heads parents-with-phrasal-heads)))]
+        (lazy-cat
+         parents-with-lexical-heads parents-with-phrasal-heads)]
     (do
       (if (not (empty? cats))
-        (log/info (str "first cat: " (fo-ps (first cats))))
-        (log/info (str " no cats.")))
+        (log/debug (str "first headed-phrases: " (fo-ps (first cats))))
+        (log/debug (str " no headed-phrases.")))
       cats)))
 
 (defn log-path [path log-fn & [ depth]]
@@ -264,10 +270,15 @@
                    nil)
 
                true
-               (let [cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))
+               (let [hs (unify/strip-refs head-spec)
+
+                     debug (log/info (str "startLB 0@" depth ":" hs "; grammar: " (fo-ps grammar)))
+
+                     cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))
 
                      phrasal-headed-phrases (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
                                                                     phrases depth cache path)
+
 
                      parents-with-phrasal-heads-for-phasal-comps
                      (mapcat (fn [each-kv]
@@ -276,6 +287,7 @@
                                    (let [phrases (:headed-phrases each-kv)]
                                      phrases))))
                              phrasal-headed-phrases)
+
 
                      phrasal-headed-phrases
                      (mapcat (fn [each-kv]
@@ -287,6 +299,9 @@
                                       (string/join ";" (map #(:rule %)
                                            grammar)))
 
+
+                     debug (log/info (str "startLB 1@" depth ":" hs))
+
                      lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
                                                                     (lazy-shuffle lexicon)
                                                                     grammar depth cache path)
@@ -296,38 +311,49 @@
                                (let [phrases (:headed-phrases each-kv)]
                                  phrases))
                              lexical-headed-phrases)
-                     test (empty? lexical-headed-phrases)
                      debug (log/trace "done looking for lexical-headed-phrases; found: " (.size lexical-headed-phrases))
-
-                     warn-if-empty (if (empty? lexical-headed-phrases)
-                                     (do
-                                       (log/warn (str "Wow not a single lexical-headed-phrase(1)! given spec: " (show-spec head-spec)))
-                                       (log/warn (str "  and given grammar: " (fo-ps grammar)))))
 
                      ;; trees where both the head and comp are lexemes.
                      one-level-trees
-                     (if (not (empty? lexical-headed-phrases))
-                       (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon)))
+                     (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon))
 
+                     debug (log/info (str "startLB 2@" depth ":" hs))
 
                      debug
                      (if (not (empty? parents-with-phrasal-heads-for-phasal-comps))
-                       (log/info (str "looking for headed-phrases with first parents-with-phrasal-heads-for-phasal-comps being: " (fo-ps (first parents-with-phrasal-heads-for-phasal-comps))))
-                       (log/info (str "empty phrasal comps....!!")))
+                       (log/debug (str "looking for headed-phrases with first parents-with-phrasal-heads-for-phasal-comps being: " (fo-ps (first parents-with-phrasal-heads-for-phasal-comps))))
+                       (log/debug (str "empty phrasal comps....!!")))
 
                      debug
                      (if (not (empty? lexical-headed-phrases))
-                       (log/info (str "looking for headed-phrases with lexical-headed-phrases:" (fo-ps (first lexical-headed-phrases))))
-                       (log/info (str "empty lexical phrases...!!")))
+                       (log/debug (str "looking for headed-phrases with lexical-headed-phrases:" (fo-ps (first lexical-headed-phrases))))
+                       (log/debug (str "empty lexical phrases...!!")))
 
                      headed-phrases
                      (headed-phrases
                       parents-with-phrasal-heads-for-phasal-comps
                       lexical-headed-phrases)
 
+                     debug
+                     (if (empty? headed-phrases)
+                       (log/debug (str "headed-phrases is all empty for grammar: " 
+                                       (string/join ";" (map #(:rule %)
+                                                             parents-at-this-depth)))))
+
                      debug 
                      (if (get-in head-spec '(:comp))
                        (log/info (str "lb: head spec's comp-spec: " (get-in head-spec '(:comp)) " to add-comp-phrase-to-headed-phrase.")))
+
+                     hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
+
+                     debug (if (not (empty? one-level-trees)) 
+                             (log/debug (str "first one-level-tree: " (fo-ps (first one-level-trees)) " for grammar: " 
+                                            (string/join ";" (map #(:rule %)
+                                                           parents-at-this-depth))))
+                             (log/debug (str "no one-level trees for grammar: " 
+                                            (string/join ";" (map #(:rule %)
+                                                           parents-at-this-depth)))))
+
 
                      with-phrasal-complement
                      (add-comp-phrase-to-headed-phrase headed-phrases
@@ -336,28 +362,35 @@
                                                          (get-in head-spec '(:comp))
                                                          :top))
 
-                     hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
+                     debug (if (not (nil? with-phrasal-complement))
+                             (log/debug (str "realized? with-phrasal-complement (initial):"
+                                            (realized? with-phrasal-complement))))
 
-                     debug (if (not (empty? one-level-trees)) 
-                             (log/debug (str "first one-level-tree: " (fo-ps (first one-level-trees)) " for grammar: " 
-                                            (string/join ";" (map #(:rule %)
-                                                           parents-at-this-depth))))
-                             (log/warn (str "no one-level trees for grammar: " 
-                                            (string/join ";" (map #(:rule %)
-                                                           parents-at-this-depth)))))
 
-                     debug (if (not (empty? with-phrasal-complement)) 
-                             (log/debug (str "first with-phrasal-complement: " (fo-ps (first with-phrasal-complement)) " for grammar: " (fo-ps parents-at-this-depth)))
-                             (log/warn (str "no with-phrasal-complements for grammar: " (fo-ps parents-at-this-depth))))
 
-                     debug (if (not (empty? hpcl)) 
-                             (log/debug (str "first hpcl: " (fo-ps (first hpcl)) " for grammar: " (fo-ps parents-at-this-depth)))
-                             (log/warn (str "no hpcl for grammar: " (fo-ps parents-at-this-depth))))
+                     debug (if (not (nil? with-phrasal-complement))
+                             (log/debug (str "realized? with-phrasal-complement (1):"
+                                            (realized? with-phrasal-complement))))
 
+                     debug (log/debug (str "type of with-phrasal-complement:"
+                                           (type with-phrasal-complement)))
+
+                     debug (log/debug (str "type of hpcl: "
+                                           (type hpcl)))
+
+                     debug (if (not (nil? with-phrasal-complement))
+                             (log/debug (str "realized? with-phrasal-complement (final):"
+                                            (realized? with-phrasal-complement))))
+
+                     debug (if (not (nil? hpcl))
+                             (log/debug (str "realized? hpcl:"
+                                            (realized? hpcl))))
 
                      ]
 
-                 (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl)))))))))))
+                 (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl))
+                            (and false (not (fail? (unifyc head-spec
+                                                           {:synsem {:subcat '()}})))))))))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
