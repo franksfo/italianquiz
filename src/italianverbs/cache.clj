@@ -86,6 +86,9 @@
       (log/trace (str "overh head: " (show-spec (get-in parent '(:head :synsem)))))
       (log/trace (str "overh head fo: " (fo-ps parent)))
       (log/trace (str "overh size of head candidates: " (.size head)))
+      (if (not (nil? head))
+        (log/debug (str "overh first head: " (fo (first head)) " for parent: " (fo-ps parent))))
+
       (let [result (over/overh parent head)]
         (log/trace (str "survivor type is: " result))
         (if (seq? result) 
@@ -103,6 +106,8 @@
       (log/trace (str "overc comp: " (show-spec (get-in parent '(:comp :synsem)))))
       (if (not (nil? comp))
         (log/trace (str "overc size of comp: " (.size comp))))
+      (if (not (nil? comp))
+        (log/debug (str "overc first comp: " (fo (first comp)) " for parent: " (fo-ps parent))))
       (let [result (over/overc parent comp)]
         (if (not (nil? result))
           (log/trace (str "overc size of result: " (.size result))))
