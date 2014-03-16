@@ -23,7 +23,7 @@
   ;; TODO: add switch to avoid removing existing mongodb, if desired.
   (mongo/destroy! :sentences {})
   (dotimes [n num]
-    (let [sentence (finalize (gram/random-sentence))]
+    (let [sentence (finalize (gen/sentence))]
       (mongo/insert! :sentences {:italian (unify/get-in sentence '(:italian))
                                  :english (unify/get-in sentence '(:english))})))
   (let [count (mongo/fetch-count :sentences)]
