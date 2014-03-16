@@ -272,7 +272,7 @@
                true
                (let [hs (unify/strip-refs head-spec)
 
-                     debug (log/info (str "startLB 0@" depth ":" hs "; grammar: " (fo-ps grammar)))
+                     debug (log/debug (str "startLB 0@" depth ":" hs "; grammar: " (fo-ps grammar)))
 
                      cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))
 
@@ -300,7 +300,7 @@
                                            grammar)))
 
 
-                     debug (log/info (str "startLB 1@" depth ":" hs))
+                     debug (log/debug (str "startLB 1@" depth ":" hs))
 
                      lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
                                                                     (lazy-shuffle lexicon)
@@ -317,7 +317,7 @@
                      one-level-trees
                      (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon))
 
-                     debug (log/info (str "startLB 2@" depth ":" hs))
+                     debug (log/debug (str "startLB 2@" depth ":" hs))
 
                      debug
                      (if (not (empty? parents-with-phrasal-heads-for-phasal-comps))
