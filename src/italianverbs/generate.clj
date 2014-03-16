@@ -53,7 +53,7 @@
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar grammar)
-        cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))]
+        cache (if cache cache rule-cache)]
     (log/debug (str "sentence with lexicon size: " 
                     (.size lexicon) " and grammar size: "
                     (.size grammar) "."))
@@ -70,7 +70,7 @@
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar grammar)
-        cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))]
+        cache (if cache cache rule-cache)]
     (generate (unify spec {:synsem {:cat :noun :subcat '()}})
               lexicon
               grammar
