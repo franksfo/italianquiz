@@ -365,11 +365,15 @@
               :english "this morning"})
 
       {:english {:infinitive "to hang out"
-                 :irregular {:past "hung out"
+                 :irregular {:imperfect {:default "was hanging out"
+                                         :2sing "were hanging out"
+                                         :plur "were hanging out"}
+                             :past "hung out"
                              :present {:3sing "hangs out"}}}
        :italian "stendere"
        :synsem {:aux false
                 :cat :verb
+                :essere false
                 :modal false
                 :sem {:pred :stendere
                       :subj {:human true}

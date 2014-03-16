@@ -285,7 +285,9 @@
                       :subj {:animate true}}}
        :italian "impazzire"
        :english {:infinitive "to go mad"
-                 :irregular {:imperfect "was going mad"
+                 :irregular {:imperfect {:default "was going mad"
+                                         :2sing "were going mad"
+                                         :plur "were going mad"}
                              :past "went mad"
                              :part-participle "gone mad"
                              :present {:3sing "goes mad"}}}}

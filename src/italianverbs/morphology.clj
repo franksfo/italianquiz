@@ -1119,6 +1119,22 @@
      (str "will " stem))
 
    (and (= (get-in word '(:infl)) :imperfetto)
+        (= :plur (get-in word '(:agr :number)))
+        (get-in word '(:irregular :imperfect :plur)))
+   (str (get-in word '(:irregular :imperfect :plur)))
+
+   (and (= (get-in word '(:infl)) :imperfetto)
+        (= :sing (get-in word '(:agr :number)))
+        (= :2nd (get-in word '(:agr :person)))
+        (get-in word '(:irregular :imperfect :2sing)))
+   (str (get-in word '(:irregular :imperfect :2sing)))
+
+   ;; if neither of the two above does not match:
+   (and (= (get-in word '(:infl)) :imperfetto)
+        (map? (get-in word '(:irregular :imperfect))))
+   (str (get-in word '(:irregular :imperfect :default)))
+
+   (and (= (get-in word '(:infl)) :imperfetto)
         (get-in word '(:irregular :imperfect)))
    (str (get-in word '(:irregular :imperfect)))
 
