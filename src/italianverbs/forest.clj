@@ -236,14 +236,14 @@
 
         true
         (let [path (if path path [])
-              path (if path (conj path
-                                  ;; add one element representing this call of lightning-bolt.
-                                  {:depth (+ 1 depth)
-                                   :grammar grammar
-                                   :h-or-c "H"
-                                   :lexicon-size (.size lexicon)
-                                   :spec (show-spec head-spec)
-                                   :parents parents-at-this-depth}))
+              path (conj path
+                         ;; add one element representing this call of lightning-bolt.
+                         {:depth (+ 1 depth)
+                          :grammar grammar
+                          :h-or-c "H"
+                          :lexicon-size (.size lexicon)
+                          :spec (show-spec head-spec)
+                          :parents parents-at-this-depth})
               head-spec (if head-spec head-spec :top)
               ;; TODO: will probably remove this or make it only turned on in special cases.
               ;; lightning-bolt should be efficient enough to handle :top as a spec
@@ -252,16 +252,14 @@
                             (if true nil
                                 (throw (Exception. (str ": head-spec is too general: " head-spec)))))
               
-              phrases grammar;; TODO: rename all uses of phrases to grammar.
-              
               depth (if depth depth 0)
               
               hs (unify/strip-refs head-spec)
               
-              cache (if cache cache (build-lex-sch-cache phrases lexicon phrases))
+              cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))
               
               phrasal-headed-phrases (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
-                                                             phrases depth cache path)
+                                                             grammar depth cache path)
               
 
               parents-with-phrasal-heads-for-phasal-comps
@@ -302,7 +300,7 @@
               
               with-phrasal-complement
               (add-comp-phrase-to-headed-phrase headed-phrases
-                                                phrases lexicon (+ 1 depth) cache path
+                                                grammar lexicon (+ 1 depth) cache path
                                                 (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
                                                   (get-in head-spec '(:comp))
                                                   :top))]
