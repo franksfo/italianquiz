@@ -569,7 +569,7 @@
 
 (defn fillqueue [request]
   (let [session (session/request-to-session request)]
-    (log/info (str "filling queue with request: " request))
+    (log/debug (str "filling queue with request: " request))
     (while
         (let [queue (db/fetch :queue :where {:session session})]
           (or (nil? queue)
