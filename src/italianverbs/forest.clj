@@ -214,7 +214,6 @@
 
 (def maxdepth 4)
 
-;; TODO: s/head/head-spec/
 (defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
   (let [depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth head-spec
@@ -236,8 +235,7 @@
         nil
 
         true
-        (let [head head-spec
-              path (if path path [])
+        (let [path (if path path [])
               path (if path (conj path
                                   ;; add one element representing this call of lightning-bolt.
                                   {:depth (+ 1 depth)
