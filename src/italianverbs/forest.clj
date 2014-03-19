@@ -117,11 +117,9 @@
                                                   lexicon))))]
       (log/trace (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
       
-      (lazy-seq
-       (let [result (overh-with-cache parent cache lexicon)]
-         (cons {:parent parent
-                :headed-phrases result}
-               (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))))
+      (lazy-cat
+       (overh-with-cache parent cache lexicon)
+       (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))
 
 (defn phrasal-headed-phrases [parents lexicon grammar depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
@@ -138,7 +136,7 @@
                                       '((:english :initial)
                                         (:italian :initial)))
               debug (log/trace (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))]
-          (lazy-seq
+          (lazy-cat
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
                  debug (log/debug (str "  head-spec: " (show-spec head-spec)))
                  debug (log/trace (str "  with grammar: " (fo-ps parents)))
@@ -149,9 +147,8 @@
                                    lexicon headed-phrases-of-parent (+ 1 depth)
                                    cache
                                    path)))]
-             (cons {:parent parent
-                    :headed-phrases (overh parents bolts)}
-                   (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)))))))))
+             (overh parents bolts))
+           (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)))))))
 
 (defn parents-at-this-depth [head-spec phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
@@ -215,97 +212,60 @@
 (def maxdepth 4)
 
 (defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
-  (let [depth (if depth depth 0)
-        parents-at-this-depth (parents-at-this-depth head-spec
-                                                     (lazy-shuffle grammar) depth)]
-  (cond (nil? lexicon)
-        (do
-          (log/warn "lightning-bolt: lexicon was nil.")
-          nil)
-
-        (nil? grammar)
-        (do
-          (log/warn "lightning-bolt: grammar was nil.")
-          nil)
-        
-        (> depth maxdepth)
-        nil
-
-        (= (.size parents-at-this-depth) 0)
-        nil
-
-        true
-        (let [path (if path path [])
-              path (conj path
-                         ;; add one element representing this call of lightning-bolt.
-                         {:depth (+ 1 depth)
-                          :grammar grammar
-                          :h-or-c "H"
-                          :lexicon-size (.size lexicon)
-                          :spec (show-spec head-spec)
-                          :parents parents-at-this-depth})
-              head-spec (if head-spec head-spec :top)
-              ;; TODO: will probably remove this or make it only turned on in special cases.
-              ;; lightning-bolt should be efficient enough to handle :top as a spec
-              ;; efficiently.
-              too-general (if (= head-spec :top)
-                            (if true nil
-                                (throw (Exception. (str ": head-spec is too general: " head-spec)))))
-              
-              depth (if depth depth 0)
-              
-              hs (unify/strip-refs head-spec)
-              
-              cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))
-              
-              phrasal-headed-phrases (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
-                                                             grammar depth cache path)
-              
-
-              parents-with-phrasal-heads-for-phasal-comps
-              (mapcat (fn [each-kv]
-                        (let [parent (:parent each-kv)]
-                          (if (not (= false (get-in parent '(:comp :phrasal))))
-                            (let [phrases (:headed-phrases each-kv)]
-                              phrases))))
-                      phrasal-headed-phrases)
-
-
-              phrasal-headed-phrases
-              (mapcat (fn [each-kv]
-                        (let [phrases (:headed-phrases each-kv)]
-                          phrases))
-                      phrasal-headed-phrases)
-              
-              lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
-                                                             (lazy-shuffle lexicon)
-                                                             grammar depth cache path)
-              
-              lexical-headed-phrases
-              (mapcat (fn [each-kv]
-                        (let [phrases (:headed-phrases each-kv)]
-                          phrases))
-                      lexical-headed-phrases)
-              
-              ;; trees where both the head and comp are lexemes.
-              one-level-trees
-              (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon))
-
-              headed-phrases
-              (headed-phrases
-               parents-with-phrasal-heads-for-phasal-comps
-               lexical-headed-phrases)
-
-              hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
-              
-              with-phrasal-complement
-              (add-comp-phrase-to-headed-phrase headed-phrases
-                                                grammar lexicon (+ 1 depth) cache path
-                                                (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
-                                                  (get-in head-spec '(:comp))
-                                                  :top))]
-          (log-path path (fn [x] (log/trace x)))
-          (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
+  (let [depth (if depth depth 0)]
+    (cond 
+     (> depth maxdepth)
+     nil
+     true
+     (let [parents-at-this-depth (parents-at-this-depth head-spec
+                                                        (lazy-shuffle grammar) depth)
+           path (if path path [])
+           path (conj path
+                      ;; add one element representing this call of lightning-bolt.
+                      {:depth (+ 1 depth)
+                       :grammar grammar
+                       :h-or-c "H"
+                       :lexicon-size (.size lexicon)
+                       :spec (show-spec head-spec)
+                       :parents parents-at-this-depth})
+           head-spec (if head-spec head-spec :top)
+           ;; TODO: will probably remove this or make it only turned on in special cases.
+           ;; lightning-bolt should be efficient enough to handle :top as a spec
+           ;; efficiently.
+           too-general (if (= head-spec :top)
+                         (if true nil
+                             (throw (Exception. (str ": head-spec is too general: " head-spec)))))
+           
+           depth (if depth depth 0)
+           
+           cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))
+           
+           phrasal-headed-phrases (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
+                                                          grammar depth cache path)
+           
+           lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
+                                                          (lazy-shuffle lexicon)
+                                                          grammar depth cache path)
+           
+           ;; trees where both the head and comp are lexemes.
+           one-level-trees
+           (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon))
+           
+           headed-phrases
+           (headed-phrases
+            phrasal-headed-phrases
+            lexical-headed-phrases)
+           
+           hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
+           
+           with-phrasal-complement
+           (add-comp-phrase-to-headed-phrase headed-phrases
+                                             grammar lexicon (+ 1 depth) cache path
+                                             (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
+                                               (get-in head-spec '(:comp))
+                                               :top))]
+       (log-path path (fn [x] (log/trace x)))
+       (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
