@@ -144,3 +144,11 @@
                                              grammar
                                              cache))))))
 
+;; these are currently take way too long - either 12-20 seconds or 37ms (latter is a bug: (sentence) returned nil)
+(defn benchmark-7 [n]
+  (fo (take n (repeatedly #(time (sentence {:synsem {:cat :sent-modifier}}
+                                           lexicon
+                                           grammar
+                                           cache))))))
+
+
