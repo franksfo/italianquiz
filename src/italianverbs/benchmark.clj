@@ -1,5 +1,6 @@
 (ns italianverbs.benchmark
   (:require
+   [clojure.core.async :exclude [partition-by]]
    [clojure.set :refer (union)]
 
    [clojure.tools.logging :as log]

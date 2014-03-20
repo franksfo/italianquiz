@@ -3,8 +3,8 @@
   :plugins [[lein-ring "0.7.3"]]
   :dependencies [[org.clojure/clojure "1.5.1"]
 
-;; http://stackoverflow.com/questions/3782970/how-can-i-display-the-definition-of-a-function-in-clojure-at-the-repl
-;                  [org.clojure/repl] 
+                 ;; this is the latest version as of March 19, 2014:
+                 [org.clojure/core.async "0.1.278.0-76b25b-alpha"] 
 
                  [compojure "1.1.3"]
                  [congomongo "0.2.0"]

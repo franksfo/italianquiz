@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [get-in deref merge resolve find future parents rand-int])
   (:require
    [clojure.core :as core]
+   [clojure.core.async :as async :exclude [partition-by]]
    [clojure.set :refer :all]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
@@ -13,14 +14,6 @@
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
 (def concurrent false)
-(defn deref [thing]
-  (if concurrent
-    (core/deref thing)
-    thing))
-(defn future [thing]
-  (if concurrent
-    (core/future thing)
-    thing))
 
 (def random-order true)
 (defn rand-int [range constant]
@@ -83,19 +76,17 @@
               (log/debug (str "  with head-spec: " (show-spec comp-spec)))
               (log/debug (str "  with grammar: " (fo-ps comp-phrases-for-parent)))
               (log/trace (str "  with lexicon size: " (.size lexicon-for-comp)))
-              (deref
-              (future
-                (lightning-bolt
-                 comp-spec lexicon-for-comp
-                 comp-phrases-for-parent
-                 0
-                 cache (conj path 
-                             {:h-or-c "C"
-                              :depth 0
-                              :grammar comp-phrases-for-parent
-                              :lexicon-size (.size lexicon-for-comp)
-                              :spec (show-spec comp-spec)
-                              :parents comp-phrases-for-parent})))))
+              (lightning-bolt
+               comp-spec lexicon-for-comp
+               comp-phrases-for-parent
+               0
+               cache (conj path 
+                           {:h-or-c "C"
+                            :depth 0
+                            :grammar comp-phrases-for-parent
+                            :lexicon-size (.size lexicon-for-comp)
+                            :spec (show-spec comp-spec)
+                            :parents comp-phrases-for-parent})))
             (list))]
 
       (lazy-cat
