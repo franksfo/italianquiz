@@ -104,7 +104,7 @@
                                             :synsem {:sem {:obj {:pred :pasta}
                                                            :pred :mangiare
                                                            :subj {:pred :io}
-                                                           :tense :future}
+                                                           :tense :futuro}
                                                      :subcat '()}}
                                            lexicon
                                            grammar
@@ -117,7 +117,7 @@
                                             :synsem {:sem {:obj {:pred :pasta}
                                                            :pred :mangiare
                                                            :subj {:pred :io}
-                                                           :tense :future}
+                                                           :tense :futuro}
                                                      :subcat '()}}
                                            lexicon
                                            grammar
@@ -132,7 +132,7 @@
                                             :synsem {:sem {:obj {:pred :pasta}
                                                            :pred :mangiare
                                                            :subj {:pred :io}
-                                                           :tense :future}
+                                                           :tense :futuro}
                                                      :subcat '()}}
                                            lexicon
                                            grammar
