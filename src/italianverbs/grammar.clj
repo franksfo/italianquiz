@@ -58,7 +58,7 @@
                            :synsem {:aux false
                                     :infl :futuro
                                     :cat :verb
-                                    :sem {:tense :future}}})
+                                    :sem {:tense :futuro}}})
 
 
                    (unifyc cc10
@@ -135,6 +135,12 @@
                             :rule "vp-pronoun"
                             :synsem {:cat :verb
                                      :infl {:not :past}}})
+
+                   (unifyc hh10
+                           {:head {:phrasal false
+                                   :synsem {:cat :sent-modifier}}
+                            :rule "s-modifier"})
+
 ))
 
 
