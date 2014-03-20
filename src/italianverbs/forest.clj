@@ -121,14 +121,14 @@
        (overh-with-cache parent cache lexicon)
        (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))
 
-(defn phrasal-headed-phrases [parents lexicon grammar depth cache path]
+(defn phrasal-headed-phrases [phrases lexicon grammar depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
-  (if (not (empty? parents))
-    (let [parent (first parents) ;; realizes possibly?
+  (if (not (empty? phrases))
+    (let [parent (first phrases) ;; realizes possibly?
           debug (log/trace (str "phrasal-headed-phrases grammar size: " (.size grammar)))
           headed-phrases-of-parent (get-head-phrases-of parent cache)]
       (if (nil? headed-phrases-of-parent)
-        (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)        
+        (phrasal-headed-phrases (rest phrases) lexicon grammar depth cache path)
         (let [headed-phrases-of-parent (if (nil? headed-phrases-of-parent)
                                          (list)
                                          headed-phrases-of-parent)
@@ -139,16 +139,15 @@
           (lazy-cat
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
                  debug (log/debug (str "  head-spec: " (show-spec head-spec)))
-                 debug (log/trace (str "  with grammar: " (fo-ps parents)))
+                 debug (log/trace (str "  with grammar: " (fo-ps phrases)))
                  debug (log/trace (str "  with lexicon size: " (.size lexicon)))
                  bolts 
-                 (deref (future
-                   (lightning-bolt head-spec
-                                   lexicon headed-phrases-of-parent (+ 1 depth)
-                                   cache
-                                   path)))]
-             (overh parents bolts))
-           (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)))))))
+                 (lightning-bolt head-spec
+                                 lexicon headed-phrases-of-parent (+ 1 depth)
+                                 cache
+                                 path)]
+             (overh phrases bolts))
+           (phrasal-headed-phrases (rest phrases) lexicon grammar depth cache path)))))))
 
 (defn parents-at-this-depth [head-spec phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
@@ -202,10 +201,10 @@
             grammar (:grammar (first path))
             lexicon-size (:lexicon-size (first path))
             spec (:spec (first path))
-            parents (fo-ps (:parents (first path)))]
+            phrases (fo-ps (:parents (first path)))]
         (log-fn (str "LB@[" depth "]: " h-or-c ":" spec))
         (log/trace (str "   grammar: " (fo-ps grammar) "; lexicon size: " lexicon-size))
-        (log-fn (str "   applicable rules: " (fo-ps parents)))
+        (log-fn (str "   applicable rules: " (fo-ps phrases)))
         (log-path (rest path) log-fn (+ depth 1)))
       (if print-blank-line (log-fn (str ""))))))
 
