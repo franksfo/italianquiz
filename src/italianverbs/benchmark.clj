@@ -1,6 +1,6 @@
 (ns italianverbs.benchmark
   (:require
-   [clojure.core.async :exclude [partition-by]]
+   [clojure.core.async :as async :exclude [partition-by]]
    [clojure.set :refer (union)]
 
    [clojure.tools.logging :as log]
@@ -152,4 +152,12 @@
                                            grammar
                                            cache))))))
 
+(defn async-test [n]
+  (let [cs (repeatedly n async/chan)
+        begin (System/currentTimeMillis)]
+    (doseq [c cs] (async/go (>! c (nounphrase {:head {:phrasal false}} lexicon grammar cache))))
+    (dotimes [i n]
+      (let [[v c] (async/alts!! cs)]
+        (log/info (str "core async nounphrase: " (fo v)))))
+    (println "Read" n "msgs in" (- (System/currentTimeMillis) begin) "ms")))
 
