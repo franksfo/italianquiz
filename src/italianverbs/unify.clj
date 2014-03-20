@@ -1387,6 +1387,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
     (cond (empty? paths)
           fs
 
+          (seq? fs)
+          (map #(dissoc-paths % paths) fs)
+
           (ref? fs)
           (dissoc-paths @fs paths)
 
