@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [get-in deref merge resolve find future parents rand-int])
   (:require
    [clojure.core :as core]
+   ;; have to exclude partition-by because of some namespace clash, not sure how else to fix
    [clojure.core.async :as async :exclude [partition-by]]
    [clojure.set :refer :all]
    [clojure.string :as string]
@@ -76,21 +77,22 @@
               (log/debug (str "  with head-spec: " (show-spec comp-spec)))
               (log/debug (str "  with grammar: " (fo-ps comp-phrases-for-parent)))
               (log/trace (str "  with lexicon size: " (.size lexicon-for-comp)))
-              (lightning-bolt
-               comp-spec lexicon-for-comp
-               comp-phrases-for-parent
-               0
-               cache (conj path 
-                           {:h-or-c "C"
-                            :depth 0
-                            :grammar comp-phrases-for-parent
-                            :lexicon-size (.size lexicon-for-comp)
-                            :spec (show-spec comp-spec)
-                            :parents comp-phrases-for-parent})))
-            (list))]
+              (async/go (>! (async/chan) 
+                            (lightning-bolt
+                             comp-spec lexicon-for-comp
+                             comp-phrases-for-parent
+                             0
+                             cache (conj path 
+                                         {:h-or-c "C"
+                                          :depth 0
+                                          :grammar comp-phrases-for-parent
+                                          :lexicon-size (.size lexicon-for-comp)
+                                          :spec (show-spec comp-spec)
+                                          :parents comp-phrases-for-parent})))))
+            (async/go (>! (async/chan (list)))))] ;; TODO: use nil rather than (list) to save time/space.
 
       (lazy-cat
-       (overc parent comps)
+       (overc parent (async/alts!! comps))
        (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
 
 (def can-log-if-in-sandbox-mode false)
@@ -133,11 +135,19 @@
                  debug (log/trace (str "  with grammar: " (fo-ps phrases)))
                  debug (log/trace (str "  with lexicon size: " (.size lexicon)))
                  bolts 
-                 (lightning-bolt head-spec
-                                 lexicon headed-phrases-of-parent (+ 1 depth)
-                                 cache
-                                 path)]
-             (overh phrases bolts))
+                 (async/go (>! (async/chan)
+                               (lightning-bolt head-spec
+                                               lexicon headed-phrases-of-parent (+ 1 depth)
+                                               cache
+                                               path)
+                               ))
+                 ]
+             (overh phrases 
+                    (do (log/info (str "debug for bolts.."))
+                        (async/alts!! 
+                         bolts)
+                             )
+                    ))
            (phrasal-headed-phrases (rest phrases) lexicon grammar depth cache path)))))))
 
 (defn parents-at-this-depth [head-spec phrases depth]
@@ -207,7 +217,8 @@
      (> depth maxdepth)
      nil
      true
-     (let [parents-at-this-depth (parents-at-this-depth head-spec
+     (let [debug (log/debug (str "lightning-bolt: " head-spec))
+           parents-at-this-depth (parents-at-this-depth head-spec
                                                         (lazy-shuffle grammar) depth)
            path (if path path [])
            path (conj path
@@ -254,7 +265,7 @@
                                              (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
                                                (get-in head-spec '(:comp))
                                                :top))]
-       (log-path path (fn [x] (log/trace x)))
+       (log-path path (fn [x] (log/debug x)))
        (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
 
 ;; aliases that might be easier to use in a repl:
