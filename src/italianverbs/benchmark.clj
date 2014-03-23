@@ -10,7 +10,8 @@
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]
-   [italianverbs.unify :refer (unifyc)]))
+   [italianverbs.over :refer (overc overh)]
+   [italianverbs.unify :refer (lazy-shuffle unifyc)]))
 
 ;;
 ;; Usage:
@@ -167,3 +168,12 @@
     (let [nounphrase (nounphrase {:head {:phrasal true}} lexicon grammar cache)]
       (log/info (str "core async generated noun phrase: " (fo nounphrase)))
       (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
+
+(defn spresent [trials]
+  (dotimes [i trials]
+    (let [begin (System/currentTimeMillis)]
+      (let [result (fo (take 1 (lazy-shuffle (overc 
+                                              (overh s-present (lazy-shuffle (:head (cache "s-present")))) (lazy-shuffle (:comp (cache "s-present")))))))]
+        (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec.")))))
+
+
