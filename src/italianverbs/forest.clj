@@ -30,7 +30,7 @@
           (do
             (log/debug (str "starting add-comp-phrase-to-headed-phrase."))
             (log/debug (str "    with parent: " (fo-ps (first parents))))
-            (log/debug (str "    with phrases: " (fo-ps phrases)))
+            (log/trace (str "    with phrases: " (fo-ps phrases)))
             (log/trace (str "    with lexicon size: " (.size lexicon)))
             (log/trace (str "add-comp-phrase-to-headed-phrase: emptyness of parents: " (empty? parents))))
 
@@ -43,10 +43,6 @@
                     (do
                       (log/info (str "building cache (" (.size phrases) ")"))
                       (build-lex-sch-cache phrases lexicon)))
-
-          debug (log/debug (str "supplied comp-spec: " supplied-comp-spec))
-
-          debug (log/debug (str "parent's comp-spec: " (show-spec (get-in parent '(:comp)))))
 
           comp-spec
           (dissoc-paths
@@ -71,25 +67,12 @@
                                       '()))
 
           comps 
-          (if (not (empty? comp-phrases-for-parent))
-            (let [lexicon-for-comp (get-lex parent :comp cache lexicon)]
-              (log/debug (str "about to call lightning-bolt from add-comp-phrase-to-headed-phrase."))
-              (log/debug (str "  with head-spec: " (show-spec comp-spec)))
-              (log/debug (str "  with grammar: " (fo-ps comp-phrases-for-parent)))
-              (log/trace (str "  with lexicon size: " (.size lexicon-for-comp)))
-              (lightning-bolt
-               comp-spec lexicon-for-comp
+          (let [lexicon-for-comp (get-lex parent :comp cache lexicon)]
+            (lightning-bolt
+             comp-spec lexicon-for-comp
                comp-phrases-for-parent
                0
-               cache (conj path 
-                           {:h-or-c "C"
-                            :depth 0
-                            :grammar comp-phrases-for-parent
-                            :lexicon-size (.size lexicon-for-comp)
-                            :spec (show-spec comp-spec)
-                            :parents comp-phrases-for-parent})))
-            nil)]
-
+               cache))]
       (lazy-cat
        (overc parent comps)
        (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
@@ -116,7 +99,8 @@
 (defn phrasal-headed-phrases [phrases lexicon grammar depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? phrases))
-    (let [parent (first phrases) ;; realizes possibly?
+    (let [debug (log/debug (str "phrasal-headed-phrases with phrases: " (fo-ps phrases)))
+          parent (first phrases) ;; realizes possibly?
           debug (log/trace (str "phrasal-headed-phrases grammar size: " (.size grammar)))
           headed-phrases-of-parent (get-head-phrases-of parent cache)]
       (if (nil? headed-phrases-of-parent)
@@ -148,8 +132,8 @@
   "subset of phrases possible at this depth where the phrase's head is the given head."
   (if (nil? phrases)
     (log/trace (str "no parents for spec: " (show-spec head-spec) " at depth: " depth)))
-  (log/trace (str "parents-at-this-depth: head-spec:" (show-spec head-spec)))
-  (log/trace (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
+  (log/debug (str "parents-at-this-depth: head-spec:" (show-spec head-spec)))
+  (log/debug (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
   (filter (fn [each-unified-parent]
             (not (fail? each-unified-parent)))
           (map (fn [each-phrase]
@@ -183,7 +167,7 @@
          parents-with-lexical-heads parents-with-phrasal-heads)]
     (do
       (if (not (empty? cats))
-        (log/debug (str "first headed-phrases: " (fo-ps (first cats))))
+        (log/trace (str "first headed-phrases: " (fo-ps (first cats))))
         (log/debug (str " no headed-phrases.")))
       cats)))
 
@@ -235,8 +219,10 @@
            
            cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))
            
-           phrasal-headed-phrases (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
-                                                          grammar depth cache path)
+           phrasal-headed-phrases (if (not (= false
+                                              (get-in head-spec [:head :phrasal])))
+                                    (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
+                                                            grammar depth cache path))
            
            lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
                                                           (lazy-shuffle lexicon)
@@ -252,15 +238,18 @@
             lexical-headed-phrases)
            
            hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
-           
+
            with-phrasal-complement
-           (add-comp-phrase-to-headed-phrase headed-phrases
-                                             grammar lexicon (+ 1 depth) cache path
-                                             (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
-                                               (get-in head-spec '(:comp))
-                                               :top))]
-       (log-path path (fn [x] (log/debug x)))
-       (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
+           (if (not (= false
+                       (get-in head-spec [:comp :phrasal])))
+             (add-comp-phrase-to-headed-phrase headed-phrases
+                                               grammar lexicon (+ 1 depth) cache path
+                                               (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
+                                                 (get-in head-spec '(:comp))
+                                                 :top)))]
+;       (log-path path (fn [x] (log/trace x)))
+;       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
+       (lazy-cats (list one-level-trees with-phrasal-complement hpcl))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
