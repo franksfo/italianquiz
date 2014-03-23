@@ -232,7 +232,7 @@
                              (let [
            ;; trees where both the head and comp are lexemes.
            one-level-trees
-           (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon))
+           (overc-with-cache lexical-headed-phrases cache lexicon)
            
            headed-phrases
            (headed-phrases
