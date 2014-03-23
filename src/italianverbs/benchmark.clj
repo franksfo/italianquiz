@@ -172,8 +172,15 @@
 (defn spresent [trials]
   (dotimes [i trials]
     (let [begin (System/currentTimeMillis)]
-      (let [result (fo (take 1 (overc 
+      (let [result (fo (take 1 (overc
                                 (overh s-present (lazy-shuffle (:head (cache "s-present")))) (lazy-shuffle (:comp (cache "s-present"))))))]
+        (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec.")))))
+
+
+(defn spresentlb [trials]
+  (dotimes [i trials]
+    (let [begin (System/currentTimeMillis)]
+      (let [result (fo (take 1 (lightning-bolt (unifyc s-present {:head {:phrasal :false} :comp {:phrasal :false} :synsem {:cat :verb :subcat '()}}))))]
         (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec.")))))
 
 
