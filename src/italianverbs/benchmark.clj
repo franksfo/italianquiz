@@ -185,7 +185,11 @@
 
 (defn spresentlb-with-grammar [trials]
   (let [function-to-evaluate
-        #(fo (take 1 (lightning-bolt (unifyc s-present {:head {:phrasal false} :comp {:phrasal false} :synsem {:cat :verb :subcat '()}}))))]
+        #(fo (take 1 (lightning-bolt (unifyc s-present
+                                             {:head {:phrasal false} :comp {:phrasal false} :synsem {:cat :verb :subcat '()}})
+                                     lexicon
+                                     (list s-present)
+                                     )))]
     (dotimes [i trials]
       (let [begin (System/currentTimeMillis)]
         (let [result (function-to-evaluate)]
