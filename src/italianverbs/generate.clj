@@ -28,9 +28,10 @@
 
 ;; no cache is used, so this version is relatively slow. use only with a small grammar and lexicon.
 (defn lightning-bolt [spec & [input-grammar input-lexicon]]
-  (let [debug (log/info (str "Grammar: " (fo-ps input-grammar)))
-        input-grammar (if input-grammar input-grammar grammar)
+  (let [input-grammar (if input-grammar input-grammar grammar)
         input-lexicon (if input-lexicon input-lexicon lexicon)]
+    (log/debug (str "Grammar: " (fo-ps input-grammar)))
+    (log/debug (str "Lexicon: " (fo lexicon)))
     (forest/lightning-bolt spec input-lexicon input-grammar)))
 
 ;; this rule-cache is defined outside any function so that all functions can share
