@@ -122,7 +122,7 @@
         (throw (Exception. (str "first arguments should have been a map, but instead was of type: " (type schema) "; fo: " (fo schema)))))
       (log/trace (str "get-lex schema: " (:rule schema) " for: " head-or-comp))
       (if (nil? (:rule schema))
-        (log/error (str "no schema for: " schema)))
+        (throw (Exception. (str "no schema for: " schema))))
       (let [result (cond (= :head head-or-comp)
                          (if (and (= :head head-or-comp)
                                   (not (nil? (:head (get cache (:rule schema))))))
