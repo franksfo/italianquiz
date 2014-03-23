@@ -247,9 +247,8 @@
                                                (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
                                                  (get-in head-spec '(:comp))
                                                  :top)))]
-;       (log-path path (fn [x] (log/trace x)))
-;       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
-       (lazy-cats (list one-level-trees with-phrasal-complement hpcl))))))
+       (log-path path (fn [x] (log/trace x)))
+       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
