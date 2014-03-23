@@ -77,22 +77,21 @@
               (log/debug (str "  with head-spec: " (show-spec comp-spec)))
               (log/debug (str "  with grammar: " (fo-ps comp-phrases-for-parent)))
               (log/trace (str "  with lexicon size: " (.size lexicon-for-comp)))
-              (async/go (>! (async/chan) 
-                            (lightning-bolt
-                             comp-spec lexicon-for-comp
-                             comp-phrases-for-parent
-                             0
-                             cache (conj path 
-                                         {:h-or-c "C"
-                                          :depth 0
-                                          :grammar comp-phrases-for-parent
-                                          :lexicon-size (.size lexicon-for-comp)
-                                          :spec (show-spec comp-spec)
-                                          :parents comp-phrases-for-parent})))))
-            (async/go (>! (async/chan (list)))))] ;; TODO: use nil rather than (list) to save time/space.
+              (lightning-bolt
+               comp-spec lexicon-for-comp
+               comp-phrases-for-parent
+               0
+               cache (conj path 
+                           {:h-or-c "C"
+                            :depth 0
+                            :grammar comp-phrases-for-parent
+                            :lexicon-size (.size lexicon-for-comp)
+                            :spec (show-spec comp-spec)
+                            :parents comp-phrases-for-parent})))
+            nil)]
 
       (lazy-cat
-       (overc parent (async/alts!! comps))
+       (overc parent comps)
        (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
 
 (def can-log-if-in-sandbox-mode false)
@@ -135,19 +134,14 @@
                  debug (log/trace (str "  with grammar: " (fo-ps phrases)))
                  debug (log/trace (str "  with lexicon size: " (.size lexicon)))
                  bolts 
-                 (async/go (>! (async/chan)
-                               (lightning-bolt head-spec
-                                               lexicon headed-phrases-of-parent (+ 1 depth)
-                                               cache
-                                               path)
-                               ))
+                 (lightning-bolt head-spec
+                                 lexicon headed-phrases-of-parent (+ 1 depth)
+                                 cache
+                                 path)
                  ]
              (overh phrases 
                     (do (log/info (str "debug for bolts.."))
-                        (async/alts!! 
-                         bolts)
-                             )
-                    ))
+                         bolts)))
            (phrasal-headed-phrases (rest phrases) lexicon grammar depth cache path)))))))
 
 (defn parents-at-this-depth [head-spec phrases depth]
@@ -217,7 +211,7 @@
      (> depth maxdepth)
      nil
      true
-     (let [debug (log/debug (str "lightning-bolt: " head-spec))
+     (let [debug (log/debug (str "lightning-bolt: " (show-spec head-spec)))
            parents-at-this-depth (parents-at-this-depth head-spec
                                                         (lazy-shuffle grammar) depth)
            path (if path path [])
