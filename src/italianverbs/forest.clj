@@ -179,10 +179,19 @@
 
 (def maxdepth 4)
 
-(defn lbl [s-present cache]
+(defn lbl [grammar cache & [depth]]
   "lightning-bolt lite"
-  (overc
-   (overh s-present (lazy-shuffle (:head (cache "s-present")))) (lazy-shuffle (:comp (cache "s-present")))))
+  (let [depth (if depth depth 0)
+        parents-at-this-depth (parents-at-this-depth :top
+                                                     (lazy-shuffle grammar) depth)]
+    (let [lexical-headed-phrases
+          (lexical-headed-phrases parents-at-this-depth cache)]
+      (let [one-level-trees
+            (overc
+             (overh (first parents-at-this-depth)
+                    (lazy-shuffle (:head (cache (:rule (first parents-at-this-depth))))))
+             (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))]
+        one-level-trees))))
 
 (defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
   (let [depth (if depth depth 0)]
