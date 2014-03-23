@@ -163,10 +163,7 @@
 
 (defn async-test-do-all []
   (let [n 1
-        channels (repeatedly n async/chan)
         begin (System/currentTimeMillis)]
-    (doseq [chan channels] (async/go (>! chan (nounphrase {:head {:phrasal true}} lexicon grammar cache))))
-    (dotimes [i n]
-      (let [[result-from-channel chan] (async/alts!! channels)]
-        (log/info (str "core async generated noun phrase number " (+ i 1) " : " (fo result-from-channel)))))
-    (println "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms")))
+    (let [nounphrase (nounphrase {:head {:phrasal true}} lexicon grammar cache)]
+      (log/info (str "core async generated noun phrase: " (fo nounphrase)))
+      (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
