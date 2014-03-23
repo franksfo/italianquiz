@@ -27,7 +27,7 @@
   {:plain expr})
 
 ;; no cache is used, so this version is relatively slow. use only with a small grammar and lexicon.
-(defn lightning-bolt [spec & [input-grammar input-lexicon]]
+(defn lightning-bolt [spec & [input-lexicon input-grammar]]
   (let [input-grammar (if input-grammar input-grammar grammar)
         input-lexicon (if input-lexicon input-lexicon lexicon)]
     (log/debug (str "Grammar: " (fo-ps input-grammar)))
