@@ -81,7 +81,9 @@
 
 (defn overh [parent head]
   (if (not (seq? head))
-    (over/overh parent head)
+    (mapcat (fn [each-parent]
+              (overh each-parent head))
+            parent)
     (do
       (log/trace (str "overh head: " (show-spec (get-in parent '(:head :synsem)))))
       (log/trace (str "overh head fo: " (fo-ps parent)))
@@ -183,22 +185,26 @@
 (defn overc-with-cache [parents cache lexicon]
   (if (not (empty? parents))
     (let [parent (first parents)
-          use-spec {:synsem (get-in parent '(:comp :synsem))}
+          use-spec {:synsem (get-in parent [:comp :synsem])}
           lexicon (let [cached (get-subset-from-cache cache (show-spec use-spec))]
-                    (if (= cached :notfound)
-                      (get-lex parent :comp cache lexicon)
-                      cached))]
+                    (lazy-shuffle (if (= cached :notfound)
+                                    (get-lex parent :comp cache lexicon)
+                                    cached)))]
       (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
                                                      (not (fail? (unifyc lexeme
                                                                          use-spec))))
-                                                   (lazy-shuffle lexicon)))
+                                                   lexicon))
                 (overc-with-cache (rest parents) cache lexicon)))))
 
 (defn overh-with-cache [parent cache lexicon]
-  (let [lexicon (get-lex parent :head cache lexicon)
-        use-spec {:synsem (get-in parent '(:head :synsem))}]
+  (let [lexicon (lazy-shuffle (get-lex parent :head cache lexicon))
+        use-spec {:synsem (get-in parent [:head :synsem])}]
     (overh parent
-           (filter (fn [lexeme]
-                     (not (fail? (unifyc lexeme
-                                         use-spec))))
-                   (lazy-shuffle lexicon)))))
+            (filter (fn [lexeme]
+                      (not (fail? (unifyc lexeme
+                                          use-spec))))
+                    lexicon))))
+
+
+
+
