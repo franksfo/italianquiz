@@ -104,9 +104,6 @@
               debug (log/trace (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))]
           (lazy-cat
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
-                 debug (log/debug (str "  head-spec: " (show-spec head-spec)))
-                 debug (log/trace (str "  with grammar: " (fo-ps phrases)))
-                 debug (log/trace (str "  with lexicon size: " (.size lexicon)))
                  bolts 
                  (lightning-bolt head-spec
                                  lexicon headed-phrases-of-parent (+ 1 depth)
@@ -144,14 +141,21 @@
       (lazy-cats (rest lists)))))
 
 (defn headed-phrases [parents-with-lexical-heads parents-with-phrasal-heads]
-  (let [parents-with-lexical-heads (filter (fn [parent]
-                                             (do (log/trace "checking parent (1)")
-                                                 (not (= false (get-in parent '(:comp :phrasal))))))
-                                           parents-with-lexical-heads)
-        parents-with-phrasal-heads (filter (fn [parent]
-                                             (do (log/trace "checking parent (2)")
-                                                 (not (= false (get-in parent '(:comp :phrasal))))))
-                                           parents-with-phrasal-heads)
+  (let [parents-with-lexical-heads
+        (if parents-with-lexical-heads
+          (filter (fn [parent]
+                    (do (log/trace "checking parent (1)")
+                        (not (= false (get-in parent '(:comp :phrasal))))))
+                  parents-with-lexical-heads)
+          (list))
+
+        parents-with-phrasal-heads
+        (if parents-with-phrasal-heads
+          (filter (fn [parent]
+                    (do (log/trace "checking parent (2)")
+                        (not (= false (get-in parent '(:comp :phrasal))))))
+                  parents-with-phrasal-heads)
+          (list))
         cats
         (lazy-cat
          parents-with-lexical-heads parents-with-phrasal-heads)]
@@ -185,13 +189,26 @@
         parents-at-this-depth (parents-at-this-depth :top
                                                      (lazy-shuffle grammar) depth)]
     (let [lexical-headed-phrases
-          (lexical-headed-phrases parents-at-this-depth cache)]
-      (let [one-level-trees
-            (overc
-             (overh (first parents-at-this-depth)
-                    (lazy-shuffle (:head (cache (:rule (first parents-at-this-depth))))))
-             (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))]
-        one-level-trees))))
+          (lexical-headed-phrases parents-at-this-depth cache)
+
+          ;; setting path and lexicon to nil.
+          phrasal-headed-phrases
+          (phrasal-headed-phrases parents-at-this-depth (list)
+                                  grammar depth cache nil)
+          one-level-trees
+          (overc
+           (overh (first parents-at-this-depth)
+                  (lazy-shuffle (:head (cache (:rule (first parents-at-this-depth))))))
+           (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
+
+          headed-phrases
+          (headed-phrases
+           phrasal-headed-phrases
+           lexical-headed-phrases)
+          ]
+
+
+        one-level-trees)))
 
 (defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
   (let [depth (if depth depth 0)]
