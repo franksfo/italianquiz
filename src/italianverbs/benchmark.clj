@@ -170,23 +170,18 @@
       (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
 
 (defn spresent [trials]
-  (dotimes [i trials]
-    (let [begin (System/currentTimeMillis)]
-      (let [result (fo (take 1 (overc
-                                (overh s-present (lazy-shuffle (:head (cache "s-present")))) (lazy-shuffle (:comp (cache "s-present"))))))]
-        (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec.")))))
-
-
-(defn spresentlb [trials]
-  (dotimes [i trials]
-    (let [begin (System/currentTimeMillis)]
-      (let [result (fo (take 1 (lightning-bolt (unifyc s-present {:head {:phrasal false} :comp {:phrasal false} :synsem {:cat :verb :subcat '()}}))))]
-        (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec.")))))
+  (let [function-to-evaluate
+        #(fo (take 1 (overc
+                      (overh s-present (lazy-shuffle (:head (cache "s-present")))) (lazy-shuffle (:comp (cache "s-present"))))))]
+    (dotimes [i trials]
+      (let [begin (System/currentTimeMillis)]
+        (let [result (function-to-evaluate)]
+          (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec."))))))
 
 (defn spresentlb-with-grammar [trials]
   (let [function-to-evaluate
         #(fo (take 1 (lightning-bolt (unifyc s-present
-                                             {:head {:phrasal false} :comp {:phrasal false} :synsem {:cat :verb :subcat '()}})
+                                             {:head {:phrasal false} :comp {:phrasal false}})
                                      lexicon
                                      (list s-present)
                                      )))]
