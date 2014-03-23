@@ -187,7 +187,10 @@
   "lightning-bolt lite"
   (let [depth (if depth depth 0)
         parents-at-this-depth (parents-at-this-depth :top
-                                                     (lazy-shuffle grammar) depth)]
+                                                     (lazy-shuffle grammar) depth)
+        lexicon (list)
+        head-spec :top
+        path (list)]
     (let [lexical-headed-phrases
           (lexical-headed-phrases parents-at-this-depth cache)
 
@@ -205,10 +208,19 @@
           (headed-phrases
            phrasal-headed-phrases
            lexical-headed-phrases)
-          ]
+  
+          with-phrasal-complement
+          (add-comp-phrase-to-headed-phrase headed-phrases
+                                            grammar lexicon (+ 1 depth) cache path
+                                            (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
+                                              (get-in head-spec '(:comp))
+                                              :top))
 
+           hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
 
-        one-level-trees)))
+        ]
+
+       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl))))))
 
 (defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
   (let [depth (if depth depth 0)]
