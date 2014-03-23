@@ -6,6 +6,7 @@
    [clojure.tools.logging :as log]
 
    [italianverbs.cache :refer (build-lex-sch-cache over)]
+   [italianverbs.forest :refer (lbl)]
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer :all]
@@ -169,29 +170,25 @@
       (log/info (str "core async generated noun phrase: " (fo nounphrase)))
       (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
 
+(defn run-benchmark [function-to-evaluate trials]
+  (dotimes [i trials]
+    (let [begin (System/currentTimeMillis)]
+      (let [result (function-to-evaluate)]
+        (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec.")))))
+
 (defn spresent [trials]
-  (let [function-to-evaluate
-        #(fo (take 1 (overc
-                      (overh s-present (lazy-shuffle (:head (cache "s-present")))) (lazy-shuffle (:comp (cache "s-present"))))))]
-    (dotimes [i trials]
-      (let [begin (System/currentTimeMillis)]
-        (let [result (function-to-evaluate)]
-          (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec."))))))
+  (run-benchmark
+   #(fo (first (take 1 (lbl s-present cache))))
+   trials))
 
 (defn spresentlb-with-grammar [trials]
-  (let [function-to-evaluate
-        #(fo (take 1 (lightning-bolt (unifyc s-present
-                                             {:head {:phrasal false} :comp {:phrasal false}})
-                                     lexicon
-                                     (list s-present)
-                                     )))]
-    (dotimes [i trials]
-      (let [begin (System/currentTimeMillis)]
-        (let [result (function-to-evaluate)]
-          (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec."))))))
-
-
-
+  (run-benchmark 
+   #(fo (first (take 1 (lightning-bolt (unifyc s-present
+                                       {:head {:phrasal false} :comp {:phrasal false}})
+                               lexicon
+                               (list s-present)
+                               ))))
+   trials))
 
 
 

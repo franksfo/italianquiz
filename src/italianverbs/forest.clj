@@ -179,6 +179,11 @@
 
 (def maxdepth 4)
 
+(defn lbl [s-present cache]
+  "lightning-bolt lite"
+  (overc
+   (overh s-present (lazy-shuffle (:head (cache "s-present")))) (lazy-shuffle (:comp (cache "s-present")))))
+
 (defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
   (let [depth (if depth depth 0)]
     (cond 
@@ -232,8 +237,15 @@
                              (let [
            ;; trees where both the head and comp are lexemes.
            one-level-trees
-           (overc-with-cache lexical-headed-phrases cache lexicon)
+;           (overc-with-cache lexical-headed-phrases cache lexicon)
            
+                                   (take 1 (overc
+                                    (overh (first parents-at-this-depth)
+                                           (lazy-shuffle (:head (cache (:rule (first parents-at-this-depth))))))
+                                    (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth)))))))]
+                               (if true one-level-trees
+                                          (let [
+
            headed-phrases
            (headed-phrases
             phrasal-headed-phrases
@@ -250,7 +262,7 @@
                                                  (get-in head-spec '(:comp))
                                                  :top)))]
        (log-path path (fn [x] (log/trace x)))
-       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl)))))))))))))))
+       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl)))))))))))))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
