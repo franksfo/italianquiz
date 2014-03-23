@@ -180,8 +180,20 @@
 (defn spresentlb [trials]
   (dotimes [i trials]
     (let [begin (System/currentTimeMillis)]
-      (let [result (fo (take 1 (lightning-bolt (unifyc s-present {:head {:phrasal :false} :comp {:phrasal :false} :synsem {:cat :verb :subcat '()}}))))]
+      (let [result (fo (take 1 (lightning-bolt (unifyc s-present {:head {:phrasal false} :comp {:phrasal false} :synsem {:cat :verb :subcat '()}}))))]
         (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec.")))))
+
+(defn spresentlb-with-grammar [trials]
+  (let [function-to-evaluate
+        #(fo (take 1 (lightning-bolt (unifyc s-present {:head {:phrasal false} :comp {:phrasal false} :synsem {:cat :verb :subcat '()}}))))]
+    (dotimes [i trials]
+      (let [begin (System/currentTimeMillis)]
+        (let [result (function-to-evaluate)]
+          (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec."))))))
+
+
+
+
 
 
 
