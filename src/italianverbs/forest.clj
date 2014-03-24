@@ -100,16 +100,9 @@
               debug (log/trace (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))]
           (lazy-cat
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
-;                 newbolts (lbl grammar cache head-spec (+ 1 depth))
-                 bolts 
-                 (lightning-bolt head-spec
-                                 lexicon headed-phrases-of-parent (+ 1 depth)
-                                 cache
-                                 path)
-                 ]
-             (overh phrases 
-                    (do (log/info (str "debug for bolts.."))
-                         bolts)))
+                 debug (log/debug (str " with head-spec: " head-spec))
+                 bolts (lbl grammar cache head-spec (+ 1 depth))]
+             (overh phrases bolts))
            (phrasal-headed-phrases (rest phrases) lexicon grammar depth cache path)))))))
 
 (defn parents-at-this-depth [head-spec phrases depth]
