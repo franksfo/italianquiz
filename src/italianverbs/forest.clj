@@ -118,8 +118,7 @@
     (log/trace (str "no parents for spec: " (show-spec head-spec) " at depth: " depth)))
   (log/debug (str "parents-at-this-depth: head-spec:" (show-spec head-spec)))
   (log/debug (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
-  (filter (fn [each-unified-parent]
-            (not (fail? each-unified-parent)))
+  (filter #(not (fail? %))
           (map (fn [each-phrase]
                  (unifyc each-phrase head-spec))
           ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
@@ -157,7 +156,6 @@
         (lazy-cat
          parents-with-lexical-heads parents-with-phrasal-heads)]
     (do
-      (log/debug (str "CATS: HOW ARE YOU: " cats))
       (if (not (empty? cats))
         (log/trace (str "first headed-phrases: " (fo-ps (first cats))))
         (log/debug (str " no headed-phrases.")))
@@ -192,8 +190,7 @@
      nil
 
      true
-     (let [;parents-at-this-depth (parents-at-this-depth spec parents depth)
-           parents-at-this-depth (parents-at-this-depth :top (lazy-shuffle grammar) depth)
+     (let [parents-at-this-depth (parents-at-this-depth spec (lazy-shuffle grammar) depth)
            lexicon (list)
            lexical-headed-phrases
            (lexical-headed-phrases parents-at-this-depth cache)
