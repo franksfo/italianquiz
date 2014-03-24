@@ -82,7 +82,7 @@
 (defn overh [parent head]
   (if (seq? parent)
     (mapcat (fn [each-parent]
-              (log/warn (str "overh: each-parent: " each-parent " in parents: " parent))
+              (log/debug (str "overh: each-parent: " (fo-ps each-parent)))
               (overh each-parent head))
             parent)
     (do
