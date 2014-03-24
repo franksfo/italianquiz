@@ -26,25 +26,19 @@
 (declare lightning-bolt)
 (declare lbl)
 
-(defn add-comp-phrase-to-headed-phrase [parents phrases lexicon & [iter cache path supplied-comp-spec]]
+(defn add-comp-phrase-to-headed-phrase [parents phrases & [iter cache path supplied-comp-spec]]
   (if (not (empty? parents))
     (let [debug
           (do
             (log/debug (str "starting add-comp-phrase-to-headed-phrase."))
             (log/debug (str "    with parent: " (fo-ps (first parents))))
             (log/trace (str "    with phrases: " (fo-ps phrases)))
-            (log/trace (str "    with lexicon size: " (.size lexicon)))
             (log/trace (str "add-comp-phrase-to-headed-phrase: emptyness of parents: " (empty? parents))))
 
           debug (if false (throw (Exception. "GOT HERE: INSIDE MAIN PART OF add-comp-phrase-to-headed-phrase.")))
           debug (log/trace (str "add-comp-phrase-to-headed-phrase is non-empty."))
           iter (if (nil? iter) 0 iter)
           parent (first parents)
-
-          cache (if cache cache
-                    (do
-                      (log/info (str "building cache (" (.size phrases) ")"))
-                      (build-lex-sch-cache phrases lexicon)))
 
           comp-spec
           (dissoc-paths
@@ -72,7 +66,7 @@
           (lbl phrases cache comp-spec)]
       (lazy-cat
        (overc parent comps)
-       (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
+       (add-comp-phrase-to-headed-phrase (rest parents) phrases (+ 1 iter) cache path supplied-comp-spec)))))
 
 (def can-log-if-in-sandbox-mode false)
 
@@ -184,7 +178,6 @@
 
      true
      (let [parents-at-this-depth (parents-at-this-depth spec (lazy-shuffle grammar) depth)
-           lexicon (list)
            lexical-headed-phrases
            (lexical-headed-phrases parents-at-this-depth cache)
 
@@ -205,10 +198,10 @@
            
            with-phrasal-complement
            (add-comp-phrase-to-headed-phrase headed-phrases
-                                             grammar lexicon (+ 1 depth) cache (list)
+                                             grammar (+ 1 depth) cache (list)
                                              :top)
            
-           hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
+           hpcl (overc-with-cache phrasal-headed-phrases cache)
            
            ]
        (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl)))))))

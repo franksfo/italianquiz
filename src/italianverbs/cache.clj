@@ -116,7 +116,7 @@
           (log/trace (str "overc size of result: " (.size result))))
         result))))
 
-(defn get-lex [schema head-or-comp cache lexicon]
+(defn get-lex [schema head-or-comp cache]
   (if (nil? schema)
     #{}
     (do
@@ -144,11 +144,11 @@
                              (:comp (get cache (:rule schema))))
                            (do
                              (log/warn (str "CACHE MISS 2"))
-                             lexicon))
+                             nil))
                        
                          true
                          (do (log/warn (str "CACHE MISS 3"))
-                             lexicon))]
+                             nil))]
         (lazy-shuffle result)))))
   
 (defn get-head-phrases-of [parent cache]
@@ -183,13 +183,13 @@
       :notfound
       (get ls-part (show-spec use-spec) :notfound))))
 
-(defn overc-with-cache [parents cache lexicon]
+(defn overc-with-cache [parents cache]
   (if (not (empty? parents))
     (let [parent (first parents)
           use-spec {:synsem (get-in parent [:comp :synsem])}
           lexicon (let [cached (get-subset-from-cache cache (show-spec use-spec))]
                     (lazy-shuffle (if (= cached :notfound)
-                                    (get-lex parent :comp cache lexicon)
+                                    (get-lex parent :comp cache nil)
                                     cached)))]
       (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
                                                      (not (fail? (unifyc lexeme

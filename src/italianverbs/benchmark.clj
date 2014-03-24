@@ -178,7 +178,7 @@
 
 (defn spresent [trials]
   (run-benchmark
-   #(fo (first (take 1 (lbl (overc (overh s-present {:phrasal false}) {:phrasal false})
+   #(fo (first (take 1 (lbl (list s-present)
                             cache
                             {:comp {:phrasal false}
                              :head {:phrasal false}}))))
