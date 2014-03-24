@@ -178,15 +178,14 @@
 
 (defn spresent [trials]
   (run-benchmark
-   #(fo (first (take 1 (lbl (list (unifyc s-present
-                                          {:head {:phrasal false} :comp {:phrasal false}}))
+   #(fo (first (take 1 (lbl (overc (overh s-present {:phrasal false}) {:phrasal false})
                             cache))))
    trials))
 
 (defn spresentlb-with-grammar [trials]
   (run-benchmark 
-   #(fo (first (take 1 (lightning-bolt (unifyc s-present
-                                               {:head {:phrasal false} :comp {:phrasal false}})
+   #(fo (first (take 1 (lightning-bolt (overh s-present
+                                              {:head {:phrasal false} :comp {:phrasal false}})
                                lexicon
                                (list s-present)
                                ))))

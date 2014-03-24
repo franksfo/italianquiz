@@ -68,12 +68,7 @@
                                       '()))
 
           comps 
-          (let [lexicon-for-comp (get-lex parent :comp cache lexicon)]
-            (lightning-bolt
-             comp-spec lexicon-for-comp
-               comp-phrases-for-parent
-               0
-               cache))]
+          (lbl comp-phrases-for-parent cache)]
       (lazy-cat
        (overc parent comps)
        (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
@@ -104,6 +99,7 @@
               debug (log/trace (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))]
           (lazy-cat
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
+;                 newbolts (lbl grammar cache head-spec (+ 1 depth))
                  bolts 
                  (lightning-bolt head-spec
                                  lexicon headed-phrases-of-parent (+ 1 depth)
@@ -183,44 +179,45 @@
 
 (def maxdepth 4)
 
-(defn lbl [grammar cache & [depth]]
+(defn lbl [grammar cache & [ depth ]]
   "lightning-bolt lite"
-  (let [depth (if depth depth 0)
-        parents-at-this-depth (parents-at-this-depth :top
-                                                     (lazy-shuffle grammar) depth)
-        lexicon (list)
-        head-spec :top
-        path (list)]
-    (let [lexical-headed-phrases
-          (lexical-headed-phrases parents-at-this-depth cache)
+  (let [depth (if depth depth 0)]
+    (cond 
+     (> depth maxdepth)
+     nil
 
-          ;; setting path and lexicon to nil.
-          phrasal-headed-phrases
-          (phrasal-headed-phrases parents-at-this-depth (list)
-                                  grammar depth cache nil)
-          one-level-trees
-          (overc
-           (overh (first parents-at-this-depth)
-                  (lazy-shuffle (:head (cache (:rule (first parents-at-this-depth))))))
-           (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
+     true
+     (let [debug (log/debug (str "lbl with grammar= " (fo-ps grammar)))
+           parents-at-this-depth (parents-at-this-depth :top
+                                                        (lazy-shuffle grammar) depth)
+           lexicon (list)
+           lexical-headed-phrases
+           (lexical-headed-phrases parents-at-this-depth cache)
 
-          headed-phrases
-          (headed-phrases
+           ;; setting path and lexicon to nil.
            phrasal-headed-phrases
-           lexical-headed-phrases)
-  
-          with-phrasal-complement
-          (add-comp-phrase-to-headed-phrase headed-phrases
-                                            grammar lexicon (+ 1 depth) cache path
-                                            (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
-                                              (get-in head-spec '(:comp))
-                                              :top))
-
+           (phrasal-headed-phrases parents-at-this-depth (list)
+                                   grammar depth cache nil)
+           one-level-trees
+           (overc
+            (overh (first parents-at-this-depth)
+                   (lazy-shuffle (:head (cache (:rule (first parents-at-this-depth))))))
+            (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
+           
+           headed-phrases
+           (headed-phrases
+            phrasal-headed-phrases
+            lexical-headed-phrases)
+           
+           with-phrasal-complement
+           (add-comp-phrase-to-headed-phrase headed-phrases
+                                             grammar lexicon (+ 1 depth) cache (list)
+                                             :top)
+           
            hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
-
-        ]
-
-       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl))))))
+           
+           ]
+       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
 
 (defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
   (let [depth (if depth depth 0)]
