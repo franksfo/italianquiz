@@ -80,8 +80,9 @@
   (over/over parents child1 child2))
 
 (defn overh [parent head]
-  (if (not (seq? head))
+  (if (seq? parent)
     (mapcat (fn [each-parent]
+              (log/warn (str "overh: each-parent: " each-parent " in parents: " parent))
               (overh each-parent head))
             parent)
     (do
