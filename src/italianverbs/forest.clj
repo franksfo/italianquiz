@@ -24,7 +24,6 @@
     constant))
 
 (declare lightning-bolt)
-(declare lbl)
 
 (defn add-comp-phrase-to-headed-phrase [parents phrases & [cache supplied-comp-spec]]
   (if (and (not (empty? parents))
@@ -66,7 +65,7 @@
                                       '()))
 
           comps 
-          (lbl phrases cache comp-spec)]
+          (lightning-bolt phrases cache comp-spec)]
       (lazy-cat
        (overc parent comps)
        (add-comp-phrase-to-headed-phrase (rest parents) phrases cache supplied-comp-spec)))))
@@ -91,8 +90,8 @@
               debug (log/trace (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))]
           (lazy-cat
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
-                 debug (log/debug (str " with head-spec: " head-spec))
-                 bolts (lbl grammar cache head-spec (+ 1 depth))]
+                 debug (log/debug (str " with head-spec: " (show-spec head-spec)))
+                 bolts (lightning-bolt grammar cache head-spec (+ 1 depth))]
              (overh phrases bolts))
            (phrasal-headed-phrases (rest phrases) grammar depth cache path)))))))
 
@@ -100,8 +99,8 @@
   "subset of phrases possible at this depth where the phrase's head is the given head."
   (if (nil? phrases)
     (log/trace (str "no parents for spec: " (show-spec head-spec) " at depth: " depth)))
-  (log/debug (str "parents-at-this-depth: head-spec:" (show-spec head-spec)))
-  (log/debug (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
+  (log/trace (str "parents-at-this-depth: head-spec:" (show-spec head-spec)))
+  (log/trace (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
   (filter #(not (fail? %))
           (map (fn [each-phrase]
                  (unifyc each-phrase head-spec))
@@ -163,7 +162,7 @@
 
 (def maxdepth 1)
 
-(defn lbl [grammar cache & [ spec depth]]
+(defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"
   (let [depth (if depth depth 0)
         spec (if spec spec :top)
@@ -184,9 +183,16 @@
            (if (not (= false (get-in spec [:head :phrasal])))
              (phrasal-headed-phrases parents-at-this-depth
                                      grammar depth cache nil))
+
+           debug (log/debug (str "getting 1-level trees.."))
+
            one-level-trees
-           (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
-                   lexical-headed-phrases)
+           (if (first lexical-headed-phrases)
+             (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
+                     lexical-headed-phrases))
+
+           debug (log/debug (str "done getting 1-level trees - type: " (type one-level-trees)))
+
            
            headed-phrases
            (headed-phrases
