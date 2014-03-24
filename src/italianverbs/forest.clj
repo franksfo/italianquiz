@@ -70,7 +70,7 @@
 
 (def can-log-if-in-sandbox-mode false)
 
-(defn phrasal-headed-phrases [phrases lexicon grammar depth cache path]
+(defn phrasal-headed-phrases [phrases grammar depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? phrases))
     (let [debug (log/debug (str "phrasal-headed-phrases with phrases: " (fo-ps phrases)))
@@ -78,7 +78,7 @@
           debug (log/trace (str "phrasal-headed-phrases grammar size: " (.size grammar)))
           headed-phrases-of-parent (get-head-phrases-of parent cache)]
       (if (nil? headed-phrases-of-parent)
-        (phrasal-headed-phrases (rest phrases) lexicon grammar depth cache path)
+        (phrasal-headed-phrases (rest phrases) grammar depth cache path)
         (let [headed-phrases-of-parent (if (nil? headed-phrases-of-parent)
                                          (list)
                                          headed-phrases-of-parent)
@@ -91,7 +91,7 @@
                  debug (log/debug (str " with head-spec: " head-spec))
                  bolts (lbl grammar cache head-spec (+ 1 depth))]
              (overh phrases bolts))
-           (phrasal-headed-phrases (rest phrases) lexicon grammar depth cache path)))))))
+           (phrasal-headed-phrases (rest phrases) grammar depth cache path)))))))
 
 (defn parents-at-this-depth [head-spec phrases depth]
   "subset of phrases possible at this depth where the phrase's head is the given head."
@@ -177,10 +177,10 @@
            (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
                 parents-at-this-depth)
 
-           ;; setting path and lexicon to nil.
            phrasal-headed-phrases
-           (phrasal-headed-phrases parents-at-this-depth (list) ;; TODO: what is this (list) for.
-                                   grammar depth cache nil)
+           (if (not (= false (get-in spec [:head :phrasal])))
+             (phrasal-headed-phrases parents-at-this-depth
+                                     grammar depth cache nil))
            one-level-trees
            (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
                    lexical-headed-phrases)
@@ -191,9 +191,10 @@
             lexical-headed-phrases)
            
            with-phrasal-complement
-           (add-comp-phrase-to-headed-phrase headed-phrases
-                                             grammar (+ 1 depth) cache (list)
-                                             :top)
+           (if (not (= false (get-in spec [:comp :phrasal])))
+               (add-comp-phrase-to-headed-phrase headed-phrases
+                                                 grammar (+ 1 depth) cache (list)
+                                                 :top))
            
            hpcl (overc-with-cache phrasal-headed-phrases cache)
            
