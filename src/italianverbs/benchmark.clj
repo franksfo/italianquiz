@@ -6,7 +6,7 @@
    [clojure.tools.logging :as log]
 
    [italianverbs.cache :refer (build-lex-sch-cache over)]
-   [italianverbs.forest :refer (lbl)]
+   [italianverbs.forest :refer (lbl parents-at-this-depth)]
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer :all]
@@ -180,8 +180,8 @@
   (run-benchmark
    #(fo (first (take 1 (lbl (overc (overh s-present {:phrasal false}) {:phrasal false})
                             cache
-                            {:comp {:phrasal :false}
-                             :head {:phrasal :false}}))))
+                            {:comp {:phrasal false}
+                             :head {:phrasal false}}))))
    trials))
 
 (defn spresentlb-with-grammar [trials]
