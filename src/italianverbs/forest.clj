@@ -70,12 +70,6 @@
 
 (def can-log-if-in-sandbox-mode false)
 
-(defn lexical-headed-phrases [parents cache]
-  "return a lazy seq of phrases (maps) whose heads are lexemes."
-  (mapcat (fn [parent]
-            (overh parent (lazy-shuffle (:head (cache (:rule parent))))))
-          parents))
-
 (defn phrasal-headed-phrases [phrases lexicon grammar depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
   (if (not (empty? phrases))
@@ -178,18 +172,18 @@
 
      true
      (let [parents-at-this-depth (parents-at-this-depth spec (lazy-shuffle grammar) depth)
+
            lexical-headed-phrases
-           (lexical-headed-phrases parents-at-this-depth cache)
+           (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
+                parents-at-this-depth)
 
            ;; setting path and lexicon to nil.
            phrasal-headed-phrases
-           (phrasal-headed-phrases parents-at-this-depth (list)
+           (phrasal-headed-phrases parents-at-this-depth (list) ;; TODO: what is this (list) for.
                                    grammar depth cache nil)
            one-level-trees
-           (overc
-            (overh (first parents-at-this-depth)
-                   (lazy-shuffle (:head (cache (:rule (first parents-at-this-depth))))))
-            (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
+           (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
+                   lexical-headed-phrases)
            
            headed-phrases
            (headed-phrases
