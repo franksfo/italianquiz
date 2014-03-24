@@ -208,7 +208,8 @@
            hpcl (overc-with-cache phrasal-headed-phrases cache)
            
            ]
-       (lazy-cats (lazy-shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
+       one-level-trees))))
+;       (lazy-shuffle (lazy-cats one-level-trees with-phrasal-complement hpcl))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]
