@@ -27,9 +27,13 @@
 (declare lbl)
 
 (defn add-comp-phrase-to-headed-phrase [parents phrases & [cache supplied-comp-spec]]
-  (if (not (empty? parents))
+  (if (and (not (empty? parents))
+           (first parents))
     (let [debug
           (do
+            (log/debug (str "PARENTS: " (fo-ps parents)))
+            (log/debug (str "TYPE PARENTS: " (type parents)))
+            (log/debug (str "EMPTY? PARENTS: " (empty? parents)))
             (log/debug (str "starting add-comp-phrase-to-headed-phrase."))
             (log/debug (str "    with parent: " (fo-ps (first parents))))
             (log/trace (str "    with phrases: " (fo-ps phrases)))
@@ -157,7 +161,7 @@
         (log-path (rest path) log-fn (+ depth 1)))
       (if print-blank-line (log-fn (str ""))))))
 
-(def maxdepth 4)
+(def maxdepth 1)
 
 (defn lbl [grammar cache & [ spec depth]]
   "lightning-bolt lite"
