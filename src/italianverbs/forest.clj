@@ -24,6 +24,7 @@
     constant))
 
 (declare lightning-bolt)
+(declare lbl)
 
 (defn add-comp-phrase-to-headed-phrase [parents phrases lexicon & [iter cache path supplied-comp-spec]]
   (if (not (empty? parents))
@@ -68,7 +69,7 @@
                                       '()))
 
           comps 
-          (lbl comp-phrases-for-parent cache)]
+          (lbl phrases cache comp-spec)]
       (lazy-cat
        (overc parent comps)
        (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
@@ -156,6 +157,7 @@
         (lazy-cat
          parents-with-lexical-heads parents-with-phrasal-heads)]
     (do
+      (log/debug (str "CATS: HOW ARE YOU: " cats))
       (if (not (empty? cats))
         (log/trace (str "first headed-phrases: " (fo-ps (first cats))))
         (log/debug (str " no headed-phrases.")))
@@ -179,17 +181,19 @@
 
 (def maxdepth 4)
 
-(defn lbl [grammar cache & [ depth ]]
+(defn lbl [grammar cache & [ spec depth]]
   "lightning-bolt lite"
-  (let [depth (if depth depth 0)]
+  (let [depth (if depth depth 0)
+        spec (if spec spec :top)
+        parents (map #(unifyc % spec)
+                     grammar)]
     (cond 
      (> depth maxdepth)
      nil
 
      true
-     (let [debug (log/debug (str "lbl with grammar= " (fo-ps grammar)))
-           parents-at-this-depth (parents-at-this-depth :top
-                                                        (lazy-shuffle grammar) depth)
+     (let [;parents-at-this-depth (parents-at-this-depth spec parents depth)
+           parents-at-this-depth (parents-at-this-depth :top (lazy-shuffle grammar) depth)
            lexicon (list)
            lexical-headed-phrases
            (lexical-headed-phrases parents-at-this-depth cache)

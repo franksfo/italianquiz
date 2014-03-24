@@ -12,7 +12,7 @@
    [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overc overh)]
-   [italianverbs.unify :refer (lazy-shuffle unifyc)]))
+   [italianverbs.unify :refer (fail? lazy-shuffle unifyc)]))
 
 ;;
 ;; Usage:
@@ -68,7 +68,7 @@
   (let [result
         (take n (repeatedly #(benchmark-medium-fn)))]
     (print (str "grammar size:" (.size grammar)))
-    (print (str "lexicon size:" (.size lexicon)))
+;    (print (str "lexicon size:" (.size lexicon)))
     (.size result)
     (print-language-stats)))
 
@@ -179,7 +179,9 @@
 (defn spresent [trials]
   (run-benchmark
    #(fo (first (take 1 (lbl (overc (overh s-present {:phrasal false}) {:phrasal false})
-                            cache))))
+                            cache
+                            {:comp {:phrasal :false}
+                             :head {:phrasal :false}}))))
    trials))
 
 (defn spresentlb-with-grammar [trials]
