@@ -26,7 +26,7 @@
 (declare lightning-bolt)
 (declare lbl)
 
-(defn add-comp-phrase-to-headed-phrase [parents phrases & [iter cache path supplied-comp-spec]]
+(defn add-comp-phrase-to-headed-phrase [parents phrases & [cache supplied-comp-spec]]
   (if (not (empty? parents))
     (let [debug
           (do
@@ -37,7 +37,6 @@
 
           debug (if false (throw (Exception. "GOT HERE: INSIDE MAIN PART OF add-comp-phrase-to-headed-phrase.")))
           debug (log/trace (str "add-comp-phrase-to-headed-phrase is non-empty."))
-          iter (if (nil? iter) 0 iter)
           parent (first parents)
 
           comp-spec
@@ -66,7 +65,7 @@
           (lbl phrases cache comp-spec)]
       (lazy-cat
        (overc parent comps)
-       (add-comp-phrase-to-headed-phrase (rest parents) phrases (+ 1 iter) cache path supplied-comp-spec)))))
+       (add-comp-phrase-to-headed-phrase (rest parents) phrases cache supplied-comp-spec)))))
 
 (def can-log-if-in-sandbox-mode false)
 
@@ -193,7 +192,7 @@
            with-phrasal-complement
            (if (not (= false (get-in spec [:comp :phrasal])))
                (add-comp-phrase-to-headed-phrase headed-phrases
-                                                 grammar (+ 1 depth) cache (list)
+                                                 grammar cache
                                                  :top))
            
            hpcl (overc-with-cache phrasal-headed-phrases cache)
