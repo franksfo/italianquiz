@@ -193,9 +193,9 @@
                    phrasal-headed-phrases)
            
            ]
-       hlcl))))
 ;       hlcl))))
-;       hpcl))))
+;       hlcl))))
+       (flatten (lazy-shuffle (list hpcl hlcl)))))))
 ;       (lazy-shuffle (lazy-cats one-level-trees with-phrasal-complement hpcl))))))
 
 ;; aliases that might be easier to use in a repl:
