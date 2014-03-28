@@ -154,6 +154,8 @@
            (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
                 parents-at-this-depth)
 
+           debug (log/debug (str "PARENTS AT THIS DEPTH: " (fo-ps parents-at-this-depth)))
+
            phrasal-headed-phrases
            (if (not (= false (get-in spec [:head :phrasal])))
              (phrasal-headed-phrases parents-at-this-depth
@@ -174,21 +176,26 @@
                                                  grammar cache
                                                  :top))
 
-           hpcp
-           (if (and (not (= false (get-in spec [:comp :phrasal])))
-                    (not (= false (get-in spec [:head :phrasal]))))
-             (mapcat #(add-comp-phrase-to-headed-phrase %
-                                                        grammar cache
-                                                        :top)
-                     phrasal-headed-phrases))
+;           hpcp
+;           (if (and (not (= false (get-in spec [:comp :phrasal])))
+;                    (not (= false (get-in spec [:head :phrasal]))))
+;             (mapcat #(add-comp-phrase-to-headed-phrase %
+;                                                        grammar cache
+;                                                        :top)
+;                     phrasal-headed-phrases))
+
+
+           debug (log/debug (str "FIRST PHRASAL-HEADED-PHRASES: "
+                                 (first phrasal-headed-phrases)))
 
            hpcl
-           (map #(overc % (lazy-shuffle (:comp (cache (:rule %)))))
-                phrasal-headed-phrases)
+           (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule %)))))
+                   phrasal-headed-phrases)
            
            ]
        hlcl))))
-;       one-level-trees))))
+;       hlcl))))
+;       hpcl))))
 ;       (lazy-shuffle (lazy-cats one-level-trees with-phrasal-complement hpcl))))))
 
 ;; aliases that might be easier to use in a repl:
