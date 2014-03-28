@@ -119,31 +119,6 @@
                   (lazy-cats (rest lists))))
       (lazy-cats (rest lists)))))
 
-(defn headed-phrases [parents-with-lexical-heads parents-with-phrasal-heads]
-  (let [parents-with-lexical-heads
-        (if parents-with-lexical-heads
-          (filter (fn [parent]
-                    (do (log/trace "checking parent (1)")
-                        (not (= false (get-in parent '(:comp :phrasal))))))
-                  parents-with-lexical-heads)
-          (list))
-
-        parents-with-phrasal-heads
-        (if parents-with-phrasal-heads
-          (filter (fn [parent]
-                    (do (log/trace "checking parent (2)")
-                        (not (= false (get-in parent '(:comp :phrasal))))))
-                  parents-with-phrasal-heads)
-          (list))
-        cats
-        (lazy-cat
-         parents-with-lexical-heads parents-with-phrasal-heads)]
-    (do
-      (if (not (empty? cats))
-        (log/trace (str "first headed-phrases: " (fo-ps (first cats))))
-        (log/debug (str " no headed-phrases.")))
-      cats)))
-
 (defn log-path [path log-fn & [ depth]]
   (let [depth (if depth depth 0)
         print-blank-line false]
@@ -186,29 +161,34 @@
 
            debug (log/debug (str "getting 1-level trees.."))
 
-           one-level-trees
+           hlcl
            (if (first lexical-headed-phrases)
              (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
                      lexical-headed-phrases))
 
-           debug (log/debug (str "done getting 1-level trees - type: " (type one-level-trees)))
+           debug (log/debug (str "done getting 1-level trees - type: " (type hlcl)))
 
-           
-           headed-phrases
-           (headed-phrases
-            phrasal-headed-phrases
-            lexical-headed-phrases)
-           
-           with-phrasal-complement
+           hlcp
            (if (not (= false (get-in spec [:comp :phrasal])))
-               (add-comp-phrase-to-headed-phrase headed-phrases
+               (add-comp-phrase-to-headed-phrase lexical-headed-phrases
                                                  grammar cache
                                                  :top))
-           
-           hpcl (overc-with-cache phrasal-headed-phrases cache)
+
+           hpcp
+           (if (and (not (= false (get-in spec [:comp :phrasal])))
+                    (not (= false (get-in spec [:head :phrasal]))))
+             (mapcat #(add-comp-phrase-to-headed-phrase %
+                                                        grammar cache
+                                                        :top)
+                     phrasal-headed-phrases))
+
+           hpcl
+           (map #(overc % (lazy-shuffle (:comp (cache (:rule %)))))
+                phrasal-headed-phrases)
            
            ]
-       one-level-trees))))
+       hlcl))))
+;       one-level-trees))))
 ;       (lazy-shuffle (lazy-cats one-level-trees with-phrasal-complement hpcl))))))
 
 ;; aliases that might be easier to use in a repl:
