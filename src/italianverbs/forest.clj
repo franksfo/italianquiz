@@ -186,7 +186,7 @@
 
 
            debug (log/debug (str "FIRST PHRASAL-HEADED-PHRASES: "
-                                 (first phrasal-headed-phrases)))
+                                 (fo-ps (first phrasal-headed-phrases))))
 
            hpcl
            (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule %)))))
