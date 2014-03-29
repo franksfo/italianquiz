@@ -6,6 +6,7 @@
   (:require
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
+   [italianverbs.forest :as forest]
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer (lexicon it en)]
@@ -58,3 +59,10 @@
          (first (fo (first (take 1 (lightning-bolt {:synsem {:cat :noun :subcat '()}}
                                                    (list noun-phrase nbar s-future)
                                                    (seq (union (it "il") (it "libro")))))))))))
+
+(deftest Antonio-impazze
+  (is (= "Antonio impazze (Antonio goes mad)")
+      (first (fo (first (take 1 (forest/hlcl cache (list s-present)
+                                             {:synsem {:sem {:subj {:pred :antonio}
+                                                             :pred :impazzire}}})))))))
+
