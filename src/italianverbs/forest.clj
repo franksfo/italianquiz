@@ -137,14 +137,26 @@
 
 (def maxdepth 1)
 
+
+(defn phrasal-spec [spec cache]
+  "add additional constraints so that this spec can constrain heads and comps."
+  (unifyc spec (if (:phrase-constraints cache)
+                 (do
+                   (log/debug (str "phrasal-spec: " (show-spec (:phrase-constraints cache))))
+                   (:phrase-constraints cache))
+                  :top)))
+
 (defn hlcl [cache grammar & [spec memoized-parents-at-this-depth memoized-lexical-headed-phrases depth]]
   "generate all the phrases where the head is a lexeme and the complement is a lexeme"
   (let [depth (if depth depth 0)
-        spec (if spec spec :top)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])
         parents-at-this-depth (if memoized-parents-at-this-depth memoized-parents-at-this-depth
                                   (parents-at-this-depth spec (lazy-shuffle grammar) depth))
         lexical-headed-phrases (if memoized-lexical-headed-phrases memoized-lexical-headed-phrases
-                                   (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
+                                   (map #(overh % (filter (fn [lexeme]
+                                                            (not (fail? (unifyc lexeme head-spec))))
+                                                          (lazy-shuffle (:head (cache (:rule %))))))
                                         parents-at-this-depth))]
     (if (not (empty? parents-at-this-depth))
       (do
@@ -164,10 +176,13 @@
 (defn hlcp [cache grammar & [spec memoized-phrases-with-lexical-heads depth]]
   "generate all the phrases where the head is a lexeme and the complement is the phrase"
   (let [depth (if depth depth 0)
-        spec (if spec spec :top)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])
         phrases-with-lexical-heads (if memoized-phrases-with-lexical-heads
                                      memoized-phrases-with-lexical-heads
-                                     (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
+                                     (map #(overh % (filter (fn [lexeme]
+                                                              (not (fail? (unifyc lexeme head-spec))))
+                                                            (lazy-shuffle (:head (cache (:rule %))))))
                                           (parents-at-this-depth spec (lazy-shuffle grammar) depth)))]
     (if (not (empty? phrases-with-lexical-heads))
       (do
@@ -180,7 +195,7 @@
          (mapcat #(lazy-seq 
                    (do
                      (log/debug (str "calling hlcl: lexical-headed-phrase: " (fo-ps %)))
-                     (log/debug (str "calling hlcl: lexical-headed-phrase comp-value: " (get-in % [:comp])))
+                     (log/debug (str "calling hlcl: lexical-headed-phrase comp-value: " (show-spec (get-in % [:comp]))))
                      (overc % (lazy-seq (hlcl cache grammar 
                                               (unifyc {:synsem (get-in % [:comp :synsem])}))))))
                  (first phrases-with-lexical-heads))
