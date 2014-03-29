@@ -90,7 +90,7 @@
           ]
          [:tr
           [:td
-           (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbsgrammar.clj")]
+           (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/grammar.clj")]
           [:td {:rowspan "1"}
            (powered-by "lexicon" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/lexicon.clj")
            ]
