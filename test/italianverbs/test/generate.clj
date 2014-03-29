@@ -66,3 +66,11 @@
                                              {:synsem {:sem {:subj {:pred :antonio}
                                                              :pred :impazzire}}})))))))
 
+
+(deftest dog-goes-mad
+  (is (= "The dog will go mad")
+      (first (fo (first (take 1 (forest/hlcp cache (list s-future (unifyc np {:comp {:synsem {:def true}}}))
+                                             {:synsem {:sem {:subj {:pred :cane}
+                                                             :pred :impazzire}}})))))))
+
+      

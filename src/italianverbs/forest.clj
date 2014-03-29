@@ -150,9 +150,35 @@
         (log/debug (str "hlcl with parents-at-this-depth (first): " (fo-ps (first parents-at-this-depth))))
         (let [parent-at-this-depth (first parents-at-this-depth)]
           (lazy-cat
-           (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule parent-at-this-depth)))))
-                   lexical-headed-phrases)
+
+           ;; try every possible lexeme as a candidate complement for each lexical-headed-phrase:
+           ;; use (:comp (cache ..)) as the subset of the lexicon to try.
+           (mapcat
+            #(overc % (lazy-shuffle (:comp (cache (:rule parent-at-this-depth)))))
+            lexical-headed-phrases)
+
            (hlcl cache grammar spec (rest parents-at-this-depth) lexical-headed-phrases depth)))))))
+
+(defn hlcp [cache grammar & [spec memoized-parents-at-this-depth memoized-lexical-headed-phrases depth]]
+  (let [depth (if depth depth 0)
+        spec (if spec spec :top)
+        parents-at-this-depth (if memoized-parents-at-this-depth memoized-parents-at-this-depth
+                                  (parents-at-this-depth spec (lazy-shuffle grammar) depth))
+        lexical-headed-phrases (if memoized-lexical-headed-phrases memoized-lexical-headed-phrases
+                                   (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
+                                        parents-at-this-depth))]
+    (if (not (empty? parents-at-this-depth))
+      (do
+        (log/debug (str "hlcp with parents-at-this-depth (first): " (fo-ps (first parents-at-this-depth))))
+        (let [parent-at-this-depth (first parents-at-this-depth)]
+          (lazy-cat
+
+           ;; try every possible lexeme as a candidate complement for each lexical-headed-phrase:
+           ;; use (:comp (cache ..)) as the subset of the lexicon to try.
+           (mapcat #(lazy-seq (overc % (lazy-seq (hlcl cache grammar {:synsem (get-in parent-at-this-depth [:comp :synsem])}))))
+                   lexical-headed-phrases)
+
+           (hlcp cache grammar spec (rest parents-at-this-depth) lexical-headed-phrases depth)))))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"
