@@ -7,6 +7,7 @@
 
    [italianverbs.cache :refer (build-lex-sch-cache over)]
    [italianverbs.forest :exclude [lightning-bolt]]
+   [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer :all]
