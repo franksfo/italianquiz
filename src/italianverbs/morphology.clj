@@ -1778,7 +1778,11 @@
       (str failed-warning italian " (" english ").")))))
 
 ;;; e.g.:
-;;; (formattare (over (over s (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp lexicon) (over (over np lexicon) lexicon))))
+;;; (formattare (over (over s-present (over (over np lexicon) (lookup {:synsem {:human true}}))) (over (over vp-present lexicon) (over (over np lexicon) lexicon))))
+;; TODO: fix english formatting in:
+;;italianverbs.benchmark> (fo (take 1 (forest/hlcl cache grammar)))
+;; (("Stato Roma ({:a {:infl #<Ref@1f574a31: :past>, :case #<Ref@773c3b34: :nom>, :agr #<Ref@3619649b: {:gender #<Ref@7f628bdb: :masc>, :number #<Ref@1ecc1833: :sing>}>, :irregular {:past {:2sing \"were\", :1sing \"was\", :participle \"been\", :3sing \"was\", :3plur \"were\", :2plur \"were\", :1plur \"were\"}, :present {:2sing \"are\", :1sing \"am\", :3sing \"is\", :3plur \"are\", :2plur \"are\", :1plur \"are\"}}, :infinitive \"to be\"}, :b \"Rome\"})."))
+
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
   (cond
@@ -1808,6 +1812,7 @@
               (formattare-1 (first expressions))
               (formattare (rest expressions)))))))))
 
+;; useful abbreviation:
 (defn fo [expressions]
   (formattare expressions))
 
