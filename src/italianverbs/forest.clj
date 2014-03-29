@@ -137,20 +137,22 @@
 
 (def maxdepth 1)
 
-(defn hlcl [cache grammar & [spec memoized-parents-at-this-depth lexical-headed-phrases depth]]
+(defn hlcl [cache grammar & [spec memoized-parents-at-this-depth memoized-lexical-headed-phrases depth]]
   (let [depth (if depth depth 0)
         spec (if spec spec :top)
         parents-at-this-depth (if memoized-parents-at-this-depth memoized-parents-at-this-depth
-                                  (parents-at-this-depth spec (lazy-shuffle grammar) depth))]
+                                  (parents-at-this-depth spec (lazy-shuffle grammar) depth))
+        lexical-headed-phrases (if memoized-lexical-headed-phrases memoized-lexical-headed-phrases
+                                   (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
+                                        parents-at-this-depth))]
     (if (not (empty? parents-at-this-depth))
-      (let [lexical-headed-phrases (if lexical-headed-phrases lexical-headed-phrases
-                                       (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
-                                            parents-at-this-depth))
-            parent-at-this-depth (first parents-at-this-depth)]
-        (lazy-cat
-         (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule parent-at-this-depth)))))
-                 lexical-headed-phrases))))))
-;         (hlcl cache cache grammar spec (rest parents-at-this-depth) lexical-headed-phrases depth))))))
+      (do
+        (log/debug (str "hlcl with parents-at-this-depth (first): " (fo-ps (first parents-at-this-depth))))
+        (let [parent-at-this-depth (first parents-at-this-depth)]
+          (lazy-cat
+           (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule parent-at-this-depth)))))
+                   lexical-headed-phrases)
+           (hlcl cache grammar spec (rest parents-at-this-depth) lexical-headed-phrases depth)))))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"
