@@ -189,3 +189,15 @@
   (run-benchmark 
    #(fo (first (take 1 (lightning-bolt (list s-aux vp-aux) cache {:synsem {:subcat '()}}))))
    trials))
+
+(defn run-hlcp [trials]
+  (run-benchmark
+   #(fo (short-sentence))
+   trials))
+
+(defn run-hlcp2 [trials]
+  (run-benchmark
+   #(fo (short-sentence {:synsem {:sem {:pred :impazzire}}}))
+   trials))
+
+
