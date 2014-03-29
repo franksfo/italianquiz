@@ -173,21 +173,21 @@
 
            (hlcl cache grammar spec (rest parents-at-this-depth) lexical-headed-phrases depth)))))))
 
-(defn hlcp [cache grammar & [spec memoized-phrases-with-lexical-heads depth]]
+(defn hlcp [cache grammar & [spec memoized-lexical-headed-phrases depth]]
   "generate all the phrases where the head is a lexeme and the complement is the phrase"
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])
-        phrases-with-lexical-heads (if memoized-phrases-with-lexical-heads
-                                     memoized-phrases-with-lexical-heads
+        lexical-headed-phrases (if memoized-lexical-headed-phrases
+                                     memoized-lexical-headed-phrases
                                      (map #(overh % (filter (fn [lexeme]
                                                               (not (fail? (unifyc lexeme head-spec))))
                                                             (lazy-shuffle (:head (cache (:rule %))))))
                                           (parents-at-this-depth spec (lazy-shuffle grammar) depth)))]
-    (if (not (empty? phrases-with-lexical-heads))
+    (if (not (empty? lexical-headed-phrases))
       (do
         (log/debug (str "hlcp with spec: " (show-spec spec)))
-        (log/debug (str "hlcp with phrases-with-lexical-heads: " (fo-ps (first phrases-with-lexical-heads))))
+        (log/debug (str "hlcp with lexical-headed-phrases: " (fo-ps (first lexical-headed-phrases))))
         (lazy-cat
          
          ;; try every possible lexeme as a candidate complement for each lexical-headed-phrase:
@@ -198,9 +198,9 @@
                      (log/debug (str "calling hlcl: lexical-headed-phrase comp-value: " (show-spec (get-in % [:comp]))))
                      (overc % (lazy-seq (hlcl cache grammar 
                                               (unifyc {:synsem (get-in % [:comp :synsem])}))))))
-                 (first phrases-with-lexical-heads))
+                 (first lexical-headed-phrases))
          
-         (hlcp cache grammar spec (rest phrases-with-lexical-heads) depth))))))
+         (hlcp cache grammar spec (rest lexical-headed-phrases) depth))))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"
