@@ -36,7 +36,8 @@
 
 ;; this rule-cache is defined outside any function so that all functions can share
 ;; a single cache.
-(def rule-cache (build-lex-sch-cache grammar lexicon grammar))
+(def rule-cache (conj (build-lex-sch-cache grammar lexicon grammar)
+                      {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
 
 (defn generate [ & [head the-lexicon the-grammar cache]]
   (let [head (if head head :top)
