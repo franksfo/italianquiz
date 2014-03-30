@@ -137,7 +137,6 @@
 
 (def maxdepth 1)
 
-
 (defn phrasal-spec [spec cache]
   "add additional constraints so that this spec can constrain heads and comps."
   (unifyc spec (if (:phrase-constraints cache)
@@ -146,32 +145,29 @@
                    (:phrase-constraints cache))
                   :top)))
 
+(defn hl [cache grammar & [spec depth]]
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])]
+
+    ;; try every possible lexeme as a candidate head for each phrase:
+    ;; use (:comp (cache ..)) as the subset of the lexicon to try.
+    (mapcat #(lazy-seq (overh % (filter (fn [lexeme]
+                                          (not (fail? (unifyc lexeme head-spec))))
+                                        (lazy-shuffle (:head (cache (:rule %)))))))
+            (parents-at-this-depth spec (lazy-shuffle grammar) depth))))
+
 (defn hlcl [cache grammar & [spec memoized-parents-at-this-depth memoized-lexical-headed-phrases depth]]
   "generate all the phrases where the head is a lexeme and the complement is a lexeme"
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
-        head-spec (get-in spec [:head])
-        parents-at-this-depth (if memoized-parents-at-this-depth memoized-parents-at-this-depth
-                                  (parents-at-this-depth spec (lazy-shuffle grammar) depth))
-        lexical-headed-phrases (if memoized-lexical-headed-phrases memoized-lexical-headed-phrases
-                                   (map #(overh % (filter (fn [lexeme]
-                                                            (not (fail? (unifyc lexeme head-spec))))
-                                                          (lazy-shuffle (:head (cache (:rule %))))))
-                                        parents-at-this-depth))]
-    (if (not (empty? parents-at-this-depth))
-      (do
-        (log/debug (str "hlcl with parents-at-this-depth (first): " (fo-ps (first parents-at-this-depth))))
-        (log/debug (str "hlcl with spec: " (show-spec spec)))
-        (let [parent-at-this-depth (first parents-at-this-depth)]
-          (lazy-cat
+        head-spec (get-in spec [:head])]
 
-           ;; try every possible lexeme as a candidate complement for each lexical-headed-phrase:
-           ;; use (:comp (cache ..)) as the subset of the lexicon to try.
-           (mapcat
-            #(overc % (lazy-shuffle (:comp (cache (:rule parent-at-this-depth)))))
-            lexical-headed-phrases)
-
-           (hlcl cache grammar spec (rest parents-at-this-depth) lexical-headed-phrases depth)))))))
+    ;; try every possible lexeme as a candidate complement for each lexical-headed-phrase:
+    ;; use (:comp (cache ..)) as the subset of the lexicon to try.
+    (mapcat
+     #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
+     (lazy-seq (hl cache grammar spec)))))
 
 (defn hlcp [cache grammar & [spec memoized-lexical-headed-phrases depth]]
   "generate all the phrases where the head is a lexeme and the complement is the phrase"
