@@ -163,8 +163,8 @@
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
     (mapcat
-     #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
-     (lazy-seq (hl cache grammar spec)))))
+     #(overc % (lazy-shuffle (:comp (cache (:rule %)))))
+     (hl cache grammar spec))))
 
 (defn hlcp [cache grammar & [spec memoized-lexical-headed-phrases depth]]
   "generate all the phrases where the head is a lexeme and the complement is the phrase"
@@ -180,7 +180,7 @@
          #(lazy-seq (overc % (hlcl cache grammar
                                    (unifyc {:synsem (get-in % [:comp :synsem])})
                                    (+ 1 depth))))
-         (lazy-seq (hl cache grammar spec)))))))
+         (hl cache grammar spec))))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"
