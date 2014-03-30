@@ -218,22 +218,22 @@
 
 (defn run-hlcl [trials]
   (run-benchmark
-   #(fo (take 1 (forest/hlcl cache grammar {:synsem {:cat :verb :subcat '()}})))
+   #(fo (first (take 1 (forest/hlcl cache grammar {:synsem {:cat :verb :subcat '()}}))))
    trials))
 
 (defn run-hlcp [trials]
   (run-benchmark
-   #(fo (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}})))
+   #(fo (first (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}}))))
    trials))
 
 (defn run-hpcl [trials]
   (run-benchmark
-   #(fo (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}})))
+   #(fo (first (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}}))))
    trials))
 
 (defn run-hpcp [trials]
   (run-benchmark
-   #(fo (take 1 (forest/hpcp cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}})))
+   #(fo (first (take 1 (forest/hpcp cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}}))))
    trials))
 
 (defn benchmark []
