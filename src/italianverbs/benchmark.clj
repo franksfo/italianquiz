@@ -216,12 +216,35 @@
    #(fo (short-sentence {:synsem {:sem {:pred :impazzire}}}))
    trials))
 
-(defn run-hpcp [trials]
+(defn run-hlcl [trials]
   (run-benchmark
-   #(fo (take 1 (forest/hpcp cache grammar {:synsem {:cat :verb :subcat '()}})))
+   #(fo (take 1 (forest/hlcl cache grammar {:synsem {:cat :verb :subcat '()}})))
    trials))
 
 (defn run-hlcp [trials]
   (run-benchmark
    #(fo (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}})))
    trials))
+
+(defn run-hpcl [trials]
+  (run-benchmark
+   #(fo (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}})))
+   trials))
+
+(defn run-hpcp [trials]
+  (run-benchmark
+   #(fo (take 1 (forest/hpcp cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}})))
+   trials))
+
+(defn benchmark []
+  (println "-- hlcl --")
+  (run-hlcl 10)
+  (println)
+  (println "-- hpcl --")
+  (run-hpcl 10)
+  (println)
+  (println "-- hlcp --")
+  (run-hlcp 10)
+  (println)
+  (println "-- hpcp --")
+  (run-hpcp 10))
