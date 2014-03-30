@@ -104,9 +104,9 @@
   (filter #(not (fail? %))
           (map (fn [each-phrase]
                  (unifyc each-phrase head-spec))
-          ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
-          ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
-          ;; head param of (lightning-bolt)".
+               ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
+               ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
+               ;; head param of (lightning-bolt)".
                phrases)))
 
 (defn lazy-cats [lists & [ show-first ]]
@@ -212,13 +212,32 @@
         head-spec (get-in spec [:head])]
     (log/debug (str "hpcp with spec: " (show-spec spec)))
     (mapcat
+
      #(lazy-seq
-       (overc % (hlcl cache grammar
-                      {:synsem (get-in % [:comp :synsem] :top)}
-                      (+ 1 depth))))
+       (overc % ;; parent: a phrase from HEAD-PHRASE:
+              ;; complement: a hlcl.
+              (hlcl cache grammar {:synsem (get-in % [:comp :synsem] :top)} (+ 1 depth))))
+
+
+     ;; HEAD-PHRASE:
      (mapcat
-      #(lazy-seq (overh (parents-at-this-depth spec (lazy-shuffle grammar) depth) %))
-      (hlcl cache (parents-at-this-depth head-spec (lazy-shuffle grammar) (+ 1 depth))
+
+      #(lazy-seq (overh
+
+                  ;; parent
+                  (parents-at-this-depth spec (lazy-shuffle grammar) depth)
+
+                  ;; head: a hlcl.
+                  %))
+
+      (hlcl cache
+
+            ;; grammar for this hlcl: the phrase's head must *not* be an intransitive verb.
+            (parents-at-this-depth head-spec
+                                   (lazy-shuffle grammar)
+                                   (+ 1 depth))
+
+
             head-spec (+ 1 depth))))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
