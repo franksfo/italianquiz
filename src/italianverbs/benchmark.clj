@@ -13,6 +13,7 @@
    [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overc overh)]
+   [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer (fail? lazy-shuffle unifyc)]))
 
 ;;
@@ -32,12 +33,14 @@
 
 (log/info "building cache..")
 (def cache nil)
-(def cache (build-lex-sch-cache grammar
-                                (map (fn [lexeme]
-                                       (unifyc lexeme
-                                               {:phrasal false}))
-                                     lexicon)
-                                grammar))
+(def cache (conj (build-lex-sch-cache grammar
+                                      (map (fn [lexeme]
+                                             (unifyc lexeme
+                                                     {:phrasal false}))
+                                           lexicon)
+                                      grammar)
+                 {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
+
 (log/info "done building cache: " (keys cache))
 
 (def benchmark-small-fn (fn [] (time (take 1 (over grammar
