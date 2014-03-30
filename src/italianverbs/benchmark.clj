@@ -1,10 +1,9 @@
 (ns italianverbs.benchmark
   (:require
+   [clojure.math.numeric-tower :as math]
    [clojure.core.async :as async :exclude [partition-by]]
    [clojure.set :refer (union)]
-
    [clojure.tools.logging :as log]
-
    [italianverbs.cache :refer (build-lex-sch-cache over)]
    [italianverbs.forest :exclude [lightning-bolt]]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
@@ -175,10 +174,24 @@
       (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
 
 (defn run-benchmark [function-to-evaluate trials]
-  (dotimes [i trials]
-    (let [begin (System/currentTimeMillis)]
-      (let [result (function-to-evaluate)]
-        (println "'" result "' took: " (- (System/currentTimeMillis) begin) " msec.")))))
+  (if (> trials 0)
+    (let [runtimes
+          (map (fn [x] 
+                 (let [begin (System/currentTimeMillis)
+                       result (function-to-evaluate)
+                       end (System/currentTimeMillis)
+                       runtime (- end begin)]
+                        (println "'" result "' took: " runtime " msec.")
+                        runtime))
+               (range 0 trials))]
+      (let [average (/ (reduce + runtimes) (* trials 1.0))
+            avg-sum-of-differences-squared
+            (/ (reduce + (map #(let [diff (- average %)]
+                              (* diff diff))
+                           runtimes))
+               average)]
+        (println "average: " average "msec.")
+        (println "stddev: " (math/ceil (math/sqrt avg-sum-of-differences-squared)))))))
 
 (defn spresent [trials]
   (run-benchmark
@@ -206,4 +219,9 @@
 (defn run-hpcp [trials]
   (run-benchmark
    #(fo (take 1 (forest/hpcp cache grammar {:synsem {:cat :verb :subcat '()}})))
+   trials))
+
+(defn run-hlcp [trials]
+  (run-benchmark
+   #(fo (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}})))
    trials))
