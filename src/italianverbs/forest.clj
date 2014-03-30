@@ -162,9 +162,6 @@
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
-
-    ;; try every possible lexeme as a candidate complement for each lexical-headed-phrase:
-    ;; use (:comp (cache ..)) as the subset of the lexicon to try.
     (mapcat
      #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
      (lazy-seq (hl cache grammar spec)))))
@@ -174,29 +171,16 @@
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])
-        lexical-headed-phrases (if memoized-lexical-headed-phrases
-                                     memoized-lexical-headed-phrases
-                                     (map #(overh % (filter (fn [lexeme]
-                                                              (not (fail? (unifyc lexeme head-spec))))
-                                                            (lazy-shuffle (:head (cache (:rule %))))))
-                                          (parents-at-this-depth spec (lazy-shuffle grammar) depth)))]
+        lexical-headed-phrases (hl cache grammar spec depth)]
     (if (not (empty? lexical-headed-phrases))
       (do
         (log/debug (str "hlcp with spec: " (show-spec spec)))
         (log/debug (str "hlcp with lexical-headed-phrases: " (fo-ps (first lexical-headed-phrases))))
-        (lazy-cat
-         
-         ;; try every possible lexeme as a candidate complement for each lexical-headed-phrase:
-         ;; use (:comp (cache ..)) as the subset of the lexicon to try.
-         (mapcat #(lazy-seq 
-                   (do
-                     (log/debug (str "calling hlcl: lexical-headed-phrase: " (fo-ps %)))
-                     (log/debug (str "calling hlcl: lexical-headed-phrase comp-value: " (show-spec (get-in % [:comp]))))
-                     (overc % (lazy-seq (hlcl cache grammar 
-                                              (unifyc {:synsem (get-in % [:comp :synsem])}))))))
-                 (first lexical-headed-phrases))
-         
-         (hlcp cache grammar spec (rest lexical-headed-phrases) depth))))))
+        (mapcat
+         #(lazy-seq (overc % (hlcl cache grammar
+                                   (unifyc {:synsem (get-in % [:comp :synsem])})
+                                   (+ 1 depth))))
+         (lazy-seq (hl cache grammar spec)))))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"
