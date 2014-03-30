@@ -174,7 +174,7 @@
           (unifyc {:synsem (get-in spec [:comp :synsem])})
           (+ 1 depth))))
 
-(defn hlcl [cache grammar & [spec memoized-parents-at-this-depth memoized-lexical-headed-phrases depth]]
+(defn hlcl [cache grammar & [spec depth]]
   "generate all the phrases where the head is a lexeme and the complement is a lexeme"
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
