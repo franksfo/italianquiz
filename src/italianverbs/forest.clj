@@ -157,6 +157,23 @@
                                         (lazy-shuffle (:head (cache (:rule %)))))))
             (parents-at-this-depth spec (lazy-shuffle grammar) depth))))
 
+(declare hlcl)
+
+(defn hp [cache grammar & [spec depth]]
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)]
+    (hlcl cache grammar
+          (unifyc {:synsem (get-in spec [:head :synsem])})
+          (+ 1 depth))))
+
+(defn cp [cache grammar & [spec depth]]
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])]
+    (hlcl cache grammar
+          (unifyc {:synsem (get-in spec [:comp :synsem])})
+          (+ 1 depth))))
+
 (defn hlcl [cache grammar & [spec memoized-parents-at-this-depth memoized-lexical-headed-phrases depth]]
   "generate all the phrases where the head is a lexeme and the complement is a lexeme"
   (let [depth (if depth depth 0)
@@ -166,21 +183,27 @@
      #(overc % (lazy-shuffle (:comp (cache (:rule %)))))
      (hl cache grammar spec))))
 
-(defn hlcp [cache grammar & [spec memoized-lexical-headed-phrases depth]]
-  "generate all the phrases where the head is a lexeme and the complement is the phrase"
+(defn hlcp [cache grammar & [spec depth]]
+  "generate all the phrases where the head is a lexeme and the complement is a phrase."
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
-        head-spec (get-in spec [:head])
-        lexical-headed-phrases (hl cache grammar spec depth)]
-    (if (not (empty? lexical-headed-phrases))
-      (do
-        (log/debug (str "hlcp with spec: " (show-spec spec)))
-        (log/debug (str "hlcp with lexical-headed-phrases: " (fo-ps (first lexical-headed-phrases))))
-        (mapcat
-         #(lazy-seq (overc % (hlcl cache grammar
-                                   (unifyc {:synsem (get-in % [:comp :synsem])})
-                                   (+ 1 depth))))
-         (hl cache grammar spec))))))
+        head-spec (get-in spec [:head])]
+    (log/debug (str "hlcp with spec: " (show-spec spec)))
+    (mapcat
+     #(lazy-seq (overc % (hlcl cache grammar
+                               (unifyc {:synsem (get-in % [:comp :synsem])})
+                               (+ 1 depth))))
+     (hl cache grammar spec))))
+
+(defn hpcl [cache grammar & [spec depth]]
+  "generate all the phrases where the head is a phrase and the complement is a lexeme."
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])]
+    (log/debug (str "hpcl with spec: " (show-spec spec)))
+    (mapcat
+     #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
+     (hp cache grammar head-spec (+ 1 depth)))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"
