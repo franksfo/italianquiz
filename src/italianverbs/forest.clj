@@ -162,9 +162,11 @@
 (defn hp [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)]
-    (hlcl cache grammar
-          (unifyc {:synsem (get-in spec [:head :synsem])})
-          (+ 1 depth))))
+    (mapcat
+     #(lazy-seq (overh % (hlcl cache grammar
+                               {:synsem (get-in spec [:head :synsem] :top)}
+                               (+ 1 depth))))
+     grammar)))
 
 (defn cp [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
