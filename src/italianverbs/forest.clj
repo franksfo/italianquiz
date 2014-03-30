@@ -211,14 +211,15 @@
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
     (log/debug (str "hpcp with spec: " (show-spec spec)))
-    (let [myhp (hp cache grammar head-spec (+ 1 depth))]
-      (log/debug (str "myhp: " (fo-ps (first myhp))))
-      (mapcat
-       #(lazy-seq
-         (overc % (hlcl cache grammar
-                        {:synsem (get-in % [:comp :synsem] :top)}
-                        (+ 1 depth))))
-       myhp))))
+    (mapcat
+     #(lazy-seq
+       (overc % (hlcl cache grammar
+                      {:synsem (get-in % [:comp :synsem] :top)}
+                      (+ 1 depth))))
+     (mapcat
+      #(lazy-seq (overh (parents-at-this-depth spec (lazy-shuffle grammar) depth) %))
+      (hlcl cache (parents-at-this-depth head-spec (lazy-shuffle grammar) (+ 1 depth))
+            head-spec (+ 1 depth))))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"

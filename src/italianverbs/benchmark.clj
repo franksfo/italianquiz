@@ -203,4 +203,7 @@
    #(fo (short-sentence {:synsem {:sem {:pred :impazzire}}}))
    trials))
 
-
+(defn run-hpcp [trials]
+  (run-benchmark
+   #(fo (take 1 (forest/hpcp cache grammar {:synsem {:cat :verb :subcat '()}})))
+   trials))
