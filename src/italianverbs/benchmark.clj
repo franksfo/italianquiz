@@ -234,7 +234,9 @@
 
 (defn run-hpcp [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hpcp cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}}))))
+   #(fo (first (take 1 (forest/hpcp cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}
+                                                   :head {:synsem {:subcat {:1 :top
+                                                                            :2 '()}}}}))))
    trials))
 
 (defn benchmark []
