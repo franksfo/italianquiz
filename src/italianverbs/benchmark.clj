@@ -190,6 +190,7 @@
                               (* diff diff))
                            runtimes))
                average)]
+        ;; TODO: calculate median also.
         (println "average: " average "msec.")
         (println "stddev: " (math/ceil (math/sqrt avg-sum-of-differences-squared)))))))
 
