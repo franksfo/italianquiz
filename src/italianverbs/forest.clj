@@ -18,10 +18,10 @@
 (def concurrent false)
 
 (def random-order true)
-(defn rand-int [range constant]
+(defn rand-int [range & [constant]]
   (if random-order
     (core/rand-int range)
-    constant))
+    (if constant constant 0)))
 
 (declare lightning-bolt)
 
@@ -214,10 +214,10 @@
     (mapcat
 
      #(lazy-seq
+
        (overc % ;; parent: a phrase from HEAD-PHRASE:
               ;; complement: a hlcl.
               (hlcl cache grammar {:synsem (get-in % [:comp :synsem] :top)} (+ 1 depth))))
-
 
      ;; HEAD-PHRASE:
      (mapcat
@@ -239,6 +239,15 @@
 
 
             head-spec (+ 1 depth))))))
+
+(defn hxcx [cache grammar & [spec depth]]
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head] :top)]
+    (let [fns [hlcl]]
+      (mapcat
+       #(% cache grammar spec depth)
+       (shuffle fns)))))
 
 (defn lightning-bolt [grammar cache & [ spec depth]]
   "lightning-bolt lite"

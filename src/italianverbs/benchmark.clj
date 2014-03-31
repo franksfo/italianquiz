@@ -239,6 +239,13 @@
                                                                             :2 '()}}}}))))
    trials))
 
+(defn run-hxcx [trials]
+  (run-benchmark
+   #(fo (first (take 1 (forest/hxcx cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}
+                                                   :head {:synsem {:subcat {:1 :top
+                                                                            :2 '()}}}}))))
+   trials))
+
 (defn benchmark []
   (println "-- hlcl --")
   (run-hlcl 10)
