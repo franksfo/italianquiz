@@ -1,4 +1,5 @@
 #!/bin/sh
 # usage:  benchmark.sh
 # show only benchmark name and stats: ./benchmark.sh | egrep "\-\-"\|average\|stddev
-lein run -m italianverbs.benchmark/benchmark $*
+git log -1
+lein run -m italianverbs.benchmark/benchmark $* | egrep "\-\-"\|average\|stddev
