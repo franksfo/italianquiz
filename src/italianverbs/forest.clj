@@ -240,6 +240,44 @@
 
             head-spec (+ 1 depth))))))
 
+(defn hppcp [cache grammar & [spec depth]]
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])]
+    (log/debug (str "hpcp with spec: " (show-spec spec)))
+    (mapcat
+
+     #(lazy-seq
+
+       (overc % ;; parent: a phrase from HEAD-PHRASE:
+              ;; complement: a hlcl.
+              (do
+                (log/debug (str "generating a comp with: " (get-in % [:comp :synsem] :top) " given parent: "
+                                (:rule %)))
+                (hlcl cache grammar {:synsem (get-in % [:comp :synsem] :top)} (+ 1 depth)))))
+
+     ;; HEAD-PHRASE:
+     (mapcat
+      (let [head-spec (unifyc head-spec {:head {:synsem {:subcat {:1 :top
+                                                                  :2 '()}}}})]
+        #(lazy-seq (overh
+
+                    ;; parent
+                    (parents-at-this-depth head-spec (lazy-shuffle grammar) (+ 1 depth))
+
+                    ;; head: a hpcl.
+                    %))
+
+        (log/debug (str "generating a head phrase with: " (get-in head-spec [:head] :top)))
+;        (let [head-spec (unifyc head-spec {:head {:synsem {:subcat :top}}})]
+        (let [head-spec (unifyc head-spec {:head :top})]
+          (hpcl cache
+                ;; grammar for this hlcl: the phrase's head must *not* be an intransitive verb.
+                (parents-at-this-depth {:synsem (get-in head-spec [:head :synsem] :top)}
+                                       (lazy-shuffle grammar)
+                                       (+ 1 depth))
+                (get-in head-spec [:head]) (+ 1 depth))))))))
+
 (defn hxcx [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
