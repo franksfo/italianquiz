@@ -174,23 +174,21 @@
       (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
 
 (defn percentile [percent runtimes]
-  ;; for now, ignore percent and do 95%.
   (let [sorted-runtimes (sort runtimes)
         trials (.size runtimes)
 
         increment (/ (* trials 1.0) 100)
 
-        index-of-ninety-fifther 
-        (- (* increment 95) 1)
+        index-of-chosen-percent
+        (- (* increment percent) 1)
 
-        value-of-ninety-fifther 
-        (nth sorted-runtimes index-of-ninety-fifther)]
+        value-of-chosen-percent
+        (nth sorted-runtimes index-of-chosen-percent)]
 
     {;:incr increment
      :min (nth sorted-runtimes 0)
      :max (nth sorted-runtimes (- trials 1))
-;     :ninety-fifther-index index-of-ninety-fifther
-     :95% value-of-ninety-fifther
+     (keyword (str percent "%")) value-of-chosen-percent
      }))
 
 (defn run-benchmark [function-to-evaluate trials]
