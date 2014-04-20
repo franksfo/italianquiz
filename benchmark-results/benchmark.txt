@@ -4,4 +4,9 @@ percentiles: {:min 68, :max 2804, :95% 2502}
 stddev:  103.0
 nil
 
+italianverbs.benchmark> (run-hlcl-test-aux 10)
+average:  989.8 msec.
+percentiles: {:min 242, :max 4118, :95% 1478}
+stddev:  112.0
+
 
