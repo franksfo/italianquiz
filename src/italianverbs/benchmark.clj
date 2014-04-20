@@ -277,6 +277,13 @@
    trials))
 
 
+(defn run-hlcl-test-aux [trials]
+"this one seems to be an outlier for hlcl - try to make it faster."
+  (run-benchmark
+   #(fo (first (take 1 (forest/hlcl cache grammar {:synsem {:sem {:pred :venire}
+                                                            :aux true}}))))
+   trials))
+
 (defn run-hpcp [trials]
   (run-benchmark
    #(fo (first (take 1 (forest/hpcp cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}
