@@ -25,3 +25,18 @@ italianverbs.benchmark> (run-hlcl-test-aux 10)
 stats: {:mean 365.3, :stddev 1.0, :min 359, :max 371, :95% 369}
 nil
 italianverbs.benchmark> 
+
+italianverbs.benchmark> (run-hlcp 10)
+' [s-imperfetto [noun-phrase la mia (my) donna (woman)] pensava (was thinking)] ' took:  299  msec.
+' [s-future [noun-phrase le (the) ragazze (girls)] rideranno (will laugh)] ' took:  294  msec.
+' [s-imperfetto [noun-phrase di i (some) suoceri (parents-in-law)] pensavano (were thinking)] ' took:  281  msec.
+' [s-imperfetto [noun-phrase il nostro (our) amico (friend)] impazziva (was going mad)] ' took:  304  msec.
+' [s-present [noun-phrase la sua (his) madre (mother)] va (goes)] ' took:  276  msec.
+' [s-future [noun-phrase il (the) studente (student)] andrà (will go)] ' took:  301  msec.
+' [s-present [noun-phrase qualche (some) amico (friend)] dorme (sleeps)] ' took:  295  msec.
+' [s-future [noun-phrase il tuo (your) uomo (man)] impazzirà (will go mad)] ' took:  299  msec.
+' [s-future [noun-phrase un (a) cane (dog)] verrà (will come)] ' took:  298  msec.
+' [s-present [noun-phrase i (the) amici (friends)] pensano (think)] ' took:  295  msec.
+stats: {:mean 294.2, :stddev 2.0, :min 276, :max 304, :95% 301}
+nil
+italianverbs.benchmark> 
