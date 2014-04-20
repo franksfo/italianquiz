@@ -95,12 +95,12 @@
              (overh phrases bolts))
            (phrasal-headed-phrases (rest phrases) grammar depth cache path)))))))
 
-(defn parents-at-this-depth [head-spec phrases depth]
-  "subset of phrases possible at this depth where the phrase's head is the given head."
+(defn parents-given-spec [head-spec phrases]
+  "subset of phrases possible where the phrase's head is the given head."
   (if (nil? phrases)
-    (log/trace (str "no parents for spec: " (show-spec head-spec) " at depth: " depth)))
-  (log/trace (str "parents-at-this-depth: head-spec:" (show-spec head-spec)))
-  (log/trace (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
+    (log/trace (str "no parents for spec: " (show-spec head-spec))))
+  (log/info (str "parents-given-spec: head-spec:" (show-spec head-spec)))
+  (log/trace (str "parents-given-spec: phrases:" (fo-ps phrases)))
   (filter #(not (fail? %))
           (map (fn [each-phrase]
                  (unifyc each-phrase head-spec))
@@ -155,7 +155,7 @@
     (mapcat #(lazy-seq (overh % (filter (fn [lexeme]
                                           (not (fail? (unifyc lexeme head-spec))))
                                         (lazy-shuffle (:head (cache (:rule %)))))))
-            (parents-at-this-depth spec (lazy-shuffle grammar) depth))))
+            (parents-given-spec spec grammar))))
 
 (declare hlcl)
 
@@ -172,9 +172,9 @@
          (log/debug (str "SHOW SPEC SUBCAT: " (get-in spec [:synsem :subcat])))
          (log/debug (str "head-spec's 2nd arg pronoun is:" (get-in spec [:synsem :subcat :2])))
          (log/debug (str "hp head arg: " (fo-ps %)))
-         (overh (parents-at-this-depth spec (lazy-shuffle grammar) depth) %)))
+         (overh (parents-given-spec spec (lazy-shuffle grammar)) %)))
      (hlcl cache 
-           (parents-at-this-depth spec (lazy-shuffle grammar) (+ 1 depth)) 
+           (parents-given-spec spec (lazy-shuffle grammar))
            head-spec 
            (+ 1 depth)))))
 
@@ -247,7 +247,7 @@
       #(lazy-seq (overh
 
                   ;; parent
-                  (parents-at-this-depth spec (lazy-shuffle grammar) depth)
+                  (parents-given-spec spec (lazy-shuffle grammar))
 
                   ;; head: a hlcl.
                   %))
@@ -255,7 +255,7 @@
       (hlcl cache
 
             ;; grammar for this hlcl: the phrase's head must *not* be an intransitive verb.
-            (parents-at-this-depth head-spec
+            (parents-given-spec head-spec
                                    (lazy-shuffle grammar)
                                    (+ 1 depth))
 
@@ -285,7 +285,7 @@
         #(lazy-seq (overh
 
                     ;; parent
-                    (parents-at-this-depth head-spec (lazy-shuffle grammar) (+ 1 depth))
+                    (parents-given-spec head-spec (lazy-shuffle grammar))
 
                     ;; head: a hpcl.
                     %))
@@ -295,9 +295,8 @@
         (let [head-spec (unifyc head-spec {:head :top})]
           (hpcl cache
                 ;; grammar for this hlcl: the phrase's head must *not* be an intransitive verb.
-                (parents-at-this-depth {:synsem (get-in head-spec [:head :synsem] :top)}
-                                       (lazy-shuffle grammar)
-                                       (+ 1 depth))
+                (parents-given-spec {:synsem (get-in head-spec [:head :synsem] :top)}
+                                       (lazy-shuffle grammar))
                 (get-in head-spec [:head]) (+ 1 depth))))))))
 
 (defn hxcx [cache grammar & [spec depth]]
@@ -320,24 +319,24 @@
      nil
 
      true
-     (let [parents-at-this-depth (parents-at-this-depth spec (lazy-shuffle grammar) depth)
+     (let [parents-given-spec (parents-given-spec spec (lazy-shuffle grammar))
 
            lexical-headed-phrases
            (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
-                parents-at-this-depth)
+                parents-given-spec)
 
-           debug (log/debug (str "PARENTS AT THIS DEPTH: " (fo-ps parents-at-this-depth)))
+           debug (log/debug (str "PARENTS FOR THIS SPEC: " (fo-ps parents-given-spec)))
 
            phrasal-headed-phrases
            (if (not (= false (get-in spec [:head :phrasal])))
-             (phrasal-headed-phrases parents-at-this-depth
+             (phrasal-headed-phrases parents-given-spec
                                      grammar depth cache nil))
 
            debug (log/debug (str "getting 1-level trees.."))
 
            hlcl
            (if (first lexical-headed-phrases)
-             (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule (first parents-at-this-depth))))))
+             (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule (first parents-given-spec))))))
                      lexical-headed-phrases))
 
            debug (log/debug (str "done getting 1-level trees - type: " (type hlcl)))
