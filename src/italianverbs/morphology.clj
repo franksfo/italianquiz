@@ -494,7 +494,9 @@
           (or (= :notfound (get-in word '(:agr :number) :notfound))
               (= :top (get-in word '(:agr :number)))))
      ;; 'nei': not enough information.
-     (str "[nei1: " (get-in word '(:irregular :passato)) " (irreg past)]")
+     (do
+       (log/warn (str "not enough info to conjugate: " (get-in word '(:irregular :passato)) " (irreg past)]"))
+       (get-in word '(:irregular :passato)))
 
      ;; TODO: do not use brackets: if there's an error about there being
      ;; regular passato prossimo and essere-verb => NEI (not enough information): defer conjugation and keep as a map.
