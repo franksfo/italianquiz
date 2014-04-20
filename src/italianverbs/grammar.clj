@@ -97,10 +97,10 @@
                              {:head {:phrasal false}
                               :rule "vp-aux-22"
                               :synsem {:aux true
+                                       :cat :verb
                                        :infl :present
                                        :sem {:tense :past}
-                                       :subcat {:2 {:agr obj-agr}}
-                                       :cat :verb}
+                                       :subcat {:2 {:agr obj-agr}}}
                               :italian {:b {:obj-agr obj-agr}}}))
 
                    (unifyc hh21
