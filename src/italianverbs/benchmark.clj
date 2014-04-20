@@ -173,6 +173,8 @@
       (log/info (str "core async generated noun phrase: " (fo nounphrase)))
       (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
 
+
+
 (defn percentile [percent runtimes]
   (let [sorted-runtimes (sort runtimes)
         trials (.size runtimes)
@@ -183,9 +185,19 @@
         (- (* increment percent) 1)
 
         value-of-chosen-percent
-        (nth sorted-runtimes index-of-chosen-percent)]
+        (nth sorted-runtimes index-of-chosen-percent)
 
-    {;:incr increment
+        mean (/ (reduce + runtimes) (* trials 1.0))
+
+        avg-sum-of-differences-squared
+        (/ (reduce + (map #(let [diff (- mean %)]
+                             (* diff diff))
+                          runtimes))
+           mean)
+        stddev (math/ceil (math/sqrt avg-sum-of-differences-squared))]
+
+    {:mean mean
+     :stddev stddev
      :min (nth sorted-runtimes 0)
      :max (nth sorted-runtimes (- trials 1))
      (keyword (str percent "%")) value-of-chosen-percent
@@ -202,17 +214,7 @@
                         (println "'" result "' took: " runtime " msec.")
                         runtime))
                (range 0 trials))]
-      ;; note cast of _trials_ to float by multiplying it times a float.
-      (let [average (/ (reduce + runtimes) (* trials 1.0))
-            avg-sum-of-differences-squared
-            (/ (reduce + (map #(let [diff (- average %)]
-                              (* diff diff))
-                           runtimes))
-               average)]
-        ;; TODO: calculate median and 95% pct
-        (println "average: " average "msec.")
-        (println "percentiles:" (percentile 95 runtimes))
-        (println "stddev: " (math/ceil (math/sqrt avg-sum-of-differences-squared)))))))
+      (println "stats:" (percentile 95 runtimes)))))
 
 (defn spresent [trials]
   (run-benchmark
@@ -273,16 +275,30 @@
 
 (defn run-hlcl-test [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hlcl cache grammar :top))))
+   #(fo-ps (first (take 1 (forest/hlcl cache grammar :top))))
    trials))
-
 
 (defn run-hlcl-test-aux [trials]
 "this one seems to be an outlier for hlcl - try to make it faster."
+(let [essere true
+      grammar grammar]
   (run-benchmark
+   
    #(fo (first (take 1 (forest/hlcl cache grammar {:synsem {:sem {:pred :venire}
+                                                            :essere essere
                                                             :aux true}}))))
-   trials))
+   trials)))
+
+(defn run-hl-test-aux [trials]
+"this one seems to be an outlier for hlcl - try to make it faster."
+(let [essere true
+      grammar grammar]
+  (run-benchmark
+   
+   #(fo-ps (first (take 1 (forest/hl cache grammar {:synsem {:sem {:pred :venire}
+                                                            :essere essere
+                                                            :aux true}}))))
+   trials)))
 
 (defn run-hpcp [trials]
   (run-benchmark
