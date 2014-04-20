@@ -148,13 +148,13 @@
 (defn hl [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
-        head-spec (get-in spec [:head])
+        head-spec (get-in spec [:head :synsem])
         grammar (lazy-shuffle grammar)]
 
     ;; try every possible lexeme as a candidate head for each phrase:
     ;; use (:comp (cache ..)) as the subset of the lexicon to try.
     (mapcat #(lazy-seq (overh % (filter (fn [lexeme]
-                                          (not (fail? (unifyc lexeme head-spec))))
+                                          (not (fail? (unifyc (get-in lexeme [:synsem]) head-spec))))
                                         (lazy-shuffle (:head (cache (:rule %)))))))
             (parents-given-spec spec grammar))))
 
