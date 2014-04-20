@@ -251,14 +251,7 @@
 
 (defn run-hpcl [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hpcl cache (list vp-pronoun) {:synsem {:cat :verb :subcat '()}
-                                                             :head {:synsem {:subcat {:1 :top}}
-                                                                    :head {:subcat {:1 :top
-                                                                                    :2 :top}
-                                                                           :aux true}}}))))
-
-                                                                            
-                                                            
+   #(fo (first (take 1 (forest/hpcl cache (list grammar) {:synsem {:cat :verb :subcat '()}}))))
    trials))
 
 (defn run-test [trials]
