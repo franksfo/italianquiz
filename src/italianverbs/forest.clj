@@ -148,7 +148,8 @@
 (defn hl [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
-        head-spec (get-in spec [:head])]
+        head-spec (get-in spec [:head])
+        grammar (lazy-shuffle grammar)]
 
     ;; try every possible lexeme as a candidate head for each phrase:
     ;; use (:comp (cache ..)) as the subset of the lexicon to try.
