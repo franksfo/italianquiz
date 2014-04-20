@@ -1,5 +1,7 @@
 italianverbs.benchmark> (run-hlcl-test 10)
+average:  871.0 msec.
+percentiles: {:min 68, :max 2804, :95% 2502}
+stddev:  103.0
+nil
 
-average:  3723.7 msec.
-stddev:  216.0
 
