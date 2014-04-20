@@ -192,7 +192,13 @@
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head] :top)]
     (mapcat
-     #(overc % (lazy-shuffle (:comp (cache (:rule %)))))
+     #(let [pred-of-arg (get-in % [:comp :synsem])]
+        (log/trace (str "pred-of-arg: " pred-of-arg))
+        (overc % (lazy-shuffle
+                  (filter (fn [complement]
+                            (not (fail? (unifyc (get-in complement [:synsem])
+                                                pred-of-arg))))
+                          (:comp (cache (:rule %)))))))
      (hl cache grammar spec))))
 
 (defn hlcp [cache grammar & [spec depth]]
