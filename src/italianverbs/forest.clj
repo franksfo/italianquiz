@@ -161,11 +161,22 @@
 
 (defn hp [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
+        debug (log/debug (str "PRE-PHRASAL-SPEC: " spec))
         spec (phrasal-spec (if spec spec :top) cache)
+        debug (log/debug (str "POST-PHRASAL-SPEC: " spec))
         head-spec {:synsem (get-in spec [:head :synsem] :top)}]
+    (log/info (str "HP with spec: " spec))
     (mapcat
-     #(lazy-seq (overh (parents-at-this-depth spec (lazy-shuffle grammar) depth) %))
-     (hlcl cache (parents-at-this-depth head-spec (lazy-shuffle grammar) (+ 1 depth)) head-spec (+ 1 depth)))))
+     #(lazy-seq 
+       (do
+         (log/debug (str "SHOW SPEC SUBCAT: " (get-in spec [:synsem :subcat])))
+         (log/debug (str "head-spec's 2nd arg pronoun is:" (get-in spec [:synsem :subcat :2])))
+         (log/debug (str "hp head arg: " (fo-ps %)))
+         (overh (parents-at-this-depth spec (lazy-shuffle grammar) depth) %)))
+     (hlcl cache 
+           (parents-at-this-depth spec (lazy-shuffle grammar) (+ 1 depth)) 
+           head-spec 
+           (+ 1 depth)))))
 
 (defn cp [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
@@ -198,12 +209,17 @@
 
 (defn hpcl [cache grammar & [spec depth]]
   "generate all the phrases where the head is a phrase and the complement is a lexeme."
+  (log/debug (str "START HPCL.."))
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
     (log/debug (str "hpcl with spec: " (show-spec spec)))
     (mapcat
-     #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
+     #(lazy-seq
+       (do
+         (log/info (str "HPCL : PERCENT IS: " (fo-ps %)))
+         (let [result (overc % (lazy-shuffle (:comp (cache (:rule %)))))]
+           result)))
      (hp cache grammar head-spec (+ 1 depth)))))
 
 (defn hpcp [cache grammar & [spec depth]]

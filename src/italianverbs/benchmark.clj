@@ -229,8 +229,28 @@
 
 (defn run-hpcl [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hpcl cache grammar {:synsem {:cat :verb :subcat '()}}))))
+   #(fo (first (take 1 (forest/hpcl cache (list vp-pronoun) {:synsem {:cat :verb :subcat '()}
+                                                             :head {:synsem {:subcat {:1 :top}}
+                                                                    :head {:subcat {:1 :top
+                                                                                    :2 :top}
+                                                                           :aux true}}}))))
+
+                                                                            
+                                                            
    trials))
+
+(defn run-test [trials]
+  (run-benchmark
+   #(fo (first (take 1 (forest/hlcl cache (list vp-aux) {:synsem {:cat :verb 
+                                                                  :subcat {:1 :top}}
+                                                         :head {:subcat {:1 :top
+                                                                         :2 :top}
+                                                                :aux true}}))))
+
+                                                                            
+                                                            
+   trials))
+
 
 (defn run-hpcp [trials]
   (run-benchmark
