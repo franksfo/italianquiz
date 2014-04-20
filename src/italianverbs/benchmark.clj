@@ -173,6 +173,26 @@
       (log/info (str "core async generated noun phrase: " (fo nounphrase)))
       (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
 
+(defn percentile [percent runtimes]
+  ;; for now, ignore percent and do 95%.
+  (let [sorted-runtimes (sort runtimes)
+        trials (.size runtimes)
+
+        increment (/ (* trials 1.0) 100)
+
+        index-of-ninety-fifther 
+        (- (* increment 95) 1)
+
+        value-of-ninety-fifther 
+        (nth sorted-runtimes index-of-ninety-fifther)]
+
+    {;:incr increment
+     :min (nth sorted-runtimes 0)
+     :max (nth sorted-runtimes (- trials 1))
+;     :ninety-fifther-index index-of-ninety-fifther
+     :95% value-of-ninety-fifther
+     }))
+
 (defn run-benchmark [function-to-evaluate trials]
   (if (> trials 0)
     (let [runtimes
@@ -184,14 +204,16 @@
                         (println "'" result "' took: " runtime " msec.")
                         runtime))
                (range 0 trials))]
+      ;; note cast of _trials_ to float by multiplying it times a float.
       (let [average (/ (reduce + runtimes) (* trials 1.0))
             avg-sum-of-differences-squared
             (/ (reduce + (map #(let [diff (- average %)]
                               (* diff diff))
                            runtimes))
                average)]
-        ;; TODO: calculate median also.
+        ;; TODO: calculate median and 95% pct
         (println "average: " average "msec.")
+        (println "percentiles:" (percentile 95 runtimes))
         (println "stddev: " (math/ceil (math/sqrt avg-sum-of-differences-squared)))))))
 
 (defn spresent [trials]
