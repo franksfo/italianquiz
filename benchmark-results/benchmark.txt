@@ -1,27 +1,27 @@
 italianverbs.benchmark> (run-hlcl-test 10)
-' [vp-past potato (could have) ridere (to laugh)] ' took:  1396  msec.
-' [vp-pronoun la (it (&#x2640;)) perdere (to lose)] ' took:  108  msec.
-' [s-imperfetto Antonia (Antonia) lavorava (was working)] ' took:  986  msec.
-' [vp-aux-22 avere () voluto (wanted to)] ' took:  420  msec.
-' [s-imperfetto loro (they) ridevano (were laughing)] ' took:  167  msec.
-' [s-present Antonio (Antonio) ride (laughs)] ' took:  163  msec.
-' [s-imperfetto voi (you all) lavoravate (were working)] ' took:  166  msec.
-' [vp-imperfetto amare (were loving) Giorgio (Giorgio)] ' took:  1146  msec.
-' [s-future Giorgio (Giorgio) dormirà (will sleep)] ' took:  165  msec.
-' [vp-infinitive seguire (to follow) Antonio (Antonio)] ' took:  506  msec.
-stats: {:mean 522.3, :stddev 63.0, :min 108, :max 1396, :95% 1146}
+' [intensifier-phrase meno (less) alto (tall)] ' took:  610  msec.
+' [s-future tu (you (&#x2640;)) penserai (will think)] ' took:  163  msec.
+' [vp-imperfetto essere (were being) Giorgio (Giorgio)] ' took:  551  msec.
+' [nbar spiaggia (beach) nero (black)] ' took:  128  msec.
+' [vp-pronoun la (it (&#x2640;)) bere (to drink)] ' took:  108  msec.
+' [vp-aux avere () ricordato (remembered)] ' took:  685  msec.
+' [s-imperfetto Antonio (Antonio) veniva (was coming)] ' took:  159  msec.
+' [intensifier-phrase meno (less) rumoroso (noisy)] ' took:  545  msec.
+' [vp-future ricordare (to remember) Paola (Paola)] ' took:  438  msec.
+' [s-imperfetto io (I) impazzivo (was going mad)] ' took:  163  msec.
+stats: {:mean 355.0, :stddev 37.0, :min 108, :max 685, :95% 610}
 nil
 italianverbs.benchmark> (run-hlcl-test-aux 10)
-' (Essere venuto (Came).) ' took:  428  msec.
-' (Essere venuto (Came).) ' took:  430  msec.
-' (Essere venuto (Came).) ' took:  428  msec.
-' (Essere venuto (Came).) ' took:  434  msec.
-' (Essere venuto (Came).) ' took:  438  msec.
-' (Essere venuto (Came).) ' took:  436  msec.
-' (Essere venuto (Came).) ' took:  435  msec.
-' (Essere venuto (Came).) ' took:  439  msec.
-' (Essere venuto (Came).) ' took:  433  msec.
-' (Essere venuto (Came).) ' took:  425  msec.
-stats: {:mean 432.6, :stddev 1.0, :min 425, :max 439, :95% 438}
+' (Essere venuto (Came).) ' took:  360  msec.
+' (Essere venuto (Came).) ' took:  371  msec.
+' (Essere venuto (Came).) ' took:  359  msec.
+' (Essere venuto (Came).) ' took:  369  msec.
+' (Essere venuto (Came).) ' took:  364  msec.
+' (Essere venuto (Came).) ' took:  366  msec.
+' (Essere venuto (Came).) ' took:  368  msec.
+' (Essere venuto (Came).) ' took:  364  msec.
+' (Essere venuto (Came).) ' took:  369  msec.
+' (Essere venuto (Came).) ' took:  363  msec.
+stats: {:mean 365.3, :stddev 1.0, :min 359, :max 371, :95% 369}
 nil
 italianverbs.benchmark> 
