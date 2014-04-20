@@ -246,7 +246,7 @@
 
 (defn run-hlcp [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}}))))
+   #(fo-ps (first (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}}))))
    trials))
 
 (defn run-hpcl [trials]
