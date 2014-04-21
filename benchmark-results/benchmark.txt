@@ -1,5 +1,41 @@
-commit 943bc8efdbf9ade9f082e9d18ee2fddc664e2ee8
+commit 4a634b9fbf4aaa66e69db14cc7ab545e9342ba1d
 Author: Eugene Koontz <ekoontz@hiro-tan.org>
-Date:   Sun Apr 20 17:07:22 2014 -0700
+Date:   Sun Apr 20 18:24:02 2014 -0700
 
-    use benchmark.sh to generate benchmarks
+    much more efficient implementation of (hp).
+run-hlcl-test 10
+' [s-present Antonio (Antonio) dorme (sleeps)] ' took:  2924  msec.
+' [vp-past seguito (followed) Giorgio (Giorgio)] ' took:  1486  msec.
+' [noun-phrase di la (some) lettera (letter)] ' took:  1831  msec.
+' [vp-future potere (to be able to) lavorare (to work)] ' took:  2525  msec.
+' [nbar giornale (newspaper) nero (black)] ' took:  1815  msec.
+' [vp-future perdere (to lose) Roma (Rome)] ' took:  504  msec.
+' [vp-future ricordare (to remember) Giorgio (Giorgio)] ' took:  440  msec.
+' [vp-infinitive volere (to want to) lavorare (to work)] ' took:  1637  msec.
+' [vp-imperfetto cercare (were looking for) Antonio (Antonio)] ' took:  3180  msec.
+' [vp-present seguire (to follow) Paola (Paola)] ' took:  1549  msec.
+stats: {:mean 1789.1, :stddev 65.0, :min 440, :max 3180, :95% 2924}
+run-hp-with-subcat-nil-test 10
+' [s-imperfetto .. (..) [vp-pronoun li (them (&#x2642;)) cercare (were looking for)]] ' took:  1516  msec.
+' [s-future .. (..) [vp-pronoun ci (us) seguire (to follow)]] ' took:  751  msec.
+' [s-aux .. (..) [vp-aux avere () stendato (hung out)]] ' took:  2538  msec.
+' [noun-phrase .. (..) [nbar cane (dog) robusto (large-built)]] ' took:  962  msec.
+' [noun-phrase .. (..) [nbar acqua (water) rossa (red)]] ' took:  1546  msec.
+' [noun-phrase .. (..) [nbar parola (word) nero (black)]] ' took:  942  msec.
+' [s-aux .. (..) [vp-aux essere () stato ([were])]] ' took:  1060  msec.
+' [s-future .. (..) [vp-pronoun la (it (&#x2640;)) mangiare (to eat)]] ' took:  526  msec.
+' [s-imperfetto .. (..) [vp-imperfetto amare (were loving) Antonia (Antonia)]] ' took:  878  msec.
+' [s-imperfetto .. (..) [vp-pronoun la (it (&#x2640;)) leggere (were reading)]] ' took:  848  msec.
+stats: {:mean 1156.7, :stddev 52.0, :min 526, :max 2538, :95% 1546}
+run-hlcl-test-aux 10
+' (Essere venuto (Came).) ' took:  2650  msec.
+' (Essere venuto (Came).) ' took:  417  msec.
+' (Essere venuto (Came).) ' took:  417  msec.
+' (Essere venuto (Came).) ' took:  418  msec.
+' (Essere venuto (Came).) ' took:  419  msec.
+' (Essere venuto (Came).) ' took:  413  msec.
+' (Essere venuto (Came).) ' took:  412  msec.
+' (Essere venuto (Came).) ' took:  416  msec.
+' (Essere venuto (Came).) ' took:  418  msec.
+' (Essere venuto (Came).) ' took:  414  msec.
+stats: {:mean 639.4, :stddev 84.0, :min 412, :max 2650, :95% 419}
