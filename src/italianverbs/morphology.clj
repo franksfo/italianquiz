@@ -495,7 +495,7 @@
               (= :top (get-in word '(:agr :number)))))
      ;; 'nei': not enough information.
      (do
-       (log/warn (str "not enough info to conjugate: " (get-in word '(:irregular :passato)) " (irreg past)]"))
+       (log/warn (str "not enough agreement specified to conjugate: " (get-in word '(:irregular :passato)) " (irreg past)]"))
        (get-in word '(:irregular :passato)))
 
      ;; TODO: do not use brackets: if there's an error about there being
@@ -505,7 +505,9 @@
           (or (= :notfound (get-in word '(:agr :number) :notfound))
               (= :top (get-in word '(:agr :number)))))
      ;; 'nei': not enough information.
-     (str "[nei2: " (get-in word '(:infinitive)) " (past)]")
+     (do
+       (log/warn (str "not enough agreement specified to conjugate: " (get-in word '(:irregular :passato)) " (past)]"))
+       (str (get-in word [:infinitive]) " (past)"))
 
      ;; conjugate irregular passato
      (and (= :past (get-in word '(:infl)))
