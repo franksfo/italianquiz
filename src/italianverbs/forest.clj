@@ -223,10 +223,7 @@
     (log/debug (str "hpcl with spec: " (show-spec spec)))
     (mapcat
      #(lazy-seq
-       (do
-         (log/info (str "HPCL : PERCENT IS: " (fo-ps %)))
-         (let [result (overc % (lazy-shuffle (:comp (cache (:rule %)))))]
-           result)))
+       (overc % (lazy-shuffle (:comp (cache (:rule %))))))
      (hp cache grammar head-spec (+ 1 depth)))))
 
 (defn hpcp [cache grammar & [spec depth]]
