@@ -308,14 +308,5 @@
    trials))
 
 (defn benchmark []
-  (println "-- hlcl --")
-  (run-hlcl 10)
-  (println)
-  (println "-- hpcl --")
-  (run-hpcl 10)
-  (println)
-  (println "-- hlcp --")
-  (run-hlcp 10)
-  (println)
-  (println "-- hpcp --")
-  (run-hpcp 10))
+  (run-hlcl-test 10)
+  (run-hlcl-test-aux 10))
