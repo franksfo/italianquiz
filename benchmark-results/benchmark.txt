@@ -1,42 +1,27 @@
-italianverbs.benchmark> (run-hlcl-test 10)
-' [intensifier-phrase meno (less) alto (tall)] ' took:  610  msec.
-' [s-future tu (you (&#x2640;)) penserai (will think)] ' took:  163  msec.
-' [vp-imperfetto essere (were being) Giorgio (Giorgio)] ' took:  551  msec.
-' [nbar spiaggia (beach) nero (black)] ' took:  128  msec.
-' [vp-pronoun la (it (&#x2640;)) bere (to drink)] ' took:  108  msec.
-' [vp-aux avere () ricordato (remembered)] ' took:  685  msec.
-' [s-imperfetto Antonio (Antonio) veniva (was coming)] ' took:  159  msec.
-' [intensifier-phrase meno (less) rumoroso (noisy)] ' took:  545  msec.
-' [vp-future ricordare (to remember) Paola (Paola)] ' took:  438  msec.
-' [s-imperfetto io (I) impazzivo (was going mad)] ' took:  163  msec.
-stats: {:mean 355.0, :stddev 37.0, :min 108, :max 685, :95% 610}
-nil
-italianverbs.benchmark> (run-hlcl-test-aux 10)
-' (Essere venuto (Came).) ' took:  360  msec.
-' (Essere venuto (Came).) ' took:  371  msec.
-' (Essere venuto (Came).) ' took:  359  msec.
-' (Essere venuto (Came).) ' took:  369  msec.
-' (Essere venuto (Came).) ' took:  364  msec.
-' (Essere venuto (Came).) ' took:  366  msec.
-' (Essere venuto (Came).) ' took:  368  msec.
-' (Essere venuto (Came).) ' took:  364  msec.
-' (Essere venuto (Came).) ' took:  369  msec.
-' (Essere venuto (Came).) ' took:  363  msec.
-stats: {:mean 365.3, :stddev 1.0, :min 359, :max 371, :95% 369}
-nil
-italianverbs.benchmark> 
+commit 11eefc10095f2ce4d90e23670dbab26c8f8306a7
+Author: Eugene Koontz <ekoontz@hiro-tan.org>
+Date:   Sun Apr 20 11:12:09 2014 -0700
 
-italianverbs.benchmark> (run-hlcp 10)
-' [s-imperfetto [noun-phrase la mia (my) donna (woman)] pensava (was thinking)] ' took:  299  msec.
-' [s-future [noun-phrase le (the) ragazze (girls)] rideranno (will laugh)] ' took:  294  msec.
-' [s-imperfetto [noun-phrase di i (some) suoceri (parents-in-law)] pensavano (were thinking)] ' took:  281  msec.
-' [s-imperfetto [noun-phrase il nostro (our) amico (friend)] impazziva (was going mad)] ' took:  304  msec.
-' [s-present [noun-phrase la sua (his) madre (mother)] va (goes)] ' took:  276  msec.
-' [s-future [noun-phrase il (the) studente (student)] andrà (will go)] ' took:  301  msec.
-' [s-present [noun-phrase qualche (some) amico (friend)] dorme (sleeps)] ' took:  295  msec.
-' [s-future [noun-phrase il tuo (your) uomo (man)] impazzirà (will go mad)] ' took:  299  msec.
-' [s-future [noun-phrase un (a) cane (dog)] verrà (will come)] ' took:  298  msec.
-' [s-present [noun-phrase i (the) amici (friends)] pensano (think)] ' took:  295  msec.
-stats: {:mean 294.2, :stddev 2.0, :min 276, :max 304, :95% 301}
-nil
-italianverbs.benchmark> 
+    working on benchmarking hpcl
+' [nbar vino (wine) brutto (ugly)] ' took:  1301  msec.
+' [vp-past seguito (followed) Antonia (Antonia)] ' took:  3211  msec.
+' [prepositional-phrase a (in) cipolla (onion)] ' took:  1261  msec.
+' [s-future voi (you all) lavorerete (will work)] ' took:  1140  msec.
+' [vp-past cercato (looked for) Napoli (Naples)] ' took:  498  msec.
+' [noun-phrase di i (some) studenti (students)] ' took:  1030  msec.
+' [noun-phrase la vostra (your (pl)) birra (beer)] ' took:  925  msec.
+' [vp-past deluso (disappointed) Paola (Paola)] ' took:  460  msec.
+' [intensifier-phrase più (more) contento (happy)] ' took:  2273  msec.
+' [prepositional-phrase a (in) ragazzo (guy)] ' took:  411  msec.
+stats: {:mean 1251.0, :stddev 75.0, :min 411, :max 3211, :95% 2273}
+' (Essere venuto (Came).) ' took:  4296  msec.
+' (Essere venuto (Came).) ' took:  411  msec.
+' (Essere venuto (Came).) ' took:  412  msec.
+' (Essere venuto (Came).) ' took:  410  msec.
+' (Essere venuto (Came).) ' took:  408  msec.
+' (Essere venuto (Came).) ' took:  412  msec.
+' (Essere venuto (Came).) ' took:  416  msec.
+' (Essere venuto (Came).) ' took:  413  msec.
+' (Essere venuto (Came).) ' took:  408  msec.
+' (Essere venuto (Came).) ' took:  410  msec.
+stats: {:mean 799.6, :stddev 131.0, :min 408, :max 4296, :95% 416}
