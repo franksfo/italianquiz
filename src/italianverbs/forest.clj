@@ -227,38 +227,17 @@
      (hp cache grammar head-spec (+ 1 depth)))))
 
 (defn hpcp [cache grammar & [spec depth]]
+  "generate all the phrases where the head is a phrase and the complement is a lexeme."
+  (log/debug (str "START HPCL.."))
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
-    (log/debug (str "hpcp with spec: " (show-spec spec)))
+    (log/debug (str "hpcl with spec: " (show-spec spec)))
     (mapcat
-
-     #(lazy-seq
-
-       (overc % ;; parent: a phrase from HEAD-PHRASE:
-              ;; complement: a hlcl.
-              (hlcl cache grammar {:synsem (get-in % [:comp :synsem] :top)} (+ 1 depth))))
-
-     ;; HEAD-PHRASE:
-     (mapcat
-
-      #(lazy-seq (overh
-
-                  ;; parent
-                  (parents-given-spec spec (lazy-shuffle grammar))
-
-                  ;; head: a hlcl.
-                  %))
-
-      (hlcl cache
-
-            ;; grammar for this hlcl: the phrase's head must *not* be an intransitive verb.
-            (parents-given-spec head-spec
-                                   (lazy-shuffle grammar)
-                                   (+ 1 depth))
-
-
-            head-spec (+ 1 depth))))))
+     #(lazy-seq (overc % (hlcl cache grammar
+                               {:synsem (get-in % [:comp :synsem] :top)}
+                               (+ 1 depth))))
+     (hp cache grammar head-spec (+ 1 depth)))))
 
 (defn hppcp [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
