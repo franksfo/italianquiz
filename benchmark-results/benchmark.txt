@@ -1,27 +1,5 @@
-commit 11eefc10095f2ce4d90e23670dbab26c8f8306a7
+commit 943bc8efdbf9ade9f082e9d18ee2fddc664e2ee8
 Author: Eugene Koontz <ekoontz@hiro-tan.org>
-Date:   Sun Apr 20 11:12:09 2014 -0700
+Date:   Sun Apr 20 17:07:22 2014 -0700
 
-    working on benchmarking hpcl
-' [nbar vino (wine) brutto (ugly)] ' took:  1301  msec.
-' [vp-past seguito (followed) Antonia (Antonia)] ' took:  3211  msec.
-' [prepositional-phrase a (in) cipolla (onion)] ' took:  1261  msec.
-' [s-future voi (you all) lavorerete (will work)] ' took:  1140  msec.
-' [vp-past cercato (looked for) Napoli (Naples)] ' took:  498  msec.
-' [noun-phrase di i (some) studenti (students)] ' took:  1030  msec.
-' [noun-phrase la vostra (your (pl)) birra (beer)] ' took:  925  msec.
-' [vp-past deluso (disappointed) Paola (Paola)] ' took:  460  msec.
-' [intensifier-phrase più (more) contento (happy)] ' took:  2273  msec.
-' [prepositional-phrase a (in) ragazzo (guy)] ' took:  411  msec.
-stats: {:mean 1251.0, :stddev 75.0, :min 411, :max 3211, :95% 2273}
-' (Essere venuto (Came).) ' took:  4296  msec.
-' (Essere venuto (Came).) ' took:  411  msec.
-' (Essere venuto (Came).) ' took:  412  msec.
-' (Essere venuto (Came).) ' took:  410  msec.
-' (Essere venuto (Came).) ' took:  408  msec.
-' (Essere venuto (Came).) ' took:  412  msec.
-' (Essere venuto (Came).) ' took:  416  msec.
-' (Essere venuto (Came).) ' took:  413  msec.
-' (Essere venuto (Came).) ' took:  408  msec.
-' (Essere venuto (Came).) ' took:  410  msec.
-stats: {:mean 799.6, :stddev 131.0, :min 408, :max 4296, :95% 416}
+    use benchmark.sh to generate benchmarks

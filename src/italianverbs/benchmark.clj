@@ -271,6 +271,16 @@
    #(fo-ps (first (take 1 (forest/hlcl cache grammar :top))))
    trials))
 
+(defn run-hlcl-with-subcat-nil-test [trials]
+  (run-benchmark
+   #(fo-ps (first (take 1 (forest/hlcl cache grammar {:synsem {:subcat '()}}))))
+   trials))
+
+(defn run-hp-with-subcat-nil-test [trials]
+  (run-benchmark
+   #(fo-ps (first (take 1 (forest/hp cache grammar {:synsem {:subcat '()}}))))
+   trials))
+
 (defn run-hlcl-test-aux [trials]
 "this one seems to be an outlier for hlcl - try to make it faster."
 (let [essere true
@@ -308,5 +318,9 @@
    trials))
 
 (defn benchmark []
+  (println "run-hlcl-test 10")
   (run-hlcl-test 10)
+  (println "run-hp-with-subcat-nil-test 10")
+  (run-hp-with-subcat-nil-test 10)
+  (println "run-hlcl-test-aux 10")
   (run-hlcl-test-aux 10))
