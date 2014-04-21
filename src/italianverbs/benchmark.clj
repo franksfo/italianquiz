@@ -286,6 +286,11 @@
    #(fo-ps (first (take 1 (forest/hpcl cache grammar {:synsem {:subcat '()}}))))
    trials))
 
+(defn run-hpcp-with-subcat-nil-test [trials]
+  (run-benchmark
+   #(fo-ps (first (take 1 (forest/hpcp cache grammar {:synsem {:subcat '()}}))))
+   trials))
+
 (defn run-hlcp-with-subcat-nil-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hlcp cache grammar {:synsem {:subcat '()}}))))
@@ -341,7 +346,11 @@
   (run-hp-with-subcat-nil-test 10)
 
   (println "run-hpcl-with-subcat-nil-test 10")
-  (run-hpcl-with-subcat-nil-test 10))
+  (run-hpcl-with-subcat-nil-test 10)
+
+  (println "run-hpcp-with-subcat-nil-test 10")
+  (run-hpcp-with-subcat-nil-test 10))
+
 
 
 
