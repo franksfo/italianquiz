@@ -190,17 +190,23 @@
 (defn hlcl [cache grammar & [spec depth]]
   "generate all the phrases where the head is a lexeme and the complement is a lexeme"
   (let [depth (if depth depth 0)
-        spec (phrasal-spec (if spec spec :top) cache)
-        head-spec (get-in spec [:head] :top)]
-    (mapcat
-     #(let [pred-of-arg (get-in % [:comp :synsem])]
-        (log/trace (str "pred-of-arg: " pred-of-arg))
-        (overc % (lazy-shuffle
-                  (filter (fn [complement]
-                            (not (fail? (unifyc (get-in complement [:synsem])
-                                                pred-of-arg))))
-                          (:comp (cache (:rule %)))))))
-     (hl cache grammar spec))))
+        spec (phrasal-spec (if spec spec :top) cache)]
+    (log/debug (str "hlcl with spec: " (show-spec spec)))
+
+    ;; parents-with-heads is the lazy sequence of all possible heads attached to all possible grammar rules.
+    (let [parents-with-heads
+          (hl cache grammar spec)]
+
+      (mapcat
+       (fn [parent-with-head]
+         (let [pred-of-arg (get-in parent-with-head [:comp :synsem])]
+           (log/trace (str "pred-of-arg: " pred-of-arg))
+           (overc parent-with-head (lazy-shuffle
+                                    (filter (fn [complement]
+                                              (not (fail? (unifyc (get-in complement [:synsem])
+                                                                  pred-of-arg))))
+                                            (:comp (cache (:rule parent-with-head))))))))
+     parents-with-heads))))
 
 (defn hlcp [cache grammar & [spec depth]]
   "generate all the phrases where the head is a lexeme and the complement is a phrase."
@@ -208,11 +214,19 @@
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
     (log/debug (str "hlcp with spec: " (show-spec spec)))
-    (mapcat
-     #(lazy-seq (overc % (hlcl cache grammar
-                               {:synsem (get-in % [:comp :synsem] :top)}
-                               (+ 1 depth))))
-     (hl cache grammar spec))))
+
+    ;; parents-with-heads is the lazy sequence of all possible heads attached to all possible grammar rules.
+    (let [parents-with-heads
+          (hl cache grammar spec)]
+
+      (mapcat
+       (fn [parent-with-head]
+         (lazy-seq (overc parent-with-head (hlcl cache
+                                                 grammar
+                                                 {:synsem (get-in parent-with-head [:comp :synsem] :top)}
+                                                 (+ 1 depth)))))
+       parents-with-heads))))
+
 
 (defn hpcl [cache grammar & [spec depth]]
   "generate all the phrases where the head is a phrase and the complement is a lexeme."
@@ -221,9 +235,9 @@
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
     (log/debug (str "hpcl with spec: " (show-spec spec)))
+
     (mapcat
-     #(lazy-seq
-       (overc % (lazy-shuffle (:comp (cache (:rule %))))))
+     #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
      (hp cache grammar head-spec (+ 1 depth)))))
 
 (defn hpcp [cache grammar & [spec depth]]
