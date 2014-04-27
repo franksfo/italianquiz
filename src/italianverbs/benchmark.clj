@@ -354,11 +354,6 @@
    #(fo-ps (first (take 1 (catlove))))
    trials))
 
-(defn run-gatto2 [trials]
-  (run-benchmark
-   #(fo-ps (first (take 1 (catlove2 (catlove)))))
-   trials))
-
 (defn run-hlcp-with-subcat-nil-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hlcp cache grammar {:synsem {:subcat '()}}))))
