@@ -319,7 +319,7 @@
 (def catspec-grammar-0
   (filter (fn [rule]
             (not (fail? rule)))
-          (map #(unifyc % catspec)
+          (map #(unifyc % catspec-s)
                grammar)))
 
 ;; all possible expansions of above subgrammar's heads:
