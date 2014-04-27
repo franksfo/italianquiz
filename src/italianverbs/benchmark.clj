@@ -13,6 +13,7 @@
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overc overh)]
    [italianverbs.ug :refer (head-principle)]
+   [italianverbs.unify :as unify]
    [italianverbs.unify :refer (fail? lazy-shuffle unifyc)]))
 
 ;;
@@ -307,13 +308,58 @@
                                                             :subcat '()}}))))
    trials))
 
+(def catspec-s
+  {:synsem {:cat :verb
+            :aux false
+            :infl :imperfetto
+            :sem {:pred :amare
+                  :obj {:pred :gatto}}
+            :subcat '()}})
+
+(def catspec-grammar-0
+  (filter (fn [rule]
+            (not (fail? rule)))
+          (map #(unifyc % catspec)
+               grammar)))
+
+;; all possible expansions of above subgrammar's heads:
+(def catspec-grammar-1-head
+  (filter (fn [rule]
+            (not (fail? rule)))
+          (mapcat (fn [grammar-rule]
+                    (map (fn [catspec-grammar-0-rule-head]
+                           (unifyc grammar-rule catspec-grammar-0-rule-head))
+                         (map #(unify/get-in % [:head])
+                              catspec-grammar-0)))
+                  grammar)))
+
+(def hl-over-cg1h
+  (forest/hl cache catspec-grammar-1-head))
+
+(def cp-over-hl
+  (forest/cp hl-over-cg1h cache grammar))
+
+;; (type cp-over-hl) => lazyseq
+;; (fo-ps (take 1 cp-over-hl)) => 
+;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
+(defn catlove []
+  (forest/hlcp cache grammar {:synsem {:cat :verb
+                                       :aux false
+                                       :infl :imperfetto
+                                       :sem {:pred :amare
+                                             :obj {:pred :gatto}}}}))
+
+(defn catlove2 [catvp]
+  (forest/hpcp cache grammar catspec))
+
 (defn run-gatto [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb
-                                                            :aux false
-                                                            :infl :imperfetto
-                                                            :sem {:pred :amare
-                                                                  :obj {:pred :gatto}}}}))))
+   #(fo-ps (first (take 1 (catlove))))
+   trials))
+
+(defn run-gatto2 [trials]
+  (run-benchmark
+   #(fo-ps (first (take 1 (catlove2 (catlove)))))
    trials))
 
 (defn run-hlcp-with-subcat-nil-test [trials]
