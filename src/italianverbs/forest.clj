@@ -179,13 +179,11 @@
                     (unifyc rule spec))
                   grammar)))))
 
-(defn cp [cache grammar & [spec depth]]
-  (let [depth (if depth depth 0)
-        spec (phrasal-spec (if spec spec :top) cache)
-        head-spec (get-in spec [:head])]
-    (hlcl cache grammar
-          (unifyc {:synsem (get-in spec [:comp :synsem])})
-          (+ 1 depth))))
+(defn cp [phrases-with-heads cache grammar]
+  "phrases-with-heads is a seq (usually lazy)"
+  (mapcat
+   #(lazy-seq (overc % (hlcl cache grammar (get-in % [:comp]))))
+   phrases-with-heads))
 
 (defn hlcl [cache grammar & [spec depth]]
   "generate all the phrases where the head is a lexeme and the complement is a lexeme"
