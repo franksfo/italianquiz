@@ -1,77 +1,77 @@
-commit 64c1a93711581531919f81d757cafa613fb1f24c
+commit 4e528b4f54ec41539aee6d6a34d8e104a44b298c
 Author: Eugene Koontz <ekoontz@hiro-tan.org>
-Date:   Sat Apr 26 09:51:01 2014 -0700
+Date:   Sun Apr 27 12:45:35 2014 -0700
 
-    add run-hpcp benchmark function
+    rm catspec2
 run-hlcl-test 10
-' [vp-infinitive seguire (to follow) Antonio (Antonio)] ' took:  1555  msec.
-' [vp-future essere (futuro) (to be) Napoli (Naples)] ' took:  1508  msec.
-' [vp-aux-22 essere () stato ([were])] ' took:  2524  msec.
-' [s-future Giorgio (Giorgio) dormirà (will sleep)] ' took:  1125  msec.
-' [s-imperfetto tu (you (&#x2642;)) venivi (were coming)] ' took:  153  msec.
-' [s-present ognuno (everyone) sogna (dreams)] ' took:  1127  msec.
-' [s-imperfetto loro (they) impazzivano (were going mad)] ' took:  152  msec.
-' [vp-past visto (saw) Antonio (Antonio)] ' took:  1496  msec.
-' [noun-phrase un (a) uomo (man)] ' took:  1030  msec.
-' [vp-future amare (to love) Paola (Paola)] ' took:  416  msec.
-stats: {:mean 1108.6, :stddev 66.0, :min 152, :max 2524, :95% 1555}
+' [vp-imperfetto seguire (were following) Giorgio (Giorgio)] ' took:  1494  msec.
+' [s-imperfetto lei (it (&#x2640;)) dormiva (was sleeping)] ' took:  1164  msec.
+' [vp-future amare (to love) Antonia (Antonia)] ' took:  1537  msec.
+' [vp-future potere (to be able to) venire (to come)] ' took:  520  msec.
+' [vp-present amare (to love) Antonio (Antonio)] ' took:  1504  msec.
+' [noun-phrase le vostre (your (pl)) donne (women)] ' took:  1029  msec.
+' [vp-pronoun mi (me) cercare (to look for)] ' took:  2373  msec.
+' [vp-pronoun lo (him) seguire (to follow)] ' took:  107  msec.
+' [s-present lui (he) ride (laughs)] ' took:  1115  msec.
+' [prepositional-phrase a (in) giorno (day)] ' took:  1234  msec.
+stats: {:mean 1207.7, :stddev 53.0, :min 107, :max 2373, :95% 1537}
 run-hlcl-test-aux 10
-' (Essere venuto (Came).) ' took:  4850  msec.
+' (Essere venuto (Came).) ' took:  4263  msec.
+' (Essere venuto (Came).) ' took:  409  msec.
+' (Essere venuto (Came).) ' took:  415  msec.
 ' (Essere venuto (Came).) ' took:  406  msec.
-' (Essere venuto (Came).) ' took:  405  msec.
-' (Essere venuto (Came).) ' took:  404  msec.
-' (Essere venuto (Came).) ' took:  406  msec.
-' (Essere venuto (Came).) ' took:  406  msec.
-' (Essere venuto (Came).) ' took:  401  msec.
-' (Essere venuto (Came).) ' took:  401  msec.
-' (Essere venuto (Came).) ' took:  401  msec.
-' (Essere venuto (Came).) ' took:  408  msec.
-stats: {:mean 848.8, :stddev 145.0, :min 401, :max 4850, :95% 408}
+' (Essere venuto (Came).) ' took:  403  msec.
+' (Essere venuto (Came).) ' took:  411  msec.
+' (Essere venuto (Came).) ' took:  414  msec.
+' (Essere venuto (Came).) ' took:  416  msec.
+' (Essere venuto (Came).) ' took:  415  msec.
+' (Essere venuto (Came).) ' took:  412  msec.
+stats: {:mean 796.4, :stddev 130.0, :min 403, :max 4263, :95% 416}
 run-hlcp-with-subcat-nil-test 10
-' [prepositional-phrase a (in) [nbar vino (wine) nero (black)]] ' took:  807  msec.
-' [prepositional-phrase di (than) [noun-phrase questi (these) tavoli (tables)]] ' took:  240  msec.
-' [s-future [noun-phrase il (the) ragazzo (guy)] impazzirà (will go mad)] ' took:  2824  msec.
-' [s-modifier ieri (yesterday) [s-imperfetto qualcuno (someone) dormiva (was sleeping)]] ' took:  253  msec.
-' [prepositional-phrase a (in) [noun-phrase una (a) cipolla (onion)]] ' took:  426  msec.
-' [s-modifier ieri (yesterday) [s-imperfetto Antonio (Antonio) lavorava (was working)]] ' took:  3039  msec.
-' [s-present [noun-phrase quelle (those) madre (mothers)] vengono (come)] ' took:  269  msec.
-' [prepositional-phrase di (than) [noun-phrase la loro (their) spiaggia (beach)]] ' took:  318  msec.
-' [s-modifier qualche volta (sometimes) [s-present Giorgio (Giorgio) ride (laughs)]] ' took:  231  msec.
-' [s-present [noun-phrase questo (this) dottore (doctor)] impazze (goes mad)] ' took:  269  msec.
-stats: {:mean 867.6, :stddev 113.0, :min 231, :max 3039, :95% 2824}
+' [prepositional-phrase di (than) [noun-phrase il loro (their) ragazzo (guy)]] ' took:  843  msec.
+' [s-modifier ieri (yesterday) [s-imperfetto lui (he) rideva (was laughing)]] ' took:  348  msec.
+' [prepositional-phrase di (than) [noun-phrase il (the) bucato (laundry)]] ' took:  327  msec.
+' [s-imperfetto [noun-phrase di i (some) professori (professors (&#x2642;))] sognavano (were dreaming)] ' took:  259  msec.
+' [prepositional-phrase di (than) [noun-phrase le mie (my) donne (women)]] ' took:  421  msec.
+' [s-future [noun-phrase i miei (my) uomini (men)] rideranno (will laugh)] ' took:  3324  msec.
+' [s-imperfetto [noun-phrase i (the) studenti (students)] sognavano (were dreaming)] ' took:  267  msec.
+' [s-future [noun-phrase i (the) suoceri (parents-in-law)] dormiranno (will sleep)] ' took:  274  msec.
+' [s-imperfetto [noun-phrase di i (some) uomini (men)] pensavano (were thinking)] ' took:  264  msec.
+' [s-present [noun-phrase la sua (her) madre (mother)] impazze (goes mad)] ' took:  258  msec.
+stats: {:mean 658.5, :stddev 112.0, :min 258, :max 3324, :95% 843}
 run-hp-with-subcat-nil-test 10
-' [s-aux .. (..) [vp-aux essere () stato ([were])]] ' took:  3100  msec.
-' [s-future .. (..) [vp-pronoun la (it (&#x2640;)) vendere (to sell)]] ' took:  2349  msec.
-' [noun-phrase .. (..) [nbar birra (beer) bianca (white)]] ' took:  1625  msec.
-' [s-imperfetto .. (..) [vp-imperfetto seguire (were following) Antonia (Antonia)]] ' took:  1792  msec.
-' [s-imperfetto .. (..) [vp-imperfetto deludere (were disappointing) Paola (Paola)]] ' took:  1517  msec.
-' [s-aux .. (..) [vp-aux avere () dormito (slept)]] ' took:  1083  msec.
-' [s-present .. (..) [vp-pronoun la (it (&#x2640;)) perdere (to lose)]] ' took:  425  msec.
-' [s-imperfetto .. (..) [vp-imperfetto cercare (were looking for) Roma (Rome)]] ' took:  2071  msec.
-' [s-aux .. (..) [vp-aux avere () amato (loved)]] ' took:  1349  msec.
-' [s-present .. (..) [vp-pronoun la (it (&#x2640;)) leggere (to read)]] ' took:  510  msec.
-stats: {:mean 1582.1, :stddev 62.0, :min 425, :max 3100, :95% 2349}
+' [noun-phrase .. (..) [nbar cipolla (onion) bianco (white)]] ' took:  1019  msec.
+' [s-imperfetto .. (..) [vp-imperfetto essere (were being) piccolo (small)]] ' took:  1220  msec.
+' [s-imperfetto .. (..) [vp-imperfetto amare (were loving) Antonia (Antonia)]] ' took:  730  msec.
+' [s-imperfetto .. (..) [vp-pronoun la (it (&#x2640;)) bere (were drinking)]] ' took:  524  msec.
+' [s-aux .. (..) [vp-aux essere () stato ([were])]] ' took:  1549  msec.
+' [s-aux .. (..) [vp-aux avere () impazzito (went mad)]] ' took:  1546  msec.
+' [s-imperfetto .. (..) [vp-imperfetto essere (were being) contento (happy)]] ' took:  1227  msec.
+' [s-imperfetto .. (..) [vp-imperfetto essere (were being) Antonia (Antonia)]] ' took:  915  msec.
+' [s-aux .. (..) [vp-aux avere () amato (loved)]] ' took:  1003  msec.
+' [s-present .. (..) [vp-present essere (to be) rosso (red)]] ' took:  801  msec.
+stats: {:mean 1053.4, :stddev 32.0, :min 524, :max 1549, :95% 1546}
 run-hpcl-with-subcat-nil-test 10
-' [s-present lei (she) [vp-present vede (sees) Paola (Paola)]] ' took:  1007  msec.
-' [s-present loro (they) [vp-present cercano (look for) Napoli (Naples)]] ' took:  825  msec.
-' [vp-pronoun la (it (&#x2640;)) [vp-aux-22 avere () bevuta (drank)]] ' took:  519  msec.
-' [s-imperfetto lui (he) [vp-pronoun lo (it (&#x2642;)) vendeva (was selling)]] ' took:  436  msec.
-' [s-aux tu (you (&#x2640;)) [vp-aux hai () deluso (disappointed)]] ' took:  1676  msec.
-' [s-future qualcuno (someone) [vp-pronoun la (it (&#x2640;)) venderà (will sell)]] ' took:  534  msec.
-' [s-future tu (you (&#x2642;)) [vp-future vederai (will see) Milano (Milan)]] ' took:  847  msec.
-' [s-future lui (he) [vp-future sostenerà (will support) Antonio (Antonio)]] ' took:  865  msec.
-' [s-future loro (they) [vp-pronoun lo (it (&#x2642;)) averanno (will have)]] ' took:  765  msec.
-' [s-aux lui (it (&#x2642;)) [vp-aux è () stato (was)]] ' took:  1578  msec.
-stats: {:mean 905.2, :stddev 42.0, :min 436, :max 1676, :95% 1578}
+' [s-imperfetto tu (you (&#x2640;)) [vp-imperfetto dovevi (were having to) ridere (to laugh)]] ' took:  1169  msec.
+' [noun-phrase qualche (some) [nbar giorno (day) brutto (ugly)]] ' took:  577  msec.
+' [s-aux Giorgio (Giorgio) [vp-aux è () stato (was)]] ' took:  1766  msec.
+' [noun-phrase le vostre (your (pl)) [nbar professoresse (professors (&#x2640;)) semplice (naive)]] ' took:  1705  msec.
+' [s-future loro (they) [vp-pronoun lo (it (&#x2642;)) cerceranno (will look for)]] ' took:  982  msec.
+' [vp-pronoun lo (it (&#x2642;)) [vp-aux-22 avere () ricordato (remembered)]] ' took:  1181  msec.
+' [noun-phrase le vostre (your (pl)) [nbar sedie (chairs) bianche (white)]] ' took:  661  msec.
+' [s-imperfetto Antonia (Antonia) [vp-imperfetto voleva (was wanting to) sognare (to dream)]] ' took:  935  msec.
+' [noun-phrase i vostri (your (pl) ) [nbar tavoli (tables) rossi (red)]] ' took:  448  msec.
+' [noun-phrase la (the) [nbar pasta (pasta) piccola (small)]] ' took:  1297  msec.
+stats: {:mean 1072.1, :stddev 41.0, :min 448, :max 1766, :95% 1705}
 run-hpcp-with-subcat-nil-test 10
-' [s-imperfetto [noun-phrase la loro (their) professoressa (professor (&#x2640;))] [vp-imperfetto deludeva (was disappointing) Antonio (Antonio)]] ' took:  1040  msec.
-' [s-aux [noun-phrase le vostre (your (pl)) ragazze (girls)] [vp-aux hanno () pensato (thought)]] ' took:  1327  msec.
-' [s-future [noun-phrase queste (these) donne (women)] [vp-pronoun lo (it (&#x2642;)) perderanno (will lose)]] ' took:  3340  msec.
-' [s-future [noun-phrase un (a) studente (student)] [vp-pronoun lo (it (&#x2642;)) leggerà (will read)]] ' took:  690  msec.
-' [s-imperfetto [noun-phrase questa (this) donna (woman)] [vp-pronoun le (them (&#x2640;)) cercava (was looking for)]] ' took:  3180  msec.
-' [s-present [noun-phrase questo (this) professore (professor (&#x2642;))] [vp-pronoun le (them (&#x2640;)) ricorda (remembers)]] ' took:  1258  msec.
-' [s-future [noun-phrase le vostre (your (pl)) donne (women)] [vp-pronoun le (them (&#x2640;)) seguiranno (will follow)]] ' took:  607  msec.
-' [s-future [noun-phrase il vostro (your (pl) ) fiore (flower)] [vp-future sarà (will be) Milano (Milan)]] ' took:  4133  msec.
-' [s-aux [noun-phrase i (the) suoceri (parents-in-law)] [vp-aux hanno () vendato (sold)]] ' took:  4137  msec.
-' [s-imperfetto [noun-phrase la mia (my) madre (mother)] [vp-imperfetto voleva (was wanting to) lavorare (to work)]] ' took:  1170  msec.
-stats: {:mean 2088.2, :stddev 95.0, :min 607, :max 4137, :95% 4133}
+' [s-future [noun-phrase i (the) professori (professors (&#x2642;))] [vp-pronoun ci (us) cerceranno (will look for)]] ' took:  620  msec.
+' [s-imperfetto [noun-phrase questi (these) amici (friends)] [vp-pronoun lo (it (&#x2642;)) ricordavano (were remembering)]] ' took:  623  msec.
+' [s-aux [noun-phrase questa (this) donna (woman)] [vp-aux ha () dormito (slept)]] ' took:  1185  msec.
+' [s-future [noun-phrase la sua (her) ragazza (girl)] [vp-pronoun la (it (&#x2640;)) ricorderà (will remember)]] ' took:  718  msec.
+' [s-future [noun-phrase qualche (some) uomo (man)] [vp-pronoun la (her) ricorderà (will remember)]] ' took:  26689  msec.
+' [s-future [noun-phrase i tuoi (your) amici (friends)] [vp-pronoun la (it (&#x2640;)) compreranno (will buy)]] ' took:  750  msec.
+' [s-future [noun-phrase questi (these) professori (professors (&#x2642;))] [vp-pronoun la (it (&#x2640;)) compreranno (will buy)]] ' took:  665  msec.
+' [s-aux [noun-phrase la (the) professoressa (professor (&#x2640;))] [vp-aux ha () sognato (dreamt)]] ' took:  1680  msec.
+' [s-future [noun-phrase i vostri (your (pl) ) uomini (men)] [vp-pronoun la (it (&#x2640;)) ricorderanno (will remember)]] ' took:  1032  msec.
+' [s-aux [noun-phrase il vostro (your (pl) ) ragazzo (guy)] [vp-aux ha () comprato (bought)]] ' took:  29566  msec.
+stats: {:mean 6352.8, :stddev 433.0, :min 620, :max 29566, :95% 26689}
