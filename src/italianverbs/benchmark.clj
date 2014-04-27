@@ -296,6 +296,26 @@
    #(fo-ps (first (take 1 (forest/hpcp cache grammar {:synsem {:subcat '()}}))))
    trials))
 
+(defn run-suoceri [trials]
+  (run-benchmark
+   #(fo (first (take 1 (forest/hpcp cache grammar {:synsem {:cat :verb
+                                                            :aux false
+                                                            :infl :imperfetto
+                                                            :sem {:pred :amare
+                                                                  :obj {:pred :giorgio}
+                                                                  :subj {:pred :suoceri}}
+                                                            :subcat '()}}))))
+   trials))
+
+(defn run-gatto [trials]
+  (run-benchmark
+   #(fo (first (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb
+                                                            :aux false
+                                                            :infl :imperfetto
+                                                            :sem {:pred :amare
+                                                                  :obj {:pred :gatto}}}}))))
+   trials))
+
 (defn run-hlcp-with-subcat-nil-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hlcp cache grammar {:synsem {:subcat '()}}))))
