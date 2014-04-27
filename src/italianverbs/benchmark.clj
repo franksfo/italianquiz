@@ -336,11 +336,11 @@
 (def hl-over-cg1h
   (forest/hl cache catspec-grammar-1-head))
 
-(def cp-over-hl
-  (forest/cp hl-over-cg1h cache grammar))
+(defn cp-over-hl [subgrammar]
+  (forest/cp subgrammar cache grammar))
 
 ;; (type cp-over-hl) => lazyseq
-;; (fo-ps (take 1 cp-over-hl)) => 
+;; (fo-ps (take 1 (cp-over-hl hl-over-cg1h)))
 ;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
 (defn catlove []
   (forest/hlcp cache grammar {:synsem {:cat :verb
@@ -352,6 +352,48 @@
 (defn run-gatto [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (catlove))))
+   trials))
+
+(defn run-gatto2 [trials]
+  (run-benchmark
+   #(fo-ps (first (take 1 (cp-over-hl (forest/hl cache catspec-grammar-1-head)))))
+   trials))
+
+(defn run-gatto3 [trials]
+  (run-benchmark
+   #(fo-ps (first (take 1 (cp-over-hl hl-over-cg1h))))
+   trials))
+
+(defn run-gatto4 [trials]
+  (run-benchmark
+   #(fo-ps (first 
+            (take 1 (cp-over-hl 
+                     (forest/hl cache 
+                                (filter (fn [rule]
+                                          (not (fail? rule)))
+                                        (mapcat (fn [grammar-rule]
+                                                  (map (fn [catspec-grammar-0-rule-head]
+                                                         (unifyc grammar-rule catspec-grammar-0-rule-head))
+                                                       (map (fn [x] 
+                                                              (unify/get-in x [:head]))
+                                                            (let [catspec-s
+                                                                  {:synsem {:cat :verb
+                                                                            :aux false
+                                                                            :infl :imperfetto
+                                                                            :sem {:pred :amare
+                                                                                  :obj {:pred :gatto}}
+                                                                            :subcat '()}}
+
+                                                                  catspec-grammar-0
+                                                                  (filter (fn [rule]
+                                                                            (not (fail? rule)))
+                                                                          (map 
+                                                                           (fn [rule]
+                                                                             (unifyc rule catspec-s))
+                                                                           grammar))]
+                                                              catspec-grammar-0))))
+                                                grammar)))))))
+   
    trials))
 
 (defn run-hlcp-with-subcat-nil-test [trials]
