@@ -227,6 +227,10 @@
                                                  (+ 1 depth)))))
        parents-with-heads))))
 
+(defn cl [cache grammar]
+  (mapcat
+   #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
+   grammar))
 
 (defn hpcl [cache grammar & [spec depth]]
   "generate all the phrases where the head is a phrase and the complement is a lexeme."
@@ -235,14 +239,11 @@
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
     (log/debug (str "hpcl with spec: " (show-spec spec)))
-
-    (mapcat
-     #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
-     (hp cache grammar head-spec (+ 1 depth)))))
+    (cl cache (hp cache grammar head-spec (+ 1 depth)))))
 
 (defn hpcp [cache grammar & [spec depth]]
-  "generate all the phrases where the head is a phrase and the complement is a lexeme."
-  (log/debug (str "START HPCL.."))
+  "generate all the phrases where the head is a phrase and the complement is a phrase."
+  (log/debug (str "START HPCP.."))
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
