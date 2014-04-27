@@ -349,9 +349,6 @@
                                        :sem {:pred :amare
                                              :obj {:pred :gatto}}}}))
 
-(defn catlove2 [catvp]
-  (forest/hpcp cache grammar catspec))
-
 (defn run-gatto [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (catlove))))
