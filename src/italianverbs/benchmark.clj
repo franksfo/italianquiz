@@ -322,6 +322,42 @@
           (map #(unifyc % catspec-s)
                grammar)))
 
+(def grammar-0
+  (filter (fn [rule]
+            (not (fail? rule)))
+          (map #(unifyc % {:synsem {:subcat '()}})
+               grammar)))
+
+(def grammar-1
+  (filter (fn [rule]
+            (not (fail? rule)))
+          (mapcat (fn [grammar-0-rule]
+                    (map (fn [grammar-rule]
+                           (unifyc grammar-0-rule {:head grammar-rule}))
+                         grammar))
+                  grammar-0)))
+
+(def grammar-2
+  (filter (fn [rule]
+            (not (fail? rule)))
+          (mapcat (fn [grammar-1-rule]
+                    (map (fn [grammar-rule]
+                           (unifyc grammar-1-rule {:head {:head grammar-rule}}))
+                         grammar))
+                  grammar-1)))
+
+(def grammar-3
+  (filter (fn [rule]
+            (not (fail? rule)))
+          (mapcat (fn [grammar-2-rule]
+                    (map (fn [grammar-rule]
+                           (unifyc grammar-2-rule {:head {:head {:head grammar-rule}}}))
+                         grammar))
+                  grammar-2)))
+
+(def grammar-full
+  (union grammar-1 grammar-2 grammar-3))
+
 ;; all possible expansions of above subgrammar's heads:
 (def catspec-grammar-1-head
   (filter (fn [rule]
