@@ -41,7 +41,7 @@
      (if (= relative-url "/workbook/") {:class "selected"})
      [:a {:href "/workbook/"} "Libro di Lavoro"  ] ]
     [:div
-     (if (or (re-find #"/lesson" relative-url) (= relative-url "/lesson")) {:class "selected"})
+     (if (or (and (not (nil? relative-url)) (re-find #"/lesson" relative-url)) (= relative-url "/lesson")) {:class "selected"})
      [:a {:href "/lesson/"} (str "Lessons")]]
     [:div
      (if (= relative-url "/preferiti/") {:class "selected"})
