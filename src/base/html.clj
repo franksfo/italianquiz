@@ -25,9 +25,9 @@
       )]))
 
 (defn menubar [session-row relative-url]
+  (log/debug (str "Drawing menubar with relative-url=" relative-url))
   (html
    [:div {:class "menubar major"}
-;    "URL:" relative-url
     [:div
      (if (= relative-url "/quiz/") {:class "selected"})
      [:a {:href "/quiz/"} "Quiz"]]
@@ -40,6 +40,9 @@
     [:div
      (if (= relative-url "/workbook/") {:class "selected"})
      [:a {:href "/workbook/"} "Libro di Lavoro"  ] ]
+    [:div
+     (if (or (re-find #"/lesson" relative-url) (= relative-url "/lesson")) {:class "selected"})
+     [:a {:href "/lesson/"} (str "Lessons")]]
     [:div
      (if (= relative-url "/preferiti/") {:class "selected"})
      [:a {:href "/preferiti/"} "I tuoi preferiti"]]
