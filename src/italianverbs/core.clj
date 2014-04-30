@@ -8,7 +8,7 @@
    [compojure.handler :as handler]
    [italianverbs.db :refer (fetch)]
    [italianverbs.generate :as gen]
-   [italianverbs.lev :as lev]
+   [italianverbs.lesson :as lesson]
    [italianverbs.xml :as xml]
    [base.html :as html]
    [italianverbs.html :as ihtml]
@@ -54,6 +54,33 @@
        {:body (html/page "About" (html/about) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/lesson"
+       request
+       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  (GET "/lesson/"
+       request
+       {:status 302
+        :headers {"Location" "/lesson"}})
+
+
+  (GET "/lesson/new"
+       request
+       {:body (html/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  (GET "/lesson/new/"
+       request
+       {:status 302
+        :headers {"Location" "/lesson/new"}})
+  (POST "/lesson/new/"
+       request
+       (let [result (lesson/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+
 
   (GET "/about/"
        request
