@@ -11,12 +11,15 @@
 ;; it is possible to do both a time stamp and a tag or name of set that
 ;; would be ideal.
 
-(defn lesson [request]
+(defn lesson [session request]
+  (html
+   [:div {:class "major"}
+    [:div {:style "width:20em; padding:0.5em;"}
+     "List of current tags"]
+    [:a {:href "/lesson/new"} "Create a new tag.."]]))
+
+(defn new [session request]
   (html
    [:div {:class "major"}
     [:div {:style "width:30em;height:30em;"}
-
-     "hello there."]]))
-
-
-
+     "Create a new tag"]]))
