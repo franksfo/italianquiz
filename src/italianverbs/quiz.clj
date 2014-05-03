@@ -124,9 +124,9 @@
 		 (show-choice (dissoc lexicon (nth (keys lexicon) choice)) (- remaining 1)
 			answer show-true-before)))))))
 
+;; TODO: use the same normalize-whitespace as lesson.clj
 (defn normalize-whitespace [string]
   string)
-                                        ;  (string/replace #"[ ]+$" "" (string/replace #"^[ ]+" "" (string/replace #"[ ]+" " " string))))
 
 (defn- store-question [question-pair session-id last-guess]
   "Store a 'question pair' in the persistent mongodb store. A 'question pair' is an Italian/English pair of sentences that are translations of each other.
