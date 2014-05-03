@@ -186,7 +186,9 @@
     (include-css "/css/style.css")
     (include-css "/css/layout.css")
     (include-css "/css/fs.css")
+    (include-css "/css/tag.css")
     (include-css "/css/quiz.css")
+
     ]
    [:body
     {:onload
