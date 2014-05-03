@@ -89,7 +89,7 @@
   (db/insert! :tag {:name (normalize-whitespace tag)}))
 
 (defn new [session request]
-  (log/info (str "/lesson/new with request: " (:form-params request)))
+  (log/debug (str "/lesson/new with request: " (:form-params request)))
 
   (if (get (:form-params request) "tag")
     (let [new-tag (get (:form-params request) "tag")]
