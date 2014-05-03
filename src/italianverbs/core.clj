@@ -75,6 +75,11 @@
        request
        {:status 302
         :headers {"Location" "/lesson/new"}})
+  (POST "/lesson/new"
+       request
+       (let [result (lesson/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
   (POST "/lesson/new/"
        request
        (let [result (lesson/new (session/request-to-session request) request)]
