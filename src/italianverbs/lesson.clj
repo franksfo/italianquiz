@@ -29,7 +29,6 @@
 (defn tr-result [results]
   (if (not (empty? results))
     (do
-      (log/info (str "TR-RESULT: " (first results)))
       (str (html [:tr [:td (:name (first results))]])
            (tr-result (rest results))))
     ""))
