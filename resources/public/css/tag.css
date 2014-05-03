@@ -3,3 +3,14 @@
     width:50%;
     float:left;
 }
+
+.edit {
+    width:50%;
+    text-align:right;
+    color:#666;
+}
+
+.create {
+    width:30em;
+    float:left;
+}

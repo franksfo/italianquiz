@@ -15,44 +15,78 @@
 ;; it is possible to do both a time stamp and a tag or name of set that
 ;; would be ideal."
 
+(defn create-a-new-tag []
+  [:div {:class "create"}
+   "Create a new tag"
+
+   [:form {:method "post" :action "/lesson/new"}
+    [:table
+     [:tr
+      [:th "Name"]
+      [:td
+       [:input {:name "tag"}]]
+      ]
+     ]
+    ]
+   ])
+
+;; TODO
+(defn urlencode [string]
+  string)
+
+(defn primary-key [map]
+  (:_id map))
+
+(defn delete [session map]
+  (if (:form-params map)
+    (let [primary-key (get (:form-params map) "tag")]
+      (log/info (str "deleting tag: " primary-key))
+      (db/fetch-and-modify :tag {:_id (db/object-id primary-key)} {} :remove? true))))
+
+(defn tr-result [results]
+  (if (not (empty? results))
+    (str (html [:tr 
+                [:td (:name (first results))]
+                [:td ]
+                [:td {:class "edit"}
+                 [:form {:method "post" :action "/lesson/delete"}
+                  [:input {:type "hidden" :name "tag" :value (primary-key (first results))}]
+                  [:button {:onclick "submit()"} "delete"]]]])
+         (tr-result (rest results)))
+    ""))
+
+(defn show-tags []
+  (let [script "/* js goes here.. */"]
+    (html
+     [:div {:class "major" :id "tagtable"}
+      [:table
+       [:tr
+        [:script script]
+        [:th "Name"]
+        [:th "Verbs"]
+      [:th {:class "edit"} "Edit"]]
+       
+       (let [results (db/fetch :tag)]
+         (tr-result results))
+       
+       ]])))
+
 (defn lesson [session request]
   (html
    [:div {:class "major"}
     (show-tags)
-    [:div {:style "float:left;width:100%"}
-     [:a {:href "/lesson/new"} "Create a new tag.."]]]))
+    (create-a-new-tag)]))
 
 (defn validate-new-tag [tag]
   "see whether _tag_ is good to add to the db."
   true)
-
-(defn tr-result [results]
-  (if (not (empty? results))
-    (do
-      (str (html [:tr [:td (:name (first results))]])
-           (tr-result (rest results))))
-    ""))
-
-(defn show-tags []
-  (html
-   [:div {:class "major" :id "tagtable"}
-    [:table
-     [:tr
-      [:th "Name"]
-      [:th "Verbs"]]
-
-
-     (let [results (db/fetch :tag)]
-       (tr-result results))
-
-     ]]))
 
 (defn normalize-whitespace [string]
   (string/trim
    (string/replace string #"[ ]+" " ")))
 
 (defn add-new-tag [tag]
-    (db/insert! :tag {:name (normalize-whitespace tag)}))
+  (db/insert! :tag {:name (normalize-whitespace tag)}))
 
 (defn new [session request]
   (log/info (str "/lesson/new with request: " (:form-params request)))
@@ -65,19 +99,7 @@
 
   (html
    [:div {:class "major"}
-
     (show-tags)
-
-    [:div {:style "width:30em;height:30em;float:left"}
-     "Create a new tag"
-
-     [:form {:method "post" :action "/lesson/new"}
-      [:table
-       [:tr
-        [:th "Name"]
-        [:td
-         [:input {:name "tag"}]]
-        ]]
-      ]
-     ]
+    (create-a-new-tag)
     ]))
+
