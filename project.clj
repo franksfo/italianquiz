@@ -8,8 +8,8 @@
                  ;; this is the latest version as of March 19, 2014:
                  [org.clojure/core.async "0.1.278.0-76b25b-alpha"] 
 
-                 [compojure "1.1.3"]
-                 [congomongo "0.2.0"]
+                 [compojure "1.1.6"]
+                 [congomongo "0.4.4"]
                  [org.clojure/java.jdbc "0.0.6"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [clojail "1.0.6"]
