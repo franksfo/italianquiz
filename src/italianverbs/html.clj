@@ -558,12 +558,18 @@
   (html
    [:div {:class "menubar major"}
     [:div
-    [:div
      (if (or (and (not (nil? relative-url))
                   (re-find #"/lesson" relative-url))
              (= relative-url "/lesson")) {:class "selected"})
      [:a {:href "/lesson/"} (str "Tags")]]
-    ]]))
+
+    [:div
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/generate" relative-url))
+             (= relative-url "/generate")) {:class "selected"})
+     [:a {:href "/generate/"} (str "Generate")]]
+
+    ]))
 
 (defn page [title & [content request onload]]
   (log/debug (str "Page title: " title))
@@ -608,7 +614,6 @@
               (if request (get request :uri)))]
     [:div#content content]]))
 
-
 ;; TODO: replace (page) with this once (eval) works right.
 (defmacro pagemacro [title & [content request onload]]
   (let [error-english "Sorry, there was an internal problem with this site that prevented your content from being displayed."
@@ -628,6 +633,7 @@
               ;; still allow the onload even for caught exceptions(?) possible security risk?
               ;;nil)))))
               onload)))))
+
 (defn powered-by [name link]
   (html
    [:div {:class "poweredby"}

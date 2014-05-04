@@ -7,6 +7,7 @@
    [compojure.route :as route]
    [compojure.handler :as handler]
    [italianverbs.db :refer (fetch)]
+   [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
    [italianverbs.lesson :as lesson]
    [italianverbs.xml :as xml]
@@ -42,6 +43,26 @@
        {:status 302
         :headers {"Location" "/quiz/"}})
 
+  (GET "/generate/"
+       request
+       {:status 302
+        :headers {"Location" "/generate"}})
+
+  (GET "/generate"
+       request
+       {:body (html/page "Generate" (g/generate (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/generate/:tag/"
+       [tag & other-params]
+       {:body (g/page "Generate" (g/generate-from tag))})
+
+  (GET "/lesson/"
+       request
+       {:status 302
+        :headers {"Location" "/lesson"}})
+
   (GET "/lesson"
        request
        {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
@@ -65,11 +86,11 @@
           {:status 302
            :headers {"Location" (str "/lesson/" tag "/")}}))
 
-  (GET "/lesson/"
-       request
-       {:status 302
-        :headers {"Location" "/lesson"}})
-
+  (POST "/lesson/delete/:tag"
+        [tag]
+       (let [result (lesson/delete tag)]
+         {:status 302
+          :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   (GET "/lesson/new"
        request
@@ -80,11 +101,6 @@
        request
        {:status 302
         :headers {"Location" "/lesson/new"}})
-  (POST "/lesson/delete/:tag"
-        [tag]
-       (let [result (lesson/delete tag)]
-         {:status 302
-          :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   (POST "/lesson/new"
        request

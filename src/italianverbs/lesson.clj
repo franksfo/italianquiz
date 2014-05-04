@@ -73,7 +73,7 @@
 (defn show-tags []
   (let [script "/* js goes here.. */"]
     (html
-     [:div {:class "major" :id "tagtable"}
+     [:div {:class "major tag"}
       [:h2 "tags"]
 
       [:table
@@ -126,10 +126,10 @@
         results (db/fetch :tag :where {:_id (db/object-id tag)})
         result (first results)]
     (html
-     [:div {:class "major"}
+     [:div {:class "major tag"}
      [:h2 [:a {:href "/lesson"} "tags"] " &raquo; "  (:name result)]
 
-      [:table {:style "width:10em"}
+      [:table
        [:tr
         [:script script]
         [:th "Verb"]
