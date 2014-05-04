@@ -569,6 +569,12 @@
              (= relative-url "/generate")) {:class "selected"})
      [:a {:href "/generate/"} (str "Generate")]]
 
+    [:div
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/workbook" relative-url))
+             (= relative-url "/workbook")) {:class "selected"})
+     [:a {:href "/workbook/"} (str "Workbook")]]
+
     ]))
 
 (defn page [title & [content request onload]]

@@ -3,9 +3,12 @@
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [italianverbs.grammar :refer (s-present)]
    [italianverbs.html :as html]
    [italianverbs.lesson :as lesson]
-   [somnium.congomongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
+   [italianverbs.morphology :refer (fo)]
+   [italianverbs.over :refer (over)]
+    [somnium.congomongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
 
 
 (defn tr-result [results]
@@ -34,11 +37,18 @@
        (tr-result results))
      ]]))
 
+(defn generate-sentence [verb]
+  (log/info (str "generating sentence from: " verb))
+  (fo (over s-present "io" verb)))
+
 (defn tr-verbs [tag results]
   (if (not (empty? results))
-    (str (html [:tr 
-                [:td (first results)]])
-         (tr-verbs tag (rest results)))
+    (let [verb (first results)
+          example (generate-sentence verb)]
+      (str (html [:tr 
+                  [:td verb]
+                  [:td example]])
+           (tr-verbs tag (rest results))))
     ""))
 
 (defn generate-from [tag]
@@ -52,6 +62,7 @@
       [:table
        [:tr
         [:th "Verb"]
+        [:th "Example"]
         ]
        
        (tr-verbs tag verbs)

@@ -123,13 +123,95 @@
         :headers {"Location" "/?msg=set"}
         })
 
-  (GET "/session/clear/"
+   (GET "/session/clear/"
        request
        {
         :side-effect (session/unregister request)
         :status 302
         :headers {"Location" "/?msg=cleared"}
         })
+
+  (GET "/generate/:tag/"
+       [tag & other-params]
+       {:body (g/page "Generate" (g/generate-from tag))})
+
+  (GET "/lesson/"
+       request
+       {:status 302
+        :headers {"Location" "/lesson"}})
+
+  (GET "/lesson"
+       request
+       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/lesson/:tag/"
+       request
+       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
+
+  (POST "/lesson/:tag/new"
+        [tag & other-params]
+        (let [result (lesson/add-to-tag tag other-params)]
+          {:status 302
+           :headers {"Location" (str "/lesson/" tag "/")}}))
+
+
+  (POST "/lesson/:tag/delete/:verb"
+        [tag verb]
+        (let [result (lesson/delete-from-tag tag verb)]
+          {:status 302
+           :headers {"Location" (str "/lesson/" tag "/")}}))
+
+  (POST "/lesson/delete/:tag"
+        [tag]
+       (let [result (lesson/delete tag)]
+         {:status 302
+          :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+
+  (GET "/lesson/new"
+       request
+       {:body (html/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  (GET "/lesson/new/"
+       request
+       {:status 302
+        :headers {"Location" "/lesson/new"}})
+
+  (POST "/lesson/new"
+       request
+       (let [result (lesson/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+  (POST "/lesson/new/"
+       request
+       (let [result (lesson/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+
+  ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
+  (GET "/session/set/"
+       request
+       {
+        :side-effect (session/register request)
+        :session (get request :session)
+        :status 302
+        :headers {"Location" "/?msg=set"}
+        })
+
+  (GET "/workbook/"
+       request
+       {:status 200
+        :body (html/page "Workbook" (workbook/workbook-ui request) request)
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/workbook/q/"
+       request
+       {:status 200
+        :body (workbook/workbookq (get (get request :query-params) "search")
+                                  (get (get request :query-params) "attrs"))
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (route/resources "/")
 
