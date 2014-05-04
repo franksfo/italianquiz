@@ -10,8 +10,7 @@
    [italianverbs.generate :as gen]
    [italianverbs.lesson :as lesson]
    [italianverbs.xml :as xml]
-   [base.html :as html]
-   [italianverbs.html :as ihtml]
+   [italianverbs.html :as html]
    [italianverbs.search :as search]
    [italianverbs.workbook :as workbook]
    [italianverbs.session :as session]
@@ -25,7 +24,7 @@
     (str "Welcome to Italian Verbs" (if username (str ", " username)) ".")))
 
 (defn printlex [lexeme]
-  (ihtml/tablize lexeme))
+  (html/tablize lexeme))
 
 (defn wrap-div [string]
   (str "<div class='test'>" string "</div>"))
@@ -51,19 +50,19 @@
 
   (GET "/about"
        request
-       {:body (ihtml/page "About" (html/about) request)
+       {:body (html/page "About" (html/about) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/lesson"
        request
-       {:body (ihtml/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
+       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/lesson/:tag/"
        request
-       {:body (ihtml/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
+       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
 
   (POST "/lesson/:tag/new"
         [tag & other-params]
@@ -86,7 +85,7 @@
 
   (GET "/lesson/new"
        request
-       {:body (ihtml/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
+       {:body (html/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
   (GET "/lesson/new/"
@@ -118,7 +117,7 @@
         :body
         (do ;"reload lexicon into mongodb and then render it as HTML."
           (load-file "src/italianverbs/lexicon.clj")
-          (ihtml/page "Lexicon"
+          (html/page "Lexicon"
                      (string/join " "
                                   (map printlex
                                        (fetch :lexicon :sort {"italian" 1})))
@@ -127,7 +126,7 @@
 
   (GET "/about/"
        request
-       {:body (ihtml/page "About" (html/about) request)
+       {:body (html/page "About" (html/about) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -157,7 +156,7 @@
   (GET "/search/"
        request
        {:status 200
-        :body (ihtml/page "Search" (search/search-ui request) request)
+        :body (html/page "Search" (search/search-ui request) request)
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/search/q/"
@@ -170,7 +169,7 @@
   (GET "/workbook/"
        request
        {:status 200
-        :body (ihtml/page "Libro di Lavoro" (workbook/workbook-ui request) request)
+        :body (html/page "Libro di Lavoro" (workbook/workbook-ui request) request)
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/workbook/q/"
@@ -188,7 +187,7 @@
        {
         :headers {"Content-Type" "text/html"}
         :body
-        (ihtml/pagemacro "Sentence Generation"
+        (html/pagemacro "Sentence Generation"
                         (gen/generate-signs))
         })
 
@@ -317,7 +316,7 @@
   ;; up (see README), redirect to http://localhost/italian/
 
   ;; TODO: how to show info about the request (e.g. request path)
-  (route/not-found (ihtml/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. ")))
+  (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. ")))
 )
 
 
