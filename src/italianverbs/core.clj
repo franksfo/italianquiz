@@ -93,9 +93,9 @@
        request
        {:status 302
         :headers {"Location" "/lesson/new"}})
-  (POST "/lesson/delete"
-       request
-       (let [result (lesson/delete (session/request-to-session request) request)]
+  (POST "/lesson/delete/:tag"
+        [tag]
+       (let [result (lesson/delete tag)]
          {:status 302
           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 

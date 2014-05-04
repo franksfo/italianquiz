@@ -36,11 +36,9 @@
 (defn primary-key [map]
   (:_id map))
 
-(defn delete [session map]
-  (if (:form-params map)
-    (let [primary-key (get (:form-params map) "tag")]
-      (log/info (str "deleting tag: " primary-key))
-      (db/fetch-and-modify :tag {:_id (db/object-id primary-key)} {} :remove? true))))
+(defn delete [tag]
+  (log/info (str "deleting tag: " tag))
+  (db/fetch-and-modify :tag {:_id (db/object-id tag)} {} :remove? true))
 
 (defn delete-from-tag [tag verb]
   (let [result (first (db/fetch :tag :where {:_id (db/object-id tag)}))]
@@ -56,8 +54,7 @@
                    (.size (:verbs (first results)))
                    0)]
                 [:td {:class "edit"}
-                 [:form {:method "post" :action "/lesson/delete"}
-                  [:input {:type "hidden" :name "tag" :value (primary-key (first results))}]
+                 [:form {:method "post" :action (str "/lesson/delete/" (primary-key (first results)))}
                   [:button {:onclick "submit()"} "delete"]]]])
          (tr-result (rest results)))
     ""))
