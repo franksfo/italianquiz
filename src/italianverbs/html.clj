@@ -558,29 +558,12 @@
   (html
    [:div {:class "menubar major"}
     [:div
-     (if (= relative-url "/quiz/") {:class "selected"})
-     [:a {:href "/quiz/"} "Quiz"]]
-;    [:div
-;     (if (= relative-url "/lexicon/") {:class "selected"})
-;     [:a {:href "/lexicon/"} "Lexicon"  ] ]
-;    [:div
-;     (if (= relative-url "/search/") {:class "selected"})
-;     [:a {:href "/search/"} "Search"  ] ]
-    [:div
-     (if (= relative-url "/workbook/") {:class "selected"})
-     [:a {:href "/workbook/"} "Libro di Lavoro"  ] ]
     [:div
      (if (or (and (not (nil? relative-url))
                   (re-find #"/lesson" relative-url))
              (= relative-url "/lesson")) {:class "selected"})
-     [:a {:href "/lesson/"} (str "Lessons")]]
-    [:div
-     (if (= relative-url "/preferiti/") {:class "selected"})
-     [:a {:href "/preferiti/"} "I tuoi preferiti"]]
-    [:div
-     (if (= relative-url "/about/") {:class "selected"})
-     [:a {:href "/about/"} "Che è?"  ] ]
-    ]))
+     [:a {:href "/lesson/"} (str "Tags")]]
+    ]]))
 
 (defn page [title & [content request onload]]
   (log/debug (str "Page title: " title))
