@@ -60,6 +60,24 @@
        {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/lesson/:tag/"
+       request
+       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
+
+  (POST "/lesson/:tag/new"
+        [tag & other-params]
+        (let [result (lesson/add-to-tag tag other-params)]
+          {:status 302
+           :headers {"Location" (str "/lesson/" tag "/")}}))
+
+
+  (POST "/lesson/:tag/delete/:verb"
+        [tag verb]
+        (let [result (lesson/delete-from-tag tag verb)]
+          {:status 302
+           :headers {"Location" (str "/lesson/" tag "/")}}))
+
   (GET "/lesson/"
        request
        {:status 302
@@ -78,8 +96,8 @@
   (POST "/lesson/delete"
        request
        (let [result (lesson/delete (session/request-to-session request) request)]
-       {:status 302
-        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+         {:status 302
+          :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   (POST "/lesson/new"
        request
@@ -91,6 +109,20 @@
        (let [result (lesson/new (session/request-to-session request) request)]
        {:status 302
         :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+
+  (GET "/lexicon/"
+       request
+       ;; response map
+       {
+        :headers {"Content-Type" "text/html"}
+        :body
+        (do ;"reload lexicon into mongodb and then render it as HTML."
+          (load-file "src/italianverbs/lexicon.clj")
+          (html/page "Lexicon"
+                     (string/join " "
+                                  (map printlex
+                                       (fetch :lexicon :sort {"italian" 1})))
+                     request))})
 
 
   (GET "/about/"
@@ -148,21 +180,6 @@
                                   (get (get request :query-params) "attrs"))
         :headers {"Content-Type" "text/html;charset=utf-8"}})
   ;; </workbook>
-
-  (GET "/lexicon/"
-       request
-       ;; response map
-       {
-        :headers {"Content-Type" "text/html"}
-        :body
-        (do ;"reload lexicon into mongodb and then render it as HTML."
-          (load-file "src/italianverbs/lexicon.clj")
-          (html/page "Lexicon"
-                     (string/join " "
-                                  (map printlex
-                                       (fetch :lexicon :sort {"italian" 1})))
-                     request))})
-
 
   ;; show all the results of the sentence generation unit tests.
   (GET "/generate/"

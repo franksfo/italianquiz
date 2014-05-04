@@ -6,11 +6,12 @@
 
 .edit {
     width:50%;
-    text-align:right;
+    text-align:center;
     color:#666;
 }
 
 .create {
-    width:30em;
+    margin-top:1em;
+    width:100%;
     float:left;
 }

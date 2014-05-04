@@ -17,12 +17,11 @@
 
 (defn create-a-new-tag []
   [:div {:class "create"}
-   "Create a new tag"
 
    [:form {:method "post" :action "/lesson/new"}
     [:table
      [:tr
-      [:th "Name"]
+      [:th "Create a new tag"]
       [:td
        [:input {:name "tag"}]]
       ]
@@ -43,11 +42,19 @@
       (log/info (str "deleting tag: " primary-key))
       (db/fetch-and-modify :tag {:_id (db/object-id primary-key)} {} :remove? true))))
 
+(defn delete-from-tag [tag verb]
+  (let [result (first (db/fetch :tag :where {:_id (db/object-id tag)}))]
+    (db/fetch-and-modify :tag {:_id (db/object-id tag)} {:name (:name result)
+                                                         :verbs (remove #(= verb %) (:verbs result))})))
+
 (defn tr-result [results]
   (if (not (empty? results))
     (str (html [:tr 
-                [:td (:name (first results))]
-                [:td ]
+                [:td [:a {:href (str "/lesson/" (:_id (first results))"/") } (:name (first results))]]
+                [:td 
+                 (if (:verbs (first results))
+                   (.size (:verbs (first results)))
+                   0)]
                 [:td {:class "edit"}
                  [:form {:method "post" :action "/lesson/delete"}
                   [:input {:type "hidden" :name "tag" :value (primary-key (first results))}]
@@ -55,10 +62,23 @@
          (tr-result (rest results)))
     ""))
 
+(defn tr-verbs [tag results]
+  (if (not (empty? results))
+    (str (html [:tr 
+                [:td (first results)]
+                [:td {:class "edit"}
+                 [:form {:method "post" :action (str "/lesson/" tag "/delete/" (first results))}
+                  [:input {:type "hidden" :name "tag" :value (primary-key (first results))}]
+                  [:button {:onclick "submit()"} "delete"]]]])
+         (tr-verbs tag (rest results)))
+    ""))
+
 (defn show-tags []
   (let [script "/* js goes here.. */"]
     (html
      [:div {:class "major" :id "tagtable"}
+      [:h2 "tags"]
+
       [:table
        [:tr
         [:script script]
@@ -69,13 +89,63 @@
        (let [results (db/fetch :tag)]
          (tr-result results))
        
-       ]])))
+       ]
+      (create-a-new-tag)
+      ])))
 
 (defn lesson [session request]
   (html
-   [:div {:class "major"}
-    (show-tags)
-    (create-a-new-tag)]))
+   (show-tags)))
+
+(defn tr-lesson [lesson]
+  (log/info (str "tr-lesson: " lesson)))
+
+(defn add-a-new-verb [tag]
+  [:div {:class "create"}
+
+   [:form {:method "post" :action (str "/lesson/" tag "/new")}
+    [:table
+     [:tr
+      [:th "Add a new verb:"]
+      [:td
+       [:input {:name "verb"}]]
+      ]
+     ]
+    ]
+   ])
+
+(defn add-to-tag [tag other-params]
+  (log/info (str "add-to-tag: " tag))
+  (let [verb (:verb other-params)
+        result (first (db/fetch :tag :where {:_id (db/object-id tag)}))
+        verbs-of-tag (:verbs result)]
+    (log/info (str "adding verb: " verb " to tag: " tag))
+    (log/info (str "  current verbs: " verbs-of-tag))
+    (db/fetch-and-modify :tag {:_id (db/object-id tag)} {:name (:name result)
+                                                         :verbs (conj verbs-of-tag verb)})))
+
+(defn show [session tag]
+  (let [script "/* js goes here.. */"
+        results (db/fetch :tag :where {:_id (db/object-id tag)})
+        result (first results)]
+    (html
+     [:div {:class "major"}
+     [:h2 [:a {:href "/lesson"} "tags"] " &raquo; "  (:name result)]
+
+      [:table {:style "width:10em"}
+       [:tr
+        [:script script]
+        [:th "Verb"]
+        [:th {:class "edit"} "Edit"]]
+       
+       (log/info (str "show: tag: " result))
+       (tr-verbs tag (:verbs result))
+
+       ]
+
+      (add-a-new-verb tag)
+
+      ])))
 
 (defn validate-new-tag [tag]
   "see whether _tag_ is good to add to the db."
@@ -99,6 +169,7 @@
 
   (html
    [:div {:class "major"}
+    [:h2 [:a {:href "/lesson"} "tags"]]
     (show-tags)
     (create-a-new-tag)
     ]))

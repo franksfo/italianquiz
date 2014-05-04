@@ -41,7 +41,9 @@
      (if (= relative-url "/workbook/") {:class "selected"})
      [:a {:href "/workbook/"} "Libro di Lavoro"  ] ]
     [:div
-     (if (or (and (not (nil? relative-url)) (re-find #"/lesson" relative-url)) (= relative-url "/lesson")) {:class "selected"})
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/lesson" relative-url))
+             (= relative-url "/lesson")) {:class "selected"})
      [:a {:href "/lesson/"} (str "Lessons")]]
     [:div
      (if (= relative-url "/preferiti/") {:class "selected"})
@@ -169,6 +171,8 @@
         [:td {:colspan "2"} (get request :body)]]]])))
 
 (defn page [title & [content request onload]]
+  (log/debug (str "Page title: " title))
+  (log/debug (str "Page request: " request))
   (html5
    [:head
     [:meta  {:Content-Type "text/html; charset=UTF-8"}]
