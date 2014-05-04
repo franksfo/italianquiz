@@ -3,12 +3,18 @@
     [hiccup core])
     (:require [italianverbs.lexicon :as lexicon]
               [clojure.string :as string]
-              [somnium.congomongo :as db]
-              [base.lib :as lib])
+              [somnium.congomongo :as db])
     (:import (java.security ;; TOODO: what are these imports doing here?
               NoSuchAlgorithmException
               MessageDigest)
              (java.math BigInteger)))
+
+(defn get-session-key [request]
+  (let [cookies (get request :cookies)]
+    (if cookies
+      (let [ring-session (get cookies "ring-session")]
+        (if ring-session
+          (get ring-session :value))))))
 
 (defn find-or-insert-user [username]
   (let [found (db/fetch-one :users :where {:name username})]
@@ -35,8 +41,8 @@
   "register session from database keyed on request; return session record from db."
   (let [username (str "eugene-" (subs
                                  (if (not (nil?
-                                           (lib/get-session-key request)))
-                                   (lib/get-session-key request)
+                                           (get-session-key request)))
+                                   (get-session-key request)
                                    "<nilsession>")
                                  0 5))
         newuser (find-or-insert-user username)
@@ -44,7 +50,7 @@
         (do (last-activity username)
             (db/insert! :session {:user username
                                :start "now"
-                               :cookie (lib/get-session-key request)}))]
+                               :cookie (get-session-key request)}))]
        {:name (get newuser :name)}))
 
 (defn unregister [request]
