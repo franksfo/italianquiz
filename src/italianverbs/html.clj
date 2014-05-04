@@ -4,6 +4,7 @@
    [ring.util.codec :as codec])
   (:require
    [clojure.set :as set]
+   [italianverbs.session :as session]
    [italianverbs.unify :as fs]
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
@@ -542,3 +543,105 @@
 (defn myhtml5 []
   "<!DOCTYPE html>")
 
+(defn welcome [username]
+  (html
+   [:div
+    (if username
+      [:div "Benvenuti, " username "."
+       [:a {:href "/session/clear/"} "Logout"]
+       ]
+      [:a {:href "/session/set/"} "Login"]
+      )]))
+
+(defn menubar [session-row relative-url]
+  (log/debug (str "Drawing menubar with relative-url=" relative-url))
+  (html
+   [:div {:class "menubar major"}
+    [:div
+     (if (= relative-url "/quiz/") {:class "selected"})
+     [:a {:href "/quiz/"} "Quiz"]]
+;    [:div
+;     (if (= relative-url "/lexicon/") {:class "selected"})
+;     [:a {:href "/lexicon/"} "Lexicon"  ] ]
+;    [:div
+;     (if (= relative-url "/search/") {:class "selected"})
+;     [:a {:href "/search/"} "Search"  ] ]
+    [:div
+     (if (= relative-url "/workbook/") {:class "selected"})
+     [:a {:href "/workbook/"} "Libro di Lavoro"  ] ]
+    [:div
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/lesson" relative-url))
+             (= relative-url "/lesson")) {:class "selected"})
+     [:a {:href "/lesson/"} (str "Lessons")]]
+    [:div
+     (if (= relative-url "/preferiti/") {:class "selected"})
+     [:a {:href "/preferiti/"} "I tuoi preferiti"]]
+    [:div
+     (if (= relative-url "/about/") {:class "selected"})
+     [:a {:href "/about/"} "Che è?"  ] ]
+    ]))
+
+(defn page [title & [content request onload]]
+  (log/debug (str "Page title: " title))
+  (log/debug (str "Page request: " request))
+  (html5
+   [:head
+    [:meta  {:Content-Type "text/html; charset=UTF-8"}]
+    [:title (str title
+                 (if (and title (not (= title "")))
+                     ": " "")
+                 "imparare l'italiano")]
+    [:script {:type "text/javascript" :src "/js/jquery-1.6.4.min.js"}]
+    [:script {:type "text/javascript" :src "/js/autogrow.js"}]
+    [:script {:type "text/javascript" :src "/js/quiz.js"}]
+    [:script {:type "text/javascript" :src "/js/workbook.js"}]
+    [:script {:type "text/javascript" :src "/js/search.js"}]
+    ; enable this 'reset.css' at some point.
+                                        ;    (include-css "/italian/css/reset.css")
+    (include-css "/css/style.css")
+    (include-css "/css/layout.css")
+    (include-css "/css/fs.css")
+    (include-css "/css/tag.css")
+    (include-css "/css/quiz.css")
+
+    ]
+   [:body
+    {:onload
+     (cond
+      onload onload
+      (= title "Quiz")
+      "document.quiz.guess.focus();"
+      (= title "testx")
+      "setTimeout('location.reload(true);',5000);"
+      true "")}
+    (if false
+      (if request
+        [:div {:class "welcome major"}
+         (welcome (session/get-username request))]))
+
+    [:div#top
+     (menubar (session/request-to-session request)
+              (if request (get request :uri)))]
+    [:div#content content]]))
+
+
+;; TODO: replace (page) with this once (eval) works right.
+(defmacro pagemacro [title & [content request onload]]
+  (let [error-english "Sorry, there was an internal problem with this site that prevented your content from being displayed."
+        error-italian "Scusi, che è stato una errore che ha preventato questo site. Purtroppo è non possibile guardare il tuo contento."]
+    (try
+      (let [evaluated-content (eval content)]
+        (log/info (str "html.clj: request: " request))
+        (page title evaluated-content request onload))
+      (catch Exception e
+        (page "Exception caught"
+              (str "<div class='error'>"
+                   "  <div class='english'>" error-english "</div>"
+                   "  <div class='italian'>" error-italian "</div>"
+                   "  <div class='code'>" e "</div>"
+                   "</div>")
+              request
+              ;; still allow the onload even for caught exceptions(?) possible security risk?
+              ;;nil)))))
+              onload)))))
