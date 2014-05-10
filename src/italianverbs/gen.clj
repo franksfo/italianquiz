@@ -37,7 +37,7 @@
      ]]))
 
 (defn generate-sentence [verb]
-  (log/info (str "generating sentence from: " verb))
+  (log/debug (str "generating sentence from: " verb))
   (let [verb-struct
         (let [agr (ref :top)
               infl (ref :top)]
@@ -49,38 +49,46 @@
                     :subcat {:1 {:agr agr
                                  :case :nom}
                              :2 '()}}})]
-    (log/info (str "verb-struct: " verb-struct))
-    (fo (first (over s-present (first (shuffle (list "io" "tu" "lui" "lei" "loro" "noi" "voi"))) verb-struct)))))
+    (log/debug (str "verb-struct: " verb-struct))
+    (fo (first (shuffle (over s-present (first (shuffle (list "io" "tu" "lui" "lei" "loro" "noi" "voi"))) verb-struct))))))
 
 (defn tr-verbs [tag results times]
   (let [sentences (take times (repeatedly #(let [verb (first (take 1 (shuffle results)))]
                                              {:verb verb
-                                              :sentence (generate-sentence verb)})))]
+                                              :sentence (generate-sentence verb)})))
+        with-numbers (map (fn [num]
+                            (conj
+                             {:num num}
+                             (nth sentences (- num 1))))
+                          (range 1 (+ times 1)))]
       (str
        (string/join ""
                     (map (fn [sent-and-verb]
                            (let [verb (:verb sent-and-verb)
                                  sentence (:sentence sent-and-verb)]
                              (html [:tr
+                                    [:th (:num sent-and-verb)]
                                     [:td verb]
                                     [:td sentence]])))
-                         sentences)))))
+                         with-numbers)))))
 
 (defn generate-from [tag]
   (let [map-of-tag (first (db/fetch :tag :where {:_id (db/object-id tag)}))
+        tag-id tag
         tag (:name map-of-tag)
         verbs (:verbs map-of-tag)]
     (html
      [:div {:class "major"}
-      [:h2 (str "Generate" " &raquo; " tag)]
+      [:h2 (str "Generate" " &raquo; ") [:a {:href (str "/lesson/" tag-id "/")} tag]]
 
       [:table
        [:tr
+        [:th]
         [:th "Verb"]
         [:th "Example"]
         ]
        
-       (tr-verbs tag verbs 10)
+       (tr-verbs tag verbs 5)
 
        ]
 
