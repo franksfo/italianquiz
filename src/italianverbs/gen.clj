@@ -8,8 +8,7 @@
    [italianverbs.lesson :as lesson]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.over :refer (over)]
-    [somnium.congomongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
-
+   [somnium.congomongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
 
 (defn tr-result [results]
   (if (not (empty? results))
@@ -39,16 +38,32 @@
 
 (defn generate-sentence [verb]
   (log/info (str "generating sentence from: " verb))
-  (fo (over s-present "io" verb)))
+  (let [verb-struct
+        (let [agr (ref :top)
+              infl (ref :top)]
+          {:italian {:infinitive verb
+                     :infl infl
+                     :agr agr}
+           :synsem {:cat :verb
+                    :infl infl
+                    :subcat {:1 {:agr agr
+                                 :case :nom}
+                             :2 '()}}})]
+    (log/info (str "verb-struct: " verb-struct))
+    (fo (first (over s-present (first (shuffle (list "io" "tu" "lui" "lei" "loro" "noi" "voi"))) verb-struct)))))
 
-(defn tr-verbs [tag results]
+(defn tr-verbs [tag results times]
   (if (not (empty? results))
     (let [verb (first results)
-          example (generate-sentence verb)]
-      (str (html [:tr 
-                  [:td verb]
-                  [:td example]])
-           (tr-verbs tag (rest results))))
+          sentences (take times (repeatedly #(generate-sentence verb)))]
+      (str
+       (string/join ""
+                    (map (fn [sentence]
+                           (html [:tr
+                                  [:td verb]
+                                  [:td sentence]]))
+                         sentences))
+       (tr-verbs tag (rest results) times)))
     ""))
 
 (defn generate-from [tag]
@@ -65,7 +80,7 @@
         [:th "Example"]
         ]
        
-       (tr-verbs tag verbs)
+       (tr-verbs tag verbs 5)
 
        ]
 
