@@ -53,18 +53,18 @@
     (fo (first (over s-present (first (shuffle (list "io" "tu" "lui" "lei" "loro" "noi" "voi"))) verb-struct)))))
 
 (defn tr-verbs [tag results times]
-  (if (not (empty? results))
-    (let [verb (first results)
-          sentences (take times (repeatedly #(generate-sentence verb)))]
+  (let [sentences (take times (repeatedly #(let [verb (first (take 1 (shuffle results)))]
+                                             {:verb verb
+                                              :sentence (generate-sentence verb)})))]
       (str
        (string/join ""
-                    (map (fn [sentence]
-                           (html [:tr
-                                  [:td verb]
-                                  [:td sentence]]))
-                         sentences))
-       (tr-verbs tag (rest results) times)))
-    ""))
+                    (map (fn [sent-and-verb]
+                           (let [verb (:verb sent-and-verb)
+                                 sentence (:sentence sent-and-verb)]
+                             (html [:tr
+                                    [:td verb]
+                                    [:td sentence]])))
+                         sentences)))))
 
 (defn generate-from [tag]
   (let [map-of-tag (first (db/fetch :tag :where {:_id (db/object-id tag)}))
@@ -80,7 +80,7 @@
         [:th "Example"]
         ]
        
-       (tr-verbs tag verbs 5)
+       (tr-verbs tag verbs 10)
 
        ]
 
