@@ -16,6 +16,7 @@
    [italianverbs.workbook :as workbook]
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
+   [italianverbs.verb :as verb]
    ))
 
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
@@ -78,7 +79,6 @@
         (let [result (lesson/add-to-tag tag other-params)]
           {:status 302
            :headers {"Location" (str "/lesson/" tag "/")}}))
-
 
   (POST "/lesson/:tag/delete/:verb"
         [tag verb]
@@ -199,6 +199,22 @@
         :status 302
         :headers {"Location" "/?msg=set"}
         })
+
+  (GET "/verb/"
+       request
+       {:body (html/page "Verbs" (verb/verb (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  (POST "/verb/:verb/delete/"
+        [verb]
+        (let [result (verb/delete verb)]
+          {:status 302
+           :headers {"Location" (str "/verb/?result=" (:message result))}}))
+  (POST "/verb/new/"
+       request
+       (let [result (verb/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/verb/?result=" (:message result))}}))
 
   (GET "/workbook/"
        request

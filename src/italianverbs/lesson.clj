@@ -3,7 +3,8 @@
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [somnium.congomongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
+   [italianverbs.db :as db]
+   [italianverbs.morphology :refer (normalize-whitespace)]))
 
 ;; "I just realized on my way home that besides the time stamp teachers
 ;; should be allowed to enter their verbs in sets, sort of like the
@@ -33,9 +34,6 @@
 (defn urlencode [string]
   string)
 
-(defn primary-key [map]
-  (:_id map))
-
 (defn delete [tag]
   (log/info (str "deleting tag: " tag))
   (db/fetch-and-modify :tag {:_id (db/object-id tag)} {} :remove? true))
@@ -54,7 +52,7 @@
                    (.size (:verbs (first results)))
                    0)]
                 [:td {:class "edit"}
-                 [:form {:method "post" :action (str "/lesson/delete/" (primary-key (first results)))}
+                 [:form {:method "post" :action (str "/lesson/delete/" (db/primary-key (first results)))}
                   [:button {:onclick "submit()"} "delete"]]]])
          (tr-result (rest results)))
     ""))
@@ -65,7 +63,7 @@
                 [:td (first results)]
                 [:td {:class "edit"}
                  [:form {:method "post" :action (str "/lesson/" tag "/delete/" (first results))}
-                  [:input {:type "hidden" :name "tag" :value (primary-key (first results))}]
+                  [:input {:type "hidden" :name "tag" :value (db/primary-key (first results))}]
                   [:button {:onclick "submit()"} "delete"]]]])
          (tr-verbs tag (rest results)))
     ""))
@@ -147,10 +145,6 @@
 (defn validate-new-tag [tag]
   "see whether _tag_ is good to add to the db."
   true)
-
-(defn normalize-whitespace [string]
-  (string/trim
-   (string/replace string #"[ ]+" " ")))
 
 (defn add-new-tag [tag]
   (db/insert! :tag {:name (normalize-whitespace tag)}))

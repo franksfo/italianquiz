@@ -558,6 +558,13 @@
   (log/debug (str "Menubar with suffixes: " suffixes))
   (html
    [:div {:class "menubar major"}
+
+    [:div
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/verb" relative-url))
+             (= relative-url "/verb")) {:class "selected"})
+     [:a {:href "/verb/"} (str "Verbs")]]
+
     [:div
      (if (or (and (not (nil? relative-url))
                   (re-find #"/lesson" relative-url))
@@ -581,8 +588,9 @@
     ]))
 
 (defn request-to-suffixes [request]
+  "menubar uses this to make the menubar links context-specific (e.g. if you are looking at a particular group, the 'generate' link should have that group id so that if you click the link, you will generate with that group"
   (let [route-params (:route-params request)]
-    (log/info (str "req-to-suff params: " route-params))
+    (log/debug (str "req-to-suff params: " route-params))
     {:generate (if (and route-params (:tag route-params))
                  (str (:tag route-params) "/"))}))
 

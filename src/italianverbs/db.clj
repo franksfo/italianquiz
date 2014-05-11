@@ -9,3 +9,15 @@
 (defn fetch [ & args]
   (apply mongo/fetch args))
 
+(defn fetch-and-modify [ & args]
+  (apply mongo/fetch-and-modify args))
+
+(defn insert! [ & args]
+  (apply mongo/insert! args))
+
+(defn object-id [ & args]
+  (apply mongo/object-id args))
+
+(defn primary-key [map]
+  (:_id map))
+

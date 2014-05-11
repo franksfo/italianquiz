@@ -1845,3 +1845,6 @@
                {:italian italian
                 :english english})))))
 
+(defn normalize-whitespace [string]
+  (string/trim
+   (string/replace string #"[ ]+" " ")))
