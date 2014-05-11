@@ -224,6 +224,15 @@
        (let [result (verb/new (session/request-to-session request) request)]
        {:status 302
         :headers {"Location" (str "/verb/?result=" (:message result))}}))
+  (POST "/verb/update/"
+        [id updated]
+        (do
+          (log/info (str "updating verb with id: " id))
+          (log/info (str "updating verb with updated: " updated))
+          (let [result (verb/update id updated)]
+            {:status 302
+             :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))
+
 
   (GET "/workbook/"
        request
