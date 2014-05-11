@@ -42,11 +42,11 @@
   (log/debug (str "generating sentence from: " verb))
   (let [verb-record (verb/lookup-by-id verb)
         italian (get-in verb-record [:italian])
-        log (log/info (str "ITALIAN STRUCT: " italian))
+        log (log/debug (str "Italian struct: " italian))
         italian-struct (if (map? italian) italian :top)
         italian (if (string? italian) italian
                     (get-in italian [:infinitive]))
-        log (log/info (str "ITALIAN STRUCT(2): " italian-struct))
+        log (log/debug (str "Italian struct: " italian-struct))
         english (get-in verb-record [:english])
         verb-struct
         (let [agr (ref :top)
@@ -84,7 +84,7 @@
                                  verb-record (verb/lookup-by-id verb)]
                              (html [:tr
                                     [:th (:num sent-and-verb)]
-                                    [:td (get-in verb-record [:italian])]
+                                    [:td [:a {:href (str "/verb/" (get-in verb-record [:_id])  "/" ) } (get-in verb-record [:italian])] ]
                                     [:td sentence]])))
                          with-numbers)))))
 
