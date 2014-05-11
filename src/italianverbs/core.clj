@@ -169,21 +169,6 @@
          {:status 302
           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
-  (GET "/lesson/new"
-       request
-       {:body (html/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-  (GET "/lesson/new/"
-       request
-       {:status 302
-        :headers {"Location" "/lesson/new"}})
-
-  (POST "/lesson/new"
-       request
-       (let [result (lesson/new (session/request-to-session request) request)]
-       {:status 302
-        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
   (POST "/lesson/new/"
        request
        (let [result (lesson/new (session/request-to-session request) request)]
