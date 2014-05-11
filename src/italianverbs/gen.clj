@@ -8,6 +8,7 @@
    [italianverbs.lesson :as lesson]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.over :refer (over)]
+   [italianverbs.verb :as verb]
    [somnium.congomongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
 
 (defn tr-result [results]
@@ -38,10 +39,16 @@
 
 (defn generate-sentence [verb]
   (log/debug (str "generating sentence from: " verb))
-  (let [verb-struct
+  (let [verb-record (verb/lookup-by-id verb)
+        italian (get-in verb-record [:italian])
+        english (get-in verb-record [:english])
+        verb-struct
         (let [agr (ref :top)
               infl (ref :top)]
-          {:italian {:infinitive verb
+          {:italian {:infinitive italian
+                     :infl infl
+                     :agr agr}
+           :english {:infinitive english
                      :infl infl
                      :agr agr}
            :synsem {:cat :verb
@@ -65,10 +72,11 @@
        (string/join ""
                     (map (fn [sent-and-verb]
                            (let [verb (:verb sent-and-verb)
-                                 sentence (:sentence sent-and-verb)]
+                                 sentence (:sentence sent-and-verb)
+                                 verb-record (verb/lookup-by-id verb)]
                              (html [:tr
                                     [:th (:num sent-and-verb)]
-                                    [:td verb]
+                                    [:td (get-in verb-record [:italian])]
                                     [:td sentence]])))
                          with-numbers)))))
 
