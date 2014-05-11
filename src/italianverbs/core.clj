@@ -202,9 +202,18 @@
 
   (GET "/verb/"
        request
-       {:body (html/page "Verbs" (verb/verb (session/request-to-session request) request) request)
+       {:body (html/page "Verbs" (verb/select (session/request-to-session request) request) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  ;; TODO: figure out how to combine destructuring with sending request (which we need for the 
+  ;; menubar and maybe other things like authorization.
+  (GET "/verb/:verb/"
+       [verb]
+       {:body (html/page "Verbs" (verb/select-one verb) {:uri "/verb/"})
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
   (POST "/verb/:verb/delete/"
         [verb]
         (let [result (verb/delete verb)]

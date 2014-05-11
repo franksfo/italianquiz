@@ -554,8 +554,8 @@
       )]))
 
 (defn menubar [session-row relative-url & [suffixes]]
-  (log/debug (str "Drawing menubar with relative-url=" relative-url))
-  (log/debug (str "Menubar with suffixes: " suffixes))
+  (log/info (str "Drawing menubar with relative-url=" relative-url))
+  (log/info (str "Menubar with suffixes: " suffixes))
   (html
    [:div {:class "menubar major"}
 
@@ -588,7 +588,10 @@
     ]))
 
 (defn request-to-suffixes [request]
-  "menubar uses this to make the menubar links context-specific (e.g. if you are looking at a particular group, the 'generate' link should have that group id so that if you click the link, you will generate with that group"
+  "menubar uses this to make the menubar links context-specific.."
+  ;; ...e.g. if you are looking at a particular group, 
+  ;; the 'generate' link should have that group id so that if you
+  ;;  click the link, you will generate with that group"
   (let [route-params (:route-params request)]
     (log/debug (str "req-to-suff params: " route-params))
     {:generate (if (and route-params (:tag route-params))
@@ -631,6 +634,8 @@
       (if request
         [:div {:class "welcome major"}
          (welcome (session/get-username request))]))
+    (log/info (str "drawing menubar with request: " request))
+
 
     [:div#top
      (menubar (session/request-to-session request)
