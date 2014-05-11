@@ -8,6 +8,7 @@
    [italianverbs.lesson :as lesson]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.over :refer (over)]
+   [italianverbs.unify :refer (unifyc)]
    [italianverbs.verb :as verb]
    [somnium.congomongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
 
@@ -18,7 +19,7 @@
                 [:td {:class "number"}
                  (if (and (:verbs (first results))
                           (> (.size (:verbs (first results))) 0))
-                   [:a {:href (str "/generate/" (:_id (first results))"/") } (str (.size (:verbs (first results))))]
+                   [:a {:href (str "/lesson/" (:_id (first results))"/") } (str (.size (:verbs (first results))))]
                    "0")]])
          (tr-result (rest results)))
     ""))
@@ -41,21 +42,28 @@
   (log/debug (str "generating sentence from: " verb))
   (let [verb-record (verb/lookup-by-id verb)
         italian (get-in verb-record [:italian])
+        log (log/info (str "ITALIAN STRUCT: " italian))
+        italian-struct (if (map? italian) italian :top)
+        italian (if (string? italian) italian
+                    (get-in italian [:infinitive]))
+        log (log/info (str "ITALIAN STRUCT(2): " italian-struct))
         english (get-in verb-record [:english])
         verb-struct
         (let [agr (ref :top)
               infl (ref :top)]
-          {:italian {:infinitive italian
-                     :infl infl
-                     :agr agr}
-           :english {:infinitive english
-                     :infl infl
-                     :agr agr}
-           :synsem {:cat :verb
-                    :infl infl
+          ;; TODO: handle :fail.
+          (unifyc {:italian italian-struct}
+                  {:italian {:infinitive italian
+                             :infl infl
+                             :agr agr}
+                   :english {:infinitive english
+                             :infl infl
+                             :agr agr}
+                   :synsem {:cat :verb
+                            :infl infl
                     :subcat {:1 {:agr agr
                                  :case :nom}
-                             :2 '()}}})]
+                             :2 '()}}}))]
     (log/debug (str "verb-struct: " verb-struct))
     (fo (first (shuffle (over s-present (first (shuffle (list "io" "tu" "lui" "lei" "loro" "noi" "voi"))) verb-struct))))))
 

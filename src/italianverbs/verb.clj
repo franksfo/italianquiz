@@ -5,6 +5,7 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.db :as db]
+   [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
    ))
 
@@ -57,7 +58,8 @@
   (if (not (empty? results))
     (str (html [:tr
                 [:td ]
-                [:td [:a {:href (str "/verb/" (:_id (first results))"/") } (:italian (first results))]]
+                [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
+                      (morph/get-italian-1 (:italian (first results)))]]
                 [:td (:created (first results))]
                 [:td (:updated (first results))]
                 [:td {:class "edit"} (delete-form (first results)) ]
