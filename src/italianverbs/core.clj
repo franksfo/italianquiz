@@ -150,7 +150,7 @@
        request
        {:body (html/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
 
-  (POST "/lesson/:tag/new"
+  (POST "/lesson/:tag/new/"
         [tag & other-params]
         (let [result (lesson/add-to-tag tag other-params)]
           {:status 302

@@ -65,6 +65,9 @@
          (show-as-rows (rest results)))
     ""))
 
+(defn lookup [verb]
+  (db/fetch :verb :where {:italian verb}))
+
 (defn select-one [verb]
   (let [script "/* js goes here.. */"
         verb-id verb

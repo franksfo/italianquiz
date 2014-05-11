@@ -4,7 +4,8 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.db :as db]
-   [italianverbs.morphology :refer (normalize-whitespace)]))
+   [italianverbs.morphology :refer (normalize-whitespace)]
+   [italianverbs.verb :as verb]))
 
 ;; "I just realized on my way home that besides the time stamp teachers
 ;; should be allowed to enter their verbs in sets, sort of like the
@@ -98,7 +99,7 @@
 (defn add-a-new-verb [tag]
   [:div {:class "create"}
 
-   [:form {:method "post" :action (str "/lesson/" tag "/new")}
+   [:form {:method "post" :action (str "/lesson/" tag "/new/")}
     [:table
      [:tr
       [:th "Add a new verb:"]
@@ -112,12 +113,15 @@
 (defn add-to-tag [tag other-params]
   (log/info (str "add-to-tag: " tag))
   (let [verb (:verb other-params)
+        new-verbs (map #(get % :_id)
+                       (verb/lookup verb))
         result (first (db/fetch :tag :where {:_id (db/object-id tag)}))
         verbs-of-tag (:verbs result)]
-    (log/info (str "adding verb: " verb " to tag: " tag))
+    (log/info (str "adding verbs: " new-verbs " to tag: " tag))
+    (log/info (str "adding verbs (first): " (first new-verbs) " to tag: " tag))
     (log/info (str "  current verbs: " verbs-of-tag))
     (db/fetch-and-modify :tag {:_id (db/object-id tag)} {:name (:name result)
-                                                         :verbs (conj verbs-of-tag verb)})))
+                                                         :verbs (concat verbs-of-tag new-verbs)})))
 
 (defn show [session tag]
   (let [script "/* js goes here.. */"
