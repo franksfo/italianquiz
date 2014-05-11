@@ -553,21 +553,24 @@
       [:a {:href "/session/set/"} "Login"]
       )]))
 
-(defn menubar [session-row relative-url]
+(defn menubar [session-row relative-url & [suffixes]]
   (log/debug (str "Drawing menubar with relative-url=" relative-url))
+  (log/debug (str "Menubar with suffixes: " suffixes))
   (html
    [:div {:class "menubar major"}
     [:div
      (if (or (and (not (nil? relative-url))
                   (re-find #"/lesson" relative-url))
              (= relative-url "/lesson")) {:class "selected"})
-     [:a {:href "/lesson/"} (str "Tags")]]
+     [:a {:href "/lesson/"} (str "Groups")]]
 
     [:div
      (if (or (and (not (nil? relative-url))
                   (re-find #"/generate" relative-url))
              (= relative-url "/generate")) {:class "selected"})
-     [:a {:href "/generate/"} (str "Generate")]]
+     [:a {:href (str "/generate/" (if (get suffixes :generate)
+                                    (get suffixes :generate)))}
+      (str "Generate")]]
 
     [:div
      (if (or (and (not (nil? relative-url))
@@ -576,6 +579,12 @@
      [:a {:href "/workbook/"} (str "Workbook")]]
 
     ]))
+
+(defn request-to-suffixes [request]
+  (let [route-params (:route-params request)]
+    (log/info (str "req-to-suff params: " route-params))
+    {:generate (if (and route-params (:tag route-params))
+                 (str (:tag route-params) "/"))}))
 
 (defn page [title & [content request onload]]
   (log/debug (str "Page title: " title))
@@ -617,7 +626,8 @@
 
     [:div#top
      (menubar (session/request-to-session request)
-              (if request (get request :uri)))]
+              (if request (get request :uri))
+              (request-to-suffixes request))]
     [:div#content content]]))
 
 ;; TODO: replace (page) with this once (eval) works right.

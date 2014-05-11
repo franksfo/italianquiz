@@ -74,14 +74,14 @@
   (let [script "/* js goes here.. */"]
     (html
      [:div {:class "major tag"}
-      [:h2 "tags"]
+      [:h2 "Groups"]
 
       [:table
        [:tr
         [:script script]
         [:th "Name"]
         [:th "Verbs"]
-      [:th {:class "edit"} "Edit"]]
+        [:th {:class "edit"} "Edit"]]
        
        (let [results (db/fetch :tag)]
          (tr-result results))
@@ -127,7 +127,7 @@
         result (first results)]
     (html
      [:div {:class "major tag"}
-     [:h2 [:a {:href "/lesson"} "tags"] " &raquo; "  (:name result)]
+     [:h2 [:a {:href "/lesson/" } "Groups"] " &raquo; "  (:name result)]
 
       [:table
        [:tr

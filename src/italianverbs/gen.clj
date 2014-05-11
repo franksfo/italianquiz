@@ -28,7 +28,7 @@
     [:h2 "Generate"]
     [:table
      [:tr
-      [:th "Tag"]
+      [:th "Group"]
       [:th {:class "number"} "Verbs"]
       ]
 
@@ -79,7 +79,7 @@
         verbs (:verbs map-of-tag)]
     (html
      [:div {:class "major"}
-      [:h2 (str "Generate" " &raquo; ") [:a {:href (str "/lesson/" tag-id "/")} tag]]
+      [:h2 [:a {:href "/generate/" }"Generate"] " &raquo; " [:a {:href (str "/lesson/" tag-id "/")} tag]]
 
       [:table
        [:tr
