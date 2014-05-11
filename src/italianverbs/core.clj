@@ -157,7 +157,7 @@
            :headers {"Location" (str "/lesson/" tag "/")}}))
 
 
-  (POST "/lesson/:tag/delete/:verb"
+  (POST "/lesson/:tag/delete/:verb/"
         [tag verb]
         (let [result (lesson/delete-from-tag tag verb)]
           {:status 302

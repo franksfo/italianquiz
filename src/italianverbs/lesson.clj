@@ -40,9 +40,11 @@
   (db/fetch-and-modify :tag {:_id (db/object-id tag)} {} :remove? true))
 
 (defn delete-from-tag [tag verb]
+  (log/debug (str "deleting from tag: " tag " the verb with id: " verb))
   (let [result (first (db/fetch :tag :where {:_id (db/object-id tag)}))]
+    (log/debug (str "before removing this verb, verbs are: " (:verbs result)))
     (db/fetch-and-modify :tag {:_id (db/object-id tag)} {:name (:name result)
-                                                         :verbs (remove #(= verb %) (:verbs result))})))
+                                                         :verbs (remove #(= (db/object-id verb) %) (:verbs result))})))
 
 (defn tr-result [results]
   (if (not (empty? results))
@@ -60,13 +62,17 @@
 
 (defn tr-verbs [tag results]
   (if (not (empty? results))
-    (str (html [:tr 
-                [:td (first results)]
-                [:td {:class "edit"}
-                 [:form {:method "post" :action (str "/lesson/" tag "/delete/" (first results))}
-                  [:input {:type "hidden" :name "tag" :value (db/primary-key (first results))}]
-                  [:button {:onclick "submit()"} "delete"]]]])
-         (tr-verbs tag (rest results)))
+    (do
+      (log/info (str "tr-verbs: id: " (first results)))
+      (let [verb (verb/lookup-by-id (first results))]
+        (log/info (str "verb is: " verb))
+        (str (html [:tr 
+                    [:td [:a {:href (str "/verb/" (:_id verb)  "/")   } (:italian verb)]]
+                    [:td {:class "edit"}
+                     [:form {:method "post" :action (str "/lesson/" tag "/delete/" (:_id verb) "/")}
+                      [:input {:type "hidden" :name "tag" :value (db/primary-key (first results))}]
+                    [:button {:onclick "submit()"} "delete"]]]])
+             (tr-verbs tag (rest results)))))
     ""))
 
 (defn show-tags []
