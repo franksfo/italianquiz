@@ -634,7 +634,7 @@
       (if request
         [:div {:class "welcome major"}
          (welcome (session/get-username request))]))
-    (log/info (str "drawing menubar with request: " request))
+    (log/debug (str "drawing menubar with request: " request))
 
 
     [:div#top
