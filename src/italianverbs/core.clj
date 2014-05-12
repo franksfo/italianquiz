@@ -34,7 +34,7 @@
 ;; could be e.g. "/italian/" if you have a shared web host:
 (def application-prefix "")
 
-(defroutes main-routes
+(defroutes app
 ;   "A handler processes the request map and returns a response map."
 ; http://groups.google.com/group/compojure/browse_thread/thread/3c507da23540da6e
 ; http://brehaut.net/blog/2011/ring_introduction
@@ -263,3 +263,18 @@
 ;; TODO: clear out cache of sentences-per-user session when starting up.
 (def app
   (handler/site main-routes))
+
+(defn -main [& [port]]
+  (let [port (Integer. (or port (env :port) 5000))
+        ;; TODO: heroku config:add SESSION_SECRET=$RANDOM_16_CHARS
+        store (cookie/cookie-store {:key (env :session-secret)})]
+    (jetty/run-jetty (-> #'app
+                         ((if (env :production)
+                            wrap-error-page
+                            trace/wrap-stacktrace))
+                         (site {:session {:store store}}))
+                     {:port port :join? false})))
+
+;; For interactive development:
+;; (.stop server)
+;; (def server (-main))
