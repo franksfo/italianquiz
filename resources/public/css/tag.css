@@ -25,3 +25,7 @@
 th {
     text-align:left;
 }
+
+span.date {
+    white-space:nowrap;
+}

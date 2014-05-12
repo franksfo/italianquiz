@@ -1,7 +1,9 @@
 (ns italianverbs.verb
   (:use [hiccup core])
   (:require
+   [clj-time.format :as f]
    [clj-time.core :as t]
+   [clj-time.local :as l]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.db :as db]
@@ -54,14 +56,24 @@
       (new-verb-form)
       ])))
 
+(def short-format
+  (f/formatter "MMM dd, yyyy HH:mm"))
+
 (defn show-as-rows [results]
   (if (not (empty? results))
     (str (html [:tr
                 [:td ]
                 [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
                       (morph/get-italian-1 (:italian (first results)))]]
-                [:td (:created (first results))]
-                [:td (:updated (first results))]
+                [:td [:span {:class "date"}
+                      (f/unparse short-format (f/parse (:created (first results))))]]
+;                [:td [:span {:class "date"}
+;                      (l/format-local-time (t/to-time-zone 
+;                                            (f/parse (:created (first results)))
+;                                            (t/time-zone-for-offset -7))
+;                                           #short-format)]]
+                [:td [:span {:class "date"}
+                      (f/unparse short-format (f/parse (:updated (first results))))]]
                 [:td {:class "edit"} (delete-form (first results)) ]
                 ])
          (show-as-rows (rest results)))
