@@ -1,10 +1,10 @@
 (ns italianverbs.core
-  (:use [compojure.core]
-        [hiccup core])
   (:require
+   [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
+   [compojure.handler :refer [site]]
    [compojure.route :as route]
    [compojure.handler :as handler]
    [environ.core :refer [env]]
@@ -19,24 +19,11 @@
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
    [italianverbs.verb :as verb]
-
-
-   [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
-   [compojure.handler :refer [site]]
-   [compojure.route :as route]
-   [clojure.java.io :as io]
-   [ring.middleware.head :all]
-   [ring.middleware.multipart-params :all]
-   [ring.middleware.stacktrace :as trace]
-   [ring.middleware.session :as session]
-   [ring.middleware.session.cookie :as cookie]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.basic-authentication :as basic]
-   [cemerick.drawbridge :as drawbridge]
-   [environ.core :refer [env]]
-
-
-   ))
+   [ring.middleware.session :as rsession]
+   [ring.middleware.session.cookie :as cookie]
+   [ring.middleware.stacktrace :as trace]))
 
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
 
@@ -61,7 +48,7 @@
        request
        ;; response map
        {:status 302
-        :headers {"Location" "/quiz/"}})
+        :headers {"Location" "/verb/"}})
 
   (GET "/generate/"
        request
@@ -210,7 +197,7 @@
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  ;; TODO: figure out how to combine destructuring with sending request (which we need for the 
+  ;; TODO: figure out how to combine destructuring with sending request (which we need for the
   ;; menubar and maybe other things like authorization.
   (GET "/verb/:verb/"
        [verb]
@@ -283,6 +270,15 @@
 (def app
   (handler/site main-routes))
 
+
+(defn wrap-error-page [handler]
+  (fn [req]
+    (try (handler req)
+         (catch Exception e
+           {:status 500
+            :headers {"Content-Type" "text/html"}
+            :body (slurp (io/resource "500.html"))}))))
+
 (defn -main [& [port]]
   (let [port (Integer. (or port (env :port) 5000))
         ;; TODO: heroku config:add SESSION_SECRET=$RANDOM_16_CHARS
@@ -297,3 +293,4 @@
 ;; For interactive development:
 ;; (.stop server)
 ;; (def server (-main))
+
