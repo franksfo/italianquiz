@@ -4,11 +4,27 @@
   (:require
    [clojure.tools.logging :as log]
    [clojure.string :as string]
+   [italianverbs.db :as db]
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
-   [italianverbs.lev :as lev]
-   [italianverbs.mongo :refer (choose-lexeme fetch)]))
+   [italianverbs.lev :as lev]))
+;   [italianverbs.mongo :refer (choose-lexeme fetch)]))
+
+(defn choose-lexeme [ & [struct dummy]]
+  "Choose a random lexeme from the set of lexemes
+   that match search criteria.
+   dummy: ignored for compatibility with gram/np"
+  ;; do a query based on the given struct,
+  ;; and choose a random element that satisfies the query.
+  (let [results (db/fetch struct)]
+    (if (= (count results) 0)
+      {:english "??" :italian "??"
+       :cat :error :note (str "<tt>(choose-lexeme)</tt>: no results found. <p/>See <tt>:choose</tt> feature below for query.")
+       :choose struct
+       }
+      (nth results (rand-int (count results))))))
+
 
 ;;(duck/spit "verbs.html"
 ;;      (html/static-page
@@ -85,7 +101,7 @@
                    constraints)
            (map (fn [entry]
                   (fs/deserialize (:entry entry)))
-                (fetch)))) ;; <- fetch the entire lexicon (!)
+                (db/fetch)))) ;; <- fetch the entire lexicon (!)
 
 (defn query-with-lexicon [lexicon & constraints]
   "search the supplied lexicon for entries matching constraints."
