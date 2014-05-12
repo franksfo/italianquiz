@@ -4,6 +4,7 @@
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
    [compojure.route :as route]
    [compojure.handler :as handler]
    [environ.core :refer [env]]
