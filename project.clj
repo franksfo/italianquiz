@@ -1,6 +1,5 @@
 (defproject italianverbs "1.0.0-SNAPSHOT"
   :description "Italian language learning app"
-  :plugins [[lein-ring "0.7.3"]]
   :dependencies [[org.clojure/clojure "1.5.1"]
 
                  [org.clojure/math.numeric-tower "0.0.4"]
@@ -29,7 +28,9 @@
                  [com.cemerick/drawbridge "0.0.6"]]
 
   :min-lein-version "2.0.0"
-  :plugins [[environ/environ.lein "0.2.1"]]
+  :plugins [[environ/environ.lein "0.2.1"]
+            [lein-ring "0.7.3"]]
+
   :hooks [environ.leiningen.hooks]
 
 
