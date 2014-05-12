@@ -19,6 +19,23 @@
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
    [italianverbs.verb :as verb]
+
+
+   [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
+   [compojure.handler :refer [site]]
+   [compojure.route :as route]
+   [clojure.java.io :as io]
+   [ring.middleware.head :all]
+   [ring.middleware.multipart-params :all]
+   [ring.middleware.stacktrace :as trace]
+   [ring.middleware.session :as session]
+   [ring.middleware.session.cookie :as cookie]
+   [ring.adapter.jetty :as jetty]
+   [ring.middleware.basic-authentication :as basic]
+   [cemerick.drawbridge :as drawbridge]
+   [environ.core :refer [env]]
+
+
    ))
 
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))

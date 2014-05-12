@@ -3,7 +3,9 @@
   :dependencies [[clj-time "0.7.0"]
                  [clojail "1.0.6"]
 
-                 [com.cemerick/drawbridge "0.0.6"]
+                 [com.cemerick/drawbridge "0.0.6"
+                  :exclusions [ring/ring-core]] ;; https://github.com/cemerick/drawbridge/issues/8
+
 
                  [compojure "1.1.6"]
                  [congomongo "0.4.4"]
@@ -11,6 +13,9 @@
                  [environ "0.2.1"]
 
                  [hiccup "1.0.1"]
+
+                 [javax.servlet/servlet-api "2.5"]
+
 
                  [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
                                                     javax.jms/jms
