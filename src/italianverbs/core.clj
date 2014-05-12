@@ -7,15 +7,16 @@
    [compojure.route :as route]
    [compojure.handler :as handler]
    [italianverbs.db :refer (fetch)]
+   [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
-   [italianverbs.lev :as lev]
+   [italianverbs.lesson :as lesson]
    [italianverbs.xml :as xml]
-   [base.html :as html]
-   [italianverbs.html :as ihtml]
+   [italianverbs.html :as html]
    [italianverbs.search :as search]
    [italianverbs.workbook :as workbook]
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
+   [italianverbs.verb :as verb]
    ))
 
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
@@ -25,7 +26,7 @@
     (str "Welcome to Italian Verbs" (if username (str ", " username)) ".")))
 
 (defn printlex [lexeme]
-  (ihtml/tablize lexeme))
+  (html/tablize lexeme))
 
 (defn wrap-div [string]
   (str "<div class='test'>" string "</div>"))
@@ -43,130 +44,74 @@
        {:status 302
         :headers {"Location" "/quiz/"}})
 
-  (GET "/preferiti/"
-       request
-       {:body (quiz/preferiti request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/about"
-       request
-       {:body (html/page "About" (html/about) request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/about/"
-       request
-       {:body (html/page "About" (html/about) request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  ;; TODO: a lot of repeated request-to-session looking-up going on here.
-  (GET "/quiz/"
-       request
-       {:body (if (session/request-to-session request)
-                (quiz/quiz request))
-        :status (if (session/request-to-session request)
-                  200
-                  (do (log/info "No existing session - you must be new here. Redirecting to /session/set.")
-                      302))
-        :headers (if (session/request-to-session request)
-                   {"Content-Type" "text/html;charset=utf-8"}
-                   {"Location" "/session/set/"})})
-
-  (GET "/quiz"
-       request
-       {:status 302
-        :headers {"Location" "/quiz/"}})
-
-  (GET "/search"
-       request
-       {:status 302
-        :headers {"Location" "/search/"}})
-
-  (GET "/search/"
-       request
-       {:status 200
-        :body (html/page "Search" (search/search-ui request) request)
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/search/q/"
-       request
-       {:status 200
-        :body (search/searchq (get (get request :query-params) "search")
-                              (get (get request :query-params) "attrs"))
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/workbook/"
-       request
-       {:status 200
-        :body (html/page "Libro di Lavoro" (workbook/workbook-ui request) request)
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/workbook/q/"
-       request
-       {:status 200
-        :body (workbook/workbookq (get (get request :query-params) "search")
-                                  (get (get request :query-params) "attrs"))
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-  ;; </workbook>
-
-  (GET "/lexicon/"
-       request
-       ;; response map
-       {
-        :headers {"Content-Type" "text/html"}
-        :body
-        (do ;"reload lexicon into mongodb and then render it as HTML."
-          (load-file "src/italianverbs/lexicon.clj")
-          (html/page "Lexicon"
-                     (string/join " "
-                                  (map printlex
-                                       (fetch :lexicon :sort {"italian" 1})))
-                     request))})
-
-
-  ;; show all the results of the sentence generation unit tests.
   (GET "/generate/"
        request
-       ;; response map
-       {
-        :headers {"Content-Type" "text/html"}
-        :body
-        (html/pagemacro "Sentence Generation"
-                        (gen/generate-signs))
-        })
+       {:status 302
+        :headers {"Location" "/generate"}})
 
-
-  ;; show user's quiz filter preferences. format param (in request) controls output's formatting:
-  ;; might be a comma-separated list of filters, a bunch of checkboxes, xml, json, etc.
-  (GET "/quiz/filter/"
+  (GET "/generate"
        request
-       {
+       {:body (html/page "Generate" (g/generate (session/request-to-session request) request) request)
         :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}
-        :body (quiz/show-controls (session/request-to-session request)
-                                  (get request :query-params) "/quiz/filter/" "Quiz")
-        }
-       )
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (POST "/quiz/filter/"
-       request
-       {
-        :side-effect (quiz/set-filters (session/request-to-session request) request)
-        :status 302
-        :headers {"Location" "/quiz/filter/"}
-        }
-       )
+  (GET "/generate/:tag/"
+       [tag & other-params]
+       {:body (g/page "Generate" (g/generate-from tag))})
 
-  (POST "/quiz/clear"
+  (GET "/lesson/"
        request
-       {
-        :side-effect (quiz/clear-questions (session/request-to-session request))
-        :status 302
-        :headers {"Location" "/quiz/"}
-       }
-       )
+       {:status 302
+        :headers {"Location" "/lesson"}})
+
+  (GET "/lesson"
+       request
+       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/lesson/:tag/"
+       request
+       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
+
+  (POST "/lesson/:tag/new"
+        [tag & other-params]
+        (let [result (lesson/add-to-tag tag other-params)]
+          {:status 302
+           :headers {"Location" (str "/lesson/" tag "/")}}))
+
+  (POST "/lesson/:tag/delete/:verb"
+        [tag verb]
+        (let [result (lesson/delete-from-tag tag verb)]
+          {:status 302
+           :headers {"Location" (str "/lesson/" tag "/")}}))
+
+  (POST "/lesson/delete/:tag"
+        [tag]
+       (let [result (lesson/delete tag)]
+         {:status 302
+          :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+
+  (GET "/lesson/new"
+       request
+       {:body (html/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  (GET "/lesson/new/"
+       request
+       {:status 302
+        :headers {"Location" "/lesson/new"}})
+
+  (POST "/lesson/new"
+       request
+       (let [result (lesson/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+  (POST "/lesson/new/"
+       request
+       (let [result (lesson/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/"
@@ -178,7 +123,7 @@
         :headers {"Location" "/?msg=set"}
         })
 
-  (GET "/session/clear/"
+   (GET "/session/clear/"
        request
        {
         :side-effect (session/unregister request)
@@ -186,73 +131,106 @@
         :headers {"Location" "/?msg=cleared"}
         })
 
-  ;; xml is default, so just redirect to /guess/.
-  ;; TODO: pass params along.
-  (GET "/guess/xml/"
+  (GET "/generate/:tag/"
+       [tag & other-params]
+       {:body (g/page "Generate" (g/generate-from tag))})
+
+  (GET "/lesson/"
        request
        {:status 302
-        :headers {"Location" "/guess/"}})
+        :headers {"Location" "/lesson"}})
 
-  (GET "/guess/"
+  (GET "/lesson"
        request
-       {:body
-        (let [type (if (quiz/question-type (get request :query-params))
-                     (quiz/question-type (get request :query-params))
-                     (quiz/random-guess-type (session/request-to-session request)))
-              question (quiz/generate-question type)]
-          (quiz/guess question request "xml"))
+       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
         :status 200
-        :headers {"Content-Type" "text/xml;charset=utf-8"}
-        })
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/types/"
+  (GET "/lesson/:tag/"
        request
-       {:body
-        (quiz/types)
-        :status 200
-        :headers {"Content-Type" "text/xml;charset=utf-8"}
-        })
+       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
 
-  ;; create a new question, store in backing store, and return question's english form
-  ;; to pose question to user.
-  (GET "/quiz/question/"
+  (POST "/lesson/:tag/new/"
+        [tag & other-params]
+        (let [result (lesson/add-to-tag tag other-params)]
+          {:status 302
+           :headers {"Location" (str "/lesson/" tag "/")}}))
+
+
+  (POST "/lesson/:tag/delete/:verb/"
+        [tag verb]
+        (let [result (lesson/delete-from-tag tag verb)]
+          {:status 302
+           :headers {"Location" (str "/lesson/" tag "/")}}))
+
+  (POST "/lesson/delete/:tag"
+        [tag]
+       (let [result (lesson/delete tag)]
+         {:status 302
+          :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+
+  (POST "/lesson/new/"
        request
-       {:body (quiz/question request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}
-        })
+       (let [result (lesson/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
-  (GET "/quiz/fillqueue/"
-       request
-       {:body (quiz/fillqueue request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}
-        })
-
-  (GET "/guess/tr/"
-       request
-       {
-        :body
-        (let [type (quiz/random-guess-type)
-              question (quiz/generate-question type)]
-          (quiz/guess question request "tr"))
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}
-        })
-
-  (POST "/quiz/evaluate/"
+  ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
+  (GET "/session/set/"
        request
        {
-        :body
-        ;; note this only evaluates the user's guess to the previous question -
-        ;; it does not generate a new question. The latter is caused by a javascript
-        ;; function get_next_question() that is called when the user's
-        ;; clicks the 'Rispondi' button, which also more or less simulatenously submits the form that
-        ;; causes the (quiz/evaluate) here - see /resources/public/js/quiz.js.
-        (quiz/evaluate request "tr")
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}
+        :side-effect (session/register request)
+        :session (get request :session)
+        :status 302
+        :headers {"Location" "/?msg=set"}
         })
+
+  (GET "/verb/"
+       request
+       {:body (html/page "Verbs" (verb/select (session/request-to-session request) request) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  ;; TODO: figure out how to combine destructuring with sending request (which we need for the 
+  ;; menubar and maybe other things like authorization.
+  (GET "/verb/:verb/"
+       [verb]
+       {:body (html/page "Verbs" (verb/select-one verb) {:uri "/verb/"})
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (POST "/verb/:verb/delete/"
+        [verb]
+        (let [result (verb/delete verb)]
+          {:status 302
+           :headers {"Location" (str "/verb/?result=" (:message result))}}))
+  (POST "/verb/new/"
+       request
+       (let [result (verb/new (session/request-to-session request) request)]
+       {:status 302
+        :headers {"Location" (str "/verb/?result=" (:message result))}}))
+  (POST "/verb/update/"
+        [id updated]
+        (do
+          (log/info (str "updating verb with id: " id))
+          (log/info (str "updating verb with updated: " updated))
+          (let [result (verb/update id updated)]
+            {:status 302
+             :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))
+
+
+  (GET "/workbook/"
+       request
+       {:status 200
+        :body (html/page "Workbook" (workbook/workbook-ui request) request)
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/workbook/q/"
+       request
+       {:status 200
+        :body (workbook/workbookq (get (get request :query-params) "search")
+                                  (get (get request :query-params) "attrs"))
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (route/resources "/")
 

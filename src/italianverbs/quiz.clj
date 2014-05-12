@@ -2,8 +2,7 @@
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's :where clause.
 (ns italianverbs.quiz
-  (:require [base.html :as basehtml]
-            [clojure.string :as string]
+  (:require [clojure.string :as string]
             [clojure.tools.logging :as log]
             [hiccup.core :refer :all]
             [hiccup.page :refer :all]
@@ -124,9 +123,9 @@
 		 (show-choice (dissoc lexicon (nth (keys lexicon) choice)) (- remaining 1)
 			answer show-true-before)))))))
 
+;; TODO: use the same normalize-whitespace as lesson.clj
 (defn normalize-whitespace [string]
   string)
-                                        ;  (string/replace #"[ ]+$" "" (string/replace #"^[ ]+" "" (string/replace #"[ ]+" " " string))))
 
 (defn- store-question [question-pair session-id last-guess]
   "Store a 'question pair' in the persistent mongodb store. A 'question pair' is an Italian/English pair of sentences that are translations of each other.
@@ -644,14 +643,14 @@
 
 (defn preferiti [request]
   "this is called by the routing: /preferiti => {:body (quiz/preferiti request)} in core.clj. The controls are rendered in (defn- controls) above."
-  (basehtml/page "i tuoi preferiti"
+  (html/page "i tuoi preferiti"
                  (html
                   [:div#controls_container "if you can see this, either javascript is not enabled or your browser could not contact the server to show the quiz controls."] )
                  request
                  "show_quiz_preferences()"))
 
 (defn quiz [request]
-  (basehtml/page "Quiz"
+  (html/page "Quiz"
    (html
      [:div {:class "quiz-elem"}
       [:h2 "Quiz" [:span#quizbanner [:script "show_question_types()" ]]]

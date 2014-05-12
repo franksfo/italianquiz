@@ -80,8 +80,11 @@
   (over/over parents child1 child2))
 
 (defn overh [parent head]
-  (if (not (seq? head))
-    (over/overh parent head)
+  (if (seq? parent)
+    (mapcat (fn [each-parent]
+              (log/debug (str "overh: each-parent: " (fo-ps each-parent)))
+              (overh each-parent head))
+            parent)
     (do
       (log/trace (str "overh head: " (show-spec (get-in parent '(:head :synsem)))))
       (log/trace (str "overh head fo: " (fo-ps parent)))
@@ -113,7 +116,7 @@
           (log/trace (str "overc size of result: " (.size result))))
         result))))
 
-(defn get-lex [schema head-or-comp cache lexicon]
+(defn get-lex [schema head-or-comp cache]
   (if (nil? schema)
     #{}
     (do
@@ -122,7 +125,7 @@
         (throw (Exception. (str "first arguments should have been a map, but instead was of type: " (type schema) "; fo: " (fo schema)))))
       (log/trace (str "get-lex schema: " (:rule schema) " for: " head-or-comp))
       (if (nil? (:rule schema))
-        (log/error (str "no schema for: " schema)))
+        (throw (Exception. (str "no schema for: " schema))))
       (let [result (cond (= :head head-or-comp)
                          (if (and (= :head head-or-comp)
                                   (not (nil? (:head (get cache (:rule schema))))))
@@ -141,11 +144,11 @@
                              (:comp (get cache (:rule schema))))
                            (do
                              (log/warn (str "CACHE MISS 2"))
-                             lexicon))
+                             nil))
                        
                          true
                          (do (log/warn (str "CACHE MISS 3"))
-                             lexicon))]
+                             nil))]
         (lazy-shuffle result)))))
   
 (defn get-head-phrases-of [parent cache]
@@ -180,25 +183,29 @@
       :notfound
       (get ls-part (show-spec use-spec) :notfound))))
 
-(defn overc-with-cache [parents cache lexicon]
+(defn overc-with-cache [parents cache]
   (if (not (empty? parents))
     (let [parent (first parents)
-          use-spec {:synsem (get-in parent '(:comp :synsem))}
+          use-spec {:synsem (get-in parent [:comp :synsem])}
           lexicon (let [cached (get-subset-from-cache cache (show-spec use-spec))]
-                    (if (= cached :notfound)
-                      (get-lex parent :comp cache lexicon)
-                      cached))]
+                    (lazy-shuffle (if (= cached :notfound)
+                                    (get-lex parent :comp cache nil)
+                                    cached)))]
       (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
                                                      (not (fail? (unifyc lexeme
                                                                          use-spec))))
-                                                   (lazy-shuffle lexicon)))
+                                                   lexicon))
                 (overc-with-cache (rest parents) cache lexicon)))))
 
 (defn overh-with-cache [parent cache lexicon]
-  (let [lexicon (get-lex parent :head cache lexicon)
-        use-spec {:synsem (get-in parent '(:head :synsem))}]
+  (let [lexicon (lazy-shuffle (get-lex parent :head cache lexicon))
+        use-spec {:synsem (get-in parent [:head :synsem])}]
     (overh parent
-           (filter (fn [lexeme]
-                     (not (fail? (unifyc lexeme
-                                         use-spec))))
-                   (lazy-shuffle lexicon)))))
+            (filter (fn [lexeme]
+                      (not (fail? (unifyc lexeme
+                                          use-spec))))
+                    lexicon))))
+
+
+
+

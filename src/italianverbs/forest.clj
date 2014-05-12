@@ -2,6 +2,8 @@
   (:refer-clojure :exclude [get-in deref merge resolve find future parents rand-int])
   (:require
    [clojure.core :as core]
+   ;; have to exclude partition-by because of some namespace clash, not sure how else to fix
+   [clojure.core.async :as async :exclude [partition-by]]
    [clojure.set :refer :all]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
@@ -9,50 +11,36 @@
                                                    overc overh overh-with-cache overc-with-cache)]
    [italianverbs.lexicon :refer (it)]
    [italianverbs.morphology :refer (fo fo-ps)]
+   [italianverbs.over :as over]
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
 (def concurrent false)
-(defn deref [thing]
-  (if concurrent
-    (core/deref thing)
-    thing))
-(defn future [thing]
-  (if concurrent
-    (core/future thing)
-    thing))
 
 (def random-order true)
-(defn rand-int [range constant]
+(defn rand-int [range & [constant]]
   (if random-order
     (core/rand-int range)
-    constant))
+    (if constant constant 0)))
 
 (declare lightning-bolt)
 
-(defn add-comp-phrase-to-headed-phrase [parents phrases lexicon & [iter cache path supplied-comp-spec]]
-  (if (not (empty? parents))
+(defn add-comp-phrase-to-headed-phrase [parents phrases & [cache supplied-comp-spec]]
+  (if (and (not (empty? parents))
+           (first parents))
     (let [debug
           (do
+            (log/debug (str "PARENTS: " (fo-ps parents)))
+            (log/debug (str "TYPE PARENTS: " (type parents)))
+            (log/debug (str "EMPTY? PARENTS: " (empty? parents)))
             (log/debug (str "starting add-comp-phrase-to-headed-phrase."))
             (log/debug (str "    with parent: " (fo-ps (first parents))))
-            (log/debug (str "    with phrases: " (fo-ps phrases)))
-            (log/trace (str "    with lexicon size: " (.size lexicon)))
+            (log/trace (str "    with phrases: " (fo-ps phrases)))
             (log/trace (str "add-comp-phrase-to-headed-phrase: emptyness of parents: " (empty? parents))))
 
           debug (if false (throw (Exception. "GOT HERE: INSIDE MAIN PART OF add-comp-phrase-to-headed-phrase.")))
           debug (log/trace (str "add-comp-phrase-to-headed-phrase is non-empty."))
-          iter (if (nil? iter) 0 iter)
           parent (first parents)
-
-          cache (if cache cache
-                    (do
-                      (log/info (str "building cache (" (.size phrases) ")"))
-                      (build-lex-sch-cache phrases lexicon)))
-
-          debug (log/debug (str "supplied comp-spec: " supplied-comp-spec))
-
-          debug (log/debug (str "parent's comp-spec: " (show-spec (get-in parent '(:comp)))))
 
           comp-spec
           (dissoc-paths
@@ -77,58 +65,22 @@
                                       '()))
 
           comps 
-          (if (not (empty? comp-phrases-for-parent))
-            (let [lexicon-for-comp (get-lex parent :comp cache lexicon)]
-              (log/debug (str "about to call lightning-bolt from add-comp-phrase-to-headed-phrase."))
-              (log/debug (str "  with head-spec: " (show-spec comp-spec)))
-              (log/debug (str "  with grammar: " (fo-ps comp-phrases-for-parent)))
-              (log/trace (str "  with lexicon size: " (.size lexicon-for-comp)))
-              (deref
-              (future
-                (lightning-bolt
-                 comp-spec lexicon-for-comp
-                 comp-phrases-for-parent
-                 0
-                 cache (conj path 
-                             {:h-or-c "C"
-                              :depth 0
-                              :grammar comp-phrases-for-parent
-                              :lexicon-size (.size lexicon-for-comp)
-                              :spec (show-spec comp-spec)
-                              :parents comp-phrases-for-parent})))))
-            (list))]
-
+          (lightning-bolt phrases cache comp-spec)]
       (lazy-cat
        (overc parent comps)
-       (add-comp-phrase-to-headed-phrase (rest parents) phrases lexicon (+ 1 iter) cache path supplied-comp-spec)))))
+       (add-comp-phrase-to-headed-phrase (rest parents) phrases cache supplied-comp-spec)))))
 
 (def can-log-if-in-sandbox-mode false)
 
-(defn lexical-headed-phrases [parents lexicon phrases depth cache path]
-  "return a lazy seq of phrases (maps) whose heads are lexemes."
-  (if (not (empty? parents))
-    (let [parent (first parents)
-          cache (if cache cache
-                    (do (log/warn (str "lexical-headed-parents given null cache: building cache from: (" (.size phrases) ")"))
-                        (build-lex-sch-cache phrases 
-                                             (map (fn [lexeme]
-                                                    (unifyc lexeme
-                                                            {:phrasal false}))
-                                                  lexicon))))]
-      (log/trace (str "lexical-headed-phrases: looking at parent: " (fo-ps parent)))
-      
-      (lazy-cat
-       (overh-with-cache parent cache lexicon)
-       (lexical-headed-phrases (rest parents) lexicon phrases depth cache path)))))
-
-(defn phrasal-headed-phrases [parents lexicon grammar depth cache path]
+(defn phrasal-headed-phrases [phrases grammar depth cache path]
   "return a lazy seq of phrases (maps) whose heads are themselves phrases."
-  (if (not (empty? parents))
-    (let [parent (first parents) ;; realizes possibly?
+  (if (not (empty? phrases))
+    (let [debug (log/debug (str "phrasal-headed-phrases with phrases: " (fo-ps phrases)))
+          parent (first phrases) ;; realizes possibly?
           debug (log/trace (str "phrasal-headed-phrases grammar size: " (.size grammar)))
           headed-phrases-of-parent (get-head-phrases-of parent cache)]
       (if (nil? headed-phrases-of-parent)
-        (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)        
+        (phrasal-headed-phrases (rest phrases) grammar depth cache path)
         (let [headed-phrases-of-parent (if (nil? headed-phrases-of-parent)
                                          (list)
                                          headed-phrases-of-parent)
@@ -138,31 +90,23 @@
               debug (log/trace (str "phrasal-headed-phrases: parent's head: " (show-spec head-spec)))]
           (lazy-cat
            (let [debug (log/debug (str "about to call lightning-bolt from phrasal-headed-phrase."))
-                 debug (log/debug (str "  head-spec: " (show-spec head-spec)))
-                 debug (log/trace (str "  with grammar: " (fo-ps parents)))
-                 debug (log/trace (str "  with lexicon size: " (.size lexicon)))
-                 bolts 
-                 (deref (future
-                   (lightning-bolt head-spec
-                                   lexicon headed-phrases-of-parent (+ 1 depth)
-                                   cache
-                                   path)))]
-             (overh parents bolts))
-           (phrasal-headed-phrases (rest parents) lexicon grammar depth cache path)))))))
+                 debug (log/debug (str " with head-spec: " (show-spec head-spec)))
+                 bolts (lightning-bolt grammar cache head-spec (+ 1 depth))]
+             (overh phrases bolts))
+           (phrasal-headed-phrases (rest phrases) grammar depth cache path)))))))
 
-(defn parents-at-this-depth [head-spec phrases depth]
-  "subset of phrases possible at this depth where the phrase's head is the given head."
+(defn parents-given-spec [head-spec phrases]
+  "subset of phrases possible where the phrase's head is the given head."
   (if (nil? phrases)
-    (log/trace (str "no parents for spec: " (show-spec head-spec) " at depth: " depth)))
-  (log/trace (str "parents-at-this-depth: head-spec:" (show-spec head-spec)))
-  (log/trace (str "parents-at-this-depth: phrases:" (fo-ps phrases)))
-  (filter (fn [each-unified-parent]
-            (not (fail? each-unified-parent)))
+    (log/trace (str "no parents for spec: " (show-spec head-spec))))
+  (log/info (str "parents-given-spec: head-spec:" (show-spec head-spec)))
+  (log/trace (str "parents-given-spec: phrases:" (fo-ps phrases)))
+  (filter #(not (fail? %))
           (map (fn [each-phrase]
                  (unifyc each-phrase head-spec))
-          ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
-          ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
-          ;; head param of (lightning-bolt)".
+               ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
+               ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
+               ;; head param of (lightning-bolt)".
                phrases)))
 
 (defn lazy-cats [lists & [ show-first ]]
@@ -175,24 +119,6 @@
                   (lazy-cats (rest lists))))
       (lazy-cats (rest lists)))))
 
-(defn headed-phrases [parents-with-lexical-heads parents-with-phrasal-heads]
-  (let [parents-with-lexical-heads (filter (fn [parent]
-                                             (do (log/trace "checking parent (1)")
-                                                 (not (= false (get-in parent '(:comp :phrasal))))))
-                                           parents-with-lexical-heads)
-        parents-with-phrasal-heads (filter (fn [parent]
-                                             (do (log/trace "checking parent (2)")
-                                                 (not (= false (get-in parent '(:comp :phrasal))))))
-                                           parents-with-phrasal-heads)
-        cats
-        (lazy-cat
-         parents-with-lexical-heads parents-with-phrasal-heads)]
-    (do
-      (if (not (empty? cats))
-        (log/debug (str "first headed-phrases: " (fo-ps (first cats))))
-        (log/debug (str " no headed-phrases.")))
-      cats)))
-
 (defn log-path [path log-fn & [ depth]]
   (let [depth (if depth depth 0)
         print-blank-line false]
@@ -202,70 +128,236 @@
             grammar (:grammar (first path))
             lexicon-size (:lexicon-size (first path))
             spec (:spec (first path))
-            parents (fo-ps (:parents (first path)))]
+            phrases (fo-ps (:parents (first path)))]
         (log-fn (str "LB@[" depth "]: " h-or-c ":" spec))
         (log/trace (str "   grammar: " (fo-ps grammar) "; lexicon size: " lexicon-size))
-        (log-fn (str "   applicable rules: " (fo-ps parents)))
+        (log-fn (str "   applicable rules: " (fo-ps phrases)))
         (log-path (rest path) log-fn (+ depth 1)))
       (if print-blank-line (log-fn (str ""))))))
 
-(def maxdepth 4)
+(def maxdepth 1)
 
-(defn lightning-bolt [ & [head-spec lexicon grammar depth cache path]]
-  (let [depth (if depth depth 0)]
+(defn phrasal-spec [spec cache]
+  "add additional constraints so that this spec can constrain heads and comps."
+  (unifyc spec (if (:phrase-constraints cache)
+                 (do
+                   (log/trace (str "phrasal-spec: " (show-spec (:phrase-constraints cache))))
+                   (:phrase-constraints cache))
+                  :top)))
+
+(defn hl [cache grammar & [spec depth]]
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head :synsem])
+        grammar (lazy-shuffle grammar)]
+
+    ;; try every possible lexeme as a candidate head for each phrase:
+    ;; use (:comp (cache ..)) as the subset of the lexicon to try.
+    (mapcat #(lazy-seq (overh % (filter (fn [lexeme]
+                                          (not (fail? (unifyc (get-in lexeme [:synsem]) head-spec))))
+                                        (lazy-shuffle (:head (cache (:rule %)))))))
+            (parents-given-spec spec grammar))))
+
+(declare hlcl)
+
+(defn hp [cache grammar & [spec depth]]
+  "return a lazy sequence of every possible phrasal head as the head of every rule in rule-set _grammar_."
+  (let [depth (if depth depth 0)
+        debug (log/debug (str "PRE-PHRASAL-SPEC: " spec))
+        spec (phrasal-spec (if spec spec :top) cache)
+        debug (log/debug (str "POST-PHRASAL-SPEC: " spec))
+        grammar (lazy-shuffle grammar)]
+    (mapcat
+     #(overh %
+             (hlcl cache
+                   grammar
+                   (get-in % [:head])
+                   (+ 1 depth)))
+     (filter (fn [rule]
+               (not (fail? rule)))
+             (map (fn [rule]
+                    (unifyc rule spec))
+                  grammar)))))
+
+(defn cp [phrases-with-heads cache grammar]
+  "phrases-with-heads is a seq (usually lazy)"
+  (mapcat
+   #(lazy-seq (overc % (hlcl cache grammar (get-in % [:comp]))))
+   phrases-with-heads))
+
+(defn hlcl [cache grammar & [spec depth]]
+  "generate all the phrases where the head is a lexeme and the complement is a lexeme"
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)]
+    (log/debug (str "hlcl with spec: " (show-spec spec)))
+
+    ;; parents-with-heads is the lazy sequence of all possible heads attached to all possible grammar rules.
+    (let [parents-with-heads
+          (hl cache grammar spec)]
+
+      (mapcat
+       (fn [parent-with-head]
+         (let [pred-of-arg (get-in parent-with-head [:comp :synsem])]
+           (log/trace (str "pred-of-arg: " pred-of-arg))
+           (overc parent-with-head (lazy-shuffle
+                                    (filter (fn [complement]
+                                              (not (fail? (unifyc (get-in complement [:synsem])
+                                                                  pred-of-arg))))
+                                            (:comp (cache (:rule parent-with-head))))))))
+     parents-with-heads))))
+
+(defn hlcp [cache grammar & [spec depth]]
+  "generate all the phrases where the head is a lexeme and the complement is a phrase."
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])]
+    (log/debug (str "hlcp with spec: " (show-spec spec)))
+
+    ;; parents-with-heads is the lazy sequence of all possible heads attached to all possible grammar rules.
+    (let [parents-with-heads
+          (hl cache grammar spec)]
+
+      (mapcat
+       (fn [parent-with-head]
+         (lazy-seq (overc parent-with-head (hlcl cache
+                                                 grammar
+                                                 {:synsem (get-in parent-with-head [:comp :synsem] :top)}
+                                                 (+ 1 depth)))))
+       parents-with-heads))))
+
+(defn cl [cache grammar]
+  (mapcat
+   #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
+   grammar))
+
+(defn hpcl [cache grammar & [spec depth]]
+  "generate all the phrases where the head is a phrase and the complement is a lexeme."
+  (log/debug (str "START HPCL.."))
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])]
+    (log/debug (str "hpcl with spec: " (show-spec spec)))
+    (cl cache (hp cache grammar head-spec (+ 1 depth)))))
+
+(defn hpcp [cache grammar & [spec depth]]
+  "generate all the phrases where the head is a phrase and the complement is a phrase."
+  (log/debug (str "START HPCP.."))
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])]
+    (log/debug (str "hpcl with spec: " (show-spec spec)))
+    (mapcat
+     #(lazy-seq (overc % (hlcl cache grammar
+                               {:synsem (get-in % [:comp :synsem] :top)}
+                               (+ 1 depth))))
+     (hp cache grammar head-spec (+ 1 depth)))))
+
+(defn hppcp [cache grammar & [spec depth]]
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head])]
+    (log/debug (str "hpcp with spec: " (show-spec spec)))
+    (mapcat
+
+     #(lazy-seq
+
+       (overc % ;; parent: a phrase from HEAD-PHRASE:
+              ;; complement: a hlcl.
+              (do
+                (log/debug (str "generating a comp with: " (get-in % [:comp :synsem] :top) " given parent: "
+                                (:rule %)))
+                (hlcl cache grammar {:synsem (get-in % [:comp :synsem] :top)} (+ 1 depth)))))
+
+     ;; HEAD-PHRASE:
+     (mapcat
+      (let [head-spec (unifyc head-spec {:head {:synsem {:subcat {:1 :top
+                                                                  :2 '()}}}})]
+        #(lazy-seq (overh
+
+                    ;; parent
+                    (parents-given-spec head-spec (lazy-shuffle grammar))
+
+                    ;; head: a hpcl.
+                    %))
+
+        (log/debug (str "generating a head phrase with: " (get-in head-spec [:head] :top)))
+;        (let [head-spec (unifyc head-spec {:head {:synsem {:subcat :top}}})]
+        (let [head-spec (unifyc head-spec {:head :top})]
+          (hpcl cache
+                ;; grammar for this hlcl: the phrase's head must *not* be an intransitive verb.
+                (parents-given-spec {:synsem (get-in head-spec [:head :synsem] :top)}
+                                       (lazy-shuffle grammar))
+                (get-in head-spec [:head]) (+ 1 depth))))))))
+
+(defn hxcx [cache grammar & [spec depth]]
+  (let [depth (if depth depth 0)
+        spec (phrasal-spec (if spec spec :top) cache)
+        head-spec (get-in spec [:head] :top)]
+    (let [fns [hlcl]]
+      (mapcat
+       #(% cache grammar spec depth)
+       (shuffle fns)))))
+
+(defn lightning-bolt [grammar cache & [ spec depth]]
+  "lightning-bolt lite"
+  (let [depth (if depth depth 0)
+        spec (if spec spec :top)
+        parents (map #(unifyc % spec)
+                     grammar)]
     (cond 
      (> depth maxdepth)
      nil
+
      true
-     (let [parents-at-this-depth (parents-at-this-depth head-spec
-                                                        (lazy-shuffle grammar) depth)
-           path (if path path [])
-           path (conj path
-                      ;; add one element representing this call of lightning-bolt.
-                      {:depth (+ 1 depth)
-                       :grammar grammar
-                       :h-or-c "H"
-                       :lexicon-size (.size lexicon)
-                       :spec (show-spec head-spec)
-                       :parents parents-at-this-depth})
-           head-spec (if head-spec head-spec :top)
-           ;; TODO: will probably remove this or make it only turned on in special cases.
-           ;; lightning-bolt should be efficient enough to handle :top as a spec
-           ;; efficiently.
-           too-general (if (= head-spec :top)
-                         (if true nil
-                             (throw (Exception. (str ": head-spec is too general: " head-spec)))))
+     (let [parents-given-spec (parents-given-spec spec (lazy-shuffle grammar))
+
+           lexical-headed-phrases
+           (map #(overh % (lazy-shuffle (:head (cache (:rule %)))))
+                parents-given-spec)
+
+           debug (log/debug (str "PARENTS FOR THIS SPEC: " (fo-ps parents-given-spec)))
+
+           phrasal-headed-phrases
+           (if (not (= false (get-in spec [:head :phrasal])))
+             (phrasal-headed-phrases parents-given-spec
+                                     grammar depth cache nil))
+
+           debug (log/debug (str "getting 1-level trees.."))
+
+           hlcl
+           (if (first lexical-headed-phrases)
+             (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule (first parents-given-spec))))))
+                     lexical-headed-phrases))
+
+           debug (log/debug (str "done getting 1-level trees - type: " (type hlcl)))
+
+           hlcp
+           (if (not (= false (get-in spec [:comp :phrasal])))
+               (add-comp-phrase-to-headed-phrase lexical-headed-phrases
+                                                 grammar cache
+                                                 :top))
+
+;           hpcp
+;           (if (and (not (= false (get-in spec [:comp :phrasal])))
+;                    (not (= false (get-in spec [:head :phrasal]))))
+;             (mapcat #(add-comp-phrase-to-headed-phrase %
+;                                                        grammar cache
+;                                                        :top)
+;                     phrasal-headed-phrases))
+
+
+           debug (log/debug (str "FIRST PHRASAL-HEADED-PHRASES: "
+                                 (fo-ps (first phrasal-headed-phrases))))
+
+           hpcl
+           (mapcat #(overc % (lazy-shuffle (:comp (cache (:rule %)))))
+                   phrasal-headed-phrases)
            
-           depth (if depth depth 0)
-           
-           cache (if cache cache (build-lex-sch-cache grammar lexicon grammar))
-           
-           phrasal-headed-phrases (phrasal-headed-phrases parents-at-this-depth (lazy-shuffle lexicon)
-                                                          grammar depth cache path)
-           
-           lexical-headed-phrases (lexical-headed-phrases parents-at-this-depth 
-                                                          (lazy-shuffle lexicon)
-                                                          grammar depth cache path)
-           
-           ;; trees where both the head and comp are lexemes.
-           one-level-trees
-           (overc-with-cache lexical-headed-phrases cache (lazy-shuffle lexicon))
-           
-           headed-phrases
-           (headed-phrases
-            phrasal-headed-phrases
-            lexical-headed-phrases)
-           
-           hpcl (overc-with-cache phrasal-headed-phrases cache lexicon)
-           
-           with-phrasal-complement
-           (add-comp-phrase-to-headed-phrase headed-phrases
-                                             grammar lexicon (+ 1 depth) cache path
-                                             (if (not (= :notfound (get-in head-spec '(:comp) :notfound)))
-                                               (get-in head-spec '(:comp))
-                                               :top))]
-       (log-path path (fn [x] (log/trace x)))
-       (lazy-cats (shuffle (list one-level-trees with-phrasal-complement hpcl)))))))
+           ]
+;       hlcl))))
+;       hlcl))))
+       (flatten (lazy-shuffle (list hpcl hlcl)))))))
+;       (lazy-shuffle (lazy-cats one-level-trees with-phrasal-complement hpcl))))))
 
 ;; aliases that might be easier to use in a repl:
 (defn lb [ & [head lexicon phrases depth]]

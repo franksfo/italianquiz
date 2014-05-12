@@ -57,6 +57,10 @@
 ;   :timeout 15000
    :namespace 'italianverbs.workbook))
 
+
+;; TODO: some exceptions from evaluating a string should be shown to
+;; the user for diagnostics rather than just logging them.
+;; (e.g. those thrown by (max-lengths).)
 (defn workbookq [expr notused]
   (do
     ;; TODO: add timing information for each evaluation.

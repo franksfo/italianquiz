@@ -4,6 +4,7 @@
    [ring.util.codec :as codec])
   (:require
    [clojure.set :as set]
+   [italianverbs.session :as session]
    [italianverbs.unify :as fs]
    [clojure.tools.logging :as log]
    [clojure.string :as string]))
@@ -542,3 +543,202 @@
 (defn myhtml5 []
   "<!DOCTYPE html>")
 
+(defn welcome [username]
+  (html
+   [:div
+    (if username
+      [:div "Benvenuti, " username "."
+       [:a {:href "/session/clear/"} "Logout"]
+       ]
+      [:a {:href "/session/set/"} "Login"]
+      )]))
+
+(defn menubar [session-row relative-url & [suffixes]]
+  (log/info (str "Drawing menubar with relative-url=" relative-url))
+  (log/info (str "Menubar with suffixes: " suffixes))
+  (html
+   [:div {:class "menubar major"}
+
+    [:div
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/verb" relative-url))
+             (= relative-url "/verb")) {:class "selected"})
+     [:a {:href "/verb/"} (str "Verbs")]]
+
+    [:div
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/lesson" relative-url))
+             (= relative-url "/lesson")) {:class "selected"})
+     [:a {:href "/lesson/"} (str "Groups")]]
+
+    [:div
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/generate" relative-url))
+             (= relative-url "/generate")) {:class "selected"})
+     [:a {:href (str "/generate/" (if (get suffixes :generate)
+                                    (get suffixes :generate)))}
+      (str "Generate")]]
+
+    [:div
+     (if (or (and (not (nil? relative-url))
+                  (re-find #"/workbook" relative-url))
+             (= relative-url "/workbook")) {:class "selected"})
+     [:a {:href "/workbook/"} (str "Workbook")]]
+
+    ]))
+
+(defn request-to-suffixes [request]
+  "menubar uses this to make the menubar links context-specific.."
+  ;; ...e.g. if you are looking at a particular group, 
+  ;; the 'generate' link should have that group id so that if you
+  ;;  click the link, you will generate with that group"
+  (let [route-params (:route-params request)]
+    (log/debug (str "req-to-suff params: " route-params))
+    {:generate (if (and route-params (:tag route-params))
+                 (str (:tag route-params) "/"))}))
+
+(defn page [title & [content request onload]]
+  (log/debug (str "Page title: " title))
+  (log/debug (str "Page request: " request))
+  (html5
+   [:head
+    [:meta  {:Content-Type "text/html; charset=UTF-8"}]
+    [:title (str title
+                 (if (and title (not (= title "")))
+                     ": " "")
+                 "imparare l'italiano")]
+    [:script {:type "text/javascript" :src "/js/jquery-1.6.4.min.js"}]
+    [:script {:type "text/javascript" :src "/js/autogrow.js"}]
+    [:script {:type "text/javascript" :src "/js/quiz.js"}]
+    [:script {:type "text/javascript" :src "/js/workbook.js"}]
+    [:script {:type "text/javascript" :src "/js/search.js"}]
+    ; enable this 'reset.css' at some point.
+                                        ;    (include-css "/italian/css/reset.css")
+    (include-css "/css/style.css")
+    (include-css "/css/layout.css")
+    (include-css "/css/fs.css")
+    (include-css "/css/tag.css")
+    (include-css "/css/quiz.css")
+
+    ]
+   [:body
+    {:onload
+     (cond
+      onload onload
+      (= title "Quiz")
+      "document.quiz.guess.focus();"
+      (= title "testx")
+      "setTimeout('location.reload(true);',5000);"
+      true "")}
+    (if false
+      (if request
+        [:div {:class "welcome major"}
+         (welcome (session/get-username request))]))
+    (log/debug (str "drawing menubar with request: " request))
+
+
+    [:div#top
+     (menubar (session/request-to-session request)
+              (if request (get request :uri))
+              (request-to-suffixes request))]
+    [:div#content content]]))
+
+;; TODO: replace (page) with this once (eval) works right.
+(defmacro pagemacro [title & [content request onload]]
+  (let [error-english "Sorry, there was an internal problem with this site that prevented your content from being displayed."
+        error-italian "Scusi, che è stato una errore che ha preventato questo site. Purtroppo è non possibile guardare il tuo contento."]
+    (try
+      (let [evaluated-content (eval content)]
+        (log/info (str "html.clj: request: " request))
+        (page title evaluated-content request onload))
+      (catch Exception e
+        (page "Exception caught"
+              (str "<div class='error'>"
+                   "  <div class='english'>" error-english "</div>"
+                   "  <div class='italian'>" error-italian "</div>"
+                   "  <div class='code'>" e "</div>"
+                   "</div>")
+              request
+              ;; still allow the onload even for caught exceptions(?) possible security risk?
+              ;;nil)))))
+              onload)))))
+
+(defn powered-by [name link]
+  (html
+   [:div {:class "poweredby"}
+    [:a {:href link}
+     name ]]))
+
+(defn footer []
+  (html
+   [:div {:class "poweredbox major"}
+    [:h2 [:i "imparare l'Italiano"] " è alimentato da .."]
+    [:table
+     [:tr
+      [:td {:colspan "5"}
+       [:div {:class "groupinglabel"}
+        (powered-by "italianquiz" "https://github.com/ekoontz/italianquiz")]
+
+       [:table {:class "italianquiz"}
+        [:tr
+         [:td {:colspan "3"}
+          [:div {:class "groupinglabel2"}
+           [:span {:class "label"} "app layer"]
+           [:table {:class "groupinglabel2"}
+            [:tr
+             [:td {:colspan "1"}
+              (powered-by "quiz" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/quiz.clj")]
+             [:td {:colspan "1"}
+              (powered-by "workbook" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/workbook.clj")]
+             [:td {:colspan "1"}
+              "others.."]]]]]]
+
+         [:tr
+          [:td {:colspan "3"}
+           (powered-by "generate" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/generate.clj")
+           ]
+          ]
+         [:tr
+          [:td {:colspan "3"}
+           (powered-by "forest" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/forest.clj")
+           ]
+          ]
+         [:tr
+          [:td
+           (powered-by "grammar" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/grammar.clj")]
+          [:td {:rowspan "1"}
+           (powered-by "lexicon" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/lexicon.clj")
+           ]
+          [:td {:rowspan "1"}
+           (powered-by "morphology" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/morphology.clj")
+           ]
+          ]
+
+         [:tr
+          [:td {:colspan "3"}
+           (powered-by "unify" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/unify.clj")
+           ]
+          ]
+
+         ]]]
+     [:tr
+      [:td {:colspan "2"}
+       (powered-by "compojure" "https://github.com/weavejester/compojure")]
+      [:td {:rowspan "2" :colspan "1"}
+       (powered-by "clojail" "https://github.com/flatland/clojail")]
+      [:td {:rowspan "2" :colspan "2"}
+       (powered-by "congomongo" "https://github.com/aboekhoff/congomongo")]]
+      [:tr
+       [:td {:colspan "2"}
+        (powered-by "ring" "https://github.com/mmcgrana/ring")]]
+     [:tr
+      [:td
+       (powered-by "jetty" "http://jetty.codehaus.org/jetty/")]
+      [:td {:colspan "3"}
+       (powered-by "clojure" "http://clojure.org/")]
+      [:td {:colspan "1"}
+       (powered-by "mongodb" "http://www.mongodb.org/")
+       ]]]]))
+
+(defn about []
+  (footer))

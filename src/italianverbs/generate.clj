@@ -27,15 +27,17 @@
   {:plain expr})
 
 ;; no cache is used, so this version is relatively slow. use only with a small grammar and lexicon.
-(defn lightning-bolt [spec & [input-grammar input-lexicon]]
-  (let [debug (log/info (str "Grammar: " (fo-ps input-grammar)))
-        input-grammar (if input-grammar input-grammar grammar)
+(defn lightning-bolt [spec & [input-lexicon input-grammar]]
+  (let [input-grammar (if input-grammar input-grammar grammar)
         input-lexicon (if input-lexicon input-lexicon lexicon)]
+    (log/debug (str "Grammar: " (fo-ps input-grammar)))
+    (log/debug (str "Lexicon: " (fo lexicon)))
     (forest/lightning-bolt spec input-lexicon input-grammar)))
 
 ;; this rule-cache is defined outside any function so that all functions can share
 ;; a single cache.
-(def rule-cache (build-lex-sch-cache grammar lexicon grammar))
+(def rule-cache (conj (build-lex-sch-cache grammar lexicon grammar)
+                      {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
 
 (defn generate [ & [head the-lexicon the-grammar cache]]
   (let [head (if head head :top)
@@ -49,30 +51,43 @@
                                           (lazy-shuffle the-lexicon)
                                           (lazy-shuffle grammar) 0 cache)))))
 
-(defn sentence [ & [spec the-lexicon the-grammar cache]]
-  (let [spec (if spec spec :top)
-        lexicon (if the-lexicon the-lexicon lexicon)
-        grammar (if the-grammar the-grammar grammar)
-        cache (if cache cache rule-cache)]
-    (log/debug (str "sentence with lexicon size: " 
-                    (.size lexicon) " and grammar size: "
-                    (.size grammar) "."))
-    (log/debug (str "cache:"
-                    (if cache
-                      (str "size: " (.size cache))
-                      (str "doesn't exist yet."))))
-    (generate (unify spec {:synsem {:cat :verb :subcat '()}})
-              lexicon
-              grammar
-              cache)))
+(def use-hxcx true)
 
 (defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar grammar)
         cache (if cache cache rule-cache)]
-    (generate (unify spec {:synsem {:cat :noun :subcat '()}})
-              lexicon
-              grammar
-              cache)))
+    (first (take 1 (forest/hlcl cache grammar (unify spec {:synsem {:cat :noun :subcat '()}}))))))
 
+
+(defn short-sentence [ & [ spec the-lexicon the-grammar cache ]]
+  (let [spec (if spec spec :top)
+        lexicon (if the-lexicon the-lexicon lexicon)
+        grammar (if the-grammar the-grammar grammar)
+        cache (if cache cache rule-cache)]
+    (first (take 1 (forest/hlcp cache grammar (unify spec {:synsem {:subcat '() :cat :verb}}))))))
+
+(defn sentence [ & [spec the-lexicon the-grammar cache]]
+  (let [spec (if spec spec :top)
+        lexicon (if the-lexicon the-lexicon lexicon)
+        grammar (if the-grammar the-grammar grammar)
+        cache (if cache cache rule-cache)]
+    (if use-hxcx
+      (short-sentence spec)
+      (do
+        (log/debug (str "sentence with lexicon size: " 
+                        (.size lexicon) " and grammar size: "
+                        (.size grammar) "."))
+        (log/debug (str "cache:"
+                        (if cache
+                          (str "size: " (.size cache))
+                          (str "doesn't exist yet."))))
+        (generate (unify spec {:synsem {:cat (first (shuffle (list :verb :sent-modifier)))}})
+                  lexicon
+                  grammar
+                  cache)))))
+
+
+(def get-stuff-initialized (take 1 (forest/hlcp rule-cache grammar {:synsem {:subcat '() :cat :verb}})))
+(log/info (str "done loading generate: " (fo get-stuff-initialized)))

@@ -38,10 +38,10 @@ div.major h2 {
 }
 
 div#content {
-    width:100%;
+    width:auto;
     border:0px dashed blue;
     float:left;
-    padding:0;
+    padding:0em;
     margin:0;
 }
 
