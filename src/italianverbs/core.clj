@@ -6,6 +6,7 @@
    [clojure.tools.logging :as log]
    [compojure.route :as route]
    [compojure.handler :as handler]
+   [environ.core :refer [env]]
    [italianverbs.db :refer (fetch)]
    [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
