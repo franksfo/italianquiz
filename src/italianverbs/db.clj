@@ -6,8 +6,13 @@
             [clojure.java.jdbc :as jdbc]
             ))
 
-(congo/mongo! :db "italian")
-(congo/make-connection "italian" :host "localhost")
+;(def db-connection (congo/make-connection "italian" :host "localhost" :port 27017))
+(def db-connection (congo/make-connection "heroku_app25118324" :host "ds033107.mongolab.com" :port 33107))
+
+
+
+(congo/set-connection! db-connection)
+(congo/authenticate db-connection "foo" "bar")
 
 (defn fetch [ & args]
   (apply congo/fetch args))
