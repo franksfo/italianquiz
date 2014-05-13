@@ -8,7 +8,6 @@
 
 
                  [compojure "1.1.6"]
-                 [congomongo "0.4.4"]
 
                  [environ "0.2.1"]
 
@@ -37,7 +36,14 @@
 
                  [ring/ring-jetty-adapter "1.1.0"]
                  [ring/ring-devel "1.1.0"]
-                 [ring-basic-authentication "1.0.1"]]
+                 [ring-basic-authentication "1.0.1"]
+
+                 ;; database drivers:
+                 [korma "0.3.0-RC5"]
+                 [org.postgresql/postgresql "9.2-1002-jdbc4"]
+                 [congomongo "0.4.4"]
+
+]
 
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]

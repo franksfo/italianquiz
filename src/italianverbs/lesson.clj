@@ -3,7 +3,7 @@
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [italianverbs.db :as db]
+   [italianverbs.mongo :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
    [italianverbs.verb :as verb]))
@@ -24,7 +24,7 @@
    [:form {:method "post" :action "/lesson/new"}
     [:table
      [:tr
-      [:th "Create a new tag"]
+      [:th "Create a new group"]
       [:td
        [:input {:name "tag"}]]
       ]

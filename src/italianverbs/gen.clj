@@ -10,7 +10,7 @@
    [italianverbs.over :refer (over)]
    [italianverbs.unify :refer (unifyc)]
    [italianverbs.verb :as verb]
-   [somnium.congomongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
+   [italianverbs.mongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
 
 (defn tr-result [results]
   (if (not (empty? results))

@@ -6,7 +6,7 @@
    [clj-time.local :as l]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [italianverbs.db :as db]
+   [italianverbs.mongo :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
    ))

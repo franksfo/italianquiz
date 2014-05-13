@@ -4,7 +4,7 @@
   (:require
    [clojure.tools.logging :as log]
    [clojure.string :as string]
-   [italianverbs.db :as db]
+   [italianverbs.mongo :as db]
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
