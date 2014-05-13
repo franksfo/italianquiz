@@ -1,15 +1,12 @@
 ;; TODO: verify using tests that a user authenticated with session 'x' cannot modify a question
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's :where clause.
-(ns italianverbs.db
+(ns italianverbs.mongo
   (:require [somnium.congomongo :as congo]
             [clojure.java.jdbc :as jdbc]
             ))
 
-;(def db-connection (congo/make-connection "italian" :host "localhost" :port 27017))
-(def db-connection (congo/make-connection "heroku_app25118324" :host "ds033107.mongolab.com" :port 33107))
-
-
+(def db-connection (congo/make-connection "italian" :host "localhost" :port 27017))
 
 (congo/set-connection! db-connection)
 (congo/authenticate db-connection "foo" "bar")
