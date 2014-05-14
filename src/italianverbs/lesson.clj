@@ -3,10 +3,12 @@
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [italianverbs.korma :as newdb]
    [italianverbs.mongo :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
    [italianverbs.verb :as verb]))
+
 
 ;; "I just realized on my way home that besides the time stamp teachers
 ;; should be allowed to enter their verbs in sets, sort of like the

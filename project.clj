@@ -25,8 +25,6 @@
                  ;; this is the latest version as of March 19, 2014:
                  [org.clojure/core.async "0.1.278.0-76b25b-alpha"] 
 
-                 [org.clojure/java.jdbc "0.0.6"]
-
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [org.clojure/tools.logging "0.2.6"]
 
