@@ -18,7 +18,7 @@
 (declare validate-new-verb)
 
 (defn delete [verb]
-  (db/fetch-and-modify :verb {:_id (db/object-id verb)} {} :remove? true))
+  (db/fetch-and-modify :verb (db/object-id verb) {} true))
 
 (defn new [session request]
   (log/debug (str "/verb/new with request: " (:form-params request)))
@@ -67,11 +67,6 @@
                       (morph/get-italian-1 (:italian (first results)))]]
                 [:td [:span {:class "date"}
                       (f/unparse short-format (f/parse (:created (first results))))]]
-;                [:td [:span {:class "date"}
-;                      (l/format-local-time (t/to-time-zone 
-;                                            (f/parse (:created (first results)))
-;                                            (t/time-zone-for-offset -7))
-;                                           #short-format)]]
                 [:td [:span {:class "date"}
                       (f/unparse short-format (f/parse (:updated (first results))))]]
                 [:td {:class "edit"} (delete-form (first results)) ]
@@ -80,16 +75,16 @@
     ""))
 
 (defn lookup [verb]
-  (db/fetch :verb :where {:italian verb}))
+  (db/fetch :verb {:italian verb}))
 
 (defn lookup-by-id [id]
-  (first (db/fetch :verb :where {:_id id})))
+  (first (db/fetch :verb {:_id id})))
 
 (defn select-one [verb]
   (let [script "/* js goes here.. */"
         verb-id verb
         ;; TODO: handle case where verb-id's record is not in db.
-        verb (first (db/fetch :verb :where {:_id (db/object-id verb-id)}))]
+        verb (first (db/fetch :verb {:_id (db/object-id verb-id)}))]
 
     (html
      [:div {:class "major verbs"}

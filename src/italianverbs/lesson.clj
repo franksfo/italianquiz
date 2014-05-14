@@ -38,14 +38,14 @@
 
 (defn delete [tag]
   (log/info (str "deleting tag: " tag))
-  (db/fetch-and-modify :tag {:_id (db/object-id tag)} {} :remove? true))
+  (db/fetch-and-modify :tag (db/object-id tag) {} true))
 
 (defn delete-from-tag [tag verb]
   (log/debug (str "deleting from tag: " tag " the verb with id: " verb))
-  (let [result (first (db/fetch :tag :where {:_id (db/object-id tag)}))]
+  (let [result (first (db/fetch :tag (db/object-id tag)))]
     (log/debug (str "before removing this verb, verbs are: " (:verbs result)))
-    (db/fetch-and-modify :tag {:_id (db/object-id tag)} {:name (:name result)
-                                                         :verbs (remove #(= (db/object-id verb) %) (:verbs result))})))
+    (db/fetch-and-modify :tag (db/object-id tag) {:name (:name result)
+                                                  :verbs (remove #(= (db/object-id verb) %) (:verbs result))})))
 
 (defn tr-result [results]
   (if (not (empty? results))
@@ -123,17 +123,17 @@
   (let [verb (:verb other-params)
         new-verbs (map #(get % :_id)
                        (verb/lookup verb))
-        result (first (db/fetch :tag :where {:_id (db/object-id tag)}))
+        result (first (db/fetch :tag {:_id (db/object-id tag)}))
         verbs-of-tag (:verbs result)]
-    (log/info (str "adding verbs: " new-verbs " to tag: " tag))
+    (log/info (str "adding verbs: " new-verbs " to group: " tag))
     (log/info (str "adding verbs (first): " (first new-verbs) " to tag: " tag))
     (log/info (str "  current verbs: " verbs-of-tag))
-    (db/fetch-and-modify :tag {:_id (db/object-id tag)} {:name (:name result)
-                                                         :verbs (concat verbs-of-tag new-verbs)})))
+    (db/fetch-and-modify :tag (db/object-id tag) {:name (:name result)
+                                                  :verbs (concat verbs-of-tag new-verbs)})))
 
 (defn show [session tag]
   (let [script "/* js goes here.. */"
-        results (db/fetch :tag :where {:_id (db/object-id tag)})
+        results (db/fetch :tag {:_id (db/object-id tag)})
         result (first results)]
     (html
      [:div {:class "major tag"}
