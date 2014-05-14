@@ -2,8 +2,14 @@
 DROP TABLE verb;
 DROP TABLE vgroup;
 
-CREATE TABLE verb (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), updated TIMESTAMP, 
+
+
+CREATE TABLE verb (id BIGSERIAL primary key,created TIMESTAMP DEFAULT now(), updated TIMESTAMP, 
 		   value JSON);
+
+
+-- INSERT INTO verb (value) SELECT row_to_json(row(1,'foo'));
+
 
 CREATE TABLE vgroup (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), updated TIMESTAMP, 
                      value JSON);
