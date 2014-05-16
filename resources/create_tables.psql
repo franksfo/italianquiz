@@ -1,16 +1,20 @@
--- idempotent
+-- Run with: psql -Uverbcoach -d verbcoach [-p secretpassword]
+-- 
+-- idempotent:
 DROP TABLE verb;
 DROP TABLE vgroup;
 
-
-
+-- TODO: value should have constraint NOT NULL.
 CREATE TABLE verb (id BIGSERIAL primary key,created TIMESTAMP DEFAULT now(), updated TIMESTAMP, 
-		   value JSON);
+-- doesn't work yet..
+--		   value JSON);
+		   value TEXT);
 
+-- sample value:
+INSERT INTO verb (value) SELECT '{"a":1, "b": 2}';
 
--- INSERT INTO verb (value) SELECT row_to_json(row(1,'foo'));
-
-
+-- TODO: add a trigger: any change sets 'updated' to now().
 CREATE TABLE vgroup (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), updated TIMESTAMP, 
-                     value JSON);
+                     name TEXT);
+
 

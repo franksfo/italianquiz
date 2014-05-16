@@ -1,11 +1,18 @@
 (ns italianverbs.korma
   (:use [korma db core]))
 
+;; example stuff that works:
+;; italianverbs.korma> (insert verb (values {:value "'{}'"}))
+;;{:value "'{}'", :updated nil, :created #inst "2014-05-16T05:26:03.563521000-00:00", :id 2}
+;; italianverbs.korma> (select verb)
+;;[{:value "{\"a\":1, \"b\": 2}", :updated nil, :created #inst "2014-05-16T05:24:00.841619000-00:00", :id 1} {:value "'{}'", :updated nil, :created #inst "2014-05-16T05:26:03.563521000-00:00", :id 2}]
+;; italianverbs.korma> gi
+
 
 ;; http://sqlkorma.com/docs#db
 (def dev (postgres {:db "verbcoach"
                    :user "verbcoach"
-                   :password ""
+                   :password "verbcoach"
                    ;; optional keys
                    :host "localhost"
                    :port "5432"
@@ -26,7 +33,8 @@
 (declare verb vgroup)
 
 (defentity verb
-  (pk :id))
+  (pk :id)
+  (entity-fields :value))
 
 (defentity vgroup
   (pk :id)
