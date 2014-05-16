@@ -46,11 +46,15 @@
    (throw (.Exception "don't know what table this is: " collection-as-key))))
 
 (defn fetch [collection & [ id ]]
-  "select from collection where.."
+  "select from collection; might take an id."
   (if id
-    (select (keyword-to-table collection)
-            (where {:id id}))
-    (select (keyword-to-table collection))))
+    (let [row (first
+               (select (keyword-to-table collection)
+                       (where {:id id})))]
+      (read-string (:value row)))
+    (map (fn [row]
+           (read-string (:value row)))
+         (select (keyword-to-table collection)))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
@@ -58,7 +62,8 @@
 
 (defn insert! [collection & [add-with]]
   "args are collection and map of key/value pairs with which to initialize new row."
-  nil)
+  (insert (keyword-to-table collection)
+          (values {:value (str add-with)})))
 
 (defn object-id [ & args]
   nil)
