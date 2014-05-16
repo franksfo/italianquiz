@@ -7,8 +7,6 @@
 ;;   yields:
 ;; {:value "{:a 42, :c 44, :b 43}", :updated nil, :created #inst "2014-05-16T05:38:53.928635000-00:00", :id 6}
 
-
-
 ;; http://sqlkorma.com/docs#db
 (def dev (postgres {:db "verbcoach"
                    :user "verbcoach"
@@ -40,9 +38,19 @@
   (pk :id)
   (has-many verb))
 
-(defn fetch [collection & [ where ]]
+(defn keyword-to-table [collection-as-key]
+  (cond
+   (= collection-as-key :verb) verb
+   (= collection-as-key :tag) vgroup
+   true
+   (throw (.Exception "don't know what table this is: " collection-as-key))))
+
+(defn fetch [collection & [ id ]]
   "select from collection where.."
-  nil)
+  (if id
+    (select (keyword-to-table collection)
+            (where {:id id}))
+    (select (keyword-to-table collection))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
