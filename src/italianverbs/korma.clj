@@ -2,11 +2,11 @@
   (:use [korma db core]))
 
 ;; example stuff that works:
-;; italianverbs.korma> (insert verb (values {:value "'{}'"}))
-;;{:value "'{}'", :updated nil, :created #inst "2014-05-16T05:26:03.563521000-00:00", :id 2}
-;; italianverbs.korma> (select verb)
-;;[{:value "{\"a\":1, \"b\": 2}", :updated nil, :created #inst "2014-05-16T05:24:00.841619000-00:00", :id 1} {:value "'{}'", :updated nil, :created #inst "2014-05-16T05:26:03.563521000-00:00", :id 2}]
-;; italianverbs.korma> gi
+
+;; (insert verb (values {:value (str {:a 42 :b 43 :c 44})}))
+;;   yields:
+;; {:value "{:a 42, :c 44, :b 43}", :updated nil, :created #inst "2014-05-16T05:38:53.928635000-00:00", :id 6}
+
 
 
 ;; http://sqlkorma.com/docs#db

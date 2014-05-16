@@ -11,7 +11,7 @@ CREATE TABLE verb (id BIGSERIAL primary key,created TIMESTAMP DEFAULT now(), upd
 		   value TEXT);
 
 -- sample value:
-INSERT INTO verb (value) SELECT '{"a":1, "b": 2}';
+INSERT INTO verb (value) VALUES ('{:a 42 :b 43 :c44}');
 
 -- TODO: add a trigger: any change sets 'updated' to now().
 CREATE TABLE vgroup (id INTEGER, PRIMARY KEY(id), created TIMESTAMP DEFAULT now(), updated TIMESTAMP, 
