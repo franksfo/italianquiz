@@ -20,7 +20,7 @@
 
 (defn delete [verb]
   (db/fetch-and-modify :verb (db/object-id verb) {} true)
-  (kdb/fetch-and-modify :verb (db/object-id verb) {} true))
+  (kdb/fetch-and-modify :verb (kdb/object-id verb) {} true))
 
 (defn insert-new-verb [new-verb]
   (if (validate-new-verb new-verb)
@@ -30,7 +30,7 @@
         (let [created-at (t/now)]
           (do
             (db/insert! :verb {:created (str created-at)
-                                   :updated (str created-at)
+                               :updated (str created-at)
                                :italian (normalize-whitespace new-verb)})
             (kdb/insert! :verb {:created (str created-at)
                                 :updated (str created-at)
