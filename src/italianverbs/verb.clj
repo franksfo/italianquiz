@@ -7,6 +7,7 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.mongo :as db]
+   [italianverbs.korma :as kdb]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
    ))
@@ -18,20 +19,28 @@
 (declare validate-new-verb)
 
 (defn delete [verb]
-  (db/fetch-and-modify :verb (db/object-id verb) {} true))
+  (db/fetch-and-modify :verb (db/object-id verb) {} true)
+  (kdb/fetch-and-modify :verb (db/object-id verb) {} true))
+
+(defn insert-new-verb [new-verb]
+  (if (validate-new-verb new-verb)
+    ;; new-verb checks out ok: add it to DB.
+    (do (log/info (str "Adding validated candidate verb: " new-verb))
+        ;; TODO: add return code and append to request.
+        (let [created-at (t/now)]
+          (do
+            (db/insert! :verb {:created (str created-at)
+                                   :updated (str created-at)
+                               :italian (normalize-whitespace new-verb)})
+            (kdb/insert! :verb {:created (str created-at)
+                                :updated (str created-at)
+                                :italian (normalize-whitespace new-verb)}))))))
 
 (defn new [session request]
   (log/debug (str "/verb/new with request: " (:form-params request)))
   (if (get (:form-params request) "verb")
     (let [new-verb (get (:form-params request) "verb")]
-      (if (validate-new-verb new-verb)
-        ;; new-verb checks out ok: add it to DB.
-        (do (log/info (str "Adding validated candidate verb: " new-verb))
-            ;; TODO: add return code and append to request.
-            (let [created-at (t/now)]
-              (db/insert! :verb {:created (str created-at)
-                                 :updated (str created-at)
-                                 :italian (normalize-whitespace new-verb)}))))))
+      (insert-new-verb new-verb)))
   ;; TODO: ..append result code to request.
   (select session request))
 
@@ -50,7 +59,8 @@
         [:th "Changed"]
         [:th {:class "edit"} "Edit"]]
        
-       (let [results (db/fetch :verb)]
+       (let [results (db/fetch :verb)
+             kresults (kdb/fetch :verb)]
          (show-as-rows results))
        ]
       (new-verb-form)

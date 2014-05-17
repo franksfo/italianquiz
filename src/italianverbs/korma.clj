@@ -46,14 +46,15 @@
    (throw (.Exception "don't know what table this is: " collection-as-key))))
 
 (defn fetch [collection & [ id ]]
-  "select from collection; might take an id."
+  "select from collection; might take an id. For each returned row, return simply the 'value' column as a clojure map, but merge it with an extra field for the primary key (id)."
   (if id
     (let [row (first
                (select (keyword-to-table collection)
                        (where {:id id})))]
       (read-string (:value row)))
-    (map (fn [row]
-           (read-string (:value row)))
+    (map (fn [row] 
+           (merge {:_id (:id row)} 
+                  (read-string (:value row))))
          (select (keyword-to-table collection)))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
@@ -62,16 +63,21 @@
     (delete (keyword-to-table collection)
             (where {:id id}))
 
-    ;; not remove: do update instead.
-    nil))
+    ;; remove=false: do update instead.
+    (update (keyword-to-table collection)
+            (where {:id id}))))
 
 (defn insert! [collection & [add-with]]
-  "args are collection and map of key/value pairs with which to initialize new row."
-  (insert (keyword-to-table collection)
-          (values {:value (str add-with)})))
+  "args are collection and map of key/value pairs with which to initialize new row. we simply serialize the map with (str). Any embedded objects will be lost due to serialization, so map should be only of atoms (strings, numbers, etc) or vectors of atoms (vectors of vectors should work too, provided they are eventually atoms at the leaves)"
+  ;; We remove :created and :updated, if any, since we'll let postgres handle
+  ;; those through its own constraints and triggers.
+  (let [add-with (dissoc (dissoc add-with :created) :updated)]
+    (insert (keyword-to-table collection)
+            (values {:value (str add-with)}))))
 
-(defn object-id [ & args]
-  nil)
+(defn object-id [ & args ]
+  "compare with mongo/object-id, which uses mongo ids."
+  (first args))
 
 (defn primary-key [map]
   map)
