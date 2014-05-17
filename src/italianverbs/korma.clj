@@ -45,17 +45,23 @@
    true
    (throw (.Exception "don't know what table this is: " collection-as-key))))
 
-(defn fetch [collection & [ id ]]
+(defn fetch [collection & [ the-where ]]
   "select from collection; might take an id. For each returned row, return simply the 'value' column as a clojure map, but merge it with an extra field for the primary key (id)."
-  (if id
-    (let [row (first
-               (select (keyword-to-table collection)
-                       (where {:id id})))]
-      (read-string (:value row)))
-    (map (fn [row] 
-           (merge {:_id (:id row)} 
-                  (read-string (:value row))))
-         (select (keyword-to-table collection)))))
+  (let [the-where
+        (if the-where the-where nil)
+        id (if the-where (:_id the-where))]
+    (if id
+      (let [row (first
+                 (select (keyword-to-table collection)
+                         (where {:id id})))]
+        (read-string (:value row)))
+      (map (fn [row] 
+             (merge {:_id (:id row)} 
+                    (read-string (:value row))))
+           (if the-where
+             (select (keyword-to-table collection)
+                     (where {:value (str the-where)}))
+             (select (keyword-to-table collection)))))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."

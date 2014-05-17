@@ -85,6 +85,7 @@
     ""))
 
 (defn lookup [verb]
+  (kdb/fetch :verb {:italian verb})
   (db/fetch :verb {:italian verb}))
 
 (defn lookup-by-id [id]
