@@ -56,6 +56,7 @@
                          (where {:id id})))]
         (if row (read-string (:value row))))
       (map (fn [row] 
+             ;; here we merge primary key column into returned map.
              (merge {:_id (:id row)} 
                     (read-string (:value row))))
            (if the-where
