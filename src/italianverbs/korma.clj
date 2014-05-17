@@ -54,7 +54,7 @@
       (let [row (first
                  (select (keyword-to-table collection)
                          (where {:id id})))]
-        (read-string (:value row)))
+        (if row (read-string (:value row))))
       (map (fn [row] 
              (merge {:_id (:id row)} 
                     (read-string (:value row))))
