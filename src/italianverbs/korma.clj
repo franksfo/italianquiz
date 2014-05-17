@@ -58,7 +58,12 @@
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
-  nil)
+  (if remove?
+    (delete (keyword-to-table collection)
+            (where {:id id}))
+
+    ;; not remove: do update instead.
+    nil))
 
 (defn insert! [collection & [add-with]]
   "args are collection and map of key/value pairs with which to initialize new row."
