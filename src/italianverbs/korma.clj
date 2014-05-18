@@ -8,6 +8,58 @@
 ;;   yields:
 ;; {:value "{:a 42, :c 44, :b 43}", :updated nil, :created #inst "2014-05-16T05:38:53.928635000-00:00", :id 6}
 
+
+;; http://sqlkorma.com/docs#entities
+;; TODO: move to verb.clj or similar: model-type stuff.
+(declare verb vgroup)
+
+(defentity verb
+  (pk :id)
+  (entity-fields :value))
+
+(defentity vgroup
+  (pk :id)
+  (has-many verb))
+
+(def key-to-t
+  {:verb verb
+   :tag vgroup})
+
+(defn keyword-to-table [collection-as-key]
+  (let [result (key-to-t collection-as-key)]
+    (if result result
+        (throw (.Exception "don't know what table this is: " collection-as-key)))))
+
+(def table-to-where
+  {:verb (fn [the-map]
+           {:value (str the-map)})
+   :tag (fn [the-map]
+             the-map)})
+
+(def fetch-by-id-per-table
+  ;; return the 'interesting' parts of a row as a map.
+  {:verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
+           ;; merge with the other non-:value columns, and underscore the id.
+           (merge
+            (read-string (:value row))
+            {:_id (:id row)}
+            (dissoc (dissoc row :value) :id)))
+
+   :tag (fn [row] ;; for the vgroup table, it's simpler: simply convert :id to :_id.
+          (merge
+           {:_id (:id row)}
+           (dissoc row :id)))})
+
+(def do-each-row
+  ;; transform each returned row map 
+  {:verb (fn [row]
+           (merge {:_id (:id row)}
+                  {:created (:created row)}
+                  {:modified (:modified row)}
+                  (read-string (:value row))))
+   :tag (fn [row]
+          row)})
+
 ;; http://sqlkorma.com/docs#db
 (def dev (postgres {:db "verbcoach"
                    :user "verbcoach"
@@ -28,46 +80,29 @@
 
 (defdb korma-db dev)
 
-;; http://sqlkorma.com/docs#entities
-(declare verb vgroup)
-
-(defentity verb
-  (pk :id)
-  (entity-fields :value))
-
-(defentity vgroup
-  (pk :id)
-  (has-many verb))
-
-(defn keyword-to-table [collection-as-key]
-  (cond
-   (= collection-as-key :verb) verb
-   (= collection-as-key :tag) vgroup
-   true
-   (throw (.Exception "don't know what table this is: " collection-as-key))))
-
 (defn fetch [collection & [ the-where ]]
-  "select from collection; might take an id. For each returned row, return simply the 'value' column as a clojure map, but merge it with an extra field for the primary key (id)."
+  "select from collection; might take an id. For each returned row, return simply the row as a clojure map, but merge it with an extra field for the primary key (id)."
   (let [the-where
         (if the-where the-where nil)
-        id (if the-where (Integer. (:_id the-where)))]
+        id (if (:_id the-where) (Integer. (:_id the-where)))]
     (log/info (str "doing fetch with id: " id))
     (log/info (str "table: " (keyword-to-table collection)))
     (if id
       (let [row (first
                  (select (keyword-to-table collection)
                          (where {:id id})))]
-        (let [return-value
-              (if row (merge {:_id (:id row)}
-                             (read-string (:value row))))]
-          (list return-value)))
+        (if row
+          (list (apply (collection fetch-by-id-per-table)
+                       (list row)))))
+
+      ;; else, id not given: do a select with a where (or not, if no where).
       (map (fn [row] 
-             ;; here we merge primary key column into returned map.
-             (merge {:_id (:id row)} 
-                    (read-string (:value row))))
+             (apply (collection do-each-row)
+                    (list row)))
            (if the-where
-             (select (keyword-to-table collection)
-                     (where {:value (str the-where)}))
+             (let [the-where (apply (table-to-where collection) (list the-where))]
+               (select (keyword-to-table collection)
+                       (where (apply (table-to-where collection) (list the-where)))))
              (select (keyword-to-table collection)))))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
@@ -81,13 +116,21 @@
       (update (keyword-to-table collection)
               (where {:id id})))))
 
+(def insert-values
+  {:verb (fn [add-with]
+           {:value (str add-with)})
+   :tag (fn [add-with]
+          add-with)})
+
 (defn insert! [collection & [add-with]]
   "args are collection and map of key/value pairs with which to initialize new row. we simply serialize the map with (str). Any embedded objects will be lost due to serialization, so map should be only of atoms (strings, numbers, etc) or vectors of atoms (vectors of vectors should work too, provided they are eventually atoms at the leaves)"
   ;; We remove :created and :updated, if any, since we'll let postgres handle
   ;; those through its own constraints and triggers.
   (let [add-with (dissoc (dissoc add-with :created) :updated)]
     (insert (keyword-to-table collection)
-            (values {:value (str add-with)}))))
+            (values 
+             (apply (collection insert-values)
+                    (list add-with))))))
 
 (defn object-id [ & args ]
   "compare with mongo/object-id, which uses mongo ids."
