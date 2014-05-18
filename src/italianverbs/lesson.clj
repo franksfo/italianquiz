@@ -67,6 +67,8 @@
   (if (not (empty? results))
     (do
       (log/info (str "tr-verbs: id: " (first results)))
+      ;; should not need to re-query to get the verb info: should
+      ;; simply be the first result.
       (let [verb (verb/lookup-by-id (first results))]
         (log/info (str "verb is: " verb))
         (str (html [:tr 

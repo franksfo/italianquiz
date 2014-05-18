@@ -1,5 +1,6 @@
 (ns italianverbs.korma
-  (:use [korma db core]))
+  (:use [korma db core])
+  (:require [clojure.tools.logging :as log]))
 
 ;; example stuff that works:
 
@@ -49,12 +50,17 @@
   "select from collection; might take an id. For each returned row, return simply the 'value' column as a clojure map, but merge it with an extra field for the primary key (id)."
   (let [the-where
         (if the-where the-where nil)
-        id (if the-where (:_id the-where))]
+        id (if the-where (Integer. (:_id the-where)))]
+    (log/info (str "doing fetch with id: " id))
+    (log/info (str "table: " (keyword-to-table collection)))
     (if id
       (let [row (first
                  (select (keyword-to-table collection)
                          (where {:id id})))]
-        (if row (read-string (:value row))))
+        (let [return-value
+              (if row (merge {:_id (:id row)}
+                             (read-string (:value row))))]
+          (list return-value)))
       (map (fn [row] 
              ;; here we merge primary key column into returned map.
              (merge {:_id (:id row)} 
@@ -66,13 +72,14 @@
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
-  (if remove?
-    (delete (keyword-to-table collection)
-            (where {:id id}))
+  (let [id (Integer. id)]
+    (if remove?
+      (delete (keyword-to-table collection)
+              (where {:id id}))
 
-    ;; remove=false: do update instead.
-    (update (keyword-to-table collection)
-            (where {:id id}))))
+      ;; remove=false: do update instead.
+      (update (keyword-to-table collection)
+              (where {:id id})))))
 
 (defn insert! [collection & [add-with]]
   "args are collection and map of key/value pairs with which to initialize new row. we simply serialize the map with (str). Any embedded objects will be lost due to serialization, so map should be only of atoms (strings, numbers, etc) or vectors of atoms (vectors of vectors should work too, provided they are eventually atoms at the leaves)"
@@ -87,6 +94,7 @@
   (first args))
 
 (defn primary-key [map]
-  map)
+  (:_id map))
+
 
 

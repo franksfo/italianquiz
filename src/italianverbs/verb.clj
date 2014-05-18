@@ -6,8 +6,8 @@
    [clj-time.local :as l]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [italianverbs.mongo :as db]
-   [italianverbs.korma :as kdb]
+;   [italianverbs.mongo :as db]
+   [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
    ))
@@ -19,8 +19,7 @@
 (declare validate-new-verb)
 
 (defn delete [verb]
-  (db/fetch-and-modify :verb (db/object-id verb) {} true)
-  (kdb/fetch-and-modify :verb (kdb/object-id verb) {} true))
+  (db/fetch-and-modify :verb (db/object-id verb) {} true))
 
 (defn insert-new-verb [new-verb]
   (if (validate-new-verb new-verb)
@@ -28,14 +27,9 @@
     (do (log/info (str "Adding validated candidate verb: " new-verb))
         ;; TODO: add return code and append to request.
         (let [created-at (t/now)]
-          (do
-            (db/insert! :verb {:created (str created-at)
-                               :updated (str created-at)
-                               :italian (normalize-whitespace new-verb)})
-            (kdb/insert! :verb {:created (str created-at)
-                                :updated (str created-at)
-                                :italian (normalize-whitespace new-verb)}))))))
-
+          (db/insert! :verb {:created (str created-at)
+                             :updated (str created-at)
+                             :italian (normalize-whitespace new-verb)})))))
 (defn new [session request]
   (log/debug (str "/verb/new with request: " (:form-params request)))
   (if (get (:form-params request) "verb")
@@ -59,8 +53,7 @@
         [:th "Changed"]
         [:th {:class "edit"} "Edit"]]
        
-       (let [results (db/fetch :verb)
-             kresults (kdb/fetch :verb)]
+       (let [results (db/fetch :verb)]
          (show-as-rows results))
        ]
       (new-verb-form)
@@ -85,13 +78,13 @@
     ""))
 
 (defn lookup [verb]
-  (kdb/fetch :verb {:italian verb})
   (db/fetch :verb {:italian verb}))
 
 (defn lookup-by-id [id]
-  (first (db/fetch :verb {:_id id})))
+  (db/fetch :verb {:_id id}))
 
 (defn select-one [verb]
+  (log/info (str "LOOKING UP VERB: " verb))
   (let [script "/* js goes here.. */"
         verb-id verb
         ;; TODO: handle case where verb-id's record is not in db.
