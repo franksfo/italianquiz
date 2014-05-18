@@ -36,7 +36,7 @@
    :tag (fn [the-map]
              the-map)})
 
-(def fetch-by-id-per-table
+(def do-each-row
   ;; return the 'interesting' parts of a row as a map.
   {:verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
            ;; merge with the other non-:value columns, and underscore the id.
@@ -49,16 +49,6 @@
           (merge
            {:_id (:id row)}
            (dissoc row :id)))})
-
-(def do-each-row
-  ;; transform each returned row map 
-  {:verb (fn [row]
-           (merge {:_id (:id row)}
-                  {:created (:created row)}
-                  {:modified (:modified row)}
-                  (read-string (:value row))))
-   :tag (fn [row]
-          row)})
 
 ;; http://sqlkorma.com/docs#db
 (def dev (postgres {:db "verbcoach"
@@ -92,7 +82,7 @@
                  (select (keyword-to-table collection)
                          (where {:id id})))]
         (if row
-          (list (apply (collection fetch-by-id-per-table)
+          (list (apply (collection do-each-row)
                        (list row)))))
 
       ;; else, id not given: do a select with a where (or not, if no where).
