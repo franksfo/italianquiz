@@ -3,8 +3,7 @@
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [italianverbs.korma :as newdb]
-   [italianverbs.mongo :as db]
+   [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
    [italianverbs.verb :as verb]))
@@ -43,9 +42,10 @@
   (db/fetch-and-modify :tag (db/object-id tag) {} true))
 
 (defn delete-from-tag [tag verb]
-  (log/debug (str "deleting from tag: " tag " the verb with id: " verb))
-  (let [result (first (db/fetch :tag (db/object-id tag)))]
-    (log/debug (str "before removing this verb, verbs are: " (:verbs result)))
+  (log/info (str "deleting from tag: " tag " the verb with id: " verb))
+  (log/info (str "type of verb: " (type verb)))
+  (let [result (first (db/fetch :tag {:_id (db/object-id tag)}))]
+    (log/info (str "before removing this verb, verbs are: " (:verbs result)))
     (db/fetch-and-modify :tag (db/object-id tag) {:name (:name result)
                                                   :verbs (remove #(= (db/object-id verb) %) (:verbs result))})))
 
