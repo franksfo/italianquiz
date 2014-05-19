@@ -1,8 +1,8 @@
 (ns italianverbs.korma
   (:use [korma db core])
   (:require [clojure.string :as string]
-            [clojure.tools.logging :as log]))
-
+            [clojure.tools.logging :as log]
+            [italianverbs.unify :refer (unify fail?)]))
 
 ;; example stuff that works:
 
@@ -106,6 +106,15 @@
 
 (defdb korma-db dev)
 
+(def table-to-filter
+  {:verb (fn [row the-where]
+           (log/info (str "the row: " row))
+           (log/info (str "the row's value: " (:value row)))
+           (log/info (str "the row's value (read-string): " (read-string (:value row))))
+           (log/info (str "the-where: " the-where))
+           (not (fail? (unify (read-string (:value row))
+                              the-where))))})
+
 (defn fetch [collection & [ the-where ]]
   "select from collection; might take an id. For each returned row, return simply the row as a clojure map, but merge it with an extra field for the primary key (id)."
   (let [the-where
@@ -129,7 +138,11 @@
                (apply (collection do-each-row)
                       (list row)))
              (if the-where
-               (let [the-where (apply (table-to-where collection) (list the-where))]
+               (if (collection table-to-filter)
+                 (filter (fn [row]
+                           ((collection table-to-filter)
+                            row the-where))
+                         (select (keyword-to-table collection)))
                  (select (keyword-to-table collection)
                          (where the-where)))
                (select (keyword-to-table collection))))))))
