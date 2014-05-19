@@ -126,11 +126,13 @@
          :updated (str (t/now))}))
 
 (defn update [verb updated]
+  (log/info (str "updating verb: " verb " with updated=" updated))
   (let [read-from-string (read-string updated)
-        original (first (db/fetch :verb :where {:_id (db/object-id verb)}))
+        original (first (db/fetch :verb {:_id (db/object-id verb)}))
         extra-stuff-we-add-to-every-verb (extra-stuff read-from-string original)]
+    (log/info (str "modifying with all the extra stuff: " extra-stuff-we-add-to-every-verb))
     (db/fetch-and-modify :verb 
-                         {:_id (db/object-id verb)}
+                         (db/object-id verb)
                          (conj (read-string updated)
                                extra-stuff-we-add-to-every-verb))))
 
