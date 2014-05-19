@@ -40,12 +40,14 @@
 
 (def collection-update
   {:verb (fn [modify-with id]
-           (update verb
-                   (set-fields modify-with)
-                   (where {:id id})))
+           (let [modify-with (dissoc (dissoc modify-with :created) :updated)
+                 set-the-fields {:value (str modify-with)}]
+             (log/info (str "updating :verb table with set-fields: " set-fields))
+             (log/info (str "updating :verb table with id: " id))
+             (update verb
+                     (set-fields set-the-fields)
+                     (where {:id id}))))
    :tag (fn [modify-with id]
-          (log/info (str "HERE WE GO: verb list is: " (:verbs modify-with)))
-
           (log/info (str "UPDATE STATEMENT: " (str "UPDATE vgroup SET verbs = '{" (string/join ","
                                                                                                (:verbs modify-with))
                                                    "}' WHERE id=?") (vec (list id))))
@@ -134,6 +136,9 @@
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
+  (log/info (str "collection: " collection))
+  (log/info (str "id: " id))
+  (log/info (str "modify-with: " modify-with))
   (let [id (Integer. id)]
     (if remove?
       (delete (keyword-to-table collection)
