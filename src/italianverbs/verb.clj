@@ -92,7 +92,7 @@
 
     (html
      [:div {:class "major verbs"}
-      [:h2 "Verbs"]
+      [:h2 [:a {:href "/verb/"} "Verbs"] (str " &raquo; " (:italian verb))]
 
       [:form {:method "post" :action "/verb/update/"}
        [:input {:name "id" 
