@@ -81,7 +81,7 @@
   (db/fetch :verb {:italian verb}))
 
 (defn lookup-by-id [id]
-  (db/fetch :verb {:_id id}))
+  (first (db/fetch :verb {:_id id})))
 
 (defn select-one [verb]
   (log/info (str "LOOKING UP VERB: " verb))
