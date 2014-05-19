@@ -1,6 +1,8 @@
 (ns italianverbs.korma
   (:use [korma db core])
-  (:require [clojure.tools.logging :as log]))
+  (:require [clojure.string :as string]
+            [clojure.tools.logging :as log]))
+
 
 ;; example stuff that works:
 
@@ -36,6 +38,34 @@
    :tag (fn [the-map]
              the-map)})
 
+(def collection-update
+  {:verb (fn [modify-with id]
+           (update verb
+                   (set-fields modify-with)
+                   (where {:id id})))
+   :tag (fn [modify-with id]
+          (log/info (str "HERE WE GO: verb list is: " (:verbs modify-with)))
+
+          (log/info (str "UPDATE STATEMENT: " (str "UPDATE vgroup SET verbs = '{" (string/join ","
+                                                                                               (:verbs modify-with))
+                                                   "}' WHERE id=?") (vec (list id))))
+
+
+          ;; TODO: allow updates of name of tag: right now, it just
+          ;; handles :verbs of the tag.
+          (if (:verbs modify-with)
+            (exec-raw [(str "UPDATE vgroup SET verbs = '{" (string/join ","
+                                                                        (:verbs modify-with))
+                            "}' WHERE id=?") (vec (list id))])
+            ;; if :id and :verbs are not set, ignore (for now) with a warning.
+            (log/warn (str "ignoring update of tag collection with modify-with: " modify-with " and id: " id))))
+
+   ;; default
+   true (fn [modify-with id]
+          (update verb
+                  (set-fields modify-with)
+                  (where {:id id})))})
+
 (def do-each-row
   ;; return the 'interesting' parts of a row as a map.
   {:verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
@@ -48,7 +78,11 @@
    :tag (fn [row] ;; for the vgroup table, it's simpler: simply convert :id to :_id.
           (merge
            {:_id (:id row)}
-           (dissoc row :id)))})
+           {:verbs (if (nil? (:verbs row))
+                     []
+                     (vec (.getArray (:verbs row))))}
+           (dissoc (dissoc row :id)
+                   :verbs)))})
 
 ;; http://sqlkorma.com/docs#db
 (def dev (postgres {:db "verbcoach"
@@ -86,14 +120,17 @@
                        (list row)))))
 
       ;; else, id not given: do a select with a where (or not, if no where).
-      (map (fn [row] 
-             (apply (collection do-each-row)
-                    (list row)))
-           (if the-where
-             (let [the-where (apply (table-to-where collection) (list the-where))]
-               (select (keyword-to-table collection)
-                       (where (apply (table-to-where collection) (list the-where)))))
-             (select (keyword-to-table collection)))))))
+      (do
+        (log/info (str "doing a select with where=" the-where))
+        (map (fn [row]
+               (log/info (str "considering row: " row))
+               (apply (collection do-each-row)
+                      (list row)))
+             (if the-where
+               (let [the-where (apply (table-to-where collection) (list the-where))]
+                 (select (keyword-to-table collection)
+                         (where the-where)))
+               (select (keyword-to-table collection))))))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
@@ -103,8 +140,11 @@
               (where {:id id}))
 
       ;; remove=false: do update instead.
-      (update (keyword-to-table collection)
-              (where {:id id})))))
+      (do
+        (log/info (str "collection update: modify-with: " modify-with))
+        (log/info (str "collection update: id: " id))
+        (apply (collection collection-update)
+               (list modify-with id))))))
 
 (def insert-values
   {:verb (fn [add-with]
@@ -124,7 +164,7 @@
 
 (defn object-id [ & args ]
   "compare with mongo/object-id, which uses mongo ids."
-  (first args))
+  (Integer. (first args)))
 
 (defn primary-key [map]
   (:_id map))
