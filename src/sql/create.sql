@@ -55,6 +55,7 @@ CREATE TABLE vgroup (
     id bigint NOT NULL,
     created timestamp without time zone DEFAULT now(),
     updated timestamp without time zone,
+    verbs bigint ARRAY,
     name text
 );
 
