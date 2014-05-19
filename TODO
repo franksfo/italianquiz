@@ -1,0 +1,3 @@
+-when a verb is deleted, remove from every group it is in
+-when adding verbs to groups, if a verb does not yet exist, add it, then add it to group.
+-add triggers: any modification to verb or group tables update the 'updated' column.
