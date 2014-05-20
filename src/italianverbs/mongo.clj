@@ -6,10 +6,11 @@
             [clojure.java.jdbc :as jdbc]
             ))
 
-;(def db-connection (congo/make-connection "italian" :host "localhost" :port 27017))
-
-(congo/set-connection! db-connection)
-(congo/authenticate db-connection "foo" "bar")
+(if false
+  (do
+    (def db-connection (congo/make-connection "italian" :host "localhost" :port 27017))
+    (congo/set-connection! db-connection)
+    (congo/authenticate db-connection "foo" "bar")))
 
 (defn fetch [collection & [ where ]]
   "select from collection where.."
