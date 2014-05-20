@@ -83,10 +83,13 @@
                     (map (fn [sent-and-verb]
                            (let [verb (:verb sent-and-verb)
                                  sentence (:sentence sent-and-verb)
-                                 verb-record (verb/lookup-by-id verb)]
+                                 verb-record (verb/lookup-by-id verb)
+                                 italian (get-in verb-record [:italian])
+                                 italian (if (string? italian) italian
+                                             (get-in italian [:infinitive]))]
                              (html [:tr
                                     [:th (:num sent-and-verb)]
-                                    [:td [:a {:href (str "/verb/" (get-in verb-record [:_id])  "/" ) } (get-in verb-record [:italian])] ]
+                                    [:td [:a {:href (str "/verb/" (get-in verb-record [:_id])  "/" ) } italian]]
                                     [:td sentence]])))
                          with-numbers)))))
 
