@@ -29,7 +29,7 @@
         (let [created-at (t/now)]
           (db/insert! :verb {:created (str created-at)
                              :updated (str created-at)
-                             :italian (normalize-whitespace new-verb)})))))
+                             :italian {:infinitive (normalize-whitespace new-verb)}})))))
 (defn new [session request]
   (log/debug (str "/verb/new with request: " (:form-params request)))
   (if (get (:form-params request) "verb")
@@ -92,7 +92,11 @@
 
     (html
      [:div {:class "major verbs"}
-      [:h2 [:a {:href "/verb/"} "Verbs"] (str " &raquo; " (:italian verb))]
+      [:h2 [:a {:href "/verb/"} "Verbs"] (str " &raquo; "
+                                              (let [italian
+                                                    (:italian verb)]
+                                                (if (map? italian)
+                                                  (:infinitive (:italian verb)))))]
 
       [:form {:method "post" :action "/verb/update/"}
        [:input {:name "id" 
@@ -118,12 +122,27 @@
 
      )))
 
+(defn fix-english [input-form]
+  (if (string? (:english input-form))
+    (merge
+     {:english {:infinitive (:english input-form)}}
+     (dissoc input-form :english))
+    input-form))
+
+(defn fix-italian [input-form]
+  (if (string? (:italian input-form))
+    (merge
+     {:italian {:infinitive (:italian input-form)}}
+     (dissoc input-form :italian))
+    input-form))
+
 (defn extra-stuff [input-form original]
   "extra stuff that gets added to every verb."
-  (conj input-form
-        {:synsem {:cat :verb}
-         :created (:created original)
-         :updated (str (t/now))}))
+  (conj
+   (fix-english (fix-italian input-form))
+   {:synsem {:cat :verb}
+    :created (:created original)
+    :updated (str (t/now))}))
 
 (defn update [verb updated]
   (log/info (str "updating verb: " verb " with updated=" updated))
