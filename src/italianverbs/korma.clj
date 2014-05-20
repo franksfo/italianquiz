@@ -95,16 +95,16 @@
                    :port "5432"
                    :delimiters ""}))
 
-(def heroku (postgres {:db "from-heroku"
-                       :user "from-heroku"
-                       :password "from-heroku"
+(def heroku (postgres {:db "ddb134r1j9l37p"
+                       :user "vozlyexfiyoqnl"
+                       :password "9oRaBL9H9Nq0c5NIwJS8HeeDeT"
                        ;; optional keys
-                       :host "from-heroku"
-                       :port "from-heroku"
+                       :host "ec2-184-73-251-115.compute-1.amazonaws.com"
+                       :port "5432"
                        :delimiters ""}))
                        ;; remove delimiters
 
-(defdb korma-db dev)
+(defdb korma-db heroku)
 
 (def table-to-filter
   {:verb (fn [row the-where]
