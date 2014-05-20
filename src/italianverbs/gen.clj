@@ -10,7 +10,7 @@
    [italianverbs.over :refer (over)]
    [italianverbs.unify :refer (unifyc)]
    [italianverbs.verb :as verb]
-   [italianverbs.mongo :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
+   [italianverbs.korma :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
 
 (defn tr-result [results]
   (if (not (empty? results))
@@ -89,7 +89,7 @@
                          with-numbers)))))
 
 (defn generate-from [tag]
-  (let [map-of-tag (first (db/fetch :tag :where {:_id (db/object-id tag)}))
+  (let [map-of-tag (first (db/fetch :tag {:_id (db/object-id tag)}))
         tag-id tag
         tag (:name map-of-tag)
         verbs (:verbs map-of-tag)]
