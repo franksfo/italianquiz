@@ -48,6 +48,8 @@
                     (get-in italian [:infinitive]))
         log (log/debug (str "Italian struct: " italian-struct))
         english (get-in verb-record [:english])
+        english (if (string? english) english
+                    (get-in english [:infinitive]))
         verb-struct
         (let [agr (ref :top)
               infl (ref :top)]
