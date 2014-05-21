@@ -88,23 +88,25 @@
 
 ;; http://sqlkorma.com/docs#db
 (def dev (postgres {:db "verbcoach"
-                   :user "verbcoach"
-                   :password "verbcoach"
-                   ;; optional keys
-                   :host "localhost"
-                   :port "5432"
-                   :delimiters ""}))
+                    :user "verbcoach"
+                    :password (System/getenv "POSTGRES_SECRET")
+                    :host "localhost"
+                    :port "5432"}))
 
 (def heroku (postgres {:db "ddb134r1j9l37p"
                        :user "vozlyexfiyoqnl"
-                       :password "9oRaBL9H9Nq0c5NIwJS8HeeDeT"
-                       ;; optional keys
+                       :password (System/getenv "POSTGRES_SECRET")
+;;                       :password "9oRaBL9H9Nq0c5NIwJS8HeeDeT"
                        :host "ec2-184-73-251-115.compute-1.amazonaws.com"
                        :port "5432"
                        :delimiters ""}))
-                       ;; remove delimiters
 
-(defdb korma-db heroku)
+(def postgres_env (System/getenv "POSTGRES_ENV"))
+(defdb korma-db 
+  (cond (= postgres_env "heroku")
+        heroku
+        true
+        dev))
 
 (def table-to-filter
   {:verb (fn [row the-where]
@@ -112,6 +114,8 @@
            (log/info (str "the row's value: " (:value row)))
            (log/info (str "the row's value (read-string): " (read-string (:value row))))
            (log/info (str "the-where: " the-where))
+           (log/info (str "unify: " (unify (read-string (:value row))
+                                           the-where)))
            (not (fail? (unify (read-string (:value row))
                               the-where))))})
 
