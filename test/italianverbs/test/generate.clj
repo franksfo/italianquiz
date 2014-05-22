@@ -11,8 +11,11 @@
    [italianverbs.grammar :refer :all]
    [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.morphology :refer (fo fo-ps)]
+   [italianverbs.unify :refer (fail? get-in lazy-shuffle merge remove-top-values unify unifyc)]
    [italianverbs.unify :as unify]
    [italianverbs.lexiconfn :as lexfn]))
+
+(def cache rule-cache)
 
 (deftest stack-overflow-error
     "merge has a problem: we hit StackOverflowError java.util.regex.Pattern$BmpCharProperty.match (Pattern.java:3366) when this test is run.
