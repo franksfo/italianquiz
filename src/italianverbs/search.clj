@@ -4,12 +4,11 @@
   (:require
    [clojure.tools.logging :as log]
    [clojure.string :as string]
-   [italianverbs.mongo :as db]
+   [italianverbs.korma :as db]
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.lev :as lev]))
-;   [italianverbs.mongo :refer (choose-lexeme fetch)]))
 
 (defn choose-lexeme [ & [struct dummy]]
   "Choose a random lexeme from the set of lexemes
