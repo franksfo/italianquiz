@@ -10,6 +10,8 @@
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
+   [italianverbs.unify :refer :all]
+
    ))
 
 (declare delete-form)
