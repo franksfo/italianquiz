@@ -1,4 +1,5 @@
 (ns italianverbs.verb
+  (:refer-clojure :exclude [get-in merge resolve])
   (:use [hiccup core])
   (:require
    [clj-time.format :as f]
