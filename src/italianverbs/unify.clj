@@ -158,6 +158,8 @@
 ;; TODO: support lazy sequences and vectors
 ;;
 ;; TODO: use commute to allow faster concurrent access: Rathore, p. 133.
+
+(def strict true) ;; strict means: don't try to get smart with "foo" {:italian "foo"} => {:italian "foo"}; instead just :fail.
 (defn unify [& args]
   (if (empty? (rest args)) (first args))
   (let [val1 (first args)
@@ -410,6 +412,7 @@
      ;; case they are specs of how to compute a string: agreement
      ;; information such as gender and number.
      (and
+      (not strict)
       (map? val1)
       (string? val2))
      (do
@@ -417,6 +420,7 @@
        val2)
 
      (and
+      (not strict)
       (string? val1)
       (map? val2))
      (do
