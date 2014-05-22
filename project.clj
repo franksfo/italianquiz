@@ -41,7 +41,10 @@
                  [org.postgresql/postgresql "9.2-1002-jdbc4"]
                  [congomongo "0.4.4"]
 
+
 ]
+
+  :java-agents [[com.newrelic.agent.java/newrelic-agent "2.19.0"]]
 
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]
