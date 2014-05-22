@@ -78,7 +78,7 @@
     ""))
 
 (defn lookup [verb]
-  (db/fetch :verb {:italian verb}))
+  (db/fetch :verb {:italian {:infinitive verb}}))
 
 (defn lookup-by-id [id]
   (first (db/fetch :verb {:_id id})))
