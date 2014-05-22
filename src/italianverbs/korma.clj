@@ -96,15 +96,24 @@
 (def heroku (postgres {:db "ddb134r1j9l37p"
                        :user "vozlyexfiyoqnl"
                        :password (System/getenv "POSTGRES_SECRET")
-;;                       :password "9oRaBL9H9Nq0c5NIwJS8HeeDeT"
                        :host "ec2-184-73-251-115.compute-1.amazonaws.com"
                        :port "5432"
                        :delimiters ""}))
+
+(def heroku-dev (postgres {:db "ddb134r1j9l37p"
+                       :user "vozlyexfiyoqnl"
+                       :password (System/getenv "POSTGRES_SECRET")
+                       :host "ec2-184-73-251-115.compute-1.amazonaws.com"
+                       :port "5432"
+                       :delimiters ""}))
+
 
 (def postgres_env (System/getenv "POSTGRES_ENV"))
 (defdb korma-db 
   (cond (= postgres_env "heroku")
         heroku
+        (= postgres_env "heroku-dev")
+        heroku-dev
         true
         dev))
 
