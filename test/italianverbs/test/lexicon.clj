@@ -18,7 +18,7 @@
                              (list {:english "bed"}
                                    {:italian "letto"}))))
 
-(def mangiare-search (search/lookup "mangiare"))
+(def mangiare-search (lookup "mangiare"))
 
 ;; looking for transitive verbs (:obj|:cat = noun)
 ;; which happen in a place (:adjunct|:obj|:place = true).
@@ -41,7 +41,7 @@
   {:cat :verb})
 
 (deftest avere-test
-  (let [to-have (search/lookup "avere")]
+  (let [to-have (lookup "avere")]
     ;; sanity checks: not related to reentrances.
     ;; Ideally these subtests would work for the keyword,
     ;; since lexicon.clj uses keywords for symbols.
