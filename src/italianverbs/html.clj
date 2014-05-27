@@ -9,6 +9,7 @@
    [clojure.tools.logging :as log]
    [hiccup.element :as e]
    [hiccup.page :as h]
+   [italianverbs.core :as core]
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
 
@@ -733,6 +734,9 @@
     [:div {:style "float:right;"}
      [:p (e/link-to (str "/" "logout") "Log out") ""]]]))
 
+(defn get-loggedin-user-roles []
+  (-> identity friend/current-authentication :roles))
+
 (def login-form
   [:div {:class "login major"}
    [:form {:method "POST" :action "/login"}
@@ -761,11 +765,17 @@
 
 
 (defn page [title & [content request onload]]
-  (page-body 
-   (html
-    [:div#top
-     (menubar (session/request-to-session request)
+  (let [haz-admin (not (nil? (:italianverbs.core/admin (:roles (friend/current-authentication)))))]
+    (page-body 
+     (html
+      [:div#top
+       (menubar (session/request-to-session request)
               (if request (get request :uri))
               (request-to-suffixes request))]
-    [:div#content content])
-   request title))
+
+      [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
+       (str "can-haz admin:" haz-admin)]
+
+      [:div#content content])
+   request title)))
+
