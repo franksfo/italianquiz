@@ -713,21 +713,20 @@
 
 (defn logged-in-content [req identity]
   (h/html5
-   [:div {:class "loggedin"}
+   [:div {:class "login"}
     [:p
-     (apply str "Logged in, with these roles: "
+     (str "Logged in as:" (:current identity))]
+    [:p
+     (apply str "Roles: "
             (-> identity friend/current-authentication :roles))]
-    [:p (e/link-to (str "/" "logout") "Click here to log out") "."]]))
+    [:p (e/link-to (str "/" "logout") "Log out") ""]]))
 
 (def login-form
-  [:div {:class "row"}
-   [:div {:class "columns small-12"}
-    [:h3 "Login"]
-    [:div {:class "row"}
-     [:form {:method "POST" :action "/login" :class "columns small-4"}
-      [:div "Username" [:input {:type "text" :name "username"}]]
-      [:div "Password" [:input {:type "password" :name "password"}]]
-      [:div [:input {:type "submit" :class "button" :value "Login"}]]]]]])
+  [:div {:class "login"}
+   [:form {:method "POST" :action "/login"}
+    [:div "Username" [:input {:type "text" :name "username" :size "10"}]]
+    [:div "Password" [:input {:type "password" :name "password" :size "10"}]]
+    [:div [:input {:type "submit" :class "button" :value "Login"}]]]])
 
 (defn page-body [content req & [ title ]]
   (let [title (if title title "default page title")]
@@ -735,11 +734,11 @@
      (pretty-head title)
      (pretty-body
 
-      content
-
       (if-let [identity (friend/identity req)]
         (logged-in-content req identity)
         login-form)
+
+      content
       
       [:div {:style "float:left;width:95%;border:1px dashed blue;"}
        [:ul 

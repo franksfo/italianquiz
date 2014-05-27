@@ -11,7 +11,7 @@ div#top {
     padding:0;
     margin:0;
     float:left;
-    width:100%;
+    width:auto;
 }
 
 div.menubar {
@@ -248,8 +248,40 @@ div.respond {
     margin:0.3em;
 }
 
-div.loggedin {
-    float:left;
-    width:95%;
-    border:1px dashed blue;
+div.login {
+    text-align:right;
+    padding:3px;
+    margin:0;
+    float:right;
+    width:25%;
+    border:1px solid #ccc;
+}
+
+div.login p {
+    padding:0;
+    margin:0;
+}
+
+div.login form {
+    padding:0;
+    margin:0;
+    width:auto;
+}
+
+
+div.login form div {
+    width:auto;
+    padding:0;
+    margin:0;
+}
+
+div.login input {
+    padding:0;
+    margin:0;
+}
+
+
+div.login input.button {
+    padding:5px;
+    margin:3px;
 }

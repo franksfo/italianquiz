@@ -34,10 +34,11 @@
 ;; not used at the moment, but might be handy someday:
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
 
+(defn page-body [content request]
+  {:body (html/page content request)
+   :status 200})
+
 (defroutes main-routes
-;   "A handler processes the request map and returns a response map."
-; http://groups.google.com/group/compojure/browse_thread/thread/3c507da23540da6e
-; http://brehaut.net/blog/2011/ring_introduction
   (GET "/"
        request
        ;; response map
@@ -88,48 +89,46 @@
 
   (POST "/lesson/delete/:tag"
         [tag]
-       (let [result (lesson/delete tag)]
-         {:status 302
-          :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+        (let [result (lesson/delete tag)]
+          {:status 302
+           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   (GET "/lesson/new"
        request
        {:body (html/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
   (GET "/lesson/new/"
        request
        {:status 302
         :headers {"Location" "/lesson/new"}})
 
   (POST "/lesson/new"
-       request
-       (let [result (lesson/new (session/request-to-session request) request)]
-       {:status 302
-        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+        request
+        (let [result (lesson/new (session/request-to-session request) request)]
+          {:status 302
+           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+
   (POST "/lesson/new/"
-       request
-       (let [result (lesson/new (session/request-to-session request) request)]
-       {:status 302
-        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+        request
+        (let [result (lesson/new (session/request-to-session request) request)]
+          {:status 302
+           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/"
        request
-       {
-        :side-effect (session/register request)
+       {:side-effect (session/register request)
         :session (get request :session)
         :status 302
-        :headers {"Location" "/?msg=set"}
-        })
+        :headers {"Location" "/?msg=set"}})
 
-   (GET "/session/clear/"
+  (GET "/session/clear/"
        request
-       {
-        :side-effect (session/unregister request)
+       {:side-effect (session/unregister request)
         :status 302
-        :headers {"Location" "/?msg=cleared"}
-        })
+        :headers {"Location" "/?msg=cleared"}})
 
   (GET "/generate/:tag/"
        [tag & other-params]
@@ -156,7 +155,6 @@
           {:status 302
            :headers {"Location" (str "/lesson/" tag "/")}}))
 
-
   (POST "/lesson/:tag/delete/:verb/"
         [tag verb]
         (let [result (lesson/delete-from-tag tag verb)]
@@ -165,25 +163,23 @@
 
   (POST "/lesson/delete/:tag"
         [tag]
-       (let [result (lesson/delete tag)]
-         {:status 302
-          :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+        (let [result (lesson/delete tag)]
+          {:status 302
+           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   (POST "/lesson/new/"
-       request
-       (let [result (lesson/new (session/request-to-session request) request)]
-       {:status 302
-        :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+        request
+        (let [result (lesson/new (session/request-to-session request) request)]
+          {:status 302
+           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/"
        request
-       {
-        :side-effect (session/register request)
+       {:side-effect (session/register request)
         :session (get request :session)
-        :status 302
-        :headers {"Location" "/?msg=set"}
-        })
+         :status 302
+         :headers {"Location" "/?msg=set"}})
 
   (GET "/verb/"
        request
@@ -204,11 +200,13 @@
         (let [result (verb/delete verb)]
           {:status 302
            :headers {"Location" (str "/verb/?result=" (:message result))}}))
+
   (POST "/verb/new/"
-       request
-       (let [result (verb/new (session/request-to-session request) request)]
-       {:status 302
-        :headers {"Location" (str "/verb/?result=" (:message result))}}))
+        request
+        (let [result (verb/new (session/request-to-session request) request)]
+          {:status 302
+           :headers {"Location" (str "/verb/?result=" (:message result))}}))
+
   (POST "/verb/update/"
         [id updated]
         (do
@@ -217,7 +215,6 @@
           (let [result (verb/update id updated)]
             {:status 302
              :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))
-
 
   (GET "/workbook/"
        request
@@ -233,9 +230,7 @@
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/test" request
-       (html/page-body
-        "Hi there guys"
-        request))
+       (html/page "Test" "Hi there guys" request))
 
   (GET "/login" request
        (html/page-body
@@ -245,9 +240,31 @@
   (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
   (route/resources "/")
 
+  (GET "/login" request
+       {:body (html/page "Authentication Required" request)
+        :status 200})
+
+  (POST "/login" request
+        (resp/redirect "/"))
+
+  (GET "/logout" request
+    (friend/logout* (resp/redirect "/")))
+
+  (GET "/requires-authentication" request
+    (friend/authenticated
+     (page-body "Thanks for authenticating." request)))
+
+  (GET "/role-user" request
+    (friend/authorize #{::user} 
+                      (html/page-body "You're a user!" request)))
+
+  (GET "/role-admin" request
+    (friend/authorize #{::admin}
+                      (html/page-body "You're an admin!" request)))
+
   ;; TODO: how to show info about the request (e.g. request path)
-  (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. ")))
-)
+  (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. "))))
+
 
 (def main-site main-routes)
 
