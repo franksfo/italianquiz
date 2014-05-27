@@ -38,6 +38,12 @@
   {:body (html/page content request)
    :status 200})
 
+(defn haz-admin []
+  (if (not (nil? (friend/current-authentication)))
+    (not (nil?
+          (:italianverbs.core/admin
+           (:roles (friend/current-authentication)))))))
+
 (defroutes main-routes
   (GET "/"
        request
@@ -183,7 +189,14 @@
 
   (GET "/verb/"
        request
-       {:body (html/page "Verbs" (verb/select (session/request-to-session request) request) request)
+       {:body (html/page 
+               "Verbs" 
+
+               (verb/select (session/request-to-session request) 
+                            request
+                            haz-admin)
+               request)
+
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 

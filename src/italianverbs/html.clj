@@ -9,7 +9,7 @@
    [clojure.tools.logging :as log]
    [hiccup.element :as e]
    [hiccup.page :as h]
-   [italianverbs.core :as core]
+;   [italianverbs.core :as core]
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
 
@@ -557,39 +557,42 @@
       [:a {:href "/session/set/"} "Login"]
       )]))
 
-(defn menubar [session-row relative-url & [suffixes]]
-  (log/info (str "Drawing menubar with relative-url=" relative-url))
-  (log/info (str "Menubar with suffixes: " suffixes))
-  (html
-   [:div {:class "menubar major"}
+(defn menubar [session-row relative-url roles & [suffixes]]
+  (let [haz-admin (not (nil? (:italianverbs.core/admin roles)))]
 
-    [:div
-     (if (or (and (not (nil? relative-url))
-                  (re-find #"/verb" relative-url))
-             (= relative-url "/verb")) {:class "selected"})
-     [:a {:href "/verb/"} (str "Verbs")]]
+    (log/info (str "Drawing menubar with relative-url=" relative-url))
+    (log/info (str "Menubar with suffixes: " suffixes))
+    (html
+     [:div {:class "menubar major"}
 
-    [:div
-     (if (or (and (not (nil? relative-url))
-                  (re-find #"/lesson" relative-url))
-             (= relative-url "/lesson")) {:class "selected"})
-     [:a {:href "/lesson/"} (str "Groups")]]
+      [:div
+       (if (or (and (not (nil? relative-url))
+                    (re-find #"/verb" relative-url))
+               (= relative-url "/verb")) {:class "selected"})
+       [:a {:href "/verb/"} (str "Verbs")]]
 
-    [:div
-     (if (or (and (not (nil? relative-url))
-                  (re-find #"/generate" relative-url))
-             (= relative-url "/generate")) {:class "selected"})
-     [:a {:href (str "/generate/" (if (get suffixes :generate)
-                                    (get suffixes :generate)))}
-      (str "Generate")]]
+      [:div
+       (if (or (and (not (nil? relative-url))
+                    (re-find #"/lesson" relative-url))
+               (= relative-url "/lesson")) {:class "selected"})
+       [:a {:href "/lesson/"} (str "Groups")]]
 
-    [:div
-     (if (or (and (not (nil? relative-url))
-                  (re-find #"/workbook" relative-url))
+      (if haz-admin
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/generate" relative-url))
+                 (= relative-url "/generate")) {:class "selected"})
+         [:a {:href (str "/generate/" (if (get suffixes :generate)
+                                        (get suffixes :generate)))}
+          (str "Generate")]])
+
+      [:div
+       (if (or (and (not (nil? relative-url))
+                    (re-find #"/workbook" relative-url))
              (= relative-url "/workbook")) {:class "selected"})
-     [:a {:href "/workbook/"} (str "Workbook")]]
+       [:a {:href "/workbook/"} (str "Workbook")]]
 
-    ]))
+    ])))
 
 (defn request-to-suffixes [request]
   "menubar uses this to make the menubar links context-specific.."
@@ -770,8 +773,10 @@
      (html
       [:div#top
        (menubar (session/request-to-session request)
-              (if request (get request :uri))
-              (request-to-suffixes request))]
+                (if request (get request :uri))
+                (:roles (friend/current-authentication))
+                (request-to-suffixes request))]
+
 
       [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
        (str "can-haz admin:" haz-admin)]
