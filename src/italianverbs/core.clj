@@ -238,13 +238,6 @@
                          "You tried to do something that required logging in - please do so now."
                          request)})
 
-  (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
-  (route/resources "/")
-
-  (GET "/login" request
-       {:body (html/page "Authentication Required" request)
-        :status 200})
-
   (POST "/login" request
         (resp/redirect "/"))
 
@@ -253,13 +246,7 @@
 
   (GET "/requires-authentication" request
     (friend/authenticated
-     {:status 200
-      :body (html/page "Thanks for authenticating.."
-                       (h/html5
-                        [:h2 "Thanks for authenticating."])
-                       request)}
-     )
-     )
+     (resp/redirect "/")))
 
   (GET "/role-user" request
     (friend/authorize #{::user}
@@ -276,6 +263,9 @@
                                          [:h2
                                           "You're an admin."])
                                         request)}))
+
+  (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
+  (route/resources "/")
 
   ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. "))))
