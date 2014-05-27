@@ -1,13 +1,18 @@
 (ns italianverbs.core
   (:require
+   [cemerick.friend :as friend]
+   (cemerick.friend [workflows :as workflows]
+                    [credentials :as creds])
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
+   [compojure.core :as compojure :refer [defroutes GET PUT POST DELETE ANY]]
    [compojure.handler :refer [site]]
    [compojure.route :as route]
    [compojure.handler :as handler]
    [environ.core :refer [env]]
+   [hiccup.page :as h]
+   [hiccup.element :as e]
    [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
    [italianverbs.lesson :as lesson]
@@ -22,7 +27,9 @@
    [ring.middleware.basic-authentication :as basic]
    [ring.middleware.session :as rsession]
    [ring.middleware.session.cookie :as cookie]
-   [ring.middleware.stacktrace :as trace]))
+   [ring.middleware.stacktrace :as trace]
+   [ring.util.response :as resp]
+))
 
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
 
@@ -237,6 +244,14 @@
                                   (get (get request :query-params) "attrs"))
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
+  (GET "/login" req
+    (h/html5
+     pretty-head
+     (pretty-body
+      (page-body
+       "You tried to do something that required logging in - please do so now."
+       req))))
+
   (route/resources "/")
 
   ;; workaround for 'lein ring server' which opens
@@ -248,27 +263,88 @@
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. ")))
 )
 
+(def main-site (apply compojure/routes
+                 main-routes
+                 (route/resources "/" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
+                 nil))
 
-; http://weavejester.github.com/compojure/compojure.handler-api.html
-; site function
+(def users (atom {"friend" {:username "friend"
+                            :password (creds/hash-bcrypt "clojure")
+                            :roles #{::user}}
+                  "friend-admin" {:username "friend-admin"
+                                  :password (creds/hash-bcrypt "clojure")
+                                  :roles #{::admin}}}))
 
-;Usage: (site routes & [opts])
+(def pretty-head
+  [:head [:link {:href "/css/normalize.css" :rel "stylesheet" :type "text/css"}]
+         [:link {:href "/css/foundation.min.css" :rel "stylesheet" :type "text/css"}]
+         [:style {:type "text/css"} "ul { padding-left: 2em }"]
+         [:script {:src "/js/foundation.min.js" :type "text/javascript"}]])
 
-;Create a handler suitable for a standard website. This adds the
-;following middleware to your routes:
-;  - wrap-session
-;  - wrap-cookies
-;  - wrap-multipart-params
-;  - wrap-params
-;  - wrap-nested-params
-;  - wrap-keyword-params
-; A map of options may also be provided. These keys are provided:
-;  :session - a map of session middleware options
+(defn pretty-body
+  [& content]
+  [:body {:class "row"}
+   (into [:div {:class "columns small-12"}] content)])
+
+(defn logged-in-content [req identity]
+  (h/html5
+   [:div
+    [:p
+     (apply str "Logged in, with these roles: "
+            (-> identity friend/current-authentication :roles))]
+    [:p (e/link-to (str "/" "logout") "Click here to log out") "."]]))
+
+(def login-form
+  [:div {:class "row"}
+   [:div {:class "columns small-12"}
+    [:h3 "Login"]
+    [:div {:class "row"}
+     [:form {:method "POST" :action "/login" :class "columns small-4"}
+      [:div "Username" [:input {:type "text" :name "username"}]]
+      [:div "Password" [:input {:type "password" :name "password"}]]
+      [:div [:input {:type "submit" :class "button" :value "Login"}]]]]]])
+
+(defn page-body [content req]
+  (h/html5
+   pretty-head
+   (pretty-body
+
+    [:h2 "The italian app"]
+
+    (if-let [identity (friend/identity req)]
+      (logged-in-content req identity)
+      login-form)
+
+    content
+
+    [:ul 
+     [:li (e/link-to (str "/" "role-user") "Requires the `user` role")]
+     [:li (e/link-to (str "/" "role-admin") "Requires the `admin` role")]
+     [:li (e/link-to (str "/" "requires-authentication")
+                     "Requires any authentication, no specific role requirement")]])))
 
 ;; TODO: clear out cache of sentences-per-user session when starting up.
 (def app
-  (handler/site main-routes))
-
+  (handler/site 
+   (friend/authenticate
+    main-site
+    {:allow-anon? true
+     :login-uri "/login"
+     :default-landing-uri "/"
+     :unauthorized-handler #(-> 
+                             (page-body (str "You do not have sufficient privileges to access " (:uri %) ".") %)
+                             resp/response
+                             (resp/status 401))
+     :credential-fn #(creds/bcrypt-credential-fn @users %)
+     ;; in the above, the @users map functions as 1-arg fn: (fn [user]) that returns a user's
+     ;; authentication and authorization info, so if you "call" @users with a given argument, (i.e. get the given
+     ;; key in the @users map, e.g.:
+     ;; (@users "friend")
+     ;; the "return value" (i.e. value for that key) is:
+     ;; {:username "friend", 
+     ;;  :password "$2a$10$48TyZw9Ii6bpc.uwJtoXuuMHiRtwNPgC3yczPcpTLao0m0kaIVo02", 
+     ;;  :roles #{:friend-interactive-form.users/user}}
+     :workflows [(workflows/interactive-form)]})))
 
 (defn wrap-error-page [handler]
   (fn [req]
