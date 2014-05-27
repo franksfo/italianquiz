@@ -738,14 +738,14 @@
         (logged-in-content req identity)
         login-form)
 
-      content
+      content))))
       
-      [:div {:style "float:left;width:95%;border:1px dashed blue;"}
-       [:ul 
-        [:li (e/link-to (str "/" "role-user") "Requires the `user` role")]
-        [:li (e/link-to (str "/" "role-admin") "Requires the `admin` role")]
-        [:li (e/link-to (str "/" "requires-authentication")
-                        "Requires any authentication, no specific role requirement")]]]))))
+;      [:div {:style "float:left;width:95%;border:1px dashed blue;"}
+;       [:ul 
+;        [:li (e/link-to (str "/" "role-user") "Requires the `user` role")]
+;        [:li (e/link-to (str "/" "role-admin") "Requires the `admin` role")]
+;        [:li (e/link-to (str "/" "requires-authentication")
+;                        "Requires any authentication, no specific role requirement")]]]))))
 
 
 (defn page [title & [content request onload]]
