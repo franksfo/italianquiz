@@ -276,12 +276,12 @@
 
 ;; <BEGIN TEST AUTHENTICATION/AUTHORIZATION>
 ;; TODO: move to dedicated namespace.
-(def users (atom {"friend" {:username "friend"
-                            :password (creds/hash-bcrypt "clojure")
-                            :roles #{::user}}
-                  "friend-admin" {:username "friend-admin"
-                                  :password (creds/hash-bcrypt "clojure")
-                                  :roles #{::admin}}}))
+(def users (atom {"franco" {:username "franco"
+                            :password (creds/hash-bcrypt "franco")
+                            :roles #{::user ::admin}}
+                  "gino" {:username "gino"
+                          :password (creds/hash-bcrypt "gino")
+                          :roles #{::user}}}))
 (derive ::admin ::user)
 ;; </BEGIN TEST AUTHENTICATION/AUTHORIZATION>
 
