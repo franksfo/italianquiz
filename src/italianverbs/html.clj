@@ -664,7 +664,7 @@
       [:td {:rowspan "2" :colspan "1"}
        (powered-by "clojail" "https://github.com/flatland/clojail")]
       [:td {:rowspan "2" :colspan "2"}
-       (powered-by "congomongo" "https://github.com/aboekhoff/congomongo")]]
+       (powered-by "korma" "https://sqlkorma.com")]]
       [:tr
        [:td {:colspan "2"}
         (powered-by "ring" "https://github.com/mmcgrana/ring")]]
@@ -674,7 +674,7 @@
       [:td {:colspan "3"}
        (powered-by "clojure" "http://clojure.org/")]
       [:td {:colspan "1"}
-       (powered-by "mongodb" "http://www.mongodb.org/")
+       (powered-by "postgres" "http://www.postgresql.org/")
        ]]]]))
 
 (defn about []
