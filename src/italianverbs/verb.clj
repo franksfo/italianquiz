@@ -72,9 +72,9 @@
                 [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
                       (morph/get-italian-1 (:italian (first results)))]]
                 [:td [:span {:class "date"}
-                      (f/unparse short-format (f/parse (:created (first results))))]]
+                      (f/unparse short-format (:created (first results)))]]
                 [:td [:span {:class "date"}
-                      (f/unparse short-format (f/parse (:updated (first results))))]]
+                      (f/unparse short-format (:updated (first results)))]]
                 [:td {:class "edit"} (delete-form (first results)) ]
                 ])
          (show-as-rows (rest results)))

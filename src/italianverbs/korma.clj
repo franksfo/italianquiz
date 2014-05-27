@@ -1,6 +1,8 @@
 (ns italianverbs.korma
   (:use [korma db core])
-  (:require [clojure.string :as string]
+  (:require [clj-time.coerce :as c]
+            [clj-time.core :as t]
+            [clojure.string :as string]
             [clojure.tools.logging :as log]
             [italianverbs.unify :refer (unify fail?)]))
 
@@ -23,14 +25,17 @@
   (pk :id)
   (has-many verb))
 
-(def key-to-t
+(def key-to-table
   {:verb verb
    :tag vgroup})
 
 (defn keyword-to-table [collection-as-key]
-  (let [result (key-to-t collection-as-key)]
-    (if result result
-        (throw (.Exception "don't know what table this is: " collection-as-key)))))
+  "Map a keyword representing a collection to a PostgreSQL table. In the future, a collection
+might even represent arbitrary SQL such as a join of multiple tables or a SELECT .. WHERE
+on a table."
+  (let [table (key-to-table collection-as-key)]
+    (if table table
+        (throw (.Exception "don't know what table this collection is: " collection-as-key)))))
 
 (def table-to-where
   {:verb (fn [the-map]
@@ -75,7 +80,13 @@
            (merge
             (read-string (:value row))
             {:_id (:id row)}
-            (dissoc (dissoc row :value) :id)))
+
+            ;; .getTime: java.sql.Timestamp -> long
+            ;; from-long: long -> Joda DateTime.
+            {:created (c/from-long (.getTime (:created row)))} 
+
+            (reduce #(dissoc %1 %2) row
+                    (list :created :id :value))))
 
    :tag (fn [row] ;; for the vgroup table, it's simpler: simply convert :id to :_id.
           (merge
@@ -132,33 +143,32 @@
   "select from collection; might take an id. For each returned row, return simply the row as a clojure map, but merge it with an extra field for the primary key (id)."
   (let [the-where
         (if the-where the-where nil)
-        id (if (:_id the-where) (Integer. (:_id the-where)))]
+        id (if (:_id the-where) (Integer. (:_id the-where)))
+        table (keyword-to-table collection)]
     (log/info (str "doing fetch with id: " id))
-    (log/info (str "table: " (keyword-to-table collection)))
-    (if id
-      (let [row (first
-                 (select (keyword-to-table collection)
-                         (where {:id id})))]
-        (if row
-          (list (apply (collection do-each-row)
-                       (list row)))))
+    (log/info (str "table: " table))
+    (map (collection do-each-row)
+           (if id
+             (let [rows (select table
+                                (where {:id id}))]
+               (if (nil? rows)
+                 (log/warn (str "no row found for id: " id)))
+               (if (> (.size rows) 1)
+                 (log/warn (str "more than one row matched id: " id)))
+               rows)
 
-      ;; else, id not given: do a select with a where (or not, if no where).
-      (do
-        (log/info (str "doing a select with where=" the-where))
-        (map (fn [row]
-               (log/info (str "considering row: " row))
-               (apply (collection do-each-row)
-                      (list row)))
-             (if the-where
-               (if (collection table-to-filter)
-                 (filter (fn [row]
-                           ((collection table-to-filter)
-                            row the-where))
-                         (select (keyword-to-table collection)))
-                 (select (keyword-to-table collection)
-                         (where the-where)))
-               (select (keyword-to-table collection))))))))
+             ;; else, id not given: do a select with a where (or not, if no where).
+             (do
+               (log/info (str "doing a select with where=" the-where))
+               (if the-where
+                 (if (collection table-to-filter)
+                   (filter (fn [row]
+                             ((collection table-to-filter)
+                              row the-where))
+                           (select table))
+                   (select table
+                           (where the-where)))
+                 (select table)))))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
