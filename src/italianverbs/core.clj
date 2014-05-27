@@ -255,7 +255,7 @@
         "You tried to do something that required logging in - please do so now."
         request))
 
-  (route/resources "/" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
+;  (route/resources "/" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
 
   ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. ")))

@@ -746,11 +746,22 @@
 (defn about []
   (footer))
 
-(def pretty-head
-  [:head [:link {:href "/css/normalize.css" :rel "stylesheet" :type "text/css"}]
-         [:link {:href "/css/foundation.min.css" :rel "stylesheet" :type "text/css"}]
-         [:style {:type "text/css"} "ul { padding-left: 2em }"]
-         [:script {:src "/js/foundation.min.js" :type "text/javascript"}]])
+(defn pretty-head [title]
+  [:head 
+   [:link {:href "/css/normalize.css" :rel "stylesheet" :type "text/css"}]
+   [:link {:href "/css/foundation.min.css" :rel "stylesheet" :type "text/css"}]
+   (include-css "/css/style.css")
+   (include-css "/css/layout.css")
+   (include-css "/css/fs.css")
+   (include-css "/css/tag.css")
+   (include-css "/css/quiz.css")
+
+   [:style {:type "text/css"} "ul { padding-left: 2em }"]
+   [:script {:src "/js/foundation.min.js" :type "text/javascript"}]
+   [:title (str title
+                (if (and title (not (= title "")))
+                  ": " "")
+                "imparare l'italiano")]])
 
 (defn pretty-body
   [& content]
@@ -775,21 +786,22 @@
       [:div "Password" [:input {:type "password" :name "password"}]]
       [:div [:input {:type "submit" :class "button" :value "Login"}]]]]]])
 
-(defn page-body [content req]
-  (h/html5
-   pretty-head
-   (pretty-body
+(defn page-body [content req & [ title ]]
+  (let [title (if title title "default page title")]
+    (h/html5
+     (pretty-head title)
+     (pretty-body
 
-    [:h2 "The italian app"]
+      [:h2 title]
 
-    (if-let [identity (friend/identity req)]
-      (logged-in-content req identity)
-      login-form)
+      (if-let [identity (friend/identity req)]
+        (logged-in-content req identity)
+        login-form)
 
-    content
+      content
 
-    [:ul 
-     [:li (e/link-to (str "/" "role-user") "Requires the `user` role")]
-     [:li (e/link-to (str "/" "role-admin") "Requires the `admin` role")]
-     [:li (e/link-to (str "/" "requires-authentication")
-                     "Requires any authentication, no specific role requirement")]])))
+      [:ul 
+       [:li (e/link-to (str "/" "role-user") "Requires the `user` role")]
+       [:li (e/link-to (str "/" "role-admin") "Requires the `admin` role")]
+       [:li (e/link-to (str "/" "requires-authentication")
+                       "Requires any authentication, no specific role requirement")]]))))
