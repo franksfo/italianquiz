@@ -713,17 +713,25 @@
 
 (defn logged-in-content [req identity]
   (h/html5
-   [:div {:class "login major"}
+   [:div {:class "login major" :style "font-size:smaller" }
 
-    [:p
-     (str "Username:" (:current identity))]
-
-    [:p {:style "white-space:nowrap"}
-     (apply str "Roles:"
-            (string/join ","
-                         (map #(string/replace (str %) ":italianverbs.core/" "")
-                              (-> identity friend/current-authentication :roles))))]
-    [:p (e/link-to (str "/" "logout") "Log out") ""]]))
+    [:table {:style "border:0px"}
+     [:tr
+      [:th
+       (str "Username")]
+      [:td
+       (:current identity)]
+      ]
+     [:tr
+      [:th
+       (str "Roles")]
+      [:td {:style "white-space:nowrap"}
+       (string/join ","
+                    (map #(string/replace (str %) ":italianverbs.core/" "")
+                         (-> identity friend/current-authentication :roles)))]]
+     ]
+    [:div {:style "float:right;"}
+     [:p (e/link-to (str "/" "logout") "Log out") ""]]]))
 
 (def login-form
   [:div {:class "login major"}
