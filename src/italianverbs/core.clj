@@ -233,9 +233,10 @@
        (html/page "Test" "Hi there guys" request))
 
   (GET "/login" request
-       (html/page-body
-        "You tried to do something that required logging in - please do so now."
-        request))
+       {:status 401
+        :body (html/page "Unauthenticated"
+                         "You tried to do something that required logging in - please do so now."
+                         request)})
 
   (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
   (route/resources "/")
@@ -252,15 +253,29 @@
 
   (GET "/requires-authentication" request
     (friend/authenticated
-     (page-body "Thanks for authenticating." request)))
+     {:status 200
+      :body (html/page "Thanks for authenticating.."
+                       (h/html5
+                        [:h2 "Thanks for authenticating."])
+                       request)}
+     )
+     )
 
   (GET "/role-user" request
-    (friend/authorize #{::user} 
-                      (html/page-body "You're a user!" request)))
+    (friend/authorize #{::user}
+                      {:body (html/page "You're a user." 
+                                        (h/html5
+                                         [:h2
+                                          "You're a user."])
+                                        request)}))
 
   (GET "/role-admin" request
     (friend/authorize #{::admin}
-                      (html/page-body "You're an admin!" request)))
+                      {:body (html/page "You're an admin.." 
+                                        (h/html5
+                                         [:h2
+                                          "You're an admin."])
+                                        request)}))
 
   ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. "))))
@@ -268,12 +283,17 @@
 
 (def main-site main-routes)
 
+
+;; <BEGIN TEST AUTHENTICATION/AUTHORIZATION>
+;; TODO: move to dedicated namespace.
 (def users (atom {"friend" {:username "friend"
                             :password (creds/hash-bcrypt "clojure")
                             :roles #{::user}}
                   "friend-admin" {:username "friend-admin"
                                   :password (creds/hash-bcrypt "clojure")
                                   :roles #{::admin}}}))
+(derive ::admin ::user)
+;; </BEGIN TEST AUTHENTICATION/AUTHORIZATION>
 
 ;; TODO: clear out cache of sentences-per-user session when starting up.
 (def app
@@ -284,7 +304,7 @@
      :login-uri "/login"
      :default-landing-uri "/"
      :unauthorized-handler #(-> 
-                             (html/page-body (str "You do not have sufficient privileges to access " (:uri %) ".") %)
+                             (html/page "Unauthorized" (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %) "."]) %)
                              resp/response
                              (resp/status 401))
      :credential-fn #(creds/bcrypt-credential-fn @users %)
