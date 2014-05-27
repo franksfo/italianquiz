@@ -31,20 +31,8 @@
    [ring.util.response :as resp]
 ))
 
+;; not used at the moment, but might be handy someday:
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
-
-(defn title [request]
-  (let [username (session/get-username request)]
-    (str "Welcome to Italian Verbs" (if username (str ", " username)) ".")))
-
-(defn printlex [lexeme]
-  (html/tablize lexeme))
-
-(defn wrap-div [string]
-  (str "<div class='test'>" string "</div>"))
-
-;; could be e.g. "/italian/" if you have a shared web host:
-(def application-prefix "")
 
 (defroutes main-routes
 ;   "A handler processes the request map and returns a response map."
@@ -249,22 +237,19 @@
         "Hi there guys"
         request))
 
-
   (GET "/login" request
        (html/page-body
         "You tried to do something that required logging in - please do so now."
         request))
 
-;  (route/resources "/" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
+  (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
+  (route/resources "/")
 
   ;; TODO: how to show info about the request (e.g. request path)
   (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. ")))
 )
 
-(def main-site (apply compojure/routes
-                 main-routes
-                 (route/resources "/" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
-                 nil))
+(def main-site main-routes)
 
 (def users (atom {"friend" {:username "friend"
                             :password (creds/hash-bcrypt "clojure")

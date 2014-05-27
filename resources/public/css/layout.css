@@ -247,3 +247,9 @@ div#searchresults {
 div.respond {
     margin:0.3em;
 }
+
+div.loggedin {
+    float:left;
+    width:95%;
+    border:1px dashed blue;
+}
