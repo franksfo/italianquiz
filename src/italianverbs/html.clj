@@ -3,11 +3,14 @@
    [hiccup core page]
    [ring.util.codec :as codec])
   (:require
+   [cemerick.friend :as friend]
    [clojure.set :as set]
-   [italianverbs.session :as session]
-   [italianverbs.unify :as fs]
+   [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [clojure.string :as string]))
+   [hiccup.element :as e]
+   [hiccup.page :as h]
+   [italianverbs.session :as session]
+   [italianverbs.unify :as fs]))
 
 (defn verb-row [italian]
   (html
@@ -742,3 +745,51 @@
 
 (defn about []
   (footer))
+
+(def pretty-head
+  [:head [:link {:href "/css/normalize.css" :rel "stylesheet" :type "text/css"}]
+         [:link {:href "/css/foundation.min.css" :rel "stylesheet" :type "text/css"}]
+         [:style {:type "text/css"} "ul { padding-left: 2em }"]
+         [:script {:src "/js/foundation.min.js" :type "text/javascript"}]])
+
+(defn pretty-body
+  [& content]
+  [:body {:class "row"}
+   (into [:div {:class "columns small-12"}] content)])
+
+(defn logged-in-content [req identity]
+  (h/html5
+   [:div
+    [:p
+     (apply str "Logged in, with these roles: "
+            (-> identity friend/current-authentication :roles))]
+    [:p (e/link-to (str "/" "logout") "Click here to log out") "."]]))
+
+(def login-form
+  [:div {:class "row"}
+   [:div {:class "columns small-12"}
+    [:h3 "Login"]
+    [:div {:class "row"}
+     [:form {:method "POST" :action "/login" :class "columns small-4"}
+      [:div "Username" [:input {:type "text" :name "username"}]]
+      [:div "Password" [:input {:type "password" :name "password"}]]
+      [:div [:input {:type "submit" :class "button" :value "Login"}]]]]]])
+
+(defn page-body [content req]
+  (h/html5
+   pretty-head
+   (pretty-body
+
+    [:h2 "The italian app"]
+
+    (if-let [identity (friend/identity req)]
+      (logged-in-content req identity)
+      login-form)
+
+    content
+
+    [:ul 
+     [:li (e/link-to (str "/" "role-user") "Requires the `user` role")]
+     [:li (e/link-to (str "/" "role-admin") "Requires the `admin` role")]
+     [:li (e/link-to (str "/" "requires-authentication")
+                     "Requires any authentication, no specific role requirement")]])))
