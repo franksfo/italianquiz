@@ -778,8 +778,8 @@
                 (request-to-suffixes request))]
 
 
-      [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
-       (str "can-haz admin:" haz-admin)]
+;      [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
+;       (str "can-haz admin:" haz-admin)]
 
       (if (or true (and request (or true (:result request))))
         [:div {:style "display:none;width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc;font-family:monospace"}
