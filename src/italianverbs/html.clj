@@ -693,6 +693,7 @@
    (include-css "/css/fs.css")
    (include-css "/css/tag.css")
    (include-css "/css/quiz.css")
+   (include-css "/css/fade.css")
 
    [:style {:type "text/css"} "ul { padding-left: 2em }"]
    [:script {:src "/webjars/js/foundation.min.js" :type "text/javascript"}]
@@ -781,12 +782,8 @@
 ;      [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
 ;       (str "can-haz admin:" haz-admin)]
 
-      (if (or true (and request (or true (:result request))))
-        [:div {:style "display:none;width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc;font-family:monospace"}
-         (str request)])
-
       (if (and request (:query-params request) (get (:query-params request) "result"))
-        [:div {:class "alert"}
+        [:div {:class "fadeout"}
          (get (:query-params request) "result")])
 
 
