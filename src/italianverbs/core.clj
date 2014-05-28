@@ -201,15 +201,39 @@
            :headers {"Location" (str "/verb/?result=" (:message result))}}))
 
   (POST "/verb/:id/update/" request
-        (let [id (:id (:route-params request))
-              updated (get (:form-params request) "updated")]
-          (log/info (str "updating verb with id: " id))
-          (log/info (str "keys of form-params:" (keys (:form-params request))))
-          (log/info (str "updating verb with form-params: " (:form-params request)))
-          (log/info (str "updating verb with updated: " updated))
-          (let [result (verb/update id updated)]
-            {:status 302
-             :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))
+        (friend/authorize #{::admin}
+                          (let [id (:id (:route-params request))
+                                updated (get (:form-params request) "updated")]
+                            (log/info (str "updating verb with id: " id))
+                            (log/info (str "keys of form-params:" (keys (:form-params request))))
+                            (log/info (str "updating verb with form-params: " (:form-params request)))
+                            (log/info (str "updating verb with updated: " updated))
+                            (let [result (verb/update id updated)]
+                              {:status 302
+                               :headers {"Location" (str "/verb/" id "/?result=" (:message result))}}))))
+
+  (GET "/verb/:id/update/" request
+       (friend/authorize #{::admin}
+                         (let [id (:id (if (and request (:route-params request))
+                                         (:route-params request)))
+                               updated (if (and request (:form-params request))
+                                         (get (:form-params request) "updated"))]
+                           (if (nil? id)
+                             (let [result {:message "nosuchverb"}]
+                               {:status 302
+                                :headers {"Location" (str "/verb/")}})
+                             (if (nil? updated)
+                               (let [result {:message "noupdate"}]
+                                 {:status 302
+                                  :headers {"Location" (str "/verb/" id "/")}})
+                               (do
+                                 (log/info (str "updating verb with id: " id))
+                                 (log/info (str "keys of form-params:" (keys (:form-params request))))
+                                 (log/info (str "updating verb with form-params: " (:form-params request)))
+                                 (log/info (str "updating verb with updated: " updated))
+                                 (let [result (verb/update id updated)]
+                                   {:status 302
+                                    :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))))))
 
   (GET "/workbook/" request
        {:status 200
