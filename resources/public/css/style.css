@@ -52,12 +52,12 @@ div.http a {
 
 div.menubar {
     margin:1em;
-    padding:0.5em;
+    padding:0em;
 }
 
 div.menubar div {
     padding:3px;
-    margin-right:1em;
+    margin-right:0em;
 }
 
 div.poweredbox table {
