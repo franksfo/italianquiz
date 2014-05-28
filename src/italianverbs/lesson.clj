@@ -101,7 +101,8 @@
          (tr-result results haz-admin))
        
        ]
-      (create-a-new-tag)
+      (if (= true haz-admin)
+        (create-a-new-tag))
       ])))
 
 (defn lesson [session request is-admin-fn]
