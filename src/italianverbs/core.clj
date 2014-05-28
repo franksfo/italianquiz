@@ -56,9 +56,10 @@
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/generate/:tag/" request
-       (let [tag (:tag (:route-params request))]
-         {:status 200
-          :body (html/page "Generate" (g/generate-from tag) request)}))
+       (friend/authorize #{::admin}
+                         (let [tag (:tag (:route-params request))]
+                           {:status 200
+                            :body (html/page "Generate" (g/generate-from tag) request)})))
 
   (GET "/lesson/" request
        {:status 302
