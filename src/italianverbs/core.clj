@@ -79,11 +79,13 @@
 
   (GET "/lesson/:tag/"
        request
-       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
+       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) 
+                                               (:tag (:route-params request))
+                                               (haz-admin)) request)})
 
   (POST "/lesson/:tag/new"
         [tag & other-params]
-        (let [result (lesson/add-to-tag tag other-params)]
+        (let [result (lesson/add-to-tag tag other-params (haz-admin))]
           {:status 302
            :headers {"Location" (str "/lesson/" tag "/")}}))
 

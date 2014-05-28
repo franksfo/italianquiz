@@ -151,7 +151,8 @@
        [:tr
         [:script script]
         [:th "Verb"]
-        [:th {:class "edit"} "Edit"]]
+        (if (= haz-admin true)
+          [:th {:class "edit"} "Edit"])]
        
        (log/info (str "show: tag: " result))
        (tr-verbs tag (:verbs result) haz-admin)
