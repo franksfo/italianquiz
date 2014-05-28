@@ -38,7 +38,7 @@ div.major h2 {
 }
 
 div#content {
-    width:auto;
+    min-width:75%;
     border:0px dashed blue;
     float:left;
     padding:0em;

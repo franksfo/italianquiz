@@ -34,10 +34,6 @@
 ;; not used at the moment, but might be handy someday:
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
 
-(defn page-body [content request]
-  {:body (html/page content request)
-   :status 200})
-
 (defn haz-admin []
   (if (not (nil? (friend/current-authentication)))
     (not (nil?
@@ -45,55 +41,51 @@
            (:roles (friend/current-authentication)))))))
 
 (defroutes main-routes
-  (GET "/"
-       request
+  (GET "/" request
        ;; response map
        {:status 302
         :headers {"Location" "/verb/"}})
 
-  (GET "/generate/"
-       request
+  (GET "/generate/" request
        {:status 302
         :headers {"Location" "/generate"}})
 
-  (GET "/generate"
-       request
+  (GET "/generate" request
        {:body (html/page "Generate" (g/generate (session/request-to-session request) request) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/generate/:tag/"
-       [tag & other-params]
-       {:body (g/page "Generate" (g/generate-from tag))})
+  (GET "/generate/:tag/" request
+       (let [tag (:tag (:route-params request))]
+         {:status 200
+          :body (html/page "Generate" (g/generate-from tag) request)}))
 
-  (GET "/lesson/"
-       request
+  (GET "/lesson/" request
        {:status 302
         :headers {"Location" "/lesson"}})
 
-  (GET "/lesson"
-       request
+  (GET "/lesson" request
        {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request haz-admin) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/lesson/:tag/"
-       request
+  (GET "/lesson/:tag/" request
        {:body (html/page "Lesson" (lesson/show (session/request-to-session request) 
                                                (:tag (:route-params request))
                                                (haz-admin)) request)})
 
-  (POST "/lesson/:tag/new"
-        [tag & other-params]
-        (let [result (lesson/add-to-tag tag other-params (haz-admin))]
-          {:status 302
-           :headers {"Location" (str "/lesson/" tag "/")}}))
+  (POST "/lesson/:tag/new" request
+        (let [tag (:tag (:route-params request))]
+          (let [result (lesson/add-to-tag tag request (haz-admin))]
+            {:status 302
+             :headers {"Location" (str "/lesson/" tag "/")}})))
 
-  (POST "/lesson/:tag/delete/:verb"
-        [tag verb]
-        (let [result (lesson/delete-from-tag tag verb)]
-          {:status 302
-           :headers {"Location" (str "/lesson/" tag "/")}}))
+  (POST "/lesson/:tag/delete/:verb" request
+        (let [tag (:tag (:route-params request))
+              verb (:verb (:route-params request))]
+          (let [result (lesson/delete-from-tag tag verb)]
+            {:status 302
+             :headers {"Location" (str "/lesson/" tag "/")}})))
 
   (POST "/lesson/delete/:tag"
         [tag]
@@ -101,96 +93,82 @@
           {:status 302
            :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
-  (GET "/lesson/new"
-       request
+  (GET "/lesson/new" request
        {:body (html/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/lesson/new/"
-       request
+  (GET "/lesson/new/" request
        {:status 302
         :headers {"Location" "/lesson/new"}})
 
-  (POST "/lesson/new"
-        request
+  (POST "/lesson/new" request
         (let [result (lesson/new (session/request-to-session request) request)]
           {:status 302
            :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
-  (POST "/lesson/new/"
-        request
+  (POST "/lesson/new/" request
         (let [result (lesson/new (session/request-to-session request) request)]
           {:status 302
            :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
-  (GET "/session/set/"
-       request
+  (GET "/session/set/" request
        {:side-effect (session/register request)
         :session (get request :session)
         :status 302
         :headers {"Location" "/?msg=set"}})
 
-  (GET "/session/clear/"
-       request
+  (GET "/session/clear/" request
        {:side-effect (session/unregister request)
         :status 302
         :headers {"Location" "/?msg=cleared"}})
 
-  (GET "/generate/:tag/"
-       [tag & other-params]
-       {:body (g/page "Generate" (g/generate-from tag))})
-
-  (GET "/lesson/"
-       request
+  (GET "/lesson/" request
        {:status 302
         :headers {"Location" "/lesson"}})
 
-  (GET "/lesson"
-       request
+  (GET "/lesson" request
        {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request haz-admin) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/lesson/:tag/"
-       request
-       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) (:tag (:route-params request))) request)})
+  (GET "/lesson/:tag/" request
+       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) 
+                                               (:tag (:route-params request))) request)})
 
-  (POST "/lesson/:tag/new/"
-        [tag & other-params]
-        (let [result (lesson/add-to-tag tag other-params)]
-          {:status 302
-           :headers {"Location" (str "/lesson/" tag "/")}}))
+  (POST "/lesson/:tag/new/" request
+        (let [tag (:tag (:route-params request))]
+          (let [result (lesson/add-to-tag tag request)]
+            {:status 302
+             :headers {"Location" (str "/lesson/" tag "/")}})))
 
-  (POST "/lesson/:tag/delete/:verb/"
-        [tag verb]
-        (let [result (lesson/delete-from-tag tag verb)]
-          {:status 302
-           :headers {"Location" (str "/lesson/" tag "/")}}))
+  (POST "/lesson/:tag/delete/:verb/" request
+        (let [tag (:tag (:route-params request))
+              verb (:verb (:route-params request))]
+          (let [result (lesson/delete-from-tag tag verb)]
+            {:status 302
+             :headers {"Location" (str "/lesson/" tag "/")}})))
 
-  (POST "/lesson/delete/:tag"
-        [tag]
-        (let [result (lesson/delete tag)]
+  (POST "/lesson/delete/:tag" request
+        (let [tag (:tag (:route-params request))
+              result (lesson/delete tag)]
           {:status 302
            :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
-  (POST "/lesson/new/"
-        request
+  (POST "/lesson/new/" request
         (let [result (lesson/new (session/request-to-session request) request)]
           {:status 302
            :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
-  (GET "/session/set/"
-       request
+  (GET "/session/set/" request
        {:side-effect (session/register request)
         :session (get request :session)
          :status 302
          :headers {"Location" "/?msg=set"}})
 
-  (GET "/verb/"
-       request
+  (GET "/verb/" request
        {:body (html/page 
                "Verbs" 
 
@@ -204,41 +182,41 @@
 
   ;; TODO: figure out how to combine destructuring with sending request (which we need for the
   ;; menubar and maybe other things like authorization.
-  (GET "/verb/:verb/"
-       [verb]
-       {:body (html/page "Verbs" (verb/select-one verb) {:uri "/verb/"})
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  (GET "/verb/:verb/" request
+       (let [verb (:verb (:route-params request))]
+         {:body (html/page "Verbs"
+                           (verb/select-one verb)
+                           request)
+          :status 200}))
 
-  (POST "/verb/:verb/delete/"
-        [verb]
-        (let [result (verb/delete verb)]
-          {:status 302
-           :headers {"Location" (str "/verb/?result=" (:message result))}}))
+  (POST "/verb/:verb/delete/" request
+        (let [verb (:verb (:route-params request))]
+          (let [result (verb/delete verb)]
+            {:status 302
+             :headers {"Location" (str "/verb/?result=" (:message result))}})))
 
-  (POST "/verb/new/"
-        request
+  (POST "/verb/new/" request
         (let [result (verb/new (session/request-to-session request) request)]
           {:status 302
            :headers {"Location" (str "/verb/?result=" (:message result))}}))
 
-  (POST "/verb/update/"
-        [id updated]
-        (do
+  (POST "/verb/:id/update/" request
+        (let [id (:id (:route-params request))
+              updated (get (:form-params request) "updated")]
           (log/info (str "updating verb with id: " id))
+          (log/info (str "keys of form-params:" (keys (:form-params request))))
+          (log/info (str "updating verb with form-params: " (:form-params request)))
           (log/info (str "updating verb with updated: " updated))
           (let [result (verb/update id updated)]
             {:status 302
              :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))
 
-  (GET "/workbook/"
-       request
+  (GET "/workbook/" request
        {:status 200
         :body (html/page "Workbook" (workbook/workbook-ui request) request)
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/workbook/q/"
-       request
+  (GET "/workbook/q/" request
        {:status 200
         :body (workbook/workbookq (get (get request :query-params) "search")
                                   (get (get request :query-params) "attrs"))

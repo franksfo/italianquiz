@@ -110,7 +110,7 @@
                                                 (if (map? italian)
                                                   (:infinitive (:italian verb)))))]
 
-      [:form {:method "post" :action "/verb/update/"}
+      [:form {:method "post" :action (str "/verb/" verb-id "/update/")}
        [:input {:name "id" 
                 :type "hidden"
                 :value verb-id}]
@@ -165,7 +165,8 @@
     (db/fetch-and-modify :verb 
                          (db/object-id verb)
                          (conj (read-string updated)
-                               extra-stuff-we-add-to-every-verb))))
+                               extra-stuff-we-add-to-every-verb))
+    {:message "updated"}))
 
 (defn validate-new-verb [new]
   ;; TODO: add validation: e.g. check for duplicates, etc.

@@ -757,7 +757,7 @@
         (logged-in-content req identity)
         login-form)
 
-      content))))
+       content))))
       
 ;      [:div {:style "float:left;width:95%;border:1px dashed blue;"}
 ;       [:ul 
@@ -780,6 +780,15 @@
 
       [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}
        (str "can-haz admin:" haz-admin)]
+
+      (if (or true (and request (or true (:result request))))
+        [:div {:style "display:none;width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc;font-family:monospace"}
+         (str request)])
+
+      (if (and request (:query-params request) (get (:query-params request) "result"))
+        [:div {:class "alert"}
+         (get (:query-params request) "result")])
+
 
       [:div#content content])
    request title)))
