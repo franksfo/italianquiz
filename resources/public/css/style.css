@@ -425,3 +425,8 @@ div.code {
     padding:1%;
     width:100%;
 }
+
+textarea {
+    font-family:monospace;
+}
+
