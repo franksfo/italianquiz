@@ -48,7 +48,7 @@
      [:div {:class "major verbs"}
       [:h2 "Verbs"]
 
-      [:h3 (str "haz-admin:" (is-admin-fn))]
+      (if false [:h3 (str "haz-admin:" (is-admin-fn))])
 
       [:table
        [:tr
