@@ -183,11 +183,6 @@
          {:status 303
           :headers {"Location" (str "/login")}}))
 
-  (GET "/verbz/" request
-       {:body (html/page "got here" "got here" request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
   ;; TODO: figure out how to combine destructuring with sending request (which we need for the
   ;; menubar and maybe other things like authorization.
   (GET "/verb/:verb/" request
