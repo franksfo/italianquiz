@@ -1,4 +1,5 @@
 (ns italianverbs.korma
+  (:refer-clojure :exclude [test])
   (:use [korma db core])
   (:require [clj-time.coerce :as c]
             [clj-time.core :as t]
@@ -21,7 +22,7 @@
   (pk :id)
   (entity-fields :english :italian))
 
-(defentity student-test
+(defentity test
   (pk :id)
   (has-many question))
 
@@ -35,7 +36,7 @@
 
 (def key-to-table
   {:verb verb
-   :test student-test
+   :test test
    :tag vgroup})
 
 (defn keyword-to-table [collection-as-key]

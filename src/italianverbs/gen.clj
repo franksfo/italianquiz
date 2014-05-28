@@ -149,8 +149,11 @@
 
          ]
 
-       [:button "Use as new test"]
+        [:div {:style "width:100%;float:left"}
+         [:input {:name "name" :value (str "test:" tag)}]
 
+         [:button "Use as new test"]]
+        
        ]
        ]
 
