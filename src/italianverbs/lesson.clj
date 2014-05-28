@@ -129,7 +129,8 @@
 
 (defn add-to-tag [tag other-params]
   (log/info (str "add-to-tag: " tag))
-  (let [verb (:verb other-params)
+  (log/info (str "other-params: " other-params))
+  (let [verb (get (:form-params other-params) "verb")
         new-verbs (map #(get % :_id)
                        (verb/lookup verb))
         result (first (db/fetch :tag {:_id (db/object-id tag)}))

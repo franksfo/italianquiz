@@ -19,6 +19,7 @@
    [italianverbs.xml :as xml]
    [italianverbs.html :as html]
    [italianverbs.search :as search]
+   [italianverbs.studenttest :as stest]
    [italianverbs.workbook :as workbook]
    [italianverbs.session :as session]
    [italianverbs.quiz :as quiz]
@@ -51,9 +52,10 @@
         :headers {"Location" "/generate"}})
 
   (GET "/generate" request
-       {:body (html/page "Generate" (g/generate (session/request-to-session request) request) request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
+       (friend/authorize #{::admin}
+                         {:body (html/page "Generate" (g/generate (session/request-to-session request) request) request)
+                          :status 200
+                          :headers {"Content-Type" "text/html;charset=utf-8"}}))
 
   (GET "/generate/:tag/" request
        (friend/authorize #{::admin}
@@ -70,48 +72,63 @@
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/lesson/:tag/" request
-       {:body (html/page "Groups" (lesson/show (session/request-to-session request) 
-                                               (:tag (:route-params request))
-                                               (haz-admin)) request)})
-
-  (POST "/lesson/:tag/new" request
-        (let [tag (:tag (:route-params request))]
-          (let [result (lesson/add-to-tag tag request (haz-admin))]
-            {:status 302
-             :headers {"Location" (str "/lesson/" tag "/")}})))
-
-  (POST "/lesson/:tag/delete/:verb" request
-        (let [tag (:tag (:route-params request))
-              verb (:verb (:route-params request))]
-          (let [result (lesson/delete-from-tag tag verb)]
-            {:status 302
-             :headers {"Location" (str "/lesson/" tag "/")}})))
-
-  (POST "/lesson/delete/:tag"
-        [tag]
-        (let [result (lesson/delete tag)]
-          {:status 302
-           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+  (POST "/lesson/delete/:tag" request
+        (friend/authorize #{::admin}
+                          (let [tag (:tag (:route-params request))]
+                            (let [result (lesson/delete tag)]
+                              {:status 302
+                               :headers {"Location" (str "/lesson/?result=" (:message result))}}))))
 
   (GET "/lesson/new" request
-       {:body (html/page "New Groups" (lesson/new (session/request-to-session request) request) request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
+        (friend/authorize #{::admin}
+                          {:status 302
+                           :headers {"Location" "/lession"}}))
 
   (GET "/lesson/new/" request
        {:status 302
         :headers {"Location" "/lesson/new"}})
 
   (POST "/lesson/new" request
-        (let [result (lesson/new (session/request-to-session request) request)]
-          {:status 302
-           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+        (friend/authorize #{::admin}
+                          (let [result (lesson/new (session/request-to-session request) request (haz-admin))]
+                            {:status 302
+                             :headers {"Location" (str "/lesson/?result=" (:message result))}})))
 
   (POST "/lesson/new/" request
-        (let [result (lesson/new (session/request-to-session request) request)]
-          {:status 302
-           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
+        (friend/authorize #{::admin}
+                          (let [result (lesson/new (session/request-to-session request) request)]
+                            {:status 302
+                             :headers {"Location" (str "/lesson/?result=" (:message result))}})))
+
+
+
+  (GET "/lesson/:tag/" request
+       (friend/authorize #{::admin}
+                         {:body (html/page "Groups" (lesson/show (session/request-to-session request) 
+                                                                 (:tag (:route-params request))
+                                                                 (haz-admin)) request)}))
+
+  (POST "/lesson/:tag/delete/:verb" request
+       (friend/authorize #{::admin}
+                         (let [tag (:tag (:route-params request))
+                               verb (:verb (:route-params request))]
+                           (let [result (lesson/delete-from-tag tag verb)]
+                             {:status 302
+                              :headers {"Location" (str "/lesson/" tag "/")}}))))
+
+  (GET "/lesson/:tag/new/" request
+        (friend/authorize #{::admin}
+                          (let [tag (:tag (:route-params request))]
+                            (let [result (lesson/add-to-tag tag request)]
+                              {:status 302
+                               :headers {"Location" (str "/lesson/" tag "/")}}))))
+  (POST "/lesson/:tag/new/" request
+        (friend/authorize #{::admin}
+                          (let [tag (:tag (:route-params request))]
+                            (let [result (lesson/add-to-tag tag request)]
+                              {:status 302
+                               :headers {"Location" (str "/lesson/" tag "/")}}))))
+
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/" request
@@ -134,40 +151,24 @@
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/lesson/:tag/" request
-       {:body (html/page "Groups" (lesson/show (session/request-to-session request) 
-                                               (:tag (:route-params request))) request)})
-
-  (POST "/lesson/:tag/new/" request
-        (let [tag (:tag (:route-params request))]
-          (let [result (lesson/add-to-tag tag request)]
-            {:status 302
-             :headers {"Location" (str "/lesson/" tag "/")}})))
-
-  (POST "/lesson/:tag/delete/:verb/" request
-        (let [tag (:tag (:route-params request))
-              verb (:verb (:route-params request))]
-          (let [result (lesson/delete-from-tag tag verb)]
-            {:status 302
-             :headers {"Location" (str "/lesson/" tag "/")}})))
-
-  (POST "/lesson/delete/:tag" request
-        (let [tag (:tag (:route-params request))
-              result (lesson/delete tag)]
-          {:status 302
-           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
-
-  (POST "/lesson/new/" request
-        (let [result (lesson/new (session/request-to-session request) request)]
-          {:status 302
-           :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/" request
        {:side-effect (session/register request)
         :session (get request :session)
-         :status 302
-         :headers {"Location" "/?msg=set"}})
+        :status 302
+        :headers {"Location" "/?msg=set"}})
+
+  (GET "/test/new/" request
+       (friend/authorize #{::admin}
+                         {:status 302
+                          :headers {"Location" "/"}}))
+  (POST "/test/new/" request
+        (friend/authorize #{::admin}
+                          (let [result (stest/new (session/request-to-session request) request)]
+                            {:status 302
+                             :headers {"Location" (str "/generate/?result=" (:message result))}})))
+
 
   (GET "/verb/" request
        (if-let [identity (friend/identity request)]
@@ -194,15 +195,17 @@
           :status 200}))
 
   (POST "/verb/:verb/delete/" request
-        (let [verb (:verb (:route-params request))]
-          (let [result (verb/delete verb)]
-            {:status 302
-             :headers {"Location" (str "/verb/?result=" (:message result))}})))
+        (friend/authorize #{::admin}
+                          (let [verb (:verb (:route-params request))]
+                            (let [result (verb/delete verb)]
+                              {:status 302
+                               :headers {"Location" (str "/verb/?result=" (:message result))}}))))
 
   (POST "/verb/new/" request
-        (let [result (verb/new (session/request-to-session request) request)]
-          {:status 302
-           :headers {"Location" (str "/verb/?result=" (:message result))}}))
+        (friend/authorize #{::admin}
+                          (let [result (verb/new (session/request-to-session request) request)]
+                            {:status 302
+                             :headers {"Location" (str "/verb/?result=" (:message result))}})))
 
   (POST "/verb/:id/update/" request
         (friend/authorize #{::admin}

@@ -695,9 +695,9 @@
 
 (defn about []
   (h/html5
-   [:div {:class "major"} [:h1 "Welcome to Verbcoach"]
+   [:div {:class "major" :style "width:65%;float:left" } [:h1 "Welcome to Verbcoach"]
 
-    [:div {:style "width:100%;float:left;padding:2em;"}
+    [:div {:style "float:left;padding:1em;"}
      [:p
      
       "This site helps to learn Latin-based languages by \"coaching\" to conjugate verbs."

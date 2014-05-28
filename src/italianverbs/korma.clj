@@ -15,7 +15,15 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare verb vgroup)
+(declare test verb vgroup)
+
+(defentity question
+  (pk :id)
+  (entity-fields :english :italian))
+
+(defentity test
+  (pk :id)
+  (has-many question))
 
 (defentity verb
   (pk :id)
@@ -27,6 +35,7 @@
 
 (def key-to-table
   {:verb verb
+   :test test
    :tag vgroup})
 
 (defn keyword-to-table [collection-as-key]
@@ -187,11 +196,14 @@ on a table."
         (apply (collection collection-update)
                (list modify-with id))))))
 
+;; TODO: document what insert-values is for.
 (def insert-values
   {:verb (fn [add-with]
            {:value (str add-with)})
    :tag (fn [add-with]
-          add-with)})
+          add-with)
+   :test (fn [add-with]
+           add-with)})
 
 (defn insert! [collection & [add-with]]
   "args are collection and map of key/value pairs with which to initialize new row. we simply serialize the map with (str). Any embedded objects will be lost due to serialization, so map should be only of atoms (strings, numbers, etc) or vectors of atoms (vectors of vectors should work too, provided they are eventually atoms at the leaves)"
