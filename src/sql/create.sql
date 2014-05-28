@@ -120,3 +120,23 @@ ALTER SEQUENCE vgroup_id_seq OWNED BY vgroup.id;
 -- PostgreSQL database dump complete
 --
 
+CREATE TABLE test (
+    id bigint NOT NULL,
+    created timestamp without time zone DEFAULT now(),
+    updated timestamp without time zone,
+    name text
+);
+
+ALTER TABLE public.test OWNER TO verbcoach;
+CREATE SEQUENCE test_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.test_id_seq OWNER TO verbcoach;
+ALTER TABLE ONLY test ALTER COLUMN id SET DEFAULT nextval('test_id_seq'::regclass);
+ALTER TABLE ONLY test
+    ADD CONSTRAINT test_pkey PRIMARY KEY (id);
+
+
