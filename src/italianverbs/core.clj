@@ -73,7 +73,7 @@
 
   (GET "/lesson"
        request
-       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
+       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request haz-admin) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -147,7 +147,7 @@
 
   (GET "/lesson"
        request
-       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request) request)
+       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request haz-admin) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 

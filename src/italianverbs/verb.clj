@@ -42,7 +42,8 @@
   (select session request))
 
 (defn select [session request is-admin-fn]
-  (let [script "/* js goes here.. */"]
+  (let [script "/* js goes here.. */"
+        haz-admin (is-admin-fn)]
     (html
      [:div {:class "major verbs"}
       [:h2 "Verbs"]
@@ -56,18 +57,20 @@
         [:th "Verb"]
         [:th "Created"]
         [:th "Changed"]
-        [:th {:class "edit"} "Edit"]]
+        (if haz-admin
+          [:th {:class "edit"} "Edit"])]
        
        (let [results (db/fetch :verb)]
-         (show-as-rows results))
+         (show-as-rows results haz-admin))
        ]
-      (new-verb-form)
+      (if haz-admin
+        (new-verb-form))
       ])))
 
 (def short-format
   (f/formatter "MMM dd, yyyy HH:mm"))
 
-(defn show-as-rows [results]
+(defn show-as-rows [results haz-admin]
   (if (not (empty? results))
     (str (html [:tr
                 [:td ]
@@ -75,11 +78,15 @@
                       (morph/get-italian-1 (:italian (first results)))]]
                 [:td [:span {:class "date"}
                       (f/unparse short-format (:created (first results)))]]
+                
                 [:td [:span {:class "date"}
                       (f/unparse short-format (:updated (first results)))]]
-                [:td {:class "edit"} (delete-form (first results)) ]
+                (if haz-admin
+                  [:td {:class "edit"} (delete-form (first results)) ])
+
+
                 ])
-         (show-as-rows (rest results)))
+         (show-as-rows (rest results) haz-admin))
     ""))
 
 (defn lookup [verb]

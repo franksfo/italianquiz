@@ -49,7 +49,7 @@
     (db/fetch-and-modify :tag (db/object-id tag) {:name (:name result)
                                                   :verbs (remove #(= (db/object-id verb) %) (:verbs result))})))
 
-(defn tr-result [results]
+(defn tr-result [results haz-admin]
   (if (not (empty? results))
     (str (html [:tr 
                 [:td [:a {:href (str "/lesson/" (:_id (first results))"/") } (:name (first results))]]
@@ -57,13 +57,14 @@
                  (if (:verbs (first results))
                    (.size (:verbs (first results)))
                    0)]
-                [:td {:class "edit"}
-                 [:form {:method "post" :action (str "/lesson/delete/" (db/primary-key (first results)))}
-                  [:button {:onclick "submit()"} "delete"]]]])
-         (tr-result (rest results)))
+                (if haz-admin
+                  [:td {:class "edit"}
+                   [:form {:method "post" :action (str "/lesson/delete/" (db/primary-key (first results)))}
+                    [:button {:onclick "submit()"} "delete"]]])])
+         (tr-result (rest results) haz-admin))
     ""))
 
-(defn tr-verbs [tag results]
+(defn tr-verbs [tag results haz-admin]
   (if (not (empty? results))
     (do
       (log/info (str "tr-verbs: id: " (first results)))
@@ -74,14 +75,15 @@
         (str (html [:tr 
                     [:td [:a {:href (str "/verb/" (:_id verb)  "/")   } 
                           (morph/get-italian-1 (:italian verb))]]
-                    [:td {:class "edit"}
-                     [:form {:method "post" :action (str "/lesson/" tag "/delete/" (:_id verb) "/")}
-                      [:input {:type "hidden" :name "tag" :value (db/primary-key (first results))}]
-                    [:button {:onclick "submit()"} "delete"]]]])
-             (tr-verbs tag (rest results)))))
+                    (if (= haz-admin true)
+                      [:td {:class "edit"}
+                       [:form {:method "post" :action (str "/lesson/" tag "/delete/" (:_id verb) "/")}
+                        [:input {:type "hidden" :name "tag" :value (db/primary-key (first results))}]
+                        [:button {:onclick "submit()"} "delete"]]])])
+             (tr-verbs tag (rest results) haz-admin))))
     ""))
 
-(defn show-tags []
+(defn show-tags [haz-admin]
   (let [script "/* js goes here.. */"]
     (html
      [:div {:class "major tag"}
@@ -92,18 +94,20 @@
         [:script script]
         [:th "Name"]
         [:th "Verbs"]
-        [:th {:class "edit"} "Edit"]]
+        (if (= true haz-admin)
+          [:th {:class "edit"} "Edit"])]
        
        (let [results (db/fetch :tag)]
-         (tr-result results))
+         (tr-result results haz-admin))
        
        ]
       (create-a-new-tag)
       ])))
 
-(defn lesson [session request]
-  (html
-   (show-tags)))
+(defn lesson [session request is-admin-fn]
+  (let [haz-admin (is-admin-fn)]
+    (html
+     (show-tags haz-admin))))
 
 (defn tr-lesson [lesson]
   (log/info (str "tr-lesson: " lesson)))
@@ -135,7 +139,7 @@
     (db/fetch-and-modify :tag (db/object-id tag) {:name (:name result)
                                                   :verbs (concat verbs-of-tag new-verbs)})))
 
-(defn show [session tag]
+(defn show [session tag haz-admin]
   (let [script "/* js goes here.. */"
         results (db/fetch :tag {:_id (db/object-id tag)})
         result (first results)]
@@ -150,11 +154,12 @@
         [:th {:class "edit"} "Edit"]]
        
        (log/info (str "show: tag: " result))
-       (tr-verbs tag (:verbs result))
+       (tr-verbs tag (:verbs result) haz-admin)
 
        ]
 
-      (add-a-new-verb tag)
+      (if (= true haz-admin)
+        (add-a-new-verb tag))
 
       ])))
 
@@ -165,7 +170,7 @@
 (defn add-new-tag [tag]
   (db/insert! :tag {:name (normalize-whitespace tag)}))
 
-(defn new [session request]
+(defn new [session request haz-admin]
   (log/debug (str "/lesson/new with request: " (:form-params request)))
 
   (if (get (:form-params request) "tag")
@@ -177,7 +182,7 @@
   (html
    [:div {:class "major"}
     [:h2 [:a {:href "/lesson"} "tags"]]
-    (show-tags)
+    (show-tags haz-admin)
     (create-a-new-tag)
     ]))
 
