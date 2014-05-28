@@ -557,25 +557,28 @@
       [:a {:href "/session/set/"} "Login"]
       )]))
 
-(defn menubar [session-row relative-url roles & [suffixes]]
-  (let [haz-admin (not (nil? (:italianverbs.core/admin roles)))]
+(defn menubar [session-row relative-url authentication & [suffixes]]
+  (let [roles (:roles authentication)
+        haz-admin (not (nil? (:italianverbs.core/admin roles)))]
 
     (log/info (str "Drawing menubar with relative-url=" relative-url))
     (log/info (str "Menubar with suffixes: " suffixes))
     (html
      [:div {:class "menubar major"}
 
-      [:div
-       (if (or (and (not (nil? relative-url))
-                    (re-find #"/verb" relative-url))
-               (= relative-url "/verb")) {:class "selected"})
-       [:a {:href "/verb/"} (str "Verbs")]]
+      (if authentication
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/verb" relative-url))
+                 (= relative-url "/verb")) {:class "selected"})
+         [:a {:href "/verb/"} (str "Verbs")]])
 
-      [:div
-       (if (or (and (not (nil? relative-url))
-                    (re-find #"/lesson" relative-url))
-               (= relative-url "/lesson")) {:class "selected"})
-       [:a {:href "/lesson/"} (str "Groups")]]
+      (if authentication
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/lesson" relative-url))
+                 (= relative-url "/lesson")) {:class "selected"})
+         [:a {:href "/lesson/"} (str "Groups")]])
 
       (if haz-admin
         [:div
@@ -586,11 +589,20 @@
                                         (get suffixes :generate)))}
           (str "Generate")]])
 
+      (if authentication
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/workbook" relative-url))
+                 (= relative-url "/workbook")) {:class "selected"})
+         [:a {:href "/workbook/"} (str "Workbook")]])
+
       [:div
        (if (or (and (not (nil? relative-url))
-                    (re-find #"/workbook" relative-url))
-             (= relative-url "/workbook")) {:class "selected"})
-       [:a {:href "/workbook/"} (str "Workbook")]]
+                    (re-find #"/login" relative-url))
+               (= relative-url "/login")) {:class "selected"})
+
+       [:a {:href "/login"} (str "About")]]
+
 
     ])))
 
@@ -682,7 +694,19 @@
        ]]]]))
 
 (defn about []
-  (footer))
+  (h/html5
+   [:div {:class "major"} [:h1 "Welcome to Verbcoach"]
+
+    [:div {:style "width:100%;float:left;padding:2em;"}
+     [:p
+     
+      "This site helps to learn Latin-based languages by \"coaching\" to conjugate verbs."
+
+      ]]
+
+
+    ]))
+
 
 (defn pretty-head [title]
   [:head 
@@ -709,7 +733,7 @@
    [:title (str title
                 (if (and title (not (= title "")))
                   ": " "")
-                "imparare l'italiano")]])
+                "Verbcoach")]])
 
 (defn pretty-body
   [& content]
@@ -775,7 +799,7 @@
       [:div#top
        (menubar (session/request-to-session request)
                 (if request (get request :uri))
-                (:roles (friend/current-authentication))
+                (friend/current-authentication)
                 (request-to-suffixes request))]
 
 

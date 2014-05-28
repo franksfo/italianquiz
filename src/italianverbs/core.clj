@@ -65,12 +65,12 @@
         :headers {"Location" "/lesson"}})
 
   (GET "/lesson" request
-       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request haz-admin) request)
+       {:body (html/page "Groups" (lesson/lesson (session/request-to-session request) request haz-admin) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/lesson/:tag/" request
-       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) 
+       {:body (html/page "Groups" (lesson/show (session/request-to-session request) 
                                                (:tag (:route-params request))
                                                (haz-admin)) request)})
 
@@ -94,7 +94,7 @@
            :headers {"Location" (str "/lesson/?result=" (:message result))}}))
 
   (GET "/lesson/new" request
-       {:body (html/page "New Lesson" (lesson/new (session/request-to-session request) request) request)
+       {:body (html/page "New Groups" (lesson/new (session/request-to-session request) request) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -129,12 +129,12 @@
         :headers {"Location" "/lesson"}})
 
   (GET "/lesson" request
-       {:body (html/page "Lesson" (lesson/lesson (session/request-to-session request) request haz-admin) request)
+       {:body (html/page "Groups" (lesson/lesson (session/request-to-session request) request haz-admin) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (GET "/lesson/:tag/" request
-       {:body (html/page "Lesson" (lesson/show (session/request-to-session request) 
+       {:body (html/page "Groups" (lesson/show (session/request-to-session request) 
                                                (:tag (:route-params request))) request)})
 
   (POST "/lesson/:tag/new/" request
@@ -169,14 +169,22 @@
          :headers {"Location" "/?msg=set"}})
 
   (GET "/verb/" request
-       {:body (html/page 
+       (if-let [identity (friend/identity request)]
+         {:body (html/page 
                "Verbs" 
 
-               (verb/select (session/request-to-session request) 
-                            request
-                            haz-admin)
-               request)
+                (verb/select (session/request-to-session request) 
+                             request
+                             haz-admin)
+                request)
 
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}}
+         {:status 303
+          :headers {"Location" (str "/login")}}))
+
+  (GET "/verbz/" request
+       {:body (html/page "got here" "got here" request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -251,15 +259,15 @@
 
   (GET "/login" request
        {:status 401
-        :body (html/page "Unauthenticated"
-                         "You tried to do something that required logging in - please do so now."
+        :body (html/page "Unauthenticated: please login or register."
+                         (html/about)
                          request)})
 
   (POST "/login" request
         (resp/redirect "/"))
 
   (GET "/logout" request
-    (friend/logout* (resp/redirect "/")))
+    (friend/logout* (resp/redirect "/login")))
 
   (GET "/requires-authentication" request
     (friend/authenticated
