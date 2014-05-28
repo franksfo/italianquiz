@@ -15,7 +15,7 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare test verb vgroup)
+(declare student-test verb vgroup)
 
 (defentity question
   (pk :id)
