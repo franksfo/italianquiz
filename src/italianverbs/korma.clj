@@ -21,7 +21,7 @@
   (pk :id)
   (entity-fields :english :italian))
 
-(defentity test
+(defentity student-test
   (pk :id)
   (has-many question))
 
@@ -35,7 +35,7 @@
 
 (def key-to-table
   {:verb verb
-   :test test
+   :test student-test
    :tag vgroup})
 
 (defn keyword-to-table [collection-as-key]
