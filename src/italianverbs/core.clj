@@ -185,7 +185,7 @@
   (GET "/verb/:verb/" request
        (let [verb (:verb (:route-params request))]
          {:body (html/page "Verbs"
-                           (verb/select-one verb)
+                           (verb/select-one verb (haz-admin))
                            request)
           :status 200}))
 

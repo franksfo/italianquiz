@@ -7,7 +7,7 @@
    [clj-time.local :as l]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-;   [italianverbs.mongo :as db]
+   [italianverbs.html :as html]
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.morphology :refer (normalize-whitespace)]
@@ -95,7 +95,7 @@
 (defn lookup-by-id [id]
   (first (db/fetch :verb {:_id id})))
 
-(defn select-one [verb]
+(defn select-one [verb haz-admin]
   (log/info (str "LOOKING UP VERB: " verb))
   (let [script "/* js goes here.. */"
         verb-id verb
@@ -110,29 +110,31 @@
                                                 (if (map? italian)
                                                   (:infinitive (:italian verb)))))]
 
-      [:form {:method "post" :action (str "/verb/" verb-id "/update/")}
-       [:input {:name "id" 
-                :type "hidden"
-                :value verb-id}]
+      [:div {:style "float:left; width:95%;"}
+       (html/tablize
+        (reduce #(dissoc %1 %2) verb
+                '(:_id :updated :created)))]
 
-       [:textarea {:name "updated"
-                   :cols "140" 
-                   :rows "30"
-                   }
-        (dissoc
-         (dissoc
-          (dissoc verb :_id)
-          :updated)
-         :created)
+      [:div {:class "code"}
+       (reduce #(dissoc %1 %2) verb
+               '(:_id :updated :created))]
 
+      (if haz-admin
+        [:div {:style "float:left;width:95%"}
+         [:form {:method "post" :action (str "/verb/" verb-id "/update/")}
+          [:input {:name "id" 
+                   :type "hidden"
+                   :value verb-id}]
 
-         ]
+          [:textarea {:name "updated"
+                      :cols "140" 
+                      :rows "30"}
 
-       [:button "Update"]
+           (reduce #(dissoc %1 %2) verb
+                   '(:_id :updated :created))]
 
-       ]]
+          [:button "Update"]]])])))
 
-     )))
 
 (defn fix-english [input-form]
   (if (string? (:english input-form))
