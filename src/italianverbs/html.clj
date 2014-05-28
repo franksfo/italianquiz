@@ -741,8 +741,7 @@
    (into [:div {:class "columns small-12"}] content)])
 
 (defn logged-in-content [req identity]
-  (h/html5
-   [:div {:class "login major" :style "font-size:smaller" }
+  [:div {:class "login major" :style "font-size:smaller" }
 
     [:table {:style "border:0px"}
      [:tr
@@ -760,7 +759,7 @@
                          (-> identity friend/current-authentication :roles)))]]
      ]
     [:div {:style "float:right;"}
-     [:p (e/link-to (str "/" "logout") "Log out") ""]]]))
+     [:p (e/link-to (str "/" "logout") "Log out") ""]]])
 
 (defn get-loggedin-user-roles []
   (-> identity friend/current-authentication :roles))
