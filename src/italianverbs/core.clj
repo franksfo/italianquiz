@@ -218,20 +218,21 @@
                             {:status 302
                              :headers {"Location" (str "/test/" (:message result))}})))
 
-  (GET "/verb/" request
-       (if-let [identity (friend/identity request)]
-         {:body (html/page 
+  (GET "/verb" request
+       {:body (html/page 
                "Verbs" 
-
-                (verb/select (session/request-to-session request) 
-                             request
-                             haz-admin)
-                request)
-
+               
+               (verb/select (session/request-to-session request) 
+                            request
+                            haz-admin)
+               request)
+        
         :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}}
-         {:status 303
-          :headers {"Location" (str "/login")}}))
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  (GET "/verb/" request
+       {:status 302
+        :headers {"Location" "/verb"}})
+
 
   ;; TODO: figure out how to combine destructuring with sending request (which we need for the
   ;; menubar and maybe other things like authorization.

@@ -568,12 +568,11 @@
     (html
      [:div {:class "menubar major"}
 
-      (if authentication
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/verb" relative-url))
-                 (= relative-url "/verb")) {:class "selected"})
-         [:a {:href "/verb/"} (str "Verbs")]])
+      [:div
+       (if (or (and (not (nil? relative-url))
+                    (re-find #"/verb" relative-url))
+               (= relative-url "/verb")) {:class "selected"})
+       [:a {:href "/verb/"} (str "Verbs")]]
 
       (if authentication
         [:div
