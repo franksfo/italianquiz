@@ -8,6 +8,7 @@
                  [compojure "1.1.6"]
                  [congomongo "0.4.4"]
                  [environ "0.2.1"]
+                 [formative "0.8.8"]
                  [hiccup "1.0.1"]
                  [javax.servlet/servlet-api "2.5"]
                  [korma "0.3.0-RC5"]
