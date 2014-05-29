@@ -176,6 +176,20 @@
                          {:status 200
                           :headers {"Content-Type" "text/html;charset=utf-8"}
                           :body (html/page "Tests" (stest/show request haz-admin) request)}))
+  (GET "/test/:id" request
+       (friend/authorize #{::admin}
+                         {:status 200
+                          :headers {"Content-Type" "text/html;charset=utf-8"}
+                          :body (html/page "Tests" (stest/show-one request haz-admin) request)}))
+
+
+  (POST "/test/:id/delete" request
+        (friend/authorize #{::admin}
+                          (let [test (:id (:route-params request))]
+                            (let [result (stest/delete test)]
+                              {:status 302
+                               :headers {"Location" (str "/test?result=" (:message result))}}))))
+
 
   (GET "/test/" request
        (friend/authorize #{::admin}
@@ -286,26 +300,6 @@
         :body (workbook/workbookq (get (get request :query-params) "search")
                                   (get (get request :query-params) "attrs"))
         :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/requires-authentication" request
-    (friend/authenticated
-     (resp/redirect "/")))
-
-  (GET "/role-user" request
-    (friend/authorize #{::user}
-                      {:body (html/page "You're a user." 
-                                        (h/html5
-                                         [:h2
-                                          "You're a user."])
-                                        request)}))
-
-  (GET "/role-admin" request
-    (friend/authorize #{::admin}
-                      {:body (html/page "You're an admin.." 
-                                        (h/html5
-                                         [:h2
-                                          "You're an admin."])
-                                        request)}))
 
   (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
   (route/resources "/")

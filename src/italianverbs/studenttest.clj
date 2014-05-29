@@ -34,19 +34,27 @@
 (defn validate-new-test [new-test]
   true)
 
+(defn delete [id]
+  (db/fetch-and-modify :test (db/object-id id) {} true)
+  {:message "deleted"})
+
 (defn tr [results haz-admin]
   (if (and (not (nil? results)) (not (empty? results)))
     (str (html [:tr 
                 [:td [:a {:href (str "/test/" (:_id (first results))) } (:name (first results))]]
                 (if haz-admin
                   [:td {:class "edit"}
-                   [:form {:method "post" :action (str "/test/delete/" (db/primary-key (first results)))}
+                   [:form {:method "post" :action (str "/test/" (db/primary-key (first results))
+                                                       "/delete")}
                     [:button {:onclick "submit()"} "delete"]]])])
          (tr (rest results) haz-admin))
     ""))
 
 (defn create-a-new-test []
   "create a new test button goes here.")
+
+(defn show-one [request haz-admin]
+  "test..")
 
 (defn show-tests [haz-admin]
   (let [script "/* js goes here.. */"]
