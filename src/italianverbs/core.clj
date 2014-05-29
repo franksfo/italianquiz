@@ -151,6 +151,18 @@
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
+  (GET "/login" request
+       {:status 401
+        :body (html/page "Unauthenticated: please login or register."
+                         (html/about)
+                         request)})
+
+  (POST "/login" request
+        (resp/redirect "/"))
+
+  (GET "/logout" request
+    (friend/logout* (resp/redirect "/login")))
+
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/" request
@@ -159,15 +171,28 @@
         :status 302
         :headers {"Location" "/?msg=set"}})
 
+  (GET "/test" request
+       (friend/authorize #{::admin}
+                         {:status 200
+                          :headers {"Content-Type" "text/html;charset=utf-8"}
+                          :body (html/page "Tests" (stest/show))}))
+
+
+
+  ;; bounced after authentication: would be better to re-submit post if possible.
   (GET "/test/new/" request
        (friend/authorize #{::admin}
                          {:status 302
                           :headers {"Location" "/"}}))
+
   (POST "/test/new/" request
         (friend/authorize #{::admin}
                           (let [result (stest/new (session/request-to-session request) request)]
                             {:status 302
-                             :headers {"Location" (str "/generate/?result=" (:message result))}})))
+                             :headers {"Location" (str "/test/" (:message result))}})))
+
+
+
 
 
   (GET "/verb/" request
@@ -252,21 +277,6 @@
         :body (workbook/workbookq (get (get request :query-params) "search")
                                   (get (get request :query-params) "attrs"))
         :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/test" request
-       (html/page "Test" "Hi there guys" request))
-
-  (GET "/login" request
-       {:status 401
-        :body (html/page "Unauthenticated: please login or register."
-                         (html/about)
-                         request)})
-
-  (POST "/login" request
-        (resp/redirect "/"))
-
-  (GET "/logout" request
-    (friend/logout* (resp/redirect "/login")))
 
   (GET "/requires-authentication" request
     (friend/authenticated
