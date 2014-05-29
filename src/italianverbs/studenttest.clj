@@ -54,7 +54,29 @@
   "create a new test button goes here.")
 
 (defn show-one [request haz-admin]
-  "test..")
+  (let [script "/* js goes here.. */"
+        test-id 5]
+
+    (log/info (str "show-one: request is: " request))
+    (html
+     [:div {:class "major tag"}
+      [:h2 "Tests"]
+
+      [:table
+       [:tr
+        [:script script]
+        [:th]
+        [:th "Italian"]
+        [:th "English"]
+        (if (= true haz-admin)
+          [:th {:class "delete"} "Delete"])]
+       
+       (let [results (list)] ;(db/fetch :question :where {:test test-id})]
+         (tr results haz-admin))
+       ]
+
+      ;; TODO: be able to add new questions (maybe)
+])))
 
 (defn show-tests [haz-admin]
   (let [script "/* js goes here.. */"]
@@ -78,7 +100,6 @@
       (if (= true haz-admin)
         (create-a-new-test))
       ])))
-
 
 (defn show [request haz-admin]
   (html
