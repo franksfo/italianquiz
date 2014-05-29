@@ -110,17 +110,18 @@
                                                 (if (map? italian)
                                                   (:infinitive (:italian verb)))))]
 
-      [:div {:style "float:left; width:95%;"}
+      [:div {:style "float:left; width:95%;margin:0.5em"}
        (html/tablize
         (reduce #(dissoc %1 %2) verb
                 '(:_id :updated :created)))]
 
-      [:div {:class "code"}
+      [:div {:style "float:left; width:95%;margin:0.5em"
+             :class "code"}
        (reduce #(dissoc %1 %2) verb
                '(:_id :updated :created))]
 
       (if haz-admin
-        [:div {:style "float:left;width:95%"}
+        [:div {:style "float:left;width:95%;margin:0.5em"}
          [:form {:method "post" :action (str "/verb/" verb-id "/update/")}
           [:input {:name "id" 
                    :type "hidden"
