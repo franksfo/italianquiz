@@ -557,6 +557,8 @@
       [:a {:href "/session/set/"} "Login"]
       )]))
 
+;; TODO: break (menubar) out into its own namespace since it relates
+;; to a lot of other functionality.
 (defn menubar [session-row relative-url authentication & [suffixes]]
   (let [roles (:roles authentication)
         haz-admin (not (nil? (:italianverbs.core/admin roles)))]
@@ -588,6 +590,17 @@
          [:a {:href (str "/generate/" (if (get suffixes :generate)
                                         (get suffixes :generate)))}
           (str "Generate")]])
+
+      (if haz-admin
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/test" relative-url))
+                 (= relative-url "/test")) {:class "selected"})
+         [:a {:href (str "/test" (if (get suffixes :test)
+                                   (get suffixes :test)))}
+          (str "Tests")]])
+
+
 
       (if authentication
         [:div

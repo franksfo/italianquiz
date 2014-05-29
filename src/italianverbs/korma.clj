@@ -22,7 +22,8 @@
   (pk :id)
   (entity-fields :english :italian))
 
-(defentity test
+(defentity student-test
+  (table :test)
   (pk :id)
   (has-many question))
 
@@ -36,7 +37,7 @@
 
 (def key-to-table
   {:verb verb
-   :test test
+   :test student-test
    :tag vgroup})
 
 (defn keyword-to-table [collection-as-key]
@@ -83,6 +84,9 @@ on a table."
                   (set-fields modify-with)
                   (where {:id id})))})
 
+(defn jdbc2joda [time]
+  (c/from-long (.getTime time)))
+
 (def do-each-row
   ;; return the 'interesting' parts of a row as a map.
   {:verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
@@ -93,7 +97,7 @@ on a table."
 
             ;; .getTime: java.sql.Timestamp -> long
             ;; from-long: long -> Joda DateTime.
-            {:created (c/from-long (.getTime (:created row)))} 
+            {:created (jdbc2joda (:created row))}
 
             (reduce #(dissoc %1 %2) row
                     (list :created :id :value))))
@@ -105,7 +109,15 @@ on a table."
                      []
                      (vec (.getArray (:verbs row))))}
            (dissoc (dissoc row :id)
-                   :verbs)))})
+                   :verbs)))
+
+   :test (fn [row]
+          (merge
+           {:_id (:id row)}
+           {:created (jdbc2joda (:created row))}
+
+           (reduce #(dissoc %1 %2) row
+                   '(:_id :updated :created))))})
 
 ;; http://sqlkorma.com/docs#db
 (def dev (postgres {:db "verbcoach"
@@ -157,7 +169,9 @@ on a table."
         table (keyword-to-table collection)]
     (log/info (str "doing fetch with id: " id))
     (log/info (str "table: " table))
-    (map (collection do-each-row)
+    (if-let [collection-map-function
+             (collection do-each-row)]
+      (map collection-map-function
            (if id
              (let [rows (select table
                                 (where {:id id}))]
@@ -166,7 +180,7 @@ on a table."
                (if (> (.size rows) 1)
                  (log/warn (str "more than one row matched id: " id)))
                rows)
-
+             
              ;; else, id not given: do a select with a where (or not, if no where).
              (do
                (log/info (str "doing a select with where=" the-where))
@@ -178,7 +192,20 @@ on a table."
                            (select table))
                    (select table
                            (where the-where)))
-                 (select table)))))))
+                 (select table)))))
+
+      ;; else,no collection-mapping function.
+      (do
+        (log/warn (str "no collection-mapping function for " collection))
+        (if the-where
+          (if (collection table-to-filter)
+            (filter (fn [row]
+                      ((collection table-to-filter)
+                       row the-where))
+                           (select table))
+            (select table
+                    (where the-where)))
+          (select table))))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."

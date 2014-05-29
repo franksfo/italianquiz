@@ -1,3 +1,4 @@
+;; TODO: s/studenttest/test/
 (ns italianverbs.studenttest
   (:use [hiccup core])
   (:require
@@ -33,9 +34,54 @@
 (defn validate-new-test [new-test]
   true)
 
-(defn show []
-  (html
-   [:div {:class "major tag"}
-    [:h2 "Tests"]
+(defn tr [results haz-admin]
+  (if (and (not (nil? results)) (not (empty? results)))
+    (str (html [:tr 
+                [:td [:a {:href (str "/test/" (:_id (first results))) } (:name (first results))]]
+                (if haz-admin
+                  [:td {:class "edit"}
+                   [:form {:method "post" :action (str "/test/delete/" (db/primary-key (first results)))}
+                    [:button {:onclick "submit()"} "delete"]]])])
+         (tr (rest results) haz-admin))
+    ""))
 
-    "here are the tests.."]))
+(defn create-a-new-test []
+  "create a new test button goes here.")
+
+(defn show-tests [haz-admin]
+  (let [script "/* js goes here.. */"]
+    (html
+     [:div {:class "major tag"}
+      [:h2 "Tests"]
+
+      [:table
+       [:tr
+        [:script script]
+        [:th "Name"]
+        (if (= true haz-admin)
+          [:th {:class "edit"} "Edit"])]
+       
+       (let [results (db/fetch :test)]
+         (if (not (nil? results))
+           (tr results haz-admin)
+           "oops:null results."))
+       
+       ]
+      (if (= true haz-admin)
+        (create-a-new-test))
+      ])))
+
+
+(defn show [request haz-admin]
+  (html
+   [:div {:class "major"}
+    [:h2 "Tests"]
+    [:table
+     [:tr
+      [:th "Name"]
+      (if (= true haz-admin)
+        [:th {:class "edit"} "Edit"])]
+
+     (let [results (db/fetch :test)]
+       (tr results haz-admin))]]))
+

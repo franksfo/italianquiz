@@ -175,25 +175,34 @@
        (friend/authorize #{::admin}
                          {:status 200
                           :headers {"Content-Type" "text/html;charset=utf-8"}
-                          :body (html/page "Tests" (stest/show))}))
+                          :body (html/page "Tests" (stest/show request haz-admin) request)}))
 
+  (GET "/test/" request
+       (friend/authorize #{::admin}
+                         {:status 302
+                          :headers {"Location" "/test"}}))
+
+  (GET "/tests" request
+       (friend/authorize #{::admin}
+                         {:status 302
+                          :headers {"Location" "/test"}}))
+  (GET "/tests/" request
+       (friend/authorize #{::admin}
+                         {:status 302
+                          :headers {"Location" "/test"}}))
 
 
   ;; bounced after authentication: would be better to re-submit post if possible.
   (GET "/test/new/" request
        (friend/authorize #{::admin}
                          {:status 302
-                          :headers {"Location" "/"}}))
+                          :headers {"Location" "/test"}}))
 
   (POST "/test/new/" request
         (friend/authorize #{::admin}
                           (let [result (stest/new (session/request-to-session request) request)]
                             {:status 302
                              :headers {"Location" (str "/test/" (:message result))}})))
-
-
-
-
 
   (GET "/verb/" request
        (if-let [identity (friend/identity request)]

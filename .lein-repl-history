@@ -1,1 +1,11 @@
 (require 'helloworld.web)
+(load "src/italianverbs/studenttest")
+(load "src/italianverbs/studenttest.clj")
+(load "italianverbs/studenttest")
+(in-ns 'italianverbs.studenttest)
+(load "italianverbs/studenttest")
+(load "studenttest")
+insert-new-test
+(fetch :test)
+(db/fetch :test)
+(.printStackTrace *e)
