@@ -12,7 +12,7 @@
 
 (defn insert-new-test [test-params]
   "new-test should be a string."
-  (let [new-test (:name test-params)]
+  (let [new-test (get test-params "name")]
     (if (validate-new-test new-test)
       ;; new-verb checks out ok: add it to DB.
       (do (log/info (str "Adding validated candidate test: " new-test))
@@ -24,8 +24,7 @@
 
 (defn new [session request]
   (log/debug (str "/studenttest/new with request: " (:form-params request)))
-;  (insert-new-test (:form-params request))
-  (insert-new-test {:name "hello"})
+  (insert-new-test (:form-params request))
   {:message "Not doing anything yet."})
 
 (defn validate-new-test [new-test]
