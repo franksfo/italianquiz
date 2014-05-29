@@ -116,9 +116,6 @@ ALTER SEQUENCE verb_id_seq OWNED BY verb.id;
 --
 
 ALTER SEQUENCE vgroup_id_seq OWNED BY vgroup.id;
---
--- PostgreSQL database dump complete
---
 
 CREATE TABLE test (
     id bigint NOT NULL,
@@ -138,5 +135,26 @@ ALTER TABLE public.test_id_seq OWNER TO verbcoach;
 ALTER TABLE ONLY test ALTER COLUMN id SET DEFAULT nextval('test_id_seq'::regclass);
 ALTER TABLE ONLY test
     ADD CONSTRAINT test_pkey PRIMARY KEY (id);
+
+CREATE TABLE question (
+    created timestamp without time zone DEFAULT now(),
+    english text,
+    id bigint NOT NULL,
+    italian text,
+    test bigint REFERENCES test(id),
+    updated timestamp without time zone
+);
+
+ALTER TABLE public.question OWNER TO verbcoach;
+CREATE SEQUENCE question_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.question_id_seq OWNER TO verbcoach;
+ALTER TABLE ONLY question ALTER COLUMN id SET DEFAULT nextval('question_id_seq'::regclass);
+ALTER TABLE ONLY question
+    ADD CONSTRAINT question_pkey PRIMARY KEY (id);
 
 

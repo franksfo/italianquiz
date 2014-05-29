@@ -16,7 +16,7 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare student-test verb vgroup)
+(declare student-test question verb vgroup)
 
 (defentity question
   (pk :id)
@@ -36,9 +36,10 @@
   (has-many verb))
 
 (def key-to-table
-  {:verb verb
-   :test student-test
-   :tag vgroup})
+  {:question question
+   :verb verb
+   :tag vgroup
+   :test student-test})
 
 (defn keyword-to-table [collection-as-key]
   "Map a keyword representing a collection to a PostgreSQL table. In the future, a collection
@@ -47,12 +48,6 @@ on a table."
   (let [table (key-to-table collection-as-key)]
     (if table table
         (throw (.Exception "don't know what table this collection is: " collection-as-key)))))
-
-(def table-to-where
-  {:verb (fn [the-map]
-           {:value (str the-map)})
-   :tag (fn [the-map]
-             the-map)})
 
 (def collection-update
   {:verb (fn [modify-with id]
@@ -89,18 +84,16 @@ on a table."
 
 (def do-each-row
   ;; return the 'interesting' parts of a row as a map.
-  {:verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
-           ;; merge with the other non-:value columns, and underscore the id.
-           (merge
-            (read-string (:value row))
-            {:_id (:id row)}
+  ;; TODO: add a default to be used if no matching key in this map.
+  {
 
-            ;; .getTime: java.sql.Timestamp -> long
-            ;; from-long: long -> Joda DateTime.
-            {:created (jdbc2joda (:created row))}
-
-            (reduce #(dissoc %1 %2) row
-                    (list :created :id :value))))
+   :question (fn [row]
+               (merge
+                {:created (jdbc2joda (:created row))}
+                {:_id (:id row)}
+                {:updated (jdbc2joda (:updated row))}
+                (reduce #(dissoc %1 %2) row
+                        '(:_id :updated :created))))
 
    :tag (fn [row] ;; for the vgroup table, it's simpler: simply convert :id to :_id.
           (merge
@@ -117,7 +110,21 @@ on a table."
            {:created (jdbc2joda (:created row))}
 
            (reduce #(dissoc %1 %2) row
-                   '(:_id :updated :created))))})
+                   '(:_id :updated :created))))
+
+   :verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
+           ;; merge with the other non-:value columns, and underscore the id.
+           (merge
+            (read-string (:value row))
+            {:_id (:id row)}
+
+            ;; .getTime: java.sql.Timestamp -> long
+            ;; from-long: long -> Joda DateTime.
+            {:created (jdbc2joda (:created row))}
+
+            (reduce #(dissoc %1 %2) row
+                    (list :created :id :value))))})
+
 
 ;; http://sqlkorma.com/docs#db
 (def dev (postgres {:db "verbcoach"
