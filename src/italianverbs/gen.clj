@@ -45,8 +45,9 @@
                  [:equal [:password :password-confirm]]
                  [:min-length 2 :flavors "select two or more flavors"]
                  [:complete :location]]
-   :validator validate-upload
-   :enctype "multipart/form-data"})
+   :action "/test/newdebug"
+   :validator validate-upload})
+
 
 (defn show-demo-form [params & {:keys [problems]}]
   (let [now (java.util.Date.)

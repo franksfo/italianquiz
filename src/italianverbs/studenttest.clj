@@ -28,8 +28,13 @@
 
 (defn new [session request]
   (log/debug (str "/studenttest/new with request: " (:form-params request)))
-  (let [new-test (insert-new-test (:form-params request))]
-    {:message (:id new-test)}))
+  [:div
+   [:h2 "REQUEST"]
+   [:div {:style "font-family:monospace"}
+    (:form-params request)]])
+            
+;  (let [new-test (insert-new-test (:form-params request))]
+;    {:message (:id new-test)}))
 
 (defn validate-new-test [new-test]
   true)

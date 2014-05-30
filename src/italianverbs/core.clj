@@ -218,6 +218,13 @@
                          {:status 302
                           :headers {"Location" "/test"}}))
 
+  (POST "/test/newdebug" request
+        (friend/authorize #{::admin}
+                          (let [result (stest/new (session/request-to-session request) request)]
+                            {:status 200
+                             :headers {"Content-Type" "text/html;charset=utf-8"}
+                             :body (html/page "Tests" result request)})))
+
   (POST "/test/new/" request
         (friend/authorize #{::admin}
                           (let [result (stest/new (session/request-to-session request) request)]
