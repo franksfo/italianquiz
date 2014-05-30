@@ -62,11 +62,6 @@
   (h/html5
     [:head
      [:title "Formative Demo"]
-     ;; TODO: bootstrap 3
-     (if (#{:bootstrap3-stacked :bootstrap3-horizontal} (:renderer opts))
-       (h/include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
-       (h/include-css "//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/css/bootstrap.min.css"))
-     (h/include-css "//google-code-prettify.googlecode.com/svn/trunk/src/prettify.css")
      [:style
       "body { margin: 2em; }"
       "h1 { margin-bottom: 20px; }"
