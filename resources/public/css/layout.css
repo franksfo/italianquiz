@@ -253,6 +253,7 @@ div.respond {
 }
 
 div.login {
+    font-size:smaller;
     text-align:right;
     padding:3px;
     margin:0;

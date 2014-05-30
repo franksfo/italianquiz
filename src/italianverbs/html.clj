@@ -775,12 +775,12 @@
    (into [:div {:class "columns small-12"}] content)])
 
 (defn logged-in-content [req identity]
-  [:div {:class "login major" :style "font-size:smaller" }
+  [:div {:class "login major"}
 
     [:table {:style "border:0px"}
      [:tr
       [:th
-       (str "Username")]
+       (str "User")]
       [:td
        (:current identity)]
       [:th
@@ -797,9 +797,11 @@
 (def login-form
   [:div {:class "login major"}
    [:form {:method "POST" :action "/login"}
-    [:div "Username" [:input {:type "text" :name "username" :size "10"}]]
-    [:div "Password" [:input {:type "password" :name "password" :size "10"}]]
-    [:div [:input {:type "submit" :class "button" :value "Login"}]]]])
+    [:table
+     [:tr
+      [:th "User"][:td [:input {:type "text" :name "username" :size "10"}]]
+      [:th "Password"][:td [:input {:type "password" :name "password" :size "10"}]]
+      [:td [:input {:type "submit" :class "button" :value "Login"}]]]]]])
 
 (defn page-body [content req & [ title ]]
   (let [title (if title title "default page title")]
