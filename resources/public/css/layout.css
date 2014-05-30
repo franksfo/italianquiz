@@ -45,6 +45,10 @@ div#content {
     margin:0;
 }
 
+div#content > div {
+    width:99%;
+}
+
 div.poweredbox {
     float:left;
     white-space:nowrap;

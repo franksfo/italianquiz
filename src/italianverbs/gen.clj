@@ -5,6 +5,7 @@
    [clojure.tools.logging :as log]
    [formative.core :as f]
    [formative.parse :as fp]
+   [hiccup.page :as h]
    [italianverbs.grammar :refer (s-present)]
    [italianverbs.html :as html]
    [italianverbs.lesson :as lesson]
@@ -13,6 +14,90 @@
    [italianverbs.unify :refer (unifyc)]
    [italianverbs.verb :as verb]
    [italianverbs.korma :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
+
+(defn validate-upload [values]
+  (let [filename (not-empty (get-in values [:picture "filename"]))]
+    (when (and filename (not (re-find #"\.jpg$" filename)))
+      {:keys [:picture] :msg "JPG files only"})))
+
+;; starting with https://github.com/jkk/formative-demo/blob/master/src/formative_demo/web.clj#L14
+;; and removing stuff.
+(def demo-form
+  {:fields [{:name :h1 :type :heading :text "Section 1"}
+            {:name :full-name}
+            {:name "user[email]" :type :email}
+            {:name :spam :type :checkbox :label "Yes, please spam me."}
+            {:name :password :type :password}
+            {:name :password-confirm :type :password}
+            {:name :h2 :type :heading :text "Section 2"}
+            {:name :note :type :html
+             :html [:div.alert.alert-info "Please make note of this note."]}
+            {:name :date :type :date-select}
+            {:name :time :type :time-select}
+            {:name :flavors :type :checkboxes
+             :options ["Chocolate" "Vanilla" "Strawberry" "Mint"]}
+            {:name :location :type :compound
+             :fields [{:name :city :placeholder "City" :class "input-medium"}
+                      {:name :state :type :us-state :placeholder "Select a state"}]}
+            {:name :picture :type :file :title "Choose a file"}]
+   :validations [[:required [:full-name "user[email]" :password]]
+                 [:min-length 4 :password]
+                 [:equal [:password :password-confirm]]
+                 [:min-length 2 :flavors "select two or more flavors"]
+                 [:complete :location]]
+   :validator validate-upload
+   :enctype "multipart/form-data"})
+
+(defn show-demo-form [params & {:keys [problems]}]
+  (let [now (java.util.Date.)
+        defaults {:spam true
+                  :date now
+                  :time now}]
+    (f/render-form (assoc demo-form
+                     :values (merge defaults params)
+                     :problems problems))))
+
+
+(defn layout [opts & body]
+  (h/html5
+    [:head
+     [:title "Formative Demo"]
+     ;; TODO: bootstrap 3
+     (if (#{:bootstrap3-stacked :bootstrap3-horizontal} (:renderer opts))
+       (h/include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
+       (h/include-css "//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/css/bootstrap.min.css"))
+     (h/include-css "//google-code-prettify.googlecode.com/svn/trunk/src/prettify.css")
+     [:style
+      "body { margin: 2em; }"
+      "h1 { margin-bottom: 20px; }"
+      ".form-horizontal .field-group { margin-bottom: 10px; }"
+      ".well form, .well .field-group { margin-bottom: 0; }"
+      ".nav-tabs { margin-top: 20px; margin-bottom: 20px; }"
+      ".heading-row h3 { margin-bottom: 5px; }"
+      ".form-table { width: 100%; }"
+      ".form-table th { text-align: left; }"
+      ".form-table h3 { border-bottom: 1px solid #ddd; }"
+      ".form-table .label-cell { vertical-align: top; text-align: right; padding-right: 10px; padding-top: 10px; }"
+      ".form-table td { vertical-align: top; padding-top: 5px; }"
+      ".form-table .checkbox-row label { display: inline; margin-left: 5px; }"
+      ".form-table .checkbox-row .input-shell { margin-bottom: 10px; }"
+      ".form-table .submit-row th, .form-table .submit-row td { padding: 30px 0; }"
+      ".form-table .problem th, .form-table .problem td { color: #b94a48; background: #fee; }"]]
+    [:body {:onload "prettyPrint()"}
+     body]
+    (h/include-js "//google-code-prettify.googlecode.com/svn/trunk/src/prettify.js")
+    (h/include-js "//google-code-prettify.googlecode.com/svn/trunk/src/lang-clj.js")
+    #_(h/include-js "/js/goog/base.js")
+    (h/include-js "/js/main.js")
+    #_"<script type=\"text/javascript\">goog.require('formative_demo.main');</script>"))
+
+(defn submit-demo-form [params]
+  (fp/with-fallback #(show-demo-form params :problems %)
+    (let [values (fp/parse-params demo-form params)]
+      (layout
+        [:h1 "Thank you!"]
+        [:pre (prn-str values)]))))
+
 
 (defn tr-result [results]
   (if (not (empty? results))
@@ -130,10 +215,26 @@
         times 5
         sentences (take times (repeatedly #(let [verb (first (take 1 (shuffle verbs)))]
                                              {:verb verb
-                                              :sentence (generate-sentence verb)})))]
+                                              :sentence (generate-sentence verb)})))
+        
+        renderer :bootstrap-horizontal
+        now (java.util.Date.)
+        defaults {:spam true
+                  :date now
+                  :time now}
+
+        params {}
+        problems {}
+        
+        ]
     (html
      [:div {:class "major"}
       [:h2 [:a {:href "/generate/" }"Generate"] " &raquo; " [:a {:href (str "/generate/" tag-id "/")} tag]]
+
+       (f/render-form (assoc demo-form
+                             :renderer renderer
+                             :values (merge defaults params)
+                             :problems problems))
 
       [:div {:style "float:left;width:95%"}
 

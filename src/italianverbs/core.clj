@@ -47,6 +47,12 @@
        {:status 302
         :headers {"Location" "/verb/"}})
 
+  (GET "/about" request
+       {:status 200
+        :body (html/page "Welcome to Verbcoach"
+                         (html/about)
+                         request)})
+
   (GET "/generate/" request
        {:status 302
         :headers {"Location" "/generate"}})

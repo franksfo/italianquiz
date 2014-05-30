@@ -9,7 +9,6 @@
    [clojure.tools.logging :as log]
    [hiccup.element :as e]
    [hiccup.page :as h]
-;   [italianverbs.core :as core]
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
 
@@ -53,6 +52,11 @@
      (include-css "resources/public/css/fs.css")
      (include-css "resources/public/css/layout.css")
      (include-css "resources/public/css/quiz.css")
+
+     (h/include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
+     (h/include-css "//google-code-prettify.googlecode.com/svn/trunk/src/prettify.css")
+
+
      ]
 
 
@@ -568,6 +572,18 @@
     (html
      [:div {:class "menubar major"}
 
+
+      [:div
+       (if (or (and (not (nil? relative-url))
+                    (re-find #"/login" relative-url))
+               (= relative-url "/login")
+               (and (not (nil? relative-url))
+                    (re-find #"/about" relative-url))
+               (= relative-url "/about"))
+
+         {:class "selected"})
+       [:a {:href "/about"} (str "About")]]
+
       [:div
        (if (or (and (not (nil? relative-url))
                     (re-find #"/verb" relative-url))
@@ -607,13 +623,6 @@
                       (re-find #"/workbook" relative-url))
                  (= relative-url "/workbook")) {:class "selected"})
          [:a {:href "/workbook/"} (str "Workbook")]])
-
-      [:div
-       (if (or (and (not (nil? relative-url))
-                    (re-find #"/login" relative-url))
-               (= relative-url "/login")) {:class "selected"})
-
-       [:a {:href "/login"} (str "About")]]
 
 
     ])))
@@ -706,18 +715,15 @@
        ]]]]))
 
 (defn about []
-  (h/html5
-   [:div {:class "major" :style "width:65%;float:left" } [:h1 "Welcome to Verbcoach"]
+   [:div {:class "major"} [:h2 "Welcome to Verbcoach."]
 
-    [:div {:style "float:left;padding:1em;"}
+    [:div
      [:p
      
       "This site helps to learn Latin-based languages by \"coaching\" to conjugate verbs."
 
       ]]
-
-
-    ]))
+    ])
 
 
 (defn pretty-head [title]
@@ -820,7 +826,6 @@
       (if (and request (:query-params request) (get (:query-params request) "result"))
         [:div {:class "fadeout"}
          (get (:query-params request) "result")])
-
 
       [:div#content content])
    request title)))
