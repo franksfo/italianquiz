@@ -11,43 +11,14 @@
    [italianverbs.lesson :as lesson]
    [italianverbs.morphology :refer (fo get-italian-1 get-english-1)]
    [italianverbs.over :refer (over)]
+   [italianverbs.studenttest :as stest]
    [italianverbs.unify :refer (unifyc)]
    [italianverbs.verb :as verb]
    [italianverbs.korma :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
 
-(defn validate-upload [values]
-  (let [filename (not-empty (get-in values [:picture "filename"]))]
-    (when (and filename (not (re-find #"\.jpg$" filename)))
-      {:keys [:picture] :msg "JPG files only"})))
-
 ;; starting with https://github.com/jkk/formative-demo/blob/master/src/formative_demo/web.clj#L14
 ;; and removing stuff.
-(def demo-form
-  {:fields [{:name :h1 :type :heading :text "Section 1"}
-            {:name :full-name}
-            {:name "user[email]" :type :email}
-            {:name :spam :type :checkbox :label "Yes, please spam me."}
-            {:name :password :type :password}
-            {:name :password-confirm :type :password}
-            {:name :h2 :type :heading :text "Section 2"}
-            {:name :note :type :html
-             :html [:div.alert.alert-info "Please make note of this note."]}
-            {:name :date :type :date-select}
-            {:name :time :type :time-select}
-            {:name :flavors :type :checkboxes
-             :options ["Chocolate" "Vanilla" "Strawberry" "Mint"]}
-            {:name :location :type :compound
-             :fields [{:name :city :placeholder "City" :class "input-medium"}
-                      {:name :state :type :us-state :placeholder "Select a state"}]}
-            {:name :picture :type :file :title "Choose a file"}]
-   :validations [[:required [:full-name "user[email]" :password]]
-                 [:min-length 4 :password]
-                 [:equal [:password :password-confirm]]
-                 [:min-length 2 :flavors "select two or more flavors"]
-                 [:complete :location]]
-   :action "/test/newdebug"
-   :validator validate-upload})
-
+(def demo-form stest/demo-form)
 
 (defn show-demo-form [params & {:keys [problems]}]
   (let [now (java.util.Date.)
