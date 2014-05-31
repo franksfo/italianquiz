@@ -125,8 +125,10 @@
     (let [question (first questions)]
       (html [:tr 
              [:th (:index question)]
-             [:td (:italian question)]
              [:td (:english question)]
+             (if haz-admin
+               [:td (:italian question)]
+               [:td [:input]])
              (if haz-admin
                [:td {:class "edit"}
                 [:form {:method "post" :action (str "/question/" (db/primary-key (first questions))
@@ -156,14 +158,19 @@
          [:tr
           [:script script]
           [:th]
-          [:th "Italian"]
           [:th "English"]
+          [:th "Italian"]
           (if (= true haz-admin)
             [:th {:class "delete"} "Delete"])]
        
          (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
            (tr-questions questions-for-test test-id haz-admin))
          ]
+
+        (if (not (= true haz-admin))
+          [:div {:style "float:left;width:90%;margin:0.5em"}
+           [:input {:type "submit"}]])
+
       ;; TODO: be able to add new questions (maybe)
 ]))))
 

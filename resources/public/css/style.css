@@ -434,3 +434,7 @@ table.studenttest td {
     padding-left:0.25em;
     padding-right:0.25em;
 }
+
+th.delete {
+    text-align:center;
+}
