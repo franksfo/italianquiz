@@ -74,7 +74,7 @@
         :headers {"Location" "/lesson"}})
 
   (GET "/lesson" request
-       {:body (html/page "Groups" (lesson/lesson (session/request-to-session request) request haz-admin) request)
+       {:body (html/page "Groups" (lesson/lesson (session/request-to-session request) request (haz-admin)) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -153,7 +153,7 @@
         :headers {"Location" "/lesson"}})
 
   (GET "/lesson" request
-       {:body (html/page "Groups" (lesson/lesson (session/request-to-session request) request haz-admin) request)
+       {:body (html/page "Groups" (lesson/lesson (session/request-to-session request) request (haz-admin)) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -188,16 +188,15 @@
         :headers {"Location" "/?msg=set"}})
 
   (GET "/test" request
-       (friend/authorize #{::admin}
-                         {:status 200
-                          :headers {"Content-Type" "text/html;charset=utf-8"}
-                          :body (html/page "Tests" (stest/show request haz-admin) request)}))
+       {:status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}
+        :body (html/page "Tests" (stest/show request (haz-admin)) request)})
+
   (GET "/test/:id" request
-       (friend/authorize #{::admin}
-                         (let [test (:id (:route-params request))]
-                           {:status 200
-                            :headers {"Content-Type" "text/html;charset=utf-8"}
-                            :body (html/page "Tests" (stest/show-one test haz-admin) request)})))
+       (let [test (:id (:route-params request))]
+         {:status 200
+          :headers {"Content-Type" "text/html;charset=utf-8"}
+          :body (html/page "Tests" (stest/show-one test (haz-admin)) request)}))
 
 
   (POST "/test/:id/delete" request
@@ -249,7 +248,7 @@
                
                (verb/select (session/request-to-session request) 
                             request
-                            haz-admin)
+                            (haz-admin))
                request)
         
         :status 200
@@ -273,7 +272,7 @@
                           (let [verb (:verb (:route-params request))]
                             (let [result (verb/delete verb)]
                               {:status 302
-                               :headers {"Location" (str "/verb/?result=" (:message result))}}))))
+                               :headers {"Location" (str "/verb?result=" (:message result))}}))))
 
   (POST "/verb/new/" request
         (friend/authorize #{::admin}

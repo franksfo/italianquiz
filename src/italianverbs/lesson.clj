@@ -105,10 +105,9 @@
         (create-a-new-tag))
       ])))
 
-(defn lesson [session request is-admin-fn]
-  (let [haz-admin (is-admin-fn)]
-    (html
-     (show-tags haz-admin))))
+(defn lesson [session request haz-admin]
+  (html
+   (show-tags haz-admin)))
 
 (defn tr-lesson [lesson]
   (log/info (str "tr-lesson: " lesson)))

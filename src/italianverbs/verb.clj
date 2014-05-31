@@ -41,14 +41,11 @@
   ;; TODO: ..append result code to request.
   (select session request))
 
-(defn select [session request is-admin-fn]
-  (let [script "/* js goes here.. */"
-        haz-admin (is-admin-fn)]
+(defn select [session request haz-admin]
+  (let [script "/* js goes here.. */"]
     (html
      [:div {:class "major verbs"}
       [:h2 "Verbs"]
-
-      (if false [:h3 (str "haz-admin:" (is-admin-fn))])
 
       [:table
        [:tr

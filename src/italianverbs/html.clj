@@ -606,14 +606,13 @@
                                         (get suffixes :generate)))}
           (str "Generate")]])
 
-      (if haz-admin
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/test" relative-url))
+      [:div
+       (if (or (and (not (nil? relative-url))
+                    (re-find #"/test" relative-url))
                  (= relative-url "/test")) {:class "selected"})
-         [:a {:href (str "/test" (if (get suffixes :test)
-                                   (get suffixes :test)))}
-          (str "Tests")]])
+       [:a {:href (str "/test" (if (get suffixes :test)
+                                 (get suffixes :test)))}
+        (str "Tests")]]
 
 
 
