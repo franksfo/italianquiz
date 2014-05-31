@@ -109,10 +109,9 @@
 
 
   (GET "/lesson/:tag/" request
-       (friend/authorize #{::admin}
-                         {:body (html/page "Groups" (lesson/show (session/request-to-session request) 
-                                                                 (:tag (:route-params request))
-                                                                 (haz-admin)) request)}))
+       {:body (html/page "Groups" (lesson/show (session/request-to-session request) 
+                                               (:tag (:route-params request))
+                                               (haz-admin)) request)})
 
   (POST "/lesson/:tag/delete/:verb" request
        (friend/authorize #{::admin}
