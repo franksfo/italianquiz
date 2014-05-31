@@ -73,17 +73,8 @@
 (defn validate-new-test [new-test]
   true)
 
-(defn delete [id]
-  (try
-    (do
-      (db/fetch-and-modify :test (db/object-id id) {} true)
-      {:message "deleted"})
-    (catch Exception e
-      (do
-        (log/error (str "caught exception when trying to delete test: " id " : " e))
-        {:message "delete failed - see log for exception."}))))
-
 (defn delete-question [id]
+  (log/info (str "WTF TYRING TO DELET QUESTION : " id))
   (try
     (do
       (db/fetch-and-modify :question (db/object-id id) {} true)
@@ -93,23 +84,47 @@
         (log/error (str "caught exception when trying to delete question: " id " : " e))
         {:message "delete failed - see log for exception."}))))
 
-(defn tr [results haz-admin]
+(defn delete-questions [seq]
+  (if (not (empty? seq))
+    (let [question (first seq)]
+      (let [qid (:_id question)]
+        (log/info (str "DELETING QUESTION: " qid))
+        (delete-question qid)
+        (delete-questions (rest seq))))))
+      
+(defn delete [test-id]
+  (try
+    (do
+      ;; delete all questions for this test first..
+      (log/info (str "DELETING QUESTIONS FOR TEST: " test-id))
+      (log/info (str "THESE QUESTIONS ARE: " (db/fetch :question {:test (Integer. test-id)})))
+      (delete-questions (db/fetch :question {:test (Integer. test-id)}))
+      ;; .. then delete the test itself.
+      (db/fetch-and-modify :test (db/object-id test-id) {} true)
+      {:message "deleted"})
+    (catch Exception e
+      (do
+        (log/error (str "caught exception when trying to delete test: " test-id " : " e))
+        {:message "delete failed - see log for exception."}))))
+
+(defn tr [results haz-admin index]
   (if (and (not (nil? results)) (not (empty? results)))
-    (str (html [:tr 
+    (str (html [:tr
+                [:th index]
                 [:td [:a {:href (str "/test/" (:_id (first results))) } (:name (first results))]]
-                (if haz-admin
+                (if (= true haz-admin)
                   [:td {:class "edit"}
                    [:form {:method "post" :action (str "/test/" (db/primary-key (first results))
                                                        "/delete")}
                     [:button {:onclick "submit()"} "delete"]]])])
-         (tr (rest results) haz-admin))
+         (tr (rest results) haz-admin (+ 1 index)))
     ""))
 
 (defn tr-questions [questions test-id haz-admin]
   (if (and (not (nil? questions)) (not (empty? questions)))
     (let [question (first questions)]
       (html [:tr 
-             [:td (:index question)]
+             [:th (:index question)]
              [:td (:italian question)]
              [:td (:english question)]
              (if haz-admin
@@ -152,39 +167,17 @@
       ;; TODO: be able to add new questions (maybe)
 ]))))
 
-(defn show-tests [haz-admin]
-  (let [script "/* js goes here.. */"]
-    (html
-     [:div {:class "major tag"}
-      [:h2 "Tests"]
-
-      [:table
-       [:tr
-        [:script script]
-        [:th "Name"]
-        (if (= true haz-admin)
-          [:th {:class "edit"} "Edit"])]
-       
-       (let [results (db/fetch :test)]
-         (if (not (nil? results))
-           (tr results haz-admin)
-           "oops:null results."))
-       
-       ]
-      (if (= true haz-admin)
-        (create-a-new-test))
-      ])))
-
 (defn show [request haz-admin]
   (html
    [:div {:class "major"}
     [:h2 "Tests"]
     [:table
      [:tr
+      [:th]
       [:th "Name"]
       (if (= true haz-admin)
         [:th {:class "edit"} "Edit"])]
 
      (let [results (db/fetch :test)]
-       (tr results haz-admin))]]))
+       (tr results haz-admin 1))]]))
 
