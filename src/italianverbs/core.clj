@@ -170,6 +170,16 @@
     (friend/logout* (resp/redirect "/login")))
 
 
+  (POST "/question/:id/delete" request
+        (friend/authorize #{::admin}
+                          (let [question (:id (:route-params request))
+                                debug (log/info (str "THE REQUEST IS: " request))
+                                test (get (:form-params request) "test")]
+                            (let [result (stest/delete-question question)]
+                              {:status 302
+                               :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
+
+
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/" request
        {:side-effect (session/register request)
@@ -184,9 +194,10 @@
                           :body (html/page "Tests" (stest/show request haz-admin) request)}))
   (GET "/test/:id" request
        (friend/authorize #{::admin}
-                         {:status 200
-                          :headers {"Content-Type" "text/html;charset=utf-8"}
-                          :body (html/page "Tests" (stest/show-one request haz-admin) request)}))
+                         (let [test (:id (:route-params request))]
+                           {:status 200
+                            :headers {"Content-Type" "text/html;charset=utf-8"}
+                            :body (html/page "Tests" (stest/show-one test haz-admin) request)})))
 
 
   (POST "/test/:id/delete" request
@@ -195,7 +206,6 @@
                             (let [result (stest/delete test)]
                               {:status 302
                                :headers {"Location" (str "/test?result=" (:message result))}}))))
-
 
   (GET "/test/" request
        (friend/authorize #{::admin}
@@ -213,23 +223,25 @@
 
 
   ;; bounced after authentication: would be better to re-submit post if possible.
+  (GET "/test/new" request
+       (friend/authorize #{::admin}
+                         {:status 302
+                          :headers {"Location" "/test"}}))
   (GET "/test/new/" request
        (friend/authorize #{::admin}
                          {:status 302
                           :headers {"Location" "/test"}}))
 
-  (POST "/test/newdebug" request
+  (POST "/test/new" request
         (friend/authorize #{::admin}
-                          (let [result (stest/new (session/request-to-session request) request)]
-                            {:status 200
-                             :headers {"Content-Type" "text/html;charset=utf-8"}
-                             :body (html/page "Tests" result request)})))
-
+                          (let [new-test (stest/new (session/request-to-session request) request)]
+                            {:status 302
+                             :headers {"Location" (str "/test/" new-test)}})))
   (POST "/test/new/" request
         (friend/authorize #{::admin}
-                          (let [result (stest/new (session/request-to-session request) request)]
+                          (let [new-test (stest/new (session/request-to-session request) request)]
                             {:status 302
-                             :headers {"Location" (str "/test/" (:message result))}})))
+                             :headers {"Location" (str "/test/" new-test)}})))
 
   (GET "/verb" request
        {:body (html/page 

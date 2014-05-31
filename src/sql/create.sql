@@ -157,4 +157,6 @@ ALTER TABLE ONLY question ALTER COLUMN id SET DEFAULT nextval('question_id_seq':
 ALTER TABLE ONLY question
     ADD CONSTRAINT question_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY question ADD COLUMN index INTEGER NOT NULL;
+
 

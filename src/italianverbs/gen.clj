@@ -18,18 +18,6 @@
 
 ;; starting with https://github.com/jkk/formative-demo/blob/master/src/formative_demo/web.clj#L14
 ;; and removing stuff.
-(def demo-form stest/demo-form)
-
-(defn show-demo-form [params & {:keys [problems]}]
-  (let [now (java.util.Date.)
-        defaults {:spam true
-                  :date now
-                  :time now}]
-    (f/render-form (assoc demo-form
-                     :values (merge defaults params)
-                     :problems problems))))
-
-
 (defn layout [opts & body]
   (h/html5
     [:head
@@ -57,14 +45,6 @@
     #_(h/include-js "/js/goog/base.js")
     (h/include-js "/js/main.js")
     #_"<script type=\"text/javascript\">goog.require('formative_demo.main');</script>"))
-
-(defn submit-demo-form [params]
-  (fp/with-fallback #(show-demo-form params :problems %)
-    (let [values (fp/parse-params demo-form params)]
-      (layout
-        [:h1 "Thank you!"]
-        [:pre (prn-str values)]))))
-
 
 (defn tr-result [results]
   (if (not (empty? results))
@@ -166,10 +146,10 @@
                              (html [:tr
                                     [:th (:num sent-and-verb)]
                                     [:td [:a {:href (str "/verb/" (get-in verb-record [:_id])  "/" ) } italian]]
-                                    [:td [:input {:name (str "question-" (:num sent-and-verb) "-italian")
+                                    [:td [:input {:name (str "question[" (:num sent-and-verb) "][italian]")
                                                   :value (get-italian-1 (:italian sentence))}]]
 
-                                    [:td [:input {:name (str "question-" (:num sent-and-verb) "-english")
+                                    [:td [:input {:name (str "question[" (:num sent-and-verb) "][english]")
                                                   :value (get-english-1 (:english sentence))}]]])))
 
                          with-numbers)))))
@@ -198,14 +178,9 @@
      [:div {:class "major"}
       [:h2 [:a {:href "/generate/" }"Generate"] " &raquo; " [:a {:href (str "/generate/" tag-id "/")} tag]]
 
-       (f/render-form (assoc demo-form
-                             :renderer renderer
-                             :values (merge defaults params)
-                             :problems problems))
-
       [:div {:style "float:left;width:95%"}
 
-       [:form {:method "post" :action "/test/new/"}
+       [:form {:method "post" :action "/test/new"}
        
         [:table
          [:tr

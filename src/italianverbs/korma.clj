@@ -20,6 +20,7 @@
 
 (defentity question
   (pk :id)
+  (belongs-to student-test {:fk :test})
   (entity-fields :english :italian))
 
 (defentity student-test
@@ -91,7 +92,9 @@ on a table."
                (merge
                 {:created (jdbc2joda (:created row))}
                 {:_id (:id row)}
-                {:updated (jdbc2joda (:updated row))}
+                (if (:updated row)
+                  {:updated (jdbc2joda (:updated row))}
+                  (log/warn (str "no updated value found for row:" row)))
                 (reduce #(dissoc %1 %2) row
                         '(:_id :updated :created))))
 
@@ -232,13 +235,16 @@ on a table."
                (list modify-with id))))))
 
 ;; TODO: document what insert-values is for.
+;; TODO: convert to a fn and allow for defaults if no key for a given table.
 (def insert-values
-  {:verb (fn [add-with]
-           {:value (str add-with)})
+  {:question (fn [add-with]
+               add-with)
    :tag (fn [add-with]
           add-with)
    :test (fn [add-with]
-           add-with)})
+           add-with)
+   :verb (fn [add-with]
+           {:value (str add-with)})})
 
 (defn insert! [collection & [add-with]]
   "args are collection and map of key/value pairs with which to initialize new row. we simply serialize the map with (str). Any embedded objects will be lost due to serialization, so map should be only of atoms (strings, numbers, etc) or vectors of atoms (vectors of vectors should work too, provided they are eventually atoms at the leaves)"

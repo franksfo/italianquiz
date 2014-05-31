@@ -787,9 +787,16 @@
        (str "Roles")]
       [:td {:style "white-space:nowrap"}
        (string/join ","
-                    (map #(string/replace (str %) ":italianverbs.core/" "")
+                    (map #(string/replace
+                           (string/replace (string/replace 
+                                            (str %) 
+                                            ":italianverbs.core/" "")
+                                           #"^user" "student")
+                           #"^admin" "teacher")
+
+
                          (-> identity friend/current-authentication :roles)))]
-      [:td {:style "float:right;"} (e/link-to (str "/" "logout") "Log&nbsp;out") ""]]]])
+      [:td {:style "float:right;white-space:nowrap"} (e/link-to (str "/" "logout") "Log out") ""]]]])
 
 (defn get-loggedin-user-roles []
   (-> identity friend/current-authentication :roles))

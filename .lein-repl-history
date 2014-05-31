@@ -9,3 +9,6 @@ insert-new-test
 (fetch :test)
 (db/fetch :test)
 (.printStackTrace *e)
+(load "italianverbs/studenttest")
+(in-ns 'italianverbs.studenttest)
+(log/info "hi")
