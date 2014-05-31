@@ -97,7 +97,7 @@
   ;; if not already serialized, then serialize:
   (let [serialized (if (nil? serialized)
                      (do
-                       (log/warn (str "Serialization was null in: " arg))
+                       (log/warn (str "Serialization was null in: " arg ". Rendering performance will not be as good as it could be, since we need to create a serialized representation in order to render the argument."))
                        (fs/serialize arg))
                      serialized) ;; .. if already serialized, use that.
         opts (if (nil? opts)
@@ -606,15 +606,14 @@
                                         (get suffixes :generate)))}
           (str "Generate")]])
 
-      [:div
-       (if (or (and (not (nil? relative-url))
-                    (re-find #"/test" relative-url))
+      (if authentication
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/test" relative-url))
                  (= relative-url "/test")) {:class "selected"})
-       [:a {:href (str "/test" (if (get suffixes :test)
-                                 (get suffixes :test)))}
-        (str "Tests")]]
-
-
+         [:a {:href (str "/test" (if (get suffixes :test)
+                                   (get suffixes :test)))}
+          (str "Tests")]])
 
       (if authentication
         [:div
