@@ -98,8 +98,6 @@
   (try
     (do
       ;; delete all questions for this test first..
-      (log/info (str "DELETING QUESTIONS FOR TEST: " test-id))
-      (log/info (str "THESE QUESTIONS ARE: " (db/fetch :question {:test (Integer. test-id)})))
       (delete-questions (db/fetch :question {:test (Integer. test-id)}))
       ;; .. then delete the test itself.
       (db/fetch-and-modify :test (db/object-id test-id) {} true)
@@ -139,9 +137,6 @@
                  [:button {:onclick "submit()"} "delete"]]])]
             (tr-questions (rest questions) test-id haz-admin)))
     ""))
-
-(defn create-a-new-test []
-  "create a new test button goes here.")
 
 (defn show-one [test-id haz-admin]
   (if (nil? test-id)
@@ -190,8 +185,11 @@
      (let [results (db/fetch :test)]
        (tr results haz-admin 1))]
 
-    [:div.newlink
-     [:a {:href "/test/new"} "Create a new test"]]]))
+    (if haz-admin
+      [:div.newlink
+       
+       ;; TODO: make this a nice-looking button perhaps.
+       [:a {:href "/test/new"} "Create a new test"]])]))
 
 (def demo-form
   {:fields [{:name :h1 :type :heading :text "Section 1"}

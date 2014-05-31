@@ -232,27 +232,16 @@
                          {:status 302
                           :headers {"Location" "/test"}}))
 
-
-  ;; bounced after authentication: would be better to re-submit post if possible.
-  (GET "/test/new" request
-       (friend/authorize #{::admin}
-                         {:status 302
-                          :headers {"Location" "/test"}}))
-  (GET "/test/new/" request
-       (friend/authorize #{::admin}
-                         {:status 302
-                          :headers {"Location" "/test"}}))
-
   (POST "/test/new" request
         (friend/authorize #{::admin}
                           (let [new-test (stest/new (session/request-to-session request) request)]
                             {:status 302
-                             :headers {"Location" (str "/test/" new-test)}})))
+                             :headers {"Location" (str "/test/" new-test "?message=created")}})))
   (POST "/test/new/" request
         (friend/authorize #{::admin}
                           (let [new-test (stest/new (session/request-to-session request) request)]
                             {:status 302
-                             :headers {"Location" (str "/test/" new-test)}})))
+                             :headers {"Location" (str "/test/" new-test "?message=created")}})))
 
   (GET "/verb" request
        {:body (html/page 
