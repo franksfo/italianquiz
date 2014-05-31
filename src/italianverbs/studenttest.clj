@@ -5,6 +5,8 @@
    [clj-time.core :as t]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [formative.core :as f]
+   [formative.parse :as fp]
    [italianverbs.korma :as db]
    [italianverbs.unify :as unify]))
 
@@ -171,7 +173,7 @@
           [:div {:style "float:left;width:90%;margin:0.5em"}
            [:input {:type "submit"}]])
 
-      ;; TODO: be able to add new questions (maybe)
+        ;; TODO: be able to add new questions (maybe)
 ]))))
 
 (defn show [request haz-admin]
@@ -186,5 +188,68 @@
         [:th {:class "edit"} "Edit"])]
 
      (let [results (db/fetch :test)]
-       (tr results haz-admin 1))]]))
+       (tr results haz-admin 1))]
+
+    [:div.newlink
+     [:a {:href "/test/new"} "Create a new test"]]]))
+
+(def demo-form
+  {:fields [{:name :h1 :type :heading :text "Section 1"}
+            {:name :name :label "Test's Name"}
+            {:name :h2 :type :heading :text "Section 2"}
+            {:name :note :type :html
+             :html [:div.alert.alert-info "Please make note of this note."]}
+            {:name :date :type :date-select}
+            {:name :time :type :time-select}
+            {:name :flavors :type :checkboxes
+             :options ["Chocolate" "Vanilla" "Strawberry" "Mint"]}
+            {:name :location :type :compound
+             :fields [{:name :city :placeholder "City" :class "input-medium"}
+                      {:name :state :type :us-state :placeholder "Select a state"}]}]
+   :validations [[:required [:full-name "user[email]" :password]]
+                 [:min-length 4 :password]
+                 [:equal [:password :password-confirm]]
+                 [:min-length 2 :flavors "select two or more flavors"]
+                 [:complete :location]]})
+
+(def renderer-form
+  {:method "get"
+   ;:renderer :inline
+   :submit-label nil
+   :fields [{:name :renderer
+             :type :select
+             :options ["bootstrap-horizontal"
+                       "bootstrap-stacked"
+                       "bootstrap3-stacked"
+                       "table"]
+             :onchange "this.form.submit()"}]})
+
+(defn show-demo-form [params & {:keys [problems]}]
+  (let [renderer (if (:renderer params)
+                   (keyword (:renderer params))
+                   :bootstrap-horizontal)
+        now (java.util.Date.)
+        defaults {:spam true
+                  :date now
+                  :time now}]
+    (html
+      {:renderer renderer}
+      [:div.pull-right.well.well-small
+       (f/render-form (assoc renderer-form :values params))]
+      [:div.pull-left {:style "width: 50%"}
+       (f/render-form (assoc demo-form
+                             :renderer renderer
+                             :values (merge defaults params)
+                             :problems problems))])))
+;; we don't check haz-admin here: if you aren't authenticated as an admin,
+;; it would be a bug for this to be called.
+(defn new-form [params & {:keys [problems]}]
+  (let [now (java.util.Date.) ;; not using any date or time stuff in the form yet, but good to know about for later.
+        defaults {:date now
+                  :time now}]
+    (html
+     (f/render-form (assoc demo-form
+                      :values (merge defaults params)
+                      :problems problems)))))
+
 

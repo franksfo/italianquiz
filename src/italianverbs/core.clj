@@ -185,11 +185,24 @@
         :session (get request :session)
         :status 302
         :headers {"Location" "/?msg=set"}})
+
    (GET "/test" request
         (friend/authenticated
          {:status 200
           :headers {"Content-Type" "text/html;charset=utf-8"}
           :body (html/page "Tests" (stest/show request (haz-admin)) request)}))
+
+   (GET "/test" request
+        {:status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"}
+         :body (html/page "Tests" (stest/show request (haz-admin)) request)})
+
+   (GET "/test/new" request
+        (friend/authorize #{::admin}
+                          (let [test (:id (:route-params request))]
+                            {:status 200
+                             :headers {"Content-Type" "text/html;charset=utf-8"}
+                             :body (html/page "Create a New Test" (stest/new-form request) request)})))
 
    (GET "/test/:id" request
         (friend/authenticated

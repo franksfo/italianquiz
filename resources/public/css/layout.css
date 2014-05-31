@@ -293,3 +293,9 @@ div.login input.button {
 body > div {
     margin-left:1%;
 }
+
+div.newlink {
+    float:left;
+    width:100%;
+    padding:0.25em;
+}
