@@ -179,7 +179,7 @@
             (tr-questions (rest questions) test-id haz-admin)))
     ""))
 
-(declare add-questions-form test)
+(declare add-questions-form)
 
 (defn show-one [test-id haz-admin]
   (if (nil? test-id)
@@ -197,39 +197,46 @@
         (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
           (if (and (not (nil? questions-for-test))
                    (not (empty? questions-for-test)))
-          [:table.studenttest
-           [:tr
-            [:script script]
-            [:th]
-            [:th "English"]
-            [:th "Italiano"]
-            (if (= true haz-admin)
-              [:th {:class "delete"} "Delete"])]
+            [:table.studenttest
+             [:tr
+              [:script script]
+              [:th]
+              [:th "English"]
+              [:th "Italiano"]
+              (if (= true haz-admin)
+                [:th {:class "delete"} "Delete"])]
+             
+             (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
+               (tr-questions questions-for-test test-id haz-admin))
+             ]
            
-           (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
-             (tr-questions questions-for-test test-id haz-admin))
-           ])
+            [:i "No questions yet."]))
 
-          [:div
+        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+         
+         [:h3 "Add questions" ]
+         
+         (add-questions-form test {})
 
-           "Add questions"
+         ]]))))
 
-           (add-questions-form test)
+(def add-questions-form-declaration
+  (let [groups (map #(:name %)
+                    (db/fetch :tag))]
+    {:fields [{:name :italiano}
+              {:name :english}]
+     :validations [[:required [:italiano :english]]]}))
 
-
-           ])
-
-        (if (not (= true haz-admin))
-          [:div {:style "float:left;width:90%;margin:0.5em"}
-           [:input {:type "submit"}]])
-
-        ;; TODO: be able to add new questions (maybe)
-]))))
-
-(defn add-questions-form [test]
-  (str "this would be a good place for a form.")
-
-)
+(defn add-questions-form [test params & {:keys [problems]}]
+  (let [now (java.util.Date.) ;; not using any date or time stuff in the form yet, but good to know about for later.
+        defaults {:date now
+                  :time now}
+        params {}]
+    (html
+     [:div.testeditor
+      (f/render-form (assoc add-questions-form-declaration
+                       :values (merge defaults params)
+                       :problems problems))])))
 
 (defn show [request haz-admin]
   (html
