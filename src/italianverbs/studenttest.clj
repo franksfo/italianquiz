@@ -7,6 +7,7 @@
    [clojure.tools.logging :as log]
    [formative.core :as f]
    [formative.parse :as fp]
+   [italianverbs.html :as html]
    [italianverbs.korma :as db]
    [italianverbs.unify :as unify]))
 
@@ -37,6 +38,7 @@
   (let [new-test (get test-params "name")
         params (log/info (str "input test params: " test-params))]
 
+    ;; TODO: remove: using formative to validate rather than this custom function call.
     (if (validate-new-test new-test)
       ;; new-verb checks out ok: add it to DB.
       (do (log/info (str "Adding validated candidate test: " new-test))
@@ -68,15 +70,20 @@
          {entire-key value}
          (group-by-question (dissoc params entire-key)))))))
 
-(defn new [session request]
-  (log/debug (str "/studenttest/new with request: " (:form-params request)))
-  (insert-new-test (group-by-question (:form-params request))))
+(defn new [request]
+  (fp/with-fallback #(html/page "Create a New Test" (new-form request :problems %) request)
+    (let [values (fp/parse-params demo-form (:form-params request))]
+      (log/debug (str "/studenttest/new with request: " (:form-params request)))
+      (let [new-test
+            (insert-new-test (group-by-question (:form-params request)))]
+        {:status 302
+         :headers {"Location" (str "/test/" new-test "?message=created")}}))))
 
 (defn validate-new-test [new-test]
   true)
 
 (defn delete-question [id]
-  (log/info (str "WTF TYRING TO DELET QUESTION : " id))
+  (log/info (str "WTF TYRING TO DELETE QUESTION : " id))
   (try
     (do
       (db/fetch-and-modify :question (db/object-id id) {} true)
@@ -194,7 +201,7 @@
 (def demo-form
   (let [groups (map #(:name %)
                     (db/fetch :tag))]
-    {:fields [{:name :h1 :type :heading :text "Section 1"}
+    {:fields [{:name :h1 :type :heading :text "Most important section"}
               {:name :name :label "Test's Name"}
               {:name :groups :label "Generate from Groups" :type :checkboxes
                :options groups}]
@@ -237,6 +244,10 @@
         defaults {:date now
                   :time now}]
     (html
+     [:h1 "PARAMS!"]
+     [:div {:style "font-family:monospace"}
+      (:form-params params)]
+      
      (f/render-form (assoc demo-form
                       :values (merge defaults params)
                       :problems problems)))))

@@ -197,27 +197,6 @@
          :headers {"Content-Type" "text/html;charset=utf-8"}
          :body (html/page "Tests" (stest/show request (haz-admin)) request)})
 
-   (GET "/test/new" request
-        (friend/authorize #{::admin}
-                          (let [test (:id (:route-params request))]
-                            {:status 200
-                             :headers {"Content-Type" "text/html;charset=utf-8"}
-                             :body (html/page "Create a New Test" (stest/new-form request) request)})))
-
-   (GET "/test/:id" request
-        (friend/authenticated
-         (let [test (:id (:route-params request))]
-           {:status 200
-            :headers {"Content-Type" "text/html;charset=utf-8"}
-            :body (html/page "Tests" (stest/show-one test (haz-admin)) request)})))
-
-  (POST "/test/:id/delete" request
-        (friend/authorize #{::admin}
-                          (let [test (:id (:route-params request))]
-                            (let [result (stest/delete test)]
-                              {:status 302
-                               :headers {"Location" (str "/test?result=" (:message result))}}))))
-
   (GET "/test/" request
        (friend/authorize #{::admin}
                          {:status 302
@@ -232,16 +211,34 @@
                          {:status 302
                           :headers {"Location" "/test"}}))
 
+   (GET "/test/new" request
+        (friend/authorize #{::admin}
+                          (let [test (:id (:route-params request))]
+                            {:status 200
+                             :headers {"Content-Type" "text/html;charset=utf-8"}
+                             :body (html/page "Create a New Test" (stest/new-form request) request)})))
+
   (POST "/test/new" request
         (friend/authorize #{::admin}
-                          (let [new-test (stest/new (session/request-to-session request) request)]
-                            {:status 302
-                             :headers {"Location" (str "/test/" new-test "?message=created")}})))
+                          (stest/new request)))
+
   (POST "/test/new/" request
         (friend/authorize #{::admin}
-                          (let [new-test (stest/new (session/request-to-session request) request)]
-                            {:status 302
-                             :headers {"Location" (str "/test/" new-test "?message=created")}})))
+                          (stest/new request)))
+
+   (GET "/test/:id" request
+        (friend/authenticated
+         (let [test (:id (:route-params request))]
+           {:status 200
+            :headers {"Content-Type" "text/html;charset=utf-8"}
+            :body (html/page "Tests" (stest/show-one test (haz-admin)) request)})))
+
+  (POST "/test/:id/delete" request
+        (friend/authorize #{::admin}
+                          (let [test (:id (:route-params request))]
+                            (let [result (stest/delete test)]
+                              {:status 302
+                               :headers {"Location" (str "/test?result=" (:message result))}}))))
 
   (GET "/verb" request
        {:body (html/page 
