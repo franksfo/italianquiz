@@ -17,6 +17,27 @@
 (declare show-as-rows)
 (declare validate-new-test)
 
+(def new-test-form
+  (let [groups (map #(:name %)
+                    (db/fetch :tag))]
+    {:fields [{:name :name :label "Test's Name"}
+              {:name :groups :label "Generate from Groups" :type :checkboxes
+               :options groups}]
+     :validations [[:required [:name]]
+                   [:min-length 1 :groups "Select one or more groups"]]}))
+
+(def new-test-format
+  {:method "post"
+   ;:renderer :inline
+   :submit-label "Create Test"
+   :fields [{:name :renderer
+             :type :select
+             :options ["bootstrap-horizontal"
+                       "bootstrap-stacked"
+                       "bootstrap3-stacked"
+                       "table"]
+             :onchange "this.form.submit()"}]})
+
 (defn insert-questions [test-params test-id index]
   (let [index-as-keyword (keyword (str index))]
     (if (and (not (empty? test-params))
@@ -77,9 +98,12 @@
         defaults {:date now
                   :time now}]
     (html
-     (f/render-form (assoc new-test-form
-                      :values (merge defaults (:form-params params))
-                      :problems problems)))))
+     [:div.major
+      [:h2 "Create a new test"]
+      [:div.testeditor
+       (f/render-form (assoc new-test-form
+                        :values (merge defaults (:form-params params))
+                        :problems problems))]])))
 
 (defn new [request]
   (fp/with-fallback #(html/page "Create a New Test" (new-form request :problems %) request)
@@ -94,7 +118,6 @@
   true)
 
 (defn delete-question [id]
-  (log/info (str "WTF TYRING TO DELETE QUESTION : " id))
   (try
     (do
       (db/fetch-and-modify :question (db/object-id id) {} true)
@@ -156,6 +179,8 @@
             (tr-questions (rest questions) test-id haz-admin)))
     ""))
 
+(declare add-questions-form test)
+
 (defn show-one [test-id haz-admin]
   (if (nil? test-id)
     (do
@@ -169,18 +194,30 @@
        [:div {:class "major tag"}
         [:h2 [:a {:href "/test" } "Tests"] " &raquo; " (:name test)]
 
-        [:table.studenttest
-         [:tr
-          [:script script]
-          [:th]
-          [:th "English"]
-          [:th "Italian"]
-          (if (= true haz-admin)
-            [:th {:class "delete"} "Delete"])]
-       
-         (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
-           (tr-questions questions-for-test test-id haz-admin))
-         ]
+        (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
+          (if (and (not (nil? questions-for-test))
+                   (not (empty? questions-for-test)))
+          [:table.studenttest
+           [:tr
+            [:script script]
+            [:th]
+            [:th "English"]
+            [:th "Italiano"]
+            (if (= true haz-admin)
+              [:th {:class "delete"} "Delete"])]
+           
+           (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
+             (tr-questions questions-for-test test-id haz-admin))
+           ])
+
+          [:div
+
+           "Add questions"
+
+           (add-questions-form test)
+
+
+           ])
 
         (if (not (= true haz-admin))
           [:div {:style "float:left;width:90%;margin:0.5em"}
@@ -188,6 +225,11 @@
 
         ;; TODO: be able to add new questions (maybe)
 ]))))
+
+(defn add-questions-form [test]
+  (str "this would be a good place for a form.")
+
+)
 
 (defn show [request haz-admin]
   (html
@@ -208,25 +250,3 @@
        
        ;; TODO: make this a nice-looking button perhaps.
        [:a {:href "/test/new"} "Create a new test"]])]))
-
-(def new-test-form
-  (let [groups (map #(:name %)
-                    (db/fetch :tag))]
-    {:fields [{:name :h1 :type :heading :text "Create a new test"}
-              {:name :name :label "Test's Name"}
-              {:name :groups :label "Generate from Groups" :type :checkboxes
-               :options groups}]
-     :validations [[:required [:name]]
-                   [:min-length 1 :groups "Select one or more groups"]]}))
-
-(def renderer-form
-  {:method "get"
-   ;:renderer :inline
-   :submit-label nil
-   :fields [{:name :renderer
-             :type :select
-             :options ["bootstrap-horizontal"
-                       "bootstrap-stacked"
-                       "bootstrap3-stacked"
-                       "table"]
-             :onchange "this.form.submit()"}]})
