@@ -192,23 +192,14 @@
        [:a {:href "/test/new"} "Create a new test"]])]))
 
 (def demo-form
-  {:fields [{:name :h1 :type :heading :text "Section 1"}
-            {:name :name :label "Test's Name"}
-            {:name :h2 :type :heading :text "Section 2"}
-            {:name :note :type :html
-             :html [:div.alert.alert-info "Please make note of this note."]}
-            {:name :date :type :date-select}
-            {:name :time :type :time-select}
-            {:name :flavors :type :checkboxes
-             :options ["Chocolate" "Vanilla" "Strawberry" "Mint"]}
-            {:name :location :type :compound
-             :fields [{:name :city :placeholder "City" :class "input-medium"}
-                      {:name :state :type :us-state :placeholder "Select a state"}]}]
-   :validations [[:required [:full-name "user[email]" :password]]
-                 [:min-length 4 :password]
-                 [:equal [:password :password-confirm]]
-                 [:min-length 2 :flavors "select two or more flavors"]
-                 [:complete :location]]})
+  (let [groups (map #(:name %)
+                    (db/fetch :tag))]
+    {:fields [{:name :h1 :type :heading :text "Section 1"}
+              {:name :name :label "Test's Name"}
+              {:name :groups :label "Generate from Groups" :type :checkboxes
+               :options groups}]
+     :validations [[:required [:name]]
+                   [:min-length 1 :groups "Select one or more groups"]]}))
 
 (def renderer-form
   {:method "get"
