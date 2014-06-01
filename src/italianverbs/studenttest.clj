@@ -70,9 +70,20 @@
          {entire-key value}
          (group-by-question (dissoc params entire-key)))))))
 
+;; Note that new-form does not use haz-admin to check whether to render this form: if you aren't authenticated as an admin,
+;; it would be a bug for this function to be called at all.
+(defn new-form [params & {:keys [problems]}]
+  (let [now (java.util.Date.) ;; not using any date or time stuff in the form yet, but good to know about for later.
+        defaults {:date now
+                  :time now}]
+    (html
+     (f/render-form (assoc new-test-form
+                      :values (merge defaults (:form-params params))
+                      :problems problems)))))
+
 (defn new [request]
   (fp/with-fallback #(html/page "Create a New Test" (new-form request :problems %) request)
-    (let [values (fp/parse-params demo-form (:form-params request))]
+    (let [values (fp/parse-params new-test-form (:form-params request))]
       (log/debug (str "/studenttest/new with request: " (:form-params request)))
       (let [new-test
             (insert-new-test (group-by-question (:form-params request)))]
@@ -198,10 +209,10 @@
        ;; TODO: make this a nice-looking button perhaps.
        [:a {:href "/test/new"} "Create a new test"]])]))
 
-(def demo-form
+(def new-test-form
   (let [groups (map #(:name %)
                     (db/fetch :tag))]
-    {:fields [{:name :h1 :type :heading :text "Most important section"}
+    {:fields [{:name :h1 :type :heading :text "Create a new test"}
               {:name :name :label "Test's Name"}
               {:name :groups :label "Generate from Groups" :type :checkboxes
                :options groups}]
@@ -219,37 +230,3 @@
                        "bootstrap3-stacked"
                        "table"]
              :onchange "this.form.submit()"}]})
-
-(defn show-demo-form [params & {:keys [problems]}]
-  (let [renderer (if (:renderer params)
-                   (keyword (:renderer params))
-                   :bootstrap-horizontal)
-        now (java.util.Date.)
-        defaults {:spam true
-                  :date now
-                  :time now}]
-    (html
-      {:renderer renderer}
-      [:div.pull-right.well.well-small
-       (f/render-form (assoc renderer-form :values params))]
-      [:div.pull-left {:style "width: 50%"}
-       (f/render-form (assoc demo-form
-                             :renderer renderer
-                             :values (merge defaults params)
-                             :problems problems))])))
-;; we don't check haz-admin here: if you aren't authenticated as an admin,
-;; it would be a bug for this to be called.
-(defn new-form [params & {:keys [problems]}]
-  (let [now (java.util.Date.) ;; not using any date or time stuff in the form yet, but good to know about for later.
-        defaults {:date now
-                  :time now}]
-    (html
-     [:h1 "PARAMS!"]
-     [:div {:style "font-family:monospace"}
-      (:form-params params)]
-      
-     (f/render-form (assoc demo-form
-                      :values (merge defaults params)
-                      :problems problems)))))
-
-
