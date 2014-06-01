@@ -37,6 +37,32 @@
    "'"   ">"
    italian "</a>"))
 
+(defn static-page [body & [title]]
+  "create a self-contained html page (for use with file:/// urls)."
+  (html
+   [:html
+    [:head
+     [:meta  {:Content-Type "text/html; charset=UTF-8"}]
+     [:title (str title
+                  (if (and title (not (= title "")))
+                    ": " "")
+                  "imparare l'italiano")]
+
+     (include-css "resources/public/css/style.css")
+     (include-css "resources/public/css/fs.css")
+     (include-css "resources/public/css/layout.css")
+     (include-css "resources/public/css/quiz.css")
+
+     (h/include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
+     (h/include-css "//google-code-prettify.googlecode.com/svn/trunk/src/prettify.css")
+
+
+     ]
+
+
+    [:body
+     body]]))
+
 (defn enumerate-serialized-paths [paths n]
   (if paths
     (let [path (first paths)]
