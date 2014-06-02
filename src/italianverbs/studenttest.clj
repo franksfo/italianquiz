@@ -13,6 +13,7 @@
 
 (declare add-questions-form)
 (declare delete-form)
+(declare generate-questions-form)
 (declare new-test-form)
 (declare select)
 (declare show-as-rows)
@@ -150,11 +151,12 @@
          (tr (rest results) haz-admin (+ 1 index)))
     ""))
 
-(defn tr-questions [questions test-id haz-admin]
+(defn tr-questions [questions test-id haz-admin & [index]]
   (if (and (not (nil? questions)) (not (empty? questions)))
-    (let [question (first questions)]
+    (let [question (first questions)
+          index (if index index 1)]
       (html [:tr 
-             [:th (:index question)]
+             [:th.num index]
              [:td (:english question)]
              (if haz-admin
                [:td (:italian question)]
@@ -165,7 +167,7 @@
                                                     "/delete")}
                  [:input {:type "hidden" :name "test" :value test-id}]
                  [:button {:onclick "submit()"} "delete"]]])]
-            (tr-questions (rest questions) test-id haz-admin)))
+            (tr-questions (rest questions) test-id haz-admin (+ 1 index))))
     ""))
 
 (declare show-one)
@@ -188,7 +190,7 @@
         (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
           (if (and (not (nil? questions-for-test))
                    (not (empty? questions-for-test)))
-            [:table.studenttest
+            [:table.studenttest.table-striped
              [:tr
               [:script script]
               [:th]
@@ -212,11 +214,22 @@
 
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
          
+         [:h3 "Generate questions" ]
+         
+         (generate-questions-form test {})
+
+         ]
+
+        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+         
          [:h3 "Add question" ]
          
          (add-questions-form test {})
 
-         ]]))))
+         ]
+
+
+]))))
 
 (def add-questions-format
   {:action "/question/new"
@@ -236,6 +249,10 @@
       (f/render-form (assoc add-questions-format
                        :values (merge defaults params)
                        :problems problems))])))
+
+(defn generate-questions-form [test params & {:keys [problems]}]
+  (html
+   [:p "Generate questions from groups.."]))
 
 (defn show [request haz-admin]
   (html
