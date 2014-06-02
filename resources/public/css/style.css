@@ -438,3 +438,7 @@ table.studenttest td {
 th.delete {
     text-align:center;
 }
+
+th.num {
+    text-align:right;
+}

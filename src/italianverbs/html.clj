@@ -729,7 +729,7 @@
 
    (h/include-css "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
 
-   (h/include-css "http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.css")
+;;   (h/include-css "http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.css")
 
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
 
@@ -740,8 +740,6 @@
    (include-css "/css/quiz.css")
    (include-css "/css/fade.css")
    (include-css "/css/test.css")
-
-   (h/include-css "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
 
    [:style {:type "text/css"} "ul { padding-left: 2em }"]
    

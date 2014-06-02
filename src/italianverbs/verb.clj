@@ -47,7 +47,7 @@
      [:div {:class "major verbs"}
       [:h2 "Verbs"]
 
-      [:table
+      [:table.table-striped
        [:tr
         [:script script]
         [:th ""]
@@ -67,23 +67,23 @@
 (def short-format
   (f/formatter "MMM dd, yyyy HH:mm"))
 
-(defn show-as-rows [results haz-admin]
+(defn show-as-rows [results haz-admin & [i]]
   (if (not (empty? results))
-    (str (html [:tr
-                [:td ]
-                [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
-                      (morph/get-italian-1 (:italian (first results)))]]
-                [:td [:span {:class "date"}
-                      (f/unparse short-format (:created (first results)))]]
-                
-                [:td [:span {:class "date"}
-                      (f/unparse short-format (:updated (first results)))]]
-                (if haz-admin
-                  [:td {:class "edit"} (delete-form (first results)) ])
+    (let [i (if i i 1)]
+      (str (html [:tr
+                  [:th.num i]
+                  [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
+                        (morph/get-italian-1 (:italian (first results)))]]
+                  [:td [:span {:class "date"}
+                        (f/unparse short-format (:created (first results)))]]
 
+                  [:td [:span {:class "date"}
+                        (f/unparse short-format (:updated (first results)))]]
+                  (if haz-admin
+                    [:td {:class "edit"} (delete-form (first results)) ])
 
-                ])
-         (show-as-rows (rest results) haz-admin))
+                  ])
+           (show-as-rows (rest results) haz-admin (+ i 1))))
     ""))
 
 (defn lookup [verb]
