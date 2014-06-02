@@ -11,13 +11,14 @@
    [italianverbs.korma :as db]
    [italianverbs.unify :as unify]))
 
+(declare add-questions-form)
 (declare delete-form)
 (declare new-test-form)
 (declare select)
 (declare show-as-rows)
 (declare validate-new-test)
 
-(def new-test-form
+(def new-test-format
   (let [groups (map #(:name %)
                     (db/fetch :tag))]
     {:fields [{:name :name :label "Test's Name"}
@@ -25,18 +26,6 @@
                :options groups}]
      :validations [[:required [:name]]
                    [:min-length 1 :groups "Select one or more groups"]]}))
-
-(def new-test-format
-  {:method "post"
-   ;:renderer :inline
-   :submit-label "Create Test"
-   :fields [{:name :renderer
-             :type :select
-             :options ["bootstrap-horizontal"
-                       "bootstrap-stacked"
-                       "bootstrap3-stacked"
-                       "table"]
-             :onchange "this.form.submit()"}]})
 
 (defn insert-questions [test-params test-id index]
   (let [index-as-keyword (keyword (str index))]
@@ -101,13 +90,13 @@
      [:div.major
       [:h2 "Create a new test"]
       [:div.testeditor
-       (f/render-form (assoc new-test-form
+       (f/render-form (assoc new-test-format
                         :values (merge defaults (:form-params params))
                         :problems problems))]])))
 
 (defn new [request]
   (fp/with-fallback #(html/page "Create a New Test" (new-form request :problems %) request)
-    (let [values (fp/parse-params new-test-form (:form-params request))]
+    (let [values (fp/parse-params new-test-format (:form-params request))]
       (log/debug (str "/studenttest/new with request: " (:form-params request)))
       (let [new-test
             (insert-new-test (group-by-question (:form-params request)))]
@@ -179,7 +168,9 @@
             (tr-questions (rest questions) test-id haz-admin)))
     ""))
 
-(declare add-questions-form)
+(declare show-one)
+(defn edit-one [test-id]
+  (show-one test-id true))
 
 (defn show-one [test-id haz-admin]
   (if (nil? test-id)
@@ -204,7 +195,7 @@
               [:th "English"]
               [:th "Italiano"]
               (if (= true haz-admin)
-                [:th {:class "delete"} "Delete"])]
+                [:th {:class "edit"} "Delete"])]
              
              (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
                (tr-questions questions-for-test test-id haz-admin))
@@ -212,29 +203,39 @@
            
             [:i "No questions yet."]))
 
+
+        [:div.testeditor {:style "margin-left:0.25em;margin-top:1em;float:left;width:100%;"}
+         
+         [:button {:onclick (str "document.location='/test/" test-id "/edit'")} "Edit questions"]
+
+         ]
+
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
          
-         [:h3 "Add questions" ]
+         [:h3 "Add question" ]
          
          (add-questions-form test {})
 
          ]]))))
 
-(def add-questions-form-declaration
+(def add-questions-format
   (let [groups (map #(:name %)
                     (db/fetch :tag))]
-    {:fields [{:name :italiano}
-              {:name :english}]
-     :validations [[:required [:italiano :english]]]}))
+    {:action "/question/new"
+     :fields [{:name :italiano}
+              {:name :english}
+              {:name :testid :type :hidden}
+              ]
+     :validations [[:required [:italianowtf :english]]]}))
 
 (defn add-questions-form [test params & {:keys [problems]}]
   (let [now (java.util.Date.) ;; not using any date or time stuff in the form yet, but good to know about for later.
         defaults {:date now
                   :time now}
-        params {}]
+        params {:testid (:id test)}]
     (html
      [:div.testeditor
-      (f/render-form (assoc add-questions-form-declaration
+      (f/render-form (assoc add-questions-format
                        :values (merge defaults params)
                        :problems problems))])))
 
@@ -247,7 +248,7 @@
       [:th]
       [:th "Name"]
       (if (= true haz-admin)
-        [:th {:class "edit"} "Edit"])]
+        [:th {:class "edit"} "Delete"])]
 
      (let [results (db/fetch :test)]
        (tr results haz-admin 1))]

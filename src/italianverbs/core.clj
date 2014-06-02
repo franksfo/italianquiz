@@ -22,6 +22,7 @@
    [italianverbs.studenttest :as stest]
    [italianverbs.workbook :as workbook]
    [italianverbs.session :as session]
+   [italianverbs.question :as question]
    [italianverbs.quiz :as quiz]
    [italianverbs.verb :as verb]
    [ring.adapter.jetty :as jetty]
@@ -168,6 +169,12 @@
   (GET "/logout" request
     (friend/logout* (resp/redirect "/login")))
 
+  (POST "/question/new" request
+        (let [testid (if request (get (:form-params request) "testid"))
+              new-question (question/new (:form-params request))]
+          (friend/authorize #{::admin}
+                            {:status 302
+                             :headers {"Location" (str "/test/" testid "?result=added+question")}})))
 
   (POST "/question/:id/delete" request
         (friend/authorize #{::admin}
@@ -232,6 +239,14 @@
            {:status 200
             :headers {"Content-Type" "text/html;charset=utf-8"}
             :body (html/page "Tests" (stest/show-one test (haz-admin)) request)})))
+
+   (GET "/test/:id/edit" request
+        (friend/authenticated
+         (let [test (:id (:route-params request))]
+           {:status 200
+            :headers {"Content-Type" "text/html;charset=utf-8"}
+            :body (html/page "Tests" (stest/edit-one test) request)})))
+
 
   (POST "/test/:id/delete" request
         (friend/authorize #{::admin}

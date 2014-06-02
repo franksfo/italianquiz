@@ -16,36 +16,6 @@
    [italianverbs.verb :as verb]
    [italianverbs.korma :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
 
-;; starting with https://github.com/jkk/formative-demo/blob/master/src/formative_demo/web.clj#L14
-;; and removing stuff.
-(defn layout [opts & body]
-  (h/html5
-    [:head
-     [:title "Formative Demo"]
-     [:style
-      "body { margin: 2em; }"
-      "h1 { margin-bottom: 20px; }"
-      ".form-horizontal .field-group { margin-bottom: 10px; }"
-      ".well form, .well .field-group { margin-bottom: 0; }"
-      ".nav-tabs { margin-top: 20px; margin-bottom: 20px; }"
-      ".heading-row h3 { margin-bottom: 5px; }"
-      ".form-table { width: 100%; }"
-      ".form-table th { text-align: left; }"
-      ".form-table h3 { border-bottom: 1px solid #ddd; }"
-      ".form-table .label-cell { vertical-align: top; text-align: right; padding-right: 10px; padding-top: 10px; }"
-      ".form-table td { vertical-align: top; padding-top: 5px; }"
-      ".form-table .checkbox-row label { display: inline; margin-left: 5px; }"
-      ".form-table .checkbox-row .input-shell { margin-bottom: 10px; }"
-      ".form-table .submit-row th, .form-table .submit-row td { padding: 30px 0; }"
-      ".form-table .problem th, .form-table .problem td { color: #b94a48; background: #fee; }"]]
-    [:body {:onload "prettyPrint()"}
-     body]
-    (h/include-js "//google-code-prettify.googlecode.com/svn/trunk/src/prettify.js")
-    (h/include-js "//google-code-prettify.googlecode.com/svn/trunk/src/lang-clj.js")
-    #_(h/include-js "/js/goog/base.js")
-    (h/include-js "/js/main.js")
-    #_"<script type=\"text/javascript\">goog.require('formative_demo.main');</script>"))
-
 (defn tr-result [results]
   (if (not (empty? results))
     (str (html [:tr 
