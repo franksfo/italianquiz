@@ -161,7 +161,8 @@ on a table."
         (= postgres_env "workstation")
         workstation
         true
-        (throw (Exception. (str "POSTGRES_ENV was not defined in your environment.")))))
+        nil))
+;;        (throw (Exception. (str "POSTGRES_ENV was not defined in your environment.")))))
 
 (def table-to-filter
   {:verb (fn [row the-where]
