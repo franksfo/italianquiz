@@ -150,10 +150,9 @@ on a table."
                        :port "5432"
                        :delimiters ""}))
 
-
 (def postgres_env (System/getenv "POSTGRES_ENV"))
 (defdb korma-db 
-  (cond (= postgres_env "heroku")
+  (cond (or true (= postgres_env "heroku"))
         heroku
         (= postgres_env "heroku-dev")
         heroku-dev
