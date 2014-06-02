@@ -130,7 +130,7 @@ on a table."
 
 
 ;; http://sqlkorma.com/docs#db
-(def dev (postgres {:db "verbcoach"
+(def workstation (postgres {:db "verbcoach"
                     :user "verbcoach"
                     :password (System/getenv "POSTGRES_SECRET")
                     :host "localhost"
@@ -152,12 +152,14 @@ on a table."
 
 (def postgres_env (System/getenv "POSTGRES_ENV"))
 (defdb korma-db 
-  (cond (or true (= postgres_env "heroku"))
+  (cond (= postgres_env "heroku")
         heroku
         (= postgres_env "heroku-dev")
         heroku-dev
+        (= postgres_env "workstation")
+        workstation
         true
-        dev))
+        (throw (Exception. (str "POSTGRES_ENV was not defined in your environment.")))))
 
 (def table-to-filter
   {:verb (fn [row the-where]
