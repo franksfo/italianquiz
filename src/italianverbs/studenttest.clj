@@ -219,14 +219,12 @@
          ]]))))
 
 (def add-questions-format
-  (let [groups (map #(:name %)
-                    (db/fetch :tag))]
-    {:action "/question/new"
-     :fields [{:name :italiano}
-              {:name :english}
-              {:name :testid :type :hidden}
-              ]
-     :validations [[:required [:italianowtf :english]]]}))
+  {:action "/question/new"
+   :fields [{:name :italiano}
+            {:name :english}
+            {:name :testid :type :hidden}
+            ]
+   :validations [[:required [:italiano :english]]]})
 
 (defn add-questions-form [test params & {:keys [problems]}]
   (let [now (java.util.Date.) ;; not using any date or time stuff in the form yet, but good to know about for later.
