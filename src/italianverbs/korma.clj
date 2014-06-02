@@ -7,6 +7,8 @@
             [clojure.tools.logging :as log]
             [italianverbs.unify :refer (unify fail?)]))
 
+(declare korma-db)
+
 ;; example stuff that works:
 
 ;; (insert verb (values {:value (str {:a 42 :b 43 :c 44})}))

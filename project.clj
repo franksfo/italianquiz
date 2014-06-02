@@ -28,7 +28,7 @@
                  [ring-basic-authentication "1.0.1"]]
 
   :min-lein-version "2.0.0"
-  :plugins [[environ/environ.lein "0.2.1"]
+  :plugins [[environ/environ.lein "0.4.0"]
             [lein-ring "0.7.3"]]
 
   :hooks [environ.leiningen.hooks]
@@ -37,6 +37,7 @@
   :profiles
   {:dev {:dependencies [[ring-mock "0.1.3"]
                         [org.clojure/tools.nrepl "0.2.0-beta10"]]}
-   :production {:env {:production true}}}
+   :production {:env {:production true
+                      :POSTGRES_ENV "heroku-dev"}}}
   ;; italianverbs.core/app is defined in src/italianverbs/core.clj.
   :ring {:handler italianverbs.core/app})
