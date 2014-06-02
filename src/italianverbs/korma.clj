@@ -153,16 +153,15 @@ on a table."
                        :delimiters ""}))
 
 (def postgres_env (System/getenv "POSTGRES_ENV"))
-(defn set-db []
-  (defdb korma-db 
-    (cond (= postgres_env "heroku")
-          heroku
-          (= postgres_env "heroku-dev")
-          heroku-dev
-          (= postgres_env "workstation")
-          workstation
-          true
-          (throw (Exception. (str "POSTGRES_ENV was not defined in your environment."))))))
+(defdb korma-db 
+  (cond (= postgres_env "heroku")
+        heroku
+        (= postgres_env "heroku-dev")
+        heroku-dev
+        (= postgres_env "workstation")
+        workstation
+        true
+        (throw (Exception. (str "POSTGRES_ENV was not defined in your environment.")))))
 
 (def table-to-filter
   {:verb (fn [row the-where]

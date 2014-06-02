@@ -17,15 +17,10 @@
 (declare select)
 (declare show-as-rows)
 (declare validate-new-test)
-
 (def new-test-format
-  (let [groups (map #(:name %)
-                    (db/fetch :tag))]
-    {:fields [{:name :name :label "Test's Name"}
-              {:name :groups :label "Generate from Groups" :type :checkboxes
-               :options groups}]
-     :validations [[:required [:name]]
-                   [:min-length 1 :groups "Select one or more groups"]]}))
+  {:fields [{:name :name :label "Test's Name"}]
+   :validations [[:required [:name]]
+                 [:min-length 1 :groups "Select one or more groups"]]})
 
 (defn insert-questions [test-params test-id index]
   (let [index-as-keyword (keyword (str index))]
@@ -85,12 +80,17 @@
 (defn new-form [params & {:keys [problems]}]
   (let [now (java.util.Date.) ;; not using any date or time stuff in the form yet, but good to know about for later.
         defaults {:date now
-                  :time now}]
+                  :time now}
+        groups (map #(:name %)
+                    (db/fetch :tag))]
     (html
      [:div.major
       [:h2 "Create a new test"]
       [:div.testeditor
-       (f/render-form (assoc new-test-format
+       (f/render-form (assoc (-> new-test-format
+                                 (f/merge-fields [{:name :groups :label "Generate from Groups"
+                                                   :type :checkboxes
+                                                   :options groups}]))
                         :values (merge defaults (:form-params params))
                         :problems problems))]])))
 
