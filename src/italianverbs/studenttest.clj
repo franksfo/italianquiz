@@ -281,37 +281,30 @@
            
             [:i "No questions yet."]))
 
+        (if (= haz-admin true)
+          (do
+            (html
+            [:div.testeditor {:style "margin-left:0.25em;margin-top:1em;float:left;width:100%;"}
+             [:button {:onclick (str "document.location='/test/" test-id "/edit'")} "Edit questions"]
+             ]
 
-        [:div.testeditor {:style "margin-left:0.25em;margin-top:1em;float:left;width:100%;"}
-         
-         [:button {:onclick (str "document.location='/test/" test-id "/edit'")} "Edit questions"]
+            [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+             [:h3 "Rename test"]
+             ;; TODO: pass form params rather than {}
+             (rename-test-form test {})
+             ]
 
-         ]
+            [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+             [:h3 "Add questions from group"]
+             ;; TODO: pass form params rather than {}         
+             (generate-questions-form test {})
+             ]
 
-        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
-         
-         [:h3 "Rename test"]
-         
-         ;; TODO: pass form params rather than {}
-         (rename-test-form test {})
-
-         ]
-
-
-        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
-         
-         [:h3 "Add questions from group"]
-         ;; TODO: pass form params rather than {}         
-         (generate-questions-form test {})
-
-         ]
-
-        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
-         
-         [:h3 "Add question" ]
-         ;; TODO: pass form params rather than {}
-         (add-questions-form test {})
-         ]
+            [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+             [:h3 "Add question" ]
+             ;; TODO: pass form params rather than {}
+             (add-questions-form test {})
+             ])))
 
 
 ]))))
