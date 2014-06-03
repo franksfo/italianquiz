@@ -387,7 +387,7 @@
   (html
    [:div {:class "major"}
     [:h2 "Tests"]
-    [:table
+    [:table.studenttest.table-striped
      [:tr
       [:th]
       [:th "Name"]

@@ -89,7 +89,7 @@
      [:div {:class "major tag"}
       [:h2 "Groups"]
 
-      [:table
+      [:table.table-striped
        [:tr
         [:script script]
         [:th "Name"]
@@ -148,7 +148,7 @@
      [:div {:class "major tag"}
      [:h2 [:a {:href "/lesson/" } "Groups"] " &raquo; "  (:name result)]
 
-      [:table
+      [:table.table-striped
        [:tr
         [:script script]
         [:th "Verb"]
