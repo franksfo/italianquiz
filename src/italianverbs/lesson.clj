@@ -49,30 +49,34 @@
     (db/fetch-and-modify :tag (db/object-id tag) {:name (:name result)
                                                   :verbs (remove #(= (db/object-id verb) %) (:verbs result))})))
 
-(defn tr-result [results haz-admin]
+(defn tr-result [results haz-admin & [i]]
   (if (not (empty? results))
-    (str (html [:tr 
-                [:td [:a {:href (str "/lesson/" (:_id (first results))"/") } (:name (first results))]]
-                [:td 
-                 (if (:verbs (first results))
-                   (.size (:verbs (first results)))
-                   0)]
-                (if haz-admin
-                  [:td {:class "edit"}
-                   [:form {:method "post" :action (str "/lesson/delete/" (db/primary-key (first results)))}
-                    [:button {:onclick "submit()"} "delete"]]])])
-         (tr-result (rest results) haz-admin))
-    ""))
+    (let [i (if i i 1)]
+      (str (html [:tr
+                  [:th.num i]
+                  [:td [:a {:href (str "/lesson/" (:_id (first results))"/") } (:name (first results))]]
+                  [:td {:style "text-align:right"} 
+                   (if (:verbs (first results))
+                     (.size (:verbs (first results)))
+                     0)]
+                  (if haz-admin
+                    [:td {:class "edit"}
+                     [:form {:method "post" :action (str "/lesson/delete/" (db/primary-key (first results)))}
+                      [:button {:onclick "submit()"} "delete"]]])]
+                 (tr-result (rest results) haz-admin (+ i 1)))))
+      ""))
 
-(defn tr-verbs [tag results haz-admin]
+(defn tr-verbs [tag results haz-admin & [i]]
   (if (not (empty? results))
     (do
       (log/info (str "tr-verbs: id: " (first results)))
       ;; should not need to re-query to get the verb info: should
       ;; simply be the first result.
-      (let [verb (verb/lookup-by-id (first results))]
+      (let [verb (verb/lookup-by-id (first results))
+            i (if i i 1)]
         (log/info (str "verb is: " verb))
         (str (html [:tr 
+                    [:th.num i]
                     [:td [:a {:href (str "/verb/" (:_id verb)  "/")   } 
                           (morph/get-italian-1 (:italian verb))]]
                     (if (= haz-admin true)
@@ -80,10 +84,10 @@
                        [:form {:method "post" :action (str "/lesson/" tag "/delete/" (:_id verb) "/")}
                         [:input {:type "hidden" :name "tag" :value (db/primary-key (first results))}]
                         [:button {:onclick "submit()"} "delete"]]])])
-             (tr-verbs tag (rest results) haz-admin))))
+             (tr-verbs tag (rest results) haz-admin (+ i 1)))))
     ""))
 
-(defn show-tags [haz-admin]
+(defn show-tags [haz-admin & [i]]
   (let [script "/* js goes here.. */"]
     (html
      [:div {:class "major tag"}
@@ -92,10 +96,11 @@
       [:table.table-striped
        [:tr
         [:script script]
+        [:th]
         [:th "Name"]
-        [:th "Verbs"]
+        [:th {:style "text-align:right"} "Verbs"]
         (if (= true haz-admin)
-          [:th {:class "edit"} "Edit"])]
+          [:th.edit "Edit"])]
        
        (let [results (db/fetch :tag)]
          (tr-result results haz-admin))
@@ -151,6 +156,7 @@
       [:table.table-striped
        [:tr
         [:script script]
+        [:th]
         [:th "Verb"]
         (if (= haz-admin true)
           [:th {:class "edit"} "Edit"])]
