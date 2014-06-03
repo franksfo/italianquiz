@@ -107,6 +107,22 @@
         {:status 302
          :headers {"Location" (str "/test/" new-test "?message=created")}}))))
 
+(defn update-questions [grouped]
+  (if (not (empty? grouped))
+    (let [qid (Integer. (string/replace (str (first (first grouped))) ":" ""))
+          val (get grouped (first (first grouped)))
+          english (:english val)
+          italiano (:italian val)]
+      (log/debug (str "update: " qid ";" english ";" italiano))
+      (db/fetch-and-modify :question (db/object-id qid) {:english english :italian italiano} false)
+      (update-questions (dissoc grouped (first (first grouped)))))))
+
+(defn edit-all-from-form [test params]
+  (let [grouped (group-by-question params)]
+    (log/info "grouped by question: " grouped)
+    (update-questions grouped)
+    {:message "updated test."}))
+
 (defn validate-new-test [new-test]
   true)
 
@@ -173,9 +189,55 @@
             (tr-questions (rest questions) test-id haz-admin (+ 1 index))))
     ""))
 
+(defn tr-questions-edit [questions test-id & [index]]
+  (if (and (not (nil? questions)) (not (empty? questions)))
+    (let [question (first questions)
+          index (if index index 1)]
+      (html [:tr 
+             [:th.num index]
+             [:td [:input {:name (str "question[" (:_id question) "][english]")
+                           :value (:english question)}]]
+             [:td [:input {:name (str "question[" (:_id question) "][italian]")
+                           :value (:italian question)}]]]
+            (tr-questions-edit (rest questions) test-id (+ 1 index))))
+    ""))
+
 (declare show-one)
 (defn edit-one [test-id]
-  (show-one test-id true))
+  (if (nil? test-id)
+    (do
+      (log/error (str "show-one was not given a test-id."))
+      "")
+
+    (let [script "/* js goes here.. */"
+          test (first (db/fetch :test {:_id test-id}))]
+      (log/info (str "show-one: test-id: " test-id))
+      (html
+       [:div {:class "major tag"}
+        [:h2 [:a {:href "/test" } "Tests"] " &raquo; " (:name test)]
+        (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
+          (if (and (not (nil? questions-for-test))
+                   (not (empty? questions-for-test)))
+            [:form {:action (str "/test/" test-id "/edit")
+                    :method "post"}
+             [:table.studenttest.table-striped
+              [:tr
+               [:script script]
+               [:th]
+               [:th "English"]
+               [:th "Italiano"]
+
+               (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
+                 (tr-questions-edit questions-for-test test-id))
+               ]]
+             [:div {:style "float:left;width:100%;margin-top:1em"}
+              [:div {:style "float:left;width:25%"}
+               [:input {:type "Submit" :value "Update"}]]
+              [:div {:style "float:left;width:25%"}
+               [:a {:href (str "/test/" test-id)}
+                [:input {:type "button" :value "Cancel"}]]]]]
+
+            [:i "No questions yet."]))]))))
 
 (defn show-one [test-id haz-admin]
   (if (nil? test-id)

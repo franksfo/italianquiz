@@ -53,7 +53,12 @@ on a table."
         (throw (.Exception "don't know what table this collection is: " collection-as-key)))))
 
 (def collection-update
-  {:verb (fn [modify-with id]
+  ;; TODO: add a default to be used if no matching key in this map.
+  {:question (fn [modify-with id]
+               (update question
+                       (set-fields modify-with)
+                       (where {:id id})))
+   :verb (fn [modify-with id]
            (let [modify-with (dissoc (dissoc modify-with :created) :updated)
                  set-the-fields {:value (str modify-with)}]
              (log/info (str "updating :verb table with set-fields: " set-fields))

@@ -597,15 +597,6 @@
                  (= relative-url "/lesson")) {:class "selected"})
          [:a {:href "/lesson/"} (str "Groups")]])
 
-      (if haz-admin
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/generate" relative-url))
-                 (= relative-url "/generate")) {:class "selected"})
-         [:a {:href (str "/generate/" (if (get suffixes :generate)
-                                        (get suffixes :generate)))}
-          (str "Generate")]])
-
       (if authentication
         [:div
          (if (or (and (not (nil? relative-url))
