@@ -123,6 +123,17 @@
     (update-questions grouped)
     {:message "updated test."}))
 
+(def rename-test-format
+  {:fields [{:name :name :label "Name of test"}]})
+
+(defn rename-test-form [test params & {:keys [problems]}]
+  (let [defaults {:name (:name test)}]
+    (html [:div.testeditor
+           (f/render-form (assoc rename-test-format
+                            :action (str "/test/" (:id test) "/rename")
+                            :values (merge defaults params)
+                            :problems problems))])))
+
 (defn validate-new-test [new-test]
   true)
 
@@ -279,8 +290,18 @@
 
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
          
-         [:h3 "Add questions from group"]
+         [:h3 "Rename test"]
          
+         ;; TODO: pass form params rather than {}
+         (rename-test-form test {})
+
+         ]
+
+
+        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+         
+         [:h3 "Add questions from group"]
+         ;; TODO: pass form params rather than {}         
          (generate-questions-form test {})
 
          ]
@@ -288,9 +309,8 @@
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
          
          [:h3 "Add question" ]
-         
+         ;; TODO: pass form params rather than {}
          (add-questions-form test {})
-
          ]
 
 
@@ -317,6 +337,12 @@
       (generate-and-add-question-to-test test group)
       (generate test group (- this-many 1)))
     {:message "generated."}))
+
+(defn rename [test-id name]
+  (log/info (str "test-id: " test-id))
+  (log/info (str "new-name: " name))
+  (db/fetch-and-modify :test (db/object-id test-id) {:name name} false)
+  {:message "renamed."})
 
 (def add-questions-format
   {:action "/question/new"

@@ -58,6 +58,10 @@ on a table."
                (update question
                        (set-fields modify-with)
                        (where {:id id})))
+   :test (fn [modify-with id]
+           (update student-test
+                   (set-fields modify-with)
+                   (where {:id id})))
    :verb (fn [modify-with id]
            (let [modify-with (dissoc (dissoc modify-with :created) :updated)
                  set-the-fields {:value (str modify-with)}]

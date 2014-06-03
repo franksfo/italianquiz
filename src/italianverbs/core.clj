@@ -253,6 +253,11 @@
             {:status 302
              :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
 
+   (GET "/test/:id/delete" request ;; simply redirect to try again.
+         (friend/authorize #{::admin}
+                           (let [test (:id (:route-params request))]
+                             {:status 302
+                              :headers {"Location" (str "/test/" test)}})))
    (POST "/test/:id/delete" request
          (friend/authorize #{::admin}
                            (let [test (:id (:route-params request))]
@@ -270,6 +275,18 @@
                                  group (get (:form-params request) "group")
                                  this-many (get (:form-params request) "num-questions")]
                              (let [result (stest/generate test group (Integer. this-many))]
+                               {:status 302
+                                :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
+
+   (GET "/test/:id/rename" request
+        {:status 302
+         :headers {"Location" (str "/test/" (:id (:route-params request)))}})
+
+   (POST "/test/:id/rename" request
+         (friend/authorize #{::admin}
+                           (let [test (:id (:route-params request))
+                                 name (get (:form-params request) "name")]
+                             (let [result (stest/rename test name)]
                                {:status 302
                                 :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
 
