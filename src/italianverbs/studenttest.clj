@@ -7,8 +7,11 @@
    [clojure.tools.logging :as log]
    [formative.core :as f]
    [formative.parse :as fp]
+   [italianverbs.gen :as gen]
    [italianverbs.html :as html]
    [italianverbs.korma :as db]
+   [italianverbs.morphology :as morph]
+   [italianverbs.question :as question]
    [italianverbs.unify :as unify]))
 
 (declare add-questions-form)
@@ -214,7 +217,7 @@
 
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
          
-         [:h3 "Generate questions" ]
+         [:h3 "Add questions from group"]
          
          (generate-questions-form test {})
 
@@ -231,10 +234,32 @@
 
 ]))))
 
+(defn generate-and-add-question-to-test [test group]
+  (let [map-of-tag (first (db/fetch :tag {:_id (db/object-id group)}))
+        tag-id group
+        tag (:name map-of-tag)
+        verbs (:verbs map-of-tag)]
+    (log/info "gen-and-add: test=" test "; group=" group)
+    (let [verb (first (shuffle verbs))]
+      (log/info " gen-and-add verb: " verb)
+      (let [sentence (morph/finalize (gen/generate-sentence (first (shuffle verbs))))]
+        (log/info " gen-and-add sentence: " sentence)
+        (question/new {"testid" test
+                       "italiano" (:italian sentence)
+                       "english" (:english sentence)})))))
+
+(defn generate [test group this-many]
+  (log/info (str "adding to test: " test " from group: " group " this many sentences: " this-many))
+  (if (> this-many 0)
+    (do
+      (generate-and-add-question-to-test test group)
+      (generate test group (- this-many 1)))
+    {:message "generated."}))
+
 (def add-questions-format
   {:action "/question/new"
-   :fields [{:name :italiano}
-            {:name :english}
+   :fields [{:name :english}
+            {:name :italiano}
             {:name :testid :type :hidden}
             ]
    :validations [[:required [:italiano :english]]]})
@@ -250,9 +275,25 @@
                        :values (merge defaults params)
                        :problems problems))])))
 
+(def generate-questions-format
+  {:fields [{:name :num-questions :size 3 :label "Add this many"}]})
+
 (defn generate-questions-form [test params & {:keys [problems]}]
-  (html
-   [:p "Generate questions from groups.."]))
+  (let [defaults {:num-questions 5}
+        groups (map (fn [group]
+                      {:label (:name group)
+                       :value (:_id group)})
+                    (db/fetch :tag))]
+    (html
+     [:div.testeditor
+      (f/render-form (assoc (-> generate-questions-format
+                                (f/merge-fields [{:name :group
+                                                  :label "from group"
+                                                  :type :select
+                                                  :options groups}]))
+                       :action (str "/test/" (:id test) "/generate")
+                       :values (merge defaults params)
+                       :problems problems))])))
 
 (defn show [request haz-admin]
   (html

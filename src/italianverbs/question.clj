@@ -15,12 +15,10 @@
   (let [test-id (Integer. (get params "testid"))
         italiano (get params "italiano")
         english (get params "english")
-        index 5
         new-question
         {:test test-id
          :english english
-         :italian italiano
-         :index index}
+         :italian italiano}
         result (db/insert! :question new-question)]
     "created"))
 

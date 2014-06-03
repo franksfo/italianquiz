@@ -11,7 +11,6 @@
    [italianverbs.lesson :as lesson]
    [italianverbs.morphology :refer (fo get-italian-1 get-english-1)]
    [italianverbs.over :refer (over)]
-   [italianverbs.studenttest :as stest]
    [italianverbs.unify :refer (unifyc)]
    [italianverbs.verb :as verb]
    [italianverbs.korma :as db])) ;; TODO: provide database abstraction over mongo and other possible backing stores.
@@ -83,8 +82,6 @@
        (string/join ""
                     (map (fn [sent-and-verb]
                            (let [verb (:verb sent-and-verb)
-                                 wtf (log/info (str "IT: " (get-italian-1 (:italian (:sentence sent-and-verb)))))
-                                 wtf (log/info (str "EN: " (get-english-1 (:english (:sentence sent-and-verb)))))
                                  sentence (:sentence sent-and-verb)
                                  verb-record (verb/lookup-by-id verb)
                                  italian (get-in verb-record [:italian])
@@ -124,12 +121,12 @@
 
                          with-numbers)))))
 
-(defn generate-from [tag]
+(defn generate-from [tag & [times]]
   (let [map-of-tag (first (db/fetch :tag {:_id (db/object-id tag)}))
         tag-id tag
         tag (:name map-of-tag)
         verbs (:verbs map-of-tag)
-        times 5
+        times (if times times 5)
         sentences (take times (repeatedly #(let [verb (first (take 1 (shuffle verbs)))]
                                              {:verb verb
                                               :sentence (generate-sentence verb)})))

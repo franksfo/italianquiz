@@ -218,12 +218,12 @@
                          {:status 302
                           :headers {"Location" "/test"}}))
 
-   (GET "/test/new" request
-        (friend/authorize #{::admin}
-                          (let [test (:id (:route-params request))]
-                            {:status 200
-                             :headers {"Content-Type" "text/html;charset=utf-8"}
-                             :body (html/page "Create a New Test" (stest/new-form request) request)})))
+  (GET "/test/new" request
+       (friend/authorize #{::admin}
+                         (let [test (:id (:route-params request))]
+                           {:status 200
+                            :headers {"Content-Type" "text/html;charset=utf-8"}
+                            :body (html/page "Create a New Test" (stest/new-form request) request)})))
 
   (POST "/test/new" request
         (friend/authorize #{::admin}
@@ -248,12 +248,25 @@
             :body (html/page "Tests" (stest/edit-one test) request)})))
 
 
-  (POST "/test/:id/delete" request
-        (friend/authorize #{::admin}
-                          (let [test (:id (:route-params request))]
-                            (let [result (stest/delete test)]
-                              {:status 302
-                               :headers {"Location" (str "/test?result=" (:message result))}}))))
+   (POST "/test/:id/delete" request
+         (friend/authorize #{::admin}
+                           (let [test (:id (:route-params request))]
+                             (let [result (stest/delete test)]
+                               {:status 302
+                                :headers {"Location" (str "/test?result=" (:message result))}}))))
+
+   (GET "/test/:id/generate" request
+        {:status 302
+         :headers {"Location" (str "/test/" (:id (:route-params request)))}})
+
+   (POST "/test/:id/generate" request
+         (friend/authorize #{::admin}
+                           (let [test (:id (:route-params request))
+                                 group (get (:form-params request) "group")
+                                 this-many (get (:form-params request) "num-questions")]
+                             (let [result (stest/generate test group (Integer. this-many))]
+                               {:status 302
+                                :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
 
   (GET "/verb" request
        {:body (html/page 
