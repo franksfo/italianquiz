@@ -18,7 +18,7 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare question question-submit qsubmit student-test tsubmit vc_user verb vgroup)
+(declare question question-submit qsubmit student-test tsubmit user verb vgroup)
 
 (defentity question
   (pk :id)
@@ -31,9 +31,14 @@
   (has-many question))
 
 (defentity test-submit
+  (table :tsubmit)
   (pk :id)
   (has-many question-submit)
-  (entity-fields :test :user))
+  (entity-fields :test :student))
+
+(defentity user
+  (table :vc_user)
+  (pk :id))
 
 (defentity question-submit
   (pk :id)
@@ -52,8 +57,8 @@
    :question-submit qsubmit
    :tag vgroup
    :test student-test
-   :test-submit tsubmit
-   :user vc_user
+   :test-submit test-submit
+   :user user
    :verb verb})
 
 (defn keyword-to-table [collection-as-key]
@@ -283,9 +288,15 @@ on a table."
 (def insert-values
   {:question (fn [add-with]
                add-with)
+   :question_submit (fn [add-with]
+                      add-with)
    :tag (fn [add-with]
           add-with)
    :test (fn [add-with]
+           add-with)
+   :test-submit (fn [add-with]
+           add-with)
+   :user (fn [add-with]
            add-with)
    :verb (fn [add-with]
            {:value (str add-with)})})

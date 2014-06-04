@@ -19,12 +19,13 @@
    [italianverbs.xml :as xml]
    [italianverbs.html :as html]
    [italianverbs.search :as search]
-   [italianverbs.studenttest :as stest]
-   [italianverbs.workbook :as workbook]
    [italianverbs.session :as session]
+   [italianverbs.studenttest :as stest]
+   [italianverbs.test_submit :as tsubmit]
    [italianverbs.question :as question]
    [italianverbs.quiz :as quiz]
    [italianverbs.verb :as verb]
+   [italianverbs.workbook :as workbook]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.basic-authentication :as basic]
    [ring.middleware.session :as rsession]
@@ -298,7 +299,7 @@
    (POST "/test/:id/take" request
         (friend/authenticated
          (let [test (:id (:route-params request))]
-           (let [result (stest/submit test request)]
+           (let [result (tsubmit/new test request (friend/current-authentication))]
              {:status 302
               :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
    

@@ -294,10 +294,6 @@
                  ;; /page
                  request))))
 
-(defn submit [test request]
-  (log/info "submitting test with params: " (:form-params request))
-  {:message "submitted"})
-
 (defn show-one [test-id haz-admin]
   (if (nil? test-id)
     (do
