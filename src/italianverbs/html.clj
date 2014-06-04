@@ -53,8 +53,8 @@
      (include-css "resources/public/css/layout.css")
      (include-css "resources/public/css/quiz.css")
 
-     (h/include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
-     (h/include-css "//google-code-prettify.googlecode.com/svn/trunk/src/prettify.css")
+     (h/include-css "resources/public/css/bootstrap.min.css")
+     (h/include-css "resources/public/css/prettify.css")
 
 
      ]
@@ -718,10 +718,6 @@
 (defn pretty-head [title]
   [:head 
 
-   (h/include-css "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css")
-
-;;   (h/include-css "http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.css")
-
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
 
    (include-css "/css/style.css")
@@ -732,6 +728,10 @@
    (include-css "/css/fade.css")
    (include-css "/css/test.css")
 
+   (h/include-css "/css/bootstrap.min.css")
+   (h/include-css "/css/prettify.css")
+   
+
    [:style {:type "text/css"} "ul { padding-left: 2em }"]
    
    [:script {:src "/webjars/js/foundation.min.js" :type "text/javascript"}]
@@ -741,16 +741,12 @@
    [:script {:type "text/javascript" :src "/js/workbook.js"}]
    [:script {:type "text/javascript" :src "/js/search.js"}]
    
-   (include-js "http://google-code-prettify.googlecode.com/svn/trunk/src/prettify.js")
-   (include-js "http://google-code-prettify.googlecode.com/svn/trunk/src/lang-clj.js")
-   #_(include-js "/js/goog/base.js")
+   (include-js "/js/prettify.js")
+   (include-js "/js/lang-clj.js")
    (include-js "/js/main.js")
-   #_"<script type=\"text/javascript\">goog.require('formative_demo.main');</script>"
-
-
 
     ; enable this 'reset.css' at some point.
-                                        ;    (include-css "/italian/css/reset.css")
+    ;  (include-css "/italian/css/reset.css")
 
    [:title (str title
                 (if (and title (not (= title "")))

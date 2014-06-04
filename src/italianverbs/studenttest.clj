@@ -250,6 +250,54 @@
 
             [:i "No questions yet."]))]))))
 
+(defn tr-questions-fill-in [questions test-id & [index]]
+  (if (and (not (nil? questions)) (not (empty? questions)))
+    (let [question (first questions)
+          index (if index index 1)]
+      (html [:tr 
+             [:th.num index]
+             [:td (:english question)]
+             [:td [:input {:name (str "question[" (:_id question) "][italian]")}]]]
+            (tr-questions-fill-in (rest questions) test-id (+ 1 index))))
+    ""))
+
+(defn take [test-id request]
+  (if (nil? test-id)
+    (do
+      (log/error (str "show-one was not given a test-id."))
+      "")
+    (let [script "/* js goes here.. */"
+          test (first (db/fetch :test {:_id test-id}))
+          title (str "Taking test: " (:name test))
+          questions-for-test (db/fetch :question {:test (Integer. test-id)})]
+      (html/page title
+                 [:div {:class "major tag"} 
+                  [:h2 title]
+                  [:form {:action (str "/test/" test-id "/take") :method "post"}
+                   [:input {:name "testid" :type :hidden :value test-id}]
+                   [:table.studenttest.table-striped
+                    [:tr
+                     [:script script]
+                     [:th]
+                     [:th "English"]
+                     [:th "Italiano"]]
+                    
+                    (let [questions-for-test (db/fetch :question {:test (Integer. test-id)})]
+                      (tr-questions-fill-in questions-for-test test-id false))
+                   ]
+                   [:div {:style "float:left;width:90%"}
+                    [:input {:type "submit" :value "Done"}]
+                    ]
+                   ]
+                  ]
+
+                 ;; /page
+                 request))))
+
+(defn submit [test request]
+  (log/info "submitting test with params: " (:form-params request))
+  {:message "submitted"})
+
 (defn show-one [test-id haz-admin]
   (if (nil? test-id)
     (do
@@ -284,9 +332,11 @@
         (if (= haz-admin true)
           (do
             (html
-            [:div.testeditor {:style "margin-left:0.25em;margin-top:1em;float:left;width:100%;"}
-             [:button {:onclick (str "document.location='/test/" test-id "/edit'")} "Edit questions"]
-             ]
+             [:h3 [:a {:href (str "/test/" test-id "/take")} "Student view"]]
+
+             [:div.testeditor {:style "margin-left:0.25em;margin-top:1em;float:left;width:100%;"}
+              [:button {:onclick (str "document.location='/test/" test-id "/edit'")} "Edit questions"]
+              ]
 
             [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
              [:h3 "Rename test"]
@@ -305,8 +355,6 @@
              ;; TODO: pass form params rather than {}
              (add-questions-form test {})
              ])))
-
-
 ]))))
 
 (defn generate-and-add-question-to-test [test group]

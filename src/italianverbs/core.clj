@@ -290,37 +290,46 @@
                                {:status 302
                                 :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
 
-  (GET "/verb" request
-       {:body (html/page 
-               "Verbs" 
-               
-               (verb/select (session/request-to-session request) 
-                            request
-                            (haz-admin))
-               request)
-        
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-  (GET "/verb/" request
-       {:status 302
-        :headers {"Location" "/verb"}})
+   (GET "/test/:id/take" request
+        (friend/authenticated
+         (let [test (:id (:route-params request))]
+           (stest/take test request))))
 
+   (POST "/test/:id/take" request
+        (friend/authenticated
+         (let [test (:id (:route-params request))]
+           (let [result (stest/submit test request)]
+             {:status 302
+              :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
+   
+   (GET "/verb" request
+        {:body (html/page 
+                "Verbs" 
+                (verb/select (session/request-to-session request) 
+                             request
+                             (haz-admin))
+                request)
+         :status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
+   (GET "/verb/" request
+        {:status 302
+         :headers {"Location" "/verb"}})
+   
+   ;; TODO: figure out how to combine destructuring with sending request (which we need for the
+   ;; menubar and maybe other things like authorization.
+   (GET "/verb/:verb/" request
+        (let [verb (:verb (:route-params request))]
+          {:body (html/page "Verbs"
+                            (verb/select-one verb (haz-admin))
+                            request)
+           :status 200}))
 
-  ;; TODO: figure out how to combine destructuring with sending request (which we need for the
-  ;; menubar and maybe other things like authorization.
-  (GET "/verb/:verb/" request
-       (let [verb (:verb (:route-params request))]
-         {:body (html/page "Verbs"
-                           (verb/select-one verb (haz-admin))
-                           request)
-          :status 200}))
-
-  (POST "/verb/:verb/delete/" request
-        (friend/authorize #{::admin}
-                          (let [verb (:verb (:route-params request))]
-                            (let [result (verb/delete verb)]
-                              {:status 302
-                               :headers {"Location" (str "/verb?result=" (:message result))}}))))
+   (POST "/verb/:verb/delete/" request
+         (friend/authorize #{::admin}
+                           (let [verb (:verb (:route-params request))]
+                             (let [result (verb/delete verb)]
+                               {:status 302
+                                :headers {"Location" (str "/verb?result=" (:message result))}}))))
 
   (POST "/verb/new/" request
         (friend/authorize #{::admin}

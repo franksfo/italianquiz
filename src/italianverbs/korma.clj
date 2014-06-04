@@ -18,7 +18,7 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare student-test question verb vgroup)
+(declare question question-submit qsubmit student-test tsubmit vc_user verb vgroup)
 
 (defentity question
   (pk :id)
@@ -30,6 +30,15 @@
   (pk :id)
   (has-many question))
 
+(defentity test-submit
+  (pk :id)
+  (has-many question-submit)
+  (entity-fields :test :user))
+
+(defentity question-submit
+  (pk :id)
+  (entity-fields :answer :test-submit :question))
+
 (defentity verb
   (pk :id)
   (entity-fields :value))
@@ -40,9 +49,12 @@
 
 (def key-to-table
   {:question question
-   :verb verb
+   :question-submit qsubmit
    :tag vgroup
-   :test student-test})
+   :test student-test
+   :test-submit tsubmit
+   :user vc_user
+   :verb verb})
 
 (defn keyword-to-table [collection-as-key]
   "Map a keyword representing a collection to a PostgreSQL table. In the future, a collection
@@ -58,10 +70,18 @@ on a table."
                (update question
                        (set-fields modify-with)
                        (where {:id id})))
+   :question-submit (fn [modify-with id]
+                      (update (key-to-table :question-submit)
+                              (set-fields modify-with)
+                              (where {:id id})))
    :test (fn [modify-with id]
            (update student-test
                    (set-fields modify-with)
                    (where {:id id})))
+   :test-submit (fn [modify-with id]
+                  (update (key-to-table :test-submit)
+                          (set-fields modify-with)
+                          (where {:id id})))
    :verb (fn [modify-with id]
            (let [modify-with (dissoc (dissoc modify-with :created) :updated)
                  set-the-fields {:value (str modify-with)}]
@@ -83,13 +103,8 @@ on a table."
                                                                         (:verbs modify-with))
                             "}' WHERE id=?") (vec (list id))])
             ;; if :id and :verbs are not set, ignore (for now) with a warning.
-            (log/warn (str "ignoring update of tag collection with modify-with: " modify-with " and id: " id))))
+            (log/warn (str "ignoring update of tag collection with modify-with: " modify-with " and id: " id))))})
 
-   ;; default
-   true (fn [modify-with id]
-          (update verb
-                  (set-fields modify-with)
-                  (where {:id id})))})
 
 (defn jdbc2joda [time]
   (c/from-long (.getTime time)))
@@ -109,6 +124,14 @@ on a table."
                 (reduce #(dissoc %1 %2) row
                         '(:_id :updated :created))))
 
+   :question-submit (fn [row]
+                      (merge
+                       {:_id (:id row)}
+                       {:created (jdbc2joda (:created row))}
+                       
+                       (reduce #(dissoc %1 %2) row
+                               '(:_id :updated :created))))
+
    :tag (fn [row] ;; for the vgroup table, it's simpler: simply convert :id to :_id.
           (merge
            {:_id (:id row)}
@@ -125,6 +148,14 @@ on a table."
 
            (reduce #(dissoc %1 %2) row
                    '(:_id :updated :created))))
+
+   :test-submit (fn [row]
+                  (merge
+                   {:_id (:id row)}
+                   {:created (jdbc2joda (:created row))}
+                   
+                   (reduce #(dissoc %1 %2) row
+                           '(:_id :updated :created))))
 
    :verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
            ;; merge with the other non-:value columns, and underscore the id.
