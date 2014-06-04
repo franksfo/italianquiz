@@ -161,3 +161,61 @@ ALTER TABLE ONLY question ADD COLUMN index INTEGER NOT NULL;
 
 ALTER TABLE question DROP COLUMN index;
 
+CREATE TABLE vc_user (
+       id bigint NOT NULL,
+       created timestamp without time zone DEFAULT now(),
+       updated timestamp without time zone,
+       fullname text,
+       email text,
+       username text
+);
+CREATE SEQUENCE user_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.user_id_seq OWNER TO verbcoach;
+ALTER TABLE ONLY vc_user ALTER COLUMN id SET DEFAULT nextval('user_id_seq'::regclass);
+ALTER TABLE ONLY vc_user
+    ADD CONSTRAINT user_pkey PRIMARY KEY (id);
+
+CREATE TABLE tsubmit (
+       id bigint NOT NULL,
+       created timestamp without time zone DEFAULT now(),
+       updated timestamp without time zone,
+       test bigint REFERENCES test(id),
+       student bigint REFERENCES vc_user(id)     
+);
+CREATE SEQUENCE tsubmit_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.tsubmit_id_seq OWNER TO verbcoach;
+ALTER TABLE ONLY tsubmit ALTER COLUMN id SET DEFAULT nextval('tsubmit_id_seq'::regclass);
+ALTER TABLE ONLY tsubmit
+    ADD CONSTRAINT tsubmit_pkey PRIMARY KEY (id);
+
+CREATE TABLE qsubmit (
+       id bigint NOT NULL,
+       created timestamp without time zone DEFAULT now(),
+       updated timestamp without time zone,
+       question bigint REFERENCES question(id),
+       tsubmit bigint REFERENCES tsubmit(id)     
+);
+CREATE SEQUENCE qsubmit_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE public.qsubmit_id_seq OWNER TO verbcoach;
+ALTER TABLE ONLY qsubmit ALTER COLUMN id SET DEFAULT nextval('qsubmit_id_seq'::regclass);
+ALTER TABLE ONLY qsubmit
+    ADD CONSTRAINT qsubmit_pkey PRIMARY KEY (id);
+
+CREATE TYPE user_type AS ENUM ('teacher','student');
+
+ALTER TABLE ONLY vc_user ADD COLUMN type user_type DEFAULT 'student';
