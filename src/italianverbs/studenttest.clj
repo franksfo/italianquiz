@@ -266,7 +266,7 @@
             (tr-questions-fill-in (rest questions) test-id (+ 1 index))))
     ""))
 
-(defn take [test-id request]
+(defn test-submit-form [test-id request]
   (if (nil? test-id)
     (do
       (log/error (str "show-one was not given a test-id."))

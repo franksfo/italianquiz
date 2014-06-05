@@ -294,12 +294,12 @@
    (GET "/test/:id/take" request
         (friend/authenticated
          (let [test (:id (:route-params request))]
-           (stest/take test request))))
+           (stest/test-submit-form test request))))
 
    (POST "/test/:id/take" request
         (friend/authenticated
          (let [test (:id (:route-params request))]
-           (let [result (tsubmit/new test 
+           (let [result (tsubmit/new test
                                      (stest/group-by-question (:form-params request))
                                      (friend/current-authentication))]
              {:status 302
