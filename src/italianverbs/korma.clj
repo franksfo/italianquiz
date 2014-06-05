@@ -18,7 +18,7 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare question question-submit qsubmit student-test tsubmit user verb vgroup)
+(declare question question-submit student-test tsubmit user verb vgroup)
 
 (defentity question
   (pk :id)
@@ -41,6 +41,7 @@
   (pk :id))
 
 (defentity question-submit
+  (table :qsubmit)
   (pk :id)
   (entity-fields :answer :test-submit :question))
 
@@ -54,7 +55,7 @@
 
 (def key-to-table
   {:question question
-   :question-submit qsubmit
+   :question-submit question-submit
    :tag vgroup
    :test student-test
    :test-submit test-submit
@@ -66,8 +67,11 @@
 might even represent arbitrary SQL such as a join of multiple tables or a SELECT .. WHERE
 on a table."
   (let [table (key-to-table collection-as-key)]
-    (if table table
-        (throw (.Exception "don't know what table this collection is: " collection-as-key)))))
+    (cond (= (type table) clojure.lang.Var$Unbound)
+          (throw (.Exception "don't know what table this collection is: " collection-as-key))
+          (nil? table)
+          (throw (.Exception "don't know what table this collection is: " collection-as-key))
+          true table)))
 
 (def collection-update
   ;; TODO: add a default to be used if no matching key in this map.
@@ -284,22 +288,14 @@ on a table."
                (list modify-with id))))))
 
 ;; TODO: document what insert-values is for.
-;; TODO: convert to a fn and allow for defaults if no key for a given table.
-(def insert-values
-  {:question (fn [add-with]
-               add-with)
-   :question_submit (fn [add-with]
-                      add-with)
-   :tag (fn [add-with]
-          add-with)
-   :test (fn [add-with]
-           add-with)
-   :test-submit (fn [add-with]
-           add-with)
-   :user (fn [add-with]
-           add-with)
-   :verb (fn [add-with]
-           {:value (str add-with)})})
+(defn insert-values [table]
+  (let [use-map
+        {:verb (fn [add-with]
+                 {:value (str add-with)})}]
+    (if (use-map table)
+      (use-map table)
+      (fn [add-with]
+        add-with))))
 
 (defn insert! [collection & [add-with]]
   "args are collection and map of key/value pairs with which to initialize new row. we simply serialize the map with (str). Any embedded objects will be lost due to serialization, so map should be only of atoms (strings, numbers, etc) or vectors of atoms (vectors of vectors should work too, provided they are eventually atoms at the leaves)"
@@ -308,7 +304,7 @@ on a table."
   (let [add-with (dissoc (dissoc add-with :created) :updated)]
     (insert (keyword-to-table collection)
             (values 
-             (apply (collection insert-values)
+             (apply (insert-values collection)
                     (list add-with))))))
 
 (defn object-id [ & args ]

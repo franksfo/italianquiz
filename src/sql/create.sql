@@ -222,3 +222,5 @@ ALTER TABLE ONLY vc_user ADD COLUMN type user_type DEFAULT 'student';
 
 INSERT INTO vc_user (username,type) VALUES ('franco','teacher');
 INSERT INTO vc_user (username,type) VALUES ('gino','student');
+
+ALTER TABLE ONLY qsubmit ADD COLUMN answer text;

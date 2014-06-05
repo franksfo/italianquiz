@@ -14,6 +14,11 @@
    [italianverbs.question :as question]
    [italianverbs.unify :as unify]))
 
+;; to evaluate a student's results:
+;; SELECT answer AS student_response,italian AS correct 
+;;   FROM qsubmit
+;;  INNER JOIN question ON question.id = qsubmit.question;
+
 (declare add-questions-form)
 (declare delete-form)
 (declare generate-questions-form)
@@ -257,7 +262,7 @@
       (html [:tr 
              [:th.num index]
              [:td (:english question)]
-             [:td [:input {:name (str "question[" (:_id question) "][italian]")}]]]
+             [:td [:input {:size 50 :name (str "question[" (:_id question) "][italian]")}]]]
             (tr-questions-fill-in (rest questions) test-id (+ 1 index))))
     ""))
 

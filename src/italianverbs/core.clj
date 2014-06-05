@@ -299,7 +299,9 @@
    (POST "/test/:id/take" request
         (friend/authenticated
          (let [test (:id (:route-params request))]
-           (let [result (tsubmit/new test request (friend/current-authentication))]
+           (let [result (tsubmit/new test 
+                                     (stest/group-by-question (:form-params request))
+                                     (friend/current-authentication))]
              {:status 302
               :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
    
