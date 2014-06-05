@@ -195,7 +195,7 @@
              [:td (:english question)]
              (if haz-admin
                [:td (:italian question)]
-               [:td [:input]])
+               [:td ]) ;; else, if student, hide the answer (the italian).
              (if haz-admin
                [:td {:class "edit"}
                 [:form {:method "post" :action (str "/question/" (db/primary-key (first questions))
@@ -356,6 +356,13 @@
              ;; TODO: pass form params rather than {}
              (add-questions-form test {})
              ])))
+
+        (if (not (= haz-admin true))
+          (html
+           [:div {:style "float:left;width:100%"}
+            [:h3 [:a {:href (str "/test/" test-id "/take")} "Take test"]]]))
+
+
 ]))))
 
 (defn generate-and-add-question-to-test [test group]
