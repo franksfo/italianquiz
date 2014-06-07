@@ -62,7 +62,8 @@
         :headers {"Location" "/class"}})
 
   (GET "/class" request
-       {:body (html/page "Classes" (vc-class/class (session/request-to-session request) request (haz-admin)) request)
+       {:body (html/page "Classes" 
+                         (vc-class/show (session/request-to-session request) request (haz-admin)) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -75,12 +76,15 @@
 
   ;; for now, just redirect GET /class/new -> GET /class
   (GET "/class/new" request
-        (friend/authorize #{::admin}
-                          {:status 302
-                           :headers {"Location" "/class"}}))
+       (friend/authorize #{::admin}
+                         {:body (html/page "Classes"
+                                           (vc-class/new-form request)
+                                           request)}))
   (GET "/class/new/" request
-       {:status 302
-        :headers {"Location" "/class/new"}})
+       (friend/authorize #{::admin}
+                         {:body (html/page "Classes"
+                                           (vc-class/new-form request)
+                                           request)}))
 
   (POST "/class/new" request
         (friend/authorize #{::admin}
