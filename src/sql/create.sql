@@ -224,3 +224,25 @@ INSERT INTO vc_user (username,type) VALUES ('franco','teacher');
 INSERT INTO vc_user (username,type) VALUES ('gino','student');
 
 ALTER TABLE ONLY qsubmit ADD COLUMN answer text;
+
+CREATE TABLE classes (
+       id bigint NOT NULL,
+       name text,
+       created timestamp without time zone DEFAULT now(),
+       updated timestamp without time zone
+);
+
+CREATE SEQUENCE classes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER TABLE ONLY classes
+      ADD CONSTRAINT classes_pkey PRIMARY KEY (id);
+
+CREATE TABLE students_in_classes (
+       student bigint REFERENCES vc_user(id),
+       class bigint REFERENCES classes(id)     
+);
