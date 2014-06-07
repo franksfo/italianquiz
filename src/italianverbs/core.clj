@@ -62,15 +62,19 @@
         :headers {"Location" "/class"}})
 
   (GET "/class" request
-       {:body (html/page "Classes" 
-                         (vc-class/show (session/request-to-session request) request (haz-admin)) request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
+       (let [debug (log/info "Need to authenticate to see this page..")]
+         (if (not (nil? (friend/current-authentication)))
+           {:status 200
+            :body (html/page "Classes" 
+                             (vc-class/show request (haz-admin))
+                             request)}
+           {:status 302
+            :headers {"Location" "/login"}})))
 
   (POST "/class/delete/:class" request
         (friend/authorize #{::admin}
-                          (let [tag (:class (:route-params request))]
-                            (let [result (vc-class/delete tag)]
+                          (let [class (:class (:route-params request))]
+                            (let [result (vc-class/delete class)]
                               {:status 302
                                :headers {"Location" (str "/class/?result=" (:message result))}}))))
 
@@ -95,13 +99,15 @@
                           (vc-class/new request)))
 
   (GET "/class/:class" request
-       {:body (html/page "Classes" (vc-class/show (session/request-to-session request) 
-                                               (:class (:route-params request))
-                                               (haz-admin)) request)})
+       {:body (html/page "Classes" (vc-class/show-one
+                                    (:class (:route-params request))
+                                    (haz-admin))
+                                    request)})
   (GET "/class/:class/" request
-       {:body (html/page "Classes" (vc-class/show (session/request-to-session request) 
-                                               (:class (:route-params request))
-                                               (haz-admin)) request)})
+       {:body (html/page "Classes" (vc-class/show-one 
+                                    (:class (:route-params request))
+                                    (haz-admin))
+                                    request)})
 
   (GET "/class/:class/delete/:student/" request
        (friend/authorize #{::admin}
@@ -456,7 +462,7 @@
         {:status 302
          :headers {"Location" (str "/test/" (:id (:route-params request)))}})
 
-   ;; TODO: validate 'rename' form with stest/rename-test-format
+   ;; TODO: use stest/rename-test-format to validate 'rename' form POST.
    (POST "/test/:id/rename" request
          (friend/authorize #{::admin}
                            (let [test (:id (:route-params request))
@@ -564,8 +570,7 @@
   (route/resources "/")
 
   ;; TODO: how to show info about the request (e.g. request path)
-  (route/not-found (html/page "Non posso trovare (page not found)." (str "Non posso trovare. Sorry, page not found. "))))
-
+  (route/not-found (html/page "Non posso trovare questa pagina (page not found)." (str "Non posso trovare questa pagina. Sorry, page not found. "))))
 
 (def main-site main-routes)
 
