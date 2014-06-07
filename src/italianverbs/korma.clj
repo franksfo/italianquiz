@@ -64,7 +64,8 @@
   (has-many verb))
 
 (def key-to-table
-  {:classes classes
+  {:class classes
+   :classes classes
    :question question
    :question-submit question-submit
    :students-in-class students-in-class
@@ -80,11 +81,11 @@ might even represent arbitrary SQL such as a join of multiple tables or a SELECT
 on a table."
   (let [table (key-to-table collection-as-key)]
     (cond (= (type table) clojure.lang.Var$Unbound)
-          (throw (.Exception "don't know what table this collection is: " collection-as-key))
+          (throw (.Exception (str "don't know what table this collection is: " collection-as-key)))
           (nil? table)
           (do
             (log/error (str "Sorry, going to barf a stacktrace to web client."))
-            (throw (Exception. "don't know what table this collection is: " collection-as-key)))
+            (throw (Exception. (str "don't know what table this collection is: " collection-as-key))))
           true table)))
 
 (defn collection-update [collection]
@@ -239,8 +240,9 @@ on a table."
         (= postgres_env "workstation")
         workstation
         true
-        nil))
-;;        (throw (Exception. (str "POSTGRES_ENV was not defined in your environment.")))))
+        (do
+          (log/warn (str "POSTGRES_ENV not set in your environment: defaulting to 'workstation'"))
+          workstation)))
 
 (def table-to-filter
   {:verb (fn [row the-where]
@@ -253,7 +255,7 @@ on a table."
            (not (fail? (unify (read-string (:value row))
                               the-where))))})
 
-(defn fetch [collection & [ the-where ]]
+(defn fetch [collection & [ the-where connection]]
   "select from collection; might take an id. For each returned row, return simply the row as a clojure map, but merge it with an extra field for the primary key (id)."
   (let [the-where
         (if the-where the-where nil)
