@@ -460,6 +460,7 @@
         {:status 302
          :headers {"Location" (str "/test/" (:id (:route-params request)))}})
 
+   ;; TODO: validate 'rename' form with stest/rename-test-format
    (POST "/test/:id/rename" request
          (friend/authorize #{::admin}
                            (let [test (:id (:route-params request))

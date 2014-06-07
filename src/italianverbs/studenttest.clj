@@ -29,7 +29,7 @@
 (def new-test-format
   {:fields [{:name :name :label "Test's Name"}]
    :validations [[:required [:name]]
-                 [:min-length 1 :groups "Select one or more groups"]]})
+                 [:min-length 0 :groups "Select one or more groups"]]})
 
 (defn insert-questions [test-params test-id index]
   (let [index-as-keyword (keyword (str index))]
@@ -129,7 +129,8 @@
     {:message "updated test."}))
 
 (def rename-test-format
-  {:fields [{:name :name :label "Name of test"}]})
+  {:fields [{:name :name :label "Name of test"}]
+   :validations [[:required [:name]]]})
 
 (defn rename-test-form [test params & {:keys [problems]}]
   (let [defaults {:name (:name test)}]
