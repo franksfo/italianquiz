@@ -82,7 +82,9 @@ on a table."
     (cond (= (type table) clojure.lang.Var$Unbound)
           (throw (.Exception "don't know what table this collection is: " collection-as-key))
           (nil? table)
-          (throw (.Exception "don't know what table this collection is: " collection-as-key))
+          (do
+            (log/error (str "Sorry, going to barf a stacktrace to web client."))
+            (throw (.Exception "don't know what table this collection is: " collection-as-key)))
           true table)))
 
 (defn collection-update [collection]
