@@ -10,20 +10,36 @@
    [italianverbs.korma :as db]
    [italianverbs.korma :as db]))
 
-;; db-fetch: add 'where user.type=student...'
-(defn student [ & args]
+(declare tr-students)
+
+(defn show [request]
   (let [students
-        (db/fetch :user)] 
+        (db/fetch :user)]; {:type "student"})]
     (html
-     [:div {:class "major tag"}
+     [:div.major
       [:h2 "Students"]
-      [:p "Only teachers should see this."]])))
+      (if (empty? students)
+        [:p "No students." ]
+        [:table.classes.table-striped
+         [:tr
+          [:th]
+          [:th "Name"]
+          [:th "Email"]]
+         (tr-students students)])
+
+      [:div {:style "float:left;width:100%"} [:a {:href "/student/new"}
+                                              "Enroll a new student"]]])))
+
+(defn tr-students [students])
+
+(defn show-one [student-id]
+  (html
+   [:div.major
+    [:h2 "Students (show one)"]]))
 
 (defn delete [ & args])
 
 (defn new [ & args])
-
-(defn show [ & args ])
 
 (defn delete-class-from-student [ & args])
 

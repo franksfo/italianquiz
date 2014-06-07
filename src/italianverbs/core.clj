@@ -46,7 +46,6 @@
            (:roles (friend/current-authentication)))))))
 
 (defn is-authenticated [request if-authenticated]
-  (log/info (str "HERE WE ARE IN is-authenticated with: " (friend/current-authentication)))
   (if (not (nil? (friend/current-authentication)))
     if-authenticated
     {:status 302
@@ -296,7 +295,8 @@
 
   (GET "/student" request
         (friend/authorize #{::admin}
-                          {:body (html/page "Students" (student/student request (haz-admin)) request)
+;                          {:body (html/page "Students" (student/beef request) request)
+                          {:body (html/page "Students" (student/show request) request)
                            :status 200
                            :headers {"Content-Type" "text/html;charset=utf-8"}}))
 
@@ -335,8 +335,8 @@
 
   (GET "/student/:student/" request
        (friend/authorize #{::admin}
-                         {:body (html/page "Students" (student/show (:student (:route-params request))
-                                                                    (haz-admin)) request)}))
+                         {:body (html/page "Students" (student/show-one (:student (:route-params request)))
+                                           request)}))
 
   (GET "/student/:student/delete/:class/" request
        (friend/authorize #{::admin}
