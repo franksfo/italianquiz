@@ -84,7 +84,7 @@ on a table."
           (nil? table)
           (do
             (log/error (str "Sorry, going to barf a stacktrace to web client."))
-            (throw (.Exception "don't know what table this collection is: " collection-as-key)))
+            (throw (Exception. "don't know what table this collection is: " collection-as-key)))
           true table)))
 
 (defn collection-update [collection]
