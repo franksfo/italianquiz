@@ -122,6 +122,13 @@
                            (let [result (lesson/delete-from-tag tag verb)]
                              {:status 302
                               :headers {"Location" (str "/lesson/" tag "/")}}))))
+  (POST "/lesson/:tag/delete/:verb/" request
+       (friend/authorize #{::admin}
+                         (let [tag (:tag (:route-params request))
+                               verb (:verb (:route-params request))]
+                           (let [result (lesson/delete-from-tag tag verb)]
+                             {:status 302
+                              :headers {"Location" (str "/lesson/" tag "/")}}))))
 
   (GET "/lesson/:tag/new/" request
         (friend/authorize #{::admin}
