@@ -19,12 +19,16 @@
 (defn new [test_id responses user]
   (log/info (str "submitting test: " test_id " for user: " user " with data: " responses))
   (let [user_id (:id (first (db/fetch :user {:username (:username user)})))]
-    (let [tsubmit
-          (db/insert! :test-submit {:test (Integer. test_id)
-                                    :student (Integer. user_id)})]
-      ;; iterate over form-params and add each as a question-submit for this test-submit (tsubmit).
-      (insert-answers responses (:id tsubmit))))
-  {:message "submitted"})
+    (if (nil? user_id)
+      (do
+        (log/error (str "no user in database found for user object: " user))
+        {:message "error:no such user"})
+      (let [tsubmit
+            (db/insert! :test-submit {:test (Integer. test_id)
+                                      :student (Integer. user_id)})]
+        ;; iterate over form-params and add each as a question-submit for this test-submit (tsubmit).
+        (insert-answers responses (:id tsubmit))))
+    {:message "submitted"}))
 
 
 
