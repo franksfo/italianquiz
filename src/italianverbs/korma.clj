@@ -306,7 +306,7 @@ on a table."
   (log/info (str "collection: " collection))
   (log/info (str "id: " id))
   (log/info (str "modify-with: " modify-with))
-  (let [id (Integer. id)]
+  (log/info (str "remove? " remove?))  (let [id (Integer. id)]
     (if remove?
       (delete (keyword-to-table collection)
               (where {:id id}))

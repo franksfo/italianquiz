@@ -74,12 +74,16 @@
                                            (vc-class/show request (haz-admin))
                                            request)}))
 
-  (POST "/class/delete/:class" request
+  (GET "/class/:class/delete" request
+       {:status 302
+        :headers {"Location" (str "/class")}})
+
+  (POST "/class/:class/delete" request
         (friend/authorize #{::admin}
                           (let [class (:class (:route-params request))]
                             (let [result (vc-class/delete class)]
                               {:status 302
-                               :headers {"Location" (str "/class/?result=" (:message result))}}))))
+                               :headers {"Location" (str "/class?result=" (:message result))}}))))
 
   ;; for now, just redirect GET /class/new -> GET /class
   (GET "/class/new" request

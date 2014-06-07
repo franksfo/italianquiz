@@ -64,7 +64,10 @@
      [:div {:class "major tag"}
       [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]])))
 
-(defn delete [ & args])
+(defn delete [ class-id ]
+  (log/info (str "deleting class: " class-id))
+  (db/fetch-and-modify :class (db/object-id class-id) {} true)
+  {:message "deleted class"})
 
 (defn new [request]
   (log/info (str "class/new with request: " (:form-params request)))
@@ -95,6 +98,8 @@
         [:th.num i]
         [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
         [:td.num [:a {:href (str "/class/" (:id class))} count]]
-        (if (= true haz-admin) [:td "Delete"])]
+        (if (= true haz-admin) [:td [:form {:action (str "/class/" (:id class) "/delete")
+                                            :method "post"}
+                                     [:button {:onclick "submit()"} "Delete"]]])]
        (tr-classes (rest classes) haz-admin (+ 1 i))))))
 
