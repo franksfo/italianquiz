@@ -45,6 +45,13 @@
           (:italianverbs.core/admin
            (:roles (friend/current-authentication)))))))
 
+(defn is-authenticated [request if-authenticated]
+  (log/info (str "HERE WE ARE IN is-authenticated with: " (friend/current-authentication)))
+  (if (not (nil? (friend/current-authentication)))
+    if-authenticated
+    {:status 302
+     :headers {"Location" "/login"}}))
+
 (defroutes main-routes
   (GET "/" request
        ;; response map
@@ -62,14 +69,11 @@
         :headers {"Location" "/class"}})
 
   (GET "/class" request
-       (let [debug (log/info "Need to authenticate to see this page..")]
-         (if (not (nil? (friend/current-authentication)))
-           {:status 200
-            :body (html/page "Classes" 
-                             (vc-class/show request (haz-admin))
-                             request)}
-           {:status 302
-            :headers {"Location" "/login"}})))
+       (is-authenticated request
+                         {:status 200
+                          :body (html/page "Classes" 
+                                           (vc-class/show request (haz-admin))
+                                           request)}))
 
   (POST "/class/delete/:class" request
         (friend/authorize #{::admin}
