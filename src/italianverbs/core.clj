@@ -88,15 +88,11 @@
 
   (POST "/class/new" request
         (friend/authorize #{::admin}
-                          (let [result (vc-class/new (session/request-to-session request) request (haz-admin))]
-                            {:status 302
-                             :headers {"Location" (str "/class/?result=" (:message result))}})))
+                          (vc-class/new request)))
 
   (POST "/class/new/" request
         (friend/authorize #{::admin}
-                          (let [result (vc-class/new (session/request-to-session request) request)]
-                            {:status 302
-                             :headers {"Location" (str "/class/?result=" (:message result))}})))
+                          (vc-class/new request)))
 
   (GET "/class/:class" request
        {:body (html/page "Classes" (vc-class/show (session/request-to-session request) 
@@ -131,16 +127,16 @@
                               :headers {"Location" (str "/class/" tag "/")}}))))
   (POST "/class/:class/add/:student" request
         (friend/authorize #{::admin}
-                          (let [tag (:class (:route-params request))]
-                            (let [result (vc-class/add-to-tag tag request)]
+                          (let [class-id (:class (:route-params request))]
+                            (let [result (vc-class/add-student-to-class class-id request)]
                               {:status 302
-                               :headers {"Location" (str "/class/" tag "/")}}))))
+                               :headers {"Location" (str "/class/" class-id)}}))))
   (POST "/class/:class/add/:student/" request
         (friend/authorize #{::admin}
-                          (let [tag (:class (:route-params request))]
-                            (let [result (vc-class/add-to-tag tag request)]
+                          (let [class-id (:class (:route-params request))]
+                            (let [result (vc-class/add-student-to-class class-id request)]
                               {:status 302
-                               :headers {"Location" (str "/class/" tag "/")}}))))
+                               :headers {"Location" (str "/class/" class-id)}}))))
 
   (GET "/generate/" request
        {:status 302
