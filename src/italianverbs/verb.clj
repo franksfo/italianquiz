@@ -51,7 +51,8 @@
        [:tr
         [:script script]
         [:th ""]
-        [:th "Verb"]
+        [:th "Italiano"]
+        [:th "English"]
         [:th "Created"]
         [:th "Changed"]
         (if haz-admin
@@ -74,6 +75,8 @@
                   [:th.num i]
                   [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
                         (morph/get-italian-1 (:italian (first results)))]]
+                  [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
+                        (morph/get-italian-1 (:english (first results)))]]
                   [:td [:span {:class "date"}
                         (f/unparse short-format (:created (first results)))]]
 
@@ -125,8 +128,8 @@
                    :value verb-id}]
 
           [:textarea {:name "updated"
-                      :cols "140" 
-                      :rows "30"}
+                      :cols "100" 
+                      :rows "10"}
 
            (reduce #(dissoc %1 %2) verb
                    '(:_id :updated :created))]
