@@ -61,9 +61,10 @@
         :headers {"Location" "/class"}})
 
   (GET "/class" request
-       {:body (html/page "Classes" (vc-class/class (session/request-to-session request) request (haz-admin)) request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
+        (friend/authorize #{::admin}
+                          {:body (html/page "Classes" (vc-class/class (session/request-to-session request) request (haz-admin)) request)
+                           :status 200
+                           :headers {"Content-Type" "text/html;charset=utf-8"}}))
 
   (POST "/class/delete/:class" request
         (friend/authorize #{::admin}
