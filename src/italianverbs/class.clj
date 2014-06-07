@@ -10,6 +10,8 @@
    [italianverbs.html :as html]
    [italianverbs.korma :as db]))
 
+(declare tr-classes)
+
 (def class-form
   {:fields [{:name :name :label "Class Name"}]
    :validations [[:required [:name]]
@@ -36,33 +38,63 @@
                         :method "post"
                         :problems problems))]])))
 
-(defn show [ & args]
+(defn show [ request haz-admin]
   (let [classes
         (db/fetch :classes)]
     (html
      [:div {:class "major tag"}
       [:h2 "Classes"]
       (if (empty? classes)
-        [:p "no classes." ])
-      [:div [:a {:href "/class/new"}
-             "Create a new class"]]])))
+        [:p "no classes." ]
+        [:table.classes.table-striped
+         [:tr
+          [:th]
+          [:th "Name"]
+          [:th "Students"]]
+
+         (tr-classes classes haz-admin)])
+
+      (if (= true haz-admin)
+        [:div {:style "float:left;width:100%"} [:a {:href "/class/new"}
+               "Create a new class"]])])))
+
+(defn show-one [ class-id haz-admin]
+  (let [class (first (db/fetch :classes {:_id class-id}))]
+    (html
+     [:div {:class "major tag"}
+      [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]])))
 
 (defn delete [ & args])
 
 (defn new [request]
-  (let [values (fp/parse-params class-form (:form-params request))]
-    (log/debug (str "class/new with request: " (:form-params request)))
-    (let [created-at (t/now)]
-      (let [new-class
-            (db/insert! :class {:created (str created-at)
-                                :updated (str created-at)
-                                :name (get (:form-params request) "name")})
-            new-test-id
-            (:id new-class)]
-        {:status 302
-         :headers {"Location" (str "/class/" new-test-id "?message=created")}}))))
+  (log/info (str "class/new with request: " (:form-params request)))
+  (fp/with-fallback #(html/page "Create a new class" 
+                                (new-form request :problems %) request)
+    (let [values (fp/parse-params class-form (:form-params request))]
+      (let [created-at (t/now)]
+        (let [new-class
+              (db/insert! :class {:created (str created-at)
+                                  :updated (str created-at)
+                                  :name (get (:form-params request) "name")})
+              new-test-id
+              (:id new-class)]
+          {:status 302
+           :headers {"Location" (str "/class/" new-test-id "?message=created")}})))))
 
 (defn delete-from-class [ & args])
 
 (defn add-student-to-class [ & args])
+
+(defn tr-classes [classes haz-admin & [ i ]]
+  (if (not (empty? classes))
+    (let [class (first classes)
+          i (if i i 1)
+          count (:students class)]
+      (html
+       [:tr
+        [:th.num i]
+        [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
+        [:td.num [:a {:href (str "/class/" (:id class))} count]]
+        (if (= true haz-admin) [:td "Delete"])]
+       (tr-classes (rest classes) haz-admin (+ 1 i))))))
 

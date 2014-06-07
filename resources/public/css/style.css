@@ -450,3 +450,6 @@ th.delete {
 th.num {
     text-align:right;
 }
+td.num {
+    text-align:right;
+}
