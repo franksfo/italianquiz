@@ -241,6 +241,7 @@ CREATE SEQUENCE classes_id_seq
 
 ALTER TABLE ONLY classes
       ADD CONSTRAINT classes_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY classes ALTER COLUMN id SET DEFAULT nextval('classes_id_seq'::regclass);
 
 CREATE TABLE students_in_classes (
        student bigint REFERENCES vc_user(id),
