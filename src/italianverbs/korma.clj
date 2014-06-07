@@ -179,7 +179,6 @@ on a table."
             (reduce #(dissoc %1 %2) row
                     (list :created :id :value))))})
 
-
 ;; http://sqlkorma.com/docs#db
 (def workstation (postgres {:db "verbcoach"
                     :user "verbcoach"

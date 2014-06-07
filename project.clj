@@ -1,3 +1,5 @@
+;; You must define POSTGRES_ENV and (if needed) POSTGRES_SECRET
+;; in your environment so that 'lein ring server[-headless]' can work.
 (defproject italianverbs "1.0.0-SNAPSHOT"
   :description "Italian language learning app"
   :dependencies [[clj-time "0.7.0"]
@@ -33,7 +35,10 @@
 
   :hooks [environ.leiningen.hooks]
 
-
+  ;; You must define POSTGRES_ENV and (if needed) POSTGRES_SECRET
+  ;; in your environment so that 'lein ring server[-headless]' can work.
+  ;; See src/italianverbs/korma.clj for a list of supported
+  ;; POSTGRES_ENVs.
   :profiles
   {:dev {:dependencies [[ring-mock "0.1.3"]
                         [org.clojure/tools.nrepl "0.2.0-beta10"]]}
