@@ -584,6 +584,16 @@
          {:class "selected"})
        [:a {:href "/about"} (str "About")]]
 
+
+      (if authentication
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/class" relative-url))
+                 (= relative-url "/class")) {:class "selected"})
+         [:a {:href (str "/class" (if (get suffixes :test)
+                                   (get suffixes :test)))}
+          (str "Classes")]])
+
       [:div
        (if (or (and (not (nil? relative-url))
                     (re-find #"/verb" relative-url))

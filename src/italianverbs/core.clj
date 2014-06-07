@@ -13,6 +13,7 @@
    [environ.core :refer [env]]
    [hiccup.page :as h]
    [hiccup.element :as e]
+   [italianverbs.class :as class]
    [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
    [italianverbs.lesson :as lesson]
@@ -54,6 +55,87 @@
         :body (html/page "Welcome to Verbcoach"
                          (html/about)
                          request)})
+
+  (GET "/class/" request
+       {:status 302
+        :headers {"Location" "/class"}})
+
+  (GET "/class" request
+       {:body (html/page "Classes" (class/class (session/request-to-session request) request (haz-admin)) request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (POST "/class/delete/:class" request
+        (friend/authorize #{::admin}
+                          (let [tag (:class (:route-params request))]
+                            (let [result (class/delete tag)]
+                              {:status 302
+                               :headers {"Location" (str "/class/?result=" (:message result))}}))))
+
+  ;; for now, just redirect GET /class/new -> GET /class
+  (GET "/class/new" request
+        (friend/authorize #{::admin}
+                          {:status 302
+                           :headers {"Location" "/class"}}))
+  (GET "/class/new/" request
+       {:status 302
+        :headers {"Location" "/class/new"}})
+
+  (POST "/class/new" request
+        (friend/authorize #{::admin}
+                          (let [result (class/new (session/request-to-session request) request (haz-admin))]
+                            {:status 302
+                             :headers {"Location" (str "/class/?result=" (:message result))}})))
+
+  (POST "/class/new/" request
+        (friend/authorize #{::admin}
+                          (let [result (class/new (session/request-to-session request) request)]
+                            {:status 302
+                             :headers {"Location" (str "/class/?result=" (:message result))}})))
+
+  (GET "/class/:class" request
+       {:body (html/page "Classes" (class/show (session/request-to-session request) 
+                                               (:class (:route-params request))
+                                               (haz-admin)) request)})
+  (GET "/class/:class/" request
+       {:body (html/page "Classes" (class/show (session/request-to-session request) 
+                                               (:class (:route-params request))
+                                               (haz-admin)) request)})
+
+  (GET "/class/:class/delete/:student/" request
+       (friend/authorize #{::admin}
+                         (let [tag (:class (:route-params request))
+                               verb (:verb (:route-params request))]
+                           (let [result {:message "redirected-no-effect"}]
+                             {:status 302
+                              :headers {"Location" (str "/class/" tag "/")}}))))
+
+  (POST "/class/:class/delete/:student" request
+       (friend/authorize #{::admin}
+                         (let [tag (:class (:route-params request))
+                               student (:student (:route-params request))]
+                           (let [result (class/delete-from-class class student)]
+                             {:status 302
+                              :headers {"Location" (str "/class/" tag "/")}}))))
+  (POST "/class/:class/delete/:student/" request
+       (friend/authorize #{::admin}
+                         (let [tag (:class (:route-params request))
+                               student (:student (:route-params request))]
+                           (let [result (class/delete-from-class class student)]
+                             {:status 302
+                              :headers {"Location" (str "/class/" tag "/")}}))))
+  (POST "/class/:class/add/:student" request
+        (friend/authorize #{::admin}
+                          (let [tag (:class (:route-params request))]
+                            (let [result (class/add-to-tag tag request)]
+                              {:status 302
+                               :headers {"Location" (str "/class/" tag "/")}}))))
+  (POST "/class/:class/add/:student/" request
+        (friend/authorize #{::admin}
+                          (let [tag (:class (:route-params request))]
+                            (let [result (class/add-to-tag tag request)]
+                              {:status 302
+                               :headers {"Location" (str "/class/" tag "/")}}))))
 
   (GET "/generate/" request
        {:status 302
@@ -151,6 +233,17 @@
                               {:status 302
                                :headers {"Location" (str "/lesson/" tag "/")}}))))
 
+  (GET "/login" request
+       {:status 401
+        :body (html/page "Unauthenticated: please login or register."
+                         (html/about)
+                         request)})
+
+  (POST "/login" request
+        (resp/redirect "/"))
+
+  (GET "/logout" request
+    (friend/logout* (resp/redirect "/login")))
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/" request
@@ -163,27 +256,6 @@
        {:side-effect (session/unregister request)
         :status 302
         :headers {"Location" "/?msg=cleared"}})
-
-  (GET "/lesson/" request
-       {:status 302
-        :headers {"Location" "/lesson"}})
-
-  (GET "/lesson" request
-       {:body (html/page "Groups" (lesson/lesson (session/request-to-session request) request (haz-admin)) request)
-        :status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/login" request
-       {:status 401
-        :body (html/page "Unauthenticated: please login or register."
-                         (html/about)
-                         request)})
-
-  (POST "/login" request
-        (resp/redirect "/"))
-
-  (GET "/logout" request
-    (friend/logout* (resp/redirect "/login")))
 
   (POST "/question/new" request
         (let [testid (if request (get (:form-params request) "testid"))

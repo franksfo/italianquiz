@@ -426,13 +426,16 @@ div.code {
     width:100%;
 }
 
-
 // http://stackoverflow.com/questions/2874813/why-textarea-and-textfield-not-taking-font-family-and-font-size-from-body
 // TODO: be more specific: textarea.code-editor
+form {
+   font-family:monospace;
+}
+
 textarea {
    font-family: inherit;
    font-size: inherit;
-    font-family:monospace;
+   font-family:monospace;
 }
 
 table.studenttest td {
