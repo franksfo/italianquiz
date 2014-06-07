@@ -1,4 +1,5 @@
 (ns italianverbs.class
+  (:refer-clojure :exclude [class]) ;; probably bad idea to exclude this..
   (:use [hiccup core])
   (:require
    [italianverbs.html :as html]
