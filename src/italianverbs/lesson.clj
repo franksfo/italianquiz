@@ -110,7 +110,7 @@
         (create-a-new-tag))
       ])))
 
-(defn lesson [session request haz-admin]
+(defn lesson [request haz-admin]
   (html
    (show-tags haz-admin)))
 
@@ -145,7 +145,7 @@
     (db/fetch-and-modify :tag (db/object-id tag) {:name (:name result)
                                                   :verbs (concat verbs-of-tag new-verbs)})))
 
-(defn show [session tag haz-admin]
+(defn show [tag haz-admin]
   (let [script "/* js goes here.. */"
         results (db/fetch :tag {:_id (db/object-id tag)})
         result (first results)]
@@ -178,7 +178,7 @@
 (defn add-new-tag [tag]
   (db/insert! :tag {:name (normalize-whitespace tag)}))
 
-(defn new [session request haz-admin]
+(defn new [request haz-admin]
   (log/debug (str "/lesson/new with request: " (:form-params request)))
 
   (if (get (:form-params request) "tag")

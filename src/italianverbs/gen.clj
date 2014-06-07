@@ -27,7 +27,7 @@
          (tr-result (rest results)))
     ""))
 
-(defn generate [session request]
+(defn generate [request]
   (html
    [:div {:class "major gen"}
     [:h2 "Generate"]

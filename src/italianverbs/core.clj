@@ -103,15 +103,14 @@
                           (vc-class/new request)))
 
   (GET "/class/:class" request
-       {:body (html/page "Classes" (vc-class/show-one
-                                    (:class (:route-params request))
-                                    (haz-admin))
-                                    request)})
+       (is-authenticated request
+                         {:body (html/page "Classes" (vc-class/show-one
+                                                      (:class (:route-params request))
+                                                      (haz-admin))
+                                           request)}))
   (GET "/class/:class/" request
-       {:body (html/page "Classes" (vc-class/show-one 
-                                    (:class (:route-params request))
-                                    (haz-admin))
-                                    request)})
+       {:status 302
+        :headers {"Location" (str "/class/" (:class (:route-params request)))}})
 
   (GET "/class/:class/delete/:student/" request
        (friend/authorize #{::admin}
@@ -154,7 +153,7 @@
 
   (GET "/generate" request
        (friend/authorize #{::admin}
-                         {:body (html/page "Generate" (g/generate (session/request-to-session request) request) request)
+                         {:body (html/page "Generate" (g/generate request) request)
                           :status 200
                           :headers {"Content-Type" "text/html;charset=utf-8"}}))
 
@@ -169,7 +168,7 @@
         :headers {"Location" "/lesson"}})
 
   (GET "/lesson" request
-       {:body (html/page "Groups" (lesson/lesson (session/request-to-session request) request (haz-admin)) request)
+       {:body (html/page "Groups" (lesson/lesson request (haz-admin)) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -191,21 +190,20 @@
 
   (POST "/lesson/new" request
         (friend/authorize #{::admin}
-                          (let [result (lesson/new (session/request-to-session request) request (haz-admin))]
+                          (let [result (lesson/new request (haz-admin))]
                             {:status 302
                              :headers {"Location" (str "/lesson/?result=" (:message result))}})))
 
   (POST "/lesson/new/" request
         (friend/authorize #{::admin}
-                          (let [result (lesson/new (session/request-to-session request) request)]
+                          (let [result (lesson/new request)]
                             {:status 302
                              :headers {"Location" (str "/lesson/?result=" (:message result))}})))
 
 
 
   (GET "/lesson/:tag/" request
-       {:body (html/page "Groups" (lesson/show (session/request-to-session request) 
-                                               (:tag (:route-params request))
+       {:body (html/page "Groups" (lesson/show (:tag (:route-params request))
                                                (haz-admin)) request)})
 
   (GET "/lesson/:tag/delete/:verb/" request
@@ -298,7 +296,7 @@
 
   (GET "/student" request
         (friend/authorize #{::admin}
-                          {:body (html/page "Students" (student/student (session/request-to-session request) request (haz-admin)) request)
+                          {:body (html/page "Students" (student/student request (haz-admin)) request)
                            :status 200
                            :headers {"Content-Type" "text/html;charset=utf-8"}}))
 
@@ -320,26 +318,24 @@
 
   (POST "/student/new" request
         (friend/authorize #{::admin}
-                          (let [result (student/new (session/request-to-session request) request (haz-admin))]
+                          (let [result (student/new request (haz-admin))]
                             {:status 302
                              :headers {"Location" (str "/student/?result=" (:message result))}})))
 
   (POST "/student/new/" request
         (friend/authorize #{::admin}
-                          (let [result (student/new (session/request-to-session request) request)]
+                          (let [result (student/new request)]
                             {:status 302
                              :headers {"Location" (str "/student/?result=" (:message result))}})))
 
   (GET "/student/:student" request
         (friend/authorize #{::admin} 
-                          {:body (html/page "Students" (student/show (session/request-to-session request) 
-                                                                      (:student (:route-params request))
+                          {:body (html/page "Students" (student/show (:student (:route-params request))
                                                (haz-admin)) request)}))
 
   (GET "/student/:student/" request
        (friend/authorize #{::admin}
-                         {:body (html/page "Students" (student/show (session/request-to-session request) 
-                                                                    (:student (:route-params request))
+                         {:body (html/page "Students" (student/show (:student (:route-params request))
                                                                     (haz-admin)) request)}))
 
   (GET "/student/:student/delete/:class/" request
