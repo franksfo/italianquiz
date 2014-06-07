@@ -153,16 +153,6 @@
          :essere true})
        "andati")))
 
-
-(deftest conjugate-irreg-passato-4
-  "not specific enough: (get-italian-1) should return 'andato' with square brackets around it to indicate that there isn't enough agreement information to conjugate."
-  (is (=
-       (get-italian-1
-        {:infl :past
-         :irregular {:passato "andato"}
-         :essere true})
-       "[nei1: andato (irreg past)]")))
-
 (deftest plural-noun-singular
   "il studente => lo studente"
   (is (=
