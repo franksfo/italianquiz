@@ -22,7 +22,7 @@
    [italianverbs.over :refer :all]
    [italianverbs.pos :refer :all]
    ;; we excluded lightning-bolt from italianverbs.forest, so that we can use italianverbs.test.forest's instead:
-   [italianverbs.test.forest :refer :all]
+;;   [italianverbs.test.forest :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]))
 

@@ -26,7 +26,7 @@
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]
    [clojure.set :as set]
-   [italianverbs.test.generate :as tgen]
+;;   [italianverbs.test.generate :as tgen]
    [clojure.string :as string]
    [clojure.tools.logging :as log]))
 

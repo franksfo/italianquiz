@@ -18,12 +18,23 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare question question-submit student-test tsubmit user verb vgroup)
+(declare classes
+         question question-submit 
+         students-in-class
+         student-test tsubmit user verb vgroup)
+
+(defentity classes
+  (pk :id))
 
 (defentity question
   (pk :id)
   (belongs-to student-test {:fk :test})
   (entity-fields :english :italian))
+
+(defentity question-submit
+  (table :qsubmit)
+  (pk :id)
+  (entity-fields :answer :test-submit :question))
 
 (defentity student-test
   (table :test)
@@ -39,11 +50,6 @@
 (defentity user
   (table :vc_user)
   (pk :id))
-
-(defentity question-submit
-  (table :qsubmit)
-  (pk :id)
-  (entity-fields :answer :test-submit :question))
 
 (defentity verb
   (pk :id)
