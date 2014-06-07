@@ -589,7 +589,11 @@
      :login-uri "/login"
      :default-landing-uri "/"
      :unauthorized-handler #(-> 
-                             (html/page "Unauthorized" (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %) "."]) %)
+                             (html/page "Unauthorized" (h/html5 
+
+                                                        [:div {:class "major tag"}
+                                                         [:h2 "Unauthorized"]
+                                                         [:p "You do not have sufficient privileges to access " (:uri %) "."]]) %)
                              resp/response
                              (resp/status 401))
      :credential-fn #(creds/bcrypt-credential-fn @users %)
