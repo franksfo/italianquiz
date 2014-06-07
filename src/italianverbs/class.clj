@@ -1,6 +1,9 @@
 (ns italianverbs.class)
 
-(defn class [ & args])
+(defn class [ & args]
+  (db/fetch args))
+
+
 
 (defn delete [ & args])
 

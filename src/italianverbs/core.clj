@@ -13,7 +13,7 @@
    [environ.core :refer [env]]
    [hiccup.page :as h]
    [hiccup.element :as e]
-   [italianverbs.class :as class]
+   [italianverbs.class :as vc-class]
    [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
    [italianverbs.lesson :as lesson]
@@ -61,14 +61,14 @@
         :headers {"Location" "/class"}})
 
   (GET "/class" request
-       {:body (html/page "Classes" (class/class (session/request-to-session request) request (haz-admin)) request)
+       {:body (html/page "Classes" (vc-class/class (session/request-to-session request) request (haz-admin)) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
   (POST "/class/delete/:class" request
         (friend/authorize #{::admin}
                           (let [tag (:class (:route-params request))]
-                            (let [result (class/delete tag)]
+                            (let [result (vc-class/delete tag)]
                               {:status 302
                                :headers {"Location" (str "/class/?result=" (:message result))}}))))
 
@@ -83,22 +83,22 @@
 
   (POST "/class/new" request
         (friend/authorize #{::admin}
-                          (let [result (class/new (session/request-to-session request) request (haz-admin))]
+                          (let [result (vc-class/new (session/request-to-session request) request (haz-admin))]
                             {:status 302
                              :headers {"Location" (str "/class/?result=" (:message result))}})))
 
   (POST "/class/new/" request
         (friend/authorize #{::admin}
-                          (let [result (class/new (session/request-to-session request) request)]
+                          (let [result (vc-class/new (session/request-to-session request) request)]
                             {:status 302
                              :headers {"Location" (str "/class/?result=" (:message result))}})))
 
   (GET "/class/:class" request
-       {:body (html/page "Classes" (class/show (session/request-to-session request) 
+       {:body (html/page "Classes" (vc-class/show (session/request-to-session request) 
                                                (:class (:route-params request))
                                                (haz-admin)) request)})
   (GET "/class/:class/" request
-       {:body (html/page "Classes" (class/show (session/request-to-session request) 
+       {:body (html/page "Classes" (vc-class/show (session/request-to-session request) 
                                                (:class (:route-params request))
                                                (haz-admin)) request)})
 
@@ -114,26 +114,26 @@
        (friend/authorize #{::admin}
                          (let [tag (:class (:route-params request))
                                student (:student (:route-params request))]
-                           (let [result (class/delete-from-class class student)]
+                           (let [result (vc-class/delete-from-class class student)]
                              {:status 302
                               :headers {"Location" (str "/class/" tag "/")}}))))
   (POST "/class/:class/delete/:student/" request
        (friend/authorize #{::admin}
                          (let [tag (:class (:route-params request))
                                student (:student (:route-params request))]
-                           (let [result (class/delete-from-class class student)]
+                           (let [result (vc-class/delete-from-class class student)]
                              {:status 302
                               :headers {"Location" (str "/class/" tag "/")}}))))
   (POST "/class/:class/add/:student" request
         (friend/authorize #{::admin}
                           (let [tag (:class (:route-params request))]
-                            (let [result (class/add-to-tag tag request)]
+                            (let [result (vc-class/add-to-tag tag request)]
                               {:status 302
                                :headers {"Location" (str "/class/" tag "/")}}))))
   (POST "/class/:class/add/:student/" request
         (friend/authorize #{::admin}
                           (let [tag (:class (:route-params request))]
-                            (let [result (class/add-to-tag tag request)]
+                            (let [result (vc-class/add-to-tag tag request)]
                               {:status 302
                                :headers {"Location" (str "/class/" tag "/")}}))))
 
