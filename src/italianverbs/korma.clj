@@ -41,6 +41,10 @@
   (pk :id)
   (has-many question))
 
+(defentity students-in-class
+  (table :students-in-class)
+  (pk :id))
+
 (defentity test-submit
   (table :tsubmit)
   (pk :id)
@@ -60,8 +64,10 @@
   (has-many verb))
 
 (def key-to-table
-  {:question question
+  {:classes classes
+   :question question
    :question-submit question-submit
+   :students-in-class students-in-class
    :tag vgroup
    :test student-test
    :test-submit test-submit
@@ -79,112 +85,128 @@ on a table."
           (throw (.Exception "don't know what table this collection is: " collection-as-key))
           true table)))
 
-(def collection-update
-  ;; TODO: add a default to be used if no matching key in this map.
-  {:question (fn [modify-with id]
-               (update question
-                       (set-fields modify-with)
-                       (where {:id id})))
-   :question-submit (fn [modify-with id]
-                      (update (key-to-table :question-submit)
-                              (set-fields modify-with)
-                              (where {:id id})))
-   :test (fn [modify-with id]
-           (update student-test
-                   (set-fields modify-with)
-                   (where {:id id})))
-   :test-submit (fn [modify-with id]
-                  (update (key-to-table :test-submit)
-                          (set-fields modify-with)
-                          (where {:id id})))
-   :verb (fn [modify-with id]
-           (let [modify-with (dissoc (dissoc modify-with :created) :updated)
-                 set-the-fields {:value (str modify-with)}]
-             (log/info (str "updating :verb table with set-fields: " set-fields))
-             (log/info (str "updating :verb table with id: " id))
-             (update verb
-                     (set-fields set-the-fields)
-                     (where {:id id}))))
-   :tag (fn [modify-with id]
-          (log/info (str "UPDATE STATEMENT: " (str "UPDATE vgroup SET verbs = '{" (string/join ","
-                                                                                               (:verbs modify-with))
-                                                   "}' WHERE id=?") (vec (list id))))
-
-
-          ;; TODO: allow updates of name of tag: right now, it just
-          ;; handles :verbs of the tag.
-          (if (:verbs modify-with)
-            (exec-raw [(str "UPDATE vgroup SET verbs = '{" (string/join ","
-                                                                        (:verbs modify-with))
-                            "}' WHERE id=?") (vec (list id))])
-            ;; if :id and :verbs are not set, ignore (for now) with a warning.
-            (log/warn (str "ignoring update of tag collection with modify-with: " modify-with " and id: " id))))})
-
+(defn collection-update [collection]
+  (let [map-to-procedure
+        {:question (fn [modify-with id]
+                     (update question
+                             (set-fields modify-with)
+                             (where {:id id})))
+         :question-submit (fn [modify-with id]
+                            (update (key-to-table :question-submit)
+                                    (set-fields modify-with)
+                                    (where {:id id})))
+         :test (fn [modify-with id]
+                 (update student-test
+                         (set-fields modify-with)
+                         (where {:id id})))
+         :test-submit (fn [modify-with id]
+                        (update (key-to-table :test-submit)
+                                (set-fields modify-with)
+                                (where {:id id})))
+         :verb (fn [modify-with id]
+                 (let [modify-with (dissoc (dissoc modify-with :created) :updated)
+                       set-the-fields {:value (str modify-with)}]
+                   (log/info (str "updating :verb table with set-fields: " set-fields))
+                   (log/info (str "updating :verb table with id: " id))
+                   (update verb
+                           (set-fields set-the-fields)
+                           (where {:id id}))))
+         :tag (fn [modify-with id]
+                (log/info (str "UPDATE STATEMENT: " (str "UPDATE vgroup SET verbs = '{" (string/join ","
+                                                                                                     (:verbs modify-with))
+                                                         "}' WHERE id=?") (vec (list id))))
+                
+                
+                ;; TODO: allow updates of name of tag: right now, it just
+                ;; handles :verbs of the tag.
+                (if (:verbs modify-with)
+                  (exec-raw [(str "UPDATE vgroup SET verbs = '{" (string/join ","
+                                                                              (:verbs modify-with))
+                                  "}' WHERE id=?") (vec (list id))])
+                  ;; if :id and :verbs are not set, ignore (for now) with a warning.
+                  (log/warn (str "ignoring update of tag collection with modify-with: " modify-with " and id: " id))))}]
+    (let [lookup (map-to-procedure collection)]
+      (if lookup lookup
+          ;; default update function, if (lookup collection) returned nil:
+          (fn [modify-with id]
+            (update question
+                    (set-fields modify-with)
+                    (where {:id id})))))))
 
 (defn jdbc2joda [time]
   (c/from-long (.getTime time)))
 
-(def do-each-row
+(defn do-each-row [collection]
   ;; return the 'interesting' parts of a row as a map.
   ;; TODO: add a default to be used if no matching key in this map.
-  {
+  (let [map-collection-to-fn
+        {
+         :question (fn [row]
+                     (merge
+                      {:created (jdbc2joda (:created row))}
+                      {:_id (:id row)}
+                      (if (:updated row)
+                        {:updated (jdbc2joda (:updated row))}
+                        (log/warn (str "no updated value found for row:" row)))
+                      (reduce #(dissoc %1 %2) row
+                              '(:_id :updated :created))))
 
-   :question (fn [row]
-               (merge
-                {:created (jdbc2joda (:created row))}
-                {:_id (:id row)}
-                (if (:updated row)
-                  {:updated (jdbc2joda (:updated row))}
-                  (log/warn (str "no updated value found for row:" row)))
-                (reduce #(dissoc %1 %2) row
-                        '(:_id :updated :created))))
+         :question-submit (fn [row]
+                            (merge
+                             {:_id (:id row)}
+                             {:created (jdbc2joda (:created row))}
+                             
+                             (reduce #(dissoc %1 %2) row
+                                     '(:_id :updated :created))))
+         
+         :tag (fn [row] ;; for the vgroup table, it's simpler: simply convert :id to :_id.
+                (merge
+                 {:_id (:id row)}
+                 {:verbs (if (nil? (:verbs row))
+                           []
+                           (vec (.getArray (:verbs row))))}
+                 (dissoc (dissoc row :id)
+                         :verbs)))
+         
+         :test (fn [row]
+                 (merge
+                  {:_id (:id row)}
+                  {:created (jdbc2joda (:created row))}
+                  
+                  (reduce #(dissoc %1 %2) row
+                          '(:_id :updated :created))))
 
-   :question-submit (fn [row]
-                      (merge
-                       {:_id (:id row)}
-                       {:created (jdbc2joda (:created row))}
-                       
-                       (reduce #(dissoc %1 %2) row
-                               '(:_id :updated :created))))
-
-   :tag (fn [row] ;; for the vgroup table, it's simpler: simply convert :id to :_id.
-          (merge
-           {:_id (:id row)}
-           {:verbs (if (nil? (:verbs row))
-                     []
-                     (vec (.getArray (:verbs row))))}
-           (dissoc (dissoc row :id)
-                   :verbs)))
-
-   :test (fn [row]
-          (merge
-           {:_id (:id row)}
-           {:created (jdbc2joda (:created row))}
-
-           (reduce #(dissoc %1 %2) row
-                   '(:_id :updated :created))))
-
-   :test-submit (fn [row]
-                  (merge
-                   {:_id (:id row)}
-                   {:created (jdbc2joda (:created row))}
-                   
-                   (reduce #(dissoc %1 %2) row
-                           '(:_id :updated :created))))
-
-   :verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
-           ;; merge with the other non-:value columns, and underscore the id.
-           (merge
-            (read-string (:value row))
-            {:_id (:id row)}
-
-            ;; .getTime: java.sql.Timestamp -> long
-            ;; from-long: long -> Joda DateTime.
-            {:created (jdbc2joda (:created row))}
-
-            (reduce #(dissoc %1 %2) row
-                    (list :created :id :value))))})
-
+         :test-submit (fn [row]
+                        (merge
+                         {:_id (:id row)}
+                         {:created (jdbc2joda (:created row))}
+                         
+                         (reduce #(dissoc %1 %2) row
+                                 '(:_id :updated :created))))
+         
+         :verb (fn [row] ;; for the verb table, parse the :value column into a map, and then
+                 ;; merge with the other non-:value columns, and underscore the id.
+                 (merge
+                  (read-string (:value row))
+                  {:_id (:id row)}
+                  
+                  ;; .getTime: java.sql.Timestamp -> long
+                  ;; from-long: long -> Joda DateTime.
+                  {:created (jdbc2joda (:created row))}
+                  
+                  (reduce #(dissoc %1 %2) row
+                          (list :created :id :value))))}]
+    (let [lookup (collection map-collection-to-fn)]
+      (if lookup lookup
+          ;; default:
+          (fn [row]
+            (merge
+             {:_id (:id row)}
+             {:created (jdbc2joda (:created row))}
+             
+             (reduce #(dissoc %1 %2) row
+                     '(:_id :updated :created))))))))
+    
 ;; http://sqlkorma.com/docs#db
 (def workstation (postgres {:db "verbcoach"
                     :user "verbcoach"
@@ -238,7 +260,7 @@ on a table."
     (log/info (str "doing fetch with id: " id))
     (log/info (str "table: " table))
     (if-let [collection-map-function
-             (collection do-each-row)]
+             (do-each-row collection)]
       (map collection-map-function
            (if id
              (let [rows (select table
@@ -289,7 +311,7 @@ on a table."
       (do
         (log/info (str "collection update: modify-with: " modify-with))
         (log/info (str "collection update: id: " id))
-        (apply (collection collection-update)
+        (apply (collection-update collection)
                (list modify-with id))))))
 
 ;; TODO: document what insert-values is for.
