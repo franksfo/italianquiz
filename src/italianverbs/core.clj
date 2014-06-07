@@ -21,6 +21,7 @@
    [italianverbs.html :as html]
    [italianverbs.search :as search]
    [italianverbs.session :as session]
+   [italianverbs.student :as student]
    [italianverbs.studenttest :as stest]
    [italianverbs.test_submit :as tsubmit]
    [italianverbs.question :as question]
@@ -280,6 +281,91 @@
         :session (get request :session)
         :status 302
         :headers {"Location" "/?msg=set"}})
+
+  (GET "/student/" request
+       {:status 302
+        :headers {"Location" "/student"}})
+
+  (GET "/student" request
+        (friend/authorize #{::admin}
+                          {:body (html/page "Students" (student/student (session/request-to-session request) request (haz-admin)) request)
+                           :status 200
+                           :headers {"Content-Type" "text/html;charset=utf-8"}}))
+
+  (POST "/student/delete/:student" request
+        (friend/authorize #{::admin}
+                          (let [tag (:student (:route-params request))]
+                            (let [result (student/delete tag)]
+                              {:status 302
+                               :headers {"Location" (str "/student/?result=" (:message result))}}))))
+
+  ;; for now, just redirect GET /student/new -> GET /student
+  (GET "/student/new" request
+        (friend/authorize #{::admin}
+                          {:status 302
+                           :headers {"Location" "/student"}}))
+  (GET "/student/new/" request
+       {:status 302
+        :headers {"Location" "/student/new"}})
+
+  (POST "/student/new" request
+        (friend/authorize #{::admin}
+                          (let [result (student/new (session/request-to-session request) request (haz-admin))]
+                            {:status 302
+                             :headers {"Location" (str "/student/?result=" (:message result))}})))
+
+  (POST "/student/new/" request
+        (friend/authorize #{::admin}
+                          (let [result (student/new (session/request-to-session request) request)]
+                            {:status 302
+                             :headers {"Location" (str "/student/?result=" (:message result))}})))
+
+  (GET "/student/:student" request
+        (friend/authorize #{::admin} 
+                          {:body (html/page "Students" (student/show (session/request-to-session request) 
+                                                                      (:student (:route-params request))
+                                               (haz-admin)) request)}))
+
+  (GET "/student/:student/" request
+       (friend/authorize #{::admin}
+                         {:body (html/page "Students" (student/show (session/request-to-session request) 
+                                                                    (:student (:route-params request))
+                                                                    (haz-admin)) request)}))
+
+  (GET "/student/:student/delete/:class/" request
+       (friend/authorize #{::admin}
+                         (let [tag (:student (:route-params request))
+                               verb (:verb (:route-params request))]
+                           (let [result {:message "redirected-no-effect"}]
+                             {:status 302
+                              :headers {"Location" (str "/student/" tag "/")}}))))
+
+  (POST "/student/:student/delete/:class" request
+       (friend/authorize #{::admin}
+                         (let [student (:student (:route-params request))
+                               class (:class (:route-params request))]
+                           (let [result (student/delete-class-from-student student class)]
+                             {:status 302
+                              :headers {"Location" (str "/student/" student "/")}}))))
+  (POST "/student/:student/delete/:class/" request
+       (friend/authorize #{::admin}
+                         (let [student (:student (:route-params request))
+                               class (:class (:route-params request))]
+                           (let [result (student/delete-class-from-student student class)]
+                             {:status 302
+                              :headers {"Location" (str "/student/" student "/")}}))))
+  (POST "/student/:student/add/:class" request
+        (friend/authorize #{::admin}
+                          (let [tag (:student (:route-params request))]
+                            (let [result (student/add-class-to-student tag request)]
+                              {:status 302
+                               :headers {"Location" (str "/student/" tag "/")}}))))
+  (POST "/student/:student/add/:class/" request
+        (friend/authorize #{::admin}
+                          (let [tag (:student (:route-params request))]
+                            (let [result (student/add-class-to-student tag request)]
+                              {:status 302
+                               :headers {"Location" (str "/student/" tag "/")}}))))
 
    (GET "/test" request
         (friend/authenticated

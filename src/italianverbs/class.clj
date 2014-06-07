@@ -10,7 +10,7 @@
         (db/fetch :classes)]
     (html
      [:div {:class "major tag"}
-      [:h2 "Classes.."]])))
+      [:h2 "Classes"]])))
 
 (defn delete [ & args])
 

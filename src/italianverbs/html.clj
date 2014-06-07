@@ -590,9 +590,19 @@
          (if (or (and (not (nil? relative-url))
                       (re-find #"/class" relative-url))
                  (= relative-url "/class")) {:class "selected"})
-         [:a {:href (str "/class" (if (get suffixes :test)
-                                   (get suffixes :test)))}
+         [:a {:href (str "/class" (if (get suffixes :class)
+                                   (get suffixes :class)))}
           (str "Classes")]])
+
+      (if haz-admin
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/student" relative-url))
+                 (= relative-url "/student")) {:class "selected"})
+         [:a {:href (str "/student" (if (get suffixes :student)
+                                      (get suffixes :student)))}
+          (str "Students")]])
+
 
       [:div
        (if (or (and (not (nil? relative-url))
