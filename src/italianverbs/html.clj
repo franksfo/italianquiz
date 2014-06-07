@@ -737,9 +737,8 @@
 
 (defn pretty-head [title]
   [:head 
-
+   [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
-
    (include-css "/css/style.css")
    (include-css "/css/layout.css")
    (include-css "/css/fs.css")
