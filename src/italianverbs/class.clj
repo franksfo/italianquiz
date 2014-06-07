@@ -1,4 +1,6 @@
-(ns italianverbs.class)
+(ns italianverbs.class
+  (:require
+   [italianverbs.korma :as db]))
 
 (defn class [ & args]
   (db/fetch args))
