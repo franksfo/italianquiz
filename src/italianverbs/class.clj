@@ -150,8 +150,8 @@
        [:tr
         [:th.num i]
         [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
-        [:td.num [:a {:href (str "/class/" (:id class))} students-per-class]]
-        [:td.num [:a {:href (str "/class/" (:id class))} tests-per-class]]
+        [:td.num [:a {:href (str "/class/" (:id class))} (if students-per-class students-per-class 0)]]
+        [:td.num [:a {:href (str "/class/" (:id class))} (if tests-per-class tests-per-class 0)]]
         (if (= true haz-admin) [:td [:form {:action (str "/class/" (:id class) "/delete")
                                             :method "post"}
                                      [:button {:onclick "submit()"} "Delete"]]])]
