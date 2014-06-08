@@ -8,12 +8,14 @@
    [formative.core :as f]
    [formative.parse :as fp]
    [italianverbs.html :as html]
-   [italianverbs.korma :as db]))
+   [italianverbs.korma :as db]
+   [italianverbs.student :as student]
+   [italianverbs.studenttest :as tests]))
 
 (declare tr-classes)
 
 (def class-form
-  {:fields [{:name :name :label "Class Name"}]
+  {:fields [{:name :name :size 50 :label "Class Name"}]
    :validations [[:required [:name]]
                  [:min-length 1 :tests "Select one or more tests"]]})
 
@@ -61,7 +63,7 @@
                "Create a new class"]])])))
 
 (def rename-format
-  {:fields [{:name :name :label "Name of class"}]
+  {:fields [{:name :name :size 50 :label "Name of class"}]
    :validations [[:required [:name]]]})
 
 (defn rename-form [class params & {:keys [problems]}]
@@ -83,6 +85,15 @@
      [:div {:class "major tag"}
       [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]
 
+      [:h3 {:style "float:left;width:100%"} "Students in this class"]
+
+      (student/table (db/fetch :user)) ;; where (in this class)
+
+      [:h3 {:style "float:left;width:100%"} "Tests for this class"]
+
+      (tests/table (db/fetch :test) {:allow-delete false})
+
+
       [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
        [:h3 "Rename class"]
        ;; TODO: pass form params rather than {}
@@ -90,7 +101,6 @@
        ]
 
 
-      [:h3 "Students"]
       ])))
 
 (defn delete [ class-id ]

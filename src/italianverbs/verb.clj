@@ -41,7 +41,7 @@
   ;; TODO: ..append result code to request.
   (select session request))
 
-(defn select [session request haz-admin]
+(defn select [request haz-admin]
   (let [script "/* js goes here.. */"]
     (html
      [:div {:class "major verbs"}

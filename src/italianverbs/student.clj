@@ -10,25 +10,30 @@
    [italianverbs.korma :as db]
    [italianverbs.korma :as db]))
 
+(declare table)
 (declare tr)
 
-(defn show [request]
+(defn show [ & request]
   (let [students
         (db/fetch :user)]; {:type "student"})]
     (html
      [:div.major
       [:h2 "Students"]
-      (if (empty? students)
-        [:p "No students." ]
-        [:table.classes.table-striped
-         [:tr
-          [:th]
-          [:th "Name"]
-          [:th "Email"]]
-         (tr students)])
+      (table students)
 
       [:div {:style "float:left;width:100%"} [:a {:href "/student/new"}
                                               "Enroll a new student"]]])))
+
+(defn table [ students ]
+  (html
+   (if (empty? students)
+     [:p "No students." ]
+     [:table.classes.table-striped
+      [:tr
+       [:th]
+       [:th "Name"]
+       [:th "Email"]]
+      (tr students)])))
 
 (defn tr [rows & [i]]
   (let [i (if i i 1)]

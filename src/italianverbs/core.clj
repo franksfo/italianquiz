@@ -502,8 +502,7 @@
    (GET "/verb" request
         {:body (html/page 
                 "Verbs" 
-                (verb/select (session/request-to-session request) 
-                             request
+                (verb/select request
                              (haz-admin))
                 request)
          :status 200

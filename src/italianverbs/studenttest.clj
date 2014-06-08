@@ -433,19 +433,24 @@
                        :values (merge defaults params)
                        :problems problems))])))
 
+(defn table [rows {haz-admin :has-admin
+                   allow-delete :allow-delete}]
+  (html
+   [:table.studenttest.table-striped
+    [:tr
+     [:th]
+     [:th "Name"]
+     (if (and (= true haz-admin) (= true allow-delete))
+       [:th {:class "edit"} "Delete"])]
+
+    (let [results (db/fetch :test)]
+      (tr results haz-admin 1))]))
+
 (defn show [request haz-admin]
   (html
    [:div {:class "major"}
     [:h2 "Tests"]
-    [:table.studenttest.table-striped
-     [:tr
-      [:th]
-      [:th "Name"]
-      (if (= true haz-admin)
-        [:th {:class "edit"} "Delete"])]
-
-     (let [results (db/fetch :test)]
-       (tr results haz-admin 1))]
+    (table (db/fetch :test))
 
     (if haz-admin
       [:div.newlink
