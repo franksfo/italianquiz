@@ -50,7 +50,9 @@
          [:tr
           [:th]
           [:th "Name"]
-          [:th "Students"]]
+          [:th "Students"]
+          [:th "Tests"]
+          ]
 
          (tr-classes classes haz-admin)])
 
@@ -76,7 +78,6 @@
   {:message "renamed."})
 
 (defn show-one [class-id haz-admin]
-  (log/info "HELLO YOU ARE HERE.")
   (let [class (first (db/fetch :classes {:_id class-id}))]
     (html
      [:div {:class "major tag"}
@@ -120,12 +121,14 @@
   (if (not (empty? classes))
     (let [class (first classes)
           i (if i i 1)
-          count (:students class)]
+          students-per-class (:students class)
+          tests-per-class (:students class)]
       (html
        [:tr
         [:th.num i]
         [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
-        [:td.num [:a {:href (str "/class/" (:id class))} count]]
+        [:td.num [:a {:href (str "/class/" (:id class))} students-per-class]]
+        [:td.num [:a {:href (str "/class/" (:id class))} tests-per-class]]
         (if (= true haz-admin) [:td [:form {:action (str "/class/" (:id class) "/delete")
                                             :method "post"}
                                      [:button {:onclick "submit()"} "Delete"]]])]
