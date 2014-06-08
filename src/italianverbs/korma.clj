@@ -24,7 +24,8 @@
          student-test tsubmit user verb vgroup)
 
 (defentity classes
-  (pk :id))
+  (pk :id)
+  (has-many students-in-class {:fk :class}))
 
 (defentity question
   (pk :id)
@@ -42,7 +43,7 @@
   (has-many question))
 
 (defentity students-in-class
-  (table :students-in-class)
+  (table :students_in_classes)
   (pk :id))
 
 (defentity test-submit
@@ -69,6 +70,9 @@
    :question question
    :question-submit question-submit
    :students-in-class students-in-class
+   :students-in-classes students-in-class
+   :students_in_class students-in-class
+   :students_in_classes students-in-class
    :tag vgroup
    :test student-test
    :test-submit test-submit
@@ -204,8 +208,8 @@ on a table."
           ;; default:
           (fn [row]
             (merge
-             {:_id (:id row)}
-             {:created (jdbc2joda (:created row))}
+             (if (:id row) {:_id (:id row)} {})
+             (if (:created row) {:created (jdbc2joda (:created row))} {})
              
              (reduce #(dissoc %1 %2) row
                      '(:_id :updated :created))))))))
@@ -255,7 +259,7 @@ on a table."
            (not (fail? (unify (read-string (:value row))
                               the-where))))})
 
-(defn fetch [collection & [ the-where connection]]
+(defn fetch [collection & [ the-where ]]
   "select from collection; might take an id. For each returned row, return simply the row as a clojure map, but merge it with an extra field for the primary key (id)."
   (let [the-where
         (if the-where the-where nil)
@@ -344,6 +348,4 @@ on a table."
 
 (defn primary-key [map]
   (:_id map))
-
-
 

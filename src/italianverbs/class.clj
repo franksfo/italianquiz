@@ -10,9 +10,12 @@
    [italianverbs.html :as html]
    [italianverbs.korma :as db]
    [italianverbs.student :as student]
-   [italianverbs.studenttest :as tests]))
+   [italianverbs.studenttest :as tests]
+   [korma.core :as k]))
 
-(declare tr-classes)
+(declare tr)
+(declare students-for-class)
+(declare tests-for-class)
 
 (def class-form
   {:fields [{:name :name :size 50 :label "Class Name"}]
@@ -42,7 +45,17 @@
 
 (defn show [ request haz-admin]
   (let [classes
-        (db/fetch :classes)]
+        (k/exec-raw ["SELECT classes.id,name,tests,students 
+                        FROM classes 
+                  INNER JOIN (SELECT classes.id AS class, count(tests_in_classes.class) AS tests
+                                FROM classes 
+                          INNER JOIN tests_in_classes ON tests_in_classes.class = classes.id 
+                            GROUP BY classes.id) AS test_counts ON test_counts.class = classes.id
+                  INNER JOIN (SELECT classes.id AS class, count(students_in_classes.class) AS students 
+                                FROM classes 
+                          INNER JOIN students_in_classes ON students_in_classes.class = classes.id
+                            GROUP BY classes.id) AS student_counts ON student_counts.class = classes.id
+"] :results)]
     (html
      [:div {:class "major tag"}
       [:h2 "Classes"]
@@ -56,7 +69,7 @@
           [:th "Tests"]
           ]
 
-         (tr-classes classes haz-admin)])
+         (tr classes haz-admin)])
 
       (if (= true haz-admin)
         [:div {:style "float:left;width:100%"} [:a {:href "/class/new"}
@@ -85,22 +98,22 @@
      [:div {:class "major tag"}
       [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]
 
-      [:h3 {:style "float:left;width:100%"} "Students in this class"]
+      (if (= true haz-admin)
+        [:div
+         [:h3 {:style "float:left;width:100%"} "Students in this class"]
 
-      (student/table (db/fetch :user)) ;; where (in this class)
+         (student/table (students-for-class (:id class)))])
 
       [:h3 {:style "float:left;width:100%"} "Tests for this class"]
+      
+      (tests/table (tests-for-class (:id class)) {:allow-delete false})
 
-      (tests/table (db/fetch :test) {:allow-delete false})
-
-
-      [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
-       [:h3 "Rename class"]
-       ;; TODO: pass form params rather than {}
-       (rename-form class {})
-       ]
-
-
+      (if (= true haz-admin)
+        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+         [:h3 "Rename class"]
+         ;; TODO: pass form params rather than {}
+         (rename-form class {})
+         ])
       ])))
 
 (defn delete [ class-id ]
@@ -127,12 +140,12 @@
 
 (defn add-student-to-class [ & args])
 
-(defn tr-classes [classes haz-admin & [ i ]]
+(defn tr [classes haz-admin & [ i ]]
   (if (not (empty? classes))
     (let [class (first classes)
           i (if i i 1)
           students-per-class (:students class)
-          tests-per-class (:students class)]
+          tests-per-class (:tests class)]
       (html
        [:tr
         [:th.num i]
@@ -142,5 +155,16 @@
         (if (= true haz-admin) [:td [:form {:action (str "/class/" (:id class) "/delete")
                                             :method "post"}
                                      [:button {:onclick "submit()"} "Delete"]]])]
-       (tr-classes (rest classes) haz-admin (+ 1 i))))))
+       (tr (rest classes) haz-admin (+ 1 i))))))
 
+(defn students-for-class [class-id]
+  (k/exec-raw ["SELECT vc_user.* FROM students_in_classes 
+                            INNER JOIN vc_user ON vc_user.id = students_in_classes.student 
+                                              AND class=?" [class-id]]
+               :results))
+
+(defn tests-for-class [class-id]
+  (k/exec-raw ["SELECT test.* FROM tests_in_classes 
+                         INNER JOIN test ON test.id = tests_in_classes.test
+                                        AND class=?" [class-id]]
+               :results))

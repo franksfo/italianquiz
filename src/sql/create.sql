@@ -260,3 +260,9 @@ INSERT INTO vc_user
     NOT EXISTS (
         SELECT id FROM vc_user WHERE fullname='Franco Regguzoni' AND email='franksfo2003@gmail.com'
     );
+
+CREATE TABLE tests_in_classes (
+       test  bigint  REFERENCES test(id),
+       class bigint REFERENCES classes(id)
+       );
+
