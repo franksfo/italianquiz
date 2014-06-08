@@ -247,3 +247,19 @@ CREATE TABLE students_in_classes (
        student bigint REFERENCES vc_user(id),
        class bigint REFERENCES classes(id)     
 );
+
+INSERT INTO vc_user
+ (fullname,email,username,type)
+  SELECT 'Gino Koontz','ekoontz@hiro-tan.org','gino','student'
+   WHERE
+    NOT EXISTS (
+        SELECT id FROM vc_user WHERE fullname='Gino Koontz' AND email='ekoontz@hiro-tan.org'
+    );
+
+INSERT INTO vc_user
+ (fullname,email,username,type)
+  SELECT 'Franco Regguzoni','franksfo@gmail.com','franco','teacher'
+   WHERE
+    NOT EXISTS (
+        SELECT id FROM vc_user WHERE fullname='Franco Regguzoni' AND email='franksfo2003@gmail.com'
+    );
