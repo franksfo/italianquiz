@@ -47,11 +47,11 @@
   (let [classes
         (k/exec-raw ["SELECT classes.id,name,tests,students 
                         FROM classes 
-                  INNER JOIN (SELECT classes.id AS class, count(tests_in_classes.class) AS tests
+                  LEFT JOIN (SELECT classes.id AS class, count(tests_in_classes.class) AS tests
                                 FROM classes 
                           INNER JOIN tests_in_classes ON tests_in_classes.class = classes.id 
                             GROUP BY classes.id) AS test_counts ON test_counts.class = classes.id
-                  INNER JOIN (SELECT classes.id AS class, count(students_in_classes.class) AS students 
+                  LEFT JOIN (SELECT classes.id AS class, count(students_in_classes.class) AS students 
                                 FROM classes 
                           INNER JOIN students_in_classes ON students_in_classes.class = classes.id
                             GROUP BY classes.id) AS student_counts ON student_counts.class = classes.id
