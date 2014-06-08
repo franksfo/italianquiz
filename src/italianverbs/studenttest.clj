@@ -433,6 +433,7 @@
                        :values (merge defaults params)
                        :problems problems))])))
 
+;; TODO: make 2nd param (options map) optional.
 (defn table [rows {haz-admin :has-admin
                    allow-delete :allow-delete}]
   (html
@@ -450,7 +451,8 @@
   (html
    [:div {:class "major"}
     [:h2 "Tests"]
-    (table (db/fetch :test))
+    (table (db/fetch :test) {:has-admin haz-admin
+                             :allow-delete haz-admin})
 
     (if haz-admin
       [:div.newlink
