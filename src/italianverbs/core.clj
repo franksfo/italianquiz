@@ -105,6 +105,16 @@
         (friend/authorize #{::admin}
                           (vc-class/new request)))
 
+   ;; TODO: use class/rename-format to validate 'rename' form POST.
+   (POST "/class/:id/rename" request
+         (friend/authorize #{::admin}
+                           (let [class-id (:id (:route-params request))
+                                 name (get (:form-params request) "name")]
+                             (let [result (vc-class/rename class-id name)]
+                               {:status 302
+                                :headers {"Location" (str "/class/" class-id "?result=" (:message result))}}))))
+
+
   (GET "/class/:class" request
        (is-authenticated request
                          {:body (html/page "Classes" (vc-class/show-one

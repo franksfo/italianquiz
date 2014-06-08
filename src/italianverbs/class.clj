@@ -58,11 +58,39 @@
         [:div {:style "float:left;width:100%"} [:a {:href "/class/new"}
                "Create a new class"]])])))
 
-(defn show-one [ class-id haz-admin]
+(def rename-format
+  {:fields [{:name :name :label "Name of class"}]
+   :validations [[:required [:name]]]})
+
+(defn rename-form [class params & {:keys [problems]}]
+  (let [defaults {:name (:name class)}]
+    (html [:div.testeditor
+           (f/render-form (assoc rename-format
+                            :method "post"
+                            :action (str "/class/" (:id class) "/rename")
+                            :values (merge defaults params class)
+                            :problems problems))])))
+
+(defn rename [class-id new-name]
+  (db/fetch-and-modify :class class-id {:name new-name})
+  {:message "renamed."})
+
+(defn show-one [class-id haz-admin]
+  (log/info "HELLO YOU ARE HERE.")
   (let [class (first (db/fetch :classes {:_id class-id}))]
     (html
      [:div {:class "major tag"}
-      [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]])))
+      [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]
+
+      [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+       [:h3 "Rename class"]
+       ;; TODO: pass form params rather than {}
+       (rename-form class {})
+       ]
+
+
+      [:h3 "Students"]
+      ])))
 
 (defn delete [ class-id ]
   (log/info (str "deleting class: " class-id))

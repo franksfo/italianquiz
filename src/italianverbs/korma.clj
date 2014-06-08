@@ -132,7 +132,7 @@ on a table."
       (if lookup lookup
           ;; default update function, if (lookup collection) returned nil:
           (fn [modify-with id]
-            (update question
+            (update (key-to-table collection)
                     (set-fields modify-with)
                     (where {:id id})))))))
 
