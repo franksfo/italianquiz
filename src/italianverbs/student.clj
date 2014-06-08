@@ -10,7 +10,7 @@
    [italianverbs.korma :as db]
    [italianverbs.korma :as db]))
 
-(declare tr-students)
+(declare tr)
 
 (defn show [request]
   (let [students
@@ -25,12 +25,21 @@
           [:th]
           [:th "Name"]
           [:th "Email"]]
-         (tr-students students)])
+         (tr students)])
 
       [:div {:style "float:left;width:100%"} [:a {:href "/student/new"}
                                               "Enroll a new student"]]])))
 
-(defn tr-students [students])
+(defn tr [rows & [i]]
+  (let [i (if i i 1)]
+    (if (not (empty? rows))
+      (let [row (first rows)]
+        (html
+         [:tr
+          [:th.num i]
+          [:td (:fullname row)]
+          [:td (:email row)]]
+         (tr (rest rows) (+ 1 i)))))))
 
 (defn show-one [student-id]
   (html
