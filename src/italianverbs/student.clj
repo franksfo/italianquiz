@@ -15,7 +15,7 @@
 
 (defn show [ & request]
   (let [students
-        (db/fetch :user)]; {:type "student"})]
+        (db/fetch :user)]
     (html
      [:div.major
       [:h2 "Students"]
@@ -24,7 +24,7 @@
       [:div {:style "float:left;width:100%"} [:a {:href "/student/new"}
                                               "Enroll a new student"]]])))
 
-(defn table [ students ]
+(defn table [ students & [form-column-fns]]
   (html
    (if (empty? students)
      [:p "No students." ]
@@ -33,9 +33,9 @@
        [:th]
        [:th "Name"]
        [:th "Email"]]
-      (tr students)])))
+      (tr students 1 form-column-fns)])))
 
-(defn tr [rows & [i]]
+(defn tr [rows & [i form-column-fns]]
   (let [i (if i i 1)]
     (if (not (empty? rows))
       (let [row (first rows)]
@@ -43,8 +43,13 @@
          [:tr
           [:th.num i]
           [:td (:fullname row)]
-          [:td (:email row)]]
-         (tr (rest rows) (+ 1 i)))))))
+          [:td (:email row)]
+          (if form-column-fns
+            [:td
+             (form-column-fns row)])
+          ]
+         
+         (tr (rest rows) (+ 1 i) form-column-fns))))))
 
 (defn show-one [student-id]
   (html

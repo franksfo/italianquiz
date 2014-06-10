@@ -74,6 +74,22 @@
                                            (vc-class/show request (haz-admin))
                                            request)}))
 
+  (POST "/class/:class/adduser/:student" request
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                student (:student (:route-params request))]
+                            (let [result (vc-class/add-user class student)]
+                              {:status 302
+                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+
+  (POST "/class/:class/removeuser/:student" request
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                student (:student (:route-params request))]
+                            (let [result (vc-class/remove-user class student)]
+                              {:status 302
+                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+
   (GET "/class/:class/delete" request
        {:status 302
         :headers {"Location" (str "/class")}})

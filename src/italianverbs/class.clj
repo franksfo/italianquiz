@@ -14,7 +14,8 @@
    [korma.core :as k]))
 
 (declare tr)
-(declare students-for-class)
+(declare students-in-class)
+(declare students-not-in-class)
 (declare tests-for-class)
 
 (def class-form
@@ -99,10 +100,28 @@
       [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]
 
       (if (= true haz-admin)
-        [:div
-         [:h3 {:style "float:left;width:100%"} "Students in this class"]
+        [:div {:style "float:left;width:100%"}
+         [:div {:style "float:left;width:50%"}
+          [:h3 "Students in this class"]
 
-         (student/table (students-for-class (:id class)))])
+          (student/table (students-in-class (:id class))
+                         (fn [row]
+                           [:form
+                            {:action (str "/class/" (:id class) "/removeuser/" (:id row))
+                             :method "post"}
+                            [:button {:onclick "submit()"} "Remove"]]))
+                         
+          ]
+
+         [:div.classes
+          [:h3 "Add Students to this class"]
+          (student/table (students-not-in-class (:id class))
+                         (fn [row]
+                           [:form
+                            {:action (str "/class/" (:id class) "/adduser/" (:id row))
+                             :method "post"}
+                            [:button {:onclick "submit()"} "Add"]]))
+          ]])
 
       [:h3 {:style "float:left;width:100%"} "Tests for this class"]
       
@@ -114,6 +133,14 @@
          ;; TODO: pass form params rather than {}
          (rename-form class {})
          ])
+
+      (if (= true haz-admin)
+        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+         [:h3 "Delete class"]
+         [:form {:action (str "/class/" (:id class) "/delete")
+                 :method "post"}
+          [:button {:onclick "submit()"} "Delete"]]])
+
       ])))
 
 (defn delete [ class-id ]
@@ -152,15 +179,45 @@
         [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
         [:td.num [:a {:href (str "/class/" (:id class))} (if students-per-class students-per-class 0)]]
         [:td.num [:a {:href (str "/class/" (:id class))} (if tests-per-class tests-per-class 0)]]
-        (if (= true haz-admin) [:td [:form {:action (str "/class/" (:id class) "/delete")
+        (if (and false (= true haz-admin)) [:td [:form {:action (str "/class/" (:id class) "/delete")
                                             :method "post"}
                                      [:button {:onclick "submit()"} "Delete"]]])]
        (tr (rest classes) haz-admin (+ 1 i))))))
 
-(defn students-for-class [class-id]
+(defn students-in-class [class-id]
   (k/exec-raw ["SELECT vc_user.* FROM students_in_classes 
                             INNER JOIN vc_user ON vc_user.id = students_in_classes.student 
                                               AND class=?" [class-id]]
+               :results))
+
+(defn add-user [class-id user-id]
+  (let [class-id (Integer. class-id)
+        user-id (Integer. user-id)]
+    (try
+      (do
+        (k/exec-raw ["INSERT INTO students_in_classes (class,student) VALUES (?,?)" [class-id user-id]])
+        {:message "Added user."})
+      (catch Exception e
+          (do
+            (log/info (str "INSERT failed: " e))
+            {:result "Adding user to class failed."})))))
+
+(defn remove-user [class-id user-id]
+  (let [class-id (Integer. class-id)
+        user-id (Integer. user-id)]
+    (try
+      (do
+        (k/exec-raw ["DELETE FROM students_in_classes WHERE class=? AND student=?" [class-id user-id]])
+        {:message "Removed user."})
+      (catch Exception e
+          (do
+            (log/info (str "INSERT failed: " e))
+            {:result "Removing user from class failed."})))))
+
+(defn students-not-in-class [class-id]
+  (k/exec-raw ["SELECT vc_user.* FROM vc_user WHERE id NOT IN (SELECT vc_user.id FROM students_in_classes 
+                            INNER JOIN vc_user ON vc_user.id = students_in_classes.student 
+                                              AND class=?)" [class-id]]
                :results))
 
 (defn tests-for-class [class-id]
