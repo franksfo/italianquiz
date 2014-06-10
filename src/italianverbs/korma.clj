@@ -245,7 +245,7 @@ on a table."
         workstation
         true
         (do
-          (log/warn (str "POSTGRES_ENV not set in your environment: defaulting to 'workstation'"))
+          (log/warn (str "POSTGRES_ENV not set in your environment: defaulting to 'workstation'."))
           workstation)))
 
 (def table-to-filter
