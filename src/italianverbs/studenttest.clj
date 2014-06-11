@@ -174,19 +174,18 @@
         (log/error (str "caught exception when trying to delete test: " test-id " : " e))
         {:message "delete failed - see log for exception."}))))
 
-(defn tr [results haz-admin & [index]]
-  (let [index (if index index 1)]
-    (if (and (not (nil? results)) (not (empty? results)))
-      (str (html [:tr
-                  [:th index]
-                  [:td [:a {:href (str "/test/" (:_id (first results))) } (:name (first results))]]
-                  (if (= true haz-admin)
-                  [:td {:class "edit"}
-                   [:form {:method "post" :action (str "/test/" (db/primary-key (first results))
-                                                       "/delete")}
-                    [:button {:onclick "submit()"} "delete"]]])])
-           (tr (rest results) haz-admin (+ 1 index)))
-      "")))
+(defn tr [rows & [i form-column-fns]]
+  (if [i (if i i 1)]
+    (if (not (empty? rows))
+      (let [row (first rows)]
+        (html
+         [:tr
+          [:th i]
+          [:td [:a {:href (str "/test/" (:id row)) } (:name row)]]
+          (if form-column-fns
+            [:td
+             (form-column-fns row)])]
+         (tr (rest rows) (+ 1 i) form-column-fns))))))
 
 (defn tr-questions [questions test-id haz-admin & [index]]
   (if (and (not (nil? questions)) (not (empty? questions)))
@@ -434,18 +433,15 @@
                        :problems problems))])))
 
 ;; TODO: make 2nd param (options map) optional.
-(defn table [rows {haz-admin :has-admin
-                   allow-delete :allow-delete}]
+(defn table [rows & [form-column-fns]]
   (html
    (if (empty? rows)
      [:p {:style "float:left"} "no tests."]
      [:table.studenttest.table-striped
       [:tr
        [:th]
-       [:th "Name"]
-       (if (and (= true haz-admin) (= true allow-delete))
-         [:th {:class "edit"} "Delete"])]
-      (tr rows haz-admin)])))
+       [:th "Name"]]
+      (tr rows 1 form-column-fns)])))
 
 (defn show [request haz-admin]
   (html

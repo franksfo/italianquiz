@@ -82,11 +82,27 @@
                               {:status 302
                                :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
 
+  (POST "/class/:class/addtest/:test" request
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                test (:test (:route-params request))]
+                            (let [result (vc-class/add-test class test)]
+                              {:status 302
+                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+
   (POST "/class/:class/removeuser/:student" request
         (friend/authorize #{::admin}
                           (let [class (:class (:route-params request))
                                 student (:student (:route-params request))]
                             (let [result (vc-class/remove-user class student)]
+                              {:status 302
+                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+
+  (POST "/class/:class/removetest/:test" request
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                test (:test (:route-params request))]
+                            (let [result (vc-class/remove-test class test)]
                               {:status 302
                                :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
 
@@ -211,7 +227,7 @@
   (GET "/lesson/new" request
         (friend/authorize #{::admin}
                           {:status 302
-                           :headers {"Location" "/lession"}}))
+                           :headers {"Location" "/lesson"}}))
 
   (GET "/lesson/new/" request
        {:status 302

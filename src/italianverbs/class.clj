@@ -17,6 +17,7 @@
 (declare students-in-class)
 (declare students-not-in-class)
 (declare tests-for-class)
+(declare tests-not-for-this-class)
 
 (def class-form
   {:fields [{:name :name :size 50 :label "Class Name"}]
@@ -100,32 +101,51 @@
       [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]
 
       (if (= true haz-admin)
-        [:div {:style "float:left;width:100%"}
-         [:div {:style "float:left;width:50%"}
-          [:h3 "Students in this class"]
+        [:div
 
-          (student/table (students-in-class (:id class))
-                         (fn [row]
-                           [:form
-                            {:action (str "/class/" (:id class) "/removeuser/" (:id row))
+         [:h3  {:style "width:100%;margin-top:1em;text-align:center"} "Students"]
+         [:div {:style "float:left;width:100%"}
+          [:div {:style "float:left;width:50%"}
+           [:h3 "Students in this class"]
+           (student/table (students-in-class (:id class))
+                          (fn [row]
+                            [:form
+                             {:action (str "/class/" (:id class) "/removeuser/" (:id row))
+                              :method "post"}
+                             [:button {:onclick "submit()"} "Remove"]]))
+           ]
+
+          [:div.classes
+           [:h3 "Add Students to this class"]
+           (student/table (students-not-in-class (:id class))
+                          (fn [row]
+                            [:form
+                             {:action (str "/class/" (:id class) "/adduser/" (:id row))
                              :method "post"}
-                            [:button {:onclick "submit()"} "Remove"]]))
-                         
-          ]
+                             [:button {:onclick "submit()"} "Add"]]))
+           ]]
 
-         [:div.classes
-          [:h3 "Add Students to this class"]
-          (student/table (students-not-in-class (:id class))
-                         (fn [row]
-                           [:form
-                            {:action (str "/class/" (:id class) "/adduser/" (:id row))
-                             :method "post"}
-                            [:button {:onclick "submit()"} "Add"]]))
-          ]])
+         [:h3  {:style "width:100%;margin-top:1em;text-align:center"} "Tests"]
+         [:div {:style "float:left;width:100%;"}
+          [:div {:style "float:left;width:50%"} 
+           [:h3 "Tests for this class"]
+           (tests/table (tests-for-class (:id class))
+                        (fn [row]
+                          [:form
+                           {:action (str "/class/" (:id class) "/removetest/" (:id row))
+                            :method "post"}
+                           [:button {:onclick "submit()"} "Remove"]]))
+           ]
 
-      [:h3 {:style "float:left;width:100%"} "Tests for this class"]
-      
-      (tests/table (tests-for-class (:id class)) {:allow-delete false})
+          [:div.classes
+           [:h3 "Add tests to this class"]
+           (tests/table (tests-not-for-this-class (:id class))
+                        (fn [row]
+                          [:form
+                           {:action (str "/class/" (:id class) "/addtest/" (:id row))
+                            :method "post"}
+                          [:button {:onclick "submit()"} "Add"]]))]]
+         ])
 
       (if (= true haz-admin)
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
@@ -139,9 +159,7 @@
          [:h3 "Delete class"]
          [:form {:action (str "/class/" (:id class) "/delete")
                  :method "post"}
-          [:button {:onclick "submit()"} "Delete"]]])
-
-      ])))
+          [:button {:onclick "submit()"} "Delete"]]])])))
 
 (defn delete [ class-id ]
   (log/info (str "deleting class: " class-id))
@@ -184,12 +202,6 @@
                                      [:button {:onclick "submit()"} "Delete"]]])]
        (tr (rest classes) haz-admin (+ 1 i))))))
 
-(defn students-in-class [class-id]
-  (k/exec-raw ["SELECT vc_user.* FROM students_in_classes 
-                            INNER JOIN vc_user ON vc_user.id = students_in_classes.student 
-                                              AND class=?" [class-id]]
-               :results))
-
 (defn add-user [class-id user-id]
   (let [class-id (Integer. class-id)
         user-id (Integer. user-id)]
@@ -211,17 +223,60 @@
         {:message "Removed user."})
       (catch Exception e
           (do
-            (log/info (str "INSERT failed: " e))
+            (log/info (str "Removing user from class failed: " e))
             {:result "Removing user from class failed."})))))
 
+(defn add-test [class-id test-id]
+  (let [class-id (Integer. class-id)
+        test-id (Integer. test-id)]
+    (try
+      (do
+        (k/exec-raw ["INSERT INTO tests_in_classes (class,test) VALUES (?,?)" [class-id test-id]])
+        {:message "Added test."})
+      (catch Exception e
+          (do
+            (log/info (str "INSERT failed: " e))
+            {:result "Adding test to class failed."})))))
+
+(defn remove-test [class-id test-id]
+  (let [class-id (Integer. class-id)
+        test-id (Integer. test-id)]
+    (try
+      (do
+        (k/exec-raw ["DELETE FROM tests_in_classes WHERE class=? AND test=?" [class-id test-id]])
+        {:message "Removed test."})
+      (catch Exception e
+          (do
+            (log/info (str "Removing test from class failed: " e))
+            {:result "Removing test from class failed."})))))
+
+(defn students-in-class [class-id]
+  (k/exec-raw ["SELECT vc_user.* 
+                  FROM students_in_classes 
+            INNER JOIN vc_user ON vc_user.id = students_in_classes.student 
+                              AND class=?" [class-id]]
+               :results))
+
 (defn students-not-in-class [class-id]
-  (k/exec-raw ["SELECT vc_user.* FROM vc_user WHERE id NOT IN (SELECT vc_user.id FROM students_in_classes 
-                            INNER JOIN vc_user ON vc_user.id = students_in_classes.student 
-                                              AND class=?)" [class-id]]
+  (k/exec-raw ["SELECT vc_user.* 
+                  FROM vc_user WHERE id NOT IN (SELECT vc_user.id 
+                                                  FROM students_in_classes 
+                                            INNER JOIN vc_user ON vc_user.id = students_in_classes.student 
+                                                              AND class=?)" [class-id]]
                :results))
 
 (defn tests-for-class [class-id]
-  (k/exec-raw ["SELECT test.* FROM tests_in_classes 
-                         INNER JOIN test ON test.id = tests_in_classes.test
-                                        AND class=?" [class-id]]
+  (k/exec-raw ["SELECT test.* 
+                  FROM tests_in_classes 
+            INNER JOIN test ON test.id = tests_in_classes.test
+                           AND class=?" [class-id]]
                :results))
+
+(defn tests-not-for-this-class [class-id]
+  (k/exec-raw ["SELECT test.* FROM test 
+                             WHERE id NOT IN (SELECT test.id 
+                                                FROM tests_in_classes 
+                                          INNER JOIN test ON test.id = tests_in_classes.test
+                                                         AND class=?)" [class-id]]
+               :results))
+
