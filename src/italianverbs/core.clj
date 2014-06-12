@@ -366,14 +366,21 @@
                           (student/new request)))
 
   (GET "/student/:student" request
-        (friend/authorize #{::admin} 
-                          {:body (html/page "Students" (student/show (:student (:route-params request))
-                                               (haz-admin)) request)}))
+       (friend/authorize #{::admin}
+                         {:body (html/page "Students" (student/show-one (:student (:route-params request))
+                                                                        (haz-admin))
+                                           request)}))
 
   (GET "/student/:student/" request
-       (friend/authorize #{::admin}
-                         {:body (html/page "Students" (student/show-one (:student (:route-params request)))
-                                           request)}))
+       {:status 302
+        :headers {"Location" (str "/student/" :student)}})
+
+  (POST "/student/:student/delete" request
+        (friend/authorize #{::admin}
+                          (let [student (:student (:route-params request))]
+                            (let [result (student/delete student)]
+                              {:status 302
+                               :headers {"Location" (str "/student")}}))))
 
   (GET "/student/:student/delete/:class/" request
        (friend/authorize #{::admin}

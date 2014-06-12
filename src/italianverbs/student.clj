@@ -69,10 +69,19 @@
          
          (tr (rest rows) (+ 1 i) form-column-fns))))))
 
-(defn show-one [student-id]
-  (html
-   [:div.major
-    [:h2 "Students (show one)"]]))
+(defn show-one [student-id haz-admin]
+  (let [student (first (db/fetch :student {:_id student-id}))]
+    (html
+     [:div.major
+      [:h2 [:a {:href "/student"} "Students"] " &raquo; " (:fullname student)]
+      
+      (if (= true haz-admin)
+        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+         [:h3 "Delete student"]
+         [:form {:action (str "/student/" (:id student) "/delete")
+                 :method "post"}
+          [:button {:onclick "submit()"} "Delete"]]])])))
+
 ;; TODO: show this student's:
 ;;  - class history
 ;;  - test history
@@ -80,7 +89,7 @@
 (defn delete [student-id]
   (let [student-id (Integer. student-id)]
     (log/info (str "deleting student: " student-id))
-    (db/fetch-and-modify :class (db/object-id student-id) {} true)
+    (db/fetch-and-modify :student (db/object-id student-id) {} true)
     {:message "deleted student."}))
 
 ;; TODO: check for duplicate insertions.

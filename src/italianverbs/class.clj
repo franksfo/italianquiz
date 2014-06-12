@@ -98,7 +98,7 @@
   (let [class (first (db/fetch :classes {:_id class-id}))]
     (html
      [:div {:class "major tag"}
-      [:h2 [:a {:href "/class/"} "Classes" ] " &raquo; " (:name class)]
+      [:h2 [:a {:href "/class"} "Classes" ] " &raquo; " (:name class)]
 
       (if (= true haz-admin)
         [:div
