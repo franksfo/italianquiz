@@ -364,15 +364,7 @@
 
   (POST "/student/new" request
         (friend/authorize #{::admin}
-                          (let [result (student/new request (haz-admin))]
-                            {:status 302
-                             :headers {"Location" (str "/student/?result=" (:message result))}})))
-
-  (POST "/student/new/" request
-        (friend/authorize #{::admin}
-                          (let [result (student/new request)]
-                            {:status 302
-                             :headers {"Location" (str "/student/?result=" (:message result))}})))
+                          (student/new request)))
 
   (GET "/student/:student" request
         (friend/authorize #{::admin} 

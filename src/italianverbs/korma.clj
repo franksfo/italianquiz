@@ -69,6 +69,8 @@
    :classes classes
    :question question
    :question-submit question-submit
+   :student user
+   :students user
    :students-in-class students-in-class
    :students-in-classes students-in-class
    :students_in_class students-in-class

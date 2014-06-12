@@ -13,6 +13,24 @@
 (declare table)
 (declare tr)
 
+(def enroll-form
+  {:action "/student/new"
+   :fields [{:name :name  :size 50 :label "Name:"}
+            {:name :email :size 50 :label "Email:" :type :email}]
+   :method "post"
+   :validations [[:required [:name :email]]]})
+
+(defn show-enroll-form [ params & {:keys [problems]}]
+  (let [defaults {}]
+    (html
+     [:div.form {:style "float:left;width:100%;margin:0.5em"}
+      [:h3 "Enroll a new student:"]
+      (f/render-form (merge enroll-form
+                            {:values (merge defaults (:form-params params))
+                             :action "/student/new"
+                             :method "post"
+                             :problems problems}))])))
+
 (defn show [ & request]
   (let [students
         (db/fetch :user)]
@@ -20,9 +38,7 @@
      [:div.major
       [:h2 "Students"]
       (table students)
-
-      [:div {:style "float:left;width:100%"} [:a {:href "/student/new"}
-                                              "Enroll a new student"]]])))
+      (show-enroll-form (:form-params request))])))
 
 (defn table [ students & [form-column-fns]]
   (html
@@ -42,8 +58,8 @@
         (html
          [:tr
           [:th.num i]
-          [:td (:fullname row)]
-          [:td (:email row)]
+          [:td [:a {:href (str "/student/" (:id row) )} (:fullname row)]]
+          [:td [:a {:href (str "/student/" (:id row) )} (:email row)]]
           (if form-column-fns
             [:td
              (form-column-fns row)])
@@ -55,10 +71,33 @@
   (html
    [:div.major
     [:h2 "Students (show one)"]]))
+;; TODO: show this student's:
+;;  - class history
+;;  - test history
 
-(defn delete [ & args])
+(defn delete [student-id]
+  (let [student-id (Integer. student-id)]
+    (log/info (str "deleting student: " student-id))
+    (db/fetch-and-modify :class (db/object-id student-id) {} true)
+    {:message "deleted student."}))
 
-(defn new [ & args])
+;; TODO: check for duplicate insertions.
+(defn new [request]
+  (log/info (str "class/new with request: " (:form-params request)))
+  (fp/with-fallback #(html/page "Enroll a new student" 
+                                (enroll-form request :problems %) request)
+    (let [values (fp/parse-params enroll-form (:form-params request))]
+      (let [created-at (t/now)]
+        (let [new-student
+              (db/insert! :student {:created (str created-at)
+                                    :updated (str created-at)
+                                    :fullname (get (:form-params request) "name")
+                                    :username (get (:form-params request) "email") ;; for now, username is simply email.
+                                    :email (get (:form-params request) "email")})
+              new-student-id
+              (:id new-student)]
+          {:status 302
+           :headers {"Location" (str "/student/" new-student-id "?message=created")}})))))
 
 (defn delete-class-from-student [ & args])
 
