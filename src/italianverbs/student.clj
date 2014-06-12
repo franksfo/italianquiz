@@ -15,8 +15,8 @@
 
 (def enroll-form
   {:action "/student/new"
-   :fields [{:name :name  :size 50 :label "Name:"}
-            {:name :email :size 50 :label "Email:" :type :email}]
+   :fields [{:name :name  :size 50 :label "Name"}
+            {:name :email :size 50 :label "Email" :type :email}]
    :method "post"
    :validations [[:required [:name :email]]]})
 
@@ -31,14 +31,16 @@
                              :method "post"
                              :problems problems}))])))
 
-(defn show [ & request]
+(defn show [ & [ request enroll-form ] ]
   (let [students
-        (db/fetch :user)]
+        (db/fetch :user)
+        enroll-form (if enroll-form enroll-form
+                        (show-enroll-form (:form-params request)))]
     (html
      [:div.major
       [:h2 "Students"]
       (table students)
-      (show-enroll-form (:form-params request))])))
+      enroll-form])))
 
 (defn table [ students & [form-column-fns]]
   (html
@@ -84,8 +86,10 @@
 ;; TODO: check for duplicate insertions.
 (defn new [request]
   (log/info (str "class/new with request: " (:form-params request)))
-  (fp/with-fallback #(html/page "Enroll a new student" 
-                                (enroll-form request :problems %) request)
+  (fp/with-fallback #(html/page "Students"
+                                (show request
+                                      (show-enroll-form request :problems %))
+                                request)
     (let [values (fp/parse-params enroll-form (:form-params request))]
       (let [created-at (t/now)]
         (let [new-student

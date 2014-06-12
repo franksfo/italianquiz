@@ -341,7 +341,6 @@
 
   (GET "/student" request
         (friend/authorize #{::admin}
-;                          {:body (html/page "Students" (student/beef request) request)
                           {:body (html/page "Students" (student/show request) request)
                            :status 200
                            :headers {"Content-Type" "text/html;charset=utf-8"}}))
