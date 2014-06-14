@@ -45,18 +45,24 @@
                         :method "post"
                         :problems problems))]])))
 
+(defn table [ rows ])
+
 (defn show [ request haz-admin]
   (let [classes
-        (k/exec-raw ["SELECT classes.id,name,tests,students 
-                        FROM classes 
-                  LEFT JOIN (SELECT classes.id AS class, count(tests_in_classes.class) AS tests
-                                FROM classes 
-                          INNER JOIN tests_in_classes ON tests_in_classes.class = classes.id 
-                            GROUP BY classes.id) AS test_counts ON test_counts.class = classes.id
-                  LEFT JOIN (SELECT classes.id AS class, count(students_in_classes.class) AS students 
-                                FROM classes 
-                          INNER JOIN students_in_classes ON students_in_classes.class = classes.id
-                            GROUP BY classes.id) AS student_counts ON student_counts.class = classes.id
+        (k/exec-raw ["SELECT  classes.id,name,tests,students 
+                        FROM  classes 
+
+                   LEFT JOIN  (SELECT  classes.id AS class, count(tests_in_classes.class) AS tests
+                                 FROM  classes 
+                           INNER JOIN  tests_in_classes ON tests_in_classes.class = classes.id 
+                             GROUP BY  classes.id) AS test_counts 
+                          ON  test_counts.class = classes.id
+
+                   LEFT JOIN  (SELECT  classes.id AS class, count(students_in_classes.class) AS students 
+                                 FROM  classes 
+                           INNER JOIN  students_in_classes ON students_in_classes.class = classes.id
+                             GROUP BY  classes.id) AS student_counts 
+                          ON  student_counts.class = classes.id
 "] :results)]
     (html
      [:div {:class "major tag"}
@@ -196,10 +202,7 @@
         [:th.num i]
         [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
         [:td.num [:a {:href (str "/class/" (:id class))} (if students-per-class students-per-class 0)]]
-        [:td.num [:a {:href (str "/class/" (:id class))} (if tests-per-class tests-per-class 0)]]
-        (if (and false (= true haz-admin)) [:td [:form {:action (str "/class/" (:id class) "/delete")
-                                            :method "post"}
-                                     [:button {:onclick "submit()"} "Delete"]]])]
+        [:td.num [:a {:href (str "/class/" (:id class))} (if tests-per-class tests-per-class 0)]]]
        (tr (rest classes) haz-admin (+ 1 i))))))
 
 (defn add-user [class-id user-id]

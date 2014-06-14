@@ -72,14 +72,15 @@
 (defn classes-for-student [student-id]
   (let [student-id (Integer. student-id)]
     (k/exec-raw ["SELECT  * 
-                    FROM classes 
-              INNER JOIN students_in_classes
-                      ON (students_in_classes.class = classes.id)
-                     AND (students_in_classes.student = ?)" [student-id]]
+                    FROM  classes 
+              INNER JOIN  students_in_classes
+                      ON  (students_in_classes.class = classes.id)
+                     AND  (students_in_classes.student = ?)" [student-id]]
                 :results)))
 
-(defn show-one [student-id haz-admin]
-  (let [student-id (Integer. student-id)
+(defn show-one [student-id & [haz-admin]]
+  (let [haz-admin (if haz-admin haz-admin false)
+        student-id (Integer. student-id)
         student (first (db/fetch :student {:_id student-id}))]
     (html
      [:div.major
@@ -90,8 +91,29 @@
 
          [:h3 "Classes for this student"]
          [:div {:style "float:left;width:100%"}
-         (html/table (classes-for-student student-id)
-                     haz-admin)]
+          (html/table (classes-for-student student-id)
+                      :haz-admin haz-admin
+                      :none "This student is not enrolled in any classes yet."
+                      :create-new {:href (str "/student/" student-id "/addclass")
+                                   :link-text "Enroll this student in a class"}
+                      :th (fn [key] (case key
+                                      :class html/hide
+                                      :created html/hide
+                                      :id [:th "Delete"]
+                                      :name [:th "Name"]
+                                      :student html/hide
+                                      :updated html/hide
+                                      [:th key]))
+                      :td (fn [row key] (case key
+                                          :class html/hide
+                                          :created html/hide
+                                          :id [:td [:button "Delete"]]
+                                          :name [:td [:a {:href (str "/class/" (get row :id))}
+                                                      (get row :name)
+                                                        ]]
+                                          :student html/hide
+                                          :updated html/hide
+                                          [:td (get row key)])))]
 
          ;; TODO: use formative form here rather than handmade form.
          [:h3 "Update student details"]

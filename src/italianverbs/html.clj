@@ -856,49 +856,53 @@
 
 (declare tr)
 
-(defn table [rows & [ haz-admin ]]
-  (let [haz-admin (if haz-admin haz-admin false)]
+(defn table [rows & {:keys [haz-admin
+                            th
+                            td
+                            create-new
+                            none]}]
+  (let [haz-admin (if haz-admin haz-admin false)
+        th (if th th (fn [key] [:th key]))
+        none (if none none "No results.")
+        td (if td td (fn [row key] [:td (str "def1:" (get row key))]))]
     (html
      (if (empty? rows)
-       [:p "No results." ]
+       [:p none ]
 
        ;; at least one row.
-       (let [columns (keys (first rows))]
+       ;; TODO: since keys are the same for all rows, pass along rather
+       ;; than calling (keys) on each.
+       (let [columns (keys (first rows))] 
          [:table.classes.table-striped
           [:tr
            (concat
             [[:th]]
-            (map (fn [key]
-                   [:th key]) columns))]
-          (tr rows haz-admin)]))
+            (vec (map (fn [key]
+                        (th key)) columns)))]
+          (tr rows haz-admin 1 :td td)]))
     
-     (if (= true haz-admin)
-       [:div {:style "float:left;width:100%"} [:a {:href "/thing/new"}
-                                               "Create a new thing."]]))))
+     (if (and (= true haz-admin)
+              create-new)
+       [:div {:style "float:left;margin-top:0.5em;width:100%"} [:a {:href (:href create-new)}
+                                               (:link-text create-new)]]))))
   
-(defn tr [rows haz-admin & [ i ]]
+(defn tr [rows haz-admin i & {:keys [td]}]
   (if (not (empty? rows))
     (let [row (first rows)
           i (if i i 1)
+          td (if td td (fn [row key]
+                         (cond true [:td (get row key)])))
           students-per-row (:students row)
           tests-per-row (:tests row)]
       (html [:tr (concat
                   [[:th.num i]]
 
-                  (map (fn [key]
-                         [:td (get row key)])
-                       (keys row)))] ;; TODO: invariant: pass along to recursive (tr) call.
+                  (vec (map (fn [key]
+                              (td row key))
+                            (keys row))))] ;; TODO: invariant: pass along to recursive (tr) call.
 
-;                  [])]
-            (tr (rest rows) haz-admin (+ 1 i))))))
-;    ]))))
-;      (html
-;       [:tr
-;        (concat
-;         [[:th.num i]]
-;         (map (fn [key]
-;                [:td (get row key)])
-;              (keys row)))]) ;; TODO: invariant: pass along to recursive (tr) call.
-;      (tr (rest rows) haz-admin (+ 1 i)))))
+            (tr (rest rows) haz-admin (+ 1 i) :td td)))))
 
+
+(def hide "") ;; used by callers of (html/table)
 
