@@ -70,28 +70,17 @@
          (tr (rest rows) (+ 1 i) form-column-fns))))))
 
 (defn classes-for-student [student-id]
-  (k/exec-raw ["SELECT class.* 
-                  FROM students_in_classes 
-            INNER JOIN vc_user ON vc_user.id = students_in_classes.student
-                              AND student=?" [student-id]]
-               :results))
-
-(defn class-tr [classes haz-admin & [ i ]]
-  (if (not (empty? classes))
-    (let [class (first classes)
-          i (if i i 1)
-          students-per-class (:students class)
-          tests-per-class (:tests class)]
-      (html
-       [:tr
-        [:th.num i]
-        [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
-        [:td.num [:a {:href (str "/class/" (:id class))} (if students-per-class students-per-class 0)]]
-        [:td.num [:a {:href (str "/class/" (:id class))} (if tests-per-class tests-per-class 0)]]]
-       (class-tr (rest classes) haz-admin (+ 1 i))))))
+  (let [student-id (Integer. student-id)]
+    (k/exec-raw ["SELECT  * 
+                    FROM classes 
+              INNER JOIN students_in_classes
+                      ON (students_in_classes.class = classes.id)
+                     AND (students_in_classes.student = ?)" [student-id]]
+                :results)))
 
 (defn show-one [student-id haz-admin]
-  (let [student (first (db/fetch :student {:_id student-id}))]
+  (let [student-id (Integer. student-id)
+        student (first (db/fetch :student {:_id student-id}))]
     (html
      [:div.major
       [:h2 [:a {:href "/student"} "Students"] " &raquo; " (:fullname student)]
@@ -101,7 +90,7 @@
 
          [:h3 "Classes for this student"]
          [:div {:style "float:left;width:100%"}
-         (html/table (k/exec-raw ["SELECT * FROM classes"] :results)
+         (html/table (classes-for-student student-id)
                      haz-admin)]
 
          ;; TODO: use formative form here rather than handmade form.
