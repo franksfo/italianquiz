@@ -854,3 +854,51 @@
       [:div#content content])
    request title)))
 
+(declare tr)
+
+(defn table [rows & [ haz-admin ]]
+  (let [haz-admin (if haz-admin haz-admin false)]
+    (html
+     (if (empty? rows)
+       [:p "No results." ]
+
+       ;; at least one row.
+       (let [columns (keys (first rows))]
+         [:table.classes.table-striped
+          [:tr
+           (concat
+            [[:th]]
+            (map (fn [key]
+                   [:th key]) columns))]
+          (tr rows haz-admin)]))
+    
+     (if (= true haz-admin)
+       [:div {:style "float:left;width:100%"} [:a {:href "/thing/new"}
+                                               "Create a new thing."]]))))
+  
+(defn tr [rows haz-admin & [ i ]]
+  (if (not (empty? rows))
+    (let [row (first rows)
+          i (if i i 1)
+          students-per-row (:students row)
+          tests-per-row (:tests row)]
+      (html [:tr (concat
+                  [[:th.num i]]
+
+                  (map (fn [key]
+                         [:td (get row key)])
+                       (keys row)))] ;; TODO: invariant: pass along to recursive (tr) call.
+
+;                  [])]
+            (tr (rest rows) haz-admin (+ 1 i))))))
+;    ]))))
+;      (html
+;       [:tr
+;        (concat
+;         [[:th.num i]]
+;         (map (fn [key]
+;                [:td (get row key)])
+;              (keys row)))]) ;; TODO: invariant: pass along to recursive (tr) call.
+;      (tr (rest rows) haz-admin (+ 1 i)))))
+
+

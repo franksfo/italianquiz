@@ -8,7 +8,7 @@
    [formative.parse :as fp]
    [italianverbs.html :as html]
    [italianverbs.korma :as db]
-   [italianverbs.korma :as db]))
+   [korma.core :as k]))
 
 (declare table)
 (declare tr)
@@ -69,6 +69,27 @@
          
          (tr (rest rows) (+ 1 i) form-column-fns))))))
 
+(defn classes-for-student [student-id]
+  (k/exec-raw ["SELECT class.* 
+                  FROM students_in_classes 
+            INNER JOIN vc_user ON vc_user.id = students_in_classes.student
+                              AND student=?" [student-id]]
+               :results))
+
+(defn class-tr [classes haz-admin & [ i ]]
+  (if (not (empty? classes))
+    (let [class (first classes)
+          i (if i i 1)
+          students-per-class (:students class)
+          tests-per-class (:tests class)]
+      (html
+       [:tr
+        [:th.num i]
+        [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
+        [:td.num [:a {:href (str "/class/" (:id class))} (if students-per-class students-per-class 0)]]
+        [:td.num [:a {:href (str "/class/" (:id class))} (if tests-per-class tests-per-class 0)]]]
+       (class-tr (rest classes) haz-admin (+ 1 i))))))
+
 (defn show-one [student-id haz-admin]
   (let [student (first (db/fetch :student {:_id student-id}))]
     (html
@@ -77,10 +98,25 @@
       
       (if (= true haz-admin)
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+
+         [:h3 "Classes for this student"]
+         [:div {:style "float:left;width:100%"}
+         (html/table (k/exec-raw ["SELECT * FROM classes"] :results)
+                     haz-admin)]
+
+         ;; TODO: use formative form here rather than handmade form.
+         [:h3 "Update student details"]
+         [:div {:style "float:left;width:100%"}
+          [:form {:action (str "/student/" (:id student) "update") :method "post"}
+           [:input {:label "Full Name" :name "fullname" :value (:fullname student)}]
+           [:input {:label "Email" :name "email" :value (:email student)}]
+           [:button {:onclick "submit()"} "Update"]]]
+
          [:h3 "Delete student"]
-         [:form {:action (str "/student/" (:id student) "/delete")
-                 :method "post"}
-          [:button {:onclick "submit()"} "Delete"]]])])))
+         [:div {:style "float:left;width:100%"}
+          [:form {:action (str "/student/" (:id student) "/delete")
+                  :method "post"}
+           [:button {:onclick "submit()"} "Delete"]]]])])))
 
 ;; TODO: show this student's:
 ;;  - class history
