@@ -98,6 +98,14 @@
                               {:status 302
                                :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
 
+  (GET "/class/:class/removetest/:test" request
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                test (:test (:route-params request))]
+                            (let [result {:message "Ignoring and Redirecting."}]
+                              {:status 302
+                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+
   (POST "/class/:class/removetest/:test" request
         (friend/authorize #{::admin}
                           (let [class (:class (:route-params request))
