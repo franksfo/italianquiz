@@ -359,9 +359,19 @@
 
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
          [:h3 "Rename test"]
-         ;; TODO: pass form params rather than {}
+         ;; TODO: for validation, pass form params rather than {}
          (rename-test-form test {})
          ]
+
+        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+         [:h3 "Delete test"]
+         [:form {:method "post"
+                 :action (str "/test/" test-id "/delete")}
+          [:input.btn.btn-primary {:type "submit" :value "Delete"}]
+          ]
+         ]
+
+
 
 ]))))
 
