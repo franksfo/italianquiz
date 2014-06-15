@@ -4,6 +4,9 @@
    [ring.util.codec :as codec])
   (:require
    [cemerick.friend :as friend]
+   [clj-time.coerce :as c]
+   [clj-time.core :as t]
+   [clj-time.format :as f]
    [clojure.set :as set]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
@@ -567,8 +570,8 @@
   (let [roles (:roles authentication)
         haz-admin (not (nil? (:italianverbs.core/admin roles)))]
 
-    (log/info (str "Drawing menubar with relative-url=" relative-url))
-    (log/info (str "Menubar with suffixes: " suffixes))
+    (log/debug (str "Drawing menubar with relative-url=" relative-url))
+    (log/debug (str "Menubar with suffixes: " suffixes))
     (html
      [:div {:class "menubar major"}
 
@@ -855,16 +858,33 @@
    request title)))
 
 (declare tr)
+(def short-format
+  (f/formatter "MMM dd, yyyy HH:mm"))
+(defn display-time [timestamp]
+  "input is a jdbc timestamp."
+  (f/unparse short-format (c/from-long (.getTime timestamp))))
 
-(defn table [rows & {:keys [haz-admin
+
+(defn table [rows & {:keys [columns
+                            create-new
+                            haz-admin
                             th
                             td
-                            create-new
                             none]}]
-  (let [haz-admin (if haz-admin haz-admin false)
-        th (if th th (fn [key] [:th key]))
+  (let [columns (if columns columns
+                    (if (not (empty? rows))
+                      (keys (first rows))))
+        haz-admin (if haz-admin haz-admin false)
         none (if none none "No results.")
-        td (if td td (fn [row key] [:td (str "def1:" (get row key))]))]
+        th (if th th (fn [key] [:th (string/capitalize (string/join "" (rest (seq (str key)))))])) ;; :foo => "foo" => "Foo"
+        td (if td td 
+               (fn [row key] 
+                 (let [the-val (get row key)]
+                   (cond (= java.sql.Timestamp (type the-val))
+                         [:td [:span {:class "date"}
+                               (display-time the-val)]]
+                         true
+                         [:td the-val]))))]
     (html
      (if (empty? rows)
        [:p none ]
@@ -872,21 +892,21 @@
        ;; at least one row.
        ;; TODO: since keys are the same for all rows, pass along rather
        ;; than calling (keys) on each.
-       (let [columns (keys (first rows))] 
-         [:table.classes.table-striped
-          [:tr
-           (concat
-            [[:th]]
-            (vec (map (fn [key]
-                        (th key)) columns)))]
-          (tr rows haz-admin 1 :td td)]))
+       [:table.classes.table-striped
+        [:tr
+         (concat
+          [[:th]]
+          (vec (map (fn [key]
+                      (th key)) columns)))]
+        (tr rows haz-admin 1 :td td :columns columns)])
     
      (if (and (= true haz-admin)
               create-new)
        [:div {:style "float:left;margin-top:0.5em;width:100%"} [:a {:href (:href create-new)}
                                                (:link-text create-new)]]))))
   
-(defn tr [rows haz-admin i & {:keys [td]}]
+(defn tr [rows haz-admin i & {:keys [columns
+                                     td]}]
   (if (not (empty? rows))
     (let [row (first rows)
           i (if i i 1)
@@ -899,7 +919,7 @@
 
                   (vec (map (fn [key]
                               (td row key))
-                            (keys row))))] ;; TODO: invariant: pass along to recursive (tr) call.
+                            columns)))] ;; TODO: invariant: pass along to recursive (tr) call.
 
             (tr (rest rows) haz-admin (+ 1 i) :td td)))))
 

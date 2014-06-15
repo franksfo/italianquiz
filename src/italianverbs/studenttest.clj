@@ -3,6 +3,7 @@
   (:use [hiccup core])
   (:require
    [clj-time.core :as t]
+   [clj-time.format :as fmt]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [formative.core :as f]
@@ -12,7 +13,8 @@
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
    [italianverbs.question :as question]
-   [italianverbs.unify :as unify]))
+   [italianverbs.unify :as unify]
+   [korma.core :as k]))
 
 ;; to evaluate a student's results:
 ;; SELECT answer AS student_response,italian AS correct 
@@ -357,22 +359,21 @@
            [:div {:style "float:left;width:100%"}
             [:h3 [:a {:href (str "/test/" test-id "/take")} "Take test"]]]))
 
-        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
-         [:h3 "Rename test"]
-         ;; TODO: for validation, pass form params rather than {}
-         (rename-test-form test {})
-         ]
+        (if (= haz-admin true)
+          [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+           [:h3 "Rename test"]
+           ;; TODO: for validation, pass form params rather than {}
+           (rename-test-form test {})
+           ])
 
-        [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
-         [:h3 "Delete test"]
-         [:form {:method "post"
-                 :action (str "/test/" test-id "/delete")}
-          [:input.btn.btn-primary {:type "submit" :value "Delete"}]
-          ]
-         ]
-
-
-
+        (if (= haz-admin true)
+          [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
+           [:h3 "Delete test"]
+           [:form {:method "post"
+                   :action (str "/test/" test-id "/delete")}
+            [:input.btn.btn-primary {:type "submit" :value "Delete"}]
+            ]
+           ])
 ]))))
 
 (defn generate-and-add-question-to-test [test group]
@@ -453,12 +454,21 @@
        [:th "Name"]]
       (tr rows 1 form-column-fns)])))
 
+(defn tests-and-count-submittals []
+  (k/exec-raw ["SELECT test.name,test.created,count(tsubmit.test) AS taken
+                  FROM test 
+            INNER JOIN tsubmit 
+                    ON tsubmit.test = test.id
+              GROUP BY test.id"]
+              :results))
+
 (defn show [request haz-admin]
   (html
    [:div {:class "major"}
     [:h2 "Tests"]
-    (table (db/fetch :test) {:has-admin haz-admin
-                             :allow-delete haz-admin})
+
+    (html/table (tests-and-count-submittals)
+                :columns [:name :created :taken])
 
     (if haz-admin
       [:div.newlink

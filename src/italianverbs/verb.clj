@@ -65,9 +65,6 @@
         (new-verb-form))
       ])))
 
-(def short-format
-  (f/formatter "MMM dd, yyyy HH:mm"))
-
 (defn show-as-rows [results haz-admin & [i]]
   (if (not (empty? results))
     (let [i (if i i 1)]
@@ -78,10 +75,10 @@
                   [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
                         (morph/get-italian-1 (:english (first results)))]]
                   [:td [:span {:class "date"}
-                        (f/unparse short-format (:created (first results)))]]
+                        (f/unparse html/short-format (:created (first results)))]]
 
                   [:td [:span {:class "date"}
-                        (f/unparse short-format (:updated (first results)))]]
+                        (f/unparse html/short-format (:updated (first results)))]]
                   (if haz-admin
                     [:td {:class "edit"} (delete-form (first results)) ])
 
