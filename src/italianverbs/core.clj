@@ -74,14 +74,6 @@
                                            (vc-class/show request (haz-admin))
                                            request)}))
 
-  (POST "/class/:class/adduser/:student" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))
-                                student (:student (:route-params request))]
-                            (let [result (vc-class/add-user class student)]
-                              {:status 302
-                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
-
   (POST "/class/:class/addtest/:test" request
         (friend/authorize #{::admin}
                           (let [class (:class (:route-params request))
@@ -93,10 +85,14 @@
   (POST "/class/:class/removeuser/:student" request
         (friend/authorize #{::admin}
                           (let [class (:class (:route-params request))
-                                student (:student (:route-params request))]
-                            (let [result (vc-class/remove-user class student)]
+                                debug (log/info (str "PROCESSING REMOVE - THE FORM-PARAMS ARE: " (:form-params request)))
+                                student (:student (:route-params request))
+                                redirect (get (:form-params request) "redirect")
+                                redirect (if redirect redirect
+                                              (str "/class/" class))
+                                result (vc-class/remove-user class student)]
                               {:status 302
-                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+                               :headers {"Location" (str redirect "?result=" (:message result))}})))
 
   (GET "/class/:class/removetest/:test" request
         (friend/authorize #{::admin}
@@ -183,16 +179,27 @@
   (POST "/class/:class/delete/:student/" request
        (friend/authorize #{::admin}
                          (let [tag (:class (:route-params request))
-                               student (:student (:route-params request))]
-                           (let [result (vc-class/delete-from-class class student)]
+                               student (:student (:route-params request))
+                               result (vc-class/delete-from-class class student)]
                              {:status 302
-                              :headers {"Location" (str "/class/" tag "/")}}))))
+                              :headers {"Location" (str "/class/" tag "/")}})))
+  (GET "/class/:class/add/:student" request
+       (friend/authorize #{::admin}
+                         (let [class-id (:class (:route-params request))]
+                           {:status 302
+                            :headers {"Location" (str "/class/" class-id)}})))
   (POST "/class/:class/add/:student" request
         (friend/authorize #{::admin}
-                          (let [class-id (:class (:route-params request))]
-                            (let [result (vc-class/add-student-to-class class-id request)]
-                              {:status 302
-                               :headers {"Location" (str "/class/" class-id)}}))))
+                          (let [class-id (:class (:route-params request))
+                                student (:student (:route-params request))
+                                result (vc-class/add-user class-id student)
+                                message (:message result)
+                                redirect (get (:form-params request) "redirect")
+                                debug (log/info (str "FORM-PARAMS: " (:form-params request)))
+                                redirect (if redirect redirect
+                                              (str "/class/" class-id))]
+                            {:status 302
+                             :headers {"Location" (str redirect "?message=" message)}})))
   (POST "/class/:class/add/:student/" request
         (friend/authorize #{::admin}
                           (let [class-id (:class (:route-params request))]

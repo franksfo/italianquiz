@@ -78,6 +78,17 @@
                      AND  (students_in_classes.student = ?)" [student-id]]
                 :results)))
 
+(defn classes-student-not-in [student-id]
+  (let [student-id (Integer. student-id)]
+    (k/exec-raw ["SELECT  * 
+                    FROM  classes
+                   WHERE classes.id NOT IN (SELECT classes.id 
+                                             FROM  classes
+                                       INNER JOIN  students_in_classes
+                                               ON  (students_in_classes.class = classes.id)
+                                              AND  (students_in_classes.student = ?))" [student-id]]
+                :results)))
+
 (defn show-one [student-id & [haz-admin]]
   (let [haz-admin (if haz-admin haz-admin false)
         student-id (Integer. student-id)
@@ -94,12 +105,10 @@
           (html/table (classes-for-student student-id)
                       :haz-admin haz-admin
                       :none "This student is not enrolled in any classes yet."
-                      :create-new {:href (str "/student/" student-id "/addclass")
-                                   :link-text "Enroll this student in a class"}
                       :th (fn [key] (case key
                                       :class html/hide
                                       :created html/hide
-                                      :id [:th "Delete"]
+                                      :id [:th "Remove from class"]
                                       :name [:th "Name"]
                                       :student html/hide
                                       :updated html/hide
@@ -107,10 +116,48 @@
                       :td (fn [row key] (case key
                                           :class html/hide
                                           :created html/hide
-                                          :id [:td [:button "Delete"]]
+                                          :id [:td 
+                                                 [:form
+                                                  {:action (str "/class/" (:id row) "/removeuser/" student-id)
+                                                   :method "post"}
+
+                                                   [:input {:type "hidden" :name "redirect"
+                                                           :value (str "/student/" student-id)}]
+                                                  
+                                                  [:button {:onclick "submit()"} "Remove"]]]
+
                                           :name [:td [:a {:href (str "/class/" (get row :id))}
                                                       (get row :name)
                                                         ]]
+                                          :student html/hide
+                                          :updated html/hide
+                                          [:td (get row key)])))]
+
+         [:h3 "Add this student to a class"]
+         [:div {:style "float:left;width:100%"}
+          (html/table (classes-student-not-in student-id)
+                      :haz-admin haz-admin
+                      :none "This student is in every class."
+                      :th (fn [key] (case key
+                                      :class html/hide
+                                      :created html/hide
+                                      :id [:th "Add"]
+                                      :name [:th "Name"]
+                                      :student html/hide
+                                      :updated html/hide
+                                      [:th key]))
+                      :td (fn [row key] (case key
+                                          :class html/hide
+                                          :created html/hide
+                                          :name [:td [:a {:href (str "/class/" (get row :id))}
+                                                      (get row key)]]
+                                          :id [:td 
+                                                 [:form
+                                                  {:action (str "/class/" (:id row) "/add/" student-id)
+                                                   :method "post"}
+                                                  [:input {:type "hidden" :name "redirect"
+                                                           :value (str "/student/" student-id)}]
+                                                  [:button {:onclick "submit()"} "Add"]]]
                                           :student html/hide
                                           :updated html/hide
                                           [:td (get row key)])))]

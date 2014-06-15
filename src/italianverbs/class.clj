@@ -126,7 +126,7 @@
            (student/table (students-not-in-class (:id class))
                           (fn [row]
                             [:form
-                             {:action (str "/class/" (:id class) "/adduser/" (:id row))
+                             {:action (str "/class/" (:id class) "/add/" (:id row))
                              :method "post"}
                              [:button {:onclick "submit()"} "Add"]]))
            ]]
@@ -188,8 +188,6 @@
            :headers {"Location" (str "/class/" new-test-id "?message=created")}})))))
 
 (defn delete-from-class [ & args])
-
-(defn add-student-to-class [ & args])
 
 (defn tr [classes haz-admin & [ i ]]
   (if (not (empty? classes))
