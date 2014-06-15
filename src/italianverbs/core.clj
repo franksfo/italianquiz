@@ -82,6 +82,15 @@
                               {:status 302
                                :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
 
+  (GET "/class/:class/removeuser/:student" request
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                student (:student (:route-params request))
+                                redirect (str "/class/" class)
+                                result (vc-class/remove-user class student)]
+                            {:status 302
+                             :headers {"Location" (str redirect "?result=" (:message result))}})))
+
   (POST "/class/:class/removeuser/:student" request
         (friend/authorize #{::admin}
                           (let [class (:class (:route-params request))
@@ -168,21 +177,18 @@
                            (let [result {:message "redirected-no-effect"}]
                              {:status 302
                               :headers {"Location" (str "/class/" tag "/")}}))))
-
   (POST "/class/:class/delete/:student" request
-       (friend/authorize #{::admin}
-                         (let [tag (:class (:route-params request))
-                               student (:student (:route-params request))]
-                           (let [result (vc-class/delete-from-class class student)]
-                             {:status 302
-                              :headers {"Location" (str "/class/" tag "/")}}))))
-  (POST "/class/:class/delete/:student/" request
-       (friend/authorize #{::admin}
-                         (let [tag (:class (:route-params request))
-                               student (:student (:route-params request))
-                               result (vc-class/delete-from-class class student)]
-                             {:status 302
-                              :headers {"Location" (str "/class/" tag "/")}})))
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                student (:student (:route-params request))
+                                result (vc-class/delete-from-class class student)
+                                message (:message result)
+                                redirect (get (:form-params request) "redirect")
+                                redirect (if redirect redirect
+                                             (str "/class/" class))]
+                            {:status 302
+                             :headers {"Location" (str "/class/" class)}})))
+
   (GET "/class/:class/add/:student" request
        (friend/authorize #{::admin}
                          (let [class-id (:class (:route-params request))]
@@ -190,16 +196,15 @@
                             :headers {"Location" (str "/class/" class-id)}})))
   (POST "/class/:class/add/:student" request
         (friend/authorize #{::admin}
-                          (let [class-id (:class (:route-params request))
+                          (let [class (:class (:route-params request))
                                 student (:student (:route-params request))
-                                result (vc-class/add-user class-id student)
+                                result (vc-class/add-user class student)
                                 message (:message result)
                                 redirect (get (:form-params request) "redirect")
-                                debug (log/info (str "FORM-PARAMS: " (:form-params request)))
                                 redirect (if redirect redirect
-                                              (str "/class/" class-id))]
+                                              (str "/class/" class))]
                             {:status 302
-                             :headers {"Location" (str redirect "?message=" message)}})))
+                             :headers {"Location" (str redirect "?result=" message)}})))
 
   (GET "/generate/" request
        {:status 302
