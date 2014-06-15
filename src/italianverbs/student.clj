@@ -112,7 +112,7 @@
                                       :name [:th "Name"]
                                       :student html/hide
                                       :updated html/hide
-                                      [:th key]))
+                                      (html/default-th key)))
                       :td (fn [row key] (case key
                                           :class html/hide
                                           :created html/hide
@@ -131,7 +131,7 @@
                                                         ]]
                                           :student html/hide
                                           :updated html/hide
-                                          [:td (get row key)])))]
+                                          (html/default-td (get row key)))))]
 
          [:h3 "Add this student to a class"]
          [:div {:style "float:left;width:100%"}

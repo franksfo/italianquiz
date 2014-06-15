@@ -925,4 +925,8 @@
 
 
 (def hide "") ;; used by callers of (html/table)
+(defn default-th [key]
+  [:th key])
+(defn default-td [the-val]
+  [:td the-val])
 
