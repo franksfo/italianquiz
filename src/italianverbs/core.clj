@@ -200,12 +200,6 @@
                                               (str "/class/" class-id))]
                             {:status 302
                              :headers {"Location" (str redirect "?message=" message)}})))
-  (POST "/class/:class/add/:student/" request
-        (friend/authorize #{::admin}
-                          (let [class-id (:class (:route-params request))]
-                            (let [result (vc-class/add-student-to-class class-id request)]
-                              {:status 302
-                               :headers {"Location" (str "/class/" class-id)}}))))
 
   (GET "/generate/" request
        {:status 302
