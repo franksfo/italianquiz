@@ -338,6 +338,8 @@
             (html
              [:h3 [:a {:href (str "/test/" test-id "/take")} "Student view"]]
 
+             [:h3 [:a {:href (str "/test/" test-id "/submittals")} "Submittals"]]
+
              [:div.testeditor {:style "margin-left:0.25em;margin-top:1em;float:left;width:100%;"}
               [:button {:onclick (str "document.location='/test/" test-id "/edit'")} "Edit questions"]
               ]
@@ -455,7 +457,7 @@
       (tr rows 1 form-column-fns)])))
 
 (defn tests-and-count-submittals []
-  (k/exec-raw ["SELECT test.name,test.created,count(tsubmit.test) AS taken
+  (k/exec-raw ["SELECT test.id,test.name,test.created,count(tsubmit.test) AS taken
                   FROM test 
             INNER JOIN tsubmit 
                     ON tsubmit.test = test.id
@@ -468,7 +470,12 @@
     [:h2 "Tests"]
 
     (html/table (tests-and-count-submittals)
-                :columns [:name :created :taken])
+                :columns [:name :created :taken]
+                :td (fn [row key]
+                      (case key
+                        :name [:td [:a {:href (str "/test/" (get row :id))} (get row key)]]
+                        :taken [:td.num [:a {:href (str "/test/" (get row :id) "/submittals")} (get row key)]]
+                        (html/default-td row key))))
 
     (if haz-admin
       [:div.newlink

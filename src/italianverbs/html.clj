@@ -51,7 +51,6 @@
                     ": " "")
                   "imparare l'italiano")]
 
-     (include-css "resources/public/css/style.css")
      (include-css "resources/public/css/fs.css")
      (include-css "resources/public/css/layout.css")
      (include-css "resources/public/css/quiz.css")
@@ -59,6 +58,7 @@
      (h/include-css "resources/public/css/bootstrap.min.css")
      (h/include-css "resources/public/css/prettify.css")
 
+     (include-css "resources/public/css/style.css")
 
      ]
 
@@ -626,8 +626,7 @@
                       (re-find #"/test" relative-url))
                  (= relative-url "/test")) {:class "selected"})
          [:a {:href (str "/test" (if (get suffixes :test)
-                                   (get suffixes :test)))}]])
-
+                                   (get suffixes :test)))} (str "Tests")]])
 
       (if authentication
         [:div
@@ -861,8 +860,13 @@
 (def short-format
   (f/formatter "MMM dd, yyyy HH:mm"))
 (defn display-time [timestamp]
-  "input is a jdbc timestamp."
-  (f/unparse short-format (c/from-long (.getTime timestamp))))
+  "convert time objects of various types to our chosen datetime format."
+  (cond (= (type timestamp) java.sql.Timestamp)
+        (f/unparse short-format (c/from-long (.getTime timestamp)))
+        (= (type timestamp) org.joda.time.DateTime)
+        (f/unparse short-format timestamp)
+        true
+        timestamp))
 
 (declare default-td)
 (declare default-th)

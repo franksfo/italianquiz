@@ -496,6 +496,7 @@
                            (let [test (:id (:route-params request))]
                              {:status 302
                               :headers {"Location" (str "/test/" test)}})))
+
    (POST "/test/:id/delete" request
          (friend/authorize #{::admin}
                            (let [test (:id (:route-params request))]
@@ -528,6 +529,20 @@
                              (let [result (stest/rename test name)]
                                {:status 302
                                 :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
+
+   (GET "/test/:id/submittals" request
+        (friend/authorize #{::admin}
+                          (let [test (Integer. (:id (:route-params request)))]
+                            (html/page "Tests" (tsubmit/submittals test)
+                                       request))))
+
+   (GET "/test/:id/submittals/:submittal" request
+        (friend/authorize #{::admin}
+                          (let [test (Integer. (:id (:route-params request)))
+                                submittal (Integer. (:submittal (:route-params request)))]
+                            (html/page "Tests" (tsubmit/submittal test submittal)
+                                       request))))
+
 
    (GET "/test/:id/take" request
         (friend/authenticated

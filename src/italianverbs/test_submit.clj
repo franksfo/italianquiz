@@ -1,7 +1,10 @@
 (ns italianverbs.test_submit
   (:require [clojure.string :as string]
             [clojure.tools.logging :as log]
-            [italianverbs.korma :as db]))
+            [hiccup.core :as hc]
+            [italianverbs.html :as html]
+            [italianverbs.korma :as db]
+            [korma.core :as k]))
 
 (defn insert-answers [responses test-submit-id]
   (if (not (empty? responses))
@@ -30,6 +33,82 @@
         (insert-answers responses (:id tsubmit))))
     {:message "submitted"}))
 
+(defn test-submittals [test-id]
+  (k/exec-raw ["SELECT student.fullname AS student,student.id AS student_id,
+                       tsubmit.created AS taken,tsubmit.id AS results
+                  FROM tsubmit 
+            INNER JOIN test
+                    ON test.id = tsubmit.test 
+            INNER JOIN vc_user AS student 
+                    ON tsubmit.student = student.id
+                 WHERE test.id=?" [test-id]]
+              :results))
+
+(defn test-submittal [submit-id]
+  (k/exec-raw ["SELECT question.italian,qsubmit.answer
+                  FROM qsubmit
+            INNER JOIN tsubmit 
+                    ON tsubmit.id = qsubmit.tsubmit
+            INNER JOIN question
+                    ON question.id = qsubmit.question
+                 WHERE tsubmit = ?" [submit-id]]
+              :results))
+
+(defn submittals [test-id]
+  "show all submittals for this test."
+  (let [test (first (db/fetch :test {:_id test-id}))
+        test-name (:name test)]
+    (hc/html
+     [:div {:class "major"}
+      [:h2 [:a {:href "/test"} "Tests"] " &raquo; " [:a {:href (str "/test/" test-id)} test-name] " &raquo; Test Submittals"]
+      (html/table
+       (test-submittals test-id)
+       :columns [:student :taken]
+       :th (fn [key]
+             (case key
+               :results html/hide
+               (html/default-th key)))
+       :td (fn [row key]
+             (case key
+               :taken
+               [:td.date [:a {:href (str "/test/" test-id "/submittals/" (get row :results))} (html/display-time (get row key))]]
+               (html/default-td row key))))])))
+
+(defn submittal [test-id submit-id]
+  "show one test submittal"
+  (let [test (first (db/fetch :test {:_id test-id}))
+        test-name (:name test)
+        submit (first (db/fetch :tsubmit {:_id submit-id}))
+        student-id (:student submit)
+        student (first (db/fetch :student {:_id student-id}))]
+    (hc/html
+     [:div {:class "major"}
+      [:h2 [:a {:href "/test"} "Tests" ] " &raquo; "[:a {:href (str "/test/" test-id) } test-name ] " &raquo; " 
+       
+       [:a {:href (str "/test/" test-id "/submittals")} "Test Submittals" ] " &raquo; " " Submittal " submit-id ]
+
+      [:div {:style "float:left;width:100%"}
+       [:table
+        [:tr
+         [:th "Student"]
+         [:td (:fullname student)]]
+        [:tr
+         [:th "When"]
+         [:td (html/display-time (:created submit))]]]]
+      (html/table
+       (test-submittal submit-id)
+       :columns [:italian :answer]
+       :td (fn [row key]
+             (case key
+               :answer
+               (let [correct (get row :italian)
+                     correctness (if (= (get row :italian)
+                                        (get row key)) "correct" "incorrect")]
+                 [:td {:class correctness}
+                  (get row key)])
+               (html/default-td row key))))])))
+
+               
 
 
-  
+
