@@ -131,11 +131,11 @@ div.quiz input.submit {
 }
 
 td.correct {
-    background:lightgreen;
+    background:lightgreen !important;
 }
 
 td.incorrect {
-    background:red;
+    background:red !important;
 }
 
 div.test {
