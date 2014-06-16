@@ -78,6 +78,7 @@
    :tag vgroup
    :test student-test
    :test-submit test-submit
+   :tsubmit test-submit
    :user user
    :verb verb})
 
