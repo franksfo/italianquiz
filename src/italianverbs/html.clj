@@ -570,8 +570,8 @@
   (let [roles (:roles authentication)
         haz-admin (not (nil? (:italianverbs.core/admin roles)))]
 
-    (log/debug (str "Drawing menubar with relative-url=" relative-url))
-    (log/debug (str "Menubar with suffixes: " suffixes))
+    (log/info (str "Drawing menubar with relative-url=" relative-url))
+    (log/info (str "Menubar with suffixes: " suffixes))
     (html
      [:div {:class "menubar major"}
 
@@ -626,8 +626,8 @@
                       (re-find #"/test" relative-url))
                  (= relative-url "/test")) {:class "selected"})
          [:a {:href (str "/test" (if (get suffixes :test)
-                                   (get suffixes :test)))}
-          (str "Tests")]])
+                                   (get suffixes :test)))}]])
+
 
       (if authentication
         [:div
@@ -864,6 +864,8 @@
   "input is a jdbc timestamp."
   (f/unparse short-format (c/from-long (.getTime timestamp))))
 
+(declare default-td)
+(declare default-th)
 
 (defn table [rows & {:keys [columns
                             create-new
@@ -876,15 +878,9 @@
                       (keys (first rows))))
         haz-admin (if haz-admin haz-admin false)
         none (if none none "No results.")
-        th (if th th (fn [key] [:th (string/capitalize (string/join "" (rest (seq (str key)))))])) ;; :foo => "foo" => "Foo"
+        th (if th th (fn [key] (default-th key)))
         td (if td td 
-               (fn [row key] 
-                 (let [the-val (get row key)]
-                   (cond (= java.sql.Timestamp (type the-val))
-                         [:td [:span {:class "date"}
-                               (display-time the-val)]]
-                         true
-                         [:td the-val]))))]
+               (fn [row key] (default-td row key)))]
     (html
      (if (empty? rows)
        [:p none ]
@@ -898,15 +894,14 @@
           [[:th]]
           (vec (map (fn [key]
                       (th key)) columns)))]
-        (tr rows haz-admin 1 :td td :columns columns)])
+        (tr rows haz-admin 1 columns :td td)])
     
      (if (and (= true haz-admin)
               create-new)
        [:div {:style "float:left;margin-top:0.5em;width:100%"} [:a {:href (:href create-new)}
                                                (:link-text create-new)]]))))
   
-(defn tr [rows haz-admin i & {:keys [columns
-                                     td]}]
+(defn tr [rows haz-admin i columns & {:keys [td]}]
   (if (not (empty? rows))
     (let [row (first rows)
           i (if i i 1)
@@ -921,12 +916,22 @@
                               (td row key))
                             columns)))] ;; TODO: invariant: pass along to recursive (tr) call.
 
-            (tr (rest rows) haz-admin (+ 1 i) :td td)))))
+            (tr (rest rows) haz-admin (+ 1 i) columns :td td)))))
 
 
 (def hide "") ;; used by callers of (html/table)
 (defn default-th [key]
-  [:th key])
-(defn default-td [the-val]
-  [:td the-val])
+  [:th (string/capitalize (string/join "" (rest (seq (str key)))))]) ;; :foo => "foo" => "Foo"
+
+(defn default-td [row key]
+  (let [the-val (get row key)]
+    (cond (= java.sql.Timestamp (type the-val))
+          [:td [:span {:class "date"}
+                (display-time the-val)]]
+          (number? the-val)
+          [:td.num the-val]
+          true
+          [:td the-val])))
+
+
 
