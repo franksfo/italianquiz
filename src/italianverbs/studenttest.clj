@@ -459,7 +459,7 @@
 (defn tests-and-count-submittals []
   (k/exec-raw ["SELECT test.id,test.name,test.created,count(tsubmit.test) AS taken
                   FROM test 
-            INNER JOIN tsubmit 
+             LEFT JOIN tsubmit 
                     ON tsubmit.test = test.id
               GROUP BY test.id"]
               :results))
