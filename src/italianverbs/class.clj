@@ -17,6 +17,7 @@
 (declare students-in-class)
 (declare students-not-in-class)
 (declare tests-for-class)
+(declare tests-for-class-for-student)
 (declare tests-not-for-this-class)
 
 (def class-form
@@ -100,11 +101,19 @@
   (db/fetch-and-modify :class class-id {:name new-name})
   {:message "renamed."})
 
-(defn show-one [class-id haz-admin]
+(defn show-one [class-id haz-admin student-id]
   (let [class (first (db/fetch :classes {:_id class-id}))]
     (html
      [:div {:class "major tag"}
       [:h2 [:a {:href "/class"} "Classes" ] " &raquo; " (:name class)]
+
+      (if (and student-id (not (= true haz-admin)))
+        [:div
+         [:h3 {:style "float:left;width:100%;margin-top:1em;margin-bottom:0;text-align:center"} "Welcome to the class!"]
+
+         [:h4  {:style "float:left;width:100%;margin-top:1em;margin-bottom:0;text-align:center"} "Tests"]
+         [:div {:style "float:left;width:100%;"}
+          (html/table (tests-for-class-for-student (:id class) student-id))]])
 
       (if (= true haz-admin)
         [:div
@@ -272,6 +281,18 @@
             INNER JOIN test ON test.id = tests_in_classes.test
                            AND class=?" [class-id]]
                :results))
+
+(defn tests-for-class-for-student [class-id student-id]
+  (log/info (str "FUCKING SHIT STUDENT_ID: " student-id))
+  (k/exec-raw ["SELECT * 
+                  FROM tests_in_classes 
+            INNER JOIN test 
+                    ON test.id = tests_in_classes.test
+                   AND class=?
+             LEFT JOIN tsubmit
+                    ON tsubmit.student = ?
+                   AND tsubmit.test = test.id" [class-id student-id]]
+              :results))
 
 (defn tests-not-for-this-class [class-id]
   (k/exec-raw ["SELECT test.* FROM test 

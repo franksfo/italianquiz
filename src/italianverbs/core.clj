@@ -16,6 +16,7 @@
    [italianverbs.class :as vc-class]
    [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
+   [italianverbs.korma :as db]
    [italianverbs.lesson :as lesson]
    [italianverbs.xml :as xml]
    [italianverbs.html :as html]
@@ -38,6 +39,10 @@
 
 ;; not used at the moment, but might be handy someday:
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
+
+(defn get-user-id []
+  (let [username (:username (friend/current-authentication))]
+    (:id (first (db/fetch :student {:username username})))))
 
 (defn haz-admin []
   (if (not (nil? (friend/current-authentication)))
@@ -164,7 +169,8 @@
        (is-authenticated request
                          {:body (html/page "Classes" (vc-class/show-one
                                                       (:class (:route-params request))
-                                                      (haz-admin))
+                                                      (haz-admin)
+                                                      (get-user-id))
                                            request)}))
   (GET "/class/:class/" request
        {:status 302
