@@ -131,6 +131,8 @@
       (if (= true haz-admin)
         [:div
 
+         ;; TODO: show test results aggregated by student and test.
+         
          [:h3  {:style "float:left;width:100%;margin-top:1em;margin-bottom:0;text-align:center"} "Students"]
          [:div {:style "float:left;width:100%"}
           [:div {:style "float:left;width:50%"}
