@@ -113,7 +113,20 @@
 
          [:h4  {:style "float:left;width:100%;margin-top:1em;margin-bottom:0;text-align:center"} "Tests"]
          [:div {:style "float:left;width:100%;"}
-          (html/table (tests-for-class-for-student (:id class) student-id))]])
+          (html/table (tests-for-class-for-student (:id class) student-id)
+                      :columns [:test :taken :id]
+                      :none "No tests for this class yet."
+                      :th (fn [key] (case key
+                                      :id [:th "Take"]
+                                      (html/default-th key)))
+                      :td (fn [row key] (case key
+                                          :test [:td [:a {:href (str "/test/" (get row :id))}
+                                                      (get row key)]]
+                                          :id [:td [:a {:href (str "/test/" (get row :id) "/take")}
+                                                    "Take"]]
+                                          :taken [:td.num [:a {:href (str "/test/" (get row :id) "/student/" student-id)}
+                                                           (get row key)]]
+                                         (html/default-td row key))))]])
 
       (if (= true haz-admin)
         [:div
@@ -283,15 +296,15 @@
                :results))
 
 (defn tests-for-class-for-student [class-id student-id]
-  (log/info (str "FUCKING SHIT STUDENT_ID: " student-id))
-  (k/exec-raw ["SELECT * 
+  (k/exec-raw ["SELECT test.id,test.name AS test,count(tsubmit) AS taken
                   FROM tests_in_classes 
             INNER JOIN test 
                     ON test.id = tests_in_classes.test
                    AND class=?
              LEFT JOIN tsubmit
                     ON tsubmit.student = ?
-                   AND tsubmit.test = test.id" [class-id student-id]]
+                   AND tsubmit.test = test.id 
+              GROUP BY tsubmit,test.name,test.id" [class-id student-id]]
               :results))
 
 (defn tests-not-for-this-class [class-id]
