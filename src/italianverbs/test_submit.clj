@@ -74,6 +74,17 @@
                [:td.date [:a {:href (str "/test/" test-id "/submittals/" (get row :results))} (html/display-time (get row key))]]
                (html/default-td row key))))])))
 
+(defn submittals-by-student [test-id student-id]
+  (let [test (first (db/fetch :test {:_id test-id}))
+        test-name (:name test)]
+    (hc/html
+     [:div {:class "major"}
+      [:h2 [:a {:href "/test"} "Tests" ] " &raquo; "[:a {:href (str "/test/" test-id) } test-name ] " &raquo; My submittals"]
+      
+      (html/table
+       (k/exec-raw ["SELECT * FROM tsubmit WHERE test = ? AND student = ?" [test-id student-id]]
+                   :results))])))
+
 (defn submittal [test-id submit-id]
   "show one test submittal"
   (let [test (first (db/fetch :test {:_id test-id}))

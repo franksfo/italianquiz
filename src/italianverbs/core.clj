@@ -536,6 +536,12 @@
                                {:status 302
                                 :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
 
+   (GET "/test/:id/mine" request
+        (friend/authenticated
+                          (let [test (Integer. (:id (:route-params request)))]
+                            (html/page "Tests" (tsubmit/submittals-by-student test (get-user-id))
+                                       request))))
+
    (GET "/test/:id/submittals" request
         (friend/authorize #{::admin}
                           (let [test (Integer. (:id (:route-params request)))]

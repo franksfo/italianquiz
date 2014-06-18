@@ -111,20 +111,20 @@
         [:div
          [:h3 {:style "float:left;width:100%;margin-top:1em;margin-bottom:0;text-align:center"} "Welcome to the class!"]
 
-         [:h4  {:style "float:left;width:100%;margin-top:1em;margin-bottom:0;text-align:center"} "Tests"]
-         [:div {:style "float:left;width:100%;"}
+         [:div {:style "float:left;width:50%;"}
+          [:h4  {:style "float:left;width:50%;margin-top:1em;margin-bottom:0;text-align:center"} "Tests"]
           (html/table (tests-for-class-for-student (:id class) student-id)
                       :columns [:test :taken :id]
                       :none "No tests for this class yet."
                       :th (fn [key] (case key
-                                      :id [:th "Take"]
+                                      :id [:th ""]
                                       (html/default-th key)))
                       :td (fn [row key] (case key
                                           :test [:td [:a {:href (str "/test/" (get row :id))}
                                                       (get row key)]]
-                                          :id [:td [:a {:href (str "/test/" (get row :id) "/take")}
+                                          :id [:td [:button {:onclick (str "document.location='/test/" (get row :id) "/take'")}
                                                     "Take"]]
-                                          :taken [:td.num [:a {:href (str "/test/" (get row :id) "/student/" student-id)}
+                                          :taken [:td.num [:a {:href (str "/test/" (get row :id) "/mine")}
                                                            (get row key)]]
                                          (html/default-td row key))))]])
 
