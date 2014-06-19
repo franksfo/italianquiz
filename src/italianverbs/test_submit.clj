@@ -80,10 +80,28 @@
     (hc/html
      [:div {:class "major"}
       [:h2 [:a {:href "/test"} "Tests" ] " &raquo; "[:a {:href (str "/test/" test-id) } test-name ] " &raquo; My submittals"]
-      
-      (html/table
-       (k/exec-raw ["SELECT * FROM tsubmit WHERE test = ? AND student = ?" [test-id student-id]]
+
+      (map (fn [submittal]
+             [:div
+              [:h3 (html/display-time (:taken submittal))]
+
+              (html/table
+
+               (test-submittal (:id submittal))
+               :columns [:italian :answer]
+               :td (fn [row key]
+                     (case key
+                       :answer
+                       (let [correct (get row :italian)
+                             correctness (if (= (get row :italian)
+                                                (get row key)) "correct" "incorrect")]
+                         [:td {:class correctness}
+                          (get row key)])
+                       (html/default-td row key))))])
+
+       (k/exec-raw ["SELECT created AS taken,id FROM tsubmit WHERE test = ? AND student = ?" [test-id student-id]]
                    :results))])))
+
 
 (defn submittal [test-id submit-id]
   "show one test submittal"
