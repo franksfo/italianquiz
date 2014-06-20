@@ -549,12 +549,11 @@
                                        request))))
 
    (GET "/test/:id/submittals/:submittal" request
-        (friend/authorize #{::admin}
-                          (let [test (Integer. (:id (:route-params request)))
-                                submittal (Integer. (:submittal (:route-params request)))]
-                            (html/page "Tests" (tsubmit/submittal test submittal)
-                                       request))))
-
+        (friend/authenticated
+         (let [test (Integer. (:id (:route-params request)))
+               submittal (Integer. (:submittal (:route-params request)))]
+           (html/page "Tests" (tsubmit/submittal test submittal)
+                      request))))
 
    (GET "/test/:id/take" request
         (friend/authenticated
