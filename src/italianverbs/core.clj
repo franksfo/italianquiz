@@ -568,7 +568,9 @@
                                      (stest/group-by-question (:form-params request))
                                      (friend/current-authentication))]
              {:status 302
-              :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
+              ;; redirect to graded test.
+              :headers {"Location" (str "/test/" (:testid result) "/submittals/" (:submittalid result) 
+                                        "?result=" (:message result))}}))))
    
    (GET "/verb" request
         {:body (html/page 
