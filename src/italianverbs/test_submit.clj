@@ -30,8 +30,10 @@
             (db/insert! :test-submit {:test (Integer. test_id)
                                       :student (Integer. user_id)})]
         ;; iterate over form-params and add each as a question-submit for this test-submit (tsubmit).
-        (insert-answers responses (:id tsubmit))))
-    {:message "submitted"}))
+        (insert-answers responses (:id tsubmit))
+        {:testid test_id
+         :submittalid (:id tsubmit)
+         :message "submitted"}))))
 
 (defn test-submittals [test-id]
   (k/exec-raw ["SELECT student.fullname AS student,student.id AS student_id,
