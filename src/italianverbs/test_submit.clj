@@ -88,7 +88,7 @@
                         :results)]
         (if (> (.size submittals) 0)
           (map (fn [submittal]
-                 [:div
+                 [:div {:style "float:left;width:40%"}
                   [:h3 (html/display-time (:taken submittal))]
 
                   (html/table
