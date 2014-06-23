@@ -74,7 +74,7 @@
          [:tr
           [:th]
           [:th "Name"]
-          [:th "Students"]
+          (if haz-admin [:th "Students"])
           [:th "Tests"]
           ]
 
@@ -118,14 +118,14 @@
                       :none "No tests for this class yet."
                       :th (fn [key] (case key
                                       :id [:th ""]
-                                      (html/default-th key)))
+                                      [:th ""]))
                       :td (fn [row key] (case key
                                           :test [:td [:a {:href (str "/test/" (get row :id))}
                                                       (get row key)]]
                                           :id [:td [:button {:onclick (str "document.location='/test/" (get row :id) "/take'")}
                                                     "Take"]]
-                                          :taken [:td.num [:a {:href (str "/test/" (get row :id) "/mine")}
-                                                           (get row key)]]
+                                          :taken [:td.num {:style "padding-right:1em"} "You've taken this test " [:a {:href (str "/test/" (get row :id) "/mine")}
+                                                           (get row key) " time" (if (not (= 1 (get row key))) "s") "."]]
                                          (html/default-td row key))))]])
 
       (if (= true haz-admin)
@@ -223,7 +223,8 @@
        [:tr
         [:th.num i]
         [:td [:a {:href (str "/class/" (:id class))} (:name class)]]
-        [:td.num [:a {:href (str "/class/" (:id class))} (if students-per-class students-per-class 0)]]
+        (if haz-admin
+          [:td.num [:a {:href (str "/class/" (:id class))} (if students-per-class students-per-class 0)]])
         [:td.num [:a {:href (str "/class/" (:id class))} (if tests-per-class tests-per-class 0)]]]
        (tr (rest classes) haz-admin (+ 1 i))))))
 
@@ -302,11 +303,11 @@
                   FROM tests_in_classes 
             INNER JOIN test 
                     ON test.id = tests_in_classes.test
-                   AND class=?
+                   AND class= ?
              LEFT JOIN tsubmit
                     ON tsubmit.student = ?
-                   AND tsubmit.test = test.id 
-              GROUP BY tsubmit,test.name,test.id" [class-id student-id]]
+                   AND tsubmit.test = test.id
+              GROUP BY tsubmit.student,test.name,test.id" [class-id student-id]]
               :results))
 
 (defn tests-not-for-this-class [class-id]

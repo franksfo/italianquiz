@@ -79,6 +79,14 @@
                                            (vc-class/show request (haz-admin))
                                            request)}))
 
+  (GET "/class/my" request
+       (is-authenticated request
+                         {:status 200
+                          :body (html/page "My Classes" 
+                                           (vc-class/show request (haz-admin))
+                                           request)}))
+
+
   (POST "/class/:class/addtest/:test" request
         (friend/authorize #{::admin}
                           (let [class (:class (:route-params request))

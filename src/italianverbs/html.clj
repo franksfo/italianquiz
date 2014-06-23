@@ -566,6 +566,7 @@
 
 ;; TODO: break (menubar) out into its own namespace since it relates
 ;; to a lot of other functionality.
+;; URLs mentioned in this function are defined in core.clj.
 (defn menubar [session-row relative-url authentication & [suffixes]]
   (let [roles (:roles authentication)
         haz-admin (not (nil? (:italianverbs.core/admin roles)))]
@@ -588,7 +589,7 @@
        [:a {:href "/about"} (str "About")]]
 
 
-      (if authentication
+      (if haz-admin
         [:div
          (if (or (and (not (nil? relative-url))
                       (re-find #"/class" relative-url))
@@ -596,6 +597,15 @@
          [:a {:href (str "/class" (if (get suffixes :class)
                                    (get suffixes :class)))}
           (str "Classes")]])
+
+      (if (and authentication (not haz-admin))
+        [:div
+         (if (or (and (not (nil? relative-url))
+                      (re-find #"/class" relative-url))
+                 (= relative-url "/class")) {:class "selected"})
+         [:a {:href (str "/class/my" (if (get suffixes :class)
+                                   (get suffixes :class)))}
+          (str "My Classes")]])
 
       (if haz-admin
         [:div
@@ -620,7 +630,7 @@
                  (= relative-url "/lesson")) {:class "selected"})
          [:a {:href "/lesson/"} (str "Groups")]])
 
-      (if authentication
+      (if haz-admin
         [:div
          (if (or (and (not (nil? relative-url))
                       (re-find #"/test" relative-url))
