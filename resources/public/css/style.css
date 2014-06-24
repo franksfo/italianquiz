@@ -16,6 +16,17 @@ div.major {
     padding-bottom:2px;
 }
 
+h3 {
+    float:left;
+    text-align:left;
+    width:80%;
+    background:#d4d6fa;
+}
+
+form {
+    float:left;
+}
+
 div.quiz-elem {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
