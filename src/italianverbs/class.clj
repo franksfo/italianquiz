@@ -123,9 +123,16 @@
                                           :test [:td [:a {:href (str "/test/" (get row :id))}
                                                       (get row key)]]
                                           :id [:td [:button {:onclick (str "document.location='/test/" (get row :id) "/take'")}
-                                                    "Take"]]
-                                          :taken [:td.num {:style "padding-right:1em"} "You've taken this test " [:a {:href (str "/test/" (get row :id) "/mine")}
-                                                           (get row key) " time" (if (not (= 1 (get row key))) "s") "."]]
+                                                    (if (= 0 (get row :taken))
+                                                      "Take"
+                                                      "Take again")]]
+                                          :taken [:td.num {:style "padding-right:1em"}
+                                                  (let [text
+                                                        (if (= 0 (get row :taken))
+                                                          "You haven't taken this test yet."
+                                                          [:span "You've taken this test " [:a {:href (str "/test/" (get row :id) "/mine")}
+                                                                                            (get row :taken) " time" (if (not (= 1 (get row :taken))) "s") "."]])]
+                                                    text)]
                                          (html/default-td row key))))]])
 
       (if (= true haz-admin)
@@ -167,7 +174,7 @@
                            [:button {:onclick "submit()"} "Remove"]]))
            ]
 
-          [:div.classes
+          [:div.classes {:style "float:left"}
            [:h3 "Add tests to this class"]
            (tests/table (tests-not-for-this-class (:id class))
                         (fn [row]
@@ -186,10 +193,10 @@
 
       (if (= true haz-admin)
         [:div.testeditor {:style "margin-left:0.25em;float:left;width:100%;"}
-         [:h3 "Delete class"]
-         [:form {:action (str "/class/" (:id class) "/delete")
+         [:h3 {:style "float:left"} "Delete class"]
+         [:div [:form {:style "float:left;width:100%" :action (str "/class/" (:id class) "/delete")
                  :method "post"}
-          [:button {:onclick "submit()"} "Delete"]]])])))
+          [:button {:onclick "submit()"} "Delete"]]]])])))
 
 (defn delete [ class-id ]
   (log/info (str "deleting class: " class-id))
