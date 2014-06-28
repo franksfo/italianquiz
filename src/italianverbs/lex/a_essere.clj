@@ -684,15 +684,14 @@
             :english {:irregular {:plur "women"}
                       :english "woman"}})
 
-    (unify
-     {:italian {:infinitive "dormire"}
-      :english {:infinitive "to sleep"
-                :irregular {:past "slept"}}
-      :synsem {:cat :verb
-               :essere false
-               :sem {:subj {:animate true}
-                     :discrete false
-                     :pred :dormire}}})
+    {:italian {:infinitive "dormire"}
+     :english {:infinitive "to sleep"
+               :irregular {:past "slept"}}
+     :synsem {:cat :verb
+              :essere false
+              :sem {:subj {:animate true}
+                    :discrete false
+                    :pred :dormire}}}
 
     (unify agreement-noun
            common-noun
