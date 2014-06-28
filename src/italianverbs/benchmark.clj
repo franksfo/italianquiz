@@ -79,18 +79,24 @@
     (.size result)
     (print-language-stats)))
 
+(def benchmark-1-spec
+  {:synsem {:infl :present
+            :sem {:pred :dormire
+                  :subj {:pred :io}
+                  :tense :present}}})
+
+(defn benchmark-1-sentence []
+  (sentence benchmark-1-spec
+            lexicon
+            grammar
+            cache))
+
 (defn benchmark-1 [n]
   (let [grammar (list s-present)
         lexicon (seq (union (it "io")
                             (it "dormire")))]
     (fo (take n (repeatedly (fn []
-                              (time (sentence {:synsem {:infl :present
-                                                        :sem {:pred :dormire
-                                                              :subj {:pred :io}
-                                                              :tense :present}}}
-                                              lexicon
-                                              grammar
-                                              cache))))))))
+                              (time (benchmark-1-sentence))))))))
 
 (defn benchmark-2 [n]
   (let [grammar (list noun-phrase nbar)]
@@ -176,8 +182,6 @@
     (let [nounphrase (nounphrase {:head {:phrasal true}} lexicon grammar cache)]
       (log/info (str "core async generated noun phrase: " (fo nounphrase)))
       (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
-
-
 
 (defn percentile [percent runtimes]
   (let [sorted-runtimes (sort runtimes)
