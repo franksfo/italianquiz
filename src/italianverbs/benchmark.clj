@@ -34,6 +34,8 @@
 
 (log/info "building cache..")
 (def cache nil)
+;; TODO: trying to print cache takes forever and blows up emacs buffer:
+;; figure out how to change printable version to (keys cache).
 (def cache (conj (build-lex-sch-cache grammar
                                       (map (fn [lexeme]
                                              (unifyc lexeme
