@@ -185,6 +185,13 @@
    #(lazy-seq (overc % (hlcl cache grammar (get-in % [:comp]))))
    phrases-with-heads))
 
+(defn lazy-mapcat [the-fn the-args]
+   (let [arg (first the-args)]
+     (if arg
+       (lazy-cat
+        (the-fn arg)
+        (lazy-mapcat the-fn (rest the-args))))))
+
 (defn hlcl [cache grammar & [spec depth]]
   "generate all the phrases where the head is a lexeme and the complement is a lexeme"
   (let [depth (if depth depth 0)
@@ -194,8 +201,7 @@
     ;; parents-with-heads is the lazy sequence of all possible heads attached to all possible grammar rules.
     (let [parents-with-heads
           (hl cache grammar spec)]
-
-      (mapcat
+      (lazy-mapcat
        (fn [parent-with-head]
          (let [pred-of-arg (get-in parent-with-head [:comp :synsem])]
            (log/trace (str "pred-of-arg: " pred-of-arg))
@@ -204,7 +210,7 @@
                                               (not (fail? (unifyc (get-in complement [:synsem])
                                                                   pred-of-arg))))
                                             (:comp (cache (:rule parent-with-head))))))))
-     parents-with-heads))))
+       parents-with-heads))))
 
 (defn hlcp [cache grammar & [spec depth]]
   "generate all the phrases where the head is a lexeme and the complement is a phrase."
@@ -237,7 +243,9 @@
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
     (log/debug (str "hpcl with spec: " (show-spec spec)))
-    (cl cache (hp cache grammar head-spec (+ 1 depth)))))
+    (let [hp (lazy-seq (hp cache grammar head-spec (+ 1 depth)))]
+      (log/debug (str "HP IS DONE. NOW DOING CL."))
+      (cl cache hp))))
 
 (defn hpcp [cache grammar & [spec depth]]
   "generate all the phrases where the head is a phrase and the complement is a phrase."
