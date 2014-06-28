@@ -281,9 +281,10 @@
       ;; TODO: check that imperfect past: 'we were going mad' works.
       {:synsem {:cat :verb
                 :essere false
-                :sem {:pred :impazzire
+                :sem {:discrete false
+                      :pred :impazzire
                       :subj {:animate true}}}
-       :italian "impazzire"
+       :italian {:infinitive "impazzire"}
        :english {:infinitive "to go mad"
                  :irregular {:imperfect {:default "was going mad"
                                          :2sing "were going mad"
