@@ -1,4 +1,5 @@
 (ns italianverbs.benchmark
+  (:refer-clojure :exclude [get-in])
   (:require
    [clojure.math.numeric-tower :as math]
    [clojure.core.async :as async :exclude [partition-by]]
@@ -14,7 +15,7 @@
    [italianverbs.over :refer (overc overh)]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (fail? lazy-shuffle unifyc)]))
+   [italianverbs.unify :refer (fail? get-in lazy-shuffle unifyc)]))
 
 ;;
 ;; Usage:
