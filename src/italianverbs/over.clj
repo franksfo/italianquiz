@@ -291,12 +291,12 @@
          is-fail? (fail? result)]
      (if is-fail?
        (log/debug (str "overc: parent=" (label-of parent)
-                       ";head=[" (fo (get-in parent '(:head)))
+                       "; head=[" (fo (get-in parent '(:head)))
                        "]; comp=[" (fo comp) "]=> :fail")))
 
      (if (not is-fail?)
        (log/info (str "overc: parent=" (label-of parent)
-                      ";head=[" (fo (get-in parent '(:head)))
+                      "; head=[" (fo (get-in parent '(:head)))
                       "]; comp=[" (fo comp) "]=> " (fo result))))
 
      (if (not is-fail?)
