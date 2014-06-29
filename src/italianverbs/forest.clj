@@ -160,14 +160,21 @@
 
 (declare hlcl)
 
+(defn lazy-mapcat [the-fn the-args]
+   (let [arg (first the-args)]
+     (if arg
+       (lazy-cat
+        (the-fn arg)
+        (lazy-mapcat the-fn (rest the-args))))))
+
 (defn hp [cache grammar & [spec depth]]
   "return a lazy sequence of every possible phrasal head as the head of every rule in rule-set _grammar_."
   (let [depth (if depth depth 0)
-        debug (log/debug (str "PRE-PHRASAL-SPEC: " spec))
+        debug (log/debug (str "PRE-PHRASAL-SPEC: " (show-spec spec)))
         spec (phrasal-spec (if spec spec :top) cache)
-        debug (log/debug (str "POST-PHRASAL-SPEC: " spec))
+        debug (log/debug (str "POST-PHRASAL-SPEC: " (show-spec spec)))
         grammar (lazy-shuffle grammar)]
-    (mapcat
+    (lazy-mapcat
      #(overh %
              (hlcl cache
                    grammar
@@ -184,13 +191,6 @@
   (mapcat
    #(lazy-seq (overc % (hlcl cache grammar (get-in % [:comp]))))
    phrases-with-heads))
-
-(defn lazy-mapcat [the-fn the-args]
-   (let [arg (first the-args)]
-     (if arg
-       (lazy-cat
-        (the-fn arg)
-        (lazy-mapcat the-fn (rest the-args))))))
 
 (defn hlcl [cache grammar & [spec depth]]
   "generate all the phrases where the head is a lexeme and the complement is a lexeme"
