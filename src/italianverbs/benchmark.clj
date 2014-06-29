@@ -274,9 +274,6 @@
                                                          :head {:subcat {:1 :top
                                                                          :2 :top}
                                                                 :aux true}}))))
-
-                                                                            
-                                                            
    trials))
 
 (defn run-hlcl-test [trials]
@@ -466,7 +463,7 @@
                                                             :aux true}}))))
    trials)))
 
-(defn run-hpcp [trials]
+(defn run-hpcp2 [trials]
   (run-benchmark
    #(fo (first (take 1 (forest/hpcp cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}
                                                    :head {:synsem {:subcat {:1 :top

@@ -253,12 +253,54 @@
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head])]
-    (log/debug (str "hpcl with spec: " (show-spec spec)))
-    (mapcat
-     #(lazy-seq (overc % (hlcl cache grammar
-                               {:synsem (get-in % [:comp :synsem] :top)}
-                               (+ 1 depth))))
-     (hp cache grammar head-spec (+ 1 depth)))))
+    (let [hp
+          (hp cache grammar head-spec (+ 1 depth))
+          ordering (rand-int 6)
+          with-hlcl (lazy-mapcat
+                     (fn [the-hp]
+                       (overc
+                        the-hp
+                        (hlcl cache grammar
+                              {:synsem (get-in the-hp [:comp :synsem] :top)}
+                              (+ 1 depth))))
+                     hp)
+          with-hlcp (lazy-mapcat
+                     (fn [the-hp]
+                       (overc
+                        the-hp
+                        (hlcp cache grammar
+                              {:synsem (get-in the-hp [:comp :synsem] :top)}
+                              (+ 1 depth))))
+                     hp)
+
+          with-hpcl (lazy-mapcat
+                     (fn [the-hp]
+                       (overc
+                        the-hp
+                        (hpcl cache grammar
+                              {:synsem (get-in the-hp [:comp :synsem] :top)}
+                              (+ 1 depth))))
+                     hp)
+          ]
+
+      (cond
+       (= ordering 0)
+       (lazy-cat with-hlcl with-hlcp with-hpcl)
+
+       (= ordering 1)
+       (lazy-cat with-hlcl with-hpcl with-hlcp)
+
+       (= ordering 2)
+       (lazy-cat with-hlcp with-hlcl with-hpcl)
+
+       (= ordering 3)
+       (lazy-cat with-hlcp with-hpcl with-hlcl)
+
+       (= ordering 4)
+       (lazy-cat with-hpcl with-hlcl with-hlcp)
+
+       (or true (= ordering 5))
+       (lazy-cat with-hpcl with-hlcp with-hlcl)))))
 
 (defn hppcp [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
