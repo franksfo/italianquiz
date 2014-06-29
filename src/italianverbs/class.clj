@@ -152,7 +152,7 @@
                              [:button {:onclick "submit()"} "Remove"]]))
            ]
 
-          [:div.classes
+          [:div.classes {:style "float:left;width:50%"}
            [:h3 "Add Students to this class"]
            (student/table (students-not-in-class (:id class))
                           (fn [row]
@@ -174,7 +174,7 @@
                            [:button {:onclick "submit()"} "Remove"]]))
            ]
 
-          [:div.classes {:style "float:left"}
+          [:div.classes {:style "float:left;width:50%"}
            [:h3 "Add tests to this class"]
            (tests/table (tests-not-for-this-class (:id class))
                         (fn [row]
