@@ -199,7 +199,8 @@
                        :2 {:cat :verb
                            :aux false
                            :essere essere-binary-categorization
-                           :subcat {:1 subject}
+                           :subcat {:1 subject
+                                    :2 '()}
                            :sem sem
                            :infl :past}}}}))
 
