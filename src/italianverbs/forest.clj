@@ -158,8 +158,6 @@
                                         (lazy-shuffle (:head (cache (:rule %)))))))
             (parents-given-spec spec grammar))))
 
-(declare hlcl)
-
 (defn lazy-mapcat-bailout-early [the-fn the-args]
    (let [arg (first the-args)]
      (if arg
@@ -172,6 +170,18 @@
             result
             (lazy-mapcat-bailout-early the-fn (rest the-args))))))))
 
+(defn lazy-mapcat-bailout-after [the-fn the-args tries]
+   (let [arg (first the-args)]
+     (if arg
+       (let [result (the-fn arg)]
+         (if (and (empty? result) (= tries 0))
+           (do
+             (log/warn (str "lazy-cat: bailing out early because we should not try anymore."))
+             nil)
+           (lazy-cat
+            result
+            (lazy-mapcat-bailout-after the-fn (rest the-args) (- tries 1))))))))
+
 (defn lazy-mapcat [the-fn the-args]
    (let [arg (first the-args)]
      (if arg
@@ -180,6 +190,9 @@
           result
           (lazy-mapcat the-fn (rest the-args)))))))
 
+(declare hlcl)
+(declare hlcp)
+
 (defn hp [cache grammar & [spec depth]]
   "return a lazy sequence of every possible phrasal head as the head of every rule in rule-set _grammar_."
   (let [depth (if depth depth 0)
@@ -187,7 +200,7 @@
         spec (phrasal-spec (if spec spec :top) cache)
         debug (log/debug (str "POST-PHRASAL-SPEC: " (show-spec spec)))
         grammar (lazy-shuffle grammar)]
-    (lazy-mapcat
+    (lazy-mapcat-bailout-after
      #(overh %
              (hlcl cache
                    grammar
@@ -197,7 +210,8 @@
                (not (fail? rule)))
              (map (fn [rule]
                     (unifyc rule spec))
-                  grammar)))))
+                  grammar))
+     10)))
 
 (defn cp [phrases-with-heads cache grammar]
   "phrases-with-heads is a seq (usually lazy)"
