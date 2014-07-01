@@ -199,19 +199,39 @@
         debug (log/debug (str "PRE-PHRASAL-SPEC: " (show-spec spec)))
         spec (phrasal-spec (if spec spec :top) cache)
         debug (log/debug (str "POST-PHRASAL-SPEC: " (show-spec spec)))
-        grammar (lazy-shuffle grammar)]
-    (lazy-mapcat-bailout-after
-     #(overh %
-             (hlcl cache
-                   grammar
-                   (get-in % [:head])
-                   (+ 1 depth)))
-     (filter (fn [rule]
-               (not (fail? rule)))
-             (map (fn [rule]
-                    (unifyc rule spec))
-                  grammar))
-     10)))
+        grammar (lazy-shuffle grammar)
+        with-cl (lazy-mapcat-bailout-after
+                 #(overh %
+                         (hlcl cache
+                               grammar
+                               (get-in % [:head])
+                               (+ 1 depth)))
+                 (filter (fn [rule]
+                           (not (fail? rule)))
+                         (map (fn [rule]
+                                (unifyc rule spec))
+                              grammar))
+                 10)
+
+        with-cp (lazy-mapcat-bailout-after
+                 #(overh %
+                         (hlcp cache
+                               grammar
+                               (get-in % [:head])
+                               (+ 1 depth)))
+                 (filter (fn [rule]
+                           (not (fail? rule)))
+                         (map (fn [rule]
+                                (unifyc rule spec))
+                              grammar))
+                 10)
+        ordering (rand-int 2)
+        ]
+    (cond
+     (= ordering 0)
+     (lazy-cat with-cp with-cl)
+     (or true (= ordering 1))
+     (lazy-cat with-cl with-cp))))
 
 (defn cp [phrases-with-heads cache grammar]
   "phrases-with-heads is a seq (usually lazy)"
