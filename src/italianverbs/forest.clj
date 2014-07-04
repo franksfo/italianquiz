@@ -196,11 +196,10 @@
 (defn hp [cache grammar & [spec depth]]
   "return a lazy sequence of every possible phrasal head as the head of every rule in rule-set _grammar_."
   (let [depth (if depth depth 0)
-        debug (log/debug (str "PRE-PHRASAL-SPEC: " (show-spec spec)))
         spec (phrasal-spec (if spec spec :top) cache)
-        debug (log/debug (str "POST-PHRASAL-SPEC: " (show-spec spec)))
+        debug (log/debug (str "hp spec@" depth ": " (show-spec spec)))
         grammar (lazy-shuffle grammar)
-        with-cl (lazy-mapcat-bailout-after
+        with-hlcl (lazy-mapcat-bailout-after
                  #(overh %
                          (hlcl cache
                                grammar
@@ -213,7 +212,7 @@
                               grammar))
                  1)
 
-        with-cp (lazy-mapcat-bailout-after
+        with-hlcp (lazy-mapcat-bailout-after
                  #(overh %
                          (hlcp cache
                                grammar
@@ -224,7 +223,7 @@
                          (map (fn [rule]
                                 (unifyc rule spec))
                               grammar))
-                 1)
+                 0)
 
         with-hpcp (lazy-mapcat-bailout-after
                    #(overh %
@@ -237,23 +236,25 @@
                            (map (fn [rule]
                                   (unifyc rule spec))
                                 grammar))
-                   1)
+                   0)
+
+        with-hpcp nil
 
         ordering (rand-int 6)
         ]
     (cond
      (= ordering 0)
-     (lazy-cat with-cp with-cl with-hpcp)
+     (lazy-cat with-hlcp with-hlcl with-hpcp)
      (= ordering 1)
-     (lazy-cat with-cp with-hpcp with-cl)
+     (lazy-cat with-hlcp with-hpcp with-hlcl)
      (= ordering 2)
-     (lazy-cat with-cl with-cp with-hpcp)
+     (lazy-cat with-hlcl with-hlcp with-hpcp)
      (= ordering 3)
-     (lazy-cat with-cl with-hpcp with-cp)
+     (lazy-cat with-hlcl with-hpcp with-hlcp)
      (= ordering 4)
-     (lazy-cat with-hpcp with-cl with-cp)
+     (lazy-cat with-hpcp with-hlcl with-hlcp)
      (= ordering 5)
-     (lazy-cat with-hpcp with-cp with-cl))))
+     (lazy-cat with-hpcp with-hlcp with-hlcl))))
 
 (defn cp [phrases-with-heads cache grammar]
   "phrases-with-heads is a seq (usually lazy)"
@@ -325,7 +326,7 @@
     (log/debug (str "start hpcp@" depth))
     (let [debug (log/debug (str "hpcp: head-spec:" (show-spec head-spec)))
           hp
-          (hp cache grammar head-spec (+ 1 depth))
+          (hp cache grammar head-spec (+ 0 depth))
           ordering (rand-int 6)
           with-hlcl (lazy-mapcat
                      (fn [the-hp]
@@ -333,14 +334,14 @@
                         the-hp
                         (hlcl cache grammar
                               {:synsem (get-in the-hp [:comp :synsem] :top)}
-                              (+ 1 depth))))
+                              (+ 0 depth))))
                      hp)
           with-hlcp (lazy-mapcat-bailout-early
                      (fn [the-hp]
                        (log/info (str "the-hp's [:comp :synsem]: " (show-spec (get-in the-hp [:comp :synsem] :top))))
                        (let [the-hlcp (hlcp cache grammar
                                             {:synsem (get-in the-hp [:comp :synsem] :top)}
-                                            (+ 1 depth))]
+                                            (+ 0 depth))]
                          (if (empty? the-hlcp)
                            (do (log/warn (str "Can't do a damn thing with this: hlcp with spec: {:synsem "
                                               (show-spec (get-in the-hp [:comp :synsem] :top))))
@@ -356,7 +357,7 @@
                         the-hp
                         (hpcl cache grammar
                               {:synsem (get-in the-hp [:comp :synsem] :top)}
-                              (+ 1 depth))))
+                              (+ 0 depth))))
                      hp)
          ]
 
