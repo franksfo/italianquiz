@@ -39,6 +39,8 @@
                           lexicon)))
     {}))
 
+(declare spec-to-phrases)
+
 (defn build-lex-sch-cache [phrases lexicon all-phrases]
   "Build a mapping of phrases onto subsets of the lexicon. The two values (subsets of the lexicon) to be
    generated for each key (phrase) are: 
@@ -74,7 +76,28 @@
                                      {:head lex}))))
                lexicon)}}
      (build-lex-sch-cache (rest phrases) lexicon all-phrases))
-    {:lexical-subsets (specs-to-subsets lexicon lexicon)}))
+    {:lexical-subsets (specs-to-subsets lexicon lexicon)
+     :phrases-for-spec
+     (spec-to-phrases
+      (list {:synsem {}, :head {:synsem {}}, :phrasal true}
+            {:synsem {:cat :verb}, :head {:synsem {:cat :verb}}, :phrasal true}
+            )
+      all-phrases)}))
+
+(defn spec-to-phrases [specs all-phrases]
+  (if (not (empty? specs))
+    (let [spec (first specs)]
+      (conj
+       {spec 
+        (filter #(not (fail? %))
+                (map (fn [each-phrase]
+                       (unifyc each-phrase spec))
+                     ;; TODO: possibly: remove-paths such as (subcat) from head: would make it easier to call with lexemes:
+                     ;; e.g. "generate a sentence whose head is the word 'mangiare'" (i.e. user passes the lexical entry as
+                     ;; head param of (lightning-bolt)".
+                     all-phrases))}
+       (spec-to-phrases (rest specs) all-phrases)))
+    {}))
 
 (defn over [parents child1 & [child2]]
   (over/over parents child1 child2))
@@ -151,6 +174,14 @@
                              nil))]
         (lazy-shuffle result)))))
   
+(defn get-parent-phrases-for-spec [cache spec]
+  (log/error (str "Looking up spec: " (show-spec spec)))
+  (let [result (get (get cache :phrases-for-spec) (show-spec spec))
+        result (if (nil? result) (list) result)]
+    (if (empty? result)
+      (log/trace (str "parent-phrases for spec: " (show-spec spec) " is empty.")))
+    (lazy-shuffle result)))
+
 (defn get-head-phrases-of [parent cache]
   (let [result (:head-phrases (get cache (:rule parent)))
         result (if (nil? result) (list) result)
