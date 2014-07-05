@@ -5,7 +5,7 @@
    [clojure.core.async :as async :exclude [partition-by]]
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
-   [italianverbs.cache :refer (build-lex-sch-cache over)]
+   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases)]
    [italianverbs.forest :exclude [lightning-bolt]]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
    [italianverbs.generate :refer :all]
@@ -42,7 +42,30 @@
                                                      {:phrasal false}))
                                            lexicon)
                                       grammar)
-                 {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
+                 {:phrase-constraints head-principle ;; for now, only one constraint: ug/head-principle.
+                  :phrases-for-spec
+                  (spec-to-phrases
+                   (list {:synsem {}, :head {:synsem {}}, :phrasal true}
+                         {:synsem {:cat :verb}, :head {:synsem {:cat :verb}}, :phrasal true}
+
+                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:infl :present, :cat :verb, :sem {:tense :present}}}, :phrasal true}
+                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:infl :imperfetto, :cat :verb, :sem {:tense :past}}}, :phrasal true}
+
+                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:cat :verb, :infl :past}}, :phrasal true}
+                         {:synsem {:cat :verb}, :phrasal true, :head {:synsem {:infl :imperfetto, :cat :verb}}}
+                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:infl :futuro, :cat :verb, :sem {:tense :futuro}}}, :phrasal true}
+                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:synsem {:cat :verb, :infl :futuro, :sem {:tense :futuro}}}}
+
+                         {:synsem {:cat :verb}, :phrasal true, :head {:synsem {:infl :infinitive, :cat :verb}}}
+
+                         {:synsem {:cat :verb}, :head {:synsem {:cat :verb, :infl :infinitive}}, :phrasal true}
+
+                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl :imperfetto}}}
+
+                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl :infinitive}}}
+
+                         )
+                   grammar)}))
 
 (log/info "done building cache: " (keys cache))
 

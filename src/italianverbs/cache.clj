@@ -76,13 +76,7 @@
                                      {:head lex}))))
                lexicon)}}
      (build-lex-sch-cache (rest phrases) lexicon all-phrases))
-    {:lexical-subsets (specs-to-subsets lexicon lexicon)
-     :phrases-for-spec
-     (spec-to-phrases
-      (list {:synsem {}, :head {:synsem {}}, :phrasal true}
-            {:synsem {:cat :verb}, :head {:synsem {:cat :verb}}, :phrasal true}
-            )
-      all-phrases)}))
+    {:lexical-subsets (specs-to-subsets lexicon lexicon)}))
 
 (defn spec-to-phrases [specs all-phrases]
   (if (not (empty? specs))
