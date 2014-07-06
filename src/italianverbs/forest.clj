@@ -208,7 +208,7 @@
       ;; else: keep trying more possibilities: apply the-fn to the first arg in the-args,
       ;; and concat that with a recursive function call with (rest the-args).
       (if arg
-        (let [debug (log/debug (str "lmba:: trying arg:" (:rule arg)))
+        (let [debug (log/debug (str "lmba:: rule:" (:rule arg)))
               result (the-fn arg)]
           (lazy-cat
            result
@@ -437,7 +437,6 @@
 
     (log/debug (str "hpcl:: " chain))
     (let [hp (hp cache grammar head-spec (+ 1 depth))]
-      (log/debug (str "HP IS DONE. NOW DOING CL."))
       (cl cache hp))))
 
 (defn hpcp [cache grammar & [spec depth chain]]
@@ -468,7 +467,8 @@
                                   (+ 0 depth)
                                   chain)))
                          hp
-                         5)
+                         1)
+
               with-hlcp (lazy-mapcat-bailout-after
                          chain
                          (fn [the-hp]
@@ -484,7 +484,7 @@
                                 the-hp
                                 the-hlcp))))
                          hp
-                         5)
+                         1)
 
               with-hpcl (lazy-mapcat-bailout-after
                          chain
@@ -496,7 +496,7 @@
                                   (+ 0 depth)
                                   chain)))
                          hp
-                         5)
+                         1)
 
               with-hpcp (lazy-mapcat-bailout-after
                          chain
@@ -508,7 +508,7 @@
                                   (+ 0 depth)
                                   chain)))
                          hp
-                         5)
+                         1)
 
 
               ]
