@@ -18,12 +18,6 @@
 
 (def concurrent false)
 
-(def random-order true)
-(defn rand-int [range & [constant]]
-  (if random-order
-    (core/rand-int range)
-    (if constant constant 0)))
-
 (declare lightning-bolt)
 
 (defn add-comp-phrase-to-headed-phrase [parents phrases & [cache supplied-comp-spec]]
@@ -469,7 +463,6 @@
         (log/debug (str "hpcp:: " chain))
         (let [hp
               (hp cache grammar head-spec (+ 0 depth))
-              ordering (rand-int 6)
               with-hlcl (lazy-mapcat-bailout-after
                          chain
                          (fn [the-hp]
@@ -512,24 +505,7 @@
                          5)
               ]
 
-          (cond
-           (or true (= ordering 0))
-           (lazy-cat with-hlcl with-hlcp with-hpcl)
-           
-           (= ordering 1)
-           (lazy-cat with-hlcl with-hpcl with-hlcp)
-           
-           (= ordering 2)
-           (lazy-cat with-hlcp with-hlcl with-hpcl)
-           
-           (= ordering 3)
-           (lazy-cat with-hlcp with-hpcl with-hlcl)
-           
-           (= ordering 4)
-           (lazy-cat with-hpcl with-hlcl with-hlcp)
-           
-           (or true (= ordering 5))
-           (lazy-cat with-hpcl with-hlcp with-hlcl)))))))
+          (random-lazy-cat (shuffle (list (fn [] with-hlcl with-hlcp with-hpcl)))))))))
 
 (defn hppcp [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
