@@ -45,6 +45,7 @@
                  {:phrase-constraints head-principle ;; for now, only one constraint: ug/head-principle.
                   :phrases-for-spec
                   (spec-to-phrases
+                   ;; TODO: make this list derivable from the grammar and /or lexicon.
                    (list {:synsem {}, :head {:synsem {}}, :phrasal true}
                          {:synsem {:cat :verb}, :head {:synsem {:cat :verb}}, :phrasal true}
 
@@ -63,6 +64,17 @@
                          {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl :imperfetto}}}
 
                          {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl :infinitive}}}
+
+                         {:synsem {:cat :verb}, :head {:phrasal false, :synsem {:cat :verb}}, :phrasal true}
+
+                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:infl :futuro, :cat :verb, :sem {:tense :futuro}}}}
+
+                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:infl :present, :cat :verb, :sem {:tense :present}}}}
+                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl :futuro}}}
+
+                         {:synsem {:cat :verb, :aux true}, :phrasal true, :head {:phrasal false, :synsem {:infl :present, :cat :verb, :sem {:tense :past}}}}
+
+                         {:synsem {:cat :verb}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl {:not :past}}}}
 
                          )
                    grammar)}))
