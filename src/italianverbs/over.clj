@@ -222,12 +222,10 @@
      (if is-fail?
        (log/debug (str "overh: parent=" label "; head=[" (fo head) "]=> :fail")))
 
-     ;; at INFO level, don't show fails; only successful results.
      (if (not is-fail?)
-       (log/info (str "overh: parent=" label "; head=[" (fo head) "]=> " (if is-fail?
+       (log/debug (str "overh: parent=" label "; head=[" (fo head) "]=> " (if is-fail?
                                                                                        ":fail"
                                                                                        (fo result)))))
-
      (if (not is-fail?)
        (list result)))))
 
@@ -295,7 +293,7 @@
                        "]; comp=[" (fo comp) "]=> :fail")))
 
      (if (not is-fail?)
-       (log/info (str "overc: parent=" (label-of parent)
+       (log/debug (str "overc: parent=" (label-of parent)
                       "; head=[" (fo (get-in parent '(:head)))
                       "]; comp=[" (fo comp) "]=> " (fo result))))
 
