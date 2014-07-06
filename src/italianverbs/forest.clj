@@ -257,8 +257,6 @@
                                 grammar))
                    :dont-bailout)
 
-        debug (log/trace (str chain ":finished with hlcl as hlcl:" (.size with-hlcl)))
-
         with-hlcp (lazy-mapcat-bailout-after (str chain " -> H:hlcp")
                    #(do
                       (log/debug
@@ -276,8 +274,6 @@
                                   (unifyc rule spec))
                                 grammar))
                    :dont-bailout)
-
-        debug (log/trace (str chain ":finished with hlcp as head:" (type with-hlcp)))
 
         with-hpcl (lazy-mapcat-bailout-after (str chain " -> H:hpcl")
                    #(do
@@ -297,8 +293,6 @@
                                 grammar))
                    :dont-bailout)
 
-        debug (log/trace (str chain ":finished with hpcl as head:" (type with-hpcl)))
-
         with-hpcp (lazy-mapcat-bailout-after (str chain " -> H:hpcp")
                    #(do
                       (log/debug
@@ -315,13 +309,14 @@
                            (map (fn [rule]
                                   (unifyc rule spec))
                                 grammar))
-                   0)
+                   :dont-bailout)
 
         debug (log/trace (str chain ":finished with hpcp as head:" (type with-hpcp)))
         ]
     (random-lazy-cat (shuffle (list (fn [] with-hlcl)
                                     (fn [] with-hlcp)
-                                    (fn [] with-hpcl))))))
+                                    (fn [] with-hpcl)
+                                    (fn [] with-hpcp))))))
                                     
 
 (defn random-lazy-cat [ & [ seqs ]]
@@ -477,7 +472,6 @@
               with-hlcp (lazy-mapcat-bailout-after
                          chain
                          (fn [the-hp]
-                           (log/info (str "the-hp's [:comp :synsem]: " (show-spec (get-in the-hp [:comp :synsem] :top))))
                            (let [the-hlcp (hlcp cache grammar
                                                 {:synsem (get-in the-hp [:comp :synsem] :top)}
                                                 (+ 0 depth)
@@ -503,9 +497,26 @@
                                   chain)))
                          hp
                          5)
+
+              with-hpcp (lazy-mapcat-bailout-after
+                         chain
+                         (fn [the-hp]
+                           (overc
+                            the-hp
+                            (hpcp cache grammar
+                                  {:synsem (get-in the-hp [:comp :synsem] :top)}
+                                  (+ 0 depth)
+                                  chain)))
+                         hp
+                         5)
+
+
               ]
 
-          (random-lazy-cat (shuffle (list (fn [] with-hlcl with-hlcp with-hpcl)))))))))
+          (random-lazy-cat (shuffle (list (fn [] with-hlcl)
+                                          (fn [] with-hlcp)
+                                          (fn [] with-hpcl)
+                                          (fn [] with-hpcp)))))))))
 
 (defn hppcp [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
