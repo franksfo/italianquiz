@@ -47,35 +47,6 @@
                   (spec-to-phrases
                    ;; TODO: make this list derivable from the grammar and /or lexicon.
                    (list {:synsem {}, :head {:synsem {}}, :phrasal true}
-                         {:synsem {:cat :verb}, :head {:synsem {:cat :verb}}, :phrasal true}
-
-                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:infl :present, :cat :verb, :sem {:tense :present}}}, :phrasal true}
-                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:infl :imperfetto, :cat :verb, :sem {:tense :past}}}, :phrasal true}
-
-                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:cat :verb, :infl :past}}, :phrasal true}
-                         {:synsem {:cat :verb}, :phrasal true, :head {:synsem {:infl :imperfetto, :cat :verb}}}
-                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:infl :futuro, :cat :verb, :sem {:tense :futuro}}}, :phrasal true}
-                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:synsem {:cat :verb, :infl :futuro, :sem {:tense :futuro}}}}
-
-                         {:synsem {:cat :verb}, :phrasal true, :head {:synsem {:infl :infinitive, :cat :verb}}}
-
-                         {:synsem {:cat :verb}, :head {:synsem {:cat :verb, :infl :infinitive}}, :phrasal true}
-
-                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl :imperfetto}}}
-
-                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl :infinitive}}}
-
-                         {:synsem {:cat :verb}, :head {:phrasal false, :synsem {:cat :verb}}, :phrasal true}
-
-                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:infl :futuro, :cat :verb, :sem {:tense :futuro}}}}
-
-                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:infl :present, :cat :verb, :sem {:tense :present}}}}
-                         {:synsem {:cat :verb, :aux false}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl :futuro}}}
-
-                         {:synsem {:cat :verb, :aux true}, :phrasal true, :head {:phrasal false, :synsem {:infl :present, :cat :verb, :sem {:tense :past}}}}
-
-                         {:synsem {:cat :verb}, :phrasal true, :head {:phrasal false, :synsem {:cat :verb, :infl {:not :past}}}}
-
                          )
                    grammar)}))
 
