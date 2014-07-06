@@ -161,19 +161,21 @@
                   :top)))
 
 (defn subcat-constraints [subcat-spec]
-  (let [val-1 (get-in subcat-spec [:1])
-        val-2 (get-in subcat-spec [:2])
-        val-3 (get-in subcat-spec [:3])]
-    (conj
-     (if (and (not (nil? val-1)) (or (keyword? val-1) (map? val-1) (not (empty? val-1))))
-       {:1 val-1}
-       {})
-     (if (and (not (nil? val-2)) (or (keyword? val-2) (map? val-2) (not (empty? val-2))))
-       {:2 val-2}
-       {})
-     (if (and (not (nil? val-3)) (or (keyword? val-3) (map? val-3) (not (empty? val-3))))
-       {:3 val-3}
-       {}))))
+  (if (= subcat-spec '())
+    :top
+    (let [val-1 (get-in subcat-spec [:1])
+          val-2 (get-in subcat-spec [:2])
+          val-3 (get-in subcat-spec [:3])]
+      (conj
+       (if (and (not (nil? val-1)) (or (keyword? val-1) (map? val-1) (not (empty? val-1))))
+         {:1 val-1}
+         {})
+       (if (and (not (nil? val-2)) (or (keyword? val-2) (map? val-2) (not (empty? val-2))))
+         {:2 val-2}
+         {})
+       (if (and (not (nil? val-3)) (or (keyword? val-3) (map? val-3) (not (empty? val-3))))
+         {:3 val-3}
+         {})))))
 
 (defn hl [cache grammar & [spec depth]]
   (let [depth (if depth depth 0)
