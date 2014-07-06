@@ -355,7 +355,7 @@
           debug (log/trace (str "hlcl::head's synsem is: " (get-in spec [:head :synsem])))
           debug (log/trace (str "hlcl::head's subcat is: " (get-in spec [:head :synsem :subcat])))
 
-          chain (if chain 
+          chain (if chain
                   (str chain " as "
                        (str "hlcl@" depth " " (show-spec spec) ""))
                   (str "hlcl@" depth " " (show-spec spec) ""))]
@@ -372,10 +372,8 @@
              (log/debug (str "looking for lexical complements for headed phrase: " (fo-ps parent-with-head)))
            (overc parent-with-head (lazy-shuffle
                                     (filter (fn [complement]
-                                              (let [not-fail
-                                                    (not (fail? (unifyc (get-in complement [:synsem])
-                                                                        pred-of-arg)))]
-                                                not-fail))
+                                              (not (fail? (unifyc (get-in complement [:synsem])
+                                                                  pred-of-arg))))
                                             (:comp (cache (:rule parent-with-head))))))))
          parents-with-heads
          :dont-bail-out)))))
