@@ -216,7 +216,11 @@
               result (the-fn arg)]
           (lazy-cat
            result
-           (lazy-mapcat-bailout-after name the-fn (rest the-args) (- tries 1) enough-tries length-of-args)))))))
+           (lazy-mapcat-bailout-after name the-fn 
+                                      (rest the-args) 
+                                      (if (number? tries) (- tries 1)
+                                          tries) ;; not a number: a symbol like :dont-bail-out
+                                      enough-tries length-of-args)))))))
 
 (defn lazy-mapcat [the-fn the-args]
    (let [arg (first the-args)]
@@ -255,7 +259,7 @@
                            (map (fn [rule]
                                   (unifyc rule spec))
                                 grammar))
-                   1)
+                   :dont-bailout)
 
         ;; TODO: s/debug/trace/ because this realizes hlcl.
         debug (log/trace (str chain ":finished with hlcl as hlcl:" (.size with-hlcl)))
@@ -320,12 +324,16 @@
 
         debug (log/trace (str chain ":finished with hpcp as head:" (type with-hpcp)))
         ]
-    with-hlcl))
-;    (random-lazy-cat with-hlcl with-hlcp with-hpcl with-hpcp)))
+    (random-lazy-cat (shuffle (list (fn [] with-hlcl))))))
 
-(defn random-lazy-cat [ & seqs ]
-;;  (lazy-cat (shuffle seqs)))
-  (lazy-cat (shuffle seqs)))
+(defn random-lazy-cat [ & [ seqs ]]
+  (if (not (empty? seqs))
+    (let [the-fn (first seqs)]
+      (lazy-cat (the-fn)
+                (random-lazy-cat (rest seqs))))))
+
+(defn rlc [ arg ]
+  arg)
 
 (defn cp [phrases-with-heads cache grammar]
   "phrases-with-heads is a seq (usually lazy)"
@@ -377,7 +385,7 @@
                                                 not-fail))
                                             (:comp (cache (:rule parent-with-head))))))))
          parents-with-heads
-         1)))))
+         :dont-bail-out)))))
 
 (defn hlcp [cache grammar & [spec depth chain]]
   "generate all the phrases where the head is a lexeme and the complement is a phrase."
