@@ -169,7 +169,7 @@
         (lazy-shuffle result)))))
   
 (defn get-parent-phrases-for-spec [cache spec]
-  (log/error (str "Looking up spec: " (show-spec spec)))
+  (log/trace (str "Looking up spec: " (show-spec spec)))
   (let [result (get (get cache :phrases-for-spec) (show-spec spec))
         result (if (nil? result) (list) result)]
     (if (empty? result)
