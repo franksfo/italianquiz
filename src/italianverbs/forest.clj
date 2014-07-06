@@ -282,7 +282,7 @@
                            (map (fn [rule]
                                   (unifyc rule spec))
                                 grammar))
-                   0)
+                   :dont-bailout)
 
         debug (log/trace (str chain ":finished with hlcp as head:" (type with-hlcp)))
 
@@ -302,7 +302,7 @@
                            (map (fn [rule]
                                   (unifyc rule spec))
                                 grammar))
-                   0)
+                   :dont-bailout)
 
         debug (log/trace (str chain ":finished with hpcl as head:" (type with-hpcl)))
 
@@ -326,7 +326,10 @@
 
         debug (log/trace (str chain ":finished with hpcp as head:" (type with-hpcp)))
         ]
-    (random-lazy-cat (shuffle (list (fn [] with-hlcl))))))
+    (random-lazy-cat (shuffle (list (fn [] with-hlcl)
+                                    (fn [] with-hlcp)
+                                    (fn [] with-hpcl))))))
+                                    
 
 (defn random-lazy-cat [ & [ seqs ]]
   (if (not (empty? seqs))
@@ -423,9 +426,13 @@
            1))))))
 
 (defn cl [cache grammar]
-  (lazy-mapcat
-   #(lazy-seq (overc % (lazy-shuffle (:comp (cache (:rule %))))))
-   grammar))
+  (lazy-mapcat-bailout-after
+   "cl"
+   #(do
+      (log/debug (str "CL: trying rule: " (:rule %)))
+      (overc % (lazy-shuffle (:comp (cache (:rule %))))))
+   grammar
+   1))
 
 (defn hpcl [cache grammar & [spec depth chain]]
   "generate all the phrases where the head is a phrase and the complement is a lexeme."
@@ -441,7 +448,7 @@
                 (str "hpcl@" depth " " (show-spec spec) ""))]
 
     (log/debug (str "hpcl:: " chain))
-    (let [hp (lazy-seq (hp cache grammar head-spec (+ 1 depth)))]
+    (let [hp (hp cache grammar head-spec (+ 1 depth))]
       (log/debug (str "HP IS DONE. NOW DOING CL."))
       (cl cache hp))))
 
