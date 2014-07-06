@@ -263,7 +263,6 @@
                                 grammar))
                    :dont-bailout)
 
-        ;; TODO: s/debug/trace/ because this realizes hlcl.
         debug (log/trace (str chain ":finished with hlcl as hlcl:" (.size with-hlcl)))
 
         with-hlcp (lazy-mapcat-bailout-after (str chain " -> H:hlcp")
@@ -481,7 +480,7 @@
                                   (+ 0 depth)
                                   chain)))
                          hp
-                         1)
+                         5)
               with-hlcp (lazy-mapcat-bailout-after
                          chain
                          (fn [the-hp]
@@ -498,7 +497,7 @@
                                 the-hp
                                 the-hlcp))))
                          hp
-                         1)
+                         5)
 
               with-hpcl (lazy-mapcat-bailout-after
                          chain
@@ -510,7 +509,7 @@
                                   (+ 0 depth)
                                   chain)))
                          hp
-                         1)
+                         5)
               ]
 
           (cond
