@@ -4,6 +4,7 @@
    [clojure.math.numeric-tower :as math]
    [clojure.core.async :as async :exclude [partition-by]]
    [clojure.set :refer (union)]
+   [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases)]
    [italianverbs.forest :exclude [lightning-bolt]]
@@ -220,9 +221,10 @@
      (keyword (str percent "%")) value-of-chosen-percent
      }))
 
-(defn run-benchmark [function-to-evaluate trials]
+(defn run-benchmark [function-to-evaluate trials & [name]]
   (if (> trials 0)
-    (let [runtimes
+    (let [name (if name name "(unnamed)")
+          runtimes
           (map (fn [x] 
                  (let [begin (System/currentTimeMillis)
                        result (function-to-evaluate)
@@ -231,7 +233,7 @@
                         (println "'" result "' took: " runtime " msec.")
                         runtime))
                (range 0 trials))]
-      (println "stats:" (percentile 95 runtimes)))))
+      (println (str "stats for '" (string/trim (string/join "" name)) "' " (percentile 95 runtimes))))))
 
 (defn spresent [trials]
   (run-benchmark
@@ -249,32 +251,38 @@
 (defn run-hlcp [trials]
   (run-benchmark
    #(fo (short-sentence))
-   trials))
+   trials
+   "hlcp"))
 
 (defn run-hlcp2 [trials]
   (run-benchmark
    #(fo (short-sentence {:synsem {:sem {:pred :impazzire}}}))
-   trials))
+   trials
+   "hlcp with 'impazzire'"))
 
 (defn run-hlcl [trials]
   (run-benchmark
    #(fo (first (take 1 (forest/hlcl cache grammar {:synsem {:cat :verb :subcat '()}}))))
-   trials))
+   trials
+   "hlcl"))
 
 (defn run-hlcp [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hlcp cache grammar {:synsem {:cat :verb :subcat '()}}))))
-   trials))
+   trials
+   "hlcp with empty subcat"))
 
 (defn run-hpcl [trials]
   (run-benchmark
    #(fo (first (take 1 (forest/hpcl cache grammar {:synsem {:sem {:pred :volere} :cat :verb :subcat '()}}))))
-   trials))
+   trials
+   "hpcl with empty subcat and pred=volere"))
 
 (defn run-hpcp [trials]
   (run-benchmark
    #(fo (first (take 1 (forest/hpcp cache grammar {:synsem {:cat :verb :subcat '()}}))))
-   trials))
+   trials
+   "hpcp with empty subcat"))
 
 (defn run-test [trials]
   (run-benchmark
@@ -283,32 +291,38 @@
                                                          :head {:subcat {:1 :top
                                                                          :2 :top}
                                                                 :aux true}}))))
-   trials))
+   trials
+   "vp-aux"))
 
 (defn run-hlcl-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hlcl cache grammar :top))))
-   trials))
+   trials
+   "hlcl"))
 
 (defn run-hlcl-with-subcat-nil-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hlcl cache grammar {:synsem {:subcat '()}}))))
-   trials))
+   trials
+   "hlcl with empty subcat"))
 
 (defn run-hp-with-subcat-nil-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hp cache grammar {:synsem {:subcat '()}}))))
-   trials))
+   trials
+   "hp with empty subcat"))
 
 (defn run-hpcl-with-subcat-nil-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hpcl cache grammar {:synsem {:subcat '()}}))))
-   trials))
+   trials
+   "hpcl with empty subcat"))
 
 (defn run-hpcp-with-subcat-nil-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hpcp cache grammar {:synsem {:subcat '()}}))))
-   trials))
+   trials
+   "hpcp with empty subcat"))
 
 (defn run-suoceri [trials]
   (run-benchmark
