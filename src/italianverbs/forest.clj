@@ -230,6 +230,7 @@
 (declare hlcl)
 (declare hlcp)
 (declare hpcp)
+(declare hpcl)
 (declare random-lazy-cat)
 
 (defn hp [cache grammar & [spec depth chain]]
@@ -360,7 +361,7 @@
          (fn [parent-with-head]
            (let [pred-of-arg (get-in parent-with-head [:comp :synsem])]
              (log/trace (str "pred-of-arg: " pred-of-arg))
-             (log/debug (str "looking for lexical complements for headed phrase: " (fo-ps parent-with-head)))
+             (log/trace (str "looking for lexical complements for headed phrase: " (fo-ps parent-with-head)))
            (overc parent-with-head (lazy-shuffle
                                     (filter (fn [complement]
                                               (not (fail? (unifyc (get-in complement [:synsem])
