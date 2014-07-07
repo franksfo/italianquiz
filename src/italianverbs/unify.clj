@@ -1186,7 +1186,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
      (let [first-key (first (keys fs))
            val (get fs first-key)]
        (cond
-        (= val :top) ;; remove-top-values: core action of this function.
+        (and (not (= first-key :1)) 
+             (not (= first-key :2)) 
+             (not (= first-key :3))
+             (= val :top)) ;; remove-top-values: core action of this function.
         (remove-top-values (dissoc fs first-key))
 
         (= first-key :comp-filter-fn) ;; TODO: deprecate and remove comp-filter-fn.
@@ -1462,7 +1465,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         true
         (remove-top-values-log (dissoc-paths spec '((:english :initial)
                                                     (:italian :initial)
-                                                    (:synsem :subcat)
+;                                                    (:synsem :subcat)
                                                     (:synsem :sem-mod)
                                                     (:synsem :essere)
                                                     (:synsem :agr)
