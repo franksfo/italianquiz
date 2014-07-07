@@ -231,6 +231,7 @@
 (declare hlcp)
 (declare hpcp)
 (declare random-lazy-cat)
+
 (defn hp [cache grammar & [spec depth chain]]
   "return a lazy sequence of every possible phrasal head as the head of every rule in rule-set _grammar_."
   (let [depth (if depth depth 0)
@@ -239,7 +240,12 @@
                 (str chain " :(generating as): "
                      (str "hp@" depth " " (show-spec spec) ""))
                 (str "hp@" depth " " (show-spec spec) ""))
-        grammar (lazy-shuffle grammar)
+        grammar (filter (fn [rule]
+                          (not (fail? rule)))
+                        (map (fn [rule]
+                               (unifyc rule spec))
+                             grammar))
+    
         with-hlcl (lazy-mapcat-bailout-after (str chain " -> H:hlcl")
                    #(do
                       (log/debug
@@ -251,11 +257,7 @@
                                    (get-in % [:head])
                                    (+ 0 depth)
                                    chain)))
-                   (filter (fn [rule]
-                             (not (fail? rule)))
-                           (map (fn [rule]
-                                  (unifyc rule spec))
-                                grammar))
+                   (shuffle grammar)
                    :dont-bailout)
 
         with-hlcp (lazy-mapcat-bailout-after (str chain " -> H:hlcp")
@@ -269,11 +271,7 @@
                                    (get-in % [:head])
                                    (+ 0 depth)
                                    chain)))
-                   (filter (fn [rule]
-                             (not (fail? rule)))
-                           (map (fn [rule]
-                                  (unifyc rule spec))
-                                grammar))
+                   (shuffle grammar)
                    :dont-bailout)
 
         with-hpcl (lazy-mapcat-bailout-after (str chain " -> H:hpcl")
@@ -287,11 +285,7 @@
                                    (get-in % [:head])
                                    (+ 0 depth)
                                    chain)))
-                   (filter (fn [rule]
-                             (not (fail? rule)))
-                           (map (fn [rule]
-                                  (unifyc rule spec))
-                                grammar))
+                   (shuffle grammar)
                    0);:dont-bailout)
 
         with-hpcp (lazy-mapcat-bailout-after (str chain " -> H:hpcp")
@@ -305,11 +299,7 @@
                                    (get-in % [:head])
                                    (+ 0 depth)
                                    chain)))
-                   (filter (fn [rule]
-                             (not (fail? rule)))
-                           (map (fn [rule]
-                                  (unifyc rule spec))
-                                grammar))
+                   (shuffle grammar)
                    :dont-bailout)
 
         debug (log/trace (str chain ":finished with hpcp as head:" (type with-hpcp)))
