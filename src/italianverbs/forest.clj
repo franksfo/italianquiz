@@ -156,6 +156,7 @@
 
 (defn subcat-constraints [subcat-spec]
   (if (= subcat-spec '())
+;    {:1 :top}
     :top
     (let [val-1 (get-in subcat-spec [:1])
           val-2 (get-in subcat-spec [:2])
