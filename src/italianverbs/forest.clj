@@ -245,9 +245,7 @@
    #(do
       (log/debug (str "cl: trying: " (fo-ps %)))
       (log/trace (str "cl: with: " (fo (:comp (cache (:rule %))))))
-      (let [result (overc % (lazy-seq (shuffle (:comp (cache (:rule %))))))]
-        (log/debug (str "cl: result: " (fo result)))
-        result))
+      (overc % (lazy-shuffle (:comp (cache (:rule %))))))
    grammar
    :dont-bailout))
 
@@ -291,7 +289,7 @@
                                    (+ 0 depth)
                                    chain)))
                    (shuffle grammar)
-                   :dont-bailout)
+                   (- 4 depth))
 
         with-hpcl (lazy-mapcat-bailout-after (str chain " -> H:hpcl")
                    #(do
@@ -374,7 +372,8 @@
     (random-lazy-cat (shuffle (list (fn [] with-hlcl-as-complement)
                                     (fn [] with-hpcl-as-complement)
                                     (fn [] with-hlcp-as-complement)
-                                    (fn [] with-hpcp-as-complement))))))
+                                    (fn [] with-hpcp-as-complement)
+                                    )))))
                                    
 (defn random-lazy-cat [ & [ seqs ]]
   (if (not (empty? seqs))
@@ -431,7 +430,6 @@
                 (str chain " :(generating as): "
                      (str "hlcp@" depth " " ""))
                 (str "hlcp@" depth " " ""))]
-
     (if (fail? spec)
       nil
       (do
@@ -440,7 +438,8 @@
         ;; parents-with-heads is the lazy sequence of all possible heads attached to all possible grammar rules.
         (let [parents-with-heads
               (hl cache grammar spec)]
-          (cp parents-with-heads cache grammar depth chain))))))
+          (log/info (str "parents-with-heads: " (type parents-with-heads)))
+          (lazy-seq (cp parents-with-heads cache grammar depth chain)))))))
 
 (defn hpcl [cache grammar & [spec depth chain]]
   "generate all the phrases where the head is a phrase and the complement is a lexeme."
