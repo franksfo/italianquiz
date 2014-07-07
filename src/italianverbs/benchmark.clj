@@ -462,18 +462,22 @@
 (defn run-hlcp-with-subcat-nil-test [trials]
   (run-benchmark
    #(fo-ps (first (take 1 (forest/hlcp cache grammar {:synsem {:subcat '()}}))))
-   trials))
+   trials
+   "hlcp with empty subcat"))
 
 (defn run-hlcl-test-aux [trials]
-"this one seems to be an outlier for hlcl - try to make it faster."
-(let [essere true
-      grammar grammar]
-  (run-benchmark
+  ;; ?? this comment says hlcl: TODO resolve if this is also an outlier for its respective generic
+  ;; generation rule (hl).
+  "this one seems to be an outlier for hlcl - try to make it faster."
+  (let [essere true
+        grammar grammar]
+    (run-benchmark
    
-   #(fo (first (take 1 (forest/hlcl cache grammar {:synsem {:sem {:pred :venire}
-                                                            :essere essere
-                                                            :aux true}}))))
-   trials)))
+     #(fo (first (take 1 (forest/hlcl cache grammar {:synsem {:sem {:pred :venire}
+                                                              :essere essere
+                                                              :aux true}}))))
+     trials
+     "hlcl with aux = true and pred=venire")))
 
 (defn run-hl-test-aux [trials]
 "this one seems to be an outlier for hlcl - try to make it faster."
@@ -484,7 +488,8 @@
    #(fo-ps (first (take 1 (forest/hl cache grammar {:synsem {:sem {:pred :venire}
                                                             :essere essere
                                                             :aux true}}))))
-   trials)))
+   trials
+   "hl with aux=true and pred=venire")))
 
 (defn run-hpcp2 [trials]
   (run-benchmark
