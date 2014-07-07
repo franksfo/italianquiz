@@ -105,7 +105,8 @@
         (if (not (nil? cached-parents))
           cached-parents
           (do
-            (log/warn (str "no cached entry for spec: " (show-spec spec)))
+            ;; used to be WARN; turned down to TRACE because it happens so frequently that it's distracting.
+            (log/trace (str "no cached entry for spec: " (show-spec spec)))
             ;; TODO: add this missing entry to the cache somehow:
             ;; problem is that cache is immutable as far as we are using it:
             ;; need to make it an atom or some similar concurrent data structure and
@@ -180,10 +181,15 @@
 
     ;; try every possible lexeme as a candidate head for each phrase:
     ;; use (:comp (cache ..)) as the subset of the lexicon to try.
-    (mapcat #(lazy-seq (overh % (filter (fn [lexeme]
-                                          (not (fail? (unifyc (get-in lexeme [:synsem]) head-spec))))
-                                        (lazy-shuffle (:head (cache (:rule %)))))))
-            (parents-given-spec cache spec grammar))))
+    (lazy-mapcat-bailout-after
+     "hl"
+     #(do
+        (log/debug (str "hl: trying rule: " (:rule %)))
+        (overh % (filter (fn [lexeme]
+                           (not (fail? (unifyc (get-in lexeme [:synsem]) head-spec))))
+                         (lazy-shuffle (:head (cache (:rule %)))))))
+     (parents-given-spec cache spec grammar)
+     :dont-bailout)))
 
 (defn lazy-mapcat-bailout-early [the-fn the-args]
    (let [arg (first the-args)]
@@ -209,7 +215,7 @@
       ;; else: keep trying more possibilities: apply the-fn to the first arg in the-args,
       ;; and concat that with a recursive function call with (rest the-args).
       (if arg
-        (let [debug (log/debug (str "lmba:: rule:" (:rule arg) " max tries: " max-tries))
+        (let [debug (log/trace (str (:rule arg) " max tries: " max-tries))
               result (the-fn arg)]
           (lazy-cat
            result
@@ -237,10 +243,11 @@
   "return a lazy sequence of every possible phrasal head as the head of every rule in rule-set _grammar_."
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
+        spec-info ""
         chain (if chain 
                 (str chain " :(generating as): "
-                     (str "hp@" depth " " (show-spec spec) ""))
-                (str "hp@" depth " " (show-spec spec) ""))
+                     (str "hp@" depth " " spec-info))
+                (str "hp@" depth " " spec-info))
         grammar (filter (fn [rule]
                           (not (fail? rule)))
                         (map (fn [rule]
@@ -264,8 +271,7 @@
         with-hlcp (lazy-mapcat-bailout-after (str chain " -> H:hlcp")
                    #(do
                       (log/debug
-                       (str chain "(" (get-in % [:rule])  ") ->H :hlcp["
-                            (show-spec (get-in % [:head]))))
+                       (str chain "(" (get-in % [:rule])  ")->H:hlcp"))
                       (overh %
                              (hlcp cache
                                    grammar
@@ -278,8 +284,7 @@
         with-hpcl (lazy-mapcat-bailout-after (str chain " -> H:hpcl")
                    #(do
                       (log/debug
-                       (str chain "(" (get-in % [:rule])  ") -> H:hpcl["
-                            (show-spec (get-in % [:head]))))
+                       (str chain "(" (get-in % [:rule])  ") -> H:hpcl"))
                       (overh %
                              (hpcl cache
                                    grammar
@@ -287,15 +292,12 @@
                                    (+ 0 depth)
                                    chain)))
                    (shuffle grammar)
-                   (if (< depth 3)
-                     :dont-bailout
-                     0))
+                   (- 4 depth))
 
         with-hpcp (lazy-mapcat-bailout-after (str chain " -> H:hpcp")
                    #(do
                       (log/debug
-                       (str chain "(" (get-in % [:rule])  ")->H:hpcp["
-                            (show-spec (get-in % [:head]))))
+                       (str chain "(" (get-in % [:rule])  ")->H:hpcp"))
                       (overh %
                              (hpcp cache
                                    grammar
@@ -303,9 +305,7 @@
                                    (+ 0 depth)
                                    chain)))
                    (shuffle grammar)
-                   (if (< depth 2)
-                   :dont-bailout
-                   0))
+                   (- 4 depth))
 
         debug (log/trace (str chain ":finished with hpcp as head:" (type with-hpcp)))
         ]
@@ -344,11 +344,11 @@
           debug (log/trace (str "hlcl::subcat is: " (get-in spec [:synsem :subcat])))
           debug (log/trace (str "hlcl::head's synsem is: " (get-in spec [:head :synsem])))
           debug (log/trace (str "hlcl::head's subcat is: " (get-in spec [:head :synsem :subcat])))
-
+          show-spec ""
           chain (if chain
                   (str chain " :(generating as): "
-                       (str "hlcl@" depth " " (show-spec spec) ""))
-                  (str "hlcl@" depth " " (show-spec spec) ""))]
+                       (str "hlcl@" depth " " show-spec ""))
+                  (str "hlcl@" depth " " show-spec ""))]
     
       (log/debug (str "hlcl::" chain))
 
@@ -426,10 +426,11 @@
         spec (unifyc spec
                      {:head {:synsem {:subcat (subcat-constraints (get-in spec [:synsem :subcat]))}}})
         head-spec (get-in spec [:head])
+        show-spec ""
         chain (if chain 
                 (str chain " :(generating as): "
-                     (str "hlcp@" depth " " (show-spec spec) ""))
-                (str "hlcp@" depth " " (show-spec spec) ""))]
+                     (str "hlcp@" depth " " ""))
+                (str "hlcp@" depth " " ""))]
 
     (if (fail? spec)
       nil
@@ -448,7 +449,7 @@
       (log/debug (str "cl: trying rule: " (:rule %)))
       (overc % (lazy-shuffle (:comp (cache (:rule %))))))
    grammar
-   1))
+   :dont-bailout))
 
 (defn hpcl [cache grammar & [spec depth chain]]
   "generate all the phrases where the head is a phrase and the complement is a lexeme."
@@ -457,15 +458,13 @@
         spec (unifyc spec
                      {:head {:synsem {:subcat (subcat-constraints (get-in spec [:synsem :subcat]))}}})
         head-spec (get-in spec [:head])
-
+        show-the-spec ""
         chain (if chain 
                 (str chain " -> "
-                     (str "hpcl@" depth " " (show-spec spec) ""))
-                (str "hpcl@" depth " " (show-spec spec) ""))]
+                     (str "hpcl@" depth " " show-the-spec ""))
+                (str "hpcl@" depth " " show-the-spec ""))]
 
     (log/debug (str "hpcl:: " chain))
-    (log/debug (str "hpcl::spec      " (show-spec spec)))
-    (log/debug (str "hpcl::head-spec " (show-spec head-spec)))
     (let [hp (hp cache grammar head-spec (+ 1 depth))]
       (cl cache hp))))
 
@@ -476,10 +475,11 @@
         spec (unifyc spec
                      {:head {:synsem {:subcat (subcat-constraints (get-in spec [:synsem :subcat]))}}})
         head-spec (get-in spec [:head])
+        show-spec ""
         chain (if chain 
                 (str chain " -> "
-                     (str "hpcp@" depth " [" (show-spec spec) "]"))
-                (str "hpcp@" depth " [" (show-spec spec) "]"))]
+                     (str "hpcp@" depth " [" show-spec "]"))
+                (str "hpcp@" depth " [" show-spec "]"))]
 
     (if (fail? spec)
       nil
