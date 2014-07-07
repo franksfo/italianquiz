@@ -287,7 +287,9 @@
                                    (+ 0 depth)
                                    chain)))
                    (shuffle grammar)
-                   0);:dont-bailout)
+                   (if (< depth 3)
+                     :dont-bailout
+                     0))
 
         with-hpcp (lazy-mapcat-bailout-after (str chain " -> H:hpcp")
                    #(do
@@ -301,7 +303,9 @@
                                    (+ 0 depth)
                                    chain)))
                    (shuffle grammar)
-                   :dont-bailout)
+                   (if (< depth 2)
+                   :dont-bailout
+                   0))
 
         debug (log/trace (str chain ":finished with hpcp as head:" (type with-hpcp)))
         ]
