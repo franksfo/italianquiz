@@ -282,7 +282,7 @@
                        (str chain "(" (get-in % [:rule])  ") -> H:hpcl["
                             (show-spec (get-in % [:head]))))
                       (overh %
-                             (hlcp cache
+                             (hpcl cache
                                    grammar
                                    (get-in % [:head])
                                    (+ 0 depth)
@@ -292,7 +292,7 @@
                            (map (fn [rule]
                                   (unifyc rule spec))
                                 grammar))
-                   :dont-bailout)
+                   0);:dont-bailout)
 
         with-hpcp (lazy-mapcat-bailout-after (str chain " -> H:hpcp")
                    #(do
