@@ -197,19 +197,19 @@
             result
             (lazy-mapcat-bailout-early the-fn (rest the-args))))))))
 
-(defn lazy-mapcat-bailout-after [name the-fn the-args tries & [enough-tries length-of-args]]
+(defn lazy-mapcat-bailout-after [name the-fn the-args tries & [max-tries length-of-args]]
   (let [arg (first the-args)
-        enough-tries (if (not (nil? enough-tries)) enough-tries tries)
+        max-tries (if (not (nil? max-tries)) max-tries tries)
         ;; assuming that args is not a lazy seq: if so, this (.size call) will realize it.
 ;;        length-of-args (if (not (nil? length-of-args)) length-of-args (.size the-args))
         length-of-args (str "(n/a)")
         ]
     (if (= tries 0)
-      (log/warn (str "lazy-mapcat-bailout-after(" name "): bailing out now: tried: " enough-tries " / possible: " length-of-args))
+      (log/warn (str "lazy-mapcat-bailout-after(" name "): bailing out now: tried: " max-tries " / possible: " length-of-args))
       ;; else: keep trying more possibilities: apply the-fn to the first arg in the-args,
       ;; and concat that with a recursive function call with (rest the-args).
       (if arg
-        (let [debug (log/debug (str "lmba:: rule:" (:rule arg)))
+        (let [debug (log/debug (str "lmba:: rule:" (:rule arg) " max tries: " max-tries))
               result (the-fn arg)]
           (lazy-cat
            result
@@ -217,7 +217,7 @@
                                       (rest the-args) 
                                       (if (number? tries) (- tries 1)
                                           tries) ;; not a number: a symbol like :dont-bail-out
-                                      enough-tries length-of-args)))))))
+                                      max-tries length-of-args)))))))
 
 (defn lazy-mapcat [the-fn the-args]
    (let [arg (first the-args)]
@@ -236,7 +236,7 @@
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         chain (if chain 
-                (str chain " -> "
+                (str chain " :(generating as): "
                      (str "hp@" depth " " (show-spec spec) ""))
                 (str "hp@" depth " " (show-spec spec) ""))
         grammar (lazy-shuffle grammar)
@@ -357,7 +357,7 @@
           debug (log/trace (str "hlcl::head's subcat is: " (get-in spec [:head :synsem :subcat])))
 
           chain (if chain
-                  (str chain " as "
+                  (str chain " :(generating as): "
                        (str "hlcl@" depth " " (show-spec spec) ""))
                   (str "hlcl@" depth " " (show-spec spec) ""))]
     
@@ -388,7 +388,7 @@
                      {:head {:synsem {:subcat (subcat-constraints (get-in spec [:synsem :subcat]))}}})
         head-spec (get-in spec [:head])
         chain (if chain 
-                (str chain " -> "
+                (str chain " :(generating as): "
                      (str "hlcp@" depth " " (show-spec spec) ""))
                 (str "hlcp@" depth " " (show-spec spec) ""))]
 
@@ -416,7 +416,7 @@
   (lazy-mapcat-bailout-after
    "cl"
    #(do
-      (log/debug (str "CL: trying rule: " (:rule %)))
+      (log/debug (str "cl: trying rule: " (:rule %)))
       (overc % (lazy-shuffle (:comp (cache (:rule %))))))
    grammar
    1))
@@ -435,6 +435,8 @@
                 (str "hpcl@" depth " " (show-spec spec) ""))]
 
     (log/debug (str "hpcl:: " chain))
+    (log/debug (str "hpcl::spec      " (show-spec spec)))
+    (log/debug (str "hpcl::head-spec " (show-spec head-spec)))
     (let [hp (hp cache grammar head-spec (+ 1 depth))]
       (cl cache hp))))
 
