@@ -390,18 +390,65 @@
 
         ;; parents-with-heads is the lazy sequence of all possible heads attached to all possible grammar rules.
         (let [parents-with-heads
-              (hl cache grammar spec)]
+              (hl cache grammar spec)
+              ;; TODO: move this to (cp)
+              with-hlcl-as-complement (lazy-mapcat-bailout-after (str chain " -> C:hlcl")
+                                                                 #(do
+                                                                    (log/debug
+                                                                     (str chain " -> C:hlcl"))
+                                                                    (overc %
+                                                                           (hlcl cache grammar
+                                                                                 {:synsem (get-in % [:comp :synsem] :top)}
+                                                                                 (+ 1 depth)
+                                                                                 (str chain " -> C:hlcl"))))
+                                                                 parents-with-heads
+                                                                 1)
 
-          (lazy-mapcat-bailout-after
-           (str "hlcp@" depth)
-           (fn [parent-with-head]
-             (lazy-seq (overc parent-with-head (hlcl cache
-                                                     grammar
-                                                     {:synsem (get-in parent-with-head [:comp :synsem] :top)}
-                                                     (+ 1 depth)
-                                                     chain))))
-           parents-with-heads
-           1))))))
+              with-hpcl-as-complement (lazy-mapcat-bailout-after (str chain " -> C:hpcl")
+                                                                 #(do
+                                                                    (log/debug
+                                                                     (str chain " -> C:hpcl"))
+                                                                    (overc %
+                                                                           (hpcl cache grammar
+                                                                                 {:synsem (get-in % [:comp :synsem] :top)}
+                                                                                 (+ 1 depth)
+                                                                                 (str chain " -> C:hpcl"))))
+                                                                 parents-with-heads
+                                                                 1)
+
+
+
+              with-hlcp-as-complement (lazy-mapcat-bailout-after (str chain " -> C:hlcp")
+                                                                 #(do
+                                                                    (log/debug
+                                                                     (str chain " -> C:hlcp"))
+                                                                    (overc %
+                                                                           (hpcl cache grammar
+                                                                                 {:synsem (get-in % [:comp :synsem] :top)}
+                                                                                 (+ 1 depth)
+                                                                                 (str chain " -> C:hlcp"))))
+                                                                 parents-with-heads
+                                                                 1)
+
+
+              with-hpcp-as-complement (lazy-mapcat-bailout-after (str chain " -> C:hpcp")
+                                                                 #(do
+                                                                    (log/debug
+                                                                     (str chain " -> C:hpcp"))
+                                                                    (overc %
+                                                                           (hpcl cache grammar
+                                                                                 {:synsem (get-in % [:comp :synsem] :top)}
+                                                                                 (+ 1 depth)
+                                                                                 (str chain " -> C:hpcp"))))
+                                                                 parents-with-heads
+                                                                 1)]
+
+
+          (random-lazy-cat (shuffle (list (fn [] with-hlcl-as-complement)
+                                          (fn [] with-hpcl-as-complement)
+                                          (fn [] with-hlcp-as-complement)
+                                          (fn [] with-hpcp-as-complement)))))))))
+
 
 (defn cl [cache grammar]
   (lazy-mapcat-bailout-after
