@@ -274,7 +274,19 @@
 
 (defn run-hpcl [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hpcl cache grammar {:synsem {:sem {:pred :volere} :cat :verb :subcat '()}}))))
+   #(fo (first (take 1 (forest/hpcl cache grammar {:synsem {:cat :verb :subcat '()}}))))
+   trials
+   "hpcl"))
+
+(defn run-hpcl-v [trials]
+  (run-benchmark
+   #(fo (first (take 1 (forest/hpcl cache grammar {:synsem {:cat :verb
+                                                            :infl :futuro
+                                                            :sem {:obj {:pred :ridere} 
+                                                                  :pred :volere
+;                                                                  :tense :futuro
+                                                                  :subj {:pred :paola}}
+                                                            :subcat '()}}))))
    trials
    "hpcl with empty subcat and pred=volere"))
 
