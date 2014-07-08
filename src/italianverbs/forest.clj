@@ -254,10 +254,7 @@
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         spec-info ""
-        chain (if chain 
-                (str chain " :(generating as): "
-                     (str "hp@" depth " " spec-info))
-                (str "hp@" depth " " spec-info))
+        chain (if chain chain "")
         grammar (filter (fn [rule]
                           (not (fail? rule)))
                         (map (fn [rule]
@@ -267,7 +264,7 @@
         with-hlcl (lazy-mapcat-bailout-after (str chain " -> H:hlcl")
                    #(do
                       (log/debug
-                       (str "hp  ::" chain ": trying " (get-in % [:rule]) " -> H:hlcl"))
+                       (str chain " -> hp [H:" (get-in % [:rule]) "] -> H:hlcl"))
 
                       (overh %
                              (hlcl cache
@@ -405,11 +402,7 @@
           debug (log/trace (str "hlcl::head's synsem is: " (get-in spec [:head :synsem])))
           debug (log/trace (str "hlcl::head's subcat is: " (get-in spec [:head :synsem :subcat])))
           show-spec ""
-          chain (if chain
-                  (str chain " :(generating as): "
-                       (str "hlcl@" depth " " show-spec ""))
-                  (str "hlcl@" depth " " show-spec ""))]
-    
+          chain (if chain chain "")]
       (log/debug (str "hlcl::" chain))
 
       ;; parents-with-heads is the lazy sequence of all possible lexical heads attached to all possible grammar rules.
@@ -455,7 +448,7 @@
                 (str "hpcl@" depth " " show-the-spec ""))]
 
     (log/debug (str "hpcl:: " chain))
-    (let [hp (hp cache grammar head-spec (+ 1 depth))]
+    (let [hp (hp cache grammar head-spec (+ 1 depth) chain)]
       (cl cache hp))))
 
 (defn hpcp [cache grammar & [spec depth chain]]
