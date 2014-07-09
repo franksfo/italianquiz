@@ -223,7 +223,8 @@
 (declare hpcl)
 (declare random-lazy-cat)
 
-(defn hl [cache grammar & [spec depth]]
+(defn hl [cache grammar & [spec depth chain]]
+  (log/debug (str chain " -> hl@" depth))
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head :synsem])
@@ -409,7 +410,7 @@
 
       ;; parents-with-heads is the lazy sequence of all possible lexical heads attached to all possible grammar rules.
       (let [parents-with-heads
-            (hl cache grammar spec)]
+            (hl cache grammar spec depth (str chain " -> hl"))]
         (cl cache parents-with-heads)))))
 
 (defn hlcp [cache grammar & [spec depth chain]]
