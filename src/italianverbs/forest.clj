@@ -198,7 +198,7 @@
       ;; else: keep trying more possibilities: apply the-fn to the first arg in the-args,
       ;; and concat that with a recursive function call with (rest the-args).
       (if arg
-        (let [debug (log/debug (str name ":lmba:trying arg: " (fo-ps arg)))
+        (let [debug (log/debug (str name ": with rule=" (fo-ps arg)))
               debug (log/trace (str (:rule arg) " max tries: " max-tries))
               result (the-fn arg)]
           (lazy-cat
@@ -265,49 +265,56 @@
                                (unifyc rule spec))
                              grammar))
     
-        with-hlcl (lazy-mapcat-bailout-after (str chain " -> H:hlcl")
+        with-hlcl (lazy-mapcat-bailout-after (str chain " -> overh(rule,hlcl)")
                    #(do
                       (overh %
                              (hlcl cache
                                    grammar
                                    (get-in % [:head])
                                    (+ 1 depth)
-                                   (str chain " -> H:hlcl"))))
+                                   (str chain " -> overh(rule,hlcl)"))))
                    (shuffle grammar)
                    :dont-bailout)
 
-        with-hlcp (lazy-mapcat-bailout-after (str chain " -> H:hlcp")
+        with-hlcp (lazy-mapcat-bailout-after (str chain " -> overh(rule,hlcp)")
                    #(do
                       (overh %
                              (hlcp cache
                                    grammar
                                    (get-in % [:head])
                                    (+ 1 depth)
-                                   (str chain ""))))
+                                   (str chain " -> overh(rule,hlcp)"))))
                    (shuffle grammar)
-                   (- 4 depth))
+                   (if (< depth 3)
+                     :dont-bailout
+                     0))
 
-        with-hpcl (lazy-mapcat-bailout-after (str chain " -> H:hpcl")
+        with-hpcl (lazy-mapcat-bailout-after (str chain " -> overh(rule,hpcl)")
                    #(do
                       (overh %
                              (hpcl cache
                                    grammar
                                    (get-in % [:head])
                                    (+ 1 depth)
-                                   (str chain ""))))
+                                   (str chain " -> overh(rule,hpcl)"))))
                    (shuffle grammar)
-                   (- 4 depth))
+                   (if (< depth 4)
+                     :dont-bailout
+                     0))
 
-        with-hpcp (lazy-mapcat-bailout-after (str chain " -> H:hpcp")
+
+        with-hpcp (lazy-mapcat-bailout-after (str chain " -> overh(rule,hpcp)")
                    #(do
                       (overh %
                              (hpcp cache
                                    grammar
                                    (get-in % [:head])
                                    (+ 1 depth)
-                                   (str chain "(r:" (get-in % [:rule]) ")"))))
+                                   (str chain " -> overh(rule,hpcp)"))))
                    (shuffle grammar)
-                   (- 4 depth))
+                   (if (< depth 4)
+                     :dont-bailout
+                     0))
 
         debug (log/trace (str chain ":finished with hpcp as head:" (type with-hpcp)))
         ]
