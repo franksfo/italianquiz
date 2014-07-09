@@ -226,9 +226,13 @@
 (defn hl [cache grammar & [spec depth chain]]
   (log/debug (str chain " -> hl@" depth))
   (let [depth (if depth depth 0)
+        debug (log/debug (str chain " -> hl@" depth "sp(pre)=" spec))
         spec (phrasal-spec (if spec spec :top) cache)
         head-spec (get-in spec [:head :synsem])
         grammar (lazy-shuffle grammar)]
+
+    (log/debug (str chain " -> hl@" depth "sp=" spec))
+    (log/debug (str chain " -> hl@" depth "hsp=" head-spec))
 
     ;; try every possible lexeme as a candidate head for each phrase:
     ;; use (:comp (cache ..)) as the subset of the lexicon to try.
@@ -391,16 +395,21 @@
     nil
     (let [depth (if depth depth 0)
           ;; adding {:head {:phrasal false}} because head of hlcl is lexical, not phrasal.
+
+          debug (log/debug (str chain ": hlcl@" depth ": hlcl::spec pre-modified(0) is: " (show-spec spec)))
+
           debug (log/trace (str "hlcl::spec pre-modified is: " spec))
 
           spec (unifyc {:head {:phrasal false}} (phrasal-spec (if spec spec :top) cache))
 
           debug (log/trace (str "hlcl::spec post-modified is: " spec))
 
+          debug (log/debug (str chain ": hlcl@" depth ": hlcl::spec pre-modified(2) is: " spec))
+
           spec (unifyc spec
                        {:head {:synsem {:subcat (subcat-constraints (get-in spec [:synsem :subcat]))}}})
 
-          debug (log/trace (str "hlcl::spec post-modified(2) is: " spec))
+          debug (log/debug (str chain ": hlcl@" depth ": hlcl::spec post-modified(2) is: " spec))
 
           debug (log/trace (str "hlcl::subcat is: " (get-in spec [:synsem :subcat])))
           debug (log/trace (str "hlcl::head's synsem is: " (get-in spec [:head :synsem])))
