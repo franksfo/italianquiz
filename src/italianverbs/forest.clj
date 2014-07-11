@@ -151,7 +151,10 @@
   "add additional constraints so that this spec can constrain heads and comps."
   (unifyc spec (if (:phrase-constraints cache)
                  (do
+                   (log/trace (str "phrasal-spec: " (:phrase-constraints cache)))
+                   (log/trace (str "  will apply to: " spec))
                    (log/trace (str "phrasal-spec: " (show-spec (:phrase-constraints cache))))
+                   (log/trace (str "  will apply to: " (show-spec spec)))
                    (:phrase-constraints cache))
                   :top)))
 
@@ -258,27 +261,29 @@
 
 (defn hp [cache grammar & [spec depth chain]]
   "return a lazy sequence of every possible phrasal head as the head of every rule in rule-set _grammar_."
-  (log/debug (str chain " -> hp@" depth ""))
+  (log/debug (str chain " -> hp@" depth ": spec: " (show-spec spec)))
   (let [depth (if depth depth 0)
         spec (phrasal-spec (if spec spec :top) cache)
         spec-info ""
         chain (if chain chain "")
         chain (str chain " -> hp@" depth)
-        grammar (filter (fn [rule]
-                          (not (fail? rule)))
-                        (map (fn [rule]
-                               (unifyc rule spec))
-                             grammar))
+        grammar2 (filter (fn [rule]
+                           (not (fail? rule)))
+                         (map (fn [rule]
+                                (unifyc rule spec))
+                              grammar))
     
         with-hlcl (lazy-mapcat-bailout-after (str chain " -> overh(rule,hlcl)")
                    #(do
+                      (log/debug (str chain " -> overh(" (fo-ps %) ")"))
+                      (log/debug (str chain " -> calling hlcl with spec: " (show-spec (get-in % [:head]))))
                       (overh %
                              (hlcl cache
                                    grammar
                                    (get-in % [:head])
                                    (+ 1 depth)
                                    (str chain " -> overh(rule,hlcl)"))))
-                   (shuffle grammar)
+                   (shuffle grammar2)
                    :dont-bailout)
 
         with-hlcp (lazy-mapcat-bailout-after (str chain " -> overh(rule,hlcp)")
@@ -289,7 +294,7 @@
                                    (get-in % [:head])
                                    (+ 1 depth)
                                    (str chain " -> overh(rule,hlcp)"))))
-                   (shuffle grammar)
+                   (shuffle grammar2)
                    (if (< depth 3)
                      :dont-bailout
                      0))
@@ -302,7 +307,7 @@
                                    (get-in % [:head])
                                    (+ 1 depth)
                                    (str chain " -> overh(rule,hpcl)"))))
-                   (shuffle grammar)
+                   (shuffle grammar2)
                    (if (< depth 4)
                      :dont-bailout
                      0))
@@ -316,7 +321,7 @@
                                    (get-in % [:head])
                                    (+ 1 depth)
                                    (str chain " -> overh(rule,hpcp)"))))
-                   (shuffle grammar)
+                   (shuffle grammar2)
                    (if (< depth 4)
                      :dont-bailout
                      0))
@@ -400,6 +405,10 @@
 
           debug (log/trace (str "hlcl::spec pre-modified is: " spec))
 
+          spec (phrasal-spec (if spec spec :top) cache)
+
+          debug (log/debug (str chain ": hlcl@" depth ": hlcl::spec pre-modified(1) is: " (show-spec spec)))
+
           spec (unifyc {:head {:phrasal false}} (phrasal-spec (if spec spec :top) cache))
 
           debug (log/trace (str "hlcl::spec post-modified is: " spec))
@@ -458,7 +467,7 @@
                 (str chain " -> "
                      (str "hpcl@" depth "" show-the-spec ""))
                 (str "hpcl@" depth "" show-the-spec ""))]
-
+    (log/debug (str chain " spec: " (show-spec spec)))
     (let [hp (hp cache grammar head-spec (+ 0 depth) chain)]
       (cl cache hp))))
 
