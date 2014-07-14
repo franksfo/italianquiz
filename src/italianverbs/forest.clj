@@ -20,14 +20,17 @@
 
 (declare lazy-mapcat)
 
-(defn lazy-mapcat-shuffle [fn args]
-  (lazy-mapcat fn (shuffle args)))
+(defn lazy-mapcat-shuffle [fn args & [depth name]]
+  (do
+    (log/debug (str "lms@" depth ":" name))
+    (lazy-mapcat fn (shuffle args))))
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
 (defn gen [grammar lexicon spec]
   (let [parents (filter #(not (fail? (unifyc spec %)))
                         grammar)
         parents-with-head
+        (lazy-seq
         (lazy-mapcat-shuffle
          (fn [generates-parent-with-head]
            (generates-parent-with-head))
@@ -43,8 +46,10 @@
                (overh parent
                       (gen grammar lexicon 
                            (get-in parent [:head]))))
-             parents))))]
-    (lazy-mapcat-shuffle
+             parents)))))]
+    (let [result
+
+    (lazy-seq (lazy-mapcat-shuffle
      (fn [generates-parent-with-complement]
        (generates-parent-with-complement))
      (list
@@ -59,32 +64,73 @@
            (overc parent-with-head 
                   (gen grammar lexicon
                        (get-in parent-with-head [:comp]))))
-         parents-with-head))))))
+         parents-with-head)))))]
+      parents-with-head)))
 
-(defn gen1 [grammar lexicon spec]
-  (let [parents (filter #(not (fail? (unifyc spec %)))
+(defn gen1 [grammar lexicon spec & [ depth ]]
+  (log/debug (str "gen1@" depth))
+  (let [depth (if depth depth 0)
+        parents (filter #(not (fail? (unifyc spec %)))
                         grammar)
         parents-with-head
         (lazy-mapcat-shuffle
          (fn [generates-parent-with-head]
            (generates-parent-with-head))
-         (list
-          (fn []
-            (lazy-mapcat-shuffle
-             (fn [parent]
-               (overh parent lexicon))
-             parents))))]
+         (lazy-seq
+          (list
+           
+           (fn []
+             (lazy-mapcat-shuffle
+              (fn [parent]
+                (do
+                  (log/debug (str "gen1@" depth ": doing overh(lex) with parent: " (fo-ps parent)))
+                  (overh parent (lazy-seq lexicon))))
+              parents
+              depth
+              "overh(lex)"))
+           
+           (fn []
+             (if (< depth 1)
 
-    (lazy-mapcat-shuffle
-     (fn [generates-parent-with-complement]
-       (generates-parent-with-complement))
-     (list
-      (fn []
-        (lazy-mapcat-shuffle
-         (fn [parent-with-head]
-           (overc parent-with-head lexicon))
-         parents-with-head))))))
+                (lazy-mapcat-shuffle
+                 (fn [parent]
+                   (do
+                     (log/debug (str "gen1@" depth ": doing overh(gen1) with parent: " (fo-ps parent)))
+                     (overh parent
+                            (gen1 grammar (lazy-seq lexicon)
+                                  (get-in parent [:head])
+                                  (+ 1 depth)))))
+                 parents
+                 depth
+                 "overh(gen1)"))
+               (do
+                 (log/debug (str "gen1@" depth ": terminating."))
+                 nil)))))]
 
+    (let [result
+          (lazy-mapcat-shuffle
+           (fn [generates-parent-with-complement]
+             (generates-parent-with-complement))
+           (list
+            (fn []
+              (lazy-mapcat-shuffle
+               (fn [parent-with-head]
+                 (do
+                   (log/debug (str "gen1@" depth ": doing overc(lex) with parent: " (fo-ps parent-with-head) " and spec: " (show-spec spec)))
+                   (lazy-mapcat-shuffle
+                    (fn [lex]
+                      (log/debug (str "gen1@" depth ": overc(" (fo-ps parent-with-head) " " (fo lex)))
+                      (overc parent-with-head
+                             lex))
+                    lexicon
+                    depth
+                    (str "gen1@" depth ": overc(" (fo-ps parent-with-head) ", lexicon"))))
+               parents-with-head
+               depth
+               "overc(lex)"))))]
+      result)))
+;      parents-with-head)))
+  
 (declare lightning-bolt)
 
 (defn add-comp-phrase-to-headed-phrase [parents phrases & [cache supplied-comp-spec]]
