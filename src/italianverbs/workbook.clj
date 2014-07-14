@@ -26,7 +26,8 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all :exclude [unify]]))
 
-(def avoid-init-errors (nounphrase))
+;(def avoid-init-errors (nounphrase))
+(def avoid-init-errors true)
 
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76

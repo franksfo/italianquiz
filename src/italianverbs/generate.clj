@@ -89,5 +89,5 @@
                   cache)))))
 
 
-(def get-stuff-initialized (take 1 (forest/hlcp rule-cache grammar {:synsem {:subcat '() :cat :verb}})))
-(log/info (str "done loading generate: " (fo get-stuff-initialized)))
+;(def get-stuff-initialized (take 1 (forest/hlcp rule-cache grammar {:synsem {:subcat '() :cat :verb}})))
+;(log/info (str "done loading generate: " (fo get-stuff-initialized)))
