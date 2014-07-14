@@ -20,53 +20,17 @@
 
 (declare lazy-mapcat)
 
-(defn lazy-mapcat-shuffle [fn args & [depth name]]
+(defn lazy-mapcat-shuffle [fn args depth name foo]
   (do
     (log/debug (str "lms@" depth ":" name))
-    (lazy-mapcat fn (shuffle args))))
+    (log/debug (str "lms@" depth ":" name " : type of args: " (type args)))
+    (log/debug (str "lms@" depth ":" name " : type of first arg: " (type (first args))))
+    (let [result
+          (lazy-mapcat fn (lazy-seq (shuffle args)))]
+      (log/debug (str "lms@" depth ":" name " : returning type: " (if result (type result))))
+      result)))
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
-(defn gen [grammar lexicon spec]
-  (let [parents (filter #(not (fail? (unifyc spec %)))
-                        grammar)
-        parents-with-head
-        (lazy-seq
-        (lazy-mapcat-shuffle
-         (fn [generates-parent-with-head]
-           (generates-parent-with-head))
-         (list
-          (fn []
-            (lazy-mapcat-shuffle
-             (fn [parent]
-               (overh parent lexicon))
-             parents))
-          (fn []
-            (lazy-mapcat-shuffle
-             (fn [parent]
-               (overh parent
-                      (gen grammar lexicon 
-                           (get-in parent [:head]))))
-             parents)))))]
-    (let [result
-
-    (lazy-seq (lazy-mapcat-shuffle
-     (fn [generates-parent-with-complement]
-       (generates-parent-with-complement))
-     (list
-      (fn []
-        (lazy-mapcat-shuffle
-         (fn [parent-with-head]
-           (overc parent-with-head lexicon))
-         parents-with-head))
-      (fn []
-        (lazy-mapcat-shuffle
-         (fn [parent-with-head]
-           (overc parent-with-head 
-                  (gen grammar lexicon
-                       (get-in parent-with-head [:comp]))))
-         parents-with-head)))))]
-      parents-with-head)))
-
 (defn gen1 [grammar lexicon spec & [ depth ]]
   (log/debug (str "gen1@" depth))
   (let [depth (if depth depth 0)
@@ -76,18 +40,18 @@
         (lazy-mapcat-shuffle
          (fn [generates-parent-with-head]
            (generates-parent-with-head))
-         (lazy-seq
+
           (list
            
            (fn []
              (lazy-mapcat-shuffle
               (fn [parent]
                 (do
-                  (log/debug (str "gen1@" depth ": doing overh(lex) with parent: " (fo-ps parent)))
-                  (overh parent (lazy-seq lexicon))))
+                  (log/debug (str "gen1@" depth ": overh(lex) with parent: " (fo-ps parent)))
+                  (overh parent lexicon)))
               parents
               depth
-              "overh(lex)"))
+              "overh(lex)" 42))
            
            (fn []
              (if (< depth 1)
@@ -95,18 +59,22 @@
                 (lazy-mapcat-shuffle
                  (fn [parent]
                    (do
-                     (log/debug (str "gen1@" depth ": doing overh(gen1) with parent: " (fo-ps parent)))
+                     (log/debug (str "gen1@" depth ": overh(gen1) with parent: " (fo-ps parent)))
                      (overh parent
-                            (gen1 grammar (lazy-seq lexicon)
+                            (gen1 grammar lexicon
                                   (get-in parent [:head])
                                   (+ 1 depth)))))
                  parents
                  depth
-                 "overh(gen1)"))
-               (do
-                 (log/debug (str "gen1@" depth ": terminating."))
-                 nil)))))]
+                 "overh(gen1)" 42)
+                (do
+                  (log/debug (str "gen1@" depth ": terminating."))
+                  nil))))
+          depth
+          "overh(lex;gen1)" 42)]
 
+    (log/debug (str "type of parents-with-head t=" (type parents-with-head)))
+    
     (let [result
           (lazy-mapcat-shuffle
            (fn [generates-parent-with-complement]
@@ -116,18 +84,26 @@
               (lazy-mapcat-shuffle
                (fn [parent-with-head]
                  (do
-                   (log/debug (str "gen1@" depth ": doing overc(lex) with parent: " (fo-ps parent-with-head) " and spec: " (show-spec spec)))
+                   (log/debug (str "gen1@" depth ": doing overc(lex) with parent: "
+                                   (fo-ps parent-with-head) " and spec: "
+                                   (show-spec spec)))
                    (lazy-mapcat-shuffle
                     (fn [lex]
-                      (log/debug (str "gen1@" depth ": overc(" (fo-ps parent-with-head) " " (fo lex)))
-                      (overc parent-with-head
-                             lex))
+                      (log/trace (str "gen1@" depth ": overc(" (fo-ps parent-with-head) " " (fo lex)))
+                      (let [result (overc parent-with-head
+                                          lex)]
+                        (if (not (nil? result))
+                          (log/debug (str "gen1@" depth ": overc(lex):" (fo-ps result))))
+                        result))
                     lexicon
                     depth
-                    (str "gen1@" depth ": overc(" (fo-ps parent-with-head) ", lexicon"))))
+                    (str "gen1@" depth ": overc(" (fo-ps parent-with-head) ", lexicon") 42)))
                parents-with-head
                depth
-               "overc(lex)"))))]
+               "overc(lex)" 42)))
+           depth
+           "overc(lex;--)" 42)]
+      (log/debug (str "gen1@" depth ":returning result of type: " (type result)))
       result)))
 ;      parents-with-head)))
   
