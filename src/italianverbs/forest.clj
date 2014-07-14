@@ -74,7 +74,16 @@
              (fn [parent]
                (overh parent lexicon))
              parents))))]
-    parents-with-head))
+
+    (lazy-mapcat-shuffle
+     (fn [generates-parent-with-complement]
+       (generates-parent-with-complement))
+     (list
+      (fn []
+        (lazy-mapcat-shuffle
+         (fn [parent-with-head]
+           (overc parent-with-head lexicon))
+         parents-with-head))))))
 
 (declare lightning-bolt)
 
