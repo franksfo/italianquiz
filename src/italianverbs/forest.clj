@@ -18,6 +18,48 @@
 
 (def concurrent false)
 
+(declare lazy-mapcat)
+
+(defn lazy-mapcat-shuffle [fn args]
+  (lazy-mapcat fn (shuffle args)))
+
+(defn forest-gen [grammar lexicon spec]
+  (let [parents (filter #(not (fail? (unifyc spec %)))
+                        grammar)
+        parents-with-head
+        (lazy-mapcat-shuffle
+         (fn [generates-parent-with-head]
+           (generates-parent-with-head))
+
+         (list
+          (fn []
+            (lazy-mapcat-shuffle
+             (fn [parent]
+               (overh parent lexicon))
+             parents))
+          (fn []
+            (lazy-mapcat-shuffle
+             (fn [parent]
+               (overh parent
+                      (forest-gen grammar lexicon 
+                                  (get-in parent [:head]))))
+             parents))))]
+    (lazy-mapcat-shuffle
+     (fn [generates-parent-with-complement]
+       (generates-parent-with-complement))
+     (list
+      (fn []
+        (lazy-mapcat-shuffle
+
+         (fn [parent-with-head]
+           (overc parent-with-head lexicon))
+         parents-with-head))
+      (fn []
+        (lazy-mapcat-shuffle
+         (fn [parent-with-head]
+           (overc parents-with-head lexicon))
+         parents-with-head))))))
+
 (declare lightning-bolt)
 
 (defn add-comp-phrase-to-headed-phrase [parents phrases & [cache supplied-comp-spec]]
