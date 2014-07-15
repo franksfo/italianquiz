@@ -74,38 +74,7 @@
           "overh(lex;gen1)" 42)]
 
     (log/debug (str "type of parents-with-head t=" (type parents-with-head)))
-    
-    (let [result
-          (lazy-mapcat-shuffle
-           (fn [generates-parent-with-complement]
-             (generates-parent-with-complement))
-           (list
-            (fn []
-              (lazy-mapcat-shuffle
-               (fn [parent-with-head]
-                 (do
-                   (log/debug (str "gen1@" depth ": doing overc(lex) with parent: "
-                                   (fo-ps parent-with-head) " and spec: "
-                                   (show-spec spec)))
-                   (lazy-mapcat-shuffle
-                    (fn [lex]
-                      (log/trace (str "gen1@" depth ": overc(" (fo-ps parent-with-head) " " (fo lex)))
-                      (let [result (overc parent-with-head
-                                          lex)]
-                        (if (not (nil? result))
-                          (log/debug (str "gen1@" depth ": overc(lex):" (fo-ps result))))
-                        result))
-                    lexicon
-                    depth
-                    (str "gen1@" depth ": overc(" (fo-ps parent-with-head) ", lexicon") 42)))
-               parents-with-head
-               depth
-               "overc(lex)" 42)))
-           depth
-           "overc(lex;--)" 42)]
-      (log/debug (str "gen1@" depth ":returning result of type: " (type result)))
-      result)))
-;      parents-with-head)))
+    parents-with-head))
   
 (declare lightning-bolt)
 
