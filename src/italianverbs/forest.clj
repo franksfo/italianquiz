@@ -30,6 +30,9 @@
       (log/debug (str "lms@" depth ":" name " : returning type: " (if result (type result))))
       result)))
 
+
+;; (take 10 (repeatedly #(fo-ps (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
+
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
 (defn gen1 [grammar lexicon spec & [ depth ]]
   (log/debug (str "gen1@" depth))
@@ -75,7 +78,36 @@
 
     (log/debug (str "type of parents-with-head t=" (type parents-with-head)))
     parents-with-head))
+
+(defn path-to-map [path val]
+  (let [feat (first path)]
+    (if feat
+      {feat (path-to-map (rest path) val)}
+      val)))
   
+
+(defn butlast-unless-singleton [the-seq]
+  (if (and (not (nil? the-seq))
+           (or (vector? the-seq) (seq? the-seq))
+           (= (.size the-seq) 1))
+    the-seq
+    (butlast the-seq)))
+
+;; (forest/add-complement lb [:comp] :top lexicon)
+;;(fo-ps (forest/add-complement  (first (take 1 (repeatedly #(take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))))) [:comp] :top lexicon))
+(defn add-complement [bolt path spec lexicon]
+  (let [path-to-parent (butlast path)
+        spec (unifyc spec (get-in bolt path-to-parent))]
+    (filter (fn [result]
+              (not (fail? result)))
+            (map (fn [lexeme]
+                   (log/debug (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme)))
+                   (log/debug (str "butlast: " (butlast-unless-singleton path)))
+                   (unifyc bolt
+                           (path-to-map (butlast-unless-singleton path)
+                                        lexeme)))
+                 lexicon))))
+
 (declare lightning-bolt)
 
 (defn add-comp-phrase-to-headed-phrase [parents phrases & [cache supplied-comp-spec]]
