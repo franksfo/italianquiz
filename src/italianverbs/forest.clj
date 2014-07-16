@@ -20,7 +20,7 @@
 
 (declare lazy-mapcat)
 
-(defn lazy-mapcat-shuffle [fn args depth name foo]
+(defn lazy-mapcat-shuffle [fn args & [depth name foo]]
   (do
     (log/debug (str "lms@" depth ":" name))
     (log/debug (str "lms@" depth ":" name " : type of args: " (type args)))
@@ -105,6 +105,14 @@
            (= (.size the-seq) 1))
     the-seq
     (butlast the-seq)))
+
+(declare add-complement)
+
+(defn add-complements-to-bolts [bolts path spec lexicon]
+  (lazy-mapcat-shuffle
+   (fn [bolt]
+     (add-complement bolt path spec lexicon))
+   bolts))
 
 ;; (forest/add-complement lb [:comp] :top lexicon)
 ;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
