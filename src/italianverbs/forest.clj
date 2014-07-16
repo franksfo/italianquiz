@@ -108,11 +108,33 @@
 
 (declare add-complement)
 
+;; slow:
+;; (time (fo-ps (take 1 (forest/add-complements-to-bolts (forest/gen1 grammar lexicon {:synsem {:cat :verb :subcat '()}}) [:comp] :top lexicon))))
+;; fast now:
+;; (time (fo-ps (take 1 (forest/add-complements-to-bolts (forest/gen1 grammar lexicon {:synsem {:cat :verb :subcat '()}}) [:comp] :top lexicon))))
+
+;; fast:
+;; (time (fo-ps (take 1 (forest/add-complements-to-bolts (take 1 (forest/gen1 grammar lexicon {:synsem {:cat :verb :subcat '()}})) [:comp] :top lexicon))))
+
+;; reasonably fast:
+;; (take 5 (repeatedly #(fo-ps (take 1 (forest/add-complements-to-bolts (forest/gen1 grammar (shuffle lexicon) {:synsem {:cat :verb}}) [:comp] :top (shuffle lexicon))))))
+
+;; reasonably fast:
+;; (fo-ps (take 10 (repeatedly #(take 1 (forest/add-complements-to-bolts (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}) [:comp] :top (shuffle lexicon))))))
+
+(defn do-the-cool-thing [grammar lexicon]
+  (fo-ps (take 1 (repeatedly #(take 1 (add-complements-to-bolts 
+                                        (gen1 (shuffle grammar) 
+                                              (shuffle lexicon) 
+                                              {:synsem {:cat :verb}}) 
+                                        [:comp] :top (shuffle lexicon)))))))
+
 (defn add-complements-to-bolts [bolts path spec lexicon]
-  (lazy-mapcat-shuffle
-   (fn [bolt]
-     (add-complement bolt path spec lexicon))
-   bolts))
+  (if (not (empty? bolts))
+    (let [bolt (first bolts)]
+      (lazy-cat
+       (add-complement bolt path spec lexicon)
+       (add-complements-to-bolts (rest bolts) path spec lexicon)))))
 
 ;; (forest/add-complement lb [:comp] :top lexicon)
 ;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
@@ -122,8 +144,8 @@
     (filter (fn [result]
               (not (fail? result)))
             (map (fn [lexeme]
-                   (log/debug (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme)))
-                   (log/debug (str "butlast: " (butlast-unless-singleton path)))
+                   (log/trace (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme)))
+                   (log/trace (str "butlast: " (butlast-unless-singleton path)))
                    (unifyc bolt
                            (path-to-map (butlast-unless-singleton path)
                                         lexeme)))
