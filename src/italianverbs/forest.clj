@@ -26,7 +26,7 @@
     (log/debug (str "lms@" depth ":" name " : type of args: " (type args)))
     (log/debug (str "lms@" depth ":" name " : type of first arg: " (type (first args))))
     (let [result
-          (lazy-mapcat fn (lazy-seq (shuffle args)))]
+          (lazy-mapcat fn (shuffle args))]
       (log/debug (str "lms@" depth ":" name " : returning type: " (if result (type result))))
       result)))
 
@@ -39,6 +39,19 @@
   (let [depth (if depth depth 0)
         parents (filter #(not (fail? (unifyc spec %)))
                         grammar)
+
+        ;; simple-case: hlcX
+        simple
+        (lazy-mapcat-shuffle
+         (fn [parent]
+           (do
+             (log/debug (str "gen1@" depth ": overh(lex) with parent: " (fo-ps parent)))
+             (overh parent lexicon)))
+         parents
+         depth
+         "overh(lex)" 42)
+
+
         parents-with-head
         (lazy-mapcat-shuffle
          (fn [generates-parent-with-head]
@@ -77,7 +90,7 @@
           "overh(lex;gen1)" 42)]
 
     (log/debug (str "type of parents-with-head t=" (type parents-with-head)))
-    parents-with-head))
+    simple))
 
 (defn path-to-map [path val]
   (let [feat (first path)]
@@ -94,7 +107,7 @@
     (butlast the-seq)))
 
 ;; (forest/add-complement lb [:comp] :top lexicon)
-;;(fo-ps (forest/add-complement  (first (take 1 (repeatedly #(take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))))) [:comp] :top lexicon))
+;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
 (defn add-complement [bolt path spec lexicon]
   (let [path-to-parent (butlast path)
         spec (unifyc spec (get-in bolt path-to-parent))]
