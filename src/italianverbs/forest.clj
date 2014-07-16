@@ -38,7 +38,9 @@
   (log/debug (str "gen1@" depth))
   (let [depth (if depth depth 0)
         parents (filter #(not (fail? (unifyc spec %)))
-                        grammar)
+                        (map (fn [rule]
+                               (unifyc spec rule))
+                             grammar))
 
         ;; simple-case: hlcX
         simple
@@ -90,7 +92,7 @@
           "overh(lex;gen1)" 42)]
 
     (log/debug (str "type of parents-with-head t=" (type parents-with-head)))
-    simple))
+    parents-with-head))
 
 (defn path-to-map [path val]
   (let [feat (first path)]
@@ -122,12 +124,26 @@
 ;; reasonably fast:
 ;; (fo-ps (take 10 (repeatedly #(take 1 (forest/add-complements-to-bolts (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}) [:comp] :top (shuffle lexicon))))))
 
+(declare do-the-cooler-thing)
+
 (defn do-the-cool-thing [grammar lexicon]
-  (fo-ps (take 1 (repeatedly #(take 1 (add-complements-to-bolts 
-                                        (gen1 (shuffle grammar) 
-                                              (shuffle lexicon) 
-                                              {:synsem {:cat :verb}}) 
-                                        [:comp] :top (shuffle lexicon)))))))
+  (time (fo (take 1 (do-the-cooler-thing grammar lexicon 
+                                         {:synsem {:cat :verb :sem {:pred :vedere}
+                                                   :aux false
+                                                   :subcat '()}})))))
+
+(declare add-complements-to-bolts)
+
+(defn do-the-cooler-thing [grammar lexicon spec]
+  (let [cool (add-complements-to-bolts 
+              (gen1 (shuffle grammar) 
+                            (shuffle lexicon)
+                            spec)
+              [:comp] :top (shuffle lexicon))]
+;    cool))
+    (add-complements-to-bolts 
+     cool
+     [:head :comp] :top (shuffle lexicon))))
 
 (defn add-complements-to-bolts [bolts path spec lexicon]
   (if (not (empty? bolts))
@@ -140,15 +156,20 @@
 ;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
 (defn add-complement [bolt path spec lexicon]
   (let [path-to-parent (butlast path)
-        spec (unifyc spec (get-in bolt path-to-parent))]
+        spec (unifyc spec (get-in bolt path))]
+    (log/debug (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
     (filter (fn [result]
               (not (fail? result)))
             (map (fn [lexeme]
-                   (log/trace (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme)))
-                   (log/trace (str "butlast: " (butlast-unless-singleton path)))
-                   (unifyc bolt
-                           (path-to-map (butlast-unless-singleton path)
-                                        lexeme)))
+                   (log/debug (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme)))
+                   (let [result
+                         (unifyc bolt
+                                 (path-to-map path
+                                              lexeme))]
+                     (log/debug (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme) " => " (if (not (fail? result))
+                                                                                                   (fo-ps result)
+                                                                                                   ":fail")))
+                     result))
                  lexicon))))
 
 (declare lightning-bolt)
