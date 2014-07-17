@@ -162,11 +162,12 @@
                    (let [result
                          (unifyc bolt
                                  (path-to-map path
-                                              lexeme))]
-                     (log/debug (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme) " => " (if (not (fail? result))
+                                              lexeme))
+                         is-fail? (fail? result)]
+                     (log/debug (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme) " => " (if (not is-fail?)
                                                                                                    (fo-ps result)
                                                                                                    ":fail")))
-                     result))
+                     (if is-fail? :fail result)))
                  lexicon))))
 
 (declare lightning-bolt)
