@@ -135,15 +135,12 @@
 (declare add-complements-to-bolts)
 
 (defn do-the-cooler-thing [grammar lexicon spec]
-  (let [cool (add-complements-to-bolts 
-              (gen1 (shuffle grammar) 
-                            (shuffle lexicon)
-                            spec)
-              [:comp] :top (shuffle lexicon))]
-;    cool))
-    (add-complements-to-bolts 
-     cool
-     [:head :comp] :top (shuffle lexicon))))
+  (->
+   (gen1 (shuffle grammar) 
+         (shuffle lexicon)
+         spec)
+   (add-complements-to-bolts [:comp]       :top (shuffle lexicon))
+   (add-complements-to-bolts [:head :comp] :top (shuffle lexicon))))
 
 (defn add-complements-to-bolts [bolts path spec lexicon]
   (if (not (empty? bolts))
