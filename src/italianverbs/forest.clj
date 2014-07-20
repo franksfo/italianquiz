@@ -125,6 +125,7 @@
 ;; (fo-ps (take 10 (repeatedly #(take 1 (forest/add-complements-to-bolts (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}) [:comp] :top (shuffle lexicon))))))
 
 (declare add-all-complements-to-bolts)
+(declare add-complements-to-bolts)
 
 (defn gen2 [grammar lexicon spec]
   (-> (gen1 grammar
