@@ -205,6 +205,18 @@
         value-of-chosen-percent
         (nth sorted-runtimes index-of-chosen-percent)
 
+        index-of-median
+        (/ (.size sorted-runtimes) 2)
+
+
+;; (let [arr [10 11 12 13 14]] (nth arr (/ (.size arr) 2)))
+;; => 12
+;; (let [arr [10 11 12 13 14 15]] (nth arr (/ (.size arr) 2)))
+;; => 13
+
+        median
+        (nth sorted-runtimes (/ (.size sorted-runtimes) 2))
+
         mean (/ (reduce + runtimes) (* trials 1.0))
 
         avg-sum-of-differences-squared
@@ -215,6 +227,7 @@
         stddev (math/ceil (math/sqrt avg-sum-of-differences-squared))]
 
     {:mean mean
+     :median median
      :stddev stddev
      :min (nth sorted-runtimes 0)
      :max (nth sorted-runtimes (- trials 1))
@@ -470,6 +483,15 @@
                                                 grammar)))))))
    
    trials))
+
+
+(defn bolt-benchmark [trials]
+  (let [spec {:synsem {:cat :verb :sem {:pred :vedere}
+                       :aux false
+                       :subcat '()}}]
+    (run-benchmark #(fo (first (take 1 (forest/do-the-cooler-thing grammar lexicon spec))))
+                   trials
+                   "bb")))
 
 (defn run-hlcp-with-subcat-nil-test [trials]
   (run-benchmark
