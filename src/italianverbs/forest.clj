@@ -20,7 +20,7 @@
 
 (declare lazy-mapcat)
 
-(defn lazy-mapcat-shuffle [fn args & [depth name foo]]
+(defn lazy-mapcat-shuffle [fn args & [depth name]]
   (do
     (log/trace (str "lms@" depth ":" name))
     (log/trace (str "lms@" depth ":" name " : type of args: " (type args)))
@@ -35,7 +35,7 @@
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
 (defn gen1 [grammar lexicon spec & [ depth ]]
-  (log/debug (str "gen1@" depth))
+  (log/trace (str "gen1@" depth))
   (let [depth (if depth depth 0)
         parents (filter #(not (fail? (unifyc spec %)))
                         (map (fn [rule]
@@ -51,7 +51,7 @@
              (overh parent (lazy-shuffle lexicon))))
          parents
          depth
-         "overh(lex)" 42)
+         "overh(lex)")
 
 
         parents-with-head
@@ -69,7 +69,7 @@
                   (overh parent (lazy-shuffle lexicon))))
               parents
               depth
-              "overh(lex)" 42))
+              "overh(lex)"))
            
            (fn []
              (if (< depth 1)
@@ -84,12 +84,12 @@
                                   (+ 1 depth)))))
                  parents
                  depth
-                 "overh(gen1)" 42)
+                 "overh(gen1)")
                 (do
                   (log/debug (str "gen1@" depth ": terminating."))
                   nil))))
           depth
-          "overh(lex;gen1)" 42)]
+          "overh(lex;gen1)")]
 
     (log/trace (str "type of parents-with-head t=" (type parents-with-head)))
     parents-with-head))
@@ -150,7 +150,7 @@
   (let [spec (unifyc spec (get-in bolt path :no-path))]
     (if (not (= spec :no-path))
       (do
-        (log/debug (str "add-complement to: " (fo bolt) " @path: " path))
+        (log/debug (str "add-complement to: " (fo-ps bolt) " @path: " path))
         (log/trace (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
         (filter (fn [result]
                   (not (fail? result)))
