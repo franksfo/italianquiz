@@ -139,8 +139,13 @@
    (gen1 (shuffle grammar) 
          (shuffle lexicon)
          spec)
-   (add-complements-to-bolts [:comp]       :top (shuffle lexicon))
-   (add-complements-to-bolts [:head :comp] :top (shuffle lexicon))))
+   (add-complements-to-bolts [:comp]       :top (lazy-shuffle lexicon))
+   (add-complements-to-bolts [:head :comp] :top (lazy-shuffle lexicon))))
+
+(defn add-all-complements-to-bolts [bolts spec lexicon]
+  (-> bolts
+      (add-complements-to-bolts [:comp]       :top (lazy-shuffle lexicon))
+      (add-complements-to-bolts [:head :comp] :top (lazy-shuffle lexicon))))
 
 (defn add-complements-to-bolts [bolts path spec lexicon]
   (if (not (empty? bolts))
@@ -152,8 +157,7 @@
 ;; (forest/add-complement lb [:comp] :top lexicon)
 ;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
 (defn add-complement [bolt path spec lexicon]
-  (let [path-to-parent (butlast path)
-        spec (unifyc spec (get-in bolt path))]
+  (let [spec (unifyc spec (get-in bolt path))]
     (log/debug (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
     (filter (fn [result]
               (not (fail? result)))
