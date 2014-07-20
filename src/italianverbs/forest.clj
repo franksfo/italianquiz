@@ -1,5 +1,5 @@
 (ns italianverbs.forest
-  (:refer-clojure :exclude [get-in deref merge resolve find future parents rand-int])
+  (:refer-clojure :exclude [get-in deref merge resolve find future parents])
   (:require
    [clojure.core :as core]
    ;; have to exclude partition-by because of some namespace clash, not sure how else to fix
@@ -48,7 +48,7 @@
          (fn [parent]
            (do
              (log/debug (str "gen1@" depth ": overh(lex) with parent: " (fo-ps parent)))
-             (overh parent lexicon)))
+             (overh parent (lazy-shuffle lexicon))))
          parents
          depth
          "overh(lex)" 42)
@@ -66,7 +66,7 @@
               (fn [parent]
                 (do
                   (log/debug (str "gen1@" depth ": overh(lex) with parent: " (fo-ps parent)))
-                  (overh parent lexicon)))
+                  (overh parent (lazy-shuffle lexicon))))
               parents
               depth
               "overh(lex)" 42))
@@ -125,28 +125,28 @@
 ;; (fo-ps (take 10 (repeatedly #(take 1 (forest/add-complements-to-bolts (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}) [:comp] :top (shuffle lexicon))))))
 
 (defn gen2 [grammar lexicon spec]
-  (-> (gen1 (shuffle grammar) 
-            (shuffle lexicon)
+  (-> (gen1 grammar
+            lexicon
             spec)
-      (add-all-complements-to-bolts lexicon)))
+      (add-all-complements-to-bolts grammar lexicon)))
 
-(defn add-all-complements-to-bolts [bolts lexicon]
+(defn add-all-complements-to-bolts [bolts grammar lexicon]
   (-> bolts
-      (add-complements-to-bolts [:comp]       :top (lazy-shuffle lexicon))
-      (add-complements-to-bolts [:head :comp] :top (lazy-shuffle lexicon))
-      (add-complements-to-bolts [:head :head :comp] :top (lazy-shuffle lexicon))
-      (add-complements-to-bolts [:head :head :head :comp] :top (lazy-shuffle lexicon))))
+      (add-complements-to-bolts [:comp]       :top grammar lexicon)
+      (add-complements-to-bolts [:head :comp] :top grammar lexicon)
+      (add-complements-to-bolts [:head :head :comp] :top grammar lexicon)
+      (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon)))
 
-(defn add-complements-to-bolts [bolts path spec lexicon]
+(defn add-complements-to-bolts [bolts path spec grammar lexicon]
   (if (not (empty? bolts))
     (let [bolt (first bolts)]
       (lazy-cat
-       (add-complement bolt path spec lexicon)
-       (add-complements-to-bolts (rest bolts) path spec lexicon)))))
+       (add-complement bolt path spec grammar lexicon)
+       (add-complements-to-bolts (rest bolts) path spec grammar lexicon)))))
 
 ;; (forest/add-complement lb [:comp] :top lexicon)
 ;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
-(defn add-complement [bolt path spec lexicon]
+(defn add-complement [bolt path spec grammar lexicon]
   (let [spec (unifyc spec (get-in bolt path :no-path))]
     (if (not (= spec :no-path))
       (do
@@ -164,7 +164,13 @@
                                                                                                                (fo-ps result)
                                                                                                                ":fail")))
                          (if is-fail? :fail result)))
-                     lexicon)))
+                     (if (= (rand-int 2) 0)
+                       (lazy-cat (lazy-shuffle lexicon)
+                                 (gen2 (lazy-shuffle grammar) lexicon spec))
+                       (lazy-cat (gen2 (lazy-shuffle grammar) lexicon spec)
+                                 (lazy-shuffle lexicon))))))
+
+
       ;; path doesn't exist in bolt: simply return the bolt unmodified.
       (do
         (log/warn "no path: " path " in bolt: " (fo-ps bolt))
