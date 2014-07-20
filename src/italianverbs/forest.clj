@@ -127,10 +127,10 @@
 (declare do-the-cooler-thing)
 
 (defn do-the-cool-thing [grammar lexicon]
-  (time (fo (take 1 (do-the-cooler-thing grammar lexicon 
-                                         {:synsem {:cat :verb :sem {:pred :vedere}
-                                                   :aux false
-                                                   :subcat '()}})))))
+  (let [spec {:synsem {:cat :verb :sem {:pred :vedere}
+                       :aux false
+                       :subcat '()}}]
+    (time (fo (take 1 (do-the-cooler-thing grammar lexicon spec))))))
 
 (declare add-complements-to-bolts)
 
@@ -139,13 +139,20 @@
    (gen1 (shuffle grammar) 
          (shuffle lexicon)
          spec)
-   (add-complements-to-bolts [:comp]       :top (lazy-shuffle lexicon))
-   (add-complements-to-bolts [:head :comp] :top (lazy-shuffle lexicon))))
+   (add-all-complements-to-bolts lexicon)))
 
-(defn add-all-complements-to-bolts [bolts spec lexicon]
+(defn gen2 [grammar lexicon spec]
+  (-> (gen1 (shuffle grammar) 
+            (shuffle lexicon)
+            spec)
+      (add-all-complements-to-bolts lexicon)))
+
+(defn add-all-complements-to-bolts [bolts lexicon]
   (-> bolts
       (add-complements-to-bolts [:comp]       :top (lazy-shuffle lexicon))
-      (add-complements-to-bolts [:head :comp] :top (lazy-shuffle lexicon))))
+      (add-complements-to-bolts [:head :comp] :top (lazy-shuffle lexicon))
+      (add-complements-to-bolts [:head :head :comp] :top (lazy-shuffle lexicon))
+      (add-complements-to-bolts [:head :head :head :comp] :top (lazy-shuffle lexicon))))
 
 (defn add-complements-to-bolts [bolts path spec lexicon]
   (if (not (empty? bolts))
@@ -157,22 +164,28 @@
 ;; (forest/add-complement lb [:comp] :top lexicon)
 ;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
 (defn add-complement [bolt path spec lexicon]
-  (let [spec (unifyc spec (get-in bolt path))]
-    (log/debug (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
-    (filter (fn [result]
-              (not (fail? result)))
-            (map (fn [lexeme]
-                   (log/debug (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme)))
-                   (let [result
-                         (unifyc bolt
-                                 (path-to-map path
-                                              lexeme))
-                         is-fail? (fail? result)]
-                     (log/debug (str "unifyc: " (fo-ps bolt) " with lexeme: " (fo lexeme) " => " (if (not is-fail?)
-                                                                                                   (fo-ps result)
-                                                                                                   ":fail")))
-                     (if is-fail? :fail result)))
-                 lexicon))))
+  (let [spec (unifyc spec (get-in bolt path :no-path))]
+    (if (not (= spec :no-path))
+      (do
+        (log/debug (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
+        (filter (fn [result]
+                  (not (fail? result)))
+                (map (fn [lexeme]
+                       (log/trace (str "add-complement: " (fo-ps bolt) " with lexeme: " (fo lexeme)))
+                       (let [result
+                             (unifyc bolt
+                                     (path-to-map path
+                                                  lexeme))
+                             is-fail? (fail? result)]
+                         (log/trace (str "add-complement: " (fo-ps bolt) " with lexeme: " (fo lexeme) " => " (if (not is-fail?)
+                                                                                                               (fo-ps result)
+                                                                                                               ":fail")))
+                         (if is-fail? :fail result)))
+                     lexicon)))
+      ;; path doesn't exist in bolt: simply return the bolt unmodified.
+      (do
+        (log/warn "no path: " path " in bolt: " (fo-ps bolt))
+        (list bolt)))))
 
 (declare lightning-bolt)
 

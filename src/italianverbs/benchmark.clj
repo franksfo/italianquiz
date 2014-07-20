@@ -489,7 +489,7 @@
   (let [spec {:synsem {:cat :verb :sem {:pred :vedere}
                        :aux false
                        :subcat '()}}]
-    (run-benchmark #(fo (first (take 1 (forest/do-the-cooler-thing grammar lexicon spec))))
+    (run-benchmark #(fo (first (take 1 (forest/gen2 grammar lexicon spec))))
                    trials
                    "bb")))
 
