@@ -47,9 +47,7 @@
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size the-grammar) "."))
-    (first (take 1 (forest/lightning-bolt head
-                                          (lazy-shuffle the-lexicon)
-                                          (lazy-shuffle grammar) 0 cache)))))
+  (first (take 1 (forest/gen2 grammar lexicon head)))))
 
 (def use-hxcx true)
 
