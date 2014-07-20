@@ -486,8 +486,7 @@
 
 
 (defn bolt-benchmark [trials]
-  (let [spec {:synsem {:cat :verb :sem {:pred :vedere}
-                       :aux false
+  (let [spec {:synsem {:cat :verb
                        :subcat '()}}]
     (run-benchmark #(fo (first (take 1 (forest/gen2 grammar lexicon spec))))
                    trials
