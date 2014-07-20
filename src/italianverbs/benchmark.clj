@@ -485,8 +485,15 @@
    trials))
 
 
+;; the {:subj {:animate true}} is a workaround for rathole prevention - 
+;;  subject must be animate, because no verbs (or hardly any) 
+;; will work with inanimate subjects (only exception currently is ‘essere’ (e.g. ‘la cipolle è’ ..)
+;;
+;; To reproduce problem, use: {:sem {:subj {:animate false}}}
 (defn bolt-benchmark [trials]
   (let [spec {:synsem {:cat :verb
+                       :aux false
+                       :sem {:subj {:animate true}}
                        :subcat '()}}]
     (run-benchmark #(fo (first (take 1 (forest/gen2 grammar lexicon spec))))
                    trials
