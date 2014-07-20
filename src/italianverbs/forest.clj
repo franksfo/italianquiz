@@ -22,12 +22,12 @@
 
 (defn lazy-mapcat-shuffle [fn args & [depth name foo]]
   (do
-    (log/debug (str "lms@" depth ":" name))
-    (log/debug (str "lms@" depth ":" name " : type of args: " (type args)))
-    (log/debug (str "lms@" depth ":" name " : type of first arg: " (type (first args))))
+    (log/trace (str "lms@" depth ":" name))
+    (log/trace (str "lms@" depth ":" name " : type of args: " (type args)))
+    (log/trace (str "lms@" depth ":" name " : type of first arg: " (type (first args))))
     (let [result
           (lazy-mapcat fn (shuffle args))]
-      (log/debug (str "lms@" depth ":" name " : returning type: " (if result (type result))))
+      (log/trace (str "lms@" depth ":" name " : returning type: " (if result (type result))))
       result)))
 
 
@@ -91,7 +91,7 @@
           depth
           "overh(lex;gen1)" 42)]
 
-    (log/debug (str "type of parents-with-head t=" (type parents-with-head)))
+    (log/trace (str "type of parents-with-head t=" (type parents-with-head)))
     parents-with-head))
 
 (defn path-to-map [path val]
@@ -150,7 +150,8 @@
   (let [spec (unifyc spec (get-in bolt path :no-path))]
     (if (not (= spec :no-path))
       (do
-        (log/debug (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
+        (log/debug (str "add-complement to: " (fo bolt) " @path: " path))
+        (log/trace (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
         (filter (fn [result]
                   (not (fail? result)))
                 (map (fn [lexeme]
