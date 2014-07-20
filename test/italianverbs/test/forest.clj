@@ -19,15 +19,9 @@
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
-(deftest add-a-complement
-  (let [add-a-comp (add-complement 
-                    (first 
-                     (take 1 
-                           (gen1 (shuffle grammar) 
-                                 (shuffle lexicon) 
-                                 {:synsem {:cat :verb :subcat '()}})))
-                    [:comp] 
-                    :top 
-                    lexicon)]
-    (is (not (fail? (first add-a-comp))))))
+(deftest generate-with-gen2
+  (let [generated (first (take 1 (gen2 grammar lexicon {:synsem {:subcat '() :aux false :sem {:pred {:subj {:animate true}}}}})))]
+    (is (not (fail? generated)))
+    (is (not (nil? generated)))))
+
 
