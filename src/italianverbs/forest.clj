@@ -124,23 +124,6 @@
 ;; reasonably fast:
 ;; (fo-ps (take 10 (repeatedly #(take 1 (forest/add-complements-to-bolts (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}) [:comp] :top (shuffle lexicon))))))
 
-(declare do-the-cooler-thing)
-
-(defn do-the-cool-thing [grammar lexicon]
-  (let [spec {:synsem {:cat :verb :sem {:pred :vedere}
-                       :aux false
-                       :subcat '()}}]
-    (time (fo (take 1 (do-the-cooler-thing grammar lexicon spec))))))
-
-(declare add-complements-to-bolts)
-
-(defn do-the-cooler-thing [grammar lexicon spec]
-  (->
-   (gen1 (shuffle grammar) 
-         (shuffle lexicon)
-         spec)
-   (add-all-complements-to-bolts lexicon)))
-
 (defn gen2 [grammar lexicon spec]
   (-> (gen1 (shuffle grammar) 
             (shuffle lexicon)
