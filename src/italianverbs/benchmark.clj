@@ -476,6 +476,38 @@
                                                               :2 '()}}}}))))
    trials))
 
+(defn word-speaker [trials]
+  (run-benchmark
+   #(fo (sentence {:synsem {:subcat '() :cat :verb
+                            :sem {:pred :parlare
+                                  :subj {:pred :lei}
+                                  :obj {:pred :parola}}}}
+                  lexicon grammar))
+   trials))
+
+(defn word-spoken [trials]
+  (run-benchmark
+   #(fo-ps (generate {:synsem {:subcat '() :cat :noun
+                               :sem {:pred :parola}}}
+                     lexicon grammar))
+   trials))
+
+(defn word-spoken2 [trials]
+  (let [lexicon (seq (union (it "parola") (it "bianco") (it "la")))]
+    (run-benchmark
+     #(fo-ps (generate {:synsem {:subcat '() :cat :noun
+                                 :sem {:pred :parola}}}
+                       lexicon (list np nbar)))
+     trials)))
+
+(defn word-speaker-lb [trials]
+  (run-benchmark
+   #(fo (take 1 (forest/lb grammar lexicon {:synsem {:subcat '() :cat :verb
+                                                     :sem {:pred :parlare
+                                                           :subj {:pred :lei}
+                                                           :obj {:pred :parola}}}})))
+   trials))
+
 (defn benchmark []
   (println "run-hlcl-test 10")
   (run-hlcl-test 10)
