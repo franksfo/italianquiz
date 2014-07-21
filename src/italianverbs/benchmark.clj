@@ -7,7 +7,7 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases)]
-   [italianverbs.forest :exclude [lightning-bolt]]
+   [italianverbs.forest :refer (lightning-bolt)]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
@@ -252,13 +252,14 @@
   (run-benchmark
    #(fo (first (take 1 (lightning-bolt (list s-present)
                             cache
+                            lexicon
                             {:comp {:phrasal false}
                              :head {:phrasal false}}))))
    trials))
 
 (defn saux [trials]
   (run-benchmark 
-   #(fo (first (take 1 (lightning-bolt (list s-aux vp-aux) cache {:synsem {:subcat '()}}))))
+   #(fo (first (take 1 (lightning-bolt (list s-aux vp-aux) cache lexicon {:synsem {:subcat '()}}))))
    trials))
 
 (defn run-hlcp [trials]
@@ -330,12 +331,6 @@
    #(fo-ps (first (take 1 (forest/hlcl cache grammar {:synsem {:subcat '()}}))))
    trials
    "hlcl with empty subcat"))
-
-(defn run-hp-with-subcat-nil-test [trials]
-  (run-benchmark
-   #(fo-ps (first (take 1 (forest/hp cache grammar {:synsem {:subcat '()}}))))
-   trials
-   "hp with empty subcat"))
 
 (defn run-hpcl-with-subcat-nil-test [trials]
   (run-benchmark
@@ -421,12 +416,6 @@
                               catspec-grammar-0)))
                   grammar)))
 
-(def hl-over-cg1h
-  (forest/hl cache catspec-grammar-1-head))
-
-(defn cp-over-hl [subgrammar]
-  (forest/cp subgrammar cache grammar))
-
 ;; (type cp-over-hl) => lazyseq
 ;; (fo-ps (take 1 (cp-over-hl hl-over-cg1h)))
 ;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
@@ -441,49 +430,6 @@
   (run-benchmark
    #(fo-ps (first (take 1 (catlove))))
    trials))
-
-(defn run-gatto2 [trials]
-  (run-benchmark
-   #(fo-ps (first (take 1 (cp-over-hl (forest/hl cache catspec-grammar-1-head)))))
-   trials))
-
-(defn run-gatto3 [trials]
-  (run-benchmark
-   #(fo-ps (first (take 1 (cp-over-hl hl-over-cg1h))))
-   trials))
-
-(defn run-gatto4 [trials]
-  (run-benchmark
-   #(fo-ps (first 
-            (take 1 (cp-over-hl 
-                     (forest/hl cache 
-                                (filter (fn [rule]
-                                          (not (fail? rule)))
-                                        (mapcat (fn [grammar-rule]
-                                                  (map (fn [catspec-grammar-0-rule-head]
-                                                         (unifyc grammar-rule catspec-grammar-0-rule-head))
-                                                       (map (fn [x] 
-                                                              (unify/get-in x [:head]))
-                                                            (let [catspec-s
-                                                                  {:synsem {:cat :verb
-                                                                            :aux false
-                                                                            :infl :imperfetto
-                                                                            :sem {:pred :amare
-                                                                                  :obj {:pred :gatto}}
-                                                                            :subcat '()}}
-
-                                                                  catspec-grammar-0
-                                                                  (filter (fn [rule]
-                                                                            (not (fail? rule)))
-                                                                          (map 
-                                                                           (fn [rule]
-                                                                             (unifyc rule catspec-s))
-                                                                           grammar))]
-                                                              catspec-grammar-0))))
-                                                grammar)))))))
-   
-   trials))
-
 
 ;; the {:subj {:animate true}} is a workaround for rathole prevention - 
 ;;  subject must be animate, because no verbs (or hardly any) 
@@ -519,30 +465,19 @@
      trials
      "hlcl with aux = true and pred=venire")))
 
-(defn run-hl-test-aux [trials]
-"this one seems to be an outlier for hlcl - try to make it faster."
-(let [essere true
-      grammar grammar]
-  (run-benchmark
-   
-   #(fo-ps (first (take 1 (forest/hl cache grammar {:synsem {:sem {:pred :venire}
-                                                            :essere essere
-                                                            :aux true}}))))
-   trials
-   "hl with aux=true and pred=venire")))
-
 (defn run-hpcp2 [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hpcp cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}
-                                                   :head {:synsem {:subcat {:1 :top
-                                                                            :2 '()}}}}))))
+   #(fo (first (take 1 (forest/hpcp cache grammar lexicon {:synsem {:infl :futuro :cat :verb :subcat '()}
+                                                           :head {:synsem {:subcat {:1 :top
+                                                                                    :2 '()}}}}))))
    trials))
 
 (defn run-hxcx [trials]
   (run-benchmark
-   #(fo (first (take 1 (forest/hxcx cache grammar {:synsem {:infl :futuro :cat :verb :subcat '()}
-                                                   :head {:synsem {:subcat {:1 :top
-                                                                            :2 '()}}}}))))
+   #(fo (first (take 1 (forest/gen2 cache grammar lexicon
+                                    {:synsem {:infl :futuro :cat :verb :subcat '()}
+                                     :head {:synsem {:subcat {:1 :top
+                                                              :2 '()}}}}))))
    trials))
 
 (defn benchmark []
@@ -554,9 +489,6 @@
 
   (println "run-hlcp-with-subcat-nil-test 10")
   (run-hlcp-with-subcat-nil-test 10)
-
-  (println "run-hp-with-subcat-nil-test 10")
-  (run-hp-with-subcat-nil-test 10)
 
   (println "run-hpcl-with-subcat-nil-test 10")
   (run-hpcl-with-subcat-nil-test 10)
