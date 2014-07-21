@@ -6,7 +6,6 @@
    [clojure.tools.logging :as log]
 
    [italianverbs.cache :refer (build-lex-sch-cache) ]
-   [italianverbs.forest :exclude (lightning-bolt) ]
    [italianverbs.forest :as forest]
    [italianverbs.grammar :refer :all]
    [italianverbs.html :as html]
@@ -41,8 +40,6 @@
                   (.size the-grammar) "."))
   (first (take 1 (forest/gen2 grammar lexicon head)))))
 
-(def use-hxcx true)
-
 (defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
@@ -50,33 +47,17 @@
         cache (if cache cache rule-cache)]
     (first (take 1 (forest/hlcl cache grammar lexicon (unify spec {:synsem {:cat :noun :subcat '()}}))))))
 
-(defn short-sentence [ & [ spec the-lexicon the-grammar cache ]]
-  (let [spec (if spec spec :top)
-        lexicon (if the-lexicon the-lexicon lexicon)
-        grammar (if the-grammar the-grammar grammar)
-        cache (if cache cache rule-cache)]
-    (first (take 1 (forest/hlcp cache grammar (unify spec {:synsem {:subcat '() :cat :verb}}))))))
-
 (defn sentence [ & [spec the-lexicon the-grammar cache]]
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar grammar)
         cache (if cache cache rule-cache)]
-    (if use-hxcx
-      (short-sentence spec)
-      (do
-        (log/debug (str "sentence with lexicon size: " 
-                        (.size lexicon) " and grammar size: "
-                        (.size grammar) "."))
-        (log/debug (str "cache:"
-                        (if cache
-                          (str "size: " (.size cache))
-                          (str "doesn't exist yet."))))
-        (generate (unify spec {:synsem {:cat (first (shuffle (list :verb :sent-modifier)))}})
-                  lexicon
-                  grammar
-                  cache)))))
+    (generate {:synsem {:subcat '()
+                        :cat :verb}})))
 
-
-;(def get-stuff-initialized (take 1 (forest/hlcp rule-cache grammar {:synsem {:subcat '() :cat :verb}})))
-;(log/info (str "done loading generate: " (fo get-stuff-initialized)))
+(def get-stuff-initialized (sentence {:synsem {:subcat '() :cat :verb
+                                               :sem {:pred :parlare
+                                                     :subj {:pred :animate}}}}
+                                     lexicon grammar))
+                                                                             
+(log/info (str "done loading generate: " (fo get-stuff-initialized)))
