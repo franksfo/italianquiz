@@ -48,16 +48,20 @@
     (first (take 1 (forest/hlcl cache grammar lexicon (unify spec {:synsem {:cat :noun :subcat '()}}))))))
 
 (defn sentence [ & [spec the-lexicon the-grammar cache]]
-  (let [spec (if spec spec :top)
+  (let [sentence-spec {:synsem {:subcat '()
+                                :cat :verb
+                                :subj {:animate true}}}
+                       
+        spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar grammar)
         cache (if cache cache rule-cache)]
-    (generate {:synsem {:subcat '()
-                        :cat :verb}})))
+    (generate (unifyc sentence-spec spec))))
 
 (def get-stuff-initialized (sentence {:synsem {:subcat '() :cat :verb
                                                :sem {:pred :parlare
-                                                     :subj {:pred :animate}}}}
+                                                     :subj {:pred :lei}
+                                                     :obj {:pred :parola}}}}
                                      lexicon grammar))
                                                                              
 (log/info (str "done loading generate: " (fo get-stuff-initialized)))
