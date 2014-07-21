@@ -7,7 +7,6 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
-   [italianverbs.forest :refer (lightning-bolt)]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
    [italianverbs.generate :refer :all]
    [italianverbs.grammar :refer :all]
@@ -250,16 +249,19 @@
 
 (defn spresent [trials]
   (run-benchmark
-   #(fo (first (take 1 (lightning-bolt (list s-present)
-                            cache
-                            lexicon
-                            {:comp {:phrasal false}
-                             :head {:phrasal false}}))))
+   #(fo (first (take 1 (generate {:comp {:phrasal false}
+                                  :head {:phrasal false}}
+                                 lexicon
+                                 (list s-present)
+                                 cache))))
    trials))
 
 (defn saux [trials]
   (run-benchmark 
-   #(fo (first (take 1 (lightning-bolt (list s-aux vp-aux) cache lexicon {:synsem {:subcat '()}}))))
+   #(fo (first (take 1 (generate
+                        {:synsem {:subcat '()}}
+                        lexicon
+                        (list s-aux vp-aux) cache))))
    trials))
 
 (defn run-hlcp2 [trials]

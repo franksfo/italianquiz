@@ -62,11 +62,11 @@
       (log/trace (str "lms@" depth ":" name " : returning type: " (if result (type result))))
       result)))
 
-;; (take 10 (repeatedly #(fo-ps (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
+;; (take 10 (repeatedly #(fo-ps (take 1 (forest/lighting-bolt (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
-(defn gen1 [grammar lexicon spec & [ depth cache]]
-  (log/trace (str "gen1@" depth))
+(defn lighting-bolt [grammar lexicon spec & [ depth cache]]
+  (log/trace (str "lighting-bolt@" depth))
   (let [depth (if depth depth 0)
         parents (lazy-shuffle (filter #(not (fail? (unifyc spec %)))
                                       (map (fn [rule]
@@ -85,10 +85,10 @@
                    (let [cached (if cache
                                   (get cache (get-lex parent :head cache)))
                          lexicon (if cached cached lexicon)]
-                     (log/trace (str "gen1@" depth ": overh(lex) with parent: " (fo-ps parent)))
-                     (log/trace (str "gen1@" depth ": overh(lex) with lexicon: " (fo lexicon)))
-                     (log/trace (str "gen1@" depth ": overh(lex) with cache-entry type: " (type (get-lex parent :head cache))))
-                     (log/trace (str "gen1@" depth ": overh(lex) with cache-entry size: " (.size (get-lex parent :head cache))))
+                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with parent: " (fo-ps parent)))
+                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with lexicon: " (fo lexicon)))
+                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry type: " (type (get-lex parent :head cache))))
+                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry size: " (.size (get-lex parent :head cache))))
                      (overh parent (lazy-shuffle lexicon))))
                  parents
                  depth
@@ -99,20 +99,20 @@
                   (lazy-mapcat-shuffle
                    (fn [parent]
                      (do
-                       (log/debug (str "gen1@" depth ": overh(gen1) with parent: " (fo-ps parent)))
+                       (log/debug (str "lighting-bolt@" depth ": overh(lighting-bolt) with parent: " (fo-ps parent)))
                        (overh parent
-                              (gen1 grammar lexicon
+                              (lighting-bolt grammar lexicon
                                     (get-in parent [:head])
                                     (+ 1 depth)
                                     cache))))
                    parents
                    depth
-                   "overh(gen1)")
+                   "overh(lighting-bolt)")
                   (do
-                    (log/debug (str "gen1@" depth ": terminating."))
+                    (log/debug (str "lighting-bolt@" depth ": terminating."))
                     nil))))
              depth
-             "overh(lex;gen1)")]
+             "overh(lex;lighting-bolt)")]
 
     (log/trace (str "type of parents-with-head t=" (type parents-with-head)))
     parents-with-head))))
@@ -128,9 +128,9 @@
 (declare add-complements-to-bolts)
 
 (defn gen2 [grammar lexicon spec & [cache]]
-  (-> (gen1 grammar
-            lexicon
-            spec 0 cache)
+  (-> (lighting-bolt grammar
+                     lexicon
+                     spec 0 cache)
       (add-complements-to-bolts [:comp]       :top grammar lexicon cache)
       (add-complements-to-bolts [:head :comp] :top grammar lexicon cache)
       (add-complements-to-bolts [:head :head :comp] :top grammar lexicon cache)
@@ -144,7 +144,7 @@
        (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache)))))
 
 ;; (forest/add-complement lb [:comp] :top lexicon)
-;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
+;; (fo-ps (forest/add-complement (first (take 1 (forest/lighting-bolt (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
 (defn add-complement [bolt path spec grammar lexicon cache]
   (let [spec (unifyc spec (get-in bolt path :no-path))]
     (if (not (= spec :no-path))
@@ -194,7 +194,4 @@
 (defn hpcp [cache grammar spec lexicon spec]
   (gen2 grammar lexicon (unifyc {:head {:phrasal true}
                                  :comp {:phrasal true}})))
-
-(defn lightning-bolt [grammar cache lexicon spec]
-  (gen2 grammar lexicon spec))
 
