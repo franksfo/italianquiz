@@ -95,7 +95,7 @@
                  "overh(lex)"))
            
               (fn []
-                (if (< depth 1)
+                (if (< depth 3)
                   (lazy-mapcat-shuffle
                    (fn [parent]
                      (do
