@@ -127,6 +127,11 @@
 (declare add-all-complements-to-bolts)
 (declare add-complements-to-bolts)
 
+(defn lb [grammar lexicon spec & [cache]]
+  (lighting-bolt grammar
+                     lexicon
+                     spec 0 cache))
+
 (defn gen2 [grammar lexicon spec & [cache]]
   (-> (lighting-bolt grammar
                      lexicon
