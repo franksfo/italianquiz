@@ -65,7 +65,7 @@
 ;; (take 10 (repeatedly #(fo-ps (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
-(defn gen1 [grammar lexicon spec & [ depth cache ]]
+(defn gen1 [grammar lexicon spec & [ depth cache]]
   (log/trace (str "gen1@" depth))
   (let [depth (if depth depth 0)
         parents (lazy-shuffle (filter #(not (fail? (unifyc spec %)))
@@ -82,8 +82,13 @@
               (fn []
                 (lazy-mapcat-shuffle
                  (fn [parent]
-                   (do
-                     (log/debug (str "gen1@" depth ": overh(lex) with parent: " (fo-ps parent)))
+                   (let [cached (if cache
+                                  (get cache (get-lex parent :head cache)))
+                         lexicon (if cached cached lexicon)]
+                     (log/trace (str "gen1@" depth ": overh(lex) with parent: " (fo-ps parent)))
+                     (log/trace (str "gen1@" depth ": overh(lex) with lexicon: " (fo lexicon)))
+                     (log/trace (str "gen1@" depth ": overh(lex) with cache-entry type: " (type (get-lex parent :head cache))))
+                     (log/trace (str "gen1@" depth ": overh(lex) with cache-entry size: " (.size (get-lex parent :head cache))))
                      (overh parent (lazy-shuffle lexicon))))
                  parents
                  depth
@@ -126,44 +131,48 @@
   (-> (gen1 grammar
             lexicon
             spec 0 cache)
-      (add-complements-to-bolts [:comp]       :top grammar lexicon)
-      (add-complements-to-bolts [:head :comp] :top grammar lexicon)
-      (add-complements-to-bolts [:head :head :comp] :top grammar lexicon)
-      (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon)))
+      (add-complements-to-bolts [:comp]       :top grammar lexicon cache)
+      (add-complements-to-bolts [:head :comp] :top grammar lexicon cache)
+      (add-complements-to-bolts [:head :head :comp] :top grammar lexicon cache)
+      (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)))
 
-(defn add-complements-to-bolts [bolts path spec grammar lexicon]
+(defn add-complements-to-bolts [bolts path spec grammar lexicon cache]
   (if (not (empty? bolts))
     (let [bolt (first bolts)]
       (lazy-cat
-       (add-complement bolt path spec grammar lexicon)
-       (add-complements-to-bolts (rest bolts) path spec grammar lexicon)))))
+       (add-complement bolt path spec grammar lexicon cache)
+       (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache)))))
 
 ;; (forest/add-complement lb [:comp] :top lexicon)
 ;; (fo-ps (forest/add-complement (first (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
-(defn add-complement [bolt path spec grammar lexicon]
+(defn add-complement [bolt path spec grammar lexicon cache]
   (let [spec (unifyc spec (get-in bolt path :no-path))]
     (if (not (= spec :no-path))
-      (do
+      (let [immediate-parent (get-in bolt (butlast path))
+            cached (if cache
+                     (get cache (get-lex immediate-parent :comp cache)))
+            complement-candidate-lexemes (if cached cached lexicon)]
         (log/debug (str "add-complement to: " (fo-ps bolt) " @path: " path))
+        (log/debug (str " immediate parent:" (get-in immediate-parent [:rule])))
         (log/trace (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
         (filter (fn [result]
                   (not (fail? result)))
-                (map (fn [lexeme]
-                       (log/trace (str "add-complement: " (fo-ps bolt) " with lexeme: " (fo lexeme)))
+                (map (fn [complement]
+                       (log/trace (str "add-complement: " (fo-ps bolt) " with complement: " (fo complement)))
                        (let [result
                              (unifyc bolt
                                      (path-to-map path
-                                                  lexeme))
+                                                  complement))
                              is-fail? (fail? result)]
-                         (log/trace (str "add-complement: " (fo-ps bolt) " with lexeme: " (fo lexeme) " => " (if (not is-fail?)
+                         (log/trace (str "add-complement: " (fo-ps bolt) " with complement: " (fo complement) " => " (if (not is-fail?)
                                                                                                                (fo-ps result)
                                                                                                                ":fail")))
                          (if is-fail? :fail result)))
                      (if (= (rand-int 2) 0)
-                       (lazy-cat (lazy-shuffle lexicon)
+                       (lazy-cat (lazy-shuffle complement-candidate-lexemes)
                                  (gen2 grammar lexicon spec))
                        (lazy-cat (gen2 grammar lexicon spec)
-                                 (lazy-shuffle lexicon))))))
+                                 (lazy-shuffle complement-candidate-lexemes))))))
 
       ;; path doesn't exist in bolt: simply return the bolt unmodified.
       (do
