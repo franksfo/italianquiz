@@ -6,7 +6,7 @@
    [clojure.set :refer (union)]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases)]
+   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
    [italianverbs.forest :refer (lightning-bolt)]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
    [italianverbs.generate :refer :all]
@@ -435,7 +435,7 @@
                        :aux false
                        :sem {:subj {:animate true}}
                        :subcat '()}}]
-    (run-benchmark #(fo (first (take 1 (forest/gen2 grammar lexicon spec))))
+    (run-benchmark #(fo (first (take 1 (forest/gen2 grammar lexicon spec cache))))
                    trials
                    "bb")))
 

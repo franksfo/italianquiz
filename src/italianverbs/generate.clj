@@ -38,7 +38,7 @@
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size the-grammar) "."))
-  (first (take 1 (forest/gen2 grammar lexicon head)))))
+  (first (take 1 (forest/gen2 grammar lexicon head cache)))))
 
 (defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
   (let [spec (if spec spec :top)

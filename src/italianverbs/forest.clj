@@ -65,7 +65,7 @@
 ;; (take 10 (repeatedly #(fo-ps (take 1 (forest/gen1 (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
-(defn gen1 [grammar lexicon spec & [ depth ]]
+(defn gen1 [grammar lexicon spec & [ depth cache ]]
   (log/trace (str "gen1@" depth))
   (let [depth (if depth depth 0)
         parents (lazy-shuffle (filter #(not (fail? (unifyc spec %)))
@@ -74,18 +74,7 @@
                                            grammar)))]
     (if (and (not (nil? parents))
              (not (empty? parents)))
-      (let [;; simple-case: hlcX
-            simple
-            (lazy-mapcat-shuffle
-             (fn [parent]
-               (do
-                 (log/debug (str "gen1@" depth ": overh(lex) with parent: " (fo-ps parent)))
-                 (overh parent (lazy-shuffle lexicon))))
-             parents
-             depth
-             "overh(lex)")
-
-            parents-with-head
+      (let [parents-with-head
             (lazy-mapcat-shuffle
              (fn [generates-parent-with-head]
                (generates-parent-with-head))
@@ -109,7 +98,8 @@
                        (overh parent
                               (gen1 grammar lexicon
                                     (get-in parent [:head])
-                                    (+ 1 depth)))))
+                                    (+ 1 depth)
+                                    cache))))
                    parents
                    depth
                    "overh(gen1)")
@@ -132,14 +122,10 @@
 (declare add-all-complements-to-bolts)
 (declare add-complements-to-bolts)
 
-(defn gen2 [grammar lexicon spec]
+(defn gen2 [grammar lexicon spec & [cache]]
   (-> (gen1 grammar
             lexicon
-            spec)
-      (add-all-complements-to-bolts grammar lexicon)))
-
-(defn add-all-complements-to-bolts [bolts grammar lexicon]
-  (-> bolts
+            spec 0 cache)
       (add-complements-to-bolts [:comp]       :top grammar lexicon)
       (add-complements-to-bolts [:head :comp] :top grammar lexicon)
       (add-complements-to-bolts [:head :head :comp] :top grammar lexicon)
