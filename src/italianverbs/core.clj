@@ -327,6 +327,12 @@
   (GET "/logout" request
     (friend/logout* (resp/redirect "/login")))
 
+  (GET "/preferiti/"
+       request
+       {:body (quiz/preferiti request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/" request
        {:side-effect (session/register request)
@@ -355,6 +361,23 @@
                               {:status 302
                                :headers {"Location" (str "/test/" test "?result=" (:message result))}}))))
 
+  ;; TODO: a lot of repeated request-to-session looking-up going on here.
+  (GET "/quiz/"
+       request
+       {:body (if (session/request-to-session request)
+                (quiz/quiz request))
+        :status (if (session/request-to-session request)
+                  200
+                  (do (log/info "No existing session - you must be new here. Redirecting to /session/set.")
+                      302))
+        :headers (if (session/request-to-session request)
+                   {"Content-Type" "text/html;charset=utf-8"}
+                   {"Location" "/session/set/"})})
+
+  (GET "/quiz"
+       request
+       {:status 302
+        :headers {"Location" "/quiz/"}})
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/" request
