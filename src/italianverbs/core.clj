@@ -236,6 +236,19 @@
                            {:status 200
                             :body (html/page "Generate" (g/generate-from tag) request)})))
 
+
+  (GET "/guess/"
+       request
+       {:body
+        (let [type (if (quiz/question-type (get request :query-params))
+                     (quiz/question-type (get request :query-params))
+                     (quiz/random-guess-type (session/request-to-session request)))
+              question (quiz/generate-question type)]
+          (quiz/guess question request "xml"))
+        :status 200
+        :headers {"Content-Type" "text/xml;charset=utf-8"}
+        })
+
   (GET "/lesson/" request
        {:status 302
         :headers {"Location" "/lesson"}})
@@ -378,6 +391,56 @@
        request
        {:status 302
         :headers {"Location" "/quiz/"}})
+
+  ;; create a new question, store in backing store, and return question's english form
+  ;; to pose question to user.
+  (GET "/quiz/question"
+       request
+       {:status 302
+        :headers {"Location" "/quiz/question/"}
+        })
+
+  ;; create a new question, store in backing store, and return question's english form
+  ;; to pose question to user.
+  (GET "/quiz/question/"
+       request
+       {:body (quiz/question request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}
+        })
+
+  (GET "/quiz/fillqueue/"
+       request
+       {:body (quiz/fillqueue request)
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}
+        })
+
+  (GET "/guess/tr/"
+       request
+       {
+        :body
+        (let [type (quiz/random-guess-type)
+              question (quiz/generate-question type)]
+          (quiz/guess question request "tr"))
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}
+        })
+
+  (POST "/quiz/evaluate/"
+       request
+       {
+        :body
+        ;; note this only evaluates the user's guess to the previous question -
+        ;; it does not generate a new question. The latter is caused by a javascript
+        ;; function get_next_question() that is called when the user's
+        ;; clicks the 'Rispondi' button, which also more or less simulatenously submits the form that
+        ;; causes the (quiz/evaluate) here - see /resources/public/js/quiz.js.
+        (quiz/evaluate request "tr")
+        :status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}
+        })
+
 
   ;; TODO: make this a POST with 'username' and 'password' params so that users can login.
   (GET "/session/set/" request
