@@ -370,10 +370,10 @@
 
 (defn word-speaker-lb [trials]
   (run-benchmark
-   #(fo (take 1 (forest/lb grammar lexicon {:synsem {:subcat '() :cat :verb
-                                                     :sem {:pred :parlare
-                                                           :subj {:pred :lei}
-                                                           :obj {:pred :parola}}}})))
+   #(fo (take 1 (forest/lightning-bolt grammar lexicon {:synsem {:subcat '() :cat :verb
+                                                                 :sem {:pred :parlare
+                                                                       :subj {:pred :lei}
+                                                                       :obj {:pred :parola}}}})))
    trials))
 
 (defn benchmark []
