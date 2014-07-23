@@ -55,184 +55,6 @@
 
 (log/info "done building cache: " (keys cache))
 
-(def benchmark-small-fn (fn [] (time (take 1 (over grammar
-                                                   "io"
-                                                   "dormire")))))
-
-(defn print-language-stats []
-  (print (str "grammar size:" (.size grammar)))
-  (print (str "; lexicon size:" (.size lexicon))))
-
-(defn run-small [n]
-  (let [result (take n (repeatedly #(benchmark-small-fn)))]
-    (.size result)
-    (print-language-stats)))
-
-(def benchmark-medium-fn (fn [] (time (take 1 (over grammar
-                                                    "io"
-                                                    (over grammar
-                                                          "essere"
-                                                          (over grammar
-                                                                "andare"
-                                                                (over grammar
-                                                                      "a"
-                                                                      (over grammar
-                                                                            "il"
-                                                                            "mercato")))))))))
-
-(defn run-medium [n]
-  (let [result
-        (take n (repeatedly #(benchmark-medium-fn)))]
-    (print (str "grammar size:" (.size grammar)))
-;    (print (str "lexicon size:" (.size lexicon)))
-    (.size result)
-    (print-language-stats)))
-
-(def benchmark-1-spec
-  {:synsem {:infl :present
-            :sem {:pred :dormire
-                  :subj {:pred :io}
-                  :tense :present}}})
-
-(defn benchmark-1-sentence []
-  (sentence benchmark-1-spec
-            lexicon
-            grammar
-            cache))
-
-(defn benchmark-1 [n]
-  (let [grammar (list s-present)
-        lexicon (seq (union (it "io")
-                            (it "dormire")))]
-    (fo (take n (repeatedly (fn []
-                              (time (benchmark-1-sentence))))))))
-
-(defn benchmark-2 [n]
-  (let [grammar (list noun-phrase nbar)]
-    (fo (take n (repeatedly #(time (nounphrase {:synsem {:sem {:pred :cane}}}
-                                               lexicon 
-                                               grammar
-                                               cache)))))))
- 
-(defn benchmark-3 [n]
-  (let [grammar (list noun-phrase nbar)]
-    (fo (take n (repeatedly #(time (nounphrase :top
-                                    lexicon
-                                    grammar
-                                    cache)))))))
-
-
-(defn benchmark-4 [n]
-  "currently too slow ~ 1-3 seconds"
-  "try find the slow parts by constraining the spec."
-  (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal true}}}
-                                            :synsem {:sem {:obj {:pred :pasta}
-                                                           :pred :mangiare
-                                                           :subj {:pred :io}
-                                                           :tense :futuro}
-                                                     :subcat '()}}
-                                           lexicon
-                                           grammar
-                                           cache))))))
-
-(defn benchmark-5 [n]
-  "currently too slow ~ .5~.8 seconds"
-  "like benchmark-4, but trying to find the slow parts by constraining the spec."
-  (fo (take n (repeatedly #(time (sentence {:head {:comp {:head {:phrasal false}}} ;; don't generate a noun+adj, just a noun.
-                                            :synsem {:sem {:obj {:pred :pasta}
-                                                           :pred :mangiare
-                                                           :subj {:pred :io}
-                                                           :tense :futuro}
-                                                     :subcat '()}}
-                                           lexicon
-                                           grammar
-                                           cache))))))
-
-
-(defn benchmark-5a [n]
-  "currently too slow ~.6 seconds"
-  "like benchmark-4, but trying to find the slow parts by constraining the spec."
-  (fo (take n (repeatedly #(time (sentence {:comp {:phrasal false} ;; don't try to generate a phrasal form of 'io'
-                                            :head {:comp {:head {:phrasal false}}} ;; don't generate a noun+adj, just a noun.
-                                            :synsem {:sem {:obj {:pred :pasta}
-                                                           :pred :mangiare
-                                                           :subj {:pred :io}
-                                                           :tense :futuro}
-                                                     :subcat '()}}
-                                           lexicon
-                                           grammar
-                                           cache))))))
-
-(defn benchmark-6 [n]
-  (fo (take n (repeatedly #(time (nounphrase {:head {:phrasal false}}
-                                             lexicon
-                                             grammar
-                                             cache))))))
-
-;; these are currently take way too long - either 12-20 seconds or 37ms (latter is a bug: (sentence) returned nil)
-(defn benchmark-7 [n]
-  (fo (take n (repeatedly #(time (sentence {:synsem {:cat :sent-modifier}}
-                                           lexicon
-                                           grammar
-                                           cache))))))
-
-(defn async-test [n]
-  (let [cs (repeatedly n async/chan)
-        begin (System/currentTimeMillis)]
-    (doseq [c cs] (async/go (>! c (nounphrase {:head {:phrasal false}} lexicon grammar cache))))
-    (dotimes [i n]
-      (let [[v c] (async/alts!! cs)]
-        (log/info (str "core async nounphrase: " (fo v)))))
-    (println "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms")))
-
-(defn async-test-do-all []
-  (let [n 1
-        begin (System/currentTimeMillis)]
-    (let [nounphrase (nounphrase {:head {:phrasal true}} lexicon grammar cache)]
-      (log/info (str "core async generated noun phrase: " (fo nounphrase)))
-      (log/info "Generated " n " noun phrases in" (- (System/currentTimeMillis) begin) "ms"))))
-
-(defn percentile [percent runtimes]
-  (let [sorted-runtimes (sort runtimes)
-        trials (.size runtimes)
-
-        increment (/ (* trials 1.0) 100)
-
-        index-of-chosen-percent
-        (- (* increment percent) 1)
-
-        value-of-chosen-percent
-        (nth sorted-runtimes index-of-chosen-percent)
-
-        index-of-median
-        (/ (.size sorted-runtimes) 2)
-
-
-;; (let [arr [10 11 12 13 14]] (nth arr (/ (.size arr) 2)))
-;; => 12
-;; (let [arr [10 11 12 13 14 15]] (nth arr (/ (.size arr) 2)))
-;; => 13
-
-        median
-        (nth sorted-runtimes (/ (.size sorted-runtimes) 2))
-
-        mean (/ (reduce + runtimes) (* trials 1.0))
-
-        avg-sum-of-differences-squared
-        (/ (reduce + (map #(let [diff (- mean %)]
-                             (* diff diff))
-                          runtimes))
-           mean)
-        stddev (math/ceil (math/sqrt avg-sum-of-differences-squared))]
-
-    {:mean mean
-     :median median
-     :stddev stddev
-     :min (nth sorted-runtimes 0)
-     :max (nth sorted-runtimes (- trials 1))
-     (keyword (str percent "%")) value-of-chosen-percent
-     }))
-
 (defn run-benchmark [function-to-evaluate trials & [name]]
   (if (> trials 0)
     (let [name (if name name "(unnamed)")
@@ -247,22 +69,24 @@
                (range 0 trials))]
       (println (str "stats for '" (string/trim (string/join "" name)) "' " (percentile 95 runtimes))))))
 
-(defn spresent [trials]
+(defn sentence-subject-verb [trials]
   (run-benchmark
-   #(fo (first (take 1 (generate {:comp {:phrasal false}
-                                  :head {:phrasal false}}
-                                 lexicon
-                                 (list s-present)
-                                 cache))))
-   trials))
+   #(fo (generate {:comp {:phrasal false}
+                   :head {:phrasal false}}
+                  lexicon
+                  (list s-present)
+                  cache))
+   trials
+   "sentence which is simply a subject plus a verb"))
 
 (defn saux [trials]
   (run-benchmark 
-   #(fo (first (take 1 (generate
-                        {:synsem {:subcat '()}}
-                        lexicon
-                        (list s-aux vp-aux) cache))))
-   trials))
+   #(fo (generate
+         {:synsem {:subcat '()}}
+         lexicon
+         (list s-aux vp-aux) cache))
+   trials
+   "saux"))
 
 (defn run-hlcp2 [trials]
   (run-benchmark
@@ -439,7 +263,7 @@
                        :subcat '()}}]
     (run-benchmark #(fo (first (take 1 (forest/gen2 grammar lexicon spec cache))))
                    trials
-                   "bb")))
+                   "bolt-benchmark")))
 
 (defn run-hlcp-with-subcat-nil-test [trials]
   (run-benchmark

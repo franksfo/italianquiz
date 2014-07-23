@@ -17,11 +17,12 @@
             [italianverbs.session :as session]
             [italianverbs.unify :refer (lazy-shuffle)]
             [italianverbs.xml :as xml]
-            [somnium.congomongo :as db] ;; TODO: provide database abstraction over mongo and other possible backing stores.
+            [korma.core :as k]
+            [italianverbs.korma :as db]
             ))
 
 (def production false)
-;; ^^ true: pick a pre-generated question from mongodb
+;; ^^ true: pick a pre-generated question from backing store (e.g. postgres db)
 ;;    false: generate a new question (much slower)
 
 ;; to add a new question type:
@@ -48,9 +49,8 @@
    :ora {:sym :ora, :desc "clock times"},
    :infinitivo {:sym :infinitivo, :desc "infinitive verbs"},
    :passato {:sym :passato, :desc "passato prossimo verbs",
-              :spec {:synsem {:infl :present
-                              :sem {:tense :past}}}},
-
+             :spec {:synsem {:infl :present
+                             :sem {:tense :past}}}},
    :presente {:sym :presente, :desc "present tense verbs",
               :spec {:synsem {:infl :presente}}},
    :espressioni {:sym :espressioni, :desc "useful expressions"},
