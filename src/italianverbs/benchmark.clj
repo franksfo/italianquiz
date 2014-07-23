@@ -302,7 +302,12 @@
                        :subcat '()}}]
     (run-benchmark #(fo (first (take 1 (forest/gen2 grammar lexicon spec cache))))
                    trials
-                   "bolt-benchmark")))
+                   "standard-bolt-benchmark")))
+
+(defn standard-benchmark [ & [ trials ]]
+  (let [trials
+        (if (nil? trials) 1 trials)]
+    (bolt-benchmark trials)))
 
 (defn run-hlcp-with-subcat-nil-test [trials]
   (run-benchmark
