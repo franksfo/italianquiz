@@ -61,11 +61,17 @@
 
         increment (/ (* trials 1.0) 100)
 
-        index-of-chosen-percent
-        (- (* increment percent) 1)
+        index-of-95-percent
+        (- (* increment 95) 1)
 
-        value-of-chosen-percent
-        (nth sorted-runtimes index-of-chosen-percent)
+        value-of-95-percent
+        (nth sorted-runtimes index-of-95-percent)
+
+        index-of-99-percent
+        (- (* increment 99) 1)
+
+        value-of-99-percent
+        (nth sorted-runtimes index-of-99-percent)
 
         index-of-median
         (/ (.size sorted-runtimes) 2)
@@ -91,7 +97,9 @@
      :stddev stddev
      :min (nth sorted-runtimes 0)
      :max (nth sorted-runtimes (- trials 1))
-     (keyword (str percent "%")) value-of-chosen-percent
+     (keyword (str "95%")) value-of-95-percent
+     (keyword (str "99%")) value-of-99-percent
+     
      }))
 
 (defn run-benchmark [function-to-evaluate trials & [name]]
