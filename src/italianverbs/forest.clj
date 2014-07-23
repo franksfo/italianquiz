@@ -75,14 +75,9 @@
 (declare add-all-complements-to-bolts)
 (declare add-complements-to-bolts)
 
-(defn lb [grammar lexicon spec & [cache]]
-  (lighting-bolt grammar
-                     lexicon
-                     spec 0 cache))
-
 (declare lightning-bolt)
 (defn gen2 [grammar lexicon spec & [cache]]
-  (-> (lighting-bolt grammar
+  (-> (lightning-bolt grammar
                      lexicon
                      spec 0 cache)
       (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)
@@ -91,7 +86,7 @@
       (add-complements-to-bolts [:comp]       :top grammar lexicon cache)))
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
-(defn lighting-bolt [grammar lexicon spec & [ depth cache]]
+(defn lightning-bolt [grammar lexicon spec & [ depth cache]]
   (log/trace (str "lighting-bolt@" depth))
   (let [maxdepth 3 ;; maximum depth of a lightning bolt: H1 -> H2 -> H3 where H3 must be a lexeme, not a phrase.
         depth (if depth depth 0)
@@ -133,10 +128,10 @@
                      (do
                        (log/debug (str "lighting-bolt@" depth ": overh(lighting-bolt) with parent: " (fo-ps parent)))
                        (overh parent
-                              (lighting-bolt grammar lexicon
-                                    (get-in parent [:head])
-                                    (+ 1 depth)
-                                    cache))))
+                              (lightning-bolt grammar lexicon
+                                              (get-in parent [:head])
+                                              (+ 1 depth)
+                                              cache))))
                    parents
                    depth
                    "overh(lighting-bolt)")
