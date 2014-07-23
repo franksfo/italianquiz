@@ -308,6 +308,9 @@ on a table."
                     (where the-where)))
           (select table))))))
 
+(defn fetch-one [collection & [ the-where]]
+  (take 1 (fetch collection the-where)))
+
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
   (log/info (str "collection: " collection))
@@ -324,6 +327,9 @@ on a table."
         (log/info (str "collection update: id: " id))
         (apply (collection-update collection)
                (list modify-with id))))))
+
+(defn update! [collection id & [modify-with]]
+  (fetch-and-modify collection id modify-with false))
 
 ;; TODO: document what insert-values is for.
 (defn insert-values [table]
@@ -344,6 +350,10 @@ on a table."
             (values 
              (apply (insert-values collection)
                     (list add-with))))))
+
+(defn destroy! [collection & [delete-where]]
+  (delete (keyword-to-table collection)
+          (where delete-where)))
 
 (defn object-id [ & args ]
   "compare with mongo/object-id, which uses mongo ids."
