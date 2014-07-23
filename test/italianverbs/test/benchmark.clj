@@ -22,7 +22,7 @@
    [italianverbs.unify :refer (fail? get-in lazy-shuffle unifyc)]))
 
 (deftest simple-sentence
-  (let [sentences (spresent 10)]
+  (let [sentences (sentence-subject-verb 10)]
     (= true true)))
 
 
