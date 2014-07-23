@@ -92,7 +92,7 @@
            mean)
         stddev (math/ceil (math/sqrt avg-sum-of-differences-squared))]
 
-    {:count runtimes
+    {:trials trials
      :mean mean
      :median median
      :stddev stddev
