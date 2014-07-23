@@ -92,7 +92,8 @@
            mean)
         stddev (math/ceil (math/sqrt avg-sum-of-differences-squared))]
 
-    {:mean mean
+    {:count runtimes
+     :mean mean
      :median median
      :stddev stddev
      :min (nth sorted-runtimes 0)
