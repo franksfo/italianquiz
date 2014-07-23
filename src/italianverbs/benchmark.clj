@@ -55,6 +55,45 @@
 
 (log/info "done building cache: " (keys cache))
 
+(defn percentile [percent runtimes]
+  (let [sorted-runtimes (sort runtimes)
+        trials (.size runtimes)
+
+        increment (/ (* trials 1.0) 100)
+
+        index-of-chosen-percent
+        (- (* increment percent) 1)
+
+        value-of-chosen-percent
+        (nth sorted-runtimes index-of-chosen-percent)
+
+        index-of-median
+        (/ (.size sorted-runtimes) 2)
+;; (let [arr [10 11 12 13 14]] (nth arr (/ (.size arr) 2)))
+;; => 12
+;; (let [arr [10 11 12 13 14 15]] (nth arr (/ (.size arr) 2)))
+;; => 13
+
+        median
+        (nth sorted-runtimes (/ (.size sorted-runtimes) 2))
+
+        mean (/ (reduce + runtimes) (* trials 1.0))
+
+        avg-sum-of-differences-squared
+        (/ (reduce + (map #(let [diff (- mean %)]
+                             (* diff diff))
+                          runtimes))
+           mean)
+        stddev (math/ceil (math/sqrt avg-sum-of-differences-squared))]
+
+    {:mean mean
+     :median median
+     :stddev stddev
+     :min (nth sorted-runtimes 0)
+     :max (nth sorted-runtimes (- trials 1))
+     (keyword (str percent "%")) value-of-chosen-percent
+     }))
+
 (defn run-benchmark [function-to-evaluate trials & [name]]
   (if (> trials 0)
     (let [name (if name name "(unnamed)")
