@@ -64,10 +64,38 @@
 
 ;; (take 10 (repeatedly #(fo-ps (take 1 (forest/lighting-bolt (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
 
+
+(defn path-to-map [path val]
+  (let [feat (first path)]
+    (if feat
+      {feat (path-to-map (rest path) val)}
+      val)))
+
+(declare add-complement)
+(declare add-all-complements-to-bolts)
+(declare add-complements-to-bolts)
+
+(defn lb [grammar lexicon spec & [cache]]
+  (lighting-bolt grammar
+                     lexicon
+                     spec 0 cache))
+
+(declare lightning-bolt)
+(defn gen2 [grammar lexicon spec & [cache]]
+  (-> (lighting-bolt grammar
+                     lexicon
+                     spec 0 cache)
+      (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)
+      (add-complements-to-bolts [:head :head :comp] :top grammar lexicon cache)
+      (add-complements-to-bolts [:head :comp] :top grammar lexicon cache)
+      (add-complements-to-bolts [:comp]       :top grammar lexicon cache)))
+
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
 (defn lighting-bolt [grammar lexicon spec & [ depth cache]]
   (log/trace (str "lighting-bolt@" depth))
-  (let [depth (if depth depth 0)
+  (let [maxdepth 3 ;; maximum depth of a lightning bolt: H1 -> H2 -> H3 where H3 must be a lexeme, not a phrase.
+        depth (if depth depth 0)
+
         parents (lazy-shuffle (filter #(not (fail? (unifyc spec %)))
                                       (map (fn [rule]
                                              (unifyc spec rule))
@@ -79,6 +107,8 @@
              (fn [generates-parent-with-head]
                (generates-parent-with-head))
              (list
+
+              ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
               (fn []
                 (lazy-mapcat-shuffle
                  (fn [parent]
@@ -94,8 +124,10 @@
                  depth
                  "overh(lex)"))
            
+              ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
+              ;; note max-depth check and recursive call to lightning-bolt with (+ 1 depth)
               (fn []
-                (if (< depth 3)
+                (if (< depth maxdepth)
                   (lazy-mapcat-shuffle
                    (fn [parent]
                      (do
@@ -116,30 +148,6 @@
 
     (log/trace (str "type of parents-with-head t=" (type parents-with-head)))
     parents-with-head))))
-
-(defn path-to-map [path val]
-  (let [feat (first path)]
-    (if feat
-      {feat (path-to-map (rest path) val)}
-      val)))
-
-(declare add-complement)
-(declare add-all-complements-to-bolts)
-(declare add-complements-to-bolts)
-
-(defn lb [grammar lexicon spec & [cache]]
-  (lighting-bolt grammar
-                     lexicon
-                     spec 0 cache))
-
-(defn gen2 [grammar lexicon spec & [cache]]
-  (-> (lighting-bolt grammar
-                     lexicon
-                     spec 0 cache)
-      (add-complements-to-bolts [:comp]       :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :comp] :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :head :comp] :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)))
 
 (defn add-complements-to-bolts [bolts path spec grammar lexicon cache]
   (if (not (empty? bolts))
