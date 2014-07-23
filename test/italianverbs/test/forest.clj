@@ -23,5 +23,3 @@
   (let [generated (first (take 1 (gen2 grammar lexicon {:synsem {:subcat '() :aux false :sem {:pred {:subj {:animate true}}}}})))]
     (is (not (fail? generated)))
     (is (not (nil? generated)))))
-
-
