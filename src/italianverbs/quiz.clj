@@ -316,7 +316,7 @@
 
 (defn random-sentence []
   "choose a random sentence generated via populate.clj/populate."
-  (let [count (db/fetch-count :sentences)
+  (let [count (.size (db/fetch :sentences)) ;; TODO: implement efficiently (i.e. SELECT count(*) FROM ..)
         sentences (db/fetch :sentences)]
     (nth sentences (rand-int count))))
 
