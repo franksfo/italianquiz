@@ -27,6 +27,10 @@
   (pk :id)
   (has-many students-in-class {:fk :class}))
 
+(defentity queue
+  (table :queue)
+  (pk :id))
+
 (defentity question
   (pk :id)
   (belongs-to student-test {:fk :test})
@@ -69,6 +73,7 @@
    :classes classes
    :question question
    :question-submit question-submit
+   :queue queue
    :student user
    :students user
    :students-in-class students-in-class

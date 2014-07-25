@@ -530,7 +530,7 @@
 (defn get-question-from-queue [session]
   (if queue-is-on
     (let [queued-question (db/fetch-one :queue
-                                        :where {:session session})]
+                                        {:session session})]
       (if (not (nil? queued-question))
         (do
           (log/info (str "found one with id: " (:_id queued-question)))
@@ -570,7 +570,7 @@
   (let [session (session/request-to-session request)]
     (log/debug (str "filling queue with request: " request))
     (while
-        (let [queue (db/fetch :queue :where {:session session})]
+        (let [queue (db/fetch :queue {:session session})]
           (or (nil? queue)
               (< (.size (db/fetch :queue :where {:session session})) fill-to)))
       (let [random-guess-type (random-guess-type session) ;; chose a question type from amongst those specified by the user's preferences (accessible through session).
