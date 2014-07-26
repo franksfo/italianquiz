@@ -1,6 +1,6 @@
 ;; TODO: verify using tests that a user authenticated with session 'x' cannot modify a question
 ;; whose session is 'y' where 'x' != 'y'.
-;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's :where clause.
+;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's supplied 'where' constraint.
 (ns italianverbs.quiz
   (:require [clojure.string :as string]
             [clojure.tools.logging :as log]
@@ -284,7 +284,7 @@
        (show-history-rows (rest qs) (- count 1) true total)))))
 
 (defn most-recent-qid-for-user [session]
-  (let [results (db/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
+  (let [results (db/fetch :question {:session session} :sort {:_id -1} :limit 1)]
     (if (> (.size results) 0)
       (get (nth results 0) :_id))))
 
@@ -292,7 +292,7 @@
 (defn update-question-by-id-with-guess [guess qid session]
   (let [guess (normalize-whitespace guess)
         question (db/fetch-one :question
-                                  :where {:_id (new org.bson.types.ObjectId qid)})
+                               {:_id (new org.bson.types.ObjectId qid)})
         updated-question-map
         (merge
          question
@@ -377,7 +377,7 @@
   "This is called by show-controls."
   (let [action (if form-action form-action "/italian/quiz/filter")
         onclick (if onclick onclick "submit()")
-        record (db/fetch-one :filter :where {:session session})
+        record (db/fetch-one :filter {:session session})
         filters (if record
                   (get record :form-params))
         checked (fn [session key]
@@ -453,7 +453,7 @@
 
 (defn possible-question-types [session]
   (let [possible-question-types all-possible-question-types
-        session (db/fetch-one :filter :where {:session session})
+        session (db/fetch-one :filter {:session session})
         filters (if session
                   (get session :form-params))
         debug (log/info "filtering by user's preferred filters: " filters)
@@ -486,7 +486,7 @@
 
 (defn previous-question [session]
   (let [most-recent-set
-        (db/fetch :question :where {:session session} :sort {:_id -1} :limit 2)]
+        (db/fetch :question {:session session} :sort {:_id -1} :limit 2)]
     ;; must be at least 2 results: if not, return nil.
     (if (> (.size most-recent-set) 1)
       (nth most-recent-set 1)
@@ -622,6 +622,7 @@
          (= format "tr") ; default: "tr".
          ;; return a string that formats the guess and the evaluation as a HTML table row (a <tr>).
          (table-row result))
+      ;; TODO: consider throwing exception here.
       (str "<error>no guess" guess "</error>"))))
 
 (defn guess [question request format]
@@ -631,8 +632,8 @@
         session (session/request-to-session request)
         stored (if (get params "id") ;; if id is nil, then there is no existing question: TODO: figure out under what circumstances id can be nil.
                  (db/fetch-one :question
-                               :where {:_id (new org.bson.types.ObjectId (get params "id"))
-                                       :session session})
+                               {:_id (new org.bson.types.ObjectId (get params "id"))
+                                :session session})
                  (store-question question (session/request-to-session request) nil))]
     (str
      (xml/encoding)
@@ -692,13 +693,13 @@
      {:comment "fs printing"
       :test (html/tablize
              {:most-recent
-              (let [qs (db/fetch :question :where {:session session} :sort {:_id -1} :limit 1)]
+              (let [qs (db/fetch :question {:session session} :sort {:_id -1} :limit 1)]
                 (if (> (.size qs) 0)
                   (nth qs 0)
                   "(no questions yet.)"))})})))
 
 (defn- show-filters [session]
-  (let [record (db/fetch-one :filter :where {:session session})
+  (let [record (db/fetch-one :filter {:session session})
         filters (if record (get record :form-params))]
     (string/join " "
                   (map (fn [key]

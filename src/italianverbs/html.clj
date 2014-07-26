@@ -12,6 +12,7 @@
    [clojure.tools.logging :as log]
    [hiccup.element :as e]
    [hiccup.page :as h]
+   [italianverbs.menubar :as menubar]
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
 
@@ -564,90 +565,6 @@
       [:a {:href "/session/set/"} "Login"]
       )]))
 
-;; TODO: break (menubar) out into its own namespace since it relates
-;; to a lot of other functionality.
-;; URLs mentioned in this function are defined in core.clj.
-(defn menubar [session-row relative-url authentication & [suffixes]]
-  (let [roles (:roles authentication)
-        haz-admin (not (nil? (:italianverbs.core/admin roles)))]
-
-    (log/info (str "Drawing menubar with relative-url=" relative-url))
-    (log/info (str "Menubar with suffixes: " suffixes))
-    (html
-     [:div {:class "menubar major"}
-
-
-      [:div
-       (if (or (and (not (nil? relative-url))
-                    (re-find #"/login" relative-url))
-               (= relative-url "/login")
-               (and (not (nil? relative-url))
-                    (re-find #"/about" relative-url))
-               (= relative-url "/about"))
-
-         {:class "selected"})
-       [:a {:href "/about"} (str "About")]]
-
-
-      (if haz-admin
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/class" relative-url))
-                 (= relative-url "/class")) {:class "selected"})
-         [:a {:href (str "/class" (if (get suffixes :class)
-                                   (get suffixes :class)))}
-          (str "Classes")]])
-
-      (if (and authentication (not haz-admin))
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/class" relative-url))
-                 (= relative-url "/class")) {:class "selected"})
-         [:a {:href (str "/class/my" (if (get suffixes :class)
-                                   (get suffixes :class)))}
-          (str "My Classes")]])
-
-      (if haz-admin
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/student" relative-url))
-                 (= relative-url "/student")) {:class "selected"})
-         [:a {:href (str "/student" (if (get suffixes :student)
-                                      (get suffixes :student)))}
-          (str "Students")]])
-
-
-      [:div
-       (if (or (and (not (nil? relative-url))
-                    (re-find #"/verb" relative-url))
-               (= relative-url "/verb")) {:class "selected"})
-       [:a {:href "/verb/"} (str "Verbs")]]
-
-      (if authentication
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/lesson" relative-url))
-                 (= relative-url "/lesson")) {:class "selected"})
-         [:a {:href "/lesson/"} (str "Groups")]])
-
-      (if haz-admin
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/test" relative-url))
-                 (= relative-url "/test")) {:class "selected"})
-         [:a {:href (str "/test" (if (get suffixes :test)
-                                   (get suffixes :test)))} (str "Tests")]])
-
-      (if authentication
-        [:div
-         (if (or (and (not (nil? relative-url))
-                      (re-find #"/workbook" relative-url))
-                 (= relative-url "/workbook")) {:class "selected"})
-         [:a {:href "/workbook/"} (str "Workbook")]])
-
-
-    ])))
-
 (defn request-to-suffixes [request]
   "menubar uses this to make the menubar links context-specific.."
   ;; ...e.g. if you are looking at a particular group, 
@@ -850,10 +767,10 @@
     (page-body 
      (html
       [:div#top
-       (menubar (session/request-to-session request)
-                (if request (get request :uri))
-                (friend/current-authentication)
-                (request-to-suffixes request))]
+       (menubar/menubar (session/request-to-session request)
+                        (if request (get request :uri))
+                        (friend/current-authentication)
+                        (request-to-suffixes request))]
 
 
 ;      [:div {:style "width:auto;margin-left:3em;padding:0.25em;float:left;background:#ccc"}

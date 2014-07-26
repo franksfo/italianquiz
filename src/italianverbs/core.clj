@@ -18,6 +18,7 @@
    [italianverbs.generate :as gen]
    [italianverbs.korma :as db]
    [italianverbs.lesson :as lesson]
+   [italianverbs.menubar :as menubar]
    [italianverbs.xml :as xml]
    [italianverbs.html :as html]
    [italianverbs.search :as search]

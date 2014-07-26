@@ -87,6 +87,10 @@
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
 (defn lightning-bolt [grammar lexicon spec & [ depth cache]]
+  "Returns a lazy-sequence of all possible trees given a spec, where
+there is only one child for each parent, and that single child is the
+head of its parent. gen2 'decorates' each returned lightning bolt
+of this function with complements."
   (log/trace (str "lighting-bolt@" depth))
   (let [maxdepth 3 ;; maximum depth of a lightning bolt: H1 -> H2 -> H3 where H3 must be a lexeme, not a phrase.
         depth (if depth depth 0)
@@ -120,7 +124,7 @@
                  "overh(lex)"))
            
               ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
-              ;; note max-depth check and recursive call to lightning-bolt with (+ 1 depth)
+              ;; note max-depth check and recursive call to lightning-bolt with (+ 1 depth).
               (fn []
                 (if (< depth maxdepth)
                   (lazy-mapcat-shuffle
@@ -146,13 +150,10 @@
 
 (defn add-complements-to-bolts [bolts path spec grammar lexicon cache]
   (if (not (empty? bolts))
-    (let [bolt (first bolts)]
-      (lazy-cat
-       (add-complement bolt path spec grammar lexicon cache)
-       (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache)))))
+    (lazy-cat
+     (add-complement (first bolts) path spec grammar lexicon cache)
+     (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache))))
 
-;; (forest/add-complement lb [:comp] :top lexicon)
-;; (fo-ps (forest/add-complement (first (take 1 (forest/lighting-bolt (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}}))) [:comp] :top lexicon))
 (defn add-complement [bolt path spec grammar lexicon cache]
   (let [spec (unifyc spec (get-in bolt path :no-path))]
     (if (not (= spec :no-path))
@@ -161,7 +162,7 @@
                      (get cache (get-lex immediate-parent :comp cache)))
             complement-candidate-lexemes (if cached cached lexicon)]
         (log/debug (str "add-complement to: " (fo-ps bolt) " @path: " path))
-        (log/debug (str " immediate parent:" (get-in immediate-parent [:rule])))
+        (log/trace (str " immediate parent:" (get-in immediate-parent [:rule])))
         (log/trace (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
         (filter (fn [result]
                   (not (fail? result)))
@@ -184,7 +185,7 @@
 
       ;; path doesn't exist in bolt: simply return the bolt unmodified.
       (do
-        (log/warn "no path: " path " in bolt: " (fo-ps bolt))
+        (log/debug "bolt with spec: " (show-spec spec) " complete: " (fo-ps bolt))
         (list bolt)))))
 
 (defn hlcl [cache grammar spec lexicon spec]

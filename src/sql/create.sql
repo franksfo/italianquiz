@@ -266,3 +266,24 @@ CREATE TABLE tests_in_classes (
        class bigint REFERENCES classes(id)
        );
 
+
+-- per-user queue of questions to present to user
+CREATE TABLE queue (
+       id bigint NOT NULL PRIMARY KEY--,
+--       session bigint NOT NULL
+);
+
+-- per-session constraints on generating quiz questions.
+CREATE TABLE filter (
+       id bigint NOT NULL PRIMARY KEY--,
+--       session bigint NOT NULL
+);
+
+CREATE TABLE question (
+       id bigint NOT NULL PRIMARY KEY,
+       session bigint NOT NULL,
+       answer text,
+       guess text,
+       italian text,
+       english test
+);
