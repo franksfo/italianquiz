@@ -60,43 +60,36 @@
                                                        (get suffixes :class)))
                  :show? (and haz-authentication (not haz-admin?))})
 
-      (if haz-admin?
-        [:div
-         (if (or (and (not (nil? current-url))
-                      (re-find #"/student" current-url))
-                 (= current-url "/student")) {:class "selected"})
-         [:a {:href (str "/student" (if (get suffixes :student)
-                                      (get suffixes :student)))}
-          (str "Students")]])
+      (menuitem {:show? haz-admin?
+                 :selected? (and (not (nil? current-url))
+                                 (re-find #"/student" current-url))
+                 :current-url current-url
+                 :text "Students"
+                 :url-for-this-item (str "/student" (if (get suffixes :student)
+                                                      (get suffixes :student)))})
 
+      (menuitem {:show? true
+                 :selected? (and (not (nil? current-url))
+                                 (re-find #"/verb" current-url))
+                 :current-url current-url
+                 :text "Verbs" :url-for-this-item "/verb/"})
 
-      [:div
-       (if (or (and (not (nil? current-url))
-                    (re-find #"/verb" current-url))
-               (= current-url "/verb")) {:class "selected"})
-       [:a {:href "/verb/"} (str "Verbs")]]
+      (menuitem {:show? haz-authentication
+                 :selected? (and (not (nil? current-url))
+                                 (re-find #"/lession" current-url))
+                 :current-url current-url
+                 :text "Groups" :url-for-this-item "/lesson"})
 
-      (if haz-authentication
-        [:div
-         (if (or (and (not (nil? current-url))
-                      (re-find #"/lesson" current-url))
-                 (= current-url "/lesson")) {:class "selected"})
-         [:a {:href "/lesson/"} (str "Groups")]])
+      (menuitem {:show? haz-admin?
+                 :selected? (and (not (nil? current-url))
+                                 (re-find #"/test" current-url))
+                 :current-url current-url
+                 :text "Test" :url-for-this-item "/test"})
 
-      (if haz-admin?
-        [:div
-         (if (or (and (not (nil? current-url))
-                      (re-find #"/test" current-url))
-                 (= current-url "/test")) {:class "selected"})
-         [:a {:href (str "/test" (if (get suffixes :test)
-                                   (get suffixes :test)))} (str "Tests")]])
-
-      (if haz-authentication
-        [:div
-         (if (or (and (not (nil? current-url))
-                      (re-find #"/workbook" current-url))
-                 (= current-url "/workbook")) {:class "selected"})
-         [:a {:href "/workbook/"} (str "Workbook")]])
-
+      (menuitem {:show? haz-authentication
+                 :selected? (and (not (nil? current-url))
+                                 (re-find #"/workbook" current-url))
+                 :current-url current-url
+                 :text "Workbook" :url-for-this-item "/workbook"})
 
     ])))
