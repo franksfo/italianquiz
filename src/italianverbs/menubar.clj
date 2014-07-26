@@ -92,4 +92,11 @@
                  :current-url current-url
                  :text "Workbook" :url-for-this-item "/workbook"})
 
+      (menuitem {:show? haz-authentication
+                 :selected? (and (not (nil? current-url))
+                                 (re-find #"/quiz" current-url))
+                 :current-url current-url
+                 :text "Quiz" :url-for-this-item "/quiz"})
+
+
     ])))

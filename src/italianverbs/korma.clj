@@ -68,9 +68,15 @@
   (pk :id)
   (has-many verb))
 
+(defentity quiz-generation-filter
+  (pk :id)
+  (table :filter))
+
+;; TODO: replace with a (map (fn [..]) (list :classes :filter ..)
 (def key-to-table
   {:class classes
    :classes classes
+   :filter quiz-generation-filter
    :question question
    :question-submit question-submit
    :queue queue

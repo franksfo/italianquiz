@@ -267,23 +267,39 @@ CREATE TABLE tests_in_classes (
        );
 
 
--- per-user queue of questions to present to user
+-- per-user queue of questions to present to user. Each row in this table is one quiz-question tuple: <answer,guess,..>
 CREATE TABLE queue (
-       id bigint NOT NULL PRIMARY KEY--,
---       session bigint NOT NULL
+       id bigint NOT NULL PRIMARY KEY,
+       session character(36) NOT NULL,
+       answer text,
+       english text,
+       guess text,
+       italian text,
+       question text
 );
+
+CREATE SEQUENCE queue_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER TABLE public.queue_id_seq OWNER TO verbcoach;
+ALTER TABLE ONLY queue ALTER COLUMN id SET DEFAULT nextval('queue_id_seq'::regclass);
 
 -- per-session constraints on generating quiz questions.
 CREATE TABLE filter (
-       id bigint NOT NULL PRIMARY KEY--,
---       session bigint NOT NULL
+       id bigint NOT NULL PRIMARY KEY,
+       session character(36) NOT NULL
 );
 
-CREATE TABLE question (
-       id bigint NOT NULL PRIMARY KEY,
-       session bigint NOT NULL,
-       answer text,
-       guess text,
-       italian text,
-       english test
-);
+CREATE SEQUENCE filter_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER TABLE public.filter_id_seq OWNER TO verbcoach;
+ALTER TABLE ONLY filter ALTER COLUMN id SET DEFAULT nextval('filter_id_seq'::regclass);

@@ -284,15 +284,15 @@
        (show-history-rows (rest qs) (- count 1) true total)))))
 
 (defn most-recent-qid-for-user [session]
-  (let [results (db/fetch :question {:session session} :sort {:_id -1} :limit 1)]
+  (let [results (db/fetch :question {:session session} :sort {:id -1} :limit 1)]
     (if (> (.size results) 0)
-      (get (nth results 0) :_id))))
+      (get (nth results 0) :id))))
 
 ;; TODO: enforce session :where check.
 (defn update-question-by-id-with-guess [guess qid session]
   (let [guess (normalize-whitespace guess)
         question (db/fetch-one :question
-                               {:_id (new org.bson.types.ObjectId qid)})
+                               {:id (new org.bson.types.ObjectId qid)})
         updated-question-map
         (merge
          question
@@ -302,11 +302,11 @@
                    (> (.length guess) 0))
             (lev/get-green2 (get question :answer)
                             guess))})]
-    (db/update! :question {:_id (new org.bson.types.ObjectId qid)}
+    (db/update! :question {:id (new org.bson.types.ObjectId qid)}
                    updated-question-map)
     updated-question-map))
 ;; for testing/sanity checking, might want to refetch (i.e. uncomment the line below and comment out line above).
-;;    (db/fetch-one :question :where {:_id (new org.bson.types.ObjectId qid)})))
+;;    (db/fetch-one :question :where {:id (new org.bson.types.ObjectId qid)})))
 
 (defn oct2011 []
   (lex/choose-lexeme {:oct2011 true}))
@@ -486,7 +486,7 @@
 
 (defn previous-question [session]
   (let [most-recent-set
-        (db/fetch :question {:session session} :sort {:_id -1} :limit 2)]
+        (db/fetch :question {:session session} :sort {:id -1} :limit 2)]
     ;; must be at least 2 results: if not, return nil.
     (if (> (.size most-recent-set) 1)
       (nth most-recent-set 1)
@@ -495,7 +495,7 @@
 (defn table-row-debug-info [answered-question-tuple]
   (str
    "<tr>"
-   "<td>id=" (get answered-question-tuple :_id) "</td>"
+   "<td>id=" (get answered-question-tuple :id) "</td>"
    "</tr>"))
 
 (defn table-row [answered-question-tuple]
@@ -503,7 +503,7 @@
         italian (get answered-question-tuple :italian)
         guess (get answered-question-tuple :guess)
         evaluation (get answered-question-tuple :evaluation)
-        row_id (get answered-question-tuple :_id)
+        row_id (get answered-question-tuple :id)
         eval (eval-segments evaluation)
         ;; translation of evaluation into feedback to user.
         perfect (= (get eval :size) (get eval :match))
@@ -528,14 +528,15 @@
 (def queue-is-on true)
 
 (defn get-question-from-queue [session]
+  (log/info (str "looking for queue for session: " session))
   (if queue-is-on
     (let [queued-question (db/fetch-one :queue
                                         {:session session})]
       (if (not (nil? queued-question))
         (do
-          (log/info (str "found one with id: " (:_id queued-question)))
+          (log/info (str "found one with id: " (:id queued-question)))
           ;; remove from queue
-          (db/destroy! :queue {:_id (:_id queued-question)})
+          (db/destroy! :queue {:id (:id queued-question)})
           queued-question)
         nil)))) ;; no question found: the caller will have to generate a new one.
 
@@ -559,7 +560,7 @@
                        (let [random-type (random-guess-type session)]
                          (log/info "storing question after generating with type: " random-type)
                          (store-question (generate-question random-type) session nil))))]
-      (let [qid (:_id question)]
+      (let [qid (:id question)]
         (log/debug (str "qid: " qid))
         (str "<div id='question_text'>" (:question question) "</div>"
              "<input type='text' id='question_id' value='" qid "'/>")))))
@@ -572,7 +573,7 @@
     (while
         (let [queue (db/fetch :queue {:session session})]
           (or (nil? queue)
-              (< (.size (db/fetch :queue :where {:session session})) fill-to)))
+              (< (.size (db/fetch :queue {:session session})) fill-to)))
       (let [random-guess-type (random-guess-type session) ;; chose a question type from amongst those specified by the user's preferences (accessible through session).
             debug (log/debug (str "fillqueue: going to generate sentence with type: " random-guess-type))
             question-pair (generate-question random-guess-type)
@@ -584,7 +585,7 @@
                             :italian (normalize-whitespace answer)
                             :english (normalize-whitespace question)
                             :session session})))
-    (log/info (str "queue is now big enough: size=" (.size (db/fetch :queue :where {:session session}))))))
+    (log/info (str "queue is now big enough: size=" (.size (db/fetch :queue {:session session}))))))
 
 (defn evaluate [request format]
   ;; takes form data back from the user about what their guess was.
@@ -632,13 +633,13 @@
         session (session/request-to-session request)
         stored (if (get params "id") ;; if id is nil, then there is no existing question: TODO: figure out under what circumstances id can be nil.
                  (db/fetch-one :question
-                               {:_id (new org.bson.types.ObjectId (get params "id"))
+                               {:id (new org.bson.types.ObjectId (get params "id"))
                                 :session session})
                  (store-question question (session/request-to-session request) nil))]
     (str
      (xml/encoding)
      (html
-      [:container {:id (get stored :_id) :type (question-type params)}
+      [:container {:id (get stored :id) :type (question-type params)}
        [:english (get stored :english)]
        [:italian (get stored :italian)]]))))
 
@@ -693,7 +694,7 @@
      {:comment "fs printing"
       :test (html/tablize
              {:most-recent
-              (let [qs (db/fetch :question {:session session} :sort {:_id -1} :limit 1)]
+              (let [qs (db/fetch :question {:session session} :sort {:id -1} :limit 1)]
                 (if (> (.size qs) 0)
                   (nth qs 0)
                   "(no questions yet.)"))})})))
