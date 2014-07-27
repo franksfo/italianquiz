@@ -134,6 +134,7 @@
    latter case, it will contain the user's guess of the correct answer
    to this question."
   {:pre [(not (= session-id nil))]} ;; precondition: session must not be nil.
+  (log/debug (str "store-question with question-pair: " question-pair))
   (let [question (get question-pair :english)
         answer (get question-pair :italian)]
     (if (nil? question)
@@ -573,7 +574,7 @@
     (while
         (let [queue (db/fetch :queue {:session session})]
           (or (nil? queue)
-              (< (.size (db/fetch :queue {:session session})) fill-to)))
+              (< (.size queue) fill-to)))
       (let [random-guess-type (random-guess-type session) ;; chose a question type from amongst those specified by the user's preferences (accessible through session).
             debug (log/debug (str "fillqueue: going to generate sentence with type: " random-guess-type))
             question-pair (generate-question random-guess-type)
