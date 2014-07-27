@@ -135,7 +135,8 @@
    case where the user wants to view a new question. In the latter
    case, the user is submitting an answer to an existing question, and we are
    writing to the backing store the user's guess of the correct answer to
-   this question."  
+   this question."
+  ;; TODO: separate the former and latter cases into separate functions.
   {:pre [(not (= session-id nil))]} ;; precondition: session must not be nil.
   (log/debug (str "store-question with question-pair: " question-pair))
   (let [question (get question-pair :english)

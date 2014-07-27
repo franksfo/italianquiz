@@ -72,6 +72,11 @@
   (pk :id)
   (table :filter))
 
+(defentity quiz-generation-filter
+  (pk :id)
+  (table :filter))
+
+
 ;; TODO: replace with a (map (fn [..]) (list :classes :filter ..)
 (def key-to-table
   {:class classes
@@ -279,7 +284,7 @@ on a table."
         (if the-where the-where nil)
         id (if (:_id the-where) (Integer. (:_id the-where)))
         table (keyword-to-table collection)]
-    (log/info (str "doing fetch with id: " id))
+    (if id (log/debug (str "doing fetch in table: " collection " with row id: " id)))
     (log/info (str "table: " table))
     (if-let [collection-map-function
              (do-each-row collection)]

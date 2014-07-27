@@ -529,4 +529,5 @@
     (log/info (str "cc10-comps: " (.size cc10-comps)))
     (log/info "done pre-compiling phrase-lex caches.")))
 
-(log/info "done.")
+(log/info "Universal Grammar Immediate Dominance schemata are defined in our environment.")
+
