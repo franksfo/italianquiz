@@ -330,9 +330,10 @@ on a table."
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
   (log/info (str "collection: " collection))
-  (log/info (str "id: " id))
+  (log/info (str "fetch-and-modify id: " id))
   (log/info (str "modify-with: " modify-with))
-  (log/info (str "remove? " remove?))  (let [id (Integer. id)]
+  (log/info (str "remove? " remove?))
+  (let [id (Integer. id)]
     (if remove?
       (delete (keyword-to-table collection)
               (where {:id id}))
