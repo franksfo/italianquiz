@@ -58,7 +58,12 @@
         cache (if cache cache rule-cache)]
     (generate (unifyc sentence-spec spec))))
 
-(def get-stuff-initialized (sentence {:synsem {:subcat '() :cat :verb
+;; This sentence generation prevents initialization errors that occur when trying to
+;; generate sentences within the sandbox.
+;; TODO: move to a sandbox-initialization-specific area.
+(def get-stuff-initialized (sentence {:comp {:phrasal false}
+                                      :head {:phrasal false}
+                                      :synsem {:subcat '() :cat :verb
                                                :sem {:pred :parlare
                                                      :subj {:pred :lei}
                                                      :obj {:pred :parola}}}}
