@@ -295,7 +295,7 @@ on a table."
              
              ;; else, id not given: do a select with a where (or not, if no where).
              (do
-               (log/info (str "doing a select with where=" the-where))
+               (log/info (str "doing a select from table=" collection " with where=" the-where))
                (if the-where
                  (if (collection table-to-filter)
                    (filter (fn [row]
@@ -320,7 +320,7 @@ on a table."
           (select table))))))
 
 (defn fetch-one [collection & [ the-where]]
-  (take 1 (fetch collection the-where)))
+  (first (take 1 (fetch collection the-where))))
 
 (defn fetch-and-modify [collection id & [modify-with remove?]]
   "modify-with: map of key/value pairs with which to modify row whose id is given in params."
