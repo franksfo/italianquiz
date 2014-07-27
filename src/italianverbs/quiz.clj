@@ -13,7 +13,7 @@
             [italianverbs.lexicon :as lex]
             [italianverbs.lexicon :refer (lexicon)]
             [italianverbs.lexiconfn :as lexfn]
-            [italianverbs.morphology :refer (finalize)]
+            [italianverbs.morphology :refer (finalize fo)]
             [italianverbs.session :as session]
             [italianverbs.unify :refer (lazy-shuffle)]
             [italianverbs.xml :as xml]
@@ -138,9 +138,10 @@
    this question."
   ;; TODO: separate the former and latter cases into separate functions.
   {:pre [(not (= session-id nil))]} ;; precondition: session must not be nil.
-  (log/debug (str "store-question with question-pair: " question-pair))
   (let [question (get question-pair :english)
         answer (get question-pair :italian)]
+    (log/debug (str "question english: " question))
+    (log/debug (str "question correct answer: " answer))
     (if (nil? question)
       ;; TODO: add this as a precondition.
       (do
@@ -167,7 +168,6 @@
                         :session session-id})))
 
 (defn clear-questions [session]
-  (db/destroy! :question {:session session})
   (db/destroy! :queue {:session session})
   session)
 
@@ -289,27 +289,34 @@
        (show-history-rows (rest qs) (- count 1) true total)))))
 
 (defn most-recent-qid-for-user [session]
-  (let [results (db/fetch :question {:session session} :sort {:id -1} :limit 1)]
+  (let [results (db/fetch :queue {:session session} :sort {:id -1} :limit 1)]
     (if (> (.size results) 0)
       (get (nth results 0) :id))))
 
+(def using-mongo false)
 ;; TODO: enforce session :where check.
 (defn update-question-by-id-with-guess [guess qid session]
-  (let [guess (normalize-whitespace guess)
-        question (db/fetch-one :question
-                               {:id (new org.bson.types.ObjectId qid)})
-        updated-question-map
-        (merge
-         question
-         {:guess guess
-          :evaluation ;; evaluate the user's guess against the correct response.
-          (if (and guess
-                   (> (.length guess) 0))
+  (log/debug (str "updating question with qid=" qid " and session=" session))
+  (log/debug (str "(using mongo) qid: " qid))
+  (let [qid (if using-mongo (new org.bson.types.ObjectId qid)
+                (Integer. qid))]
+    (log/debug (str "qid (post-munge): " qid))
+    (let [guess (normalize-whitespace guess)
+          question (db/fetch-one :question
+                                 {:id qid})
+          updated-question-map
+          (merge
+           question
+           {:guess guess
+            :evaluation ;; evaluate the user's guess against the correct response.
+            (if (and guess
+                     (> (.length guess) 0))
             (lev/get-green2 (get question :answer)
                             guess))})]
-    (db/update! :question {:id (new org.bson.types.ObjectId qid)}
+      (db/update! :queue {:id qid}
                    updated-question-map)
-    updated-question-map))
+      updated-question-map)))
+
 ;; for testing/sanity checking, might want to refetch (i.e. uncomment the line below and comment out line above).
 ;;    (db/fetch-one :question :where {:id (new org.bson.types.ObjectId qid)})))
 
@@ -491,7 +498,7 @@
 
 (defn previous-question [session]
   (let [most-recent-set
-        (db/fetch :question {:session session} :sort {:id -1} :limit 2)]
+        (db/fetch :queue {:session session} :sort {:id -1} :limit 2)]
     ;; must be at least 2 results: if not, return nil.
     (if (> (.size most-recent-set) 1)
       (nth most-recent-set 1)
@@ -539,8 +546,8 @@
                                         {:session session})]
       (if (not (nil? queued-question))
         (do
-          (log/info (str "found one with id: " (:id queued-question)))
-          ;; remove from queue
+          (log/debug (str "found question with id: " (:id queued-question)))
+          ;; remove from queue - now the question is only in memory and lost forever if we crash at this point.
           (db/destroy! :queue {:id (:id queued-question)})
           queued-question)
         nil)))) ;; no question found: the caller will have to generate a new one.
@@ -566,7 +573,7 @@
                          (log/info "storing question after generating with type: " random-type)
                          (store-question (generate-question random-type) session nil))))]
       (let [qid (:id question)]
-        (log/debug (str "qid: " qid))
+        (log/debug (str "(question) qid: " qid))
         (str "<div id='question_text'>" (:question question) "</div>"
              "<input type='text' id='question_id' value='" qid "'/>")))))
 
@@ -637,7 +644,7 @@
                  (get request :form-params))
         session (session/request-to-session request)
         stored (if (get params "id") ;; if id is nil, then there is no existing question: TODO: figure out under what circumstances id can be nil.
-                 (db/fetch-one :question
+                 (db/fetch-one :queue
                                {:id (new org.bson.types.ObjectId (get params "id"))
                                 :session session})
                  (store-question question (session/request-to-session request) nil))]
