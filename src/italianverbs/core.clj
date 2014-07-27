@@ -735,6 +735,11 @@
                                    {:status 302
                                     :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))))))
 
+  (GET "/workbook" request
+       {:status 302
+        :body (html/page "Workbook" (workbook/workbook-ui request) request)
+        :headers {"Location" "/workbook/"}})
+
   (GET "/workbook/" request
        {:status 200
         :body (html/page "Workbook" (workbook/workbook-ui request) request)
