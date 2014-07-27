@@ -128,11 +128,14 @@
   string)
 
 (defn- store-question [question-pair session-id last-guess]
-  "Store a 'question pair' in the persistent mongodb store. A 'question pair' is an Italian/English pair of sentences that are translations of each other.
+  "Store a 'question pair' in the persistent backing store. A 'question pair'
+  is an Italian/English pair of sentences that are translations of each other.
    (store-question) may be called from either (question)
-   or (guess). In the former case, last-guess will be nil.  In the
-   latter case, it will contain the user's guess of the correct answer
-   to this question."
+   or (guess). In the former case, last-guess will be nil. This is the
+   case where the user wants to view a new question. In the latter
+   case, the user is submitting an answer to an existing question, and we are
+   writing to the backing store the user's guess of the correct answer to
+   this question."  
   {:pre [(not (= session-id nil))]} ;; precondition: session must not be nil.
   (log/debug (str "store-question with question-pair: " question-pair))
   (let [question (get question-pair :english)
@@ -155,12 +158,12 @@
       (do
         (log/error (str "morphological problem :italian is not string: " answer))
         (throw (Exception. (str "morphological problem :italian value is not string: " answer)))))
-    (db/insert! :question {:question (normalize-whitespace question)
-                           :answer (normalize-whitespace answer)
-                           :guess last-guess
-                           :italian (normalize-whitespace answer)
-                           :english (normalize-whitespace question)
-                           :session session-id})))
+    (db/insert! :queue {:question (normalize-whitespace question)
+                        :answer (normalize-whitespace answer)
+                        :guess last-guess
+                        :italian (normalize-whitespace answer)
+                        :english (normalize-whitespace question)
+                        :session session-id})))
 
 (defn clear-questions [session]
   (db/destroy! :question {:session session})
