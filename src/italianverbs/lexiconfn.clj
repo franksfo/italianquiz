@@ -23,7 +23,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
     (log/warn (str "Ignoring this lexeme because (fail?=true): " entry))
     ;; else, not fail, so add to lexicon.
     (do
-      (log/info (str "Adding entry: " (morph/fo entry)))
+      (log/debug (str "Adding entry: " (morph/fo entry)))
       (let [italian (get-in entry '(:italian))
             entry
             (conj
