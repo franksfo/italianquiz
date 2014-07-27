@@ -32,7 +32,8 @@
 ;; italianverbs.benchmark> 
 ;;
 
-(log/info "building cache..")
+(def begin (System/currentTimeMillis))
+(log/debug "building grammatical and lexical cache..")
 (def cache nil)
 ;; TODO: trying to print cache takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to (keys cache).
@@ -53,7 +54,8 @@
                          )
                    grammar)}))
 
-(log/info "done building cache: " (keys cache))
+(def end (System/currentTimeMillis))
+(log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
 
 (defn percentile [percent runtimes]
   (let [sorted-runtimes (sort runtimes)
