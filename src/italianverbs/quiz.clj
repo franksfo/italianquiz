@@ -297,7 +297,7 @@
 ;; TODO: enforce session :where check.
 (defn update-question-by-id-with-guess [guess qid session]
   (log/debug (str "updating question with qid=" qid " and session=" session))
-  (log/debug (str "(using mongo) qid: " qid))
+  (log/debug (str "(update-question-by-id-with-guess) qid: " qid))
   (let [qid (if using-mongo (new org.bson.types.ObjectId qid)
                 (Integer. qid))]
     (log/debug (str "qid (post-munge): " qid))
@@ -307,13 +307,16 @@
           updated-question-map
           (merge
            question
-           {:guess guess
-            :evaluation ;; evaluate the user's guess against the correct response.
-            (if (and guess
-                     (> (.length guess) 0))
-            (lev/get-green2 (get question :answer)
-                            guess))})]
-      (db/update! :queue {:id qid}
+           {:guess guess}
+           (if using-mongo
+             {:evaluation ;; evaluate the user's guess against the correct response.
+              (if (and guess
+                       (> (.length guess) 0))
+                (lev/get-green2 (get question :answer)
+                                guess))})
+           {})]
+      (log/debug (str "doing update for queue row with id: " qid " and updated-question-map:" updated-question-map))
+      (db/update! :queue qid
                    updated-question-map)
       updated-question-map)))
 
