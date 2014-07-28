@@ -65,8 +65,7 @@
                                       :head {:phrasal false}
                                       :synsem {:subcat '() :cat :verb
                                                :sem {:pred :parlare
-                                                     :subj {:pred :lei}
-                                                     :obj {:pred :parola}}}}
+                                                     :subj {:pred :lei}}}}
                                      lexicon grammar))
                                                                              
 (log/info (str "done loading generate: " (fo get-stuff-initialized)))
