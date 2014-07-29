@@ -282,7 +282,14 @@ on a table."
   "select from collection; might take an id. For each returned row, return simply the row as a clojure map, but merge it with an extra field for the primary key (id)."
   (let [the-where
         (if the-where the-where nil)
-        id (if (:_id the-where) (Integer. (:_id the-where)))
+        ;; TODO: get rid of this horrible :_id/:id munging.
+        id (cond (:_id the-where) 
+                 (Integer. (:_id the-where))
+
+                 (:id the-where)
+                 (Integer. (:id the-where))
+                 
+                 :else nil)
         table (keyword-to-table collection)]
     (if id (log/debug (str "doing fetch in table: " collection " with row id: " id)))
     (log/info (str "table: " table))
