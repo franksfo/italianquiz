@@ -294,7 +294,8 @@
       (get (nth results 0) :id))))
 
 (def using-mongo false)
-;; TODO: enforce session :where check.
+
+;; TODO: use function constraints to enforce session :where check.
 (defn update-question-by-id-with-guess [guess qid session]
   (log/debug (str "updating question with qid=" qid " and session=" session))
   (log/debug (str "(update-question-by-id-with-guess) qid: " qid))
@@ -302,19 +303,19 @@
                 (Integer. qid))]
     (log/debug (str "qid (post-munge): " qid))
     (let [guess (normalize-whitespace guess)
-          question (db/fetch-one :question
+          question (db/fetch-one :queue
                                  {:id qid})
+          question (dissoc question :_id)
           updated-question-map
           (merge
            question
            {:guess guess}
-           (if using-mongo
+           (if using-mongo ;; does not work yet with postgres: need to use a vector for the 'evaluation' column.
              {:evaluation ;; evaluate the user's guess against the correct response.
               (if (and guess
                        (> (.length guess) 0))
                 (lev/get-green2 (get question :answer)
-                                guess))})
-           {})]
+                                guess))}))]
       (log/debug (str "doing update for queue row with id: " qid " and updated-question-map:" updated-question-map))
       (db/update! :queue qid
                    updated-question-map)
@@ -514,6 +515,8 @@
    "</tr>"))
 
 (defn table-row [answered-question-tuple]
+  ;; TODO: enforce: :english and :italian may not be null.
+  (log/info (str "table-row: answered-question-tuple: " answered-question-tuple))
   (let [english (get answered-question-tuple :english)
         italian (get answered-question-tuple :italian)
         guess (get answered-question-tuple :guess)
@@ -604,6 +607,9 @@
 
 (defn evaluate [request format]
   ;; takes form data back from the user about what their guess was.
+  ;; TODO: use function constraints rather than exceptions to enforce:
+  ;; qid and session being not-null.
+  (log/debug (str "evaluate: request=" request))
   (let [params (if (= (get request :request-method) :get)
                  (get request :query-params)
                  (get request :form-params))
@@ -615,6 +621,11 @@
                  {:method (get request :request-method)}
                  params
                  {:session session})]
+
+    (log/debug (str "evaluate: params=" params))
+    (log/debug (str "evaluate: guess=" guess))
+    (log/debug (str "evaluate: qid=" guess))
+
     ;; make sure qid is defined.
     (if (= nil qid) (throw (Exception. (str "qid (question ID) is not defined."))))
     (if (= nil session) (throw (Exception. (str "session is not defined."))))
