@@ -315,7 +315,16 @@
               (if (and guess
                        (> (.length guess) 0))
                 (lev/get-green2 (get question :answer)
-                                guess))}))]
+                                guess
+                                )
+                )
+              }
+             {:evaluation (str (lev/get-green2 (get question :answer)
+                                               guess
+                                               ))}
+
+             
+             ))]
       (log/debug (str "doing update for queue row with id: " qid " and updated-question-map:" updated-question-map))
       (db/update! :queue qid
                    updated-question-map)
@@ -522,7 +531,16 @@
         guess (get answered-question-tuple :guess)
         evaluation (get answered-question-tuple :evaluation)
         row_id (get answered-question-tuple :id)
+        debug (log/debug (str "evaluation: " evaluation))
+
+        ;; for now, until we store evaluation column as a postgres vector type:
+        evaluation (if using-mongo evaluation (read-string evaluation))
+
         eval (eval-segments evaluation)
+
+        debug (log/debug (str "eval: " eval))
+
+
         ;; translation of evaluation into feedback to user.
         perfect (= (get eval :size) (get eval :match))
         rowspan (if perfect 1 2)

@@ -303,3 +303,6 @@ CREATE SEQUENCE filter_id_seq
 
 ALTER TABLE public.filter_id_seq OWNER TO verbcoach;
 ALTER TABLE ONLY filter ALTER COLUMN id SET DEFAULT nextval('filter_id_seq'::regclass);
+
+ALTER TABLE ONLY queue ADD COLUMN evaluation text;
+
