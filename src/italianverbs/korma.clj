@@ -376,6 +376,7 @@ on a table."
                     (list add-with))))))
 
 (defn destroy! [collection & [delete-where]]
+  (log/info (str "deleting from: " collection " where : " delete-where))
   (delete (keyword-to-table collection)
           (where delete-where)))
 

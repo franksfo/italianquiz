@@ -525,13 +525,13 @@
 
 (defn table-row [answered-question-tuple]
   ;; TODO: enforce: :english and :italian may not be null.
-  (log/info (str "table-row: answered-question-tuple: " answered-question-tuple))
+  (log/trace (str "table-row: answered-question-tuple: " answered-question-tuple))
   (let [english (get answered-question-tuple :english)
         italian (get answered-question-tuple :italian)
         guess (get answered-question-tuple :guess)
         evaluation (get answered-question-tuple :evaluation)
         row_id (get answered-question-tuple :id)
-        debug (log/debug (str "evaluation: " evaluation))
+        debug (log/trace (str "evaluation: " evaluation))
 
         ;; for now, until we store evaluation column as a postgres vector type:
         evaluation (if using-mongo evaluation (read-string evaluation))
