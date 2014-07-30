@@ -18,32 +18,6 @@
 
 (def concurrent false)
 
-(declare lazy-mapcat)
-
-(defn lazy-mapcat-bailout-after [name the-fn the-args tries & [max-tries length-of-args]]
-  (let [arg (first the-args)
-        max-tries (if (not (nil? max-tries)) max-tries tries)
-        ;; assuming that args is not a lazy seq: if so, this (.size call) will realize it.
-        length-of-args (if (not (nil? length-of-args)) length-of-args (if (nil? the-args) 0 (.size the-args)))
-;        length-of-args (str "(n/a)")
-        ]
-    (if (and (number? tries) (number? max-tries)) (log/debug (str name ": trying #" (- max-tries tries) "/" max-tries)))
-    (if (and (number? tries) (<= tries 0))
-      (log/warn (str name ": bailing out@" tries " now: tried: " max-tries " / possible: " length-of-args))
-      ;; else: keep trying more possibilities: apply the-fn to the first arg in the-args,
-      ;; and concat that with a recursive function call with (rest the-args).
-      (if arg
-        (let [debug (log/debug (str "function: " name ": with rule=" (fo-ps arg)))
-              debug (log/trace (str (:rule arg) " max tries: " max-tries))
-              result (the-fn arg)]
-          (lazy-cat
-           result
-           (lazy-mapcat-bailout-after name the-fn
-                                      (rest the-args)
-                                      (if (number? tries) (- tries 1)
-                                          tries) ;; not a number: a symbol like :dont-bail-out
-                                      max-tries length-of-args)))))))
-
 (defn lazy-mapcat [the-fn the-args]
    (let [arg (first the-args)]
      (if arg
