@@ -271,9 +271,7 @@ CREATE TABLE tests_in_classes (
 CREATE TABLE queue (
        id bigint NOT NULL PRIMARY KEY,
        session character(36) NOT NULL,
-       answer text,
        english text,
-       guess text,
        italian text,
        question text
 );
@@ -304,5 +302,24 @@ CREATE SEQUENCE filter_id_seq
 ALTER TABLE public.filter_id_seq OWNER TO verbcoach;
 ALTER TABLE ONLY filter ALTER COLUMN id SET DEFAULT nextval('filter_id_seq'::regclass);
 
-ALTER TABLE ONLY queue ADD COLUMN evaluation text;
+-- TODO: add foreign key to queue row, since each guess has a corresponding queue row.
+CREATE TABLE guess (
+       id bigint NOT NULL PRIMARY KEY,
+       session character(36) NOT NULL,
+       answer text,
+       english text,
+       guess text,
+       italian text,
+       question text,
+       evaluation text
+);
 
+CREATE SEQUENCE guess_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER TABLE public.guess_id_seq OWNER TO verbcoach;
+ALTER TABLE ONLY guess ALTER COLUMN id SET DEFAULT nextval('guess_id_seq'::regclass);

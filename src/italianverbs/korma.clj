@@ -23,6 +23,10 @@
          students-in-class
          student-test tsubmit user verb vgroup)
 
+;; TODO: this defentity stuff is perfunctory
+;; boilerplate: remove or at least move to bottom of file
+;; where it doesn't hog valuable real estate.
+;; Have to learn what defentity is.
 (defentity classes
   (pk :id)
   (has-many students-in-class {:fk :class}))
@@ -72,16 +76,16 @@
   (pk :id)
   (table :filter))
 
-(defentity quiz-generation-filter
+(defentity guess
   (pk :id)
-  (table :filter))
-
+  (table :guess))
 
 ;; TODO: replace with a (map (fn [..]) (list :classes :filter ..)
 (def key-to-table
   {:class classes
    :classes classes
    :filter quiz-generation-filter
+   :guess guess
    :question question
    :question-submit question-submit
    :queue queue
@@ -107,7 +111,7 @@ on a table."
           (throw (.Exception (str "don't know what table this collection is: " collection-as-key)))
           (nil? table)
           (do
-            (log/error (str "Sorry, going to barf a stacktrace to web client."))
+            (log/error (str "Sorry, throwing an exception because I don't know how to resolve the keyword: " collection-as-key " to a table."))
             (throw (Exception. (str "don't know what table this collection is: " collection-as-key))))
           true table)))
 
@@ -347,7 +351,7 @@ on a table."
 
       ;; remove=false: do update instead.
       (do
-        (log/info (str "collection update: modify-with: " modify-with))
+        (log/debug (str "collection update: modify-with: " modify-with))
         (log/info (str "collection update: id: " id))
         (apply (collection-update collection)
                (list modify-with id))))))

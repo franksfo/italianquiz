@@ -142,6 +142,7 @@
         answer (get question-pair :italian)]
     (log/debug (str "question english: " question))
     (log/debug (str "question correct answer: " answer))
+    (log/debug (str "question guess: " last-guess))
     (if (nil? question)
       ;; TODO: add this as a precondition.
       (do
@@ -160,9 +161,8 @@
       (do
         (log/error (str "morphological problem :italian is not string: " answer))
         (throw (Exception. (str "morphological problem :italian value is not string: " answer)))))
-    (db/insert! :queue {:question (normalize-whitespace question)
+    (db/insert! :guess {:question (normalize-whitespace question)
                         :answer (normalize-whitespace answer)
-                        :guess last-guess
                         :italian (normalize-whitespace answer)
                         :english (normalize-whitespace question)
                         :session session-id})))
@@ -296,14 +296,15 @@
 (def using-mongo false)
 
 ;; TODO: use function constraints to enforce session :where check.
+;; TODO: s/qid/id/
 (defn update-question-by-id-with-guess [guess qid session]
-  (log/debug (str "updating question with qid=" qid " and session=" session))
+  (log/debug (str "updating guess with id=" qid " and session=" session))
   (log/debug (str "(update-question-by-id-with-guess) qid: " qid))
   (let [qid (if using-mongo (new org.bson.types.ObjectId qid)
                 (Integer. qid))]
     (log/debug (str "qid (post-munge): " qid))
     (let [guess (normalize-whitespace guess)
-          question (db/fetch-one :queue
+          question (db/fetch-one :guess
                                  {:id qid})
           question (dissoc question :_id)
           updated-question-map
@@ -325,8 +326,8 @@
 
              
              ))]
-      (log/debug (str "doing update for queue row with id: " qid " and updated-question-map:" updated-question-map))
-      (db/update! :queue qid
+      (log/trace (str "doing update for queue row with id: " qid " and updated-question-map:" updated-question-map))
+      (db/update! :guess qid
                    updated-question-map)
       updated-question-map)))
 
@@ -616,9 +617,7 @@
             question (get question-pair :english)
             answer (get question-pair :italian)]
         (log/info "adding question to queue.")
-        (db/insert! :queue {:question (normalize-whitespace question)
-                            :answer (normalize-whitespace answer)
-                            :italian (normalize-whitespace answer)
+        (db/insert! :queue {:italian (normalize-whitespace answer)
                             :english (normalize-whitespace question)
                             :session session})))
     (log/info (str "queue is now big enough: size=" (.size (db/fetch :queue {:session session}))))))
@@ -676,7 +675,7 @@
                  (get request :form-params))
         session (session/request-to-session request)
         stored (if (get params "id") ;; if id is nil, then there is no existing question: TODO: figure out under what circumstances id can be nil.
-                 (db/fetch-one :queue
+                 (db/fetch-one :guess
                                {:id (new org.bson.types.ObjectId (get params "id"))
                                 :session session})
                  (store-question question (session/request-to-session request) nil))]
