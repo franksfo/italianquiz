@@ -31,7 +31,9 @@ function get_next_question() {
     // queue is not empty, take the first from there. Otherwise, generates
     // a new question.
     var hint = "";
-    $("#ajax_question").html("...");
+    // TODO: a better user spinner than this..
+    // (or even better, make finding a sentence so fast we don't need it).
+    $("#ajax_question").html("Thinking of a good question for you..");
 
     $.ajax({
         dataType: "html",

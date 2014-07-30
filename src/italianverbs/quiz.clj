@@ -709,7 +709,7 @@
 
         [:div#guess_input_div
          [:input {:size "20" :id "guess_input" :type "text"  }
-          [:script "set_guess_input('..')" ]
+          [:script "set_guess_input('Guess the Italian?')" ]
           ]
          ]
 
