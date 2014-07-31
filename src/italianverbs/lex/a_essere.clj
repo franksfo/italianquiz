@@ -138,17 +138,16 @@
              :italian {:italian "amico"}
              :english {:english "friend"}})
 
-      (unify
-      transitive
-      {:italian {:infinitive "amare"}
-       :english {:infinitive "to love"
-                 :irregular {:past "loved"}}
-       :synsem {:essere false
-                :sem {:pred :amare
-                      :activity false
-                      :discrete false
-                      :subj {:human true}
-                      :obj {:animate true}}}})
+      (unify transitive
+             {:italian {:infinitive "amare"}
+              :english {:infinitive "to love"
+                        :irregular {:past "loved"}}
+              :synsem {:essere false
+                       :sem {:pred :amare
+                             :activity false
+                             :discrete false
+                             :subj {:human true}
+                             :obj {:animate true}}}})
 
      ;; "andare"-intransitive
      (unify
