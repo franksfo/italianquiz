@@ -157,14 +157,15 @@
      ;; "andare" that takes a prepositional phrase
      (unify
       verb-subjective
-      andare-common
-      (let [place-sem (ref {:place true
-                            :pred :a})]
-        {:synsem {:sem {:location place-sem}
-                  :subcat {:2 {:sem place-sem
-                               :subcat '()
-                               :cat :prep}}}})
-      {:note "andare-pp"})
+      (unify andare-common
+             (unify
+              (let [place-sem (ref {:place true
+                                    :pred :a})]
+      {:synsem {:sem {:location place-sem}
+                :subcat {:2 {:sem place-sem
+                             :subcat '()
+                             :cat :prep}}}}))
+      {:note "andare-pp"}))
 
      {:synsem {:agr {:number :sing
                      :person :3rd
