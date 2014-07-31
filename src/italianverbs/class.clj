@@ -1,3 +1,5 @@
+;; Note: this file is about 'class' as in 'a class of students in a classroom', 
+;; not 'class' in the programming language sense.
 (ns italianverbs.class
   (:refer-clojure :exclude [class]) ;; probably bad idea to exclude this..
   (:use [hiccup core])
