@@ -240,7 +240,7 @@
 ;; order the rules are applied, as long as all rules are applied at
 ;; each iteration. This is guaranteed by using these rules below in
 ;; (transform) so that the rules' outputs are reduced using unifyc.
-(def rules (list aux-verb-rule
+(def rules (list ;aux-verb-rule
                  category-to-subcat commonnoun
                  ditransitive-verb-rule
                  intensifier-agreement
@@ -250,7 +250,8 @@
                  pronoun-and-propernouns
                  semantic-implicature
                  transitive-verb-rule
-                 verb-rule))
+                 verb-rule
+))
 
 ;; Modifying rules: so-named because they modify the lexical entry in
 ;; such a way that is non-monotonic and dependent on the order of rule
@@ -307,8 +308,8 @@
           (map transform
                (concat
                 a-essere
-                esso-noi
-                notizie-potere
-                qualche_volta-volere
+;                esso-noi
+ ;               notizie-potere
+ ;               qualche_volta-volere
                 ))))
 
