@@ -17,34 +17,9 @@
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
 (def concurrent false)
-
-(defn lazy-mapcat [the-fn the-args]
-   (let [arg (first the-args)]
-     (if arg
-       (let [result (the-fn arg)]
-         (lazy-cat
-          result
-          (lazy-mapcat the-fn (rest the-args)))))))
-
-(defn lazy-mapcat-shuffle [fn args & [depth name]]
-  (do
-    (log/trace (str "lms@" depth ":" name))
-    (log/trace (str "lms@" depth ":" name " : type of args: " (type args)))
-    (log/trace (str "lms@" depth ":" name " : type of first arg: " (type (first args))))
-    (let [result
-          (lazy-mapcat fn (shuffle args))]
-      (log/trace (str "lms@" depth ":" name " : returning type: " (if result (type result))))
-      result)))
-
-;; (take 10 (repeatedly #(fo-ps (take 1 (forest/lighting-bolt (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
-
-
-(defn path-to-map [path val]
-  (let [feat (first path)]
-    (if feat
-      {feat (path-to-map (rest path) val)}
-      val)))
-
+(declare lazy-mapcat)
+(declare lazy-mapcat-shuffle)
+(declare path-to-map)
 (declare add-complement)
 (declare add-all-complements-to-bolts)
 (declare add-complements-to-bolts)
@@ -122,12 +97,6 @@ of this function with complements."
     (log/trace (str "type of parents-with-head t=" (type parents-with-head)))
     parents-with-head))))
 
-(defn add-complements-to-bolts [bolts path spec grammar lexicon cache]
-  (if (not (empty? bolts))
-    (lazy-cat
-     (add-complement (first bolts) path spec grammar lexicon cache)
-     (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache))))
-
 (defn add-complement [bolt path spec grammar lexicon cache]
   (let [spec (unifyc spec (get-in bolt path :no-path))]
     (if (not (= spec :no-path))
@@ -161,6 +130,11 @@ of this function with complements."
       (do
         (log/debug "bolt with spec: " (show-spec spec) " complete: " (fo-ps bolt))
         (list bolt)))))
+(defn add-complements-to-bolts [bolts path spec grammar lexicon cache]
+  (if (not (empty? bolts))
+    (lazy-cat
+     (add-complement (first bolts) path spec grammar lexicon cache)
+     (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache))))
 
 (defn hlcl [cache grammar spec lexicon spec]
   (gen2 grammar lexicon (unifyc {:head {:phrasal false}
@@ -177,4 +151,29 @@ of this function with complements."
 (defn hpcp [cache grammar spec lexicon spec]
   (gen2 grammar lexicon (unifyc {:head {:phrasal true}
                                  :comp {:phrasal true}})))
+
+(defn lazy-mapcat [the-fn the-args]
+   (let [arg (first the-args)]
+     (if arg
+       (let [result (the-fn arg)]
+         (lazy-cat
+          result
+          (lazy-mapcat the-fn (rest the-args)))))))
+
+(defn lazy-mapcat-shuffle [fn args & [depth name]]
+  (do
+    (log/trace (str "lms@" depth ":" name))
+    (log/trace (str "lms@" depth ":" name " : type of args: " (type args)))
+    (log/trace (str "lms@" depth ":" name " : type of first arg: " (type (first args))))
+    (let [result
+          (lazy-mapcat fn (shuffle args))]
+      (log/trace (str "lms@" depth ":" name " : returning type: " (if result (type result))))
+      result)))
+
+;; (take 10 (repeatedly #(fo-ps (take 1 (forest/lighting-bolt (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
+(defn path-to-map [path val]
+  (let [feat (first path)]
+    (if feat
+      {feat (path-to-map (rest path) val)}
+      val)))
 
