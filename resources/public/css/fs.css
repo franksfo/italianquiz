@@ -279,7 +279,7 @@ ol.workbook {
 
 ol.workbook {
     float:left;
-    counter-reset: workbook-counter 1;
+    counter-reset: workbook-counter 0;
 }
 
 /* Incrementing with each li. */
