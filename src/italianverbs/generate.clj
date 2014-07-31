@@ -62,7 +62,7 @@
 ;; generate sentences within the sandbox.
 ;; TODO: move to a sandbox-initialization-specific area.
 (def get-stuff-initialized (sentence {:comp {:phrasal false}
-                                      :head {:phrasal false}
+                                      :head {:phrasal true}
                                       :synsem {:subcat '() :cat :verb
                                                :sem {:pred :parlare
                                                      :subj {:pred :lei}}}}
