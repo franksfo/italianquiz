@@ -164,7 +164,8 @@
 (defn intransitive-verb-rule [lexical-entry]
   (cond (and (= (get-in lexical-entry '(:synsem :cat))
                 :verb)
-             (= :none (get-in lexical-entry '(:synsem :sem :obj) :none))
+             (and (= :none (get-in lexical-entry '(:synsem :sem :obj) :none))
+                  (= :none (get-in lexical-entry '(:synsem :sem :location) :none)))
              (not (= true (get-in lexical-entry '(:synsem :aux)))))
         (unifyc
          lexical-entry
