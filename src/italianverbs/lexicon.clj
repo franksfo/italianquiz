@@ -250,8 +250,7 @@
                  pronoun-and-propernouns
                  semantic-implicature
                  transitive-verb-rule
-                 verb-rule
-))
+                 verb-rule))
 
 ;; Modifying rules: so-named because they modify the lexical entry in
 ;; such a way that is non-monotonic and dependent on the order of rule
@@ -308,8 +307,7 @@
           (map transform
                (concat
                 a-essere
-;                esso-noi
- ;               notizie-potere
- ;               qualche_volta-volere
-                ))))
+                esso-noi
+                notizie-potere
+                qualche_volta-volere))))
 
