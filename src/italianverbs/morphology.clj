@@ -1704,11 +1704,10 @@
         (vector? expr))
     (not (empty? expr)))
 
-   ;; expr is a sequence or set: assume each is a phrase structure tree and show each.
-   (string/join " "
-                (map (fn [each]
-                       (fo-ps each))
-                     expr))
+   ;; expr is a sequence of some kind. Assume each element is a phrase structure tree and show each.
+   (map (fn [each]
+          (fo-ps each))
+        expr)
 
    (and (map? expr)
         (:rule expr)
