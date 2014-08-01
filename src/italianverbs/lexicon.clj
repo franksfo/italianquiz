@@ -274,33 +274,42 @@
   "keep transforming lexical entries until there's no changes. No changes is
    defined as: (isomorphic? input output) => true, where output is one iteration's
    applications of all of the rules."
-  (log/debug (str "Transforming: " (fo lexical-entry)))
-  (log/debug (str "transform: input :" lexical-entry))
-  (let [result (reduce #(if (or (fail? %1) (fail? %2))
-                          :fail
-                          (unifyc %1 %2))
-                       (map (fn [rule]
-                              (let [result (apply rule (list lexical-entry))]
-                                (if (fail? result)
-                                  (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
-                                                     " to fail; fail path was: " (fail-path result)))
-                                      :fail)
-                                  result)))
-                            rules))
-        result (if (not (fail? result))
-                 (reduce merge  (map (fn [rule]
-                                       (let [result (apply rule (list result))]
-                                         (if (fail? result)
-                                           (do (log/warn (str "merge-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
-                                                              " to fail; fail path was: " (fail-path result)))
-                                               :fail)
-                                           result)))
-                                     modifying-rules)))]
-    (if (fail? result) :fail
-        (if (isomorphic? result lexical-entry)
-          (do (cache-serialization result)
-              result)
-          (transform result)))))
+  (cond (= lexical-entry :fail) :fail
+        true
+        (do
+          (log/debug (str "Transforming: " (fo lexical-entry)))
+          (log/debug (str "transform: input :" lexical-entry))
+          (log/info (str "transforming lexical entry: " (fo lexical-entry)))
+          (let [result (reduce #(if (or (fail? %1) (fail? %2))
+                                  :fail
+                                  (unifyc %1 %2))
+                               (map (fn [rule]
+                                      (let [result (apply rule (list lexical-entry))]
+                                        (if (fail? result)
+                                          (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
+                                                             " to fail; fail path was: " (fail-path result)))
+                                              :fail)
+                                          result)))
+                                    rules))
+                result (if (not (fail? result))
+                         (reduce merge  (map (fn [rule]
+                                               (let [result (apply rule (list result))]
+                                                 (if (fail? result)
+                                                   (do (log/error (str "merge-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
+                                                                       " to fail; fail path was: " (fail-path result)))
+                                                       :fail)
+                                                   result)))
+                                             modifying-rules))
+                         (do
+                           :fail))]
+            (if (fail? result) 
+              (do
+                (log/error (str "lexical entry cannot be added: " lexical-entry))
+                :fail)
+              (if (isomorphic? result lexical-entry)
+                (do (cache-serialization result)
+                    result)
+                (transform result)))))))
 
 (def lexicon
   ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
