@@ -147,7 +147,8 @@
         lexical-entry))
 
 (defn ditransitive-verb-rule [lexical-entry]
-  (cond (not (nil? (get-in lexical-entry '(:synsem :sem :iobj))))
+  (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+             (not (nil? (get-in lexical-entry '(:synsem :sem :iobj)))))
         (unifyc
          lexical-entry
          (let [ref (ref :top)]
@@ -221,7 +222,8 @@
         lexical-entry))
 
 (defn transitive-verb-rule [lexical-entry]
-  (cond (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
+  (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+             (not (nil? (get-in lexical-entry '(:synsem :sem :obj)))))
         (unifyc
          lexical-entry
          transitive-but-object-cat-not-set)
