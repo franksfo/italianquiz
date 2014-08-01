@@ -49,7 +49,13 @@
     result))
 
 (defn en [english]
-  (lookup {:english english}))
+  (let [result
+        (union (set (lookup {:english english}))
+               (set (lookup {:english {:infinitive english}}))
+               (set (lookup {:english {:infinitive {:infinitive english}}}))
+               (set (lookup {:english {:english english}}))
+               (set (lookup {:english {:irregular {:passato english}}})))]
+    result))
 
 (clear!)
 
