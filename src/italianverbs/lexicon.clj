@@ -316,7 +316,7 @@
   ;; default shown is (not (nil? entry)) i.e. no restrictions except that an entry must be non-nil.
   ;;  (currently there is one nil below: "chiunque (anyone)").
   (filter (fn [entry]
-            (or false
+            (or (= entry :fail)
                 (not (nil? entry))))
 
           ;; TODO: move this fn to lexiconfn: keep any code out of the lexicon proper.
