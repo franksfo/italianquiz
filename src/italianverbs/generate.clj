@@ -9,8 +9,8 @@
    [italianverbs.forest :as forest]
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
-   [italianverbs.grammar.english :as english]
-   [italianverbs.grammar.italiano :as italiano]
+   [italianverbs.grammar.english :as en]
+   [italianverbs.grammar.italiano :as it]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.morphology :refer (fo fo-ps)]
@@ -30,15 +30,18 @@
 
 ;; this rule-cache is defined outside any function so that all functions can share
 ;; a single cache.
-(def english-rule-cache (conj (build-lex-sch-cache english/grammar lexicon english/grammar)
+;; TODO: move to italianverbs.grammar.english
+(def english-rule-cache (conj (build-lex-sch-cache en/grammar lexicon en/grammar)
+                              {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
+
+;; TODO: move to italianverbs.grammar.italiano
+(def italiano-rule-cache (conj (build-lex-sch-cache it/grammar lexicon it/grammar)
                       {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
 
-(def italiano-rule-cache (conj (build-lex-sch-cache italiano/grammar lexicon italiano/grammar)
-                      {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
-
+;; TODO: use a map destructor to pass in arguments
 (defn generate [ & [spec grammar the-lexicon cache]]
   (let [spec (if spec spec :top)
-        grammar (if grammar grammar italiano/grammar)
+        grammar (if grammar grammar it/grammar)
         lexicon (if the-lexicon the-lexicon lexicon)
         cache (if cache cache italiano-rule-cache)] ;; if no cache supplied, use package-level cache 'rule-cache'.
   (log/debug (str "generate with lexicon size: " 
@@ -49,7 +52,7 @@
 (defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
-        grammar (if the-grammar the-grammar italiano/grammar)
+        grammar (if the-grammar the-grammar it/grammar)
         cache (if cache cache italiano-rule-cache)]
     (first (take 1 (forest/generate (unify spec {:synsem {:cat :noun :subcat '()}}) grammar lexicon cache)))))
 
@@ -60,9 +63,21 @@
                        
         spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
-        grammar (if the-grammar the-grammar italiano/grammar)
-        cache (if cache cache italiano-rule-cache)]
-    (first (take 1 (generate (unifyc sentence-spec spec))))))
+        grammar (if the-grammar the-grammar it/grammar)
+        cache (if cache cache italiano-rule-cache)
+        unified-spec (unifyc sentence-spec spec)]
+    (let [italiano
+          (first (take 1 (generate unified-spec grammar lexicon cache)))]
+      (log/info (str "semantics of this italian sentence:" (get-in italiano [:synsem :sem])))
+      (let [english
+            (first (take 1 (generate (unifyc unified-spec
+                                             {:synsem {:sem
+                                                       (get-in italiano [:synsem :sem])}})
+                                     en/grammar
+                                     lexicon
+                                     english-rule-cache)))]
+        {:italiano italiano
+         :english english}))))
 
 (defn sentence-en [ & [spec ]]
   (sentence spec lexicon en/grammar en/cache))
@@ -78,6 +93,6 @@
                                       :synsem {:subcat '() :cat :verb
                                                :sem {:pred :parlare
                                                      :subj {:pred :lei}}}}
-                                     lexicon italiano/grammar))
+                                     lexicon it/grammar))
                                                                              
 (log/info (str "done loading generate: " (fo get-stuff-initialized)))

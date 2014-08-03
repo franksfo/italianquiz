@@ -1786,9 +1786,20 @@
 ;;italianverbs.benchmark> (fo (take 1 (forest/hlcl cache grammar)))
 ;; (("Stato Roma ({:a {:infl #<Ref@1f574a31: :past>, :case #<Ref@773c3b34: :nom>, :agr #<Ref@3619649b: {:gender #<Ref@7f628bdb: :masc>, :number #<Ref@1ecc1833: :sing>}>, :irregular {:past {:2sing \"were\", :1sing \"was\", :participle \"been\", :3sing \"was\", :3plur \"were\", :2plur \"were\", :1plur \"were\"}, :present {:2sing \"are\", :1sing \"am\", :3sing \"is\", :3plur \"are\", :2plur \"are\", :1plur \"are\"}}, :infinitive \"to be\"}, :b \"Rome\"})."))
 
+;; more clojure-ish way of handling argument types:
+;; if it's a map and its keys are such-and-such, then..
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
   (cond
+
+   (and (map? expressions)
+        (= (.size (keys expressions)) 2)
+        (= (set (keys expressions))
+           #{:italiano :english}))
+   (str (fo (get-in expressions [:italiano])) 
+        " "
+        (fo (get-in expressions [:english])))
+
    (keyword? expressions)
    expressions
    (symbol? expressions)

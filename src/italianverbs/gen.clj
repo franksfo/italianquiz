@@ -6,7 +6,7 @@
    [formative.core :as f]
    [formative.parse :as fp]
    [hiccup.page :as h]
-   [italianverbs.grammar :refer (s-present)]
+   [italianverbs.grammar.italiano :refer (s-present)]
    [italianverbs.html :as html]
    [italianverbs.lesson :as lesson]
    [italianverbs.morphology :refer (fo get-italian-1 get-english-1)]
