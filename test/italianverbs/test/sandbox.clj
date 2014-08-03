@@ -12,8 +12,6 @@
    ;; Also exclude 'generate' so that we can define a wrapper for it in the sandbox,
    ;; rather than using it directly.
    [italianverbs.generate :exclude [printfs]]
-   [italianverbs.grammar]
-   [italianverbs.test.grammar]
    [italianverbs.html]
    [italianverbs.morphology]
    [clojail.core :only [sandbox]]
@@ -21,7 +19,6 @@
    [clojail.testers])
   (:require
    [italianverbs.generate :as gen]
-   [italianverbs.grammar :as gram]
    [italianverbs.lexiconfn :as lexfn]
    [italianverbs.unify :as fs]
    [italianverbs.html :as html]

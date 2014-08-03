@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [get-in merge resolve find])
   (:use [clojure.test]
         [italianverbs.generate]
-        [italianverbs.grammar]
         [italianverbs.lexicon]
         [italianverbs.lexiconfn]
         [italianverbs.morphology]

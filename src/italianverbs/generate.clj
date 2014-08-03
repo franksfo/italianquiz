@@ -7,6 +7,8 @@
 
    [italianverbs.cache :refer (build-lex-sch-cache) ]
    [italianverbs.forest :as forest]
+   [italianverbs.grammar.english :as en]
+   [italianverbs.grammar.italiano :as it]
    [italianverbs.grammar.english :as english]
    [italianverbs.grammar.italiano :as italiano]
    [italianverbs.html :as html]

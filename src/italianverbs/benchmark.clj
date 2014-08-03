@@ -96,22 +96,21 @@
 
 (defn sentence-subject-verb [trials]
   (run-benchmark
-   #(fo (generate {:comp {:phrasal false}
-                   :head {:phrasal false}}
-                  lexicon
-                  (list it/s-present)
-                  it/cache))
+   #(fo (take 1 (generate {:comp {:phrasal false}
+                           :head {:phrasal false}}
+                          (list it/s-present)
+                          lexicon
+                          it/cache)))
    trials
    "sentence which is simply a subject plus a verb"))
 
 (defn saux [trials]
   (run-benchmark 
-   #(fo (generate
-         {:synsem {:subcat '()}}
-         lexicon
-         (list it/s-aux it/vp-aux) it/cache))
-   trials
-   "saux"))
+   #(fo (take 1 (generate
+                 {:synsem {:subcat '()}}
+                 (list it/s-aux it/vp-aux) it/cache))
+        trials
+        "saux")))
 
 (defn run-sentence [trials]
   (run-benchmark
@@ -184,13 +183,13 @@
 ;; (fo-ps (take 1 (cp-over-hl hl-over-cg1h)))
 ;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
 (defn catlove []
-  (forest/generate
-   {:synsem {:cat :verb
-             :aux false
-             :infl :imperfetto
+  (take 1 (forest/generate
+           {:synsem {:cat :verb
+                     :aux false
+                     :infl :imperfetto
              :sem {:pred :amare
                    :obj {:pred :gatto}}}}
-   it/grammar lexicon it/cache))
+           it/grammar lexicon it/cache)))
 
 (defn run-gatto [trials]
   (run-benchmark
@@ -238,17 +237,18 @@
 
 (defn word-spoken [trials]
   (run-benchmark
-   #(fo-ps (generate {:synsem {:subcat '() :cat :noun
-                               :sem {:pred :parola}}}
-                     lexicon it/grammar))
+   #(fo-ps (take 1 (generate {:synsem {:subcat '() :cat :noun
+                                       :sem {:pred :parola}}}
+                             it/grammar lexicon it/cache)))
    trials))
 
 (defn word-spoken2 [trials]
   (let [lexicon (seq (union (it "parola") (it "bianco") (it "la")))]
     (run-benchmark
-     #(fo-ps (generate {:synsem {:subcat '() :cat :noun
-                                 :sem {:pred :parola}}}
-                       lexicon (list it/np it/nbar)))
+     #(fo-ps (take 1 (generate {:synsem {:subcat '() :cat :noun
+                                         :sem {:pred :parola}}}
+                               (list it/np it/nbar)
+                               lexicon it/cache)))
      trials)))
 
 (defn word-speaker-lb [trials]
