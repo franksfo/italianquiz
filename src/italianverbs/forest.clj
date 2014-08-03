@@ -25,14 +25,18 @@
 (declare add-complements-to-bolts)
 
 (declare lightning-bolt)
+(declare generate)
 (defn gen2 [grammar lexicon spec & [cache]]
   (-> (lightning-bolt grammar
                      lexicon
                      spec 0 cache)
       (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :head :comp] :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :comp] :top grammar lexicon cache)
-      (add-complements-to-bolts [:comp]       :top grammar lexicon cache)))
+      (add-complements-to-bolts [:head :head :comp]       :top grammar lexicon cache)
+      (add-complements-to-bolts [:head :comp]             :top grammar lexicon cache)
+      (add-complements-to-bolts [:comp]                   :top grammar lexicon cache)))
+
+(defn generate [spec grammar lexicon & [cache]]
+  (gen2 grammar lexicon spec cache))
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
 (defn lightning-bolt [grammar lexicon spec & [ depth cache]]
