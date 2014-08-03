@@ -25,15 +25,6 @@
 (declare add-complements-to-bolts)
 
 (declare lightning-bolt)
-(declare generate)
-(defn gen2 [grammar lexicon spec & [cache]]
-  (-> (lightning-bolt grammar
-                      lexicon
-                      spec 0 cache)
-      (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :head :comp]       :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :comp]             :top grammar lexicon cache)
-      (add-complements-to-bolts [:comp]                   :top grammar lexicon cache)))
 
 (defn generate [spec grammar lexicon & [cache]]
   (-> (lightning-bolt grammar
@@ -48,7 +39,7 @@
 (defn lightning-bolt [grammar lexicon spec & [ depth cache]]
   "Returns a lazy-sequence of all possible trees given a spec, where
 there is only one child for each parent, and that single child is the
-head of its parent. gen2 'decorates' each returned lightning bolt
+head of its parent. generate (above) 'decorates' each returned lightning bolt
 of this function with complements."
   (log/trace (str "lighting-bolt@" depth))
   (let [maxdepth 3 ;; maximum depth of a lightning bolt: H1 -> H2 -> H3 where H3 must be a lexeme, not a phrase.
@@ -132,8 +123,8 @@ of this function with complements."
                          (if is-fail? :fail result)))
                      (if (= (rand-int 2) 0)
                        (lazy-cat (lazy-shuffle complement-candidate-lexemes)
-                                 (gen2 grammar lexicon spec))
-                       (lazy-cat (gen2 grammar lexicon spec)
+                                 (generate spec grammar lexicon cache))
+                       (lazy-cat (generate spec grammar lexicon cache)
                                  (lazy-shuffle complement-candidate-lexemes))))))
 
       ;; path doesn't exist in bolt: simply return the bolt unmodified.
@@ -147,20 +138,24 @@ of this function with complements."
      (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache))))
 
 (defn hlcl [cache grammar spec lexicon spec]
-  (gen2 grammar lexicon (unifyc {:head {:phrasal false}
-                                 :comp {:phrasal false}})))
-
-(defn hlcp [cache grammar spec lexicon spec]
-  (gen2 grammar lexicon (unifyc {:head {:phrasal false}
-                                 :comp {:phrasal true}})))
+  (generate (unifyc {:head {:phrasal false}
+                     :comp {:phrasal false}})
+            grammar lexicon cache))
 
 (defn hpcl [cache grammar spec lexicon spec]
-  (gen2 grammar lexicon (unifyc {:head {:phrasal true}
-                                 :comp {:phrasal false}})))
+  (generate (unifyc {:head {:phrasal true}
+                     :comp {:phrasal false}})
+            grammar lexicon cache))
+
+(defn hlcp [cache grammar spec lexicon spec]
+  (generate (unifyc {:head {:phrasal false}
+                     :comp {:phrasal true}})
+            grammar lexicon cache))
 
 (defn hpcp [cache grammar spec lexicon spec]
-  (gen2 grammar lexicon (unifyc {:head {:phrasal true}
-                                 :comp {:phrasal true}})))
+  (generate (unifyc {:head {:phrasal true}
+                     :comp {:phrasal true}})
+            grammar lexicon cache))
 
 (defn lazy-mapcat [the-fn the-args]
    (let [arg (first the-args)]

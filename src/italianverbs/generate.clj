@@ -34,7 +34,6 @@
 (def italiano-rule-cache (conj (build-lex-sch-cache italiano/grammar lexicon italiano/grammar)
                       {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
 
-
 (defn generate [ & [head the-lexicon the-grammar cache]]
   (let [head (if head head :top)
         grammar (if the-grammar the-grammar italiano/grammar)
@@ -43,7 +42,7 @@
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size the-grammar) "."))
-  (first (take 1 (forest/gen2 grammar lexicon head cache)))))
+  (first (take 1 (forest/generate head grammar lexicon cache)))))
 
 (defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
   (let [spec (if spec spec :top)

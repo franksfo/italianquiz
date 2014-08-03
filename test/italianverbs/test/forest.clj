@@ -12,14 +12,16 @@
                                                    get-parent-phrases-for-spec
                                                    overc overh overh-with-cache overc-with-cache)]
    [italianverbs.forest :refer :all]
-   [italianverbs.grammar :refer :all]
+   [italianverbs.grammar.italiano :as it]
    [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :as over]
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
-(deftest generate-with-gen2
-  (let [generated (first (take 1 (gen2 grammar lexicon {:synsem {:subcat '() :aux false :sem {:pred {:subj {:animate true}}}}})))]
+(deftest generate-test
+  (let [generated (first (take 1 (generate
+                                  {:synsem {:subcat '() :aux false :sem {:pred {:subj {:animate true}}}}}
+                                  it/grammar lexicon it/cache)))]
     (is (not (fail? generated)))
     (is (not (nil? generated)))))
