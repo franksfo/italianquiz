@@ -184,11 +184,13 @@
 ;; (fo-ps (take 1 (cp-over-hl hl-over-cg1h)))
 ;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
 (defn catlove []
-  (forest/gen2 it/cache it/grammar {:synsem {:cat :verb
-                                             :aux false
-                                             :infl :imperfetto
-                                             :sem {:pred :amare
-                                                   :obj {:pred :gatto}}}}))
+  (forest/generate
+   {:synsem {:cat :verb
+             :aux false
+             :infl :imperfetto
+             :sem {:pred :amare
+                   :obj {:pred :gatto}}}}
+   it/grammar lexicon it/cache))
 
 (defn run-gatto [trials]
   (run-benchmark
@@ -205,7 +207,7 @@
                        :aux false
                        :sem {:subj {:animate true}}
                        :subcat '()}}]
-    (run-benchmark #(fo (first (take 1 (forest/gen2 grammar lexicon spec cache))))
+    (run-benchmark #(fo (first (take 1 (forest/generate spec grammar lexicon cache))))
                    trials
                    name)))
 
