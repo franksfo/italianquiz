@@ -7,7 +7,8 @@
 
    [italianverbs.cache :refer (build-lex-sch-cache) ]
    [italianverbs.forest :as forest]
-   [italianverbs.grammar :refer :all]
+   [italianverbs.grammar.english :as english]
+   [italianverbs.grammar.italiano :as italiano]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.morphology :refer (fo fo-ps)]
@@ -27,14 +28,18 @@
 
 ;; this rule-cache is defined outside any function so that all functions can share
 ;; a single cache.
-(def rule-cache (conj (build-lex-sch-cache grammar lexicon grammar)
+(def english-rule-cache (conj (build-lex-sch-cache english/grammar lexicon english/grammar)
                       {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
+
+(def italiano-rule-cache (conj (build-lex-sch-cache italiano/grammar lexicon italiano/grammar)
+                      {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
+
 
 (defn generate [ & [head the-lexicon the-grammar cache]]
   (let [head (if head head :top)
-        grammar (if the-grammar the-grammar grammar)
+        grammar (if the-grammar the-grammar italiano/grammar)
         lexicon (if the-lexicon the-lexicon lexicon)
-        cache (if cache cache rule-cache)] ;; if no cache supplied, use package-level cache 'rule-cache'.
+        cache (if cache cache italiano-rule-cache)] ;; if no cache supplied, use package-level cache 'rule-cache'.
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size the-grammar) "."))
@@ -43,8 +48,8 @@
 (defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
-        grammar (if the-grammar the-grammar grammar)
-        cache (if cache cache rule-cache)]
+        grammar (if the-grammar the-grammar italiano/grammar)
+        cache (if cache cache italiano-rule-cache)]
     (first (take 1 (forest/hlcl cache grammar lexicon (unify spec {:synsem {:cat :noun :subcat '()}}))))))
 
 (defn sentence [ & [spec the-lexicon the-grammar cache]]
@@ -54,8 +59,8 @@
                        
         spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
-        grammar (if the-grammar the-grammar grammar)
-        cache (if cache cache rule-cache)]
+        grammar (if the-grammar the-grammar italiano/grammar)
+        cache (if cache cache italiano-rule-cache)]
     (generate (unifyc sentence-spec spec))))
 
 ;; This sentence generation prevents initialization errors that occur when trying to
@@ -66,6 +71,6 @@
                                       :synsem {:subcat '() :cat :verb
                                                :sem {:pred :parlare
                                                      :subj {:pred :lei}}}}
-                                     lexicon grammar))
+                                     lexicon italiano/grammar))
                                                                              
 (log/info (str "done loading generate: " (fo get-stuff-initialized)))

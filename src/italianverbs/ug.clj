@@ -14,7 +14,6 @@
             [italianverbs.unify :as unify]
             [clojure.string :as string]))
 
-(def phrase-times-lexicon-cache false)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
 ;;    false: don't pre-compute product (fast startup, slow runtime)
 
@@ -231,166 +230,7 @@
      :head {:synsem {:sem head-semantics}}
      :comp {:synsem {:sem mod-semantics}}}))
 
-(def italian-head-first
-  (let [head-italian (ref :top)
-        comp-italian (ref :top)]
-    (unify
-     {:comp {:italian {:initial false}}
-      :head {:italian {:initial true}}}
-     {:head {:italian head-italian}
-      :comp {:italian comp-italian}
-      :italian {:a head-italian
-                :b comp-italian}})))
-
-(def italian-head-last
-  (let [head-italian (ref :top)
-        comp-italian (ref :top)]
-    (unify
-     {:comp {:italian {:initial true}}
-      :head {:italian {:initial false}}}
-     {:head {:italian head-italian}
-      :comp {:italian comp-italian}
-      :italian {:a comp-italian
-                :b head-italian}})))
-
-(def english-head-first
-  (let [head-english (ref :top)
-        comp-english (ref :top)]
-    {:head {:english head-english}
-     :comp {:english comp-english}
-     :english {:a head-english
-               :b comp-english}}))
-
-(def english-head-last
-  (let [head-english (ref :top)
-        comp-english (ref :top)]
-    {:head {:english head-english}
-     :comp {:english comp-english}
-     :english {:a comp-english
-               :b head-english}}))
-
-;; -- BEGIN SCHEMA DEFINITIONS
-(def schema-10
-  (unify
-   subcat-1-principle
-   head-principle
-   {:comment "cc10"
-    :first :comp
-    :comp {:synsem {:subcat '()}}}))
-
-(def cc10
-  (unify
-   schema-10
-   italian-head-last
-   english-head-last
-   {:comment "cc10"
-    ;; TODO: using :schema-symbol below - cannot use :schema for some reason; need to figure out why.
-    ;; if you try to use :schema, I get:
-    ;; java.util.concurrent.ExecutionException: java.lang.RuntimeException:
-    ;; Can't embed object in code, maybe print-dup not defined: clojure.lang.Ref@11819f3c
-    :schema-symbol 'cc10 ;; used by over-each-parent to know where to put children.
-    :first :comp
-    :comp {:synsem {:subcat '()}}}))
-
-(def ch21
-  (unify
-   subcat-2-principle
-   head-principle
-   italian-head-last
-   english-head-first
-   {:comp {:synsem {:subcat '()
-                    :pronoun true}}
-    :schema-symbol 'ch21 ;; used by over-each-parent to know where to put children.
-    :first :comp
-    :comment "ch21"}))
-
-(def hc11
-  (unify
-   subcat-1-1-principle
-   hc-agreement
-   head-principle
-   comp-modifies-head
-   italian-head-first
-   english-head-last
-   {
-    :schema-symbol 'hc11 ;; used by over-each-parent to know where to put children.
-    :first :head
-    :comment "hc11"}))
-
-
-(def hc11-comp-subcat-1
-  (let [subcat (ref :top)]
-    (unify
-     {:head {:synsem {:subcat {:1 subcat}}}
-      :comp {:synsem {:subcat {:1 subcat}}}}
-     subcat-1-1-principle-comp-subcat-1
-     hc-agreement
-     head-principle
-     comp-modifies-head
-     italian-head-first
-     english-head-last
-     {:schema-symbol 'hc11-comp-subcat-1
-      :first :head
-      :comment "hc11-comp-subcat-1"})))
-
-(def hh10
-  (unify
-   subcat-1-principle
-   head-principle
-   italian-head-first
-   english-head-first
-   {:comment "hh10"
-    :schema-symbol 'hh10 ;; used by over-each-parent to know where to put children.
-    :first :head}))
-
-(def hh21
-  (unify
-   subcat-2-principle
-   head-principle
-   italian-head-first
-   english-head-first
-   {:comment "hh21"
-    :schema-symbol 'hh21 ;; used by over-each-parent to know where to put children.
-    :first :head}))
-
-(def hh22
-  (unify
-   subcat-2-2-principle
-   head-principle
-   italian-head-first
-   english-head-first
-   {:comment "hh22"
-    :schema-symbol 'hh22 ;; used by over-each-parent to know where to put children.
-    :first :head}))
-
-(def hh32
-  (unify
-   subcat-5-principle
-   head-principle
-   italian-head-first
-   english-head-first
-   {:comment "hh32"
-    :schema-symbol 'hh32 ;; used by over-each-parent to know where to put children.
-    :first :head}))
-
 ;; -- END SCHEMA DEFINITIONS
-
-;; standard rule-caching disclaimer:
-;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
-(def ch21-heads
-  (if phrase-times-lexicon-cache
-    (lazy-seq (filter (fn [lex]
-                        (not (fail? (unify ch21 {:head lex}))))
-                      lex/lexicon)
-              lex/lexicon)))
-
-(def hc11-comps
-  (if phrase-times-lexicon-cache
-    (lazy-seq (filter (fn [lex]
-                        (not (fail? (unify hc11 {:comp lex}))))
-                      lex/lexicon)
-              lex/lexicon)
-    lex/lexicon))
 
 (defn sentence-impl [input]
   "do things necessary before something can be a sentence. e.g. if infl is still :top, set to
@@ -448,36 +288,6 @@
                                 candidate-comp
                                 sem-impl)))
      (find-some-head-for parent (rest heads) candidate-comp))))
-
-;; standard rule-caching disclaimer:
-;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
-(def ch21-comps
-  (if phrase-times-lexicon-cache
-    (lazy-seq
-     (filter (fn [lex]
-               (find-some-head-for ch21 ch21-heads lex))
-             (filter (fn [lex]
-                       (not (fail? (unify ch21 {:comp lex}))))
-                     lex/lexicon))
-     lex/lexicon)))
-
-;; standard rule-caching disclaimer:
-;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
-(def hh21-heads
-  (lazy-seq
-   (filter (fn [lex]
-             (not (fail? (unify hh21 {:head lex}))))
-           lex/lexicon)
-   lex/lexicon))
-
-(def all-in-lexicon lex/lexicon)
-
-(def hh10-heads
-  (lazy-seq
-    (filter (fn [lex]
-              (not (fail? (unify hh10 {:head lex}))))
-            lex/lexicon)
-    lex/lexicon))
 
 (log/info "Universal Grammar Immediate Dominance schemata are defined in our environment.")
 
