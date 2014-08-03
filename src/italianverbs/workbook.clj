@@ -29,6 +29,8 @@
 ;(def avoid-init-errors (nounphrase))
 (def avoid-init-errors true)
 
+;; TODO: add user convenience functions: functions that might be useful for workbook users.
+
 ;; Sandbox specification derived from:
 ;;    https://github.com/flatland/clojail/blob/4d3f58f69c2d22f0df9f0b843c7dea0c6a0a5cd1/src/clojail/testers.clj#L76
 ;;    http://docs.oracle.com/javase/6/docs/api/overview-summary.html
@@ -145,23 +147,3 @@
       [:div#workbooka
        (if search-query
          (workbookq search-query))]])))
-
-;; (take 1 (overall "domani" (overall "io" (overall "avere" (overall "potere" "dormire")))))))
-(defn overall [child1 & [child2]]
-  (over (list cc10 ch21 hc11 hh10 hh21 hh32) child1 child2))
-
-(defn overha [child1 & [child2]]
-  (log/debug (str "overha child1: " (fo child1)))
-  (log/debug (str "overha child2: " (fo child2)))
-  (let [with-head
-        (reduce #'concat
-                (map (fn [parent]
-                       (overh parent child1))
-                     (list cc10 ch21 hc11 hh10 hh21 hh32)))]
-    (if child2
-      (reduce #'concat
-              (map (fn [each-with-head]
-                     (overc each-with-head child2))
-                   with-head))
-      with-head)))
-
