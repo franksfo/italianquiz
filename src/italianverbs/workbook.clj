@@ -12,9 +12,11 @@
    [hiccup.core :refer :all]
 
    [italianverbs.benchmark :refer :all]
-   [italianverbs.forest :refer :all :exclude [lightning-bolt unifyc deref future rand-int]]
+   [italianverbs.forest :as forest]
+   [italianverbs.forest :refer :all :exclude [lightning-bolt unifyc deref future generate rand-int]]
    [italianverbs.generate :refer :all :exclude [lightning-bolt]]
-   [italianverbs.grammar :refer :all]
+   [italianverbs.grammar.english :as en]
+   [italianverbs.grammar.italiano :as it]
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]

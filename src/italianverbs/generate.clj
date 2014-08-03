@@ -34,22 +34,22 @@
 (def italiano-rule-cache (conj (build-lex-sch-cache italiano/grammar lexicon italiano/grammar)
                       {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
 
-(defn generate [ & [head the-lexicon the-grammar cache]]
-  (let [head (if head head :top)
-        grammar (if the-grammar the-grammar italiano/grammar)
+(defn generate [ & [spec grammar the-lexicon cache]]
+  (let [spec (if spec spec :top)
+        grammar (if grammar grammar italiano/grammar)
         lexicon (if the-lexicon the-lexicon lexicon)
         cache (if cache cache italiano-rule-cache)] ;; if no cache supplied, use package-level cache 'rule-cache'.
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
-                  (.size the-grammar) "."))
-  (first (take 1 (forest/generate head grammar lexicon cache)))))
+                  (.size grammar) "."))
+  (forest/generate spec grammar lexicon cache)))
 
 (defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
   (let [spec (if spec spec :top)
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar italiano/grammar)
         cache (if cache cache italiano-rule-cache)]
-    (first (take 1 (forest/hlcl cache grammar lexicon (unify spec {:synsem {:cat :noun :subcat '()}}))))))
+    (first (take 1 (forest/generate (unify spec {:synsem {:cat :noun :subcat '()}}) grammar lexicon cache)))))
 
 (defn sentence [ & [spec the-lexicon the-grammar cache]]
   (let [sentence-spec {:synsem {:subcat '()
@@ -60,7 +60,13 @@
         lexicon (if the-lexicon the-lexicon lexicon)
         grammar (if the-grammar the-grammar italiano/grammar)
         cache (if cache cache italiano-rule-cache)]
-    (generate (unifyc sentence-spec spec))))
+    (first (take 1 (generate (unifyc sentence-spec spec))))))
+
+(defn sentence-en [ & [spec ]]
+  (sentence spec lexicon en/grammar en/cache))
+
+(defn sentence-it [ & [spec ]]
+  (sentence spec lexicon it/grammar it/cache))
 
 ;; This sentence generation prevents initialization errors that occur when trying to
 ;; generate sentences within the sandbox.
