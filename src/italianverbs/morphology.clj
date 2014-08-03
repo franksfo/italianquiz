@@ -1786,7 +1786,9 @@
 ;;italianverbs.benchmark> (fo (take 1 (forest/hlcl cache grammar)))
 ;; (("Stato Roma ({:a {:infl #<Ref@1f574a31: :past>, :case #<Ref@773c3b34: :nom>, :agr #<Ref@3619649b: {:gender #<Ref@7f628bdb: :masc>, :number #<Ref@1ecc1833: :sing>}>, :irregular {:past {:2sing \"were\", :1sing \"was\", :participle \"been\", :3sing \"was\", :3plur \"were\", :2plur \"were\", :1plur \"were\"}, :present {:2sing \"are\", :1sing \"am\", :3sing \"is\", :3plur \"are\", :2plur \"are\", :1plur \"are\"}}, :infinitive \"to be\"}, :b \"Rome\"})."))
 
-;; more clojure-ish way of handling argument types:
+(declare fo)
+(declare finalize)
+;; TODO:more clojure-ish way of handling argument types:
 ;; if it's a map and its keys are such-and-such, then..
 (defn formattare [expressions]
   "format a bunch of expressions (feature-structures) showing just the italian (and english in parentheses)."
@@ -1796,9 +1798,7 @@
         (= (.size (keys expressions)) 2)
         (= (set (keys expressions))
            #{:italiano :english}))
-   (str (fo (get-in expressions [:italiano])) 
-        " "
-        (fo (get-in expressions [:english])))
+   (fo (finalize expressions))
 
    (keyword? expressions)
    expressions
@@ -1838,10 +1838,47 @@
     retval))
 
 (defn finalize [expr]
-  (if (seq? expr)
-    (map (fn [x]
-           (finalize x))
-         expr)
+  (cond
+
+   ;; This is the case where we've generated totally separate english and italian phrase structure trees,
+   ;; in which case we need to extract the english and italian strings from their respective trees.
+   (and (map? expr)
+        (= (.size (keys expr)) 2)
+        (= (set (keys expr))
+           #{:italiano :english}))
+   (let [english
+         (get-english-1 (get-in expr '(:english :english)))
+         italian
+         ;; TODO: much inconsistent. make the path: [:italiano :italiano]  rather than [:italiano :italian]
+         (get-italian-1 (get-in expr '(:italiano :italian)))]
+     (log/debug (str "input expr: " (fo expr)))
+     (log/debug (str "finalized english: " english))
+     (log/debug (str "finalized italian: " italian))
+     {:italian italian
+      :english english
+      :english-tree (get-in expr [:english])
+      :italian-tree (get-in expr [:italiano])})
+
+   (if (= :fail expr)
+     :fail)
+
+   (map? expr)
+   (let [english
+         (get-english-1 (get-in expr '(:english)))
+         italian
+         (get-italian-1 (get-in expr '(:italian)))]
+     (log/debug (str "input expr: " (fo expr)))
+     (log/debug (str "finalized english: " english))
+     (log/debug (str "finalized italian: " italian))
+     (merge expr
+            {:italian italian
+             :english english}))
+
+   (seq? expr)
+   (map (fn [x]
+          (finalize x))
+        expr)
+
     (if (= :fail expr)
       :fail
       (let [english
