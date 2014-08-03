@@ -188,64 +188,6 @@
      :synsem {:subcat {:1 subcat-1
                        :2 subcat-2}}}))
 
-;; a language's morphological inflection is
-;; identical to its head's SYNSEM|INFL value.
-(def verb-inflection-morphology
-  (let [essere (ref :top)
-        infl (ref :top)
-        cat (ref :verb)]
-    {:italian {:a {:infl infl
-                   :cat cat}}
-     :english {:a {:infl infl
-                   :cat cat}}
-     :synsem {:infl infl
-              :essere essere}
-     :head {:italian {:infl infl
-                      :cat cat}
-            :english {:infl infl
-                      :cat cat}
-            :synsem {:cat cat
-                     :essere essere
-                     :infl infl}}}))
-
-(def italian-head-first
-  (let [head-italian (ref :top)
-        comp-italian (ref :top)]
-    (unify
-     {:comp {:italian {:initial false}}
-      :head {:italian {:initial true}}}
-     {:head {:italian head-italian}
-      :comp {:italian comp-italian}
-      :italian {:a head-italian
-                :b comp-italian}})))
-
-(def italian-head-last
-  (let [head-italian (ref :top)
-        comp-italian (ref :top)]
-    (unify
-     {:comp {:italian {:initial true}}
-      :head {:italian {:initial false}}}
-     {:head {:italian head-italian}
-      :comp {:italian comp-italian}
-      :italian {:a comp-italian
-                :b head-italian}})))
-
-(def english-head-first
-  (let [head-english (ref :top)
-        comp-english (ref :top)]
-    {:head {:english head-english}
-     :comp {:english comp-english}
-     :english {:a head-english
-               :b comp-english}}))
-
-(def english-head-last
-  (let [head-english (ref :top)
-        comp-english (ref :top)]
-    {:head {:english head-english}
-     :comp {:english comp-english}
-     :english {:a comp-english
-               :b head-english}}))
-
 (def standard-filter-fn
   (fn [additional-phrase-with-head]
     (fn [phrase-with-head]
@@ -289,21 +231,63 @@
      :head {:synsem {:sem head-semantics}}
      :comp {:synsem {:sem mod-semantics}}}))
 
-;; -- BEGIN SCHEMA DEFINITIONS
+(def italian-head-first
+  (let [head-italian (ref :top)
+        comp-italian (ref :top)]
+    (unify
+     {:comp {:italian {:initial false}}
+      :head {:italian {:initial true}}}
+     {:head {:italian head-italian}
+      :comp {:italian comp-italian}
+      :italian {:a head-italian
+                :b comp-italian}})))
 
-(def cc10
+(def italian-head-last
+  (let [head-italian (ref :top)
+        comp-italian (ref :top)]
+    (unify
+     {:comp {:italian {:initial true}}
+      :head {:italian {:initial false}}}
+     {:head {:italian head-italian}
+      :comp {:italian comp-italian}
+      :italian {:a comp-italian
+                :b head-italian}})))
+
+(def english-head-first
+  (let [head-english (ref :top)
+        comp-english (ref :top)]
+    {:head {:english head-english}
+     :comp {:english comp-english}
+     :english {:a head-english
+               :b comp-english}}))
+
+(def english-head-last
+  (let [head-english (ref :top)
+        comp-english (ref :top)]
+    {:head {:english head-english}
+     :comp {:english comp-english}
+     :english {:a comp-english
+               :b head-english}}))
+
+;; -- BEGIN SCHEMA DEFINITIONS
+(def schema-10
   (unify
    subcat-1-principle
    head-principle
+   {:comment "cc10"
+    :first :comp
+    :comp {:synsem {:subcat '()}}}))
+
+(def cc10
+  (unify
+   schema-10
    italian-head-last
    english-head-last
    {:comment "cc10"
-
     ;; TODO: using :schema-symbol below - cannot use :schema for some reason; need to figure out why.
     ;; if you try to use :schema, I get:
     ;; java.util.concurrent.ExecutionException: java.lang.RuntimeException:
     ;; Can't embed object in code, maybe print-dup not defined: clojure.lang.Ref@11819f3c
-
     :schema-symbol 'cc10 ;; used by over-each-parent to know where to put children.
     :first :comp
     :comp {:synsem {:subcat '()}}}))
@@ -494,40 +478,6 @@
               (not (fail? (unify hh10 {:head lex}))))
             lex/lexicon)
     lex/lexicon))
-
-;; standard rule-caching disclaimer:
-;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
-(def cc10-heads
-  (if phrase-times-lexicon-cache
-    (filter (fn [lex]
-              (and true ;(= (unify/get-in lex '(:italian :italian)) "acqua")
-                   (not (fail? (unify cc10 {:head lex})))))
-            lex/lexicon)
-    lex/lexicon))
-
-;; standard rule-caching disclaimer:
-;; "this is computed when it's needed. first usage is very expensive. TODO: make first usage less expensive."
-(def cc10-comps
-  (if phrase-times-lexicon-cache
-    (filter (fn [lex]
-              (find-some-head-for cc10 cc10-heads lex))
-            (filter (fn [lex]
-                      (not (fail? (unify cc10 {:comp lex}))))
-                    lex/lexicon))
-    lex/lexicon))
-
-(if phrase-times-lexicon-cache
-  (do
-    (log/info "pre-compiling phrase-lex caches because phrase-times-lexicon-cache is true..")
-    (log/info (str "ch21-heads.."))
-    (log/info (str "ch21-heads: " (.size ch21-heads)))
-    (log/info (str "ch21-comps.."))
-    (log/info (str "ch21-comps: " (.size ch21-comps)))
-    (log/info (str "ch10-heads.."))
-    (log/info (str "cc10-heads: " (.size cc10-heads)))
-    (log/info (str "ch10-comps.."))
-    (log/info (str "cc10-comps: " (.size cc10-comps)))
-    (log/info "done pre-compiling phrase-lex caches.")))
 
 (log/info "Universal Grammar Immediate Dominance schemata are defined in our environment.")
 
