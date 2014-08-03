@@ -282,7 +282,7 @@ on a table."
            (not (fail? (unify (read-string (:value row))
                               the-where))))})
 
-(defn fetch [collection & [ the-where ]]
+(defn fetch [collection & [ the-where order-by]]
   "select from collection; might take an id. For each returned row, return simply the row as a clojure map, but merge it with an extra field for the primary key (id)."
   (let [the-where
         (if the-where the-where nil)
@@ -325,15 +325,23 @@ on a table."
       ;; else,no collection-mapping function.
       (do
         (log/warn (str "no collection-mapping function for " collection))
-        (if the-where
-          (if (collection table-to-filter)
-            (filter (fn [row]
-                      ((collection table-to-filter)
-                       row the-where))
-                           (select table))
-            (select table
-                    (where the-where)))
-          (select table))))))
+        (let [base
+              (if the-where
+                (if (collection table-to-filter)
+                  (filter (fn [row]
+                            ((collection table-to-filter)
+                             row the-where))
+                          (select table))
+                  (-> (select* table)
+                      (where the-where)))
+                (-> (select* table)))]
+          (if order-by
+            (exec (-> base
+                      (order order-by)))
+            (exec base)))))))
+
+(defn at-least-it-works []
+  (exec (-> (select* :verb) (order :value))))
 
 (defn fetch-one [collection & [ the-where]]
   (first (take 1 (fetch collection the-where))))
