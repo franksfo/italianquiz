@@ -1688,80 +1688,81 @@
 
 (defn fo-ps [expr]
   "show the phrase-structure of a phrase structure tree, e.g [hh21 'mangiare (to eat)' [cc10 'il (the)' 'pane(bread)']]"
-  (cond
+  ;; [:first = {:head,:comp}] will not yet be found in expr, so this head-first? will always be false.
+  (let [head-first? (= :head (get-in expr [:first]))]
+    (cond
 
-   (and
-    (or (set? expr)
-        (seq? expr)
-        (vector? expr))
-    (empty? expr))
-   (str "")
-
-
-   (and
-    (or (set? expr)
-        (seq? expr)
-        (vector? expr))
-    (not (empty? expr)))
-
-   ;; expr is a sequence of some kind. Assume each element is a phrase structure tree and show each.
-   (map (fn [each]
-          (fo-ps each))
-        expr)
-
-   (and (map? expr)
-        (:rule expr)
-        (= (get-in expr '(:italian :a))
-           (get-in expr '(:comp :italian))))
-   ;; complement first
-   (str "[" (:rule expr) " "
-        (fo-ps (get-in expr '(:comp)))
-        " "
-        (fo-ps (get-in expr '(:head)))
-        "]")
-
-   (and (map? expr)
-        (:rule expr))
-   ;; head first ('else' case of above.)
-   (str "[" (:rule expr) " "
-        (fo-ps (get-in expr '(:head)))
-        " "
-        (fo-ps (get-in expr '(:comp)))
-        "]")
+     (and
+      (or (set? expr)
+          (seq? expr)
+          (vector? expr))
+      (empty? expr))
+     (str "")
 
 
-   (and (map? expr)
-        (:comment expr)
-        (= (get-in expr '(:italian :a))
-           (get-in expr '(:comp :italian))))
-   ;; complement first
-   (str "[" (:comment expr) " "
-        (fo-ps (get-in expr '(:comp)))
-        " "
-        (fo-ps (get-in expr '(:head)))
-        "]")
+     (and
+      (or (set? expr)
+          (seq? expr)
+          (vector? expr))
+      (not (empty? expr)))
 
-   (and (map? expr)
-        (:comment expr))
-   ;; head first ('else' case of above.)
-   (str "[" (:comment expr) " "
-        (fo-ps (get-in expr '(:head)))
-        " "
-        (fo-ps (get-in expr '(:comp)))
-        "]")
+     ;; expr is a sequence of some kind. Assume each element is a phrase structure tree and show each.
+     (map (fn [each]
+            (fo-ps each))
+          expr)
 
-   (and
-    (map? expr)
-    (:italian expr)
-    (:english expr))
-   (str (get-italian-1 (get-in expr '(:italian)))
-        " ("
-        (get-english-1 (get-in expr '(:english)))
-        ")")
+     (and (map? expr)
+          (:rule expr)
+          (= (get-in expr '(:italian :a))
+             (get-in expr '(:comp :italian))))
+     ;; complement first
+     (str "[" (:rule expr) " "
+          (fo-ps (get-in expr '(:comp)))
+          " "
+          (fo-ps (get-in expr '(:head)))
+          "]")
 
-   true
-   expr))
+     (and (map? expr)
+          (:rule expr))
+     ;; head first ('else' case of above.)
+     (str "[" (:rule expr) " "
+          (fo-ps (get-in expr '(:head)))
+          " "
+          (fo-ps (get-in expr '(:comp)))
+          "]")
 
+
+     (and (map? expr)
+          (:comment expr)
+          (= (get-in expr '(:italian :a))
+             (get-in expr '(:comp :italian))))
+     ;; complement first
+     (str "[" (:comment expr) " "
+          (fo-ps (get-in expr '(:comp)))
+          " "
+          (fo-ps (get-in expr '(:head)))
+          "]")
+
+     (and (map? expr)
+          (:comment expr))
+     ;; head first ('else' case of above.)
+     (str "[" (:comment expr) " "
+          (fo-ps (get-in expr '(:head)))
+          " "
+          (fo-ps (get-in expr '(:comp)))
+          "]")
+
+     (and
+      (map? expr)
+      (or (:italian expr)
+          (:english expr)))
+     (str (get-italian-1 (get-in expr '(:italian)))
+          " ("
+          (get-english-1 (get-in expr '(:english)))
+          ")")
+
+     true
+     expr)))
 
 (defn formattare-1 [expr]
   (log/trace (str "doing f-1 on: " expr))
