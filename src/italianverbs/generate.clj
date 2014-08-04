@@ -56,18 +56,15 @@
         cache (if cache cache italiano-rule-cache)]
     (first (take 1 (forest/generate (unify spec {:synsem {:cat :noun :subcat '()}}) grammar lexicon cache)))))
 
-(defn sentence [ & [spec the-lexicon the-grammar cache]]
+(defn sentence [ & [spec ]]
   (let [sentence-spec {:synsem {:subcat '()
                                 :cat :verb
                                 :subj {:animate true}}}
                        
         spec (if spec spec :top)
-        lexicon (if the-lexicon the-lexicon lexicon)
-        grammar (if the-grammar the-grammar it/grammar)
-        cache (if cache cache italiano-rule-cache)
         unified-spec (unifyc sentence-spec spec)]
     (let [italiano
-          (first (take 1 (generate unified-spec grammar lexicon cache)))]
+          (first (take 1 (generate unified-spec it/grammar lexicon it/cache)))]
       (log/info (str "semantics of this italian sentence:" (get-in italiano [:synsem :sem])))
       (let [english
             (first (take 1 (generate (unifyc unified-spec
