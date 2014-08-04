@@ -22,16 +22,10 @@
 ;;
 ;; user> (in-ns 'italianverbs.benchmark)
 ;; #<Namespace italianverbs.benchmark>
-;; italianverbs.benchmark> (run-small 5)
-;; "Elapsed time: 3215.335 msecs"
-;; "Elapsed time: 3240.738 msecs"
-;; "Elapsed time: 3246.048 msecs"
-;; "Elapsed time: 3219.936 msecs"
-;; "Elapsed time: 3226.173 msecs"
-;; 5
-;; italianverbs.benchmark> 
+;; italianverbs.benchmark> (standard-benchmark 5)
 ;;
 
+;; TODO: move stats-related stuff somewhere else.
 (defn percentile [percent runtimes]
   (let [sorted-runtimes (sort runtimes)
         trials (.size runtimes)
@@ -183,7 +177,7 @@
 ;; (fo-ps (take 1 (cp-over-hl hl-over-cg1h)))
 ;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
 (defn catlove []
-  (take 1 (forest/generate
+  (take 1 (generate
            {:synsem {:cat :verb
                      :aux false
                      :infl :imperfetto
@@ -201,12 +195,14 @@
 ;; will work with inanimate subjects (only exception currently is ‘essere’ (e.g. ‘la cipolle è’ ..)
 ;;
 ;; To reproduce problem, use: {:sem {:subj {:animate false}}}
-(defn bolt-benchmark [trials grammar cache name]
-  (let [spec {:synsem {:cat :verb
-                       :aux false
-                       :sem {:subj {:animate true}}
-                       :subcat '()}}]
-    (run-benchmark #(fo (first (take 1 (forest/generate spec grammar lexicon cache))))
+(defn bolt-benchmark [trials grammar cache name  &  [spec ]]
+  (let [spec 
+        (if spec spec
+            {:synsem {:cat :verb
+                      :aux false
+                      :sem {:subj {:animate true}}
+                      :subcat '()}})]
+    (run-benchmark #(fo (first (take 1 (generate spec grammar lexicon cache))))
                    trials
                    name)))
 
@@ -215,8 +211,18 @@
         (if (nil? trials) 1 trials)]
     (bolt-benchmark trials it/grammar it/cache "bolt-benchmark-it")))
 
-(defn standard-benchmark-en [ & [ trials ]]
+(defn standard-benchmark-it-with [ trials spec ]
   (let [trials
+        (if (nil? trials) 1 trials)]
+    (bolt-benchmark trials it/grammar it/cache "bolt-benchmark-it" spec)))
+
+(defn standard-benchmark-en-with [ trials spec ]
+  (let [trials
+        (if (nil? trials) 1 trials)]
+    (bolt-benchmark trials en/grammar en/cache "bolt-benchmark-en" spec)))
+
+(defn standard-benchmark-en [ & [ trials ]]
+  (let [trialsa
         (if (nil? trials) 1 trials)]
     (bolt-benchmark trials en/grammar en/cache "bolt-benchmark-en")))
 
@@ -225,6 +231,12 @@
         (if (nil? trials) 1 trials)]
     (do (standard-benchmark-it trials)
         (standard-benchmark-en trials))))
+
+(defn standard-benchmark-with [ trials spec ]
+  (let [trials
+        (if (nil? trials) 1 trials)]
+    (do (standard-benchmark-it-with trials spec)
+        (standard-benchmark-en-with trials spec))))
 
 (defn word-speaker [trials]
   (run-benchmark
@@ -251,10 +263,3 @@
                                lexicon it/cache)))
      trials)))
 
-(defn word-speaker-lb [trials]
-  (run-benchmark
-   #(fo (take 1 (forest/lightning-bolt it/grammar lexicon {:synsem {:subcat '() :cat :verb
-                                                                    :sem {:pred :parlare
-                                                                          :subj {:pred :lei}
-                                                                          :obj {:pred :parola}}}})))
-   trials))
