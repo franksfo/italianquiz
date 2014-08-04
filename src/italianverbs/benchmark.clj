@@ -25,6 +25,12 @@
 ;; italianverbs.benchmark> (standard-benchmark 5)
 ;;
 
+;; italianverbs.benchmark> (run-benchmark #(fo (sentence)) 1)
+;; prints:
+;;   ' (Il tuo ragazzo contento sarà Giorgio (This guy will be Giorgio).) ' took:  12041  msec.
+;;   stats for '(unnamed)' {:trials 1, :mean 12041.0, :median 12041, :stddev 0.0, :min 12041, :max 12041, :95% 12041, :99% 12041}
+;;
+
 ;; TODO: move stats-related stuff somewhere else.
 (defn percentile [percent runtimes]
   (let [sorted-runtimes (sort runtimes)
