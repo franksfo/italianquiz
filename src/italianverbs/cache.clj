@@ -133,7 +133,9 @@
           (log/trace (str "overc size of result: " (.size result))))
         result))))
 
-(defn get-lex [schema head-or-comp cache]
+;; TODO: spec is not used yet; add support for it.
+(defn get-lex [schema head-or-comp cache spec]
+  "return the subset of the whole lexicon that can be added either as a head (head-or-comp=:head) or as a comp (head-or-comp=:comp)."
   (if (nil? schema)
     #{}
     (do

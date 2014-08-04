@@ -62,12 +62,12 @@ of this function with complements."
                 (lazy-mapcat-shuffle
                  (fn [parent]
                    (let [cached (if cache
-                                  (get cache (get-lex parent :head cache)))
+                                  (get cache (get-lex parent :head cache spec)))
                          lexicon (if cached cached lexicon)]
                      (log/trace (str "lighting-bolt@" depth ": overh(lex) with parent: " (fo-ps parent)))
                      (log/trace (str "lighting-bolt@" depth ": overh(lex) with lexicon: " (fo lexicon)))
-                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry type: " (type (get-lex parent :head cache))))
-                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry size: " (.size (get-lex parent :head cache))))
+                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry type: " (type cached)))
+                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry size: " (type cached)))
                      (overh parent (lazy-shuffle lexicon))))
                  parents
                  depth
@@ -105,7 +105,7 @@ of this function with complements."
       (let [immediate-parent (get-in bolt (butlast path))
             cached (if cache
                      (do
-                       (let [result (get-lex immediate-parent :comp cache)]
+                       (let [result (get-lex immediate-parent :comp cache spec)]
                          (if (not (nil? result))
                            (log/debug (str " cached lexical subset is: " (.size result)))
                            (log/warn (str " no cached value for: " (fo-ps immediate-parent))))
