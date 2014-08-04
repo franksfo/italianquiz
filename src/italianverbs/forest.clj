@@ -99,13 +99,22 @@ of this function with complements."
     parents-with-head))))
 
 (defn add-complement [bolt path spec grammar lexicon cache]
-  (let [spec (unifyc spec (get-in bolt path :no-path))]
+  (let [input-spec spec
+        spec (unifyc spec (get-in bolt path :no-path))]
     (if (not (= spec :no-path))
       (let [immediate-parent (get-in bolt (butlast path))
             cached (if cache
-                     (get cache (get-lex immediate-parent :comp cache)))
+                     (do
+                       (let [result (get-lex immediate-parent :comp cache)]
+                         (if (not (nil? result))
+                           (log/debug (str " cached lexical subset is: " (.size result)))
+                           (log/warn (str " no cached value for: " (fo-ps immediate-parent))))
+                         result))
+                     (do (log/warn (str "no cache: will go through entire lexicon."))
+                         nil))
             complement-candidate-lexemes (if cached cached lexicon)]
-        (log/debug (str "add-complement to: " (fo-ps bolt) " @path: " path))
+        (log/debug (str (fo-ps bolt) "@" path "::" (show-spec spec)))
+        (log/debug (str "  lexicon size:" (.size lexicon)))
         (log/trace (str " immediate parent:" (get-in immediate-parent [:rule])))
         (log/trace (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
         (filter (fn [result]
@@ -117,10 +126,12 @@ of this function with complements."
                                      (path-to-map path
                                                   complement))
                              is-fail? (fail? result)]
-                         (log/trace (str "add-complement: " (fo-ps bolt) " with complement: " (fo complement) " => " (if (not is-fail?)
-                                                                                                               (fo-ps result)
-                                                                                                               ":fail")))
+                         (log/debug (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
+                                                                                                        (fo-ps result)
+                                                                                                        ":fail")))
                          (if is-fail? :fail result)))
+                     
+                     ;; lazy-sequence of complements to pass one-by-one to the above (map)'s function.
                      (if (= (rand-int 2) 0)
                        (lazy-cat (lazy-shuffle complement-candidate-lexemes)
                                  (generate spec grammar lexicon cache))
@@ -129,8 +140,9 @@ of this function with complements."
 
       ;; path doesn't exist in bolt: simply return the bolt unmodified.
       (do
-        (log/debug "bolt with spec: " (show-spec spec) " complete: " (fo-ps bolt))
+        (log/debug " complement added to: " (fo-ps bolt))
         (list bolt)))))
+
 (defn add-complements-to-bolts [bolts path spec grammar lexicon cache]
   (if (not (empty? bolts))
     (lazy-cat
