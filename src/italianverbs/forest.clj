@@ -113,8 +113,10 @@ of this function with complements."
                      (do (log/warn (str "no cache: will go through entire lexicon."))
                          nil))
             complement-candidate-lexemes (if cached cached lexicon)]
-        (log/debug (str (fo-ps bolt) "@" path "::" (show-spec spec)))
-        (log/debug (str "  lexicon size:" (.size lexicon)))
+        (log/debug (str "add-complement: " (fo-ps bolt) "@" path "::" (show-spec spec)))
+        (let [semantics (get-in spec [:synsem :sem])]
+          (if (not (nil? semantics))
+            (if (not (nil? semantics)) (log/debug (str "  with semantics:" semantics)))))
         (log/trace (str " immediate parent:" (get-in immediate-parent [:rule])))
         (log/trace (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
         (filter (fn [result]
@@ -126,9 +128,13 @@ of this function with complements."
                                      (path-to-map path
                                                   complement))
                              is-fail? (fail? result)]
-                         (log/debug (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
-                                                                                                        (fo-ps result)
-                                                                                                        ":fail")))
+                         (if is-fail?
+                           (log/trace (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
+                                                                                                          (fo-ps result)
+                                                                                                          ":fail")))
+                           (log/debug (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
+                                                                                                          (fo-ps result)
+                                                                                                          ":fail"))))
                          (if is-fail? :fail result)))
                      
                      ;; lazy-sequence of complements to pass one-by-one to the above (map)'s function.
