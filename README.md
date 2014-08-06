@@ -43,8 +43,8 @@ italianverbs.workbook=>
 
 ## Benchmarking
 
-```italianverbs.benchmark=> (load "italianverbs/benchmark")
-italianverbs.benchmark=> (load "benchmark")
+```user=> (load "italianverbs/benchmark")
+user=> (in-ns 'italianverbs.benchmark)
 nil
 italianverbs.benchmark=> (standard-benchmark 3)
 ' (Tu lavori ().) ' took:  185  msec.
