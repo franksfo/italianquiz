@@ -13,7 +13,7 @@ href="http://cslipublications.stanford.edu/site/0226674479.shtml">Head-Driven
 Phrase Structure Grammar</a> [Pollard and Sag 1994].
 
 ## Getting Started
-
+    eugenekontzspro:italianquiz ekoontz$ brew install leiningen
     eugenekontzspro:italianquiz ekoontz$ lein repl
     nREPL server started on port 57573 on host 127.0.0.1
     REPL-y 0.3.0
