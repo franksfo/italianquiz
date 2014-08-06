@@ -52,15 +52,4 @@ Phrase Structure Grammar</a> [Pollard and Sag 1994].
     ' ((I will be less beautiful than Naples).) ' took:  3409  msec.
     stats for 'bolt-benchmark-en' {:trials 3, :mean 2034.6666666666667, :median 2534, :stddev 53.0, :min 161, :max 3409, :95% 2534, :99% 2534}
     nil
-    italianverbs.benchmark=> (standard-benchmark 3)
-    ' (Lui veniva ().) ' took:  83  msec.
-    ' (La professoressa corta lo ricorda ().) ' took:  1367  msec.
-    ' (Paola la mangerà ().) ' took:  1395  msec.
-    stats for 'bolt-benchmark-it' {:trials 3, :mean 948.3333333333334, :median 1367, :stddev 35.0, :min 83, :max 1395, :95% 1367, :99% 1367}
-    ' ((We support us).) ' took:  535  msec.
-    ' ((His mother will think).) ' took:  384  msec.
-    ' ((My red dogs sleep).) ' took:  1347  msec.
-    stats for 'bolt-benchmark-en' {:trials 3, :mean 755.3333333333334, :median 535, :stddev 27.0, :min 384, :max 1347, :95% 535, :99% 535}
-    nil
-    italianverbs.benchmark=>
 
