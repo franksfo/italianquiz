@@ -54,44 +54,42 @@ of this function with complements."
       (let [parents-with-head
             (lazy-mapcat-shuffle
              (fn [generates-parent-with-head]
-               (generates-parent-with-head))
+               generates-parent-with-head)
              (list
 
               ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
-              (fn []
-                (lazy-mapcat-shuffle
-                 (fn [parent]
-                   (let [cached (if cache
-                                  (get cache (get-lex parent :head cache spec)))
-                         lexicon (if cached cached lexicon)]
-                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with parent: " (fo-ps parent)))
-                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with lexicon: " (fo lexicon)))
-                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry type: " (type cached)))
-                     (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry size: " (type cached)))
-                     (overh parent (lazy-shuffle lexicon))))
-                 parents
-                 depth
-                 "overh(lex)"))
+              (lazy-mapcat-shuffle
+               (fn [parent]
+                 (let [cached (if cache
+                                (get cache (get-lex parent :head cache spec)))
+                       lexicon (if cached cached lexicon)]
+                   (log/trace (str "lighting-bolt@" depth ": overh(lex) with parent: " (fo-ps parent)))
+                   (log/trace (str "lighting-bolt@" depth ": overh(lex) with lexicon: " (fo lexicon)))
+                   (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry type: " (type cached)))
+                   (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry size: " (type cached)))
+                   (overh parent (lazy-shuffle lexicon))))
+               parents
+               depth
+               "overh(lex)");)
            
               ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
               ;; note max-depth check and recursive call to lightning-bolt with (+ 1 depth).
-              (fn []
-                (if (< depth maxdepth)
-                  (lazy-mapcat-shuffle
-                   (fn [parent]
-                     (do
-                       (log/debug (str "lighting-bolt@" depth ": overh(lighting-bolt) with parent: " (fo-ps parent)))
-                       (overh parent
-                              (lightning-bolt grammar lexicon
-                                              (get-in parent [:head])
-                                              (+ 1 depth)
-                                              cache))))
-                   parents
-                   depth
-                   "overh(lighting-bolt)")
-                  (do
-                    (log/debug (str "lighting-bolt@" depth ": terminating."))
-                    nil))))
+              (if (< depth maxdepth)
+                (lazy-mapcat-shuffle
+                 (fn [parent]
+                   (do
+                     (log/debug (str "lighting-bolt@" depth ": overh(lighting-bolt) with parent: " (fo-ps parent)))
+                     (overh parent
+                            (lightning-bolt grammar lexicon
+                                            (get-in parent [:head])
+                                            (+ 1 depth)
+                                            cache))))
+                 parents
+                 depth
+                 "overh(lighting-bolt)")
+                (do
+                  (log/debug (str "lighting-bolt@" depth ": terminating."))
+                  nil)))
              depth
              "overh(lex;lighting-bolt)")]
 
