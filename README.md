@@ -1,6 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/ekoontz/italianquiz.png?branch=master)](http://travis-ci.org/ekoontz/italianquiz)
 
-# Verbcoach
+# Italianquiz
 
 ## Introduction
 
