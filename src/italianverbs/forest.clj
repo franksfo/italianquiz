@@ -103,18 +103,23 @@ of this function with complements."
         bolt-spec (get-in bolt path :no-path)
         spec (unifyc spec bolt-spec)]
     (if (not (= bolt-spec :no-path)) ;; check if this bolt has this path in it.
+      (log/debug (str "add-complement: " (fo-ps bolt) "@" path "::" (show-spec spec))))
+    (if (not (= bolt-spec :no-path)) ;; check if this bolt has this path in it.
       (let [immediate-parent (get-in bolt (butlast path))
+            start-time (System/currentTimeMillis)
             cached (if cache
                      (do
                        (let [result (get-lex immediate-parent :comp cache spec)]
                          (if (not (nil? result))
-                           (log/debug (str " cached lexical subset is: " (.size result) "/" (.size lexicon)))
+                           (log/debug (str " cached lexical subset ratio: " 
+                                           (string/replace (str (/ (* 1.0 (/ (.size lexicon) (.size result)))))
+                                                           #"\.(..).*"
+                                                           (fn [[_ two-digits]] (str "." two-digits)))))
                            (log/warn (str " no cached value for: " (fo-ps immediate-parent))))
                          result))
                      (do (log/warn (str "no cache: will go through entire lexicon."))
                          nil))
             complement-candidate-lexemes (if cached cached lexicon)]
-        (log/debug (str "add-complement: " (fo-ps bolt) "@" path "::" (show-spec spec)))
         (let [semantics (get-in spec [:synsem :sem])]
           (if (not (nil? semantics))
             (if (not (nil? semantics)) (log/debug (str "  with semantics:" semantics)))))
@@ -131,10 +136,10 @@ of this function with complements."
                                                         complement))
                                    is-fail? (fail? result)]
                                (if is-fail?
-                                 (log/debug (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
+                                 (log/trace (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
                                                                                                                 (fo-ps result)
                                                                                                                 ":fail")))
-                                 (log/debug (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
+                                 (log/trace (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
                                                                                                                 (fo-ps result)
                                                                                                                 ":fail"))))
                                (if is-fail? :fail result)))
@@ -145,15 +150,15 @@ of this function with complements."
                                        (generate spec grammar lexicon cache))
                              (lazy-cat (generate spec grammar lexicon cache)
                                        (lazy-shuffle complement-candidate-lexemes)))))]
-          (if (seq return-val)
-            (log/debug (str " add-complement: " (fo-ps from-bolt) " => " (fo-ps bolt)))
-            (log/debug (str " add-complement: " (fo-ps from-bolt) " : no complements found.")))
-          return-val))
-            
+          (let [run-time (- (System/currentTimeMillis) start-time)]
+            (if (seq return-val)
+              (log/debug (str " add-complement took " run-time " msec: " (fo-ps from-bolt) " => " (fo-ps (first return-val))))
+              (log/warn (str " add-complement took " run-time " msec, but found no complement for " (fo-ps from-bolt) ".")))
+            return-val)))
 
       ;; path doesn't exist in bolt: simply return the bolt unmodified.
       (do
-        (log/debug " add-complement: " (fo-ps from-bolt) ": no path: " path " to which to add complement.")
+        (log/trace " add-complement: " (fo-ps from-bolt) ": no path: " path " to which to add complement.")
         (list bolt)))))
 
 (defn add-complements-to-bolts [bolts path spec grammar lexicon cache]
