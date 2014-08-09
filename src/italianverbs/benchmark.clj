@@ -6,6 +6,7 @@
    [clojure.set :refer (union)]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [italianverbs.cache :as cache]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
    [italianverbs.generate :refer :all]
    [italianverbs.grammar.english :as en]
