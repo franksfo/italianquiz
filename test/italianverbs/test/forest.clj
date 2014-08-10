@@ -21,7 +21,7 @@
 
 (deftest generate-test
   (let [generated (first (take 1 (generate
-                                  {:synsem {:subcat '() :aux false :sem {:pred {:subj {:animate true}}}}}
+                                  {:synsem {:cat :verb :subcat '() :aux false :sem {:subj {:animate true}}}}
                                   it/grammar lexicon it/cache)))]
     (is (not (fail? generated)))
     (is (not (nil? generated)))))
