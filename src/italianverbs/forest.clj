@@ -17,8 +17,6 @@
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
 (def concurrent false)
-(declare lazy-mapcat)
-(declare lazy-mapcat-shuffle)
 (declare path-to-map)
 (declare add-complement)
 (declare add-all-complements-to-bolts)
@@ -135,50 +133,10 @@ of this function with complements."
         (list bolt)))))
 
 (defn add-complements-to-bolts [bolts path spec grammar lexicon cache]
-  (if (not (empty? bolts))
-    (lazy-cat
-     (add-complement (first bolts) path spec grammar lexicon cache)
-     (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache))))
+  (if (seq bolts)
+    (lazy-cat (add-complement (first bolts) path spec grammar lexicon cache)
+              (add-complements-to-bolts (rest bolts) path spec grammar lexicon cache))))
 
-(defn hlcl [cache grammar spec lexicon spec]
-  (generate (unifyc {:head {:phrasal false}
-                     :comp {:phrasal false}})
-            grammar lexicon cache))
-
-(defn hpcl [cache grammar spec lexicon spec]
-  (generate (unifyc {:head {:phrasal true}
-                     :comp {:phrasal false}})
-            grammar lexicon cache))
-
-(defn hlcp [cache grammar spec lexicon spec]
-  (generate (unifyc {:head {:phrasal false}
-                     :comp {:phrasal true}})
-            grammar lexicon cache))
-
-(defn hpcp [cache grammar spec lexicon spec]
-  (generate (unifyc {:head {:phrasal true}
-                     :comp {:phrasal true}})
-            grammar lexicon cache))
-
-(defn lazy-mapcat [the-fn the-args]
-   (let [arg (first the-args)]
-     (if arg
-       (let [result (the-fn arg)]
-         (lazy-cat
-          result
-          (lazy-mapcat the-fn (rest the-args)))))))
-
-(defn lazy-mapcat-shuffle [fn args & [depth name]]
-  (do
-    (log/trace (str "lms@" depth ":" name))
-    (log/trace (str "lms@" depth ":" name " : type of args: " (type args)))
-    (log/trace (str "lms@" depth ":" name " : type of first arg: " (type (first args))))
-    (let [result
-          (lazy-mapcat fn (shuffle args))]
-      (log/trace (str "lms@" depth ":" name " : returning type: " (if result (type result))))
-      result)))
-
-;; (take 10 (repeatedly #(fo-ps (take 1 (forest/lighting-bolt (shuffle grammar) (shuffle lexicon) {:synsem {:cat :verb :subcat '()}})))))
 (defn path-to-map [path val]
   (let [feat (first path)]
     (if feat
