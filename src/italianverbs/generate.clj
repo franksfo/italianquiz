@@ -1,5 +1,5 @@
 (ns italianverbs.generate
-  (:refer-clojure :exclude [get-in merge resolve find parents])
+  (:refer-clojure :exclude [get-in merge])
   (:require
    [clojure.set :refer (union)]
    [clojure.test :refer :all]
@@ -9,24 +9,11 @@
    [italianverbs.forest :as forest]
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
-   [italianverbs.grammar.english :as en]
-   [italianverbs.grammar.italiano :as it]
-   [italianverbs.html :as html]
    [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer :all]
-   [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer (fail? get-in lazy-shuffle merge remove-top-values unify unifyc)]))
-
-(defn printfs [fs & filename]
-  "print a feature structure to a file. filename will be something easy to derive from the fs."
-  (let [filename (if filename (first filename) "foo.html")]  ;; TODO: some conventional default if deriving from fs is too hard.
-    (spit filename (html/static-page (html/tablize fs) filename))))
-
-(defn plain [expr]
-  "simply map expr in a map with one key :plain, whose value is expr.
-   workbook/workbookq will format this accordingly."
-  {:plain expr})
+   [italianverbs.ug :refer (head-principle)]
+   [italianverbs.unify :refer (fail? get-in lazy-shuffle remove-top-values unify unifyc)]))
 
 ;; this rule-cache is defined outside any function so that all functions can share
 ;; a single cache.
@@ -75,12 +62,6 @@
         spec (if spec spec :top)
         unified-spec (unifyc sentence-spec spec)]
     (generate-from unified-spec)))
-
-(defn sentence-en [ & [spec ]]
-  (sentence spec lexicon en/grammar en/cache))
-
-(defn sentence-it [ & [spec ]]
-  (sentence spec lexicon it/grammar it/cache))
 
 ;; This sentence generation prevents initialization errors that occur when trying to
 ;; generate sentences within the sandbox.

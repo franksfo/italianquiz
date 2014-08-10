@@ -864,5 +864,14 @@
           true
           [:td the-val])))
 
+(defn printfs [fs & filename]
+  "print a feature structure to a file. filename will be something easy to derive from the fs."
+  (let [filename (if filename (first filename) "foo.html")]  ;; TODO: some conventional default if deriving from fs is too hard.
+    (spit filename (static-page (tablize fs) filename))))
+
+(defn plain [expr]
+  "simply map expr in a map with one key :plain, whose value is expr.
+   workbook/workbookq will format this accordingly."
+  {:plain expr})
 
 
