@@ -307,7 +307,7 @@
        (intern *ns* (symbol (:rule rule)) rule))
      grammar))
 
-(log/info "English grammar loaded.")
+(log/info "English grammar defined.")
 
 (def begin (System/currentTimeMillis))
 (log/debug "building grammatical and lexical cache..")
