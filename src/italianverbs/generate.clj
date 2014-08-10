@@ -47,7 +47,7 @@
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size grammar) "."))
-  (forest/generate spec grammar lexicon cache)))
+  (first (take 1 (forest/generate spec grammar lexicon cache)))))
 
 (defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
   (let [spec (if spec spec :top)
@@ -64,15 +64,15 @@
         spec (if spec spec :top)
         unified-spec (unifyc sentence-spec spec)]
     (let [italiano
-          (first (take 1 (generate unified-spec it/grammar lexicon it/cache)))]
+          (generate unified-spec it/grammar lexicon it/cache)]
       (log/info (str "semantics of this italian sentence:" (get-in italiano [:synsem :sem])))
       (let [english
-            (first (take 1 (generate (unifyc unified-spec
-                                             {:synsem {:sem
-                                                       (get-in italiano [:synsem :sem])}})
-                                     en/grammar
-                                     lexicon
-                                     english-rule-cache)))]
+            (generate (unifyc unified-spec
+                              {:synsem {:sem
+                                        (get-in italiano [:synsem :sem])}})
+                      en/grammar
+                      lexicon
+                      english-rule-cache)]
         {:italiano italiano
          :english english}))))
 
