@@ -53,19 +53,21 @@ of this function with complements."
     (if (seq parents)
       (let [lexical ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
             (mapcat (fn [parent]
-                      (overh parent (get-lex parent :head cache spec)))
+                      (overh parent (lazy-shuffle (get-lex parent :head cache spec))))
                     parents)
 
             phrasal ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
             ;; note max-depth check and recursive call to lightning-bolt with (+ 1 depth).
             (if (< depth maxdepth)
-              (overh parents
-                     (lightning-bolt grammar lexicon
-                                     (get-in parent [:head])
-                                     (+ 1 depth)
-                                     cache parent)))]
+              (mapcat (fn [parent]
+                        (overh parent
+                               (lightning-bolt grammar lexicon
+                                               (get-in parent [:head])
+                                               (+ 1 depth)
+                                               cache parent)))
+                      parents))]
         (log/debug (str "first parent: " (fo-ps (first parents))))
-        (log/debug (str "parents: " (fo-ps parents)))
+        (log/debug (str "first phrasal parent: " (fo-ps (first phrasal))))
         (if (= (rand-int 2) 0)
           (lazy-cat lexical phrasal)
           (lazy-cat phrasal lexical))))))
@@ -184,4 +186,3 @@ of this function with complements."
     (if feat
       {feat (path-to-map (rest path) val)}
       val)))
-
