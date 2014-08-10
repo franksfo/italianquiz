@@ -49,32 +49,32 @@
                   (.size grammar) "."))
   (first (take 1 (forest/generate spec grammar lexicon cache)))))
 
-(defn nounphrase [ & [ spec the-lexicon the-grammar cache ]]
-  (let [spec (if spec spec :top)
-        lexicon (if the-lexicon the-lexicon lexicon)
-        grammar (if the-grammar the-grammar it/grammar)
-        cache (if cache cache italiano-rule-cache)]
-    (first (take 1 (forest/generate (unify spec {:synsem {:cat :noun :subcat '()}}) grammar lexicon cache)))))
+(defn generate-from [spec]
+  (let [italiano
+        (generate spec it/grammar lexicon it/cache)]
+    {:italiano italiano
+     :english
+     (generate (unifyc spec
+                       {:synsem {:sem
+                                 (get-in italiano [:synsem :sem])}})
+               en/grammar
+               lexicon
+               english-rule-cache)}))
+
+(defn nounphrase [ & [ spec ]]
+  (let [sentence-spec {:synsem {:subcat '()
+                                :cat :noun}}
+        spec (if spec spec :top)
+        unified-spec (unifyc sentence-spec spec)]
+    (generate-from unified-spec)))
 
 (defn sentence [ & [spec ]]
   (let [sentence-spec {:synsem {:subcat '()
                                 :cat :verb
-                                :subj {:animate true}}}
-                       
+                                :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
         spec (if spec spec :top)
         unified-spec (unifyc sentence-spec spec)]
-    (let [italiano
-          (generate unified-spec it/grammar lexicon it/cache)]
-      (log/info (str "semantics of this italian sentence:" (get-in italiano [:synsem :sem])))
-      (let [english
-            (generate (unifyc unified-spec
-                              {:synsem {:sem
-                                        (get-in italiano [:synsem :sem])}})
-                      en/grammar
-                      lexicon
-                      english-rule-cache)]
-        {:italiano italiano
-         :english english}))))
+    (generate-from unified-spec)))
 
 (defn sentence-en [ & [spec ]]
   (sentence spec lexicon en/grammar en/cache))
