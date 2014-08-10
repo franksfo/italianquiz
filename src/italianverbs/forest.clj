@@ -52,7 +52,9 @@ of this function with complements."
                                                grammar))))]
     (if (seq parents)
       (let [lexical ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
-            (overh parents (lazy-shuffle lexicon))
+            (mapcat (fn [parent]
+                      (overh parent (get-lex parent :head cache spec)))
+                    parents)
 
             phrasal ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
             ;; note max-depth check and recursive call to lightning-bolt with (+ 1 depth).
