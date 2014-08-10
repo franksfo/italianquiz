@@ -158,10 +158,13 @@
                               :synsem head-synsem}))
 
                    (unifyc cc10
-                           {:rule "noun-phrase"
-                            :aliases (list "np")
-                            :synsem {:cat :noun}
-                            :comp {:phrasal false}}) ;; rathole prevention ;; TODO: see if this can be removed.
+                           (let [number-agreement (ref :top)]
+                             {:rule "noun-phrase"
+                              :aliases (list "np")
+                              :synsem {:agr {:number number-agreement}
+                                       :cat :noun
+                                       :sem {:number number-agreement}}
+                              :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 
                    (unifyc hh10
                            {:rule "prepositional-phrase"
