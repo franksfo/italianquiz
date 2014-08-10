@@ -97,19 +97,19 @@
 
 (defn sentence-subject-verb [trials]
   (run-benchmark
-   #(fo (take 1 (generate {:comp {:phrasal false}
-                           :head {:phrasal false}}
-                          (list it/s-present)
-                          lexicon
-                          it/cache)))
+   #(fo (generate {:comp {:phrasal false}
+                   :head {:phrasal false}}
+                  (list it/s-present)
+                  lexicon
+                  it/cache))
    trials
    "sentence which is simply a subject plus a verb"))
 
 (defn saux [trials]
   (run-benchmark 
-   #(fo (take 1 (generate
-                 {:synsem {:subcat '()}}
-                 (list it/s-aux it/vp-aux) it/cache))
+   #(fo (generate
+         {:synsem {:subcat '()}}
+         (list it/s-aux it/vp-aux) it/cache)
         trials
         "saux")))
 
@@ -184,13 +184,13 @@
 ;; (fo-ps (take 1 (cp-over-hl hl-over-cg1h)))
 ;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
 (defn catlove []
-  (take 1 (generate
-           {:synsem {:cat :verb
+  (generate
+   {:synsem {:cat :verb
                      :aux false
-                     :infl :imperfetto
+             :infl :imperfetto
              :sem {:pred :amare
                    :obj {:pred :gatto}}}}
-           it/grammar lexicon it/cache)))
+   it/grammar lexicon it/cache))
 
 (defn run-gatto [trials]
   (run-benchmark
@@ -209,7 +209,7 @@
                       :aux false
                       :sem {:subj {:animate true}}
                       :subcat '()}})]
-    (run-benchmark #(fo (first (take 1 (generate spec grammar lexicon cache))))
+    (run-benchmark #(fo (generate spec grammar lexicon cache))
                    trials
                    name)))
 
