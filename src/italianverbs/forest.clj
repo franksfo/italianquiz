@@ -41,7 +41,7 @@
 there is only one child for each parent, and that single child is the
 head of its parent. generate (above) 'decorates' each returned lightning bolt
 of this function with complements."
-  (log/trace (str "lighting-bolt@" depth))
+  (log/debug (str "lighting-bolt@" depth))
   (let [maxdepth 3 ;; maximum depth of a lightning bolt: H1 -> H2 -> H3 where H3 must be a lexeme, not a phrase.
         depth (if depth depth 0)
 
@@ -50,52 +50,23 @@ of this function with complements."
                                              (unifyc spec rule))
                                            (if parent (get-head-phrases-of parent cache)
                                                grammar))))]
-    (if (and (not (nil? parents))
-             (not (empty? parents)))
-      (let [parents-with-head
-            (lazy-mapcat-shuffle
-             (fn [generates-parent-with-head]
-               generates-parent-with-head)
-             (list
+    (if (seq parents)
+      (let [lexical ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
+            (overh parents (lazy-shuffle lexicon))
 
-              ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
-              (lazy-mapcat-shuffle
-               (fn [parent]
-                 (let [cached (if cache
-                                (get cache (get-lex parent :head cache spec)))
-                       lexicon (if cached cached lexicon)]
-                   (log/trace (str "lighting-bolt@" depth ": overh(lex) with parent: " (fo-ps parent)))
-                   (log/trace (str "lighting-bolt@" depth ": overh(lex) with lexicon: " (fo lexicon)))
-                   (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry type: " (type cached)))
-                   (log/trace (str "lighting-bolt@" depth ": overh(lex) with cache-entry size: " (type cached)))
-                   (overh parent (lazy-shuffle lexicon))))
-               parents
-               depth
-               "overh(lex)");)
-           
-              ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
-              ;; note max-depth check and recursive call to lightning-bolt with (+ 1 depth).
-              (if (< depth maxdepth)
-                (lazy-mapcat-shuffle
-                 (fn [parent]
-                   (do
-                     (log/debug (str "lighting-bolt@" depth ": overh(lighting-bolt) with parent: " (fo-ps parent)))
-                     (overh parent
-                            (lightning-bolt grammar lexicon
-                                            (get-in parent [:head])
-                                            (+ 1 depth)
-                                            cache parent))))
-                 parents
-                 depth
-                 "overh(lighting-bolt)")
-                (do
-                  (log/debug (str "lighting-bolt@" depth ": terminating."))
-                  nil)))
-             depth
-             "overh(lex;lighting-bolt)")]
-
-    (log/trace (str "type of parents-with-head t=" (type parents-with-head)))
-    parents-with-head))))
+            phrasal ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
+            ;; note max-depth check and recursive call to lightning-bolt with (+ 1 depth).
+            (if (< depth maxdepth)
+              (overh parents
+                     (lightning-bolt grammar lexicon
+                                     (get-in parent [:head])
+                                     (+ 1 depth)
+                                     cache parent)))]
+        (log/debug (str "first parent: " (fo-ps (first parents))))
+        (log/debug (str "parents: " (fo-ps parents)))
+        (if (= (rand-int 2) 0)
+          (lazy-cat lexical phrasal)
+          (lazy-cat phrasal lexical))))))
 
 (defn add-complement [bolt path spec grammar lexicon cache]
   (let [input-spec spec
@@ -145,11 +116,11 @@ of this function with complements."
                                (if is-fail? :fail result)))
                      
                            ;; lazy-sequence of complements to pass one-by-one to the above (map)'s function.
-                           (if (= (rand-int 2) 0)
-                             (lazy-cat (lazy-shuffle complement-candidate-lexemes)
-                                       (generate spec grammar lexicon cache))
-                             (lazy-cat (generate spec grammar lexicon cache)
-                                       (lazy-shuffle complement-candidate-lexemes)))))]
+                           (let [phrasal (generate spec grammar lexicon cache)
+                                 lexical (lazy-shuffle complement-candidate-lexemes)]
+                             (if (= (rand-int 2) 0)
+                               (lazy-cat lexical phrasal)
+                               (lazy-cat phrasal lexical)))))]
           (let [run-time (- (System/currentTimeMillis) start-time)]
             (if (seq return-val)
               (log/debug (str " add-complement took " run-time " msec: " (fo-ps from-bolt) " => " (fo-ps (first return-val))))
