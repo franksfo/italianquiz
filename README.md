@@ -38,10 +38,9 @@ Phrase Structure Grammar</a> [Pollard and Sag 1994].
     ("Il vostro uomo gentile dormiva (Your (pl) kind man was sleeping).")
 
 ## Benchmarking
-
-    italianverbs.benchmark=> (load "italianverbs/benchmark")
-    italianverbs.benchmark=> (load "benchmark")
-    nil
+    user=> (load "italianverbs/benchmark")
+    user=> (in-ns 'italianverbs.benchmark)
+    #<Namespace italianverbs.benchmark>
     italianverbs.benchmark=> (standard-benchmark 3)
     ' (Tu lavori ().) ' took:  185  msec.
     ' (Il nostro uomo la scriveva ().) ' took:  1412  msec.
