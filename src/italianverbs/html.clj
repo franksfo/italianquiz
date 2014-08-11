@@ -100,9 +100,7 @@
   ;; (TODO: in which contexts are we passing an already-serialized arg?)
   ;; if not already serialized, then serialize:
   (let [serialized (if (nil? serialized)
-                     (do
-                       (log/warn (str "Serialization was null in: " arg ". Rendering performance will not be as good as it could be, since we need to create a serialized representation in order to render the argument."))
-                       (fs/serialize arg))
+                     (fs/serialize arg)
                      serialized) ;; .. if already serialized, use that.
         opts (if (nil? opts)
                {:as-tree true})]
