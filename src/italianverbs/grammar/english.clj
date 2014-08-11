@@ -145,11 +145,24 @@
 
                    (unifyc cc10
                            (let [number-agreement (ref :top)]
-                             {:rule "noun-phrase"
-                              :aliases (list "np")
+                             {:rule "noun-phrase1"
+                              :aliases (list "np1")
+                              :synsem {:agr {:number number-agreement}
+                                       :cat :noun
+                                       :sem {:number number-agreement}
+                                       ;:sem-mod '()
+                                       }
+                              :head {:phrasal false}
+                              :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
+
+                   (unifyc cc10
+                           (let [number-agreement (ref :top)]
+                             {:rule "noun-phrase2"
+                              :aliases (list "np2")
                               :synsem {:agr {:number number-agreement}
                                        :cat :noun
                                        :sem {:number number-agreement}}
+                              :head {:phrasal true}
                               :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 
                    (unifyc hh10

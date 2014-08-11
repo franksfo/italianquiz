@@ -1,17 +1,10 @@
 (ns italianverbs.ug
-  (:refer-clojure :exclude [get-in resolve])
-  ;; TODO: convert :use to :require
-  (:use [clojure.set :only (union intersection)]
-        [clojure.core :exclude (get-in resolve merge)]
-        [italianverbs.lexicon :only (it)]
-        [italianverbs.lexiconfn :only (unify sem-impl)]
-        [italianverbs.morphology :only (finalize fo italian-article get-italian-1 get-italian)]
-        [italianverbs.over :only (moreover-head moreover-comp)]
-        [italianverbs.unify :only (copy fail? serialize get-in fail-path lazy-shuffle)])
-
+  (:refer-clojure :exclude [get-in merge resolve])
   (:require [clojure.tools.logging :as log]
             [italianverbs.lexicon :as lex]
-            [italianverbs.unify :as unify]
+            [italianverbs.lexiconfn :refer (sem-impl)]
+            [italianverbs.morphology :refer (fo fo-ps)]
+            [italianverbs.unify :refer (fail? get-in merge unifyc)]
             [clojure.string :as string]))
 
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
@@ -29,31 +22,31 @@
         head-is-pronoun (ref :top)
         head-sem (ref :top)
         sem-mod (ref :top)]
-    (unify phrasal
-           {:synsem {:cat head-cat
-                     :essere head-essere
-                     :pronoun head-is-pronoun
-                     :sem head-sem
-                     :sem-mod sem-mod}
-            :head {:synsem {:cat head-cat
-                     :essere head-essere
-                            :pronoun head-is-pronoun
-                            :sem head-sem
-                            :sem-mod sem-mod}}})))
+    (unifyc phrasal
+            {:synsem {:cat head-cat
+                      :essere head-essere
+                      :pronoun head-is-pronoun
+                      :sem head-sem
+                      :sem-mod sem-mod}
+             :head {:synsem {:cat head-cat
+                             :essere head-essere
+                             :pronoun head-is-pronoun
+                             :sem head-sem
+                             :sem-mod sem-mod}}})))
 
 ;;    [1]
 ;;   /   \
 ;;  /     \
 ;; H[1]    C
 (def head-principle
-  (unify head-principle-no-infl
-         phrasal
-         (let [head-infl (ref :top)
-               agr (ref :top)]
-           {:synsem {:infl head-infl
-                     :agr agr}
-            :head {:synsem {:infl head-infl
-                            :agr agr}}})))
+  (unifyc head-principle-no-infl
+          phrasal
+          (let [head-infl (ref :top)
+                agr (ref :top)]
+            {:synsem {:infl head-infl
+                      :agr agr}
+             :head {:synsem {:infl head-infl
+                             :agr agr}}})))
 
 ;;     subcat<>
 ;;     /      \
@@ -190,7 +183,7 @@
 (def standard-filter-fn
   (fn [additional-phrase-with-head]
     (fn [phrase-with-head]
-      (let [phrase-with-head (unify additional-phrase-with-head
+      (let [phrase-with-head (unifyc additional-phrase-with-head
                                     phrase-with-head)]
         (do
           (if (fail? phrase-with-head)
@@ -198,14 +191,14 @@
           (fn [comp]
             (let [result
                   {:essere
-                   (unify (unify/get-in phrase-with-head '(:comp :synsem :essere) :top)
-                          (unify/get-in comp '(:synsem :essere) :top))
+                   (unifyc (get-in phrase-with-head '(:comp :synsem :essere) :top)
+                           (get-in comp '(:synsem :essere) :top))
                    :agr
-                   (unify (unify/get-in phrase-with-head '(:comp :synsem :agr) :top)
-                          (unify/get-in comp '(:synsem :agr) :top))
+                   (unifyc (get-in phrase-with-head '(:comp :synsem :agr) :top)
+                           (get-in comp '(:synsem :agr) :top))
                    :sem
-                   (unify (sem-impl (unify/get-in phrase-with-head '(:comp :synsem :sem) :top))
-                          (sem-impl (unify/get-in comp '(:synsem :sem) :top)))}]
+                   (unifyc (sem-impl (get-in phrase-with-head '(:comp :synsem :sem) :top))
+                           (sem-impl (get-in comp '(:synsem :sem) :top)))}]
               (if (not (fail? result))
                 ;; complement was compatible with the filter: not filtered out.
                 true
@@ -248,9 +241,9 @@
      (= input :top) input
      true
      (let [finitize
-           (cond (or (= (unify/get-in input '(:synsem :infl))
+           (cond (or (= (get-in input '(:synsem :infl))
                         :top)
-                     (= (unify/get-in input '(:synsem :infl))
+                     (= (get-in input '(:synsem :infl))
                         :infinitive))
 
                  (first (take 1 (shuffle
@@ -260,7 +253,7 @@
                                   {:synsem {:infl :present}}
                                   ))))
                  ;; special additional case for 'potere' exclude :imperfetto.
-                 (= (unify/get-in input '(:synsem :infl :not))
+                 (= (get-in input '(:synsem :infl :not))
                     :imperfetto)
                  (first (take 1 (shuffle
                                  (list
@@ -268,7 +261,7 @@
                                   {:synsem {:infl :present}})))))]
        (let [merged
              (if (= input :fail) :fail
-                 (unify/merge input finitize))]
+                 (merge input finitize))]
          (do
            (if (not (fail? merged))
              (log/debug (str "sentence-impl: merged result IS:::" (fo merged))))
@@ -277,17 +270,6 @@
 (defn sent-impl [input]
   "shortcut"
   (sentence-impl input))
-
-(defn find-some-head-for [parent heads candidate-comp]
-  "returns true iff there is some head H such that parent => H candidate-comp succeeds."
-  (if (not (empty? heads))
-    (or
-     (not (fail? (moreover-comp (moreover-head parent
-                                               (first heads)
-                                               sem-impl)
-                                candidate-comp
-                                sem-impl)))
-     (find-some-head-for parent (rest heads) candidate-comp))))
 
 (log/info "Universal Grammar Immediate Dominance schemata are defined in our environment.")
 
