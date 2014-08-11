@@ -27,7 +27,7 @@
                :b head-english}}))
 
 (def schema-10
-  (unify
+  (unifyc
    subcat-1-principle
    head-principle
    {:comment "cc10"
@@ -35,7 +35,7 @@
     :comp {:synsem {:subcat '()}}}))
 
 (def cc10
-  (unify
+  (unifyc
    schema-10
    head-last
    {:comment "cc10"
@@ -48,7 +48,7 @@
     :comp {:synsem {:subcat '()}}}))
 
 (def ch21
-  (unify
+  (unifyc
    subcat-2-principle
    head-principle
    head-first
@@ -59,7 +59,7 @@
     :comment "ch21"}))
 
 (def hc11
-  (unify
+  (unifyc
    subcat-1-1-principle
    hc-agreement
    head-principle
@@ -72,7 +72,7 @@
 
 (def hc11-comp-subcat-1
   (let [subcat (ref :top)]
-    (unify
+    (unifyc
      {:head {:synsem {:subcat {:1 subcat}}}
       :comp {:synsem {:subcat {:1 subcat}}}}
      subcat-1-1-principle-comp-subcat-1
@@ -85,7 +85,7 @@
       :comment "hc11-comp-subcat-1"})))
 
 (def hh10
-  (unify
+  (unifyc
    subcat-1-principle
    head-principle
    head-first
@@ -94,7 +94,7 @@
     :first :head}))
 
 (def hh21
-  (unify
+  (unifyc
    subcat-2-principle
    head-principle
    head-first
@@ -103,7 +103,7 @@
     :first :head}))
 
 (def hh22
-  (unify
+  (unifyc
    subcat-2-2-principle
    head-principle
    head-first
@@ -112,7 +112,7 @@
     :first :head}))
 
 (def hh32
-  (unify
+  (unifyc
    subcat-5-principle
    head-principle
    head-first
