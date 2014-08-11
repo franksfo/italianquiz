@@ -10,11 +10,7 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]))
 
-(def phrase-times-lexicon-cache false)
-;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
-;;    false: don't pre-compute product (fast startup, slow runtime)
-
-(def english-head-first
+(def head-first
   (let [head-english (ref :top)
         comp-english (ref :top)]
     {:head {:english head-english}
@@ -22,7 +18,7 @@
      :english {:a head-english
                :b comp-english}}))
 
-(def english-head-last
+(def head-last
   (let [head-english (ref :top)
         comp-english (ref :top)]
     {:head {:english head-english}
@@ -41,7 +37,7 @@
 (def cc10
   (unify
    schema-10
-   english-head-last
+   head-last
    {:comment "cc10"
     ;; TODO: using :schema-symbol below - cannot use :schema for some reason; need to figure out why.
     ;; if you try to use :schema, I get:
@@ -55,7 +51,7 @@
   (unify
    subcat-2-principle
    head-principle
-   english-head-first
+   head-first
    {:comp {:synsem {:subcat '()
                     :pronoun true}}
     :schema-symbol 'ch21 ;; used by over-each-parent to know where to put children.
@@ -68,7 +64,7 @@
    hc-agreement
    head-principle
    comp-modifies-head
-   english-head-last
+   head-last
    {
     :schema-symbol 'hc11 ;; used by over-each-parent to know where to put children.
     :first :head
@@ -84,7 +80,7 @@
      hc-agreement
      head-principle
      comp-modifies-head
-     english-head-last
+     head-last
      {:schema-symbol 'hc11-comp-subcat-1
       :first :head
       :comment "hc11-comp-subcat-1"})))
@@ -93,7 +89,7 @@
   (unify
    subcat-1-principle
    head-principle
-   english-head-first
+   head-first
    {:comment "hh10"
     :schema-symbol 'hh10 ;; used by over-each-parent to know where to put children.
     :first :head}))
@@ -102,7 +98,7 @@
   (unify
    subcat-2-principle
    head-principle
-   english-head-first
+   head-first
    {:comment "hh21"
     :schema-symbol 'hh21 ;; used by over-each-parent to know where to put children.
     :first :head}))
@@ -111,7 +107,7 @@
   (unify
    subcat-2-2-principle
    head-principle
-   english-head-first
+   head-first
    {:comment "hh22"
     :schema-symbol 'hh22 ;; used by over-each-parent to know where to put children.
     :first :head}))
@@ -120,7 +116,7 @@
   (unify
    subcat-5-principle
    head-principle
-   english-head-first
+   head-first
    {:comment "hh32"
     :schema-symbol 'hh32 ;; used by over-each-parent to know where to put children.
     :first :head}))

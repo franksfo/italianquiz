@@ -15,17 +15,12 @@
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer (fail? get-in lazy-shuffle remove-top-values unify unifyc)]))
 
-;; this rule-cache is defined outside any function so that all functions can share
-;; TODO: move to italianverbs.grammar.italiano
-(def italiano-rule-cache (conj (build-lex-sch-cache it/grammar lexicon it/grammar)
-                      {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
-
 ;; TODO: use a map destructor to pass in arguments
 (defn generate [ & [spec grammar the-lexicon cache]]
   (let [spec (if spec spec :top)
         grammar (if grammar grammar it/grammar)
         lexicon (if the-lexicon the-lexicon lexicon)
-        cache (if cache cache italiano-rule-cache)] ;; if no cache supplied, use package-level cache 'rule-cache'.
+        cache (if cache cache it/cache)] ;; if no cache supplied, use package-level cache 'rule-cache'.
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size grammar) "."))

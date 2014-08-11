@@ -1,22 +1,16 @@
 (ns italianverbs.grammar.italiano
-  (:refer-clojure :exclude [get-in resolve])
-  ;; TODO: convert :use to :require
-  (:use [clojure.set :only (union intersection)]
-        [clojure.core :exclude (get-in resolve merge)]
-        [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
-        [italianverbs.lexicon :refer :all]
-        [italianverbs.lexiconfn :only (unify sem-impl)]
-        [italianverbs.morphology :only (finalize fo fo-ps italian-article get-italian-1 get-italian)]
-        [italianverbs.over :only (moreover-head moreover-comp)]
-        [italianverbs.ug :refer :all]
-        [italianverbs.unify :only (copy fail? serialize get-in fail-path lazy-shuffle unifyc)])
+  (:refer-clojure :exclude [get-in merge resolve])
+  (:require 
+   [clojure.set :only (union intersection)]
+   [clojure.tools.logging :as log]
+   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
+   [italianverbs.forest :as forest :exclude [generate]]
+   [italianverbs.lexicon :refer :all]
+   [italianverbs.morphology :refer :all]
+   [italianverbs.ug :refer :all]
+   [italianverbs.unify :refer :all]))
 
-  (:require [clojure.tools.logging :as log]
-            [italianverbs.lexicon :as lex]
-            [italianverbs.unify :as unify]
-            [clojure.string :as string]))
-
-(def italian-head-first
+(def head-first
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
     (unify
@@ -27,7 +21,7 @@
       :italian {:a head-italian
                 :b comp-italian}})))
 
-(def italian-head-last
+(def head-last
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
     (unify
@@ -50,7 +44,7 @@
 (def cc10
   (unify
    schema-10
-   italian-head-last
+   head-last
    {:comment "cc10"
     ;; TODO: using :schema-symbol below - cannot use :schema for some reason; need to figure out why.
     ;; if you try to use :schema, I get:
@@ -64,7 +58,7 @@
   (unify
    subcat-2-principle
    head-principle
-   italian-head-last
+   head-last
    {:comp {:synsem {:subcat '()
                     :pronoun true}}
     :schema-symbol 'ch21 ;; used by over-each-parent to know where to put children.
@@ -77,7 +71,7 @@
    hc-agreement
    head-principle
    comp-modifies-head
-   italian-head-first
+   head-first
    {
     :schema-symbol 'hc11 ;; used by over-each-parent to know where to put children.
     :first :head
@@ -93,7 +87,7 @@
      hc-agreement
      head-principle
      comp-modifies-head
-     italian-head-first
+     head-first
      {:schema-symbol 'hc11-comp-subcat-1
       :first :head
       :comment "hc11-comp-subcat-1"})))
@@ -102,7 +96,7 @@
   (unify
    subcat-1-principle
    head-principle
-   italian-head-first
+   head-first
    {:comment "hh10"
     :schema-symbol 'hh10 ;; used by over-each-parent to know where to put children.
     :first :head}))
@@ -111,7 +105,7 @@
   (unify
    subcat-2-principle
    head-principle
-   italian-head-first
+   head-first
    {:comment "hh21"
     :schema-symbol 'hh21 ;; used by over-each-parent to know where to put children.
     :first :head}))
@@ -120,7 +114,7 @@
   (unify
    subcat-2-2-principle
    head-principle
-   italian-head-first
+   head-first
    {:comment "hh22"
     :schema-symbol 'hh22 ;; used by over-each-parent to know where to put children.
     :first :head}))
@@ -129,7 +123,7 @@
   (unify
    subcat-5-principle
    head-principle
-   italian-head-first
+   head-first
    {:comment "hh32"
     :schema-symbol 'hh32 ;; used by over-each-parent to know where to put children.
     :first :head}))
