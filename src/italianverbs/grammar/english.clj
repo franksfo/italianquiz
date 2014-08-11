@@ -149,8 +149,7 @@
                               :synsem {:agr {:number number-agreement}
                                        :cat :noun
                                        :sem {:number number-agreement}
-                                       ;:sem-mod '()
-                                       }
+                                       :sem-mod '()}
                               :head {:phrasal false}
                               :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 
