@@ -25,6 +25,7 @@
 (declare lightning-bolt)
 
 (defn generate [spec grammar lexicon & [cache]]
+  (log/info (str "generate: " (show-spec spec)))
   (-> (lightning-bolt grammar
                       lexicon
                       spec 0 cache)
