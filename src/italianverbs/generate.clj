@@ -49,8 +49,11 @@
     {:italiano italiano
      :english
      (generate (unifyc spec
-                       {:synsem {:sem
-                                 (get-in italiano [:synsem :sem])}})
+                       (unifyc {:synsem {:sem (get-in italiano [:synsem :sem])}}
+                               (if (not (= :none (get-in italiano [:synsem :mod-sem] :none)))
+;                                 :top
+                                 {:synsem {:mod-sem (get-in italiano [:synsem :mod-sem])}}
+                                 :top)))
                en/grammar
                lexicon
                en/cache)}))
