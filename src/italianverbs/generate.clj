@@ -16,11 +16,6 @@
    [italianverbs.unify :refer (fail? get-in lazy-shuffle remove-top-values unify unifyc)]))
 
 ;; this rule-cache is defined outside any function so that all functions can share
-;; a single cache.
-;; TODO: move to italianverbs.grammar.english
-(def english-rule-cache (conj (build-lex-sch-cache en/grammar lexicon en/grammar)
-                              {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
-
 ;; TODO: move to italianverbs.grammar.italiano
 (def italiano-rule-cache (conj (build-lex-sch-cache it/grammar lexicon it/grammar)
                       {:phrase-constraints head-principle})) ;; for now, only one constraint: ug/head-principle.
@@ -46,7 +41,7 @@
                                  (get-in italiano [:synsem :sem])}})
                en/grammar
                lexicon
-               english-rule-cache)}))
+               en/cache)}))
 
 (defn nounphrase [ & [ spec ]]
   (let [sentence-spec {:synsem {:subcat '()

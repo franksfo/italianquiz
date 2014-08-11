@@ -1,20 +1,14 @@
 (ns italianverbs.grammar.english
-  (:refer-clojure :exclude [get-in resolve])
-  ;; TODO: convert :use to :require
-  (:use [clojure.set :only (union intersection)]
-        [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
-        [clojure.core :exclude (get-in resolve merge)]
-        [italianverbs.lexicon :refer :all]
-        [italianverbs.lexiconfn :only (unify sem-impl)]
-        [italianverbs.morphology :only (finalize fo fo-ps italian-article get-italian-1 get-italian)]
-        [italianverbs.over :only (moreover-head moreover-comp)]
-        [italianverbs.ug :refer :all]
-        [italianverbs.unify :only (copy fail? serialize get-in fail-path lazy-shuffle unifyc)])
-
-  (:require [clojure.tools.logging :as log]
-            [italianverbs.lexicon :as lex]
-            [italianverbs.unify :as unify]
-            [clojure.string :as string]))
+  (:refer-clojure :exclude [get-in merge resolve])
+  (:require 
+   [clojure.set :only (union intersection)]
+   [clojure.tools.logging :as log]
+   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
+   [italianverbs.forest :as forest :exclude [generate]]
+   [italianverbs.lexicon :refer :all]
+   [italianverbs.morphology :refer :all]
+   [italianverbs.ug :refer :all]
+   [italianverbs.unify :refer :all]))
 
 (def phrase-times-lexicon-cache false)
 ;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
@@ -280,7 +274,6 @@
                   {:synsem {:modal ref}
                    :head {:synsem {:modal ref}}}))
         true phrase))
-
 
 (def grammar
   (map (fn [phrase]
