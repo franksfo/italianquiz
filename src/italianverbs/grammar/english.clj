@@ -30,35 +30,35 @@
   (unifyc
    subcat-1-principle
    head-principle
-   {:comment "cc10"
+   {:comment "schema-10"
     :first :comp
     :comp {:synsem {:subcat '()}}}))
 
-(def cc10
+(def c10
   (unifyc
    schema-10
    head-last
-   {:comment "cc10"
+   {:comment "c10"
     ;; TODO: using :schema-symbol below - cannot use :schema for some reason; need to figure out why.
     ;; if you try to use :schema, I get:
     ;; java.util.concurrent.ExecutionException: java.lang.RuntimeException:
     ;; Can't embed object in code, maybe print-dup not defined: clojure.lang.Ref@11819f3c
-    :schema-symbol 'cc10 ;; used by over-each-parent to know where to put children.
+    :schema-symbol 'c10 ;; used by over-each-parent to know where to put children.
     :first :comp
     :comp {:synsem {:subcat '()}}}))
 
-(def ch21
+(def h21
   (unifyc
    subcat-2-principle
    head-principle
    head-first
    {:comp {:synsem {:subcat '()
                     :pronoun true}}
-    :schema-symbol 'ch21 ;; used by over-each-parent to know where to put children.
+    :schema-symbol 'h21 ;; used by over-each-parent to know where to put children.
     :first :comp
-    :comment "ch21"}))
+    :comment "h21"}))
 
-(def hc11
+(def c11
   (unifyc
    subcat-1-1-principle
    hc-agreement
@@ -66,11 +66,11 @@
    comp-modifies-head
    head-last
    {
-    :schema-symbol 'hc11 ;; used by over-each-parent to know where to put children.
+    :schema-symbol 'c11 ;; used by over-each-parent to know where to put children.
     :first :head
-    :comment "hc11"}))
+    :comment "c11"}))
 
-(def hc11-comp-subcat-1
+(def c11-comp-subcat-1
   (let [subcat (ref :top)]
     (unifyc
      {:head {:synsem {:subcat {:1 subcat}}}
@@ -80,59 +80,59 @@
      head-principle
      comp-modifies-head
      head-last
-     {:schema-symbol 'hc11-comp-subcat-1
+     {:schema-symbol 'c11-comp-subcat-1
       :first :head
-      :comment "hc11-comp-subcat-1"})))
+      :comment "c11-comp-subcat-1"})))
 
-(def hh10
+(def h10
   (unifyc
    subcat-1-principle
    head-principle
    head-first
-   {:comment "hh10"
-    :schema-symbol 'hh10 ;; used by over-each-parent to know where to put children.
+   {:comment "h10"
+    :schema-symbol 'h10 ;; used by over-each-parent to know where to put children.
     :first :head}))
 
-(def hh21
+(def h21
   (unifyc
    subcat-2-principle
    head-principle
    head-first
-   {:comment "hh21"
-    :schema-symbol 'hh21 ;; used by over-each-parent to know where to put children.
+   {:comment "h21"
+    :schema-symbol 'h21 ;; used by over-each-parent to know where to put children.
     :first :head}))
 
-(def hh22
+(def h22
   (unifyc
    subcat-2-2-principle
    head-principle
    head-first
-   {:comment "hh22"
-    :schema-symbol 'hh22 ;; used by over-each-parent to know where to put children.
+   {:comment "h22"
+    :schema-symbol 'h22 ;; used by over-each-parent to know where to put children.
     :first :head}))
 
-(def hh32
+(def h32
   (unifyc
    subcat-5-principle
    head-principle
    head-first
-   {:comment "hh32"
-    :schema-symbol 'hh32 ;; used by over-each-parent to know where to put children.
+   {:comment "h32"
+    :schema-symbol 'h32 ;; used by over-each-parent to know where to put children.
     :first :head}))
 
 ;; -- END SCHEMA DEFINITIONS
 
-(def grammar (list (unifyc hh21
+(def grammar (list (unifyc h21
                            {:rule "adjective-phrase"
                             :synsem {:cat :adjective}})
 
-                   (unifyc hh21
+                   (unifyc h21
                            (let [head-synsem {:cat :intensifier
                                               :modified true}] ;; TODO: document what purpose :modified serves (if any: if none, remove).
                              {:rule "intensifier-phrase"
                               :synsem head-synsem}))
 
-                   (unifyc hc11-comp-subcat-1
+                   (unifyc c11-comp-subcat-1
                            (let [head-synsem {:cat :noun
                                               :modified true}]
                              {:comp {:phrasal false ;; rathole prevention ;; TODO: see if this can be removed.
@@ -143,7 +143,7 @@
                               :rule "nbar"
                               :synsem head-synsem}))
 
-                   (unifyc cc10
+                   (unifyc c10
                            (let [number-agreement (ref :top)]
                              {:rule "noun-phrase1"
                               :aliases (list "np1")
@@ -155,7 +155,7 @@
                               :head {:phrasal false}
                               :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 
-                   (unifyc cc10
+                   (unifyc c10
                            (let [number-agreement (ref :top)]
                              {:rule "noun-phrase2"
                               :aliases (list "np2")
@@ -165,18 +165,18 @@
                               :head {:phrasal true}
                               :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 
-                   (unifyc hh10
+                   (unifyc h10
                            {:rule "prepositional-phrase"
                             :synsem {:cat :prep}})
 
-                   (unifyc cc10
+                   (unifyc c10
                            {:head {:synsem {:aux true}}
                             :rule "s-aux"
                             :synsem {:infl :present
                                      :cat :verb
                                      :sem {:tense :past}}})
 
-                   (unifyc cc10
+                   (unifyc c10
                           {:rule "s-future"
                            :synsem {:aux false
                                     :infl :futuro
@@ -184,27 +184,27 @@
                                     :sem {:tense :futuro}}})
 
 
-                   (unifyc cc10
+                   (unifyc c10
                            {:rule "s-imperfetto"
                             :synsem {:aux false
                                      :infl :imperfetto
                                      :cat :verb
                                      :sem {:tense :past}}})
 
-                   (unifyc cc10
+                   (unifyc c10
                            {:rule "s-present"
                             :synsem {:aux false
                                      :infl :present
                                      :cat :verb
                                      :sem {:tense :present}}})
 
-                   (unifyc hh21
+                   (unifyc h21
                            {:rule "vp-infinitive"
                             :synsem {:aux false
                                      :infl :infinitive
                                      :cat :verb}})
 
-                   (unifyc hh21
+                   (unifyc h21
                            {:rule "vp-aux"
                             :head {:phrasal false}
                             :synsem {:aux true
@@ -215,7 +215,7 @@
                    ;; this rule is kind of complicated and made more so by
                    ;; dependence on auxilary sense of "avere" which supplies the
                    ;; obj-agr agreement between the object and the main (non-auxilary) verb.
-                   (unifyc hh22
+                   (unifyc h22
                            (let [obj-agr (ref :top)]
                              {:head {:phrasal false}
                               :rule "vp-aux-22"
@@ -226,32 +226,32 @@
                                        :subcat {:2 {:agr obj-agr}}}
                               :italian {:b {:obj-agr obj-agr}}}))
 
-                   (unifyc hh21
+                   (unifyc h21
                            {:rule "vp-future"
                             :synsem {:aux false
                                      :infl :futuro
                                      :cat :verb}})
 
-                   (unifyc hh21
+                   (unifyc h21
                           {:rule "vp-imperfetto"
                            :synsem {:aux false
                                     :infl :imperfetto
                                     :cat :verb}})
 
-                   (unifyc hh21
+                   (unifyc h21
                            {:rule "vp-past"
                             :synsem {:aux false
                                      :infl :past
                                      :cat :verb}})
 
-                   (unifyc hh21
+                   (unifyc h21
                            {:rule "vp-present"
                             :synsem {:aux false
                                      :infl :present
                                      :sem {:tense :present}
                                      :cat :verb}})
 
-                   (unifyc ch21
+                   (unifyc h21
                            {:comp {:phrasal false
                                    :synsem {:cat :noun
                                             :pronoun true}}
@@ -259,7 +259,7 @@
                             :synsem {:cat :verb
                                      :infl {:not :past}}})
 
-                   (unifyc hh10
+                   (unifyc h10
                            {:head {:phrasal false
                                    :synsem {:cat :sent-modifier}}
                             :rule "s-modifier"})
