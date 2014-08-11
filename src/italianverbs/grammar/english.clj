@@ -289,19 +289,6 @@
           (aux-is-head-feature phrase)))
        grammar))
 
-;; These two internings allows us to refer to individual grammar rules within grammar
-;; by symbols like "vp-present" (e.g. (over vp-present lexicon)).
-;; TODO: not sure if aliases are working yet.
-(.size (map (fn [rule]
-              (do
-                (log/debug (str "Looking for aliases for rule: " (fo-ps rule)))
-                (.size (map (fn [alias]
-                              (do
-                                (log/debug (str "rule alias: " alias " -> " (fo-ps rule)))
-                                (intern *ns* (symbol alias) rule)))
-                            (:aliases rule)))))
-            grammar))
-
 ;; TODO: calling (.size) because (map) is lazy, and I want to realize
 ;; the sequence - must be a better way to loop over the grammar and realize the result.
 (.size (map (fn [rule]
