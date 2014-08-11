@@ -70,7 +70,6 @@
     :first :head
     :comment "hc11"}))
 
-
 (def hc11-comp-subcat-1
   (let [subcat (ref :top)]
     (unify
@@ -129,7 +128,7 @@
 
                    (unifyc hh21
                            (let [head-synsem {:cat :intensifier
-                                              :modified true}] ;; TODO: document what purpose :modified serves.
+                                              :modified true}] ;; TODO: document what purpose :modified serves (if any: if none, remove).
                              {:rule "intensifier-phrase"
                               :synsem head-synsem}))
 
@@ -140,7 +139,7 @@
                                      :synsem {:cat :adjective
                                               :mod head-synsem}}
                               :head {:phrasal false
-                                     :synsem {:modified false}} ;; TODO: document what purpose :modified serves.
+                                     :synsem {:modified false}} ;; TODO: document what purpose :modified serves (if any: if none, remove).
                               :rule "nbar"
                               :synsem head-synsem}))
 

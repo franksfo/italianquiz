@@ -15,6 +15,23 @@
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer (fail? get-in lazy-shuffle remove-top-values unify unifyc)]))
 
+(declare generate-from)
+
+(defn sentence [ & [spec ]]
+  (let [sentence-spec {:synsem {:subcat '()
+                                :cat :verb
+                                :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
+        spec (if spec spec :top)
+        unified-spec (unifyc sentence-spec spec)]
+    (generate-from unified-spec)))
+
+(defn nounphrase [ & [ spec ]]
+  (let [sentence-spec {:synsem {:subcat '()
+                                :cat :noun}}
+        spec (if spec spec :top)
+        unified-spec (unifyc sentence-spec spec)]
+    (generate-from unified-spec)))
+
 ;; TODO: use a map destructor to pass in arguments
 (defn generate [ & [spec grammar the-lexicon cache]]
   (let [spec (if spec spec :top)
@@ -37,21 +54,6 @@
                en/grammar
                lexicon
                en/cache)}))
-
-(defn nounphrase [ & [ spec ]]
-  (let [sentence-spec {:synsem {:subcat '()
-                                :cat :noun}}
-        spec (if spec spec :top)
-        unified-spec (unifyc sentence-spec spec)]
-    (generate-from unified-spec)))
-
-(defn sentence [ & [spec ]]
-  (let [sentence-spec {:synsem {:subcat '()
-                                :cat :verb
-                                :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
-        spec (if spec spec :top)
-        unified-spec (unifyc sentence-spec spec)]
-    (generate-from unified-spec)))
 
 ;; This sentence generation prevents initialization errors that occur when trying to
 ;; generate sentences within the sandbox.
