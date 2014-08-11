@@ -213,6 +213,15 @@
                    trials
                    name)))
 
+(declare standard-benchmark-en)
+(declare standard-benchmark-it)
+
+(defn standard-benchmark [ & [ trials ]]
+  (let [trials
+        (if (nil? trials) 1 trials)]
+    (do (standard-benchmark-it trials)
+        (standard-benchmark-en trials))))
+
 (defn standard-benchmark-it [ & [ trials ]]
   (let [trials
         (if (nil? trials) 1 trials)]
@@ -232,12 +241,6 @@
   (let [trialsa
         (if (nil? trials) 1 trials)]
     (bolt-benchmark trials en/grammar en/cache "bolt-benchmark-en")))
-
-(defn standard-benchmark [ & [ trials ]]
-  (let [trials
-        (if (nil? trials) 1 trials)]
-    (do (standard-benchmark-it trials)
-        (standard-benchmark-en trials))))
 
 (defn standard-benchmark-with [ trials spec ]
   (let [trials
