@@ -206,14 +206,12 @@
                 false))))))))
 
 (def comp-modifies-head
-  (let [head-semantics (ref :top)
-        pred-of-mod (ref :top)
-        mod-semantics {:pred pred-of-mod
-                       :mod head-semantics}]
-    {:synsem {:sem-mod {:pred pred-of-mod
-                        :obj head-semantics}}
-     :head {:synsem {:sem head-semantics}}
-     :comp {:synsem {:sem mod-semantics}}}))
+  (let [human (ref :top)
+        animate (ref :top)
+        comp-semantics (ref {:animate animate :human human})
+        head-semantics (ref {:animate animate :human human :mod comp-semantics})]
+    {:head {:synsem {:sem head-semantics}}
+     :comp {:synsem {:sem comp-semantics}}}))
 
 ;; -- END SCHEMA DEFINITIONS
 
