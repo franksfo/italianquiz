@@ -10,6 +10,13 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]))
 
+(def hc-agreement
+  (let [agr (ref :top)]
+    {:synsem {:agr agr}
+     :head {:synsem {:agr agr}}
+     :comp {:english {:agr agr}
+            :synsem {:agr agr}}}))
+
 (def head-first
   (let [head-english (ref :top)
         comp-english (ref :top)]
@@ -80,7 +87,7 @@
      comp-modifies-head
      head-last
      {:schema-symbol 'c11-comp-subcat-1
-      :first :head
+      :first :comp
       :comment "c11-comp-subcat-1"})))
 
 (def h10
@@ -221,8 +228,7 @@
                                        :cat :verb
                                        :infl :present
                                        :sem {:tense :past}
-                                       :subcat {:2 {:agr obj-agr}}}
-                              :italian {:b {:obj-agr obj-agr}}}))
+                                       :subcat {:2 {:agr obj-agr}}}}))
 
                    (unifyc h21
                            {:rule "vp-future"

@@ -205,14 +205,6 @@
                 ;; complement was incompatible with the filter and thus filtered out:
                 false))))))))
 
-(def hc-agreement
-  (let [agr (ref :top)]
-    {:synsem {:agr agr}
-     :head {:synsem {:agr agr}}
-     :comp {:italian {:agr agr}
-            :english {:agr agr}
-            :synsem {:agr agr}}}))
-
 (def comp-modifies-head
   (let [head-semantics (ref :top)
         pred-of-mod (ref :top)

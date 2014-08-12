@@ -10,6 +10,13 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]))
 
+(def hc-agreement
+  (let [agr (ref :top)]
+    {:synsem {:agr agr}
+     :head {:synsem {:agr agr}}
+     :comp {:italian {:agr agr}
+            :synsem {:agr agr}}}))
+
 (def head-first
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
