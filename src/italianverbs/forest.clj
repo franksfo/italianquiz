@@ -122,9 +122,10 @@ of this function with complements."
                              (if (= (rand-int 2) 0)
                                (lazy-cat lexical phrasal)
                                (lazy-cat phrasal lexical)))))]
-          (let [run-time (- (System/currentTimeMillis) start-time)]
+          (let [first-return-val-formatted (fo-ps (first return-val))
+                run-time (- (System/currentTimeMillis) start-time)]
             (if (seq return-val)
-              (log/debug (str " add-complement took " run-time " msec: " (fo-ps from-bolt) " => " (fo-ps (first return-val))))
+              (log/debug (str " add-complement took " run-time " msec: " (fo-ps from-bolt) " => " first-return-val-formatted))
               (log/warn (str " add-complement took " run-time " msec, but found no complement for " (fo-ps from-bolt) ".")))
             return-val)))
 
