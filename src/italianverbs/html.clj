@@ -94,6 +94,64 @@
 (defn tablize-ser [arg]
   (enumerate-serialized arg 0))
 
+(defn head-initial? [arg path]
+  (let [retval
+  (and
+   (map? arg)
+   
+   (not (= :subcat (last path)))
+   (not (= :italian (last path)))
+   (not (= :english (last path)))
+   
+   (not (= :none (:head arg :none)))
+   (not (= :none (:comp arg :none)))
+   (= :none (:1 arg :none))
+   (= :none (:2 arg :none))
+   
+   (or
+    (and
+     (not (= :none (fs/get-in arg '(:head :italian) :none)))
+     (not (= :none (fs/get-in arg '(:comp :italian) :none))))
+    (and
+     (not (= :none (fs/get-in arg '(:head :english) :none)))
+     (not (= :none (fs/get-in arg '(:comp :english) :none)))))
+   
+   (or
+    (and (fs/ref= arg '(:head :italian) '(:italian :a))
+         (fs/ref= arg '(:comp :italian) '(:italian :b)))
+    (and (fs/ref= arg '(:head :english) '(:english :a))
+         (fs/ref= arg '(:comp :english) '(:english :b)))))]
+    retval))
+
+(defn head-final? [arg path]
+  (let [retval
+  (and
+   (map? arg)
+   
+   (not (= :subcat (last path)))
+   (not (= :italian (last path)))
+   (not (= :english (last path)))
+   
+   (not (= :none (:head arg :none)))
+   (not (= :none (:comp arg :none)))
+   (= :none (:1 arg :none))
+   (= :none (:2 arg :none))
+   
+   (or
+    (and
+     (not (= :none (fs/get-in arg '(:head :italian) :none)))
+     (not (= :none (fs/get-in arg '(:comp :italian) :none))))
+    (and
+     (not (= :none (fs/get-in arg '(:head :english) :none)))
+     (not (= :none (fs/get-in arg '(:comp :english) :none)))))
+   
+   (or
+    (and (fs/ref= arg '(:head :italian) '(:italian :b))
+         (fs/ref= arg '(:comp :italian) '(:italian :a)))
+    (and (fs/ref= arg '(:head :english) '(:english :b))
+         (fs/ref= arg '(:comp :english) '(:english :a)))))]
+    retval))
+
 ;; TODO: use multimethod based on arg's type.
 (defn tablize [arg & [path serialized opts]]
  ;; set defaults.
@@ -136,24 +194,7 @@
 
      ;; displaying a phrase structure tree (2 children)
      ;; Head-initial (H C)
-     (and
-      (map? arg)
-
-      (not (= :subcat (last path)))
-      (not (= :italian (last path)))
-      (not (= :english (last path)))
-
-      (not (= :none (:head arg :none)))
-      (not (= :none (:comp arg :none)))
-      (= :none (:1 arg :none))
-      (= :none (:2 arg :none))
-      (not (= :none (fs/get-in arg '(:head :italian) :none)))
-      (not (= :none (fs/get-in arg '(:head :italian) :none)))
-      (not (= :none (fs/get-in arg '(:comp :english) :none)))
-      (not (= :none (fs/get-in arg '(:comp :english) :none)))
-      ;; head-initial:
-      (fs/ref= arg '(:head :italian) '(:italian :a))
-      (fs/ref= arg '(:comp :italian) '(:italian :b)))
+     (head-initial? arg path)
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
@@ -201,36 +242,7 @@
 
      ;; displaying a phrase structure tree (2 children)
      ;; Head-final (C H)
-     (and
-      (map? arg)
-
-      (not (= :subcat (last path)))
-      (not (= :italian (last path)))
-      (not (= :english (last path)))
-
-      ;; :extends will have features :a,:b,:c,.. -
-      ;; this long set of (nots) is to prevent matching :extend:
-      ;; TODO: might be possible to remove this.
-      (not (= :a (last path)))
-      (not (= :b (last path)))
-      (not (= :c (last path)))
-      (not (= :d (last path)))
-      (not (= :e (last path)))
-      (not (= :f (last path)))
-      (not (= :g (last path)))
-
-      (not (= :none (:head arg :none)))
-      (not (= :none (:comp arg :none)))
-      (= :none (:1 arg :none))
-      (= :none (:2 arg :none))
-      (not (= :none (fs/get-in arg '(:head :italian) :none)))
-      (not (= :none (fs/get-in arg '(:head :italian) :none)))
-      (not (= :none (fs/get-in arg '(:comp :english) :none)))
-      (not (= :none (fs/get-in arg '(:comp :english) :none)))
-      ;; head-final:
-      (fs/ref= arg '(:head :italian) '(:italian :b))
-      (fs/ref= arg '(:comp :italian) '(:italian :a)))
-
+     (head-final? arg path)
      (str
       "<div class='phrase'>"
       "  <table class='phrase'>"
