@@ -326,7 +326,7 @@
              {:synsem {:cat :adjective
                        :sem {:pred :semplice
                              :comparative false
-                             :mod {:human true}}}
+                             :human true}}
               :italian {:italian "semplice"
                         :cat :adjective}
               :english {:english "naive"
