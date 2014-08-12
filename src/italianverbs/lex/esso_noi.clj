@@ -125,7 +125,7 @@
           (unify adjective
                  {:synsem {:sem {:pred :gentile
                                  :comparative false
-                                 :mod {:human true}}} ;; sono gli umani possono essere gentile.
+                                 :human true}} ;; sono gli umani possono essere gentile.
                   :italian {:italian "gentile"}
                   :english {:english "kind"}})
 

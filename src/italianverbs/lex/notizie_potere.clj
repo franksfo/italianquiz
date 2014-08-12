@@ -26,7 +26,7 @@
               :english {:english "new"}
               :synsem {:cat :adjective
                        :sem {:pred :nuovo
-                             :mod {:artifact true}}}})
+                             :artifact true}}})
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -164,8 +164,8 @@
              {:synsem {:cat :adjective
                        :sem {:pred :piccolo
                              :comparative false
-                             :mod {:physical-object true
-                                   :mass false}}}
+                             :physical-object true
+                             :mass false}}
               :italian {:italian "piccolo"
                         :cat :adjective}
               :english {:english "small"
