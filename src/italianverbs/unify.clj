@@ -1152,10 +1152,13 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn ref= [map path1 path2]
   "return true iff path1 and path2 point to the same object."
   ;; TODO: add error checking.
-  (let [butlast-val1 (get-in map (butlast path1))
-        butlast-val2 (get-in map (butlast path2))]
-    (= (get butlast-val1 (last path1))
-       (get butlast-val2 (last path2)))))
+  (let [butlast-val1 (get-in map (butlast path1) :none)
+        butlast-val2 (get-in map (butlast path2) :none)]
+    (and
+     (not (= butlast-val1 :none))
+     (not (= butlast-val2 :none))
+     (= (get butlast-val1 (last path1) :none1)
+        (get butlast-val2 (last path2) :none2)))))
 
 (defn strip-refs [map-with-refs]
   "return a map like map-with-refs, but without refs - (e.g. {:foo (ref 42)} => {:foo 42}) - used for printing maps in plain (i.e. non html) format"
