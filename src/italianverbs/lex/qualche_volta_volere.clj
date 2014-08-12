@@ -179,18 +179,18 @@
              {:synsem {:cat :adjective
                        :sem {:pred :rosso
                              :comparative false
-                             :mod {:physical-object true
-                                   :human false}}}
+                             :physical-object true
+                             :human false}}
               :italian {:italian "rosso"}
               :english {:english "red"}})
 
       ;; non-comparative
       (unify adjective
              {:synsem {:cat :adjective
-                       :sem {:pred :robusto
+                       :sem {:animate true
+                             :pred :robusto
                              :comparative false
-                             :activity false
-                             :mod {:animate true}}}
+                             :activity false}}
               :italian {:italian "robusto"
                         :cat :adjective}
               :english {:english "large-built"
@@ -199,8 +199,8 @@
       (unify adjective
              {:synsem {:cat :adjective
                        :sem {:pred :rumorosa
-                             :comparative false
-                           :mod {:animate true}}}
+                             :animate true
+                             :comparative false}}
               :italian {:italian "rumoroso"
                         :cat :adjective}
               :english {:english "noisy"
