@@ -128,7 +128,7 @@
       (unify adjective
              {:synsem {:sem {:pred :ricco
                              :comparative false
-                             :mod {:human true}}} ;; TODO between with comparative/non-comparative rather than duplicating.
+                             :human true}} ;; TODO between with comparative/non-comparative rather than duplicating.
               :italian {:italian "ricco"}
               :english {:english "rich"}})
 
