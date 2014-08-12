@@ -283,8 +283,8 @@
             {:synsem {:cat :adjective
                       :sem {:pred :bianco
                             :comparative false
-                            :mod {:physical-object true
-                                  :human false}}}
+                            :physical-object true
+                            :human false}}
              :italian {:italian "bianco"
                        :irregular {:masc {:plur "bianchi"}
                                    :fem {:plur "bianche"}}

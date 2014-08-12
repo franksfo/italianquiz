@@ -792,8 +792,8 @@
              {:synsem {:cat :adjective
                        :sem {:pred :nero
                              :comparative false
-                             :mod {:physical-object true
-                                   :human false}}}
+                             :physical-object true
+                             :human false}}
               :italian {:italian "nero"
                         :cat :adjective}
               :english {:english "black"
