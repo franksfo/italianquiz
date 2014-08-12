@@ -163,8 +163,8 @@
                               :aliases (list "np")
                               :synsem {:agr {:number number-agreement}
                                        :cat :noun
-                                       :sem {:number number-agreement}
-                                       :sem-mod '()}
+                                       :sem {:number number-agreement
+                                             :mod '()}}
                               :head {:phrasal false}
                               :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 
