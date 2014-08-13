@@ -73,10 +73,7 @@
 (def determiner
   (let [def (ref :top)]
     {:synsem {:def def
-              :sem {;; this generic-looking :pred value is used to prevent usage of determiners in to try to generate with specs where :pred is some definite value X,
-                    ;; but we don't want a determiner to match that spec simply because the determiner lacks a :pred.
-                    :pred :det 
-                    :def def}}}))
+              :sem {:def def}}}))
 
 (def proper-noun
   {:synsem {:cat :noun

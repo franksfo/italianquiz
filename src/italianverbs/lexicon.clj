@@ -115,6 +115,13 @@
         true
         lexical-entry))
 
+(defn determiner-stuff [lexical-entry]
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :det)
+        (unifyc determiner
+                lexical-entry)
+        true
+        lexical-entry))
+
 (defn embed-phon [lexical-entry]
   (cond (string? (get-in lexical-entry '(:english)))
         (merge {:english {:english (get-in lexical-entry '(:english))}}
@@ -250,6 +257,7 @@
 ;; (transform) so that the rules' outputs are reduced using unifyc.
 (def rules (list ;aux-verb-rule
                  category-to-subcat commonnoun
+                 determiner-stuff
                  ditransitive-verb-rule
                  intensifier-agreement
                  intransitive-verb-rule
