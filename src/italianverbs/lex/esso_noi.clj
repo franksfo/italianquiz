@@ -222,12 +222,13 @@
               :italian "ieri"
               :english "yesterday"})
 
-      {:synsem {:cat :det
-                :def :def
-                :gender :masc
-                :number :sing}
-       :italian "il"
-       :english "the"}
+      (unify determiner
+             {:synsem {:cat :det
+                       :def :def
+                       :gender :masc
+                       :number :sing}
+              :italian "il"
+              :english "the"})
 
       {:synsem {:cat :det
                 :def :possessive

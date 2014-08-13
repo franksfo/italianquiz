@@ -158,13 +158,13 @@
                               :synsem head-synsem}))
 
                    (unifyc c10
+                           comp-modifies-head
                            (let [number-agreement (ref :top)]
                              {:rule "noun-phrase1"
                               :aliases (list "np")
                               :synsem {:agr {:number number-agreement}
                                        :cat :noun
-                                       :sem {:number number-agreement
-                                             :mod '()}}
+                                       :sem {:number number-agreement}}
                               :head {:phrasal false}
                               :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 

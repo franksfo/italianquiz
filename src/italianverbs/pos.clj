@@ -70,6 +70,11 @@
 (def feminine-noun (:feminine noun))
 (def masculine-noun (:masculine noun))
 
+(def determiner
+  (let [def (ref :top)]
+    {:synsem {:def def
+              :sem {:def def}}}))
+
 (def proper-noun
   {:synsem {:cat :noun
             :pronoun false
