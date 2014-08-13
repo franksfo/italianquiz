@@ -150,9 +150,10 @@
                               :synsem head-synsem}))
 
                    (unifyc c10
+                           comp-modifies-head
                            (let [number-agreement (ref :top)]
                              {:rule "noun-phrase"
-                              :aliases (list "np1")
+                              :aliases (list "np")
                               :synsem {:agr {:number number-agreement}
                                        :cat :noun
                                        :sem {:number number-agreement}}
