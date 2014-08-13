@@ -168,6 +168,7 @@
                               :head {:phrasal false}
                               :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 
+                   ;; TODO: noun-phrase1 and noun-phrase2 are identical except that {:head :phrasal} = false vs = true. probably don't need this distinction any more.
                    (unifyc c10
                            (let [number-agreement (ref :top)]
                              {:rule "noun-phrase2"
