@@ -76,7 +76,7 @@
             {:synsem {:cat :adjective
                       :sem {:pred :affolato
                             :comparative false
-                            :mod {:place true}}} ;; only places can be crowded.
+                            :place true}} ;; only places can be crowded.
              :italian {:italian "affolato"
                        :cat :adjective}
              :english {:english "crowded"
@@ -101,7 +101,7 @@
                                :sem {:pred :alto
                                      :comparative false
                                      :arg1 subject-sem
-                                     :mod {:human true}}
+                                     :human true}
                                :subcat {:1 {:cat :noun
                                             :agr subject-agr
                                             :sem subject-sem}
@@ -228,7 +228,7 @@
             subcat0
             {:synsem {:sem {:pred :bello
                             :comparative false
-                            :mod :top}} ;; for now, no restrictions on what can be beautiful.
+                            } ;; for now, no restrictions on what can be beautiful.
              :italian {:italian "bello"}
              :english {:english "beautiful"}})
 
@@ -322,7 +322,7 @@
             {:synsem {:cat :adjective
                       :sem {:pred :brutto
                             :comparative false
-                            :mod :top}} ;; for now, no restrictions on what can be ugly.
+                            }} ;; for now, no restrictions on what can be ugly.
              :italian {:italian "brutto"
                        :cat :adjective}
              :english {:english "ugly"
@@ -397,8 +397,8 @@
             {:synsem {:cat :adjective
                       :sem {:pred :cattivo
                             :comparative false
-                            :mod {:human true;; TODO:should not need this because child => human.
-                                  :child true}}}
+                            :human true;; TODO:should not need this because child => human.
+                            :child true}}
              :italian {:italian "cattivo"
                        :cat :adjective}
              :english {:english "naughty"
@@ -531,7 +531,7 @@
             {:synsem {:cat :adjective
                       :sem {:pred :contento
                             :comparative false
-                            :mod {:human true}}}
+                            :human true}}
              :italian {:italian "contento"
                        :cat :adjective}
              :english {:english "happy"
@@ -558,7 +558,7 @@
            {:synsem {:cat :adjective
                      :sem {:pred :corto
                            :comparative false
-                           :mod {:human true}}}
+                           :human true}}
             :italian {:italian "corto"
                       :cat :adjective}
             :english {:english "short"
@@ -596,15 +596,15 @@
                      :sem {:pred :difficile
                            :comparative false
                            ;; "difficile" has a very specific list of things it can modify:
-                           :mod {:drinkable false
-                                 :human false
-                                 :animate false
-                                 :buyable false
-                                 :legible true
-                                 :activity true
-                                 :artifact true
-                                 :physical-object true
-                                 :edible false}}}
+                           :drinkable false
+                           :human false
+                           :animate false
+                           :buyable false
+                           :legible true
+                           :activity true
+                           :artifact true
+                           :physical-object true
+                           :edible false}}
             :italian {:italian "difficile"
                       :cat :adjective}
             :english {:english "difficult"
