@@ -1468,8 +1468,6 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         true
         (remove-top-values-log (dissoc-paths spec '((:english :initial)
                                                     (:italian :initial)
-;                                                    (:synsem :subcat)
-                                                    (:synsem :sem-mod)
                                                     (:synsem :essere)
                                                     (:synsem :agr)
                                                     (:synsem :pronoun)

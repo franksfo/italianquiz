@@ -20,19 +20,16 @@
   (let [head-cat (ref :top)
         head-essere (ref :top)
         head-is-pronoun (ref :top)
-        head-sem (ref :top)
-        sem-mod (ref :top)]
+        head-sem (ref :top)]
     (unifyc phrasal
             {:synsem {:cat head-cat
                       :essere head-essere
                       :pronoun head-is-pronoun
-                      :sem head-sem
-                      :sem-mod sem-mod}
+                      :sem head-sem}
              :head {:synsem {:cat head-cat
                              :essere head-essere
                              :pronoun head-is-pronoun
-                             :sem head-sem
-                             :sem-mod sem-mod}}})))
+                             :sem head-sem}}})))
 
 ;;    [1]
 ;;   /   \
