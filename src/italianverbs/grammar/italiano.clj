@@ -158,7 +158,7 @@
                               :synsem head-synsem}))
 
                    (unifyc c10
-                           comp-modifies-head
+                           comp-specs-head
                            (let [number-agreement (ref :top)]
                              {:rule "noun-phrase"
                               :aliases (list "np")

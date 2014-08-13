@@ -210,6 +210,12 @@
     {:head {:synsem {:sem head-semantics}}
      :comp {:synsem {:sem comp-semantics}}}))
 
+(def comp-specs-head
+  (let [comp-semantics (ref :top)
+        head-semantics (ref {:spec comp-semantics})]
+    {:head {:synsem {:sem head-semantics}}
+     :comp {:synsem {:sem comp-semantics}}}))
+
 ;; -- END SCHEMA DEFINITIONS
 
 (defn sentence-impl [input]
