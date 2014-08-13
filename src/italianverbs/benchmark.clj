@@ -269,7 +269,7 @@
     (run-benchmark
      #(fo-ps (take 1 (generate {:synsem {:subcat '() :cat :noun
                                          :sem {:pred :parola}}}
-                               (list it/noun-phrase2 it/nbar)
+                               (list it/noun-phrase it/nbar)
                                lexicon it/cache)))
      trials)))
 

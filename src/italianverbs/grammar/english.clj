@@ -149,25 +149,13 @@
                               :rule "nbar"
                               :synsem head-synsem}))
 
-                   ;; TODO: noun-phrase1 and noun-phrase2 are identical except that {:head :phrasal} = false vs = true. probably don't need this distinction any more.
                    (unifyc c10
                            (let [number-agreement (ref :top)]
-                             {:rule "noun-phrase1"
+                             {:rule "noun-phrase"
                               :aliases (list "np1")
                               :synsem {:agr {:number number-agreement}
                                        :cat :noun
                                        :sem {:number number-agreement}}
-                              :head {:phrasal false}
-                              :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
-
-                   (unifyc c10
-                           (let [number-agreement (ref :top)]
-                             {:rule "noun-phrase2"
-                              :aliases (list "np2")
-                              :synsem {:agr {:number number-agreement}
-                                       :cat :noun
-                                       :sem {:number number-agreement}}
-                              :head {:phrasal true}
                               :comp {:phrasal false}})) ;; rathole prevention ;; TODO: see if this can be removed.
 
                    (unifyc h10
