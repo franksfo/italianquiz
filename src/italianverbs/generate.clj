@@ -5,7 +5,6 @@
    [clojure.test :refer :all]
    [clojure.tools.logging :as log]
 
-   [italianverbs.cache :refer (build-lex-sch-cache) ]
    [italianverbs.forest :as forest]
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
