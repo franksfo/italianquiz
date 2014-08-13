@@ -230,7 +230,7 @@
                             :comparative false
                             } ;; for now, no restrictions on what can be beautiful.
              :italian {:italian "bello"}
-             :english {:english "beautiful"}})
+             :english {:english "beautiful"}}})
 
      (let [complement-complement-sem (ref :top) ;; for now no restrictions
            complement-sem (ref {:pred :di
