@@ -17,13 +17,17 @@
 (declare generate-from)
 
 (defn sentence [ & [spec ]]
-  (let [sentence-spec {:synsem {:subcat '()
-                                :cat :verb
-                                :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
-        spec (if spec spec :top)
-        unified-spec (unifyc sentence-spec spec)]
-    (log/info (str "generating with unified spec: " unified-spec))
-    (generate-from unified-spec)))
+  (if (seq? spec)
+    (map (fn [each]
+           (sentence each))
+         spec)
+    (let [sentence-spec {:synsem {:subcat '()
+                                  :cat :verb
+                                  :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
+          spec (if spec spec :top)
+          unified-spec (unifyc sentence-spec spec)]
+      (log/info (str "generating with unified spec: " unified-spec))
+      (generate-from unified-spec))))
 
 (defn nounphrase [ & [ spec ]]
   (let [sentence-spec {:synsem {:subcat '()
