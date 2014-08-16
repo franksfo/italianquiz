@@ -38,17 +38,15 @@ Phrase Structure Grammar</a> [Pollard and Sag 1994].
     ("Il vostro uomo gentile dormiva (Your (pl) kind man was sleeping).")
 
 ## Benchmarking
+
     user=> (load "italianverbs/benchmark")
     user=> (in-ns 'italianverbs.benchmark)
     #<Namespace italianverbs.benchmark>
-    italianverbs.benchmark=> (standard-benchmark 3)
-    ' (Tu lavori ().) ' took:  185  msec.
-    ' (Il nostro uomo la scriveva ().) ' took:  1412  msec.
-    ' (Quello ragazzo lavorava ().) ' took:  422  msec.
-    stats for 'bolt-benchmark-it' {:trials 3, :mean 673.0, :median 422, :stddev 36.0, :min 185, :max 1412, :95% 422, :99% 422}
-    ' ((Her ugly woman was losing it (&#x2640;)).) ' took:  2534  msec.
-    ' ((Paola was working).) ' took:  161  msec.
-    ' ((I will be less beautiful than Naples).) ' took:  3409  msec.
-    stats for 'bolt-benchmark-en' {:trials 3, :mean 2034.6666666666667, :median 2534, :stddev 53.0, :min 161, :max 3409, :95% 2534, :99% 2534}
+    italianverbs.benchmark=> (standard-benchmark 1)
+    ' (Lui andava ().) ' took:  328  msec.
+    stats for 'bolt-benchmark-it' {:trials 1, :mean 328.0, :median 328, :stddev 0.0, :min 328, :max 328, :95% 328, :99% 328}
+    ' ((Your happy mothers will look for you).) ' took:  819  msec.
+    stats for 'bolt-benchmark-en' {:trials 1, :mean 819.0, :median 819, :stddev 0.0, :min 819, :max 819, :95% 819, :99% 819}
+    ' (Voi perderete Roma (You all will lose Rome).) ' took:  3986  msec.
+    stats for 'italian2english' {:trials 1, :mean 3986.0, :median 3986, :stddev 0.0, :min 3986, :max 3986, :95% 3986, :99% 3986}
     nil
-
