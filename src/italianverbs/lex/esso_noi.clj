@@ -197,7 +197,8 @@
                     :def :possessive
                     :gender :masc
                     :number :plur
-                    :sem {:person :1st}}
+                    :sem {:person :1st
+                          :number :sing}}
            :italian "i miei"
            :english "my"}
 
@@ -206,7 +207,8 @@
                 :def :possessive
                 :gender :masc
                 :number :plur
-                :sem {:person :2nd}}
+                :sem {:number :sing
+                      :person :2nd}}
        :italian "i tuoi"
        :english "your"}
 
@@ -214,7 +216,8 @@
                 :def :possessive
                 :gender :masc
                 :number :plur
-                :sem {:person :2nd}}
+                :sem {:number :plur
+                      :person :2nd}}
        :italian "i vostri"
        :english "your (pl) "}
 
@@ -237,7 +240,8 @@
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:person :3rd}}
+                :sem {:number :plur
+                      :person :3rd}}
        :italian "il loro"
        :english "their"}
 
@@ -245,7 +249,8 @@
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:person :1st}}
+                :sem {:number :plur
+                      :person :1st}}
        :italian "il nostro"
        :english "our"}
 
@@ -253,7 +258,8 @@
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:person :1st}}
+                :sem {:number :sing
+                      :person :1st}}
        :italian "il mio"
        :english "my"}
 
@@ -261,7 +267,8 @@
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:person :3rd}}
+                :sem {:number :sing
+                      :person :3rd}}
        :italian "il suo"
        :english "his"}
 
@@ -269,7 +276,8 @@
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:person :3rd}}
+                :sem {:number :sing
+                      :person :3rd}}
        :italian "il suo"
        :english "her"}
 
@@ -277,7 +285,8 @@
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:person :2nd}}
+                :sem {:number :sing
+                      :person :2nd}}
        :italian "il tuo"
        :english "your"}
 
@@ -285,7 +294,8 @@
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:person :2nd}}
+                :sem {:number :plur
+                      :person :2nd}}
        :italian "il vostro"
        :english "your (pl) "}
 
@@ -398,7 +408,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:person :3rd}}
+                :sem {:number :plur
+                      :person :3rd}}
        :italian "la loro"
        :english "their"}
 
@@ -406,7 +417,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:person :1st}}
+                :sem {:number :sing
+                      :person :1st}}
        :italian "la mia"
        :english "my"}
 
@@ -414,7 +426,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:person :1st}}
+                :sem {:number :plur
+                      :person :1st}}
        :italian "la nostra"
        :english "our"}
 
@@ -423,7 +436,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:person :3rd}}
+                :sem {:number :sing
+                      :person :3rd}}
        :italian "la sua"
        :english "her"}
 
@@ -431,7 +445,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:person :3rd}}
+                :sem {:number :sing
+                      :person :3rd}}
        :italian "la sua"
        :english "his"}
 
@@ -439,7 +454,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:person :2nd}}
+                :sem {:number :sing
+                      :person :2nd}}
        :italian "la tua"
        :english "your"}
 
@@ -447,7 +463,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:person :2nd}}
+                :sem {:number :plur
+                      :person :2nd}}
        :italian "la vostra"
        :english "your (pl)"}
 
@@ -579,7 +596,8 @@
                 :def :possessive
                 :gender :fem
                 :number :plur
-                :sem {:person :2nd}}
+                :sem {:number :plur
+                      :person :2nd}}
        :italian "le vostre"
        :english "your (pl)"}
 
@@ -587,7 +605,8 @@
                 :def :possessive
                 :gender :fem
                 :number :plur
-                :sem {:person :1st}}
+                :sem {:number :sing
+                      :person :1st}}
        :italian "le mie"
        :english "my"}
 
@@ -595,7 +614,8 @@
                 :def :possessive
                 :gender :fem
                 :number :plur
-                :sem {:person :2nd}}
+                :sem {:number :sing
+                      :person :2nd}}
        :italian "le tue"
        :english "your"}
 
