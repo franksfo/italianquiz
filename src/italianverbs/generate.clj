@@ -43,15 +43,19 @@
   (first (take 1 (forest/generate spec grammar lexicon cache)))))
 
 (defn generate-from [spec]
-  (let [italiano
-        (generate spec it/grammar lexicon it/cache)]
-    {:italiano italiano
-     :english
-     (generate (unifyc spec
-                       {:synsem {:sem (get-in italiano [:synsem :sem])}})
-               en/grammar
-               lexicon
-               en/cache)}))
+  (if (seq? spec)
+    (map (fn [each]
+           (generate-from each))
+         spec)
+    (let [italiano
+          (generate spec it/grammar lexicon it/cache)]
+      {:italiano italiano
+       :english
+       (generate (unifyc spec
+                         {:synsem {:sem (get-in italiano [:synsem :sem])}})
+                 en/grammar
+                 lexicon
+                 en/cache)})))
 
 ;; This sentence generation prevents initialization errors that occur when trying to
 ;; generate sentences within the sandbox.
