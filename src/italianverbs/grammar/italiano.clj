@@ -189,7 +189,8 @@
                             :rule "s-aux"
                             :synsem {:infl :present
                                      :cat :verb
-                                     :sem {:tense :past}}})
+                                     :sem {:aspect :perfect
+                                           :tense :past}}})
 
                    (unifyc c10
                           {:rule "s-future"
@@ -204,14 +205,16 @@
                             :synsem {:aux false
                                      :infl :imperfetto
                                      :cat :verb
-                                     :sem {:tense :past}}})
+                                     :sem {:aspect :progressive
+                                           :tense :past}}})
 
                    (unifyc c10
                            {:rule "s-present"
                             :synsem {:aux false
                                      :infl :present
                                      :cat :verb
-                                     :sem {:tense :present}}})
+                                     :sem {:aspect :progressive
+                                           :tense :present}}})
 
                    (unifyc h21
                            {:rule "vp-infinitive"
