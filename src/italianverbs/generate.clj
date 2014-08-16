@@ -22,6 +22,7 @@
                                 :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
         spec (if spec spec :top)
         unified-spec (unifyc sentence-spec spec)]
+    (log/info (str "generating with unified spec: " unified-spec))
     (generate-from unified-spec)))
 
 (defn nounphrase [ & [ spec ]]

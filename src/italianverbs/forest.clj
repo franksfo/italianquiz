@@ -32,7 +32,11 @@
                    (if (not (= val false))
                      [key (filter-out-falses val)])))
                (keys spec)))
-    spec))
+    (if (seq? spec)
+      (map (fn [each]
+             (filter-out-falses each))
+           spec)
+      spec)))
 
 (defn generate [spec grammar lexicon & [cache]]
   ;; remove all 'false' key/value pairs: they are usually uninteresting.
