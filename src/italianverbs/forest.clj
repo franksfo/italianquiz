@@ -24,8 +24,20 @@
 
 (declare lightning-bolt)
 
+(defn filter-out-falses [spec]
+  (if (map? spec)
+    (into {}
+          (map (fn [key]
+                 (let [val (get-in spec (list key))]
+                   (if (not (= val false))
+                     [key (filter-out-falses val)])))
+               (keys spec)))
+    spec))
+
 (defn generate [spec grammar lexicon & [cache]]
-  (log/info (str "generate: " (get-in spec [:synsem :sem :pred])))
+  ;; remove all 'false' key/value pairs: they are usually uninteresting.
+  ;; doesn't work yet..
+  (log/info (str "generate: " (show-spec (filter-out-falses (get-in spec [:synsem :sem])))))
   (log/debug (str "generate: " (show-spec spec)))
   (-> (lightning-bolt grammar
                       lexicon
