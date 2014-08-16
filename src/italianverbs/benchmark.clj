@@ -213,6 +213,21 @@
                    trials
                    name)))
 
+(defn standard-benchmark-it2en [trials]
+  (let [spec 
+        {:synsem {:cat :verb
+                  :aux false
+                  :sem {:subj {:animate true}}
+                  :subcat '()}}]
+    (run-benchmark #(let [sentence-spec {:synsem {:subcat '()
+                                                  :cat :verb
+                                                  :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
+                          spec (if spec spec :top)
+                          unified-spec (unifyc sentence-spec spec)]
+                      (fo (generate-from unified-spec)))
+                   trials
+                   "it2en")))
+
 (declare standard-benchmark-en)
 (declare standard-benchmark-it)
 
@@ -220,7 +235,8 @@
   (let [trials
         (if (nil? trials) 1 trials)]
     (do (standard-benchmark-it trials)
-        (standard-benchmark-en trials))))
+        (standard-benchmark-en trials)
+        (standard-benchmark-it2en trials))))
 
 (defn standard-benchmark-it [ & [ trials ]]
   (let [trials
