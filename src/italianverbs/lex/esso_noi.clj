@@ -267,19 +267,21 @@
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:number :sing
+                :sem {:gender :fem
+                      :number :sing
                       :person :3rd}}
        :italian "il suo"
-       :english "his"}
+       :english "her"}
 
       {:synsem {:cat :det
                 :def :possessive
                 :gender :masc
                 :number :sing
-                :sem {:number :sing
+                :sem {:gender :masc
+                      :number :sing
                       :person :3rd}}
        :italian "il suo"
-       :english "her"}
+       :english "his"}
 
       {:synsem {:cat :det
                 :def :possessive
@@ -436,7 +438,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:number :sing
+                :sem {:gender :fem
+                      :number :sing
                       :person :3rd}}
        :italian "la sua"
        :english "her"}
@@ -445,7 +448,8 @@
                 :def :possessive
                 :gender :fem
                 :number :sing
-                :sem {:number :sing
+                :sem {:gender :masc
+                      :number :sing
                       :person :3rd}}
        :italian "la sua"
        :english "his"}
