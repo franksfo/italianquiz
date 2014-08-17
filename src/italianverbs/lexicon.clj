@@ -255,7 +255,7 @@
 ;; order the rules are applied, as long as all rules are applied at
 ;; each iteration. This is guaranteed by using these rules below in
 ;; (transform) so that the rules' outputs are reduced using unifyc.
-(def rules (list ;aux-verb-rule
+(def rules (list aux-verb-rule
                  category-to-subcat commonnoun
                  determiner-stuff
                  ditransitive-verb-rule
