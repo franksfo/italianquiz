@@ -64,16 +64,16 @@ of this function with complements."
   (log/debug (str "lighting-bolt@" depth))
   (let [maxdepth 3 ;; maximum depth of a lightning bolt: H1 -> H2 -> H3 where H3 must be a lexeme, not a phrase.
         depth (if depth depth 0)
-        parents (lazy-shuffle (filter #(not (fail? (unifyc spec %)))
+        candidate-parents (lazy-shuffle (filter #(not (fail? (unifyc spec %)))
                                       (map (fn [rule]
                                              (unifyc spec rule))
                                            (if parent (get-head-phrases-of parent cache)
                                                grammar))))]
-    (if (seq parents)
+    (if (seq candidate-parents)
       (let [lexical ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
             (mapcat (fn [parent]
                       (overh parent (lazy-shuffle (get-lex parent :head cache spec))))
-                    parents)
+                    candidate-parents)
 
             phrasal ;; 2. generate list of all phrases where the head child of each parent is itself a phrase.
             ;; recursively call lightning-bolt with (+ 1 depth).
@@ -84,8 +84,8 @@ of this function with complements."
                                                (get-in parent [:head])
                                                (+ 1 depth)
                                                cache parent)))
-                      parents))]
-        (log/debug (str "first parent: " (fo-ps (first parents))))
+                      candidate-parents))]
+        (log/debug (str "first parent: " (fo-ps (first candidate-parents))))
         (if (= (rand-int 2) 0)
           (lazy-cat lexical phrasal)
           (lazy-cat phrasal lexical))))))
