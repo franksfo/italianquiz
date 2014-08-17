@@ -315,8 +315,12 @@
                 (log/error (str "lexical entry cannot be added: " lexical-entry))
                 :fail)
               (if (isomorphic? result lexical-entry)
-                (do (cache-serialization result)
-                    result)
+                ;; done: one final step is to add serialization to the entry.
+                (cache-serialization
+                 (merge {:phrasal false}
+                        result))
+
+                ;; not done yet: continue.
                 (transform result)))))))
 
 (def lexicon
