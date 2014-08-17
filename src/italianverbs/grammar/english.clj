@@ -177,7 +177,8 @@
                             :synsem {:cat :prep}})
 
                    (unifyc c10
-                           {:head {:synsem {:aux true}}
+                           {:head {:phrasal true
+                                   :synsem {:aux true}}
                             :rule "s-aux"
                             :synsem {:infl :present
                                      :cat :verb
