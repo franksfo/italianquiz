@@ -13,8 +13,7 @@
    [italianverbs.lexicon :refer (it)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :as over]
-   [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
+   [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle ref? remove-top-values-log show-spec unifyc)]))
 
 (def concurrent false)
 (declare path-to-map)
@@ -24,24 +23,29 @@
 
 (declare lightning-bolt)
 
-(defn filter-out-falses [spec]
-  (if (map? spec)
-    (into {}
-          (map (fn [key]
-                 (let [val (get-in spec (list key))]
-                   (if (not (= val false))
-                     [key (filter-out-falses val)])))
-               (keys spec)))
-    (if (seq? spec)
-      (map (fn [each]
-             (filter-out-falses each))
-           spec)
-      spec)))
+(defn remove-false [spec]
+  (cond (map? spec)
+        (into {}
+              (map (fn [key]
+                     (let [val (get-in spec (list key))]
+                       (if (not (= val false))
+                         [key (remove-false val)])))
+                   (keys spec)))
+        
+        (seq? spec)
+        (map (fn [each]
+               (remove-false each))
+             spec)
+        (ref? spec)
+        (remove-false @spec)
+
+        true
+        spec))
 
 (defn generate [spec grammar lexicon & [cache]]
   ;; remove all 'false' key/value pairs: they are usually uninteresting.
   ;; doesn't work yet..
-  (log/info (str "generate: " (show-spec (filter-out-falses (get-in spec [:synsem :sem])))))
+  (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
   (log/debug (str "generate: " (show-spec spec)))
   (-> (lightning-bolt grammar
                       lexicon
