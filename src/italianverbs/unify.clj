@@ -984,7 +984,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    true
    (let [memoized (get input-map :serialized :none)]
      (if (not (= memoized :none))
-       (let [debug (log/debug "using cached serialization!")]
+       (let [debug (log/debug "using cached serialization.")]
          memoized)
        (let [ser (ser-intermed input-map)]
         ;; ser is a intermediate (but fully-serialized) representation
