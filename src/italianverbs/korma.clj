@@ -136,7 +136,7 @@ on a table."
          :verb (fn [modify-with id]
                  (let [modify-with (dissoc (dissoc modify-with :created) :updated)
                        set-the-fields {:value (str modify-with)}]
-                   (log/info (str "updating :verb table with set-fields: " set-fields))
+                   (log/debug (str "updating :verb table with set-fields: " set-fields))
                    (log/info (str "updating :verb table with id: " id))
                    (update verb
                            (set-fields set-the-fields)
