@@ -152,7 +152,8 @@
      ;; "andare"-intransitive
      (unify
       intransitive
-      andare-common)
+      andare-common
+      {:synsem {:sem {:location '()}}})
 
      ;; "andare" that takes a prepositional phrase
      (unify
