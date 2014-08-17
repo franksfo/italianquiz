@@ -97,7 +97,11 @@
 
 (defn past-perfect [trials]
   (run-benchmark
-   #(fo (sentence {:synsem {:sem {:aspect :perfect :tense :past :pred :perdere}}}))
+   #(fo-ps (sentence {:synsem {:sem {:aspect :perfect 
+                                     :tense :past 
+                                     :pred :perdere
+                                     :subj {:pred :io}
+                                     :obj {:pred :roma}}}}))
    trials
    "past-perfect-tense generation is needful of optimization."))
 
