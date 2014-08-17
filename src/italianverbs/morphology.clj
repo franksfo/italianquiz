@@ -1686,6 +1686,9 @@
           (str (.toUpperCase (subs s 0 1))
                (subs s 1))))))
 
+(declare fo-ps-en)
+(declare fo-ps-it)
+
 (defn fo-ps [expr]
   "show the phrase-structure of a phrase structure tree, e.g [hh21 'mangiare (to eat)' [cc10 'il (the)' 'pane(bread)']]"
   ;; [:first = {:head,:comp}] will not yet be found in expr, so this head-first? will always be false.
@@ -1715,8 +1718,8 @@
      (and (map? expr)
           (:italiano expr)
           (:english expr))
-     (str "it:" (fo-ps (:italiano expr)) ";"
-          "en:" (fo-ps (:english expr)))
+     (str "it:" (fo-ps-it (:italiano expr)) ";"
+          "en:" (fo-ps-en (:english expr)))
 
      (and (map? expr)
           (:rule expr)
@@ -1882,7 +1885,7 @@
           (:italiano expr)
           (:english expr))
      (str "it:" (fo-ps-it (:italiano expr)) ";"
-          "en:" (fo-ps-it (:english expr)))
+          "en:" (fo-ps-en (:english expr)))
 
      (and (map? expr)
           (:rule expr)
