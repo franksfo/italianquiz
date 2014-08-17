@@ -700,23 +700,58 @@
    (html
      [:div {:class "quiz-elem"}
       [:h2 "Quiz" [:span#quizbanner [:script "show_question_types()" ]]]
+
+
+
+
       [:div#quiz_container
 
-       [:div#qa
-        [:div#ajax_question " "
-         [:script "get_next_question()" ]
-         ]
-
-        [:div#guess_input_div
-         [:input {:size "20" :id "guess_input" :type "text"  }
-          [:script "set_guess_input('Guess the Italian?')" ]
+       [:div.controls
+        [:form {:action "/quiz/"}
+         [:table 
+          [:tr 
+           [:td "Passato prossimo"]
+           [:td [:input {:type "checkbox"}]]
+           
+           [:td "Futuro"]
+           [:td [:input {:type "checkbox"}]]
+           
+           [:td "Imperfetto"]
+           [:td [:input {:type "checkbox"}]]
+          
+           [:td "Present"]
+           [:td [:input {:type "checkbox"}]]
+           ]
           ]
          ]
+        ]
 
-        [:div#guess_respond_button
-         [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
+       [:div#qa
+        [:table
+         [:tr
+          [:td
+           [:div#ajax_question " "
+            [:script "get_next_question()" ]
+            ]
+           ]
+
+          [:td
+           [:div#guess_input_div
+            [:input {:size "20" :id "guess_input" :type "text"  }
+             [:script "set_guess_input('Guess the Italian?')" ]
+             ]
+            ]
+           ]
+
+          [:td
+           [:div#guess_respond_button
+            [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
+            ]
+           ]
+          ]
          ]
         ]
+
        [:table {:id "quiz_table" :class "quiz"} " " ]
        [:div {:style "display:none" :id "stripe_toggle"} "odd" ] ]]
      )
