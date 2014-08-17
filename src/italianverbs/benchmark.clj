@@ -95,6 +95,12 @@
                (range 0 trials))]
       (println (str "stats for '" (string/trim (string/join "" name)) "' " (percentile 95 runtimes))))))
 
+(defn past-perfect [trials]
+  (run-benchmark
+   #(fo (sentence {:synsem {:sem {:aspect :perfect :tense :past :pred :perdere}}}))
+   trials
+   "past-perfect-tense generation is needful of optimization."))
+
 (defn sentence-subject-verb [trials]
   (run-benchmark
    #(fo (generate {:comp {:phrasal false}
