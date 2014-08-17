@@ -20,7 +20,7 @@
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
-   [italianverbs.morphology :refer [finalize fo fo-ps get-english get-italian]]
+   [italianverbs.morphology :refer [finalize fo fo-ps fo-ps-en fo-ps-it get-english get-italian]]
    [italianverbs.over :refer :all]
    [italianverbs.pos :refer :all]
    ;; we excluded lightning-bolt from italianverbs.forest, so that we can use italianverbs.test.forest's instead:
@@ -149,3 +149,40 @@
       [:div#workbooka
        (if search-query
          (workbookq search-query))]])))
+
+(defn show-sem [to-show]
+  (cond (seq? to-show)
+        (map (fn [each]
+               (show-sem each))
+             to-show)
+        
+        (map? to-show)
+        (html
+         [:table
+          
+          [:tr
+           [:th "it"] [:th "en"]]
+
+          [:tr
+           [:td
+            (fo (:italiano to-show))]
+           [:td
+            (fo (:english to-show))]]
+          
+          [:tr
+           [:td
+            (fo-ps-it (:italiano to-show))]
+           [:td
+            (fo-ps-en (:english to-show))]]
+
+          [:tr
+           [:td (html/tablize (remove-false (get-in to-show [:italiano :synsem :sem])))]
+           [:td (html/tablize (remove-false (get-in to-show [:english :synsem :sem])))]]
+    
+          ])
+        
+        true
+        (fo to-show)))
+
+
+
