@@ -724,7 +724,20 @@
            [:th "Present"]
            [:td [:input {:onclick "submit()" :type "checkbox"}]]
            ]
+
+
+          [:tr
+           [:th {:colspan "8" :style "border-top:2px solid #ccc; margin-top:10px; padding-top:10px"}]
+           ]
+
+          [:tr
+           [:th {:colspan "4"} "mi sento fortunato" ]
+           [:td {:colspan "4"} [:input {:onclick "submit()" :type "checkbox"}]]
+           ]
+
+
           ]
+
          ]
         ]
 
@@ -739,7 +752,7 @@
 
           [:td
            [:div#guess_input_div
-            [:input {:size "20" :id "guess_input" :type "text"  }
+            [:input {:size "60" :id "guess_input" :type "text"  }
              [:script "set_guess_input('Guess the Italian?')" ]
              ]
             ]
