@@ -1,3 +1,18 @@
+//
+// mapping javascript client behavior to clojure server responses:
+//
+// js fn                        action:url                          clojure
+// =================================================================================
+//
+// addguess()                   none                                none
+// submit_user_response()       post:/quiz/evaluate                 (quiz/evaluate)
+// get_next_question()          get: /quiz/question/                (quiz/question)
+//                              get: /quiz/fillqueue/               (quiz/fillqueue)
+// show_quiz_preferences()      get: /quiz/filter/                  ??
+// show_question_types()        get: /quiz/filter/?format=titlebar  ??
+// submit_quiz_filters()        post:/quiz/filter/                  ??
+//
+
 function addguess(english,italian) {
     $("#guess-table").prepend("<tr style='display:none' id='guess_row_" + guessNumber + "'><th>" + guessNumber + "</th><th>" + english + "</th><td>" + italian + "</td></tr>");
     $("#guess_row_"+guessNumber).fadeIn("slow");
