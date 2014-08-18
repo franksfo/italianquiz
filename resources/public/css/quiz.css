@@ -7,6 +7,11 @@ div#quiz_container div.controls {
 
 div#quiz_container div.controls td {
     padding:2px;
+    padding-right:10px;
+}
+
+div#quiz_container div.controls th {
+    padding:2px;
 }
 
 

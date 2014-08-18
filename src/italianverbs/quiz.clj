@@ -420,6 +420,8 @@
                                           (if (= checkbox-disabled "disabled") {:disabled "disabled"} {})
                                           (checked session key))]]
                           [:td label ])))]
+
+    ;; TODO: move controls from here to new implementation in (quiz).
     [:div {:id "controls" :class "controls quiz-elem"}
      [:h2 "i tuoi preferiti" [:span#quizbanner  [:script "show_question_types()"]  ]  ]
      ;; TODO: don't create a form if doing ajax (instead will use onclick(), where onclick() is
@@ -710,17 +712,17 @@
         [:form {:action "/quiz/"}
          [:table 
           [:tr 
-           [:td "Passato prossimo"]
-           [:td [:input {:type "checkbox"}]]
+           [:th "Passato prossimo"]
+           [:td [:input {:onclick "submit()" :type "checkbox"}]]
            
-           [:td "Futuro"]
-           [:td [:input {:type "checkbox"}]]
+           [:th "Futuro"]
+           [:td [:input {:onclick "submit()" :type "checkbox"}]]
            
-           [:td "Imperfetto"]
-           [:td [:input {:type "checkbox"}]]
+           [:th "Imperfetto"]
+           [:td [:input {:onclick "submit()" :type "checkbox"}]]
           
-           [:td "Present"]
-           [:td [:input {:type "checkbox"}]]
+           [:th "Present"]
+           [:td [:input {:onclick "submit()" :type "checkbox"}]]
            ]
           ]
          ]
