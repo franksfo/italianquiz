@@ -697,32 +697,33 @@
                  request
                  "show_quiz_preferences()"))
 
+(defn prefs [request]
+  "update users' preferences based on the their submitted preferences in request"
+  (log/info (str "quiz/prefs request:" request)))
+
 (defn quiz [request]
   (html/page "Quiz"
    (html
      [:div {:class "quiz-elem"}
       [:h2 "Quiz" [:span#quizbanner [:script "show_question_types()" ]]]
 
-
-
-
       [:div#quiz_container
 
        [:div.controls
-        [:form {:action "/quiz/"}
+        [:form {:action "/quiz/prefs" :method "get"}
          [:table 
           [:tr 
            [:th "Passato prossimo"]
-           [:td [:input {:onclick "submit()" :type "checkbox"}]]
+           [:td [:input {:name "passato" :onclick "submit()" :type "checkbox"}]]
            
            [:th "Futuro"]
-           [:td [:input {:onclick "submit()" :type "checkbox"}]]
+           [:td [:input {:name "futuro" :onclick "submit()" :type "checkbox"}]]
            
            [:th "Imperfetto"]
-           [:td [:input {:onclick "submit()" :type "checkbox"}]]
+           [:td [:input {:name "imperfetto" :onclick "submit()" :type "checkbox"}]]
           
            [:th "Present"]
-           [:td [:input {:onclick "submit()" :type "checkbox"}]]
+           [:td [:input {:name "present" :onclick "submit()" :type "checkbox"}]]
            ]
 
 
@@ -732,7 +733,7 @@
 
           [:tr
            [:th {:colspan "4"} "mi sento fortunato" ]
-           [:td {:colspan "4"} [:input {:onclick "submit()" :type "checkbox"}]]
+           [:td {:colspan "4"} [:input {:name "fortunato" :onclick "submit()" :type "checkbox"}]]
            ]
 
 

@@ -393,6 +393,12 @@
        {:status 302
         :headers {"Location" "/quiz/"}})
 
+  (GET "/quiz/prefs"
+       request
+       (do (quiz/prefs (:query-params request))
+           {:status 302
+            :headers {"Location" "/quiz/"}}))
+
   ;; create a new question, store in backing store, and return question's english form
   ;; to pose question to user.
   (GET "/quiz/question"
