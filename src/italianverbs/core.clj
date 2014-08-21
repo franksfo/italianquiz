@@ -395,7 +395,7 @@
 
   (GET "/quiz/prefs"
        request
-       (do (quiz/prefs (:query-params request))
+       (do (quiz/prefs (session/request-to-session request) (:query-params request))
            {:status 302
             :headers {"Location" "/quiz/"}}))
 

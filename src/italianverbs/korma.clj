@@ -23,10 +23,11 @@
          students-in-class
          student-test tsubmit user verb vgroup)
 
-;; TODO: this defentity stuff is perfunctory
+;; TODO: this 'defentity' stuff is perfunctory
 ;; boilerplate: remove or at least move to bottom of file
 ;; where it doesn't hog valuable real estate.
-;; Have to learn what defentity is.
+;; (Have to learn what defentity is - for now I just use sql (../sql/create.sql)
+;;  to define tables).
 (defentity classes
   (pk :id)
   (has-many students-in-class {:fk :class}))

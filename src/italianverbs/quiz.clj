@@ -172,15 +172,6 @@
   (db/destroy! :queue {:session session})
   session)
 
-(defn set-filters [session request]
-  (do
-    (db/destroy! :filter {:session session})
-    (db/destroy! :queue {:session session})
-    (db/insert! :filter {:form-params (get request :form-params)
-                         :session session})
-    session))
-
-
 (defn each-correct [question]
   (if (= (get question :guess) (get question :answer)) '(true) nil))
 
@@ -689,6 +680,7 @@
        [:english (get stored :english)]
        [:italian (get stored :italian)]]))))
 
+;; TODO: not used: removed in favor of (prefs) : below
 (defn preferiti [request]
   "this is called by the routing: /preferiti => {:body (quiz/preferiti request)} in core.clj. The controls are rendered in (defn- controls) above."
   (html/page "i tuoi preferiti"
@@ -697,9 +689,22 @@
                  request
                  "show_quiz_preferences()"))
 
-(defn prefs [request]
-  "update users' preferences based on the their submitted preferences in request"
-  (log/info (str "quiz/prefs request:" request)))
+(declare set-filters)
+(defn prefs [session request]
+  "update user's preferences based on the their submitted preferences in request"
+  (log/info (str "quiz/prefs request:" request))
+  (set-filters session request))
+
+(defn set-filters [session request]
+  (do
+    (db/destroy! :filter {:session session})
+    (db/destroy! :queue {:session session})
+    (db/insert! :filter {:form-params (get request :form-params)
+                         :session session})
+    session))
+
+
+
 
 (defn quiz [request]
   (html/page "Quiz"
