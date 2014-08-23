@@ -34,11 +34,14 @@
 ;; 4. register :my-new-question-type with the question-type-map below.
 ;; 5. add :my-new-question-type to all-possible-question-types (immediately below).
 ;; TODO: make 1-5 a macro.
-(def all-possible-question-types
+(def all-possible-question-types-todo
   '(:futuro :giorni :imperfetto :mese :mobili :passato :presente))
   ;; '(:mobili :mese :giorni :possessives :partitivo :ora :infinitivo :passato :futuro :presente :espressioni :oct2011 :chetempo :cucina))
 
-(def question-type-map
+(def all-possible-question-types
+  '(:futuro :imperfetto :passato :present))
+
+(def question-type-map-todo
   {:futuro {:sym :futuro, :desc "futuro semplice verbs",
              :spec {:synsem {:infl :futuro}}},
    :giorni {:sym :giorni, :desc "days of the week"},
@@ -59,6 +62,18 @@
    :oct2011 {:sym :oct2011, :desc "recently-encountered vocabulary"},
    :chetempo {:sym :chetempo, :desc "weather-related terms"}
    :cucina {:sym :cucina, :desc "kitchen and food-related vocabulary"}
+   })
+
+(def question-type-map
+  {:futuro {:sym :futuro, :desc "futuro semplice verbs",
+             :spec {:synsem {:infl :futuro}}},
+   :imperfetto {:sym :imperfetto, :desc "imperfect verbs",
+                 :spec {:synsem {:infl :imperfetto}}},
+   :passato {:sym :passato, :desc "passato prossimo verbs",
+             :spec {:synsem {:infl :present
+                             :sem {:tense :past}}}},
+   :present {:sym :present, :desc "present tense verbs",
+              :spec {:synsem {:infl :present}}}
    })
 
 (defn question-type [params]
@@ -342,7 +357,7 @@
    {:synsem {:infl :present
              :sem {:tense :past}}}
 
-   (= question-type :presente)
+   (= question-type :present)
    {:synsem {:infl :present
              :sem {:tense :present}}}
    true
@@ -582,7 +597,8 @@
     (log/info (str "get-queued-question-filtered-by: question=" queued-question))
     (if (not (nil? queued-question))
       (let [question-type (:type queued-question)]
-        (log/info (str "taking intersection of filters: " filters " and this queued question's type: " (set (list type))))
+        (log/info (str "looking to see if this question's type: " question-type " matches users' filters:"
+                       (set filters)))
         (if (question-matches-filters? queued-question filters)
           ;; this question is allowed by the user's filters: return it.
           (do
