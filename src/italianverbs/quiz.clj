@@ -295,17 +295,19 @@
   (let [qid (if using-mongo (new org.bson.types.ObjectId qid)
                 (Integer. qid))]
     (log/debug (str "qid (post-munge): " qid))
-    (let [guest (if (and guess (.length guess)) 0 "")
-          guess (normalize-whitespace guess)
-          question (db/fetch-one :guess
+    (let [question (db/fetch-one :guess
                                  {:id qid})
           question (dissoc question :_id)
+          answer (get question :answer)
+          answer (if (string? answer) answer "(no answer)")
+          ;; If the user had no guess, then use the correct answer as the guess.
+          guess (if (and (string? guess) (not (empty? guess))) guess answer)
+          guess (normalize-whitespace guess)
           updated-question-map
           (merge
            question
            {:guess guess}
-           {:evaluation (str (lev/get-green2 (get question :answer)
-                                             guess))}
+           {:evaluation (str (lev/get-green2 answer guess))}
              )]
       (log/trace (str "doing update for queue row with id: " qid " and updated-question-map:" updated-question-map))
       (db/update! :guess qid
