@@ -456,6 +456,7 @@
 
 ;; TODO: use recur:
 ;; see http://clojure.org/functional_programming#Functional Programming--Recursive Looping
+;; TODO: removing this; not being used.
 (defn filter-by-criteria [list criteria]
   (if (> (count list) 0)
     (if (get criteria (first list))
@@ -470,13 +471,13 @@
   (let [possible-question-types all-possible-question-types
         filters (if session
                   (map #(keyword %) (keys (get-filters session))))
-
+        filter-size (.size filters) ;; cause lazy seq to be realized.
         debug (log/info "filtering by user's preferred filters: " filters)
         filtered-results (take 1 (shuffle filters))]
     (if (> (count filtered-results) 0)
       filtered-results
       (do
-        (log/warn (str "user's filters: (" filters ") are too restrictive: failed to generate anything that matched them. Just generating from all possible types instead."))
+        (log/warn (str "user's filters - of size: " filter-size " - are too restrictive: failed to generate anything that matched them. Just generating from all possible types instead."))
         all-possible-question-types))))
 
 (defn random-guess-type [session]
@@ -558,10 +559,14 @@
   (let [queued-question (db/fetch-one :queue
                                       {:session session})]
     (log/info (str "get-queued-question-filtered-by: session=" session "; filters=" filters))
+    (log/info (str "get-queued-question-filtered-by: filters joined:" (string/join " " filters)))
+    (log/info (str "get-queued-question-filtered-by: filters joined length:" (.length (string/join " " filters))))
+
     (log/info (str "get-queued-question-filtered-by: question=" queued-question))
     (if (not (nil? queued-question))
       (let [type (:type queued-question)]
-        (if (empty? (set/intersection (set (list type))))
+        (log/info (str "taking intersection of filter: " (set filters) " and this queued question's type: " (set (list type))))
+        (if (empty? (set/intersection (set filters) (set (list type))))
           (do
             (log/info (str "removing question: " queued-question " because its type: " type " was incompatible with user's filters: " filters "."))
             (db/destroy! :queue {:id (:id queued-question)})
@@ -575,15 +580,17 @@
 
 (defn get-question-from-queue [session]
   (log/info (str "looking for queue for session: " session))
-  (if queue-is-on
-    (let [queued-question (get-queued-question-filtered-by session (get-filters session))]
-      (if (not (nil? queued-question))
-        (do
-          (log/debug (str "found question with id: " (:id queued-question)))
-          ;; remove from queue - now the question is only in memory and lost forever if we crash at this point.
+  (let [filters (map keyword (keys (get-filters session)))]
+    (log/info (str "filtering queue by filters: " (.count filters)))
+    (if queue-is-on
+      (let [queued-question (get-queued-question-filtered-by session filters)]
+        (if (not (nil? queued-question))
+          (do
+            (log/debug (str "found question with id: " (:id queued-question)))
+            ;; remove from queue - now the question is only in memory and lost forever if we crash at this point.
           (db/destroy! :queue {:id (:id queued-question)})
           queued-question)
-        nil)))) ;; no question found: the caller will have to generate a new one.
+          nil))))) ;; no question found: the caller will have to generate a new one.
 
 (defn question [request]
   ;; create a new question, store in backing store, and return an HTML fragment with the question's english form
@@ -716,10 +723,10 @@
       (read-string form-params))))
 
 (defn set-filters [session form-params]
+  ;; TODO: use (update!) rather than (destroy!).
   (do
-    (db/destroy! :filter {:session session})
-;    (db/destroy! :queue {:session session})
     (log/info (str "setting filters to " form-params))
+    (db/destroy! :filter {:session session})
     (db/insert! :filter {:form_params (str form-params)
                          :session session})
     session))
