@@ -295,7 +295,8 @@
   (let [qid (if using-mongo (new org.bson.types.ObjectId qid)
                 (Integer. qid))]
     (log/debug (str "qid (post-munge): " qid))
-    (let [guess (normalize-whitespace guess)
+    (let [guest (if (and guess (.length guess)) 0 "")
+          guess (normalize-whitespace guess)
           question (db/fetch-one :guess
                                  {:id qid})
           question (dissoc question :_id)
@@ -303,21 +304,9 @@
           (merge
            question
            {:guess guess}
-           (if using-mongo ;; does not work yet with postgres: need to use a vector for the 'evaluation' column.
-             {:evaluation ;; evaluate the user's guess against the correct response.
-              (if (and guess
-                       (> (.length guess) 0))
-                (lev/get-green2 (get question :answer)
-                                guess
-                                )
-                )
-              }
-             {:evaluation (str (lev/get-green2 (get question :answer)
-                                               guess
-                                               ))}
-
-             
-             ))]
+           {:evaluation (str (lev/get-green2 (get question :answer)
+                                             guess))}
+             )]
       (log/trace (str "doing update for queue row with id: " qid " and updated-question-map:" updated-question-map))
       (db/update! :guess qid
                    updated-question-map)
@@ -362,11 +351,12 @@
   "maps a question-type to feature structure. right now a big 'switch(question-type)' statement (in C terms)."
   (cond
    production
-   (random-sentence) ;; random-sentence takes from a queue of pre-generated sentences - see (random-sentence) for more details about this queue.
+   (random-sentence) ;; random-sentence takes from a queue of pre-generated sentences - see (random-sentence) for more details about this queue. TODO: add support for question-type.
    true
-   (do
+   (let [spec (question-type-to-sentence-spec question-type)]
      (log/info (str "generate-question with type: " question-type))
-     (finalize (sentence (question-type-to-sentence-spec question-type))))
+     (log/info (str "generate-question with spec: " spec))
+     (finalize (sentence spec)))
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)
@@ -473,11 +463,11 @@
 
 (defn possible-question-types [session]
   (let [possible-question-types all-possible-question-types
-        session (db/fetch-one :filter {:session session})
         filters (if session
-                  (get session :form-params))
+                  (map #(keyword %) (keys (get-filters session))))
+
         debug (log/info "filtering by user's preferred filters: " filters)
-        filtered-results (filter-by-criteria possible-question-types filters)]
+        filtered-results (take 1 (shuffle filters))]
     (if (> (count filtered-results) 0)
       filtered-results
       (do
@@ -724,8 +714,6 @@
 (defn filter-form [session]
   (let [checked
         (get-filters session)]
-;        {"passato" "on"
-;         "present" "on"}]
     (html
      [:form {:action "/quiz/prefs" :method "get"}
       [:table 
@@ -748,7 +736,7 @@
         ]
 
        [:tr
-        [:td {:colspan "4"} [:button {:style "center-the-dang-button:true" :onclick "submit()"} "mi sento fortunato" ]]
+        [:td {:colspan "8"} [:div {:style "width:100%; text-align:center"} [:button {:onclick "submit()"} "mi sento fortunato" ]]]
         ]
        ]
       ])))
@@ -785,7 +773,7 @@
            ]
           ]]
 
-        [:div#guess_respond_button
+        [:div#guess_respond_button {:style "width:100%"}
          [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
          ]
         ]
