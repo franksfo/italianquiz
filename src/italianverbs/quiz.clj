@@ -695,57 +695,77 @@
   (log/info (str "quiz/prefs request:" request))
   (set-filters session request))
 
-(defn set-filters [session request]
+(defn get-filters [session]
+  (let [filter-result (db/fetch-one :filter {:session session})
+        form-params (if filter-result (:form_params filter-result))]
+    (if (not (empty? form-params))
+      (read-string form-params))))
+
+(defn set-filters [session form-params]
   (do
     (db/destroy! :filter {:session session})
     (db/destroy! :queue {:session session})
-    (db/insert! :filter {:form-params (get request :form-params)
+    (log/info (str "setting filters to " form-params))
+    (db/insert! :filter {:form_params (str form-params)
                          :session session})
     session))
 
+(defn filter-checkbox [filter checked]
+  (let [on? (= "on" (get-in checked (list filter)))
+        result
+        {:name filter
+         :onclick "submit()"
+         :type "checkbox"}]
+    (if on?
+      (merge result
+             {:checked "true"})
+      result)))
 
+(defn filter-form [session]
+  (let [checked
+        (get-filters session)]
+;        {"passato" "on"
+;         "present" "on"}]
+    (html
+     [:form {:action "/quiz/prefs" :method "get"}
+      [:table 
+       [:tr 
+        [:th "Passato prossimo"]
+        [:td [:input (filter-checkbox "passato" checked)]]
 
+        [:th "Futuro"]
+        [:td [:input (filter-checkbox "futuro" checked)]]
+        
+        [:th "Imperfetto"]
+        [:td [:input (filter-checkbox "imperfetto" checked)]]
+        
+        [:th "Present"]
+        [:td [:input (filter-checkbox "present" checked)]]
+        ]
+
+       [:tr
+        [:th {:colspan "8" :style "border-top:2px solid #ccc; margin-top:10px; padding-top:10px"}]
+        ]
+
+       [:tr
+        [:td {:colspan "4"} [:button {:style "center-the-dang-button:true" :onclick "submit()"} "mi sento fortunato" ]]
+        ]
+       ]
+      ])))
 
 (defn quiz [request]
-  (html/page "Quiz"
+  (html/page 
+   "Quiz"
    (html
-     [:div {:class "quiz-elem"}
-      [:h2 "Quiz" [:span#quizbanner [:script "show_question_types()" ]]]
+    [:div {:class "quiz-elem"}
+     [:h2 "Quiz" [:span#quizbanner [:script "show_question_types()" ]]]
+     [:div#quiz_container
 
-      [:div#quiz_container
+      [:div.controls
 
-       [:div.controls
-        [:form {:action "/quiz/prefs" :method "get"}
-         [:table 
-          [:tr 
-           [:th "Passato prossimo"]
-           [:td [:input {:name "passato" :onclick "submit()" :type "checkbox"}]]
-           
-           [:th "Futuro"]
-           [:td [:input {:name "futuro" :onclick "submit()" :type "checkbox"}]]
-           
-           [:th "Imperfetto"]
-           [:td [:input {:name "imperfetto" :onclick "submit()" :type "checkbox"}]]
-          
-           [:th "Present"]
-           [:td [:input {:name "present" :onclick "submit()" :type "checkbox"}]]
-           ]
+       (filter-form (session/request-to-session request))
 
-
-          [:tr
-           [:th {:colspan "8" :style "border-top:2px solid #ccc; margin-top:10px; padding-top:10px"}]
-           ]
-
-          [:tr
-           [:th {:colspan "4"} "mi sento fortunato" ]
-           [:td {:colspan "4"} [:input {:name "fortunato" :onclick "submit()" :type "checkbox"}]]
-           ]
-
-
-          ]
-
-         ]
-        ]
+       ]
 
        [:div#qa
         [:table
@@ -763,13 +783,10 @@
              ]
             ]
            ]
+          ]]
 
-          [:td
-           [:div#guess_respond_button
-            [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
-            ]
-           ]
-          ]
+        [:div#guess_respond_button
+         [:button {:class "click" :onclick "submit_user_response('guess_input')"} "Rispondi" ]
          ]
         ]
 
