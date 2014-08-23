@@ -25,7 +25,7 @@ tr.undefined td {
 }
 
 div#qa {
-    margin-left:10%;
+    margin-left:1%;
     float:left;
     width:100%;
 }
@@ -47,6 +47,7 @@ div#guess_input_div input {
 
 div#guess_respond_button {
     float:left;
+    width:25%;
 }
 
 div#ajax_question {
