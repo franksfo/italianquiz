@@ -341,9 +341,6 @@ on a table."
                       (order order-by)))
             (exec base)))))))
 
-(defn at-least-it-works []
-  (exec (-> (select* :verb) (order :value))))
-
 (defn fetch-one [collection & [ the-where]]
   (first (take 1 (fetch collection the-where))))
 
