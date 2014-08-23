@@ -7,6 +7,10 @@
     float:left;
 }
 
+#game .fa-6x {
+    font-size:150px;
+}
+
 #game i,div {
     position:relative;
 }
@@ -20,13 +24,16 @@
     background:lightblue;
 }
 
-
 #sky .fa-cloud {
     color: white;
 }
 
 #sky .medium-cloud {
-    font-size:130px;
+    font-size:100px;
+}
+
+#sky .big-cloud {
+    font-size:205px;
 }
 
 #sky .storm-cloud {
