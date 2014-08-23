@@ -1,0 +1,56 @@
+#game {
+    width:500px;
+    height: 500px;
+    border:2px solid darkgrey;
+    margin-top:1em;
+    background: lightblue;
+    float:left;
+}
+
+#game i,div {
+    position:relative;
+}
+
+#rainforest {
+    z-index:0;
+}
+
+#sky {
+    z-index:0;
+    background:lightblue;
+}
+
+
+#sky .fa-cloud {
+    color: white;
+}
+
+#sky .medium-cloud {
+    font-size:130px;
+}
+
+#sky .storm-cloud {
+    color: lightgrey;
+   -webkit-text-stroke: 1px darkgrey;
+   text-shadow:
+   -1px -1px 0 darkgrey,  
+   1px -1px 0 darkgrey,
+   -1px 1px 0 darkgrey,
+   1px 1px 0 darkgrey;
+}
+
+#game .fa-tree {
+    z-index:2;
+    color: darkgreen;
+}
+
+#ground {
+    width:100%;
+    z-index:1;
+    height:155px;
+    top:220px;
+    float:left;
+    border-top:2px solid lightgreen;
+    background:lightgreen;
+}
+
