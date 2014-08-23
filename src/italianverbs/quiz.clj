@@ -557,6 +557,8 @@
   "update the user's queue by removing any questions that do not match the filters."
   (let [queued-question (db/fetch-one :queue
                                       {:session session})]
+    (log/info (str "get-queued-question-filtered-by: session=" session "; filters=" filters))
+    (log/info (str "get-queued-question-filtered-by: question=" queued-question))
     (if (not (nil? queued-question))
       (let [type (:type queued-question)]
         (if (empty? (set/intersection (set (list type))))
@@ -567,7 +569,9 @@
             (get-queued-question-filtered-by session filters))
 
           ;; this question is allowed by the user's filters: return it.
-          queued-question)))))
+          (do
+            (log/info (str "get-queued-question-filtered-by: question matches: " queued-question))
+            queued-question))))))
 
 (defn get-question-from-queue [session]
   (log/info (str "looking for queue for session: " session))
