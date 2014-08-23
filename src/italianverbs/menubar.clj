@@ -44,6 +44,19 @@
                  :requires-authentication false})
 
       (menuitem {:selected?
+                 (or (and (not (nil? current-url))
+                          (re-find #"/game" current-url))
+                     (= current-url "/game")
+                     (and (not (nil? current-url))
+                          (re-find #"/game" current-url)))
+                 :show? true
+                 :current-url current-url 
+                 :text "Game" 
+                 :url-for-this-item "/game"
+                 :requires-admin false
+                 :requires-authentication false})
+
+      (menuitem {:selected?
                  (and (not (nil? current-url))
                       (re-find #"/class" current-url))
                  :current-url current-url

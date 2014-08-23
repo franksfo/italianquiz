@@ -14,6 +14,7 @@
    [hiccup.page :as h]
    [hiccup.element :as e]
    [italianverbs.class :as vc-class]
+   [italianverbs.game :as game]
    [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
    [italianverbs.korma :as db]
@@ -220,6 +221,15 @@
                                               (str "/class/" class))]
                             {:status 302
                              :headers {"Location" (str redirect "?result=" message)}})))
+
+  (GET "/game" request
+       {:status 200
+        :body (html/page "Rain Forest" (game/game) request)})
+
+  (GET "/game/" request
+       {:status 302
+        :headers {"Location" "/game"}})
+
 
   (GET "/generate/" request
        {:status 302
