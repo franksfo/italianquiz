@@ -2,7 +2,8 @@
 ;; whose session is 'y' where 'x' != 'y'.
 ;; (see update-question-by-id-with-guess) where this is enforced by the db/fetch's supplied 'where' constraint.
 (ns italianverbs.quiz
-  (:require [clojure.string :as string]
+  (:require [clojure.set :as set]
+            [clojure.string :as string]
             [clojure.tools.logging :as log]
             [hiccup.core :refer :all]
             [hiccup.page :refer :all]
@@ -282,7 +283,7 @@
 
 (defn most-recent-qid-for-user [session]
   (let [results (db/fetch :queue {:session session} :sort {:id -1} :limit 1)]
-    (if (> (.size results) 0)
+    (if (> (and results (.size results) 0))
       (get (nth results 0) :id))))
 
 (def using-mongo false)
@@ -463,6 +464,8 @@
       (filter-by-criteria (rest list)
                            criteria))))
 
+(declare get-filters)
+
 (defn possible-question-types [session]
   (let [possible-question-types all-possible-question-types
         filters (if session
@@ -478,7 +481,7 @@
 
 (defn random-guess-type [session]
   (let [possible (possible-question-types session)]
-    (log/info (str "random-guess-type: " possible))
+    (log/info (str "possible question types: " (string/join "," possible)))
     (nth possible (rand-int (count possible)))))
 
 (defn url-decode [string]
@@ -550,11 +553,26 @@
 
 (def queue-is-on true)
 
+(defn get-queued-question-filtered-by [session filters]
+  "update the user's queue by removing any questions that do not match the filters."
+  (let [queued-question (db/fetch-one :queue
+                                      {:session session})]
+    (if (not (nil? queued-question))
+      (let [type (:type queued-question)]
+        (if (empty? (set/intersection (set (list type))))
+          (do
+            (log/info (str "removing question: " queued-question " because its type: " type " was incompatible with user's filters: " filters "."))
+            (db/destroy! :queue {:id (:id queued-question)})
+            ;; try again with the remainder of the questions.
+            (get-queued-question-filtered-by session filters))
+
+          ;; this question is allowed by the user's filters: return it.
+          queued-question)))))
+
 (defn get-question-from-queue [session]
   (log/info (str "looking for queue for session: " session))
   (if queue-is-on
-    (let [queued-question (db/fetch-one :queue
-                                        {:session session})]
+    (let [queued-question (get-queued-question-filtered-by session (get-filters session))]
       (if (not (nil? queued-question))
         (do
           (log/debug (str "found question with id: " (:id queued-question)))
@@ -696,7 +714,7 @@
 (defn set-filters [session form-params]
   (do
     (db/destroy! :filter {:session session})
-    (db/destroy! :queue {:session session})
+;    (db/destroy! :queue {:session session})
     (log/info (str "setting filters to " form-params))
     (db/insert! :filter {:form_params (str form-params)
                          :session session})
@@ -735,10 +753,6 @@
 
        [:tr
         [:th {:colspan "8" :style "border-top:2px solid #ccc; margin-top:10px; padding-top:10px"}]
-        ]
-
-       [:tr
-        [:td {:colspan "8"} [:div {:style "width:100%; text-align:center"} [:button {:onclick "submit()"} "mi sento fortunato" ]]]
         ]
        ]
       ])))
