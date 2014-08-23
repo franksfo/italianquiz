@@ -554,9 +554,26 @@
 
 (def queue-is-on true)
 
-(defn get-queued-question-filtered-by [session filters]
+(defn question-matches-filters? [question filters]
+  (let [filter-set (set filters)
+        question-type (keyword (string/join "" (rest (:type question))))] ;; will be a string ":something", so need to (keyword) it
+    ;; so that set/intersection can handle it properly.
+
+    ;; so much debugging here over this issue of casting strings to keywords..
+    (log/debug "qmf taking intersection of : " filter-set " and : " (set (list question-type)))
+    (log/debug "qmf intersection=types(1) : " (type (first filter-set)))
+    (log/debug "qmf intersection=types(2) : " (type question-type))
+    (or (empty? filter-set)
+        (not (empty? (set/intersection filter-set (set (list question-type))))))))
+
+(defn get-queued-question-filtered-by [session & [filters]]
+  ;; TODO: we pass filters as an optional arg, to avoid refetch from db in (get-filters), which is good.
+  ;; however, if (get-filters session) is null, we will call (get-filters) every time, because
+  ;; (get-filters) returns nil.
   "update the user's queue by removing any questions that do not match the filters."
-  (let [queued-question (db/fetch-one :queue
+  (let [filters (if filters filters (set (map keyword (keys (get-filters session)))))
+        filters-size (.size filters) ;; force realization for debugging (at least for now).
+        queued-question (db/fetch-one :queue
                                       {:session session})]
     (log/info (str "get-queued-question-filtered-by: session=" session "; filters=" filters))
     (log/info (str "get-queued-question-filtered-by: filters joined:" (string/join " " filters)))
@@ -564,26 +581,26 @@
 
     (log/info (str "get-queued-question-filtered-by: question=" queued-question))
     (if (not (nil? queued-question))
-      (let [type (:type queued-question)]
-        (log/info (str "taking intersection of filter: " (set filters) " and this queued question's type: " (set (list type))))
-        (if (empty? (set/intersection (set filters) (set (list type))))
-          (do
-            (log/info (str "removing question: " queued-question " because its type: " type " was incompatible with user's filters: " filters "."))
-            (db/destroy! :queue {:id (:id queued-question)})
-            ;; try again with the remainder of the questions.
-            (get-queued-question-filtered-by session filters))
-
+      (let [question-type (:type queued-question)]
+        (log/info (str "taking intersection of filters: " filters " and this queued question's type: " (set (list type))))
+        (if (question-matches-filters? queued-question filters)
           ;; this question is allowed by the user's filters: return it.
           (do
             (log/info (str "get-queued-question-filtered-by: question matches: " queued-question))
-            queued-question))))))
+            queued-question)
+          ;; does not match:remove.
+          (do
+            (log/info (str "removing question: " (:italian queued-question) " because its type: " question-type " was incompatible with user's filters: " filters "."))
+            (db/destroy! :queue {:id (:id queued-question)})
+            ;; try again with the remainder of the questions.
+            (get-queued-question-filtered-by session filters)))))))
 
 (defn get-question-from-queue [session]
   (log/info (str "looking for queue for session: " session))
   (let [filters (map keyword (keys (get-filters session)))]
     (log/info (str "filtering queue by filters: " (.count filters)))
     (if queue-is-on
-      (let [queued-question (get-queued-question-filtered-by session filters)]
+      (let [queued-question (get-queued-question-filtered-by session)]
         (if (not (nil? queued-question))
           (do
             (log/debug (str "found question with id: " (:id queued-question)))
@@ -634,6 +651,7 @@
         (log/info "adding question to queue.")
         (db/insert! :queue {:italian (normalize-whitespace answer)
                             :english (normalize-whitespace question)
+                            :type (str random-guess-type)
                             :session session})))
     (log/info (str "queue is now big enough: size=" (.size (db/fetch :queue {:session session}))))))
 
@@ -762,9 +780,10 @@
         [:td [:input (filter-checkbox "present" checked)]]
         ]
 
-       [:tr
-        [:th {:colspan "8" :style "border-top:2px solid #ccc; margin-top:10px; padding-top:10px"}]
-        ]
+       (if false
+         [:tr
+          [:th {:colspan "8" :style "border-top:0px solid #ccc; margin-top:10px; padding-top:10px"}]
+          ])
        ]
       ])))
 

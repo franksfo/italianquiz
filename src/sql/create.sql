@@ -325,3 +325,6 @@ ALTER TABLE public.guess_id_seq OWNER TO verbcoach;
 ALTER TABLE ONLY guess ALTER COLUMN id SET DEFAULT nextval('guess_id_seq'::regclass);
 
 ALTER TABLE filter ADD COLUMN form_params text;
+
+ALTER TABLE queue ADD COLUMN type text;
+
