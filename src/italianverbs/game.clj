@@ -8,9 +8,21 @@
   (html5
    [:div#game
 
+    [:svg {:id "gamesvg"}
+     [:text {:class "bear"  :x "50"  :y "20"} "Bear"]
+     [:text {:class "cat"   :x "150" :y "20"} "Cat"]
+     [:text {:class "cow"   :x "250" :y "20"} "Cow"]
+     [:text {:class "dog"   :x "350" :y "20"} "Dog"]
+     [:text {:class "gecko" :x "450" :y "20"} "Gecko"]
+     [:text {:class "otter" :x "550" :y "20"} "Otter"]
+     [:text {:class "snake" :x "650" :y "20"} "Snake"]
+     [:text {:class "wolf"  :x "750" :y "20"} "Wolf"]
+     ]
 
-
+    (if false
+      (str
     [:div#rainforest
+
      
      [:div#sky
 
@@ -53,7 +65,7 @@
       
 
 
-      ]]
+      ]]))
 ] ; html5/div
 ))
 

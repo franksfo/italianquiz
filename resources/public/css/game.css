@@ -7,6 +7,17 @@
     float:left;
 }
 
+#gamesvg {
+    overflow:visible;
+    position:relative;
+    z-index:2;
+    left:200;
+    top:100;
+    border:0px dashed blue;
+    width:500px;
+    height:500px;
+}
+
 #game .fa-6x {
     font-size:150px;
 }
@@ -16,10 +27,17 @@
 }
 
 #rainforest {
+    width:500px;
+    left:0;
+    top:0;
     z-index:0;
+    position:fixed;
 }
 
 #sky {
+    left:0;
+    top:50px;
+    width:95%;
     z-index:0;
     background:lightblue;
 }
@@ -52,10 +70,11 @@
 }
 
 #ground {
-    width:100%;
+    width:95%;
     z-index:1;
-    height:71px;
-    top:220px;
+    height:150px;
+    left:17px;
+    top:400px;
     float:left;
     border-top:2px solid lightgreen;
     background:lightgreen;

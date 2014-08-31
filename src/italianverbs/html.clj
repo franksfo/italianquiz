@@ -709,6 +709,8 @@
    (include-js "/js/prettify.js")
    (include-js "/js/lang-clj.js")
    (include-js "/js/main.js")
+   (include-js "/js/d3.v2.min.js")
+   (include-js "/js/game.js")
 
     ; enable this 'reset.css' at some point.
     ;  (include-css "/italian/css/reset.css")
@@ -721,6 +723,7 @@
 (defn pretty-body
   [& content]
   [:body
+   {:onload "start_game();"}
    (into [:div {:class "columns small-12"}] content)])
 
 (defn logged-in-content [req identity]
