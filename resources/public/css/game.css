@@ -54,10 +54,85 @@
 #ground {
     width:100%;
     z-index:1;
-    height:155px;
+    height:71px;
     top:220px;
     float:left;
     border-top:2px solid lightgreen;
     background:lightgreen;
 }
 
+#game {
+    float:left;
+
+}
+
+#status {
+    float:right;
+    width:auto;
+    border:0px solid #ccd;
+}
+
+text {
+    font-family:sans-serif;
+    font-size:20px;
+    transform-origin:0,0,0;
+    text-anchor:middle;
+}    
+
+circle {
+    stroke-width:2;
+    stroke:black;
+    fill: lightskyblue;
+}
+
+.bear {
+    fill:black;
+}
+
+.cat {
+    fill:orange;
+}
+
+.dog {
+    fill:chocolate;
+}
+
+.cow {
+    fill:sandybrown;
+}
+
+.gecko {
+    fill:olive;
+}
+
+.otter {
+    fill:sienna;
+}
+
+.snake {
+    fill:gray;
+}
+
+.wolf {
+    fill:brown;
+}
+
+.learning {
+    border:2px solid blue;
+    width:99%;
+    margin-bottom:1em;
+    padding-left:0.5%;
+    padding-top:0.5em;
+    padding-bottom:0.5em;
+    float:left;
+}
+
+.learning div {
+    text-align:center;
+    float:left;
+    width:auto;
+    border:1.5px solid red;
+    width:2em;
+    margin-left:0.5em;
+    padding:0.1%;
+}
