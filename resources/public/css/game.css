@@ -1,6 +1,5 @@
 #game {
-    width:500px;
-    height: 500px;
+    width:850px;
     border:2px solid darkgrey;
     margin-top:1em;
     background: lightblue;
@@ -28,8 +27,9 @@
 
 #rainforest {
     width:500px;
-    left:0;
-    top:0;
+    height:500px;
+    left:50;
+    top:50;
     z-index:0;
     position:fixed;
 }

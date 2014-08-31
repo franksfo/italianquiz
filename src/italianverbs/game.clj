@@ -19,9 +19,15 @@
      [:text {:class "wolf"  :x "750" :y "20"} "Wolf"]
      ]
 
-    (if false
-      (str
+    (if true
+      (html5
     [:div#rainforest
+
+
+     "HELLO"
+
+    (if false
+      (html5
 
      
      [:div#sky
@@ -62,12 +68,19 @@
 
       [:div {:class "fa fa-tree"
              :style "left:400px; top:-110px;font-size:140px"}]
-      
+
+      ] ;; end of :div#ground
+
+     )) ;; end of (if <bool> [:div#sky ..)
+     ] ;; end of :div#rainforest
+    ) ;; end of (str)
+      ) ;; end of (if <bool> [:div#rainforest ..)
+    ] ;; end of :div #game
+) ; html5/div
+
+) ;; end of (defn)
 
 
-      ]]))
-] ; html5/div
-))
 
 
 
