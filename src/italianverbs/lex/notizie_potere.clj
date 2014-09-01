@@ -1,4 +1,4 @@
-(ns italianverbs.lex.notizie_potere
+﻿(ns italianverbs.lex.notizie_potere
   (:require
    [italianverbs.lexiconfn :refer (unify)]
    [italianverbs.pos :refer :all]))
@@ -215,7 +215,13 @@
                                           :3sing "può"
                                           :1plur "possiamo"
                                           :2plur "potete"
-                                          :3plur "possono"}}}
+                                          :3plur "possono"}
+				:future {:1sing "potrò"
+                                          :2sing "potrai"
+                                          :3sing "potrà"
+                                          :1plur "potremo"
+                                          :2plur "potrete"
+                                          :3plur "potranno"}}}
           :english {:infinitive "to be able to"
                     :irregular {:past "could have"
                                 ;; TODO: enhance morphology.clj to handle one irregular for all agreements: {:present "can"}.

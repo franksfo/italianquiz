@@ -1,4 +1,4 @@
-(ns italianverbs.morphology
+﻿(ns italianverbs.morphology
   (:refer-clojure :exclude [get-in])
   (:use [italianverbs.unify :only (ref? get-in fail?)])
    (:require
@@ -56,15 +56,21 @@
 
 (declare get-italian)
 
-(defn stem-per-futuro [infinitive]
+(defn stem-per-futuro [infinitive drop-e]
   "_infinitive_ should be a string (italian verb infinitive form)"
   (cond
+   (= drop-e true)
+   (string/replace infinitive #"[ae]re" "r")
+ 
    (re-find #"iare$" infinitive)
    (string/replace infinitive #"iare$" "er")
+
    (re-find #"are$" infinitive)
    (string/replace infinitive #"are$" "er")
+
    (re-find #"ere$" infinitive)
    (string/replace infinitive #"ere$" "er")
+
    (re-find #"ire$" infinitive)
    (string/replace infinitive #"ire$" "ir")
 
@@ -574,6 +580,7 @@
           (string? (get-in word '(:irregular :present :3plur))))
      (get-in word '(:irregular :present :3plur))
 
+;; regular present
      (and
       (= (get-in word '(:infl)) :present)
       (string? (get-in word '(:infinitive))))
@@ -1675,7 +1682,41 @@
      true
      "??")))
 
-
+;;regular conditional
+(defn conjugate-conditional-italian [infinitive subject & [ stem ] ]
+  (let [stem (if stem
+               stem
+               (stem-per-futuro (get infinitive :italian)))]
+    (cond
+     (= (get subject :person)
+        :1st)
+     (cond (= (get subject :number)
+              :singular)
+           (str stem "ei")
+           (= (get subject :number)
+              :plural)
+           (str stem "emmo")
+           true "??")
+     (= (get subject :person)
+        :2nd)
+     (cond (= (get subject :number)
+              :singular)
+           (str stem "esti")
+           (= (get subject :number)
+              :plural)
+           (str stem "este")
+           true "??")
+     (= (get subject :person)
+        :3rd)
+     (cond (= (get subject :number)
+              :singular)
+           (str stem "ebbe")
+           (= (get subject :number)
+              :plural)
+           (str stem "ebbero")
+           true "??")
+     true
+     "??")))
 
 (defn capitalize [s]
   "Capitalize first char and leave the rest of the characters alone (compare with string/capitalize which lower-cases all chars after first."
