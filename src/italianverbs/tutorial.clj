@@ -4,8 +4,8 @@
    [italianverbs.lexicon]
    [italianverbs.unify :exclude [get-in merge resolve unify]]
    [italianverbs.generate]
-   [italianverbs.grammar.english]
-   [italianverbs.grammar.italiano]
+   [italianverbs.grammar.english :as english]
+   [italianverbs.grammar.italiano :as italiano]
    [italianverbs.html]
    [italianverbs.morphology]))
 

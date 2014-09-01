@@ -8,7 +8,6 @@
    [:require
     [somnium.congomongo :as mongo]
     [italianverbs.generate :as gen]
-    [italianverbs.grammar :as gram]
     [italianverbs.html :as html]
     [italianverbs.unify :as unify]
     [clojure.set :as set]
