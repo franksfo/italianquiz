@@ -8,7 +8,7 @@
   (html5
    [:div#game
 
-    [:svg {:id "gamesvg"}
+    [:svg {:id "svgarena"}
      [:text {:class "bear"  :x "50"  :y "20"} "Bear"]
      [:text {:class "cat"   :x "150" :y "20"} "Cat"]
      [:text {:class "cow"   :x "250" :y "20"} "Cow"]
@@ -19,16 +19,7 @@
      [:text {:class "wolf"  :x "750" :y "20"} "Wolf"]
      ]
 
-    (if true
-      (html5
     [:div#rainforest
-
-
-     "HELLO"
-
-    (if false
-      (html5
-
      
      [:div#sky
 
@@ -71,10 +62,7 @@
 
       ] ;; end of :div#ground
 
-     )) ;; end of (if <bool> [:div#sky ..)
      ] ;; end of :div#rainforest
-    ) ;; end of (str)
-      ) ;; end of (if <bool> [:div#rainforest ..)
     ] ;; end of :div #game
 ) ; html5/div
 

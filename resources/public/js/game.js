@@ -58,7 +58,7 @@ var set_of_maps = [ {"name":"friends",
 		     "animals":[cat, dog, snake]}];
 
 function start_game() {
-    var svg = d3.select("#gamesvg");
+    var svg = d3.select("#svgarena");
     show_animal_set(svg);
     setInterval(function() {
 	show_animal_set(svg);
