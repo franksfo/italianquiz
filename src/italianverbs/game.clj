@@ -18,10 +18,10 @@
       [:i {:class "fa fa-cloud fa-6x"
            :style "left:5%; top:30px"}]
       
-      [:i {:class "fa fa-cloud medium-cloud storm-cloud"
+      [:i {:class "fa fa-cloud medium-cloud stormy"
            :style "left:25%; top:50px;"}]
 
-      [:i {:class "fa fa-cloud medium-cloud"
+      [:i {:class "fa fa-cloud medium-cloud partly-stormy"
            :style "left:45%; top:30px;"}]
 
       [:i {:class "fa fa-cloud big-cloud"

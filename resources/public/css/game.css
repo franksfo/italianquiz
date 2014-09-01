@@ -74,7 +74,17 @@
     font-size:205px;
 }
 
-#sky .storm-cloud {
+#sky .partly-stormy {
+    color: darkgrey;
+   -webkit-text-stroke: 1px darkgrey;
+   text-shadow:
+   -1px -1px 0 darkgrey,  
+   1px -1px 0 darkgrey,
+   -1px 1px 0 darkgrey,
+   1px 1px 0 darkgrey;
+}
+
+#sky .stormy {
     color: lightgrey;
    -webkit-text-stroke: 1px darkgrey;
    text-shadow:
@@ -106,8 +116,8 @@ text {
 
 circle {
     stroke-width:2;
-    stroke:black;
-    fill: lightskyblue;
+    stroke:darkgrey;
+    fill: lightblue;
 }
 
 .bear {

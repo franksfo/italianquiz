@@ -76,15 +76,16 @@ function make_it_rain(svg) {
     // Add items unique to input_data.
     newdata.enter().append("circle").
 	attr("cx",function(c) {
-	    return cloud.style.left;
+	    var val= parseInt(cloud.style.left.replace('%',''));
+	    return (val + 5) + "%";
 	}).
 	attr("cy",function(c) {return (parseInt(cloud.style.top.replace("px","")) + 100) + "px";}).
         attr("r", function(c) {return radius;}).
 	attr("class",function(c) {
 	    return c.name;
 	}).
-	transition().duration(transition_time*1.5).
-	attr("cy",game_height-50);
+	transition().duration(transition_time).
+	attr("cy", game_height - (100 + Math.floor(Math.random()*75)));
     
     // Remove items not in new data.
     newdata.exit().transition().duration(transition_time)
