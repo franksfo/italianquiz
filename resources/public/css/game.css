@@ -3,16 +3,16 @@
     width:100%;
     border:0px dashed green;
     margin-top:1em;
-    background: lightblue;
+    background: #ccc;
     float:left;
 }
 
 #svgarena {
+    float:left;
     position:relative;
     height:100%;
     width:100%;
-/*    overflow:visible;*/
-    overflow:hidden;
+    overflow:visible;
     z-index:1;
     left:0;
     top:0;
@@ -29,7 +29,8 @@
 
 #rainforest {
     border:0px dashed blue;
-    height:500px;
+    height:100%;
+    width:100%;
     left:0;
     top:0;
     display:block;
@@ -37,14 +38,31 @@
 }
 
 #sky {
+    position: absolute;
+    width:100%;
     z-index:0;
-    position:relative;
-    left:0;
-    top:0;
-    background:lightblue;
+    height:60%;
+    left:0px;
+    top:0px;
+    float:left;
+    border-top:2px solid lightgreen;
+    background:lightskyblue;
+}
+
+#ground {
+    position: absolute;
+    width:100%;
+    z-index:0;
+    height:40%;
+    left:0px;
+    top:60%;
+    float:left;
+    border-top:2px solid lightgreen;
+    background:lightgreen;
 }
 
 #sky .fa-cloud {
+    position:absolute;
     color: white;
 }
 
@@ -67,20 +85,9 @@
 }
 
 #game .fa-tree {
+    position:absolute;
     z-index:2;
     color: darkgreen;
-}
-
-#ground {
-    position: absolute;
-    width:100%;
-    z-index:1;
-    height:150px;
-    left:0px;
-    top:350px;
-    float:left;
-    border-top:2px solid lightgreen;
-    background:lightgreen;
 }
 
 #status {
