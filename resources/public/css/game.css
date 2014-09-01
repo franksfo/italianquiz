@@ -24,7 +24,6 @@
 }
 
 #game i,div {
-/*    position:relative;*/
 }
 
 #rainforest {
@@ -86,6 +85,7 @@
 }
 
 #game .fa-tree {
+    z-index:3;
     position:absolute;
     color: darkgreen;
 }
