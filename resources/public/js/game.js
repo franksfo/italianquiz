@@ -2,12 +2,12 @@ var background = "white";
 var DEBUG = 3;
 var INFO  = 2;
 var logging_level = INFO;
-var radius = 35;
+var radius = 15;
 // TODO: get width and height of #game from DOM, not hardcoded.
 var game_width = 1000;
 var game_height = 500;
 var offset=0;
-var transition_time = 1500;
+var transition_time = 1000;
 var animals = [
     {"name":"bear",
      "x":50+offset
@@ -45,19 +45,19 @@ var snake = animals[6];
 var wolf  = animals[7];
 
 var set_of_maps = [ {"name":"friends",
-		     "animals":[bear, cat, otter]},
+		     "animals":[bear]},
 		    {"name":"family",
-		     "animals":[dog,  cat]},
+		     "animals":[cat]},
 		    {"name":"canine",
-		     "animals":[dog, wolf]},
+		     "animals":[cow]},
 		    {"name":"wild",
-		     "animals":[bear, otter, snake, wolf]},
+		     "animals":[dog]},
 		    {"name":"mammals",
-		     "animals":[bear, cat, cow, dog, otter, wolf]},
+		     "animals":[gecko]},
 		    {"name":"reptiles",
-		     "animals":[gecko, snake]},
+		     "animals":[otter]},
 		    {"name":"pets",
-		     "animals":[cat, dog, snake]}];
+		     "animals":[snake]}];
 
 function start_game() {
     var svg = d3.select("#svgarena");
@@ -67,7 +67,7 @@ function start_game() {
     },transition_time);
     setInterval(function() {
 	blow_clouds(0);
-    },50);
+    },75);
 }
 
 function debug(str) {
@@ -94,18 +94,22 @@ function blow_cloud(cloud) {
 
 }
 
+var allow_duplicates = true;
 function show_animal_set(svg) {
     // index_fn: what key to use to compare items for equality.
     var index_fn = function(d) {return d.name;};
     // show the next set in animal_sets.
     var animal_set = random_set();
-    if (animal_set == previous_set) {
+    if (!allow_duplicates && animal_set == previous_set) {
 	// try again
 	return show_animal_set(svg);
     }
     previous_set = animal_set;
     debug("new animal set:" + animal_set.name + "(" + animal_set.animals.map(function(e) {return e.name;}) + ")");
     newdata_array = animal_set.animals;
+    var new_x = Math.floor(Math.random()*game_width);
+    newdata_array = [ {"name":"bear" + new_x,
+		       "x":new_x}]; 
 
     if (existing) {
 	debug("existing:" + 
@@ -118,26 +122,26 @@ function show_animal_set(svg) {
 	  newdata_array.map(function(a){return a.name;}));
     var newdata = svg.selectAll("circle").data(newdata_array,index_fn);
 
+    var cloud = $(".fa-cloud")[Math.floor(Math.random()*$(".fa-cloud").length)];
+
     // Add items unique to input_data.
     newdata.enter().append("circle").
 	attr("cx",function(c) {
-	    return c.x;
+	    return cloud.style.left;
 	}).
-	attr("cy",function(c) {return -50;}).
+	attr("cy",function(c) {return (parseInt(cloud.style.top.replace("px","")) + 100) + "px";}).
         attr("r", function(c) {return radius;}).
 	attr("class",function(c) {
 	    return c.name;
 	}).
-	transition().duration(transition_time/2).
-	attr("cy",240);
+	transition().duration(transition_time*1.5).
+	attr("cy",game_height-50);
     
     // Remove items not in new data.
-    newdata.exit().transition().duration(transition_time/2)
-        .style("fill",background)   // use background color: causes a fade-out effect.
-	.attr("cy",
-	      function(animal) {
-		  return game_height+200;
-	      }).remove();
+    newdata.exit().transition().duration(transition_time)
+	.style("fill","lightgreen")
+	.style("stroke","lightgreen")
+	.remove();
 
     existing = newdata_array;
 }

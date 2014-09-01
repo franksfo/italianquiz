@@ -12,7 +12,7 @@
     position:relative;
     height:100%;
     width:100%;
-    overflow:visible;
+    overflow:hidden;
     z-index:3;
     left:0;
     top:0;
@@ -97,6 +97,7 @@
 }
 
 text {
+    display:none;
     font-family:sans-serif;
     font-size:20px;
     transform-origin:0,0,0;
@@ -110,35 +111,43 @@ circle {
 }
 
 .bear {
-    fill:black;
+    fill:lightblue;
+    stroke:blue;
 }
 
 .cat {
-    fill:orange;
+    fill:lightblue;
+    stroke:blue;
 }
 
 .dog {
-    fill:chocolate;
+    fill:lightblue;
+    stroke:blue;
 }
 
 .cow {
-    fill:sandybrown;
+    fill:lightblue;
+    stroke:blue;
 }
 
 .gecko {
-    fill:olive;
+    fill:lightblue;
+    stroke:blue;
 }
 
 .otter {
-    fill:sienna;
+    fill:lightblue;
+    stroke:blue;
 }
 
 .snake {
-    fill:gray;
+    fill:lightblue;
+    stroke:blue;
 }
 
 .wolf {
-    fill:brown;
+    fill:lightblue;
+    stroke:blue;
 }
 
 .learning {
