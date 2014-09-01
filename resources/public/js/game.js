@@ -35,19 +35,19 @@ function blow_clouds(i) {
 }
 
 function blow_cloud(cloud) {
-    var val= parseInt(cloud.style.left.replace('%',''));
+    var val= parseFloat(cloud.style.left.replace('%',''));
     if (val < 0) {
-	cloud.style.left = "90%";
+	cloud.style.left = "95%";
     } else {
 	if (val > 90) {
 	    cloud.style.left = "1%";
 	} else {
 	    var incr = Math.floor(Math.random()*30);
 	    if (incr == 0) {
-		cloud.style.left = (val - 1) + "%";
+		cloud.style.left = (val - .1) + "%";
 	    } else {
-		if (incr == 1) {
-		    cloud.style.left = (val + 1) + "%";
+		if (incr < 5) {
+		    cloud.style.left = (val + .1) + "%";
 		}
 	    }
 	}
