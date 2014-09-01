@@ -1,5 +1,7 @@
 var background = "white";
-
+var DEBUG = 3;
+var INFO  = 2;
+var logging_level = INFO;
 var radius = 35;
 // TODO: get width and height of #game from DOM, not hardcoded.
 var game_width = 1000;
@@ -63,6 +65,33 @@ function start_game() {
     setInterval(function() {
 	show_animal_set(svg);
     },transition_time);
+    setInterval(function() {
+	blow_clouds(0);
+    },50);
+}
+
+function debug(str) {
+    if (logging_level >= DEBUG) {
+	console.log("DEBUG: " + str);
+    }
+}
+
+function blow_clouds(i) {
+    var cloud =  $(".fa-cloud")[i];
+    if (cloud) {
+	blow_cloud(cloud);
+	blow_clouds(i+1);
+    }
+}
+
+function blow_cloud(cloud) {
+    var val= parseInt(cloud.style.left.replace('%',''));
+    if (val > -10) {
+	cloud.style.left = (val - 1) + "%"
+    } else {
+	cloud.style.left = "99%";
+    }
+
 }
 
 function show_animal_set(svg) {
@@ -75,18 +104,18 @@ function show_animal_set(svg) {
 	return show_animal_set(svg);
     }
     previous_set = animal_set;
-    console.log("new animal set:" + animal_set.name + "(" + animal_set.animals.map(function(e) {return e.name;}) + ")");
+    debug("new animal set:" + animal_set.name + "(" + animal_set.animals.map(function(e) {return e.name;}) + ")");
     newdata_array = animal_set.animals;
 
     if (existing) {
-	console.log("existing:" + 
-		    existing.map(function(a){return a.name;}));
+	debug("existing:" + 
+	      existing.map(function(a){return a.name;}));
     }
-    console.log("new group:" + 
+    debug("new group:" + 
 		newdata_array.map(function(a){return a.name;}));
 
-    console.log("introducing:" + 
-		newdata_array.map(function(a){return a.name;}));
+    debug("introducing:" + 
+	  newdata_array.map(function(a){return a.name;}));
     var newdata = svg.selectAll("circle").data(newdata_array,index_fn);
 
     // Add items unique to input_data.
