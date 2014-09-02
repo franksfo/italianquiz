@@ -708,7 +708,6 @@
    
    (include-js "/js/prettify.js")
    (include-js "/js/lang-clj.js")
-   (include-js "/js/main.js")
    (include-js "/js/d3.v2.min.js")
    (include-js "/js/game.js")
 
