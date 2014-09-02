@@ -24,12 +24,8 @@
       ]
 
      
-     [:div#sky
+     [:div#sky ]
 
-      [:i {:class "fa fa-cloud fa-6x"
-           :style "left:5%; top:30px"}]
-      
-      ]
 
      [:div#ground
 

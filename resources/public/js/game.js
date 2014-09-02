@@ -15,7 +15,9 @@ var blow_time =   30;
 
 function start_game() {
     var svg = d3.select("#svgarena");
+    add_clouds();
     make_it_rain(svg);
+
     setInterval(function() {
 	make_it_rain(svg);
     },rain_time);
@@ -24,41 +26,14 @@ function start_game() {
     },blow_time);
 }
 
-function debug(str) {
-    if (logging_level >= DEBUG) {
-	console.log("DEBUG: " + str);
+function add_clouds() {
+    while ($(".fa-cloud").length < 3) {
+	percent = (100 / 3 ) * $(".fa-cloud").length;
+	$("#sky").append("<i class='fa fa-cloud fa-6x' style='left:" + percent + "%; top 30px'> </i>");
     }
 }
 
-function blow_clouds(i) {
-    var cloud =  $(".fa-cloud")[i];
-    if (cloud) {
-	blow_cloud(cloud);
-	blow_clouds(i+1);
-    }
-}
 
-function blow_cloud(cloud) {
-    var val= parseFloat(cloud.style.left.replace('%',''));
-    if (val < 0) {
-	cloud.style.left = "95%";
-    } else {
-	if (val > 90) {
-	    cloud.style.left = "1%";
-	} else {
-	    var incr = Math.floor(Math.random()*30);
-	    if (incr == 0) {
-		cloud.style.left = (val - .1) + "%";
-	    } else {
-		if (incr < 5) {
-		    cloud.style.left = (val + .1) + "%";
-		}
-	    }
-	}
-    }
-}
-
-var allow_duplicates = true;
 function make_it_rain(svg) {
     // index_fn: what key to use to compare items for equality.
     var index_fn = function(d) {return d.name;};
@@ -100,7 +75,39 @@ function make_it_rain(svg) {
     existing = newdata_array;
 }
 
-var previous_set = null;
+function blow_clouds(i) {
+    var cloud =  $(".fa-cloud")[i];
+    if (cloud) {
+	blow_cloud(cloud);
+	blow_clouds(i+1);
+    }
+}
+
+function blow_cloud(cloud) {
+    var val= parseFloat(cloud.style.left.replace('%',''));
+    if (val < 0) {
+	cloud.style.left = "95%";
+    } else {
+	if (val > 90) {
+	    cloud.style.left = "1%";
+	} else {
+	    var incr = Math.floor(Math.random()*30);
+	    if (incr == 0) {
+		cloud.style.left = (val - .1) + "%";
+	    } else {
+		if (incr < 5) {
+		    cloud.style.left = (val + .1) + "%";
+		}
+	    }
+	}
+    }
+}
+
+function debug(str) {
+    if (logging_level >= DEBUG) {
+	console.log("DEBUG: " + str);
+    }
+}
 
 function random_set() {
     var choice_i = Math.floor(Math.random()*(set_of_maps.length));

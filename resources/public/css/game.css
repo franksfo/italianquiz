@@ -94,8 +94,14 @@
 }
 
 #sky .fa-cloud {
+    -webkit-text-stroke: 1px lightgrey;
+    text-shadow:
+    -1px -1px 0 lightgrey,
+    1px -1px 0 lightgrey,
+    -1px 1px 0 lightgrey,
+    1px 1px 0 lightgrey;
     position:absolute;
-    color: white;
+    color:white;
 }
 
 #sky .medium-cloud {
