@@ -29,10 +29,9 @@ function start_game() {
 function add_clouds() {
     while ($(".fa-cloud").length < 3) {
 	percent = (100 / 3 ) * $(".fa-cloud").length;
-	$("#sky").append("<i class='fa fa-cloud fa-6x' style='left:" + percent + "%; top 30px'> </i>");
+	$("#sky").append("<i class='fa fa-cloud fa-6x' style='left:" + percent + "%; top: 30px'> </i>");
     }
 }
-
 
 function make_it_rain(svg) {
     // index_fn: what key to use to compare items for equality.

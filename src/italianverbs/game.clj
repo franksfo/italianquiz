@@ -26,7 +26,6 @@
      
      [:div#sky ]
 
-
      [:div#ground
 
       ] ;; end of :div#ground
