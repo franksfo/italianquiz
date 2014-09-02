@@ -37,6 +37,38 @@
     position:relative;
 }
 
+
+#wordbar {
+    position: absolute;
+    width:100%;
+    z-index:2;
+    height:1em%;
+    left:0px;
+    top:0px;
+    float:left;
+    border-top:2px solid lightgreen;
+    background:lightskyblue;
+}
+
+#wordbar div {
+    width:5em;
+    float:left;
+    position:absolute;
+    top:0;
+}
+
+#q1 {
+    left:10%;
+}
+
+#q2 {
+    left:20%;
+}
+
+#q3 {
+    left:30%;
+}
+
 #sky {
     position: absolute;
     width:100%;

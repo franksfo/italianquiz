@@ -12,6 +12,17 @@
 
 
     [:div#rainforest
+
+     [:div#wordbar
+
+      [:div#q1 "to go"]
+
+      [:div#q2 "to sleep"]
+
+      [:div#q3 "to dream"]
+
+      ]
+
      
      [:div#sky
 
