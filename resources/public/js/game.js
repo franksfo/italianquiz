@@ -7,6 +7,7 @@ var radius = 15;
 var game_width = 1000;
 var game_height = 500;
 var offset=0;
+var this_many_clouds = 5;
 
 // how often a droplet falls.
 var rain_time = 1000;
@@ -26,10 +27,20 @@ function start_game() {
     },blow_time);
 }
 
+var global_cloud_id = 0;
+function get_question_text() {
+    return "i sleep";
+}
+
+
 function add_clouds() {
-    while ($(".fa-cloud").length < 3) {
-	percent = (100 / 3 ) * $(".fa-cloud").length;
-	$("#sky").append("<i class='fa fa-cloud fa-6x' style='left:" + percent + "%; top: 30px'> </i>");
+    while ($(".fa-cloud").length < this_many_clouds) {
+	question_text = get_question_text();
+	var sz = Math.floor(Math.random()*4) + 1;
+	percent = (100 / this_many_clouds ) * $(".fa-cloud").length;
+	$("#sky").append("<i id='cloud_" + global_cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: 30px'> </i>");
+	$("#sky").append("<span id='cloud_" + global_cloud_id + "_text' class='cloudtext' style='left:" + percent+1 + "%; top: 60px'>" + question_text + "</span>");
+	global_cloud_id++;
     }
 }
 
@@ -100,6 +111,15 @@ function blow_cloud(cloud) {
 	    }
 	}
     }
+    var cloud_id = cloud.id;
+    
+    var cloud_text = $("#" + cloud_id + "_text")[0];
+    console.log("cloud text object: " + cloud_text);
+    if (cloud_text.style != undefined) {
+	cloud_text.style.left = cloud.style.left;
+    }
+
+
 }
 
 function debug(str) {

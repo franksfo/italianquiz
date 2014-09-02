@@ -19,12 +19,16 @@
     border:0px dashed blue;
 }
 
-#game .fa-6x {
-    font-size:150px;
+#gameform {
+    position:relative;
+    padding:1em;
+    float:left;
+    left:33%;
+    width:auto;
+    border:0px dashed green;
 }
 
-#game i,div {
-}
+
 
 #rainforest {
     z-index:0;
@@ -93,6 +97,12 @@
     background:lightgreen;
 }
 
+#sky span {
+    position:absolute;
+    color:black;
+    font-size:250%;
+}
+
 #sky .fa-cloud {
     -webkit-text-stroke: 1px lightgrey;
     text-shadow:
@@ -104,12 +114,20 @@
     color:white;
 }
 
-#sky .medium-cloud {
+.x1 {
     font-size:100px;
 }
 
-#sky .big-cloud {
+.x2 {
+    font-size:150px;
+}
+
+.x3 {
     font-size:205px;
+}
+
+.x4 {
+    font-size:250px;
 }
 
 #sky .partly-stormy {

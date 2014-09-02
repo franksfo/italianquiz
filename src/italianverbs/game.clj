@@ -15,11 +15,11 @@
 
      [:div#wordbar
 
-      [:div#q1 "to go"]
+      [:div#q1 "wordbar"]
 
-      [:div#q2 "to sleep"]
+      [:div#q2 "not used"]
 
-      [:div#q3 "to dream"]
+      [:div#q3 "yet"]
 
       ]
 
@@ -31,6 +31,13 @@
       ] ;; end of :div#ground
 
      ] ;; end of :div#rainforest
+
+    [:div#gameform
+     [:form
+      [:input {:size "50"}]
+      [:input {:type "submit" :value "answer"}]]]
+       
+
     ] ;; end of :div #game
 ) ; html5/div
 
