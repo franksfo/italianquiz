@@ -7,17 +7,21 @@ var radius = 15;
 var game_width = 1000;
 var game_height = 500;
 var offset=0;
-var transition_time = 1000;
+
+// how often a droplet falls.
+var rain_time = 1000;
+// how often wind blows on clouds
+var blow_time =   30;
 
 function start_game() {
     var svg = d3.select("#svgarena");
     make_it_rain(svg);
     setInterval(function() {
 	make_it_rain(svg);
-    },transition_time);
+    },rain_time);
     setInterval(function() {
 	blow_clouds(0);
-    },30);
+    },blow_time);
 }
 
 function debug(str) {
@@ -77,18 +81,18 @@ function make_it_rain(svg) {
     newdata.enter().append("circle").
 	attr("cx",function(c) {
 	    var val= parseInt(cloud.style.left.replace('%',''));
-	    return (val + 5) + "%";
+	    return (val + 6) + "%";
 	}).
-	attr("cy",function(c) {return (parseInt(cloud.style.top.replace("px","")) + 100) + "px";}).
+	attr("cy",function(c) {return (parseInt(cloud.style.top.replace("px","")) + 130) + "px";}).
         attr("r", function(c) {return radius;}).
 	attr("class",function(c) {
 	    return c.name;
 	}).
-	transition().duration(transition_time).
+	transition().duration(rain_time).
 	attr("cy", game_height - (100 + Math.floor(Math.random()*75)));
     
     // Remove items not in new data.
-    newdata.exit().transition().duration(transition_time)
+    newdata.exit().transition().duration(rain_time)
 	.style("fill","lightgreen")
 	.style("stroke","lightgreen")
 	.remove();
