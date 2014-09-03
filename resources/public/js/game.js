@@ -28,8 +28,12 @@ function start_game() {
 }
 
 var global_cloud_id = 0;
+
+var fake_qs = [ "you sleep", "i sleep", "they sleep" ];
+
+
 function get_question_text() {
-    return "i sleep";
+    return fake_qs[Math.floor(Math.random()*fake_qs.length)];
 }
 
 
@@ -105,7 +109,7 @@ function blow_cloud(cloud) {
 	    if (incr == 0) {
 		cloud.style.left = (val - .1) + "%";
 	    } else {
-		if (incr < 5) {
+		if (incr < 10) {
 		    cloud.style.left = (val + .1) + "%";
 		}
 	    }
