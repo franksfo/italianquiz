@@ -29,23 +29,33 @@ function start_game() {
 
 var global_cloud_id = 0;
 
-var fake_qs = [ "you sleep", "i sleep", "they sleep" ];
-
-
-function get_question_text() {
-    return fake_qs[Math.floor(Math.random()*fake_qs.length)];
-}
-
-
 function add_clouds() {
     while ($(".fa-cloud").length < this_many_clouds) {
-	question_text = get_question_text();
-	var sz = Math.floor(Math.random()*4) + 1;
-	percent = (100 / this_many_clouds ) * $(".fa-cloud").length;
-	$("#sky").append("<i id='cloud_" + global_cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: 30px'> </i>");
-	$("#sky").append("<span id='cloud_" + global_cloud_id + "_text' class='cloudtext' style='left:" + percent+1 + "%; top: 60px'>" + question_text + "</span>");
+	add_cloud(global_cloud_id);
 	global_cloud_id++;
     }
+}
+
+function add_cloud(cloud_id) {
+    var sz = Math.floor(Math.random()*4) + 1;
+    percent = (100 / this_many_clouds ) * $(".fa-cloud").length;
+    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: 30px'> </i>");
+
+    var cloud_text_dom_id = "cloud_" + cloud_id + "_text";
+    $("#sky").append("<div id='cloud_" + cloud_id + "_text' class='cloudtext' style='left:" + percent+1 + "%; top: 60px'>" + ".." + "</div>");
+
+    update_cloud_fn = function (content) {
+	console.log("CONTENT: " + content);
+	console.log("cloud_text_dom_id: " + cloud_text_dom_id);
+        $("#"+cloud_text_dom_id).html(content);
+    }
+
+    // fill in the cloud's text in the background.
+    $.ajax({
+        dataType: "html",
+        url: "/game/generate",
+        success: update_cloud_fn
+    });
 }
 
 function make_it_rain(svg) {
@@ -118,7 +128,7 @@ function blow_cloud(cloud) {
     var cloud_id = cloud.id;
     
     var cloud_text = $("#" + cloud_id + "_text")[0];
-    console.log("cloud text object: " + cloud_text);
+    debug("cloud text object: " + cloud_text);
     if (cloud_text.style != undefined) {
 	cloud_text.style.left = cloud.style.left;
     }

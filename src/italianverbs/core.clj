@@ -14,12 +14,15 @@
    [hiccup.page :as h]
    [hiccup.element :as e]
    [italianverbs.class :as vc-class]
+   [italianverbs.grammar.english :as en]
    [italianverbs.game :as game]
    [italianverbs.gen :as g]
    [italianverbs.generate :as gen]
    [italianverbs.korma :as db]
    [italianverbs.lesson :as lesson]
+   [italianverbs.lexicon :as lex]
    [italianverbs.menubar :as menubar]
+   [italianverbs.morphology :as morph]
    [italianverbs.xml :as xml]
    [italianverbs.html :as html]
    [italianverbs.search :as search]
@@ -230,6 +233,10 @@
        {:status 302
         :headers {"Location" "/game"}})
 
+  (GET "/game/generate" request
+       {:status 200
+        :headers {"Content-Type" "text/html;charset=utf-8"}
+        :body (morph/get-english (:english (gen/generate {:synsem {:cat :verb :subcat '()}} en/grammar lex/lexicon en/cache)))})
 
   (GET "/generate/" request
        {:status 302

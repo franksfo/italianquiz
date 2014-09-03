@@ -37,15 +37,11 @@
     (generate-from unified-spec)))
 
 ;; TODO: use a map destructor to pass in arguments
-(defn generate [ & [spec grammar the-lexicon cache]]
-  (let [spec (if spec spec :top)
-        grammar (if grammar grammar it/grammar)
-        lexicon (if the-lexicon the-lexicon lexicon)
-        cache (if cache cache it/cache)] ;; if no cache supplied, use package-level cache 'rule-cache'.
+(defn generate [ spec grammar the-lexicon cache ]
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size grammar) "."))
-  (first (take 1 (forest/generate spec grammar lexicon cache)))))
+  (first (take 1 (forest/generate spec grammar lexicon cache))))
 
 (defn generate-from [spec]
   (if (seq? spec)

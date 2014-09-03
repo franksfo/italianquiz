@@ -43,6 +43,7 @@
 
 
 #wordbar {
+    display:none;
     position: absolute;
     width:100%;
     z-index:2;
@@ -97,10 +98,11 @@
     background:lightgreen;
 }
 
-#sky span {
+#sky .cloudtext {
     position:absolute;
     color:black;
-    font-size:250%;
+    font-size:100%;
+    width:5em;
 }
 
 #sky .fa-cloud {
