@@ -224,7 +224,7 @@
 
   (GET "/game" request
        {:status 200
-        :body (html/page "Rain Forest" (game/game) request)})
+        :body (html/page "Rain Forest" (game/game) request {:onload "start_game();"})})
 
   (GET "/game/" request
        {:status 302

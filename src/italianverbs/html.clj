@@ -719,10 +719,10 @@
                   ": " "")
                 "Verbcoach")]])
 
-(defn pretty-body
-  [& content]
+(defn pretty-body [ options & content ]
   [:body
-   {:onload "start_game();"}
+;;   {:onload "start_game();"}
+   {:onload (if (:onload options) (:onload options) "")}
    (into [:div {:class "columns small-12"}] content)])
 
 (defn logged-in-content [req identity]
@@ -761,12 +761,12 @@
       [:th "Password"][:td [:input {:type "password" :name "password" :size "10"}]]
       [:td [:input {:type "submit" :class "button" :value "Login"}]]]]]])
 
-(defn page-body [content req & [ title ]]
+(defn page-body [content req & [ title options]]
   (let [title (if title title "default page title")]
     (h/html5
      (pretty-head title)
      (pretty-body
-
+      options
       (if-let [identity (friend/identity req)]
         (logged-in-content req identity)
         login-form)
@@ -781,7 +781,7 @@
 ;                        "Requires any authentication, no specific role requirement")]]]))))
 
 
-(defn page [title & [content request onload]]
+(defn page [title & [content request options]]
   (let [haz-admin (not (nil? (:italianverbs.core/admin (:roles (friend/current-authentication)))))]
     (page-body 
      (html
@@ -800,7 +800,7 @@
          (get (:query-params request) "result")])
 
       [:div#content content])
-   request title)))
+     request title {:onload (if (:onload options) (:onload options) "")})))
 
 (declare tr)
 (def short-format
