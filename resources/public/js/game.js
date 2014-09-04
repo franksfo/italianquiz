@@ -36,17 +36,36 @@ function add_clouds() {
     }
 }
 
+var cloud_speeds = {};
+
 function add_cloud(cloud_id) {
     var sz = Math.floor(Math.random()*4) + 1;
     percent = (100 / this_many_clouds ) * $(".fa-cloud").length;
     $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: 30px'> </i>");
 
     var cloud_text_dom_id = "cloud_" + cloud_id + "_text";
-    $("#sky").append("<div id='cloud_" + cloud_id + "_text' class='cloudtext' style='left:" + Math.floor(percent+4) + "%; top: 80px'>" + ".." + "</div>");
+
+
+    var cloud_obj = $("#cloud_" + cloud_id)[0];
+    var classes = cloud_obj.getAttribute("class")
+
+    // TODO: duplication between CSS and this:
+    var word_vertical = 80;
+    if (classes.match(/x2\b/)) {
+	word_vertical = 120;
+    }
+    if (classes.match(/x3\b/)) {
+	word_vertical = 160;
+    }
+    if (classes.match(/x4\b/)) {
+	word_vertical = 180;
+    }
+
+    $("#sky").append("<div id='cloud_" + cloud_id + "_text' class='cloudtext' style='top: " + word_vertical + "px'>" + ".." + "</div>");
+
+    cloud_speeds["cloud_" + cloud_id] = Math.random()*.08;
 
     update_cloud_fn = function (content) {
-	console.log("CONTENT: " + content);
-	console.log("cloud_text_dom_id: " + cloud_text_dom_id);
         $("#"+cloud_text_dom_id).html(content);
     }
 
@@ -108,29 +127,38 @@ function blow_clouds(i) {
 }
 
 function blow_cloud(cloud) {
-    var val= parseFloat(cloud.style.left.replace('%',''));
-    if (val < 0) {
+    var cloud_left= parseFloat(cloud.style.left.replace('%',''));
+    var cloud_id = cloud.id;
+    if (cloud_left < 0) {
+	// wrap clouds on left of screen.
 	cloud.style.left = "95%";
     } else {
-	if (val > 90) {
+	if (cloud_left > 90) {
+	    // wrap clouds on right of screen.
 	    cloud.style.left = "1%";
 	} else {
-	    var incr = Math.floor(Math.random()*30);
-	    if (incr == 0) {
-		cloud.style.left = (val - .1) + "%";
-	    } else {
-		if (incr < 10) {
-		    cloud.style.left = (val + .1) + "%";
+	    if (false) {
+		var incr = Math.floor(Math.random()*30);
+		if (incr == 0) {
+		    cloud.style.left = (cloud_left - .0) + "%";
+		} else {
+		    if (incr < 10) {
+			cloud.style.left = (cloud_left + .1) + "%";
+		    }
 		}
+	    } else {
+		var cloud_key = cloud_id;
+		cloud.style.left = (cloud_left + cloud_speeds[cloud_key])+"%";
 	    }
 	}
     }
-    var cloud_id = cloud.id;
+
     
+    cloud_left = parseFloat(cloud.style.left.replace('%',''));
     var cloud_text = $("#" + cloud_id + "_text")[0];
     debug("cloud text object: " + cloud_text);
     if (cloud_text.style != undefined) {
-	cloud_text.style.left = cloud.style.left;
+	cloud_text.style.left = (cloud_left+2) + "%";
     }
 
 
