@@ -129,38 +129,39 @@ function blow_clouds(i) {
 function blow_cloud(cloud) {
     var cloud_left= parseFloat(cloud.style.left.replace('%',''));
     var cloud_id = cloud.id;
+    cloud.style.left = (cloud_left + cloud_speeds[cloud_id])+"%";
+
     if (cloud_left < 0) {
 	// wrap clouds on left of screen.
 	cloud.style.left = "95%";
-    } else {
-	if (cloud_left > 90) {
-	    // wrap clouds on right of screen.
-	    cloud.style.left = "1%";
-	} else {
-	    if (false) {
-		var incr = Math.floor(Math.random()*30);
-		if (incr == 0) {
-		    cloud.style.left = (cloud_left - .0) + "%";
-		} else {
-		    if (incr < 10) {
-			cloud.style.left = (cloud_left + .1) + "%";
-		    }
-		}
-	    } else {
-		var cloud_key = cloud_id;
-		cloud.style.left = (cloud_left + cloud_speeds[cloud_key])+"%";
-	    }
-	}
+    }
+    if (cloud_left > 99) {
+	// wrap clouds on right of screen.
+	cloud.style.left = "1%";
     }
 
-    
-    cloud_left = parseFloat(cloud.style.left.replace('%',''));
+    var cloud_text_left_offset = 2;
     var cloud_text = $("#" + cloud_id + "_text")[0];
     debug("cloud text object: " + cloud_text);
     if (cloud_text.style != undefined) {
-	cloud_text.style.left = (cloud_left+2) + "%";
+	cloud_left = parseFloat(cloud.style.left.replace('%',''));
+	cloud_text.style.left = (cloud_left+cloud_text_left_offset) + "%";
     }
 
+    var incr = Math.floor(Math.random()*30);
+    if (incr < 2) {
+        cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.01;
+    } else {
+        if (incr < 4) {
+	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.01;
+        }
+    }
+    if (cloud_speeds[cloud_id] < 0) {
+	cloud_speeds[cloud_id] = 0;
+    }
+    if (cloud_speeds[cloud_id] > 10) {
+	cloud_speeds[cloud_id] = 5;
+    }
 
 }
 
