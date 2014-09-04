@@ -5,6 +5,9 @@
     [clojure.tools.logging :as log]
     [clojure.string :as string]))
 
+(defn remove-parens [str]
+  (string/replace str #"\(.*\)" ""))
+
 (defn strip [str]
   "remove heading and trailing whitespace"
   (string/replace (string/replace str #"^\s+" "") #"\s+$" ""))
