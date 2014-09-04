@@ -42,7 +42,7 @@ function add_cloud(cloud_id) {
     $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: 30px'> </i>");
 
     var cloud_text_dom_id = "cloud_" + cloud_id + "_text";
-    $("#sky").append("<div id='cloud_" + cloud_id + "_text' class='cloudtext' style='left:" + percent+1 + "%; top: 60px'>" + ".." + "</div>");
+    $("#sky").append("<div id='cloud_" + cloud_id + "_text' class='cloudtext' style='left:" + Math.floor(percent+4) + "%; top: 80px'>" + ".." + "</div>");
 
     update_cloud_fn = function (content) {
 	console.log("CONTENT: " + content);

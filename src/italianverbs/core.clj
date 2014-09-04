@@ -236,7 +236,10 @@
   (GET "/game/generate" request
        {:status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}
-        :body (morph/get-english (:english (gen/generate {:synsem {:cat :verb :subcat '()}} en/grammar lex/lexicon en/cache)))})
+        :body (morph/get-english (:english (gen/generate {:head {:phrasal false}
+                                                          :comp {:phrasal false}
+                                                          :synsem {:infl :present :cat :verb :subcat '()}}
+                                                         en/grammar lex/lexicon en/cache)))})
 
   (GET "/generate/" request
        {:status 302

@@ -101,8 +101,8 @@
 #sky .cloudtext {
     position:absolute;
     color:black;
-    font-size:100%;
-    width:5em;
+    font-size:150%;
+    width:10em;
 }
 
 #sky .fa-cloud {
@@ -176,46 +176,6 @@ circle {
     stroke-width:2;
     stroke:darkgrey;
     fill: lightblue;
-}
-
-.bear {
-    fill:lightblue;
-    stroke:blue;
-}
-
-.cat {
-    fill:lightblue;
-    stroke:blue;
-}
-
-.dog {
-    fill:lightblue;
-    stroke:blue;
-}
-
-.cow {
-    fill:lightblue;
-    stroke:blue;
-}
-
-.gecko {
-    fill:lightblue;
-    stroke:blue;
-}
-
-.otter {
-    fill:lightblue;
-    stroke:blue;
-}
-
-.snake {
-    fill:lightblue;
-    stroke:blue;
-}
-
-.wolf {
-    fill:lightblue;
-    stroke:blue;
 }
 
 .learning {
