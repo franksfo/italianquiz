@@ -30,6 +30,7 @@
    [italianverbs.student :as student]
    [italianverbs.studenttest :as stest]
    [italianverbs.test_submit :as tsubmit]
+   [italianverbs.unify :refer [strip-refs]]
    [italianverbs.question :as question]
    [italianverbs.quiz :as quiz]
    [italianverbs.verb :as verb]
@@ -238,13 +239,23 @@
          :headers {"Content-Type" "text/html;charset=utf-8"}
          :body (game/evaluate request)})
 
+  ;; TODO: move body-creating function to game/
   (GET "/game/generate" request
        {:status 200
-        :headers {"Content-Type" "text/html;charset=utf-8"}
-        :body (morph/remove-parens (morph/get-english (:english (gen/generate {:head {:phrasal false}
-                                                                                :comp {:phrasal false}
-                                                          :synsem {:infl :present :cat :verb :subcat '()}}
-                                                         en/grammar lex/lexicon en/cache))))})
+        :headers {"Content-Type" "application/json;charset=utf-8"}
+        :body (let [generated (gen/generate {:head {:phrasal false}
+                                             :comp {:phrasal false}
+                                             :synsem {:infl :present
+                                                      :cat :verb
+                                                      :subcat '()}}
+                                            en/grammar
+                                            lex/lexicon
+                                            en/cache)
+                    english (morph/remove-parens (morph/get-english (:english generated)))
+                    semantics (strip-refs (get-in generated [:synsem :sem]))]
+                (str "{\"english\": \"" english "\",\"semantics\": \"" semantics "\"}"))})
+
+
 
   (GET "/generate/" request
        {:status 302

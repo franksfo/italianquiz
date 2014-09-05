@@ -58,10 +58,14 @@ function add_cloud(cloud_id) {
 
     $("#sky").append("<div id='cloud_" + cloud_id + "_text' class='cloudtext' style='top: " + word_vertical + "px'>" + ".." + "</div>");
 
+    $("#sky").append("<div id='cloud_" + cloud_id + "_sem' class='cloud-semantics'> </div>");
+
     cloud_speeds["cloud_" + cloud_id] = Math.random()*.08;
 
     update_cloud_fn = function (content) {
-        $("#"+cloud_text_dom_id).html(content);
+	evaluated = jQuery.parseJSON(content);
+        $("#"+cloud_text_dom_id).html(evaluated.english);
+	// $("#cloud_" + cloud_id + "_sem").html(content.semantics)
     }
 
     // fill in the cloud's text in the background.
@@ -184,7 +188,8 @@ function submit_game_response(form_input_id) {
     // 1. apply user's guess to guess evaluation.
     $.ajax({
         dataType: "html",
-        data: {guess: guess, qid: $("#question_id").val()},
+        data: {guess: guess,
+	       clouds: $(".cloud-semantics")},
         type: "POST",
         contentType: "application/x-www-form-urlencoded;charset=utf-8",
         url: "/game/evaluate",
