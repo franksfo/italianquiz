@@ -233,6 +233,11 @@
        {:status 302
         :headers {"Location" "/game"}})
 
+  (POST "/game/evaluate" request
+        {:status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"}
+         :body (game/evaluate request)})
+
   (GET "/game/generate" request
        {:status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}

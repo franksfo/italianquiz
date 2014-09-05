@@ -17,11 +17,7 @@ var blow_time =   30;
 function start_game() {
     var svg = d3.select("#svgarena");
     add_clouds();
-    make_it_rain(svg);
 
-    setInterval(function() {
-	make_it_rain(svg);
-    },rain_time);
     setInterval(function() {
 	blow_clouds(0);
     },blow_time);
@@ -44,7 +40,6 @@ function add_cloud(cloud_id) {
     $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: 30px'> </i>");
 
     var cloud_text_dom_id = "cloud_" + cloud_id + "_text";
-
 
     var cloud_obj = $("#cloud_" + cloud_id)[0];
     var classes = cloud_obj.getAttribute("class")
@@ -182,3 +177,19 @@ function keys(arg) {
     return Object.keys(arg);
 }
 var existing = null;
+
+function submit_game_response(form_input_id) {
+    var guess = $("#"+form_input_id).val();
+
+    // 1. apply user's guess to guess evaluation.
+    $.ajax({
+        dataType: "html",
+        data: {guess: guess, qid: $("#question_id").val()},
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded;charset=utf-8",
+        url: "/game/evaluate",
+        success: function (content) {
+	    console.log("result of evaluating user response:" + content);
+        }
+    });
+}
