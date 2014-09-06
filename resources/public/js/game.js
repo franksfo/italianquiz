@@ -52,8 +52,9 @@ var cloud_speeds = {};
 
 function add_cloud(cloud_id) {
     var sz = Math.floor(Math.random()*4) + 1;
+    var top = 20 + Math.floor(Math.random()*10);
     percent = (100 / this_many_clouds ) * $(".fa-cloud").length;
-    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: 30px'> </i>");
+    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: " + top + "px '> </i>");
 
     var cloud_text_dom_id = "cloud_" + cloud_id + "_text";
 
