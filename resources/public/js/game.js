@@ -40,7 +40,8 @@ function add_cloud(cloud_id) {
     percent = (100 / this_many_clouds ) * $(".fa-cloud").length;
     $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: " + top + "px '> </i>");
 
-    var cloud_text_dom_id = "cloud_" + cloud_id + "_text";
+    var cloud_q_dom_id = "cloud_" + cloud_id + "_q";
+    var cloud_sem_dom_id = "cloud_" + cloud_id + "_sem";
 
     var cloud_obj = $("#cloud_" + cloud_id)[0];
     var classes = cloud_obj.getAttribute("class")
@@ -57,19 +58,18 @@ function add_cloud(cloud_id) {
 	word_vertical = 180;
     }
 
-    $("#sky").append("<div id='cloud_" + cloud_id + "_text' class='cloudtext' style='top: " + word_vertical + "px'>" + ".." + "</div>");
-
-    $("#sky").append("<div id='cloud_" + cloud_id + "_sem' class='cloud-semantics'> </div>");
+    $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='top: " + word_vertical + "px'>" + ".." + "</div>");
+    $("#gameform").append("<input id='cloud_" + cloud_id + "_sem' class='cloud-semantics'> </input>");
 
     cloud_speeds["cloud_" + cloud_id] = Math.random()*.08;
 
     update_cloud_fn = function (content) {
 	evaluated = jQuery.parseJSON(content);
-        $("#"+cloud_text_dom_id).html(evaluated.english);
-	// $("#cloud_" + cloud_id + "_sem").html(content.semantics)
+        $("#"+cloud_q_dom_id).html(evaluated.english);
+        $("#"+cloud_sem_dom_id).val(evaluated.semantics);
     }
 
-    // fill in the cloud's text in the background.
+    // fill in the cloud's q in the background.
     $.ajax({
         dataType: "html",
         url: "/game/generate",
@@ -140,12 +140,12 @@ function blow_cloud(cloud) {
 	cloud.style.left = "1%";
     }
 
-    var cloud_text_left_offset = 2;
-    var cloud_text = $("#" + cloud_id + "_text")[0];
-    log(TRACE,"cloud text object: " + cloud_text);
-    if (cloud_text.style != undefined) {
+    var cloud_q_left_offset = 2;
+    var cloud_q = $("#" + cloud_id + "_q")[0];
+    log(TRACE,"cloud q object: " + cloud_q);
+    if (cloud_q.style != undefined) {
 	cloud_left = parseFloat(cloud.style.left.replace('%',''));
-	cloud_text.style.left = (cloud_left+cloud_text_left_offset) + "%";
+	cloud_q.style.left = (cloud_left+cloud_q_left_offset) + "%";
     }
 
     var incr = Math.floor(Math.random()*100);
