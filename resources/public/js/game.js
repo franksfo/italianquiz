@@ -1,7 +1,23 @@
-var background = "white";
+// lib-ish:
+var TRACE = 4;
 var DEBUG = 3;
 var INFO  = 2;
-var logging_level = INFO;
+var logging = {
+    4 : "TRACE",
+    3 : "DEBUG",
+    2 : "INFO"
+};
+
+function log(level,str) {
+    if (logging_level >= level) {
+	console.log(logging[level] + ":" + str);
+    }
+}
+
+// config-ish:
+var logging_level = DEBUG;
+
+var background = "white";
 var radius = 15;
 // TODO: get width and height of #game from DOM, not hardcoded.
 var game_width = 1000;
@@ -141,7 +157,7 @@ function blow_cloud(cloud) {
 
     var cloud_text_left_offset = 2;
     var cloud_text = $("#" + cloud_id + "_text")[0];
-    debug("cloud text object: " + cloud_text);
+    log(TRACE,"cloud text object: " + cloud_text);
     if (cloud_text.style != undefined) {
 	cloud_left = parseFloat(cloud.style.left.replace('%',''));
 	cloud_text.style.left = (cloud_left+cloud_text_left_offset) + "%";
@@ -185,6 +201,8 @@ var existing = null;
 function submit_game_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
 
+    log(DEBUG,"submit_game_response: " + guess);
+/*
     // 1. apply user's guess to guess evaluation.
     $.ajax({
         dataType: "html",
@@ -196,5 +214,5 @@ function submit_game_response(form_input_id) {
         success: function (content) {
 	    console.log("result of evaluating user response:" + content);
         }
-    });
+    });*/
 }
