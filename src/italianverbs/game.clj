@@ -33,11 +33,9 @@
 
       [:i {:class "fa fa-tree x1" :style "left:25%; top:5%" }]
 
-      [:i {:class "fa fa-tree x2" :style "left:50%; top:-35%" }
-       ]
+      [:i {:class "fa fa-tree x2" :style "left:50%; top:-35%" }]
 
-      [:i {:class "fa fa-tree x3" :style "left:75%;top:-50%" }
-       ]
+      [:i {:class "fa fa-tree x3" :style "left:75%;top:-50%" }]
 
 
       ] ;; end of :div#ground
@@ -46,6 +44,7 @@
 
     [:div#gameform
       [:input {:id "game_input" :size "50"}]
+
       [:button {:class "click"
                 :onclick "submit_game_response('game_input');"} "Answer" ]
       
@@ -62,13 +61,3 @@
     (let [guess (get-in params '("guess"))]
       (log/info (str "guess: " (get-in params '("guess"))))
       (str "clojure saw your response:" guess))))
-
-
-
-
-
-
-
-
-
-
