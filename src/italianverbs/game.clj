@@ -1,8 +1,15 @@
 (ns italianverbs.game
   (:require
+   [clojure.string :as string]
    [clojure.tools.logging :as log]
    [hiccup.page :refer :all]
+   [italianverbs.generate :as gen]
+   [italianverbs.grammar.english :as en]
+   [italianverbs.grammar.italiano :as it]
    [italianverbs.html :as html]
+   [italianverbs.lexicon :as lex]
+   [italianverbs.morphology :as morph]
+   [italianverbs.unify :refer [strip-refs]]
    ))
 
 (defn game []
@@ -61,3 +68,42 @@
     (let [guess (get-in params '("guess"))]
       (log/info (str "guess: " (get-in params '("guess"))))
       (str "clojure saw your response:" guess))))
+
+(defn map-realize [the-fn seq]
+  (if (not (empty? seq))
+    (cons (apply the-fn (list (first seq)))
+          (map-realize the-fn (rest seq)))))
+
+(defn generate-question [request]
+  {:status 200
+   :headers {"Content-Type" "application/json;charset=utf-8"}
+   :body (let [question (gen/generate {:head {:phrasal false}
+                                      :comp {:phrasal false}
+                                      :synsem {:infl :present
+                                               :cat :verb
+                                               :subcat '()}}
+                                     en/grammar
+                                     lex/lexicon
+                                     en/cache)
+               semantics (strip-refs (get-in question [:synsem :sem]))
+               english (morph/remove-parens (morph/get-english (:english question)))]
+           (str "{\"english\": \"" english "\",
+ \"semantics\": \"" semantics "\"}"))})
+
+(defn generate-answer [request]
+  (let [semantics
+        {:aspect :progressive, :motion false, :pred :andare, :subj {:mass false, :furniture false, :pred :qualcuno, :place false, :drinkable false, :human true, :animate true, :speakable false, :activity false, :physical-object true, :buyable false, :legible false, :artifact false, :edible false, :part-of-human-body false}, :activity false, :discrete false, :location (), :tense :present}
+        italian (vec (map-realize #(morph/get-italian
+                                    (:italian %))
+                                  (gen/generate-all
+                                   {:synsem {:sem semantics}
+                                    :head {:phrasal false}
+                                    :comp {:phrasal false}}
+                                   it/grammar
+                                   lex/lexicon
+                                   it/cache)))]
+    (str "{\"italian\": " italian ",
+ \"semantics\": \"" semantics "\"}")))
+
+
+    

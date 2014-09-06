@@ -72,7 +72,7 @@ function add_cloud(cloud_id) {
     // fill in the cloud's q in the background.
     $.ajax({
         dataType: "html",
-        url: "/game/generate",
+        url: "/game/generate-question",
         success: update_cloud_fn
     });
 }

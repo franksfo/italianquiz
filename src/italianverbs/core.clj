@@ -14,15 +14,11 @@
    [hiccup.page :as h]
    [hiccup.element :as e]
    [italianverbs.class :as vc-class]
-   [italianverbs.grammar.english :as en]
    [italianverbs.game :as game]
    [italianverbs.gen :as g]
-   [italianverbs.generate :as gen]
    [italianverbs.korma :as db]
    [italianverbs.lesson :as lesson]
-   [italianverbs.lexicon :as lex]
    [italianverbs.menubar :as menubar]
-   [italianverbs.morphology :as morph]
    [italianverbs.xml :as xml]
    [italianverbs.html :as html]
    [italianverbs.search :as search]
@@ -30,7 +26,6 @@
    [italianverbs.student :as student]
    [italianverbs.studenttest :as stest]
    [italianverbs.test_submit :as tsubmit]
-   [italianverbs.unify :refer [strip-refs]]
    [italianverbs.question :as question]
    [italianverbs.quiz :as quiz]
    [italianverbs.verb :as verb]
@@ -239,23 +234,11 @@
          :headers {"Content-Type" "text/html;charset=utf-8"}
          :body (game/evaluate request)})
 
-  ;; TODO: move body-creating function to game/
-  (GET "/game/generate" request
-       {:status 200
-        :headers {"Content-Type" "application/json;charset=utf-8"}
-        :body (let [generated (gen/generate {:head {:phrasal false}
-                                             :comp {:phrasal false}
-                                             :synsem {:infl :present
-                                                      :cat :verb
-                                                      :subcat '()}}
-                                            en/grammar
-                                            lex/lexicon
-                                            en/cache)
-                    english (morph/remove-parens (morph/get-english (:english generated)))
-                    semantics (strip-refs (get-in generated [:synsem :sem]))]
-                (str "{\"english\": \"" english "\",\"semantics\": \"" semantics "\"}"))})
+  (GET "/game/generate-answer" request
+       (game/generate-answer request))
 
-
+  (GET "/game/generate-question" request
+       (game/generate-question request))
 
   (GET "/generate/" request
        {:status 302
