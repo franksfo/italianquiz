@@ -43,6 +43,15 @@
                   (.size grammar) "."))
   (first (take 1 (forest/generate spec grammar lexicon cache))))
 
+(defn generate-all [ spec grammar the-lexicon cache ]
+  (log/debug (str "generate with lexicon size: "
+                  (.size the-lexicon) " and grammar size: "
+                  (.size grammar) "."))
+  (let [result
+        (forest/generate spec grammar lexicon cache)]
+    (log/info (str "generated this many: " (.size result)))
+    result))
+
 (defn generate-from [spec]
   (if (seq? spec)
     (map (fn [each]
