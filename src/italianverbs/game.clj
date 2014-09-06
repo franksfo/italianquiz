@@ -90,20 +90,23 @@
            (str "{\"english\": \"" english "\",
  \"semantics\": \"" semantics "\"}"))})
 
-(defn generate-answer [request]
-  (let [semantics
-        {:aspect :progressive, :motion false, :pred :andare, :subj {:mass false, :furniture false, :pred :qualcuno, :place false, :drinkable false, :human true, :animate true, :speakable false, :activity false, :physical-object true, :buyable false, :legible false, :artifact false, :edible false, :part-of-human-body false}, :activity false, :discrete false, :location (), :tense :present}
-        italian (vec (map-realize #(morph/get-italian
-                                    (:italian %))
-                                  (gen/generate-all
-                                   {:synsem {:sem semantics}
-                                    :head {:phrasal false}
-                                    :comp {:phrasal false}}
-                                   it/grammar
-                                   lex/lexicon
-                                   it/cache)))]
-    (str "{\"italian\": " italian ",
- \"semantics\": \"" semantics "\"}")))
+(defn generate-answers [request]
+  (log/info (str "generate-answers: request params: " (get-in request [:params])))
+  (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
+  (log/info (str "type of request semantics: " (type (read-string (get-in request [:params :semantics])))))
+  (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
+  (let [semantics (read-string (get-in request [:params :semantics]))
+        italian (map-realize #(str "\"" (morph/get-italian
+                                         (:italian %)) "\"")
+                             (gen/generate-all
+                              {:synsem {:sem semantics}
+                               :head {:phrasal false}
+                               :comp {:phrasal false}}
+                              it/grammar
+                              lex/lexicon
+                              it/cache))]
+    (str "{\"cloud_id\": \"" (get-in request [:params :cloud_id]) "\","
+          "\"italian\": [" (string/join "," italian) "], "
+          "\"semantics\": \"" semantics "\"}")))
 
 
-    

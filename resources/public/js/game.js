@@ -35,13 +35,14 @@ function add_clouds() {
 var cloud_speeds = {};
 
 function add_cloud(cloud_id) {
+    log(INFO,"add_cloud(" + cloud_id + ")");
     var sz = Math.floor(Math.random()*4) + 1;
     var top = 20 + Math.floor(Math.random()*10);
     percent = (100 / this_many_clouds ) * $(".fa-cloud").length;
     $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: " + top + "px '> </i>");
 
     var cloud_q_dom_id = "cloud_" + cloud_id + "_q";
-    var cloud_sem_dom_id = "cloud_" + cloud_id + "_sem";
+    var cloud_a_dom_id = "cloud_" + cloud_id + "_a";
 
     var cloud_obj = $("#cloud_" + cloud_id)[0];
     var classes = cloud_obj.getAttribute("class")
@@ -59,14 +60,30 @@ function add_cloud(cloud_id) {
     }
 
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='top: " + word_vertical + "px'>" + ".." + "</div>");
-    $("#gameform").append("<input id='cloud_" + cloud_id + "_sem' class='cloud-semantics'> </input>");
+    $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud-answer'> </input>");
 
     cloud_speeds["cloud_" + cloud_id] = Math.random()*.08;
+
+    update_answer_fn = function(content) {
+	log(INFO,"answer: " + content);
+	evaluated  = jQuery.parseJSON(content);
+	log(INFO,"italian:" + evaluated.italian);
+	log(INFO,"cloud_id:" + evaluated.cloud_id);
+	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
+	log(INFO,"Updating answer input with dom id: " + cloud_a_dom_id);
+	$("#"+cloud_a_dom_id).val(evaluated.italian);
+    }
 
     update_cloud_fn = function (content) {
 	evaluated = jQuery.parseJSON(content);
         $("#"+cloud_q_dom_id).html(evaluated.english);
-        $("#"+cloud_sem_dom_id).val(evaluated.semantics);
+	log(DEBUG,"Sending request: /game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
+
+	$.ajax({
+	    dataType: "html",
+	    url: "/game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics,
+	    success: update_answer_fn
+	    });
     }
 
     // fill in the cloud's q in the background.

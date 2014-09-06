@@ -234,8 +234,8 @@
          :headers {"Content-Type" "text/html;charset=utf-8"}
          :body (game/evaluate request)})
 
-  (GET "/game/generate-answer" request
-       (game/generate-answer request))
+  (GET "/game/generate-answers" request
+       (game/generate-answers request))
 
   (GET "/game/generate-question" request
        (game/generate-question request))

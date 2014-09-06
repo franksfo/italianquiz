@@ -201,3 +201,7 @@ circle {
 #gameform {
     font-size:150%;
 }
+
+.cloud-answer {
+    display:block;
+}
