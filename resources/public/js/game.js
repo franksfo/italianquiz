@@ -16,7 +16,7 @@ var blow_time =   30;
 
 function start_game() {
     var svg = d3.select("#svgarena");
-    add_clouds();
+    add_clouds(this_many_clouds);
 
     setInterval(function() {
 	blow_clouds(0);
@@ -25,10 +25,12 @@ function start_game() {
 
 var global_cloud_id = 0;
 
-function add_clouds() {
-    while ($(".fa-cloud").length < this_many_clouds) {
+function add_clouds(add_this_many) {
+    var done = 0;
+    while (done < add_this_many) {
 	add_cloud(global_cloud_id);
 	global_cloud_id++;
+	done++;
     }
 }
 
@@ -60,7 +62,7 @@ function add_cloud(cloud_id) {
     }
 
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='top: " + word_vertical + "px'>" + ".." + "</div>");
-    $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud-answer'> </input>");
+    $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
     cloud_speeds["cloud_" + cloud_id] = Math.random()*.08;
 
@@ -204,17 +206,20 @@ function submit_game_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
 
     log(DEBUG,"submit_game_response: " + guess);
-/*
-    // 1. apply user's guess to guess evaluation.
-    $.ajax({
-        dataType: "html",
-        data: {guess: guess,
-	       clouds: $(".cloud-semantics")},
-        type: "POST",
-        contentType: "application/x-www-form-urlencoded;charset=utf-8",
-        url: "/game/evaluate",
-        success: function (content) {
-	    console.log("result of evaluating user response:" + content);
-        }
-    });*/
+
+    var matched_q = $(".cloud_answer").map(function(answer) {
+	if ($(".cloud_answer")[answer]) {
+	    var answer_text = $(".cloud_answer")[answer].value;
+	    var answer_id = $(".cloud_answer")[answer].id
+	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
+	    if (answer_text === guess) {
+		log(INFO,"YOU GOT ONE RIGHT! INDEX=" + answer);
+		$("#cloud_" + answer + "_q").text(answer_text);
+		$("#cloud_" + answer)[0].style.color = "lightgrey";
+		$("#" + answer_id).remove();
+		add_clouds(1);
+	    }
+	}
+	});
+
 }
