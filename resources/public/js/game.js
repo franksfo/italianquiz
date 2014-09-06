@@ -147,7 +147,7 @@ function blow_cloud(cloud) {
 	cloud_text.style.left = (cloud_left+cloud_text_left_offset) + "%";
     }
 
-    var incr = Math.floor(Math.random()*30);
+    var incr = Math.floor(Math.random()*100);
     if (incr < 2) {
         cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.01;
     } else {
