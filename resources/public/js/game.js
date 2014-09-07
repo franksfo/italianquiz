@@ -1,9 +1,4 @@
 // <configurable>
-var cloud_ceiling = 20;
-var cloud_altitude = function() {
-    return cloud_ceiling + Math.floor(Math.random()*10);
-}
-
 var logging_level = DEBUG;
 var fa_cloud = "fa-cloud";
 //var fa_cloud = "fa-bicycle";
@@ -16,18 +11,26 @@ var game_height = 500;
 var offset=0;
 var this_many_clouds = 5;
 
+// beginners' goodness is 10, but it gets increased when you correctly answer questions.
+var are_you_good = 1;
+
 // how often a droplet falls.
 var rain_time = 1000;
 // timer for cloud motion interval, in milliseconds.
 // a low blow_time looks smooth but will chow your clients' CPUs.
-var blow_time = 1000;
+var blow_time = 100;
+
+var cloud_ceiling = 20;
+var cloud_altitude = function() {
+    return cloud_ceiling + Math.floor(Math.random()*70);
+}
 
 // </configurable>
 
 
 function start_game() {
     var svg = d3.select("#svgarena");
-    add_clouds(this_many_clouds);
+    add_clouds();
 
     setInterval(function() {
 	blow_clouds(0);
@@ -36,12 +39,10 @@ function start_game() {
 
 var global_cloud_id = 0;
 
-function add_clouds(add_this_many) {
-    var done = 0;
-    while (done < add_this_many) {
+function add_clouds() {
+    while ($(".motion").length < this_many_clouds) {
 	add_cloud(global_cloud_id);
 	global_cloud_id++;
-	done++;
     }
 }
 
@@ -49,10 +50,10 @@ var cloud_speeds = {};
 
 function add_cloud(cloud_id) {
     log(INFO,"add_cloud(" + cloud_id + ")");
-    var sz = Math.floor(Math.random()*4) + 1;
+    var size = Math.floor(Math.random()*4) + 1;
     var top = cloud_altitude();
-    var percent = (100 / this_many_clouds ) * $(".motion").length;
-    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa motion " + fa_cloud + " x"+sz+"' style='left:" + percent + "%; top: " + top + "px '> </i>");
+    var left = 10;
+    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa motion " + fa_cloud + " x"+size+"' style='left:" + left + "%; top: " + top + "px '> </i>");
 
     var cloud_q_dom_id = "cloud_" + cloud_id + "_q";
     var cloud_a_dom_id = "cloud_" + cloud_id + "_a";
@@ -60,7 +61,7 @@ function add_cloud(cloud_id) {
     var cloud_obj = $("#cloud_" + cloud_id)[0];
     var classes = cloud_obj.getAttribute("class")
 
-    // TODO: duplication between CSS and this:
+    // TODO: remove duplication between CSS and this:
     var word_vertical = 80;
     if (classes.match(/x2\b/)) {
 	word_vertical = 120;
@@ -75,7 +76,7 @@ function add_cloud(cloud_id) {
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='top: " + word_vertical + "px'>" + ".." + "</div>");
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
-    cloud_speeds["cloud_" + cloud_id] = Math.random()*.20;
+    cloud_speeds["cloud_" + cloud_id] = Math.random()*.10;
 
     update_answer_fn = function(content) {
 	log(INFO,"answer: " + content);
@@ -185,7 +186,7 @@ function blow_cloud(cloud) {
     if (incr < 5) {
         cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.01;
     } else {
-        if (incr < 10) {
+        if (incr < are_you_good) {
 	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.01;
         }
     }
@@ -235,22 +236,22 @@ function submit_game_response(form_input_id) {
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
 	    if (answer_text === guess) {
 		log(INFO,"YOU GOT ONE RIGHT!");
+		are_you_good += 2;
+		log(INFO,"Are you good rating: " + are_you_good);
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");
 		$("#"+form_input_id).focus();
-
 	
-		// get the bare id (just an integer), so that we can manipulate related DOM elements:
+		// get the bare id (just an integer), so that we can manipulate related DOM elements.
 		var answer_id = answer.id;	    
 		var re = /cloud_([^_]+)_a/;
-		answer_id = answer_id.replace(re,"$1");
-		log(DEBUG,"post_re:(bare):" + answer_id);
-		$("#cloud_" + answer_id + "_q").text(answer_text);
-		$("#cloud_" + answer_id)[0].style.color = "lightgrey";
-		$("#cloud_" + answer_id).fadeOut(3000);
-		$("#cloud_" + answer_id + "_q").fadeOut(3000);
-		$("#cloud_" + answer_id + "_a").remove();
-		add_clouds(1);
+		bare_id = answer_id.replace(re,"$1");
+		log(DEBUG,"post_re:(bare):" + bare_id);
+		$("#cloud_" + bare_id + "_q").text(answer_text);
+		$("#cloud_" + bare_id)[0].style.color = "lightgrey";
+		$("#cloud_" + bare_id).fadeOut(3000,function () {$("#cloud_" + bare_id).remove();});
+		$("#cloud_" + bare_id + "_q").fadeOut(3000,function () {$("#cloud_" + bare_id + "_a").remove();});
+		add_clouds();
 	    }
 	}
     });
