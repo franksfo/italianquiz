@@ -369,17 +369,6 @@
                 :agr {:person :3rd
                       :gender :masc
                       :number :sing}
-                :sem (unify human {:pred :lui})
-                :subcat '()}
-       :english "he"
-       :italian ""}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :case :nom
-                :agr {:person :3rd
-                      :gender :masc
-                      :number :sing}
                 :sem {:human false
                       :pred :lui}
                 :subcat '()}
@@ -391,36 +380,12 @@
                 :pronoun true
                 :case :nom
                 :agr {:person :3rd
-                      :gender :masc
-                      :number :sing}
-                :sem {:human false
-                      :pred :lui}
-                :subcat '()}
-       :english {:english "it"
-                 :note "(&#x2642;)"}
-       :italian ""}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :case :nom
-                :agr {:person :3rd
                       :gender :fem
                       :number :sing}
                 :sem (unify human {:pred :lei})
                 :subcat '()}
        :english "she"
        :italian "lei"}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :case :nom
-                :agr {:person :3rd
-                      :gender :fem
-                      :number :sing}
-                :sem (unify human {:pred :lei})
-                :subcat '()}
-       :english "she"
-       :italian ""}
 
       {:english {:english "letter"}
        :italian {:italian "lettera"}
@@ -704,19 +669,6 @@
                  :note "(&#x2640;)"} ;; unicode female
        :italian "lei"}
 
-      {:synsem {:cat :noun
-                :pronoun true
-                :case :nom
-                :agr {:person :3rd
-                      :gender :fem
-                      :number :sing}
-                :sem {:human false
-                      :pred :lei}
-                :subcat '()}
-       :english {:english "it"
-                 :note "(&#x2640;)"} ;; unicode female
-       :italian ""}
-
       (unify agreement-noun
              common-noun
              countable-noun
@@ -921,62 +873,55 @@
        :english "we"
        :italian "noi"}
 
-      ;; copied:
       {:synsem {:cat :noun
                 :pronoun true
                 :case :nom
                 :agr {:person :1st
                       :number :plur}
-                :sem (unify human {:pred :noi})
+                :sem (unify human {:pred :gianni-e-io})
                 :subcat '()}
        :english "John and I"
-       :italian ""}
+       :italian "Gianni e io"}
 
-
-      ;; copied:
       {:synsem {:cat :noun
                 :pronoun true
                 :case :nom
                 :agr {:person :1st
                       :number :plur}
-                :sem (unify human {:pred :noi})
+                :sem (unify human {:pred :tu-e-io})
                 :subcat '()}
-       :english "You and I"
-       :italian ""}
+       :english "you and I"
+       :italian "tu e io"}
 
-      ;; copied:
       {:synsem {:cat :noun
                 :pronoun true
                 :case :nom
                 :agr {:person :1st
                       :number :plur}
-                :sem (unify human {:pred :noi})
+                :sem (unify human {:pred :lui-e-io})
                 :subcat '()}
-       :english "He and I"
-       :italian ""}
+       :english "he and I"
+       :italian "lui e io"}
 
-
-      ;; copied:
       {:synsem {:cat :noun
                 :pronoun true
                 :case :nom
                 :agr {:person :1st
                       :number :plur}
-                :sem (unify human {:pred :noi})
+                :sem (unify human {:pred :voi-e-io})
                 :subcat '()}
        :english "You guys and I"
-       :italian ""}
+       :italian "voi e io"}
 
-      ;; copied:
       {:synsem {:cat :noun
                 :pronoun true
                 :case :nom
                 :agr {:person :1st
                       :number :plur}
-                :sem (unify human {:pred :noi})
+                :sem (unify human {:pred :lei-tu-e-io})
                 :subcat '()}
        :english "She, you and I"
-       :italian ""}
+       :italian "lei, tu e io"}
 
       ;; copied:
       {:synsem {:cat :noun
@@ -984,22 +929,10 @@
                 :case :nom
                 :agr {:person :2nd
                       :number :plur}
-                :sem (unify human {:pred :voi})
+                :sem (unify human {:pred :lei-e-tu})
                 :subcat '()}
-       :english "She and you"
-       :italian ""}
-
-
-      ;; copied:
-      {:synsem {:cat :noun
-                :pronoun true
-                :case :nom
-                :agr {:person :2nd
-                      :number :plur}
-                :sem (unify human {:pred :voi})
-                :subcat '()}
-       :english "You and Mary"
-       :italian ""}
+       :english "she and you"
+       :italian "lei e tu"}
 
 
       ;; copied:
@@ -1008,10 +941,22 @@
                 :case :nom
                 :agr {:person :2nd
                       :number :plur}
-                :sem (unify human {:pred :voi})
+                :sem (unify human {:pred :tu-e-maria})
                 :subcat '()}
-       :english "You and the dog"
-       :italian ""}
+       :english "you and Mary"
+       :italian "tu e Maria"}
+
+
+      ;; copied:
+      {:synsem {:cat :noun
+                :pronoun true
+                :case :nom
+                :agr {:person :2nd
+                      :number :plur}
+                :sem (unify human {:pred :tu-e-cane})
+                :subcat '()}
+       :english "you and the dog"
+       :italian "tu e il cane"}
 
       ;; copied:
       {:synsem {:cat :noun
@@ -1019,10 +964,10 @@
                 :case :nom
                 :agr {:person :3rd
                       :number :plur}
-                :sem (unify human {:pred :loro})
+                :sem (unify human {:pred :cane-e-gianni})
                 :subcat '()}
-       :english "The dog and John"
-       :italian ""}
+       :english "the dog and John"
+       :italian "il cane e Gianni"}
 
       ;; copied:
       {:synsem {:cat :noun
@@ -1030,32 +975,10 @@
                 :case :nom
                 :agr {:person :3rd
                       :number :plur}
-                :sem (unify human {:pred :loro})
+                :sem (unify human {:pred :lui-e-lei})
                 :subcat '()}
-       :english "He and she"
-       :italian ""}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :case :nom
-                :agr {:person :3rd
-                      :number :plur}
-                :sem (unify human {:pred :loro})
-                :subcat '()}
-       :english "The guys"
-       :italian ""}
-
-      {:synsem {:cat :noun
-                :pronoun true
-                :case :nom
-                :agr {:person :3rd
-                      :number :plur}
-                :sem (unify human {:pred :loro})
-                :subcat '()}
-       :english "The guys and the girls"
-       :italian ""}
-
-
+       :english "he and she"
+       :italian "lui and lei"}
 
 
 ))
