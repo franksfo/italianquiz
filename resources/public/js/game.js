@@ -80,9 +80,12 @@ function add_cloud(cloud_id) {
 	log(INFO,"answer: " + content);
 	evaluated  = jQuery.parseJSON(content);
 	log(INFO,"italian:" + evaluated.italian);
+	log(INFO,"italian length:" + evaluated.italian.length);
 	log(INFO,"cloud_id:" + evaluated.cloud_id);
 	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
 	log(INFO,"Updating answer input with dom id: " + cloud_a_dom_id);
+	// TODO: pass JSON directly rather than using the DOM as a data store.
+	// Though the DOM has some advantages in that you can use it for presentation purposes.
 	$("#"+cloud_a_dom_id).val(evaluated.italian);
     }
 
@@ -212,23 +215,40 @@ function keys(arg) {
 }
 var existing = null;
 
+// TODO: pass the answers in as a javascript array rather than having to parse them from the HTML input value.
 function submit_game_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
 
     log(DEBUG,"submit_game_response: " + guess);
 
     var matched_q = $(".cloud_answer").map(function(answer) {
-	if ($(".cloud_answer")[answer]) {
-	    var answer_text = $(".cloud_answer")[answer].value;
-	    var answer_id = $(".cloud_answer")[answer].id
-	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
-	    if (answer_text === guess) {
-		log(INFO,"YOU GOT ONE RIGHT! INDEX=" + answer);
-		$("#cloud_" + answer + "_q").text(answer_text);
-		$("#cloud_" + answer)[0].style.color = "lightgrey";
-		$("#cloud_" + answer).fadeOut("slow");
-		$("#" + answer_id).remove();
-		add_clouds(1);
+	if ($(".cloud_answer")[answer] != undefined) {
+	    var answer = $(".cloud_answer")[answer];
+	    var answers = answer.value.split(",");
+	    log(DEBUG,"Answers: " + answers);
+	    
+	    var i;
+	    for (i = 0; i < answers.length; i++) {
+		var answer_text = answers[i];
+		log(DEBUG,"answer_text is:: " + answer_text);
+		log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
+		if (answer_text === guess) {
+		    log(INFO,"YOU GOT ONE RIGHT! ID=" + answer.id);
+		    if (answer != undefined) {
+			var answer_id = answer.id;
+			
+			$("#cloud_" + answer_id + "_q").text(answer_text);
+			$("#cloud_" + answer)[0].style.color = "lightgrey";
+			$("#cloud_" + answer).fadeOut("slow");
+			$("#cloud_" + answer + "_q").fadeOut("slow");
+			$("#cloud_" + answer_id +).remove();
+			add_clouds(1);
+		    } else {
+			log(INFO,"something very weird happened..the answer was undefined.");
+			log(WARN,"something very weird happened..the answer was undefined.");
+		    }
+
+		}
 	    }
 	}
 	});
