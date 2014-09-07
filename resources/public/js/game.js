@@ -1,48 +1,49 @@
 // <configurable>
 var logging_level = INFO;
-var fa_cloud = "fa-cloud";
-//var fa_cloud = "fa-bicycle";
-//var fa_cloud = "fa-fighter-jet";
-var background = "white";
-var radius = 15;
-// TODO: get width and height of #game from DOM, not hardcoded.
-var game_width = 1000;
-var game_height = 500;
-var offset=0;
-var this_many_clouds = 5;
+ var fa_cloud = "fa-cloud";
+ //var fa_cloud = "fa-bicycle";
+ //var fa_cloud = "fa-fighter-jet";
+ var background = "white";
+ var radius = 15;
+ // TODO: get width and height of #game from DOM, not hardcoded.
+ var game_width = 1000;
+ var game_height = 500;
+ var offset=0;
+ var this_many_clouds = 3;
 
-// beginners' goodness is 10, but it gets increased when you correctly answer questions.
-var are_you_good = 10;
+ // beginners' goodness is 10, but it gets increased when you correctly answer questions.
+ var are_you_good = 10;
 
-// how often a droplet falls.
-var rain_time = 1000;
-// timer for cloud motion interval, in milliseconds.
-// a low blow_time looks smooth but will chow your clients' CPUs.
-var blow_time = 300;
+ // how often a droplet falls.
+ var rain_time = 1000;
+ // timer for cloud motion interval, in milliseconds.
+ // a low blow_time looks smooth but will chow your clients' CPUs.
+ var blow_time = 300;
 
-var cloud_ceiling = 20;
-var cloud_altitude = function() {
-    return cloud_ceiling + Math.floor(Math.random()*70);
-}
+ var cloud_ceiling = 20;
+ var cloud_altitude = function() {
+     return cloud_ceiling + Math.floor(Math.random()*70);
+ }
 
-// </configurable>
+ // </configurable>
 
+ function start_game() {
+     var svg = d3.select("#svgarena");
+     add_clouds(this_many_clouds);
 
-function start_game() {
-    var svg = d3.select("#svgarena");
-    add_clouds();
+     setInterval(function() {
+	 blow_clouds(0);
+     },blow_time);
+ }
 
-    setInterval(function() {
-	blow_clouds(0);
-    },blow_time);
-}
+ var global_cloud_id = 0;
 
-var global_cloud_id = 0;
-
-function add_clouds() {
-    while ($(".motion").length < this_many_clouds) {
-	add_cloud(global_cloud_id);
-	global_cloud_id++;
+ function add_clouds(add_this_many) {
+     var added = 0;
+     while (added < add_this_many) {
+	 add_cloud(global_cloud_id);
+	 added++;
+	 global_cloud_id++;
     }
 }
 
@@ -76,20 +77,26 @@ function add_cloud(cloud_id) {
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='display:none;top: " + word_vertical + "px'>" + ".." + "</div>");
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
-    cloud_speeds["cloud_" + cloud_id] = Math.random()*.10;
+    cloud_speeds["cloud_" + cloud_id] = Math.random()*.20;
 
     update_answer_fn = function(content) {
 	log(INFO,"Updating answer input with content: " + content);
 	evaluated  = jQuery.parseJSON(content);
 	log(INFO,"italian:" + evaluated.italian);
-	log(INFO,"italian length:" + evaluated.italian.length);
 	log(INFO,"cloud_id:" + evaluated.cloud_id);
 	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
 	var cloud_q_dom_id = "cloud_" + evaluated.cloud_id + "_q";
+
+	var lca_dom_id = "lca_" + evaluated.cloud_id;
+	var answer_dom_id = "answer_" + evaluated.cloud_id;
+	var rca_dom_id = "rca_" + evaluated.cloud_id;
+
 	log(INFO,"Updating answer input with dom id: " + cloud_a_dom_id);
 	// TODO: pass JSON directly rather than using the DOM as a data store.
 	// Though the DOM has some advantages in that you can use it for presentation purposes.
-	$("#"+cloud_a_dom_id).val(evaluated.italian);
+	$("#"+cloud_a_dom_id).val(evaluated.answer);
+	$("#"+lca_dom_id).html(evaluated.lca);
+	$("#"+rca_dom_id).html(evaluated.rca);
 	log(INFO,"Updating question color for dom id: " + cloud_q_dom_id);
 	$("#cloud_"+evaluated.cloud_id).fadeIn(3000,function() {
 	    $("#"+cloud_q_dom_id).fadeIn(1000);
@@ -100,10 +107,11 @@ function add_cloud(cloud_id) {
 	log(INFO,"Updating cloud with question content: " + content);
 	evaluated = jQuery.parseJSON(content);
 	// TODO: avoid munging html like this - it's hard to understand.
-        $("#"+cloud_q_dom_id).html("<span class='lca'>" + evaluated.lca + "</span>" +
+        $("#"+cloud_q_dom_id).html("<span class='lca' id='lca_"+cloud_id+"'>" + "(fill me in1)" + "</span>" +
 				   "<span class='question' id='question_"+cloud_id+"'> " + evaluated.question + " </span>" +
+				   "<span class='spacing'> </span>" +
 				   "<span class='answer'   id='answer_"+cloud_id+"'> </span>" +
-				   "<span class='rca'>" + evaluated.rca + "</span>");
+				   "<span class='rca' id='rca_"+cloud_id+"'>" + "(fill me in2)" + "</span>");
 				   
 	log(DEBUG,"Sending request: /game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
 
@@ -216,14 +224,19 @@ function submit_game_response(form_input_id) {
 		var re = /cloud_([^_]+)_a/;
 		bare_id = answer_id.replace(re,"$1");
 		log(DEBUG,"post_re:(bare):" + bare_id);
-		$("#cloud_" + bare_id + "_q").text(answer_text);
+//		$("#cloud_" + bare_id + "_q").text(answer_text);
+		$("#question_" + bare_id).remove();
+		$("#answer_" + bare_id).html(answer_text);
+
 		$("#cloud_" + bare_id)[0].style.color = "lightgrey";
 		$("#cloud_" + bare_id).fadeOut(2000,function () {$("#cloud_" + bare_id).remove();});
 		$("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
-		add_clouds();
+		add_clouds(1);
+		break; // otherwise user could answer several questions with a single answer.
 	    }
-	    $("#"+form_input_id).focus();
 	}
+	$("#"+form_input_id).focus();
+
     });
 }
 

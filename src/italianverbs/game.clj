@@ -77,13 +77,16 @@
           (map-realize the-fn (rest seq)))))
 
 (defn html-form [question]
-  {:left_context_english "John and I"
-   :middle_english "work"
-   :right_context_english ""
-   :wtf 42
-   :left_context_italian "Gianni e io"
-   :middle_italian "lavoriamo"
-   :right_context_italian ""})
+  (do
+    (log/info (str "question: " (morph/fo question)))
+    (log/info (str "head english: " @(get-in question [:head :english])))
+    {;:left_context_english "John and I"
+     :left_context_english (morph/remove-parens (morph/get-english (get-in question [:comp :english])))
+     :middle_english (morph/remove-parens (morph/get-english (get-in question [:head :english])))
+     :right_context_english ""
+     :left_context_italian ".."
+     :middle_italian "lavoriamo"
+     :right_context_italian ""}))
 
 (defn generate-question [request]
   (let [spec
@@ -100,21 +103,13 @@
                                         en/cache)
                  semantics (strip-refs (get-in question [:synsem :sem]))
                  english (morph/remove-parens (morph/get-english (:english question)))
-                 form (html-form spec)]
+                 form (html-form question)]
              (json/write-str
               {:english english
-
                :lcq (:left_context_english form)
+               :semantics semantics
                :question (:middle_english form)
-               :rcq (:right_context_english form)
-               
-               :wtf (:wtf form)
-
-               :lca (:left_context_italian form)
-               :answer (:middle_italian form)
-               :rca (:right_context_italian form)
-
-               :semantics semantics}))}))
+               :rcq (:right_context_english form)}))}))
 
 (defn generate-answers [request]
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
@@ -124,20 +119,24 @@
   (log/info (str "semantics (decoded clojure map):" (json/read-str (get-in request [:params :semantics]))))
   (let [semantics (json/read-str (get-in request [:params :semantics])
                                  :key-fn keyword)
-        italian (map-realize #(morph/get-italian
-                               (:italian %))
-                             (gen/generate-all
-                              {:synsem {:sem semantics}
-                               :head {:phrasal false}
-                               :comp {:phrasal false}}
-                              it/grammar
-                              lex/lexicon
-                              it/cache))]
+        generated (gen/generate
+                   {:synsem {:sem semantics}
+                    :head {:phrasal false}
+                    :comp {:phrasal false}}
+                   it/grammar
+                   lex/lexicon
+                   it/cache)
+
+        italian (morph/get-italian
+                 (:italian generated))]
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"}
      :body
      (json/write-str
       {:cloud_id (get-in request [:params :cloud_id])
+       :lca (morph/remove-parens (morph/get-italian (get-in generated [:comp :italian])))
+       :answer (morph/remove-parens (morph/get-italian (get-in generated [:head :italian])))
        :semantics semantics
+       :rca ""
        :italian italian})}))
 
