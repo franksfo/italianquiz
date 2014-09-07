@@ -1,11 +1,13 @@
 (ns italianverbs.game
   (:require
+   [clojure.data.json :as json]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [hiccup.page :refer :all]
    [italianverbs.generate :as gen]
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
+   [hiccup.page :as h]
    [italianverbs.html :as html]
    [italianverbs.lexicon :as lex]
    [italianverbs.morphology :as morph]
@@ -13,7 +15,7 @@
    ))
 
 (defn game []
-  (html5
+  (h/html5
    [:div#game
 
     [:svg {:id "svgarena"}]
@@ -74,8 +76,8 @@
     (cons (apply the-fn (list (first seq)))
           (map-realize the-fn (rest seq)))))
 
-(defn partial-form [spec]
-  42)
+(defn html-form [spec]
+  spec)
 
 (defn generate-question [request]
   (let [spec
@@ -92,18 +94,22 @@
                                         en/cache)
                  semantics (strip-refs (get-in question [:synsem :sem]))
                  english (morph/remove-parens (morph/get-english (:english question)))
-                 partial-form (partial-form spec)]
-             (str "{\"english\": \"" english "\","
-                   "\"partial-form\": \"" partial-form "\","
-                   "\"semantics\": \"" semantics "\"}"))}))
+                 form (html-form spec)]
+             (json/write-str
+              {:english english
+               :partial-form (html-form spec)
+               :semantics semantics}))}))
 
 (defn generate-answers [request]
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
-  (let [semantics (read-string (get-in request [:params :semantics]))
-        italian (map-realize #(str "\"" (morph/get-italian
-                                         (:italian %)) "\"")
+  (log/info (str "semantics (request string json):" (get-in request [:params :semantics])))
+  (log/info (str "semantics (decoded clojure map):" (json/read-str (get-in request [:params :semantics]))))
+  (let [semantics (json/read-str (get-in request [:params :semantics])
+                                 :key-fn keyword)
+        italian (map-realize #(morph/get-italian
+                               (:italian %))
                              (gen/generate-all
                               {:synsem {:sem semantics}
                                :head {:phrasal false}
@@ -114,8 +120,13 @@
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"}
      :body
-     (str "{\"cloud_id\": \"" (get-in request [:params :cloud_id]) "\","
-          "\"italian\": [" (string/join "," italian) "], "
-          "\"semantics\": \"" semantics "\"}")}))
+     (json/write-str
+      {:cloud_id (get-in request [:params :cloud_id])
+       :semantics semantics
+       :italian italian})}))
+
+;     (str "{\"cloud_id\": \"" (get-in request [:params :cloud_id]) "\","
+;          "\"italian\": [" (string/join "," italian) "]"
+;;          "\"semantics\": \"" semantics "\"}")}))
 
 

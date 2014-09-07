@@ -18,8 +18,12 @@
                                                     javax.jms/jms
                                                     com.sun.jdmk/jmxtools
                                                     com.sun.jmx/jmxri]]
+
+
+
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/core.async "0.1.278.0-76b25b-alpha"] 
+                 [org.clojure/data.json "0.2.5"]
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [org.clojure/tools.logging "0.2.6"]
                  [org.postgresql/postgresql "9.2-1002-jdbc4"]

@@ -79,7 +79,7 @@ function add_cloud(cloud_id) {
     cloud_speeds["cloud_" + cloud_id] = Math.random()*.10;
 
     update_answer_fn = function(content) {
-	log(INFO,"answer: " + content);
+	log(INFO,"Updating answer input with content: " + content);
 	evaluated  = jQuery.parseJSON(content);
 	log(INFO,"italian:" + evaluated.italian);
 	log(INFO,"italian length:" + evaluated.italian.length);
@@ -97,13 +97,14 @@ function add_cloud(cloud_id) {
     }
 
     update_cloud_fn = function (content) {
+	log(DEBUG,"Updating cloud with content from string: " + content);
 	evaluated = jQuery.parseJSON(content);
         $("#"+cloud_q_dom_id).html(evaluated.english);
 	log(DEBUG,"Sending request: /game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
 
 	$.ajax({
 	    dataType: "html",
-	    url: "/game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics,
+	    url: "/game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + JSON.stringify(evaluated.semantics),
 	    success: update_answer_fn
 	    });
     }
@@ -204,9 +205,7 @@ function submit_game_response(form_input_id) {
 		are_you_good += 1;
 		log(INFO,"Are you good rating: " + are_you_good);
 		var answer_id = answer.id;
-		$("#"+form_input_id).val("");
-		$("#"+form_input_id).focus();
-	
+		$("#"+form_input_id).val("");	
 		// get the bare id (just an integer), so that we can manipulate related DOM elements.
 		var answer_id = answer.id;	    
 		var re = /cloud_([^_]+)_a/;
@@ -218,6 +217,7 @@ function submit_game_response(form_input_id) {
 		$("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
 		add_clouds();
 	    }
+	    $("#"+form_input_id).focus();
 	}
     });
 }
