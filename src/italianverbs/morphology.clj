@@ -998,6 +998,8 @@
 (defn get-english-1 [word]
   (log/debug (str "get-english-1: " word))
   (cond
+   (ref? word)
+   (get-english-1 @word)
 
    (= word :top)
    ".."
