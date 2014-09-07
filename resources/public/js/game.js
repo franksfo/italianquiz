@@ -11,8 +11,8 @@ var logging_level = INFO;
  var offset=0;
  var this_many_clouds = 3;
 
- // beginners' goodness is 10, but it gets increased when you correctly answer questions.
- var are_you_good = 10;
+ // beginners' maximum speed is 10, but it gets increased when you correctly answer questions.
+ var max_speed = 20;
 
  // how often a droplet falls.
  var rain_time = 1000;
@@ -98,7 +98,7 @@ function add_cloud(cloud_id) {
 	$("#"+lca_dom_id).html(evaluated.lca);
 	$("#"+rca_dom_id).html(evaluated.rca);
 	log(INFO,"Updating question color for dom id: " + cloud_q_dom_id);
-	$("#cloud_"+evaluated.cloud_id).fadeIn(3000,function() {
+	$("#cloud_"+evaluated.cloud_id).fadeIn(1000,function() {
 	    $("#"+cloud_q_dom_id).fadeIn(1000);
 	});
     }
@@ -165,8 +165,8 @@ function blow_cloud(cloud) {
     if (incr < 5) {
         cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.1;
     } else {
-        if (incr < are_you_good) {
-	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.01;
+        if (incr < max_speed) {
+	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.1;
         }
     }
     if (cloud_speeds[cloud_id] < 0) {
@@ -215,8 +215,8 @@ function submit_game_response(form_input_id) {
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
 	    if (answer_text === guess) {
 		log(INFO,"You got one right!");
-		are_you_good += 1;
-		log(INFO,"Are you good rating: " + are_you_good);
+		max_speed += 1;
+		log(DEBUG,"Max speed: " + max_speed);
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");	
 		// get the bare id (just an integer), so that we can manipulate related DOM elements.
@@ -232,7 +232,7 @@ function submit_game_response(form_input_id) {
 		$("#cloud_" + bare_id).fadeOut(2000,function () {$("#cloud_" + bare_id).remove();});
 		$("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
 		add_clouds(1);
-		break; // otherwise user could answer several questions with a single answer.
+		i = answers.length; // break out of loop: only allow user to match a single question.
 	    }
 	}
 	$("#"+form_input_id).focus();
