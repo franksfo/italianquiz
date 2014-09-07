@@ -76,8 +76,14 @@
     (cons (apply the-fn (list (first seq)))
           (map-realize the-fn (rest seq)))))
 
-(defn html-form [spec]
-  spec)
+(defn html-form [question]
+  {:left_context_english "John and I"
+   :middle_english "work"
+   :right_context_english ""
+   :wtf 42
+   :left_context_italian "Gianni e io"
+   :middle_italian "lavoriamo"
+   :right_context_italian ""})
 
 (defn generate-question [request]
   (let [spec
@@ -97,7 +103,17 @@
                  form (html-form spec)]
              (json/write-str
               {:english english
-               :partial-form (html-form spec)
+
+               :lcq (:left_context_english form)
+               :question (:middle_english form)
+               :rcq (:right_context_english form)
+               
+               :wtf (:wtf form)
+
+               :lca (:left_context_italian form)
+               :answer (:middle_italian form)
+               :rca (:right_context_italian form)
+
                :semantics semantics}))}))
 
 (defn generate-answers [request]
@@ -124,9 +140,4 @@
       {:cloud_id (get-in request [:params :cloud_id])
        :semantics semantics
        :italian italian})}))
-
-;     (str "{\"cloud_id\": \"" (get-in request [:params :cloud_id]) "\","
-;          "\"italian\": [" (string/join "," italian) "]"
-;;          "\"semantics\": \"" semantics "\"}")}))
-
 

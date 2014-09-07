@@ -97,9 +97,14 @@ function add_cloud(cloud_id) {
     }
 
     update_cloud_fn = function (content) {
-	log(DEBUG,"Updating cloud with content from string: " + content);
+	log(INFO,"Updating cloud with question content: " + content);
 	evaluated = jQuery.parseJSON(content);
-        $("#"+cloud_q_dom_id).html(evaluated.english);
+	// TODO: avoid munging html like this - it's hard to understand.
+        $("#"+cloud_q_dom_id).html("<span class='lca'>" + evaluated.lca + "</span>" +
+				   "<span class='question' id='question_"+cloud_id+"'> " + evaluated.question + " </span>" +
+				   "<span class='answer'   id='answer_"+cloud_id+"'> </span>" +
+				   "<span class='rca'>" + evaluated.rca + "</span>");
+				   
 	log(DEBUG,"Sending request: /game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
 
 	$.ajax({
