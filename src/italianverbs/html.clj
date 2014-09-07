@@ -692,7 +692,7 @@
    (h/include-css "/css/prettify.css")
    
    ;; (TODO: make remote-or-local configurable)
-   (if true
+   (if false
      (include-css "http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
      (include-css "/css/font-awesome.min.css"))
    (include-css "/css/game.css")
