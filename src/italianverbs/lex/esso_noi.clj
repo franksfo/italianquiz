@@ -307,7 +307,13 @@
                 :sem {:discrete false
                       :pred :impazzire
                       :subj {:animate true}}}
-       :italian {:infinitive "impazzire"}
+       :italian {:infinitive "impazzire"
+                 :irregular {:present {:1sing "impazzisco"
+                                       :2sing "impazzisci"
+                                       :3sing "impazzisce"
+                                       :1plur "impazziamo"
+                                       :2plur "impazzite"
+                                       :3plur "impazziscono"}}}
        :english {:infinitive "to go mad"
                  :irregular {:imperfect {:default "was going mad"
                                          :2sing "were going mad"
