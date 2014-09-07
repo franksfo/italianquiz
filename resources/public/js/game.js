@@ -1,5 +1,5 @@
 // <configurable>
-var logging_level = DEBUG;
+var logging_level = INFO;
 var fa_cloud = "fa-cloud";
 //var fa_cloud = "fa-bicycle";
 //var fa_cloud = "fa-fighter-jet";
@@ -12,13 +12,13 @@ var offset=0;
 var this_many_clouds = 5;
 
 // beginners' goodness is 10, but it gets increased when you correctly answer questions.
-var are_you_good = 1;
+var are_you_good = 10;
 
 // how often a droplet falls.
 var rain_time = 1000;
 // timer for cloud motion interval, in milliseconds.
 // a low blow_time looks smooth but will chow your clients' CPUs.
-var blow_time = 100;
+var blow_time = 300;
 
 var cloud_ceiling = 20;
 var cloud_altitude = function() {
@@ -52,8 +52,8 @@ function add_cloud(cloud_id) {
     log(INFO,"add_cloud(" + cloud_id + ")");
     var size = Math.floor(Math.random()*4) + 1;
     var top = cloud_altitude();
-    var left = 10;
-    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa motion " + fa_cloud + " x"+size+"' style='left:" + left + "%; top: " + top + "px '> </i>");
+    var left = 1;
+    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa motion " + fa_cloud + " x"+size+"' style='display:none;left:" + left + "%; top: " + top + "px '> </i>");
 
     var cloud_q_dom_id = "cloud_" + cloud_id + "_q";
     var cloud_a_dom_id = "cloud_" + cloud_id + "_a";
@@ -73,7 +73,7 @@ function add_cloud(cloud_id) {
 	word_vertical = 180;
     }
 
-    $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='top: " + word_vertical + "px'>" + ".." + "</div>");
+    $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='display:none;top: " + word_vertical + "px'>" + ".." + "</div>");
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
     cloud_speeds["cloud_" + cloud_id] = Math.random()*.10;
@@ -85,10 +85,15 @@ function add_cloud(cloud_id) {
 	log(INFO,"italian length:" + evaluated.italian.length);
 	log(INFO,"cloud_id:" + evaluated.cloud_id);
 	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
+	var cloud_q_dom_id = "cloud_" + evaluated.cloud_id + "_q";
 	log(INFO,"Updating answer input with dom id: " + cloud_a_dom_id);
 	// TODO: pass JSON directly rather than using the DOM as a data store.
 	// Though the DOM has some advantages in that you can use it for presentation purposes.
 	$("#"+cloud_a_dom_id).val(evaluated.italian);
+	log(INFO,"Updating question color for dom id: " + cloud_q_dom_id);
+	$("#cloud_"+evaluated.cloud_id).fadeIn(3000,function() {
+	    $("#"+cloud_q_dom_id).fadeIn(1000);
+	});
     }
 
     update_cloud_fn = function (content) {
@@ -111,48 +116,8 @@ function add_cloud(cloud_id) {
     });
 }
 
-function make_it_rain(svg) {
-    // index_fn: what key to use to compare items for equality.
-    var index_fn = function(d) {return d.name;};
-    var new_x = Math.floor(Math.random()*game_width);
-    newdata_array = [ {"name":"drop" + new_x,
-		       "x":new_x}]; 
-
-    if (existing) {
-	debug("existing:" + 
-	      existing.map(function(a){return a.name;}));
-    }
-    debug("new group:" + 
-		newdata_array.map(function(a){return a.name;}));
-
-    var newdata = svg.selectAll("circle").data(newdata_array,index_fn);
-
-    var cloud = $(".motion")[Math.floor(Math.random()*$(".motion").length)];
-
-    // Add items unique to input_data.
-    newdata.enter().append("circle").
-	attr("cx",function(c) {
-	    var val= parseInt(cloud.style.left.replace('%',''));
-	    return (val + 6) + "%";
-	}).
-	attr("cy",function(c) {return (parseInt(cloud.style.top.replace("px","")) + 130) + "px";}).
-        attr("r", function(c) {return radius;}).
-	attr("class",function(c) {
-	    return c.name;
-	}).
-	transition().duration(rain_time).
-	attr("cy", game_height - (100 + Math.floor(Math.random()*75)));
-    
-    // Remove items not in new data.
-    newdata.exit().transition().duration(rain_time)
-	.style("fill","lightgreen")
-	.style("stroke","lightgreen")
-	.remove();
-
-    existing = newdata_array;
-}
-
 function blow_clouds(i) {
+    log(DEBUG,"blow_clouds(" + i + ")");
     var cloud =  $(".motion")[i];
     if (cloud) {
 	blow_cloud(cloud);
@@ -182,9 +147,9 @@ function blow_cloud(cloud) {
 	cloud_q.style.left = (cloud_left+cloud_q_left_offset) + "%";
     }
 
-    var incr = Math.floor(Math.random()*100);
+    var incr = Math.floor(Math.random()*1000);
     if (incr < 5) {
-        cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.01;
+        cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.1;
     } else {
         if (incr < are_you_good) {
 	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.01;
@@ -235,8 +200,8 @@ function submit_game_response(form_input_id) {
 	    log(DEBUG,"answer_text is:: " + answer_text);
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
 	    if (answer_text === guess) {
-		log(INFO,"YOU GOT ONE RIGHT!");
-		are_you_good += 2;
+		log(INFO,"You got one right!");
+		are_you_good += 1;
 		log(INFO,"Are you good rating: " + are_you_good);
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");
@@ -249,10 +214,51 @@ function submit_game_response(form_input_id) {
 		log(DEBUG,"post_re:(bare):" + bare_id);
 		$("#cloud_" + bare_id + "_q").text(answer_text);
 		$("#cloud_" + bare_id)[0].style.color = "lightgrey";
-		$("#cloud_" + bare_id).fadeOut(3000,function () {$("#cloud_" + bare_id).remove();});
-		$("#cloud_" + bare_id + "_q").fadeOut(3000,function () {$("#cloud_" + bare_id + "_a").remove();});
+		$("#cloud_" + bare_id).fadeOut(2000,function () {$("#cloud_" + bare_id).remove();});
+		$("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
 		add_clouds();
 	    }
 	}
     });
+}
+
+function make_it_rain(svg) {
+    // index_fn: what key to use to compare items for equality.
+    var index_fn = function(d) {return d.name;};
+    var new_x = Math.floor(Math.random()*game_width);
+    newdata_array = [ {"name":"drop" + new_x,
+		       "x":new_x}]; 
+
+    if (existing) {
+	debug("existing:" + 
+	      existing.map(function(a){return a.name;}));
+    }
+    debug("new group:" + 
+		newdata_array.map(function(a){return a.name;}));
+
+    var newdata = svg.selectAll("circle").data(newdata_array,index_fn);
+
+    var cloud = $(".motion")[Math.floor(Math.random()*$(".motion").length)];
+
+    // Add items unique to input_data.
+    newdata.enter().append("circle").
+	attr("cx",function(c) {
+	    var val= parseInt(cloud.style.left.replace('%',''));
+	    return (val + 6) + "%";
+	}).
+	attr("cy",function(c) {return (parseInt(cloud.style.top.replace("px","")) + 130) + "px";}).
+        attr("r", function(c) {return radius;}).
+	attr("class",function(c) {
+	    return c.name;
+	}).
+	transition().duration(rain_time).
+	attr("cy", game_height - (100 + Math.floor(Math.random()*75)));
+    
+    // Remove items not in new data.
+    newdata.exit().transition().duration(rain_time)
+	.style("fill","lightgreen")
+	.style("stroke","lightgreen")
+	.remove();
+
+    existing = newdata_array;
 }
