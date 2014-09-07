@@ -1,6 +1,13 @@
-// config-ish:
-var logging_level = DEBUG;
+// <configurable>
+var cloud_ceiling = 20;
+var cloud_altitude = function() {
+    return cloud_ceiling + Math.floor(Math.random()*10);
+}
 
+var logging_level = DEBUG;
+var fa_cloud = "fa-cloud";
+//var fa_cloud = "fa-bicycle";
+//var fa_cloud = "fa-fighter-jet";
 var background = "white";
 var radius = 15;
 // TODO: get width and height of #game from DOM, not hardcoded.
@@ -11,8 +18,11 @@ var this_many_clouds = 5;
 
 // how often a droplet falls.
 var rain_time = 1000;
-// how often wind blows on clouds
-var blow_time =   30;
+// timer for cloud motion interval, in milliseconds
+var blow_time = 1000;
+
+// </configurable>
+
 
 function start_game() {
     var svg = d3.select("#svgarena");
@@ -39,9 +49,9 @@ var cloud_speeds = {};
 function add_cloud(cloud_id) {
     log(INFO,"add_cloud(" + cloud_id + ")");
     var sz = Math.floor(Math.random()*4) + 1;
-    var top = 20 + Math.floor(Math.random()*10);
-    percent = (100 / this_many_clouds ) * $(".fa-cloud").length;
-    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa fa-cloud x"+sz+"' style='left:" + percent + "%; top: " + top + "px '> </i>");
+    var top = cloud_altitude();
+    var percent = (100 / this_many_clouds ) * $(".motion").length;
+    $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa motion " + fa_cloud + " x"+sz+"' style='left:" + percent + "%; top: " + top + "px '> </i>");
 
     var cloud_q_dom_id = "cloud_" + cloud_id + "_q";
     var cloud_a_dom_id = "cloud_" + cloud_id + "_a";
@@ -64,7 +74,7 @@ function add_cloud(cloud_id) {
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='top: " + word_vertical + "px'>" + ".." + "</div>");
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
-    cloud_speeds["cloud_" + cloud_id] = Math.random()*.08;
+    cloud_speeds["cloud_" + cloud_id] = Math.random()*.20;
 
     update_answer_fn = function(content) {
 	log(INFO,"answer: " + content);
@@ -112,7 +122,7 @@ function make_it_rain(svg) {
 
     var newdata = svg.selectAll("circle").data(newdata_array,index_fn);
 
-    var cloud = $(".fa-cloud")[Math.floor(Math.random()*$(".fa-cloud").length)];
+    var cloud = $(".motion")[Math.floor(Math.random()*$(".motion").length)];
 
     // Add items unique to input_data.
     newdata.enter().append("circle").
@@ -138,7 +148,7 @@ function make_it_rain(svg) {
 }
 
 function blow_clouds(i) {
-    var cloud =  $(".fa-cloud")[i];
+    var cloud =  $(".motion")[i];
     if (cloud) {
 	blow_cloud(cloud);
 	blow_clouds(i+1);
@@ -168,10 +178,10 @@ function blow_cloud(cloud) {
     }
 
     var incr = Math.floor(Math.random()*100);
-    if (incr < 2) {
+    if (incr < 0) {
         cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.01;
     } else {
-        if (incr < 4) {
+        if (incr < 0) {
 	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.01;
         }
     }
@@ -216,6 +226,7 @@ function submit_game_response(form_input_id) {
 		log(INFO,"YOU GOT ONE RIGHT! INDEX=" + answer);
 		$("#cloud_" + answer + "_q").text(answer_text);
 		$("#cloud_" + answer)[0].style.color = "lightgrey";
+		$("#cloud_" + answer).fadeOut("slow");
 		$("#" + answer_id).remove();
 		add_clouds(1);
 	    }

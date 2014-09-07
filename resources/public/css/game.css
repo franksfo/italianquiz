@@ -105,7 +105,7 @@
     width:10em;
 }
 
-#sky .fa-cloud {
+#sky .motion {
     -webkit-text-stroke: 1px lightgrey;
     text-shadow:
     -1px -1px 0 lightgrey,
@@ -204,4 +204,6 @@ circle {
 
 .cloud_answer {
     display:block;
+    width:90%;
+    font-size:50%;
 }
