@@ -74,21 +74,28 @@
     (cons (apply the-fn (list (first seq)))
           (map-realize the-fn (rest seq)))))
 
+(defn partial-form [spec]
+  42)
+
 (defn generate-question [request]
-  {:status 200
-   :headers {"Content-Type" "application/json;charset=utf-8"}
-   :body (let [question (gen/generate {:head {:phrasal false}
-                                      :comp {:phrasal false}
-                                      :synsem {:infl :present
-                                               :cat :verb
-                                               :subcat '()}}
-                                     en/grammar
-                                     lex/lexicon
-                                     en/cache)
-               semantics (strip-refs (get-in question [:synsem :sem]))
-               english (morph/remove-parens (morph/get-english (:english question)))]
-           (str "{\"english\": \"" english "\",
- \"semantics\": \"" semantics "\"}"))})
+  (let [spec
+        {:head {:phrasal false}
+         :comp {:phrasal false}
+         :synsem {:infl :present
+                  :cat :verb
+                  :subcat '()}}]
+    {:status 200
+     :headers {"Content-Type" "application/json;charset=utf-8"}
+     :body (let [question (gen/generate spec
+                                        en/grammar
+                                        lex/lexicon
+                                        en/cache)
+                 semantics (strip-refs (get-in question [:synsem :sem]))
+                 english (morph/remove-parens (morph/get-english (:english question)))
+                 partial-form (partial-form spec)]
+             (str "{\"english\": \"" english "\","
+                   "\"partial-form\": \"" partial-form "\","
+                   "\"semantics\": \"" semantics "\"}"))}))
 
 (defn generate-answers [request]
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
@@ -104,8 +111,11 @@
                               it/grammar
                               lex/lexicon
                               it/cache))]
-    (str "{\"cloud_id\": \"" (get-in request [:params :cloud_id]) "\","
+    {:status 200
+     :headers {"Content-Type" "application/json;charset=utf-8"}
+     :body
+     (str "{\"cloud_id\": \"" (get-in request [:params :cloud_id]) "\","
           "\"italian\": [" (string/join "," italian) "], "
-          "\"semantics\": \"" semantics "\"}")))
+          "\"semantics\": \"" semantics "\"}")}))
 
 
