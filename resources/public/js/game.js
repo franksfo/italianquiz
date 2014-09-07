@@ -18,7 +18,8 @@ var this_many_clouds = 5;
 
 // how often a droplet falls.
 var rain_time = 1000;
-// timer for cloud motion interval, in milliseconds
+// timer for cloud motion interval, in milliseconds.
+// a low blow_time looks smooth but will chow your clients' CPUs.
 var blow_time = 1000;
 
 // </configurable>
@@ -181,10 +182,10 @@ function blow_cloud(cloud) {
     }
 
     var incr = Math.floor(Math.random()*100);
-    if (incr < 0) {
+    if (incr < 5) {
         cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.01;
     } else {
-        if (incr < 0) {
+        if (incr < 10) {
 	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.01;
         }
     }
@@ -222,35 +223,35 @@ function submit_game_response(form_input_id) {
     log(DEBUG,"submit_game_response: " + guess);
 
     var matched_q = $(".cloud_answer").map(function(answer) {
-	if ($(".cloud_answer")[answer] != undefined) {
-	    var answer = $(".cloud_answer")[answer];
-	    var answers = answer.value.split(",");
-	    log(DEBUG,"Answers: " + answers);
+	answer = $(".cloud_answer")[answer];
+	log(DEBUG,"ANSWER: " + answer);
+	var answers = answer.value.split(",");
+	log(DEBUG,"Answers: " + answers);
 	    
-	    var i;
-	    for (i = 0; i < answers.length; i++) {
-		var answer_text = answers[i];
-		log(DEBUG,"answer_text is:: " + answer_text);
-		log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
-		if (answer_text === guess) {
-		    log(INFO,"YOU GOT ONE RIGHT! ID=" + answer.id);
-		    if (answer != undefined) {
-			var answer_id = answer.id;
-			
-			$("#cloud_" + answer_id + "_q").text(answer_text);
-			$("#cloud_" + answer)[0].style.color = "lightgrey";
-			$("#cloud_" + answer).fadeOut("slow");
-			$("#cloud_" + answer + "_q").fadeOut("slow");
-			$("#cloud_" + answer_id +).remove();
-			add_clouds(1);
-		    } else {
-			log(INFO,"something very weird happened..the answer was undefined.");
-			log(WARN,"something very weird happened..the answer was undefined.");
-		    }
+	var i;
+	for (i = 0; i < answers.length; i++) {
+	    var answer_text = answers[i];
+	    log(DEBUG,"answer_text is:: " + answer_text);
+	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
+	    if (answer_text === guess) {
+		log(INFO,"YOU GOT ONE RIGHT! ID=" + answer.id);
+		var answer_id = answer.id;
+		$("#"+form_input_id).val("");
+		$("#"+form_input_id).focus();
 
-		}
+	
+		// get the bare id (just an integer), so that we can manipulate related DOM elements:
+		var answer_id = answer.id;	    
+		var re = /cloud_([^_]+)_a/;
+		answer_id = answer_id.replace(re,"$1");
+		log(DEBUG,"post_re:(bare):" + answer_id);
+		$("#cloud_" + answer_id + "_q").text(answer_text);
+		$("#cloud_" + answer_id)[0].style.color = "lightgrey";
+		$("#cloud_" + answer_id).fadeOut(3000);
+		$("#cloud_" + answer_id + "_q").fadeOut(3000);
+		$("#cloud_" + answer_id + "_a").remove();
+		add_clouds(1);
 	    }
 	}
-	});
-
+    });
 }
