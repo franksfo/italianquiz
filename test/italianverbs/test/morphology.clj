@@ -760,7 +760,7 @@
             :gender :fem, 
             :case :top, 
             :number :plur}]
-    (is (= (get-italian lpr) "le professoresse robuste "))))
+    (is (= (get-italian lpr) "le professoresse robuste"))))
 
 
 (deftest la-professoressa-corta
@@ -784,7 +784,7 @@
             :gender :fem, 
             :case :top, 
             :number :sing}]
-    (is (= (get-italian lpr) "la professoressa corta "))))
+    (is (= (get-italian lpr) "la professoressa corta"))))
 
 (deftest la-casa-nuova
   (let [la-casa-nuova {:a "la"
