@@ -38,9 +38,9 @@
 
       [:i {:class "fa fa-tree x2" :style "left:1%; top:-10%" }]
 
-      [:i {:class "fa fa-tree x1" :style "left:25%; top:5%" }]
+      [:i {:class "fa fa-tree x1" :style "left:25%; top:-15%" }]
 
-      [:i {:class "fa fa-tree x2" :style "left:50%; top:-35%" }]
+      [:i {:class "fa fa-tree x2" :style "left:50%; top:-5%" }]
 
       [:i {:class "fa fa-tree x3" :style "left:75%;top:-50%" }]
 
