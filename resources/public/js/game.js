@@ -234,7 +234,7 @@ function submit_game_response(form_input_id) {
 	    log(DEBUG,"answer_text is:: " + answer_text);
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
 	    if (answer_text === guess) {
-		log(INFO,"YOU GOT ONE RIGHT! ID=" + answer.id);
+		log(INFO,"YOU GOT ONE RIGHT!");
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");
 		$("#"+form_input_id).focus();
