@@ -93,7 +93,6 @@
 (defn generate-answers [request]
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
-  (log/info (str "type of request semantics: " (type (read-string (get-in request [:params :semantics])))))
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
   (let [semantics (read-string (get-in request [:params :semantics]))
         italian (map-realize #(str "\"" (morph/get-italian
