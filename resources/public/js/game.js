@@ -2,7 +2,7 @@
 var logging_level = INFO;
  var fa_cloud = "fa-cloud";
  //var fa_cloud = "fa-bicycle";
- //var fa_cloud = "fa-fighter-jet";
+// var fa_cloud = "fa-fighter-jet";
  var background = "white";
  var radius = 15;
  // TODO: get width and height of #game from DOM, not hardcoded.
@@ -12,13 +12,16 @@ var logging_level = INFO;
  var this_many_clouds = 3;
 
  // beginners' maximum speed is 10, but it gets increased when you correctly answer questions.
+ var current_speed_limit = 10;
+
+ var min_speed = 5;
  var max_speed = 20;
 
  // how often a droplet falls.
  var rain_time = 1000;
  // timer for cloud motion interval, in milliseconds.
  // a low blow_time looks smooth but will chow your clients' CPUs.
- var blow_time = 300;
+ var blow_time = 100;
 
  var cloud_ceiling = 20;
  var cloud_altitude = function() {
@@ -77,7 +80,7 @@ function add_cloud(cloud_id) {
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='display:none;top: " + word_vertical + "px'>" + ".." + "</div>");
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
-    cloud_speeds["cloud_" + cloud_id] = Math.random()*.20;
+    cloud_speeds["cloud_" + cloud_id] = Math.random()*.50;
 
     update_answer_fn = function(content) {
 	log(INFO,"Updating answer input with content: " + content);
@@ -97,9 +100,9 @@ function add_cloud(cloud_id) {
 	$("#"+cloud_a_dom_id).val(evaluated.answer);
 	$("#"+lca_dom_id).html(evaluated.lca);
 	$("#"+rca_dom_id).html(evaluated.rca);
-	log(INFO,"Updating question color for dom id: " + cloud_q_dom_id);
-	$("#cloud_"+evaluated.cloud_id).fadeIn(1000,function() {
-	    $("#"+cloud_q_dom_id).fadeIn(1000);
+	log(DEBUG,"Updating question color for dom id: " + cloud_q_dom_id);
+	$("#cloud_"+evaluated.cloud_id).fadeIn(500,function() {
+	    $("#"+cloud_q_dom_id).fadeIn(100);
 	});
     }
 
@@ -144,13 +147,14 @@ function blow_cloud(cloud) {
     var cloud_id = cloud.id;
     cloud.style.left = (cloud_left + cloud_speeds[cloud_id])+"%";
 
-    if (cloud_left < 0) {
-	// wrap clouds on left of screen.
-	cloud.style.left = "95%";
-    }
     if (cloud_left > 99) {
 	// wrap clouds on right of screen.
-	cloud.style.left = "1%";
+	cloud.style.left = "-1%";
+	// slow down: user is struggling.
+	if (current_speed_limit > min_speed) {
+	    current_speed_limit--;
+	}
+	log(INFO,"After missing one, your current speed is: " + current_speed_limit);
     }
 
     var cloud_q_left_offset = 2;
@@ -161,20 +165,31 @@ function blow_cloud(cloud) {
 	cloud_q.style.left = (cloud_left+cloud_q_left_offset) + "%";
     }
 
-    var incr = Math.floor(Math.random()*1000);
+    if (cloud_speeds[cloud_id] < 0) {
+	cloud_speeds[cloud_id] = 0.1;
+	return;
+    }
+
+    if (cloud_speeds[cloud_id] > 5) {
+	cloud_speeds[cloud_id] = 5;
+	return;
+    }
+
+
+    var incr = Math.floor(Math.random()*100);
+
+
     if (incr < 5) {
         cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.1;
+	log(INFO,"cloud " + cloud_id + " slowed down to: " + cloud_speeds[cloud_id]);
     } else {
-        if (incr < max_speed) {
+        if (incr < current_speed_limit) {
 	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.1;
+	    log(INFO,"cloud " + cloud_id + " sped up to: " + cloud_speeds[cloud_id]);
         }
     }
-    if (cloud_speeds[cloud_id] < 0) {
-	cloud_speeds[cloud_id] = 0;
-    }
-    if (cloud_speeds[cloud_id] > 10) {
-	cloud_speeds[cloud_id] = 5;
-    }
+
+
 
 }
 
@@ -215,8 +230,11 @@ function submit_game_response(form_input_id) {
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
 	    if (answer_text === guess) {
 		log(INFO,"You got one right!");
-		max_speed += 1;
-		log(DEBUG,"Max speed: " + max_speed);
+		if (current_speed_limit < max_speed) {
+		    current_speed_limit += 1;
+		}
+		log(INFO,"After getting one, your current speed is: " + current_speed_limit);
+		log(DEBUG,"Max speed: " + current_speed_limit);
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");	
 		// get the bare id (just an integer), so that we can manipulate related DOM elements.
@@ -229,8 +247,8 @@ function submit_game_response(form_input_id) {
 		$("#answer_" + bare_id).html(answer_text);
 
 		$("#cloud_" + bare_id)[0].style.color = "lightgrey";
-		$("#cloud_" + bare_id).fadeOut(2000,function () {$("#cloud_" + bare_id).remove();});
-		$("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
+		$("#cloud_" + bare_id).fadeOut(4000,function () {$("#cloud_" + bare_id).remove();});
+		$("#cloud_" + bare_id + "_q").fadeOut(4000,function () {$("#cloud_" + bare_id + "_a").remove();});
 		add_clouds(1);
 		i = answers.length; // break out of loop: only allow user to match a single question.
 	    }
