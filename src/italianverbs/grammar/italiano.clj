@@ -6,7 +6,7 @@
    [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
    [italianverbs.forest :as forest :exclude [generate]]
    [italianverbs.lexicon :refer :all]
-   [italianverbs.morphology :refer :all]
+   [italianverbs.morphology :as :morph]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer :all]))
 
