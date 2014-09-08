@@ -36,8 +36,22 @@
      
      [:div#sky ]
 
-     [:div#ground
+     [:div#correction_dialog {:style "display:none"}
 
+      [:form {:onsubmit "return false;"}
+       [:h2 "Correct answer"]
+       [:h3#correct_answer "..goes here.." ]
+       [:input {:id "correction_bare_id" :style "display:none"}]
+       [:input {:id "correction_input" :size "50"}]
+       
+       [:button {:class "click"
+                 :onclick "submit_correction_response('correction_input'); event.preventDefault(); return false;"} "Answer" ]
+       ];; end of :form
+     
+      ] ;; end of :div #correction_dialog
+
+     [:div#ground
+      
       [:i {:class "fa fa-tree x2" :style "left:1%; top:-10%" }]
 
       [:i {:class "fa fa-tree x1" :style "left:25%; top:-15%" }]

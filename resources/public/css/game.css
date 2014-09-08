@@ -23,7 +23,7 @@
     position:relative;
     padding:1em;
     float:left;
-    left:33%;
+    left:25%;
     width:auto;
     border:0px dashed green;
 }
@@ -102,6 +102,26 @@
     font-size:150%;
     width:10em;
 }
+
+#correction_dialog {
+    float:left;
+    padding:0.5em;
+    z-index:5;
+    position:fixed;
+    left:25%;
+    top:25%;
+    width: 50%;
+    height: 30%;
+    background:azure;
+    border:lightblue 2px solid;
+}
+
+#correction_dialog h3 {
+    width:80%;
+    text-align:right;
+    background:none
+}
+
 
 #sky .motion {
     -webkit-text-stroke: 1px lightgrey;
@@ -218,6 +238,10 @@ circle {
     display:none;
     width:90%;
     font-size:50%;
+}
+
+.solved {
+    color:lightgrey;
 }
 
 span.lca,span.rca {

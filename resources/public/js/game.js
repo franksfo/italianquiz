@@ -15,7 +15,7 @@ var logging_level = INFO;
  var current_speed_limit = 10;
 
  var min_speed = 5;
- var max_speed = 20;
+ var max_speed = 15;
 
  // how often a droplet falls.
  var rain_time = 1000;
@@ -30,16 +30,31 @@ var logging_level = INFO;
 
  // </configurable>
 
- function start_game() {
-     var svg = d3.select("#svgarena");
-     add_clouds(this_many_clouds);
+var wind_is_frozen = false;
 
-     $("#game_input").focus();
+function freeze_wind() {
+    wind_is_frozen = true;
+}
 
-     setInterval(function() {
-	 blow_clouds(0);
-     },blow_time);
- }
+function unfreeze_wind() {
+    wind_is_frozen = false;
+}
+
+function start_game() {
+    var svg = d3.select("#svgarena");
+    add_clouds(this_many_clouds);
+    
+    $("#game_input").focus();
+    
+    setInterval(function() {
+	if (wind_is_frozen == false) {
+	    blow_clouds(0);
+	} else {
+	    log(DEBUG,"WIND IS FROZEN..");
+
+	}
+    },blow_time);
+}
 
  var global_cloud_id = 0;
 
@@ -82,14 +97,13 @@ function add_cloud(cloud_id) {
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='display:none;top: " + word_vertical + "px'>" + ".." + "</div>");
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
-    // start nice and slow
+    // start nice and slow.
     cloud_speeds["cloud_" + cloud_id] = Math.random()*0.010;
+//    cloud_speeds["cloud_" + cloud_id] = 1;
 
     update_answer_fn = function(content) {
-	log(INFO,"Updating answer input with content: " + content);
 	evaluated  = jQuery.parseJSON(content);
-	log(INFO,"italian:" + evaluated.italian);
-	log(INFO,"cloud_id:" + evaluated.cloud_id);
+
 	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
 	var cloud_q_dom_id = "cloud_" + evaluated.cloud_id + "_q";
 
@@ -110,7 +124,7 @@ function add_cloud(cloud_id) {
     }
 
     update_cloud_fn = function (content) {
-	log(INFO,"Updating cloud with question content: " + content);
+	log(DEBUG,"Updating cloud with question content: " + content);
 	evaluated = jQuery.parseJSON(content);
 	// TODO: avoid munging html like this - it's hard to understand.
         $("#"+cloud_q_dom_id).html("<span class='lca' id='lca_"+cloud_id+"'>" + "(fill me in1)" + "</span>" +
@@ -146,19 +160,70 @@ function blow_clouds(i) {
     }
 }
 
+function submit_correction_response(form_input_id) {
+    log(INFO,"GOT HERE: YOU SUBMITTED A CORRECTION");
+    var guess = $("#"+form_input_id).val();
+    if (guess === $("#correct_answer").html()) {
+	log(INFO,"Good! you got it right.");
+	var bare_id = $("#correction_bare_id").val();
+	log(INFO,"bare_id: " + bare_id);
+	log(INFO,"Clearing dialog..");
+	$("#correction_dialog")[0].style.display = "none";
+	log(INFO,"Cleared dialog.");
+	log(INFO,"Cleaning up cloud: " + bare_id);
+	clean_up_cloud_quickly(bare_id,guess,"game_input");
+	unfreeze_wind();
+    } else {
+	log(INFO,"Sorry, keep trying.");
+	$("#"+form_input_id).val("");	
+	$("#"+form_input_id).focus();
+    }
+    log(INFO,"DONE HANDLING CORRECTION.");
+    return false;
+}
+
+// http://stackoverflow.com/questions/895171/prevent-users-from-submitting-form-by-hitting-enter
+$("form").bind("keypress", function (e) {
+    if (e.keyCode == 13) {
+        return false;
+    }
+});
+
+function correction_dialog(correct_answer,bare_id) {
+    $("#correction_dialog")[0].style.display = "block";
+    $("#correction_input").val("");
+    $("#correction_input").focus();
+    $("#correction_bare_id").val(bare_id);
+    $("#correct_answer").html(correct_answer);
+}
+
+function correct_user(cloud) {
+    log(INFO,"correcting user on cloud: " + cloud.id);
+    freeze_wind();
+    // get the bare id (just an integer), so that we can manipulate related DOM elements.
+    var re = /cloud_([^_]+)/;
+    bare_id = cloud.id.replace(re,"$1");
+    var answer_text = $("#cloud_" + bare_id + "_a").val();
+    correction_dialog(answer_text,bare_id);
+}
+
 function blow_cloud(cloud) {
     var cloud_left= parseFloat(cloud.style.left.replace('%',''));
     var cloud_id = cloud.id;
     cloud.style.left = (cloud_left + cloud_speeds[cloud_id])+"%";
 
-    if (cloud_left > 97) {
-	// wrap clouds on right of screen.
-	cloud.style.left = "-1%";
-	// slow down: user is struggling.
-	if (current_speed_limit > min_speed) {
-	    current_speed_limit--;
+    if (cloud_left > 90) {
+	if (cloud.getAttribute("class").match(/solved/)) {
+	    log(INFO,"You solved this one, no correction needed..");
+	} else {
+	    correct_user(cloud);
+
+	    // slow down: user is struggling.
+	    if (current_speed_limit > min_speed) {
+		current_speed_limit--;
+	    }
+	    log(INFO,"After missing one, your current speed is: " + current_speed_limit);
 	}
-	log(INFO,"After missing one, your current speed is: " + current_speed_limit);
     }
 
     var cloud_q_left_offset = 2;
@@ -183,11 +248,11 @@ function blow_cloud(cloud) {
 
     if (incr < 5) {
         cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.1;
-	log(INFO,"cloud " + cloud_id + " slowed down to: " + cloud_speeds[cloud_id]);
+	log(DEBUG,"cloud " + cloud_id + " slowed down to: " + cloud_speeds[cloud_id]);
     } else {
         if (incr < current_speed_limit) {
 	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.05;
-	    log(INFO,"cloud " + cloud_id + " sped up to: " + cloud_speeds[cloud_id]);
+	    log(DEBUG,"cloud " + cloud_id + " sped up to: " + cloud_speeds[cloud_id]);
         }
     }
 }
@@ -209,6 +274,26 @@ function keys(arg) {
     return Object.keys(arg);
 }
 var existing = null;
+
+function clean_up_cloud(bare_id,answer_text,form_input_id) {
+    // TODO: make 'solved' lightgrey.
+    $("#cloud_" + bare_id)[0].style.color = "lightgrey";
+    $("#cloud_" + bare_id).addClass("solved");
+    $("#question_" + bare_id).remove();
+    $("#answer_" + bare_id).html(answer_text);
+
+    $("#cloud_" + bare_id).fadeOut(4000,function () {$("#cloud_" + bare_id).remove();});
+    $("#cloud_" + bare_id + "_q").fadeOut(4000,function () {$("#cloud_" + bare_id + "_a").remove();});
+    $("#"+form_input_id).focus();
+    add_clouds(1);
+}
+
+function clean_up_cloud_quickly(bare_id,answer_text,form_input_id) {
+    $("#cloud_" + bare_id).remove();
+    $("#cloud_" + bare_id + "_q").remove();
+    $("#"+form_input_id).focus();
+    add_clouds(1);
+}
 
 // TODO: pass the answers in as a javascript array rather than having to parse them from the HTML input value.
 function submit_game_response(form_input_id) {
@@ -240,21 +325,12 @@ function submit_game_response(form_input_id) {
 		log(DEBUG,"Max speed: " + current_speed_limit);
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");	
-		// get the bare id (just an integer), so that we can manipulate related DOM elements.
+
 		var answer_id = answer.id;	    
+		// get the bare id (just an integer), so that we can manipulate related DOM elements.
 		var re = /cloud_([^_]+)_a/;
 		bare_id = answer_id.replace(re,"$1");
-		log(DEBUG,"post_re:(bare):" + bare_id);
-//		$("#cloud_" + bare_id + "_q").text(answer_text);
-		$("#question_" + bare_id).remove();
-		$("#answer_" + bare_id).html(answer_text);
-
-		$("#cloud_" + bare_id)[0].style.color = "lightgrey";
-		$("#cloud_" + bare_id).fadeOut(4000,function () {$("#cloud_" + bare_id).remove();});
-		$("#cloud_" + bare_id + "_q").fadeOut(4000,function () {$("#cloud_" + bare_id + "_a").remove();});
-		$("#"+form_input_id).focus();
-		add_clouds(1);
-		return; // break out of loop: only allow user to match a single question.
+		clean_up_cloud(bare_id,answer_text,form_input_id);
 	    }
 	}
 	// no matches if we got here.
