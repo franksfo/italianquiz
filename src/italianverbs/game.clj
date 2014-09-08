@@ -52,13 +52,14 @@
      ] ;; end of :div#rainforest
 
     [:div#gameform
-     ;; no form: we are not submitting the form - instead javascript handles the user's guessed submission.
-     [:input {:id "game_input" :size "50"}]
+     [:form
+      [:input {:id "game_input" :size "50"}]
      
-     [:button {:class "click"
-               :onclick "submit_game_response('game_input'); return false;"} "Answer" ]
+      [:button {:class "click"
+                :onclick "submit_game_response('game_input'); return false;"} "Answer" ]
      
-     ] ;; end of :div #gameform
+      ] ;; end of :div #gameform
+     ]
     ] ;; end of :div #game
 ) ; html5/div
 
