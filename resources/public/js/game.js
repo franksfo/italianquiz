@@ -215,8 +215,11 @@ function submit_game_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
 
     log(DEBUG,"submit_game_response: " + guess);
-
+    var matched = false;
     var matched_q = $(".cloud_answer").map(function(answer) {
+	if (matched == true) {
+	    return;
+	}
 	answer = $(".cloud_answer")[answer];
 	log(DEBUG,"ANSWER: " + answer);
 	var answers = answer.value.split(",");
@@ -228,6 +231,7 @@ function submit_game_response(form_input_id) {
 	    log(DEBUG,"answer_text is:: " + answer_text);
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
 	    if (answer_text === guess) {
+		matched = true;
 		log(INFO,"You got one right!");
 		if (current_speed_limit < max_speed) {
 		    current_speed_limit += 1;
