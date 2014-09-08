@@ -21,7 +21,7 @@ var logging_level = INFO;
  var rain_time = 1000;
  // timer for cloud motion interval, in milliseconds.
  // a low blow_time looks smooth but will chow your clients' CPUs.
- var blow_time = 100;
+ var blow_time = 50;
 
  var cloud_ceiling = 20;
  var cloud_altitude = function() {
