@@ -243,7 +243,10 @@
 
 (defn standard-benchmark [ & [ trials ]]
   (let [trials
-        (if (nil? trials) 1 trials)]
+        (cond (string? trials)
+              (. Integer parseInt trials)
+              (nil? trials) 1
+              true trials)]
     (do (standard-benchmark-it trials)
         (standard-benchmark-en trials)
         (standard-benchmark-it2en trials))))
