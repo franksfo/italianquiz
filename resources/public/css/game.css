@@ -28,8 +28,6 @@
     border:0px dashed green;
 }
 
-
-
 #rainforest {
     z-index:0;
     border:0px dashed blue;
@@ -116,20 +114,34 @@
     color:azure;
 }
 
-.x1 {
+i.x1 {
     font-size:100px;
 }
 
-.x2 {
+span.x1 {
+    font-size:100px;
+}
+
+i.x2 {
     font-size:150px;
 }
 
-.x3 {
+span.x2 {
+}
+
+i.x3 {
     font-size:205px;
 }
 
-.x4 {
+span.x3 {
+}
+
+
+i.x4 {
     font-size:250px;
+}
+
+span.x4 {
 }
 
 #sky .partly-stormy {
@@ -213,6 +225,7 @@ span.lca,span.rca {
 
 span.question {
     font-size:85%;
+    font-style:italic;
     color:darkgrey;
 }
 
