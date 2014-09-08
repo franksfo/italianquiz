@@ -34,6 +34,8 @@ var logging_level = INFO;
      var svg = d3.select("#svgarena");
      add_clouds(this_many_clouds);
 
+     $("#game_input").focus();
+
      setInterval(function() {
 	 blow_clouds(0);
      },blow_time);
@@ -246,12 +248,14 @@ function submit_game_response(form_input_id) {
 		$("#cloud_" + bare_id)[0].style.color = "lightgrey";
 		$("#cloud_" + bare_id).fadeOut(4000,function () {$("#cloud_" + bare_id).remove();});
 		$("#cloud_" + bare_id + "_q").fadeOut(4000,function () {$("#cloud_" + bare_id + "_a").remove();});
+		$("#"+form_input_id).focus();
 		add_clouds(1);
-		i = answers.length; // break out of loop: only allow user to match a single question.
+		return; // break out of loop: only allow user to match a single question.
 	    }
 	}
+	// no matches if we got here.
+	log(WARN,"Your guess: '" + guess + "' did not match any answers.");
 	$("#"+form_input_id).focus();
-
     });
 }
 
