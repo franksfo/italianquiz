@@ -1,12 +1,12 @@
 // <configurable>
 var logging_level = INFO;
- var fa_cloud = "fa-cloud";
- //var fa_cloud = "fa-bicycle";
+var fa_cloud = "fa-cloud";
+//var fa_cloud = "fa-bicycle";
 // var fa_cloud = "fa-fighter-jet";
- var background = "white";
- var radius = 15;
- // TODO: get width and height of #game from DOM, not hardcoded.
- var game_width = 1000;
+var background = "white";
+var radius = 15;
+// TODO: get width and height of #game from DOM, not hardcoded.
+var game_width = 1000;
  var game_height = 500;
  var offset=0;
  var this_many_clouds = 3;
@@ -301,21 +301,38 @@ function submit_game_response(form_input_id) {
 
     log(DEBUG,"submit_game_response: " + guess);
     var matched = false;
+
+    // try all of the possible remaining questions, as represented by the
+    // set of class='cloud_answer' DOM elements; stopping at the first one.
     var matched_q = $(".cloud_answer").map(function(answer) {
 	if (matched == true) {
 	    return;
 	}
 	answer = $(".cloud_answer")[answer];
 	log(DEBUG,"ANSWER: " + answer);
+
+	var answer_id = answer.id;	    
+	// get the bare id (just an integer), so that we can manipulate related DOM elements.
+	var re = /cloud_([^_]+)_a/;
+	bare_id = answer_id.replace(re,"$1");
+	var cloud = $("#cloud_" + bare_id)[0];
+	log(INFO,"The cloud: " + cloud);
+	var classes = cloud.getAttribute("class")
+	log(INFO,"The classes: " + classes);
+	matched = classes.match(/solved/);
+	log(INFO,"MATCHED: " + matched);
+
+
+	// A given question may have more than one possible right answer, separated by commmas.
 	var answers = answer.value.split(",");
 	log(DEBUG,"Answers: " + answers);
-	    
+
 	var i;
 	for (i = 0; i < answers.length; i++) {
 	    var answer_text = answers[i];
 	    log(DEBUG,"answer_text is:: " + answer_text);
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
-	    if (answer_text === guess) {
+	    if ((answer_text === guess) && (matched == null)) {
 		matched = true;
 		log(INFO,"You got one right!");
 		if (current_speed_limit < max_speed) {
@@ -325,11 +342,6 @@ function submit_game_response(form_input_id) {
 		log(DEBUG,"Max speed: " + current_speed_limit);
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");	
-
-		var answer_id = answer.id;	    
-		// get the bare id (just an integer), so that we can manipulate related DOM elements.
-		var re = /cloud_([^_]+)_a/;
-		bare_id = answer_id.replace(re,"$1");
 		clean_up_cloud(bare_id,answer_text,form_input_id);
 	    }
 	}
