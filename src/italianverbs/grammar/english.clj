@@ -1,14 +1,11 @@
 (ns italianverbs.grammar.english
-  (:refer-clojure :exclude [get-in merge resolve])
+  (:refer-clojure :exclude [get-in])
   (:require 
-   [clojure.set :only (union intersection)]
    [clojure.tools.logging :as log]
-   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
-   [italianverbs.forest :as forest :exclude [generate]]
+   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases)]
    [italianverbs.lexicon :refer :all]
-   [italianverbs.morphology :refer :all]
    [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer :all]))
+   [italianverbs.unify :refer (get-in unifyc)]))
 
 (def hc-agreement
   (let [agr (ref :top)]
