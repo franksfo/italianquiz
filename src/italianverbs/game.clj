@@ -52,10 +52,10 @@
      ] ;; end of :div#rainforest
 
     [:div#gameform
-      [:input {:id "game_input" :size "50"}]
+     [:input {:id "game_input" :size "50"}]
 
-      [:button {:class "click"
-                :onclick "submit_game_response('game_input');"} "Answer" ]
+     [:button {:class "click"
+               :onclick "submit_game_response('game_input');"} "Answer" ]
       
      ] ;; end of :div #gameform
 
@@ -96,7 +96,11 @@
                   :cat :verb
                   :subcat '()}}]
     {:status 200
-     :headers {"Content-Type" "application/json;charset=utf-8"}
+     :headers {"Content-Type" "application/json;charset=utf-8"
+               
+               "Cache-Control" "no-cache, no-store, must-revalidate"
+               "Pragma" "no-cache"
+               "Expires" "0"}
      :body (let [question (gen/generate spec
                                         en/grammar
                                         lex/lexicon

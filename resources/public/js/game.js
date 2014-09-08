@@ -80,7 +80,8 @@ function add_cloud(cloud_id) {
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='display:none;top: " + word_vertical + "px'>" + ".." + "</div>");
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
-    cloud_speeds["cloud_" + cloud_id] = Math.random()*.50;
+    // start nice and slow
+    cloud_speeds["cloud_" + cloud_id] = Math.random()*0.010;
 
     update_answer_fn = function(content) {
 	log(INFO,"Updating answer input with content: " + content);
@@ -127,6 +128,7 @@ function add_cloud(cloud_id) {
 
     // fill in the cloud's q in the background.
     $.ajax({
+	cache: false,
         dataType: "html",
         url: "/game/generate-question",
         success: update_cloud_fn
@@ -175,22 +177,17 @@ function blow_cloud(cloud) {
 	return;
     }
 
-
     var incr = Math.floor(Math.random()*100);
-
 
     if (incr < 5) {
         cloud_speeds[cloud_id] = cloud_speeds[cloud_id] - 0.1;
 	log(INFO,"cloud " + cloud_id + " slowed down to: " + cloud_speeds[cloud_id]);
     } else {
         if (incr < current_speed_limit) {
-	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.1;
+	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.05;
 	    log(INFO,"cloud " + cloud_id + " sped up to: " + cloud_speeds[cloud_id]);
         }
     }
-
-
-
 }
 
 function debug(str) {
