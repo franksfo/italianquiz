@@ -149,7 +149,7 @@ function blow_cloud(cloud) {
     var cloud_id = cloud.id;
     cloud.style.left = (cloud_left + cloud_speeds[cloud_id])+"%";
 
-    if (cloud_left > 99) {
+    if (cloud_left > 97) {
 	// wrap clouds on right of screen.
 	cloud.style.left = "-1%";
 	// slow down: user is struggling.
