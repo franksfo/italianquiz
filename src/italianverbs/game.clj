@@ -65,10 +65,10 @@
     [:div#gameform
       [:input {:id "game_input" :size "50"}]
      
-      [:button#answer_button {:class "click"
+      [:button#answer_button {:class "click;float:right;width:auto"
                              :onclick "submit_game_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
      
-      [:button#correct_button {:style "display:none" :class "click"
+      [:button#correct_button {:style "click;display:none;float:right;width:auto;" :class "click"
                               :onclick "submit_correction_response('game_input'); event.preventDefault(); return false;"} "Correction" ]
 
 

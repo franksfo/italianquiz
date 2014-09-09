@@ -175,7 +175,7 @@ function normal_returnkey_mode() {
 }
 
 function correction_returnkey_mode() {
-    log(INFO,"CORRECTION RETURNKEY MODE.");
+/*    log(INFO,"CORRECTION RETURNKEY MODE.");
     $(document).ready(function() {
 	$(window).keydown(function(event){
 	    if(event.keyCode == 13) {
@@ -184,7 +184,7 @@ function correction_returnkey_mode() {
 		return false;
 	    }
 	});
-    });
+    });*/
 }
 
 function submit_correction_response(form_input_id) {
@@ -192,6 +192,7 @@ function submit_correction_response(form_input_id) {
     log(INFO,"Got here: you are trying to correct the response with your guess: " + guess);
     if (guess === $("#correct_answer").html()) {
 	log(INFO,"Good! you got it right; you can continue with the game.");
+	$("#"+form_input_id).val("");	
 	var bare_id = $("#correction_bare_id").val();
 	log(INFO,"bare_id: " + bare_id);
 	log(INFO,"Clearing dialog..");
@@ -205,8 +206,8 @@ function submit_correction_response(form_input_id) {
 	normal_returnkey_mode();
     } else {
 	log(INFO,"Sorry, keep trying.");
-	$("#game_input").val("");	
-	$("#game_input").focus();
+	$("#"+form_input_id).val("");	
+	$("#"+form_input_id).focus();
     }
 }
 
