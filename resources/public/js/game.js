@@ -295,21 +295,25 @@ function clean_up_cloud_quickly(bare_id,answer_text,form_input_id) {
     add_clouds(1);
 }
 
-// TODO: pass the answers in as a javascript array rather than having to parse them from the HTML input value.
+// Submits the user's guess and look at the available questions to see if the user
+// got one of them right. It's possible that the user's guess might be correct for more
+// than one question, but only one question may be solved by a single guess.
+// TODO: pass the answers in as a javascript array rather than having to parse
+// them from the HTML input value.
 function submit_game_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
 
-    log(DEBUG,"submit_game_response: " + guess);
+    log(DEBUG,"submit_game_response(): " + guess);
     var matched = false;
 
     // try all of the possible remaining questions, as represented by the
     // set of class='cloud_answer' DOM elements; stopping at the first one.
     var matched_q = $(".cloud_answer").map(function(answer) {
 	if (matched == true) {
-	    return;
+	    return false;
 	}
 	answer = $(".cloud_answer")[answer];
-	log(DEBUG,"ANSWER: " + answer);
+	log(DEBUG,"Answer: " + answer);
 
 	var answer_id = answer.id;	    
 	// get the bare id (just an integer), so that we can manipulate related DOM elements.
@@ -319,9 +323,8 @@ function submit_game_response(form_input_id) {
 	log(INFO,"The cloud: " + cloud);
 	var classes = cloud.getAttribute("class")
 	log(INFO,"The classes: " + classes);
-	matched = classes.match(/solved/);
-	log(INFO,"MATCHED: " + matched);
-
+	solved = classes.match(/solved/);
+	log(INFO,"Solved: " + solved);
 
 	// A given question may have more than one possible right answer, separated by commmas.
 	var answers = answer.value.split(",");
@@ -332,7 +335,7 @@ function submit_game_response(form_input_id) {
 	    var answer_text = answers[i];
 	    log(DEBUG,"answer_text is:: " + answer_text);
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
-	    if ((answer_text === guess) && (matched == null)) {
+	    if ((answer_text === guess) && (solved == null)) {
 		matched = true;
 		log(INFO,"You got one right!");
 		if (current_speed_limit < max_speed) {
@@ -343,6 +346,7 @@ function submit_game_response(form_input_id) {
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");	
 		clean_up_cloud(bare_id,answer_text,form_input_id);
+		return false;
 	    }
 	}
 	// no matches if we got here.
