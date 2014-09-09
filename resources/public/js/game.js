@@ -41,6 +41,7 @@ function unfreeze_wind() {
 }
 
 function start_game() {
+    normal_returnkey_mode();
     var svg = d3.select("#svgarena");
     add_clouds(this_many_clouds);
     
@@ -160,51 +161,79 @@ function blow_clouds(i) {
     }
 }
 
+function normal_returnkey_mode() {
+    log(INFO,"NORMAL RETURNKEY MODE.");
+    $(document).ready(function() {
+	$(window).keydown(function(event){
+	    if(event.keyCode == 13) {
+		log(INFO,"YOU PRESSED RETURN IN NORMAL MODE.");
+		submit_game_response('game_input');
+		return false;
+	    }
+	});
+    });
+}
+
+function correction_returnkey_mode() {
+    log(INFO,"CORRECTION RETURNKEY MODE.");
+    $(document).ready(function() {
+	$(window).keydown(function(event){
+	    if(event.keyCode == 13) {
+		log(INFO,"YOU PRESSED RETURN IN CORRECTION MODE.");
+		submit_correction_response('game_input');
+		return false;
+	    }
+	});
+    });
+}
+
 function submit_correction_response(form_input_id) {
-    log(INFO,"GOT HERE: YOU SUBMITTED A CORRECTION");
     var guess = $("#"+form_input_id).val();
+    log(INFO,"Got here: you are trying to correct the response with your guess: " + guess);
     if (guess === $("#correct_answer").html()) {
-	log(INFO,"Good! you got it right.");
+	log(INFO,"Good! you got it right; you can continue with the game.");
 	var bare_id = $("#correction_bare_id").val();
 	log(INFO,"bare_id: " + bare_id);
 	log(INFO,"Clearing dialog..");
 	$("#correction_dialog")[0].style.display = "none";
+	$("#correct_button")[0].style.display = "none";
+	$("#answer_button")[0].style.display = "block";
 	log(INFO,"Cleared dialog.");
 	log(INFO,"Cleaning up cloud: " + bare_id);
 	clean_up_cloud_quickly(bare_id,guess,"game_input");
 	unfreeze_wind();
+	normal_returnkey_mode();
     } else {
 	log(INFO,"Sorry, keep trying.");
-	$("#"+form_input_id).val("");	
-	$("#"+form_input_id).focus();
+	$("#game_input").val("");	
+	$("#game_input").focus();
     }
-    log(INFO,"DONE HANDLING CORRECTION.");
-    return false;
 }
 
-// http://stackoverflow.com/questions/895171/prevent-users-from-submitting-form-by-hitting-enter
-$("form").bind("keypress", function (e) {
-    if (e.keyCode == 13) {
-        return false;
-    }
-});
-
-function correction_dialog(correct_answer,bare_id) {
+function correction_dialog(question_lca_text,question_text,correct_answer,bare_id) {
     $("#correction_dialog")[0].style.display = "block";
+    $("#correct_button")[0].style.display = "block";
+    $("#answer_button")[0].style.display = "none";
     $("#correction_input").val("");
     $("#correction_input").focus();
     $("#correction_bare_id").val(bare_id);
+    $("#cd_lca").html(question_lca_text);
     $("#correct_answer").html(correct_answer);
 }
 
 function correct_user(cloud) {
+    $("#game_input").val("");	
+    $("#game_input").focus();
+    correction_returnkey_mode();
     log(INFO,"correcting user on cloud: " + cloud.id);
     freeze_wind();
     // get the bare id (just an integer), so that we can manipulate related DOM elements.
     var re = /cloud_([^_]+)/;
     bare_id = cloud.id.replace(re,"$1");
     var answer_text = $("#cloud_" + bare_id + "_a").val();
-    correction_dialog(answer_text,bare_id);
+    var question_lca_text = $("#lca_" + bare_id).text();
+    var question_text = $("#question_" + bare_id).text();
+    correction_dialog(question_lca_text,question_text,answer_text,bare_id);
 }
 
 function blow_cloud(cloud) {
@@ -282,8 +311,8 @@ function clean_up_cloud(bare_id,answer_text,form_input_id) {
     $("#question_" + bare_id).remove();
     $("#answer_" + bare_id).html(answer_text);
 
-    $("#cloud_" + bare_id).fadeOut(4000,function () {$("#cloud_" + bare_id).remove();});
-    $("#cloud_" + bare_id + "_q").fadeOut(4000,function () {$("#cloud_" + bare_id + "_a").remove();});
+    $("#cloud_" + bare_id).fadeOut(1000,function () {$("#cloud_" + bare_id).remove();});
+    $("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
     $("#"+form_input_id).focus();
     add_clouds(1);
 }
@@ -310,6 +339,7 @@ function submit_game_response(form_input_id) {
     // set of class='cloud_answer' DOM elements; stopping at the first one.
     var matched_q = $(".cloud_answer").map(function(answer) {
 	if (matched == true) {
+	    $("#"+form_input_id).focus();
 	    return false;
 	}
 	answer = $(".cloud_answer")[answer];
@@ -324,7 +354,10 @@ function submit_game_response(form_input_id) {
 	var classes = cloud.getAttribute("class")
 	log(INFO,"The classes: " + classes);
 	solved = classes.match(/solved/);
-	log(INFO,"Solved: " + solved);
+	if (solved != null) {
+	    $("#"+form_input_id).focus();
+	    return false;
+	}
 
 	// A given question may have more than one possible right answer, separated by commmas.
 	var answers = answer.value.split(",");
@@ -352,6 +385,7 @@ function submit_game_response(form_input_id) {
 	// no matches if we got here.
 	log(WARN,"Your guess: '" + guess + "' did not match any answers.");
 	$("#"+form_input_id).focus();
+	$("#"+form_input_id).val("");
     });
 }
 

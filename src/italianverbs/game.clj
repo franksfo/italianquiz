@@ -32,21 +32,18 @@
       [:div#q3 "yet"]
 
       ]
-
      
      [:div#sky ]
 
      [:div#correction_dialog {:style "display:none"}
 
       [:form {:onsubmit "return false;"}
-       [:h2 "Correct answer"]
-       [:h3#correct_answer "..goes here.." ]
-       [:input {:id "correction_bare_id" :style "display:none"}]
-       [:input {:id "correction_input" :size "50"}]
-       
-       [:button {:class "click"
-                 :onclick "submit_correction_response('correction_input'); event.preventDefault(); return false;"} "Answer" ]
-       ];; end of :form
+       [:div#cd_lca {:class "correct_answer" } "" ]
+       [:div#cd_rca {:class "correct_answer" } "" ]
+       [:h3#correct_answer "" ]
+       [:input {:id "correction_bare_id" :type "hidden"}]
+       ]
+      ;; end of :form
      
       ] ;; end of :div #correction_dialog
 
@@ -66,14 +63,16 @@
      ] ;; end of :div#rainforest
 
     [:div#gameform
-     [:form
       [:input {:id "game_input" :size "50"}]
      
-      [:button {:class "click"
-                :onclick "submit_game_response('game_input'); return false;"} "Answer" ]
+      [:button#answer_button {:class "click"
+                             :onclick "submit_game_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
      
+      [:button#correct_button {:style "display:none" :class "click"
+                              :onclick "submit_correction_response('game_input'); event.preventDefault(); return false;"} "Correction" ]
+
+
       ] ;; end of :div #gameform
-     ]
     ] ;; end of :div #game
 ) ; html5/div
 
@@ -131,11 +130,11 @@
                :rcq (:right_context_english form)}))}))
 
 (defn generate-answers [request]
+  "generate a single sentence according to the request."
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
-  (log/info (str "semantics (request string json):" (get-in request [:params :semantics])))
-  (log/info (str "semantics (decoded clojure map):" (json/read-str (get-in request [:params :semantics]))))
+  (log/info (str "semantics:" (json/read-str (get-in request [:params :semantics]))))
   (let [semantics (json/read-str (get-in request [:params :semantics])
                                  :key-fn keyword)
         generated (gen/generate
