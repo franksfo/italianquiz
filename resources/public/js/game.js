@@ -30,14 +30,15 @@ var game_width = 1000;
 
  // </configurable>
 
-var wind_is_frozen = false;
+// 'freezed' rather than 'frozen' in order to make freeze-related functionality more easily searchable.
+var wind_is_freezed = false;
 
 function freeze_wind() {
-    wind_is_frozen = true;
+    wind_is_freezed = true;
 }
 
 function unfreeze_wind() {
-    wind_is_frozen = false;
+    wind_is_freezed = false;
 }
 
 function start_game() {
@@ -48,7 +49,7 @@ function start_game() {
     $("#game_input").focus();
     
     setInterval(function() {
-	if (wind_is_frozen == false) {
+	if (wind_is_freezed == false) {
 	    blow_clouds(0);
 	} else {
 	    log(DEBUG,"WIND IS FROZEN..");
@@ -161,7 +162,21 @@ function blow_clouds(i) {
     }
 }
 
+// http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
+/*$("#id_of_textbox").keyup(function(event){
+    if(event.keyCode == 13){
+        $("#id_of_button").click();
+    }
+});*/
+
+
 function normal_returnkey_mode() {
+/*$("#id_of_textbox").keyup(function(event){
+    if(event.keyCode == 13){
+        $("#id_of_button").click();
+    }
+});*/
+
     log(INFO,"NORMAL RETURNKEY MODE.");
     $(document).ready(function() {
 	$(window).keydown(function(event){
@@ -175,21 +190,28 @@ function normal_returnkey_mode() {
 }
 
 function correction_returnkey_mode() {
-/*    log(INFO,"CORRECTION RETURNKEY MODE.");
+/*$("#id_of_textbox").keyup(function(event){
+    if(event.keyCode == 13){
+        $("#id_of_button").click();
+    }
+});*/
+    log(INFO,"CORRECTION RETURNKEY MODE.");
     $(document).ready(function() {
 	$(window).keydown(function(event){
 	    if(event.keyCode == 13) {
 		log(INFO,"YOU PRESSED RETURN IN CORRECTION MODE.");
+		log(INFO,"YOUR GUESS: " + $("#game_input").val());
 		submit_correction_response('game_input');
 		return false;
 	    }
 	});
-    });*/
+    });
 }
 
 function submit_correction_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
-    log(INFO,"Got here: you are trying to correct the response with your guess: " + guess);
+    log(DEBUG,"submit_correction_response(): " + guess);
+
     if (guess === $("#correct_answer").html()) {
 	log(INFO,"Good! you got it right; you can continue with the game.");
 	$("#"+form_input_id).val("");	
@@ -212,14 +234,15 @@ function submit_correction_response(form_input_id) {
 }
 
 function correction_dialog(question_lca_text,question_text,correct_answer,bare_id) {
+    log(INFO,"correction_dialog: populating with stuff.");
     $("#correction_dialog")[0].style.display = "block";
-    $("#correct_button")[0].style.display = "block";
-    $("#answer_button")[0].style.display = "none";
-    $("#correction_input").val("");
-    $("#correction_input").focus();
+    $("#game_input").val("");
+    $("#game_input").focus();
     $("#correction_bare_id").val(bare_id);
+    $("#answer_button")[0].innerHTML = "Correct";
     $("#cd_lca").html(question_lca_text);
     $("#correct_answer").html(correct_answer);
+    log(INFO,"correction_dialog: done populating.");
 }
 
 function correct_user(cloud) {
@@ -234,6 +257,10 @@ function correct_user(cloud) {
     var answer_text = $("#cloud_" + bare_id + "_a").val();
     var question_lca_text = $("#lca_" + bare_id).text();
     var question_text = $("#question_" + bare_id).text();
+    log(INFO,"calling correction_dialog() with: " + question_lca_text + "," +
+	question_text + "," +
+	answer_text + "," +
+	bare_id);
     correction_dialog(question_lca_text,question_text,answer_text,bare_id);
 }
 
@@ -332,8 +359,8 @@ function clean_up_cloud_quickly(bare_id,answer_text,form_input_id) {
 // them from the HTML input value.
 function submit_game_response(form_input_id) {
     var guess = $("#"+form_input_id).val();
-
     log(DEBUG,"submit_game_response(): " + guess);
+
     var matched = false;
 
     // try all of the possible remaining questions, as represented by the
@@ -351,11 +378,11 @@ function submit_game_response(form_input_id) {
 	var re = /cloud_([^_]+)_a/;
 	bare_id = answer_id.replace(re,"$1");
 	var cloud = $("#cloud_" + bare_id)[0];
-	log(INFO,"The cloud: " + cloud);
 	var classes = cloud.getAttribute("class")
-	log(INFO,"The classes: " + classes);
+	log(INFO,"This cloud has the following classes: " + classes);
 	solved = classes.match(/solved/);
 	if (solved != null) {
+	    log(INFO,"This cloud has already been solved; returning false.");
 	    $("#"+form_input_id).focus();
 	    return false;
 	}

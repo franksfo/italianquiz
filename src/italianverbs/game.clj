@@ -44,8 +44,10 @@
        [:input {:id "correction_bare_id" :type "hidden"}]
        ]
       ;; end of :form
-     
+
       ] ;; end of :div #correction_dialog
+
+
 
      [:div#ground
       
@@ -68,10 +70,6 @@
       [:button#answer_button {:class "click;float:right;width:auto"
                              :onclick "submit_game_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
      
-      [:button#correct_button {:style "click;display:none;float:right;width:auto;" :class "click"
-                              :onclick "submit_correction_response('game_input'); event.preventDefault(); return false;"} "Correction" ]
-
-
       ] ;; end of :div #gameform
     ] ;; end of :div #game
 ) ; html5/div
