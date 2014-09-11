@@ -313,7 +313,7 @@ function correction_dialog(question_lca_text,question_text,correct_answer,bare_i
     $("#game_input").focus();
     $("#correction_bare_id").val(bare_id);
     $("#answer_button")[0].innerHTML = "Correct";
-    $("#cd_lca").html(question_lca_text);
+    $("#cd_lca").html(question_lca_text + " .."); // show some elipses to help user hopefully:
     $("#correct_answer").html(correct_answer);
     log(INFO,"correction_dialog: done populating.");
 }
