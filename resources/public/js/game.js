@@ -102,15 +102,20 @@ function add_cloud(cloud_id) {
     $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='display:none;top: " + word_vertical + "px'>" + ".." + "</div>");
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
-    // start nice and slow.
-    cloud_speeds["cloud_" + cloud_id] = Math.random()*0.010;
-//    cloud_speeds["cloud_" + cloud_id] = 1;
+    // clouds are stopped until answer arrives from server via an asynchronous update.
+    cloud_speeds["cloud_" + cloud_id] = 0;
 
     update_answer_fn = function(content) {
 	evaluated  = jQuery.parseJSON(content);
 
 	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
 	var cloud_q_dom_id = "cloud_" + evaluated.cloud_id + "_q";
+
+	// start nice and slow.
+	cloud_speeds["cloud_" + cloud_id] = Math.random()*0.010;
+	// other possibilities:
+	//    cloud_speeds["cloud_" + cloud_id] = Math.random()*0.001;
+	//    cloud_speeds["cloud_" + cloud_id] = 0.1;
 
 	var lca_dom_id = "lca_" + evaluated.cloud_id;
 	var answer_dom_id = "answer_" + evaluated.cloud_id;
