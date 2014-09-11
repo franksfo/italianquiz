@@ -132,7 +132,7 @@ function add_cloud(cloud_id) {
 	log(DEBUG,"Updating cloud with question content: " + content);
 	evaluated = jQuery.parseJSON(content);
 	// TODO: avoid munging html like this - it's hard to understand.
-        $("#"+cloud_q_dom_id).html("<span class='lca' id='lca_"+cloud_id+"'>" + "(fill me in1)" + "</span>" +
+        $("#"+cloud_q_dom_id).html("<span class='lca' id='lca_"+cloud_id+"'>" + "..(having trouble, please wait..).." + "</span>" +
 				   "<span class='question' id='question_"+cloud_id+"'> " + evaluated.question + " </span>" +
 				   "<span class='spacing'> </span>" +
 				   "<span class='answer'   id='answer_"+cloud_id+"'> </span>" +
