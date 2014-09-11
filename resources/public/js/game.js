@@ -28,6 +28,9 @@ var game_width = 1000;
      return cloud_ceiling + Math.floor(Math.random()*70);
  }
 
+var in_correction_mode = false;
+
+
  // </configurable>
 
 // 'freezed' rather than 'frozen' in order to make freeze-related functionality more easily searchable.
@@ -162,50 +165,120 @@ function blow_clouds(i) {
     }
 }
 
-// http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
-/*$("#id_of_textbox").keyup(function(event){
-    if(event.keyCode == 13){
-        $("#id_of_button").click();
+function submit_game_response(form_input_id) {
+    if (in_correction_mode) {
+	submit_correction_response(form_input_id);
+    } else {
+	submit_normal_response(form_input_id);
     }
-});*/
+}
 
+// Submits the user's guess and look at the available questions to see if the user
+// got one of them right. It's possible that the user's guess might be correct for more
+// than one question, but only one question may be solved by a single guess.
+// TODO: pass the answers in as a javascript array rather than having to parse
+// them from the HTML input value.
+function submit_normal_response(form_input_id) {
+    var guess = $("#"+form_input_id).val();
+    log(DEBUG,"submit_game_response(): " + guess);
 
-function normal_returnkey_mode() {
-/*$("#id_of_textbox").keyup(function(event){
-    if(event.keyCode == 13){
-        $("#id_of_button").click();
-    }
-});*/
+    var matched = false;
 
-    log(INFO,"NORMAL RETURNKEY MODE.");
-    $(document).ready(function() {
-	$(window).keydown(function(event){
-	    if(event.keyCode == 13) {
-		log(INFO,"YOU PRESSED RETURN IN NORMAL MODE.");
-		submit_game_response('game_input');
+    // try all of the possible remaining questions, as represented by the
+    // set of class='cloud_answer' DOM elements; stopping at the first one.
+    var matched_q = $(".cloud_answer").map(function(answer) {
+	if (matched == true) {
+	    $("#"+form_input_id).focus();
+	    return false;
+	}
+	answer = $(".cloud_answer")[answer];
+	log(DEBUG,"Answer: " + answer);
+
+	var answer_id = answer.id;	    
+	// get the bare id (just an integer), so that we can manipulate related DOM elements.
+	var re = /cloud_([^_]+)_a/;
+	bare_id = answer_id.replace(re,"$1");
+	log(INFO,"Looking for cloud with bare_id: " + bare_id);
+	log(INFO,"Answer_id is: " + answer_id);
+	var cloud = $("#cloud_" + bare_id)[0];
+	if (cloud == undefined) {
+	    log(INFO,"cloud with bare_id" + bare_id + " was undefined! giving up on it.");
+	    return false;
+	}
+	var classes = cloud.getAttribute("class")
+	log(INFO,"This cloud has the following classes: " + classes);
+	solved = classes.match(/solved/);
+	if (solved != null) {
+	    log(INFO,"This cloud has already been solved; returning false.");
+	    $("#"+form_input_id).focus();
+	    return false;
+	}
+
+	// A given question may have more than one possible right answer, separated by commmas.
+	var answers = answer.value.split(",");
+	log(DEBUG,"Answers: " + answers);
+
+	var i;
+	for (i = 0; i < answers.length; i++) {
+	    var answer_text = answers[i];
+	    log(DEBUG,"answer_text is:: " + answer_text);
+	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
+	    if ((answer_text === guess) && (solved == null)) {
+		matched = true;
+		log(INFO,"You got one right!");
+		if (current_speed_limit < max_speed) {
+		    current_speed_limit += 1;
+		}
+		log(INFO,"After getting one, your current speed is: " + current_speed_limit);
+		log(DEBUG,"Max speed: " + current_speed_limit);
+		var answer_id = answer.id;
+		$("#"+form_input_id).val("");	
+		clean_up_cloud(bare_id,answer_text,form_input_id);
 		return false;
 	    }
-	});
+	}
+	// no matches if we got here.
+	log(WARN,"Your guess: '" + guess + "' did not match any answers.");
+	$("#"+form_input_id).focus();
+	if (false) { // false: I don't think we want to zero out user's input,
+	    // even if it's wrong.
+	    $("#"+form_input_id).val("");
+	}
     });
 }
 
-function correction_returnkey_mode() {
-/*$("#id_of_textbox").keyup(function(event){
-    if(event.keyCode == 13){
-        $("#id_of_button").click();
-    }
-});*/
-    log(INFO,"CORRECTION RETURNKEY MODE.");
-    $(document).ready(function() {
-	$(window).keydown(function(event){
-	    if(event.keyCode == 13) {
-		log(INFO,"YOU PRESSED RETURN IN CORRECTION MODE.");
-		log(INFO,"YOUR GUESS: " + $("#game_input").val());
-		submit_correction_response('game_input');
-		return false;
+// http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
+function normal_returnkey_mode() {
+    in_correction_mode = false;
+    $("#game_input").keyup(function(event){
+	if(event.keyCode == 13){
+	    if (in_correction_mode == true) {
+		log(WARN,"Correction mode is true but unexpectedly the normal keyup function got called. No worries, though; transferring you right over to where you need to be.");
+		submit_correction_response("form_input");
+		log(INFO,"Finished recovering from getting unexpectedly in normal_returnkey_mode.");
+		return;
 	    }
-	});
+
+	    log(INFO,"It's time to kick some ass with your normal-mode excellent guess: " + $("#game_input").val());
+	    log(INFO,"In correction mode is: " + in_correction_mode);
+	    log(INFO,"Correction mode IS FALSE (right?): " + in_correction_mode);
+            $("#answer_button").click();
+	}
     });
+    log(INFO,"You are doing great! NORMAL RETURNKEY MODE.");
+}
+
+function correction_returnkey_mode() {
+    in_correction_mode = true;
+    $("#game_input").keyup(function(event){
+	if(event.keyCode == 13){
+	    log(INFO,"It's time to pick yourself up and dust yourself off with your correction: " + $("#game_input").val());
+	    log(INFO,"Correction mode IS TRUE (right?): " + in_correction_mode);
+            $("#answer_button").click();
+	}
+    });
+    log(INFO,"Sadly you are in need of a more basic kind of learning. CORRECTION RETURNKEY MODE.");
+    in_correction_mode = true;
 }
 
 function submit_correction_response(form_input_id) {
@@ -213,19 +286,19 @@ function submit_correction_response(form_input_id) {
     log(DEBUG,"submit_correction_response(): " + guess);
 
     if (guess === $("#correct_answer").html()) {
+	// User is out of the penalty box, yay!
 	log(INFO,"Good! you got it right; you can continue with the game.");
 	$("#"+form_input_id).val("");	
 	var bare_id = $("#correction_bare_id").val();
 	log(INFO,"bare_id: " + bare_id);
 	log(INFO,"Clearing dialog..");
 	$("#correction_dialog")[0].style.display = "none";
-	$("#correct_button")[0].style.display = "none";
-	$("#answer_button")[0].style.display = "block";
 	log(INFO,"Cleared dialog.");
 	log(INFO,"Cleaning up cloud: " + bare_id);
 	clean_up_cloud_quickly(bare_id,guess,"game_input");
 	unfreeze_wind();
 	normal_returnkey_mode();
+	$("#answer_button")[0].innerHTML = "Answer";
     } else {
 	log(INFO,"Sorry, keep trying.");
 	$("#"+form_input_id).val("");	
@@ -234,7 +307,7 @@ function submit_correction_response(form_input_id) {
 }
 
 function correction_dialog(question_lca_text,question_text,correct_answer,bare_id) {
-    log(INFO,"correction_dialog: populating with stuff.");
+    log(INFO,"Popping up the correction_dialog and populating it with stuff.");
     $("#correction_dialog")[0].style.display = "block";
     $("#game_input").val("");
     $("#game_input").focus();
@@ -246,8 +319,13 @@ function correction_dialog(question_lca_text,question_text,correct_answer,bare_i
 }
 
 function correct_user(cloud) {
-    $("#game_input").val("");	
+    if (false) { // false: do not kill user's input, even though it is wrong..
+	// let them work with what they have.
+	$("#game_input").val("");
+    }
+
     $("#game_input").focus();
+    log(INFO,"switching to correction mode.");
     correction_returnkey_mode();
     log(INFO,"correcting user on cloud: " + cloud.id);
     freeze_wind();
@@ -279,7 +357,7 @@ function blow_cloud(cloud) {
 	    if (current_speed_limit > min_speed) {
 		current_speed_limit--;
 	    }
-	    log(INFO,"After missing one, your current speed is: " + current_speed_limit);
+	    log(DEBUG,"After slowing down due to a miss, your current speed is: " + current_speed_limit);
 	}
     }
 
@@ -350,71 +428,6 @@ function clean_up_cloud_quickly(bare_id,answer_text,form_input_id) {
     $("#cloud_" + bare_id + "_q").remove();
     $("#"+form_input_id).focus();
     add_clouds(1);
-}
-
-// Submits the user's guess and look at the available questions to see if the user
-// got one of them right. It's possible that the user's guess might be correct for more
-// than one question, but only one question may be solved by a single guess.
-// TODO: pass the answers in as a javascript array rather than having to parse
-// them from the HTML input value.
-function submit_game_response(form_input_id) {
-    var guess = $("#"+form_input_id).val();
-    log(DEBUG,"submit_game_response(): " + guess);
-
-    var matched = false;
-
-    // try all of the possible remaining questions, as represented by the
-    // set of class='cloud_answer' DOM elements; stopping at the first one.
-    var matched_q = $(".cloud_answer").map(function(answer) {
-	if (matched == true) {
-	    $("#"+form_input_id).focus();
-	    return false;
-	}
-	answer = $(".cloud_answer")[answer];
-	log(DEBUG,"Answer: " + answer);
-
-	var answer_id = answer.id;	    
-	// get the bare id (just an integer), so that we can manipulate related DOM elements.
-	var re = /cloud_([^_]+)_a/;
-	bare_id = answer_id.replace(re,"$1");
-	var cloud = $("#cloud_" + bare_id)[0];
-	var classes = cloud.getAttribute("class")
-	log(INFO,"This cloud has the following classes: " + classes);
-	solved = classes.match(/solved/);
-	if (solved != null) {
-	    log(INFO,"This cloud has already been solved; returning false.");
-	    $("#"+form_input_id).focus();
-	    return false;
-	}
-
-	// A given question may have more than one possible right answer, separated by commmas.
-	var answers = answer.value.split(",");
-	log(DEBUG,"Answers: " + answers);
-
-	var i;
-	for (i = 0; i < answers.length; i++) {
-	    var answer_text = answers[i];
-	    log(DEBUG,"answer_text is:: " + answer_text);
-	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
-	    if ((answer_text === guess) && (solved == null)) {
-		matched = true;
-		log(INFO,"You got one right!");
-		if (current_speed_limit < max_speed) {
-		    current_speed_limit += 1;
-		}
-		log(INFO,"After getting one, your current speed is: " + current_speed_limit);
-		log(DEBUG,"Max speed: " + current_speed_limit);
-		var answer_id = answer.id;
-		$("#"+form_input_id).val("");	
-		clean_up_cloud(bare_id,answer_text,form_input_id);
-		return false;
-	    }
-	}
-	// no matches if we got here.
-	log(WARN,"Your guess: '" + guess + "' did not match any answers.");
-	$("#"+form_input_id).focus();
-	$("#"+form_input_id).val("");
-    });
 }
 
 function make_it_rain(svg) {
