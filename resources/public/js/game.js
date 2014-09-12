@@ -344,7 +344,7 @@ function correct_user(cloud) {
 function blow_cloud(cloud) {
     var cloud_id = cloud.id;
     if (cloud_speeds[cloud_id] == undefined) {
-	log(INFO,"Cloud can't blow until it gets an answer.");
+	log(DEBUG,"Cloud can't blow until it gets an answer.");
 	return;
     } else {
 	log(DEBUG,"Cloud is ready to blow.");
