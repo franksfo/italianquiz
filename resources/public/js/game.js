@@ -103,7 +103,7 @@ function add_cloud(cloud_id) {
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
     // clouds are stopped until answer arrives from server via an asynchronous update.
-    cloud_speeds["cloud_" + cloud_id] = 0;
+    cloud_speeds["cloud_" + cloud_id] = undefined;
 
     update_answer_fn = function(content) {
 	evaluated  = jQuery.parseJSON(content);
@@ -112,7 +112,7 @@ function add_cloud(cloud_id) {
 	var cloud_q_dom_id = "cloud_" + evaluated.cloud_id + "_q";
 
 	// start nice and slow.
-	cloud_speeds["cloud_" + cloud_id] = Math.random()*0.010;
+	cloud_speeds["cloud_" + evaluated.cloud_id] = Math.random()*0.010;
 	// other possibilities:
 	//    cloud_speeds["cloud_" + cloud_id] = Math.random()*0.001;
 	//    cloud_speeds["cloud_" + cloud_id] = 0.1;
@@ -314,7 +314,6 @@ function submit_correction_response(form_input_id) {
 function correction_dialog(question_lca_text,question_text,correct_answer,bare_id) {
     log(INFO,"Popping up the correction_dialog and populating it with stuff.");
     $("#correction_dialog")[0].style.display = "block";
-    $("#game_input").val("");
     $("#game_input").focus();
     $("#correction_bare_id").val(bare_id);
     $("#answer_button")[0].innerHTML = "Correct";
@@ -324,11 +323,6 @@ function correction_dialog(question_lca_text,question_text,correct_answer,bare_i
 }
 
 function correct_user(cloud) {
-    if (false) { // false: do not kill user's input, even though it is wrong..
-	// let them work with what they have.
-	$("#game_input").val("");
-    }
-
     $("#game_input").focus();
     log(INFO,"switching to correction mode.");
     correction_returnkey_mode();
@@ -348,6 +342,14 @@ function correct_user(cloud) {
 }
 
 function blow_cloud(cloud) {
+    var cloud_id = cloud.id;
+    if (cloud_speeds[cloud_id] == undefined) {
+	log(INFO,"Cloud can't blow until it gets an answer.");
+	return;
+    } else {
+	log(DEBUG,"Cloud is ready to blow.");
+    }
+
     var cloud_left= parseFloat(cloud.style.left.replace('%',''));
     var cloud_id = cloud.id;
     cloud.style.left = (cloud_left + cloud_speeds[cloud_id])+"%";
