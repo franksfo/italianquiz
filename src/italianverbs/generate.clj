@@ -6,8 +6,6 @@
    [clojure.tools.logging :as log]
 
    [italianverbs.forest :as forest]
-   [italianverbs.grammar.english :as en]
-   [italianverbs.grammar.italiano :as it]
    [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer :all]
@@ -51,21 +49,6 @@
         (forest/generate spec grammar lexicon cache)]
     (log/info (str "generated this many: " (.size result)))
     result))
-
-(defn generate-from [spec]
-  (if (seq? spec)
-    (map (fn [each]
-           (generate-from each))
-         spec)
-    (let [italiano
-          (generate spec it/grammar lexicon it/cache)]
-      {:italiano italiano
-       :english
-       (generate (unifyc spec
-                         {:synsem {:sem (get-in italiano [:synsem :sem])}})
-                 en/grammar
-                 lexicon
-                 en/cache)})))
 
 ;; This sentence generation prevents initialization errors that occur when trying to
 ;; generate sentences within the sandbox.

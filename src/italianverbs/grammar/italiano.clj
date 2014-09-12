@@ -1,11 +1,19 @@
 (ns italianverbs.grammar.italiano
-  (:refer-clojure :exclude [get-in])
+  (:refer-clojure :exclude [get-in merge resolve])
   (:require 
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases)]
+   [italianverbs.generate :as gen]
    [italianverbs.lexicon :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
+
+(declare cache)
+(defn generate [spec grammar]
+  (gen/generate spec
+                grammar
+                lexicon
+                cache))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -297,7 +305,6 @@
                   {:synsem {:modal ref}
                    :head {:synsem {:modal ref}}}))
         true phrase))
-
 
 (def grammar
   (map (fn [phrase]

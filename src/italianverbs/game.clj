@@ -143,13 +143,11 @@
   (log/info (str "semantics:" (json/read-str (get-in request [:params :semantics]))))
   (let [semantics (json/read-str (get-in request [:params :semantics])
                                  :key-fn keyword)
-        generated (gen/generate
+        generated (it/generate
                    {:synsem {:sem semantics}
                     :head {:phrasal false}
                     :comp {:phrasal false}}
-                   mini-italian-grammar
-                   lex/lexicon
-                   it/cache)
+                   mini-italian-grammar)
 
         italian (morph/get-italian
                  (:italian generated))]
