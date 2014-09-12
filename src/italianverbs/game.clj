@@ -92,13 +92,20 @@
   (do
     (log/info (str "question: " (morph/fo question)))
     (log/info (str "head english: " @(get-in question [:head :english])))
-    {;:left_context_english "John and I"
-     :left_context_english (morph/remove-parens (morph/get-english (get-in question [:comp :english])))
+    {:left_context_english (morph/remove-parens (morph/get-english (get-in question [:comp :english])))
      :middle_english (morph/remove-parens (morph/get-english (get-in question [:head :english])))
      :right_context_english ""
      :left_context_italian ".."
      :middle_italian "lavoriamo"
      :right_context_italian ""}))
+
+(def mini-english-grammar
+  (filter #(= (:rule %) "s-present")
+          en/grammar))
+
+(def mini-italian-grammar
+  (filter #(= (:rule %) "s-present")
+          it/grammar))
 
 (defn generate-question [request]
   (let [spec
@@ -114,7 +121,7 @@
                "Pragma" "no-cache"
                "Expires" "0"}
      :body (let [question (gen/generate spec
-                                        en/grammar
+                                        mini-english-grammar
                                         lex/lexicon
                                         en/cache)
                  semantics (strip-refs (get-in question [:synsem :sem]))
@@ -139,7 +146,7 @@
                    {:synsem {:sem semantics}
                     :head {:phrasal false}
                     :comp {:phrasal false}}
-                   it/grammar
+                   mini-italian-grammar
                    lex/lexicon
                    it/cache)
 
