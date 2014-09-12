@@ -139,7 +139,7 @@ function add_cloud(cloud_id) {
 	// TODO: avoid munging html like this - it's hard to understand.
         $("#"+cloud_q_dom_id).html("<span class='lca' id='lca_"+cloud_id+"'>" + "..(having trouble, please wait..).." + "</span>" +
 				   "<span class='question'     id='question_"+cloud_id+"'> " + evaluated.question + " </span>" +
-				   "<span class='fullquestion' id='fullquestion_"+cloud_id+"'> " + evaluated.english + " </span>" +
+				   "<span class='full_question' id='fullquestion_"+cloud_id+"'> " + evaluated.english + " </span>" +
 				   "<span class='spacing'> </span>" +
 				   "<span class='answer'   id='answer_"+cloud_id+"'> </span>" +
 				   "<span class='rca' id='rca_"+cloud_id+"'>" + "" + "</span>");

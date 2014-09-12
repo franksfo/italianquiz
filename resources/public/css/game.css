@@ -116,6 +116,10 @@
     border:lightblue 2px solid;
 }
 
+#correction_dialog form {
+    width:99%;
+}
+
 #correction_dialog h3 {
     width:80%;
     text-align:right;
@@ -258,6 +262,19 @@ div.correct_answer {
     font-size:85%;
     font-style:italic;
     color:darkgrey;
+}
+
+#full_question {
+    width:50%;
+    float:right;
+    text-align:right;
+    position:absolute;
+    right: 2%;
+    bottom:2%;
+}
+
+span.full_question {
+    display:none;
 }
 
 span.answer {

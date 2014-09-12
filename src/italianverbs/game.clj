@@ -41,7 +41,7 @@
        [:div#cd_lca {:class "correct_answer" } "" ]
        [:div#cd_rca {:class "correct_answer" } "" ]
        [:h3#correct_answer "" ]
-       [:h2#full_question "" ]
+       [:div#full_question {:class "question"} " " ]
        [:input {:id "correction_bare_id" :type "hidden"}]
        ]
       ;; end of :form
