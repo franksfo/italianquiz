@@ -138,10 +138,11 @@ function add_cloud(cloud_id) {
 	evaluated = jQuery.parseJSON(content);
 	// TODO: avoid munging html like this - it's hard to understand.
         $("#"+cloud_q_dom_id).html("<span class='lca' id='lca_"+cloud_id+"'>" + "..(having trouble, please wait..).." + "</span>" +
-				   "<span class='question' id='question_"+cloud_id+"'> " + evaluated.question + " </span>" +
+				   "<span class='question'     id='question_"+cloud_id+"'> " + evaluated.question + " </span>" +
+				   "<span class='fullquestion' id='fullquestion_"+cloud_id+"'> " + evaluated.english + " </span>" +
 				   "<span class='spacing'> </span>" +
 				   "<span class='answer'   id='answer_"+cloud_id+"'> </span>" +
-				   "<span class='rca' id='rca_"+cloud_id+"'>" + "(fill me in2)" + "</span>");
+				   "<span class='rca' id='rca_"+cloud_id+"'>" + "" + "</span>");
 				   
 	log(DEBUG,"Sending request: /game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
 
@@ -311,7 +312,7 @@ function submit_correction_response(form_input_id) {
     }
 }
 
-function correction_dialog(question_lca_text,question_text,correct_answer,bare_id) {
+function correction_dialog(question_lca_text,question_text,correct_answer,bare_id,full_question) {
     log(INFO,"Popping up the correction_dialog and populating it with stuff.");
     $("#correction_dialog")[0].style.display = "block";
     $("#game_input").focus();
@@ -319,6 +320,7 @@ function correction_dialog(question_lca_text,question_text,correct_answer,bare_i
     $("#answer_button")[0].innerHTML = "Correct";
     $("#cd_lca").html(question_lca_text + " .."); // show some elipses to help user hopefully:
     $("#correct_answer").html(correct_answer);
+    $("#full_question").html(full_question);
     log(INFO,"correction_dialog: done populating.");
 }
 
@@ -334,11 +336,13 @@ function correct_user(cloud) {
     var answer_text = $("#cloud_" + bare_id + "_a").val();
     var question_lca_text = $("#lca_" + bare_id).text();
     var question_text = $("#question_" + bare_id).text();
+    var full_question = $("#fullquestion_" + bare_id).text();
     log(INFO,"calling correction_dialog() with: " + question_lca_text + "," +
 	question_text + "," +
 	answer_text + "," +
-	bare_id);
-    correction_dialog(question_lca_text,question_text,answer_text,bare_id);
+	bare_id + "," + 
+	full_question);
+    correction_dialog(question_lca_text,question_text,answer_text,bare_id,full_question);
 }
 
 function blow_cloud(cloud) {
