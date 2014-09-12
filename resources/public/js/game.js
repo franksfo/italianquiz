@@ -421,6 +421,7 @@ function clean_up_cloud(bare_id,answer_text,form_input_id) {
     // TODO: make 'solved' lightgrey.
     $("#cloud_" + bare_id)[0].style.color = "lightgrey";
     $("#cloud_" + bare_id).addClass("solved");
+    $("#cloud_" + bare_id + "_a").remove;
     $("#question_" + bare_id).remove();
     $("#answer_" + bare_id).html(answer_text);
 
