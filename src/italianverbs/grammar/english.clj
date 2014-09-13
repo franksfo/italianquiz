@@ -305,10 +305,10 @@
 (log/info "English grammar defined.")
 
 (def begin (System/currentTimeMillis))
-(log/debug "building grammatical and lexical cache..")
+(log/info "building grammatical and lexical index..")
 (def cache nil)
 ;; TODO: trying to print cache takes forever and blows up emacs buffer:
-;; figure out how to change printable version to (keys cache).
+;; figure out how to change printable version to show only keys and first value or something.
 (def cache (conj (build-lex-sch-cache grammar
                                       (map (fn [lexeme]
                                              (unifyc lexeme

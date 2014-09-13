@@ -234,7 +234,12 @@
                                                   :subj {:animate true}}};; TODO: why :animate:true? - consider eliminating this.
                           spec (if spec spec :top)
                           unified-spec (unifyc sentence-spec spec)]
-                      (fo (generate-from unified-spec)))
+                      (fo (generate-from unified-spec
+                                         en/grammar
+                                         it/grammar
+                                         en/cache
+                                         it/cache
+                                         )))
                    trials
                    "itialian2english")))
 
