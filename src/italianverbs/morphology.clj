@@ -1985,7 +1985,8 @@
         (= (.size (keys expressions)) 2)
         (= (set (keys expressions))
            #{:italiano :english}))
-   (fo (finalize expressions))
+   (str "en:" (fo (:italiano expressions))
+        " it:" (fo (:english expressions)))
 
    (keyword? expressions)
    expressions

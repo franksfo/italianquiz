@@ -35,7 +35,7 @@ Phrase Structure Grammar</a> [Pollard and Sag 1994].
     user=> (in-ns 'italianverbs.workbook)
     #<Namespace italianverbs.workbook>
     italianverbs.workbook=> (fo (sentence)
-    ("Il vostro uomo gentile dormiva (Your (pl) kind man was sleeping).")
+    "en:(\"(Our woman will think).\") it:(\"La nostra donna penserà ().\")"
 
 ## Benchmarking
 

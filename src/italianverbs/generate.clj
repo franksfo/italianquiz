@@ -14,7 +14,8 @@
 
 (declare generate-from)
 
-(defn sentence [ & [spec ]]
+;; TODO: grammar1 grammar2 cache1 cache2 are required, not optional.
+(defn sentence [ & [spec grammar1 grammar2 cache1 cache2]]
   (if (seq? spec)
     (map (fn [each]
            (sentence each))
@@ -25,7 +26,7 @@
           spec (if spec spec :top)
           unified-spec (unifyc sentence-spec spec)]
       (log/info (str "generating with unified spec: " unified-spec))
-      (generate-from unified-spec))))
+      (generate-from unified-spec grammar1 grammar2 cache1 cache2))))
 
 (defn nounphrase [ & [ spec ]]
   (let [sentence-spec {:synsem {:subcat '()
@@ -60,4 +61,21 @@
 ;                                                     :subj {:pred :lei}}}}
 ;                                     lexicon it/grammar))
                                                                              
+
+(defn generate-from [spec grammar1 grammar2 cache1 cache2]
+  (if (seq? spec)
+    (map (fn [each]
+           (generate-from each))
+         spec)
+    ;; TODO: cheating here (i.e. talking about specific languages when this module should be language-agnostic)
+    (let [italiano
+          (generate spec grammar1 lexicon cache1)]
+      {:italiano italiano
+       :english
+       (generate (unifyc spec
+                         {:synsem {:sem (get-in italiano [:synsem :sem])}})
+                 grammar2
+                 lexicon
+                 cache2)})))
+
 ;(log/info (str "done loading generate: " (fo get-stuff-initialized)))

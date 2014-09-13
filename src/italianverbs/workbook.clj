@@ -14,7 +14,7 @@
    [italianverbs.benchmark :refer :all]
    [italianverbs.forest :as forest]
    [italianverbs.forest :refer :all :exclude [lightning-bolt unifyc deref future generate rand-int]]
-   [italianverbs.generate :refer :all :exclude [lightning-bolt]]
+   [italianverbs.generate :as generate :refer :all :exclude [lightning-bolt sentence]]
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
    [italianverbs.html :as html]
@@ -149,6 +149,10 @@
       [:div#workbooka
        (if search-query
          (workbookq search-query))]])))
+
+(defn sentence [ & [spec]]
+  (let [spec (if spec spec :top)]
+    (generate/sentence spec en/grammar it/grammar en/cache it/cache)))
 
 (defn show-sem [to-show]
   (cond (seq? to-show)
