@@ -190,3 +190,11 @@
 
 
 
+(def get-stuff-initialized (sentence {:comp {:phrasal false}
+                                      :head {:phrasal true}
+                                      :synsem {:subcat '() :cat :verb
+                                              :sem {:pred :parlare
+                                                     :subj {:pred :lei}}}}
+                                     lexicon it/grammar))
+
+(log/info (str "done initializing workbook. " (fo get-stuff-initialized)))
