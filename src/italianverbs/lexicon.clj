@@ -11,7 +11,7 @@
    [italianverbs.morphology :refer (fo)]
    [italianverbs.pos :refer :all]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (fail? fail-path get-in isomorphic? lazy-shuffle ref? serialize unifyc)]))
+   [italianverbs.unify :refer (copy dissoc-paths fail? fail-path get-in isomorphic? lazy-shuffle ref? serialize unifyc)]))
 
 ;; stub that is redefined by italianverbs/mongo or interfaces to other dbs.
 (defn clear! [])
@@ -281,8 +281,11 @@
 (defn make-intransitive-variant [lexical-entry]
   (cond
    (= (get-in lexical-entry [:synsem :cat]) :verb)
-   (list (merge {:foo 43}
-                lexical-entry))
+   (list
+    (merge (copy lexical-entry)
+           {:foo 44})
+    lexical-entry)
+
    true
    (list lexical-entry)))
 
