@@ -1,7 +1,6 @@
 (ns italianverbs.test.workbook
   (:refer-clojure :exclude [get-in merge resolve find])
   (:use [clojure.test]
-        [italianverbs.generate]
         [italianverbs.lexicon]
         [italianverbs.lexiconfn]
         [italianverbs.morphology]
