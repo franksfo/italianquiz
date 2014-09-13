@@ -278,6 +278,9 @@
 ;; These rules are (reduce)d using merge rather than unifyc.
 (def modifying-rules (list embed-phon))
 
+;; TODO: allow transforming rules to emit sequences as well as just the
+;; input value. i.e they should take a map and return either: a map, or a seqence of maps.
+;; This means we have to check the type of the return value 'result' below.
 (defn transform [lexical-entry]
   "keep transforming lexical entries until there's no changes. No changes is
    defined as: (isomorphic? input output) => true, where output is one iteration's
@@ -291,14 +294,17 @@
           (let [result (reduce #(if (or (fail? %1) (fail? %2))
                                   :fail
                                   (unifyc %1 %2))
-                               (map (fn [rule]
+                               (map
+                                (fn [rule]
+                                      ;; check for return value of (apply rule (list lexical-entry)):
+                                      ;; if not list, make it a list.
                                       (let [result (apply rule (list lexical-entry))]
                                         (if (fail? result)
                                           (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
                                                              " to fail; fail path was: " (fail-path result)))
-                                              :fail)
-                                          result)))
-                                    rules))
+                                              (list :fail))
+                                          (list result))))
+                                rules))
                 result (if (not (fail? result))
                          (reduce merge  (map (fn [rule]
                                                (let [result (apply rule (list result))]
