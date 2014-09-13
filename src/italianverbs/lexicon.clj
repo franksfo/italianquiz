@@ -278,6 +278,18 @@
 ;; These rules are (reduce)d using merge rather than unifyc.
 (def modifying-rules (list embed-phon))
 
+(defn make-intransitive-variant [lexical-entry]
+  (cond
+   (= (get-in lexical-entry [:synsem :cat]) :verb)
+   (list (merge {:foo 43}
+                lexical-entry))
+   true
+   (list lexical-entry)))
+
+;; rules like make-intransitive-variant multiply a single lexeme into zero or more lexemes: i.e. their function signature is map => seq(map).
+(defn apply-multi-rules [lexeme]
+  (make-intransitive-variant lexeme))
+
 ;; TODO: allow transforming rules to emit sequences as well as just the
 ;; input value. i.e they should take a map and return either: a map, or a seqence of maps.
 ;; This means we have to check the type of the return value 'result' below.
@@ -302,8 +314,8 @@
                                         (if (fail? result)
                                           (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
                                                              " to fail; fail path was: " (fail-path result)))
-                                              (list :fail))
-                                          (list result))))
+                                              :fail)
+                                          result)))
                                 rules))
                 result (if (not (fail? result))
                          (reduce merge  (map (fn [rule]
@@ -339,10 +351,14 @@
 
           ;; TODO: move this fn to lexiconfn: keep any code out of the lexicon proper.
           ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
-          (map transform
-               (concat
-                a-essere
-                esso-noi
-                notizie-potere
-                qualche_volta-volere))))
+
+          (mapcat #(apply-multi-rules %)
+                  (map transform
+                       (concat
+                        a-essere
+                        esso-noi
+                        notizie-potere
+                        qualche_volta-volere)))))
+
+
 
