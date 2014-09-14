@@ -7,34 +7,44 @@ var background = "white";
 var radius = 15;
 // TODO: get width and height of #game from DOM, not hardcoded.
 var game_width = 1000;
- var game_height = 500;
- var offset=0;
- var this_many_clouds = 3;
+var game_height = 500;
+var offset=0;
+var this_many_clouds = 3;
+var initial_tree_size = 50; // in pixels: size of smallest tree.
 
- // beginners' maximum speed is 10, but it gets increased when you correctly answer questions.
- var current_speed_limit = 10;
+// beginners' maximum speed is 10, but it gets increased when you correctly answer questions.
+var current_speed_limit = 10;
 
- var min_speed = 5;
- var max_speed = 15;
+var min_speed = 5;
+var max_speed = 15;
 
- // how often a droplet falls.
- var rain_time = 1000;
- // timer for cloud motion interval, in milliseconds.
- // a low blow_time looks smooth but will chow your clients' CPUs.
- var blow_time = 50;
+// how often a droplet falls.
+// (rain not used at present)
+var rain_time = 1000;
+// timer for cloud motion interval, in milliseconds.
+// a low blow_time looks smooth but will chow your clients' CPUs.
+var blow_time = 50;
 
- var cloud_ceiling = 20;
- var cloud_altitude = function() {
-     return cloud_ceiling + Math.floor(Math.random()*70);
- }
+var cloud_ceiling = 20;
+var cloud_altitude = function() {
+    return cloud_ceiling + Math.floor(Math.random()*70);
+}
 
 var in_correction_mode = false;
 
+// TODO: move to css and use classes (e.g. tree0,tree1, etc)
+var tree_colors = ["lightgreen","darkgreen","forestgreen","seagreen","mediumseagreen","springgreen","mediumspringgreen","lightseagreen"];
 
- // </configurable>
+// </configurable>
 
 // 'freezed' rather than 'frozen' in order to make freeze-related functionality more easily searchable.
 var wind_is_freezed = false;
+
+var answer_info = {}; // key: question_id; val: answer information.
+
+// In the DOM is a set of trees: tree_<infinitive_verb>.
+// Each tree is created when a question having that infinitive_verb is answered correctly.
+// The tree grows bigger as the user answers more correct questions with that infinitive verb.
 
 function freeze_wind() {
     wind_is_freezed = true;
@@ -114,8 +124,8 @@ function add_cloud(cloud_id) {
 	// start nice and slow.
 	cloud_speeds["cloud_" + evaluated.cloud_id] = Math.random()*0.010;
 	// other possibilities:
-	//    cloud_speeds["cloud_" + cloud_id] = Math.random()*0.001;
-	//    cloud_speeds["cloud_" + cloud_id] = 0.1;
+	//    cloud_speeds["cloud_" + evaluated.cloud_id] = Math.random()*0.001;
+	//    cloud_speeds["cloud_" + evaluated.cloud_id] = 0.1;
 
 	var lca_dom_id = "lca_" + evaluated.cloud_id;
 	var answer_dom_id = "answer_" + evaluated.cloud_id;
@@ -131,6 +141,9 @@ function add_cloud(cloud_id) {
 	$("#cloud_"+evaluated.cloud_id).fadeIn(500,function() {
 	    $("#"+cloud_q_dom_id).fadeIn(100);
 	});
+
+	$("#gameform").append("<div class='answer_info' id='answer_info_" + evaluated.cloud_id + "> " +  content + " </div>");
+	answer_info[evaluated.cloud_id] = evaluated;
     }
 
     update_cloud_fn = function (content) {
@@ -176,6 +189,56 @@ function submit_game_response(form_input_id) {
 	submit_correction_response(form_input_id);
     } else {
 	submit_normal_response(form_input_id);
+    }
+}
+
+function grow_tree(question_id) {
+    // question with id <question_id> was answered correctly: grow its tree.
+    log(INFO,"question_id: " + question_id);
+    log(INFO,"answer_info:" + answer_info[question_id]);
+    log(INFO,"answer_info group by:" + answer_info[question_id]["group_by"]);
+    var group_by = answer_info[question_id]["group_by"];
+
+    // group_by is the infinitive form of the verb for this question.
+    if ($("#tree_" + group_by)[0]) {
+	// grow the existing tree for this verb.
+	log(INFO,"Growing an existing tree.");
+	var tree = $("#tree_" + group_by)[0];
+	
+	var existing_font_size = $("#tree_" + group_by).css("font-size");
+	log(INFO,"Existing font size(1): " + existing_font_size);
+	existing_font_size = existing_font_size.replace(/px/,"");
+	log(INFO,"Existing font size(2): " + existing_font_size);
+	existing_font_size = parseInt(existing_font_size);
+	log(INFO,"Existing font size(3): " + existing_font_size);
+	var new_font_size = existing_font_size + 10;
+	log(INFO,"New font size: " + new_font_size);
+	$("#tree_"+group_by).css({ 'font-size': new_font_size + "px" });
+
+	var existing_top = $("#tree_" + group_by).css("top");
+	log(INFO,"Existing top(1): " + existing_top);
+	log(INFO,"Existing top(2): " + existing_top);
+	existing_top = parseInt(existing_top);
+	log(INFO,"Existing top(3): " + existing_top);
+	var new_top = existing_top - 10;
+	log(INFO,"New top: " + new_top);
+	$("#tree_"+group_by).css({ 'top': new_top + "px" });
+
+
+    } else {
+	// add a new tree for this verb, since it doesn't exist yet.
+	var left=Math.floor(Math.random()*90) + 10;
+	var top=Math.floor(Math.random()*65) - 20;
+	var font_size = initial_tree_size;
+	log(INFO,"Planting a new tree with top: " + top);
+	$("#ground").append("<i id='tree_" + group_by + "' class='fa fa-tree' style='font-size:" + font_size + "px; left:"+left+"%; top:-"+top+"px'> </i>");	
+
+	color = tree_colors[Math.floor(Math.random()*tree_colors.length)];
+
+	log(INFO,"Tree color: " + color);
+	$("#tree_"+group_by).css({'top':top+"px"});
+	$("#tree_"+group_by).css({'color':color});
+
     }
 }
 
@@ -239,6 +302,9 @@ function submit_normal_response(form_input_id) {
 		log(DEBUG,"Max speed: " + current_speed_limit);
 		var answer_id = answer.id;
 		$("#"+form_input_id).val("");	
+
+		grow_tree(bare_id);
+
 		clean_up_cloud(bare_id,answer_text,form_input_id);
 		return false;
 	    }
