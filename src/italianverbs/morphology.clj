@@ -349,6 +349,28 @@
      (and (= :infinitive (get-in word '(:infl)))
           (string? (get-in word '(:infinitive))))
      (get-in word '(:infinitive))
+     
+     (and (= (get-in word '(:infl)) :futuro)
+          (get-in word '(:futuro-stem)))
+     (let [stem (get-in word '(:futuro-stem))]
+       (cond
+        (and (= person :1st) (= number :sing))
+        (str stem "ò")
+
+        (and (= person :2nd) (= number :sing))
+        (str stem "ai")
+
+        (and (= person :3rd) (= number :sing))
+        (str stem "à")
+
+        (and (= person :1st) (= number :plur))
+        (str stem "emo")
+
+        (and (= person :2nd) (= number :plur))
+        (str stem "ete")
+
+        (and (= person :3rd) (= number :plur))
+        (str stem "anno")))
 
      (and
       (= (get-in word '(:infl)) :futuro)
@@ -379,6 +401,30 @@
         ;; TODO: describe when it might be ok, i.e. why log/warn not log/error.
         (do (log/warn (str "get-italian-1 could not match: " word))
         word)))
+
+     ;; irregular inflection of conditional
+     (and (= (get-in word '(:infl)) :conditional)
+          (get-in word '(:futuro-stem)))
+     (let [stem (get-in word '(:futuro-stem))]
+       (cond
+        (and (= person :1st) (= number :sing))
+        (str stem "ei")
+
+        (and (= person :2nd) (= number :sing))
+        (str stem "esti")
+
+        (and (= person :3rd) (= number :sing))
+        (str stem "ebbe")
+
+        (and (= person :1st) (= number :plur))
+        (str stem "emmo")
+
+        (and (= person :2nd) (= number :plur))
+        (str stem "este")
+
+        (and (= person :3rd) (= number :plur))
+        (str stem "ebbero")))
+
 
      ;; regular inflection of conditional
      (and (= (get-in word '(:infl)) :conditional)
