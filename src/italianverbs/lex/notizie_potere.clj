@@ -210,6 +210,7 @@
          modal
          {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
          {:italian {:infinitive "potere"
+                    :drop-e true
                     :irregular {:present {:1sing "posso"
                                           :2sing "puoi"
                                           :3sing "può"
