@@ -9,7 +9,7 @@ var radius = 15;
 var game_width = 1000;
 var game_height = 500;
 var offset=0;
-var this_many_clouds = 3;
+var this_many_clouds = 1;
 var initial_tree_size = 50; // in pixels: size of smallest tree.
 
 // beginners' maximum speed is 10, but it gets increased when you correctly answer questions.
