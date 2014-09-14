@@ -95,18 +95,28 @@
      :right_context_italian ""}))
 
 (def mini-english-grammar
-  (filter #(= (:rule %) "s-present")
+  (filter #(or (= (:rule %) "s-present")
+               (= (:rule %) "s-future")
+;               (= (:rule %) "s-aux")
+;               (= (:rule %) "vp-aux")
+               (= (:rule %) "s-imperfetto")
+               (= (:rule %) "s-conditional"))
           en/grammar))
 
 (def mini-italian-grammar
-  (filter #(= (:rule %) "s-present")
+  (filter #(or (= (:rule %) "s-present")
+               (= (:rule %) "s-future")
+;               (= (:rule %) "s-aux")
+;               (= (:rule %) "vp-aux")
+               (= (:rule %) "s-imperfetto")
+               (= (:rule %) "s-conditional"))
           it/grammar))
 
 (defn generate-question [request]
   (let [spec
         {:head {:phrasal false}
          :comp {:phrasal false}
-         :synsem { ;; :sem {:pred :leggere}
+         :synsem {;:sem {:pred :leggere}
                   :cat :verb
                   :subcat '()}}]
     {:status 200
