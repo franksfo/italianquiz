@@ -1,5 +1,5 @@
 (ns italianverbs.lexicon
-  (:refer-clojure :exclude [get-in resolve find])
+  (:refer-clojure :exclude [get-in resolve find merge])
   (:require
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
@@ -11,7 +11,7 @@
    [italianverbs.morphology :refer (fo)]
    [italianverbs.pos :refer :all]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (fail? fail-path get-in isomorphic? lazy-shuffle ref? serialize unifyc)]))
+   [italianverbs.unify :refer :all]))
 
 ;; stub that is redefined by italianverbs/mongo or interfaces to other dbs.
 (defn clear! [])
@@ -278,6 +278,36 @@
 ;; These rules are (reduce)d using merge rather than unifyc.
 (def modifying-rules (list embed-phon))
 
+;; TODO: regenerate :serialized whenever creating a new lexical entry
+(defn make-intransitive-variant [lexical-entry]
+  (cond
+
+   (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+        (exists? lexical-entry [:synsem :subcat :2])
+        (not (empty? (get-in lexical-entry [:synsem :subcat :2]))))
+
+   ;; create an intransitive version of this transitive verb by removing the second arg (:synsem :subcat :2), and replacing with nil.
+   (list
+    ;; MUSTDO: regenerate :serialized.
+
+    (cache-serialization
+     (merge (dissoc-paths lexical-entry (list [:synsem :subcat :2]
+                                              [:serialized]))
+            {:synsem {:subcat {:2 '()}}
+             :canary :tweet43})) ;; if the canary tweets, then the runtime is getting updated correctly.
+
+    lexical-entry) ;; the original transitive lexeme.
+
+   true
+   (list lexical-entry)))
+
+;; rules like make-intransitive-variant multiply a single lexeme into zero or more lexemes: i.e. their function signature is map => seq(map).
+(defn apply-multi-rules [lexeme]
+  (make-intransitive-variant lexeme))
+
+;; TODO: allow transforming rules to emit sequences as well as just the
+;; input value. i.e they should take a map and return either: a map, or a seqence of maps.
+;; This means we have to check the type of the return value 'result' below.
 (defn transform [lexical-entry]
   "keep transforming lexical entries until there's no changes. No changes is
    defined as: (isomorphic? input output) => true, where output is one iteration's
@@ -291,14 +321,17 @@
           (let [result (reduce #(if (or (fail? %1) (fail? %2))
                                   :fail
                                   (unifyc %1 %2))
-                               (map (fn [rule]
+                               (map
+                                (fn [rule]
+                                      ;; check for return value of (apply rule (list lexical-entry)):
+                                      ;; if not list, make it a list.
                                       (let [result (apply rule (list lexical-entry))]
                                         (if (fail? result)
                                           (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
                                                              " to fail; fail path was: " (fail-path result)))
                                               :fail)
                                           result)))
-                                    rules))
+                                rules))
                 result (if (not (fail? result))
                          (reduce merge  (map (fn [rule]
                                                (let [result (apply rule (list result))]
@@ -333,10 +366,14 @@
 
           ;; TODO: move this fn to lexiconfn: keep any code out of the lexicon proper.
           ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
-          (map transform
-               (concat
-                a-essere
-                esso-noi
-                notizie-potere
-                qualche_volta-volere))))
+
+          (mapcat #(apply-multi-rules %)
+                  (map transform
+                       (concat
+                        a-essere
+                        esso-noi
+                        notizie-potere
+                        qualche_volta-volere)))))
+
+
 

@@ -39,23 +39,9 @@
             @result
             result))))
 
-;; following is deprecated in favor of just (get-in) (above).
-(defn get-in-r [map keys]
-  (get-in map keys))
-
-(defn get-r [map key]
-  "same as clojure.core (get), but it resolves references if need be."
-  (let [result (get map key)]
-    (if (= (type result) clojure.lang.Ref)
-      @result
-      result)))
-
-(defn get-root-head [sign]
-  (cond
-   (get sign :head)
-   (get-root-head (get sign :head))
-   true
-   sign))
+(defn exists? [the-map path]
+  (not (= :does-not-exist
+          (get-in the-map path :does-not-exist))))
 
 (defn ref? [val]
   (= (type val) clojure.lang.Ref))
