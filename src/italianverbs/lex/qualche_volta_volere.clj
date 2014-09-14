@@ -161,6 +161,16 @@
                        :discrete true
                        }}})
 
+      {:italian {:infinitive "rimanere"
+                 :present {:1sing "rimango"
+                           :3plur "rimangono"}
+                 :passato-stem "rimast"
+                 :futuro-stem "rimarr"}
+
+       :synsem {:essere true}
+       :english {:infinitive "to remain"}}
+
+
       (unify proper-noun
              {:synsem {:sem {:pred :roma
                              :buyable false
@@ -285,7 +295,8 @@
 
       (unify
        transitive
-       {:italian {:infinitive "scrivere"}
+       {:italian {:infinitive "scrivere"
+                  :passato-stem "scritt"}
         :english {:infinitive "to write"
                   :irregular {:past "wrote"}}
         :synsem {:essere false

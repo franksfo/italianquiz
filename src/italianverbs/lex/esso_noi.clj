@@ -75,7 +75,7 @@
                            :subj {:human true}
                            :obj {:artifact true}}}})
 
-          ;; fare (to do well to): e.g. "tu ha fatto bene a vendere la casa"
+          ;; fare (to do well to): e.g. "tu hai fatto bene a vendere la casa"
           (let [adverb-semantics (ref {:pred :top})
                 subject-semantics (ref {:human true})
                 prepositional-semantics (ref {:subj subject-semantics
@@ -577,7 +577,8 @@
       (unify
        transitive
        {:italian {:infinitive "leggere"
-                  :irregular {:passato "letto"}}
+                  :irregular {:passato-stem "lett"}}
+
         :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
                   :irregular {:past "read (past)"
                               :note "(past)"}} ;; spelled "read" but pronounced like "red".

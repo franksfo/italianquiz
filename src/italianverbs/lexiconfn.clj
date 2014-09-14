@@ -315,6 +315,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   {:synsem {:essere false
             :cat :verb}
    :italian {:infinitive "avere"
+             :drop-e true
              :irregular {:passato "avuto"
                          :present {:1sing "ho"
                                    :2sing "hai"
@@ -385,7 +386,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
    :italian {:infinitive "fare"
              :futuro-stem "far"
              :irregular {:passato "fatto"
-                         :present {:1sing "facio"
+                         :present {:1sing "faccio"
                                    :2sing "fai"
                                    :3sing "fa"
                                    :1plur "facciamo"
@@ -396,13 +397,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                       :3sing "faceva"
                                       :1plur "facevamo"
                                       :2plur "facevate"
-                                      :3plur "facevano"}
-                         :futuro {:1sing "farò"
-                                  :2sing "farai"
-                                  :3sing "farà"
-                                  :1plur "faremo"
-                                  :2plur "farete"
-                                  :3plur "faranno"}}}})
+                                      :3plur "facevano"}}}})
 
 (def venire-common
   {:italian {:infinitive "venire"
