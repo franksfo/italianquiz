@@ -17,6 +17,10 @@
     (resolve @arg)
     arg))
 
+(defn exists? [the-map path]
+  (not (= :does-not-exist
+          (get-in the-map path :does-not-exist))))
+
 ;; TODO: need tests: many tests use (get-in), but need more dedicated tests for it alone.
 (defn get-in [in-map path & [not-found]]
   "same as clojure.core (get-in), but it resolves references if need be."
