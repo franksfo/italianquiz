@@ -259,6 +259,7 @@
       (:transitive verb)
       {:italian {:infinitive "bere"
                  :irregular {:passato "bevuto"
+                             :futuro-stem "berr"
                              :imperfetto {:1sing "bevevo"
                                           :2sing "bevevi"
                                           :3sing "beveva"
@@ -565,7 +566,6 @@
             :english {:english "short"
                       :cat :adjective}})
 
-
     {:italian {:infinitive "dare"
                :futuro-stem "dar"}
      :english {:infinitive "to give"
@@ -708,6 +708,7 @@
      verb-subjective
      modal
      {:italian {:infinitive "dovere"
+                :drop-e true
                 :irregular {:present {:1sing "devo"
                                       :2sing "devi"
                                       :3sing "deve"
