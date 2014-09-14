@@ -1,4 +1,5 @@
 (ns italianverbs.game
+  (:refer-clojure :exclude [get-in])
   (:require
    [clojure.data.json :as json]
    [clojure.string :as string]
@@ -11,7 +12,7 @@
    [italianverbs.html :as html]
    [italianverbs.lexicon :as lex]
    [italianverbs.morphology :as morph]
-   [italianverbs.unify :refer [strip-refs]]
+   [italianverbs.unify :refer [get-in strip-refs]]
    ))
 
 (defn game []
@@ -52,13 +53,6 @@
 
      [:div#ground
       
-      [:i {:class "fa fa-tree x2" :style "left:1%; top:-10%" }]
-
-      [:i {:class "fa fa-tree x1" :style "left:25%; top:-15%" }]
-
-      [:i {:class "fa fa-tree x2" :style "left:50%; top:-5%" }]
-
-      [:i {:class "fa fa-tree x3" :style "left:75%;top:-50%" }]
 
 
       ] ;; end of :div#ground
@@ -92,7 +86,7 @@
 (defn html-form [question]
   (do
     (log/info (str "question: " (morph/fo question)))
-    (log/info (str "head english: " @(get-in question [:head :english])))
+    (log/info (str "head english: " (get-in question [:head :english])))
     {:left_context_english (morph/remove-parens (morph/get-english (get-in question [:comp :english])))
      :middle_english (morph/remove-parens (morph/get-english (get-in question [:head :english])))
      :right_context_english ""
@@ -112,7 +106,7 @@
   (let [spec
         {:head {:phrasal false}
          :comp {:phrasal false}
-         :synsem {:infl :present
+         :synsem { ;; :sem {:pred :leggere}
                   :cat :verb
                   :subcat '()}}]
     {:status 200
@@ -136,7 +130,7 @@
                :rcq (:right_context_english form)}))}))
 
 (defn generate-answers [request]
-  "generate a single sentence according to the request."
+  "generate a single sentence according to the semantics of the request."
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
@@ -156,6 +150,7 @@
      :body
      (json/write-str
       {:cloud_id (get-in request [:params :cloud_id])
+       :group_by (str (get-in generated [:head :italian :infinitive]))
        :lca (morph/remove-parens (morph/get-italian (get-in generated [:comp :italian])))
        :answer (morph/remove-parens (morph/get-italian (get-in generated [:head :italian])))
        :semantics semantics
