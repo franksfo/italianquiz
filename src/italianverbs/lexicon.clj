@@ -283,15 +283,18 @@
   (cond
 
    (and (= (get-in lexical-entry [:synsem :cat]) :verb)
-        (exists? lexical-entry [:synsem :subcat :2]))
+        (exists? lexical-entry [:synsem :subcat :2])
+        (not (empty? (get-in lexical-entry [:synsem :subcat :2]))))
 
    ;; create an intransitive version of this transitive verb by removing the second arg (:synsem :subcat :2), and replacing with nil.
    (list
     ;; MUSTDO: regenerate :serialized.
-    (merge (dissoc-paths lexical-entry (list [:synsem :subcat :2]
-                                             [:serialized]))
-           {:synsem {:subcat {:2 '()}}
-            :canary :tweet43}) ;; if the canary tweets, then the runtime is getting updated correctly.
+
+    (cache-serialization
+     (merge (dissoc-paths lexical-entry (list [:synsem :subcat :2]
+                                              [:serialized]))
+            {:synsem {:subcat {:2 '()}}
+             :canary :tweet43})) ;; if the canary tweets, then the runtime is getting updated correctly.
 
     lexical-entry) ;; the original transitive lexeme.
 
