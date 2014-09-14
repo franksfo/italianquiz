@@ -294,18 +294,13 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (def andare-common
    {:italian {:infinitive "andare"
               :essere true
+              :drop-e true
               :irregular {:present {:1sing "vado"
                                     :2sing "vai"
                                     :3sing "va"
                                     :1plur "andiamo"
                                     :2plur "andate"
-                                    :3plur "vanno"}
-                          :futuro {:1sing "andrò"
-                                   :2sing "andrai"
-                                   :3sing "andrà"
-                                   :1plur "andremo"
-                                   :2plur "andrete"
-                                   :3plur "andranno"}}}
+                                    :3plur "vanno"}}}
     :english {:infinitive "to go"
               :irregular {:past "went"
                           :past-participle "gone"}}
