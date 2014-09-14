@@ -63,6 +63,7 @@ head of its parent. generate (above) 'decorates' each returned lightning bolt
 of this function with complements."
   (log/debug (str "lighting-bolt@" depth))
   (let [maxdepth 3 ;; maximum depth of a lightning bolt: H1 -> H2 -> H3 where H3 must be a lexeme, not a phrase.
+        cache (if (future? cache) @cache cache)
         depth (if depth depth 0)
         candidate-parents (lazy-shuffle (filter #(not (fail? (unifyc spec %)))
                                       (map (fn [rule]
@@ -92,6 +93,7 @@ of this function with complements."
 
 (defn add-complement [bolt path spec grammar lexicon cache]
   (let [input-spec spec
+        cache (if (future? cache) @cache cache)
         from-bolt bolt ;; so we can show what (add-complement) did to the input bolt, for logging.
         bolt-spec (get-in bolt path :no-path)
         spec (unifyc spec bolt-spec)]

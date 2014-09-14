@@ -325,11 +325,11 @@
 (def cache nil)
 ;; TODO: trying to print cache takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to (keys cache).
-(def cache (conj (build-lex-sch-cache grammar
+(def cache (future (conj (build-lex-sch-cache grammar
                                       (map (fn [lexeme]
                                              (unifyc lexeme
                                                      {:phrasal false}))
-                                           lexicon)
+                                           @lexicon)
                                       grammar)
                  {:phrase-constraints head-principle ;; for now, only one constraint: ug/head-principle.
                   :phrases-for-spec
@@ -340,7 +340,7 @@
                          {:synsem {:cat :verb}, :head {:synsem {:cat :verb, :infl {:not :past}, :subcat {:2 {:cat :noun, :subcat (), :pronoun true}, :1 {}}}, :phrasal false}, :phrasal true}
                          {:synsem {:cat :verb, :aux false}, :head {:synsem {:cat :verb, :infl :infinitive, :subcat {:2 {}, :1 {}}}, :phrasal false}, :phrasal true}
                          )
-                   grammar)}))
+                   grammar)})))
 
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical cache in " (- end begin) " msec.")

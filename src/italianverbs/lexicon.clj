@@ -360,20 +360,22 @@
   ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
   ;; default shown is (not (nil? entry)) i.e. no restrictions except that an entry must be non-nil.
   ;;  (currently there is one nil below: "chiunque (anyone)").
-  (filter (fn [entry]
-            (or (= entry :fail)
-                (not (nil? entry))))
+  (future
+    (filter (fn [entry]
+              (or (= entry :fail)
+                  (not (nil? entry))))
 
-          ;; TODO: move this fn to lexiconfn: keep any code out of the lexicon proper.
-          ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
+            ;; TODO: move this fn to lexiconfn: keep any code out of the lexicon proper.
+            ;; this (map) adds, to each lexical entry, a copy of the serialized form of the entry.
 
-          (mapcat #(apply-multi-rules %)
-                  (map transform
-                       (concat
-                        a-essere
-                        esso-noi
-                        notizie-potere
-                        qualche_volta-volere)))))
+            (mapcat #(apply-multi-rules %)
+                    (map transform
+                         (concat
+                          a-essere
+                          esso-noi
+                          notizie-potere
+                          qualche_volta-volere))))))
+
 
 
 
