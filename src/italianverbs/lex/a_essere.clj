@@ -566,7 +566,8 @@
                       :cat :adjective}})
 
 
-    {:italian {:infinitive "dare"}
+    {:italian {:infinitive "dare"
+               :futuro-stem "dar"}
      :english {:infinitive "to give"
                :irregular {:past "gave"}}
      :synsem {:cat :verb
