@@ -1,5 +1,5 @@
 (ns italianverbs.lexicon
-  (:refer-clojure :exclude [get-in resolve find])
+  (:refer-clojure :exclude [get-in resolve find merge])
   (:require
    [clojure.set :refer (union)]
    [clojure.tools.logging :as log]
@@ -11,7 +11,7 @@
    [italianverbs.morphology :refer (fo)]
    [italianverbs.pos :refer :all]
    [italianverbs.unify :as unify]
-   [italianverbs.unify :refer (copy dissoc-paths fail? fail-path get-in isomorphic? lazy-shuffle ref? serialize unifyc)]))
+   [italianverbs.unify :refer :all]))
 
 ;; stub that is redefined by italianverbs/mongo or interfaces to other dbs.
 (defn clear! [])
@@ -278,13 +278,22 @@
 ;; These rules are (reduce)d using merge rather than unifyc.
 (def modifying-rules (list embed-phon))
 
+;; TODO: regenerate :serialized whenever creating a new lexical entry
 (defn make-intransitive-variant [lexical-entry]
   (cond
-   (= (get-in lexical-entry [:synsem :cat]) :verb)
+
+   (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+        (exists? lexical-entry [:synsem :subcat :2]))
+
+   ;; create an intransitive version of this transitive verb by removing the second arg (:synsem :subcat :2), and replacing with nil.
    (list
-    (merge (copy lexical-entry)
-           {:foo 44})
-    lexical-entry)
+    ;; MUSTDO: regenerate :serialized.
+    (merge (dissoc-paths lexical-entry (list [:synsem :subcat :2]
+                                             [:serialized]))
+           {:synsem {:subcat {:2 '()}}
+            :canary :tweet43}) ;; if the canary tweets, then the runtime is getting updated correctly.
+
+    lexical-entry) ;; the original transitive lexeme.
 
    true
    (list lexical-entry)))
