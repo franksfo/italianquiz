@@ -63,15 +63,31 @@
 
 (declare get-italian)
 
-(defn stem-per-futuro [infinitive]
+(defn stem-per-futuro [infinitive drop-e]
   "_infinitive_ should be a string (italian verb infinitive form)"
   (cond
-   (re-find #"iare$" infinitive)
-   (string/replace infinitive #"iare$" "er")
+   (re-find #"giare$" infinitive)
+   (string/replace infinitive #"giare$" "ger")
+
+   (re-find #"ciare$" infinitive)
+   (string/replace infinitive #"ciare$" "cer")
+
+   (and
+    (= true drop-e)
+    (re-find #"are$" infinitive))
+   (string/replace infinitive #"are$" "r")
+
    (re-find #"are$" infinitive)
    (string/replace infinitive #"are$" "er")
+
+   (and
+    (= true drop-e)
+    (re-find #"ere$" infinitive))
+   (string/replace infinitive #"ere$" "r")
+
    (re-find #"ere$" infinitive)
    (string/replace infinitive #"ere$" "er")
+
    (re-find #"ire$" infinitive)
    (string/replace infinitive #"ire$" "ir")
 
@@ -364,13 +380,54 @@
         (do (log/warn (str "get-italian-1 could not match: " word))
         word)))
 
-     ;; regular inflection of futuro.
-     (and (= (get-in word '(:infl)) :futuro)
+     ;; regular inflection of conditional
+     (and (= (get-in word '(:infl)) :conditional)
           (get-in word '(:infinitive)))
+
      (let [infinitive (get-in word '(:infinitive))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))
-           stem (stem-per-futuro infinitive)]
+           drop-e (get-in word '(:italian :drop-e) false)
+           stem (stem-per-futuro infinitive drop-e)]
+
+       (cond
+        (and (= person :1st) (= number :sing))
+        (str stem "ei")
+
+        (and (= person :2nd) (= number :sing))
+        (str stem "esti")
+
+        (and (= person :3rd) (= number :sing))
+        (str stem "ebbe")
+
+        (and (= person :1st) (= number :plur))
+        (str stem "emmo")
+
+        (and (= person :2nd) (= number :plur))
+        (str stem "este")
+
+        (and (= person :3rd) (= number :plur))
+        (str stem "ebbero")
+
+        :else
+        (get-in word '(:infinitive))))
+
+
+
+
+
+     ;; regular inflection of futuro.
+     (and (= (get-in word '(:infl)) :futuro)
+          (get-in word '(:infinitive)))
+
+
+     (let [infinitive (get-in word '(:infinitive))
+           person (get-in word '(:agr :person))
+           number (get-in word '(:agr :number))
+           drop-e (get-in word '(:italian :drop-e) false)
+           stem (stem-per-futuro infinitive drop-e)]
+
+
        (cond
         (and (= person :1st) (= number :sing))
         (str stem "ò")
@@ -591,7 +648,9 @@
            ere-type (re-find #"ere$" infinitive)
            ire-type (re-find #"ire$" infinitive)
            stem (string/replace infinitive #"[iae]re$" "")
-           last-stem-char-is-i (re-find #"i$" stem)
+           last-stem-char-is-i (re-find #"ire$" infinitive)
+           last-stem-char-is-e (re-find #"ere$" infinitive)
+           is-care-or-gare? (re-find #"[cg]are$" infinitive)
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))]
        (cond
@@ -630,6 +689,10 @@
         (and (= person :2nd) (= number :sing))
         (str stem "i")
 
+        (and is-care-or-gare? 
+             (= person :2nd) (= number :sing))
+        (str stem "hi")
+
         (and (= person :3rd) (= number :sing) (or ire-type ere-type))
         (str stem "e")
 
@@ -639,6 +702,10 @@
         (and (= person :1st) (= number :plur)
              last-stem-char-is-i)
         (str stem "amo")
+
+        (and is-care-or-gare?
+             (= person :1st) (= number :plur))
+        (str stem "hiamo")
 
         (and (= person :1st) (= number :plur))
         (str stem "iamo")
@@ -652,8 +719,17 @@
         (and (= person :2nd) (= number :plur) ire-type)
         (str stem "ite")
 
+
+        (and (= person :3rd) (= number :plur)
+             last-stem-char-is-i)
+        (str stem "ono")
+        (and (= person :3rd) (= number :plur)
+             last-stem-char-is-e)
+        (str stem "ono")
+
         (and (= person :3rd) (= number :plur))
         (str stem "ano")
+
         :else
         (str infinitive )))
 
@@ -1127,6 +1203,14 @@
 
    (= true (get-in word '(:b :hidden)))
    (get-english-1 (get-in word '(:a)))
+
+   (and (= (get-in word '(:infl)) :conditional)
+        (get-in word '(:infinitive))
+        (not (nil? (get-in word '(:agr :number))))
+        (not (nil? (get-in word '(:agr :person)))))
+   (let [infinitive (get-in word '(:infinitive))
+         stem (string/replace infinitive #"^to " "")]
+     (str "would " stem))
 
    (and (= (get-in word '(:infl)) :futuro)
         (get-in word '(:infinitive))
@@ -1645,51 +1729,6 @@
 
 (defn passato-prossimo [infinitive]
   (str (stem-per-passato-prossimo infinitive) "ato"))
-
-;cyclic
-;(defn conjugate [map]
-;  (let [irregular (search/search-one map)]
-;    (if irregular irregular
-;        ;; else, regular.
-;        (fs/merge map {:italian (passato-prossimo (:italian map))
-;                       :english (str (:remove-to (remove-to map)) "en")}))))
-
-(defn conjugate-future-italian [infinitive subject & [ stem ] ]
-  (let [stem (if stem
-               stem
-               (stem-per-futuro (get infinitive :italian)))]
-    (cond
-     (= (get subject :person)
-        :1st)
-     (cond (= (get subject :number)
-              :singular)
-           (str stem "ò")
-           (= (get subject :number)
-              :plural)
-           (str stem "emo")
-           true "??")
-     (= (get subject :person)
-        :2nd)
-     (cond (= (get subject :number)
-              :singular)
-           (str stem "ai")
-           (= (get subject :number)
-              :plural)
-           (str stem "ete")
-           true "??")
-     (= (get subject :person)
-        :3rd)
-     (cond (= (get subject :number)
-              :singular)
-           (str stem "à")
-           (= (get subject :number)
-              :plural)
-           (str stem "anno")
-           true "??")
-     true
-     "??")))
-
-
 
 (defn capitalize [s]
   "Capitalize first char and leave the rest of the characters alone (compare with string/capitalize which lower-cases all chars after first."

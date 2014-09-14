@@ -204,6 +204,12 @@
                                     :cat :verb
                                     :sem {:tense :futuro}}})
 
+                   (unifyc c10
+                          {:rule "s-conditional"
+                           :synsem {:aux false
+                                    :infl :conditional
+                                    :cat :verb
+                                    :sem {:tense :conditional}}})
 
                    (unifyc c10
                            {:rule "s-imperfetto"

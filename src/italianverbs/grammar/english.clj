@@ -181,6 +181,14 @@
                                      :sem {:aspect :perfect
                                            :tense :past}}})
 
+
+                   (unifyc c10
+                          {:rule "s-conditional"
+                           :synsem {:aux false
+                                    :infl :conditional
+                                    :cat :verb
+                                    :sem {:tense :conditional}}})
+
                    (unifyc c10
                           {:rule "s-future"
                            :synsem {:aux false
