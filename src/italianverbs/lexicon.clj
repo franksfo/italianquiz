@@ -33,7 +33,7 @@
 (declare lexicon)
 
 (defn lookup [query]
-  (lookup-in query lexicon))
+  (lookup-in query @lexicon))
 
 (defn choose-lexeme [spec]
   (first (lazy-shuffle (lookup spec))))
