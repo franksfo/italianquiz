@@ -750,7 +750,8 @@
                                         :1plur "vogliamo"
                                         :2plur "volete"
                                         :3plur "vogliono"}
-                              :past "voluto"}}
+                              :past "voluto"
+                              :futuro-stem "vorr"}}
         :english {:infinitive "to want to"
                   :irregular {:present {:1sing "want to"
                                         :2sing "want to"

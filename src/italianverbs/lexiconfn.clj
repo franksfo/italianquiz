@@ -405,12 +405,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (def venire-common
   {:italian {:infinitive "venire"
              :irregular {:passato "venuto"
-                         :futuro  {:1sing "verrò"
-                                   :2sing "verrai"
-                                   :3sing "verrà"
-                                   :1plur "verremo"
-                                   :2plur "verrete"
-                                   :3plur "verranno"}
+                         :futuro-stem "verr"
                          :present {:1sing "vengo"
                                    :2sing "vieni"
                                    :3sing "viene"
