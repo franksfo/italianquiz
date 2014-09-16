@@ -150,9 +150,10 @@
        (if search-query
          (workbookq search-query))]])))
 
-(defn sentence [ & [spec]]
-  (let [spec (if spec spec :top)]
-    (generate/sentence spec en/grammar it/grammar en/cache it/cache)))
+(defn sentence [ & [spec it-grammar]]
+  (let [spec (if spec spec :top)
+        it-grammar (if it-grammar it-grammar it/grammar)]
+    (generate/sentence spec en/grammar it-grammar en/cache it/cache)))
 
 (defn show-sem [to-show]
   (cond (seq? to-show)
@@ -191,11 +192,11 @@
 
 
 ;; TODO: remove when I feel safe that I don't need it anymore..
-;(def get-stuff-initialized (sentence {:comp {:phrasal false}
-;                                      :head {:phrasal true}
-;                                      :synsem {:subcat '() :cat :verb
-;                                              :sem {:pred :parlare
-;                                                     :subj {:pred :lei}}}}
-;                                     lexicon it/grammar))
+(def get-stuff-initialized (sentence {:comp {:phrasal false}
+                                      :head {:phrasal false}
+                                      :synsem {:subcat '() :cat :verb
+                                              :sem {:pred :sognare
+                                                     :subj {:pred :lei}}}}
+                                     it/grammar))
 
 ;(log/info (str "done initializing workbook. " (fo get-stuff-initialized)))
