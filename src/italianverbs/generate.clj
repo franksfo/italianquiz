@@ -51,17 +51,6 @@
     (log/info (str "generated this many: " (.size result)))
     result))
 
-;; This sentence generation prevents initialization errors that occur when trying to
-;; generate sentences within the sandbox.
-;; TODO: move to a sandbox-initialization-specific area.
-;(def get-stuff-initialized (sentence {:comp {:phrasal false}
-;                                      :head {:phrasal true}
-;                                      :synsem {:subcat '() :cat :verb
-;                                               :sem {:pred :parlare
-;                                                     :subj {:pred :lei}}}}
-;                                     lexicon it/grammar))
-                                                                             
-
 (defn generate-from [spec grammar1 grammar2 cache1 cache2]
   (if (seq? spec)
     (map (fn [each]
@@ -77,5 +66,3 @@
                  grammar2
                  lexicon
                  cache2)})))
-
-;(log/info (str "done loading generate: " (fo get-stuff-initialized)))
