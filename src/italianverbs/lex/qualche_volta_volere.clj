@@ -166,10 +166,10 @@
                            :3plur "rimangono"}
                  :passato-stem "rimast"
                  :futuro-stem "rimarr"}
-
-       :synsem {:essere true}
+       :synsem {:essere true
+                :cat :verb
+                :sem {:pred :rimanere}}
        :english {:infinitive "to remain"}}
-
 
       (unify proper-noun
              {:synsem {:sem {:pred :roma
