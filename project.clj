@@ -4,6 +4,7 @@
   :description "Italian language learning app"
   :dependencies [[clj-time "0.7.0"]
                  [clojail "1.0.6"]
+                 [clojurewerkz/mailer "1.2.0"]
                  [com.cemerick/drawbridge "0.0.6"
                   :exclusions [ring/ring-core]] ;; https://github.com/cemerick/drawbridge/issues/8
                  [com.cemerick/friend "0.2.1"]
@@ -18,7 +19,6 @@
                                                     javax.jms/jms
                                                     com.sun.jdmk/jmxtools
                                                     com.sun.jmx/jmxri]]
-
 
 
                  [org.clojure/clojure "1.6.0"]
@@ -36,6 +36,8 @@
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]
             [lein-ring "0.7.3"]]
+
+  :resource-paths ["resources"]
 
   :hooks [environ.leiningen.hooks]
 
