@@ -39,7 +39,7 @@
      [:div#correction_dialog {:style "display:none"}
 
       [:form {:onsubmit "return false;"}
-       [:div#cd_lca {:class "correct_answer" } "" ]
+       [:div#cd_left_context_of_answer {:class "correct_answer" } "" ]
        [:div#cd_rca {:class "correct_answer" } "" ]
        [:h3#correct_answer "" ]
        [:div#full_question {:class "question"} " " ]
@@ -90,7 +90,6 @@
     {:left_context_english (morph/remove-parens (morph/get-english (get-in question [:comp :english])))
      :middle_english (morph/remove-parens (morph/get-english (get-in question [:head :english])))
      :right_context_english ""
-     :left_context_italian ".."
      :middle_italian "lavoriamo"
      :right_context_italian ""}))
 
@@ -134,10 +133,10 @@
                  form (html-form question)]
              (json/write-str
               {:english english
-               :lcq (:left_context_english form)
+               :left_context_of_question (:left_context_english form)
                :semantics semantics
                :question (:middle_english form)
-               :rcq (:right_context_english form)}))}))
+               :right_context_of_question (:right_context_english form)}))}))
 
 (defn generate-answers [request]
   "generate a single sentence according to the semantics of the request."
@@ -161,9 +160,9 @@
      (json/write-str
       {:cloud_id (get-in request [:params :cloud_id])
        :group_by (str (get-in generated [:head :italian :infinitive]))
-       :lca (morph/remove-parens (morph/get-italian (get-in generated [:comp :italian])))
+       :left_context_of_answer (morph/remove-parens (morph/get-italian (get-in generated [:comp :italian])))
        :answer (morph/remove-parens (morph/get-italian (get-in generated [:head :italian])))
        :semantics semantics
-       :rca ""
+       :right_context_of_answer ""
        :italian italian})}))
 

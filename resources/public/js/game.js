@@ -22,7 +22,7 @@ var max_speed = 15;
 // (rain not used at present)
 var rain_time = 1000;
 // timer for cloud motion interval, in milliseconds.
-// a low blow_time looks smooth but will chow your clients' CPUs.
+// a low blow_time looks smooth but will chow javascript CPUs.
 var blow_time = 50;
 
 var cloud_ceiling = 20;
@@ -109,7 +109,9 @@ function add_cloud(cloud_id) {
 	word_vertical = 180;
     }
 
-    $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='display:none;top: " + word_vertical + "px'>" + ".." + "</div>");
+    $("#sky").append("<div id='cloud_" + cloud_id + "_q' class='cloudq' style='display:none;top: " + word_vertical + "px'>" + "(please standby..)" + 
+		     "</div>");
+    // TODO: remove gameform as a way of passing information around: use javascript external variables instead.
     $("#gameform").append("<input id='cloud_" + cloud_id + "_a' class='cloud_answer'> </input>");
 
     // clouds are stopped until answer arrives from server via an asynchronous update.
@@ -117,6 +119,8 @@ function add_cloud(cloud_id) {
 
     update_answer_fn = function(content) {
 	evaluated  = jQuery.parseJSON(content);
+
+	log(INFO,"map from the server's <answer> response: " + evaluated);
 
 	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
 	var cloud_q_dom_id = "cloud_" + evaluated.cloud_id + "_q";
@@ -127,7 +131,7 @@ function add_cloud(cloud_id) {
 	//    cloud_speeds["cloud_" + evaluated.cloud_id] = Math.random()*0.001;
 	//    cloud_speeds["cloud_" + evaluated.cloud_id] = 0.1;
 
-	var lca_dom_id = "lca_" + evaluated.cloud_id;
+	var left_context_of_answer_dom_id = "left_context_of_answer_" + evaluated.cloud_id;
 	var answer_dom_id = "answer_" + evaluated.cloud_id;
 	var rca_dom_id = "rca_" + evaluated.cloud_id;
 
@@ -135,7 +139,7 @@ function add_cloud(cloud_id) {
 	// TODO: pass JSON directly rather than using the DOM as a data store.
 	// Though the DOM has some advantages in that you can use it for presentation purposes.
 	$("#"+cloud_a_dom_id).val(evaluated.answer);
-	$("#"+lca_dom_id).html(evaluated.lca);
+	$("#"+left_context_of_answer_dom_id).html(evaluated.left_context_of_answer);
 	$("#"+rca_dom_id).html(evaluated.rca);
 	log(DEBUG,"Updating question color for dom id: " + cloud_q_dom_id);
 	$("#cloud_"+evaluated.cloud_id).fadeIn(500,function() {
@@ -150,18 +154,22 @@ function add_cloud(cloud_id) {
 	log(DEBUG,"Updating cloud with question content: " + content);
 	evaluated = jQuery.parseJSON(content);
 	// TODO: avoid munging html like this - it's hard to understand.
-        $("#"+cloud_q_dom_id).html("<span class='lca' id='lca_"+cloud_id+"'>" + "..(having trouble, please wait..).." + "</span>" +
-				   "<span class='question'     id='question_"+cloud_id+"'> " + evaluated.question + " </span>" +
-				   "<span class='full_question' id='fullquestion_"+cloud_id+"'> " + evaluated.english + " </span>" +
+        $("#"+cloud_q_dom_id).html("<span class='left_context_of_question'       id='left_context_of_question_"+cloud_id+"'>" + evaluated.left_context_of_question + "</span>" +
 				   "<span class='spacing'> </span>" +
-				   "<span class='answer'   id='answer_"+cloud_id+"'> </span>" +
-				   "<span class='rca' id='rca_"+cloud_id+"'>" + "" + "</span>");
+				   "<span class='question'                       id='question_"+cloud_id+"'>" + evaluated.question + "</span>" +
+				   "<span class='full_question'                  id='fullquestion_"+cloud_id+"'>" + evaluated.english + "</span>" +
+				   "<span class='spacing'> </span>" +
+				   "<span class='left_context_of_answer hidden'  id='left_context_of_answer_"+cloud_id+"'> </span>" +
+				   "<span class='spacing'> </span>" +
+				   "<span class='answer hidden'                  id='answer_"+cloud_id+"'> </span>" +
+				   "<span class='spacing'> </span>" +
+				   "<span class='right_context_of_answer hidden' id='right_context_of_answer_"+cloud_id+"'>" + "" + "</span>");
 				   
 	log(DEBUG,"Sending request: /game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
 
 	$.ajax({
 	    dataType: "html",
-	    url: "/game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + JSON.stringify(evaluated.semantics),
+	    url: "/game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
 	    success: update_answer_fn
 	    });
     }
@@ -331,7 +339,7 @@ function normal_returnkey_mode() {
 		return;
 	    }
 
-	    log(INFO,"It's time to kick some ass with your normal-mode excellent guess: " + $("#game_input").val());
+	    log(INFO,"It's time to try your normal-mode excellent guess: " + $("#game_input").val());
 	    log(INFO,"In correction mode is: " + in_correction_mode);
 	    log(INFO,"Correction mode IS FALSE (right?): " + in_correction_mode);
             $("#answer_button").click();
@@ -378,13 +386,13 @@ function submit_correction_response(form_input_id) {
     }
 }
 
-function correction_dialog(question_lca_text,question_text,correct_answer,bare_id,full_question) {
+function correction_dialog(question_left_context_of_answer_text,question_text,correct_answer,bare_id,full_question) {
     log(INFO,"Popping up the correction_dialog and populating it with stuff.");
     $("#correction_dialog")[0].style.display = "block";
     $("#game_input").focus();
     $("#correction_bare_id").val(bare_id);
     $("#answer_button")[0].innerHTML = "Correct";
-    $("#cd_lca").html(question_lca_text + " .."); // show some elipses to help user hopefully:
+    $("#cd_left_context_of_answer").html(question_left_context_of_answer_text + " ");
     $("#correct_answer").html(correct_answer);
     $("#full_question").html(full_question);
     log(INFO,"correction_dialog: done populating.");
@@ -400,15 +408,15 @@ function correct_user(cloud) {
     var re = /cloud_([^_]+)/;
     bare_id = cloud.id.replace(re,"$1");
     var answer_text = $("#cloud_" + bare_id + "_a").val();
-    var question_lca_text = $("#lca_" + bare_id).text();
+    var question_left_context_of_answer = $("#left_context_of_answer_" + bare_id).text();
     var question_text = $("#question_" + bare_id).text();
     var full_question = $("#fullquestion_" + bare_id).text();
-    log(INFO,"calling correction_dialog() with: " + question_lca_text + "," +
+    log(INFO,"calling correction_dialog() with: " + question_left_context_of_answer + "," +
 	question_text + "," +
 	answer_text + "," +
 	bare_id + "," + 
 	full_question);
-    correction_dialog(question_lca_text,question_text,answer_text,bare_id,full_question);
+    correction_dialog(question_left_context_of_answer,question_text,answer_text,bare_id,full_question);
 }
 
 function blow_cloud(cloud) {
@@ -488,6 +496,14 @@ function keys(arg) {
 var existing = null;
 
 function clean_up_cloud(bare_id,answer_text,form_input_id) {
+    // show left context_of_answer
+    $("#left_context_of_answer_" + bare_id).removeClass("hidden");
+    $("#right_context_of_answer_" + bare_id).removeClass("hidden");
+    $("#answer_" + bare_id).removeClass("hidden");
+    $("#question_" + bare_id).addClass("hidden");
+    $("#left_context_of_question_" + bare_id).addClass("hidden");
+    $("#full_question_" + bare_id).addClass("hidden");
+
     // TODO: make 'solved' lightgrey.
     $("#cloud_" + bare_id)[0].style.color = "lightgrey";
     $("#cloud_" + bare_id).addClass("solved");
