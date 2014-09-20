@@ -113,7 +113,7 @@
     top:25%;
     width: 50%;
     height: 20%;
-    background:azure;
+    background:gainsboro;
     border:lightblue 2px solid;
 }
 
@@ -283,3 +283,11 @@ span.answer {
     font-size:100%;
     color:black;
 }
+
+span.hidden {
+    display:none;
+}
+
+span.left_context_of_answer {
+}
+
