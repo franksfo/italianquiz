@@ -511,8 +511,10 @@ function clean_up_cloud(bare_id,answer_text,form_input_id) {
     $("#left_context_of_question_" + bare_id).addClass("hidden");
     $("#full_question_" + bare_id).addClass("hidden");
 
-    // TODO: make 'solved' lightgrey.
+    // TODO: make 'solved' lightgrey in CSS rather than here in Javascript.
     $("#cloud_" + bare_id)[0].style.color = "lightgrey";
+    // stop this cloud in its tracks: set speed to 0.
+    cloud_speeds["cloud_" + bare_id] = 0;
     $("#cloud_" + bare_id).addClass("solved");
     $("#cloud_" + bare_id + "_a").remove;
     $("#question_" + bare_id).remove();
