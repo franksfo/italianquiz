@@ -214,10 +214,16 @@ function grow_tree(question_id) {
     log(INFO,"answer_info group by:" + answer_info[question_id]["group_by"]);
     var group_by = answer_info[question_id]["group_by"];
 
-    // group_by is the infinitive form of the verb for this question.
+    // group_by is currently simply the infinitive form of the verb for this question.
+    // This means that there will be one tree for all questions with the same infinitive verb:
+    // e.g. all questions about "parlare" will grow the "parlare" tree.
+    //
+    // In the future, group_by may change, e.g. split the possible groups into a larger set such as
+    // infinitive+tense. 
     if ($("#tree_" + group_by)[0]) {
-	// grow the existing tree for this verb.
+	// grow the existing tree for this group.
 	log(INFO,"Growing an existing tree.");
+	var tree_dom_id = "#tree_"+group_by[0];
 	var tree = $("#tree_" + group_by)[0];
 	
 	var existing_font_size = $("#tree_" + group_by).css("font-size");
@@ -230,6 +236,8 @@ function grow_tree(question_id) {
 	log(INFO,"New font size: " + new_font_size);
 	$("#tree_"+group_by).css({ 'font-size': new_font_size + "px" });
 
+
+	// we need to make the top lower if the tree grows; otherwise the tree might float in the air (have a top smaller than the ground's top).
 	var existing_top = $("#tree_" + group_by).css("top");
 	log(INFO,"Existing top(1): " + existing_top);
 	log(INFO,"Existing top(2): " + existing_top);
@@ -241,7 +249,8 @@ function grow_tree(question_id) {
 
 
     } else {
-	// add a new tree for this verb, since it doesn't exist yet.
+
+	// add a new tree for this group, since it doesn't exist yet.
 	var left=Math.floor(Math.random()*80) + 10;
 	var top=Math.floor(Math.random()*65) - 20;
 	var font_size = initial_tree_size;
