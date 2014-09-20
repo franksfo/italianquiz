@@ -86,7 +86,14 @@ var cloud_speeds = {};
 
 function add_cloud(cloud_id) {
     log(INFO,"add_cloud(" + cloud_id + ")");
-    var size = Math.floor(Math.random()*4) + 1;
+    var fixed_cloud_size = true
+    var size;
+    if (fixed_cloud_size == true) {
+	size = 4;
+    } else {
+	size = Math.floor(Math.random()*4) + 1;
+    }
+
     var top = cloud_altitude();
     var left = 1;
     $("#sky").append("<i id='cloud_" + cloud_id + "' class='fa motion " + fa_cloud + " x"+size+"' style='display:none;left:" + left + "%; top: " + top + "px '> </i>");
