@@ -227,7 +227,7 @@ function grow_tree(question_id) {
 
     } else {
 	// add a new tree for this verb, since it doesn't exist yet.
-	var left=Math.floor(Math.random()*90) + 10;
+	var left=Math.floor(Math.random()*80) + 10;
 	var top=Math.floor(Math.random()*65) - 20;
 	var font_size = initial_tree_size;
 	log(INFO,"Planting a new tree with top: " + top);
