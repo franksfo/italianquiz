@@ -179,7 +179,9 @@
      (json/write-str
       {:cloud_id (get-in request [:params :cloud_id])
        :tree (morph/fo-ps (strip-refs generated))
-       :group_by (str (get-in generated [:head :italian :infinitive]))
+       :group_by (if (= (get-in generated [:head :synsem :aux]))
+                   (get-in (strip-refs generated) [:head :comp :italian :infinitive])
+                   (get-in generated [:head :italian :infinitive]))
        :left_context_of_answer (morph/remove-parens (morph/get-italian (get-in generated [:comp :italian])))
        :answer (morph/remove-parens (morph/get-italian (get-in generated [:head :italian])))
        :semantics semantics
