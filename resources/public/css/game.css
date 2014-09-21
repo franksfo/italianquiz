@@ -254,8 +254,11 @@ circle {
 span.lca,span.rca {
 }
 
-div.correct_answer {
+div3#correct_answer {
+    position:absolute;
     font-size:125%;
+    top:45%; /* we want it smack dab in the center, but the font size is larger, so maybe a bit less than 50% will be perfect.*/
+    text-align:center;
     float:left;
     width:auto;
 }
