@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [get-in])
   (:require 
    [clojure.tools.logging :as log]
-   [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases)]
+   [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
    [italianverbs.lexicon :refer :all]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
@@ -174,7 +174,8 @@
                             :synsem {:cat :prep}})
 
                    (unifyc c10
-                           {:head {:synsem {:aux true}}
+                           {:head {:phrasal true ;; only a vp-aux may be the head child, not simply a lexical auxiliary verb.
+                                   :synsem {:aux true}}
                             :rule "s-aux"
                             :synsem {:infl :present
                                      :cat :verb
@@ -317,22 +318,7 @@
 (def cache nil)
 ;; TODO: trying to print cache takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to show only keys and first value or something.
-(def cache (future (conj (build-lex-sch-cache grammar
-                                      (map (fn [lexeme]
-                                             (unifyc lexeme
-                                                     {:phrasal false}))
-                                           @lexicon)
-                                      grammar)
-                 {:phrase-constraints head-principle ;; for now, only one constraint: ug/head-principle.
-                  :phrases-for-spec
-                  (spec-to-phrases
-                   ;; TODO: make this list derivable from the grammar and /or lexicon.
-                   (list {:synsem {}, :head {:synsem {}}, :phrasal true}
-                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:subcat {:2 {}, :1 {}}, :infl :present, :cat :verb, :sem {:tense :present}}, :phrasal false}, :phrasal true}
-                         {:synsem {:cat :verb}, :head {:synsem {:cat :verb, :infl {:not :past}, :subcat {:2 {:cat :noun, :subcat (), :pronoun true}, :1 {}}}, :phrasal false}, :phrasal true}
-                         {:synsem {:cat :verb, :aux false}, :head {:synsem {:cat :verb, :infl :infinitive, :subcat {:2 {}, :1 {}}}, :phrasal false}, :phrasal true}
-                         )
-                   grammar)})))
+(def cache (future (create-index grammar lexicon head-principle)))
 
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical cache in " (- end begin) " msec.")

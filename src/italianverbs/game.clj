@@ -5,6 +5,7 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [hiccup.page :refer :all]
+   [italianverbs.cache :refer (create-index)]
    [italianverbs.generate :as gen]
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
@@ -12,6 +13,7 @@
    [italianverbs.html :as html]
    [italianverbs.lexicon :as lex]
    [italianverbs.morphology :as morph]
+   [italianverbs.ug :refer [head-principle]]
    [italianverbs.unify :refer [get-in strip-refs]]
    ))
 
@@ -96,16 +98,15 @@
     (log/info (str "question: " (morph/fo question)))
     (log/info (str "head english: " (get-in question [:head :english])))
     {:left_context_english (morph/remove-parens (morph/get-english (get-in question [:comp :english])))
-     :middle_english (morph/remove-parens (morph/get-english (get-in question [:head :english])))
+     :head_of_english (morph/remove-parens (morph/get-english (get-in question [:head :english])))
      :right_context_english ""
-     :middle_italian "lavoriamo"
      :right_context_italian ""}))
 
 (def mini-english-grammar
   (filter #(or (= (:rule %) "s-present")
                (= (:rule %) "s-future")
-;               (= (:rule %) "s-aux")
-;               (= (:rule %) "vp-aux")
+               (= (:rule %) "s-aux")
+               (= (:rule %) "vp-aux")
                (= (:rule %) "s-imperfetto")
                (= (:rule %) "s-conditional"))
           en/grammar))
@@ -113,15 +114,21 @@
 (def mini-italian-grammar
   (filter #(or (= (:rule %) "s-present")
                (= (:rule %) "s-future")
-;               (= (:rule %) "s-aux")
-;               (= (:rule %) "vp-aux")
+               (= (:rule %) "s-aux")
+               (= (:rule %) "vp-aux")
                (= (:rule %) "s-imperfetto")
                (= (:rule %) "s-conditional"))
           it/grammar))
 
+(def en-index
+  (future (create-index mini-english-grammar lex/lexicon head-principle)))
+
+(def it-index
+  (future (create-index mini-italian-grammar lex/lexicon head-principle)))
+
 (defn generate-question [request]
   (let [spec
-        {:head {:phrasal false}
+        {:head {:phrasal :top}
          :comp {:phrasal false}
          :synsem {;:sem {:pred :leggere}
                   :cat :verb
@@ -135,15 +142,16 @@
      :body (let [question (gen/generate spec
                                         mini-english-grammar
                                         lex/lexicon
-                                        en/cache)
+                                        en-index)
                  semantics (strip-refs (get-in question [:synsem :sem]))
                  english (morph/remove-parens (morph/get-english (:english question)))
                  form (html-form question)]
              (json/write-str
               {:english english
+               :tree (morph/fo-ps (strip-refs question))
                :left_context_of_question (:left_context_english form)
                :semantics semantics
-               :question (:middle_english form)
+               :question (:head_of_english form)
                :right_context_of_question (:right_context_english form)}))}))
 
 (defn generate-answers [request]
@@ -154,11 +162,14 @@
   (log/info (str "semantics:" (json/read-str (get-in request [:params :semantics]))))
   (let [semantics (json/read-str (get-in request [:params :semantics])
                                  :key-fn keyword)
-        generated (it/generate
-                   {:synsem {:sem semantics}
-                    :head {:phrasal false}
+        generated (gen/generate
+                   {:synsem {:subcat '()
+                             :sem semantics}
+                    :head {:phrasal :top}
                     :comp {:phrasal false}}
-                   mini-italian-grammar)
+                   mini-italian-grammar
+                   lex/lexicon
+                   it-index)
 
         italian (morph/get-italian
                  (:italian generated))]
@@ -167,6 +178,7 @@
      :body
      (json/write-str
       {:cloud_id (get-in request [:params :cloud_id])
+       :tree (morph/fo-ps (strip-refs generated))
        :group_by (str (get-in generated [:head :italian :infinitive]))
        :left_context_of_answer (morph/remove-parens (morph/get-italian (get-in generated [:comp :italian])))
        :answer (morph/remove-parens (morph/get-italian (get-in generated [:head :italian])))
