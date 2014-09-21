@@ -6,7 +6,24 @@ Semantics:
    should be: "Antonia was less tall than (some human)"
 
 
-redirect to /game automatically
+- make tree height relate to verb tense: harder tenses => higher up on the ground (eventually mountain).
+
+- e.g. present tense is close to the bottom, subjunctive will be up the mountain somewhere close to the summit!
+
+- get passato working in game: need to add support for grammars that support phrasal heads: currently only supports 
+  heads that are lexical.
+
+- make future questions depend on user profile: show more questions for things for which you are weak.
+
+- set up email registration:
+
+   - insert new user into prospective_users table
+   - send link with secret
+   - after link has been clicked on, set up user in users table
+
+- 
+
+
 
 
 
