@@ -381,7 +381,7 @@ function normal_returnkey_mode() {
             $("#answer_button").click();
 	}
     });
-    log(INFO,"You are doing great! NORMAL RETURNKEY MODE.");
+    log(DEBUG,"You are doing great! NORMAL RETURNKEY MODE.");
 }
 
 function correction_returnkey_mode() {
@@ -393,7 +393,7 @@ function correction_returnkey_mode() {
             $("#answer_button").click();
 	}
     });
-    log(INFO,"Sadly you are in need of a more basic kind of learning. CORRECTION RETURNKEY MODE.");
+    log(DEBUG,"Sadly you are in need of a more basic kind of learning. CORRECTION RETURNKEY MODE.");
     in_correction_mode = true;
 }
 
