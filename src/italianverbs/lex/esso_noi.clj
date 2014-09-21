@@ -303,7 +303,7 @@
 
       ;; TODO: check that imperfect past: 'we were going mad' works.
       {:synsem {:cat :verb
-                :essere false
+                :essere true
                 :sem {:discrete false
                       :pred :impazzire
                       :subj {:animate true}}}
