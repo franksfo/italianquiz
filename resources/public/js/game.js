@@ -549,6 +549,8 @@ function clean_up_cloud(bare_id,answer_text,form_input_id) {
     $("#question_" + bare_id).remove();
     $("#answer_" + bare_id).html(answer_text);
 
+    $("#left_context_italian").html("");
+
     $("#cloud_" + bare_id).fadeOut(1000,function () {$("#cloud_" + bare_id).remove();});
     $("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
     $("#"+form_input_id).focus();
@@ -556,6 +558,8 @@ function clean_up_cloud(bare_id,answer_text,form_input_id) {
 }
 
 function clean_up_cloud_quickly(bare_id,answer_text,form_input_id) {
+    $("#left_context_italian").html("");
+
     $("#cloud_" + bare_id).remove();
     $("#cloud_" + bare_id + "_q").remove();
     $("#"+form_input_id).focus();
