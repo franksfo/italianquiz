@@ -1,11 +1,16 @@
-// <configurable>
+// Begin configurable section.
+
 var logging_level = INFO;
+
 var fa_cloud = "fa-cloud";
+
+// Other possibilities:
 //var fa_cloud = "fa-bicycle";
-// var fa_cloud = "fa-fighter-jet";
+//var fa_cloud = "fa-fighter-jet";
+
 var background = "white";
 var radius = 15;
-// TODO: get width and height of #game from DOM, not hardcoded.
+// TODO: get width and height of #game from DOM, not hardcoded - use client's preferred dimensions.
 var game_width = 1000;
 var game_height = 500;
 var offset=0;
@@ -35,7 +40,10 @@ var in_correction_mode = false;
 // TODO: move to css and use classes (e.g. tree0,tree1, etc)
 var tree_colors = ["lightgreen","darkgreen","forestgreen","seagreen","mediumseagreen","springgreen","mediumspringgreen","lightseagreen"];
 
-// </configurable>
+// End of configurable section.
+
+
+// Begin static variables.
 
 // 'freezed' rather than 'frozen' in order to make freeze-related functionality more easily searchable.
 var wind_is_freezed = false;
@@ -45,6 +53,10 @@ var answer_info = {}; // key: question_id; val: answer information.
 // In the DOM is a set of trees: tree_<infinitive_verb>.
 // Each tree is created when a question having that infinitive_verb is answered correctly.
 // The tree grows bigger as the user answers more correct questions with that infinitive verb.
+
+// End of static variables.
+
+// Begin function declarations (until end of file).
 
 function freeze_wind() {
     wind_is_freezed = true;
