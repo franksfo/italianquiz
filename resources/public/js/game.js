@@ -224,7 +224,7 @@ function grow_tree(question_id) {
 	// grow the existing tree for this group.
 	log(INFO,"Growing an existing tree.");
 	var tree_dom_id = "#tree_"+group_by[0];
-	var tree = $("#tree_" + group_by)[0];
+	var tree = $(tree_dom_id)[0];
 	
 	var existing_font_size = $("#tree_" + group_by).css("font-size");
 	log(INFO,"Existing font size(1): " + existing_font_size);
