@@ -236,6 +236,8 @@ circle {
 }
 
 #gameform {
+    position:fixed;
+    top:70%;
     font-size:150%;
 }
 
@@ -291,3 +293,6 @@ span.hidden {
 span.left_context_of_answer {
 }
 
+#answer_button {
+    margin:2px; /* keep some small distance between the input element and this button. */
+}
