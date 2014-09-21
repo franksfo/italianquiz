@@ -29,6 +29,10 @@
     border:0px dashed green;
 }
 
+#gameform form input[type="text"] {
+    text-transform: lowercase;
+}
+
 #rainforest {
     z-index:0;
     border:0px dashed blue;
