@@ -61,7 +61,7 @@
   (GET "/" request
        ;; response map
        {:status 302
-        :headers {"Location" "/verb/"}})
+        :headers {"Location" "/game"}})
 
   (GET "/about" request
        {:status 200
