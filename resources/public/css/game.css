@@ -82,7 +82,7 @@
     top:0px;
     float:left;
     border-top:2px solid lightgreen;
-    background:lightskyblue;
+    background:powderblue;
 }
 
 #ground {
@@ -113,7 +113,7 @@
     top:25%;
     width: 50%;
     height: 20%;
-    background:gainsboro;
+    background:salmon; /* reminicent of the red in the Italian flag */
     border:lightblue 2px solid;
 }
 
@@ -123,7 +123,7 @@
 
 #correction_dialog h3 {
     width:80%;
-    text-align:right;
+    text-align:left;
     background:none
 }
 
@@ -262,7 +262,7 @@ div.correct_answer {
 .question {
     font-size:85%;
     font-style:italic;
-    color:darkgrey;
+    color:black;
 }
 
 #full_question {
