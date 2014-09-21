@@ -161,16 +161,16 @@ function add_cloud(cloud_id) {
 	log(DEBUG,"Updating cloud with question content: " + content);
 	evaluated = jQuery.parseJSON(content);
 	// TODO: avoid munging html like this - it's hard to understand.
-        $("#"+cloud_q_dom_id).html("<span class='left_context_of_question'       id='left_context_of_question_"+cloud_id+"'>" + evaluated.left_context_of_question + "</span>" +
+        $("#"+cloud_q_dom_id).html("<span class='left_context_of_question question' id='left_context_of_question_"+cloud_id+"'>" + evaluated.left_context_of_question + "</span>" +
 				   "<span class='spacing'> </span>" +
-				   "<span class='question'                       id='question_"+cloud_id+"'>" + evaluated.question + "</span>" +
-				   "<span class='full_question'                  id='fullquestion_"+cloud_id+"'>" + evaluated.english + "</span>" +
+				   "<span class='question'                          id='question_"+cloud_id+"'>" + evaluated.question + "</span>" +
+				   "<span class='full_question'                     id='fullquestion_"+cloud_id+"'>" + evaluated.english + "</span>" +
 				   "<span class='spacing'> </span>" +
-				   "<span class='left_context_of_answer hidden'  id='left_context_of_answer_"+cloud_id+"'> </span>" +
+				   "<span class='left_context_of_answer hidden'     id='left_context_of_answer_"+cloud_id+"'> </span>" +
 				   "<span class='spacing'> </span>" +
-				   "<span class='answer hidden'                  id='answer_"+cloud_id+"'> </span>" +
+				   "<span class='answer hidden'                     id='answer_"+cloud_id+"'> </span>" +
 				   "<span class='spacing'> </span>" +
-				   "<span class='right_context_of_answer hidden' id='right_context_of_answer_"+cloud_id+"'>" + "" + "</span>");
+				   "<span class='right_context_of_answer hidden'    id='right_context_of_answer_"+cloud_id+"'>" + "" + "</span>");
 				   
 	log(DEBUG,"Sending request: /game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
 
