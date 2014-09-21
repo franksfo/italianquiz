@@ -14,6 +14,9 @@
    [italianverbs.benchmark :refer :all]
    [italianverbs.forest :as forest]
    [italianverbs.forest :refer :all :exclude [lightning-bolt unifyc deref future generate rand-int]]
+
+   [italianverbs.game :as game]
+
    [italianverbs.generate :as generate :refer :all :exclude [lightning-bolt sentence]]
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
