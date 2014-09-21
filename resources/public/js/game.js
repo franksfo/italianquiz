@@ -14,7 +14,7 @@ var radius = 15;
 var game_width = 1000;
 var game_height = 500;
 var offset=0;
-var this_many_clouds = 1;
+var this_many_questions_at_a_time = 1;
 var initial_tree_size = 50; // in pixels: size of smallest tree.
 
 // beginners' maximum speed is 10, but it gets increased when you correctly answer questions.
@@ -69,7 +69,7 @@ function unfreeze_wind() {
 function start_game() {
     normal_returnkey_mode();
     var svg = d3.select("#svgarena");
-    add_clouds(this_many_clouds);
+    add_clouds(this_many_questions_at_a_time);
     
     $("#game_input").focus();
     
@@ -144,7 +144,7 @@ function add_cloud(cloud_id) {
 	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
 	var cloud_q_dom_id = "cloud_" + evaluated.cloud_id + "_q";
 
-	// start nice and slow.
+	// start nice and slow with this question cloud:
 	cloud_speeds["cloud_" + evaluated.cloud_id] = Math.random()*0.010;
 	// other possibilities:
 	//    cloud_speeds["cloud_" + evaluated.cloud_id] = Math.random()*0.001;
@@ -167,6 +167,14 @@ function add_cloud(cloud_id) {
 
 	$("#gameform").append("<div class='answer_info' id='answer_info_" + evaluated.cloud_id + "> " +  content + " </div>");
 	answer_info[evaluated.cloud_id] = evaluated;
+
+	// there is only a single place to put the left_context_italian for now.
+	// Someday will be extended to handle multiple questions at a time for real
+	// language learning champs :)
+	if (this_many_questions_at_a_time == 1) {
+	    $("#left_context_italian").html(evaluated.left_context_of_answer + " ");
+	}
+
     }
 
     update_cloud_fn = function (content) {

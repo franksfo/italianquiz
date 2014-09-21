@@ -60,6 +60,14 @@
      ] ;; end of :div#rainforest
 
     [:div#gameform
+
+
+     ;; e.g., if the Italian is "io parlo", and the English is "I speak", and you are supposed to answer "parlo", then
+     ;; the left_context_italian will be "io".
+     [:span {:id "left_context_italian"}
+      ]
+
+
       [:input {:id "game_input" :size "50"}]
      
       [:button#answer_button {:class "click;float:right;width:auto"
