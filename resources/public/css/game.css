@@ -259,6 +259,7 @@ div3#correct_answer {
     font-size:125%;
     top:45%; /* we want it smack dab in the center, but the font size is larger, so maybe a bit less than 50% will be perfect.*/
     text-align:center;
+    margin-left:10%;
     float:left;
     width:auto;
 }
