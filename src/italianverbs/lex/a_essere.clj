@@ -567,6 +567,8 @@
                       :cat :adjective}})
 
     {:italian {:infinitive "dare"
+               :irregular {:present {:2sing "dai"
+                                     :3plur "danno"}}
                :futuro-stem "dar"}
      :english {:infinitive "to give"
                :irregular {:past "gave"}}
