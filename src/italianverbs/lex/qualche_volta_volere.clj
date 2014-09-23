@@ -783,8 +783,7 @@
                                         :2plur "want to"
                                         :3plur "want to"}
                               :past "wanted to"}}
-        :synsem {:essere false
-                 :sem {:pred :volere
+        :synsem {:sem {:pred :volere
                        :activity true
                        :discrete false
                        :subj {:animate true}}}})
