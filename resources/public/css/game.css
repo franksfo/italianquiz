@@ -304,3 +304,7 @@ span.left_context_of_answer {
 #answer_button {
     margin:2px; /* keep some small distance between the input element and this button. */
 }
+
+#left_context_italian {
+    display:none;
+}
