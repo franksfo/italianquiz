@@ -313,9 +313,9 @@
              ;; current morphology.clj would otherwise return
              ;; "braccii".
              ;; TODO: might not be an exception so much
-             ;; as a ortho-pholological rule "io" -plur-> "i"
+             ;; as a ortho-pholological rule "io" -plur-> "ia"
              :italian {:italian "braccio"
-                       :irregular {:plur "bracci"}}
+                       :irregular {:plur "braccia"}}
              :english {:english "arm"}})
 
      ;; non-comparative
