@@ -375,6 +375,17 @@
                                           :activity true}}}}
               :english "this morning"})
 
+      {:italian {:infinitive "stare"
+                 :futuro-stem "star"
+                 :irregular {:present {:2sing "stai"
+                                       :3plur "stanno"}}}
+       :synsem {:aux false
+                :cat :verb
+                :essere true
+                :pred :stare}
+       :english {:inifinitive "to stay"}}
+
+
       {:english {:infinitive "to hang out"
                  :irregular {:imperfect {:default "was hanging out"
                                          :2sing "were hanging out"
