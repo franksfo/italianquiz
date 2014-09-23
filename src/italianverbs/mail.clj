@@ -9,9 +9,16 @@
 ;; Please note that email/templates/warning.mustache should be on your classpath. For example, with Leiningen 2,
 ;; email templates are stored in the top-level project.clj's :resource-paths, which is: "resources". 
 ;; within that is 'email' which you can find in the second parameter below.
-(def my-cool-email-message
-  (build-email {:from "Joe The Robot", 
-                :to ["ops@megacorp.internal" "oncall@megacorp.internal"] 
-                :subject "OMG everything is down!"}
-               "email/warning.mustache" {:name "Joe"}
+(def registration-email-message
+  (build-email {:from "Verbcoach Registration", 
+                :to ["student@somewhere.edu"] 
+                :subject "Welcome to Verbcoach"}
+               "email/warning.mustache" {:name "Joe" :hash "abcdef12345678"}
+               :text/plain))
+
+(def registration-email-message
+  (build-email {:from "Verbcoach Lost Password Recovery", 
+                :to ["student@somewhere.edu"] 
+                :subject "Reset your password"}
+               "email/warning.mustache" {:name "Joe" :hash "12345678abcdef"}
                :text/plain))
