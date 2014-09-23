@@ -472,6 +472,7 @@
        (:transitive verb)
        {:italian {:infinitive "sostenere"
                   :irregular {:passato "sostenuto"
+                              :futuro-stem "sosterr"
                               :present {:1sing "sostengo"
                                         :2sing "sostengi"
                                         :3sing "sostenga"
