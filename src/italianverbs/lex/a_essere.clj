@@ -724,7 +724,6 @@
                                       :2plur "have to"
                                       :3plur "have to"}}}
       :synsem {:modal true
-               :essere false ;; "io ho dovato..", not "io sono dovato.."
                :sem {:pred :dovere
                      :activity false
                      :discrete false
