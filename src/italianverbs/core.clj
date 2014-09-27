@@ -240,6 +240,9 @@
   (GET "/game/generate-question" request
        (game/generate-question request))
 
+  (GET "/game/genlab" request
+       (game/genlab request))
+
   (GET "/generate/" request
        {:status 302
         :headers {"Location" "/generate"}})

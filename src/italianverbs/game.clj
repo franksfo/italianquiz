@@ -154,6 +154,20 @@
                :question (:head_of_english form)
                :right_context_of_question (:right_context_english form)}))}))
 
+(defn genlab [request]
+  (do
+    (log/info "rendering genlab page..")
+    {:status 200
+     :headers {"Content-Type" "text/html;charset=utf-8"}
+     :body (html/page "Rain Forest: Lab" 
+                      (h/html5
+                       [:h1 "Welcome to the lab.."]
+                       [:div#labform
+                        [:h2 "input" ]
+                        [:textarea ]
+                        [:h3 "output "]
+                        [:div#output ]]))}))
+
 (defn generate-answers [request]
   "generate a single sentence according to the semantics of the request."
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
