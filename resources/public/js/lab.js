@@ -51,6 +51,7 @@ function blow_cloud(cloud) {
     if (cloud_left < 0) {
 	log(INFO,"Removing cloud..");
 	$("#"+cloud.id).remove();
+	return;
     }
 
     if (cloud_speeds[cloud_id] < 0) {
