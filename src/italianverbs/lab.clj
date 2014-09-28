@@ -12,7 +12,7 @@
 
     [:svg {:id "svg_giardino"}]
 
-     [:i {:id "cloud_0" :class "fa fa-cloud diagonal motion" :style "font-size:100px;left:50%;top:50%"  } " "]
+     [:i {:id "cloud_0" :class "fa fa-cloud diagonal motion" :style "font-size:100px;left:90%;top:5%"  } " "]
 
      ]
    request

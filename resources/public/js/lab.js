@@ -1,4 +1,4 @@
-var logging_level = DEBUG;
+var logging_level = INFO;
 
 var cloud_speeds = {};
 
@@ -38,12 +38,15 @@ function blow_cloud(cloud) {
 
     log(DEBUG,"current cloud left: " + cloud.style.left);
 
-    var cloud_left= parseFloat(cloud.style.left.replace('%',''));
     var cloud_id = cloud.id;
+
+    var cloud_left= parseFloat(cloud.style.left.replace('%',''));
+    var cloud_top= parseFloat(cloud.style.top.replace('%',''));
 
     log(DEBUG,"new cloud left will be: " + (cloud_left + cloud_speeds[cloud_id])+"%");
 
-    cloud.style.left = (cloud_left + cloud_speeds[cloud_id])+"%";
+    cloud.style.left = (cloud_left - cloud_speeds[cloud_id])+"%";
+    cloud.style.top = (cloud_top + cloud_speeds[cloud_id])+"%";
 
     if (cloud_left > 90) {
 	if (cloud.getAttribute("class").match(/solved/)) {
@@ -76,7 +79,7 @@ function blow_cloud(cloud) {
 	log(DEBUG,"cloud " + cloud_id + " slowed down to: " + cloud_speeds[cloud_id]);
     } else {
         if (incr < current_speed_limit) {
-	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.05;
+	    cloud_speeds[cloud_id] = cloud_speeds[cloud_id] + 0.1;
 	    log(DEBUG,"cloud " + cloud_id + " sped up to: " + cloud_speeds[cloud_id]);
         }
     }
