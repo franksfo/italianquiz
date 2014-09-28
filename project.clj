@@ -29,6 +29,7 @@
                  [org.postgresql/postgresql "9.2-1002-jdbc4"]
                  [org.webjars/foundation "4.0.4"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
+                 [postmark "1.1.0"]
                  [ring/ring-jetty-adapter "1.1.0"]
                  [ring/ring-devel "1.1.0"]
                  [ring-basic-authentication "1.0.1"]]
