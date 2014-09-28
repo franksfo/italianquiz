@@ -17,6 +17,7 @@
    [italianverbs.game :as game]
    [italianverbs.gen :as g]
    [italianverbs.korma :as db]
+   [italianverbs.lab :as lab]
    [italianverbs.lesson :as lesson]
    [italianverbs.menubar :as menubar]
    [italianverbs.xml :as xml]
@@ -240,6 +241,7 @@
   (GET "/game/generate-question" request
        (game/generate-question request))
 
+
   (GET "/game/genlab" request
        (game/genlab request))
 
@@ -259,7 +261,6 @@
                            {:status 200
                             :body (html/page "Generate" (g/generate-from tag) request)})))
 
-
   (GET "/guess/"
        request
        {:body
@@ -271,6 +272,16 @@
         :status 200
         :headers {"Content-Type" "text/xml;charset=utf-8"}
         })
+
+  
+  ;; <lab>
+  (GET "/lab" request
+       {:status 302 :headers {"Location" "/lab/"}})
+  (GET "/lab/" request
+       {:status 302 :headers {"Location" "/lab/giardino"}})
+  (GET "/lab/giardino" request (lab/giardino request))
+  (GET "/lab/giardino/" request {:status 302 :headers {"Location" "/lab/giardino"}})
+  ;; </lab>
 
   (GET "/lesson/" request
        {:status 302

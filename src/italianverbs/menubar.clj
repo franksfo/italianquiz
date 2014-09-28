@@ -56,6 +56,21 @@
                  :requires-admin false
                  :requires-authentication false})
 
+      (do
+        (log/info (str "got here - current-url is: " current-url))
+        (menuitem {:selected?
+                   (or (and (not (nil? current-url))
+                            (re-find #"/lab" current-url))
+                     (= current-url "/lab")
+                     (and (not (nil? current-url))
+                          (re-find #"/lab" current-url)))
+                   :show? true
+                   :current-url current-url 
+                   :text "Lab" 
+                   :url-for-this-item "/lab"
+                   :requires-admin false
+                   :requires-authentication false}))
+
       (menuitem {:selected?
                  (and (not (nil? current-url))
                       (re-find #"/class" current-url))

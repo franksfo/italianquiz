@@ -714,6 +714,7 @@
    (include-js "/js/d3.v2.min.js")
    (include-js "/js/log4.js")
    (include-js "/js/game.js")
+   (include-js "/js/lab.js")
 
     ; enable this 'reset.css' at some point.
     ;  (include-css "/italian/css/reset.css")
