@@ -676,7 +676,8 @@
     ])
 
 
-(defn pretty-head [title]
+(defn pretty-head [title & [js]]
+  (log/debug (str "pretty-head js: " js))
   [:head 
    [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
@@ -696,11 +697,12 @@
      (include-css "http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
      (include-css "/css/font-awesome.min.css"))
    (include-css "/css/game.css")
+   (include-css "/css/lab.css")
 
    [:style {:type "text/css"} "ul { padding-left: 2em }"]
    
-   [:script {:src "/webjars/js/foundation.min.js" :type "text/javascript"}]
    [:script {:type "text/javascript" :src "/js/jquery-1.6.4.min.js"}]
+   [:script {:type "text/javascript" :src "/webjars/js/foundation.min.js" }]
    [:script {:type "text/javascript" :src "/js/autogrow.js"}]
 
    ;; TODO: move this [:script ] to quiz.clj somehow: should keep quiz.js stuff with quiz.clj, search.js stuff with search.clj,etc.
@@ -713,8 +715,8 @@
    (include-js "/js/lang-clj.js")
    (include-js "/js/d3.v2.min.js")
    (include-js "/js/log4.js")
-   (include-js "/js/game.js")
-   (include-js "/js/lab.js")
+
+   (if js (include-js js))
 
     ; enable this 'reset.css' at some point.
     ;  (include-css "/italian/css/reset.css")
@@ -768,8 +770,9 @@
 
 (defn page-body [content req & [ title options]]
   (let [title (if title title "default page title")]
+    (log/info (str "page-body with options: " options))
     (h/html5
-     (pretty-head title)
+     (pretty-head title (:js options))
      (pretty-body
       options
       (if-let [identity (friend/identity req)]
@@ -805,7 +808,7 @@
          (get (:query-params request) "result")])
 
       [:div#content content])
-     request title {:onload (if (:onload options) (:onload options) "")})))
+     request title options)))
 
 (declare tr)
 (def short-format
