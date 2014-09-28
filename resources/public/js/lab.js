@@ -48,18 +48,9 @@ function blow_cloud(cloud) {
     cloud.style.left = (cloud_left - cloud_speeds[cloud_id])+"%";
     cloud.style.top = (cloud_top + cloud_speeds[cloud_id])+"%";
 
-    if (cloud_left > 90) {
-	if (cloud.getAttribute("class").match(/solved/)) {
-	    log(INFO,"You solved this one, no correction needed..");
-	} else {
-	    correct_user(cloud);
-
-	    // slow down: user is struggling.
-	    if (current_speed_limit > min_speed) {
-		current_speed_limit--;
-	    }
-	    log(DEBUG,"After slowing down due to a miss, your current speed is: " + current_speed_limit);
-	}
+    if (cloud_left < 0) {
+	log(INFO,"Removing cloud..");
+	$("#"+cloud.id).remove();
     }
 
     if (cloud_speeds[cloud_id] < 0) {
