@@ -1,38 +1,31 @@
 (ns italianverbs.mail
   (:require [clojurewerkz.mailer.core :refer [delivery-mode! with-settings with-defaults 
                                               with-settings build-email deliver-email render
-                                              with-delivery-mode]]))
+                                              with-delivery-mode]]
+            [environ.core :refer [env]]
+            [postmark.core :refer [postmark]]))
 
-(delivery-mode! :test)
+;; TODO: use weavejester/environ.
 
-;; build a message (can be used in unit tests or for various forms of delayed delivery)
-;;
-;; Please note that email/templates/warning.mustache should be on your classpath. For example, with Leiningen 2,
-;; email templates are stored in the top-level project.clj's :resource-paths, which is: "resources". 
-;; within that is 'email' which you can find in the second parameter below.
-(def registration-email
-  (build-email {:from "Verbcoach Registration", 
-                :to ["ekoontz@hiro-tan.org"]
-                :subject "Verbcoach: Welcome! Please confirm your password."}
-               "email/warning.mustache" {:name "Joe" :authentication-hash "abcdef12345678"
-                                         :email "joe@foo.com"}
-               :text/plain))
+(def api-key (or (get (System/getenv "POSTMARK_API_KEY"))
+                 "4148c60f-3d15-4e7f-bd81-b56cd9d73c5b"))
 
-(def reset-password-email
-  (build-email {:from "Verbcoach Lost Password Recovery", 
-                :to ["student@somewhere.edu"] 
-                :subject "Verbcoach: Reset your password"}
-               "email/warning.mustache" {:name "Joe" :authentication-hash "12345678abcdef"}
-               :text/plain))
+;; sender email: ekoontz@verbcoach.com
+(def send-message (postmark api-key "ekoontz@verbcoach.com"))
 
-(defn send-test-mail []
-  (with-defaults { :foo "bar" :from "Joe The Robot <robot@megacorp.internal>" :subject "[Do Not Reply] Warning! Achtung! Внимание!" }
-    registration-email))
+(def postmark-api-key (env :postmark-api-key))
 
-(defn foo []
-  (with-delivery-mode :smtp
-    (deliver-email {:from "Joe The Robot", :to ["ekoontz@hiro-tan.org"] :subject "OMG everything is down!"}
-                   "email/warning.mustache" {:name "Joe" :host "mail.hiro-tan.org"})))
+(defn welcome-message []
+  (send-message {:to "ekoontz@hiro-tan.org"
+                 :subject "Welcome to Verbcoach!"
+                 :text "Hello! Click here to confirm your registration."
+                 :tag "welcome"}))
 
+
+(defn forgot-password-message []
+  (send-message {:to "ekoontz@hiro-tan.org"
+                 :subject "Instructions for Password reset"
+                 :text "Click here to reset your password."
+                 :tag "support"}))
 
 

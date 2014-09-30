@@ -7,6 +7,8 @@
             [clojure.tools.logging :as log]
             [italianverbs.unify :refer (unify fail?)]))
 
+(require '[environ.core :refer [env]])
+
 (declare korma-db)
 
 ;; example stuff that works:
@@ -241,32 +243,36 @@ on a table."
 ;; http://sqlkorma.com/docs#db
 (def workstation (postgres {:db "verbcoach"
                     :user "verbcoach"
-                    :password (System/getenv "POSTGRES_SECRET")
+                    :password (env :postgres-secret)
                     :host "localhost"
                     :port "5432"}))
 
 (def heroku (postgres {:db "ddb134r1j9l37p"
                        :user "vozlyexfiyoqnl"
-                       :password (System/getenv "POSTGRES_SECRET")
+                       :password (env :postgres-secret)
                        :host "ec2-184-73-251-115.compute-1.amazonaws.com"
                        :port "5432"
                        :delimiters ""}))
 
 (def heroku-dev (postgres {:db "ddb134r1j9l37p"
                        :user "vozlyexfiyoqnl"
-                       :password (System/getenv "POSTGRES_SECRET")
+                       :password (env :postgres-secret)
                        :host "ec2-184-73-251-115.compute-1.amazonaws.com"
                        :port "5432"
                        :delimiters ""}))
 
-(def postgres_env (System/getenv "POSTGRES_ENV"))
+(def postgres_env (env :postgres-env))
 (defdb korma-db 
   (cond (= postgres_env "heroku")
         heroku
         (= postgres_env "heroku-dev")
-        heroku-dev
+        (do
+          (log/info (str "doing heroku-dev postgres connection."))
+          heroku-dev)
         (= postgres_env "workstation")
-        workstation
+        (do
+          (log/info (str "doing workstation-environment postgres connection"))
+          workstation)
         true
         (do
           (log/warn (str "POSTGRES_ENV not set in your environment: defaulting to 'workstation'."))
