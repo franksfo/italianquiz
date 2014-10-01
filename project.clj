@@ -10,6 +10,7 @@
                  [com.cemerick/friend "0.2.1"]
                  [compojure "1.1.6"]
                  [congomongo "0.4.4"]
+                 [digest "1.4.4"]
                  [environ "1.0.0"]
                  [formative "0.8.8"]
                  [hiccup "1.0.1"]

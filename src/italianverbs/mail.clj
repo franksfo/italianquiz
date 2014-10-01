@@ -5,21 +5,27 @@
             [environ.core :refer [env]]
             [postmark.core :refer [postmark]]))
 
-;; TODO: use weavejester/environ.
+(require '[environ.core :refer [env]])
+(require '[clojure.string :as str])
+(require 'digest)
 
-(def api-key (or (get (System/getenv "POSTMARK_API_KEY"))
-                 "4148c60f-3d15-4e7f-bd81-b56cd9d73c5b"))
+(def api-key (env :postmark-api-key))
+
+(def hash-secret (env :hash-secret))
 
 ;; sender email: ekoontz@verbcoach.com
 (def send-message (postmark api-key "ekoontz@verbcoach.com"))
 
 (def postmark-api-key (env :postmark-api-key))
 
-(defn welcome-message []
-  (send-message {:to "ekoontz@hiro-tan.org"
-                 :subject "Welcome to Verbcoach!"
-                 :text "Hello! Click here to confirm your registration."
-                 :tag "welcome"}))
+(defn welcome-message [recipient]
+  ;; TODO: validate recipient email; just something simple like X@Y, no domain checking; etc.
+  (let [hash-code (digest/md5 (str hash-secret recipient))]
+    (send-message {:to recipient
+                   :subject "Welcome to Verbcoach!"
+                   :text (str/join " " [ "Hello and welcome to Verbcoach! Click here to confirm your registration:"
+                                         (str "http://verbcoach.com/confirm?id=" hash-code) ] )
+                   :tag "welcome"})))
 
 
 (defn forgot-password-message []
