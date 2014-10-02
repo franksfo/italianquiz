@@ -1,5 +1,7 @@
 ;; Note: this file is about 'class' as in 'a class of students in a classroom', 
 ;; not 'class' in the programming language sense.
+;; TODO: find a better name for "a set of students and a teacher associated for a given period of time" than "class".
+;; maybe 'course-term' or something like that.
 (ns italianverbs.class
   (:refer-clojure :exclude [class]) ;; probably bad idea to exclude this..
   (:use [hiccup core])
