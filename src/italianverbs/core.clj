@@ -13,6 +13,7 @@
    [environ.core :refer [env]]
    [hiccup.page :as h]
    [hiccup.element :as e]
+   [italianverbs.auth :as auth] ;; auth/confirm-and-create-user
    [italianverbs.class :as vc-class]
    [italianverbs.game :as game]
    [italianverbs.gen :as g]
@@ -221,6 +222,11 @@
                                               (str "/class/" class))]
                             {:status 302
                              :headers {"Location" (str redirect "?result=" message)}})))
+
+  (GET "/auth/confirm" request
+       ;; this function should create the user, log the user in and let them set their password.
+       (auth/confirm-and-create-user request))
+
 
   (GET "/game" request
        {:status 200
