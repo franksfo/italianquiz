@@ -382,8 +382,8 @@
        :synsem {:aux false
                 :cat :verb
                 :essere true
-                :pred :stare}
-       :english {:inifinitive "to stay"}}
+                :sem {:pred :stare}}
+       :english {:infinitive "to stay"}}
 
 
       {:english {:infinitive "to hang out"
