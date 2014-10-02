@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [test])
   (:use [korma db core])
   (:require [clj-time.coerce :as c]
-            [clj-time.core :as t]
             [clojure.string :as string]
             [clojure.tools.logging :as log]
             [italianverbs.unify :refer (unify fail?)]))
