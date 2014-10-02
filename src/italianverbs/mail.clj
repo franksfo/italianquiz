@@ -4,10 +4,13 @@
                                               with-delivery-mode]]
             [environ.core :refer [env]]
             [postmark.core :refer [postmark]]))
+(require '[clj-time.core :as t])
 
 (require '[environ.core :refer [env]])
 (require '[clojure.string :as str])
 (require 'digest)
+
+(require '[italianverbs.korma :as db])
 
 (def api-key (env :postmark-api-key))
 
@@ -18,9 +21,17 @@
 
 (def postmark-api-key (env :postmark-api-key))
 
+(defn store-hash-code [recipient hash-code]
+  (let [created-at (t/now)]
+    (db/insert! :authentication-codes
+                {:recipient recipient
+                 :hashcode hash-code})))
+
 (defn welcome-message [recipient]
   ;; TODO: validate recipient email; just something simple like X@Y, no domain checking; etc.
-  (let [hash-code (digest/md5 (str hash-secret recipient))]
+  (let [hash-code (digest/md5 (str hash-secret recipient t/now))]
+    ;; save hash code to database so that we can resolve it later.
+    (store-hash-code recipient hash-code)
     (send-message {:to recipient
                    :subject "Welcome to Verbcoach!"
                    :text (str/join " " [ "Hello and welcome to Verbcoach! Click here to confirm your registration:"

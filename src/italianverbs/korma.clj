@@ -20,7 +20,9 @@
 
 ;; http://sqlkorma.com/docs#entities
 ;; TODO: move to verb.clj or similar: model-type stuff.
-(declare classes
+;; ^^ WTF, this comment does not make sense..nothing to do with verbs in here.
+
+(declare authentication-codes classes
          question question-submit 
          students-in-class
          student-test tsubmit user verb vgroup)
@@ -28,8 +30,13 @@
 ;; TODO: this 'defentity' stuff is perfunctory
 ;; boilerplate: remove or at least move to bottom of file
 ;; where it doesn't hog valuable real estate.
-;; (Have to learn what defentity is - for now I just use sql (../sql/create.sql)
-;;  to define tables).
+;; (Have to learn how/if defentity creates tables.
+;; For now I just use sql (../sql/create.sql)
+;;  to create tables).
+(defentity authentication-codes
+  (table :authentication_codes)
+  (pk :id))
+
 (defentity classes
   (pk :id)
   (has-many students-in-class {:fk :class}))
@@ -85,7 +92,8 @@
 
 ;; TODO: replace with a (map (fn [..]) (list :classes :filter ..)
 (def key-to-table
-  {:class classes
+  {:authentication-codes authentication-codes
+   :class classes
    :classes classes
    :filter quiz-generation-filter
    :guess guess
@@ -242,10 +250,10 @@ on a table."
     
 ;; http://sqlkorma.com/docs#db
 (def workstation (postgres {:db "verbcoach"
-                    :user "verbcoach"
-                    :password (env :postgres-secret)
-                    :host "localhost"
-                    :port "5432"}))
+                            :user "verbcoach"
+                            :password (env :postgres-secret)
+                            :host "localhost"
+                            :port "5432"}))
 
 (def heroku (postgres {:db "ddb134r1j9l37p"
                        :user "vozlyexfiyoqnl"
@@ -255,11 +263,11 @@ on a table."
                        :delimiters ""}))
 
 (def heroku-dev (postgres {:db "ddb134r1j9l37p"
-                       :user "vozlyexfiyoqnl"
-                       :password (env :postgres-secret)
-                       :host "ec2-184-73-251-115.compute-1.amazonaws.com"
-                       :port "5432"
-                       :delimiters ""}))
+                           :user "vozlyexfiyoqnl"
+                           :password (env :postgres-secret)
+                           :host "ec2-184-73-251-115.compute-1.amazonaws.com"
+                           :port "5432"
+                           :delimiters ""}))
 
 (def postgres_env (env :postgres-env))
 (defdb korma-db 
@@ -267,11 +275,11 @@ on a table."
         heroku
         (= postgres_env "heroku-dev")
         (do
-          (log/info (str "doing heroku-dev postgres connection."))
+          (log/info (str "using heroku-dev postgres connection."))
           heroku-dev)
         (= postgres_env "workstation")
         (do
-          (log/info (str "doing workstation-environment postgres connection"))
+          (log/info (str "using workstation-environment postgres connection"))
           workstation)
         true
         (do

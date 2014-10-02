@@ -1,4 +1,7 @@
--- Must do this with DB superuser privileges:
+-- TODO: figure out how to create the table (if necessary) as the superuser
+-- and then drop privileges and become the user 'verbcoach'.
+-- 
+-- For now, must do this with DB superuser privileges:
 --
 -- CREATE DATABASE verbcoach OWNER verbcoach;
 -- 
@@ -327,4 +330,8 @@ ALTER TABLE ONLY guess ALTER COLUMN id SET DEFAULT nextval('guess_id_seq'::regcl
 ALTER TABLE filter ADD COLUMN form_params text;
 
 ALTER TABLE queue ADD COLUMN type text;
+
+CREATE TABLE authentication_codes (
+       recipient text,
+       hashcode text);
 
