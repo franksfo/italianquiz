@@ -5,4 +5,4 @@
 (require '[italianverbs.morphology :as morph])
 
 (deftest parse-test
-  (is (not (empty? (morph/fo-ps (parse ["un" "gatto"] it-lexicon it-grammar))))))
+  (is (not (empty? (morph/fo-ps (parse "un gatto" it-lexicon it-grammar))))))

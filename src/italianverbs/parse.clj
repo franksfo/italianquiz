@@ -1,5 +1,6 @@
 (ns italianverbs.parse)
 
+(require '[clojure.string :as str])
 (require '[italianverbs.generate :as gen])
 
 (require '[italianverbs.grammar.english :as en-g])
@@ -23,9 +24,10 @@
 (def en-phonize en-l/phonize)
 (def it-phonize it-l/phonize)
          
-(defn parse [tokens lexicon grammar]
+(defn parse [input-string lexicon grammar]
   "return a list of all possible parse trees for the given list of tokens, given the lexicon and grammar."
-  (let [looked-up (map #(lookup lexicon %)
+  (let [tokens (str/split input-string #"[ ']")
+        looked-up (map #(lookup lexicon %)
                        tokens)]
     (over/over grammar 
                (nth looked-up 0)
