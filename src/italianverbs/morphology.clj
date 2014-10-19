@@ -1960,6 +1960,20 @@
      true
      expr)))
 
-(defn normalize-whitespace [string]
-  (string/trim
-   (string/replace string #"[ ]+" " ")))
+;; TODO: fo-ps-it and fo-ps-en duplicate lots of stuff in (fo-ps).
+(defn fo-ps-it [expr])
+
+(defn formattare-1 [expr])
+
+;; TODO:more clojure-ish way of handling argument types:
+;; if it's a map and its keys are such-and-such, then..
+(defn formattare [expressions])
+
+;; useful abbreviation:
+(defn fo [expressions])
+
+(defn fof [expressions])
+
+(defn finalize [expr])
+
+(defn normalize-whitespace [string])
