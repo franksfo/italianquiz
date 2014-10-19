@@ -1959,3 +1959,7 @@
 
      true
      expr)))
+
+(defn normalize-whitespace [string]
+  (string/trim
+   (string/replace string #"[ ]+" " ")))
