@@ -23,7 +23,9 @@
    [italianverbs.html :as html]
    [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
-   [italianverbs.morphology :refer [finalize fo fo-ps fo-ps-en fo-ps-it get-english get-italian]]
+   [italianverbs.morphology :refer [finalize fo fo-ps]]
+   [italianverbs.morphology.english :as en-m]
+   [italianverbs.morphology.italiano :as it-m]
    [italianverbs.over :refer :all]
    [italianverbs.pos :refer :all]
    ;; we excluded lightning-bolt from italianverbs.forest, so that we can use italianverbs.test.forest's instead:
@@ -179,9 +181,9 @@
           
           [:tr
            [:td
-            (fo-ps-it (:italiano to-show))]
+            (it-m/get-string (:italiano to-show))]
            [:td
-            (fo-ps-en (:english to-show))]]
+            (en-m/get-string (:english to-show))]]
 
           [:tr
            [:td (html/tablize (remove-false (get-in to-show [:italiano :synsem :sem])))]

@@ -13,6 +13,8 @@
    [italianverbs.html :as html]
    [italianverbs.lexicon :as lex]
    [italianverbs.morphology :as morph]
+   [italianverbs.morphology.english :as en-m]
+   [italianverbs.morphology.italiano :as it-m]
    [italianverbs.ug :refer [head-principle]]
    [italianverbs.unify :refer [get-in strip-refs]]
    ))
@@ -97,8 +99,8 @@
   (do
     (log/info (str "question: " (morph/fo question)))
     (log/info (str "head english: " (get-in question [:head :english])))
-    {:left_context_english (morph/remove-parens (morph/get-english (get-in question [:comp :english])))
-     :head_of_english (morph/remove-parens (morph/get-english (get-in question [:head :english])))
+    {:left_context_english (morph/remove-parens (en-m/get-string (get-in question [:comp :english])))
+     :head_of_english (morph/remove-parens (en-m/get-string (get-in question [:head :english])))
      :right_context_english ""
      :right_context_italian ""}))
 
@@ -144,7 +146,7 @@
                                         lex/lexicon
                                         en-index)
                  semantics (strip-refs (get-in question [:synsem :sem]))
-                 english (morph/remove-parens (morph/get-english (:english question)))
+                 english (morph/remove-parens (en-m/get-string (:english question)))
                  form (html-form question)]
              (json/write-str
               {:english english
@@ -185,7 +187,7 @@
                    lex/lexicon
                    it-index)
 
-        italian (morph/get-italian
+        italian (it-m/get-string
                  (:italian generated))]
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"}
@@ -196,8 +198,8 @@
        :group_by (if (= (get-in generated [:head :synsem :aux]))
                    (get-in (strip-refs generated) [:head :comp :italian :infinitive])
                    (get-in generated [:head :italian :infinitive]))
-       :left_context_of_answer (morph/remove-parens (morph/get-italian (get-in generated [:comp :italian])))
-       :answer (morph/remove-parens (morph/get-italian (get-in generated [:head :italian])))
+       :left_context_of_answer (morph/remove-parens (it-m/get-string (get-in generated [:comp :italian])))
+       :answer (morph/remove-parens (it-m/get-string (get-in generated [:head :italian])))
        :semantics semantics
        :right_context_of_answer ""
        :italian italian})}))

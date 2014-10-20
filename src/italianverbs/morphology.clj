@@ -43,3 +43,31 @@
 
 (defn remove-parens [str]
   (replace str #"\(.*\)" ""))
+
+(defn finalize [expr]
+  (cond
+
+   ;; This is the case where we've generated totally separate english and italian phrase structure trees,
+   ;; in which case we need to extract the english and italian strings from their respective trees.
+   (and (map? expr)
+        (= (.size (keys expr)) 2)
+        (= (set (keys expr))
+           #{:italiano :english}))
+   (let [english
+         (english/get-string (get-in expr '(:english :english)))
+         italian
+         ;; TODO: much inconsistent. make the path: [:italiano :italiano]  rather than [:italiano :italian]
+         (italiano/get-string (get-in expr '(:italiano :italian)))]
+     (log/debug (str "input expr: " (fo expr)))
+     (log/debug (str "finalized english: " english))
+     (log/debug (str "finalized italian: " italian))
+     {:italian italian
+      :english english
+      :english-tree (get-in expr [:english])
+      :italian-tree (get-in expr [:italiano])})
+
+   (= :fail expr)
+   :fail
+
+   true
+   "TODO: fix."))
