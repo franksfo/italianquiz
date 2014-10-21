@@ -29,7 +29,7 @@
   (if (or (nil? lexicon)
           (nil? grammar))
     {:english (parse input-string en-lexicon en-grammar)
-     :italian (parse input-string it-lexicon it-grammar)}
+     :italiano (parse input-string it-lexicon it-grammar)}
     ;; else, grammar and lexicon supplied:
     (let [tokens (str/split input-string #"[ ']")
           looked-up (map #(lookup lexicon %)

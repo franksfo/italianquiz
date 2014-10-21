@@ -216,9 +216,9 @@
          is-fail? (fail? result)
          label (if (:rule parent) (:rule parent) (:comment parent))]
      (log/trace (str "overh result keys: " (if (map? result) (keys result) "(not a map)")))
-     (log/trace (str "overh italian value: " (if (map? result) (get-in result '(:italian)) "(not a map)")))
-     (log/trace (str "overh italian :a value: " (if (map? result) (get-in result '(:italian :a)) "(not a map)")))
-     (log/trace (str "overh italian :b value: " (if (map? result) (get-in result '(:italian :b)) "(not a map)")))
+     (log/trace (str "overh italian value: " (if (map? result) (get-in result '(:italiano)) "(not a map)")))
+     (log/trace (str "overh italian :a value: " (if (map? result) (get-in result '(:italiano :a)) "(not a map)")))
+     (log/trace (str "overh italian :b value: " (if (map? result) (get-in result '(:italiano :b)) "(not a map)")))
      (if is-fail?
        (log/debug (str "overh: parent=" label "; head=[" (fo head) "]=> :fail")))
 
@@ -252,7 +252,6 @@
   (log/trace (str "type of parent: " (type parent)))
   (log/trace (str "type of comp  : " (type comp)))
   (log/trace (str "nil? comp  : " (nil? comp)))
-
 
   (cond
    (nil? comp) nil

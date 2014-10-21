@@ -19,29 +19,29 @@
   (let [agr (ref :top)]
     {:synsem {:agr agr}
      :head {:synsem {:agr agr}}
-     :comp {:italian {:agr agr}
+     :comp {:italiano {:agr agr}
             :synsem {:agr agr}}}))
 
 (def head-first
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
     (unifyc
-     {:comp {:italian {:initial false}}
-      :head {:italian {:initial true}}}
-     {:head {:italian head-italian}
-      :comp {:italian comp-italian}
-      :italian {:a head-italian
+     {:comp {:italiano {:initial false}}
+      :head {:italiano {:initial true}}}
+     {:head {:italiano head-italian}
+      :comp {:italiano comp-italian}
+      :italiano {:a head-italian
                 :b comp-italian}})))
 
 (def head-last
   (let [head-italian (ref :top)
         comp-italian (ref :top)]
     (unifyc
-     {:comp {:italian {:initial true}}
-      :head {:italian {:initial false}}}
-     {:head {:italian head-italian}
-      :comp {:italian comp-italian}
-      :italian {:a comp-italian
+     {:comp {:italiano {:initial true}}
+      :head {:italiano {:initial false}}}
+     {:head {:italiano head-italian}
+      :comp {:italiano comp-italian}
+      :italiano {:a comp-italian
                 :b head-italian}})))
 
 ;; -- BEGIN SCHEMA DEFINITIONS
@@ -254,7 +254,7 @@
                                        :infl :present
                                        :sem {:tense :past}
                                        :subcat {:2 {:agr obj-agr}}}
-                              :italian {:b {:obj-agr obj-agr}}}))
+                              :italiano {:b {:obj-agr obj-agr}}}))
 
                    (unifyc h21
                            {:rule "vp-future"
