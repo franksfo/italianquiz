@@ -15,12 +15,16 @@
                 :phrasal false})))
 
 (def lexicon
-  {"un"
-   [{:synsem {:cat :det
-             :def :indef
-             :mass false
-             :gender :masc
-             :number :sing}}]
+  {
+
+   "cane"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          masculine-noun
+          {:synsem {:sem (unify animal {:pred :cane
+                                        :pet true})}})
+
 
    "gatto"
    (unify agreement-noun
@@ -28,5 +32,16 @@
           countable-noun
           masculine-noun
           {:synsem {:sem (unify animal {:pred :gatto
-                                        :pet true})}})})
+                                        :pet true})}})
+
+
+   "un"
+   [{:synsem {:cat :det
+              :def :indef
+              :mass false
+              :gender :masc
+              :number :sing}}]
+   })
+
+   
 
