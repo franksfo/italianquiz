@@ -25,7 +25,7 @@
                                  :person person
                                  :gender gender}}
                     :agr agr}
-           :italian {:cat cat
+           :italiano {:cat cat
                      :agr agr}
            :english {:cat cat
                      :agr agr}})
@@ -89,7 +89,7 @@
     {:synsem {:cat adjective
               :agr {:gender gender
                     :number number}}
-     :italian {:cat adjective
+     :italiano {:cat adjective
                :agr {:number number
                      :gender gender}}
      :english {:cat adjective}}))
@@ -106,7 +106,7 @@
         infl (ref :top)
         agr (ref :top)
         essere-type (ref :top)]
-    {:italian {:agr agr
+    {:italiano {:agr agr
                :case subject-agreement :infl infl :essere essere-type}
      :english {:agr agr
                :case subject-agreement :infl infl}
@@ -130,7 +130,7 @@
           (let [obj-sem (ref :top)
                 infl (ref :top)]
             {:english {:infl infl}
-             :italian {:infl infl}
+             :italiano {:infl infl}
              :synsem {:sem {:obj obj-sem}
                       :infl infl
                       :subcat {:2 {:sem obj-sem
@@ -143,7 +143,7 @@
           (let [obj-sem (ref :top)
                 infl (ref :top)]
             {:english {:infl infl}
-             :italian {:infl infl}
+             :italiano {:infl infl}
              :synsem {:sem {:obj obj-sem}
                       :infl infl
                       :subcat {:2 {:sem obj-sem
@@ -176,7 +176,7 @@
           (let [obj-sem (ref :top)
                 infl (ref :top)]
             {:english {:infl infl}
-            :italian {:infl infl}
+            :italiano {:infl infl}
              :synsem {:sem {:obj obj-sem}
                       :infl infl
                       :subcat {:2 {:sem obj-sem
@@ -186,7 +186,7 @@
 
 ;; whether a verb has essere or avere as its
 ;; auxiliary to form its passato-prossimo form:
-;; Must be encoded in both the :italian (for morphological agreement)
+;; Must be encoded in both the :italiano (for morphological agreement)
 ;; and the :synsem (for subcategorization by the appropriate aux verb).
 (def verb-aux
   (let [essere-binary-categorization (ref :top)
@@ -195,7 +195,7 @@
         sem (ref {:tense :past
                   :pred pred})
         subject (ref :top)]
-    {:italian {:aux aux
+    {:italiano {:aux aux
                :essere essere-binary-categorization}
      :synsem {:aux aux
               :sem sem

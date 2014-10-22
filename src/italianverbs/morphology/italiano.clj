@@ -12,7 +12,7 @@
   (cond
    (string? phrase) true
    (map? phrase)
-   (or (phrase-is-finished? (get-in phrase '(:italian)))
+   (or (phrase-is-finished? (get-in phrase '(:italiano)))
        (string? (get-in phrase '(:infinitive)))
        (and (phrase-is-finished? (get-in phrase '(:a)))
             (phrase-is-finished? (get-in phrase '(:b)))))
@@ -159,7 +159,7 @@
     (log/debug (str "word's a is a string? " (get-in word '(:a)) " => " (string? (get-in word '(:a)))))
     (log/debug (str "word's b is a map? " (get-in word '(:b)) " => " (map? (get-in word '(:b)))))
 
-    (log/debug (str "word's a italian is a string? " (get-in word '(:a :italian)) " => " (string? (get-in word '(:a :italian)))))
+    (log/debug (str "word's a italian is a string? " (get-in word '(:a :italiano)) " => " (string? (get-in word '(:a :italiano)))))
 
 
     ;; throw exception if contradictory facts are found:
@@ -207,12 +207,12 @@
                   (get-in word '(:b)))
 
      (and
-      (string? (get-in word '(:a :italian)))
+      (string? (get-in word '(:a :italiano)))
       (string? (get-in word '(:b :infinitive)))
       (or (= :none (get-in word '(:b :agr :number) :none))
           (= :top (get-in word '(:b :agr :number) :none)))
       )
-     (str (string/trim (get-in word '(:a :italian)))
+     (str (string/trim (get-in word '(:a :italiano)))
           " "
           (string/trim (get-in word '(:b :infinitive))))
 
@@ -265,14 +265,14 @@
           (= (get-in word '(:agr :gender)) :top))
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:cat)) :adjective))
-     (string/replace (get-in word '(:italian))
+     (string/replace (get-in word '(:italiano))
                      #"[eo]$" "i") ;; nero => neri
 
      (and
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:cat)) :adjective))
-     (string/replace (get-in word '(:italian))
+     (string/replace (get-in word '(:italiano))
                      #"[eo]$" "e") ;; nero => nere
 
      ;; handle lexical exceptions (plural nouns):
@@ -287,8 +287,8 @@
       (= (get-in word '(:agr :gender)) :masc)
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:cat) :noun))
-      (get-in word '(:italian)))
-     (string/replace (get-in word '(:italian))
+      (get-in word '(:italiano)))
+     (string/replace (get-in word '(:italiano))
                      #"[eo]$" "i") ;; dottore => dottori; medico => medici
 
      ;; regular feminine nouns
@@ -296,8 +296,8 @@
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:cat) :noun))
-      (get-in word '(:italian)))
-     (string/replace (get-in word '(:italian))
+      (get-in word '(:italiano)))
+     (string/replace (get-in word '(:italiano))
                      #"[a]$" "e") ;; donna => donne
 
      ;; TODO: move this down to other adjectives.
@@ -307,19 +307,19 @@
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:cat)) :adjective))
-     (string/replace (get-in word '(:italian))
+     (string/replace (get-in word '(:italiano))
                      #"[eo]$" "e") ;; nero => nere
 
      (and
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :sing)
       (= (get-in word '(:cat)) :adjective))
-     (string/replace (get-in word '(:italian))
+     (string/replace (get-in word '(:italiano))
                      #"[eo]$" "a") ;; nero => nera
      (and
-      (string? (get-in word '(:italian)))
+      (string? (get-in word '(:italiano)))
       (= :top (get-in word '(:agr :sing) :top)))
-     (str (get-in word '(:italian)))
+     (str (get-in word '(:italiano)))
 
      (= (get-in word '(:a)) :top)
      (str
@@ -334,9 +334,9 @@
 
      (and
       (= (get-in word '(:b)) :top)
-      (string? (get-in word '(:a :italian))))
+      (string? (get-in word '(:a :italiano))))
      (str
-      (get-string-1 (get-in word '(:a :italian)))
+      (get-string-1 (get-in word '(:a :italiano)))
       " " "..")
 
      (and (= :infinitive (get-in word '(:infl)))
@@ -426,7 +426,7 @@
      (let [infinitive (get-in word '(:infinitive))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))
-           drop-e (get-in word '(:italian :drop-e) false)
+           drop-e (get-in word '(:italiano :drop-e) false)
            stem (stem-per-futuro infinitive drop-e)]
 
        (cond
@@ -459,7 +459,7 @@
      (let [infinitive (get-in word '(:infinitive))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))
-           drop-e (get-in word '(:italian :drop-e) false)
+           drop-e (get-in word '(:italiano :drop-e) false)
            stem (stem-per-futuro infinitive drop-e)]
 
 
@@ -789,7 +789,7 @@
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :sing)
       (= (get-in word '(:cat)) :noun))
-     (get-in word '(:italian))
+     (get-in word '(:italiano))
 
      ;; deprecated: remove support for :root.
      (and
@@ -822,7 +822,7 @@
     (= (get-in word '(:agr :gender)) :masc)
     (= (get-in word '(:agr :number)) :sing)
     (= (get-in word '(:cat) :adjective)))
-   (get-in word '(:italian)) ;; nero
+   (get-in word '(:italiano)) ;; nero
 
    (and
     (= (get-in word '(:agr :gender)) :masc)
@@ -851,7 +851,7 @@
                 (get-in word '(:b)))
 
    (and (map? word)
-        (nil? (:italian word)))
+        (nil? (:italiano word)))
    ".."
 
    (or
@@ -878,8 +878,8 @@
               info-a (log/debug (str "get-string: a: " a))
               info-b (if b (log/debug (str "get-string: b: " b)))
 
-              it-b (log/debug "it-a is string? " (string? (get-in a '(:italian))))
-              it-b (log/debug "it-b is string? " (string? (get-in b '(:italian))))
+              it-b (log/debug "it-a is string? " (string? (get-in a '(:italiano))))
+              it-b (log/debug "it-b is string? " (string? (get-in b '(:italiano))))
 
               cat-a (log/debug (str "cat a:" (get-in a '(:cat))))
               cat-b (log/debug (str "cat b:" (get-in b '(:cat))))
@@ -888,8 +888,8 @@
           (cond
 
            (and (= a "i")
-                (string? (get-in b '(:italian)))
-                (re-find #"^[aeiou]" (get-in b '(:italian))))
+                (string? (get-in b '(:italiano)))
+                (re-find #"^[aeiou]" (get-in b '(:italiano))))
            (str "gli " b)
 
            ;; TODO: cleanup & remove.
@@ -940,13 +940,13 @@
                 (string? b))
            (str "dei " b)
 
-           (and (= (get-in a '(:italian)) "di i")
+           (and (= (get-in a '(:italiano)) "di i")
                 (string? b))
            (str "dei " b)
 
-           (and (= (get-in a '(:italian)) "di i")
-                (string? (get-in b '(:italian))))
-           (str "dei " (get-string-1 (get-in b '(:italian))))
+           (and (= (get-in a '(:italiano)) "di i")
+                (string? (get-in b '(:italiano))))
+           (str "dei " (get-string-1 (get-in b '(:italiano))))
 
            (and (= a "di il")
                 (string? b))
@@ -976,8 +976,8 @@
            (str "gli " b)
 
            (and (= a "i")
-                (string? (get-in b '(:italian)))
-                (re-find #"^[aeiou]" (get-in b '(:italian))))
+                (string? (get-in b '(:italiano)))
+                (re-find #"^[aeiou]" (get-in b '(:italiano))))
            (str "gli " b)
 
            (and (= a "i")
@@ -1083,12 +1083,12 @@
            (and (string? a) (string? b))
            (str a " " b)
            
-           (and (string? a) (string? (get-in b '(:italian))))
-           (str a " " (get-in b '(:italian)))
+           (and (string? a) (string? (get-in b '(:italiano))))
+           (str a " " (get-in b '(:italiano)))
            
-           (and (string? (get-in a '(:italian)))
+           (and (string? (get-in a '(:italiano)))
                 (string? b))
-           (str (get-in a '(:italian)) " " b)
+           (str (get-in a '(:italiano)) " " b)
            
            (and (string? a)
                 (map? b))
@@ -1135,8 +1135,8 @@
 
      (and (map? expr)
           (:rule expr)
-          (= (get-in expr '(:italian :a))
-             (get-in expr '(:comp :italian))))
+          (= (get-in expr '(:italiano :a))
+             (get-in expr '(:comp :italiano))))
      ;; complement first
      (str "[" (:rule expr) " "
           (fo-ps (get-in expr '(:comp)))
@@ -1155,8 +1155,8 @@
 
      (and (map? expr)
           (:comment expr)
-          (= (get-in expr '(:italian :a))
-             (get-in expr '(:comp :italian))))
+          (= (get-in expr '(:italiano :a))
+             (get-in expr '(:comp :italiano))))
      ;; complement first
      (str "[" (:comment expr) " "
           (fo-ps (get-in expr '(:comp)))
@@ -1175,15 +1175,16 @@
 
      (and
       (map? expr)
-      (:italian expr))
-     (get-string-1 (get-in expr '(:italian)))
+      (:italiano expr))
+     (get-string-1 (get-in expr '(:italiano)))
 
      true
      expr)))
+
 (defn conjugate-italian-prep [prep np]
-  (let [concat (str (get prep :italian)
+  (let [concat (str (get prep :italiano)
                     " "
-                    (get np :italian))]
+                    (get np :italiano))]
     (replace-from-list
      (list
       (list #"\ba il " "al ")

@@ -20,15 +20,26 @@
    :else false))
 
 (defn fo [input]
-  (cond (:italiano input)
-        (merge
-         {:italiano (italiano/get-string (:italiano input))}
-         (fo (dissoc input :italiano)))
-        (:english input)
-        (merge {:english (english/get-string (:english input))}
-               (fo (dissoc input :english)))
-        true
-        ""))
+  (cond 
+
+   (:italiano input)
+   (string/trim (italiano/get-string (:italiano input)))
+
+   (seq? input)
+   (string/join ""
+                (map fo input))
+
+   (:italiano input)
+   (merge
+    {:italiano (string/trim (italiano/get-string (:italiano input)))}
+    (fo (dissoc input :italiano)))
+
+   (:english input)
+   (merge {:english (string/trim (english/get-string (:english input)))}
+          (fo (dissoc input :english)))
+
+   true
+   ""))
 
 (defn fo-ps [input]
   (cond (:italiano input)
