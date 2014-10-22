@@ -5,17 +5,22 @@
 (require '[italianverbs.unify :refer :all])
 
 (defn phonize [a-map a-string]
-  (merge a-map
-         {:italiano a-string
-          :phrasal false}))
+  (cond (or (vector? a-map) (seq? a-map))
+        (map (fn [each-entry]
+               (phonize each-entry a-string))
+             a-map)
+        true
+        (merge a-map
+               {:italiano a-string
+                :phrasal false})))
 
 (def lexicon
   {"un"
-   {:synsem {:cat :det
+   [{:synsem {:cat :det
              :def :indef
              :mass false
              :gender :masc
-             :number :sing}}
+             :number :sing}}]
 
    "gatto"
    (unify agreement-noun
