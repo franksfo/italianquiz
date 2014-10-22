@@ -272,22 +272,17 @@
      ;; This is the canonical unification case: unifying two DAGs
      ;; (maps with possible references within them).
      ;;
-     ;; merge-with: http://clojuredocs.org/clojure_core/clojure.core/merge-with
-     ;;
-     ;; "Returns a map that consists of the rest of the maps conj-ed onto
-     ;; the first. If a key occurs in more than one map, the mapping(s)
-     ;; from the latter (left-to-right) will be combined with the mapping in
-     ;; the result by calling (f val-in-result val-in-latter)."
      (and (map? val1)
           (map? val2))
      (let [debug (log/debug "map? val1 true; map? val2 true")
-           result
-           (reduce #(merge-with-keys
-                     %1 %2) args)]
+           result (merge-with-keys val1 val2)]
        (log/debug (str "result: " result))
-       (if (not (nil? (some #{:fail} (vals result))))
+       (if (fail? result)
          :fail
-         result))
+         (if (empty? (rest (rest args)))
+           result
+           (unify result
+                  (apply unify (rest (rest args)))))))
 
      ;; val1 is a ref, val2 is a map that contains val1: return fail.
      (and (ref? val1)
