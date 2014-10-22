@@ -12,17 +12,17 @@
 
 (deftest phrase-finished-1
   (is (italiano/phrase-is-finished?
-       {:italian "acqua"}))
+       {:italiano "acqua"}))
 
   (is (italiano/phrase-is-finished?
-       {:italian
+       {:italiano
         {:a {:infinitive "essere"}
          :b {:a "il"
-             :b {:italian "professore"}}}})))
+             :b {:italiano "professore"}}}})))
 
 (deftest acqua
   (is
-   (= (italiano/get-string-1 {:italian "acqua"
+   (= (italiano/get-string-1 {:italiano "acqua"
                                :agr {:gender :fem
                                      :number :sing}
                                :cat :noun})
@@ -31,7 +31,7 @@
 
 (deftest della-acqua
   (is (= (italiano/get-string-1 {:a "di la"
-                         :b {:italian "acqua"
+                         :b {:italiano "acqua"
                              :agr {:gender :fem
                                    :number :sing}
                              :cat :noun}})
@@ -41,7 +41,7 @@
 
 (deftest degli-uomini
   (is (= (italiano/get-string-1 {:a "di i"
-                         :b {:italian "uomo"
+                         :b {:italiano "uomo"
                              :irregular {:plur "uomini"}
                              :agr {:gender :masc
                                    :number :plur}
@@ -173,7 +173,7 @@
        "gli studenti"
        (italiano/get-string
         "i"
-        {:italian "studente"
+        {:italiano "studente"
          :agr {:person :3rd
                :gender :masc
                :number :plur}}))))
@@ -478,7 +478,7 @@
                                :case :top
                                :number :plur}
                          :cat :noun
-                         :italian "professore"}))))
+                         :italiano "professore"}))))
 
 (deftest fatto
   (is (= "fatto"
@@ -516,14 +516,14 @@
          (italiano/get-string-1 {:cat :adjective
                          :agr {:number :plur
                                :gender :fem}
-                         :italian "brutto"}))))
+                         :italiano "brutto"}))))
 
 (deftest brutti
   (is (= "brutti"
          (italiano/get-string-1 {:cat :adjective
                          :agr {:number :plur
                                :gender :top}
-                         :italian "brutto"}))))
+                         :italiano "brutto"}))))
 
 (deftest could-have-past
   (is (= "could have made this red wine"
@@ -557,34 +557,35 @@
 
 (deftest fatto-Milano
   (is (= "fatto Milano"
-         (string/trim (italiano/get-string
-                 {:infl :past
-                  :a {:cat :verb
-                      :infinitive "fare"
-                      :essere false
-                      :irregular {:present {:1sing "facio"
-                                            :3plur "fanno"
-                                            :1plur "facciamo"
-                                            :2plur "fate"
-                                            :3sing "fa"
-                                            :2sing "fai"}
-                                  :futuro {:1sing "farò"
-                                           :3plur "faranno"
-                                           :1plur "faremo"
-                                           :2plur "farete"
-                                           :3sing "farà"
-                                           :2sing "farai"}
-                                  :imperfetto {:1sing "facevo"
-                                               :3plur "facevano"
-                                               :1plur "facevamo"
-                                               :2plur "facevate"
-                                               :3sing "faceva"
-                                               :2sing "facevi"}
-                                  :passato "fatto"}
-                      :agr {:case {:not :acc}}
-                      :infl :past}
-                  :b {:agr {:case {:not :acc}}
-                      :italian "Milano"}})))))
+         (string/trim 
+          (italiano/get-string
+           {:infl :past
+            :a {:cat :verb
+                :infinitive "fare"
+                :essere false
+                :irregular {:present {:1sing "facio"
+                                      :3plur "fanno"
+                                      :1plur "facciamo"
+                                      :2plur "fate"
+                                      :3sing "fa"
+                                      :2sing "fai"}
+                            :futuro {:1sing "farò"
+                                     :3plur "faranno"
+                                     :1plur "faremo"
+                                     :2plur "farete"
+                                     :3sing "farà"
+                                     :2sing "farai"}
+                            :imperfetto {:1sing "facevo"
+                                         :3plur "facevano"
+                                         :1plur "facevamo"
+                                         :2plur "facevate"
+                                         :3sing "faceva"
+                                         :2sing "facevi"}
+                            :passato "fatto"}
+                :agr {:case {:not :acc}}
+                :infl :past}
+            :b {:agr {:case {:not :acc}}
+                :italiano "Milano"}})))))
 
 (deftest i-was-less-naive-than-you
   (is (= "I was less naive than you"
@@ -654,7 +655,7 @@
                         :number :plur,
                         :gender :masc,
                         :case :nom},
-                  :italian "bianco",
+                  :italiano "bianco",
                   :cat :adjective})))))
 
 (deftest i-cani-sono-bianchi
@@ -665,7 +666,7 @@
                                       :number :plur,
                                       :gender :masc,
                                       :case :nom},
-                                :italian "cane",
+                                :italiano "cane",
                                 :cat :noun}},
                         :b {:a {:cat :verb,
                                 :infinitive "essere",
@@ -705,20 +706,20 @@
                                       :number :plur,
                                       :gender :masc,
                                       :case :nom},
-                          :italian "bianco",
+                          :italiano "bianco",
                                 :cat :adjective}}})))))
 
 (deftest essere-format-1
   (let [essere-test
-        {:synsem {:subcat {:1 {:cat :noun}, :2 {:sem {:discrete false, :activity false}, :cat :adjective, :subcat {:1 {:cat :noun}, :2 ()}}}, :essere true, :sem {:discrete false, :activity false}, :cat :verb}, :english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infinitive "to be"}, :italian {:essere true, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}, :infinitive "essere"}, :notes "essere-adjective"}]
-    (is (= (italiano/get-string-1 (get-in essere-test '(:italian)))
+        {:synsem {:subcat {:1 {:cat :noun}, :2 {:sem {:discrete false, :activity false}, :cat :adjective, :subcat {:1 {:cat :noun}, :2 ()}}}, :essere true, :sem {:discrete false, :activity false}, :cat :verb}, :english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infinitive "to be"}, :italiano {:essere true, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}, :infinitive "essere"}, :notes "essere-adjective"}]
+    (is (= (italiano/get-string-1 (get-in essere-test '(:italiano)))
            "essere"))
     (is (= (english/get-string-1 (get-in essere-test '(:english)))
            "to be"))))
 
 (deftest essere-format-2
-  (let [essere-test {:english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infl :present, :agr {:case {:not :acc}}, :infinitive "to be", :hidden true}, :italian {:infinitive "essere", :infl :present, :aux true, :essere true, :agr {:case {:not :acc}}, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}}, :synsem {:cat :verb, :essere true, :aux true, :sem {:tense :past, :subj :top}, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 {:infl :past, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 ()}, :cat :verb, :sem {:tense :past, :subj :top}, :essere true}}, :infl :present}, :notes "essere-aux"}]
-    (is (= (italiano/get-string-1 (get-in essere-test '(:italian)))
+  (let [essere-test {:english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infl :present, :agr {:case {:not :acc}}, :infinitive "to be", :hidden true}, :italiano {:infinitive "essere", :infl :present, :aux true, :essere true, :agr {:case {:not :acc}}, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}}, :synsem {:cat :verb, :essere true, :aux true, :sem {:tense :past, :subj :top}, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 {:infl :past, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 ()}, :cat :verb, :sem {:tense :past, :subj :top}, :essere true}}, :infl :present}, :notes "essere-aux"}]
+    (is (= (italiano/get-string-1 (get-in essere-test '(:italiano)))
            "essere"))))
 
 (deftest did-well-past
@@ -752,10 +753,10 @@
                           :case :top, 
                           :number :plur}, 
                     :initial true, 
-                    :italian "professoressa", 
+                    :italiano "professoressa", 
                     :cat :noun}
                 :b {:initial false, 
-                    :italian "robusto", 
+                    :italiano "robusto", 
                     :cat :adjective, 
                     :agr {:person :3rd, 
                           :gender :fem, 
@@ -776,10 +777,10 @@
                           :case :top, 
                           :number :sing}, 
                     :initial true, 
-                    :italian "professoressa", 
+                    :italiano "professoressa", 
                     :cat :noun}
                 :b {:initial false, 
-                    :italian "corto", 
+                    :italiano "corto", 
                     :cat :adjective, 
                     :agr {:person :3rd, 
                           :gender :fem, 
@@ -799,9 +800,9 @@
                                      :person :3rd, 
                                      :gender :fem},
                                :initial true, 
-                               :italian "casa", 
+                               :italiano "casa", 
                                :cat :noun}
-                           :b {:italian "nuovo", 
+                           :b {:italiano "nuovo", 
                                :initial false, 
                                :cat :adjective, 
                                :agr {:case :top
@@ -816,8 +817,8 @@
     (is (= (string/trim (italiano/get-string la-casa-nuova)) "la casa nuova"))))
 
 (deftest ai-tuoi-stradali 
-  (let [ai-tuoi-stradali {:a {:italian "a", :initial true}, 
-                          :b {:b {:italian "stradale", :cat :noun, 
+  (let [ai-tuoi-stradali {:a {:italiano "a", :initial true}, 
+                          :b {:b {:italiano "stradale", :cat :noun, 
                                   :agr {:gender :masc, :person :3rd, 
                                         :case :top, :number :plur}, 
                                   :initial false},
@@ -830,8 +831,8 @@
   ;; TODO: test also: "io sono stato alto di voi"
   (let [io-sono-stato-alto
         ;; TODO: pretty-print (or better, find way to auto-pretty print):
-        {:a {:initial true, :italian "io"},
-         :b {:b {:b {:italian "alto",
+        {:a {:initial true, :italiano "io"},
+         :b {:b {:b {:italiano "alto",
                      :cat :adjective,
                      :agr {:case :nom,
                            :number :sing,
