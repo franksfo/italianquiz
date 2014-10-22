@@ -10,7 +10,7 @@
 (require '[italianverbs.lexicon.italiano :as it-l])
 (require '[italianverbs.lexiconfn :as lexfn])
 
-(require '[italianverbs.morphology :refer (fo-ps)])
+(require '[italianverbs.morphology :refer (fo fo-ps)])
 (require '[italianverbs.over :as over])
 
 (declare lookup)
