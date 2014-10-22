@@ -136,6 +136,8 @@
    :else
    nil))
 
+(def strict true) ;; strict means: don't try to get smart with "foo" {:italian "foo"} => {:italian "foo"}; instead just :fail.
+
 ;; TODO: many code paths below only look at val1 and val2, and ignore rest of args beyond that.
 ;; either consider all args, or change signature of (unify) to take only val1 val2.
 ;; see also lexiconfn/unify (probably will change signature, but make lexiconfn/unify handle
@@ -145,7 +147,42 @@
 ;;
 ;; TODO: use commute to allow faster concurrent access: Rathore, p. 133.
 
-(def strict true) ;; strict means: don't try to get smart with "foo" {:italian "foo"} => {:italian "foo"}; instead just :fail.
+(def string-unifier-keys #{:english :italiano})
+
+(declare unify)
+(declare merge)
+ 
+(defn merge-with-keys [arg1 arg2]
+  (let [keys1 (keys arg1)
+        key1 (first keys1)]
+    (if key1
+      (let [val1 (cond
+                  (and (string? (key1 arg1))
+                       (contains? string-unifier-keys key1))
+                  {key1 (key1 arg1)}
+                  true
+                  (key1 arg1))]
+        (log/debug (str "merge-with-keys(" key1 ") val1: " val1))
+        (if (contains? (set (keys arg2)) key1)
+          ;; key1 occurs in arg2.
+          (let [val2 (cond
+                      (and (string? (key1 arg2))
+                           (contains? string-unifier-keys key1))
+                      {key1 (key1 arg2)}
+                      true
+                      (key1 arg2))]
+            (log/debug (str "merge-with-keys(" key1 ") val2: " val2))
+            (merge
+             {key1 (unify val1
+                          val2)}
+             (merge-with-keys (dissoc arg1 key1)
+                              (dissoc arg2 key1))))
+          ;; key1 does not occur in arg2.
+          (merge {key1 (key1 arg1)}
+                 (merge-with-keys (dissoc arg1 key1)
+                                  arg2))))
+          arg2)))
+
 (defn unify [& args]
   (if (empty? (rest args)) (first args))
   (let [val1 (first args)
@@ -232,7 +269,6 @@
             (unify each val2))
           val1)
 
-
      ;; This is the canonical unification case: unifying two DAGs
      ;; (maps with possible references within them).
      ;;
@@ -245,12 +281,13 @@
      (and (map? val1)
           (map? val2))
      (let [debug (log/debug "map? val1 true; map? val2 true")
-           tmp-result
-           (reduce #(merge-with unify %1 %2) args)]
-       (log/debug (str "tmp-result: " tmp-result))
-       (if (not (nil? (some #{:fail} (vals tmp-result))))
+           result
+           (reduce #(merge-with-keys
+                     %1 %2) args)]
+       (log/debug (str "result: " result))
+       (if (not (nil? (some #{:fail} (vals result))))
          :fail
-         tmp-result))
+         result))
 
      ;; val1 is a ref, val2 is a map that contains val1: return fail.
      (and (ref? val1)
@@ -266,7 +303,6 @@
      (do
        (log/debug (str "unification would create a cycle: returning fail."))
      :fail)
-
 
      ;; val1 is a ref, val2 is not a ref.
      (and

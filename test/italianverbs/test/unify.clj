@@ -764,3 +764,15 @@ when run from a REPL."
 
 (deftest isomorphic-false3
   (is (= false (isomorphic? {:a 42 :b 43 :c 44} {:a 42 :b 43}))))
+
+(deftest unify-with-string2
+  (let [arg1 {:italiano "gatto"}
+        arg2 {:italiano {:initial true}}
+        result (unify arg1 arg2)]
+  (is (not (fail? result)))
+  (is (= result
+         {:italiano {:initial true
+                     :italiano "gatto"}}))))
+
+
+
