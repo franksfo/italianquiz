@@ -42,13 +42,22 @@
    ""))
 
 (defn fo-ps [input]
-  (cond (:italiano input)
-        (merge
-         {:italiano (italiano/get-string (:italiano input))}
-         (fo (dissoc input :italiano)))
+  (cond (seq? input)
+        (map fo-ps input)
+
+        (:italiano input)
+        {:italiano (fo input)
+         :semantics (strip-refs (get-in input [:synsem :sem]))
+         :rule (:rule input)
+         :head (fo (:head input))
+         :comp (fo (:comp input))}
+
         (:english input)
-        (merge {:english (english/get-string (:english input))}
-               (fo (dissoc input :english)))
+        {:english (fo input)
+         :rule (:rule input)
+         :head (fo (:head input))
+         :comp (fo (:comp input))}
+
         true
         ""))
 
