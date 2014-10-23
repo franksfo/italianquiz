@@ -1228,6 +1228,39 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
    :else
    fs))
 
+(defn remove-matching-values [fs pred]
+  "Use case is same as remove-top-values, but more general by use of pred: pred is a function that takes a key and a value; if (pred k v) or (pred k @v) is true, remove the kv from the fs."
+  (cond
+
+   (= fs {})
+   {}
+
+   (map? fs)
+   (let [map-keys (sort (keys fs))]
+     (let [k (first (keys fs))
+           v (get fs k)]
+       (cond
+        (and (ref? v)
+             (pred k @v))
+        (remove-matching-values (dissoc fs k) pred)
+
+        (pred k v)
+        ;; remove (k v) from the map.
+        (remove-matching-values (dissoc fs k) pred)
+
+         ;; else keep (k v), but if v is itself a map, recursively remove things that match pred within v.
+        true
+        (conj
+         {k (remove-matching-values v pred)}
+         (remove-matching-values (dissoc fs k) pred)))))
+
+   (= (type fs) clojure.lang.Ref)
+   ;; strip refs for readability.
+   (remove-matching-values (deref fs) pred)
+
+   :else
+   fs))
+
 (defn remove-top-values-log [fs]
   (log/debug (str "remove-top-values: input: " fs))
   (let [result (remove-top-values fs)]
