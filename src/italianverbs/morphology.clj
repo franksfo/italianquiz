@@ -47,7 +47,10 @@
 
         (:italiano input)
         {:italiano (fo input)
-         :semantics (strip-refs (get-in input [:synsem :sem]))
+         :semantics (remove-matching-values (get-in input [:synsem :sem])
+                                            (fn [k v] (or (= v :top)
+                                                          (= v '())
+                                                          (= v false))))
          :rule (:rule input)
          :head (fo (:head input))
          :comp (fo (:comp input))}
