@@ -1,6 +1,8 @@
-(ns italianverbs.parse)
+(ns italianverbs.parse
+ (:refer-clojure :exclude [get-in merge resolve find]))
 
 (require '[clojure.string :as str])
+
 (require '[italianverbs.generate :as gen])
 
 (require '[italianverbs.grammar.english :as en-g])
@@ -12,6 +14,7 @@
 
 (require '[italianverbs.morphology :refer (fo fo-ps)])
 (require '[italianverbs.over :as over])
+(require '[italianverbs.unify :refer :all])
 
 (declare lookup)
 
@@ -59,6 +62,8 @@
               en-phonize
               true
               it-phonize)]
-    (phonize-fn (get lexicon token) token)))
+    (if (get lexicon token)
+      (phonize-fn (get lexicon token) token))))
+
 
 
