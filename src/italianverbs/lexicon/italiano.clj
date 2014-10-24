@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [get-in merge resolve]))
 
 (require '[italianverbs.lexiconfn :refer (comparative non-comparative-adjective subcat0)])
+(require '[italianverbs.lexicon :refer (transform)])
 (require '[italianverbs.pos :refer :all])
 (require '[italianverbs.unify :refer :all :exclude [unify]])
 (require '[italianverbs.unify :as unify])
@@ -290,7 +291,31 @@
               :gender :masc
               :number :sing}}]
 })
-   
 
-   
+(defn transform-each-lexical-val [lexical-val]
+  (cond
+   (map? lexical-val)
+   (if false lexical-val
+       (transform lexical-val))
+   true
+   (if false
+     lexical-val
+     (map (fn [each]
+            (transform each))
+          lexical-val))))
+
+;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
+;; http://stackoverflow.com/a/1677927
+(defn map-function-on-map-vals [m f]
+  (into {} (for [[k v] m] [k (f v)])))
+
+(defn mapped-lexicon []
+  (map-function-on-map-vals 
+   (if false
+     lexicon
+     {"Antonio" (get lexicon "Antonio")
+      "dormire" (get lexicon "dormire")}
+     )
+
+   transform-each-lexical-val))
 
