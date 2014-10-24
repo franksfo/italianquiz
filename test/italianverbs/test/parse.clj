@@ -2,7 +2,7 @@
 
 (require '[clojure.test :refer :all])
 (require '[italianverbs.parse :refer :all])
-(require '[italianverbs.morphology :as morph])
+(require '[italianverbs.morphology :refer :all])
 
 (deftest parse-test
-  (is (not (empty? (morph/fo-ps (parse "un gatto" it-lexicon it-grammar))))))
+  (is (not (empty? (fo-ps (parse "un gatto" it-lexicon it-grammar))))))
