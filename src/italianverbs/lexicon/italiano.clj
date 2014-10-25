@@ -309,13 +309,15 @@
 (defn map-function-on-map-vals [m f]
   (into {} (for [[k v] m] [k (f v)])))
 
-(defn mapped-lexicon []
+(def lexicon
   (map-function-on-map-vals 
    (if false
      lexicon
      {"Antonio" (get lexicon "Antonio")
+      "il" (get lexicon "il")
       "dormire" (get lexicon "dormire")}
      )
 
    transform-each-lexical-val))
+
 
