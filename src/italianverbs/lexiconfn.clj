@@ -24,11 +24,11 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
     ;; else, not fail, so add to lexicon.
     (do
       (log/debug (str "Adding entry: " (morph/fo entry)))
-      (let [italian (get-in entry '(:italian))
+      (let [italian (get-in entry '(:italiano))
             entry
             (conj
-             {:italian (if (string? italian)
-                         {:italian italian}
+             {:italiano (if (string? italian)
+                         {:italiano italian}
                          italian)}
              (dissoc
               (if (not (= :none (get entry :serialized :none)))
@@ -36,7 +36,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                       entry)
                 (conj {:serialized (serialize (dissoc entry :serialized))}
                       entry))
-              :italian))]
+              :italiano))]
         (log/debug (str "successfully serialized: " entry))
         entry))))
 
@@ -292,7 +292,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                            :subcat '()}}}}))
 
 (def andare-common
-   {:italian {:infinitive "andare"
+   {:italiano {:infinitive "andare"
               :essere true
               :drop-e true
               :irregular {:present {:1sing "vado"
@@ -314,7 +314,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (def avere-common
   {:synsem {:essere false
             :cat :verb}
-   :italian {:infinitive "avere"
+   :italiano {:infinitive "avere"
              :drop-e true
              :irregular {:passato "avuto"
                          :present {:1sing "ho"
@@ -339,7 +339,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
               :subcat {:1 {:agr agr}}
               :agr agr
               :infl infl}
-     :italian {:agr agr
+     :italiano {:agr agr
                :futuro-stem "sar"
                :essere true
                :infinitive "essere"
@@ -383,7 +383,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (def fare-common
   ;; factor out common stuff from all senses of "fare".
   {:synsem {:essere false}
-   :italian {:infinitive "fare"
+   :italiano {:infinitive "fare"
              :futuro-stem "far"
              :irregular {:passato "fatto"
                          :present {:1sing "faccio"
@@ -400,7 +400,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                       :3plur "facevano"}}}})
 
 (def venire-common
-  {:italian {:infinitive "venire"
+  {:italiano {:infinitive "venire"
              :futuro-stem "verr"
              :irregular {:passato "venuto"
                          :present {:1sing "vengo"
