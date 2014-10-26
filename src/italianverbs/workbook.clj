@@ -21,12 +21,13 @@
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
    [italianverbs.html :as html]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.lexicon.italiano :refer :all :exclude [unify]]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.morphology.english :as en-m]
    [italianverbs.morphology.italiano :as it-m]
    [italianverbs.over :refer :all]
+   [italianverbs.parse :refer :all]
    [italianverbs.pos :refer :all]
    ;; we excluded lightning-bolt from italianverbs.forest, so that we can use italianverbs.test.forest's instead:
 ;;   [italianverbs.test.forest :refer :all]
@@ -197,11 +198,12 @@
 
 
 ;; TODO: remove when I feel safe that I don't need it anymore..
-(def get-stuff-initialized (sentence {:comp {:phrasal false}
-                                      :head {:phrasal false}
-                                      :synsem {:subcat '() :cat :verb
-                                              :sem {:pred :sognare
-                                                     :subj {:pred :lei}}}}
-                                     it/grammar))
+;; commented out until new per-language stuff is working.
+;(def get-stuff-initialized (sentence {:comp {:phrasal false}
+;                                      :head {:phrasal false}
+;                                      :synsem {:subcat '() :cat :verb
+;                                              :sem {:pred :sognare
+;                                                     :subj {:pred :lei}}}}
+;                                     it/grammar))
 
 ;(log/info (str "done initializing workbook. " (fo get-stuff-initialized)))
