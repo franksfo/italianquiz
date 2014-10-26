@@ -1,14 +1,11 @@
 (ns italianverbs.lexicon.italiano
   (:refer-clojure :exclude [get-in merge resolve]))
 
-(require '[italianverbs.lexiconfn :refer (comparative non-comparative-adjective subcat0)])
+(require '[italianverbs.lexiconfn :refer (comparative non-comparative-adjective subcat0 unify)])
 (require '[italianverbs.lexicon :refer (transform)])
 (require '[italianverbs.pos :refer :all])
 (require '[italianverbs.unify :refer :all :exclude [unify]])
 (require '[italianverbs.unify :as unify])
-
-(defn unify [& args]
-  (apply unifyc args))
 
 (defn phonize [a-map a-string]
   (cond (or (vector? a-map) (seq? a-map))
@@ -292,31 +289,37 @@
               :number :sing}}]
 })
 
-(defn transform-each-lexical-val [lexical-val]
-  (cond
-   (map? lexical-val)
-   (if false lexical-val
-       (transform lexical-val))
-   true
-   (if false
-     lexical-val
-     (map (fn [each]
-            (transform each))
-          lexical-val))))
+(defn transform-each-lexical-val [italian-lexical-string lexical-val]
+  (let [lexical-val
+        (phonize lexical-val italian-lexical-string)]
+    (cond
+     (map? lexical-val)
+     (transform lexical-val)
+     true
+     (if false
+       lexical-val
+       (map (fn [each]
+              (transform each))
+            lexical-val)))))
+
+(def use-a-small-subset false)
 
 ;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
 ;; http://stackoverflow.com/a/1677927
 (defn map-function-on-map-vals [m f]
-  (into {} (for [[k v] m] [k (f v)])))
+  (into {} (for [[k v] m] [k (f k v)])))
 
 (def lexicon
   (map-function-on-map-vals 
-   (if false
-     lexicon
-     {"Antonio" (get lexicon "Antonio")
+   (if use-a-small-subset
+
+     {
+      "Antonio" (get lexicon "Antonio")
       "il" (get lexicon "il")
-      "dormire" (get lexicon "dormire")}
-     )
+      "dormire" (get lexicon "dormire")
+      }
+
+     lexicon)
 
    transform-each-lexical-val))
 
