@@ -43,11 +43,11 @@
 (defn it [italian]
   "same as it but no type conversion of singleton sets to take the first member."
   (let [result
-        (union (set (lookup {:italian italian}))
-               (set (lookup {:italian {:infinitive italian}}))
-               (set (lookup {:italian {:infinitive {:infinitive italian}}}))
-               (set (lookup {:italian {:italian italian}}))
-               (set (lookup {:italian {:irregular {:passato italian}}})))]
+        (union (set (lookup {:italiano italian}))
+               (set (lookup {:italiano {:infinitive italian}}))
+               (set (lookup {:italiano {:infinitive {:infinitive italian}}}))
+               (set (lookup {:italiano {:italiano italian}}))
+               (set (lookup {:italiano {:irregular {:passato italian}}})))]
     result))
 
 (defn en [english]
@@ -129,14 +129,14 @@
         (merge {:english {:english (get-in lexical-entry '(:english))}}
                (embed-phon (dissoc lexical-entry ':english)))
 
-        (and (string? (get-in lexical-entry '(:italian)))
+        (and (string? (get-in lexical-entry '(:italiano)))
              (= :verb (get-in lexical-entry '(:synsem :cat))))
-        (merge {:italian {:infinitive (get-in lexical-entry '(:italian))}}
-               (embed-phon (dissoc lexical-entry ':italian)))
+        (merge {:italiano {:infinitive (get-in lexical-entry '(:italiano))}}
+               (embed-phon (dissoc lexical-entry ':italiano)))
 
-        (string? (get-in lexical-entry '(:italian)))
-        (merge {:italian {:italian (get-in lexical-entry '(:italian))}}
-               (embed-phon (dissoc lexical-entry ':italian)))
+        (string? (get-in lexical-entry '(:italiano)))
+        (merge {:italiano {:italiano (get-in lexical-entry '(:italiano))}}
+               (embed-phon (dissoc lexical-entry ':italiano)))
         true
         lexical-entry))
 
@@ -268,14 +268,15 @@
                  pronoun-and-propernouns
                  semantic-implicature
                  transitive-verb-rule
-                 verb-rule))
+                 verb-rule
+))
 
 ;; Modifying rules: so-named because they modify the lexical entry in
 ;; such a way that is non-monotonic and dependent on the order of rule
 ;; application. Because of these complications, avoid and use
 ;; unifying-rules instead, where possible. Only to be used where
 ;; (reduce unifyc ..) would not work, as with embed-phon, where
-;; {:italian <string>} needs to be turned into {:italian {:italian <string}},
+;; {:italiano <string>} needs to be turned into {:italiano {:italiano <string}},
 ;; but unifying the input and output of the rule would be :fail.
 ;; These rules are (reduce)d using merge rather than unifyc.
 (def modifying-rules (list embed-phon))
@@ -319,7 +320,7 @@
         (do
           (log/debug (str "Transforming: " (fo lexical-entry)))
           (log/debug (str "transform: input :" lexical-entry))
-          (log/info (str "transforming lexical entry: " (fo lexical-entry)))
+          (log/info (str "transforming lexical entry: " lexical-entry))
           (let [result (reduce #(if (or (fail? %1) (fail? %2))
                                   :fail
                                   (unifyc %1 %2))
