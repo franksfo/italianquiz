@@ -192,6 +192,15 @@
          (english/get-string-1 {:english {:english "rome"}}))))
 
 
+;; regular future
+(deftest io-dormiro
+  (is (= "dormirò"
+         (italiano/get-string-1
+          {:agr {:number :sing :person :1st}
+           :italiano "dormire"
+           :infl :futuro}))))
+
+;; irregular future
 (deftest io-andro
   (is (= "andrò"
          (italiano/get-string-1

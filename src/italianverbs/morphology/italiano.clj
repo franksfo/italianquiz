@@ -166,7 +166,6 @@
 ;    (if (= (get-in word '(:a :initial) false))
 ;      (throw (Exception. (str ":a's initial is false: (:a should always be initial=true)."))))
 
-    (trim
     (cond
 
      (= word :top) ".."
@@ -204,7 +203,32 @@
      (and (not (= :none (get-in word '(:a) :none)))
           (not (= :none (get-in word '(:b) :none))))
      (get-string (get-in word '(:a))
-                  (get-in word '(:b)))
+                 (get-in word '(:b)))
+
+
+     (and (= (get-in word '(:infl)) :futuro)
+          (get-in word '(:italiano)))
+     (let [stem (stem-per-futuro (get-in word '(:italiano)) true)
+           person (get-in word [:agr :person])
+           number (get-in word [:agr :number])]
+       (cond
+        (and (= person :1st) (= number :sing))
+        (str stem "ò")
+
+        (and (= person :2nd) (= number :sing))
+        (str stem "ai")
+
+        (and (= person :3rd) (= number :sing))
+        (str stem "à")
+
+        (and (= person :1st) (= number :plur))
+        (str stem "emo")
+
+        (and (= person :2nd) (= number :plur))
+        (str stem "ete")
+
+        (and (= person :3rd) (= number :plur))
+        (str stem "anno")))
 
      (and
       (string? (get-in word '(:a :italiano)))
@@ -863,12 +887,15 @@
    ;; in other words, if we've gotten this far, it's a bug.
    :else
    word)
-  ))))
+  )))
 
 (defn get-string [a & [ b ]]
   (cond (and (nil? b)
              (seq? a))
-        (trim (get-string-1 a))
+        (let [result (get-string-1 a)]
+          (if (string? result)
+            (trim result)
+            result))
         
         true
         (let [a (if (nil? a) "" a)

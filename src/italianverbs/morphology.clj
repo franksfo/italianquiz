@@ -13,11 +13,26 @@
   (cond
    (string? phrase) true
    (map? phrase)
-   (or (phrase-is-finished? (get-in phrase '(:italian)))
+   (or (phrase-is-finished? (get-in phrase '(:italiano)))
        (string? (get-in phrase '(:infinitive)))
        (and (phrase-is-finished? (get-in phrase '(:a)))
             (phrase-is-finished? (get-in phrase '(:b)))))
    :else false))
+
+(defn normalize-whitespace [input]
+  (do
+    (log/warn (str "fix this stubbed out function."))
+    input))
+
+(defn get-italian-1 [input]
+  (do
+    (log/warn (str "fix this stubbed out function."))
+    input))
+
+(defn get-english-1 [input]
+  (do
+    (log/warn (str "fix this stubbed out function."))
+    input))
 
 (defn fo [input]
   (cond 
@@ -79,12 +94,11 @@
    (let [english
          (english/get-string (get-in expr '(:english :english)))
          italian
-         ;; TODO: much inconsistent. make the path: [:italiano :italiano]  rather than [:italiano :italian]
-         (italiano/get-string (get-in expr '(:italiano :italian)))]
+         (italiano/get-string (get-in expr '(:italiano :italiano)))]
      (log/debug (str "input expr: " (fo expr)))
      (log/debug (str "finalized english: " english))
      (log/debug (str "finalized italian: " italian))
-     {:italian italian
+     {:italiano italian
       :english english
       :english-tree (get-in expr [:english])
       :italian-tree (get-in expr [:italiano])})
