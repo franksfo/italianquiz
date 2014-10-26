@@ -136,7 +136,8 @@
    :else
    nil))
 
-(def strict true) ;; strict means: don't try to get smart with "foo" {:italian "foo"} => {:italian "foo"}; instead just :fail.
+;; TODO: remove this variable (strict) in favor of string-unifier-keys.
+(def strict true) ;; strict means: don't try to get smart with "foo" {:italiano "foo"} => {:italiano "foo"}; instead just :fail.
 
 ;; TODO: many code paths below only look at val1 and val2, and ignore rest of args beyond that.
 ;; either consider all args, or change signature of (unify) to take only val1 val2.
@@ -153,35 +154,44 @@
 (declare merge)
  
 (defn merge-with-keys [arg1 arg2]
+  (log/debug (str "merge-with-keys: arg1:" arg1))
+  (log/debug (str "merge-with-keys: arg2" arg2))
   (let [keys1 (keys arg1)
         key1 (first keys1)]
     (if key1
-      (let [val1 (cond
-                  (and (string? (key1 arg1))
-                       (contains? string-unifier-keys key1))
-                  {key1 (key1 arg1)}
-                  true
-                  (key1 arg1))]
-        (log/debug (str "merge-with-keys(" key1 ") val1: " val1))
-        (if (contains? (set (keys arg2)) key1)
-          ;; key1 occurs in arg2.
-          (let [val2 (cond
-                      (and (string? (key1 arg2))
-                           (contains? string-unifier-keys key1))
-                      {key1 (key1 arg2)}
-                      true
-                      (key1 arg2))]
-            (log/debug (str "merge-with-keys(" key1 ") val2: " val2))
-            (merge
-             {key1 (unify val1
-                          val2)}
-             (merge-with-keys (dissoc arg1 key1)
-                              (dissoc arg2 key1))))
-          ;; key1 does not occur in arg2.
-          (merge {key1 (key1 arg1)}
-                 (merge-with-keys (dissoc arg1 key1)
-                                  arg2))))
-          arg2)))
+      (cond
+       (and (string? (key1 arg1))
+            (contains? string-unifier-keys key1)
+            (contains? (set (keys arg2)) key1)
+            (map? (key1 arg2)))
+       (merge
+        {key1 (unify {key1 (key1 arg1)}
+                     (key1 arg2))}
+        (merge-with-keys (dissoc arg1 key1)
+                         (dissoc arg2 key1)))
+
+
+       (and (string? (key1 arg2))
+            (contains? string-unifier-keys key1)
+            (contains? (set (keys arg1)) key1)
+            (map? (key1 arg1)))
+       (merge
+        {key1 (unify {key1 (key1 arg2)}
+                     (key1 arg1))}
+        (merge-with-keys (dissoc arg1 key1)
+                         (dissoc arg2 key1)))
+
+       (contains? (set (keys arg2)) key1)
+       (merge {key1 (unify (key1 arg1)
+                           (key1 arg2))}
+              (merge-with-keys (dissoc arg1 key1)
+                               (dissoc arg2 key1)))
+
+       true
+       (merge {key1 (key1 arg1)}
+              (merge-with-keys (dissoc arg1 key1)
+                               (dissoc arg2 key1))))
+      arg2)))
 
 (defn unify [& args]
   (if (empty? (rest args)) (first args))
@@ -1517,7 +1527,7 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
         (map show-spec spec)
         true
         (remove-top-values-log (dissoc-paths spec '((:english :initial)
-                                                    (:italian :initial)
+                                                    (:italiano :initial)
                                                     (:synsem :essere)
                                                     (:synsem :agr)
                                                     (:synsem :pronoun)

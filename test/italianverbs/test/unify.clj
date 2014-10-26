@@ -584,11 +584,12 @@ a given value in a given map."
     (is (not (fail? fs1-copy)))))
 
 
+;; TODO: remove this test: use merge-with-keys instead, which does not use the variable 'strict'.
 (deftest unify-string-and-map
-  "This is to allow values of :english and :italian that
-  are strings to over-ride values that are maps (in which
-  case they are specs of how to compute a string: agreement
-  information such as gender and number."
+  "This is to allow values of keys that are string-unifier-keys, like :english and :italian,
+   whose values are strings to over-ride values that are maps (in which
+   case they are specs of how to compute a string: agreement
+   information such as gender and number."
   (is (or (= strict true) ;; the test will fail if unify/strict is true, so short-circuit this test if so.
           (= "foo"
              (unify "foo"
@@ -773,6 +774,20 @@ when run from a REPL."
   (is (= result
          {:italiano {:initial true
                      :italiano "gatto"}}))))
+
+(deftest unify-with-string3
+  (let [arg1 {:italiano "gatto"}
+        arg2 {:italiano "gatto"}
+        result (unify arg1 arg2)]
+    (is (not (fail? result)))
+    (is (= result
+           {:italiano "gatto"}))))
+
+(deftest unify-with-string4
+  (let [arg1 {:italiano "gatto"}
+        arg2 {:italiano "cane"}
+        result (unify arg1 arg2)]
+    (is (fail? result))))
 
 
 
