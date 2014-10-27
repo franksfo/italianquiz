@@ -1273,25 +1273,167 @@
 
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
-  ;; TODO: these are examples: replace with actual morphological analysis.
-  (cond (= surface-form "dormirà")
-        (list (unifyc (lookup-fn "dormire")
-                      {:italiano {:infl :futuro
+  (let [replace-pairs
+        {
+         ;; future
+         #"ò$" 
+         {:replace-with "e"
+          :unify-with {:italiano {:infl :futuro
                                   :agr {:number :sing
-                                        :person :3rd}}}))
-        (= surface-form "dormirò")
-        (list (unifyc (lookup-fn "dormire")
-                      {:italiano {:infl :futuro
+                                        :person :1st}}}}
+         #"ai$" 
+         {:replace-with "e"
+          :unify-with {:italiano {:infl :futuro
                                   :agr {:number :sing
-                                        :person :1st}}}))
+                                        :person :2nd}}}}
+         #"à$" 
+         {:replace-with "e"
+          :unify-with {:italiano {:infl :futuro
+                                  :agr {:number :sing
+                                        :person :3rd}}}}
+         #"emo$" 
+         {:replace-with "e"
+          :unify-with {:italiano {:infl :futuro
+                                  :agr {:number :plur
+                                        :person :1st}}}}
+         #"ete$" 
+         {:replace-with "e"
+          :unify-with {:italiano {:infl :futuro
+                                  :agr {:number :plur
+                                        :person :2nd}}}}
+         #"anno$" 
+         {:replace-with "e"
+          :unify-with {:italiano {:infl :futuro
+                                  :agr {:number :plur
+                                        :person :3rd}}}}
 
-        (= surface-form "dorme")
-        (list (unifyc (lookup-fn "dormire")
-                      {:italiano {:infl :present
-                                  :agr {:number :sing
-                                        :person :3rd}}}))
 
+         ;; present -ire
+        #"o$"
+        {:replace-with "ire"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :1st}}}}
+
+        #"i$"
+        {:replace-with "ire"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :2nd}}}}
+
+        #"e$"
+        {:replace-with "ire"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :3rd}}}}
+
+        #"iamo$"
+        {:replace-with "ire"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :1st}}}}
+
+        #"ete$"
+        {:replace-with "ire"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :2nd}}}}
+
+        #"ano$"
+        {:replace-with "ire"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :3rd}}}}
+
+        ;; present -ere
+        #"o$"
+        {:replace-with "ere"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :1st}}}}
+
+        #"i$"
+        {:replace-with "ere"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :2nd}}}}
+
+        #"e$"
+        {:replace-with "ere"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :3rd}}}}
+
+        #"iamo$"
+        {:replace-with "ere"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :1st}}}}
+
+        #"ete$"
+        {:replace-with "ere"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :2nd}}}}
+
+        #"ano$"
+        {:replace-with "ere"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :3rd}}}}
+
+        ;; present -are
+        #"o$"
+        {:replace-with "are"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :1st}}}}
+
+        #"i$"
+        {:replace-with "are"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :2nd}}}}
+
+        #"e$"
+        {:replace-with "are"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :sing
+                                       :person :3rd}}}}
+
+        #"iamo$"
+        {:replace-with "are"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :1st}}}}
+
+        #"ete$"
+        {:replace-with "are"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :2nd}}}}
+
+        #"ano$"
+        {:replace-with "are"
+         :unify-with {:italiano {:infl :present
+                                 :agr {:number :plur
+                                       :person :3rd}}}}
+
+        }]
+        
+    (let [result
+          (mapcat
+           (fn [key]
+             (and (re-find key surface-form)
+                  (let [lexical-form (string/replace surface-form key (:replace-with (get replace-pairs key)))
+                        looked-up (list (lookup-fn lexical-form))]
+                    (if looked-up
+                      (map #(unifyc % (:unify-with (get replace-pairs key)))
+                           looked-up)))))
+           (keys replace-pairs))]
+      (if (not (empty? result))
+        result
         ;; if morphological analysis finds no match, lookup the surface form itself, which
         ;; might be either the canonical form of a word, or an irregular conjugation of a word.
-        true
-        (list (lookup-fn surface-form))))
+        (list (lookup-fn surface-form))))))
+
