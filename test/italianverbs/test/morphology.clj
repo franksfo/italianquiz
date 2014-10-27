@@ -908,3 +908,10 @@ so in this example, will be feminine rather than masculine."
          :infl :past}]
     (is (= (string/trim (italiano/get-string ricordata))
            "ricordata"))))
+
+(deftest analyze-1
+  (let [analysis (italiano/analyze "dormirà"
+                                   (fn [canonical-form]
+                                     {}))]
+    (is (= (get-in (first analysis) [:italiano :agr :number])
+           :sing))))

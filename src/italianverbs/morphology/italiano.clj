@@ -1271,3 +1271,27 @@
 (defn passato-prossimo [infinitive]
   (str (stem-per-passato-prossimo infinitive) "ato"))
 
+(defn analyze [surface-form lookup-fn]
+  "return the map incorporating the lexical information about a surface form."
+  ;; TODO: these are examples: replace with actual morphological analysis.
+  (cond (= surface-form "dormirà")
+        (list (unifyc (lookup-fn "dormire")
+                      {:italiano {:infl :futuro
+                                  :agr {:number :sing
+                                        :person :3rd}}}))
+        (= surface-form "dormirò")
+        (list (unifyc (lookup-fn "dormire")
+                      {:italiano {:infl :futuro
+                                  :agr {:number :sing
+                                        :person :1st}}}))
+
+        (= surface-form "dorme")
+        (list (unifyc (lookup-fn "dormire")
+                      {:italiano {:infl :present
+                                  :agr {:number :sing
+                                        :person :3rd}}}))
+
+        ;; if morphological analysis finds no match, lookup the surface form itself, which
+        ;; might be either the canonical form of a word, or an irregular conjugation of a word.
+        true
+        (list (lookup-fn surface-form))))

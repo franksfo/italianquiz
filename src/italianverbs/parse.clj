@@ -13,6 +13,7 @@
 (require '[italianverbs.lexiconfn :as lexfn])
 
 (require '[italianverbs.morphology :refer (fo fo-ps)])
+(require '[italianverbs.morphology.italiano :refer (analyze)])
 (require '[italianverbs.over :as over])
 (require '[italianverbs.unify :refer :all])
 
@@ -58,16 +59,7 @@
                        tokens)]
     looked-up))
   
-
-(defn dofoo [input-string & [lexicon grammar ] ]
-  (let [tokens (str/split input-string #"[ ']")
-        looked-up (map #(lookup lexicon %)
-                       tokens)]
-    (over/over it-grammar (get it-lexicon "Antonio") (get it-lexicon "dormire"))))
-
 (defn lookup [lexicon token]
-  "return the subset set of lexemes that match this token from the lexicon."
-  (get lexicon token))
-
-
-
+  "return the subset of lexemes that match this token from the lexicon."
+  (analyze token (fn [canonical-form]
+                     (get lexicon canonical-form))))
