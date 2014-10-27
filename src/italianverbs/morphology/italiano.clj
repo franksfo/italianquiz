@@ -1422,15 +1422,16 @@
         }]
         
     (let [result
-          (mapcat
-           (fn [key]
-             (and (re-find key surface-form)
-                  (let [lexical-form (string/replace surface-form key (:replace-with (get replace-pairs key)))
-                        looked-up (list (lookup-fn lexical-form))]
-                    (if looked-up
-                      (map #(unifyc % (:unify-with (get replace-pairs key)))
-                           looked-up)))))
-           (keys replace-pairs))]
+          (remove fail?
+                  (mapcat
+                   (fn [key]
+                     (and (re-find key surface-form)
+                          (let [lexical-form (string/replace surface-form key (:replace-with (get replace-pairs key)))
+                                looked-up (list (lookup-fn lexical-form))]
+                            (if looked-up
+                              (map #(unifyc % (:unify-with (get replace-pairs key)))
+                                   looked-up)))))
+                   (keys replace-pairs)))]
       (if (not (empty? result))
         result
         ;; if morphological analysis finds no match, lookup the surface form itself, which
