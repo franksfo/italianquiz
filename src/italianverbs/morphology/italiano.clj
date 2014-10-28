@@ -13,7 +13,6 @@
    (string? phrase) true
    (map? phrase)
    (or (phrase-is-finished? (get-in phrase '(:italiano)))
-       (string? (get-in phrase '(:infinitive)))
        (and (phrase-is-finished? (get-in phrase '(:a)))
             (phrase-is-finished? (get-in phrase '(:b)))))
    :else false))
@@ -100,17 +99,17 @@
     {:person person
      :number number
      :infinitive?    (and (= :infinitive (get-in word '(:infl)))
-                          (string? (get-in word '(:infinitive))))
+                          (string? (get-in word '(:italiano))))
 
      :irregular-futuro?    (and
                             (= (get-in word '(:infl)) :futuro)
                             (map? (get-in word '(:irregular :futuro))))
 
      :regular-futuro?    (and (= (get-in word '(:infl)) :futuro)
-                              (get-in word '(:infinitive)))
+                              (get-in word '(:italiano)))
 
      :regular-imperfetto?    (and (= (get-in word '(:infl)) :imperfetto)
-                                  (get-in word '(:infinitive)))
+                                  (get-in word '(:italiano)))
 
      :irregular-past?    (and
                           (= :past (get-in word '(:infl)))
@@ -232,32 +231,31 @@
 
      (and
       (string? (get-in word '(:a :italiano)))
-      (string? (get-in word '(:b :infinitive)))
+      (string? (get-in word '(:b :italiano)))
       (or (= :none (get-in word '(:b :agr :number) :none))
           (= :top (get-in word '(:b :agr :number) :none)))
       )
      (str (string/trim (get-in word '(:a :italiano)))
           " "
-          (string/trim (get-in word '(:b :infinitive))))
+          (string/trim (get-in word '(:b :italiano))))
 
      (and
       (string? (get-in word '(:a)))
-      (string? (get-in word '(:b :infinitive)))
+      (string? (get-in word '(:b :italiano)))
       (or (= :none (get-in word '(:b :agr :number) :none))
           (= :top (get-in word '(:b :agr :number) :none)))
       )
      (str (string/trim (get-in word '(:a)))
           " "
-          (string/trim (get-in word '(:b :infinitive))))
-
+          (string/trim (get-in word '(:b :italiano))))
 
      (and
-      (string? (get-in word '(:a :infinitive)))
-      (get-in word '(:a :infinitive))
+      (string? (get-in word '(:a :italiano)))
+      (get-in word '(:a :italiano))
       (or (= :none (get-in word '(:b :agr :number) :none))
           (= :top (get-in word '(:b :agr :number) :none)))
       (= (get-in word '(:a :infl)) :top))
-     (string/trim (str (get-in word '(:a :infinitive))
+     (string/trim (str (get-in word '(:a :italiano))
                  " " (get-string-1 (get-in word '(:b)))))
 
      ;; handle lexical exceptions (plural feminine adjectives):
@@ -306,12 +304,11 @@
       (string? (get-in word '(:irregular :plur))))
      (get-in word '(:irregular :plur))
 
-
      ;; regular masculine nouns
      (and
       (= (get-in word '(:agr :gender)) :masc)
       (= (get-in word '(:agr :number)) :plur)
-      (= (get-in word '(:cat) :noun))
+      (= :noun (get-in word '(:cat) :noun))
       (get-in word '(:italiano)))
      (string/replace (get-in word '(:italiano))
                      #"[eo]$" "i") ;; dottore => dottori; medico => medici
@@ -342,9 +339,14 @@
      (string/replace (get-in word '(:italiano))
                      #"[eo]$" "a") ;; nero => nera
 
+     ;; TODO: remove: using :italiano, not :italiano (see immediately below this).
      (and (= :infinitive (get-in word '(:infl)))
-          (string? (get-in word '(:infinitive))))
-     (get-in word '(:infinitive))
+          (string? (get-in word '(:italiano))))
+     (get-in word '(:italiano))
+
+     (and (= :infinitive (get-in word '(:infl)))
+          (string? (get-in word '(:italiano))))
+     (get-in word '(:italiano))
      
      (and (= (get-in word '(:infl)) :futuro)
           (get-in word '(:futuro-stem)))
@@ -371,7 +373,7 @@
      (and
       (= (get-in word '(:infl)) :futuro)
       (map? (get-in word '(:irregular :futuro))))
-     (let [infinitive (get-in word '(:infinitive))
+     (let [infinitive (get-in word '(:italiano))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))]
        (cond
@@ -390,8 +392,8 @@
 
 
         (and (= (get-in word '(:infl)) :futuro)
-             (string? (get-in word '(:infinitive))))
-        (str (get-in word '(:infinitive)) " (futuro)")
+             (string? (get-in word '(:italiano))))
+        (str (get-in word '(:italiano)) " (futuro)")
 
         true ;; failthrough: should usually not get here:
         ;; TODO: describe when it might be ok, i.e. why log/warn not log/error.
@@ -423,9 +425,9 @@
 
      ;; regular inflection of conditional
      (and (= (get-in word '(:infl)) :conditional)
-          (get-in word '(:infinitive)))
+          (get-in word '(:italiano)))
 
-     (let [infinitive (get-in word '(:infinitive))
+     (let [infinitive (get-in word '(:italiano))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))
            drop-e (get-in word '(:italiano :drop-e) false)
@@ -451,13 +453,13 @@
         (str stem "ebbero")
 
         :else
-        (get-in word '(:infinitive))))
+        (get-in word '(:italiano))))
 
      ;; regular inflection of futuro.
      (and (= (get-in word '(:infl)) :futuro)
-          (get-in word '(:infinitive)))
+          (get-in word '(:italiano)))
 
-     (let [infinitive (get-in word '(:infinitive))
+     (let [infinitive (get-in word '(:italiano))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))
            drop-e (get-in word '(:italiano :drop-e) false)
@@ -484,7 +486,7 @@
         (str stem "anno")
 
         :else
-        (get-in word '(:infinitive))))
+        (get-in word '(:italiano))))
 
      ;; irregular imperfetto sense:
      ;; 1) use irregular based on number and person.
@@ -530,8 +532,8 @@
 
      ;; regular imperfetto sense
      (and (= (get-in word '(:infl)) :imperfetto)
-          (get-in word '(:infinitive)))
-     (let [infinitive (get-in word '(:infinitive))
+          (get-in word '(:italiano)))
+     (let [infinitive (get-in word '(:italiano))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))
            stem (stem-per-imperfetto infinitive)]
@@ -599,7 +601,7 @@
      ;; 'nei': not enough information.
      (do
        (log/warn (str "not enough agreement specified to conjugate: " (get-in word '(:irregular :passato)) " (past)]"))
-       (str (get-in word [:infinitive]) " (past)"))
+       (str (get-in word [:italiano]) " (past)"))
 
      ;; conjugate irregular passato: option 1) using :passato-stem
      (and (= :past (get-in word '(:infl)))
@@ -616,8 +618,8 @@
 
      ;; conjugate regular passato
      (and (= :past (get-in word '(:infl)))
-          (string? (get-in word '(:infinitive))))
-     (let [infinitive (get-in word '(:infinitive))
+          (string? (get-in word '(:italiano))))
+     (let [infinitive (get-in word '(:italiano))
            are-type (try (re-find #"are$" infinitive)
                          (catch Exception e
                            (throw (Exception. (str "Can't regex-find on non-string: " infinitive)))))
@@ -775,7 +777,7 @@
 
 
      (= (get-in word '(:infl)) :top)
-     (str (get-in word '(:infinitive)) )
+     (str (get-in word '(:italiano)) )
 
      (and
       (get-in word '(:a))
@@ -867,8 +869,8 @@
     (string? (get-in word '(:irregular :fem :plur))))
    (get-in word '(:irregular :fem :plur))
 
-   (string? (get-in word '(:infinitive)))
-   (get-in word '(:infinitive))
+   (string? (get-in word '(:italiano)))
+   (get-in word '(:italiano))
 
    (or
     (not (= :none (get-in word '(:a) :none)))
@@ -1273,170 +1275,207 @@
 (defn passato-prossimo [infinitive]
   (str (stem-per-passato-prossimo infinitive) "ato"))
 
+;; allows reconstruction of the infinitive form from the inflected form
+(def future-to-infinitive
+  {
+   ;; future
+   #"ò$" 
+   {:replace-with "e"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :sing
+                                  :person :1st}}}}
+   #"ai$" 
+   {:replace-with "e"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :sing
+                                  :person :2nd}}}}
+   #"à$" 
+   {:replace-with "e"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :sing
+                                  :person :3rd}}}}
+   #"emo$" 
+   {:replace-with "e"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :plur
+                                  :person :1st}}}}
+   #"ete$" 
+   {:replace-with "e"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :plur
+                                  :person :2nd}}}}
+   #"anno$" 
+   {:replace-with "e"
+    :unify-with {:italiano {:infl :futuro
+                            :agr {:number :plur
+                                  :person :3rd}}}}})
+
+(def present-to-infinitive-ire
+  {
+   ;; present -ire
+   #"o$"
+   {:replace-with "ire"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :1st}}}}
+   
+   #"i$"
+   {:replace-with "ire"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :2nd}}}}
+
+   #"e$"
+   {:replace-with "ire"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :3rd}}}}
+
+   #"iamo$"
+   {:replace-with "ire"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :1st}}}}
+
+   #"ete$"
+   {:replace-with "ire"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :2nd}}}}
+   
+   #"ano$"
+   {:replace-with "ire"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :3rd}}}}})
+
+
+(def present-to-infinitive-ere
+  {
+   ;; present -ere
+   #"o$"
+   {:replace-with "ere"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :1st}}}}
+
+   #"i$"
+   {:replace-with "ere"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :2nd}}}}
+   
+   #"e$"
+   {:replace-with "ere"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :3rd}}}}
+   
+   #"iamo$"
+   {:replace-with "ere"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :1st}}}}
+
+   #"ete$"
+   {:replace-with "ere"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :2nd}}}}
+   
+   #"ano$"
+   {:replace-with "ere"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :3rd}}}}})
+
+(def present-to-infinitive-are
+  {
+   ;; present -are
+   #"o$"
+   {:replace-with "are"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :1st}}}}
+
+   #"i$"
+   {:replace-with "are"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :2nd}}}}
+
+   #"e$"
+   {:replace-with "are"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :3rd}}}}
+   
+   #"iamo$"
+   {:replace-with "are"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :1st}}}}
+
+   #"ete$"
+   {:replace-with "are"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :2nd}}}}
+
+   #"ano$"
+   {:replace-with "are"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :plur
+                                  :person :3rd}}}}})
+
+(def present-to-infinitive-irreg1
+  {
+   ;; e.g.: "beveva"
+   #"vevo$"
+   {:replace-with "re"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :1st}}}}
+
+   #"vevi$"
+   {:replace-with "re"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :2nd}}}}
+
+   #"veva$"
+   {:replace-with "re"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :3rd}}}}
+   })
+
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
-        {
-         ;; future
-         #"ò$" 
-         {:replace-with "e"
-          :unify-with {:italiano {:infl :futuro
-                                  :agr {:number :sing
-                                        :person :1st}}}}
-         #"ai$" 
-         {:replace-with "e"
-          :unify-with {:italiano {:infl :futuro
-                                  :agr {:number :sing
-                                        :person :2nd}}}}
-         #"à$" 
-         {:replace-with "e"
-          :unify-with {:italiano {:infl :futuro
-                                  :agr {:number :sing
-                                        :person :3rd}}}}
-         #"emo$" 
-         {:replace-with "e"
-          :unify-with {:italiano {:infl :futuro
-                                  :agr {:number :plur
-                                        :person :1st}}}}
-         #"ete$" 
-         {:replace-with "e"
-          :unify-with {:italiano {:infl :futuro
-                                  :agr {:number :plur
-                                        :person :2nd}}}}
-         #"anno$" 
-         {:replace-with "e"
-          :unify-with {:italiano {:infl :futuro
-                                  :agr {:number :plur
-                                        :person :3rd}}}}
+        (merge 
+         future-to-infinitive
+         present-to-infinitive-ire
+         present-to-infinitive-ere
+         present-to-infinitive-are)
 
-
-         ;; present -ire
-        #"o$"
-        {:replace-with "ire"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :1st}}}}
-
-        #"i$"
-        {:replace-with "ire"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :2nd}}}}
-
-        #"e$"
-        {:replace-with "ire"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :3rd}}}}
-
-        #"iamo$"
-        {:replace-with "ire"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :1st}}}}
-
-        #"ete$"
-        {:replace-with "ire"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :2nd}}}}
-
-        #"ano$"
-        {:replace-with "ire"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :3rd}}}}
-
-        ;; present -ere
-        #"o$"
-        {:replace-with "ere"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :1st}}}}
-
-        #"i$"
-        {:replace-with "ere"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :2nd}}}}
-
-        #"e$"
-        {:replace-with "ere"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :3rd}}}}
-
-        #"iamo$"
-        {:replace-with "ere"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :1st}}}}
-
-        #"ete$"
-        {:replace-with "ere"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :2nd}}}}
-
-        #"ano$"
-        {:replace-with "ere"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :3rd}}}}
-
-        ;; present -are
-        #"o$"
-        {:replace-with "are"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :1st}}}}
-
-        #"i$"
-        {:replace-with "are"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :2nd}}}}
-
-        #"e$"
-        {:replace-with "are"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :sing
-                                       :person :3rd}}}}
-
-        #"iamo$"
-        {:replace-with "are"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :1st}}}}
-
-        #"ete$"
-        {:replace-with "are"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :2nd}}}}
-
-        #"ano$"
-        {:replace-with "are"
-         :unify-with {:italiano {:infl :present
-                                 :agr {:number :plur
-                                       :person :3rd}}}}
-
-        }]
-        
-    (let [result
-          (remove fail?
-                  (mapcat
-                   (fn [key]
-                     (and (re-find key surface-form)
-                          (let [lexical-form (string/replace surface-form key (:replace-with (get replace-pairs key)))
-                                looked-up (lookup-fn lexical-form)]
-                            (map #(unifyc % (:unify-with (get replace-pairs key)))
-                                 looked-up))))
-                   (keys replace-pairs)))]
-      (if (not (empty? result))
         result
-        ;; if morphological analysis finds no match, lookup the surface form itself, which
-        ;; might be either the canonical form of a word, or an irregular conjugation of a word.
-        (lookup-fn surface-form)))))
+        (remove fail?
+                (mapcat
+                 (fn [key]
+                   (and (re-find key surface-form)
+                        (let [lexical-form (string/replace surface-form key (:replace-with (get replace-pairs key)))
+                              looked-up (lookup-fn lexical-form)]
+                          (map #(unifyc % (:unify-with (get replace-pairs key)))
+                               looked-up))))
+                 (keys replace-pairs)))]
+    (if (not (empty? result))
+      result
+      ;; if morphological analysis finds no match, lookup the surface form itself, which
+      ;; might be either the canonical form of a word, or an irregular conjugation of a word.
+      (lookup-fn surface-form))))
+
+
+
 
 

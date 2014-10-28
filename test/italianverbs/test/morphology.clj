@@ -16,7 +16,7 @@
 
   (is (italiano/phrase-is-finished?
        {:italiano
-        {:a {:infinitive "essere"}
+        {:a {:italiano "essere"}
          :b {:a "il"
              :b {:italiano "professore"}}}})))
 
@@ -61,7 +61,7 @@
   (is (= (italiano/get-string-1 {:agr {:case :nom
                                :number :sing
                                :person :1st}
-                         :infinitive "dormire"
+                         :italiano "dormire"
                          :infl :present})
          "dormo")))
 
@@ -81,7 +81,7 @@
                                :number :sing
                                :person :1st}
                          :irregular {:present {:1sing "vado"}}
-                         :infinitive "andare"
+                         :italiano "andare"
                          :infl :present})
          "vado")))
 
@@ -89,7 +89,7 @@
 (deftest io-sogno
   (is (= (italiano/get-string-1 {:a "io"
                          :b {:essere false
-                             :infinitive "sognare"
+                             :italiano "sognare"
                              :agr {:case :nom
                                    :person :1st
                                    :number :sing}
@@ -206,14 +206,14 @@
          (italiano/get-string-1
           {:agr {:number :sing :person :1st}
            :irregular {:futuro {:1sing "andrò"}}
-           :infinitive "andare"
+           :italiano "andare"
            :infl :futuro}))))
 
 (deftest tu-bevevi
   (is (= "bevevi"
          (italiano/get-string-1
           {:agr {:number :sing :person :2nd}
-           :infinitive "bevere"
+           :italiano "bevere"
            :infl :imperfetto}))))
 
 (deftest was-sleeping
@@ -396,7 +396,7 @@
            :agr {:person :3rd
                  :case {:not :acc}
                  :number :sing}
-           :infinitive "leggere"}))))
+           :italiano "leggere"}))))
 
 (deftest was-reading
   (is (= "was reading"
@@ -516,7 +516,7 @@
                                :person :3rd
                                :number :sing
                                :case :nom}
-                         :infinitive "fare"
+                         :italiano "fare"
                          :infl :past}))))
 
 ;; adjectival agreement with number and gender.
@@ -570,7 +570,7 @@
           (italiano/get-string
            {:infl :past
             :a {:cat :verb
-                :infinitive "fare"
+                :italiano "fare"
                 :essere false
                 :irregular {:present {:1sing "facio"
                                       :3plur "fanno"
@@ -678,7 +678,7 @@
                                 :italiano "cane",
                                 :cat :noun}},
                         :b {:a {:cat :verb,
-                                :infinitive "essere",
+                                :italiano "essere",
                                 :irregular {:imperfetto {:2plur "eravate",
                                                          :3sing "era",
                                                    :2sing "eri",
@@ -689,7 +689,7 @@
                                             :present {:2plur "siete",
                                                       :3sing "è",
                                                       :2sing "sei",
-                                                :1sing "sono",
+                                                      :1sing "sono",
                                                       :3plur "sono",
                                                       :1plur "siamo"},
                                             :futuro {:2plur "sarete",
@@ -720,14 +720,14 @@
 
 (deftest essere-format-1
   (let [essere-test
-        {:synsem {:subcat {:1 {:cat :noun}, :2 {:sem {:discrete false, :activity false}, :cat :adjective, :subcat {:1 {:cat :noun}, :2 ()}}}, :essere true, :sem {:discrete false, :activity false}, :cat :verb}, :english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infinitive "to be"}, :italiano {:essere true, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}, :infinitive "essere"}, :notes "essere-adjective"}]
+        {:synsem {:subcat {:1 {:cat :noun}, :2 {:sem {:discrete false, :activity false}, :cat :adjective, :subcat {:1 {:cat :noun}, :2 ()}}}, :essere true, :sem {:discrete false, :activity false}, :cat :verb}, :english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infinitive "to be"}, :italiano {:essere true, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}, :italiano "essere"}, :notes "essere-adjective"}]
     (is (= (italiano/get-string-1 (get-in essere-test '(:italiano)))
            "essere"))
     (is (= (english/get-string-1 (get-in essere-test '(:english)))
            "to be"))))
 
 (deftest essere-format-2
-  (let [essere-test {:english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infl :present, :agr {:case {:not :acc}}, :infinitive "to be", :hidden true}, :italiano {:infinitive "essere", :infl :present, :aux true, :essere true, :agr {:case {:not :acc}}, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}}, :synsem {:cat :verb, :essere true, :aux true, :sem {:tense :past, :subj :top}, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 {:infl :past, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 ()}, :cat :verb, :sem {:tense :past, :subj :top}, :essere true}}, :infl :present}, :notes "essere-aux"}]
+  (let [essere-test {:english {:irregular {:present {:1sing "am", :3plur "are", :1plur "are", :2plur "are", :3sing "is", :2sing "are"}, :past {:1sing "was", :3sing "was", :2plur "were", :1plur "were", :3plur "were", :participle "been", :2sing "were"}}, :infl :present, :agr {:case {:not :acc}}, :infinitive "to be", :hidden true}, :italiano {:italiano "essere", :infl :present, :aux true, :essere true, :agr {:case {:not :acc}}, :irregular {:present {:1sing "sono", :3plur "sono", :1plur "siamo", :2plur "siete", :3sing "è", :2sing "sei"}, :futuro {:1sing "sarò", :3plur "saranno", :1plur "saremo", :2plur "sarete", :3sing "sarà", :2sing "sarai"}, :imperfetto {:1sing "ero", :3plur "erano", :1plur "eravamo", :2plur "eravate", :3sing "era", :2sing "eri"}, :passato "stato"}}, :synsem {:cat :verb, :essere true, :aux true, :sem {:tense :past, :subj :top}, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 {:infl :past, :subcat {:1 {:cat :noun, :sem :top, :agr {:case {:not :acc}}}, :2 ()}, :cat :verb, :sem {:tense :past, :subj :top}, :essere true}}, :infl :present}, :notes "essere-aux"}]
     (is (= (italiano/get-string-1 (get-in essere-test '(:italiano)))
            "essere"))))
 
@@ -858,7 +858,7 @@
                                            :1sing "sono",
                                            :3plur "sono",
                                            :1plur "siamo"}},
-                     :infinitive "essere",
+                     :italiano "essere",
                      :agr {:case :nom,
                            :number :sing,
                            :gender :top,
@@ -868,7 +868,7 @@
                        :number :sing,
                        :gender :top,
                        :person :1st},
-                 :infinitive "essere",
+                 :italiano "essere",
                  :essere true,
                  :aux true,
                  :initial true,
@@ -899,7 +899,7 @@ so in this example, will be feminine rather than masculine."
                :case :nom,
                :person :1st},
          :essere false,
-         :infinitive "ricordare"
+         :italiano "ricordare"
          :initial false,
          :obj-agr {:number :sing,
                    :gender :fem,
@@ -912,6 +912,6 @@ so in this example, will be feminine rather than masculine."
 (deftest analyze-1
   (let [analysis (italiano/analyze "dormirà"
                                    (fn [canonical-form]
-                                     {}))]
+                                     '({})))]
     (is (= (get-in (first analysis) [:italiano :agr :number])
            :sing))))

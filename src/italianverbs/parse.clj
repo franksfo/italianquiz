@@ -57,16 +57,17 @@
 (defn parse-both [input-string]
   {:english (parse input-string en-lexicon en-grammar)
    :italiano (parse input-string it-lexicon it-grammar)})
-
-(defn do-lookup [input-string lexicon]
-  (let [tokens (str/split input-string #"[ ']")
-        looked-up (map #(lookup lexicon %)
-                       tokens)]
-    looked-up))
   
 (defn lookup [lexicon token]
   "return the subset of lexemes that match this token from the lexicon."
   (analyze token (fn [canonical-form]
                    (let [result (get lexicon canonical-form)]
-                     (if (map? result) (list result)
-                         result)))))
+                     (cond (and (nil? result)
+                                (= canonical-form "bevevo"))
+                           (let [looked-up (first (lookup lexicon "bere"))]
+                             looked-up)
+
+                           (map? result) (list result)
+                           true
+                           result)))))
+

@@ -9,17 +9,6 @@
 (require '[italianverbs.unify :refer :all :exclude [unify]])
 (require '[italianverbs.unify :as unify])
 
-
-(defn phonize [a-map a-string]
-  (cond (or (vector? a-map) (seq? a-map))
-        (map (fn [each-entry]
-               (phonize each-entry a-string))
-             a-map)
-        true
-        (merge a-map
-               {:italiano a-string
-                :phrasal false})))
-
 (def lexicon
   {
 
@@ -154,15 +143,15 @@
            (unify
             each
             ;; common part of all andare lexemes:
-            {:italian {:infinitive "andare"
-                       :essere true
-                       :drop-e true
-                       :irregular {:present {:1sing "vado"
-                                             :2sing "vai"
-                                             :3sing "va"
-                                             :1plur "andiamo"
-                                             :2plur "andate"
-                                             :3plur "vanno"}}}
+            {:italiano {:italiano "andare"
+                        :essere true
+                        :drop-e true
+                        :irregular {:present {:1sing "vado"
+                                              :2sing "vai"
+                                              :3sing "va"
+                                              :1plur "andiamo"
+                                              :2plur "andate"
+                                              :3plur "vanno"}}}
              :synsem {:essere true
                       :sem {:subj {:animate true}
                             :activity false ;; because "I was going when (something happened) .." sounds weird.
@@ -238,24 +227,23 @@
 
    ;; bere
    "bere"
-
    (unify
     (:transitive verb)
-    {:italian {:infinitive "bere"
-               :irregular {:passato "bevuto"
-                           :futuro-stem "berr"
-                           :imperfetto {:1sing "bevevo"
-                                        :2sing "bevevi"
-                                        :3sing "beveva"
-                                        :1plur "bevevamo"
-                                        :2plur "bevevate"
-                                        :3plur "bevevano"}
-                           :present {:1sing "bevo"
-                                     :2sing "bevi"
-                                     :3sing "beve"
-                                     :1plur "beviamo"
-                                     :2plur "bevete"
-                                     :3plur "bevano"}}}
+    {:italiano {:italiano "bere"
+                :irregular {:passato "bevuto"
+                            :futuro-stem "berr"
+                            :imperfetto {:1sing "bevevo"
+                                         :2sing "bevevi"
+                                         :3sing "beveva"
+                                         :1plur "bevevamo"
+                                         :2plur "bevevate"
+                                         :3plur "bevevano"}
+                            :present {:1sing "bevo"
+                                      :2sing "bevi"
+                                      :3sing "beve"
+                                      :1plur "beviamo"
+                                      :2plur "bevete"
+                                      :3plur "bevano"}}}
        :synsem {:essere false
                 :sem {:pred :bere
                       :subj {:animate true}
@@ -294,6 +282,24 @@
               :number :sing}}]
 })
 
+(defn phonize [a-map a-string]
+  (let [common {:phrasal false}]
+    (cond (or (vector? a-map) (seq? a-map))
+          (map (fn [each-entry]
+                 (phonize each-entry a-string))
+               a-map)
+
+          (and (map? a-map)
+               (not (= :no-italiano (get a-map :italiano))))
+          (merge {:italiano {:italiano a-string}}
+                 common
+                 a-map)
+
+        true
+        (merge a-map
+               {:italiano a-string}
+               common))))
+
 (defn transform-each-lexical-val [italian-lexical-string lexical-val]
   (let [lexical-val
         (phonize lexical-val italian-lexical-string)]
@@ -316,16 +322,7 @@
 
 (def lexicon
   (map-function-on-map-vals 
-   (if use-a-small-subset
-
-     {
-      "Antonio" (get lexicon "Antonio")
-      "il" (get lexicon "il")
-      "dormire" (get lexicon "dormire")
-      }
-
-     lexicon)
-
+   lexicon
    transform-each-lexical-val))
 
 ;; promote from italianverbs.lexicon.italiano to italianverbs.lexicon.
