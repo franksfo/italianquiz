@@ -141,6 +141,7 @@
      :present
      (= (get-in word '(:infl)) :present)}))
 
+;; TODO: this is an overly huge method that needs to be rewritten to be easier to understand and maintain.
 (defn get-string-1 [word]
   (if (seq? word)
     (map (string/join " " #(get-string-1 %))
@@ -204,7 +205,6 @@
           (not (= :none (get-in word '(:b) :none))))
      (get-string (get-in word '(:a))
                  (get-in word '(:b)))
-
 
      (and (= (get-in word '(:infl)) :futuro)
           (get-in word '(:italiano)))
@@ -306,6 +306,7 @@
       (string? (get-in word '(:irregular :plur))))
      (get-in word '(:irregular :plur))
 
+
      ;; regular masculine nouns
      (and
       (= (get-in word '(:agr :gender)) :masc)
@@ -340,28 +341,6 @@
       (= (get-in word '(:cat)) :adjective))
      (string/replace (get-in word '(:italiano))
                      #"[eo]$" "a") ;; nero => nera
-     (and
-      (string? (get-in word '(:italiano)))
-      (= :top (get-in word '(:agr :sing) :top)))
-     (str (get-in word '(:italiano)))
-
-     (= (get-in word '(:a)) :top)
-     (str
-      ".." " " (get-string-1 (get-in word '(:b))))
-
-     (and
-      (= (get-in word '(:b)) :top)
-      (string? (get-string-1 (get-in word '(:a)))))
-     (str
-      (get-string-1 (get-in word '(:a)))
-      " " "..")
-
-     (and
-      (= (get-in word '(:b)) :top)
-      (string? (get-in word '(:a :italiano))))
-     (str
-      (get-string-1 (get-in word '(:a :italiano)))
-      " " "..")
 
      (and (= :infinitive (get-in word '(:infl)))
           (string? (get-in word '(:infinitive))))
@@ -442,7 +421,6 @@
         (and (= person :3rd) (= number :plur))
         (str stem "ebbero")))
 
-
      ;; regular inflection of conditional
      (and (= (get-in word '(:infl)) :conditional)
           (get-in word '(:infinitive)))
@@ -479,7 +457,6 @@
      (and (= (get-in word '(:infl)) :futuro)
           (get-in word '(:infinitive)))
 
-
      (let [infinitive (get-in word '(:infinitive))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))
@@ -508,7 +485,6 @@
 
         :else
         (get-in word '(:infinitive))))
-
 
      ;; irregular imperfetto sense:
      ;; 1) use irregular based on number and person.
@@ -552,7 +528,6 @@
       (string? (get-in word '(:irregular :imperfetto :3plur))))
      (get-in word '(:irregular :imperfetto :3plur))
 
-
      ;; regular imperfetto sense
      (and (= (get-in word '(:infl)) :imperfetto)
           (get-in word '(:infinitive)))
@@ -585,6 +560,7 @@
         :else
         (merge word
                {:error 1})))
+
 
      (and
       (get-in word '(:a))
@@ -696,10 +672,11 @@
           (string? (get-in word '(:irregular :present :3plur))))
      (get-in word '(:irregular :present :3plur))
 
+
      (and
       (= (get-in word '(:infl)) :present)
-      (string? (get-in word '(:infinitive))))
-     (let [infinitive (get-in word '(:infinitive))
+      (string? (get-in word '(:italiano))))
+     (let [infinitive (get-in word '(:italiano))
            are-type (try (re-find #"are$" infinitive)
                          (catch Exception e
                            (throw (Exception. (str "Can't regex-find on non-string: " infinitive " from word: " word)))))
@@ -791,6 +768,12 @@
         :else
         (str infinitive )))
 
+     (and
+      (string? (get-in word '(:italiano)))
+      (= :top (get-in word '(:agr :sing) :top)))
+     (str (get-in word '(:italiano)))
+
+
      (= (get-in word '(:infl)) :top)
      (str (get-in word '(:infinitive)) )
 
@@ -800,6 +783,25 @@
      (get-string
       (get-in word '(:a))
       (get-in word '(:b)))
+
+     (= (get-in word '(:a)) :top)
+     (str
+      ".." " " (get-string-1 (get-in word '(:b))))
+
+     (and
+      (= (get-in word '(:b)) :top)
+      (string? (get-string-1 (get-in word '(:a)))))
+     (str
+      (get-string-1 (get-in word '(:a)))
+      " " "..")
+
+     (and
+      (= (get-in word '(:b)) :top)
+      (string? (get-in word '(:a :italiano))))
+     (str
+      (get-string-1 (get-in word '(:a :italiano)))
+      " " "..")
+
 
      ;; TODO: remove support for deprecated :root.
      (and
