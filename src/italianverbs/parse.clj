@@ -25,10 +25,6 @@
 (def en-lexicon en-l/lexicon)
 (def it-lexicon it-l/lexicon)
 
-(defn parse-both [input-string]
-  {:english (parse input-string en-lexicon en-grammar)
-   :italiano (parse input-string it-lexicon it-grammar)})
-
 (defn parse [input-string & [ lexicon grammar ]]
   "return a list of all possible parse trees for the given list of tokens, given the lexicon and grammar."
   (if (or (nil? lexicon)
@@ -57,6 +53,10 @@
             
             true
             nil))))
+
+(defn parse-both [input-string]
+  {:english (parse input-string en-lexicon en-grammar)
+   :italiano (parse input-string it-lexicon it-grammar)})
 
 (defn do-lookup [input-string lexicon]
   (let [tokens (str/split input-string #"[ ']")
