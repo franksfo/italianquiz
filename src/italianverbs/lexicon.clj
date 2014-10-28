@@ -258,7 +258,8 @@
 ;; each iteration. This is guaranteed by using these rules below in
 ;; (transform) so that the rules' outputs are reduced using unifyc.
 (def rules (list aux-verb-rule
-                 category-to-subcat commonnoun
+                 category-to-subcat 
+                 commonnoun
                  determiner-stuff
                  ditransitive-verb-rule
                  intensifier-agreement
@@ -316,20 +317,26 @@
    defined as: (isomorphic? input output) => true, where output is one iteration's
    applications of all of the rules."
   (cond (= lexical-entry :fail) :fail
+        (fail? lexical-entry)
+        (do (log/warn (str "lexical-entry " lexical-entry " was fail before applying any rules; fail path was: " (fail-path lexical-entry)))
+            :fail)
+
         true
         (do
           (log/debug (str "Transforming: " (fo lexical-entry)))
           (log/debug (str "transform: input :" lexical-entry))
-          (log/info (str "transforming lexical entry: " lexical-entry))
+          (log/debug (str "transforming lexical entry: " lexical-entry))
           (let [result (reduce #(if (or (fail? %1) (fail? %2))
-                                  :fail
+                                  (do
+                                    (if (fail? %2) (log/warn (str "fail at %2." %2)))
+                                    :fail)
                                   (unifyc %1 %2))
                                (map
                                 (fn [rule]
                                       ;; check for return value of (apply rule (list lexical-entry)):
                                       ;; if not list, make it a list.
                                       (let [result (apply rule (list lexical-entry))]
-                                        (if (fail? result)
+                                        (if (and (not (fail? lexical-entry)) (fail? result))
                                           (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
                                                              " to fail; fail path was: " (fail-path result)))
                                               :fail)
