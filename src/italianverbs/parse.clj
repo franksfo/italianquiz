@@ -67,4 +67,6 @@
 (defn lookup [lexicon token]
   "return the subset of lexemes that match this token from the lexicon."
   (analyze token (fn [canonical-form]
-                     (get lexicon canonical-form))))
+                   (let [result (get lexicon canonical-form)]
+                     (if (map? result) (list result)
+                         result)))))

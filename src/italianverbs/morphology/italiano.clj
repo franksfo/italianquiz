@@ -1427,14 +1427,14 @@
                    (fn [key]
                      (and (re-find key surface-form)
                           (let [lexical-form (string/replace surface-form key (:replace-with (get replace-pairs key)))
-                                looked-up (list (lookup-fn lexical-form))]
-                            (if looked-up
-                              (map #(unifyc % (:unify-with (get replace-pairs key)))
-                                   looked-up)))))
+                                looked-up (lookup-fn lexical-form)]
+                            (map #(unifyc % (:unify-with (get replace-pairs key)))
+                                 looked-up))))
                    (keys replace-pairs)))]
       (if (not (empty? result))
         result
         ;; if morphological analysis finds no match, lookup the surface form itself, which
         ;; might be either the canonical form of a word, or an irregular conjugation of a word.
-        (list (lookup-fn surface-form))))))
+        (lookup-fn surface-form)))))
+
 
