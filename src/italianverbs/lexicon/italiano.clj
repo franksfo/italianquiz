@@ -74,16 +74,18 @@
                                     :sem than-this}}}}))
     ;; non-comparative
     (unify adjective
-           subcat0
            {:synsem {:cat :adjective
                      :sem {:pred :affolato
                            :comparative false
-                           :place true}}})] ;; only places can be crowded.
+                           :place true}}})
+                           
 
-   "aiutare"
+    ] ;; only places can be crowded.
+
+   "aiutare" ;; disabled for now: (:disable :fail)
 
    {:synsem {:essere false
-             :disable :fail
+             :disable :fail ;; disabled for now.
              :sem {:pred :aiutare
                    :activity true
                    :subj {:human true}
