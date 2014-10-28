@@ -143,7 +143,7 @@
 
 (defn get-string-1 [word]
   (if (seq? word)
-    (map get-string-1
+    (map (string/join " " #(get-string-1 %))
          word)
   (let [analysis (analyze-italian-1 word)
         person (get-in word '(:agr :person))
@@ -183,12 +183,12 @@
      (and (string? (get-in word '(:a)))
           (string? (get-in word '(:b))))
      (get-string (get-in word '(:a))
-                  (get-in word '(:b)))
+                 (get-in word '(:b)))
 
      (and (string? (get-in word '(:a)))
           (map? (get-in word '(:b))))
      (get-string (get-in word '(:a))
-                  (get-in word '(:b)))
+                 (get-in word '(:b)))
 
      (and (map? (get-in word '(:a)))
           (map? (get-in word '(:b))))
