@@ -1,21 +1,13 @@
 (ns italianverbs.lexicon.italiano
   (:refer-clojure :exclude [get-in merge resolve]))
 
+(require '[clojure.tools.logging :as log])
+
 (require '[italianverbs.lexiconfn :refer (comparative non-comparative-adjective subcat0 unify)])
 (require '[italianverbs.lexicon :refer (transform)])
 (require '[italianverbs.pos :refer :all])
 (require '[italianverbs.unify :refer :all :exclude [unify]])
 (require '[italianverbs.unify :as unify])
-
-(defn phonize [a-map a-string]
-  (cond (or (vector? a-map) (seq? a-map))
-        (map (fn [each-entry]
-               (phonize each-entry a-string))
-             a-map)
-        true
-        (merge a-map
-               {:italiano a-string
-                :phrasal false})))
 
 (def lexicon
   {
@@ -55,7 +47,8 @@
           (:feminine noun)
           {:synsem {:sem {:artifact false
                           :animate false
-                          :pred :acqua}}})
+                          :pred :acqua}}}
+          )
 
    "affolato"
 
@@ -124,25 +117,25 @@
                                 :2 {:cat :prep
                                     :sem complement-sem}}}}))]
 
+   "amico"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          masculine-noun
+          {:synsem {:sem {:pred :amico
+                          :human true
+                          :child false}}
+           :italian {:italian "amico"}
+           :english {:english "friend"}})
+
    "amare"
-
-   [(unify agreement-noun
-           common-noun
-           countable-noun
-           masculine-noun
-           {:synsem {:sem {:pred :amico
-                           :human true
-                           :child false}}
-            :italian {:italian "amico"}
-            :english {:english "friend"}})
-
     (unify transitive
            {:synsem {:essere false
                      :sem {:pred :amare
                            :activity false
                            :discrete false
                            :subj {:human true}
-                           :obj {:animate true}}}})]
+                           :obj {:animate true}}}})
 
    "andare"
 
@@ -325,4 +318,20 @@
 
    transform-each-lexical-val))
 
-
+;; promote from italianverbs.lexicon.italiano to italianverbs.lexicon.
+(defn check-lexicon [lexicon]
+  (let [check-one (fn [k v]
+                    (let [result (fail? v)]
+                      (if result 
+                        (log/warn (str "fail found for: " k)))
+                      (if result
+                        (list k))))]
+    (mapcat
+     #(let [key %
+            val (get lexicon %)]
+        (if (seq? val) 
+          (mapcat (fn [x] 
+                    (check-one key x))
+                  val)
+          (check-one key val)))
+     (keys lexicon))))
