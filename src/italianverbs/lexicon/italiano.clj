@@ -210,7 +210,6 @@
 
    [;; non-comparative
     (unify adjective
-           subcat0
            {:synsem {:sem {:pred :bello
                            :comparative false
                            }}}) ;; for now, no restrictions on what can be beautiful.
