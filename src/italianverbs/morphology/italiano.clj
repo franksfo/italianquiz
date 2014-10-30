@@ -1428,9 +1428,9 @@
                             :agr {:number :plur
                                   :person :3rd}}}}})
 
-(def present-to-infinitive-irreg1
+(def imperfect-to-infinitive-irreg1
   {
-   ;; e.g.: "beveva"
+   ;; e.g.: "bevevo/bevevi/..etc" => "bere"
    #"vevo$"
    {:replace-with "re"
     :unify-with {:italiano {:infl :present
@@ -1450,15 +1450,17 @@
                                   :person :3rd}}}}
    })
 
-(defn analyze [surface-form lookup-fn]
+(defn analyze [surface-form lookup-fn lexicon]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
         (merge 
          future-to-infinitive
          present-to-infinitive-ire
          present-to-infinitive-ere
-         present-to-infinitive-are)
-
+         present-to-infinitive-are
+         imperfect-to-infinitive-irreg1
+         )
+        
         result
         (remove fail?
                 (mapcat
@@ -1469,11 +1471,19 @@
                           (map #(unifyc % (:unify-with (get replace-pairs key)))
                                looked-up))))
                  (keys replace-pairs)))]
-    (if (not (empty? result))
-      result
-      ;; if morphological analysis finds no match, lookup the surface form itself, which
-      ;; might be either the canonical form of a word, or an irregular conjugation of a word.
-      (lookup-fn surface-form))))
+    (concat
+     result
+
+
+     (filter #(get-in %
+                      [:italiano :irregular :present :1sing])
+             (vals lexicon))
+
+
+     ;; also lookup the surface form itself, which
+     ;; might be either the canonical form of a word, or an irregular conjugation of a word.
+     (lookup-fn surface-form))))
+
 
 
 

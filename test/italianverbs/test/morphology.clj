@@ -912,6 +912,6 @@ so in this example, will be feminine rather than masculine."
 (deftest analyze-1
   (let [analysis (italiano/analyze "dormirà"
                                    (fn [canonical-form]
-                                     '({})))]
+                                     '({})) nil)]
     (is (= (get-in (first analysis) [:italiano :agr :number])
            :sing))))

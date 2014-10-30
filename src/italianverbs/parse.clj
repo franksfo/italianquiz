@@ -63,11 +63,16 @@
   (analyze token (fn [canonical-form]
                    (let [result (get lexicon canonical-form)]
                      (cond (and (nil? result)
+                                false
                                 (= canonical-form "bevevo"))
                            (let [looked-up (first (lookup lexicon "bere"))]
                              looked-up)
 
                            (map? result) (list result)
                            true
-                           result)))))
+                           result)))
+           lexicon))
+
+
+           
 
