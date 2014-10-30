@@ -357,38 +357,25 @@
                    ]
          })
 
-(defn add-to-exception-map [m surface-form values spec canonical-form]
+(defn add-to-exception-map [m surface-form spec canonical-form]
   (let [canonical-entry (get tm canonical-form)
-        values values]
+        values (map #(merge %
+                            spec)
+                    (let [entry canonical-entry]
+                      (if (map? entry)
+                        (list entry)
+                        entry)))]
     (merge m {surface-form (concat values (get m surface-form))})))
 
 (def em (add-to-exception-map {} "bevo" 
-                              (map #(merge %
-                                           {:agr :1sing})
-                                   (let [entry (get tm "bere")]
-                                     (if (map? entry)
-                                       (list entry)
-                                       entry)))
                               {:agr :1sing}
                               "bere"))
 
 (def em2 (add-to-exception-map em "sono"
-                               (map #(merge %
-                                            {:agr :1sing})
-                                    (let [entry (get tm "essere")]
-                                      (if (map? entry)
-                                        (list entry)
-                                        entry)))
                                {:agr :1sing}
                                "essere"))
 
 (def em3 (add-to-exception-map em2 "bevi"
-                               (map #(merge %
-                                            {:agr :2sing})
-                                    (let [entry (get tm "bere")]
-                                      (if (map? entry)
-                                        (list entry)
-                                        entry)))
                                {:agr :2sing}
                                "bere"))
 
