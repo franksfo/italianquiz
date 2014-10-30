@@ -325,6 +325,73 @@
    lexicon
    transform-each-lexical-val))
 
+;; irregular form => lexemes for that form
+(def irregular-to-lexemes
+  {
+   "bevo" (merge (get lexicon "bere")
+                 {:italiano {:infl :present
+                             :agr {:number :sing
+                                   :person :1st}}})})
+
+(def tm {"bere" {:italiano "bere" 
+                 :1sing "bevo"
+                 :2sing "bevi"
+                 :3sing "beve"}
+
+         "essere" [{:italiano "essere"
+                    :foo 42
+                    :1sing "sono"
+                    :2sing "sei"
+                    :3sing "è"
+                    :1plur "siamo"
+                    :2plur "siete"
+                    :3plur "sono"}
+                   {:italiano "essere"
+                    :foo 43
+                    :1sing "sono"
+                    :2sing "sei"
+                    :3sing "è"
+                    :1plur "siamo"
+                    :2plur "siete"
+                    :3plur "sono"}
+                   ]
+         })
+
+(defn add-to-exception-map [m surface-form values spec canonical-form]
+  (let [canonical-entry (get tm canonical-form)
+        values values]
+    (merge m {surface-form (concat values (get m surface-form))})))
+
+(def em (add-to-exception-map {} "bevo" 
+                              (map #(merge %
+                                           {:agr :1sing})
+                                   (let [entry (get tm "bere")]
+                                     (if (map? entry)
+                                       (list entry)
+                                       entry)))
+                              {:agr :1sing}
+                              "bere"))
+
+(def em2 (add-to-exception-map em "sono"
+                               (map #(merge %
+                                            {:agr :1sing})
+                                    (let [entry (get tm "essere")]
+                                      (if (map? entry)
+                                        (list entry)
+                                        entry)))
+                               {:agr :1sing}
+                               "essere"))
+
+(def em3 (add-to-exception-map em2 "bevi"
+                               (map #(merge %
+                                            {:agr :2sing})
+                                    (let [entry (get tm "bere")]
+                                      (if (map? entry)
+                                        (list entry)
+                                        entry)))
+                               {:agr :2sing}
+                               "bere"))
+
 ;; promote from italianverbs.lexicon.italiano to italianverbs.lexicon.
 (defn check-lexicon [lexicon]
   (let [check-one (fn [k v]
