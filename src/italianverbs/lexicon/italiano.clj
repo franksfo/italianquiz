@@ -146,12 +146,12 @@
             {:italiano {:italiano "andare"
                         :essere true
                         :drop-e true
-                        :irregular {:present {:1sing "vado"
-                                              :2sing "vai"
-                                              :3sing "va"
-                                              :1plur "andiamo"
-                                              :2plur "andate"
-                                              :3plur "vanno"}}}
+                        :present {:1sing "vado"
+                                  :2sing "vai"
+                                  :3sing "va"
+                                  :1plur "andiamo"
+                                  :2plur "andate"
+                                  :3plur "vanno"}}
              :synsem {:essere true
                       :sem {:subj {:animate true}
                             :activity false ;; because "I was going when (something happened) .." sounds weird.
@@ -230,20 +230,20 @@
    (unify
     (:transitive verb)
     {:italiano {:italiano "bere"
-                :irregular {:passato "bevuto"
-                            :futuro-stem "berr"
-                            :imperfetto {:1sing "bevevo"
-                                         :2sing "bevevi"
-                                         :3sing "beveva"
-                                         :1plur "bevevamo"
-                                         :2plur "bevevate"
-                                         :3plur "bevevano"}
-                            :present {:1sing "bevo"
-                                      :2sing "bevi"
-                                      :3sing "beve"
-                                      :1plur "beviamo"
-                                      :2plur "bevete"
-                                      :3plur "bevano"}}}
+                :passato "bevuto"
+                :futuro-stem "berr"
+                :imperfetto {:1sing "bevevo"
+                             :2sing "bevevi"
+                             :3sing "beveva"
+                             :1plur "bevevamo"
+                             :2plur "bevevate"
+                             :3plur "bevevano"}
+                :present {:1sing "bevo"
+                          :2sing "bevi"
+                          :3sing "beve"
+                          :1plur "beviamo"
+                          :2plur "bevete"
+                          :3plur "bevano"}}
        :synsem {:essere false
                 :sem {:pred :bere
                       :subj {:animate true}
@@ -307,11 +307,9 @@
      (map? lexical-val)
      (transform lexical-val)
      true
-     (if false
-       lexical-val
-       (map (fn [each]
-              (transform each))
-            lexical-val)))))
+     (map (fn [each]
+            (transform each))
+          lexical-val))))
 
 (def use-a-small-subset false)
 
@@ -325,13 +323,36 @@
    lexicon
    transform-each-lexical-val))
 
-;; irregular form => lexemes for that form
-(def irregular-to-lexemes
-  {
-   "bevo" (merge (get lexicon "bere")
+;; TODO: need to regenerate :serialized for each exception.
+(def exceptions
+  (remove nil?
+          (for [[k v] lexicon]
+            (if (and (map? v)
+                     (get-in v [:italiano :present :1sing]))
+              [(get-in v [:italiano :present :1sing])
+               (merge v
+                      {:italiano {:infl :present
+                                  :italiano (get-in v [:italiano :present :1sing])
+                                  :agr {:number :sing
+                                        :person :1st}}})]))))
+
+(defn exception-generator [lexicon]
+  (let [lexeme (first lexicon)]
+    (if lexeme
+      (cons
+       ;; get all exceptions for this lexeme.
+       (mapcat #(fn [path]
+                  (let [v (get-in lexeme path :none)]
+                    (if (not (= :none v))
+                      (log/debug "lexeme: " (get-in lexeme [:italiano]) " has path: " path " with value: " v))
+                    (list v)))
+               [{:path [:italiano :present :1sing]
+                 :merge 
                  {:italiano {:infl :present
+                             :italiano (get-in v [:italiano :present :1sing]);; ugh, what to do here.
                              :agr {:number :sing
-                                   :person :1st}}})})
+                                   :person :1st}}}}])
+       (exception-generator (rest lexicon))))))
 
 (def tm {"bere" {:italiano "bere" 
                  :1sing "bevo"
@@ -357,27 +378,35 @@
                    ]
          })
 
-(defn add-to-exception-map [m surface-form spec canonical-form]
-  (let [canonical-entry (get tm canonical-form)
-        values (map #(merge %
-                            spec)
-                    (let [entry canonical-entry]
-                      (if (map? entry)
-                        (list entry)
-                        entry)))]
-    (merge m {surface-form (concat values (get m surface-form))})))
+(defn add-to-exception-map [surface-form spec canonical-form]
+  (let [canonical-entry (get tm canonical-form)]
+    (map #(merge %
+                 spec)
+         (let [entry canonical-entry]
+           (if (map? entry)
+             (list entry)
+             entry)))))
 
-(def em (add-to-exception-map {} "bevo" 
-                              {:agr :1sing}
-                              "bere"))
+(def em
+  [{"bevo"
+    (add-to-exception-map "bevo"
+                          {:agr :1sing}
+                          "bere")}
+   {"sono"
+    (add-to-exception-map "sono"
+                          {:agr :1sing}
+                          "essere")}
 
-(def em2 (add-to-exception-map em "sono"
-                               {:agr :1sing}
-                               "essere"))
+   {"sono"
+    (add-to-exception-map "sono"
+                          {:agr :3plur}
+                          "essere")}
 
-(def em3 (add-to-exception-map em2 "bevi"
-                               {:agr :2sing}
-                               "bere"))
+
+   {"bevi"
+    (add-to-exception-map "bevi"
+                          {:agr :2sing}
+                          "bere")}])
 
 ;; promote from italianverbs.lexicon.italiano to italianverbs.lexicon.
 (defn check-lexicon [lexicon]

@@ -291,6 +291,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
               :subcat {:1 {:sem sentential-sem
                            :subcat '()}}}}))
 
+;; TODO: all these X-common things are going away in favor of lexicon/italiano.
 (def andare-common
    {:italiano {:infinitive "andare"
               :essere true
