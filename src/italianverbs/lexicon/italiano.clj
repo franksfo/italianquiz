@@ -324,89 +324,49 @@
    transform-each-lexical-val))
 
 ;; TODO: need to regenerate :serialized for each exception.
-(def exceptions
-  (remove nil?
-          (for [[k v] lexicon]
-            (if (and (map? v)
-                     (get-in v [:italiano :present :1sing]))
-              [(get-in v [:italiano :present :1sing])
-               (merge v
-                      {:italiano {:infl :present
-                                  :italiano (get-in v [:italiano :present :1sing])
-                                  :agr {:number :sing
-                                        :person :1st}}})]))))
-
 (defn exception-generator [lexicon]
-  (let [lexeme (first lexicon)]
-    (if lexeme
-      (cons
-       ;; get all exceptions for this lexeme.
-       (mapcat #(fn [path]
-                  (let [v (get-in lexeme path :none)]
-                    (if (not (= :none v))
-                      (log/debug "lexeme: " (get-in lexeme [:italiano]) " has path: " path " with value: " v))
-                    (list v)))
-               [{:path [:italiano :present :1sing]
-                 :merge 
-                 {:italiano {:infl :present
-                             :italiano (get-in v [:italiano :present :1sing]);; ugh, what to do here.
-                             :agr {:number :sing
-                                   :person :1st}}}}])
-       (exception-generator (rest lexicon))))))
+  (let [lexeme-kv (first lexicon)
+        lexemes (second lexeme-kv)
+        lexemes (if (seq? lexemes) lexemes (list lexemes))]
+    (if lexeme-kv
+      (let [result
+            (mapcat (fn [path-and-merge-fn]
+                      (let [path (:path path-and-merge-fn)
+                            merge-fn (:merge-fn path-and-merge-fn)]
+                        (log/debug (str "path: " path))
+                        (log/info "lexeme: " lexeme-kv " has values for path: " path)
+                        (mapcat (fn [lexeme]
+                                  (if (not (= :none (get-in lexeme path :none)))
+                                    (list {(get-in lexeme path :none)
+                                           (merge lexeme (apply merge-fn (list lexeme)))})))
+                                lexemes)))
+                    [{:path [:italiano :present :1sing]
+                      :merge-fn
+                      (fn [val]
+                        {:italiano {:infl :present
+                                    :italiano (get-in val [:italiano :present :1sing] :nothing)
+                                    :agr {:number :sing
+                                          :person :1st}}})}
+                     {:path [:italiano :present :2sing]
+                      :merge-fn
+                      (fn [val]
+                        {:italiano {:infl :present
+                                    :italiano (get-in val [:italiano :present :2sing] :nothing)
+                                    :agr {:number :sing
+                                          :person :2nd}}})}
 
-(def tm {"bere" {:italiano "bere" 
-                 :1sing "bevo"
-                 :2sing "bevi"
-                 :3sing "beve"}
+                     {:path [:italiano :present :3sing]
+                      :merge-fn
+                      (fn [val]
+                        {:italiano {:infl :present
+                                    :italiano (get-in val [:italiano :present :3sing] :nothing)
+                                    :agr {:number :sing
+                                          :person :3rd}}})}])]
 
-         "essere" [{:italiano "essere"
-                    :foo 42
-                    :1sing "sono"
-                    :2sing "sei"
-                    :3sing "è"
-                    :1plur "siamo"
-                    :2plur "siete"
-                    :3plur "sono"}
-                   {:italiano "essere"
-                    :foo 43
-                    :1sing "sono"
-                    :2sing "sei"
-                    :3sing "è"
-                    :1plur "siamo"
-                    :2plur "siete"
-                    :3plur "sono"}
-                   ]
-         })
-
-(defn add-to-exception-map [surface-form spec canonical-form]
-  (let [canonical-entry (get tm canonical-form)]
-    (map #(merge %
-                 spec)
-         (let [entry canonical-entry]
-           (if (map? entry)
-             (list entry)
-             entry)))))
-
-(def em
-  [{"bevo"
-    (add-to-exception-map "bevo"
-                          {:agr :1sing}
-                          "bere")}
-   {"sono"
-    (add-to-exception-map "sono"
-                          {:agr :1sing}
-                          "essere")}
-
-   {"sono"
-    (add-to-exception-map "sono"
-                          {:agr :3plur}
-                          "essere")}
-
-
-   {"bevi"
-    (add-to-exception-map "bevi"
-                          {:agr :2sing}
-                          "bere")}])
+                         
+        (if (not (empty? result))
+          (cons result (exception-generator (rest lexicon)))
+          (exception-generator (rest lexicon)))))))
 
 ;; promote from italianverbs.lexicon.italiano to italianverbs.lexicon.
 (defn check-lexicon [lexicon]
