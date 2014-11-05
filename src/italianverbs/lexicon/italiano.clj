@@ -282,23 +282,19 @@
               :number :sing}}]
 })
 
-(defn phonize [a-map a-string]
-  (let [common {:phrasal false}]
-    (cond (or (vector? a-map) (seq? a-map))
-          (map (fn [each-entry]
-                 (phonize each-entry a-string))
-               a-map)
+;; take source lexicon (above) and compile it.
+;; 1. step 1 of compilation: canonicalize all lexical entries
+;; (i.e. vectorize the values of the map).
+(def lexicon
+  (into {}
+        (for [[k v] lexicon]
+          [k (cond
+              (vector? v)
+              v
+              true
+              (vec v))])))
 
-          (and (map? a-map)
-               (not (= :no-italiano (get a-map :italiano))))
-          (merge {:italiano {:italiano a-string}}
-                 common
-                 a-map)
-
-        true
-        (merge a-map
-               {:italiano a-string}
-               common))))
+(declare phonize)
 
 (defn transform-each-lexical-val [italian-lexical-string lexical-val]
   (let [lexical-val
@@ -385,3 +381,22 @@
                   val)
           (check-one key val)))
      (keys lexicon))))
+
+;; TODO: Move all functions out of this file: should be human editable only
+(defn phonize [a-map a-string]
+  (let [common {:phrasal false}]
+    (cond (or (vector? a-map) (seq? a-map))
+          (map (fn [each-entry]
+                 (phonize each-entry a-string))
+               a-map)
+
+          (and (map? a-map)
+               (not (= :no-italiano (get a-map :italiano))))
+          (merge {:italiano {:italiano a-string}}
+                 common
+                 a-map)
+
+        true
+        (merge a-map
+               {:italiano a-string}
+               common))))
