@@ -283,7 +283,7 @@
 })
 
 ;; take source lexicon (above) and compile it.
-;; 1. step 1 of compilation: canonicalize all lexical entries
+;; 1. canonicalize all lexical entries
 ;; (i.e. vectorize the values of the map).
 (def lexicon
   (into {}
@@ -296,7 +296,29 @@
               true
               (vec v))])))
 
-(declare phonize)
+;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
+;; http://stackoverflow.com/a/1677927
+(defn map-function-on-map-vals [m f]
+  (into {} (for [[k v] m] [k (f k v)])))
+
+;; TODO: Move all functions out of this file: should be human editable only
+(defn phonize [a-map a-string]
+  (let [common {:phrasal false}]
+    (cond (or (vector? a-map) (seq? a-map))
+          (map (fn [each-entry]
+                 (phonize each-entry a-string))
+               a-map)
+
+          (and (map? a-map)
+               (not (= :no-italiano (get a-map :italiano))))
+          (merge {:italiano {:italiano a-string}}
+                 common
+                 a-map)
+
+        true
+        (merge a-map
+               {:italiano a-string}
+               common))))
 
 (defn transform-each-lexical-val [italian-lexical-string lexical-val]
   (let [lexical-val
@@ -309,17 +331,19 @@
             (transform each))
           lexical-val))))
 
-(def use-a-small-subset false)
+(declare map-function-on-map-vals)
+(declare transform-each-lexical-val)
 
-;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
-;; http://stackoverflow.com/a/1677927
-(defn map-function-on-map-vals [m f]
-  (into {} (for [[k v] m] [k (f k v)])))
-
+;; 2. apply grammatical-category and semantic rules to each element in the lexicon
 (def lexicon
   (map-function-on-map-vals 
    lexicon
    transform-each-lexical-val))
+
+(declare combine-with-lexicon)
+
+(defn combine-with-lexicon [lexicon exceptions]
+  lexicon)
 
 ;; TODO: need to regenerate :serialized for each exception.
 (defn exception-generator [lexicon]
@@ -365,6 +389,14 @@
           (cons result (exception-generator (rest lexicon)))
           (exception-generator (rest lexicon)))))))
 
+;; 3. generate exceptions
+(def lexicon
+  (combine-with-lexicon
+   lexicon
+   (exception-generator lexicon)))
+
+(def use-a-small-subset false)
+
 ;; promote from italianverbs.lexicon.italiano to italianverbs.lexicon.
 (defn check-lexicon [lexicon]
   (let [check-one (fn [k v]
@@ -383,21 +415,3 @@
           (check-one key val)))
      (keys lexicon))))
 
-;; TODO: Move all functions out of this file: should be human editable only
-(defn phonize [a-map a-string]
-  (let [common {:phrasal false}]
-    (cond (or (vector? a-map) (seq? a-map))
-          (map (fn [each-entry]
-                 (phonize each-entry a-string))
-               a-map)
-
-          (and (map? a-map)
-               (not (= :no-italiano (get a-map :italiano))))
-          (merge {:italiano {:italiano a-string}}
-                 common
-                 a-map)
-
-        true
-        (merge a-map
-               {:italiano a-string}
-               common))))
