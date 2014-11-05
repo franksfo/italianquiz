@@ -291,6 +291,8 @@
           [k (cond
               (vector? v)
               v
+              (map? v)
+              (vector v)
               true
               (vec v))])))
 
@@ -322,8 +324,7 @@
 ;; TODO: need to regenerate :serialized for each exception.
 (defn exception-generator [lexicon]
   (let [lexeme-kv (first lexicon)
-        lexemes (second lexeme-kv)
-        lexemes (if (seq? lexemes) lexemes (list lexemes))]
+        lexemes (second lexeme-kv)]
     (if lexeme-kv
       (let [result
             (mapcat (fn [path-and-merge-fn]
