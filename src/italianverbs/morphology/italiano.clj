@@ -1450,7 +1450,7 @@
                                   :person :3rd}}}}
    })
 
-(defn analyze [surface-form lookup-fn lexicon]
+(defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
         (merge 
@@ -1461,7 +1461,7 @@
          imperfect-to-infinitive-irreg1
          )
         
-        result
+        analyzed
         (remove fail?
                 (mapcat
                  (fn [key]
@@ -1472,15 +1472,12 @@
                                looked-up))))
                  (keys replace-pairs)))]
     (concat
-     result
-     (filter #(get-in %
-                      [:italiano :irregular :present :1sing])
-             (vals lexicon))
-
+     analyzed
 
      ;; also lookup the surface form itself, which
      ;; might be either the canonical form of a word, or an irregular conjugation of a word.
      (lookup-fn surface-form))))
+
 
 
 

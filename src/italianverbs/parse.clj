@@ -60,19 +60,5 @@
   
 (defn lookup [lexicon token]
   "return the subset of lexemes that match this token from the lexicon."
-  (analyze token (fn [canonical-form]
-                   (let [result (get lexicon canonical-form)]
-                     (cond (and (nil? result)
-                                false
-                                (= canonical-form "bevevo"))
-                           (let [looked-up (first (lookup lexicon "bere"))]
-                             looked-up)
-
-                           (map? result) (list result)
-                           true
-                           result)))
-           lexicon))
-
-
-           
-
+  (analyze token (fn [k]
+                   (get lexicon k))))
