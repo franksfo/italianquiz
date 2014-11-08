@@ -1,6 +1,7 @@
 (ns italianverbs.lexicon.italiano
   (:refer-clojure :exclude [get-in merge resolve]))
 
+(require '[clojure.set :refer (union)])
 (require '[clojure.tools.logging :as log])
 
 (require '[italianverbs.lexiconfn :refer (comparative non-comparative-adjective subcat0 unify)])
@@ -125,7 +126,7 @@
           {:synsem {:sem {:pred :amico
                           :human true
                           :child false}}
-           :italian {:italian "amico"}
+           :italiano {:italiano "amico"}
            :english {:english "friend"}})
 
    "amare"
@@ -216,13 +217,13 @@
                                     :sem subject-sem}
                                 :2 {:cat :prep
                                     :sem complement-sem}}}
-              :italian {:italian "bello"}
+              :italiano {:italiano "bello"}
               :english {:english "beautiful"}}))]
 
    "bene"
    {:synsem {:cat :adverb
              :sem {:pred :bene}}
-    :italian {:italian "bene"}
+    :italiano {:italiano "bene"}
     :english {:english "well"}}
 
    ;; bere
@@ -282,12 +283,9 @@
               :number :sing}}]
 })
 
-;; take source lexicon (above) and compile it.
-;; 1. canonicalize all lexical entries
-;; (i.e. vectorize the values of the map).
-(def lexicon
+(defn listify [m]
   (into {}
-        (for [[k v] lexicon]
+        (for [[k v] m]
           [k (cond
               (vector? v)
               v
@@ -295,6 +293,13 @@
               (vector v)
               true
               (vec v))])))
+
+;; take source lexicon (above) and compile it.
+;; 1. canonicalize all lexical entries
+;; (i.e. vectorize the values of the map).
+
+(def lexicon
+  (listify lexicon))
 
 ;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
 ;; http://stackoverflow.com/a/1677927
@@ -340,11 +345,6 @@
    lexicon
    transform-each-lexical-val))
 
-(declare combine-with-lexicon)
-
-(defn combine-with-lexicon [lexicon exceptions]
-  lexicon)
-
 ;; TODO: need to regenerate :serialized for each exception.
 (defn exception-generator [lexicon]
   (let [lexeme-kv (first lexicon)
@@ -386,14 +386,16 @@
 
                          
         (if (not (empty? result))
-          (cons result (exception-generator (rest lexicon)))
+          (concat result (exception-generator (rest lexicon)))
           (exception-generator (rest lexicon)))))))
 
 ;; 3. generate exceptions
+;; problem: merge is overwriting values: use a collator that accumulates values.
+(def exceptions (reduce #(merge-with concat %1 %2)
+                        (exception-generator lexicon)))
+
 (def lexicon
-  (combine-with-lexicon
-   lexicon
-   (exception-generator lexicon)))
+  (merge-with concat lexicon (listify exceptions)))
 
 (def use-a-small-subset false)
 
