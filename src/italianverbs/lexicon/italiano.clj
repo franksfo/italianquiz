@@ -392,7 +392,8 @@
 ;; 3. generate exceptions
 ;; problem: merge is overwriting values: use a collator that accumulates values.
 (def exceptions (reduce #(merge-with concat %1 %2)
-                        (exception-generator lexicon)))
+                        (map #(listify %)
+                             (exception-generator lexicon))))
 
 (def lexicon
   (merge-with concat lexicon (listify exceptions)))
