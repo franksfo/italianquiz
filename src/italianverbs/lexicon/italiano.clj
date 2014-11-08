@@ -274,6 +274,14 @@
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
 
+   "io"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :1st
+                   :number :sing}
+             :sem (unify human {:pred :io})
+             :subcat '()}}
 
    "un"
    [{:synsem {:cat :det
@@ -300,6 +308,7 @@
 
 (def lexicon
   (listify lexicon))
+
 
 ;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
 ;; http://stackoverflow.com/a/1677927
