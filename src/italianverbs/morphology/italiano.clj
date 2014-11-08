@@ -1473,8 +1473,6 @@
                  (keys replace-pairs)))]
     (concat
      result
-
-
      (filter #(get-in %
                       [:italiano :irregular :present :1sing])
              (vals lexicon))
