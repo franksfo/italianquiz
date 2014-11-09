@@ -376,7 +376,7 @@
     (if lexeme-kv
       (let [
             result
-            (if true
+            (if false
               nil ;; short-circuit
 
               (mapcat (fn [path-and-merge-fn]
