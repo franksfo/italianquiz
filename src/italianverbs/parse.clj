@@ -38,17 +38,23 @@
     (let [tokens (str/split input-string #"[ ']")
           looked-up (map #(lookup lexicon %)
                          tokens)]
-      (cond (and (not (empty? (nth looked-up 0)))
+      (cond (and (= (.size looked-up) 2)
+                 (not (empty? (nth looked-up 0)))
                  (not (empty? (nth looked-up 1))))
             (over/over grammar
                        (nth looked-up 0)
                        (nth looked-up 1))
 
-            (not (empty? (nth looked-up 0)))
+            (or (and (= (.size looked-up) 1)
+                     (not (empty? (nth looked-up 0))))
+                (and (= (.size looked-up) 2)
+                     (empty? (nth looked-up 1))))
             (over/over grammar
                        (nth looked-up 0))
 
-            (not (empty? (nth looked-up 1)))
+            (and (= (.size looked-up) 2)
+                 (empty? (nth looked-up 0))
+                 (not (empty? (nth looked-up 1))))
             (over/over grammar
                        :top
                        (nth looked-up 1))
