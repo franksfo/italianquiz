@@ -274,6 +274,14 @@
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
 
+
+   "il"
+   (unify determiner
+          {:synsem {:cat :det
+                    :def :def
+                    :gender :masc
+                    :number :sing}})
+
    "io"
    {:synsem {:cat :noun
              :pronoun true
@@ -289,6 +297,15 @@
               :mass false
               :gender :masc
               :number :sing}}]
+   "vino"
+   (unify drinkable-noun
+          agreement-noun
+          masculine-noun
+          {:synsem {:sem {:pred :vino
+                          :artifact true}}})
+   
+
+
 })
 
 (defn listify [m]
