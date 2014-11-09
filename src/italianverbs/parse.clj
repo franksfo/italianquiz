@@ -3,19 +3,21 @@
 
 (require '[clojure.string :as str])
 
-(require '[italianverbs.generate :as gen])
+;; not yet needed, but might be some day.
+;(require '[italianverbs.generate :as gen])
 
 (require '[italianverbs.grammar.english :as en-g])
 (require '[italianverbs.grammar.italiano :as it-g])
 
 (require '[italianverbs.lexicon.english :as en-l])
 (require '[italianverbs.lexicon.italiano :as it-l])
-(require '[italianverbs.lexiconfn :as lexfn])
+;; not yet needed, but might be some day.
+;(require '[italianverbs.lexiconfn :as lexfn])
 
 (require '[italianverbs.morphology :refer (fo fo-ps)])
 (require '[italianverbs.morphology.italiano :refer (analyze)])
 (require '[italianverbs.over :as over])
-(require '[italianverbs.unify :refer :all])
+(require '[italianverbs.unify :refer (get-in)])
 
 (declare lookup)
 
