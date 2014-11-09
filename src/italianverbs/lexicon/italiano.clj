@@ -419,9 +419,7 @@
             
         (if (not (empty? result))
           (concat result (exception-generator (rest lexicon)))
-          (do
-            (log/info (str "TYPE OF REST OF LEXICON IS: " (type (rest lexicon))))
-            (exception-generator (rest lexicon))))))))
+          (exception-generator (rest lexicon)))))))
 
 ;; 3. generate exceptions
 ;; problem: merge is overwriting values: use a collator that accumulates values.
