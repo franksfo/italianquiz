@@ -376,43 +376,47 @@
     (if lexeme-kv
       (let [
             result
-            (mapcat (fn [path-and-merge-fn]
-                      (let [debug
-                            (log/info (str "type of path-and-merge-fn: " (type path-and-merge-fn)))
+            (if true
+              nil ;; short-circuit
 
-                            path (:path path-and-merge-fn)
-                            merge-fn (:merge-fn path-and-merge-fn)]
-                        (log/debug (str "path: " path))
-                        (log/info "lexeme: " lexeme-kv " has values for path: " path)
-                        (mapcat (fn [lexeme]
-                                  (if (not (= :none (get-in lexeme path :none)))
-                                    (list {(get-in lexeme path :none)
-                                           (merge lexeme (apply merge-fn (list lexeme)))})))
-                                lexemes)))
-                    [{:path [:italiano :present :1sing]
-                      :merge-fn
-                      (fn [val]
-                        {:italiano {:infl :present
-                                    :italiano (get-in val [:italiano :present :1sing] :nothing)
-                                    :agr {:number :sing
-                                          :person :1st}}})}
-                     {:path [:italiano :present :2sing]
-                      :merge-fn
-                      (fn [val]
-                        {:italiano {:infl :present
-                                    :italiano (get-in val [:italiano :present :2sing] :nothing)
-                                    :agr {:number :sing
-                                          :person :2nd}}})}
-
-                     {:path [:italiano :present :3sing]
-                      :merge-fn
-                      (fn [val]
-                        {:italiano {:infl :present
-                                    :italiano (get-in val [:italiano :present :3sing] :nothing)
-                                    :agr {:number :sing
-                                          :person :3rd}}})}])]
-
-                         
+              (mapcat (fn [path-and-merge-fn]
+                        (let [debug
+                              (log/info (str "type of path-and-merge-fn: " (type path-and-merge-fn)))
+                              
+                              path (:path path-and-merge-fn)
+                              merge-fn (:merge-fn path-and-merge-fn)]
+                          (log/debug (str "path: " path))
+                          (log/info "lexeme: " lexeme-kv " has values for path: " path)
+                          (mapcat (fn [lexeme]
+                                    (if (not (= :none (get-in lexeme path :none)))
+                                      (list {(get-in lexeme path :none)
+                                             (merge lexeme (apply merge-fn (list lexeme)))})))
+                                  lexemes)))
+                      [
+                       {:path [:italiano :present :1sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :1sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :1st}}})}
+                       {:path [:italiano :present :2sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :2sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :2nd}}})}
+                       
+                       {:path [:italiano :present :3sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :3sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :3rd}}})}]))]
+            
+            
         (if (not (empty? result))
           (concat result (exception-generator (rest lexicon)))
           (do
