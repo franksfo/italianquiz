@@ -10,7 +10,7 @@
 (require '[italianverbs.unify :refer :all :exclude [unify]])
 (require '[italianverbs.unify :as unify])
 
-(def lexicon
+(def lexicon-source
   {
 
    "a"
@@ -294,21 +294,19 @@
 (defn listify [m]
   (into {}
         (for [[k v] m]
-          [k (cond
-              (vector? v)
-              v
-              (map? v)
-              (vector v)
-              true
-              (vec v))])))
+          [k (cond (map? v)
+                   (vec (list v))
+                   (seq? v)
+                   (vec v)
+                   true
+                   v)])))
 
 ;; take source lexicon (above) and compile it.
 ;; 1. canonicalize all lexical entries
 ;; (i.e. vectorize the values of the map).
 
-(def lexicon
-  (listify lexicon))
-
+(def lexicon-stage-1
+  (listify lexicon-source))
 
 ;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
 ;; http://stackoverflow.com/a/1677927
@@ -349,9 +347,9 @@
 (declare transform-each-lexical-val)
 
 ;; 2. apply grammatical-category and semantic rules to each element in the lexicon
-(def lexicon
+(def lexicon-stage-2
   (map-function-on-map-vals 
-   lexicon
+   lexicon-stage-1
    transform-each-lexical-val))
 
 ;; TODO: need to regenerate :serialized for each exception.
@@ -402,10 +400,10 @@
 ;; problem: merge is overwriting values: use a collator that accumulates values.
 (def exceptions (reduce #(merge-with concat %1 %2)
                         (map #(listify %)
-                             (exception-generator lexicon))))
+                             (exception-generator lexicon-stage-2))))
 
 (def lexicon
-  (merge-with concat lexicon (listify exceptions)))
+  (merge-with concat lexicon-stage-2 (listify exceptions)))
 
 (def use-a-small-subset false)
 
