@@ -374,9 +374,13 @@
   (let [lexeme-kv (first lexicon)
         lexemes (second lexeme-kv)]
     (if lexeme-kv
-      (let [result
+      (let [
+            result
             (mapcat (fn [path-and-merge-fn]
-                      (let [path (:path path-and-merge-fn)
+                      (let [debug
+                            (log/info (str "type of path-and-merge-fn: " (type path-and-merge-fn)))
+
+                            path (:path path-and-merge-fn)
                             merge-fn (:merge-fn path-and-merge-fn)]
                         (log/debug (str "path: " path))
                         (log/info "lexeme: " lexeme-kv " has values for path: " path)
@@ -411,16 +415,21 @@
                          
         (if (not (empty? result))
           (concat result (exception-generator (rest lexicon)))
-          (exception-generator (rest lexicon)))))))
+          (do
+            (log/info (str "TYPE OF REST OF LEXICON IS: " (type (rest lexicon))))
+            (exception-generator (rest lexicon))))))))
 
 ;; 3. generate exceptions
 ;; problem: merge is overwriting values: use a collator that accumulates values.
-(def exceptions (reduce #(merge-with concat %1 %2)
-                        (map #(listify %)
-                             (exception-generator lexicon-stage-2))))
+;(def exceptions (reduce #(merge-with concat %1 %2)
+;                        (map #(listify %)
+;                             (exception-generator lexicon-stage-2))))
+
+(def foo (exception-generator lexicon-stage-2))
 
 (def lexicon
-  (merge-with concat lexicon-stage-2 (listify exceptions)))
+  lexicon-stage-2)
+;  (merge-with concat lexicon-stage-2 (listify exceptions)))
 
 (def use-a-small-subset false)
 
