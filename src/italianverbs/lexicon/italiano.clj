@@ -228,27 +228,53 @@
 
    ;; bere
    "bere"
-   (unify
-    (:transitive verb)
-    {:italiano {:italiano "bere"
-                :passato "bevuto"
-                :futuro-stem "berr"
-                :imperfetto {:1sing "bevevo"
-                             :2sing "bevevi"
-                             :3sing "beveva"
-                             :1plur "bevevamo"
-                             :2plur "bevevate"
-                             :3plur "bevevano"}
-                :present {:1sing "bevo"
-                          :2sing "bevi"
-                          :3sing "beve"
-                          :1plur "beviamo"
-                          :2plur "bevete"
-                          :3plur "bevano"}}
-       :synsem {:essere false
-                :sem {:pred :bere
-                      :subj {:animate true}
-                      :obj {:drinkable true}}}})
+   [
+    (unify
+     (:transitive verb)
+     {:italiano {:italiano "bere"
+                 :passato "bevuto"
+                 :futuro-stem "berr"
+                 :imperfetto {:1sing "bevevo"
+                              :2sing "bevevi"
+                              :3sing "beveva"
+                              :1plur "bevevamo"
+                              :2plur "bevevate"
+                              :3plur "bevevano"}
+                 :present {:1sing "bevo"
+                           :2sing "bevi"
+                           :3sing "beve"
+                           :1plur "beviamo"
+                           :2plur "bevete"
+                           :3plur "bevano"}}
+      :synsem {:essere false
+               :sem {:pred :bere
+                     :subj {:animate true}
+                     :obj {:drinkable true}}}})
+
+
+    (unify
+     intransitive
+     {:italiano {:italiano "bere"
+                 :passato "bevuto"
+                 :futuro-stem "berr"
+                 :imperfetto {:1sing "bevevo"
+                              :2sing "bevevi"
+                              :3sing "beveva"
+                              :1plur "bevevamo"
+                              :2plur "bevevate"
+                              :3plur "bevevano"}
+                 :present {:1sing "bevo"
+                           :2sing "bevi"
+                           :3sing "beve"
+                           :1plur "beviamo"
+                           :2plur "bevete"
+                           :3plur "bevano"}}
+      :synsem {:essere false
+               :sem {:pred :bere
+                     :subj {:animate true}}}})
+;;                     :obj {:drinkable true}}}}) ;; maybe a semantic-only object of some kind :unspecified or something
+    ]
+
 
    "cane"
    (unify agreement-noun
