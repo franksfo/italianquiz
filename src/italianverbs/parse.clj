@@ -14,8 +14,10 @@
 ;; not yet needed, but might be some day.
 ;(require '[italianverbs.lexiconfn :as lexfn])
 
+(require '[italianverbs.lexicon.italiano :refer :all])
 (require '[italianverbs.morphology :refer (fo fo-ps)])
-(require '[italianverbs.morphology.italiano :refer (analyze)])
+(require '[italianverbs.morphology.italiano :refer (analyze get-string)])
+
 (require '[italianverbs.over :as over])
 (require '[italianverbs.unify :refer (get-in)])
 
