@@ -646,33 +646,33 @@
 
      (and (= (get-in word '(:infl)) :present)
           (= person :1st) (= number :sing)
-          (string? (get-in word '(:irregular :present :1sing))))
-     (get-in word '(:irregular :present :1sing))
+          (string? (get-in word '(:present :1sing))))
+     (get-in word '(:present :1sing))
 
      (and (= (get-in word '(:infl)) :present)
           (= person :2nd) (= number :sing)
-          (string? (get-in word '(:irregular :present :2sing))))
-     (get-in word '(:irregular :present :2sing))
+          (string? (get-in word '(:present :2sing))))
+     (get-in word '(:present :2sing))
 
      (and (= (get-in word '(:infl)) :present)
           (= person :3rd) (= number :sing)
-          (string? (get-in word '(:irregular :present :3sing))))
-     (get-in word '(:irregular :present :3sing))
+          (string? (get-in word '(:present :3sing))))
+     (get-in word '(:present :3sing))
 
      (and (= (get-in word '(:infl)) :present)
           (= person :1st) (= number :plur)
-          (string? (get-in word '(:irregular :present :1plur))))
-     (get-in word '(:irregular :present :1plur))
+          (string? (get-in word '(:present :1plur))))
+     (get-in word '(:present :1plur))
 
      (and (= (get-in word '(:infl)) :present)
           (= person :2nd) (= number :plur)
-          (string? (get-in word '(:irregular :present :2plur))))
-     (get-in word '(:irregular :present :2plur))
+          (string? (get-in word '(:present :2plur))))
+     (get-in word '(:present :2plur))
 
      (and (= (get-in word '(:infl)) :present)
           (= person :3rd) (= number :plur)
-          (string? (get-in word '(:irregular :present :3plur))))
-     (get-in word '(:irregular :present :3plur))
+          (string? (get-in word '(:present :3plur))))
+     (get-in word '(:present :3plur))
 
 
      (and
@@ -693,28 +693,28 @@
        (cond
 
         (and (= person :1st) (= number :sing)
-             (string? (get-in word '(:irregular :present :1sing))))
-        (get-in word '(:irregular :present :1sing))
+             (string? (get-in word '(:present :1sing))))
+        (get-in word '(:present :1sing))
 
         (and (= person :2nd) (= number :sing)
-             (string? (get-in word '(:irregular :present :2sing))))
-        (get-in word '(:irregular :present :2sing))
+             (string? (get-in word '(:present :2sing))))
+        (get-in word '(:present :2sing))
 
         (and (= person :3rd) (= number :sing)
-             (string? (get-in word '(:irregular :present :3sing))))
-        (get-in word '(:irregular :present :3sing))
+             (string? (get-in word '(:present :3sing))))
+        (get-in word '(:present :3sing))
 
         (and (= person :1st) (= number :plur)
-             (string? (get-in word '(:irregular :present :1plur))))
-        (get-in word '(:irregular :present :1plur))
+             (string? (get-in word '(:present :1plur))))
+        (get-in word '(:present :1plur))
 
         (and (= person :2nd) (= number :plur)
-             (string? (get-in word '(:irregular :present :2plur))))
-        (get-in word '(:irregular :present :2plur))
+             (string? (get-in word '(:present :2plur))))
+        (get-in word '(:present :2plur))
 
         (and (= person :3rd) (= number :plur)
-             (string? (get-in word '(:irregular :present :3plur))))
-        (get-in word '(:irregular :present :3plur))
+             (string? (get-in word '(:present :3plur))))
+        (get-in word '(:present :3plur))
 
         (and (= person :1st) (= number :sing))
         (str stem "o")
@@ -857,8 +857,8 @@
     (= (get-in word '(:agr :number)) :plur)
     (= (get-in word '(:cat)) :adjective)
     ;; handle lexical exceptions.
-    (string? (get-in word '(:irregular :masc :plur))))
-   (get-in word '(:irregular :masc :plur))
+    (string? (get-in word '(:masc :plur))))
+   (get-in word '(:masc :plur))
 
 
    (and
@@ -866,8 +866,8 @@
     (= (get-in word '(:agr :number)) :plur)
     (= (get-in word '(:cat)) :adjective)
     ;; handle lexical exceptions.
-    (string? (get-in word '(:irregular :fem :plur))))
-   (get-in word '(:irregular :fem :plur))
+    (string? (get-in word '(:fem :plur))))
+   (get-in word '(:fem :plur))
 
    (string? (get-in word '(:italiano)))
    (get-in word '(:italiano))
@@ -921,7 +921,7 @@
            (and (= a "i")
                 (string? (get-in b '(:italiano)))
                 (re-find #"^[aeiou]" (get-in b '(:italiano))))
-           (str "gli " b)
+           (trim (str "gli " b))
 
            ;; TODO: cleanup & remove.
            (and false ;; going to throw out this logic: will use :initial and rule schemata instead.
@@ -1112,22 +1112,22 @@
            (str "alla " (string/replace b #"^la " ""))
      
            (and (string? a) (string? b))
-           (str a " " b)
+           (trim (str a " " b))
            
            (and (string? a) (string? (get-in b '(:italiano))))
-           (str a " " (get-in b '(:italiano)))
+           (trim (str a " " (get-in b '(:italiano))))
            
            (and (string? (get-in a '(:italiano)))
                 (string? b))
-           (str (get-in a '(:italiano)) " " b)
+           (trim (str (get-in a '(:italiano)) " " b))
            
            (and (string? a)
                 (map? b))
-           (str a " ..")
+           (trim (str a " .."))
 
            (and (string? b)
                 (map? a))
-           (str " .." b)
+           (trim (str " .." b))
 
            true
            {:a (if (nil? a) :top a)
