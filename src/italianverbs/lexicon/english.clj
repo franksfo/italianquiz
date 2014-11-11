@@ -28,5 +28,20 @@
           countable-noun
           masculine-noun
           {:synsem {:sem (unify animal {:pred :gatto
-                                        :pet true})}})})
+                                        :pet true})}})
+
+
+   "embrace"
+   (unify transitive
+          {:synsem {:sem {:pred :abbracciare
+                          :subj {:human true}}}})
+
+   "hug"
+   (unify transitive
+          {:synsem {:sem {:pred :abbracciare
+                          :subj {:human true}
+                          :obj {:living true}}}})
+})
+
+
 
