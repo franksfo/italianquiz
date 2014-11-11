@@ -41,6 +41,18 @@
                                          :2 '()}}
                             :2 '()}}})]
 
+
+   "abbracciare"
+   (unify transitive
+           {:synsem {:essere false
+                     :sem {:pred :abbracciare
+                           :activity false
+                           :discrete false
+                           :subj {:human true}
+                           :obj {:animate true}}}})
+
+
+
    "acqua"
 
    (unify (:agreement noun)
@@ -317,6 +329,15 @@
              :sem (unify human {:pred :io})
              :subcat '()}}
 
+   "tu"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :2nd
+                   :number :sing}
+             :sem (unify human {:pred :tu})
+             :subcat '()}}
+
    "un"
    [{:synsem {:cat :det
               :def :indef
@@ -476,4 +497,5 @@
                   val)
           (check-one key val)))
      (keys lexicon))))
+
 
