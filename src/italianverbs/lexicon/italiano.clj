@@ -329,6 +329,16 @@
              :sem (unify human {:pred :io})
              :subcat '()}}
 
+      ;; non-comparative
+      ;; TODO: add comparative
+   "nero"
+   (unify adjective
+          {:synsem {:cat :adjective
+                    :sem {:pred :nero
+                          :comparative false
+                          :physical-object true
+                          :human false}}})
+
    "tu"
    {:synsem {:cat :noun
              :pronoun true
