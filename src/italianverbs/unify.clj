@@ -3,6 +3,10 @@
 ;; e.g.:
 ;; (dissoc :fail :anykey) => :fail
 ;; (dissoc :top :anykey) => :top
+;; Another approach would be to not modify dissoc to handle non-maps, and instead
+;; use special values that *are* maps.
+;; e.g. {:fail :fail} rather than simply :fail,
+;; and {:top :top} rather than simply :top.
 (ns italianverbs.unify
   (:refer-clojure :exclude [get-in merge resolve])
   (:require
