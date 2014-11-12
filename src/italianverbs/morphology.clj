@@ -40,9 +40,12 @@
    (:italiano input)
    (string/trim (italiano/get-string (:italiano input)))
 
+   (and (seq? input)
+        (< (.size input) 2))
+   (fo (first input))
+
    (seq? input)
-   (string/join ""
-                (map fo input))
+   (map fo input)
 
    (:italiano input)
    (merge

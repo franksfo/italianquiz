@@ -18,9 +18,11 @@
 (require '[italianverbs.parse :refer :all])
 
 (deftest parse-test-1
-  (is (= "un gatto" (fo (parse "un gatto" it-lexicon it-grammar)))))
+  (is (= "un gatto" (fo (parse "un gatto")))))
  
 (deftest parse-test-2
-  (is (contains? (set (map fo (parse "Antonio dormire" it-lexicon it-grammar))) "Antonio dormirà")))
+  (is (contains? (set (fo (parse "Antonio dormire"))) "Antonio dormirà")))
+
+
 
 
