@@ -1,3 +1,8 @@
+;; TODO: define a dissoc that works with special values 
+;; which are not maps but keywords, like :fail; 
+;; e.g.:
+;; (dissoc :fail :anykey) => :fail
+;; (dissoc :top :anykey) => :top
 (ns italianverbs.unify
   (:refer-clojure :exclude [get-in merge resolve])
   (:require
