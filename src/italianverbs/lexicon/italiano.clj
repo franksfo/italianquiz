@@ -435,7 +435,16 @@
                           (log/debug (str "path: " path))
                           (log/info "lexeme: " lexeme-kv " has values for path: " path)
                           (mapcat (fn [lexeme]
-                                    (let [lexeme (copy lexeme)]
+                                    ;; this is where a unify/dissoc that supported
+                                    ;; non-maps like :top and :fail, would be useful:
+                                    ;; would not need the (if (not (fail? lexeme)..)) check
+                                    ;; to avoid a difficult-to-understand "java.lang.ClassCastException: clojure.lang.Keyword cannot be cast to clojure.lang.IPersistentMap" error.
+                                    (let [lexeme (cond (= lexeme :fail)
+                                                       :fail
+                                                       (= lexeme :top)
+                                                       :top
+                                                       true
+                                                       (dissoc (copy lexeme) :serialized))]
                                       (if (not (= :none (get-in lexeme path :none)))
                                         (list {(get-in lexeme path :none)
                                                (merge lexeme (apply merge-fn (list lexeme)))}))))
