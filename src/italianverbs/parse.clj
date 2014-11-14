@@ -19,52 +19,33 @@
     (analyze token (fn [k]
                      (get lexicon k)))))
 
-(defn parse [input-string & [more-tokens]]
+(defn parse [a & [ b ]]
   "return a list of all possible parse trees for the given list of tokens, given the lexicon and grammar."
-  (let [lexicon it-lexicon
-        grammar it-grammar
-        tokens (cond
-                (string? input-string)
-                (str/split input-string #"[ ']")
-                true
-                input-string)
-        looked-up (cond
-                   (and (string? more-tokens)
-                        more-tokens)
-                   (cons (map #(lookup % lexicon)
-                              tokens)
-                         (list (lookup more-tokens)))
-                   more-tokens
-                   (cons (map #(lookup % lexicon)
-                              tokens)
-                         (map #(if (map? %) % (lookup %))
-                              more-tokens))
-                   true (map #(lookup % lexicon)
-                             tokens))]
-    (parse-tokens looked-up grammar)))
+  (let [grammar it-grammar]
+    (cond (and (seq? a)
+               (nil? b))
+          (parse (first a)
+                 (second a))
 
-(defn parse-tokens [tokens grammar]
-  (cond (and (= (.size tokens) 2)
-             (not (empty? (nth tokens 0)))
-             (not (empty? (nth tokens 1))))
-        (over/over grammar
-                   (nth tokens 0)
-                   (nth tokens 1))
+          (string? a)
+          (parse (map #(lookup %)
+                      (str/split a #"[ ']"))
+                 b)
 
-        (or (and (= (.size tokens) 1)
-                 (not (empty? (nth tokens 0))))
-            (and (= (.size tokens) 2)
-                 (empty? (nth tokens 1))))
-        (over/over grammar
-                   (nth tokens 0))
+          (string? b)
+          (parse a
+                 (map #(lookup %)
+                      (str/split b #"[ ']")))
 
-        (and (= (.size tokens) 2)
-             (empty? (nth tokens 0))
-             (not (empty? (nth tokens 1))))
-        (over/over grammar
-                   :top
-                   (nth tokens 1))
+          (map? a)
+          (parse (list a) b)
+          
+          (map? b)
+          (parse a (list b))
 
-        true
-        nil))
+          true
+          (parse-tokens a b grammar))))
+
+(defn parse-tokens [a b grammar]
+  (over/over grammar a b))
 

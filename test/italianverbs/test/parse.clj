@@ -30,6 +30,16 @@
     (is (= (get-in (first result) [:synsem :sem :pred])
            :gatto))))
 
+(deftest parse-test-4
+  (let [result (parse (parse "il" (parse "gatto nero")) "dorme")]
+    (is (> (.size result) 0))
+    (is (= (get-in (first result) [:synsem :sem :pred])
+           :dormire))
+    (is (= (get-in (first result) [:synsem :sem :subj :pred])
+           :gatto))
+    (is (= (get-in (first result) [:synsem :sem :subj :mod :pred])
+           :nero))))
+
 
 
 
