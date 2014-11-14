@@ -331,8 +331,8 @@
              :sem (unify human {:pred :io})
              :subcat '()}}
 
-      ;; non-comparative
-      ;; TODO: add comparative
+   ;; non-comparative
+   ;; TODO: add comparative
    "nero"
    (unify adjective
           {:synsem {:cat :adjective
@@ -367,6 +367,8 @@
 
 })
 
+;; TODO: move this to lexiconfn. however (transform) is in lexicon (not lexiconfn), so
+;; it might be better to consolidate lexiconfn and lexicon into a single namespace.
 (defn transform-each-lexical-val [italian-lexical-string lexical-val]
   (let [lexical-val
         (phonize lexical-val italian-lexical-string)]
