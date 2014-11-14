@@ -19,21 +19,28 @@
     (analyze token (fn [k]
                      (get lexicon k)))))
 
-
-(defn parse-tokenz [toks grammar]
-  toks)
-
 (defn parse [input-string & [more-tokens]]
   "return a list of all possible parse trees for the given list of tokens, given the lexicon and grammar."
   (let [lexicon it-lexicon
         grammar it-grammar
-        tokens (str/split input-string #"[ ']")
-        looked-up (if more-tokens
-                    (cons (map #(lookup % lexicon)
-                               tokens)
-                          more-tokens)
-                    (map #(lookup % lexicon)
-                         tokens))]
+        tokens (cond
+                (string? input-string)
+                (str/split input-string #"[ ']")
+                true
+                input-string)
+        looked-up (cond
+                   (and (string? more-tokens)
+                        more-tokens)
+                   (cons (map #(lookup % lexicon)
+                              tokens)
+                         (list (lookup more-tokens)))
+                   more-tokens
+                   (cons (map #(lookup % lexicon)
+                              tokens)
+                         (map #(if (map? %) % (lookup %))
+                              more-tokens))
+                   true (map #(lookup % lexicon)
+                             tokens))]
     (parse-tokens looked-up grammar)))
 
 (defn parse-tokens [tokens grammar]
