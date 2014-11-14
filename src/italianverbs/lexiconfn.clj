@@ -425,3 +425,115 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 ;; TODO: put semantics here.
 (def non-comparative-adjective
   subcat1)
+
+(defn listify [m]
+  (into {}
+        (for [[k v] m]
+          [k (cond (map? v)
+                   (vec (list v))
+                   (seq? v)
+                   (vec v)
+                   true
+                   v)])))
+
+;; http://stackoverflow.com/questions/1676891/mapping-a-function-on-the-values-of-a-map-in-clojure
+;; http://stackoverflow.com/a/1677927
+(defn map-function-on-map-vals [m f]
+  (into {} (for [[k v] m] [k (f k v)])))
+
+;; TODO: Move all functions out of this file: should be human editable only
+(defn phonize [a-map a-string]
+  (let [common {:phrasal false}]
+    (cond (or (vector? a-map) (seq? a-map))
+          (map (fn [each-entry]
+                 (phonize each-entry a-string))
+               a-map)
+
+          (and (map? a-map)
+               (not (= :no-italiano (get a-map :italiano))))
+          (merge {:italiano {:italiano a-string}}
+                 common
+                 a-map)
+
+        true
+        (merge a-map
+               {:italiano a-string}
+               common))))
+
+
+;; TODO: need to regenerate :serialized for each exception.
+(defn exception-generator [lexicon]
+  (let [lexeme-kv (first lexicon)
+        lexemes (second lexeme-kv)]
+    (if lexeme-kv
+      (let [
+            result
+            (if false
+              nil ;; short-circuit
+
+              (mapcat (fn [path-and-merge-fn]
+                        (let [path (:path path-and-merge-fn)
+                              merge-fn (:merge-fn path-and-merge-fn)]
+                          ;; a lexeme-kv is a pair of a key and value. The key is a string (the word's surface form)
+                          ;; and the value is a list of lexemes for that string.
+                          (log/debug (str (first lexeme-kv) "looking at path: " path))
+                          (mapcat (fn [lexeme]
+                                    ;; this is where a unify/dissoc that supported
+                                    ;; non-maps like :top and :fail, would be useful:
+                                    ;; would not need the (if (not (fail? lexeme)..)) check
+                                    ;; to avoid a difficult-to-understand "java.lang.ClassCastException: clojure.lang.Keyword cannot be cast to clojure.lang.IPersistentMap" error.
+                                    (let [lexeme (cond (= lexeme :fail)
+                                                       :fail
+                                                       (= lexeme :top)
+                                                       :top
+                                                       true
+                                                       (dissoc (copy lexeme) :serialized))]
+                                      (if (not (= :none (get-in lexeme path :none)))
+                                        (list {(get-in lexeme path :none)
+                                               (merge lexeme (apply merge-fn (list lexeme)))}))))
+                                  lexemes)))
+                      [
+                       {:path [:italiano :present :1sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :1sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :1st}}})}
+                       {:path [:italiano :present :2sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :2sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :2nd}}})}
+                       
+                       {:path [:italiano :present :3sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :3sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :3rd}}})}]))]
+            
+            
+        (if (not (empty? result))
+          (concat result (exception-generator (rest lexicon)))
+          (exception-generator (rest lexicon)))))))
+
+(defn check-lexicon [lexicon]
+  (let [check-one (fn [k v]
+                    (let [result (fail? v)]
+                      (if result 
+                        (log/warn (str "fail found for: " k)))
+                      (if result
+                        (list k))))]
+    (mapcat
+     #(let [key %
+            val (get lexicon %)]
+        (if (seq? val) 
+          (mapcat (fn [x] 
+                    (check-one key x))
+                  val)
+          (check-one key val)))
+     (keys lexicon))))
