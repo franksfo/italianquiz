@@ -78,11 +78,11 @@
 
 (deftest io-vado
   (is (= (italiano/get-string-1 {:agr {:case :nom
-                               :number :sing
-                               :person :1st}
-                         :irregular {:present {:1sing "vado"}}
-                         :italiano "andare"
-                         :infl :present})
+                                       :number :sing
+                                       :person :1st}
+                                 :present {:1sing "vado"}
+                                 :italiano "andare"
+                                 :infl :present})
          "vado")))
 
 
@@ -679,25 +679,27 @@
                                 :cat :noun}},
                         :b {:a {:cat :verb,
                                 :italiano "essere",
-                                :irregular {:imperfetto {:2plur "eravate",
-                                                         :3sing "era",
-                                                   :2sing "eri",
-                                                         :1sing "ero",
-                                                         :3plur "erano",
-                                                         :1plur "eravamo"},
-                                            :passato "stato",
-                                            :present {:2plur "siete",
-                                                      :3sing "è",
-                                                      :2sing "sei",
-                                                      :1sing "sono",
-                                                      :3plur "sono",
-                                                      :1plur "siamo"},
-                                            :futuro {:2plur "sarete",
-                                                     :3sing "sarà",
-                                                     :2sing "sarai",
-                                                     :1sing "sarò",
-                                                     :3plur "saranno",
-                                                     :1plur "saremo"}},
+
+
+                                :imperfetto {:2plur "eravate",
+                                             :3sing "era",
+                                             :2sing "eri",
+                                             :1sing "ero",
+                                             :3plur "erano",
+                                             :1plur "eravamo"},
+                                :passato "stato",
+                                :present {:2plur "siete",
+                                          :3sing "è",
+                                          :2sing "sei",
+                                          :1sing "sono",
+                                          :3plur "sono",
+                                          :1plur "siamo"},
+                                :futuro {:2plur "sarete",
+                                         :3sing "sarà",
+                                         :2sing "sarai",
+                                         :1sing "sarò",
+                                         :3plur "saranno",
+                                         :1plur "saremo"},
                                 :essere true,
                                 :agr {:person :3rd,
                                       :number :plur,
@@ -912,6 +914,6 @@ so in this example, will be feminine rather than masculine."
 (deftest analyze-1
   (let [analysis (italiano/analyze "dormirà"
                                    (fn [canonical-form]
-                                     '({})) nil)]
+                                     '({})))]
     (is (= (get-in (first analysis) [:italiano :agr :number])
            :sing))))
