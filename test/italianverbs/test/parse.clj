@@ -19,7 +19,7 @@
 (require '[italianverbs.unify :refer (get-in)])
 
 (deftest parse-test-1
-  (is (= "un gatto" (fo (parse "un gatto")))))
+  (is (= "un gatto" (fo (first (parse "un gatto"))))))
  
 (deftest parse-test-2
   (is (contains? (set (fo (parse "Antonio dormire"))) "Antonio dormirà")))
