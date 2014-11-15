@@ -25,13 +25,13 @@
   (is (contains? (set (fo (parse "Antonio dormire"))) "Antonio dormirà")))
 
 (deftest parse-test-3
-  (let [result (parse "il" (parse "gatto" "nero"))]
+  (let [result (parse "il gatto nero")]
     (is (> (.size result) 0))
     (is (= (get-in (first result) [:synsem :sem :pred])
            :gatto))))
 
 (deftest parse-test-4
-  (let [result (parse (parse "il" (parse "gatto nero")) "dorme")]
+  (let [result (parse "il gatto nero dorme")]
     (is (> (.size result) 0))
     (is (= (get-in (first result) [:synsem :sem :pred])
            :dormire))
@@ -39,6 +39,7 @@
            :gatto))
     (is (= (get-in (first result) [:synsem :sem :subj :mod :pred])
            :nero))))
+
 
 
 

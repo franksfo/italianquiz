@@ -8,8 +8,6 @@
 (require '[italianverbs.morphology.italiano :refer (analyze get-string)])
 (require '[italianverbs.over :as over])
 
-(declare parse-tokens)
-
 (def it-grammar it-g/grammar)
 (def it-lexicon it-l/lexicon)
 
@@ -19,33 +17,39 @@
     (analyze token (fn [k]
                      (get lexicon k)))))
 
-(defn parse [a & [ b ]]
-  "return a list of all possible parse trees for the given list of tokens, given the lexicon and grammar."
-  (let [grammar it-grammar]
-    (cond (and (seq? a)
-               (nil? b))
-          (parse (first a)
-                 (second a))
+(declare parse)
 
-          (string? a)
-          (parse (map #(lookup %)
-                      (str/split a #"[ ']"))
-                 b)
+(defn parse-divide [tokens]
+  (cond (> (.size tokens) 2)
+        (concat
+         (parse (first tokens)
+                (parse-divide (rest tokens)))
+         (parse (butlast tokens)
+                (last tokens)))
+        (= (.size tokens) 2)
+        (parse (first tokens)
+               (second tokens))
+        (= (.size tokens) 1)
+        (lookup (first tokens))))
 
-          (string? b)
-          (parse a
-                 (map #(lookup %)
-                      (str/split b #"[ ']")))
+(defn parse [arg]
+  "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
+  (cond (string? arg)
+        (parse (map #(lookup %)
+                    (str/split arg #"[ ']")))
+        
+        (and (seq? arg)
+             (empty? (rest arg)))
+        (first arg)
+        
+        (seq? arg)
+        (concat
+         (over/over it-grammar
+                    (first arg)
+                    (parse (rest arg)))
+         (over/over it-grammar
+                    (parse (butlast arg))
+                    (last arg)))
 
-          (map? a)
-          (parse (list a) b)
-          
-          (map? b)
-          (parse a (list b))
-
-          true
-          (parse-tokens a b grammar))))
-
-(defn parse-tokens [a b grammar]
-  (over/over grammar a b))
-
+        true
+        :error))
