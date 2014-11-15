@@ -14,6 +14,7 @@
    [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overc overh)]
+   [italianverbs.parse :refer (parse)]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (fail? get-in lazy-shuffle unifyc)]))
@@ -306,4 +307,9 @@
                                (list it/noun-phrase1 it/nbar)
                                lexicon it/cache)))
      trials)))
+
+(defn parsing [trials]
+  (run-benchmark
+   #(time (fo-ps (take 1 (parse "il gatto nero dorme"))))
+   trials))
 
