@@ -30,7 +30,8 @@
         (first arg)
         
         (seq? arg)
-        (concat
+        ;; TODO: figure out how to do concurrency and memoization.
+        (concat ;; consider using lazy-cat here
          (over/over it-grammar
                     (first arg)
                     (parse (rest arg)))
