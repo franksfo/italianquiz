@@ -19,19 +19,6 @@
 
 (declare parse)
 
-(defn parse-divide [tokens]
-  (cond (> (.size tokens) 2)
-        (concat
-         (parse (first tokens)
-                (parse-divide (rest tokens)))
-         (parse (butlast tokens)
-                (last tokens)))
-        (= (.size tokens) 2)
-        (parse (first tokens)
-               (second tokens))
-        (= (.size tokens) 1)
-        (lookup (first tokens))))
-
 (defn parse [arg]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
   (cond (string? arg)
