@@ -314,6 +314,25 @@
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
 
+   "lei"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :gender :fem
+                   :number :sing}
+             :sem (unify human {:pred :lei})
+             :subcat '()}}
+
+   "lui"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :gender :masc
+                   :number :sing}
+             :sem (unify human {:pred :lui})
+             :subcat '()}}
 
    "il"
    (unify determiner
