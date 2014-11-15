@@ -42,7 +42,7 @@
 (deftest degli-uomini
   (is (= (italiano/get-string-1 {:a "di i"
                          :b {:italiano "uomo"
-                             :irregular {:plur "uomini"}
+                             :plur "uomini"
                              :agr {:gender :masc
                                    :number :plur}
                              :cat :noun}})
@@ -51,7 +51,7 @@
 (deftest some-men
   (is (= (english/get-string-1 {:a "some"
                          :b {:english "man"
-                             :irregular {:plur "men"}
+                             :plur "men"
                              :agr {:gender :masc
                                    :number :plur}
                              :cat :noun}})
@@ -99,14 +99,14 @@
 
 (deftest suffix-of-1
   (is (=
-       (italiano/suffix-of {:irregular {:passato "andato"}
+       (italiano/suffix-of {:passato "andato"
                             :infl :past
                             :agr {:person :1st :number :plur} :essere true})
        "i")))
 
 (deftest suffix-of-2
   (is (=
-       (italiano/suffix-of {:irregular {:passato "andato"}
+       (italiano/suffix-of {:passato "andato"
                             :infl :past
                             :agr {:gender :fem :number :plur}
                             :essere true})
@@ -114,7 +114,7 @@
 
 (deftest suffix-of-3
   (is (=
-       (italiano/suffix-of {:irregular {:passato "andato"}
+       (italiano/suffix-of {:passato "andato"
                             :infl :past
                             :agr {:gender :fem :number :sing}
                             :essere true})
@@ -125,7 +125,7 @@
   (is (=
        (italiano/get-string-1 
         {:infl :past
-         :irregular {:passato "andato"}
+         :passato "andato"
          :agr {:gender :fem :number :sing}
          :essere true})
        "andata")))
@@ -134,7 +134,7 @@
   (is (=
        (italiano/get-string-1 
         {:infl :past
-         :irregular {:passato "andato"}
+         :passato "andato"
          :agr {:gender :fem :number :plur}
          :essere true})
        "andate")))
@@ -144,7 +144,7 @@
   (is (=
        (italiano/get-string-1 
         {:infl :past
-         :irregular {:passato "andato"}
+         :passato "andato"
          :agr {:number :plur
                :gender :masc}
          :essere true})
@@ -154,7 +154,7 @@
   (is (=
        (italiano/get-string-1
         {:infl :past
-         :irregular {:passato "andato"}
+         :passato "andato"
          :agr {:number :plur}
          :essere true})
        "andati")))
@@ -205,7 +205,7 @@
   (is (= "andrò"
          (italiano/get-string-1
           {:agr {:number :sing :person :1st}
-           :irregular {:futuro {:1sing "andrò"}}
+           :futuro {:1sing "andrò"}
            :italiano "andare"
            :infl :futuro}))))
 
@@ -237,12 +237,12 @@
                  :person :1st}
            :cat :verb
            :infl :present
-           :irregular {:present {:1sing "sono"}}}))))
+           :present {:1sing "sono"}}))))
 
 (deftest to-speak-this-word
   (is (= "to speak this word"
          (english/get-string
-          {:irregular {:past "spoken"}
+          {:past "spoken"
            :infl :infinitive
            :cat :verb
            :agr {:person :2nd
@@ -265,18 +265,18 @@
         {:cat :verb
          :modal true
          :infinitive "to want to"
-         :irregular {:present {:1sing "want to"
-                               :2sing "want to"
-                               :3sing "wants to"
-                               :1plur "want to"
-                               :2plur "want to"
-                               :3plur "want to"}
-                     :past "wanted to"}
+         :present {:1sing "want to"
+                   :2sing "want to"
+                   :3sing "wants to"
+                   :1plur "want to"
+                   :2plur "want to"
+                   :3plur "want to"}
+         :past "wanted to"
          :agr {:person :3rd
                :case :nom
                :number :sing}
          :infl :present}
-        {:a {:irregular {:past "spoken"}
+        {:a {:past "spoken"
              :infl :infinitive
              :cat :verb
              :agr {:person :top
@@ -304,13 +304,13 @@
                :a {:cat :verb
                    :modal true
                    :infinitive "to want to"
-                   :irregular {:present {:1sing "want to"
-                                         :2sing "want to"
-                                         :3sing "wants to"
-                                         :1plur "want to"
-                                         :2plur "want to"
-                                         :3plur "want to"}
-                               :past "wanted to"}
+                   :present {:1sing "want to"
+                             :2sing "want to"
+                             :3sing "wants to"
+                             :1plur "want to"
+                             :2plur "want to"
+                             :3plur "want to"}
+                   :past "wanted to"
                    :agr {:person :2nd
                          :case :nom
                          :number :sing}
@@ -321,7 +321,7 @@
                        :cat :verb
                        :agr {:person :2nd
                              :case :nom
-                            :number :sing}
+                             :number :sing}
                        :infinitive "to speak"}
                    :b {:a "this"
                        :b {:agr
@@ -349,13 +349,13 @@
            :b {:a {:cat :verb
                    :modal true
                    :infinitive "to be able to"
-                   :irregular {:present {:1sing "can"
-                                         :3plur "can"
-                                         :1plur "can"
-                                         :2plur "can"
-                                         :3sing "can"
-                                         :2sing "can"}
-                               :past "could"}
+                   :present {:1sing "can"
+                             :3plur "can"
+                             :1plur "can"
+                             :2plur "can"
+                             :3sing "can"
+                             :2sing "can"}
+                   :past "could"
                    :agr {:person :1st
                          :case :nom
                          :number :plur}
@@ -390,7 +390,7 @@
 (deftest leggeva
   (is (= "leggeva"
          (italiano/get-string-1
-          {:irregular {:passato "letto"}
+          {:passato "letto"
            :infl :imperfetto
            :essere false
            :agr {:person :3rd
@@ -401,7 +401,7 @@
 (deftest was-reading
   (is (= "was reading"
          (english/get-string-1
-          {:irregular {:past "read"}
+          {:past "read"
            :infl :imperfetto
            :agr {:person :3rd
                  :case {:not :acc}
@@ -411,13 +411,13 @@
 (deftest having-to
   (is (= "was having to"
          (english/get-string-1
-          {:irregular {:past "had to"
-                       :present {:2plur "have to"
-                                 :3sing "has to"
-                                 :2sing "have to"
-                                 :1sing "have to"
-                                 :3plur "have to"
-                                 :1plur "have to"}}
+          {:past "had to"
+           :present {:2plur "have to"
+                     :3sing "has to"
+                     :2sing "have to"
+                     :1sing "have to"
+                     :3plur "have to"
+                     :1plur "have to"}
            :infl :imperfetto
            :agr {:person :3rd
                  :case {:not :acc}
@@ -431,7 +431,7 @@
 (deftest see
   (is (= "to see"
          (english/get-string-1
-          {:irregular {:past "seen"}
+          {:past "seen"
            :infl :present
            :agr {:case {:not :acc}}
            :infinitive "to see"}))))
@@ -439,7 +439,7 @@
 (deftest to-see-me
   (is (= "to see me"
          (english/get-string-1
-          {:a {:irregular {:past "seen"}
+          {:a {:past "seen"
                :infl :present
                :agr {:case {:not :acc}}
                :infinitive "to see"}
@@ -450,13 +450,12 @@
          (english/get-string-1
           {:cat :verb
            :infinitive "to be"
-           :irregular {:past {:1sing "was"
-                              :2sing "were"
-                              :3sing "was"
-                              :1plur "were"
-                              :2plur "were"
-                              :3plur "were"
-                              }}
+           :past {:1sing "was"
+                  :2sing "were"
+                  :3sing "was"
+                  :1plur "were"
+                  :2plur "were"
+                  :3plur "were"}
            :agr {:number :top
                  :case {:not :acc}
                  :gender :top}
@@ -467,8 +466,8 @@
          (english/get-string-1
           {:b "more small than you all"
            :a {:cat :verb :infinitive "to be"
-               :irregular {:present {:1sing "am" :3plur "are" :1plur "are" :2plur "are" :3sing "is" :2sing "are"}
-                           :past {:1sing "was" :3sing "was" :2plur "were" :1plur "were" :3plur "were" :participle "been" :2sing "were"}}
+               :present {:1sing "am" :3plur "are" :1plur "are" :2plur "are" :3sing "is" :2sing "are"}
+               :past {:1sing "was" :3sing "was" :2plur "were" :1plur "were" :3plur "were" :participle "been" :2sing "were"}
                :agr {:number :top
                      :case {:not :acc}
                      :gender :top}
@@ -477,55 +476,55 @@
 (deftest vp-pron
   (is (= "to see her"
          (english/get-string-1
-          {:a {:irregular {:past "seen"}, :infl :top, :agr {:case {:not :acc}}, :infinitive "to see"}, :b "her"}))))
+          {:a {:past "seen", :infl :top, :agr {:case {:not :acc}}, :infinitive "to see"}, :b "her"}))))
 
 
 (deftest professori
   (is (= "professori"
          (italiano/get-string-1 {:agr {:gender :masc
-                               :person :3rd
-                               :case :top
-                               :number :plur}
-                         :cat :noun
-                         :italiano "professore"}))))
+                                       :person :3rd
+                                       :case :top
+                                       :number :plur}
+                                 :cat :noun
+                                 :italiano "professore"}))))
 
 (deftest fatto
   (is (= "fatto"
          (italiano/get-string-1 {:cat :verb
-                         :irregular {:present {:1sing "facio"
-                                               :3plur "fanno"
-                                               :1plur "facciamo"
-                                               :2plur "fate"
-                                               :3sing "fa"
-                                               :2sing "fai"}
-                                     :futuro {:1sing "farò"
-                                              :3plur "faranno"
-                                              :1plur "faremo"
-                                              :2plur "farete"
-                                              :3sing "farà"
-                                              :2sing "farai"}
-                                     :imperfetto {:1sing "facevo"
-                                                  :3plur "facevano"
-                                                  :1plur "facevamo"
-                                                  :2plur "facevate"
-                                                  :3sing "faceva"
-                                                  :2sing "facevi"}
-                                     :passato "fatto"}
-                         :essere false
-                         :agr {:gender :masc
-                               :person :3rd
-                               :number :sing
-                               :case :nom}
-                         :italiano "fare"
-                         :infl :past}))))
+                                 :present {:1sing "facio"
+                                           :3plur "fanno"
+                                           :1plur "facciamo"
+                                           :2plur "fate"
+                                           :3sing "fa"
+                                           :2sing "fai"}
+                                 :futuro {:1sing "farò"
+                                          :3plur "faranno"
+                                          :1plur "faremo"
+                                          :2plur "farete"
+                                          :3sing "farà"
+                                          :2sing "farai"}
+                                 :imperfetto {:1sing "facevo"
+                                              :3plur "facevano"
+                                              :1plur "facevamo"
+                                              :2plur "facevate"
+                                              :3sing "faceva"
+                                              :2sing "facevi"}
+                                 :passato "fatto"
+                                 :essere false
+                                 :agr {:gender :masc
+                                       :person :3rd
+                                       :number :sing
+                                       :case :nom}
+                                 :italiano "fare"
+                                 :infl :past}))))
 
 ;; adjectival agreement with number and gender.
 (deftest brutte
   (is (= "brutte"
          (italiano/get-string-1 {:cat :adjective
-                         :agr {:number :plur
-                               :gender :fem}
-                         :italiano "brutto"}))))
+                                 :agr {:number :plur
+                                       :gender :fem}
+                                 :italiano "brutto"}))))
 
 (deftest brutti
   (is (= "brutti"
@@ -538,13 +537,13 @@
   (is (= "could have made this red wine"
          (english/get-string
           {:a {:modal true
-               :irregular {:past "could have"}
+               :past "could have"
                :cat :verb
                :infinitive "to be able to"
                :infl :past}
            :b {:a {:infinitive "to make"
                    :cat :verb
-                   :irregular {:past "made"}
+                   :past "made"
                    :infl :infinitive}
                :b "this red wine"}}))))
 
@@ -553,14 +552,14 @@
   (is (= "could have done this homework"
          (english/get-string
           {:a {:modal true
-               :irregular {:past "could have"}
+               :past "could have"
                :cat :verb
                :infinitive "to be able to"
                :infl :past}
            :b {:a {:infinitive "to do"
                    :cat :verb
-                   :irregular {:past-participle "done"
-                               :past "did"}
+                   :past-participle "done"
+                   :past "did"
                    :infl :infinitive}
                :b "this homework"}}))))
 
@@ -572,25 +571,25 @@
             :a {:cat :verb
                 :italiano "fare"
                 :essere false
-                :irregular {:present {:1sing "facio"
-                                      :3plur "fanno"
-                                      :1plur "facciamo"
-                                      :2plur "fate"
-                                      :3sing "fa"
-                                      :2sing "fai"}
-                            :futuro {:1sing "farò"
-                                     :3plur "faranno"
-                                     :1plur "faremo"
-                                     :2plur "farete"
-                                     :3sing "farà"
-                                     :2sing "farai"}
-                            :imperfetto {:1sing "facevo"
-                                         :3plur "facevano"
-                                         :1plur "facevamo"
-                                         :2plur "facevate"
-                                         :3sing "faceva"
-                                         :2sing "facevi"}
-                            :passato "fatto"}
+                :present {:1sing "facio"
+                          :3plur "fanno"
+                          :1plur "facciamo"
+                          :2plur "fate"
+                          :3sing "fa"
+                          :2sing "fai"}
+                :futuro {:1sing "farò"
+                         :3plur "faranno"
+                         :1plur "faremo"
+                         :2plur "farete"
+                         :3sing "farà"
+                         :2sing "farai"}
+                :imperfetto {:1sing "facevo"
+                             :3plur "facevano"
+                             :1plur "facevamo"
+                             :2plur "facevate"
+                             :3sing "faceva"
+                             :2sing "facevi"}
+                :passato "fatto"
                 :agr {:case {:not :acc}}
                 :infl :past}
             :b {:agr {:case {:not :acc}}
@@ -601,19 +600,19 @@
          (string/trim (english/get-string
                  {:a "I",
                   :b {:a {:infl :present,
-                          :irregular {:past {:2plur "were",
-                                             :3sing "was",
-                                             :1sing "was",
-                                             :2sing "were",
-                                             :participle "been",
-                                             :3plur "were",
-                                             :1plur "were"},
-                                      :present {:2plur "are",
-                                                :3sing "is",
-                                                :2sing "are",
-                                                :1sing "am",
-                                                :3plur "are",
-                                                :1plur "are"}},
+                          :past {:2plur "were",
+                                 :3sing "was",
+                                 :1sing "was",
+                                 :2sing "were",
+                                 :participle "been",
+                                 :3plur "were",
+                                 :1plur "were"},
+                          :present {:2plur "are",
+                                    :3sing "is",
+                                    :2sing "are",
+                                    :1sing "am",
+                                    :3plur "are",
+                                    :1plur "are"},
                           :agr {:person :1st,
                                 :number :sing,
                                 :case :nom},
@@ -622,19 +621,19 @@
                           :cat :verb}
                       :b {:a {:cat :verb,
                               :infinitive "to be",
-                              :irregular {:past {:2plur "were",
-                                                 :3sing "was",
-                                                 :1sing "was",
-                                                 :2sing "were",
-                                                 :participle "been",
-                                                 :3plur "were",
-                                                 :1plur "were"},
-                                          :present {:2plur "are",
-                                                    :3sing "is",
-                                                    :2sing "are",
-                                                    :1sing "am",
-                                                    :3plur "are",
-                                                    :1plur "are"}},
+                              :past {:2plur "were",
+                                     :3sing "was",
+                                     :1sing "was",
+                                     :2sing "were",
+                                     :participle "been",
+                                     :3plur "were",
+                                     :1plur "were"},
+                              :present {:2plur "are",
+                                        :3sing "is",
+                                        :2sing "are",
+                                        :1sing "am",
+                                        :3plur "are",
+                                        :1plur "are"}
                               :agr {:person :1st,
                                      :number :sing,
                                      :case :nom},
@@ -658,14 +657,14 @@
 (deftest bianchi
   (is (= "bianchi"
          (string/trim (italiano/get-string
-                 {:irregular {:fem {:plur "bianche"},
-                              :masc {:plur "bianchi"}},
-                  :agr {:person :3rd,
-                        :number :plur,
-                        :gender :masc,
-                        :case :nom},
-                  :italiano "bianco",
-                  :cat :adjective})))))
+                       {:fem {:plur "bianche"},
+                        :masc {:plur "bianchi"},
+                        :agr {:person :3rd,
+                              :number :plur,
+                              :gender :masc,
+                              :case :nom},
+                        :italiano "bianco",
+                        :cat :adjective})))))
 
 (deftest i-cani-sono-bianchi
   (is (= "i cani sono bianchi"
@@ -711,13 +710,13 @@
                             :number :plur,
                             :gender :masc,
                             :case :nom},
-                            :b {:irregular {:fem {:plur "bianche"},
-                                            :masc {:plur "bianchi"}},
+                            :b {:fem {:plur "bianche"},
+                                :masc {:plur "bianchi"},
                                 :agr {:person :3rd,
                                       :number :plur,
                                       :gender :masc,
                                       :case :nom},
-                          :italiano "bianco",
+                                :italiano "bianco",
                                 :cat :adjective}}})))))
 
 (deftest essere-format-1
@@ -853,13 +852,13 @@
                  :a {:essere true,
                      :infl :past,
                      :initial true,
-                     :irregular {:passato "stato",
-                                 :present {:2plur "siete",
-                                           :3sing "è",
-                                           :2sing "sei",
-                                           :1sing "sono",
-                                           :3plur "sono",
-                                           :1plur "siamo"}},
+                     :passato "stato",
+                     :present {:2plur "siete",
+                               :3sing "è",
+                               :2sing "sei",
+                               :1sing "sono",
+                               :3plur "sono",
+                               :1plur "siamo"},
                      :italiano "essere",
                      :agr {:case :nom,
                            :number :sing,
@@ -874,19 +873,19 @@
                  :essere true,
                  :aux true,
                  :initial true,
-                 :irregular {:passato "stato",
-                             :present {:2plur "siete",
-                                       :3sing "è",
-                                       :2sing "sei",
-                                       :1sing "sono",
-                                       :3plur "sono",
-                                       :1plur "siamo"},
-                             :futuro {:2plur "sarete",
-                                      :3sing "sarà",
-                                      :2sing "sarai",
-                                      :1sing "sarò",
-                                      :3plur "saranno",
-                                      :1plur "saremo"}},
+                 :passato "stato",
+                 :present {:2plur "siete",
+                           :3sing "è",
+                           :2sing "sei",
+                           :1sing "sono",
+                           :3plur "sono",
+                           :1plur "siamo"},
+                 :futuro {:2plur "sarete",
+                          :3sing "sarà",
+                          :2sing "sarai",
+                          :1sing "sarò",
+                          :3plur "saranno",
+                          :1plur "saremo"},
                  :infl :present},
              :initial false}}]
     (is (= (string/trim (italiano/get-string io-sono-stato-alto))

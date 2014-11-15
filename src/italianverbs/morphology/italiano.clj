@@ -103,7 +103,7 @@
 
      :irregular-futuro?    (and
                             (= (get-in word '(:infl)) :futuro)
-                            (map? (get-in word '(:irregular :futuro))))
+                            (map? (get-in word '(:futuro))))
 
      :regular-futuro?    (and (= (get-in word '(:infl)) :futuro)
                               (get-in word '(:italiano)))
@@ -113,12 +113,12 @@
 
      :irregular-past?    (and
                           (= :past (get-in word '(:infl)))
-                          (string? (get-in word '(:irregular :past))))
+                          (string? (get-in word '(:past))))
 
      ;;nei: not enough information to conjugate.
      :past-irregular-essere-type-nei
      (and (= :past (get-in word '(:infl)))
-          (get-in word '(:irregular :passato))
+          (get-in word '(:passato))
           (get-in word '(:essere) true)
           (or (= :notfound (get-in word '(:agr :number) :notfound))
               (= :top (get-in word '(:agr :number)))))
@@ -132,7 +132,7 @@
 
    :irregular-passato?
      (and (= :past (get-in word '(:infl)))
-          (get-in word '(:irregular :passato)))
+          (get-in word '(:passato)))
 
    :regular-passato
      (= :past (get-in word '(:infl)))
@@ -574,8 +574,8 @@
      ;; "fare [past]" + "bene" => "fatto bene"
      (and (= (get-in word '(:cat)) :verb)
           (= (get-in word '(:infl)) :past)
-          (string? (get-in word '(:a :irregular :passato))))
-     (str (get-in word '(:a :irregular :passato)) " "
+          (string? (get-in word '(:a :passato))))
+     (str (get-in word '(:a :passato)) " "
           (get-string-1 (get-in word '(:b))))
 
      ;; TODO: do not use brackets: if there's an error about there being
@@ -583,14 +583,14 @@
      ;; return the irregular form in square brackets, indicating that there's
      ;; not enough information to conjugate the verb.
      (and (= :past (get-in word '(:infl)))
-          (get-in word '(:irregular :passato))
+          (get-in word '(:passato))
           (get-in word '(:essere) true)
           (or (= :notfound (get-in word '(:agr :number) :notfound))
               (= :top (get-in word '(:agr :number)))))
      ;; 'nei': not enough information.
      (do
-       (log/warn (str "not enough agreement specified to conjugate: " (get-in word '(:irregular :passato)) " (irreg past)]"))
-       (get-in word '(:irregular :passato)))
+       (log/warn (str "not enough agreement specified to conjugate: " (get-in word '(:passato)) " (irreg past)]"))
+       (get-in word '(:passato)))
 
      ;; TODO: do not use brackets: if there's an error about there being
      ;; regular passato prossimo and essere-verb => NEI (not enough information): defer conjugation and keep as a map.
@@ -600,7 +600,7 @@
               (= :top (get-in word '(:agr :number)))))
      ;; 'nei': not enough information.
      (do
-       (log/warn (str "not enough agreement specified to conjugate: " (get-in word '(:irregular :passato)) " (past)]"))
+       (log/warn (str "not enough agreement specified to conjugate: " (get-in word '(:passato)) " (past)]"))
        (str (get-in word [:italiano]) " (past)"))
 
      ;; conjugate irregular passato: option 1) using :passato-stem
@@ -611,8 +611,8 @@
 
      ;; conjugate irregular passato: option 2) using :irregular :passato
      (and (= :past (get-in word '(:infl)))
-          (get-in word '(:irregular :passato)))
-     (let [irregular-passato (get-in word '(:irregular :passato))
+          (get-in word '(:passato)))
+     (let [irregular-passato (get-in word '(:passato))
            butlast (nth (re-find #"(.*).$" irregular-passato) 1)]
        (str butlast (suffix-of word)))
 
