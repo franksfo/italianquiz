@@ -28,6 +28,12 @@
         (and (seq? arg)
              (empty? (rest arg)))
         (first arg)
+
+        (and (seq? arg)
+             (= (.size arg) 2))
+        (over/over it-grammar
+                   (first arg)
+                   (second arg))
         
         (seq? arg)
         ;; TODO: figure out how to do concurrency and memoization.
