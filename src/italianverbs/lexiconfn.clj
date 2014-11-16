@@ -312,6 +312,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                    :discrete false
                    :motion false}}})
 
+;; TODO: deprecated; use lexicon/italiano.clj instead.
 (def avere-common
   {:synsem {:essere false
             :cat :verb}
@@ -441,7 +442,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (defn map-function-on-map-vals [m f]
   (into {} (for [[k v] m] [k (f k v)])))
 
-;; TODO: Move all functions out of this file: should be human editable only
 (defn phonize [a-map a-string]
   (let [common {:phrasal false}]
     (cond (or (vector? a-map) (seq? a-map))
