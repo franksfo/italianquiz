@@ -2,6 +2,7 @@
  (:refer-clojure :exclude [get-in merge resolve find]))
 
 (require '[clojure.string :as str])
+(require '[clojure.tools.logging :as log])
 (require '[italianverbs.grammar.italiano :as it-g])
 (require '[italianverbs.lexicon.italiano :as it-l])
 (require '[italianverbs.morphology :refer (fo fo-ps)])
@@ -19,13 +20,27 @@
                      (get lexicon k)))))
 
 (defn toks [s]
-  (map #(lookup %)
-       (str/split s #"[ ']")))
+  (vec (map #(lookup %)
+            (str/split s #"[ ']"))))
 
 (declare parse)
 
+(defn parse-at [args index grammar]
+  (if (< index (.size args))
+    (concat
+     (over/over grammar
+                (parse (subvec args 0 index))
+                (parse (subvec args index (.size args))))
+     (parse-at args (+ 1 index) grammar))))
+
 (defn parse [arg]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
+  (if (and (vector? arg)
+           (not (empty? arg)))
+    (log/info (str "parse: " (str/join " "
+                                       (map (fn [tok]
+                                              (fo tok))
+                                            arg)))))
   (cond (string? arg)
         (parse (toks arg))
         
@@ -33,24 +48,16 @@
              (empty? (rest arg)))
         (first arg)
 
-        (and (seq? arg)
-             (= (.size arg) 2))
-        (over/over it-grammar
-                   (first arg)
-                   (second arg))
-        
+        (and (or (seq? arg)
+                 (vector? arg))
+             (empty? (rest arg)))
+        (first arg)
+
         (seq? arg)
-        ;; TODO: figure out how to do concurrency and memoization.
-        (concat ;; consider using lazy-cat here
-         (over/over it-grammar
-                    (subvec (vec arg) 0 (/ (.size arg) 2))
-                    (subvec (vec arg) (/ (.size arg) 2) (.size arg)))
-         (over/over it-grammar
-                    (first arg)
-                    (parse (rest arg)))
-         (over/over it-grammar
-                    (parse (butlast arg))
-                    (last arg)))
+        (parse-at arg 1 it-grammar)
+
+        (vector? arg)
+        (parse-at arg 1 it-grammar)
 
         true
         :error))
