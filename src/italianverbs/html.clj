@@ -186,13 +186,18 @@
                                        (seq arg)))
                      (list "</div><div class='delimiter'>}</div></div>")))
 
+     (vector? arg)
+     (string/join ""
+                  (map (fn [each]
+                         (tablize each path (fs/serialize each) opts))
+                       arg))
+
      (or (list? arg)
          (= (type arg) clojure.lang.Cons))
      (string/join ""
                   (map (fn [each]
                          (tablize each path (fs/serialize each) opts))
                        arg))
-
 
      ;; displaying a phrase structure tree (2 children)
      ;; Head-initial (H C)
