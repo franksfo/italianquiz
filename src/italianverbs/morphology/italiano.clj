@@ -263,24 +263,24 @@
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:cat)) :adjective)
-      (string? (get-in word '(:irregular :fem :plur))))
-     (get-in word '(:irregular :fem :plur))
+      (string? (get-in word '(:fem :plur))))
+     (get-in word '(:fem :plur))
 
      ;; handle lexical exceptions (plural feminine adjectives):
      (and
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:cat)) :adjective)
-      (string? (get-in word '(:irregular :fem :plur))))
-     (get-in word '(:irregular :fem :plur))
+      (string? (get-in word '(:fem :plur))))
+     (get-in word '(:fem :plur))
 
      ;; handle lexical exceptions (plural masculine adjectives):
      (and
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:agr :gender)) :masc)
       (= (get-in word '(:cat)) :adjective)
-      (string? (get-in word '(:irregular :masc :plur))))
-     (get-in word '(:irregular :masc :plur))
+      (string? (get-in word '(:masc :plur))))
+     (get-in word '(:masc :plur))
 
      (and
       (or (= (get-in word '(:agr :gender)) :masc)
@@ -301,8 +301,8 @@
      (and
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:cat)) :noun)
-      (string? (get-in word '(:irregular :plur))))
-     (get-in word '(:irregular :plur))
+      (string? (get-in word '(:plur))))
+     (get-in word '(:plur))
 
      ;; regular masculine nouns
      (and
@@ -372,23 +372,23 @@
 
      (and
       (= (get-in word '(:infl)) :futuro)
-      (map? (get-in word '(:irregular :futuro))))
+      (map? (get-in word '(:futuro))))
      (let [infinitive (get-in word '(:italiano))
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))]
        (cond
         (and (= person :1st) (= number :sing))
-        (get-in word '(:irregular :futuro :1sing))
+        (get-in word '(:futuro :1sing))
         (and (= person :2nd) (= number :sing))
-        (get-in word '(:irregular :futuro :2sing))
+        (get-in word '(:futuro :2sing))
         (and (= person :3rd) (= number :sing))
-        (get-in word '(:irregular :futuro :3sing))
+        (get-in word '(:futuro :3sing))
         (and (= person :1st) (= number :plur))
-        (get-in word '(:irregular :futuro :1plur))
+        (get-in word '(:futuro :1plur))
         (and (= person :2nd) (= number :plur))
-        (get-in word '(:irregular :futuro :2plur))
+        (get-in word '(:futuro :2plur))
         (and (= person :3rd) (= number :plur))
-        (get-in word '(:irregular :futuro :3plur))
+        (get-in word '(:futuro :3plur))
 
 
         (and (= (get-in word '(:infl)) :futuro)
@@ -494,41 +494,41 @@
       (= (get-in word '(:infl)) :imperfetto)
       (= :sing (get-in word '(:agr :number)))
       (= :1st (get-in word '(:agr :person)))
-      (string? (get-in word '(:irregular :imperfetto :1sing))))
-     (get-in word '(:irregular :imperfetto :1sing))
+      (string? (get-in word '(:imperfetto :1sing))))
+     (get-in word '(:imperfetto :1sing))
 
      (and
       (= (get-in word '(:infl)) :imperfetto)
       (= :sing (get-in word '(:agr :number)))
       (= :2nd (get-in word '(:agr :person)))
-      (string? (get-in word '(:irregular :imperfetto :2sing))))
-     (get-in word '(:irregular :imperfetto :2sing))
+      (string? (get-in word '(:imperfetto :2sing))))
+     (get-in word '(:imperfetto :2sing))
 
      (and
       (= (get-in word '(:infl)) :imperfetto)
       (= :sing (get-in word '(:agr :number)))
       (= :3rd (get-in word '(:agr :person)))
-      (string? (get-in word '(:irregular :imperfetto :3sing))))
-     (get-in word '(:irregular :imperfetto :3sing))
+      (string? (get-in word '(:imperfetto :3sing))))
+     (get-in word '(:imperfetto :3sing))
 
      (and
       (= (get-in word '(:infl)) :imperfetto)
       (= :plur (get-in word '(:agr :number)))
       (= :1st (get-in word '(:agr :person)))
-      (string? (get-in word '(:irregular :imperfetto :1plur))))
-     (get-in word '(:irregular :imperfetto :1plur))
+      (string? (get-in word '(:imperfetto :1plur))))
+     (get-in word '(:imperfetto :1plur))
      (and
       (= (get-in word '(:infl)) :imperfetto)
       (= :plur (get-in word '(:agr :number)))
       (= :2nd (get-in word '(:agr :person)))
-      (string? (get-in word '(:irregular :imperfetto :2plur))))
-     (get-in word '(:irregular :imperfetto :2plur))
+      (string? (get-in word '(:imperfetto :2plur))))
+     (get-in word '(:imperfetto :2plur))
      (and
       (= (get-in word '(:infl)) :imperfetto)
       (= :plur (get-in word '(:agr :number)))
       (= :3rd (get-in word '(:agr :person)))
-      (string? (get-in word '(:irregular :imperfetto :3plur))))
-     (get-in word '(:irregular :imperfetto :3plur))
+      (string? (get-in word '(:imperfetto :3plur))))
+     (get-in word '(:imperfetto :3plur))
 
      ;; regular imperfetto sense
      (and (= (get-in word '(:infl)) :imperfetto)
@@ -609,7 +609,7 @@
      (let [irregular-passato (get-in word '(:passato-stem))]
        (str irregular-passato (suffix-of word)))
 
-     ;; conjugate irregular passato: option 2) using :irregular :passato
+     ;; conjugate irregular passato: option 2) using :passato
      (and (= :past (get-in word '(:infl)))
           (get-in word '(:passato)))
      (let [irregular-passato (get-in word '(:passato))
