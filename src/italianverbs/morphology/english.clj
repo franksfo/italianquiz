@@ -28,8 +28,8 @@
    ;; "to do [past]" + "well" => "did well"
    (and (= (get-in word '(:cat)) :verb)
         (= (get-in word '(:infl)) :past)
-        (string? (get-in word '(:a :irregular :past))))
-   (str (get-in word '(:a :irregular :past)) " "
+        (string? (get-in word '(:a :past))))
+   (str (get-in word '(:a :past)) " "
         (get-string-1 (get-in word '(:b))))
 
    ;; :note is used for little annotations that are significant in italian but not in english
@@ -65,35 +65,35 @@
    (and
     (get-in word '(:a))
     (get-in word '(:b))
-    (string? (get-in word '(:a :irregular :past)))
-    (= (get-in word '(:a :irregular :past)) "could have")
-    (string? (get-in word '(:b :irregular :past-participle)))
+    (string? (get-in word '(:a :past)))
+    (= (get-in word '(:a :past)) "could have")
+    (string? (get-in word '(:b :past-participle)))
     (= (get-in word '(:a :infl)) :past))
-   (join " " (list (get-in word '(:a :irregular :past))
-                          (get-in word '(:b :irregular :past-participle))))
+   (join " " (list (get-in word '(:a :past))
+                          (get-in word '(:b :past-participle))))
 
    ;; (could have) + (to sleep) => "could have slept"
    (and
     (get-in word '(:a))
     (get-in word '(:b))
-    (string? (get-in word '(:a :irregular :past)))
-    (= (get-in word '(:a :irregular :past)) "could have")
-    (string? (get-in word '(:b :irregular :past)))
+    (string? (get-in word '(:a :past)))
+    (= (get-in word '(:a :past)) "could have")
+    (string? (get-in word '(:b :past)))
     (= (get-in word '(:a :infl)) :past))
-   (join " " (list (get-in word '(:a :irregular :past))
-                          (get-in word '(:b :irregular :past))))
+   (join " " (list (get-in word '(:a :past))
+                          (get-in word '(:b :past))))
 
    ;; (could have) + (do X) => "could have done X"
    (and
     (get-in word '(:a))
     (get-in word '(:b))
-    (string? (get-in word '(:a :irregular :past)))
-    (= (get-in word '(:a :irregular :past)) "could have")
-    (string? (get-in word '(:b :a :irregular :past-participle)))
+    (string? (get-in word '(:a :past)))
+    (= (get-in word '(:a :past)) "could have")
+    (string? (get-in word '(:b :a :past-participle)))
     (= (get-in word '(:a :infl)) :past))
    ;; recursive call after inflecting '(:b :a) to past.
    (get-string {:a (get-in word '(:a))
-                 :b {:a (get-in word '(:b :a :irregular :past-participle))
+                 :b {:a (get-in word '(:b :a :past-participle))
                      :b (get-in word '(:b :b))}})
 
    ;; (could have) + (make X) => "could have made X"
@@ -101,12 +101,12 @@
     (get-in word '(:a))
     (get-in word '(:b))
     (string? (get-in word '(:a :irregular :past)))
-    (= (get-in word '(:a :irregular :past)) "could have")
-    (string? (get-in word '(:b :a :irregular :past)))
+    (= (get-in word '(:a :past)) "could have")
+    (string? (get-in word '(:b :a :past)))
     (= (get-in word '(:a :infl)) :past))
    ;; recursive call after inflecting '(:b :a) to past.
    (get-string {:a (get-in word '(:a))
-                 :b {:a (get-in word '(:b :a :irregular :past))
+                 :b {:a (get-in word '(:b :a :past))
                      :b (get-in word '(:b :b))}})
 
    (and
@@ -160,23 +160,23 @@
 
    (and (= (get-in word '(:infl)) :imperfetto)
         (= :plur (get-in word '(:agr :number)))
-        (get-in word '(:irregular :imperfect :plur)))
-   (str (get-in word '(:irregular :imperfect :plur)))
+        (get-in word '(:imperfect :plur)))
+   (str (get-in word '(:imperfect :plur)))
 
    (and (= (get-in word '(:infl)) :imperfetto)
         (= :sing (get-in word '(:agr :number)))
         (= :2nd (get-in word '(:agr :person)))
-        (get-in word '(:irregular :imperfect :2sing)))
-   (str (get-in word '(:irregular :imperfect :2sing)))
+        (get-in word '(:imperfect :2sing)))
+   (str (get-in word '(:imperfect :2sing)))
 
    ;; if neither of the two above does not match:
    (and (= (get-in word '(:infl)) :imperfetto)
-        (map? (get-in word '(:irregular :imperfect))))
-   (str (get-in word '(:irregular :imperfect :default)))
+        (map? (get-in word '(:imperfect))))
+   (str (get-in word '(:imperfect :default)))
 
    (and (= (get-in word '(:infl)) :imperfetto)
-        (get-in word '(:irregular :imperfect)))
-   (str (get-in word '(:irregular :imperfect)))
+        (get-in word '(:imperfect)))
+   (str (get-in word '(:imperfect)))
 
 
    (and (= (get-in word '(:infl)) :imperfetto)
@@ -207,17 +207,17 @@
         ;; (might not be needed for english)
 
         ;; 2) use irregular that is the same for all number and person if there is one.
-        (string? (get-in word '(:irregular :imperfetto)))
-        (get-in word '(:irregular :imperfetto))
+        (string? (get-in word '(:imperfetto)))
+        (get-in word '(:imperfetto))
 
         (and (= :sing (get-in word '(:agr :number)))
              (or (= :1st (get-in word '(:agr :person)))
                  (= :3rd (get-in word '(:agr :person))))
-             (string? (get-in word '(:irregular :imperfetto-suffix))))
-        (str "was " (get-in word '(:irregular :imperfetto-suffix)))
+             (string? (get-in word '(:imperfetto-suffix))))
+        (str "was " (get-in word '(:imperfetto-suffix)))
 
-        (string? (get-in word '(:irregular :imperfetto-suffix)))
-        (str "were " (get-in word '(:irregular :imperfetto-suffix)))
+        (string? (get-in word '(:imperfetto-suffix)))
+        (str "were " (get-in word '(:imperfetto-suffix)))
 
         (and (= :sing (get-in word '(:agr :number)))
              (or (= :1st (get-in word '(:agr :person)))
@@ -229,35 +229,35 @@
 
    ;; irregular past (1): a single inflection for all persons/numbers.
    (and (= :past (get-in word '(:infl)))
-        (string? (get-in word '(:irregular :past))))
+        (string? (get-in word '(:past))))
    (get-in word '(:irregular :past))
 
    (and (= :past (get-in word '(:infl)))
         (= :top (get-in word '(:agr :number)))
-        (string? (get-in word '(:irregular :past :2sing))))
+        (string? (get-in word '(:past :2sing))))
    ;; use the 2nd singular form if there's not enough inflection info to go on.
-   (str "[" (get-in word '(:irregular :past :2sing)) "]")
+   (str "[" (get-in word '(:past :2sing)) "]")
 
    (= :top (get-in word '(:infl)))
    (get-in word '(:infinitive))
 
    ;; irregular past (2): a different inflection for each persons/numbers.
    (and (= :past (get-in word '(:infl)))
-        (map? (get-in word '(:irregular :past))))
+        (map? (get-in word '(:past))))
    (let [number (get-in word '(:agr :number))
          person (get-in word '(:agr :person))]
      (cond (and (= person :1st) (= number :sing))
-           (get-in word '(:irregular :past :1sing))
+           (get-in word '(:past :1sing))
            (and (= person :2nd) (= number :sing))
-           (get-in word '(:irregular :past :2sing))
+           (get-in word '(:past :2sing))
            (and (= person :3rd) (= number :sing))
-           (get-in word '(:irregular :past :3sing))
+           (get-in word '(:past :3sing))
            (and (= person :1st) (= number :plur))
-           (get-in word '(:irregular :past :1plur))
+           (get-in word '(:past :1plur))
            (and (= person :2nd) (= number :plur))
-           (get-in word '(:irregular :past :2plur))
+           (get-in word '(:past :2plur))
            (and (= person :3rd) (= number :plur))
-           (get-in word '(:irregular :past :3plur))
+           (get-in word '(:past :3plur))
            true word)) ;; not enough agreement specified to conjugate.
 
    ;; regular past
@@ -294,24 +294,24 @@
      (cond
 
       (and (= person :1st) (= number :sing)
-           (string? (get-in word '(:irregular :present :1sing))))
-      (get-in word '(:irregular :present :1sing))
+           (string? (get-in word '(:present :1sing))))
+      (get-in word '(:present :1sing))
       (and (= person :2nd) (= number :sing)
-           (string? (get-in word '(:irregular :present :2sing))))
-      (get-in word '(:irregular :present :2sing))
+           (string? (get-in word '(:present :2sing))))
+      (get-in word '(:present :2sing))
       (and (= person :3rd) (= number :sing)
-           (string? (get-in word '(:irregular :present :3sing))))
-      (get-in word '(:irregular :present :3sing))
+           (string? (get-in word '(:present :3sing))))
+      (get-in word '(:present :3sing))
 
       (and (= person :1st) (= number :plur)
-           (string? (get-in word '(:irregular :present :1plur))))
-      (get-in word '(:irregular :present :1plur))
+           (string? (get-in word '(:present :1plur))))
+      (get-in word '(:present :1plur))
       (and (= person :2nd) (= number :plur)
-           (string? (get-in word '(:irregular :present :2plur))))
-      (get-in word '(:irregular :present :2plur))
+           (string? (get-in word '(:present :2plur))))
+      (get-in word '(:present :2plur))
       (and (= person :3rd) (= number :plur)
-           (string? (get-in word '(:irregular :present :3plur))))
-      (get-in word '(:irregular :present :3plur))
+           (string? (get-in word '(:present :3plur))))
+      (get-in word '(:present :3plur))
 
       (and (= person :1st) (= number :sing))
       (str stem "")
@@ -344,18 +344,18 @@
       :else (str root )))
 
    (and
-    (get-in word '(:irregular :plur))
+    (get-in word '(:plur))
     (= (get-in word '(:agr :number)) :plur)
     (= (get-in word '(:cat) :noun)))
-   (get-in word '(:irregular :plur))
+   (get-in word '(:plur))
 
 
    ;; TODO: remove support for deprecated :root - use :irregular instead (as immediately above).
    (and
-    (get-in word '(:root :irregular :plur))
+    (get-in word '(:root :plur))
     (= (get-in word '(:agr :number)) :plur)
     (= (get-in word '(:cat) :noun)))
-   (get-in word '(:root :irregular :plur))
+   (get-in word '(:root :plur))
 
    ;; TODO: remove support for deprecated :root - use :irregular instead.
    (and

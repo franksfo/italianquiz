@@ -44,7 +44,8 @@
         (< (.size input) 2))
    (fo (first input))
 
-   (seq? input)
+   (or (seq? input)
+       (vector? input))
    (map fo input)
 
    (:italiano input)
