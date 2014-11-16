@@ -22,7 +22,8 @@
   (is (= "un gatto" (fo (first (parse "un gatto"))))))
  
 (deftest parse-test-2
-  (is (contains? (set (fo (parse "Antonio dormire"))) "Antonio dormirà")))
+  (is (= (fo (first (parse "Antonio dormirà")))
+         "Antonio dormirà")))
 
 (deftest parse-test-3
   (let [result (parse "il gatto nero")]
