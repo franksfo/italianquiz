@@ -13,6 +13,7 @@
    [hiccup.element :as e]
    [hiccup.page :as h]
    [italianverbs.menubar :as menubar]
+   [italianverbs.morphology :refer [fo]]
    [italianverbs.session :as session]
    [italianverbs.unify :as fs]))
 
@@ -187,11 +188,10 @@
 
      (or (list? arg)
          (= (type arg) clojure.lang.Cons))
-     (str
-      (clojure.string/join ""
-                           (map (fn [each]
-                                  (tablize each path (fs/serialize each) opts))
-                                arg)))
+     (string/join ""
+                  (map (fn [each]
+                         (tablize each path (fs/serialize each) opts))
+                       arg))
 
 
      ;; displaying a phrase structure tree (2 children)
@@ -349,9 +349,7 @@
      (and
       (or true (not (nil? opts)))
       (or true (= true (:as-tree opts)))
-      (or (= (type arg) clojure.lang.PersistentArrayMap)
-          (= (type arg) clojure.lang.PersistentHashMap)
-          (= (type arg) clojure.lang.PersistentTreeMap))
+      (map? arg)
       (not (= :subcat (last path)))
 
       (not (= :a (last path)))
@@ -385,15 +383,18 @@
       "  </table>"
       "</div>")
 
+
+     (and (map? arg)
+          (= (last path) :italiano))
+     (str "<i>" (fo {:italiano arg}) "</i>")
+
      ;; displaying a feature structure.
-     (or (= (type arg) clojure.lang.PersistentArrayMap)
-         (= (type arg) clojure.lang.PersistentHashMap)
-         (= (type arg) clojure.lang.PersistentTreeMap))
+     (map? arg)
      (str
       "<div class='map'>"
       (if (:header arg) (str "<h2>" (:header arg) "</h2>"))
       "  <table class='map'>"
-      (clojure.string/join
+      (string/join
        ""
        (map
         (fn [tr]
@@ -419,10 +420,6 @@
            (if (= (type (second tr)) clojure.lang.Ref)
              (str
               "<td class='ref'>"
-              ;; show ref id for debugging if desired:
-              (if false (str
-                         "(" (second tr) ")"
-                         "[ " (type @(second tr)) " ]"))
               "  <div class='ref'>"
               (fs/path-to-ref-index serialized (concat path (list (first tr))) 0)
               "  </div>"
@@ -435,20 +432,20 @@
                     ;; Path' = Path . current_feature
                     (concat path (list (first tr)))
                     serialized
-                    {:as-tree false}
-                    )
+                    {:as-tree false})
            "   </td>"
            "</tr>"))
         ;; sorts the argument list in _arg__ by key name. remove :comment-plaintext and :extend.
         (remove #(= (first %) :comment-plaintext)
                 (remove #(or (= (first %) :comment-plaintext)
                              (= (first %) :extend)
-                             (= (first %) :serialized))
+                             (= (first %) :serialized)
+                             (= (second %) false))
                         (into (sorted-map) arg)))
         ))
       "  </table>"
       "</div>")
-     (= (type arg) clojure.lang.PersistentHashSet)
+     (set? arg)
      (str
       "{"
       (clojure.string/join ","
@@ -520,10 +517,9 @@
         "<tr><td>"
         (string/join
          "</td><td class='each'>"
-                                        ;"</td></tr><tr><td class='each'>"
-                     (map (fn [each-val]
-                            (tablize each-val))
-                          val))
+         (map (fn [each-val]
+                (tablize each-val))
+              val))
         "</td></tr>"
         "</table>"
         "</td>")
