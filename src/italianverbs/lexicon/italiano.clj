@@ -141,10 +141,7 @@
           masculine-noun
           {:synsem {:sem {:pred :amico
                           :human true
-                          :child false}}
-           :italiano {:italiano "amico"}
-           :english {:english "friend"}})
-
+                          :child false}}})
    "amare"
     (unify transitive
            {:synsem {:essere false
@@ -155,29 +152,26 @@
                            :obj {:animate true}}}})
 
    "andare"
-
-    (map (fn [each]
-           (unify
-            each
-            ;; common part of all andare lexemes:
-            {:italiano {:italiano "andare"
-                        :essere true
-                        :drop-e true
-                        :present {:1sing "vado"
-                                  :2sing "vai"
-                                  :3sing "va"
-                                  :1plur "andiamo"
-                                  :2plur "andate"
-                                  :3plur "vanno"}}
-             :synsem {:essere true
-                      :sem {:subj {:animate true}
-                            :activity false ;; because "I was going when (something happened) .." sounds weird.
-                            :pred :andare
-                            :discrete false
-                            :motion false}}}))
-            
-
-         (list
+   (map (fn [each]
+          (unify
+           each
+           ;; common part of all andare lexemes:
+           {:italiano {:italiano "andare"
+                       :essere true
+                       :drop-e true
+                       :present {:1sing "vado"
+                                 :2sing "vai"
+                                 :3sing "va"
+                                 :1plur "andiamo"
+                                 :2plur "andate"
+                                 :3plur "vanno"}}
+            :synsem {:essere true
+                     :sem {:subj {:animate true}
+                           :activity false ;; because "I was going when (something happened) .." sounds weird.
+                           :pred :andare
+                           :discrete false
+                           :motion false}}}))
+        (list
           ;; "andare"-intransitive
           (unify
            intransitive
@@ -231,7 +225,20 @@
                        :activity false
                        :discrete false
                        :subj {:human true}
-                       :obj {:buyable true}}}})])
+                       :obj {:buyable true}}}})
+
+
+      ;; 2. "avere" that takes a transitive verb: e.g. "io l'ho vista (i saw her)"
+      (let [agr-of-obj-of-main-verb (ref :top)]
+        (unify
+         verb-aux
+         verb-subjective
+         avere-common
+        {:note "avere(aux): takes trans"
+         :synsem {:infl :present
+                  :subcat {:2 {:agr agr-of-obj-of-main-verb
+                               :subcat {:2 {:agr agr-of-obj-of-main-verb}}
+                               :essere false}}}}))])
 
    "bello"
 
