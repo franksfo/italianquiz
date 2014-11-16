@@ -35,29 +35,24 @@
 
 (defn parse [arg]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
-  (if (and (vector? arg)
-           (not (empty? arg)))
-    (log/info (str "parse: " (str/join " "
-                                       (map (fn [tok]
-                                              (fo tok))
-                                            arg)))))
   (cond (string? arg)
         (parse (toks arg))
         
-        (and (seq? arg)
+        (and (vector? arg)
              (empty? (rest arg)))
         (first arg)
-
-        (and (or (seq? arg)
-                 (vector? arg))
-             (empty? (rest arg)))
-        (first arg)
-
-        (seq? arg)
-        (parse-at arg 1 it-grammar)
 
         (vector? arg)
-        (parse-at arg 1 it-grammar)
+        (let [result
+              (parse-at arg 1 it-grammar)]
+          (do
+            (if (not (empty? result))
+              (log/info (str "parse: " (str/join " + "
+                                                 (map (fn [tok]
+                                                        (fo tok))
+                                                      arg))
+                             " => " (fo result))))
+            result))
 
         true
         :error))

@@ -46,12 +46,10 @@
 
    (or (seq? input)
        (vector? input))
-   (map fo input)
-
-   (:italiano input)
-   (merge
-    {:italiano (string/trim (italiano/get-string (:italiano input)))}
-    (fo (dissoc input :italiano)))
+   (str "(" (string/join " | " 
+                         (remove #(= % "")
+                                 (map #(let [f (fo %)] (if (= f "") "" (str "" f ""))) input)))
+        ")")
 
    (:english input)
    (merge {:english (string/trim (english/get-string (:english input)))}
