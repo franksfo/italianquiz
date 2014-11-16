@@ -514,7 +514,32 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                           {:italiano {:infl :present
                                       :italiano (get-in val [:italiano :present :3sing] :nothing)
                                       :agr {:number :sing
-                                            :person :3rd}}})}]))]
+                                            :person :3rd}}})}
+
+                       {:path [:italiano :present :1plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :1plur] :nothing)
+                                      :agr {:number :plur
+                                            :person :1st}}})}
+                       {:path [:italiano :present :2plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :2plur] :nothing)
+                                      :agr {:number :plur
+                                            :person :2nd}}})}
+                       
+                       {:path [:italiano :present :3plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :3plur] :nothing)
+                                      :agr {:number :plur
+                                            :person :3rd}}})}
+
+                       ]))]
             
             
         (if (not (empty? result))
