@@ -102,7 +102,7 @@
    (map? arg)
    
    (not (= :subcat (last path)))
-   (not (= :italian (last path)))
+   (not (= :italiano (last path)))
    (not (= :english (last path)))
    
    (not (= :none (:head arg :none)))
@@ -112,15 +112,15 @@
    
    (or
     (and
-     (not (= :none (fs/get-in arg '(:head :italian) :none)))
-     (not (= :none (fs/get-in arg '(:comp :italian) :none))))
+     (not (= :none (fs/get-in arg '(:head :italiano) :none)))
+     (not (= :none (fs/get-in arg '(:comp :italiano) :none))))
     (and
      (not (= :none (fs/get-in arg '(:head :english) :none)))
      (not (= :none (fs/get-in arg '(:comp :english) :none)))))
    
    (or
-    (and (fs/ref= arg '(:head :italian) '(:italian :a))
-         (fs/ref= arg '(:comp :italian) '(:italian :b)))
+    (and (fs/ref= arg '(:head :italiano) '(:italiano :a))
+         (fs/ref= arg '(:comp :italiano) '(:italiano :b)))
     (and (fs/ref= arg '(:head :english) '(:english :a))
          (fs/ref= arg '(:comp :english) '(:english :b)))))]
     retval))
@@ -131,7 +131,7 @@
    (map? arg)
    
    (not (= :subcat (last path)))
-   (not (= :italian (last path)))
+   (not (= :italiano (last path)))
    (not (= :english (last path)))
    
    (not (= :none (:head arg :none)))
@@ -141,15 +141,15 @@
    
    (or
     (and
-     (not (= :none (fs/get-in arg '(:head :italian) :none)))
-     (not (= :none (fs/get-in arg '(:comp :italian) :none))))
+     (not (= :none (fs/get-in arg '(:head :italiano) :none)))
+     (not (= :none (fs/get-in arg '(:comp :italiano) :none))))
     (and
      (not (= :none (fs/get-in arg '(:head :english) :none)))
      (not (= :none (fs/get-in arg '(:comp :english) :none)))))
    
    (or
-    (and (fs/ref= arg '(:head :italian) '(:italian :b))
-         (fs/ref= arg '(:comp :italian) '(:italian :a)))
+    (and (fs/ref= arg '(:head :italiano) '(:italiano :b))
+         (fs/ref= arg '(:comp :italiano) '(:italiano :a)))
     (and (fs/ref= arg '(:head :english) '(:english :b))
          (fs/ref= arg '(:comp :english) '(:english :a)))))]
     retval))
@@ -290,7 +290,7 @@
       (map? arg)
 
       (not (= :subcat (last path)))
-      (not (= :italian (last path)))
+      (not (= :italiano (last path)))
 
       ;; display :extends properly (i.e. not a tree).
       ;; :extends will have features :a,:b,:c,..
