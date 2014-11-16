@@ -126,9 +126,13 @@ table.generate th {
     vertical-align:top;
 }
 
-td {
+td.hc {
     border:0px dashed black;
-    padding-right:2px;
+}
+
+td {
+    vertical-align:top;
+    border:0px dashed black;
 }
 
 table.generate div.result {
