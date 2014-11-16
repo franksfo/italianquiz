@@ -25,13 +25,15 @@
 
 (declare parse)
 
-(defn parse-at [args index grammar]
-  (if (< index (.size args))
-    (concat
-     (over/over grammar
-                (parse (subvec args 0 index))
-                (parse (subvec args index (.size args))))
-     (parse-at args (+ 1 index) grammar))))
+(defn parse-at [args index grammar & [runlevel]]
+  (let [runlevel (if runlevel runlevel 0)]
+    (log/debug (str "parse-at: rl=" runlevel "; i=" index ":" (fo args) "; size args: " (.size args)))
+    (if (< index (.size args))
+      (concat
+       (over/over grammar
+                  (parse (subvec args 0 index))
+                  (parse (subvec args index (.size args))))
+       (parse-at args (+ 1 index) grammar (+ 1 runlevel))))))
 
 (defn parse [arg]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"

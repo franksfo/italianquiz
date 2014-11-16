@@ -46,7 +46,7 @@
 
    (or (seq? input)
        (vector? input))
-   (str "(" (string/join " | " 
+   (str "(" (string/join " , " 
                          (remove #(= % "")
                                  (map #(let [f (fo %)] (if (= f "") "" (str "" f ""))) input)))
         ")")
