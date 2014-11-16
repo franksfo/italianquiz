@@ -1433,22 +1433,28 @@
    ;; e.g.: "bevevo/bevevi/..etc" => "bere"
    #"vevo$"
    {:replace-with "re"
-    :unify-with {:italiano {:infl :present
+    :unify-with {:italiano {:infl :imperfetto
                             :agr {:number :sing
                                   :person :1st}}}}
 
    #"vevi$"
    {:replace-with "re"
-    :unify-with {:italiano {:infl :present
+    :unify-with {:italiano {:infl :imperfetto
                             :agr {:number :sing
                                   :person :2nd}}}}
 
    #"veva$"
    {:replace-with "re"
-    :unify-with {:italiano {:infl :present
+    :unify-with {:italiano {:infl :imperfetto
                             :agr {:number :sing
                                   :person :3rd}}}}
    })
+
+(def past-to-infinitive
+  {
+   #"ito$"
+   {:replace-with "ire"
+    :unify-with {:italiano {:infl :past}}}})
 
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
@@ -1458,6 +1464,9 @@
          present-to-infinitive-ire
          present-to-infinitive-ere
          present-to-infinitive-are
+
+         past-to-infinitive
+
          imperfect-to-infinitive-irreg1
          )
         
