@@ -6,7 +6,9 @@
 
 (require '[italianverbs.lexiconfn :refer (comparative exception-generator listify 
                                                       non-comparative-adjective subcat0
-                                                      map-function-on-map-vals phonize unify)])
+                                                      map-function-on-map-vals phonize 
+                                                      pronoun-acc
+                                                      pronoun-noun unify)])
 (require '[italianverbs.lexicon :refer (transform)])
 (require '[italianverbs.pos :refer :all])
 (require '[italianverbs.unify :refer :all :exclude [unify]])
@@ -210,6 +212,27 @@
                    :gender :fem}
              :propernoun true}}
 
+   "avere"
+   (let [avere-common {:synsem {:essere false
+                                :cat :verb}
+                       :italiano {:italiano "avere"
+                                  :drop-e true
+                                  :passato "avuto"
+                                  :present {:1sing "ho"
+                                            :2sing "hai"
+                                            :3sing "ha"
+                                            :1plur "abbiamo"
+                                            :2plur "avete"
+                                            :3plur "hanno"}}}]
+     [(unify ;; 1. "avere": to possess something buyable
+       transitive
+       avere-common
+       {:synsem {:sem {:pred :avere
+                       :activity false
+                       :discrete false
+                       :subj {:human true}
+                       :obj {:buyable true}}}})])
+
    "bello"
 
    [;; non-comparative
@@ -313,6 +336,156 @@
           masculine-noun
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
+   "il"
+   (unify determiner
+          {:synsem {:cat :det
+                    :def :def
+                    :gender :masc
+                    :number :sing}})
+
+   "io"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :1st
+                   :number :sing}
+             :sem (unify human {:pred :io})
+             :subcat '()}}
+
+   "libro"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          masculine-noun
+          {:synsem {:sem {:pred :libro
+                          :legible true
+                          :speakable false
+                          :mass false
+                          :buyable true
+                          :consumable false
+                          :artifact true}}})
+
+   "loro"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :number :plur}
+                :sem (unify human {:pred :loro})
+             :subcat '()}}
+
+   "la"
+   [{:synsem {:cat pronoun-noun
+             :pronoun true
+             :case pronoun-acc
+             :agr {:gender :fem
+                   :person :3rd
+                   :number :sing}
+             :sem (unify human {:pred :lei})
+             :subcat '()}
+     :italiano {:initial true   ;; TODO: verify that 'la' above and this below are being unified correctly.
+                :cat pronoun-noun
+                :case pronoun-acc}}
+
+    {:synsem {:cat pronoun-noun
+              :pronoun true
+              :case pronoun-acc
+              :agr {:gender :fem
+                    :person :3rd
+                    :number :sing}
+              :sem {:human false
+                    :place false ;; "they go to it (loro vanna a la)" sounds strange
+                    :pred :lei}
+              :subcat '()}
+     :italiano {:initial true
+                :cat pronoun-noun
+                :case pronoun-acc}}
+
+
+    {:synsem {:cat :det
+              :def :def
+              :gender :fem
+              :number :sing}}]
+
+   "la loro"
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing
+             :sem {:number :plur
+                   :person :3rd}}}
+
+   "la mia"
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing
+             :sem {:number :sing
+                   :person :1st}}}
+
+   "la nostra"
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing
+             :sem {:number :plur
+                   :person :1st}}}
+
+   ;; TODO: add pronominal "la sua (hers)" and "la sua (his)"
+   "la sua"
+   [{:synsem {:cat :det
+              :def :possessive
+              :gender :fem
+              :number :sing
+             :sem {:gender :fem
+                   :number :sing
+                   :person :3rd}}}
+    {:synsem {:cat :det
+              :def :possessive
+              :gender :fem
+              :number :sing
+              :sem {:gender :masc
+                    :number :sing
+                    :person :3rd}}}]
+   "la tua"
+   [{:synsem {:cat :det
+              :def :possessive
+              :gender :fem
+              :number :sing
+              :sem {:number :sing
+                    :person :2nd}}}
+
+    {:synsem {:cat :det
+              :def :possessive
+              :gender :fem
+              :number :sing
+                :sem {:number :plur
+                      :person :2nd}}}]
+
+   "lo"
+   [{:synsem {:cat pronoun-noun
+              :pronoun true
+              :case pronoun-acc
+              :agr {:gender :masc
+                    :person :3rd
+                    :number :sing}
+              :sem (unify human {:pred :lo})
+              :subcat '()}}
+
+    {:synsem {:cat pronoun-noun
+              :pronoun true
+              :case pronoun-acc
+              :agr {:gender :masc
+                    :person :3rd
+                    :number :sing}
+              :sem {:human false
+                    :place false
+                    :pred :lo}
+              :subcat '()}
+       :italiano {:initial true  ;; TODO: verify that 'lo' above and this below are being unified correctly.
+                  :pronoun true
+                  :cat pronoun-noun
+                  :case pronoun-acc}}]
 
    "lei"
    {:synsem {:cat :noun
@@ -334,21 +507,14 @@
              :sem (unify human {:pred :lui})
              :subcat '()}}
 
-   "il"
-   (unify determiner
-          {:synsem {:cat :det
-                    :def :def
-                    :gender :masc
-                    :number :sing}})
-
-   "io"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :1st
-                   :number :sing}
-             :sem (unify human {:pred :io})
-             :subcat '()}}
+   "madre"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          feminine-noun
+          {:synsem {:sem human}}
+          {:synsem {:sem {:pred :madre
+                          :child false}}})
 
    ;; non-comparative
    ;; TODO: add comparative
