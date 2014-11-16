@@ -381,8 +381,6 @@
           masculine-noun
           {:synsem {:sem {:pred :vino
                           :artifact true}}})
-   
-
 
 })
 

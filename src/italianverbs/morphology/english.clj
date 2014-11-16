@@ -100,7 +100,7 @@
    (and
     (get-in word '(:a))
     (get-in word '(:b))
-    (string? (get-in word '(:a :irregular :past)))
+    (string? (get-in word '(:a :past)))
     (= (get-in word '(:a :past)) "could have")
     (string? (get-in word '(:b :a :past)))
     (= (get-in word '(:a :infl)) :past))
@@ -230,7 +230,7 @@
    ;; irregular past (1): a single inflection for all persons/numbers.
    (and (= :past (get-in word '(:infl)))
         (string? (get-in word '(:past))))
-   (get-in word '(:irregular :past))
+   (get-in word '(:past))
 
    (and (= :past (get-in word '(:infl)))
         (= :top (get-in word '(:agr :number)))
@@ -350,14 +350,14 @@
    (get-in word '(:plur))
 
 
-   ;; TODO: remove support for deprecated :root - use :irregular instead (as immediately above).
+   ;; TODO: remove support for deprecated :root - use :plur instead (as immediately above).
    (and
     (get-in word '(:root :plur))
     (= (get-in word '(:agr :number)) :plur)
     (= (get-in word '(:cat) :noun)))
    (get-in word '(:root :plur))
 
-   ;; TODO: remove support for deprecated :root - use :irregular instead.
+   ;; TODO: remove support for deprecated :root - use :sing instead.
    (and
     (= (get-in word '(:agr :number)) :sing)
     (= (get-in word '(:cat) :noun))
@@ -373,7 +373,7 @@
                 (get-in word '(:note))
                 "")))
 
-   ;; TODO: remove support for deprecated :root - use :irregular instead.
+   ;; TODO: remove support for deprecated :root - use :sing instead.
    (and
     (= (get-in word '(:agr :number)) :sing)
     (= (get-in word '(:cat) :noun))
@@ -390,7 +390,7 @@
     (if (get-in word '(:note))
       (trim (get-in word '(:note)))))
 
-   ;; TODO: remove support for deprecated :root - use :irregular instead.
+   ;; TODO: remove support for deprecated :root - use :plur instead.
    (and (= (get-in word '(:agr :number)) :plur)
         (= (get-in word '(:cat)) :noun)
         (string? (get-in word '(:root))))
