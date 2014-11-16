@@ -238,7 +238,23 @@
          :synsem {:infl :present
                   :subcat {:2 {:agr agr-of-obj-of-main-verb
                                :subcat {:2 {:agr agr-of-obj-of-main-verb}}
-                               :essere false}}}}))])
+                               :essere false}}}}))
+
+      ;; 3. "avere" that takes an intransitive verb or a transitive verb within a VP
+      ;;    with the object (e.g. "io ho dormito (i slept)" or "io ho [mangiato la pizza] (i ate the pizza)"
+      ;; "avere": auxiliary-verb: takes 2 args:
+      ;; 1. subject that is the same as the subject of 2.
+      ;; 2. an intransitive verb.
+      (unify
+       verb-aux
+       verb-subjective
+       avere-common
+       {:note "avere(aux): takes intrans"
+        :synsem {:infl :present
+                 :subcat {:2 {:essere false
+                              :subcat {:1 :top
+                                       :2 '()}}}}})])
+
 
    "bello"
 
