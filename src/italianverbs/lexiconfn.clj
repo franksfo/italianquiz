@@ -450,13 +450,13 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                a-map)
 
           (and (map? a-map)
-               (not (= :no-italiano (get a-map :italiano))))
-          (merge {:italiano {:italiano a-string}}
+               (not (= :no-italiano (get-in a-map [:italiano] :no-italiano))))
+          (unify {:italiano {:italiano a-string}}
                  common
                  a-map)
 
         true
-        (merge a-map
+        (unify a-map
                {:italiano a-string}
                common))))
 
