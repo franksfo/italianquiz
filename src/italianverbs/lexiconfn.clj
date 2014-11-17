@@ -6,7 +6,8 @@
    [clojure.tools.logging :as log]
    [clojure.core :as core]
    [italianverbs.morphology :as morph]
-   [italianverbs.pos :as pos]
+   [italianverbs.pos :refer :all]
+;   [italianverbs.pos :refer [agreement-noun common-noun determiner intransitive transitive transitive-but-object-cat-not-set modal verb-subjective]]
    [italianverbs.unify :refer :all :exclude (unify)])) ;; exclude unify because we redefine it here using unifyc (copy each arg)
 
 (require '[italianverbs.morphology :refer (fo fo-ps)])
@@ -582,7 +583,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   then set its aux explicitly to false."
   (cond (= (get-in lexical-entry '(:synsem :aux)) true)
         (unifyc lexical-entry
-                pos/verb-aux)
+                verb-aux)
         (and (= (get-in lexical-entry '(:synsem :cat)) :verb)
              (= :none (get-in lexical-entry '(:synsem :aux) :none)))
         (unifyc lexical-entry
@@ -620,7 +621,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
              (not (= true (get-in lexical-entry '(:synsem :aux)))))
         (unifyc
          lexical-entry
-         pos/intransitive)
+         intransitive)
         true
         lexical-entry))
 
@@ -628,7 +629,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   "prevent ratholes like 'Potere ... potere dormire (To be able...to be able to sleep)'"
   (cond (= true (get-in lexical-entry '(:synsem :modal)))
         (unifyc
-         pos/modal lexical-entry
+         modal lexical-entry
          {:synsem {:subcat {:2 {:modal false}}}})
 
         (= :verb (get-in lexical-entry '(:synsem :cat)))
@@ -670,7 +671,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
              (not (nil? (get-in lexical-entry '(:synsem :sem :obj)))))
         (unifyc
          lexical-entry
-         pos/transitive-but-object-cat-not-set)
+         transitive-but-object-cat-not-set)
         true
         lexical-entry))
 
@@ -679,7 +680,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
   (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
         (unifyc
          lexical-entry
-         pos/verb-subjective)
+         verb-subjective)
         true
         lexical-entry))
 
@@ -698,6 +699,222 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                (embed-phon (dissoc lexical-entry ':italiano)))
         true
         lexical-entry))
+
+(defn aux-verb-rule [lexical-entry]
+  "If a word's :synsem :aux is set to true, then auxify it (add all the
+  things that are consequent on its being an aux verb.
+   If, however, it is a verb and its :synsem :aux is not set,
+  then set its aux explicitly to false."
+  (cond (= (get-in lexical-entry '(:synsem :aux)) true)
+        (unifyc lexical-entry
+                verb-aux)
+        (and (= (get-in lexical-entry '(:synsem :cat)) :verb)
+             (= :none (get-in lexical-entry '(:synsem :aux) :none)))
+        (unifyc lexical-entry
+                {:synsem {:aux false}})
+        true
+        lexical-entry))
+
+(defn ditransitive-verb-rule [lexical-entry]
+  (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+             (not (nil? (get-in lexical-entry '(:synsem :sem :iobj)))))
+        (unifyc
+         lexical-entry
+         (let [ref (ref :top)]
+           {:synsem {:subcat {:3 {:sem ref}}
+                     :sem {:iobj ref}}}))
+        true
+        lexical-entry))
+
+(defn intensifier-agreement [lexical-entry]
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :intensifier)
+        (unifyc
+         (let [agr (ref :top)]
+           {:synsem {:agr agr
+                     :subcat {:1 {:agr agr}
+                              :2 {:agr agr}}}})
+         lexical-entry)
+
+         true lexical-entry))
+
+(defn intransitive-verb-rule [lexical-entry]
+  (cond (and (= (get-in lexical-entry '(:synsem :cat))
+                :verb)
+             (and (= :none (get-in lexical-entry '(:synsem :sem :obj) :none))
+                  (= :none (get-in lexical-entry '(:synsem :sem :location) :none)))
+             (not (= true (get-in lexical-entry '(:synsem :aux)))))
+        (unifyc
+         lexical-entry
+         intransitive)
+        true
+        lexical-entry))
+
+(defn modality-rule [lexical-entry]
+  "prevent ratholes like 'Potere ... potere dormire (To be able...to be able to sleep)'"
+  (cond (= true (get-in lexical-entry '(:synsem :modal)))
+        (unifyc
+         modal lexical-entry
+         {:synsem {:subcat {:2 {:modal false}}}})
+
+        (= :verb (get-in lexical-entry '(:synsem :cat)))
+        {:synsem {:modal false}}
+        true
+        lexical-entry))
+
+(defn noun-arguments-must-be-empty-subcat [lexical-entry]
+  "noun-headed arguments of verbs must either be empty subcat (e.g. either a NP such as
+    'the dog' in 'sees the dog' and not 'sees dog'), or a mass noun (e.g. 'milk', which will
+    have an empty subcat."
+  ;; TODO: mass noun part not implemented yet.
+  (cond (and (= :verb (get-in lexical-entry '(:synsem :cat)))
+             (= :noun (get-in lexical-entry '(:synsem :subcat :2 :cat))))
+        (unifyc lexical-entry
+                {:synsem {:subcat {:2 {:subcat '()}}}})
+
+        true
+        lexical-entry))
+
+(defn pronoun-and-propernouns [lexical-entry]
+  (cond (= true (get-in lexical-entry '(:synsem :pronoun)))
+        (unifyc lexical-entry
+                {:synsem {:cat :noun
+                          :propernoun false
+                          :subcat '()}})
+
+        (= true (get-in lexical-entry '(:synsem :propernoun)))
+        (unifyc lexical-entry
+                {:synsem {:cat :noun
+                          :pronoun false
+                          :subcat '()}})
+
+        true
+        lexical-entry))
+
+(defn transitive-verb-rule [lexical-entry]
+  (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+             (not (nil? (get-in lexical-entry '(:synsem :sem :obj)))))
+        (unifyc
+         lexical-entry
+         transitive-but-object-cat-not-set)
+        true
+        lexical-entry))
+
+(defn verb-rule [lexical-entry]
+  "every verb has at least a subject."
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
+        (unifyc
+         lexical-entry
+         verb-subjective)
+        true
+        lexical-entry))
+
+
+(defn commonnoun [lexical-entry]
+  ;; subcat non-empty: pronoun is false
+  (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
+             (= (not (empty? (get-in lexical-entry '(:synsem :subcat)))))
+             (not (= (get-in lexical-entry '(:synsem :pronoun)) true))
+             (not (= (get-in lexical-entry '(:synsem :propernoun)) true)))
+        (unifyc lexical-entry
+                (unifyc agreement-noun
+                        common-noun
+                        {:synsem {:pronoun false
+                                  :subcat {:1 {:cat :det}
+                                           :2 '()}}}))
+        true
+        lexical-entry))
+
+(defn semantic-implicature [lexical-entry]
+  {:synsem {:sem (sem-impl (get-in lexical-entry '(:synsem :sem)))}})
+
+(defn put-a-bird-on-it [lexical-entry]
+  "example lexical entry transformer."
+  (cond (map? lexical-entry)
+        (conj {:bird 42}
+              lexical-entry)
+        true
+        lexical-entry))
+
+(defn category-to-subcat [lexical-entry]
+  (cond (or (= (get-in lexical-entry '(:synsem :cat)) :det)
+            (= (get-in lexical-entry '(:synsem :cat)) :adverb))
+        (unifyc
+         subcat0
+         lexical-entry)
+
+        (and (= (get-in lexical-entry '(:synsem :cat)) :adjective)
+             (not (= (get-in lexical-entry '(:synsem :sem :comparative)) true)))
+        (unifyc
+         subcat1
+         lexical-entry)
+
+        (= (get-in lexical-entry '(:synsem :cat)) :sent-modifier)
+        (unifyc
+         {:synsem {:subcat {:1 {:cat :verb
+                                :subcat '()}
+                            :2 '()}}}
+         lexical-entry)
+
+        true
+        lexical-entry))
+
+(defn determiner-stuff [lexical-entry]
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :det)
+        (unifyc determiner
+                lexical-entry)
+        true
+        lexical-entry))
+
+;; TODO: regenerate :serialized whenever creating a new lexical entry
+(defn make-intransitive-variant [lexical-entry]
+  (cond
+
+   (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+        (exists? lexical-entry [:synsem :subcat :2])
+        (not (empty? (get-in lexical-entry [:synsem :subcat :2]))))
+
+   ;; create an intransitive version of this transitive verb by removing the second arg (:synsem :subcat :2), and replacing with nil.
+   (list
+    ;; MUSTDO: regenerate :serialized.
+
+    (cache-serialization
+     (merge (dissoc-paths lexical-entry (list [:synsem :subcat :2]
+                                              [:serialized]))
+            {:synsem {:subcat {:2 '()}}
+             :canary :tweet43})) ;; if the canary tweets, then the runtime is getting updated correctly.
+
+    lexical-entry) ;; the original transitive lexeme.
+
+   true
+   (list lexical-entry)))
+
+;; rules like make-intransitive-variant multiply a single lexeme into zero or more lexemes: i.e. their function signature is map => seq(map).
+(defn apply-multi-rules [lexeme]
+  (make-intransitive-variant lexeme))
+
+
+;; This set of rules is monotonic and deterministic in the sense that
+;; iterative application of the set of rules will result in the input
+;; lexeme become more and more specific until it reaches a determinate
+;; fixed point, no matter what order we apply the rules. Given enough
+;; iterations, this same fixed point will be reached no matter which
+;; order the rules are applied, as long as all rules are applied at
+;; each iteration. This is guaranteed by using these rules below in
+;; (transform) so that the rules' outputs are reduced using unifyc.
+(def rules (list aux-verb-rule
+                 category-to-subcat
+                 commonnoun
+                 determiner-stuff
+                 ditransitive-verb-rule
+                 intensifier-agreement
+                 intransitive-verb-rule
+                 modality-rule
+                 noun-arguments-must-be-empty-subcat
+                 pronoun-and-propernouns
+                 semantic-implicature
+                 transitive-verb-rule
+                 verb-rule
+))
 
 ;; Modifying rules: so-named because they modify the lexical entry in
 ;; such a way that is non-monotonic and dependent on the order of rule
