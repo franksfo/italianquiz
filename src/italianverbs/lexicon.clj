@@ -124,32 +124,6 @@
         true
         lexical-entry))
 
-(defn embed-phon [lexical-entry]
-  (cond (string? (get-in lexical-entry '(:english)))
-        (merge {:english {:english (get-in lexical-entry '(:english))}}
-               (embed-phon (dissoc lexical-entry ':english)))
-
-        (and (string? (get-in lexical-entry '(:italiano)))
-             (= :verb (get-in lexical-entry '(:synsem :cat))))
-        (merge {:italiano {:infinitive (get-in lexical-entry '(:italiano))}}
-               (embed-phon (dissoc lexical-entry ':italiano)))
-
-        (string? (get-in lexical-entry '(:italiano)))
-        (merge {:italiano {:italiano (get-in lexical-entry '(:italiano))}}
-               (embed-phon (dissoc lexical-entry ':italiano)))
-        true
-        lexical-entry))
-
-;; Modifying rules: so-named because they modify the lexical entry in
-;; such a way that is non-monotonic and dependent on the order of rule
-;; application. Because of these complications, avoid and use
-;; unifying-rules instead, where possible. Only to be used where
-;; (reduce unifyc ..) would not work, as with embed-phon, where
-;; {:italiano <string>} needs to be turned into {:italiano {:italiano <string}},
-;; but unifying the input and output of the rule would be :fail.
-;; These rules are (reduce)d using merge rather than unifyc.
-(def modifying-rules (list embed-phon))
-
 ;; TODO: regenerate :serialized whenever creating a new lexical entry
 (defn make-intransitive-variant [lexical-entry]
   (cond
@@ -176,63 +150,6 @@
 ;; rules like make-intransitive-variant multiply a single lexeme into zero or more lexemes: i.e. their function signature is map => seq(map).
 (defn apply-multi-rules [lexeme]
   (make-intransitive-variant lexeme))
-
-;; TODO: allow transforming rules to emit sequences as well as just the
-;; input value. i.e they should take a map and return either: a map, or a seqence of maps.
-;; This means we have to check the type of the return value 'result' below.
-(defn transform [lexical-entry]
-  "keep transforming lexical entries until there's no changes. No changes is
-   defined as: (isomorphic? input output) => true, where output is one iteration's
-   applications of all of the rules."
-  (cond (= lexical-entry :fail) :fail
-        (fail? lexical-entry)
-        (do (log/warn (str "lexical-entry " lexical-entry " was fail before applying any rules; fail path was: " (fail-path lexical-entry)))
-            :fail)
-
-        true
-        (do
-          (log/debug (str "Transforming: " (fo lexical-entry)))
-          (log/debug (str "transform: input :" lexical-entry))
-          (log/debug (str "transforming lexical entry: " lexical-entry))
-          (let [result (reduce #(if (or (fail? %1) (fail? %2))
-                                  (do
-                                    (if (fail? %2) (log/warn (str "fail at %2." %2)))
-                                    :fail)
-                                  (unifyc %1 %2))
-                               (map
-                                (fn [rule]
-                                      ;; check for return value of (apply rule (list lexical-entry)):
-                                      ;; if not list, make it a list.
-                                      (let [result (apply rule (list lexical-entry))]
-                                        (if (and (not (fail? lexical-entry)) (fail? result))
-                                          (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
-                                                             " to fail; fail path was: " (fail-path result)))
-                                              :fail)
-                                          result)))
-                                rules))
-                result (if (not (fail? result))
-                         (reduce merge  (map (fn [rule]
-                                               (let [result (apply rule (list result))]
-                                                 (if (fail? result)
-                                                   (do (log/error (str "merge-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
-                                                                       " to fail; fail path was: " (fail-path result)))
-                                                       :fail)
-                                                   result)))
-                                             modifying-rules))
-                         (do
-                           :fail))]
-            (if (fail? result) 
-              (do
-                (log/error (str "lexical entry cannot be added: " lexical-entry))
-                :fail)
-              (if (isomorphic? result lexical-entry)
-                ;; done: one final step is to add serialization to the entry.
-                (cache-serialization
-                 (merge {:phrasal false}
-                        result))
-
-                ;; not done yet: continue.
-                (transform result)))))))
 
 (def lexicon
 
