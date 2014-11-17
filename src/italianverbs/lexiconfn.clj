@@ -493,6 +493,14 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                                (merge lexeme (apply merge-fn (list lexeme)))}))))
                                   lexemes)))
                       [
+                       ;; 1. past-tense exceptions
+                       {:path [:italiano :passato]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :past
+                                      :italiano (get-in val [:italiano :passato] :nothing)}})}
+
+                       ;; 2. present-tense exceptions
                        {:path [:italiano :present :1sing]
                         :merge-fn
                         (fn [val]
