@@ -38,7 +38,8 @@
   (cond 
 
    (:italiano input)
-   (string/trim (italiano/get-string (:italiano input)))
+   ;; get-string should always return a string, but sometimes it (incorrectly) does not (FIXME)
+   (string/trim (str (italiano/get-string (:italiano input))))
 
    (and (seq? input)
         (< (.size input) 2))
