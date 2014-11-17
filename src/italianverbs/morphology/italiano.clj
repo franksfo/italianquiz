@@ -283,11 +283,12 @@
      (get-in word '(:masc :plur))
 
      (and
-      (or (= (get-in word '(:agr :gender)) :masc)
-          (= (get-in word '(:agr :gender)) :top))
-      (= (get-in word '(:agr :number)) :plur)
-      (= (get-in word '(:cat)) :adjective))
-     (string/replace (get-in word '(:italiano))
+      (string? (get-in word [:italiano]))
+      (or (= (get-in word [:agr :gender]) :masc)
+          (= (get-in word [:agr :gender]) :top))
+      (= (get-in word [:agr :number]) :plur)
+      (= (get-in word [:cat]) :adjective))
+     (string/replace (get-in word '[:italiano])
                      #"[eo]$" "i") ;; nero => neri
 
      (and
@@ -306,6 +307,7 @@
 
      ;; regular masculine nouns
      (and
+      (string? (get-in word [:italiano]))
       (= (get-in word '(:agr :gender)) :masc)
       (= (get-in word '(:agr :number)) :plur)
       (= :noun (get-in word '(:cat) :noun))
@@ -315,6 +317,7 @@
 
      ;; regular feminine nouns
      (and
+      (string? (get-in word [:italiano]))
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:cat) :noun))
@@ -326,6 +329,7 @@
      ;; this was moved up here to avoid
      ;; another rule from matching it.
      (and
+      (string? (get-in word [:italiano]))
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :plur)
       (= (get-in word '(:cat)) :adjective))
@@ -333,6 +337,7 @@
                      #"[eo]$" "e") ;; nero => nere
 
      (and
+      (string? (get-in word [:italiano]))
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :sing)
       (= (get-in word '(:cat)) :adjective))
