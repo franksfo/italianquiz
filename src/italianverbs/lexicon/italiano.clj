@@ -459,6 +459,17 @@
              :sem (unify human {:pred :lei})
              :subcat '()}}
 
+   "leggere"
+   (unify
+    transitive
+    {:italiano {:passato "letto"}
+     :synsem {:essere false
+              :sem {:pred :leggere
+                    :discrete false
+                    :subj {:human true}
+                    :obj {:legible true}}}})
+
+
    "libro"
    (unify agreement-noun
           common-noun
