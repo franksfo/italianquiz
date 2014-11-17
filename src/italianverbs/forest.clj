@@ -43,7 +43,6 @@
         spec))
 
 (defn generate [spec grammar lexicon & [cache]]
-  ;; remove all 'false' key/value pairs: they are usually uninteresting.
   ;; doesn't work yet..
   (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
   (log/debug (str "generate: " (show-spec spec)))
