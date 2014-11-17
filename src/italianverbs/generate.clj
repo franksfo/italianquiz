@@ -40,7 +40,7 @@
   (log/debug (str "generate with lexicon size: " 
                   (.size the-lexicon) " and grammar size: "
                   (.size grammar) "."))
-  (first (take 1 (forest/generate spec grammar lexicon cache))))
+  (first (take 1 (forest/generate spec grammar the-lexicon cache))))
 
 (defn generate-all [ spec grammar the-lexicon cache ]
   (log/debug (str "generate with lexicon size: "
