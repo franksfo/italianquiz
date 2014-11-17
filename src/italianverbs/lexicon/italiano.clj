@@ -7,8 +7,7 @@
 (require '[italianverbs.lexiconfn :refer (comparative exception-generator listify 
                                                       non-comparative-adjective subcat0
                                                       map-function-on-map-vals phonize 
-                                                      pronoun-acc
-                                                      pronoun-noun unify)])
+                                                      pronoun-acc pronoun-noun transform unify)])
 (require '[italianverbs.lexicon :refer (transform)])
 (require '[italianverbs.pos :refer :all])
 (require '[italianverbs.unify :refer :all :exclude [unify]])

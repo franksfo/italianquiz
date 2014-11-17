@@ -19,9 +19,11 @@
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
-;(deftest generate-test
-;  (let [generated (first (take 1 (generate
-;                                  {:synsem {:cat :verb :subcat '() :aux false :sem {:subj {:animate true}}}}
-;                                  it/grammar lexicon it/cache)))]
-;    (is (not (fail? generated)))
-;    (is (not (nil? generated)))))
+(deftest generate-test
+  (let [generated (first (take 1 (generate
+                                  {:synsem {:aux false 
+                                            :cat :verb :subcat '() 
+                                            :sem {:subj {:animate true}}}}
+                                  it/grammar lexicon it/cache)))]
+    (is (not (fail? generated)))
+    (is (not (nil? generated)))))

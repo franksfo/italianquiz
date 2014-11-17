@@ -6,7 +6,10 @@
    [clojure.tools.logging :as log]
    [clojure.core :as core]
    [italianverbs.morphology :as morph]
+   [italianverbs.pos :as pos]
    [italianverbs.unify :refer :all :exclude (unify)])) ;; exclude unify because we redefine it here using unifyc (copy each arg)
+
+(require '[italianverbs.morphology :refer (fo fo-ps)])
 
 (defn unify [ & args]
   "like unify/unify, but unify/copy each argument before unifying."
@@ -570,3 +573,113 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                   val)
           (check-one key val)))
      (keys lexicon))))
+
+
+(defn aux-verb-rule [lexical-entry]
+  "If a word's :synsem :aux is set to true, then auxify it (add all the
+  things that are consequent on its being an aux verb.
+   If, however, it is a verb and its :synsem :aux is not set,
+  then set its aux explicitly to false."
+  (cond (= (get-in lexical-entry '(:synsem :aux)) true)
+        (unifyc lexical-entry
+                pos/verb-aux)
+        (and (= (get-in lexical-entry '(:synsem :cat)) :verb)
+             (= :none (get-in lexical-entry '(:synsem :aux) :none)))
+        (unifyc lexical-entry
+                {:synsem {:aux false}})
+        true
+        lexical-entry))
+
+(defn ditransitive-verb-rule [lexical-entry]
+  (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+             (not (nil? (get-in lexical-entry '(:synsem :sem :iobj)))))
+        (unifyc
+         lexical-entry
+         (let [ref (ref :top)]
+           {:synsem {:subcat {:3 {:sem ref}}
+                     :sem {:iobj ref}}}))
+        true
+        lexical-entry))
+
+(defn intensifier-agreement [lexical-entry]
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :intensifier)
+        (unifyc
+         (let [agr (ref :top)]
+           {:synsem {:agr agr
+                     :subcat {:1 {:agr agr}
+                              :2 {:agr agr}}}})
+         lexical-entry)
+
+         true lexical-entry))
+
+(defn intransitive-verb-rule [lexical-entry]
+  (cond (and (= (get-in lexical-entry '(:synsem :cat))
+                :verb)
+             (and (= :none (get-in lexical-entry '(:synsem :sem :obj) :none))
+                  (= :none (get-in lexical-entry '(:synsem :sem :location) :none)))
+             (not (= true (get-in lexical-entry '(:synsem :aux)))))
+        (unifyc
+         lexical-entry
+         pos/intransitive)
+        true
+        lexical-entry))
+
+(defn modality-rule [lexical-entry]
+  "prevent ratholes like 'Potere ... potere dormire (To be able...to be able to sleep)'"
+  (cond (= true (get-in lexical-entry '(:synsem :modal)))
+        (unifyc
+         pos/modal lexical-entry
+         {:synsem {:subcat {:2 {:modal false}}}})
+
+        (= :verb (get-in lexical-entry '(:synsem :cat)))
+        {:synsem {:modal false}}
+        true
+        lexical-entry))
+
+(defn noun-arguments-must-be-empty-subcat [lexical-entry]
+  "noun-headed arguments of verbs must either be empty subcat (e.g. either a NP such as 
+    'the dog' in 'sees the dog' and not 'sees dog'), or a mass noun (e.g. 'milk', which will
+    have an empty subcat."
+  ;; TODO: mass noun part not implemented yet.
+  (cond (and (= :verb (get-in lexical-entry '(:synsem :cat)))
+             (= :noun (get-in lexical-entry '(:synsem :subcat :2 :cat))))
+        (unifyc lexical-entry
+                {:synsem {:subcat {:2 {:subcat '()}}}})
+
+        true
+        lexical-entry))
+
+(defn pronoun-and-propernouns [lexical-entry]
+  (cond (= true (get-in lexical-entry '(:synsem :pronoun)))
+        (unifyc lexical-entry
+                {:synsem {:cat :noun
+                          :propernoun false
+                          :subcat '()}})
+
+        (= true (get-in lexical-entry '(:synsem :propernoun)))
+        (unifyc lexical-entry
+                {:synsem {:cat :noun
+                          :pronoun false
+                          :subcat '()}})
+
+        true
+        lexical-entry))
+
+(defn transitive-verb-rule [lexical-entry]
+  (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
+             (not (nil? (get-in lexical-entry '(:synsem :sem :obj)))))
+        (unifyc
+         lexical-entry
+         pos/transitive-but-object-cat-not-set)
+        true
+        lexical-entry))
+
+(defn verb-rule [lexical-entry]
+  "every verb has at least a subject."
+  (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
+        (unifyc
+         lexical-entry
+         pos/verb-subjective)
+        true
+        lexical-entry))
+
