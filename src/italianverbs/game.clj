@@ -170,6 +170,13 @@
                         [:h3 "output "]
                         [:div#output ]]))}))
 
+(defn working []
+  (gen/generate {:synsem {:subcat '()
+                          :sem {:pred :dormire}}}
+                mini-italian-grammar
+                lex/lexicon
+                it-index))
+
 (defn generate-answers [request]
   "generate a single sentence according to the semantics of the request."
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
