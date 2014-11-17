@@ -171,8 +171,8 @@
                         [:div#output ]]))}))
 
 (defn working []
-  (gen/generate {:synsem {:subcat '()
-                          :sem {:pred :dormire}}}
+  (gen/generate {:synsem {:subcat '()}}
+;                          :sem {:pred :dormire}}}
                 mini-italian-grammar
                 lex/lexicon
                 it-index))
