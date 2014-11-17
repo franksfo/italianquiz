@@ -460,15 +460,19 @@
              :subcat '()}}
 
    "leggere"
-   (unify
-    transitive
-    {:italiano {:passato "letto"}
-     :synsem {:essere false
-              :sem {:pred :leggere
-                    :discrete false
-                    :subj {:human true}
-                    :obj {:legible true}}}})
+   (let [common {:synsem {:essere false
+                          :sem {:pred :leggere
+                                :discrete false
+                                :subj {:human true}}}}]
+     (unify
+      common
+      transitive
+      {:italiano {:passato "letto"}
+       :synsem {:obj {:legible true}}})
 
+     (unify
+      common
+      intransitive))
 
    "libro"
    (unify agreement-noun
@@ -548,8 +552,7 @@
 
       (unify
        common
-       intransitive
-       {:synsem {:sem {:subj {:animate true}}}})])
+       intransitive)])
 
    ;; non-comparative
    ;; TODO: add comparative
