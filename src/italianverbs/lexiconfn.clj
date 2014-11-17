@@ -1,5 +1,5 @@
 (ns italianverbs.lexiconfn
-  (:refer-clojure :exclude [get-in merge resolve find])
+  (:refer-clojure :exclude [compile get-in merge resolve find])
   (:use [clojure.set])
   (:require
    [clojure.set :as set]
@@ -7,7 +7,6 @@
    [clojure.core :as core]
    [italianverbs.morphology :as morph]
    [italianverbs.pos :refer :all]
-;   [italianverbs.pos :refer [agreement-noun common-noun determiner intransitive transitive transitive-but-object-cat-not-set modal verb-subjective]]
    [italianverbs.unify :refer :all :exclude (unify)])) ;; exclude unify because we redefine it here using unifyc (copy each arg)
 
 (require '[italianverbs.morphology :refer (fo fo-ps)])
@@ -279,14 +278,10 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (def comp-sem (ref {:activity false
                     :discrete false}))
 
-(def pronoun-acc (ref :acc))
-(def pronoun-noun (ref :noun))
 (def disjunctive-case-of-pronoun (ref :disj))
 (def cat-of-pronoun (ref :noun))
 
 (def subcat0 {:synsem {:subcat '()}})
-(def subcat1 {:synsem {:subcat {:1 {:cat :top}
-                                :2 '()}}})
 
 (def sentential-adverb
   (let [sentential-sem (ref :top)]
@@ -417,19 +412,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                    :3plur "vengono"}}}
    :english {:infinitive "to come"
              :irregular {:past "came"}}})
-
-;; "Y is Xer than Z".
-(def comparative
-  {:synsem {:sem {:comparative true}
-            :cat :adjective
-            :subcat {:1 {:cat :noun}
-                     :2 {:cat :prep
-                         :subcat '()}}}})
-
-;; "Y is X."
-;; TODO: put semantics here.
-(def non-comparative-adjective
-  subcat1)
 
 (defn listify [m]
   (into {}
@@ -982,3 +964,36 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
                 ;; not done yet: continue.
                 (transform result)))))))
+
+(defn transform-each-lexical-val [italian-lexical-string lexical-val]
+  (let [lexical-val
+        (phonize lexical-val italian-lexical-string)]
+    (cond
+     (map? lexical-val)
+     (transform lexical-val)
+     true
+     (map (fn [each]
+            (transform each))
+          lexical-val))))
+
+(defn compile [lexicon-source]
+  (let [;; take source lexicon (declared above) and compile it.
+        ;; 1. canonicalize all lexical entries
+        ;; (i.e. vectorize the values of the map).
+        lexicon-stage-1 (listify lexicon-source)
+        ;; 2. apply grammatical-category and semantic rules to each element in the lexicon
+        lexicon-stage-2 (map-function-on-map-vals 
+                         lexicon-stage-1
+                         transform-each-lexical-val)
+
+        ;; 3. generate exceptions
+        ;; problem: merge is overwriting values: use a collator that accumulates values.
+        exceptions (listify (reduce #(merge-with concat %1 %2)
+                                    (map #(listify %)
+                                         (exception-generator lexicon-stage-2))))
+
+        ;; 4. generate final form of lexicon by adding the
+        ;; base lexicon to the exceptions generated from it.
+        lexicon
+        (merge-with concat lexicon-stage-2 exceptions)]
+    lexicon))

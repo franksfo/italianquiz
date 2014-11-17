@@ -1,16 +1,8 @@
 (ns italianverbs.lexicon.italiano
-  (:refer-clojure :exclude [get-in merge resolve]))
+  (:refer-clojure :exclude [compile]))
 
-(require '[clojure.set :refer (union)])
-(require '[clojure.tools.logging :as log])
-
-(require '[italianverbs.lexiconfn :refer (comparative exception-generator listify 
-                                                      non-comparative-adjective subcat0
-                                                      map-function-on-map-vals phonize 
-                                                      pronoun-acc pronoun-noun transform unify)])
+(require '[italianverbs.lexiconfn :refer (compile unify)])
 (require '[italianverbs.pos :refer :all])
-(require '[italianverbs.unify :refer :all :exclude [unify]])
-(require '[italianverbs.unify :as unify])
 
 (def lexicon-source
   {
@@ -302,8 +294,7 @@
                                :1plur "beviamo"
                                :2plur "bevete"
                                :3plur "bevano"}}}]
-     [
-      (unify
+     [(unify
        bere-common
        (:transitive verb)
        {:synsem {:essere false
@@ -601,39 +592,7 @@
 
 })
 
-;; TODO: move this to lexiconfn. however (transform) is in lexicon (not lexiconfn), so
-;; it might be better to consolidate lexiconfn and lexicon into a single namespace.
-(defn transform-each-lexical-val [italian-lexical-string lexical-val]
-  (let [lexical-val
-        (phonize lexical-val italian-lexical-string)]
-    (cond
-     (map? lexical-val)
-     (transform lexical-val)
-     true
-     (map (fn [each]
-            (transform each))
-          lexical-val))))
-
-;; take source lexicon (declared above) and compile it.
-;; 1. canonicalize all lexical entries
-;; (i.e. vectorize the values of the map).
-
-(def lexicon-stage-1
-  (listify lexicon-source))
-
-;; 2. apply grammatical-category and semantic rules to each element in the lexicon
-(def lexicon-stage-2
-  (map-function-on-map-vals 
-   lexicon-stage-1
-   transform-each-lexical-val))
-
-;; 3. generate exceptions
-;; problem: merge is overwriting values: use a collator that accumulates values.
-(def exceptions (listify (reduce #(merge-with concat %1 %2)
-                                 (map #(listify %)
-                                      (exception-generator lexicon-stage-2)))))
-
-;; 4. generate final form of lexicon by adding the
-;; base lexicon to the exceptions generated from it.
 (def lexicon
-  (merge-with concat lexicon-stage-2 exceptions))
+  (compile lexicon-source))
+
+

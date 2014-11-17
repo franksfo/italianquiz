@@ -208,9 +208,21 @@
                            :sem sem
                            :infl :past}}}}))
 
+;; "Y is Xer than Z".
+(def comparative
+  {:synsem {:sem {:comparative true}
+            :cat :adjective
+            :subcat {:1 {:cat :noun}
+                     :2 {:cat :prep
+                         :subcat '()}}}})
 
+(def pronoun-noun (ref :noun))
+(def pronoun-acc (ref :acc))
 
+(def subcat1 {:synsem {:subcat {:1 {:cat :top}
+                                :2 '()}}})
 
-
-
-
+;; "Y is X."
+;; TODO: put semantics here.
+(def non-comparative-adjective
+  subcat1)
