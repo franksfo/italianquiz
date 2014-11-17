@@ -1451,9 +1451,16 @@
    })
 
 (def past-to-infinitive
-  {
+  {#"ato$"
+   {:replace-with "are"
+    :unify-with {:italiano {:infl :past}}}
+
    #"ito$"
    {:replace-with "ire"
+    :unify-with {:italiano {:infl :past}}}
+
+   #"uto$"
+   {:replace-with "ere"
     :unify-with {:italiano {:infl :past}}}})
 
 (defn analyze [surface-form lookup-fn]
@@ -1461,13 +1468,12 @@
   (let [replace-pairs
         (merge 
          future-to-infinitive
+         imperfect-to-infinitive-irreg1
+         past-to-infinitive
          present-to-infinitive-ire
          present-to-infinitive-ere
          present-to-infinitive-are
 
-         past-to-infinitive
-
-         imperfect-to-infinitive-irreg1
          )
         
         analyzed
@@ -1486,10 +1492,3 @@
      ;; also lookup the surface form itself, which
      ;; might be either the canonical form of a word, or an irregular conjugation of a word.
      (lookup-fn surface-form))))
-
-
-
-
-
-
-
