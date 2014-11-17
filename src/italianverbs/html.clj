@@ -455,7 +455,15 @@
                      (and (fs/ref? (second %))
                           (= @(second %) :top))
                      (= (second %) false)
+                     (= (second %) :top)
+
+                     (and (fs/ref? (second %))
+                          (= @(second %) true))
+                     (and (fs/ref? (second %))
+                          (= @(second %) :top))
+                     (= (second %) true)
                      (= (second %) :top))
+
                 (into (sorted-map) arg))
         ))
       "  </table>"
