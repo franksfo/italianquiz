@@ -11,7 +11,7 @@
                              :sem {:activity true
                                    :tense :past}
                              :subcat '()}}}
-       :italian "qualche volta"
+       :italiano "qualche volta"
        :english "sometimes"}
 
       {:synsem {:cat :sent-modifier
@@ -20,7 +20,7 @@
                              :sem {:activity true
                                    :tense :present}
                              :subcat '()}}}
-       :italian "qualche volta"
+       :italiano "qualche volta"
        :english "sometimes"}
 
       {:synsem {:cat :noun
@@ -34,7 +34,7 @@
                       :pred :qualcuno}
                 :subcat '()}
        :english "something"
-       :italian "qualcosa"}
+       :italiano "qualcosa"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -44,16 +44,16 @@
                 :sem (unify human {:pred :qualcuno})
                 :subcat '()}
        :english "someone"
-       :italian "qualcuno"}
+       :italiano "qualcuno"}
 
       {:synsem {:cat :det
                 :def :partitivo
                 :mass false
                 :number :sing}
-       :italian "qualche"
+       :italiano "qualche"
        :english "some"}
 
-;      {:italian "quando"
+;      {:italiano "quando"
 ;       :english "when"
 ;       :synsem {:cat :temporal-glue
 ;                :sem {:pred :quando}
@@ -72,56 +72,56 @@
                 :def :demonstrativo
                 :gender :fem
                 :number :sing}
-       :italian "quella"
+       :italiano "quella"
        :english "that"}
 
       {:synsem {:cat :det
                 :def :demonstrativo
                 :gender :fem
                 :number :plur}
-       :italian "quelle"
+       :italiano "quelle"
        :english "those"}
 
       {:synsem {:cat :det
                 :def :demonstrativo
                 :gender :masc
                 :number :plur}
-       :italian "quelli"
+       :italiano "quelli"
        :english "those"}
 
       {:synsem {:cat :det
                 :def :demonstrativo
                 :gender :masc
                 :number :sing}
-       :italian "quello"
+       :italiano "quello"
        :english "that"}
 
       {:synsem {:cat :det
                 :def :demonstrativo
                 :gender :fem
                 :number :sing}
-       :italian "questa"
+       :italiano "questa"
        :english "this"}
 
       {:synsem {:cat :det
                 :def :demonstrativo
                 :gender :fem
                 :number :plur}
-       :italian "queste"
+       :italiano "queste"
        :english "these"}
 
       {:synsem {:cat :det
                 :def :demonstrativo
                 :gender :masc
                 :number :plur}
-       :italian "questi"
+       :italiano "questi"
        :english "these"}
 
       {:synsem {:cat :det
                 :def :demonstrativo
                 :gender :masc
                 :number :sing}
-       :italian "questo"
+       :italiano "questo"
        :english "this"}
 
       ;; non-comparative
@@ -129,7 +129,7 @@
              {:synsem {:sem {:pred :ricco
                              :comparative false
                              :human true}} ;; TODO between with comparative/non-comparative rather than duplicating.
-              :italian {:italian "ricco"}
+              :italiano {:italiano "ricco"}
               :english {:english "rich"}})
 
       ;; comparative:
@@ -146,11 +146,11 @@
                                       :sem subject-sem}
                                   :2 {:cat :prep
                                       :sem complement-sem}}}
-                :italian {:italian "ricco"}
+                :italiano {:italiano "ricco"}
                 :english {:english "rich"}}))
 
       (unify
-       {:italian {:infinitive "ridere"
+       {:italiano {:infinitive "ridere"
                   :irregular {:passato "riso"}}
         :english {:infinitive "to laugh"
                   :irregular {:past "laughed"}}
@@ -161,7 +161,7 @@
                        :discrete true
                        }}})
 
-      {:italian {:infinitive "rimanere"
+      {:italiano {:infinitive "rimanere"
                  :present {:1sing "rimango"
                            :3plur "rimangono"}
                  :passato-stem "rimast"
@@ -182,7 +182,7 @@
                        :agr {:number :sing
                              :person :3rd
                              :gender :masc}}
-              :italian {:italian "Roma"}
+              :italiano {:italiano "Roma"}
               :english {:english "Rome"}})
 
       (unify adjective
@@ -191,7 +191,7 @@
                              :comparative false
                              :physical-object true
                              :human false}}
-              :italian {:italian "rosso"}
+              :italiano {:italiano "rosso"}
               :english {:english "red"}})
 
       ;; non-comparative
@@ -201,7 +201,7 @@
                              :pred :robusto
                              :comparative false
                              :activity false}}
-              :italian {:italian "robusto"
+              :italiano {:italiano "robusto"
                         :cat :adjective}
               :english {:english "large-built"
                         :cat :adjective}})
@@ -211,7 +211,7 @@
                        :sem {:pred :rumorosa
                              :animate true
                              :comparative false}}
-              :italian {:italian "rumoroso"
+              :italiano {:italiano "rumoroso"
                         :cat :adjective}
               :english {:english "noisy"
                         :cat :adjective}})
@@ -230,7 +230,7 @@
                                       :sem subject-sem}
                                   :2 {:cat :prep
                                       :sem complement-sem}}}
-                :italian {:italian "rumoroso"}
+                :italiano {:italiano "rumoroso"}
                 :english {:english "noisy"}}))
 
       (unify agreement-noun
@@ -240,7 +240,7 @@
              {:synsem {:sem human}}
              {:synsem {:sem {:pred :ragazzo
                              :child false}}
-              :italian {:italian "ragazzo"}
+              :italiano {:italiano "ragazzo"}
               :english {:english "guy"}})
 
 ;      (unify agreement-noun
@@ -250,7 +250,7 @@
 ;             {:synsem {:sem human}}
 ;             {:synsem {:sem {:pred :ragazzino
 ;                             :child true}}
-;              :italian {:italian "ragazzino"}
+;              :italiano {:italiano "ragazzino"}
 ;              :english {:english "little boy"}})
 
 ;      (unify agreement-noun
@@ -260,7 +260,7 @@
 ;             {:synsem {:sem human}}
 ;             {:synsem {:sem {:pred :ragazzina
 ;                             :child true}}
-;              :italian {:italian "ragazzina"}
+;              :italiano {:italiano "ragazzina"}
 ;              :english {:english "little girl"}})
 
       (unify agreement-noun
@@ -270,12 +270,12 @@
             {:synsem {:sem human}}
             {:synsem {:sem {:pred :ragazza
                             :child false}}
-             :italian {:italian "ragazza"}
+             :italiano {:italiano "ragazza"}
              :english {:english "girl"}})
 
       (unify
        transitive
-       {:italian {:infinitive "ricordare"}
+       {:italiano {:infinitive "ricordare"}
         :english {:infinitive "to remember"
                   :irregular {:past-participle "remembered"}}
         :synsem {:essere false
@@ -285,7 +285,7 @@
 
       (unify
        transitive
-       {:italian {:infinitive "ricordare"}
+       {:italiano {:infinitive "ricordare"}
         :english {:infinitive "to remember"
                   :irregular {:past-participle "remembered"}}
         :synsem {:essere false
@@ -295,7 +295,7 @@
 
       (unify
        transitive
-       {:italian {:infinitive "scrivere"
+       {:italiano {:infinitive "scrivere"
                   :passato-stem "scritt"}
         :english {:infinitive "to write"
                   :irregular {:past "wrote"}}
@@ -307,7 +307,7 @@
 
       (unify
        transitive
-       {:italian {:infinitive "seguire"}
+       {:italiano {:infinitive "seguire"}
         :english {:infinitive "to follow"}
         :synsem {:essere false
                  :sem {:pred :seguire
@@ -329,7 +329,7 @@
                                       :sem subject-sem}
                                   :2 {:cat :prep
                                       :sem complement-sem}}}
-                :italian {:italian "semplice"}
+                :italiano {:italiano "semplice"}
                 :english {:english "naive"}}))
 
       ;; non-comparative:
@@ -338,7 +338,7 @@
                        :sem {:pred :semplice
                              :comparative false
                              :human true}}
-              :italian {:italian "semplice"
+              :italiano {:italiano "semplice"
                         :cat :adjective}
               :english {:english "naive"
                         :cat :adjective}})
@@ -353,12 +353,12 @@
                              :artifact false
                              :city false
                              :place true}}
-              :italian {:italian "spiaggia"}
+              :italiano {:italiano "spiaggia"}
               :english {:english "beach"}})
 
       ;; stamattina (this morning) could be either
       ;; past or present.
-      (unify {:italian "stamattina"
+      (unify {:italiano "stamattina"
               :synsem {:cat :sent-modifier
                        :sem {:pred :stamattina}
                        :subcat {:1 {:subcat '()
@@ -367,7 +367,7 @@
                                           :activity true}}}}
               :english "this morning"})
 
-      (unify {:italian "stamattina"
+      (unify {:italiano "stamattina"
               :synsem {:cat :sent-modifier
                        :sem {:pred :stamattina}
                        :subcat {:1 {:subcat '()
@@ -375,7 +375,7 @@
                                           :activity true}}}}
               :english "this morning"})
 
-      {:italian {:infinitive "stare"
+      {:italiano {:infinitive "stare"
                  :futuro-stem "star"
                  :irregular {:present {:2sing "stai"
                                        :3plur "stanno"}}}
@@ -392,7 +392,7 @@
                                          :plur "were hanging out"}
                              :past "hung out"
                              :present {:3sing "hangs out"}}}
-       :italian "stendere"
+       :italiano "stendere"
        :synsem {:aux false
                 :cat :verb
                 :essere false
@@ -411,7 +411,7 @@
                              :artifact true
                              :city false
                              :place true}}
-              :italian {:italian "strada"}
+              :italiano {:italiano "strada"}
               :english {:english "street"}})
 
       ;; stradale
@@ -424,7 +424,7 @@
                              :artifact true
                              :city false
                              :place true}}
-              :italian {:italian "stradale"}
+              :italiano {:italiano "stradale"}
               :english {:english "road"}})
 
 
@@ -437,7 +437,7 @@
                              :legible false
                              :speakable false
                              :pred :scala}}
-              :italian {:italian "scala"}
+              :italiano {:italiano "scala"}
               :english {:english "ladder"}})
 
       (unify agreement-noun
@@ -456,7 +456,7 @@
                              :animate false;; should not need this: material=false.
                              :speakable false;; should not need this: material=false.
                              }}}
-             {:italian {:italian "sciopero"}
+             {:italiano {:italiano "sciopero"}
               :english {:english "strike"}})
 
       (unify agreement-noun
@@ -465,12 +465,12 @@
              countable-noun
              {:synsem {:sem {:furniture true
                              :pred :sedia}}
-              :italian {:italian "sedia"}
+              :italiano {:italiano "sedia"}
               :english {:english "chair"}})
 
       (unify
        (:transitive verb)
-       {:italian {:infinitive "sostenere"
+       {:italiano {:infinitive "sostenere"
                   :irregular {:passato "sostenuto"
                               :futuro-stem "sosterr"
                               :present {:1sing "sostengo"
@@ -490,7 +490,7 @@
                                    :political true}}}}})
 
       (unify
-       {:italian {:infinitive "sognare"}
+       {:italiano {:infinitive "sognare"}
         :english {:infinitive "to dream"
                   :irregular {:past "dreamt"}}
         :synsem {:cat :verb
@@ -506,7 +506,7 @@
              {:synsem {:agr {:number :plur}
                        :sem {:human true
                              :pred :suoceri}}
-              :italian {:italian "suoceri"}
+              :italiano {:italiano "suoceri"}
               :english {:english "parent-in-law" ;; note that this form is never used
                         ;; because the agreement is fixed as plural, so only the
                         ;; following irregular plural form will be used.
@@ -523,7 +523,7 @@
                              :legible true
                              :speakable true
                              :pred :stravaganza}}
-              :italian {:italian "stravaganza"}
+              :italiano {:italiano "stravaganza"}
               :english {:english "extravagant thing"}})
 
       (unify agreement-noun
@@ -533,7 +533,7 @@
              {:synsem {:sem human}}
              {:synsem {:sem {:pred :studente
                              :child false}}} ;; could be true, but not always. TODO: create separate sense for child=true.
-             {:italian {:italian "studente"}
+             {:italiano {:italiano "studente"}
               :english {:english "student"}})
 
       (unify agreement-noun
@@ -542,7 +542,7 @@
              countable-noun
              {:synsem {:sem {:furniture true
                              :pred :tavolo}}
-              :italian {:italian "tavolo"}
+              :italiano {:italiano "tavolo"}
               :english {:english "table"}})
 
       {:synsem {:cat cat-of-pronoun
@@ -554,7 +554,7 @@
                 :sem (unify human {:pred :tu})
                 :subcat '()}
        :english "you"
-       :italian {:italian "te"
+       :italiano {:italiano "te"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
 
@@ -566,7 +566,7 @@
                 :sem (unify human {:pred :tu})
                 :subcat '()}
        :english "you"
-       :italian {:italian "ti"
+       :italiano {:italiano "ti"
                  :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
@@ -577,7 +577,7 @@
              countable-noun
              {:synsem {:sem {:furniture true
                              :pred :tovaglia}}
-              :italian {:italian "tovaglia"}
+              :italiano {:italiano "tovaglia"}
               :english {:english "tablecloth"
                         ;; regular morphology would give us "tableclothes", so:
                         :irregular {:plur "tablecloths"}}})
@@ -586,7 +586,7 @@
                                         ;(def telefonare
                                         ;  (unify
                                         ;   transitive
-                                        ;   {:italian {:italian "telefonare"}
+                                        ;   {:italiano {:italiano "telefonare"}
                                         ;    :english {:english "to call"}
                                         ;    :synsem {:essere false
                                         ;             :sem {:pred :telefonare
@@ -600,7 +600,7 @@
                 :subcat {:1 {:subcat '()
                              :sem {:tense :past
                                    :activity true}}}}
-       :italian "tre giorni fa"
+       :italiano "tre giorni fa"
        :english "three days ago"}
 
       {:synsem {:cat :noun
@@ -613,7 +613,7 @@
                 :subcat '()}
        :english {:english "you"
                  :note " (&#x2640;)"} ;; unicode female symbol
-       :italian "tu"}
+       :italiano "tu"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -625,14 +625,14 @@
                 :subcat '()}
        :english {:english "you"
                  :note " (&#x2642;)"} ;; unicode male symbol
-       :italian "tu"}
+       :italiano "tu"}
 
       {:synsem {:cat :det
                 :def :indef
                 :mass false
                 :gender :masc
                 :number :sing}
-       :italian "un"
+       :italiano "un"
        :english "a"}
 
       {:synsem {:cat :det
@@ -640,7 +640,7 @@
                 :mass false
                 :gender :fem
                 :number :sing}
-       :italian "una"
+       :italiano "una"
        :english "a"}
 
       (unify agreement-noun
@@ -650,14 +650,14 @@
              {:synsem {:sem human}}
              {:synsem {:sem {:pred :uomo
                              :child false}}
-              :italian {:irregular {:plur "uomini"}
-                        :italian "uomo"}
+              :italiano {:irregular {:plur "uomini"}
+                        :italiano "uomo"}
               :english {:irregular {:plur "men"}
                         :english "man"}})
 
       (unify
        transitive
-       {:italian {:infinitive "vedere"
+       {:italiano {:infinitive "vedere"
                   :irregular {:passato "visto"}}
         :english {:infinitive "to see"
                   :irregular {:past "saw"
@@ -672,7 +672,7 @@
 
     (unify
      transitive
-     {:italian {:infinitive "vendere"}
+     {:italiano {:infinitive "vendere"}
       :english {:infinitive "to sell"
                 :irregular {:past "sold"}}
       :synsem {:essere false
@@ -714,13 +714,13 @@
               :sem (unify human {:pred :voi})
               :subcat '()}
      :english "you all"
-     :italian {:italian "vi"
+     :italiano {:italiano "vi"
                :initial true
                :cat pronoun-noun
                :case pronoun-acc}}
 
     (unify
-     {:italian {:infinitive "vivere"}
+     {:italiano {:infinitive "vivere"}
       :english {:infinitive "to live"
                 :irregular {:past "lived"}}
       :synsem {:cat verb
@@ -736,7 +736,7 @@
       (unify drinkable-noun
              agreement-noun
              masculine-noun
-             {:italian {:italian "vino"}
+             {:italiano {:italiano "vino"}
               :english {:english "wine"}
               :synsem {:sem {:pred :vino
                              :artifact true}}})
@@ -748,7 +748,7 @@
                 :sem (unify human {:pred :voi})
                 :subcat '()}
        :english "you all"
-       :italian {:italian "voi"
+       :italiano {:italiano "voi"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
 
@@ -760,13 +760,13 @@
                       :number :plur}
                 :sem (unify human {:pred :voi})
                 :subcat '()}
-       :italian "voi"
+       :italiano "voi"
        :english "you all"}
 
       (unify
        verb-subjective
        modal
-       {:italian {:infinitive "volere"
+       {:italiano {:infinitive "volere"
                   :irregular {:present {:1sing "voglio"
                                         :2sing "vuoi"
                                         :3sing "vuole"

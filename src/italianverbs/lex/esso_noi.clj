@@ -15,7 +15,7 @@
                            :pred :esso})
               :subcat '()}
        :english "it"
-       :italian {:italian "esso"
+       :italiano {:italiano "esso"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
 
@@ -31,7 +31,7 @@
                       :pred :essi}
                 :subcat '()}
        :english "them"
-       :italian {:italian "essi"
+       :italiano {:italiano "essi"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
 
@@ -116,7 +116,7 @@
                                  :buyable true
                                  :consumable false
                                  :speakable false}}
-                  :italian {:italian "fiore"}
+                  :italiano {:italiano "fiore"}
                   :english {:english "flower"}}
                  {:synsem {:subcat {:1 {:cat :det}}}})
 
@@ -126,7 +126,7 @@
                  {:synsem {:sem {:pred :gentile
                                  :comparative false
                                  :human true}} ;; sono gli umani possono essere gentile.
-                  :italian {:italian "gentile"}
+                  :italiano {:italiano "gentile"}
                   :english {:english "kind"}})
 
           (unify proper-noun
@@ -135,7 +135,7 @@
                            :agr {:number :sing
                                  :person :3rd
                                  :gender :masc}}
-                  :italian "Giorgio"
+                  :italiano "Giorgio"
                   :english "Giorgio"})
 
 
@@ -151,7 +151,7 @@
                                  :speakable false
                                  :place false
                                  :pred :giorno}}}
-                 {:italian {:italian "giorno"}
+                 {:italiano {:italiano "giorno"}
                   :english {:english "day"}})
 
 
@@ -164,7 +164,7 @@
                                  :buyable true
                                  :speakable false
                                  :pred :giornale}}}
-                 {:italian {:italian "giornale"}
+                 {:italiano {:italiano "giornale"}
                   :english {:english "newspaper"}})
 
           (unify agreement-noun
@@ -173,7 +173,7 @@
                  masculine-noun
                  {:synsem {:sem (unify animal {:pred :gatto
                                                :pet true})}
-                  :italian {:italian "gatto"}
+                  :italiano {:italiano "gatto"}
                   :english {:english "cat"}})
 
           (unify agreement-noun
@@ -182,7 +182,7 @@
                  masculine-noun
                  {:synsem {:sem (unify animal {:pred :granchio
                                                :pet false})} ;; I had hermit crabs as pets..
-                  :italian {:italian "granchio"
+                  :italiano {:italiano "granchio"
                             :irregular {:plur "granchi"}}
                   :english {:english "crab"}})
 
@@ -190,7 +190,7 @@
                     :def :def
                     :gender :masc
                     :number :plur}
-           :italian "i"
+           :italiano "i"
            :english "the"}
 
           {:synsem {:cat :det
@@ -199,7 +199,7 @@
                     :number :plur
                     :sem {:person :1st
                           :number :sing}}
-           :italian "i miei"
+           :italiano "i miei"
            :english "my"}
 
 
@@ -209,7 +209,7 @@
                 :number :plur
                 :sem {:number :sing
                       :person :2nd}}
-       :italian "i tuoi"
+       :italiano "i tuoi"
        :english "your"}
 
       {:synsem {:cat :det
@@ -218,14 +218,14 @@
                 :number :plur
                 :sem {:number :plur
                       :person :2nd}}
-       :italian "i vostri"
+       :italiano "i vostri"
        :english "your (pl) "}
 
       (unify sentential-adverb
              {:synsem {:sem {:pred :ieri}
                        :subcat {:1 {:sem {:tense :past
                                           :activity true}}}}
-              :italian "ieri"
+              :italiano "ieri"
               :english "yesterday"})
 
       (unify determiner
@@ -233,7 +233,7 @@
                        :def :def
                        :gender :masc
                        :number :sing}
-              :italian "il"
+              :italiano "il"
               :english "the"})
 
       {:synsem {:cat :det
@@ -242,7 +242,7 @@
                 :number :sing
                 :sem {:number :plur
                       :person :3rd}}
-       :italian "il loro"
+       :italiano "il loro"
        :english "their"}
 
       {:synsem {:cat :det
@@ -251,7 +251,7 @@
                 :number :sing
                 :sem {:number :plur
                       :person :1st}}
-       :italian "il nostro"
+       :italiano "il nostro"
        :english "our"}
 
       {:synsem {:cat :det
@@ -260,7 +260,7 @@
                 :number :sing
                 :sem {:number :sing
                       :person :1st}}
-       :italian "il mio"
+       :italiano "il mio"
        :english "my"}
 
       {:synsem {:cat :det
@@ -270,7 +270,7 @@
                 :sem {:gender :fem
                       :number :sing
                       :person :3rd}}
-       :italian "il suo"
+       :italiano "il suo"
        :english "her"}
 
       {:synsem {:cat :det
@@ -280,7 +280,7 @@
                 :sem {:gender :masc
                       :number :sing
                       :person :3rd}}
-       :italian "il suo"
+       :italiano "il suo"
        :english "his"}
 
       {:synsem {:cat :det
@@ -289,7 +289,7 @@
                 :number :sing
                 :sem {:number :sing
                       :person :2nd}}
-       :italian "il tuo"
+       :italiano "il tuo"
        :english "your"}
 
       {:synsem {:cat :det
@@ -298,7 +298,7 @@
                 :number :sing
                 :sem {:number :plur
                       :person :2nd}}
-       :italian "il vostro"
+       :italiano "il vostro"
        :english "your (pl) "}
 
       ;; TODO: check that imperfect past: 'we were going mad' works.
@@ -307,7 +307,7 @@
                 :sem {:discrete false
                       :pred :impazzire
                       :subj {:animate true}}}
-       :italian {:infinitive "impazzire"
+       :italiano {:infinitive "impazzire"
                  :irregular {:present {:1sing "impazzisco"
                                        :2sing "impazzisci"
                                        :3sing "impazzisce"
@@ -330,13 +330,13 @@
                 :sem (unify human {:pred :io})
                 :subcat '()}
        :english "I"
-       :italian "io"}
+       :italiano "io"}
 
       (unify sentential-adverb
              {:synsem {:sem {:pred :laltro-ieri}
                        :subcat {:1 {:sem {:tense :past
                                           :activity true}}}}
-              :italian "l'altro ieri"
+              :italiano "l'altro ieri"
               :english "the day before yesterday"})
 
       ;; note: no gender: "loro" in either case of masc or fem.
@@ -348,7 +348,7 @@
                 :sem (unify human {:pred :lui})
                 :subcat '()}
        :english "them"
-       :italian {:italian "loro"
+       :italiano {:italiano "loro"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
 
@@ -361,7 +361,7 @@
                 :sem (unify human {:pred :lui})
                 :subcat '()}
        :english "he"
-       :italian "lui"}
+       :italiano "lui"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -374,7 +374,7 @@
                 :subcat '()}
        :english {:english "it"
                  :note "(&#x2642;)"}
-       :italian "lui"}
+       :italiano "lui"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -385,10 +385,10 @@
                 :sem (unify human {:pred :lei})
                 :subcat '()}
        :english "she"
-       :italian "lei"}
+       :italiano "lei"}
 
       {:english {:english "letter"}
-       :italian {:italian "lettera"}
+       :italiano {:italiano "lettera"}
        :synsem {:agr {:gender :fem}
                 :cat :noun
                 :sem {:legible true
@@ -402,14 +402,14 @@
                       :number :plur}
                 :sem (unify human {:pred :loro})
                 :subcat '()}
-       :italian "loro"
+       :italiano "loro"
        :english "they"}
 
       {:synsem {:cat :det
                 :def :def
                 :gender :fem
                 :number :sing}
-       :italian "la"
+       :italiano "la"
        :english "the"}
 
       {:synsem {:cat :det
@@ -418,7 +418,7 @@
                 :number :sing
                 :sem {:number :plur
                       :person :3rd}}
-       :italian "la loro"
+       :italiano "la loro"
        :english "their"}
 
       {:synsem {:cat :det
@@ -427,7 +427,7 @@
                 :number :sing
                 :sem {:number :sing
                       :person :1st}}
-       :italian "la mia"
+       :italiano "la mia"
        :english "my"}
 
       {:synsem {:cat :det
@@ -436,7 +436,7 @@
                 :number :sing
                 :sem {:number :plur
                       :person :1st}}
-       :italian "la nostra"
+       :italiano "la nostra"
        :english "our"}
 
       ;; TODO: add pronominal "la sua (hers)" and "la sua (his)"
@@ -447,7 +447,7 @@
                 :sem {:gender :fem
                       :number :sing
                       :person :3rd}}
-       :italian "la sua"
+       :italiano "la sua"
        :english "her"}
 
       {:synsem {:cat :det
@@ -457,7 +457,7 @@
                 :sem {:gender :masc
                       :number :sing
                       :person :3rd}}
-       :italian "la sua"
+       :italiano "la sua"
        :english "his"}
 
       {:synsem {:cat :det
@@ -466,7 +466,7 @@
                 :number :sing
                 :sem {:number :sing
                       :person :2nd}}
-       :italian "la tua"
+       :italiano "la tua"
        :english "your"}
 
       {:synsem {:cat :det
@@ -475,7 +475,7 @@
                 :number :sing
                 :sem {:number :plur
                       :person :2nd}}
-       :italian "la vostra"
+       :italiano "la vostra"
        :english "your (pl)"}
 
       {:synsem {:cat pronoun-noun
@@ -487,7 +487,7 @@
                 :sem (unify human {:pred :lo})
                 :subcat '()}
        :english "him"
-       :italian {:italian "lo"
+       :italiano {:italiano "lo"
                  :initial true
                  :pronoun true
                  :cat noun
@@ -505,7 +505,7 @@
                     :subcat '()}
        :english {:english "it"
                  :note " (&#x2642;)"}
-       :italian {:italian "lo"
+       :italiano {:italiano "lo"
                  :initial true
                  :pronoun true
                  :cat pronoun-noun
@@ -520,7 +520,7 @@
                 :sem (unify human {:pred :lei})
                 :subcat '()}
        :english "her"
-       :italian {:italian "la"
+       :italiano {:italiano "la"
                  :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
@@ -537,7 +537,7 @@
                 :subcat '()}
        :english {:english "it"
                  :note "(&#x2640;)"} ;; unicode female symbol
-       :italian {:italian "la"
+       :italiano {:italiano "la"
                  :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
@@ -545,7 +545,7 @@
 
       (unify
        intransitive
-       {:italian {:infinitive "lavorare"}
+       {:italiano {:infinitive "lavorare"}
         :english {:infinitive "to work"}
         :synsem {:essere false
                  :sem {:subj {:human true
@@ -563,7 +563,7 @@
                 :subcat '()}
        :english {:english "them"
                  :note " (&#x2640;) "}
-       :italian {:italian "le"
+       :italiano {:italiano "le"
                  :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
@@ -571,12 +571,12 @@
                 :def :def
                 :gender :fem
                 :number :plur}
-       :italian "le"
+       :italiano "le"
        :english "the"}
 
       (unify
        transitive
-       {:italian {:infinitive "leggere"
+       {:italiano {:infinitive "leggere"
                   :irregular {:passato-stem "lett"}}
 
         :english {:infinitive "to read" ;; spelled "read" but pronounced like "reed".
@@ -598,7 +598,7 @@
                 :subcat '()}
        :english {:english "them"
                  :note " (&#x2642;) "} ;; unicode male
-       :italian {:italian "li"
+       :italiano {:italiano "li"
                  :initial true
                  :cat pronoun-noun
                  :case pronoun-acc}}
@@ -609,7 +609,7 @@
                 :number :plur
                 :sem {:number :plur
                       :person :2nd}}
-       :italian "le vostre"
+       :italiano "le vostre"
        :english "your (pl)"}
 
       {:synsem {:cat :det
@@ -618,7 +618,7 @@
                 :number :plur
                 :sem {:number :sing
                       :person :1st}}
-       :italian "le mie"
+       :italiano "le mie"
        :english "my"}
 
       {:synsem {:cat :det
@@ -627,7 +627,7 @@
                 :number :plur
                 :sem {:number :sing
                       :person :2nd}}
-       :italian "le tue"
+       :italiano "le tue"
        :english "your"}
 
       {:synsem {:cat cat-of-pronoun
@@ -640,7 +640,7 @@
                 :sem (unify human {:pred :lei})
                 :subcat '()}
        :english "her"
-       :italian {:italian "lei"
+       :italiano {:italiano "lei"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
 
@@ -653,7 +653,7 @@
                 :sem (unify human {:pred :lei})
                 :subcat '()}
        :english "her"
-       :italian {:italian "lei"
+       :italiano {:italiano "lei"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
  
@@ -668,7 +668,7 @@
                 :subcat '()}
        :english {:english "it"
                  :note "(&#x2640;)"} ;; unicode female
-       :italian "lei"}
+       :italiano "lei"}
 
       (unify agreement-noun
              common-noun
@@ -681,7 +681,7 @@
                              :buyable true
                              :consumable false
                              :artifact true}}
-              :italian {:italian "libro"}
+              :italiano {:italiano "libro"}
               :english {:english "book"}})
 
       (unify agreement-noun
@@ -691,13 +691,13 @@
              {:synsem {:sem human}}
              {:synsem {:sem {:pred :madre
                              :child false}}
-              :italian {:italian "madre"}
+              :italiano {:italiano "madre"}
               :english {:english "mother"}})
 
 
       (unify
        transitive
-       {:italian {:infinitive "mangiare"}
+       {:italiano {:infinitive "mangiare"}
         :english {:infinitive "to eat"
                   :irregular {:past "ate"}}
         :synsem {:essere false
@@ -714,7 +714,7 @@
                              :artifact false
                              :city false
                              :place true}}
-              :italian {:italian "mare"}
+              :italiano {:italiano "mare"}
               :english {:english "seaside"}}
              {:synsem {:subcat {:1 {:cat :det
                                     :number :sing
@@ -729,7 +729,7 @@
                 :sem (unify human {:pred :io})
                 :subcat '()}
        :english "me"
-       :italian {:italian "me"
+       :italiano {:italiano "me"
                  :pronoun true
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
@@ -742,7 +742,7 @@
                 :sem (unify human {:pred :io})
                 :subcat '()}
        :english "me"
-       :italian {:italian "mi"
+       :italiano {:italiano "mi"
                  :initial true
                  :pronoun true
                  :cat pronoun-noun
@@ -756,7 +756,7 @@
                              :edible true
                              :animate false
                              :artifact false}}
-              :italian {:italian "mela"}
+              :italiano {:italiano "mela"}
               :english {:english "apple"}})
 
       (unify (:agreement noun)
@@ -767,7 +767,7 @@
                              :edible true
                              :animate false
                              :artifact false}}
-              :italian {:italian "melanzana"}
+              :italiano {:italiano "melanzana"}
               :english {:english "eggplant"}})
 
       (let [human (ref :top)
@@ -789,12 +789,12 @@
                                :sem {:arg1 subj-semantics
                                      :pred adj-semantics
                                      :arg2 obj-semantics}}}}
-         :italian "meno"
+         :italiano "meno"
          :english "less"
          })
 
       {:english "market"
-       :italian "mercato"
+       :italiano "mercato"
        :synsem {:agr {:gender :masc}
                 :cat :noun
                 :sem {:buyable false ;; you can buy things *at* the market, but not the whole market.
@@ -810,7 +810,7 @@
                 :sem (unify human {:pred :lui})
                 :subcat '()}
        :english "him"
-       :italian {:italian "lui"
+       :italiano {:italiano "lui"
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
 
@@ -822,7 +822,7 @@
                        :agr {:number :sing
                              :person :3rd
                              :gender :masc}}
-              :italian {:italian "Milano"}
+              :italiano {:italiano "Milano"}
               :english {:english "Milan"}})
 
       (unify proper-noun
@@ -835,7 +835,7 @@
                        :agr {:number :sing
                              :person :3rd
                              :gender :masc}}
-              :italian {:italian "Napoli"}
+              :italiano {:italiano "Napoli"}
               :english {:english "Naples"}})
 
       ;; non-comparative
@@ -846,7 +846,7 @@
                              :comparative false
                              :physical-object true
                              :human false}}
-              :italian {:italian "nero"
+              :italiano {:italiano "nero"
                         :cat :adjective}
               :english {:english "black"
                         :cat :adjective}})
@@ -859,7 +859,7 @@
                 :sem (unify human {:pred :noi})
                 :subcat '()}
        :english "us"
-       :italian {:italian "noi"
+       :italiano {:italiano "noi"
                  :pronoun true
                  :cat cat-of-pronoun
                  :case disjunctive-case-of-pronoun}}
@@ -872,7 +872,7 @@
                 :sem (unify human {:pred :noi})
                 :subcat '()}
        :english "we"
-       :italian "noi"}
+       :italiano "noi"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -882,7 +882,7 @@
                 :sem (unify human {:pred :gianni-e-io})
                 :subcat '()}
        :english "John and I"
-       :italian "Gianni e io"}
+       :italiano "Gianni e io"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -892,7 +892,7 @@
                 :sem (unify human {:pred :tu-e-io})
                 :subcat '()}
        :english "you and I"
-       :italian "tu e io"}
+       :italiano "tu e io"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -902,7 +902,7 @@
                 :sem (unify human {:pred :lui-e-io})
                 :subcat '()}
        :english "he and I"
-       :italian "lui e io"}
+       :italiano "lui e io"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -912,7 +912,7 @@
                 :sem (unify human {:pred :voi-e-io})
                 :subcat '()}
        :english "You guys and I"
-       :italian "voi e io"}
+       :italiano "voi e io"}
 
       {:synsem {:cat :noun
                 :pronoun true
@@ -922,7 +922,7 @@
                 :sem (unify human {:pred :lei-tu-e-io})
                 :subcat '()}
        :english "She, you and I"
-       :italian "lei, tu e io"}
+       :italiano "lei, tu e io"}
 
       ;; copied:
       {:synsem {:cat :noun
@@ -933,7 +933,7 @@
                 :sem (unify human {:pred :lei-e-tu})
                 :subcat '()}
        :english "she and you"
-       :italian "lei e tu"}
+       :italiano "lei e tu"}
 
 
       ;; copied:
@@ -945,7 +945,7 @@
                 :sem (unify human {:pred :tu-e-maria})
                 :subcat '()}
        :english "you and Mary"
-       :italian "tu e Maria"}
+       :italiano "tu e Maria"}
 
 
       ;; copied:
@@ -957,7 +957,7 @@
                 :sem (unify human {:pred :tu-e-cane})
                 :subcat '()}
        :english "you and the dog"
-       :italian "tu e il cane"}
+       :italiano "tu e il cane"}
 
       ;; copied:
       {:synsem {:cat :noun
@@ -968,7 +968,7 @@
                 :sem (unify human {:pred :cane-e-gianni})
                 :subcat '()}
        :english "the dog and John"
-       :italian "il cane e Gianni"}
+       :italiano "il cane e Gianni"}
 
       ;; copied:
       {:synsem {:cat :noun
@@ -979,7 +979,7 @@
                 :sem (unify human {:pred :lui-e-lei})
                 :subcat '()}
        :english "he and she"
-       :italian "lui and lei"}
+       :italiano "lui and lei"}
 
 
 ))

@@ -14,14 +14,14 @@
                              :legible true}}
               ;; "notizia" would probably also work, since it
               ;; would be pluralized by morphology to "notizie".
-              :italian {:italian "notizie"}
+              :italiano {:italiano "notizie"}
               :english {:english "new"}} ;; "news" (will be pluralized by morphology to "news").
              {:synsem {:subcat {:1 {:cat :det
                                     :number :plur
                                     :def :def}}}})
 
       (unify adjective
-             {:italian {:italian "nuovo"
+             {:italiano {:italiano "nuovo"
                         :initial true}
               :english {:english "new"}
               :synsem {:cat :adjective
@@ -36,7 +36,7 @@
                 :sem (unify human {:pred :ognuno})
                 :subcat '()}
        :english "everyone"
-       :italian "ognuno"}
+       :italiano "ognuno"}
 
       (unify proper-noun
              {:synsem {:sem {:pred :paola
@@ -44,7 +44,7 @@
                        :agr {:number :sing
                              :person :3rd
                              :gender :fem}}
-              :italian "Paola"
+              :italiano "Paola"
               :english "Paola"})
 
       (unify agreement-noun
@@ -55,7 +55,7 @@
                              :buyable false
                              :speakable true
                              :pred :parola}}}
-             {:italian {:italian "parola"}
+             {:italiano {:italiano "parola"}
               :english {:english "word"}})
 
       ;; inherently singular.
@@ -65,7 +65,7 @@
              {:synsem {:sem {:pred :pane
                              :edible true
                              :artifact true}}
-              :italian {:italian "pane"}
+              :italiano {:italiano "pane"}
               :english {:english "bread"}}
              {:synsem {:subcat {:1 {:cat :det
                                     :number :sing
@@ -74,7 +74,7 @@
       (let [parlare
             (unify
              transitive
-             {:italian {:infinitive "parlare"}
+             {:italiano {:infinitive "parlare"}
               :english {:infinitive "to speak"
                         :irregular {:past "spoke"}}
               :synsem {:essere false
@@ -90,7 +90,7 @@
              {:synsem {:sem {:pred :pasta
                              :edible true
                              :artifact true}}
-              :italian {:italian "pasta"}
+              :italiano {:italiano "pasta"}
               :english {:english "pasta"}}
              {:synsem {:subcat {:1 {:cat :det
                                     :number :sing
@@ -98,7 +98,7 @@
            )
 
       (unify
-       {:italian {:infinitive "pensare"}
+       {:italiano {:infinitive "pensare"}
         :english {:infinitive "to think"
                   :irregular {:past "thought"}}
         :synsem {:cat :verb
@@ -114,7 +114,7 @@
              {:synsem {:sem human}}
              {:synsem {:sem {:pred :professoressa
                              :child false}}
-              :italian {:italian "professoressa"}
+              :italiano {:italiano "professoressa"}
               :english {:english "professor"
                         :note " (&#x2640;)"}}) ;; unicode female symbol
 
@@ -125,7 +125,7 @@
              {:synsem {:sem human}}
              {:synsem {:sem {:pred :professore
                              :child false}}}
-             {:italian {:italian "professore"}
+             {:italiano {:italiano "professore"}
               :english {:english "professor"
                         :note " (&#x2642;)"}}) ;; unicode male symbol
 
@@ -139,13 +139,13 @@
                                 :subcat {:1 :top
                                          :2 '()}}
                             :2 '()}}
-          :italian "per"
+          :italiano "per"
           :english ""}))
 
       ;; perdere
       (unify
        (:transitive verb)
-       {:italian {:infinitive "perdere"
+       {:italiano {:infinitive "perdere"
                   :irregular {:passato "perso"}}
         :english {:infinitive "to lose"
                   :irregular {:past "lost"
@@ -166,7 +166,7 @@
                              :comparative false
                              :physical-object true
                              :mass false}}
-              :italian {:italian "piccolo"
+              :italiano {:italiano "piccolo"
                         :cat :adjective}
               :english {:english "small"
                         :cat :adjective}})
@@ -178,7 +178,7 @@
              {:synsem {:sem {:pred :pizza
                              :edible true
                              :artifact true}}
-              :italian {:italian "pizza"}
+              :italiano {:italiano "pizza"}
               :english {:english "pizza"}})
 
       (let [human (ref :top)
@@ -200,7 +200,7 @@
                                :sem {:arg1 subj-semantics
                                      :pred adj-semantics
                                      :arg2 obj-semantics}}}}
-         :italian "più"
+         :italiano "più"
          :english "more" ;; TODO: better translation would use suffix "-er" (e.g. "taller") rather than "more" (e.g. "more tall")
          })
 
@@ -209,7 +209,7 @@
          verb-subjective
          modal
          {:synsem {:infl {:not :imperfetto}}} ;; disabling imperfetto because it sounds unnatural: "he was being able to.."
-         {:italian {:infinitive "potere"
+         {:italiano {:infinitive "potere"
                     :drop-e true
                     :irregular {:present {:1sing "posso"
                                           :2sing "puoi"

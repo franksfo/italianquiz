@@ -15,8 +15,8 @@
                             :subcat '()
                             :sem location}
                         :2 '()}}
-      :italian {:initial true
-                :italian "a"}
+      :italiano {:initial true
+                :italiano "a"}
       :english "to"})
 
 
@@ -28,7 +28,7 @@
     ;; for this lexical entry "a"/"in".
     :extend {:prep-phrase {:a {:head :prepositions
                                :comp :proper-nouns}}}
-    :italian "a"
+    :italiano "a"
     :english "in"}
 
    ;; e.g. "a ridere": tu hai fatto bene a ridere (you did well to laugh)"
@@ -42,13 +42,13 @@
                             :subcat {:1 :top
                                      :2 '()}}
                         :2 '()}}
-      :italian "a"
+      :italiano "a"
       :english ""})
 
      (unify (:agreement noun)
             (:drinkable noun)
             (:feminine noun)
-            {:italian {:italian "acqua"}
+            {:italiano {:italiano "acqua"}
              :english {:english "water"}
              :synsem {:sem {:artifact false
                             :animate false
@@ -66,7 +66,7 @@
                                      :sem is-place}
                                  :2 {:cat :prep
                                      :sem than-this}}}
-               :italian {:italian "affolato"
+               :italiano {:italiano "affolato"
                          :initial true}
                :english "crowded"}))
 
@@ -77,12 +77,12 @@
                       :sem {:pred :affolato
                             :comparative false
                             :place true}} ;; only places can be crowded.
-             :italian {:italian "affolato"
+             :italiano {:italiano "affolato"
                        :cat :adjective}
              :english {:english "crowded"
                        :cat :adjective}})
 
-     {:italian {:infinitive "aiutare"}
+     {:italiano {:infinitive "aiutare"}
       :english {:infinitive "to help"}
       :synsem {:essere false
                :disable :fail
@@ -106,7 +106,7 @@
                                             :agr subject-agr
                                             :sem subject-sem}
                                         :2 '()}}
-                      :italian {:italian "alto"
+                      :italiano {:italiano "alto"
                                 :agr subject-agr}
                       :english {:english "tall"}})))
 
@@ -124,7 +124,7 @@
                                      :sem subject-sem}
                                  :2 {:cat :prep
                                      :sem complement-sem}}}
-               :italian {:italian "alto"}
+               :italiano {:italiano "alto"}
                :english {:english "tall"}}))
 
 
@@ -135,11 +135,11 @@
             {:synsem {:sem {:pred :amico
                             :human true
                             :child false}}
-             :italian {:italian "amico"}
+             :italiano {:italiano "amico"}
              :english {:english "friend"}})
 
       (unify transitive
-             {:italian {:infinitive "amare"}
+             {:italiano {:infinitive "amare"}
               :english {:infinitive "to love"
                         :irregular {:past "loved"}}
               :synsem {:essere false
@@ -173,7 +173,7 @@
                :sem {:pred :antonio
                      :human true}
                :propernoun true}
-      :italian "Antonio"
+      :italiano "Antonio"
       :english "Antonio"}
 
      {:synsem {:sem {:pred :antonia
@@ -182,7 +182,7 @@
                      :person :3rd
                      :gender :fem}
                :propernoun true}
-      :italian "Antonia"
+      :italiano "Antonia"
       :english "Antonia"}
 
      ;; 1. "avere": to possess something buyable
@@ -230,7 +230,7 @@
             {:synsem {:sem {:pred :bello
                             :comparative false
                             } ;; for now, no restrictions on what can be beautiful.
-             :italian {:italian "bello"}
+             :italiano {:italiano "bello"}
              :english {:english "beautiful"}}})
 
      (let [complement-complement-sem (ref :top) ;; for now no restrictions
@@ -246,18 +246,18 @@
                                      :sem subject-sem}
                                  :2 {:cat :prep
                                      :sem complement-sem}}}
-               :italian {:italian "bello"}
+               :italiano {:italiano "bello"}
                :english {:english "beautiful"}}))
 
      {:synsem {:cat :adverb
                :sem {:pred :bene}}
-      :italian {:italian "bene"}
+      :italiano {:italiano "bene"}
       :english {:english "well"}}
 
      ;; bere
      (unify
       (:transitive verb)
-      {:italian {:infinitive "bere"
+      {:italiano {:infinitive "bere"
                  :irregular {:passato "bevuto"
                              :futuro-stem "berr"
                              :imperfetto {:1sing "bevevo"
@@ -287,7 +287,7 @@
                             :comparative false
                             :physical-object true
                             :human false}}
-             :italian {:italian "bianco"
+             :italiano {:italiano "bianco"
                        :irregular {:masc {:plur "bianchi"}
                                    :fem {:plur "bianche"}}
                        :cat :adjective}
@@ -297,7 +297,7 @@
      (unify agreement-noun
             drinkable-noun
             feminine-noun
-            {:italian {:italian "birra"}
+            {:italiano {:italiano "birra"}
              :english {:english "beer"}
              :synsem {:sem {:pred :birra
                             :artifact true}}})
@@ -314,7 +314,7 @@
              ;; "braccii".
              ;; TODO: might not be an exception so much
              ;; as a ortho-pholological rule "io" -plur-> "ia"
-             :italian {:italian "braccio"
+             :italiano {:italiano "braccio"
                        :irregular {:plur "braccia"}}
              :english {:english "arm"}})
 
@@ -325,12 +325,12 @@
                       :sem {:pred :brutto
                             :comparative false
                             }} ;; for now, no restrictions on what can be ugly.
-             :italian {:italian "brutto"
+             :italiano {:italiano "brutto"
                        :cat :adjective}
              :english {:english "ugly"
                        :cat :adjective}})
 
-     {:italian "bucato"
+     {:italiano "bucato"
       :english "laundry"
       :synsem {:cat :noun
                :agr {:gender :masc
@@ -355,7 +355,7 @@
                            :legible false
                            :consumable false
                            :clothing true}}}
-           {:italian {:italian "calzoni"}
+           {:italiano {:italiano "calzoni"}
             :english {:english "trouser"}}
            {:synsem {:subcat {:1 {:cat :det
                                   :number :plur
@@ -372,7 +372,7 @@
                            :legible false
                            :consumable false
                            :clothing true}}}
-           {:italian {:italian "camicia"}
+           {:italiano {:italiano "camicia"}
             :english {:english "shirt"}})
 
     (unify agreement-noun
@@ -380,7 +380,7 @@
            countable-noun
            masculine-noun
            {:synsem {:sem (unify animal {:pred :cane :pet true})}
-            :italian {:italian "cane"}
+            :italiano {:italiano "cane"}
             :english {:english "dog"}})
 
     (unify agreement-noun
@@ -392,7 +392,7 @@
                            :buyable true
                            :artifact true
                            :place true}}
-            :italian {:italian "casa"}
+            :italiano {:italiano "casa"}
             :english {:english "house"}})
 
      (unify adjective
@@ -401,7 +401,7 @@
                             :comparative false
                             :human true;; TODO:should not need this because child => human.
                             :child true}}
-             :italian {:italian "cattivo"
+             :italiano {:italiano "cattivo"
                        :cat :adjective}
              :english {:english "naughty"
                        :cat :adjective}})
@@ -419,7 +419,7 @@
                       :place false
                       :speakable false}}
        :english {:english "mobile phone"}
-       :italian {:italian "cellulare"}})
+       :italiano {:italiano "cellulare"}})
 
       {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it (TODO).
                 :pronoun true
@@ -430,7 +430,7 @@
                                    :elective-existential true})
                 :subcat '()}
          :english "anyone"
-       :italian "chiunque"}
+       :italiano "chiunque"}
 
     {:synsem {:cat pronoun-noun
               :pronoun true
@@ -440,7 +440,7 @@
               :sem (unify human {:pred :noi})
                     :subcat '()}
      :english "us"
-     :italian {:italian "ci"
+     :italiano {:italiano "ci"
                :initial true
                :cat pronoun-noun
                :case pronoun-acc}}
@@ -452,13 +452,13 @@
                            :edible true
                            :animate false
                            :artifact false}}
-            :italian {:italian "cipolla"}
+            :italiano {:italiano "cipolla"}
             :english {:english "onion"}})
 
       ;; cercare
       (unify
        (:transitive verb)
-       {:italian {:infinitive "cercare"}
+       {:italiano {:infinitive "cercare"}
         :english {:infinitive "to look for"
                   :irregular {:past "looked for"
                               :imperfetto-suffix "looking for"
@@ -484,7 +484,7 @@
                            :buyable false  ;; can't buy a city (unless you're a billionaire like Mike Bloomberg)
                            :artifact true ;;
                            :city true}}
-            :italian {:italian "città"}
+            :italiano {:italiano "città"}
             :english {:english "city"}}
            {:synsem {:subcat {:1 {:cat :det
                                   :def :def}}}})
@@ -499,12 +499,12 @@
                            :buyable false
                            :artifact true
                            :activity true}}
-            :italian {:italian "compito"}
+            :italiano {:italiano "compito"}
             :english {:english "homework assignment"}})
 
     (unify
      transitive
-     {:italian {:infinitive "comprare"}
+     {:italiano {:infinitive "comprare"}
       :english {:infinitive "to buy"
                 :irregular {:past "bought"}}
       :synsem {:essere false
@@ -525,7 +525,7 @@
                                      :sem subject-sem}
                                  :2 {:cat :prep
                                      :sem complement-sem}}}
-               :italian "contento"
+               :italiano "contento"
                :english "happy"}))
 
      ;; non-comparative
@@ -534,7 +534,7 @@
                       :sem {:pred :contento
                             :comparative false
                             :human true}}
-             :italian {:italian "contento"
+             :italiano {:italiano "contento"
                        :cat :adjective}
              :english {:english "happy"
                        :cat :adjective}})
@@ -552,7 +552,7 @@
                                     :sem subject-sem}
                                 :2 {:cat :prep
                                     :sem complement-sem}}}
-              :italian {:italian "corto"}
+              :italiano {:italiano "corto"}
               :english {:english "short"}}))
 
     ;; non-comparative
@@ -561,12 +561,12 @@
                      :sem {:pred :corto
                            :comparative false
                            :human true}}
-            :italian {:italian "corto"
+            :italiano {:italiano "corto"
                       :cat :adjective}
             :english {:english "short"
                       :cat :adjective}})
 
-    {:italian {:infinitive "dare"
+    {:italiano {:infinitive "dare"
                :irregular {:present {:2sing "dai"
                                      :3plur "danno"}}
                :futuro-stem "dar"}
@@ -582,7 +582,7 @@
 
     (unify
      transitive
-     {:italian {:infinitive "deludere"
+     {:italiano {:infinitive "deludere"
                 :irregular {:passato "deluso"}}
       :english {:infinitive "to disappoint"
                 :irregular {:past "disappointed"}}
@@ -609,7 +609,7 @@
                            :artifact true
                            :physical-object true
                            :edible false}}
-            :italian {:italian "difficile"
+            :italiano {:italiano "difficile"
                       :cat :adjective}
             :english {:english "difficult"
                       :cat :adjective}})
@@ -624,7 +624,7 @@
                            ;; non-pronouns will unify with this constraint.
                            }
                        :2 '()}}
-     :italian {:italian "di"
+     :italiano {:italiano "di"
                :initial true}
      :english "than"}
 
@@ -632,7 +632,7 @@
               :def :partitivo
               :number :plur
               :gender :masc}
-       :italian "di i"
+       :italiano "di i"
      :english "some"}
 
     {:synsem {:cat :det
@@ -640,14 +640,14 @@
               :number :sing
               :mass true
               :gender :fem}
-     :italian "di la"
+     :italiano "di la"
      :english "some"}
 
     {:synsem {:cat :det
               :def :partitivo
               :number :plur
               :gender :fem}
-     :italian "di le"
+     :italiano "di le"
      :english "some"}
 
     {:synsem {:cat :det
@@ -655,7 +655,7 @@
               :number :sing
               :mass true
               :gender :masc}
-     :italian "di il"
+     :italiano "di il"
      :english "some"}
 
     (unify sentential-adverb
@@ -664,7 +664,7 @@
                      :subcat {:1 {:infl :futuro
                                   :sem {:tense :futuro}
                                   :subcat '()}}}
-            :italian "domani"
+            :italiano "domani"
             :english "tomorrow"})
 
     (unify sentential-adverb
@@ -673,7 +673,7 @@
                      :subcat {:1 {:infl :futuro
                                   :sem {:tense :future}
                                   :subcat '()}}}
-            :italian "dopodomani"
+            :italiano "dopodomani"
             :english "the day after tomorrow"})
 
     (unify agreement-noun
@@ -683,11 +683,11 @@
            {:synsem {:sem human}}
            {:synsem {:sem {:pred :donna
                            :child false}}
-            :italian {:italian "donna"}
+            :italiano {:italiano "donna"}
             :english {:irregular {:plur "women"}
                       :english "woman"}})
 
-    {:italian {:infinitive "dormire"}
+    {:italiano {:infinitive "dormire"}
      :english {:infinitive "to sleep"
                :irregular {:past "slept"}}
      :synsem {:cat :verb
@@ -703,13 +703,13 @@
            {:synsem {:sem human}}
            {:synsem {:sem {:pred :dottore
                            :child false}}
-            :italian {:italian "dottore"}
+            :italiano {:italiano "dottore"}
             :english {:english "doctor"}})
 
     (unify
      verb-subjective
      modal
-     {:italian {:infinitive "dovere"
+     {:italiano {:infinitive "dovere"
                 :drop-e true
                 :irregular {:present {:1sing "devo"
                                       :2sing "devi"
@@ -743,7 +743,7 @@
                     :pred :essi}
               :subcat '()}
      :english "them"
-     :italian {:italian "esse"
+     :italiano {:italiano "esse"
                :cat cat-of-pronoun
                :case disjunctive-case-of-pronoun}}
 
