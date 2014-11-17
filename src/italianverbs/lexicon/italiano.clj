@@ -375,28 +375,6 @@
              :sem (unify human {:pred :io})
              :subcat '()}}
 
-   "libro"
-   (unify agreement-noun
-          common-noun
-          countable-noun
-          masculine-noun
-          {:synsem {:sem {:pred :libro
-                          :legible true
-                          :speakable false
-                          :mass false
-                          :buyable true
-                          :consumable false
-                          :artifact true}}})
-
-   "loro"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :3rd
-                   :number :plur}
-                :sem (unify human {:pred :loro})
-             :subcat '()}}
-
    "la"
    [{:synsem {:cat pronoun-noun
              :pronoun true
@@ -485,6 +463,29 @@
                 :sem {:number :plur
                       :person :2nd}}}]
 
+   "lei"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :gender :fem
+                   :number :sing}
+             :sem (unify human {:pred :lei})
+             :subcat '()}}
+
+   "libro"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          masculine-noun
+          {:synsem {:sem {:pred :libro
+                          :legible true
+                          :speakable false
+                          :mass false
+                          :buyable true
+                          :consumable false
+                          :artifact true}}})
+
    "lo"
    [{:synsem {:cat pronoun-noun
               :pronoun true
@@ -510,14 +511,13 @@
                   :cat pronoun-noun
                   :case pronoun-acc}}]
 
-   "lei"
+   "loro"
    {:synsem {:cat :noun
              :pronoun true
              :case :nom
              :agr {:person :3rd
-                   :gender :fem
-                   :number :sing}
-             :sem (unify human {:pred :lei})
+                   :number :plur}
+                :sem (unify human {:pred :loro})
              :subcat '()}}
 
    "lui"
