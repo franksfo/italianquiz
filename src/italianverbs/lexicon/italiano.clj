@@ -551,6 +551,19 @@
                           :physical-object true
                           :human false}}})
 
+
+   "pane"
+   ;; inherently singular.
+   (unify agreement-noun
+          common-noun
+          masculine-noun
+          {:synsem {:sem {:pred :pane
+                          :edible true
+                          :artifact true}
+                    :subcat {:1 {:cat :det
+                                 :number :sing
+                                 :def :def}}}})
+
    "tu"
    {:synsem {:cat :noun
              :pronoun true
