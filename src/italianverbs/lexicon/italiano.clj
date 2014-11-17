@@ -134,14 +134,6 @@
                                 :2 {:cat :prep
                                     :sem complement-sem}}}}))]
 
-   "amico"
-   (unify agreement-noun
-          common-noun
-          countable-noun
-          masculine-noun
-          {:synsem {:sem {:pred :amico
-                          :human true
-                          :child false}}})
    "amare"
     (unify transitive
            {:synsem {:essere false
@@ -151,6 +143,15 @@
                            :subj {:human true}
                            :obj {:animate true}}}})
 
+
+   "amico"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          masculine-noun
+          {:synsem {:sem {:pred :amico
+                          :human true
+                          :child false}}})
    "andare"
    (map (fn [each]
           (unify
