@@ -286,54 +286,41 @@
     :italiano {:italiano "bene"}
     :english {:english "well"}}
 
-   ;; bere
    "bere"
-   [
-    (unify
-     (:transitive verb)
-     {:italiano {:italiano "bere"
-                 :passato "bevuto"
-                 :futuro-stem "berr"
-                 :imperfetto {:1sing "bevevo"
-                              :2sing "bevevi"
-                              :3sing "beveva"
-                              :1plur "bevevamo"
-                              :2plur "bevevate"
-                              :3plur "bevevano"}
-                 :present {:1sing "bevo"
-                           :2sing "bevi"
-                           :3sing "beve"
-                           :1plur "beviamo"
-                           :2plur "bevete"
-                           :3plur "bevano"}}
-      :synsem {:essere false
-               :sem {:pred :bere
-                     :subj {:animate true}
-                     :obj {:drinkable true}}}})
-
-
-    (unify
-     intransitive
-     {:italiano {:italiano "bere"
-                 :passato "bevuto"
-                 :futuro-stem "berr"
-                 :imperfetto {:1sing "bevevo"
-                              :2sing "bevevi"
-                              :3sing "beveva"
-                              :1plur "bevevamo"
-                              :2plur "bevevate"
-                              :3plur "bevevano"}
-                 :present {:1sing "bevo"
-                           :2sing "bevi"
-                           :3sing "beve"
-                           :1plur "beviamo"
-                           :2plur "bevete"
-                           :3plur "bevano"}}
-      :synsem {:essere false
-               :sem {:pred :bere
-                     :subj {:animate true}}}})
-;;                     :obj {:drinkable true}}}}) ;; maybe a semantic-only object of some kind :unspecified or something
-    ]
+   (let [bere-common
+         {:italiano {:italiano "bere"
+                     :passato "bevuto"
+                     :futuro-stem "berr"
+                     :imperfetto {:1sing "bevevo"
+                                  :2sing "bevevi"
+                                  :3sing "beveva"
+                                  :1plur "bevevamo"
+                                  :2plur "bevevate"
+                                  :3plur "bevevano"}
+                     :present {:1sing "bevo"
+                               :2sing "bevi"
+                               :3sing "beve"
+                               :1plur "beviamo"
+                               :2plur "bevete"
+                               :3plur "bevano"}}}]
+     [
+      (unify
+       bere-common
+       (:transitive verb)
+       {:synsem {:essere false
+                 :sem {:pred :bere
+                       :subj {:animate true}
+                       :obj {:drinkable true}}}})
+      
+      (unify
+       bere-common
+       intransitive
+       {:synsem {:essere false
+                 :sem {:pred :bere
+                       :subj {:animate true}}}})
+      ;; even though there is no grammatical object here (since it is intransitive, maybe there could
+      ;; be a semantic-only object (at some extra-grammatical level of representation) that could be {:drinkable true}.
+      ])
 
 
    "cane"
