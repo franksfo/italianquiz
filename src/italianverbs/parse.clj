@@ -29,7 +29,7 @@
   (let [runlevel (if runlevel runlevel 0)]
     (log/debug (str "parse-at: rl=" runlevel "; i=" index ":" (fo args) "; size args: " (.size args)))
     (if (< index (.size args))
-      (concat
+      (lazy-cat
        (over/over grammar
                   (parse (subvec args 0 index))
                   (parse (subvec args index (.size args))))
