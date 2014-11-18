@@ -1468,6 +1468,34 @@
    {:replace-with "ere"
     :unify-with {:italiano {:infl :past}}}})
 
+(def plural-to-singular-noun
+  {#"i$"
+   {:replace-with "o"
+    :unify-with {:synsem {:cat :noun}
+                 :agr {:number :plur}}}})
+
+(def plural-to-singular-adj-masc
+  {#"i$"
+   {:replace-with "o"
+    :unify-with {:synsem {:cat :adjective}
+                 :agr {:gender :masc
+                       :number :plur}}}})
+
+(def plural-to-singular-adj-fem-sing
+  {#"a$"
+   {:replace-with "o"
+    :unify-with {:synsem {:cat :adjective}
+                 :agr {:gender :fem
+                       :number :sing}}}})
+
+(def plural-to-singular-adj-fem-plur
+  {#"e$"
+   {:replace-with "o"
+    :unify-with {:synsem {:cat :adjective}
+                 :agr {:gender :fem
+                       :number :plur}}}})
+
+
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
@@ -1478,7 +1506,10 @@
          present-to-infinitive-ire
          present-to-infinitive-ere
          present-to-infinitive-are
-
+         plural-to-singular-noun
+         plural-to-singular-adj-masc
+         plural-to-singular-adj-fem-plur
+         plural-to-singular-adj-fem-sing
          )
         
         analyzed

@@ -293,25 +293,31 @@
                                :3sing "beve"
                                :1plur "beviamo"
                                :2plur "bevete"
-                               :3plur "bevano"}}}]
+                               :3plur "bevano"}}
+          :synsem {:essere false
+                   :sem {:pred :bere
+                         :subj {:animate true}}}}]
      [(unify
        bere-common
-       (:transitive verb)
-       {:synsem {:essere false
-                 :sem {:pred :bere
-                       :subj {:animate true}
-                       :obj {:drinkable true}}}})
+       transitive
+       {:synsem {:sem {:obj {:drinkable true}}}})
       
-      (unify
-       bere-common
-       intransitive
-       {:synsem {:essere false
-                 :sem {:pred :bere
-                       :subj {:animate true}}}})
       ;; even though there is no grammatical object here (since it is intransitive, maybe there could
       ;; be a semantic-only object (at some extra-grammatical level of representation) that could be {:drinkable true}.
-      ])
+      (unify
+       bere-common
+       intransitive)])
 
+   "bianco"
+   (unify adjective
+          {:synsem {:cat :adjective
+                    :sem {:pred :bianco
+                          :comparative false
+                          :physical-object true
+                          :human false}}
+           :italiano {:masc {:plur "bianchi"}
+                      :fem {:plur "bianche"}
+                      :cat :adjective}})
 
    "cane"
    (unify agreement-noun
@@ -336,6 +342,14 @@
           masculine-noun
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
+
+   "i"
+   (unify determiner
+          {:synsem {:cat :det
+                    :def :def
+                    :gender :masc
+                    :number :plur}})
+
    "il"
    (unify determiner
           {:synsem {:cat :det
@@ -353,6 +367,8 @@
              :subcat '()}}
 
    "la"
+   ;; TODO: refactor commonalities
+    ;; 1. pronoun: human
    [{:synsem {:cat pronoun-noun
              :pronoun true
              :case pronoun-acc
@@ -365,6 +381,7 @@
                 :cat pronoun-noun
                 :case pronoun-acc}}
 
+    ;; 2. pronoun: non-human
     {:synsem {:cat pronoun-noun
               :pronoun true
               :case pronoun-acc
@@ -379,12 +396,12 @@
                 :cat pronoun-noun
                 :case pronoun-acc}}
 
-
+    ;; 3. article
     {:synsem {:cat :det
               :def :def
               :gender :fem
               :number :sing}}]
-
+   
    "la loro"
    {:synsem {:cat :det
              :def :possessive
@@ -451,19 +468,19 @@
              :subcat '()}}
 
    "leggere"
-   (let [common {:synsem {:essere false
-                          :sem {:pred :leggere
+   (let [common {:italiano {:passato "letto"}
+                  :synsem {:essere false
+                           :sem {:pred :leggere
                                 :discrete false
-                                :subj {:human true}}}}]
-     (unify
-      common
-      transitive
-      {:italiano {:passato "letto"}
-       :synsem {:obj {:legible true}}})
+                                 :subj {:human true}}}}]
+     [(unify
+       common
+       transitive
+       {:synsem {:obj {:legible true}}})
 
-     (unify
-      common
-      intransitive))
+      (unify
+       common
+       intransitive)])
 
    "libro"
    (unify agreement-noun

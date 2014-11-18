@@ -533,6 +533,19 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                       :agr {:number :plur
                                             :person :3rd}}})}
 
+                       ;; adjectives
+                       {:path [:italiano :masc :plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:agr {:gender :masc
+                                            :number :plur}}})}
+
+                       {:path [:italiano :fem :plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:agr {:gender :fem
+                                            :number :plur}}})}
+
                        ]))]
             
             
