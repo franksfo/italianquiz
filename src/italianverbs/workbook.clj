@@ -22,7 +22,7 @@
    [italianverbs.grammar.italiano :as it]
    [italianverbs.html :as html]
    [italianverbs.lexicon.italiano :refer :all :exclude [unify]]
-   [italianverbs.lexiconfn :refer :all]
+   [italianverbs.lexiconfn :refer :all :exclude [:compile]]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.morphology.english :as en-m]
    [italianverbs.morphology.italiano :as it-m]
