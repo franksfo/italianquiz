@@ -35,7 +35,9 @@
        (create-bigram-map args (+ index 1) grammar)))
     {}))
 
-(defn parse-at [args index grammar & [runlevel bigrams offset]]
+(defn parse-at [args index grammar & [ {runlevel :runlevel
+                                        bigrams :bigrams
+                                        offset :offset}]]
   ;; TODO: currently this algorithm is bottom up:
   ;; Instead, make it bottom up by calling (over) on token bigrams:
   ;; [0 1],[1 2],[2 3],[3 4], ..etc.
@@ -45,17 +47,35 @@
            (< index (.size args)))
     (let [runlevel (if runlevel runlevel 0)
           bigrams (if bigrams bigrams {})
-          left-side (parse (subvec args 0 index) bigrams)
-          right-side (parse (subvec args index (.size args)) bigrams)]
-      (log/debug (str "parse-at: rl=" runlevel "; i=" index ":" (fo args) "; size args: " (.size args)))
-      (log/info (str "bigrams size: " (.size (keys bigrams))))
+          left-side (parse (subvec args 0 index)
+                           {:bigrams bigrams
+                            :left 0
+                            :right index
+                            :offset offset})
+          right-side (parse (subvec args index (.size args))
+                            {:bigrams bigrams
+                             :left index
+                             :right (.size args)
+                             :offset (+ 1 offset)})]
+      (if (= (.size args) 2)
+        (do
+          (log/info "")
+          (log/info (str " offset=" offset "; index=" index "; size=" (.size args)))
+          (log/info (str " left-side: " (fo left-side)))
+          (log/info (str " right-side: " (fo right-side)))
+          (log/info (str " cached: " (fo (get bigrams offset))))))
       (lazy-cat
        (over/over grammar
                   left-side
                   right-side)
-       (parse-at args (+ 1 index) grammar (+ 1 runlevel) bigrams (+ 1 offset))))))
+       (parse-at args (+ 1 index) grammar {:runlevel (+ 1 runlevel)
+                                           :bigrams bigrams
+                                           :offset offset})))))
 
-(defn parse [arg & [bigrams offset]]
+(defn parse [arg & [{bigrams :bigrams
+                    left :left
+                    right :right
+                    offset :offset}]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
   (let [offset (if offset offset 0)
         bigrams (if bigrams bigrams
@@ -70,10 +90,12 @@
 
           (vector? arg)
           (let [result
-                (parse-at arg 1 it-grammar 0 bigrams offset)]
+                (parse-at arg 1 it-grammar {:runlevel 0
+                                            :bigrams bigrams
+                                            :offset offset})]
             (do
               (if (not (empty? result))
-                (log/info (str "parse: " (str/join " + "
+                (log/debug (str "parse: " (str/join " + "
                                                    (map (fn [tok]
                                                           (fo tok))
                                                         arg))
