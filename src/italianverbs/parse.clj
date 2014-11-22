@@ -42,36 +42,17 @@
       (log/debug (str "over(2): " (fo (get bigrams (+ 1 index)))))
       (merge
        {[index (+ 2 index)]
-        (concat
-         (over/over grammar 
-                    (get bigrams [index (+ 1 index)])
-                    (subvec args (+ 2 index) (+ 3 index)))
-         (over/over grammar 
-                    (subvec args index (+ 1 index))
-                    (get bigrams [(+ 1 index) (+ 2 index)])))}
+        (lazy-cat
+         (if (get bigrams [index (+ 1 index)])
+           (over/over grammar 
+                      (get bigrams [index (+ 1 index)])
+                      (subvec args (+ 2 index) (+ 3 index))))
+         (if (get bigrams [(+ 1 index) (+ 2 index)])
+           (over/over grammar 
+                      (subvec args index (+ 1 index))
+                      (get bigrams [(+ 1 index) (+ 2 index)]))))}
        (create-trigram-map args (+ index 1) grammar bigrams)))
     {}))
-
-(defn create-4gram-map [args index grammar trigrams bigrams]
-  (if (< (+ 3 index) (.size args))
-    (let []
-      (log/debug (str "over(1): " (fo (get bigrams index))))
-      (log/debug (str "over(2): " (fo (get bigrams (+ 1 index)))))
-      (merge
-       {[index (+ 3 index)]
-        (concat
-         (over/over grammar
-                    (subvec args index (+ 1 index))
-                    (get trigrams bigrams (+ 1 index)))
-         (over/over grammar 
-                    (get bigrams index)
-                    (get bigrams (+ 2 index)))
-         (over/over grammar 
-                    (get trigrams bigrams index)
-                    (subvec args (+ 2 index) (+ 3 index))))}
-       (create-4gram-map args (+ index 1) grammar trigrams bigrams)))
-    {}))
-
 
 (defn parse-at [all & [ {length :length
                          bigrams :bigrams
@@ -99,21 +80,24 @@
                          :length (- (.size args) split-at)
                          :right (.size args)})]
 
-        (log/info (str "parse-at: " (fo (subvec all offset (+ offset length)))))
+        (log/info (str "parse-at(" offset ", " split-at ", " length "):" (fo (subvec all offset (+ offset split-at))) " | " (fo (subvec all (+ offset split-at) (+ offset length)))))
 
         (lazy-cat
          (cond (= length 2)
                (let [retval (get bigrams [offset (+ 1 offset)])]
                  (do (if (not (empty? retval))
-                       (log/info (str " =2> " (fo retval))))
+                       (log/debug (str " =2> " (fo retval))))
                      retval))
                (= length 3)
                (let [retval (get trigrams [offset (+ 2 offset)])]
                  (do (if (not (empty? retval))
-                       (log/info (str " =3> " (fo retval))))
+                       (log/debug (str " =3> " (fo retval))))
                      retval))
                true
-               (let [retval (over/over grammar left-side right-side)]
+               (let [retval 
+                     (if (and (not (empty? left-side))
+                              (not (empty? right-side)))
+                       (over/over grammar left-side right-side))]
                  (do
                    (if (not (empty? retval))
                      (log/info (str " =m> " (fo retval))))
