@@ -35,9 +35,10 @@
        (create-bigram-map args (+ index 1) grammar)))
     {}))
 
-(defn parse-at [args index grammar & [ {runlevel :runlevel
-                                        bigrams :bigrams
-                                        offset :offset}]]
+(defn parse-at [args grammar & [ {bigrams :bigrams
+                                  index :index
+                                  offset :offset
+                                  runlevel :runlevel}]]
   ;; TODO: currently this algorithm is bottom up:
   ;; Instead, make it bottom up by calling (over) on token bigrams:
   ;; [0 1],[1 2],[2 3],[3 4], ..etc.
@@ -68,9 +69,10 @@
        (over/over grammar
                   left-side
                   right-side)
-       (parse-at args (+ 1 index) grammar {:runlevel (+ 1 runlevel)
-                                           :bigrams bigrams
-                                           :offset offset})))))
+       (parse-at args grammar {:bigrams bigrams
+                               :index (+ 1 index)
+                               :offset offset
+                               :runlevel (+ 1 runlevel)})))))
 
 (defn parse [arg & [{bigrams :bigrams
                     left :left
@@ -90,9 +92,11 @@
 
           (vector? arg)
           (let [result
-                (parse-at arg 1 it-grammar {:runlevel 0
-                                            :bigrams bigrams
-                                            :offset offset})]
+                (parse-at arg it-grammar {:bigrams bigrams
+                                          :index 1
+                                          :offset offset
+                                          :runlevel 0
+                                          })]
             (do
               (if (not (empty? result))
                 (log/debug (str "parse: " (str/join " + "
