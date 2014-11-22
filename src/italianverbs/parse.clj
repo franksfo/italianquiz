@@ -36,11 +36,11 @@
     {}))
 
 (defn parse-at [all & [ {length :length
-                          bigrams :bigrams
-                          grammar :grammar
-                          split-at :split-at
-                          absolute-offset :absolute-offset
-                          runlevel :runlevel}]]
+                         bigrams :bigrams
+                         grammar :grammar
+                         split-at :split-at
+                         absolute-offset :absolute-offset
+                         runlevel :runlevel}]]
   ;; The :bigrams are a pre-computed series of 2-word parse trees. TODO:
   ;; use bigrams to compute [0 [1 2]],[[0 1] 2],..etc.
   ;; This can be used to compute entire parse while doing no parsing of the same material more than once.
@@ -68,14 +68,14 @@
         (log/info "")
         (log/debug (str "parse-at: all : " (fo all)))
         (log/debug (str "parse-at: args: " (fo args)))
-        (log/info (str "parse-at: args2: " (fo (subvec all absolute-offset (+ absolute-offset length)))))
+        (log/info (str "parse-at: args: " (fo (subvec all absolute-offset (+ absolute-offset length)))))
 
         (log/info (str " absolute-offset: " absolute-offset))
         (log/info (str " length:" length))
         (log/info (str " left-side: " (fo left-side)))
         (log/info (str " right-side: " (fo right-side)))
         (lazy-cat
-         (if (and (= length 2) (get bigrams absolute-offset))
+         (if (= length 2)
            (get bigrams absolute-offset)
            (over/over grammar
                       left-side
