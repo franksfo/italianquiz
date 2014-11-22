@@ -73,8 +73,9 @@
 
         (log/info "")
         (log/debug (str "parse-at: all : " (fo all)))
-        (log/info (str "parse-at: args: " (fo args)))
-        
+        (log/debug (str "parse-at: args: " (fo args)))
+        (log/info (str "parse-at: args2: " (fo (subvec all absolute-offset (+ absolute-offset (.size args))))))
+
         (log/info (str " offset=" offset "; split-at=" split-at "; size=" (.size args)))
         (log/info (str " absolute-offset: " absolute-offset))
         (log/info (str " left-side: " (fo left-side)))
@@ -84,8 +85,8 @@
 ;        (log/info (str "parse-at: offs: " offset))
 ;        (log/info (str "parse-at: left: " left))
         (lazy-cat
-         (if (and false (= (.size args) 2) (get bigrams offset))
-           (get bigrams offset)
+         (if (and true (= (.size args) 2) (get bigrams absolute-offset))
+           (get bigrams absolute-offset)
            (over/over grammar
                       left-side
                       right-side))
