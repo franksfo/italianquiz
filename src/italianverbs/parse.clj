@@ -36,6 +36,7 @@
     {}))
 
 (defn parse-at [args & [ {all :all
+                          length :length
                           bigrams :bigrams
                           grammar :grammar
                           split-at :split-at
@@ -56,6 +57,7 @@
             left-side (parse
                        (subvec args 0 split-at)
                        {:all all
+                        :length split-at
                         :absolute-offset absolute-offset
                         :bigrams bigrams
                         :offset offset})
@@ -65,6 +67,7 @@
                          :absolute-offset (+ split-at absolute-offset)
                          :bigrams bigrams
                          :left split-at
+                         :length (- (.size args) split-at)
                          :right (.size args)
                          :offset (+ 1 offset)})]
 
@@ -75,6 +78,7 @@
 
         (log/info (str " offset=" offset "; split-at=" split-at "; size=" (.size args)))
         (log/info (str " absolute-offset: " absolute-offset))
+        (log/info (str " length:" length))
         (log/info (str " left-side: " (fo left-side)))
         (log/info (str " right-side: " (fo right-side)))
         (lazy-cat
@@ -86,6 +90,7 @@
          (parse-at args {:all all
                          :absolute-offset absolute-offset
                          :bigrams bigrams
+                         :length length
                          :grammar grammar
                          :split-at (+ 1 split-at)
                          :offset offset
@@ -93,6 +98,7 @@
 
 (defn parse [arg & [{all :all
                      absolute-offset :absolute-offset
+                     length :length
                      bigrams :bigrams
                      offset :offset}]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
@@ -100,6 +106,8 @@
         absolute-offset (if absolute-offset absolute-offset offset)
         all (if all all (if (vector? arg)
                           arg))
+        length (if length length (if (vector? arg)
+                                   (.size arg)))
         bigrams (if bigrams bigrams
                     (if (vector? arg)
                       (create-bigram-map arg 0 it-grammar)))]
@@ -118,6 +126,7 @@
                                :absolute-offset absolute-offset
                                :bigrams bigrams
                                :grammar it-grammar
+                               :length length
                                :split-at 1
                                :offset offset
                                :runlevel 0
