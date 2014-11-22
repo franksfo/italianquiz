@@ -38,65 +38,86 @@
 (defn parse-at [args & [ {all :all
                           bigrams :bigrams
                           grammar :grammar
-                          index :index
+                          split-at :split-at
+                          left :left
                           offset :offset
+                          absolute-offset :absolute-offset
+                          right :right
                           runlevel :runlevel}]]
   ;; TODO: currently this algorithm is bottom up:
   ;; Instead, make it bottom up by calling (over) on token bigrams:
   ;; [0 1],[1 2],[2 3],[3 4], ..etc.
   ;; then use that to compute [0 [1 2]],[[0 1] 2],..etc.
   ;; This can be used to compute entire parse while doing no parsing of the same material more than once.
-  (log/info (str "parse-at: all: " (fo all)))
-  (if (and (> index 0)
-           (< index (.size args)))
-    (let [runlevel (if runlevel runlevel 0)
-          bigrams (if bigrams bigrams {})
-          left-side (parse (subvec args 0 index)
-                           {:all all
-                            :bigrams bigrams
-                            :left 0
-                            :right index
-                            :offset offset})
-          right-side (parse (subvec args index (.size args))
-                            {:all all
-                             :bigrams bigrams
-                             :left index
-                             :right (.size args)
-                             :offset (+ 1 offset)})]
-      (if (= (.size args) 2)
-        (do
-          (log/info "")
-          (log/info (str " offset=" offset "; index=" index "; size=" (.size args)))
-          (log/info (str " left-side: " (fo left-side)))
-          (log/info (str " right-side: " (fo right-side)))
-          (log/info (str " cached: " (fo (get bigrams offset))))))
-      (lazy-cat
-       (if (and false (= (.size args) 2) (get bigrams offset))
-         (get bigrams offset)
-         (over/over grammar
-                    left-side
-                    right-side))
-       (parse-at args {:all all
-                       :bigrams bigrams
-                       :grammar grammar
-                       :index (+ 1 index)
-                       :offset offset
-                       :runlevel (+ 1 runlevel)})))))
+
+  (if (and (> split-at 0)
+           (< split-at (.size args)))
+      (let [runlevel (if runlevel runlevel 0)
+            bigrams (if bigrams bigrams {})
+            left (if left left 0)
+            left (if right right 0)
+            left-side (parse (subvec args 0 split-at)
+                             {:all all
+                              :absolute-offset absolute-offset
+                              :bigrams bigrams
+                              :left left
+                              :right split-at
+                              :offset offset})
+            right-side (parse (subvec args split-at (.size args))
+                              {:all all
+                               :absolute-offset (+ split-at absolute-offset)
+                               :bigrams bigrams
+                               :left split-at
+                               :right (.size args)
+                               :offset (+ 1 offset)})]
+
+        (log/info "")
+        (log/debug (str "parse-at: all : " (fo all)))
+        (log/info (str "parse-at: args: " (fo args)))
+        
+        (log/info (str " offset=" offset "; split-at=" split-at "; size=" (.size args)))
+        (log/info (str " absolute-offset: " absolute-offset))
+        (log/info (str " left-side: " (fo left-side)))
+        (log/info (str " right-side: " (fo right-side)))
+;        (log/info (str " cached: " (fo (get bigrams offset))))
+
+;        (log/info (str "parse-at: offs: " offset))
+;        (log/info (str "parse-at: left: " left))
+        (lazy-cat
+         (if (and false (= (.size args) 2) (get bigrams offset))
+           (get bigrams offset)
+           (over/over grammar
+                      left-side
+                      right-side))
+         (parse-at args {:all all
+                         :absolute-offset absolute-offset
+                         :bigrams bigrams
+                         :grammar grammar
+                         :split-at (+ 1 split-at)
+                         :left left
+                         :offset offset
+                         :right right
+                         :runlevel (+ 1 runlevel)})))))
 
 (defn parse [arg & [{all :all
+                     absolute-offset :absolute-offset
                      bigrams :bigrams
                      left :left
                      right :right
                      offset :offset}]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
   (let [offset (if offset offset 0)
+        absolute-offset (if absolute-offset absolute-offset offset)
         all (if all all (if (vector? arg)
                           arg))
+        left (if left left 0)
+        right (if right right (if (vector? arg)
+                                (.size arg)))
         bigrams (if bigrams bigrams
                     (if (vector? arg)
                       (create-bigram-map arg 0 it-grammar)))]
-    (log/info (str "parse: arg: " (fo arg)))
-    (log/info (str "parse: all: " (fo all)))
+    (log/debug (str "parse: arg: " (fo arg)))
+    (log/debug (str "parse: all: " (fo all)))
     (cond (string? arg)
           (parse (toks arg))
         
@@ -107,10 +128,13 @@
           (vector? arg)
           (let [result
                 (parse-at arg {:all all
+                               :absolute-offset absolute-offset
                                :bigrams bigrams
                                :grammar it-grammar
-                               :index 1
+                               :split-at 1
+                               :left left
                                :offset offset
+                               :right right
                                :runlevel 0
                                })]
             (do
