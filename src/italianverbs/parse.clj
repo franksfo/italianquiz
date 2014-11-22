@@ -35,10 +35,28 @@
        (create-bigram-map args (+ index 1) grammar)))
     {}))
 
+(defn create-trigram-map [args index grammar bigrams]
+  (if (< (+ 2 index) (.size args))
+    (let []
+      (log/info (str "over(1): " (fo (get bigrams index))))
+      (log/info (str "over(2): " (fo (get bigrams (+ 1 index)))))
+      (merge
+       {index
+        (concat
+         (over/over grammar 
+                    (get bigrams index)
+                    (subvec args (+ 2 index) (+ 3 index)))
+         (over/over grammar 
+                    (subvec args index (+ 1 index))
+                    (get bigrams (+ 1 index))))}
+       (create-trigram-map args (+ index 1) grammar bigrams)))
+    {}))
+
 (defn parse-at [all & [ {length :length
                          bigrams :bigrams
                          grammar :grammar
                          split-at :split-at
+                         trigrams :trigrams
                          absolute-offset :absolute-offset
                          runlevel :runlevel}]]
   ;; The :bigrams are a pre-computed series of 2-word parse trees. TODO:
@@ -49,18 +67,19 @@
            (< split-at length))
       (let [args (subvec all absolute-offset (+ absolute-offset length))
             runlevel (if runlevel runlevel 0)
-            bigrams (if bigrams bigrams {})
             left-side (parse
                        (subvec args 0 split-at)
                        {:all all
                         :length split-at
                         :absolute-offset absolute-offset
-                        :bigrams bigrams})
+                        :bigrams bigrams
+                        :trigrams trigrams})
             right-side (parse
                         (subvec args split-at length)
                         {:all all
                          :absolute-offset (+ split-at absolute-offset)
                          :bigrams bigrams
+                         :trigrams trigrams
                          :left split-at
                          :length (- (.size args) split-at)
                          :right (.size args)})]
@@ -70,18 +89,23 @@
         (log/debug (str "parse-at: args: " (fo args)))
         (log/info (str "parse-at: args: " (fo (subvec all absolute-offset (+ absolute-offset length)))))
 
-        (log/info (str " absolute-offset: " absolute-offset))
-        (log/info (str " length:" length))
-        (log/info (str " left-side: " (fo left-side)))
-        (log/info (str " right-side: " (fo right-side)))
         (lazy-cat
-         (if (= length 2)
-           (get bigrams absolute-offset)
-           (over/over grammar
-                      left-side
-                      right-side))
+         (cond (= length 2)
+               (get bigrams absolute-offset)
+               (= length 3)
+               (get trigrams absolute-offset)
+               true
+               (do
+                 (log/info (str " absolute-offset: " absolute-offset))
+                 (log/info (str " length:" length))
+                 (log/info (str " left-side: " (fo left-side)))
+                 (log/info (str " right-side: " (fo right-side)))
+                 (over/over grammar
+                            left-side
+                            right-side)))
          (parse-at all {:absolute-offset absolute-offset
                         :bigrams bigrams
+                        :trigrams trigrams
                         :length length
                         :grammar grammar
                         :split-at (+ 1 split-at)
@@ -90,7 +114,8 @@
 (defn parse [arg & [{all :all
                      absolute-offset :absolute-offset
                      length :length
-                     bigrams :bigrams}]]
+                     bigrams :bigrams
+                     trigrams :trigrams}]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
   (let [absolute-offset (if absolute-offset absolute-offset 0)
         all (if all all (if (vector? arg)
@@ -99,7 +124,11 @@
                                    (.size arg)))
         bigrams (if bigrams bigrams
                     (if (vector? arg)
-                      (create-bigram-map arg 0 it-grammar)))]
+                      (create-bigram-map arg 0 it-grammar)))
+        trigrams (if trigrams trigrams
+                     (if (vector? arg)
+                       (create-trigram-map arg 0 it-grammar bigrams)))]
+
     (log/debug (str "parse: arg: " (fo arg)))
     (log/debug (str "parse: all: " (fo all)))
     (cond (string? arg)
@@ -116,6 +145,7 @@
                                :grammar it-grammar
                                :length length
                                :split-at 1
+                               :trigrams trigrams
                                :runlevel 0
                                })]
             (do
