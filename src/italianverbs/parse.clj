@@ -35,10 +35,11 @@
        (create-bigram-map args (+ index 1) grammar)))
     {}))
 
-(defn parse-at [args grammar & [ {bigrams :bigrams
-                                  index :index
-                                  offset :offset
-                                  runlevel :runlevel}]]
+(defn parse-at [args & [ {bigrams :bigrams
+                          grammar :grammar
+                          index :index
+                          offset :offset
+                          runlevel :runlevel}]]
   ;; TODO: currently this algorithm is bottom up:
   ;; Instead, make it bottom up by calling (over) on token bigrams:
   ;; [0 1],[1 2],[2 3],[3 4], ..etc.
@@ -69,15 +70,16 @@
        (over/over grammar
                   left-side
                   right-side)
-       (parse-at args grammar {:bigrams bigrams
-                               :index (+ 1 index)
-                               :offset offset
-                               :runlevel (+ 1 runlevel)})))))
+       (parse-at args {:bigrams bigrams
+                       :grammar grammar
+                       :index (+ 1 index)
+                       :offset offset
+                       :runlevel (+ 1 runlevel)})))))
 
 (defn parse [arg & [{bigrams :bigrams
-                    left :left
-                    right :right
-                    offset :offset}]]
+                     left :left
+                     right :right
+                     offset :offset}]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
   (let [offset (if offset offset 0)
         bigrams (if bigrams bigrams
@@ -92,11 +94,12 @@
 
           (vector? arg)
           (let [result
-                (parse-at arg it-grammar {:bigrams bigrams
-                                          :index 1
-                                          :offset offset
-                                          :runlevel 0
-                                          })]
+                (parse-at arg {:bigrams bigrams
+                               :grammar it-grammar
+                               :index 1
+                               :offset offset
+                               :runlevel 0
+                               })]
             (do
               (if (not (empty? result))
                 (log/debug (str "parse: " (str/join " + "
