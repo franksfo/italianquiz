@@ -39,10 +39,8 @@
                           bigrams :bigrams
                           grammar :grammar
                           split-at :split-at
-                          left :left
                           offset :offset
                           absolute-offset :absolute-offset
-                          right :right
                           runlevel :runlevel}]]
   ;; TODO: currently this algorithm is bottom up:
   ;; Instead, make it bottom up by calling (over) on token bigrams:
@@ -52,24 +50,23 @@
 
   (if (and (> split-at 0)
            (< split-at (.size args)))
-      (let [runlevel (if runlevel runlevel 0)
+      (let [args (subvec all absolute-offset (+ absolute-offset (.size args)))
+            runlevel (if runlevel runlevel 0)
             bigrams (if bigrams bigrams {})
-            left (if left left 0)
-            left (if right right 0)
-            left-side (parse (subvec args 0 split-at)
-                             {:all all
-                              :absolute-offset absolute-offset
-                              :bigrams bigrams
-                              :left left
-                              :right split-at
-                              :offset offset})
-            right-side (parse (subvec args split-at (.size args))
-                              {:all all
-                               :absolute-offset (+ split-at absolute-offset)
-                               :bigrams bigrams
-                               :left split-at
-                               :right (.size args)
-                               :offset (+ 1 offset)})]
+            left-side (parse
+                       (subvec args 0 split-at)
+                       {:all all
+                        :absolute-offset absolute-offset
+                        :bigrams bigrams
+                        :offset offset})
+            right-side (parse
+                        (subvec args split-at (.size args))
+                        {:all all
+                         :absolute-offset (+ split-at absolute-offset)
+                         :bigrams bigrams
+                         :left split-at
+                         :right (.size args)
+                         :offset (+ 1 offset)})]
 
         (log/info "")
         (log/debug (str "parse-at: all : " (fo all)))
@@ -80,12 +77,8 @@
         (log/info (str " absolute-offset: " absolute-offset))
         (log/info (str " left-side: " (fo left-side)))
         (log/info (str " right-side: " (fo right-side)))
-;        (log/info (str " cached: " (fo (get bigrams offset))))
-
-;        (log/info (str "parse-at: offs: " offset))
-;        (log/info (str "parse-at: left: " left))
         (lazy-cat
-         (if (and true (= (.size args) 2) (get bigrams absolute-offset))
+         (if (and (= (.size args) 2) (get bigrams absolute-offset))
            (get bigrams absolute-offset)
            (over/over grammar
                       left-side
@@ -95,25 +88,18 @@
                          :bigrams bigrams
                          :grammar grammar
                          :split-at (+ 1 split-at)
-                         :left left
                          :offset offset
-                         :right right
                          :runlevel (+ 1 runlevel)})))))
 
 (defn parse [arg & [{all :all
                      absolute-offset :absolute-offset
                      bigrams :bigrams
-                     left :left
-                     right :right
                      offset :offset}]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
   (let [offset (if offset offset 0)
         absolute-offset (if absolute-offset absolute-offset offset)
         all (if all all (if (vector? arg)
                           arg))
-        left (if left left 0)
-        right (if right right (if (vector? arg)
-                                (.size arg)))
         bigrams (if bigrams bigrams
                     (if (vector? arg)
                       (create-bigram-map arg 0 it-grammar)))]
@@ -133,9 +119,7 @@
                                :bigrams bigrams
                                :grammar it-grammar
                                :split-at 1
-                               :left left
                                :offset offset
-                               :right right
                                :runlevel 0
                                })]
             (do
