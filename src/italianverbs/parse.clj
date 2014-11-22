@@ -35,23 +35,19 @@
        (create-bigram-map args (+ index 1) grammar)))
     {}))
 
-(defn parse-at [args & [ {all :all
-                          length :length
+(defn parse-at [all & [ {length :length
                           bigrams :bigrams
                           grammar :grammar
                           split-at :split-at
-                          offset :offset
                           absolute-offset :absolute-offset
                           runlevel :runlevel}]]
-  ;; TODO: currently this algorithm is bottom up:
-  ;; Instead, make it bottom up by calling (over) on token bigrams:
-  ;; [0 1],[1 2],[2 3],[3 4], ..etc.
-  ;; then use that to compute [0 [1 2]],[[0 1] 2],..etc.
+  ;; The :bigrams are a pre-computed series of 2-word parse trees. TODO:
+  ;; use bigrams to compute [0 [1 2]],[[0 1] 2],..etc.
   ;; This can be used to compute entire parse while doing no parsing of the same material more than once.
 
   (if (and (> split-at 0)
-           (< split-at (.size args)))
-      (let [args (subvec all absolute-offset (+ absolute-offset (.size args)))
+           (< split-at length))
+      (let [args (subvec all absolute-offset (+ absolute-offset length))
             runlevel (if runlevel runlevel 0)
             bigrams (if bigrams bigrams {})
             left-side (parse
@@ -59,51 +55,44 @@
                        {:all all
                         :length split-at
                         :absolute-offset absolute-offset
-                        :bigrams bigrams
-                        :offset offset})
+                        :bigrams bigrams})
             right-side (parse
-                        (subvec args split-at (.size args))
+                        (subvec args split-at length)
                         {:all all
                          :absolute-offset (+ split-at absolute-offset)
                          :bigrams bigrams
                          :left split-at
                          :length (- (.size args) split-at)
-                         :right (.size args)
-                         :offset (+ 1 offset)})]
+                         :right (.size args)})]
 
         (log/info "")
         (log/debug (str "parse-at: all : " (fo all)))
         (log/debug (str "parse-at: args: " (fo args)))
-        (log/info (str "parse-at: args2: " (fo (subvec all absolute-offset (+ absolute-offset (.size args))))))
+        (log/info (str "parse-at: args2: " (fo (subvec all absolute-offset (+ absolute-offset length)))))
 
-        (log/info (str " offset=" offset "; split-at=" split-at "; size=" (.size args)))
         (log/info (str " absolute-offset: " absolute-offset))
         (log/info (str " length:" length))
         (log/info (str " left-side: " (fo left-side)))
         (log/info (str " right-side: " (fo right-side)))
         (lazy-cat
-         (if (and (= (.size args) 2) (get bigrams absolute-offset))
+         (if (and (= length 2) (get bigrams absolute-offset))
            (get bigrams absolute-offset)
            (over/over grammar
                       left-side
                       right-side))
-         (parse-at args {:all all
-                         :absolute-offset absolute-offset
-                         :bigrams bigrams
-                         :length length
-                         :grammar grammar
-                         :split-at (+ 1 split-at)
-                         :offset offset
-                         :runlevel (+ 1 runlevel)})))))
+         (parse-at all {:absolute-offset absolute-offset
+                        :bigrams bigrams
+                        :length length
+                        :grammar grammar
+                        :split-at (+ 1 split-at)
+                        :runlevel (+ 1 runlevel)})))))
 
 (defn parse [arg & [{all :all
                      absolute-offset :absolute-offset
                      length :length
-                     bigrams :bigrams
-                     offset :offset}]]
+                     bigrams :bigrams}]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
-  (let [offset (if offset offset 0)
-        absolute-offset (if absolute-offset absolute-offset offset)
+  (let [absolute-offset (if absolute-offset absolute-offset 0)
         all (if all all (if (vector? arg)
                           arg))
         length (if length length (if (vector? arg)
@@ -122,13 +111,11 @@
 
           (vector? arg)
           (let [result
-                (parse-at arg {:all all
-                               :absolute-offset absolute-offset
+                (parse-at all {:absolute-offset absolute-offset
                                :bigrams bigrams
                                :grammar it-grammar
                                :length length
                                :split-at 1
-                               :offset offset
                                :runlevel 0
                                })]
             (do
