@@ -228,7 +228,8 @@
         {:note "avere(aux): takes trans"
          :synsem {:infl :present
                   :subcat {:2 {:agr agr-of-obj-of-main-verb
-                               :subcat {:2 {:agr agr-of-obj-of-main-verb}}
+                               :subcat {:2 {:agr agr-of-obj-of-main-verb
+                                            :pronoun true}}
                                :essere false}}}}))
 
       ;; 3. "avere" that takes an intransitive verb or a transitive verb within a VP
