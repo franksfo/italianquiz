@@ -1,5 +1,5 @@
 (ns italianverbs.over
-  (:refer-clojure :exclude [get-in merge resolve find parents])
+  (:refer-clojure :exclude [compile get-in merge resolve find parents])
   (:require
    [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
@@ -329,25 +329,6 @@
                    ;; it has a non-nil value for :serialized - just return nil, nothing else to do.
 
                    (throw (Exception. (str "Don't know what to do with this parent: " parent)))
-
-                   (and (map? parent)
-                        (not (nil? (:schema parent))))
-                   ;; figure out whether head is child1 or child2:
-                   (let [head
-                         (cond
-                          (= \c (nth (str (:schema parent)) 0))
-                          child2
-
-                          (= \h (nth (str (:schema parent)) 0))
-                          child1
-
-                          true
-                          (throw (Exception. (str "Don't know what the head-vs-complement ordering is for parent: " parent))))
-                         comp
-                         (if (= head child1)
-                           child2 child1)]
-                     (filter (fn [each] (not (fail? each)))
-                             (overhc parent head comp)))
 
                    ;; if parent is a symbol, evaluate it; should evaluate to a list of expansions (which might also be symbols, etc).
                    (symbol? parent)
