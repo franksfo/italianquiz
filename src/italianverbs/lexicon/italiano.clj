@@ -585,6 +585,16 @@
                                  :number :sing
                                  :def :def}}}})
 
+   ;; non-comparative
+   ;; TODO: add comparative
+   "rosso"
+   (unify adjective
+          {:synsem {:cat :adjective
+                    :sem {:pred :rosso
+                          :comparative false
+                          :physical-object true
+                          :human false}}})
+
    "tu"
    {:synsem {:cat :noun
              :pronoun true
