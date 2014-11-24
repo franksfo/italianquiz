@@ -69,15 +69,15 @@
 
 (defn create-ngram-map [args left ngrams grammar split-at x]
   (log/debug (str "create-ngram-map: left:" left ";split-at:" split-at "; size:" (.size args) "; x:" x))
-  (if (< (+ left (- split-at 2)) (/ (.size args) 2))
+  (if (< (+ left (- split-at 2))
+         (/ (.size args) 2))
     (do
       (lazy-cat
        (let [left-parses (get ngrams [left (+ left (- split-at 0))] '())
              right-parses (get ngrams [(+ left split-at 0) (- (.size args) 0)] '())
              result (over/over grammar left-parses right-parses)]
          (if (and (not (empty? left-parses))
-                  (not (empty? right-parses))
-                  (or true (not (empty? result))))
+                  (not (empty? right-parses)))
            (do
              (log/debug (str "create-ngram-map: left:" left ";split-at:" split-at "; size:" (.size args) "; x:" x))
              (log/info (str "create-ngram-map: " 
