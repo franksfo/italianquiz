@@ -134,6 +134,9 @@
           (first arg)
 
           (vector? arg)
+          ;; return the parse of the whole expression.
+          ;; TODO: if a parse for the whole expression is not found,
+          ;; return the largest subparse(s).
           (get (create-xgram-map arg (.size arg) 0 it-grammar)
                [0 (.size arg)])
           true
