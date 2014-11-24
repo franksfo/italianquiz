@@ -25,6 +25,13 @@
 
 (declare parse)
 
+(defn create-unigram-map [args index]
+  (if (< index (.size args))
+    (merge
+     {[index index]
+      (subvec args index (+ 1 index))}
+     (create-unigram-map args (+ 1 index)))))
+
 (defn create-bigram-map [args index grammar]
   (if (< (+ 1 index) (.size args))
     (let [left-side (subvec args index (+ 1 index))
@@ -33,7 +40,7 @@
        {[index (+ 1 index)]
         (over/over grammar left-side right-side)}
        (create-bigram-map args (+ index 1) grammar)))
-    {}))
+    (create-unigram-map args 0)))
 
 (defn create-trigram-map [args index grammar & [bigrams]]
   (let [bigrams (if bigrams bigrams (create-bigram-map args index grammar))]
@@ -57,36 +64,55 @@
 
 (defn create-ngram-map-middle [left ngrams grammar split-at length]
   (if (< split-at length)
-    (lazy-cat
-     (over/over grammar
-                (get ngrams [left split-at])
-                (get ngrams [(+ split-at left) (+ length left)]))
+    (do
+      (log/debug (str "create-ngram-middle: (" left "," split-at "," length ")"))
+      (lazy-cat
+       (over/over grammar
+                  (get ngrams [left split-at] '())
+                  (get ngrams [(+ split-at left) (+ length left)] '()))
 
-     (create-ngram-map-middle left ngrams grammar (+ 1 split-at) length))))
+       (create-ngram-map-middle left ngrams grammar (+ 1 split-at) length)))))
 
 (defn create-ngram-map [args left ngrams grammar split-at length]
-  (lazy-cat
-   (over/over grammar 
-              (subvec args left (+ 1 left))
-              (get ngrams [(+ 1 left) (+ length left)]))
+  (if (< split-at length)
+    (do
 
-   (create-ngram-map-middle left ngrams grammar (+ 1 left) length)
+      (log/info (str "create-ngram-map: " 
+                     (str/join " " (range left (+ left split-at))) " | "
+                     (str/join " " (range (+ left split-at) (+ left length)))))
 
-   (over/over grammar
-              (get ngrams [left (+ (- length 1) left)])
-              (subvec args (+ length left) (+ 1 length left)))))
+      (log/info (str "create-ngram-map: " 
+                     (str/join " " (map #(fo (subvec args % (+ 1 %)))
+                                        (range left (+ left split-at))))
+                     " | "
+                     (str/join " " (map #(fo (subvec args % (+ 1 %)))
+                                        (range (+ left split-at) (+ left length))))))
 
-(defn create-xgram-map [args x index grammar & [ngrams]]
-  (let [ngrams
-        (cond ngrams ngrams
-              (= x 3) (create-trigram-map args index grammar)
-              true (create-xgram-map args (- x 1) index grammar))]
-    (if (< (+ (- x 1) index) (.size args))
-      (merge
-       {[index (+ (- x 1) index)]
-        (create-ngram-map args index ngrams grammar (- x 2) (- x 1))}
-       (create-xgram-map args x (+ index 1) grammar ngrams))
-      ngrams)))
+      (log/info (str "crete-ngram-map: over(1): " [left (+ left (- split-at 1))]))
+      (log/info (str "crete-ngram-map: over(2): " [(+ left split-at) (- (.size args) 1)]))
+
+      (lazy-cat
+       (over/over grammar
+                  (get ngrams [left (+ left (- split-at 1))] '())
+                  (get ngrams [(+ left split-at) (- (.size args) 1)] '()))
+       (create-ngram-map args left ngrams grammar (+ 1 split-at) length)))))
+
+
+(defn create-xgram-map [args x index grammar & [nminus1grams]]
+  (cond (= x 2) (create-bigram-map args index grammar)
+        (= x 3) (create-trigram-map args index grammar)
+        true
+        (let [nminus1grams (if nminus1grams nminus1grams
+                               (create-xgram-map args (- x 1) 0 grammar))]
+          (if (< (+ x index) (+ 1 (.size args)))
+            (do
+              (log/info (str "create-xgram-map: x:" x "; index:" index ";size=" (.size args)))
+              (merge
+               {[index (+ x index)]
+                (create-ngram-map args index nminus1grams grammar 1 x)}
+               (create-xgram-map args x (+ index 1) grammar nminus1grams)
+               nminus1grams))
+            nminus1grams))))
 
 (defn create-4gram-map [args index grammar]
   (create-xgram-map args 4 index grammar))
