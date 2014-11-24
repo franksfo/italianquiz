@@ -51,14 +51,19 @@
         (merge
          {[index (+ 3 index)]
           (lazy-cat
-           ;; [a b | c ]
-           (over/over grammar
-                      (get bigrams [index (+ 2 index)])
-                      (get bigrams [(+ 2 index) (+ 3 index)]))
-           ;; [a | b c ]
-           (over/over grammar 
-                      (subvec args index (+ 1 index))
-                      (get bigrams [(+ 1 index) (+ 3 index)])))}
+           ;; [ a b | c ]
+           (let [left-parse (get bigrams [index (+ 2 index)])
+                 right-parse (get bigrams [(+ 2 index) (+ 3 index)])]
+             (if (and (not (empty? left-parse))
+                      (not (empty? right-parse)))
+               (over/over grammar left-parse right-parse)))
+
+           ;; [ a | b c ]
+           (let [left-parse (get bigrams [index (+ 1 index)])
+                 right-parse (get bigrams [(+ 1 index) (+ 3 index)])]
+             (if (and (not (empty? left-parse))
+                      (not (empty? right-parse)))
+               (over/over grammar left-parse right-parse))))}
          (create-trigram-map args (+ index 1) grammar bigrams)))
       bigrams)))
 
@@ -71,23 +76,13 @@
          (if (and (not (empty? left-parses))
                   (not (empty? right-parses)))
            (do
-             (log/info (str "create-ngram-map: " 
-                            (str/join " " (range left (+ left split-at))) " | "
-                            (str/join " " (range (+ left split-at) (+ left length)))))
-
-             (log/info (str "create-ngram-map: " 
-                            (str/join " " (map #(fo (subvec args % (+ 1 %)))
-                                               (range left (+ left split-at))))
+             (log/info (str "create-ngram-map: " [left (+ left (- split-at 0))] ":"
+                            (fo (get ngrams
+                                     [left (+ left (- split-at 0))]))
                             " | "
-                            (str/join " " (map #(fo (subvec args % (+ 1 %)))
-                                               (range (+ left split-at) (+ left length))))))
-
-             (log/info (str "create-ngram-map: over(1): " [left (+ left (- split-at 0))]))
-             (log/info (str "create-ngram-map: over(1): " (fo (get ngrams
-                                                                   [left (+ left (- split-at 0))]))))
-             (log/info (str "create-ngram-map: over(2): " [(+ left split-at) (- (.size args) 0)]))
-             (log/info (str "create-ngram-map: over(2): " (fo (get ngrams
-                                                                   [(+ left split-at) (- (.size args) 0)]))))
+                            "" [(+ left split-at) (- (.size args) 0)] ":"
+                            (fo (get ngrams
+                                     [(+ left split-at) (- (.size args) 0)]))))
              (over/over grammar left-parses right-parses))))
        (create-ngram-map args left ngrams grammar (+ 1 split-at) length)))))
 
@@ -101,7 +96,7 @@
                                (create-xgram-map args (- x 1) 0 grammar))]
           (if (< (+ x index) (+ 1 (.size args)))
             (do
-              (log/info (str "create-xgram-map: x:" x "; index:" index ";size=" (.size args)))
+              (log/debug (str "create-xgram-map: x:" x "; index:" index ";size=" (.size args)))
               (merge
                {[index (+ x index)]
                 (create-ngram-map args index nminus1grams grammar 1 x)}
