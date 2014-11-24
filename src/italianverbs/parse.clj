@@ -62,17 +62,6 @@
          (create-trigram-map args (+ index 1) grammar bigrams)))
       bigrams)))
 
-(defn create-ngram-map-middle [left ngrams grammar split-at length]
-  (if (< split-at length)
-    (do
-      (log/debug (str "create-ngram-middle: (" left "," split-at "," length ")"))
-      (lazy-cat
-       (over/over grammar
-                  (get ngrams [left split-at] '())
-                  (get ngrams [(+ split-at left) (+ length left)] '()))
-
-       (create-ngram-map-middle left ngrams grammar (+ 1 split-at) length)))))
-
 (defn create-ngram-map [args left ngrams grammar split-at length]
   (if (< split-at length)
     (do
@@ -103,7 +92,9 @@
        (create-ngram-map args left ngrams grammar (+ 1 split-at) length)))))
 
 (defn create-xgram-map [args x index grammar & [nminus1grams]]
-  (cond (= x 2) (create-bigram-map args index grammar)
+  (cond (= x 0) {}
+        (= x 1) (create-unigram-map args index)
+        (= x 2) (create-bigram-map args index grammar)
         (= x 3) (create-trigram-map args index grammar)
         true
         (let [nminus1grams (if nminus1grams nminus1grams
