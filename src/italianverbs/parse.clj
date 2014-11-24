@@ -28,7 +28,7 @@
 (defn create-unigram-map [args index]
   (if (< index (.size args))
     (merge
-     {[index index]
+     {[index (+ 1 index)]
       (subvec args index (+ 1 index))}
      (create-unigram-map args (+ 1 index)))))
 
@@ -37,7 +37,7 @@
     (let [left-side (subvec args index (+ 1 index))
           right-side (subvec args (+ 1 index) (+ 2 index))]
       (merge
-       {[index (+ 1 index)]
+       {[index (+ 2 index)]
         (over/over grammar left-side right-side)}
        (create-bigram-map args (+ index 1) grammar)))
     (create-unigram-map args 0)))
@@ -49,16 +49,16 @@
         (log/debug (str "over(1): " (fo (get bigrams index))))
         (log/debug (str "over(2): " (fo (get bigrams (+ 1 index)))))
         (merge
-         {[index (+ 2 index)]
+         {[index (+ 3 index)]
           (lazy-cat
            ;; [a b | c ]
-           (over/over grammar 
-                      (get bigrams [index (+ 1 index)])
-                      (subvec args (+ 2 index) (+ 3 index)))
+           (over/over grammar
+                      (get bigrams [index (+ 2 index)])
+                      (get bigrams [(+ 2 index) (+ 3 index)]))
            ;; [a | b c ]
            (over/over grammar 
                       (subvec args index (+ 1 index))
-                      (get bigrams [(+ 1 index) (+ 2 index)])))}
+                      (get bigrams [(+ 1 index) (+ 3 index)])))}
          (create-trigram-map args (+ index 1) grammar bigrams)))
       bigrams)))
 
@@ -76,27 +76,31 @@
 (defn create-ngram-map [args left ngrams grammar split-at length]
   (if (< split-at length)
     (do
-
-      (log/info (str "create-ngram-map: " 
-                     (str/join " " (range left (+ left split-at))) " | "
-                     (str/join " " (range (+ left split-at) (+ left length)))))
-
-      (log/info (str "create-ngram-map: " 
-                     (str/join " " (map #(fo (subvec args % (+ 1 %)))
-                                        (range left (+ left split-at))))
-                     " | "
-                     (str/join " " (map #(fo (subvec args % (+ 1 %)))
-                                        (range (+ left split-at) (+ left length))))))
-
-      (log/info (str "crete-ngram-map: over(1): " [left (+ left (- split-at 1))]))
-      (log/info (str "crete-ngram-map: over(2): " [(+ left split-at) (- (.size args) 1)]))
-
       (lazy-cat
-       (over/over grammar
-                  (get ngrams [left (+ left (- split-at 1))] '())
-                  (get ngrams [(+ left split-at) (- (.size args) 1)] '()))
-       (create-ngram-map args left ngrams grammar (+ 1 split-at) length)))))
+       (let [left-parses (get ngrams [left (+ left (- split-at 0))] '())
+             right-parses (get ngrams [(+ left split-at) (- (.size args) 0)] '())]
+         (if (and (not (empty? left-parses))
+                  (not (empty? right-parses)))
+           (do
+             (log/info (str "create-ngram-map: " 
+                            (str/join " " (range left (+ left split-at))) " | "
+                            (str/join " " (range (+ left split-at) (+ left length)))))
 
+             (log/info (str "create-ngram-map: " 
+                            (str/join " " (map #(fo (subvec args % (+ 1 %)))
+                                               (range left (+ left split-at))))
+                            " | "
+                            (str/join " " (map #(fo (subvec args % (+ 1 %)))
+                                               (range (+ left split-at) (+ left length))))))
+
+             (log/info (str "create-ngram-map: over(1): " [left (+ left (- split-at 0))]))
+             (log/info (str "create-ngram-map: over(1): " (fo (get ngrams
+                                                                   [left (+ left (- split-at 0))]))))
+             (log/info (str "create-ngram-map: over(2): " [(+ left split-at) (- (.size args) 0)]))
+             (log/info (str "create-ngram-map: over(2): " (fo (get ngrams
+                                                                   [(+ left split-at) (- (.size args) 0)]))))
+             (over/over grammar left-parses right-parses))))
+       (create-ngram-map args left ngrams grammar (+ 1 split-at) length)))))
 
 (defn create-xgram-map [args x index grammar & [nminus1grams]]
   (cond (= x 2) (create-bigram-map args index grammar)
@@ -114,82 +118,6 @@
                nminus1grams))
             nminus1grams))))
 
-(defn create-4gram-map [args index grammar]
-  (create-xgram-map args 4 index grammar))
-
-(defn create-5gram-map [args index grammar]
-  (create-xgram-map args 5 index grammar))
-
-(defn create-6gram-map [args index grammar]
-  (create-xgram-map args 6 index grammar))
-
-(defn create-7gram-map [args index grammar]
-  (create-xgram-map args 7 index grammar))
-
-(defn create-8gram-map [args index grammar]
-  (create-xgram-map args 8 index grammar))
-
-(defn parse-at [all & [ {length :length
-                         grammar :grammar
-                         split-at :split-at
-                         ngrams :ngrams
-                         offset :offset}]]
-  (if (and (> split-at 0)
-           (< split-at length))
-      (let []
-        (log/info (str "parse-at(" offset ", " split-at ", " length "):" (fo (subvec all offset (+ offset split-at))) " | " (fo (subvec all (+ offset split-at) (+ offset length)))))
-
-        (lazy-cat
-         (cond (= length 2)
-               (let [retval (get ngrams [offset (+ 1 offset)])]
-                 (do (if (not (empty? retval))
-                       (log/debug (str " =2> " (fo retval))))
-                     retval))
-               (= length 3)
-               (let [retval (get ngrams [offset (+ 2 offset)])]
-                 (do (if (not (empty? retval))
-                       (log/debug (str " =3> " (fo retval))))
-                     retval))
-               (= length 4)
-               (let [retval (get ngrams [offset (+ 3 offset)])]
-                 (do (if (not (empty? retval))
-                       (log/debug (str " =4> " (fo retval))))
-                     retval))
-               (= length 5)
-               (let [retval (get ngrams [offset (+ 4 offset)])]
-                 (do (if (not (empty? retval))
-                       (log/debug (str " =5> " (fo retval))))
-                     retval))
-               true
-               (let [args (subvec all offset (+ offset length))
-                     left-side (parse
-                                (subvec args 0 split-at)
-                                {:all all
-                                 :length split-at
-                                 :offset offset
-                                 :ngrams ngrams})
-                     right-side (parse
-                                 (subvec args split-at length)
-                                 {:all all
-                                  :offset (+ split-at offset)
-                                  :ngrams ngrams
-                                  :left split-at
-                                  :length (- (.size args) split-at)
-                                  :right (.size args)})
-                     retval 
-                     (if (and (not (empty? left-side))
-                              (not (empty? right-side)))
-                       (over/over grammar left-side right-side))]
-                 (do
-                   (if (not (empty? retval))
-                     (log/info (str " =m> " (fo retval))))
-                   retval)))
-         (parse-at all {:offset offset
-                        :ngrams ngrams
-                        :length length
-                        :grammar grammar
-                        :split-at (+ 1 split-at)})))))
-
 (defn parse [arg & [{all :all
                      offset :offset
                      length :length
@@ -199,11 +127,7 @@
         all (if all all (if (vector? arg)
                           arg))
         length (if length length (if (vector? arg)
-                                   (.size arg)))
-        ngrams (if ngrams ngrams
-                     (if (vector? arg)
-                       (create-5gram-map arg 0 it-grammar)))]
-
+                                   (.size arg)))]
     (log/debug (str "parse: arg: " (fo arg)))
     (log/debug (str "parse: all: " (fo all)))
     (cond (string? arg)
@@ -214,21 +138,8 @@
           (first arg)
 
           (vector? arg)
-          (let [result
-                (parse-at all {:offset offset
-                               :grammar it-grammar
-                               :length length
-                               :split-at 1
-                               :ngrams ngrams})]
-            (do
-              (if (not (empty? result))
-                (log/debug (str "parse: " (str/join " + "
-                                                   (map (fn [tok]
-                                                          (fo tok))
-                                                        arg))
-                               " => " (fo result))))
-              result))
-
+          (get (create-xgram-map arg (.size arg) 0 it-grammar)
+               [0 (.size arg)])
           true
           :error)))
 
