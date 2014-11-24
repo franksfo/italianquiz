@@ -310,6 +310,10 @@
 (defn overhc [parent head comp]
   (overc (overh parent head) comp))
 
+;; TODO: distinguish between when:
+;; 1) called with only a child1 (no child2),
+;; 2) called with both a child1 and a child2, but child2's supplied value is nil:
+;;    should be treated the same as empty list.
 (defn over [parents child1 & [child2]]
   (cond (vector? child1)
         (over parents (seq child1) child2)
