@@ -74,11 +74,10 @@
     (do
       (lazy-cat
        (let [left-parses (get ngrams [left (+ left (- split-at 0))] '())
-             right-parses (get ngrams [(+ left split-at 0) (- (.size args) 0)] '())
-             result (over/over grammar left-parses right-parses)]
+             right-parses (get ngrams [(+ left split-at 0) (- (.size args) 0)] '())]
          (if (and (not (empty? left-parses))
                   (not (empty? right-parses)))
-           (do
+           (let [result (over/over grammar left-parses right-parses)]
              (log/debug (str "create-ngram-map: left:" left ";split-at:" split-at "; size:" (.size args) "; x:" x))
              (log/info (str "create-ngram-map: " 
                             [left (+ left (- split-at 0))]
@@ -107,10 +106,17 @@
                   (log/debug (str "create-xgram-map: x=" x "; index=" index "; runlevel=" runlevel))
                   (log/debug (str "  -> create-ngram-map(index:" index ";split-at: " 1 ";x:" x))
                   (log/debug (str "  -> create-xgram-map(x:" x "; index:" (+ 1 index)))
-                  (merge
-                   {[index (+ x index)]
-                    (create-ngram-map args index nminus1grams grammar 1 x)}
-                   (create-xgram-map args x (+ index 1) grammar nminus1grams (+ 1 runlevel))))
+                  (create-xgram-map args x (+ index 1) grammar 
+
+                                    ;; combine the parses for this span from [index to (+ x index))...
+                                    (merge 
+
+                                     {[index (+ x index)]
+                                      (create-ngram-map args index nminus1grams grammar 1 x)}
+
+                                     ;; .. with parses of all of the proceeding consituent parts.
+                                     nminus1grams)
+                                    (+ 1 runlevel)))
                 true
                 nminus1grams))))
 
