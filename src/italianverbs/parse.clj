@@ -142,5 +142,8 @@
           true
           :error)))
 
-(def init-workbook (parse "io dorme"))
+(log/info (str "parse: " (fo (parse "il gatto ha dormito"))))
+
+
+
 
