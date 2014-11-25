@@ -174,6 +174,7 @@
        (italiano/get-string
         "i"
         {:italiano "studente"
+         :cat :noun
          :agr {:person :3rd
                :gender :masc
                :number :plur}}))))
