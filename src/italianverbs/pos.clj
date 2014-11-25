@@ -26,7 +26,7 @@
                                  :gender gender}}
                     :agr agr}
            :italiano {:cat cat
-                     :agr agr}
+                      :agr agr}
            :english {:cat cat
                      :agr agr}})
         common
@@ -90,8 +90,8 @@
               :agr {:gender gender
                     :number number}}
      :italiano {:cat adjective
-               :agr {:number number
-                     :gender gender}}
+                :agr {:number number
+                      :gender gender}}
      :english {:cat adjective}}))
 
 ;; useful abbreviations (aliases for some commonly-used maps):
@@ -107,7 +107,7 @@
         agr (ref :top)
         essere-type (ref :top)]
     {:italiano {:agr agr
-               :case subject-agreement :infl infl :essere essere-type}
+                :case subject-agreement :infl infl :essere essere-type}
      :english {:agr agr
                :case subject-agreement :infl infl}
      :synsem {:essere essere-type
@@ -123,7 +123,6 @@
 (def intransitive
   (unifyc verb-subjective
           {:synsem {:subcat {:2 '()}}}))
-
 
 ;; intransitive: has subject and no syntactic object, but only a semantic object.
 (def intransitive-unspecified-obj
@@ -154,9 +153,7 @@
              :synsem {:sem {:obj obj-sem}
                       :infl infl
                       :subcat {:2 {:sem obj-sem
-;                                   :subcat '()
                                    :case :acc}}}})))
-
 
 (def verb {:transitive transitive})
 
@@ -203,7 +200,7 @@
                   :pred pred})
         subject (ref :top)]
     {:italiano {:aux aux
-               :essere essere-binary-categorization}
+                :essere essere-binary-categorization}
      :synsem {:aux aux
               :sem sem
               :essere essere-binary-categorization
