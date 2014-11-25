@@ -205,30 +205,6 @@
      (get-string (get-in word '(:a))
                  (get-in word '(:b)))
 
-     (and (= (get-in word '(:infl)) :futuro)
-          (get-in word '(:italiano)))
-     (let [stem (stem-per-futuro (get-in word '(:italiano)) true)
-           person (get-in word [:agr :person])
-           number (get-in word [:agr :number])]
-       (cond
-        (and (= person :1st) (= number :sing))
-        (str stem "ò")
-
-        (and (= person :2nd) (= number :sing))
-        (str stem "ai")
-
-        (and (= person :3rd) (= number :sing))
-        (str stem "à")
-
-        (and (= person :1st) (= number :plur))
-        (str stem "emo")
-
-        (and (= person :2nd) (= number :plur))
-        (str stem "ete")
-
-        (and (= person :3rd) (= number :plur))
-        (str stem "anno")))
-
      (and
       (string? (get-in word '(:a :italiano)))
       (string? (get-in word '(:b :italiano)))
@@ -344,15 +320,41 @@
      (string/replace (get-in word '(:italiano))
                      #"[eo]$" "a") ;; nero => nera
 
-     ;; TODO: remove: using :italiano, not :italiano (see immediately below this).
      (and (= :infinitive (get-in word '(:infl)))
           (string? (get-in word '(:italiano))))
      (get-in word '(:italiano))
 
-     (and (= :infinitive (get-in word '(:infl)))
-          (string? (get-in word '(:italiano))))
-     (get-in word '(:italiano))
+     ;; futuro: 1) irregular
+     (and
+      (= (get-in word '(:infl)) :futuro)
+      (map? (get-in word '(:futuro))))
+     (let [infinitive (get-in word '(:italiano))
+           person (get-in word '(:agr :person))
+           number (get-in word '(:agr :number))]
+       (cond
+        (and (= person :1st) (= number :sing))
+        (get-in word '(:futuro :1sing))
+        (and (= person :2nd) (= number :sing))
+        (get-in word '(:futuro :2sing))
+        (and (= person :3rd) (= number :sing))
+        (get-in word '(:futuro :3sing))
+        (and (= person :1st) (= number :plur))
+        (get-in word '(:futuro :1plur))
+        (and (= person :2nd) (= number :plur))
+        (get-in word '(:futuro :2plur))
+        (and (= person :3rd) (= number :plur))
+        (get-in word '(:futuro :3plur))
+
+        (and (= (get-in word '(:infl)) :futuro)
+             (string? (get-in word '(:italiano))))
+        (str (get-in word '(:italiano)) " (futuro)")
+
+        true ;; failthrough: should usually not get here:
+        ;; TODO: describe when it might be ok, i.e. why log/warn not log/error.
+        (do (log/warn (str "get-string-1 could not match: " word))
+        word)))
      
+     ;; futuro: 2) futuro-stem specified
      (and (= (get-in word '(:infl)) :futuro)
           (get-in word '(:futuro-stem)))
      (let [stem (get-in word '(:futuro-stem))]
@@ -375,35 +377,36 @@
         (and (= person :3rd) (= number :plur))
         (str stem "anno")))
 
-     (and
-      (= (get-in word '(:infl)) :futuro)
-      (map? (get-in word '(:futuro))))
+     ;; futuro 3) regular inflection of futuro.
+     (and (= (get-in word '(:infl)) :futuro)
+          (get-in word '(:italiano)))
+
      (let [infinitive (get-in word '(:italiano))
            person (get-in word '(:agr :person))
-           number (get-in word '(:agr :number))]
+           number (get-in word '(:agr :number))
+           drop-e (get-in word '(:italiano :drop-e) false)
+           stem (stem-per-futuro infinitive drop-e)]
        (cond
         (and (= person :1st) (= number :sing))
-        (get-in word '(:futuro :1sing))
+        (str stem "ò")
+
         (and (= person :2nd) (= number :sing))
-        (get-in word '(:futuro :2sing))
+        (str stem "ai")
+
         (and (= person :3rd) (= number :sing))
-        (get-in word '(:futuro :3sing))
+        (str stem "à")
+
         (and (= person :1st) (= number :plur))
-        (get-in word '(:futuro :1plur))
+        (str stem "emo")
+
         (and (= person :2nd) (= number :plur))
-        (get-in word '(:futuro :2plur))
+        (str stem "ete")
+
         (and (= person :3rd) (= number :plur))
-        (get-in word '(:futuro :3plur))
+        (str stem "anno")
 
-
-        (and (= (get-in word '(:infl)) :futuro)
-             (string? (get-in word '(:italiano))))
-        (str (get-in word '(:italiano)) " (futuro)")
-
-        true ;; failthrough: should usually not get here:
-        ;; TODO: describe when it might be ok, i.e. why log/warn not log/error.
-        (do (log/warn (str "get-string-1 could not match: " word))
-        word)))
+        :else
+        (get-in word '(:italiano))))
 
      ;; irregular inflection of conditional
      (and (= (get-in word '(:infl)) :conditional)
@@ -456,39 +459,6 @@
 
         (and (= person :3rd) (= number :plur))
         (str stem "ebbero")
-
-        :else
-        (get-in word '(:italiano))))
-
-     ;; regular inflection of futuro.
-     (and (= (get-in word '(:infl)) :futuro)
-          (get-in word '(:italiano)))
-
-     (let [infinitive (get-in word '(:italiano))
-           person (get-in word '(:agr :person))
-           number (get-in word '(:agr :number))
-           drop-e (get-in word '(:italiano :drop-e) false)
-           stem (stem-per-futuro infinitive drop-e)]
-
-
-       (cond
-        (and (= person :1st) (= number :sing))
-        (str stem "ò")
-
-        (and (= person :2nd) (= number :sing))
-        (str stem "ai")
-
-        (and (= person :3rd) (= number :sing))
-        (str stem "à")
-
-        (and (= person :1st) (= number :plur))
-        (str stem "emo")
-
-        (and (= person :2nd) (= number :plur))
-        (str stem "ete")
-
-        (and (= person :3rd) (= number :plur))
-        (str stem "anno")
 
         :else
         (get-in word '(:italiano))))
