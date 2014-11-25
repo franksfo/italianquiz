@@ -273,13 +273,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
          (sem-impl merged) ;; we've added some new information: more implications possible from that.
          merged))))) ;; no more implications: return
 
-(def sentential-adverb
-  (let [sentential-sem (ref :top)]
-    {:synsem {:cat :sent-modifier
-              :sem {:subj sentential-sem}
-              :subcat {:1 {:sem sentential-sem
-                           :subcat '()}}}}))
-
 ;; TODO: all these X-common things are going away in favor of lexicon/italiano.
 (def andare-common
    {:italiano {:infinitive "andare"

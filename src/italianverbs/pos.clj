@@ -241,3 +241,11 @@
 (def cat-of-pronoun (ref :noun))
 
 (def subcat0 {:synsem {:subcat '()}})
+
+(def sentential-adverb
+  (let [sentential-sem (ref :top)]
+    {:synsem {:cat :sent-modifier
+              :sem {:subj sentential-sem}
+              :subcat {:1 {:sem sentential-sem
+                           :subcat '()}}}}))
+
