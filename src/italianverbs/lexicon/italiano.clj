@@ -1079,7 +1079,23 @@
           (concat result (exception-generator (rest lexicon)))
           (exception-generator (rest lexicon)))))))
 
+(defn phonize [a-map a-string]
+  (let [common {:phrasal false}]
+    (cond (or (vector? a-map) (seq? a-map))
+          (map (fn [each-entry]
+                 (phonize each-entry a-string))
+               a-map)
+
+          (and (map? a-map)
+               (not (= :no-italiano (get-in a-map [:italiano] :no-italiano))))
+          (unify {:italiano {:italiano a-string}}
+                 common
+                 a-map)
+
+        true
+        (unify a-map
+               {:italiano a-string}
+               common))))
+
 (def lexicon
-  (compile-lex lexicon-source exception-generator))
-
-
+  (compile-lex lexicon-source exception-generator phonize))

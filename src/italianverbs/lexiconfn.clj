@@ -27,19 +27,29 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
     ;; else, not fail, so add to lexicon.
     (do
       (log/debug (str "Adding entry: " (morph/fo entry)))
-      (let [italian (get-in entry '(:italiano))
+      ;; TODO: should not make reference to particular languages here
+      (let [italian (get-in entry '(:italiano) :none)
+            english (get-in entry '(:english) :none)
             entry
             (conj
-             {:italiano (if (string? italian)
-                         {:italiano italian}
-                         italian)}
+             (if (= italian :none)
+               (if (= english :none)
+                 {}
+                 {:english (if (string? english)
+                             {:english english}
+                             english)})
+               {:italiano (if (string? italian)
+                            {:italiano italian}
+                            italian)})
              (dissoc
-              (if (not (= :none (get entry :serialized :none)))
-                (conj {:serialized (serialize entry)}
-                      entry)
-                (conj {:serialized (serialize (dissoc entry :serialized))}
-                      entry))
-              :italiano))]
+              (dissoc
+               (if (not (= :none (get entry :serialized :none)))
+                 (conj {:serialized (serialize entry)}
+                       entry)
+                 (conj {:serialized (serialize (dissoc entry :serialized))}
+                       entry))
+               :italiano)
+              :english))]
         (log/debug (str "successfully serialized: " entry))
         entry))))
 
@@ -411,23 +421,8 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (defn map-function-on-map-vals [m f]
   (into {} (for [[k v] m] [k (f k v)])))
 
-(defn phonize [a-map a-string]
-  (let [common {:phrasal false}]
-    (cond (or (vector? a-map) (seq? a-map))
-          (map (fn [each-entry]
-                 (phonize each-entry a-string))
-               a-map)
-
-          (and (map? a-map)
-               (not (= :no-italiano (get-in a-map [:italiano] :no-italiano))))
-          (unify {:italiano {:italiano a-string}}
-                 common
-                 a-map)
-
-        true
-        (unify a-map
-               {:italiano a-string}
-               common))))
+(defn map-function-on-map-vals [m f]
+  (into {} (for [[k v] m] [k (f k v)])))
 
 (defn check-lexicon [lexicon]
   (let [check-one (fn [k v]
@@ -748,9 +743,10 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                 ;; not done yet: continue.
                 (transform result)))))))
 
-(defn transform-each-lexical-val [italian-lexical-string lexical-val]
+
+(defn transform-each-lexical-val-with-fn [italian-lexical-string lexical-val the-fn]
   (let [lexical-val
-        (phonize lexical-val italian-lexical-string)]
+        (the-fn lexical-val italian-lexical-string)]
     (cond
      (map? lexical-val)
      (transform lexical-val)
@@ -759,16 +755,25 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
             (transform each))
           lexical-val))))
 
-(defn compile-lex [lexicon-source exception-generator]
+(defn transform-each-lexical-val [italian-lexical-string lexical-val]
+  (map (fn [each]
+         (transform each))
+       lexical-val))
+
+(defn compile-lex [lexicon-source exception-generator phonize-fn]
   (let [;; take source lexicon (declared above) and compile it.
         ;; 1. canonicalize all lexical entries
         ;; (i.e. vectorize the values of the map).
         lexicon-stage-1 (listify lexicon-source)
-;    lexicon-stage-1))
+
+        phon-lexicon (map-function-on-map-vals
+                      lexicon-stage-1
+                      (fn [lexical-string lexical-val]
+                        (phonize-fn lexical-val lexical-string)))
 
         ;; 2. apply grammatical-category and semantic rules to each element in the lexicon
         lexicon-stage-2 (map-function-on-map-vals 
-                         lexicon-stage-1
+                         phon-lexicon
                          transform-each-lexical-val)
 
         ;; 3. generate exceptions

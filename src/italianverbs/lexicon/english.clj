@@ -38,7 +38,7 @@
                            :past "read"
                            :note "(past)"} ;; spelled "read" but pronounced like "red".
                  :synsem {:sem {:pred :leggere
-                                :discrte false
+                                :discrete false
                                 :subj {:human true}}}}]
                  
      [(unify
@@ -53,7 +53,7 @@
 
 })
 
-;; TODO: need to regenerate :serialized for each exception.
+;; TODO: just a stub for now:
 (defn exception-generator [lexicon]
   (let [lexeme-kv (first lexicon)
         lexemes (second lexeme-kv)]
@@ -61,5 +61,23 @@
       (list {})
       (list {}))))
 
-(def lexicon (compile-lex lexicon-source exception-generator))
+(defn phonize [a-map a-string]
+  (let [common {:phrasal false}]
+    (cond (or (vector? a-map) (seq? a-map))
+          (map (fn [each-entry]
+                 (phonize each-entry a-string))
+               a-map)
+
+          (and (map? a-map)
+               (not (= :no-english (get-in a-map [:english] :no-english))))
+          (unify {:english {:english a-string}}
+                 common
+                 a-map)
+
+        true
+        (unify a-map
+               {:english a-string}
+               common))))
+
+(def lexicon (compile-lex lexicon-source exception-generator phonize))
 
