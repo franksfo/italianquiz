@@ -778,6 +778,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                          (exception-generator lexicon-stage-2))))
 
         lexicon
-        (merge-with concat lexicon-stage-2 exceptions)];
+        (merge-with concat lexicon-stage-2 exceptions)]
     lexicon))
+
 
