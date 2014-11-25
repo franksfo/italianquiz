@@ -310,7 +310,7 @@
       (string? (get-in word [:italiano]))
       (= (get-in word '(:agr :gender)) :masc)
       (= (get-in word '(:agr :number)) :plur)
-      (= :noun (get-in word '(:cat) :noun))
+      (= :noun (get-in word '(:cat)))
       (get-in word '(:italiano)))
      (string/replace (get-in word '(:italiano))
                      #"[eo]$" "i") ;; dottore => dottori; medico => medici
@@ -320,7 +320,7 @@
       (string? (get-in word [:italiano]))
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :plur)
-      (= (get-in word '(:cat) :noun))
+      (= (get-in word '(:cat)))
       (get-in word '(:italiano)))
      (string/replace (get-in word '(:italiano))
                      #"[a]$" "e") ;; donna => donne
