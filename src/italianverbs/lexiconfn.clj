@@ -599,43 +599,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
          true lexical-entry))
 
-(defn intransitive-verb-rule [lexical-entry]
-  (cond (and (= (get-in lexical-entry '(:synsem :cat))
-                :verb)
-             (and (= :none (get-in lexical-entry '(:synsem :sem :obj) :none))
-                  (= :none (get-in lexical-entry '(:synsem :sem :location) :none)))
-             (not (= true (get-in lexical-entry '(:synsem :aux)))))
-        (unifyc
-         lexical-entry
-         intransitive)
-        true
-        lexical-entry))
-
-(defn modality-rule [lexical-entry]
-  "prevent ratholes like 'Potere ... potere dormire (To be able...to be able to sleep)'"
-  (cond (= true (get-in lexical-entry '(:synsem :modal)))
-        (unifyc
-         modal lexical-entry
-         {:synsem {:subcat {:2 {:modal false}}}})
-
-        (= :verb (get-in lexical-entry '(:synsem :cat)))
-        {:synsem {:modal false}}
-        true
-        lexical-entry))
-
-(defn noun-arguments-must-be-empty-subcat [lexical-entry]
-  "noun-headed arguments of verbs must either be empty subcat (e.g. either a NP such as 
-    'the dog' in 'sees the dog' and not 'sees dog'), or a mass noun (e.g. 'milk', which will
-    have an empty subcat."
-  ;; TODO: mass noun part not implemented yet.
-  (cond (and (= :verb (get-in lexical-entry '(:synsem :cat)))
-             (= :noun (get-in lexical-entry '(:synsem :subcat :2 :cat))))
-        (unifyc lexical-entry
-                {:synsem {:subcat {:2 {:subcat '()}}}})
-
-        true
-        lexical-entry))
-
 (defn pronoun-and-propernouns [lexical-entry]
   (cond (= true (get-in lexical-entry '(:synsem :pronoun)))
         (unifyc lexical-entry
@@ -649,24 +612,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                           :pronoun false
                           :subcat '()}})
 
-        true
-        lexical-entry))
-
-(defn transitive-verb-rule [lexical-entry]
-  (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
-             (not (nil? (get-in lexical-entry '(:synsem :sem :obj)))))
-        (unifyc
-         lexical-entry
-         transitive-but-object-cat-not-set)
-        true
-        lexical-entry))
-
-(defn verb-rule [lexical-entry]
-  "every verb has at least a subject."
-  (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
-        (unifyc
-         lexical-entry
-         verb-subjective)
         true
         lexical-entry))
 
@@ -685,43 +630,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                (embed-phon (dissoc lexical-entry ':italiano)))
         true
         lexical-entry))
-
-(defn aux-verb-rule [lexical-entry]
-  "If a word's :synsem :aux is set to true, then auxify it (add all the
-  things that are consequent on its being an aux verb.
-   If, however, it is a verb and its :synsem :aux is not set,
-  then set its aux explicitly to false."
-  (cond (= (get-in lexical-entry '(:synsem :aux)) true)
-        (unifyc lexical-entry
-                verb-aux)
-        (and (= (get-in lexical-entry '(:synsem :cat)) :verb)
-             (= :none (get-in lexical-entry '(:synsem :aux) :none)))
-        (unifyc lexical-entry
-                {:synsem {:aux false}})
-        true
-        lexical-entry))
-
-(defn ditransitive-verb-rule [lexical-entry]
-  (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
-             (not (nil? (get-in lexical-entry '(:synsem :sem :iobj)))))
-        (unifyc
-         lexical-entry
-         (let [ref (ref :top)]
-           {:synsem {:subcat {:3 {:sem ref}}
-                     :sem {:iobj ref}}}))
-        true
-        lexical-entry))
-
-(defn intensifier-agreement [lexical-entry]
-  (cond (= (get-in lexical-entry '(:synsem :cat)) :intensifier)
-        (unifyc
-         (let [agr (ref :top)]
-           {:synsem {:agr agr
-                     :subcat {:1 {:agr agr}
-                              :2 {:agr agr}}}})
-         lexical-entry)
-
-         true lexical-entry))
 
 (defn intransitive-verb-rule [lexical-entry]
   (cond (and (= (get-in lexical-entry '(:synsem :cat))
@@ -760,25 +668,10 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
         true
         lexical-entry))
 
-(defn pronoun-and-propernouns [lexical-entry]
-  (cond (= true (get-in lexical-entry '(:synsem :pronoun)))
-        (unifyc lexical-entry
-                {:synsem {:cat :noun
-                          :propernoun false
-                          :subcat '()}})
-
-        (= true (get-in lexical-entry '(:synsem :propernoun)))
-        (unifyc lexical-entry
-                {:synsem {:cat :noun
-                          :pronoun false
-                          :subcat '()}})
-
-        true
-        lexical-entry))
-
 (defn transitive-verb-rule [lexical-entry]
   (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
-             (not (nil? (get-in lexical-entry '(:synsem :sem :obj)))))
+             (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
+             (not (= (get-in lexical-entry [:synsem :sem :obj]) :unspec)))
         (unifyc
          lexical-entry
          transitive-but-object-cat-not-set)
@@ -936,14 +829,14 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                   (unifyc %1 %2))
                                (map
                                 (fn [rule]
-                                      ;; check for return value of (apply rule (list lexical-entry)):
-                                      ;; if not list, make it a list.
-                                      (let [result (apply rule (list lexical-entry))]
-                                        (if (and (not (fail? lexical-entry)) (fail? result))
-                                          (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
-                                                             " to fail; fail path was: " (fail-path result)))
-                                              :fail)
-                                          result)))
+                                  ;; check for return value of (apply rule (list lexical-entry)):
+                                  ;; if not list, make it a list.
+                                  (let [result (apply rule (list lexical-entry))]
+                                    (if (and (not (fail? lexical-entry)) (fail? result))
+                                      (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
+                                                         " to fail; fail path was: " (fail-path result)))
+                                          :fail)
+                                      result)))
                                 rules))
                 result (if (not (fail? result))
                          (reduce merge  (map (fn [rule]
