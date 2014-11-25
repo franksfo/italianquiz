@@ -560,6 +560,12 @@
                       :iobj {:animate true}
                       :obj {:buyable true}
                       :pred :dare}}}
+
+      "dei"
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :plur
+                :gender :masc}}
                
       "deludere"
       (unify
