@@ -197,8 +197,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                   :place false}{})
          inanimate (if (= (get-in input '(:animate))
                            false)
-                     {:human false
-                      :part-of-human-body false}{})
+                     {:human false})
 
          ;; legible(x) => artifact(x),drinkable(x,false),edible(x,false),human(x,false)
          legible
@@ -824,7 +823,8 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
           (log/debug (str "transforming lexical entry: " lexical-entry))
           (let [result (reduce #(if (or (fail? %1) (fail? %2))
                                   (do
-                                    (if (fail? %2) (log/warn (str "fail at %2." %2)))
+                                    (if (fail? %1) (log/warn (str "fail at %1:" %1 " in lexical-entry: " (strip-refs lexical-entry))))
+                                    (if (fail? %2) (log/warn (str "fail at %2:" %2 " in lexical-entry: " (strip-refs lexical-entry))))
                                     :fail)
                                   (unifyc %1 %2))
                                (map
@@ -835,8 +835,9 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                     (if (and (not (fail? lexical-entry)) (fail? result))
                                       (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
                                                          " to fail; fail path was: " (fail-path result)))
-                                          :fail)
-                                      result)))
+                                          result)
+                                      (do
+                                        result))))
                                 rules))
                 result (if (not (fail? result))
                          (reduce merge  (map (fn [rule]
@@ -847,11 +848,10 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                                        :fail)
                                                    result)))
                                              modifying-rules))
-                         (do
-                           :fail))]
+                           :fail)]
             (if (fail? result) 
               (do
-                (log/error (str "lexical entry cannot be added: " lexical-entry))
+                (log/error (str "lexical entry cannot be added: " (strip-refs result) ";fail-path: " (fail-path result)))
                 :fail)
               (if (isomorphic? result lexical-entry)
                 ;; done: one final step is to add serialization to the entry.
