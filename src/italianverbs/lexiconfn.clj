@@ -1,5 +1,5 @@
 (ns italianverbs.lexiconfn
-  (:refer-clojure :exclude [compile get-in merge resolve find])
+  (:refer-clojure :exclude [get-in merge resolve find])
   (:use [clojure.set])
   (:require
    [clojure.set :as set]
@@ -866,7 +866,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
             (transform each))
           lexical-val))))
 
-(defn compile [lexicon-source]
+(defn compile-lex [lexicon-source]
   (let [;; take source lexicon (declared above) and compile it.
         ;; 1. canonicalize all lexical entries
         ;; (i.e. vectorize the values of the map).

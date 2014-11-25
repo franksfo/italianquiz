@@ -1,5 +1,5 @@
 (ns italianverbs.workbook
-  (:refer-clojure :exclude [compile get-in merge resolve find parents])
+  (:refer-clojure :exclude [get-in merge resolve find parents])
   (:require
    [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
@@ -23,7 +23,7 @@
    [italianverbs.html :as html]
    [italianverbs.lexicon.italiano :refer :all :exclude [unify]]
    [italianverbs.lexicon.italiano :as it-l]
-   [italianverbs.lexiconfn :refer :all :exclude [:compile]]
+   [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.morphology.english :as en-m]
    [italianverbs.morphology.italiano :as it-m]

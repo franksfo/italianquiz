@@ -1,7 +1,6 @@
-(ns italianverbs.lexicon.italiano
-  (:refer-clojure :exclude [compile]))
+(ns italianverbs.lexicon.italiano)
 
-(require '[italianverbs.lexiconfn :refer (compile unify)])
+(require '[italianverbs.lexiconfn :refer (compile-lex unify)])
 (require '[italianverbs.pos :refer :all])
 
 (def lexicon-source
@@ -968,14 +967,11 @@
              :agr {:person :2nd
                    :number :plur}
              :sem (unify human {:pred :voi})
-             :subcat '()}
-    :italiano {:italiano "voi"
-               :cat cat-of-pronoun
-               :case disjunctive-case-of-pronoun}}
+             :subcat '()}}
 
 })
 
 (def lexicon
-  (compile lexicon-source))
+  (compile-lex lexicon-source))
 
 

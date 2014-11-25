@@ -1,7 +1,7 @@
 (ns italianverbs.cache
-  (:refer-clojure :exclude [compile get-in merge resolve find parents])
+  (:refer-clojure :exclude [get-in merge resolve find parents])
   (:require
-   [clojure.core :exclude [compile get-in]]
+   [clojure.core :exclude [get-in]]
 
    ;; TODO: comment is misleading in that we never call core/get-in from this file.
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"

@@ -1,5 +1,5 @@
 (ns italianverbs.grammar.italiano
-  (:refer-clojure :exclude [compile get-in merge resolve])
+  (:refer-clojure :exclude [get-in merge resolve])
   (:require 
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
