@@ -605,12 +605,6 @@
                          :2 '()}}
        :italiano {:initial true}}
 
-      "di i"
-      {:synsem {:cat :det
-                :def :partitivo
-                :number :plur
-                :gender :masc}}
-
       "di la"
       {:synsem {:cat :det
                 :def :partitivo
