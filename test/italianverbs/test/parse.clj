@@ -41,7 +41,15 @@
     (is (= (get-in (first result) [:synsem :sem :subj :mod :pred])
            :nero))))
 
+(deftest tokenization-1
+  "there should be only 2 tokens, even though there's 3 tokens at first according to initial tokenization."
+  (let [result (toks "la sua birra")]
+    (is (= (.size result) 2))))
 
+(deftest tokenization-1
+  "there should be 3 tokens, for each of the tokens at first according to initial tokenization."
+  (let [result (toks "il gatto nero")]
+    (is (= (.size result) 3))))
 
 
 

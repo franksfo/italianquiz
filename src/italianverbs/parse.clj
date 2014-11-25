@@ -19,9 +19,32 @@
     (analyze token (fn [k]
                      (get lexicon k)))))
 
+(def tokenizer #"[ ']")
+
+(declare toks2)
+
 (defn toks [s]
-  (vec (map #(lookup %)
-            (str/split s #"[ ']"))))
+  (vec (toks2 (str/split s tokenizer))))
+
+(defn toks2 [tokens]
+  "like (toks), but use lexicon to consolidate initial tokens into larger groups."
+  (cond (nil? tokens) nil
+        (empty? tokens) nil
+        (> (.size tokens) 1)
+        ;; it's two or more tokens, so try to combine the first and the second of them:
+        (let [looked-up (lookup (str (first tokens) " " (second tokens)))]
+          (if (not (empty? looked-up))
+            ;; found a match by combining first two tokens.
+            (cons looked-up
+                  (toks2 (rest (rest tokens))))
+            ;; else, no match: consider the first token as a standalone token and continue.
+              (cons (lookup (first tokens))
+                    (toks2 (rest tokens)))))
+        ;; only one token left: look it up.
+        (= (.size tokens) 1)
+        (lookup (first tokens))
+        true
+        nil))
 
 (declare parse)
 
