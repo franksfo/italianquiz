@@ -963,7 +963,7 @@
    "voi"
    {:synsem {:cat cat-of-pronoun
              :pronoun true
-             :case disjunctive-case-of-pronoun
+             :case :nom
              :agr {:person :2nd
                    :number :plur}
              :sem (unify human {:pred :voi})
