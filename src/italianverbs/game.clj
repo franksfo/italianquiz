@@ -11,8 +11,10 @@
    [italianverbs.grammar.italiano :as it]
    [hiccup.page :as h]
    [italianverbs.html :as html]
-   [italianverbs.lexicon :as lex]
+   [italianverbs.lexicon.english :as en-l]
+   [italianverbs.lexicon.italiano :as it-l]
    [italianverbs.morphology :as morph]
+   [italianverbs.morphology :refer [fo fo-ps]]
    [italianverbs.morphology.english :as en-m]
    [italianverbs.morphology.italiano :as it-m]
    [italianverbs.ug :refer [head-principle]]
@@ -123,10 +125,12 @@
           it/grammar))
 
 (def en-index
-  (future (create-index mini-english-grammar lex/lexicon head-principle)))
+  (create-index mini-english-grammar en-l/lexicon head-principle))
+
+(def it-lexicon (flatten (vals it-l/lexicon)))
 
 (def it-index
-  (future (create-index mini-italian-grammar lex/lexicon head-principle)))
+  (create-index mini-italian-grammar it-lexicon head-principle))
 
 (defn generate-question [request]
   (let [spec
@@ -141,10 +145,8 @@
                "Cache-Control" "no-cache, no-store, must-revalidate"
                "Pragma" "no-cache"
                "Expires" "0"}
-     :body (let [question (gen/generate spec
-                                        mini-english-grammar
-                                        lex/lexicon
-                                        en-index)
+     :body (let [question (gen/sentence spec mini-italian-grammar mini-english-grammar
+                                        it-index en/cache it-lexicon)
                  semantics (strip-refs (get-in question [:synsem :sem]))
                  english (morph/remove-parens (en-m/get-string (:english question)))
                  form (html-form question)]
@@ -170,12 +172,11 @@
                         [:h3 "output "]
                         [:div#output ]]))}))
 
-(defn working []
-  (gen/generate {:synsem {:subcat '()}}
-;                          :sem {:pred :dormire}}}
-                mini-italian-grammar
-                lex/lexicon
-                it-index))
+;; a reference for how to use the generate API.
+(defn working [ & [spec]]
+  (let [spec (if spec spec :top)]
+    (gen/sentence spec mini-italian-grammar en/grammar it-index en/cache 
+                  it-lexicon)))
 
 (defn generate-answers [request]
   "generate a single sentence according to the semantics of the request."
@@ -191,7 +192,7 @@
                     :head {:phrasal :top}
                     :comp {:phrasal false}}
                    mini-italian-grammar
-                   lex/lexicon
+                   it-l/lexicon
                    it-index)
 
         italian (it-m/get-string
