@@ -283,49 +283,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
          (sem-impl merged) ;; we've added some new information: more implications possible from that.
          merged))))) ;; no more implications: return
 
-;; TODO: all these X-common things are going away in favor of lexicon/italiano.
-(def andare-common
-   {:italiano {:infinitive "andare"
-              :essere true
-              :drop-e true
-              :irregular {:present {:1sing "vado"
-                                    :2sing "vai"
-                                    :3sing "va"
-                                    :1plur "andiamo"
-                                    :2plur "andate"
-                                    :3plur "vanno"}}}
-    :english {:infinitive "to go"
-              :irregular {:past "went"
-                          :past-participle "gone"}}
-    :synsem {:essere true
-             :sem {:subj {:animate true}
-                   :activity false ;; because "I was going when (something happened) .." sounds weird.
-                   :pred :andare
-                   :discrete false
-                   :motion false}}})
-
-;; TODO: deprecated; use lexicon/italiano.clj instead.
-(def avere-common
-  {:synsem {:essere false
-            :cat :verb}
-   :italiano {:infinitive "avere"
-             :drop-e true
-             :irregular {:passato "avuto"
-                         :present {:1sing "ho"
-                                   :2sing "hai"
-                                   :3sing "ha"
-                                   :1plur "abbiamo"
-                                   :2plur "avete"
-                                   :3plur "hanno"}}}
-   :english {:infinitive "to have"
-             :irregular {:past "had"
-                         :present {:1sing "have"
-                                   :2sing "have"
-                                   :3sing "has"
-                                   :1plur "have"
-                                   :2plur "have"
-                                   :3plur "have"}}}})
-
 (def essere-common
   (let [infl (ref :top)
         agr (ref :top)]
