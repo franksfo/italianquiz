@@ -1,5 +1,5 @@
 (ns italianverbs.workbook
-  (:refer-clojure :exclude [get-in merge resolve find parents])
+  (:refer-clojure :exclude [compile get-in merge resolve find parents])
   (:require
    [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
@@ -22,6 +22,7 @@
    [italianverbs.grammar.italiano :as it]
    [italianverbs.html :as html]
    [italianverbs.lexicon.italiano :refer :all :exclude [unify]]
+   [italianverbs.lexicon.italiano :as it-l]
    [italianverbs.lexiconfn :refer :all :exclude [:compile]]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.morphology.english :as en-m]
@@ -159,7 +160,7 @@
 (defn sentence [ & [spec it-grammar]]
   (let [spec (if spec spec :top)
         it-grammar (if it-grammar it-grammar it/grammar)]
-    (generate/sentence spec en/grammar it-grammar en/cache it/cache)))
+    (generate/sentence spec it-grammar en/grammar it/cache en/cache (flatten (vals it-l/lexicon)))))
 
 (defn show-sem [to-show]
   (cond (seq? to-show)
@@ -199,11 +200,11 @@
 
 ;; TODO: remove when I feel safe that I don't need it anymore..
 ;; commented out until new per-language stuff is working.
-;(def get-stuff-initialized (sentence {:comp {:phrasal false}
-;                                      :head {:phrasal false}
-;                                      :synsem {:subcat '() :cat :verb
-;                                              :sem {:pred :sognare
-;                                                     :subj {:pred :lei}}}}
-;                                     it/grammar))
+(def get-stuff-initialized (sentence {:comp {:phrasal false}
+                                      :head {:phrasal false}
+                                      :synsem {:subcat '() :cat :verb
+                                              :sem {:pred :dormire
+                                                     :subj {:pred :lei}}}}
+                                     it/grammar))
 
-;(log/info (str "done initializing workbook. " (fo get-stuff-initialized)))
+(log/info (str "done initializing workbook. " (fo get-stuff-initialized)))

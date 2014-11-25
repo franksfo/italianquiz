@@ -6,7 +6,6 @@
    [clojure.tools.logging :as log]
 
    [italianverbs.forest :as forest]
-   [italianverbs.lexicon :refer (lexicon it en)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer :all]
    [italianverbs.ug :refer (head-principle)]
@@ -15,7 +14,7 @@
 (declare generate-from)
 
 ;; TODO: grammar1 grammar2 cache1 cache2 are required, not optional.
-(defn sentence [ & [spec grammar1 grammar2 cache1 cache2]]
+(defn sentence [ & [spec grammar1 grammar2 cache1 cache2 lexicon-1]]
   (if (seq? spec)
     (map (fn [each]
            (sentence each))
@@ -26,7 +25,8 @@
           spec (if spec spec :top)
           unified-spec (unifyc sentence-spec spec)]
       (log/info (str "generating with unified spec: " unified-spec))
-      (generate-from unified-spec grammar1 grammar2 cache1 cache2))))
+      (log/info (str " and with cache: " (type cache1)))
+      (generate-from unified-spec grammar1 grammar2 cache1 cache2 lexicon-1))))
 
 (defn nounphrase [ & [ spec ]]
   (let [sentence-spec {:synsem {:subcat '()
@@ -46,23 +46,23 @@
   (log/debug (str "generate with lexicon size: "
                   (.size the-lexicon) " and grammar size: "
                   (.size grammar) "."))
-  (let [result
-        (forest/generate spec grammar lexicon cache)]
+  (let [result (forest/generate spec grammar the-lexicon cache)]
     (log/info (str "generated this many: " (.size result)))
     result))
 
-(defn generate-from [spec grammar1 grammar2 cache1 cache2]
+(defn generate-from [spec grammar1 grammar2 cache1 cache2 lexicon1]
   (if (seq? spec)
     (map (fn [each]
            (generate-from each))
          spec)
     ;; TODO: cheating here (i.e. talking about specific languages when this module should be language-agnostic)
     (let [italiano
-          (generate spec grammar1 lexicon cache1)]
-      {:italiano italiano
-       :english
-       (generate (unifyc spec
-                         {:synsem {:sem (get-in italiano [:synsem :sem])}})
-                 grammar2
-                 lexicon
-                 cache2)})))
+          (generate spec grammar1 lexicon1 cache1)]
+      italiano)))
+;      {:italiano italiano})))
+;       :english
+;       (generate (unifyc spec
+;                         {:synsem {:sem (get-in italiano [:synsem :sem])}})
+;                 grammar2
+;                 lexicon
+;                 cache2)})))

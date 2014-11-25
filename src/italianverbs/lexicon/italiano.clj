@@ -573,6 +573,14 @@
                           :physical-object true
                           :human false}}})
 
+   "noi"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :1st
+                   :number :plur}
+             :sem (unify human {:pred :noi})
+             :subcat '()}}
 
    "pane"
    ;; inherently singular.
@@ -617,6 +625,18 @@
           masculine-noun
           {:synsem {:sem {:pred :vino
                           :artifact true}}})
+
+   "voi"
+   {:synsem {:cat cat-of-pronoun
+             :pronoun true
+             :case disjunctive-case-of-pronoun
+             :agr {:person :2nd
+                   :number :plur}
+             :sem (unify human {:pred :voi})
+             :subcat '()}
+    :italiano {:italiano "voi"
+               :cat cat-of-pronoun
+               :case disjunctive-case-of-pronoun}}
 
 })
 

@@ -1,10 +1,10 @@
 (ns italianverbs.grammar.italiano
-  (:refer-clojure :exclude [get-in merge resolve])
+  (:refer-clojure :exclude [compile get-in merge resolve])
   (:require 
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
    [italianverbs.generate :as gen]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.lexicon.italiano :refer :all :exclude [unify]]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
 
@@ -332,7 +332,9 @@
 (def cache nil)
 ;; TODO: trying to print cache takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to (keys cache).
-(def cache (future (create-index grammar lexicon head-principle)))
+(def cache (create-index grammar 
+                         (flatten (vals lexicon))
+                         head-principle))
 
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical cache in " (- end begin) " msec.")

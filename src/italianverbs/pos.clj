@@ -226,3 +226,11 @@
 ;; TODO: put semantics here.
 (def non-comparative-adjective
   subcat1)
+
+(def comp-sem (ref {:activity false
+                    :discrete false}))
+
+(def disjunctive-case-of-pronoun (ref :disj))
+(def cat-of-pronoun (ref :noun))
+
+(def subcat0 {:synsem {:subcat '()}})

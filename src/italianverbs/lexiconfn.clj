@@ -274,15 +274,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
          (sem-impl merged) ;; we've added some new information: more implications possible from that.
          merged))))) ;; no more implications: return
 
-(def subject (ref {:cat :noun}))
-(def comp-sem (ref {:activity false
-                    :discrete false}))
-
-(def disjunctive-case-of-pronoun (ref :disj))
-(def cat-of-pronoun (ref :noun))
-
-(def subcat0 {:synsem {:subcat '()}})
-
 (def sentential-adverb
   (let [sentential-sem (ref :top)]
     {:synsem {:cat :sent-modifier

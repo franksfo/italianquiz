@@ -1,7 +1,7 @@
 (ns italianverbs.cache
-  (:refer-clojure :exclude [get-in merge resolve find parents])
+  (:refer-clojure :exclude [compile get-in merge resolve find parents])
   (:require
-   [clojure.core :exclude [get-in]]
+   [clojure.core :exclude [compile get-in]]
 
    ;; TODO: comment is misleading in that we never call core/get-in from this file.
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
@@ -11,7 +11,6 @@
 
    [clojure.tools.logging :as log]
 
-   [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer :all]
    [italianverbs.morphology.english :as english]
@@ -153,9 +152,9 @@
                            (do
                              (log/trace (str "get-lex hit: head for schema: " (:rule schema)))
                              (:head (get cache (:rule schema))))
-                           (do
-                             (log/warn (str "CACHE MISS 1"))
-                             lexicon))
+
+                           (do (log/warn (str "CACHE MISS 1 for rule: " (:rule schema) " h/c: " head-or-comp " :: cache:" (type cache)))
+                               #{}))
 
                          (= :comp head-or-comp)
                          (if (and (= :comp head-or-comp)
@@ -249,7 +248,7 @@
                              (map (fn [lexeme]
                                     (unifyc lexeme
                                             {:phrasal false}))
-                                  @lexicon)
+                                  lexicon)
                              grammar)
         {:phrase-constraints phrase-constraint
          :phrases-for-spec
