@@ -124,6 +124,13 @@
   (unifyc verb-subjective
           {:synsem {:subcat {:2 '()}}}))
 
+
+;; intransitive: has subject and no syntactic object, but only a semantic object.
+(def intransitive-unspecified-obj
+  (unifyc verb-subjective
+          {:synsem {:subcat {:2 '()}
+                    :sem {:obj :unspec}}}))
+
 ;; transitive: has both subject and object.
 (def transitive
   (unifyc verb-subjective

@@ -472,16 +472,16 @@
    (let [common {:italiano {:passato "letto"}
                   :synsem {:essere false
                            :sem {:pred :leggere
-                                :discrete false
+                                 :discrete false
                                  :subj {:human true}}}}]
      [(unify
        common
        transitive
-       {:synsem {:obj {:legible true}}})
+       {:synsem {:sem {:obj {:legible true}}}})
 
       (unify
        common
-       intransitive)])
+       intransitive-unspecified-obj)])
 
    "libro"
    (unify agreement-noun
