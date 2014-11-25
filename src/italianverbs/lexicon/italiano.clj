@@ -321,7 +321,9 @@
    "birra"
    (unify agreement-noun
           drinkable-noun
-          feminine-noun)
+          feminine-noun
+          {:synsem {:sem {:pred :birra
+                          :artifact true}}})
 
 
    "braccio"
