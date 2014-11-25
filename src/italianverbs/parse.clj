@@ -3,13 +3,19 @@
 
 (require '[clojure.string :as str])
 (require '[clojure.tools.logging :as log])
+(require '[italianverbs.grammar.english :as en-g])
 (require '[italianverbs.grammar.italiano :as it-g])
+(require '[italianverbs.lexicon.english :as en-l])
 (require '[italianverbs.lexicon.italiano :as it-l])
 (require '[italianverbs.morphology :refer (fo fo-ps)])
+(require '[italianverbs.morphology.english :as en-m])
+(require '[italianverbs.morphology.italiano :as it-m])
 (require '[italianverbs.morphology.italiano :refer (analyze get-string)])
 (require '[italianverbs.over :as over])
 (require '[italianverbs.unify :refer (get-in strip-refs)])
 
+(def en-grammar en-g/grammar)
+(def en-lexicon en-l/lexicon)
 (def it-grammar it-g/grammar)
 (def it-lexicon it-l/lexicon)
 
@@ -19,32 +25,35 @@
     (analyze token (fn [k]
                      (get lexicon k)))))
 
+;; for now, using a language-independent tokenizer.
 (def tokenizer #"[ ']")
 
 (declare toks2)
 
-(defn toks [s]
-  (vec (toks2 (str/split s tokenizer))))
+(defn toks [s & [lexicon]]
+  (let [lexicon (if lexicon lexicon it-lexicon)]
+    (vec (toks2 (str/split s tokenizer) lexicon))))
 
-(defn toks2 [tokens]
-  "like (toks), but use lexicon to consolidate initial tokens into larger groups."
-  (cond (nil? tokens) nil
-        (empty? tokens) nil
-        (> (.size tokens) 1)
-        ;; it's two or more tokens, so try to combine the first and the second of them:
-        (let [looked-up (lookup (str (first tokens) " " (second tokens)))]
-          (if (not (empty? looked-up))
-            ;; found a match by combining first two tokens.
-            (cons looked-up
-                  (toks2 (rest (rest tokens))))
-            ;; else, no match: consider the first token as a standalone token and continue.
-              (cons (lookup (first tokens))
-                    (toks2 (rest tokens)))))
-        ;; only one token left: look it up.
-        (= (.size tokens) 1)
-        (list (lookup (first tokens)))
-        true
-        nil))
+(defn toks2 [tokens lexicon]
+  "like (toks), but use lexicon to consolidate two initial tokens into one. may consolidate larger groups than two in the future."
+  (let [lexicon (if lexicon lexicon it-lexicon)]
+    (cond (nil? tokens) nil
+          (empty? tokens) nil
+          (> (.size tokens) 1)
+          ;; it's two or more tokens, so try to combine the first and the second of them:
+          (let [looked-up (lookup (str (first tokens) " " (second tokens)) lexicon)]
+            (if (not (empty? looked-up))
+              ;; found a match by combining first two tokens.
+              (cons looked-up
+                    (toks2 (rest (rest tokens)) lexicon))
+              ;; else, no match: consider the first token as a standalone token and continue.
+              (cons (lookup (first tokens) lexicon)
+                    (toks2 (rest tokens) lexicon))))
+          ;; only one token left: look it up.
+          (= (.size tokens) 1)
+          (list (lookup (first tokens) lexicon))
+          true
+          nil)))
 
 (declare parse)
 
@@ -143,20 +152,12 @@
                 true
                 nminus1grams))))
 
-(defn parse [arg & [{all :all
-                     offset :offset
-                     length :length
-                     ngrams :ngrams}]]
+(defn parse [arg & [lexicon grammar]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
-  (let [offset (if offset offset 0)
-        all (if all all (if (vector? arg)
-                          arg))
-        length (if length length (if (vector? arg)
-                                   (.size arg)))]
-    (log/debug (str "parse: arg: " (fo arg)))
-    (log/debug (str "parse: all: " (fo all)))
+  (let [lexicon (if lexicon lexicon it-lexicon)
+        grammar (if grammar grammar it-grammar)]
     (cond (string? arg)
-          (parse (toks arg))
+          (parse (toks arg lexicon) lexicon grammar)
         
           (and (vector? arg)
                (empty? (rest arg)))
@@ -166,7 +167,7 @@
           ;; return the parse of the whole expression.
           ;; TODO: if a parse for the whole expression is not found,
           ;; return the largest subparse(s).
-          (get (create-xgram-map arg (.size arg) 0 it-grammar)
+          (get (create-xgram-map arg (.size arg) 0 grammar)
                [0 (.size arg)])
           true
           :error)))

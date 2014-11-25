@@ -1,7 +1,9 @@
 (ns italianverbs.lexicon.italiano)
 
+(require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
 (require '[italianverbs.pos :refer :all])
+(require '[italianverbs.unify :refer (copy)])
 
 (def lexicon-source
   {
@@ -971,7 +973,113 @@
 
 })
 
+;; TODO: need to regenerate :serialized for each exception.
+(defn exception-generator [lexicon]
+  (let [lexeme-kv (first lexicon)
+        lexemes (second lexeme-kv)]
+    (if lexeme-kv
+      (let [
+            result
+            (if false
+              nil ;; short-circuit
+
+              (mapcat (fn [path-and-merge-fn]
+                        (let [path (:path path-and-merge-fn)
+                              merge-fn (:merge-fn path-and-merge-fn)]
+                          ;; a lexeme-kv is a pair of a key and value. The key is a string (the word's surface form)
+                          ;; and the value is a list of lexemes for that string.
+                          (log/debug (str (first lexeme-kv) "looking at path: " path))
+                          (mapcat (fn [lexeme]
+                                    ;; this is where a unify/dissoc that supported
+                                    ;; non-maps like :top and :fail, would be useful:
+                                    ;; would not need the (if (not (fail? lexeme)..)) check
+                                    ;; to avoid a difficult-to-understand "java.lang.ClassCastException: clojure.lang.Keyword cannot be cast to clojure.lang.IPersistentMap" error.
+                                    (let [lexeme (cond (= lexeme :fail)
+                                                       :fail
+                                                       (= lexeme :top)
+                                                       :top
+                                                       true
+                                                       (dissoc (copy lexeme) :serialized))]
+                                      (if (not (= :none (get-in lexeme path :none)))
+                                        (list {(get-in lexeme path :none)
+                                               (merge lexeme (apply merge-fn (list lexeme)))}))))
+                                  lexemes)))
+                      [
+                       ;; 1. past-tense exceptions
+                       {:path [:italiano :passato]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :past
+                                      :italiano (get-in val [:italiano :passato] :nothing)}})}
+
+                       ;; 2. present-tense exceptions
+                       {:path [:italiano :present :1sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :1sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :1st}}})}
+                       {:path [:italiano :present :2sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :2sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :2nd}}})}
+                       
+                       {:path [:italiano :present :3sing]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :3sing] :nothing)
+                                      :agr {:number :sing
+                                            :person :3rd}}})}
+
+                       {:path [:italiano :present :1plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :1plur] :nothing)
+                                      :agr {:number :plur
+                                            :person :1st}}})}
+                       {:path [:italiano :present :2plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :2plur] :nothing)
+                                      :agr {:number :plur
+                                            :person :2nd}}})}
+                       
+                       {:path [:italiano :present :3plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:infl :present
+                                      :italiano (get-in val [:italiano :present :3plur] :nothing)
+                                      :agr {:number :plur
+                                            :person :3rd}}})}
+
+                       ;; adjectives
+                       {:path [:italiano :masc :plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:agr {:gender :masc
+                                            :number :plur}}})}
+
+                       {:path [:italiano :fem :plur]
+                        :merge-fn
+                        (fn [val]
+                          {:italiano {:agr {:gender :fem
+                                            :number :plur}}})}
+
+                       ]))]
+            
+            
+        (if (not (empty? result))
+          (concat result (exception-generator (rest lexicon)))
+          (exception-generator (rest lexicon)))))))
+
 (def lexicon
-  (compile-lex lexicon-source))
+  (compile-lex lexicon-source exception-generator))
 
 
