@@ -649,7 +649,6 @@
           (string? (get-in word '(:present :3plur))))
      (get-in word '(:present :3plur))
 
-
      (and
       (= (get-in word '(:infl)) :present)
       (string? (get-in word '(:italiano))))
@@ -666,37 +665,8 @@
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))]
        (cond
-
-        (and (= person :1st) (= number :sing)
-             (string? (get-in word '(:present :1sing))))
-        (get-in word '(:present :1sing))
-
-        (and (= person :2nd) (= number :sing)
-             (string? (get-in word '(:present :2sing))))
-        (get-in word '(:present :2sing))
-
-        (and (= person :3rd) (= number :sing)
-             (string? (get-in word '(:present :3sing))))
-        (get-in word '(:present :3sing))
-
-        (and (= person :1st) (= number :plur)
-             (string? (get-in word '(:present :1plur))))
-        (get-in word '(:present :1plur))
-
-        (and (= person :2nd) (= number :plur)
-             (string? (get-in word '(:present :2plur))))
-        (get-in word '(:present :2plur))
-
-        (and (= person :3rd) (= number :plur)
-             (string? (get-in word '(:present :3plur))))
-        (get-in word '(:present :3plur))
-
         (and (= person :1st) (= number :sing))
         (str stem "o")
-
-        (and (= person :2nd) (= number :sing)
-            last-stem-char-is-i)
-        (str stem)
 
         (and (= person :2nd) (= number :sing))
         (str stem "i")
