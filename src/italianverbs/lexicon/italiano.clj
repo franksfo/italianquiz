@@ -395,48 +395,308 @@
           {:synsem {:sem (unify animal {:pred :cane
                                         :pet true})}})
 
-   "dormire"
-   {:synsem {:cat :verb
-             :essere false
-             :sem {:subj {:animate true}
-                   :discrete false
-                   :pred :dormire}}}
+   "casa"
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           feminine-noun
+           {:synsem {:sem {:pred :casa
+                           :activity false ;; should not need this probably: should be inferrable from  :place==true or perhaps :artifact==true.
+                           :buyable true
+                           :artifact true
+                           :place true}}})
+
+    "cattivo"
+     (unify adjective
+            {:synsem {:cat :adjective
+                      :sem {:pred :cattivo
+                            :comparative false
+                            :human true;; TODO:should not need this because child => human.
+                            :child true}}
+             :italiano {:cat :adjective}})
+
+      ;; working on: "mi sono comprato un nuovo cellulare"
+     "cellulare"
+      (unify agreement-noun
+             masculine-noun
+             common-noun
+             countable-noun
+      {:synsem {:cat :noun
+                :sem {:pred :cellulare
+                      :artifact true
+                      :consumable false
+                      :writable false
+                      :place false
+                      :speakable false}}})
+      
+      "chiunque"
+      {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it (TODO).
+                :pronoun true
+                :case :nom
+                :agr {:person :3rd
+                      :number :sing}
+                :sem (unify human {:pred :chiunque
+                                   :elective-existential true})
+                :subcat '()}}
+
+      "ci"
+      {:synsem {:cat pronoun-noun
+                :pronoun true
+                :case pronoun-acc
+                :agr {:person :1st
+                      :number :plur}
+                :sem (unify human {:pred :noi})
+                :subcat '()}
+       :italiano {:initial true
+                  :cat pronoun-noun
+                  :case pronoun-acc}}
+
+      "cipolla"
+      (unify agreement-noun
+             common-noun
+             feminine-noun
+             {:synsem {:sem {:pred :cipolla
+                             :edible true
+                             :animate false
+                             :artifact false}}})
+
+      "cercare"
+      ;; cercare
+      (unify
+       (:transitive verb)
+       {:synsem {:essere false
+                 :sem {:pred :cercare
+                       :activity true
+                       :discrete false
+                       :subj {:human true}
+                       :obj {:physical-object true}}}})
+
+      "città"
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
+             {:synsem {:sem {:pred :città
+                             :buyable false  ;; can't buy a city (unless you're a billionaire like Mike Bloomberg)
+                             :artifact true ;;
+                             :city true}
+                       :subcat {:1 {:cat :det
+                                    :def :def}}}})
+      
+      "compito"
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             masculine-noun
+             {:synsem {:sem {:pred :compito
+                             :legible true
+                             :speakable false
+                             :buyable false
+                             :artifact true}}})
+
+      "comprare"
+      (unify
+       transitive
+       {:synsem {:essere false
+                 :sem {:pred :comprare
+                       :subj {:human true}
+                       :obj {:buyable true}}}})
+
+      
+      "contento"
+      [(let [complement-complement-sem (ref {:human true})
+             complement-sem (ref {:pred :di
+                                  :mod complement-complement-sem})
+             subject-sem (ref {:place true})]
+         (unify adjective
+                comparative
+                {:synsem {:sem {:pred :contento
+                                :arg1 subject-sem
+                                :arg2 complement-complement-sem}
+                        :subcat {:1 {:cat :noun
+                                     :sem subject-sem}
+                                 :2 {:cat :prep
+                                     :sem complement-sem}}}})
+
+         ;; non-comparative
+         (unify adjective
+                {:synsem {:cat :adjective
+                          :sem {:pred :contento
+                                :comparative false
+                                :human true}}}))]
+
+      "corto"
+      [(let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
+             complement-sem (ref {:pred :di
+                                  :mod complement-complement-sem})
+             subject-sem (ref {:human true})] ;; only humans can be short.
+        (unify adjective
+               comparative
+               {:synsem {:sem {:pred :corto
+                               :arg1 subject-sem
+                               :arg2 complement-complement-sem}
+                         :subcat {:1 {:cat :noun
+                                      :sem subject-sem}
+                                  :2 {:cat :prep
+                                      :sem complement-sem}}}}))
+
+       ;; non-comparative
+       (unify adjective
+              {:synsem {:cat :adjective
+                        :sem {:pred :corto
+                              :comparative false
+                              :human true}}
+               :italiano {:cat :adjective}})]
+
+      "dare"
+      {:italiano {:present {:2sing "dai"
+                            :3plur "danno"}
+                  :futuro-stem "dar"}
+       :synsem {:cat :verb
+                :essere false
+                :sem {:subj {:human true}
+                      :iobj {:animate true}
+                      :obj {:buyable true}
+                      :pred :dare}}}
+               
+      "deludere"
+      (unify
+       transitive
+       {:italiano {:passato "deluso"}
+        :synsem {:essere false
+                 :sem {:subj {:human true}
+                       :obj {:human true}
+                       :deliberate false
+                       :discrete true
+                       :activity false
+                       :pred :deludere}}})
+
+      "difficile"
+      ;; non-comparative
+      ;; TODO: add comparative
+      (unify adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :difficile
+                             :comparative false
+                             ;; "difficile" has a very specific list of things it can modify:
+                             :drinkable false
+                             :human false
+                             :animate false
+                             :buyable false
+                             :legible true
+;                             :activity true ;; TODO: cannot declare this as an activity because of some semantic implicature..
+                             :artifact true
+                             :physical-object true
+                             :edible false}}
+              :italiano {:cat :adjective}})
+      
+      "di"
+      {:synsem {:cat :prep
+                :sem {:pred :di
+                      :comparative true}
+                :subcat {:1 {:cat :noun
+                             :subcat '()
+                             :def {:not :partitivo} ;; avoid alliteration like "di delle ragazze (of some women)"
+                             :case :disj ;; pronouns must be disjunctive (me/te/lui/lei...etc)
+                           ;; non-pronouns will unify with this constraint.
+                             }
+                         :2 '()}}
+       :italiano {:initial true}}
+
+      "di i"
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :plur
+                :gender :masc}}
+
+      "di la"
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :sing
+                :mass true
+                :gender :fem}}
+
+      "di le"
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :plur
+                :gender :fem}}
+
+      "di il"
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :sing
+                :mass true
+                :gender :masc}}
+
+      "domani"
+      (unify sentential-adverb
+             {:synsem {:cat :sent-modifier
+                       :sem {:pred :domani}
+                       :subcat {:1 {:infl :futuro
+                                    :sem {:tense :futuro}
+                                    :subcat '()}}}
+              :italiano "domani"})
+
+      "donna"
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             feminine-noun
+             {:synsem {:sem human}}
+             {:synsem {:sem {:pred :donna
+                             :child false}}})
+
+      "dopodomani"
+      (unify sentential-adverb
+             {:synsem {:cat :sent-modifier
+                       :sem {:pred :dopodomani}
+                       :subcat {:1 {:infl :futuro
+                                    :sem {:tense :future}
+                                    :subcat '()}}}})
+
+      "dormire"
+      {:synsem {:cat :verb
+                :essere false
+                :sem {:subj {:animate true}
+                      :discrete false
+                      :pred :dormire}}}
 
 
-   "gatto"
-   (unify agreement-noun
-          common-noun
-          countable-noun
-          masculine-noun
-          {:synsem {:sem (unify animal {:pred :gatto
-                                        :pet true})}})
+      "gatto"
+      (unify agreement-noun
+             common-noun
+             countable-noun
+             masculine-noun
+             {:synsem {:sem (unify animal {:pred :gatto
+                                           :pet true})}})
+      
+      "i"
+      (unify determiner
+             {:synsem {:cat :det
+                       :def :def
+                       :gender :masc
+                       :number :plur}})
 
-   "i"
-   (unify determiner
-          {:synsem {:cat :det
-                    :def :def
-                    :gender :masc
-                    :number :plur}})
+      "il"
+      (unify determiner
+             {:synsem {:cat :det
+                       :def :def
+                       :gender :masc
+                       :number :sing}})
 
-   "il"
-   (unify determiner
-          {:synsem {:cat :det
-                    :def :def
-                    :gender :masc
-                    :number :sing}})
+      "io"
+      {:synsem {:cat :noun
+                :pronoun true
+                :case :nom
+                :agr {:person :1st
+                      :number :sing}
+                :sem (unify human {:pred :io})
+                :subcat '()}}
 
-   "io"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :1st
-                   :number :sing}
-             :sem (unify human {:pred :io})
-             :subcat '()}}
-
-   "la"
-   ;; TODO: refactor commonalities
-    ;; 1. pronoun: human
+      "la"
+      ;; TODO: refactor commonalities
+      ;; 1. pronoun: human
    [{:synsem {:cat pronoun-noun
              :pronoun true
              :case pronoun-acc
