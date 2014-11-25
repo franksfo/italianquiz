@@ -21,7 +21,7 @@
    [italianverbs.grammar.english :as en]
    [italianverbs.grammar.italiano :as it]
    [italianverbs.html :as html]
-   [italianverbs.lexicon.italiano :refer :all :exclude [unify]]
+   [italianverbs.lexicon.english :as en-l]
    [italianverbs.lexicon.italiano :as it-l]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
