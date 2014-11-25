@@ -18,7 +18,7 @@
    [italianverbs.morphology.english :as en-m]
    [italianverbs.morphology.italiano :as it-m]
    [italianverbs.ug :refer [head-principle]]
-   [italianverbs.unify :refer [get-in strip-refs]]
+   [italianverbs.unify :refer [get-in strip-refs unifyc]]
    ))
 
 (defn game []
@@ -124,11 +124,11 @@
                (= (:rule %) "s-conditional"))
           it/grammar))
 
+(def en-lexicon (flatten (vals en-l/lexicon)))
 (def en-index
-  (create-index mini-english-grammar en-l/lexicon head-principle))
+  (create-index mini-english-grammar en-lexicon head-principle))
 
 (def it-lexicon (flatten (vals it-l/lexicon)))
-
 (def it-index
   (create-index mini-italian-grammar it-lexicon head-principle))
 
@@ -138,25 +138,32 @@
          :comp {:phrasal false}
          :synsem {;:sem {:pred :leggere}
                   :cat :verb
-                  :subcat '()}}]
+                  :subcat '()}}
+
+        italiano (gen/sentence spec 
+                               mini-italian-grammar it-index it-lexicon)
+
+        semantics (strip-refs (get-in italiano [:synsem :sem]))
+
+        english (gen/sentence (unifyc
+                               spec
+                               {:synsem {:sem (get-in italiano [:synsem :sem] :top)}})
+                              mini-english-grammar
+                              en-index
+                              en-lexicon)]
+
+    (log/info "generate-question: italiano: " (fo italiano))
+
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
                
                "Cache-Control" "no-cache, no-store, must-revalidate"
                "Pragma" "no-cache"
                "Expires" "0"}
-     :body (let [question (gen/sentence spec mini-italian-grammar mini-english-grammar
-                                        it-index en/cache it-lexicon)
-                 semantics (strip-refs (get-in question [:synsem :sem]))
-                 english (morph/remove-parens (en-m/get-string (:english question)))
-                 form (html-form question)]
-             (json/write-str
-              {:english english
-               :tree (morph/fo-ps (strip-refs question))
-               :left_context_of_question (:left_context_english form)
-               :semantics semantics
-               :question (:head_of_english form)
-               :right_context_of_question (:right_context_english form)}))}))
+     :body (json/write-str
+            {:italiano (fo italiano)
+             :english (fo english)
+             :semantics semantics})}))
 
 (defn genlab [request]
   (do
