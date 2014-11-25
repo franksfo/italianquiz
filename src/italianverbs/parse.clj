@@ -42,7 +42,7 @@
                     (toks2 (rest tokens)))))
         ;; only one token left: look it up.
         (= (.size tokens) 1)
-        (lookup (first tokens))
+        (list (lookup (first tokens)))
         true
         nil))
 
