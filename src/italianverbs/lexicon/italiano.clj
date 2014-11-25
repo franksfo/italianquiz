@@ -18,12 +18,14 @@
                              :subcat '()
                              :sem location}
                          :2 '()}}})
+
        {:synsem {:cat :prep
              :sem {:pred :in}
              :subcat {:1 {:cat :noun
                           :sem {:city true}}}}}
 
 
+       ;; e.g. "a ridere": tu hai fatto bene a ridere (you did well to laugh)"
        (let [complement-semantics (ref {:pred :a
                                         :mod {:pred :a}})]
          {:synsem {:cat :prep
@@ -268,15 +270,11 @@
                        :subcat {:1 {:cat :noun
                                     :sem subject-sem}
                                 :2 {:cat :prep
-                                    :sem complement-sem}}}
-              :italiano {:italiano "bello"}
-              :english {:english "beautiful"}}))]
+                                    :sem complement-sem}}}}))]
 
    "bene"
    {:synsem {:cat :adverb
-             :sem {:pred :bene}}
-    :italiano {:italiano "bene"}
-    :english {:english "well"}}
+             :sem {:pred :bene}}}
 
    "bere"
    (let [bere-common
@@ -319,6 +317,75 @@
            :italiano {:masc {:plur "bianchi"}
                       :fem {:plur "bianche"}
                       :cat :adjective}})
+
+   "birra"
+   (unify agreement-noun
+          drinkable-noun
+          feminine-noun)
+
+
+   "braccio"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          masculine-noun
+          {:synsem {:sem {:pred :braccio
+                          :part-of-human-body true}}
+           ;; adding "bracci" as irregular because
+           ;; current morphology.clj would otherwise return
+           ;; "braccii".
+           ;; TODO: might not be an exception so much
+           ;; as a ortho-pholological rule "io" -plur-> "ia"
+           :italiano {:plur "bracci"}})
+
+   "brutto"
+   ;; non-comparative
+   ;; TODO: add comparative
+   (unify adjective
+          {:synsem {:cat :adjective
+                    :sem {:pred :brutto
+                          :comparative false
+                          }} ;; for now, no restrictions on what can be ugly.
+           :italiano {:cat :adjective}})
+
+   "bucato"
+   {:synsem {:cat :noun
+             :agr {:gender :masc
+                   :number :sing}
+             :sem {:animate false
+                   :drinkable false
+                   :edible false
+                   :legible false
+                   :mass false
+                   :pred :bucato
+                   :speakable false}
+             :subcat {:1 {:def :def}}}}
+
+   "calzoni"
+   ;; inherently plural
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          masculine-noun
+          {:synsem {:sem {:pred :calzoni
+                          :artifact true
+                          :speakable false
+                          :legible false
+                          :consumable false
+                          :clothing true}}})
+
+   "camicia"
+    (unify agreement-noun
+           common-noun
+           countable-noun
+           feminine-noun
+           {:synsem {:sem {:pred :camicia
+                           :artifact true
+                           :speakable false
+                           ;; (although an exception would be tshirts with writing on them):
+                           :legible false
+                           :consumable false
+                           :clothing true}}})
 
    "cane"
    (unify agreement-noun
