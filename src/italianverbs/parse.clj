@@ -8,7 +8,7 @@
 (require '[italianverbs.morphology :refer (fo fo-ps)])
 (require '[italianverbs.morphology.italiano :refer (analyze get-string)])
 (require '[italianverbs.over :as over])
-(require '[italianverbs.unify :refer (get-in)])
+(require '[italianverbs.unify :refer (get-in strip-refs)])
 
 (def it-grammar it-g/grammar)
 (def it-lexicon it-l/lexicon)
