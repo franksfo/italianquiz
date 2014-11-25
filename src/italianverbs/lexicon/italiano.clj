@@ -566,6 +566,13 @@
                 :def :partitivo
                 :number :plur
                 :gender :masc}}
+
+      "delle"
+      {:synsem {:cat :det
+                :def :partitivo
+                :number :plur
+                :gender :fem}}
+
                
       "deludere"
       (unify
@@ -779,6 +786,12 @@
               :number :sing
                 :sem {:number :plur
                       :person :2nd}}}]
+
+   "le"
+   {:synsem {:cat :det
+             :def :def
+             :gender :fem
+             :number :plur}}
 
    "lei"
    {:synsem {:cat :noun

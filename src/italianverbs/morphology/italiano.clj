@@ -1438,32 +1438,46 @@
    {:replace-with "ere"
     :unify-with {:italiano {:infl :past}}}})
 
-(def plural-to-singular-noun
+(def plural-to-singular-noun-fem-1
+  {#"e$"
+   {:replace-with "a"
+    :unify-with {:synsem {:cat :noun
+                          :agr {:gender :fem
+                                :number :plur}}}}})
+
+(def plural-to-singular-noun-masc-1
   {#"i$"
    {:replace-with "o"
-    :unify-with {:synsem {:cat :noun}
-                 :agr {:number :plur}}}})
+    :unify-with {:synsem {:cat :noun
+                          :agr {:number :plur}}}}})
+
+(def plural-to-singular-noun-masc-2 ;; e.g. "cani" -> "cane"
+  {#"i$"
+   {:replace-with "e"
+    :unify-with {:synsem {:cat :noun
+                          :agr {:number :plur}}}}})
+
 
 (def plural-to-singular-adj-masc
   {#"i$"
    {:replace-with "o"
-    :unify-with {:synsem {:cat :adjective}
-                 :agr {:gender :masc
-                       :number :plur}}}})
+    :unify-with {:synsem {:cat :adjective
+                          :agr {:gender :masc
+                                :number :plur}}}}})
 
 (def plural-to-singular-adj-fem-sing
   {#"a$"
    {:replace-with "o"
-    :unify-with {:synsem {:cat :adjective}
-                 :agr {:gender :fem
-                       :number :sing}}}})
+    :unify-with {:synsem {:cat :adjective
+                          :agr {:gender :fem
+                                :number :sing}}}}})
 
 (def plural-to-singular-adj-fem-plur
   {#"e$"
    {:replace-with "o"
-    :unify-with {:synsem {:cat :adjective}
-                 :agr {:gender :fem
-                       :number :plur}}}})
+    :unify-with {:synsem {:cat :adjective
+                          :agr {:gender :fem
+                                :number :plur}}}}})
 
 
 (defn analyze [surface-form lookup-fn]
@@ -1476,7 +1490,9 @@
          present-to-infinitive-ire
          present-to-infinitive-ere
          present-to-infinitive-are
-         plural-to-singular-noun
+         plural-to-singular-noun-fem-1
+         plural-to-singular-noun-masc-1
+         plural-to-singular-noun-masc-2
          plural-to-singular-adj-masc
          plural-to-singular-adj-fem-plur
          plural-to-singular-adj-fem-sing
