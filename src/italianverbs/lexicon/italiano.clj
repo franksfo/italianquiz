@@ -754,22 +754,15 @@
              :sem {:number :plur
                    :person :1st}}}
 
-   ;; TODO: add pronominal "la sua (hers)" and "la sua (his)"
+   ;; TODO for below: add pronominal "la sua" (translated in English as "his" and "hers", depending on gender of the owner of the referent).
+   ;; e.g. "I gatti sono i suoi. (The cats are hers) (if talking about a female owner) or (The cats are his) (if talking about a male owner).
    "la sua"
-   [{:synsem {:cat :det
-              :def :possessive
-              :gender :fem
-              :number :sing
-             :sem {:gender :fem
-                   :number :sing
+   {:synsem {:cat :det
+             :def :possessive
+             :gender :fem
+             :number :sing
+             :sem {:number :sing
                    :person :3rd}}}
-    {:synsem {:cat :det
-              :def :possessive
-              :gender :fem
-              :number :sing
-              :sem {:gender :masc
-                    :number :sing
-                    :person :3rd}}}]
    "la tua"
    [{:synsem {:cat :det
               :def :possessive
