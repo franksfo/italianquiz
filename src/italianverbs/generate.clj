@@ -13,8 +13,8 @@
 
 (declare generate-from)
 
-;; TODO: grammar1 grammar2 cache1 cache2 are required, not optional.
-(defn sentence [ & [spec grammar1 grammar2 cache1 cache2 lexicon-1]]
+;; TODO: grammar and cache should be required, not optional.
+(defn sentence [ & [spec grammar cache lexicon]]
   (if (seq? spec)
     (map (fn [each]
            (sentence each))
@@ -25,8 +25,8 @@
           spec (if spec spec :top)
           unified-spec (unifyc sentence-spec spec)]
       (log/info (str "generating with unified spec: " unified-spec))
-      (log/info (str " and with cache: " (type cache1)))
-      (generate-from unified-spec grammar1 grammar2 cache1 cache2 lexicon-1))))
+      (log/info (str " and with cache: " (type cache)))
+      (generate-from unified-spec grammar cache lexicon))))
 
 (defn nounphrase [ & [ spec ]]
   (let [sentence-spec {:synsem {:subcat '()
@@ -50,19 +50,10 @@
     (log/info (str "generated this many: " (.size result)))
     result))
 
-(defn generate-from [spec grammar1 grammar2 cache1 cache2 lexicon1]
+(defn generate-from [spec grammar cache lexicon]
   (if (seq? spec)
     (map (fn [each]
-           (generate-from each))
+           (generate-from each grammar cache lexicon))
          spec)
-    ;; TODO: cheating here (i.e. talking about specific languages when this module should be language-agnostic)
-    (let [italiano
-          (generate spec grammar1 lexicon1 cache1)]
-      italiano)))
-;      {:italiano italiano})))
-;       :english
-;       (generate (unifyc spec
-;                         {:synsem {:sem (get-in italiano [:synsem :sem])}})
-;                 grammar2
-;                 lexicon
-;                 cache2)})))
+
+    (generate spec grammar lexicon cache)))

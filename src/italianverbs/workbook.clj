@@ -160,7 +160,7 @@
 (defn sentence [ & [spec it-grammar]]
   (let [spec (if spec spec :top)
         it-grammar (if it-grammar it-grammar it/grammar)]
-    (generate/sentence spec it-grammar en/grammar it/cache en/cache (flatten (vals it-l/lexicon)))))
+    (generate/sentence spec it-grammar it/cache (flatten (vals it-l/lexicon)))))
 
 (defn show-sem [to-show]
   (cond (seq? to-show)
