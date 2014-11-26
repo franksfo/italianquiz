@@ -63,30 +63,29 @@
        (create-bigram-map args (+ index 1) grammar)))
     (create-unigram-map args 0)))
 
-(defn create-trigram-map [args index grammar & [bigrams]]
-  (let [bigrams (if bigrams bigrams (create-bigram-map args index grammar))]
-    (if (< (+ 2 index) (.size args))
-      (do
-        (log/debug (str "over(1): " (fo (get bigrams index))))
-        (log/debug (str "over(2): " (fo (get bigrams (+ 1 index)))))
-        (merge
-         {[index (+ 3 index)]
-          (lazy-cat
-           ;; [ a b | c ]
-           (let [left-parse (get bigrams [index (+ 2 index)])
-                 right-parse (get bigrams [(+ 2 index) (+ 3 index)])]
-             (if (and (not (empty? left-parse))
-                      (not (empty? right-parse)))
-               (over/over grammar left-parse right-parse)))
+(defn create-trigram-map [args index grammar bigrams]
+  (if (< (+ 2 index) (.size args))
+    (do
+      (log/debug (str "over(1): " (fo (get bigrams index))))
+      (log/debug (str "over(2): " (fo (get bigrams (+ 1 index)))))
+      (merge
+       {[index (+ 3 index)]
+        (lazy-cat
+         ;; [ a b | c ]
+         (let [left-parse (get bigrams [index (+ 2 index)])
+               right-parse (get bigrams [(+ 2 index) (+ 3 index)])]
+           (if (and (not (empty? left-parse))
+                    (not (empty? right-parse)))
+             (over/over grammar left-parse right-parse)))
 
-           ;; [ a | b c ]
-           (let [left-parse (get bigrams [index (+ 1 index)])
-                 right-parse (get bigrams [(+ 1 index) (+ 3 index)])]
-             (if (and (not (empty? left-parse))
-                      (not (empty? right-parse)))
-               (over/over grammar left-parse right-parse))))}
-         (create-trigram-map args (+ index 1) grammar bigrams)))
-      bigrams)))
+         ;; [ a | b c ]
+         (let [left-parse (get bigrams [index (+ 1 index)])
+               right-parse (get bigrams [(+ 1 index) (+ 3 index)])]
+           (if (and (not (empty? left-parse))
+                    (not (empty? right-parse)))
+             (over/over grammar left-parse right-parse))))}
+       (create-trigram-map args (+ index 1) grammar bigrams)))
+    bigrams))
 
 (defn create-ngram-map [args left ngrams grammar split-at x]
   (log/debug (str "create-ngram-map: left:" left ";split-at:" split-at "; size:" (.size args) "; x:" x))
