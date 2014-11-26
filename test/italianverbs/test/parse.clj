@@ -6,11 +6,8 @@
 ;; not yet needed, but might be some day.
 ;(require '[italianverbs.generate :as gen])
 
-(require '[italianverbs.grammar.english :as en-g])
-(require '[italianverbs.grammar.italiano :as it-g])
-
-(require '[italianverbs.lexicon.english :as en])
-(require '[italianverbs.lexicon.italiano :as it])
+(require '[italianverbs.grammar.english :as en])
+(require '[italianverbs.grammar.italiano :as it])
 
 (require '[italianverbs.morphology :refer [fo]])
 (require '[italianverbs.parse :refer :all])
@@ -27,23 +24,23 @@
     (is (= (.size result) 3))))
 
 (deftest parse-test-1
-  (is (= "un gatto" (fo (first (parse "un gatto" it/lexicon it/lookup it-g/grammar))))))
+  (is (= "un gatto" (fo (first (it/parse "un gatto"))))))
  
 (deftest parse-test-1-en
-  (is (= "a cat" (fo (first (parse "a cat" en/lexicon en/lookup en-g/grammar))))))
+  (is (= "a cat" (fo (first (en/parse "a cat"))))))
 
 (deftest parse-test-2
-  (is (= (fo (first (parse "Antonio dormirà" it/lexicon it/lookup it-g/grammar)))
+  (is (= (fo (first (it/parse "Antonio dormirà")))
          "Antonio dormirà")))
 
 (deftest parse-test-3
-  (let [result (parse "il gatto nero" it/lexicon it/lookup it-g/grammar)]
+  (let [result (it/parse "il gatto nero")]
     (is (> (.size result) 0))
     (is (= (get-in (first result) [:synsem :sem :pred])
            :gatto))))
 
 (deftest parse-test-4
-  (let [result (parse "il gatto nero dorme" it/lexicon it/lookup it-g/grammar)]
+  (let [result (it/parse "il gatto nero dorme")]
     (is (> (.size result) 0))
     (is (= (get-in (first result) [:synsem :sem :pred])
            :dormire))

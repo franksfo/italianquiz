@@ -10,12 +10,14 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
 
-(declare cache)
-
-;; TODO: move this convenience declaration to a super-package like italianverbs.italiano.
+;; TODO: move these two convenience declarations to a super-package like italianverbs.italiano.
 (def lexicon it-lex/lexicon)
+(def lookup it-lex/lookup)
 
-(defn generate [spec grammar]
+(declare cache)
+(declare grammar)
+
+(defn generate [spec]
   (gen/generate spec
                 grammar
                 lexicon
@@ -345,7 +347,6 @@
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
 
-;; TODO: move to grammar possibly, or to some meta-package like 'italianverbs.italian'.
 (defn parse [string]
   (parse/parse string lexicon it-lex/lookup grammar))
 

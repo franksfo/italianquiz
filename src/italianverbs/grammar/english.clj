@@ -3,9 +3,24 @@
   (:require 
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.generate :as gen]
+   [italianverbs.lexicon.english :as en-lex]
+   [italianverbs.parse :as parse]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
+
+;; TODO: move these two convenience declarations to a super-package like italianverbs.english.
+(def lexicon en-lex/lexicon)
+(def lookup en-lex/lookup)
+
+(declare cache)
+(declare grammar)
+
+(defn generate [spec]
+  (gen/generate spec
+                grammar
+                lexicon
+                cache))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -322,3 +337,6 @@
 
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
+
+(defn parse [string]
+  (parse/parse string lexicon en-lex/lookup grammar))
