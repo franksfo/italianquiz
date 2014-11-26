@@ -4,7 +4,7 @@
 (require '[clojure.string :as str])
 (require '[clojure.tools.logging :as log])
 
-;; this require is language-specific 
+;; the following require is language-specific, but useful for debugging.
 (require '[italianverbs.morphology :refer (fo fo-ps)])
 
 (require '[italianverbs.over :as over])

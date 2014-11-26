@@ -4,11 +4,17 @@
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
    [italianverbs.generate :as gen]
-   [italianverbs.lexicon.italiano :refer :all :exclude [unify]]
+   [italianverbs.lexicon.italiano :as it-lex]
+   [italianverbs.morphology :refer (fo fo-ps)]
+   [italianverbs.parse :as parse]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
 
 (declare cache)
+
+;; TODO: move this convenience declaration to a super-package like italianverbs.italiano.
+(def lexicon it-lex/lexicon)
+
 (defn generate [spec grammar]
   (gen/generate spec
                 grammar
@@ -338,3 +344,9 @@
 
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
+
+;; TODO: move to grammar possibly, or to some meta-package like 'italianverbs.italian'.
+(defn parse [string]
+  (parse/parse string lexicon it-lex/lookup grammar))
+
+

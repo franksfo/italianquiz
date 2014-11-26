@@ -3,7 +3,6 @@
 
 (require '[clojure.test :refer :all])
 
-
 ;; not yet needed, but might be some day.
 ;(require '[italianverbs.generate :as gen])
 

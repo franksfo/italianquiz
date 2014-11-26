@@ -1002,4 +1002,3 @@
   (analyze token (fn [k]
                    (get lexicon k))))
 
-
