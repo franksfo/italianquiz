@@ -3,6 +3,9 @@
 (require '[italianverbs.pos :as pos])
 (require '[italianverbs.unify :refer (unifyc)])
 
+(def feminine-noun (:feminine pos/noun))
+(def masculine-noun (:masculine pos/noun))
+
 (def adjective
   (unifyc pos/adjective
           (let [agr (ref :top)

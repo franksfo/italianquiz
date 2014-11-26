@@ -2,6 +2,8 @@
   (:require
    [italianverbs.unify :refer (unifyc)]))
 
+;; TODO: this file has a lot of language-specific stuff that should be factored into pos/$language.
+;; for example, english does not have gender agreement between articles, nouns and adjectives.
 (def noun
   (let [gender (ref :top)
         ;; common nouns are underspecified for number: number selection (:sing or :plur) is deferred until later.
@@ -63,8 +65,6 @@
 (def common-noun (:common noun))
 (def countable-noun (:countable noun))
 (def drinkable-noun (:drinkable noun))
-(def feminine-noun (:feminine noun))
-(def masculine-noun (:masculine noun))
 
 (def determiner
   (let [def (ref :top)]

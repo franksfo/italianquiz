@@ -3,6 +3,11 @@
 (require '[italianverbs.pos :as pos])
 (require '[italianverbs.unify :refer (unifyc)])
 
+(def agreement-noun
+  (let [agr (ref :top)]
+    {:english {:agr agr}
+     :synsem {:agr agr}}))
+
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
 (def verb-subjective

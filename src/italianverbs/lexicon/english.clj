@@ -3,18 +3,16 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
-;(require '[italianverbs.morphology.english :refer (agreement analyze exception-generator phonize english-specific-rules)])
 (require '[italianverbs.morphology.english :refer (analyze)])
-(require '[italianverbs.pos :refer (adjective animal agreement-noun
+(require '[italianverbs.pos :refer (adjective animal
                                     cat-of-pronoun common-noun
                                     comparative
                                     countable-noun determiner
-                                    drinkable-noun feminine-noun 
-                                    masculine-noun 
+                                    drinkable-noun
                                     non-comparative-adjective noun
                                     pronoun-acc pronoun-noun sentential-adverb
                                     verb verb-aux)])
-(require '[italianverbs.pos.english :refer (intransitive intransitive-unspecified-obj transitive)])
+(require '[italianverbs.pos.english :refer (agreement-noun intransitive intransitive-unspecified-obj transitive)])
 (require '[italianverbs.unify :as unify])
 
 (def lexicon-source
@@ -29,7 +27,6 @@
    (unify agreement-noun
           common-noun
           countable-noun
-          masculine-noun
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
 

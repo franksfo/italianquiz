@@ -8,13 +8,12 @@
                                     cat-of-pronoun common-noun
                                     comparative
                                     countable-noun determiner
-                                    drinkable-noun feminine-noun 
-                                    masculine-noun 
-                                    non-comparative-adjective noun
+                                    drinkable-noun non-comparative-adjective noun
                                     pronoun-acc pronoun-noun sentential-adverb
                                     verb verb-aux)])
 (require '[italianverbs.pos.italiano :refer (adjective
                                              intransitive intransitive-unspecified-obj
+                                             feminine-noun masculine-noun
                                              transitive verb-subjective)])
 (require '[italianverbs.unify :as unify])
 
