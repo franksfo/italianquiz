@@ -701,7 +701,6 @@
         (and (= person :2nd) (= number :plur) ire-type)
         (str stem "ite")
 
-
         (and (= person :3rd) (= number :plur)
              last-stem-char-is-i)
         (str stem "ono")
@@ -1473,7 +1472,8 @@
                 (mapcat
                  (fn [key]
                    (and (re-find key surface-form)
-                        (let [lexical-form (string/replace surface-form key (:replace-with (get replace-pairs key)))
+                        (let [lexical-form (string/replace surface-form key
+                                                           (:replace-with (get replace-pairs key)))
                               looked-up (lookup-fn lexical-form)]
                           (map #(unifyc % (:unify-with (get replace-pairs key)))
                                looked-up))))
