@@ -10,17 +10,19 @@
 (require '[italianverbs.grammar.english :as en-g])
 (require '[italianverbs.grammar.italiano :as it-g])
 
-;(require '[italianverbs.lexicon.english :as en-l])
-(require '[italianverbs.lexicon.italiano :as it-l])
-;; not yet needed, but might be some day.
-;(require '[italianverbs.lexiconfn :as lexfn])
+(require '[italianverbs.lexicon.english :as en])
+(require '[italianverbs.lexicon.italiano :as it])
+
 (require '[italianverbs.morphology :refer [fo]])
 (require '[italianverbs.parse :refer :all])
 (require '[italianverbs.unify :refer (get-in)])
 
 (deftest parse-test-1
-  (is (= "un gatto" (fo (first (parse "un gatto"))))))
+  (is (= "un gatto" (fo (first (parse "un gatto" it/lexicon it-g/grammar))))))
  
+(deftest parse-test-1-en
+  (is (= "a cat" (fo (first (parse "a cat" en/lexicon en-g/grammar))))))
+
 (deftest parse-test-2
   (is (= (fo (first (parse "Antonio dormirà")))
          "Antonio dormirà")))
