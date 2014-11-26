@@ -995,9 +995,6 @@
 
 })
 
-;; TODO: need to regenerate :serialized for each exception.
-;; TODO: move to italianverbs.morphology.italiano
-
 (def lexicon
   (compile-lex lexicon-source exception-generator phonize italian-specific-rules))
 
