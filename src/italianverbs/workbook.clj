@@ -18,11 +18,11 @@
    [italianverbs.game :as game]
 
    [italianverbs.generate :as generate :refer :all :exclude [lightning-bolt sentence]]
-   [italianverbs.grammar.english :as en]
-   [italianverbs.grammar.italiano :as it]
+   [italianverbs.grammar.english :as en-g]
+   [italianverbs.grammar.italiano :as it-g]
    [italianverbs.html :as html]
-   [italianverbs.lexicon.english :as en-l]
-   [italianverbs.lexicon.italiano :as it-l]
+   [italianverbs.lexicon.english :as en]
+   [italianverbs.lexicon.italiano :as it]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.morphology.english :as en-m]
@@ -159,8 +159,8 @@
 
 (defn sentence [ & [spec it-grammar]]
   (let [spec (if spec spec :top)
-        it-grammar (if it-grammar it-grammar it/grammar)]
-    (generate/sentence spec it-grammar it/cache (flatten (vals it-l/lexicon)))))
+        it-grammar (if it-grammar it-grammar it-g/grammar)]
+    (generate/sentence spec it-grammar it-g/cache (flatten (vals it/lexicon)))))
 
 (defn show-sem [to-show]
   (cond (seq? to-show)
@@ -205,6 +205,6 @@
                                       :synsem {:subcat '() :cat :verb
                                               :sem {:pred :dormire
                                                      :subj {:pred :lei}}}}
-                                     it/grammar))
+                                     it-g/grammar))
 
 (log/info (str "done initializing workbook. " (fo get-stuff-initialized)))
