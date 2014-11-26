@@ -13,8 +13,9 @@
                                     non-comparative-adjective noun
                                     pronoun-acc pronoun-noun sentential-adverb
                                     verb verb-aux)])
-(require '[italianverbs.pos.italiano :refer (adjective intransitive intransitive-unspecified-obj transitive verb-subjective)])
-(require '[italianverbs.unify :refer (copy get-in)])
+(require '[italianverbs.pos.italiano :refer (adjective
+                                             intransitive intransitive-unspecified-obj
+                                             transitive verb-subjective)])
 (require '[italianverbs.unify :as unify])
 
 (def lexicon-source
