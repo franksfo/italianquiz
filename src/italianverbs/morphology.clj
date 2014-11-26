@@ -41,6 +41,9 @@
    ;; get-string should always return a string, but sometimes it (incorrectly) does not (FIXME)
    (string/trim (str (italiano/get-string (:italiano input))))
 
+   (:english input)
+   (string/trim (str (english/get-string (:english input))))
+
    (and (seq? input)
         (< (.size input) 2))
    (fo (first input))
@@ -51,10 +54,6 @@
                          (remove #(= % "")
                                  (map #(let [f (fo %)] (if (= f "") "" (str "" f ""))) input)))
         ")")
-
-   (:english input)
-   (merge {:english (string/trim (english/get-string (:english input)))}
-          (fo (dissoc input :english)))
 
    true
    ""))
