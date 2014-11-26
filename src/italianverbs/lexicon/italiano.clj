@@ -3,13 +3,12 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
-;(require '[italianverbs.pos :as pos])
 (require '[italianverbs.pos :refer (adjective agreement-noun 
-                                              animal cat-of-pronoun common-noun
+                                              cat-of-pronoun common-noun
                                               comparative
                                               countable-noun determiner
                                               drinkable-noun feminine-noun 
-                                              human masculine-noun 
+                                              masculine-noun 
                                               non-comparative-adjective noun
                                               pronoun-acc pronoun-noun sentential-adverb
                                               verb verb-aux)])
@@ -401,8 +400,11 @@
           common-noun
           countable-noun
           masculine-noun
-          {:synsem {:sem (unify animal {:pred :cane
-                                        :pet true})}})
+          {:synsem {:sem {:animal true
+                          :human false
+                          :pet true
+                          :pred :cane}}})
+
 
    "casa"
     (unify agreement-noun
@@ -444,8 +446,9 @@
                 :case :nom
                 :agr {:person :3rd
                       :number :sing}
-                :sem (unify human {:pred :chiunque
-                                   :elective-existential true})
+                :sem {:human true
+                      :pred :chiunque
+                      :elective-existential true}
                 :subcat '()}}
 
       "ci"
@@ -454,7 +457,8 @@
                 :case pronoun-acc
                 :agr {:person :1st
                       :number :plur}
-                :sem (unify human {:pred :noi})
+                :sem {:human true 
+                      :pred :noi}
                 :subcat '()}
        :italiano {:initial true
                   :cat pronoun-noun
@@ -659,8 +663,8 @@
              common-noun
              countable-noun
              feminine-noun
-             {:synsem {:sem human}}
-             {:synsem {:sem {:pred :donna
+             {:synsem {:sem {:human true
+                             :pred :donna
                              :child false}}})
 
       "dopodomani"
@@ -684,8 +688,10 @@
              common-noun
              countable-noun
              masculine-noun
-             {:synsem {:sem (unify animal {:pred :gatto
-                                           :pet true})}})
+             {:synsem {:sem {:animal true
+                             :human false
+                             :pred :gatto
+                             :pet true}}})
       
       "i"
       (unify determiner
@@ -707,7 +713,8 @@
                 :case :nom
                 :agr {:person :1st
                       :number :sing}
-                :sem (unify human {:pred :io})
+                :sem {:human true
+                      :pred :io}
                 :subcat '()}}
 
       "la"
@@ -719,7 +726,8 @@
              :agr {:gender :fem
                    :person :3rd
                    :number :sing}
-             :sem (unify human {:pred :lei})
+             :sem {:human true
+                   :pred :lei}
              :subcat '()}
      :italiano {:initial true   ;; TODO: verify that 'la' above and this below are being unified correctly.
                 :cat pronoun-noun
@@ -807,7 +815,8 @@
              :agr {:person :3rd
                    :gender :fem
                    :number :sing}
-             :sem (unify human {:pred :lei})
+             :sem {:human true
+                   :pred :lei}
              :subcat '()}}
 
    "leggere"
@@ -845,7 +854,8 @@
               :agr {:gender :masc
                     :person :3rd
                     :number :sing}
-              :sem (unify human {:pred :lo})
+              :sem {:human true
+                    :pred :lo}
               :subcat '()}}
 
     {:synsem {:cat pronoun-noun
@@ -869,7 +879,8 @@
              :case :nom
              :agr {:person :3rd
                    :number :plur}
-                :sem (unify human {:pred :loro})
+             :sem {:human true
+                   :pred :loro}
              :subcat '()}}
 
    "lui"
@@ -879,7 +890,8 @@
              :agr {:person :3rd
                    :gender :masc
                    :number :sing}
-             :sem (unify human {:pred :lui})
+             :sem {:human true
+                   :pred :lui}
              :subcat '()}}
 
    "madre"
@@ -887,8 +899,8 @@
           common-noun
           countable-noun
           feminine-noun
-          {:synsem {:sem human}}
-          {:synsem {:sem {:pred :madre
+          {:synsem {:sem {:human true
+                          :pred :madre
                           :child false}}})
 
    "mangiare"
@@ -921,7 +933,8 @@
              :case :nom
              :agr {:person :1st
                    :number :plur}
-             :sem (unify human {:pred :noi})
+             :sem {:human true
+                   :pred :noi}
              :subcat '()}}
 
    "pane"
@@ -952,7 +965,8 @@
              :case :nom
              :agr {:person :2nd
                    :number :sing}
-             :sem (unify human {:pred :tu})
+             :sem {:human true
+                   :pred :tu}
              :subcat '()}}
 
    "un"
@@ -974,7 +988,8 @@
              :case :nom
              :agr {:person :2nd
                    :number :plur}
-             :sem (unify human {:pred :voi})
+             :sem {:human true
+                   :pred :voi}
              :subcat '()}}
 
 })

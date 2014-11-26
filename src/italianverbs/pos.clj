@@ -78,17 +78,12 @@
             :agr {:person :3rd}
             :subcat '()}})
 
-(def adjective
-  (let [adjective (ref :adjective)
-        gender (ref :top)
-        number (ref :top)]
-    {:synsem {:cat adjective
-              :agr {:gender gender
-                    :number number}}}))
 
 ;; useful abbreviations (aliases for some commonly-used maps):
 (def human {:human true})
 (def animal {:animate true :human false})
+(def adjective
+  {:synsem {:cat :adjective}})
 
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
