@@ -6,7 +6,7 @@
 (require '[clojure.string :refer (trim)])
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.stringutils :refer :all])
-(require '[italianverbs.unify :refer (copy fail? get-in merge ref? unifyc)])
+(require '[italianverbs.unify :refer (copy dissoc-paths fail? get-in merge ref? unifyc)])
 
 (defn phrase-is-finished? [phrase]
   (cond
@@ -1242,8 +1242,7 @@
 
 
 (def present-to-infinitive-ere
-  {
-   ;; present -ere
+  {;; present -ere
    #"o$"
    {:replace-with "ere"
     :unify-with {:italiano {:infl :present
@@ -1395,12 +1394,19 @@
                           :agr {:gender :fem
                                 :number :plur}}}}})
 
+(def infinitive-to-infinitive
+  {:identity
+   {:unify-with {:synsem {:infl :infinitive}}}})
+
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
+        ;; TODO: should not merge this into a single map: the same regex may match in more than one way.
+        ;; for example, a surface form could be analyzed as both a noun and a verb.
         (merge 
          future-to-infinitive
          imperfect-to-infinitive-irreg1
+         infinitive-to-infinitive ;; simply turns :top into :infl
          past-to-infinitive
          present-to-infinitive-ire
          present-to-infinitive-ere
@@ -1417,19 +1423,48 @@
         (remove fail?
                 (mapcat
                  (fn [key]
-                   (and (re-find key surface-form)
-                        (let [lexical-form (string/replace surface-form key
-                                                           (:replace-with (get replace-pairs key)))
+                   (if (or (and (not (keyword? key)) (re-find key surface-form))
+                           (and false (keyword? key) (= key :identity)))
+                        ;; TODO: factor out multiple calls to (get replace-pairs key) into a (let [replace-with ..])
+                        (let [lexical-form (if (= key :identity)
+                                             surface-form
+                                             (string/replace surface-form key
+                                                             (:replace-with (get replace-pairs key))))
                               looked-up (lookup-fn lexical-form)]
-                          (map #(unifyc % (:unify-with (get replace-pairs key)))
+                          (map #(unifyc 
+                                 %
+                                 (:unify-with (get replace-pairs key)))
+                               looked-up))))
+                 (keys replace-pairs)))
+
+
+        analyzed-via-identity
+        (remove fail?
+                (mapcat
+                 (fn [key]
+                   (if (or (and false (not (keyword? key)) (re-find key surface-form))
+                           (and (keyword? key) (= key :identity)))
+                        ;; TODO: factor out multiple calls to (get replace-pairs key) into a (let [replace-with ..])
+                        (let [lexical-form (if (= key :identity)
+                                             surface-form
+                                             (string/replace surface-form key
+                                                             (:replace-with (get replace-pairs key))))
+                              looked-up (lookup-fn lexical-form)]
+                          (map #(unifyc 
+                                 %
+                                 (:unify-with (get replace-pairs key)))
                                looked-up))))
                  (keys replace-pairs)))]
+
+
     (concat
      analyzed
 
      ;; also lookup the surface form itself, which
      ;; might be either the canonical form of a word, or an irregular conjugation of a word.
-     (lookup-fn surface-form))))
+     (if (not (empty? analyzed-via-identity))
+       analyzed-via-identity
+       (lookup-fn surface-form)))))
 
 (defn exception-generator [lexicon]
   (let [lexeme-kv (first lexicon)

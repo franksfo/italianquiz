@@ -2,8 +2,9 @@
   (:refer-clojure :exclude [get-in]))
 
 (require '[clojure.tools.logging :as log])
-(require '[italianverbs.lexiconfn :refer (compile-lex unify)])
+(require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals unify)])
 (require '[italianverbs.morphology.italiano :refer (agreement analyze exception-generator phonize italian-specific-rules)])
+(require '[italianverbs.morphology.italiano :as m])
 (require '[italianverbs.pos :refer (agreement-noun 
                                     cat-of-pronoun common-noun
                                     comparative
@@ -15,6 +16,7 @@
                                              intransitive intransitive-unspecified-obj
                                              feminine-noun masculine-noun
                                              transitive verb-subjective)])
+(require '[italianverbs.unify :refer (get-in)])
 (require '[italianverbs.unify :as unify])
 
 (def lexicon-source
@@ -995,10 +997,18 @@
 })
 
 (def lexicon
-  (compile-lex lexicon-source exception-generator phonize italian-specific-rules))
+  (map-function-on-map-vals (compile-lex lexicon-source exception-generator phonize italian-specific-rules)
+
+                            ;; this filters out any verbs without an inflection: infinitive verbs should have inflection
+                            ;; :infinitive, rather than not having any inflection.
+                            ;; TODO: factor out "cleanup" rules like this, because there will be more..
+                            (fn [k vals]
+                              (filter #(or (not (= :verb (get-in % [:synsem :cat])))
+                                           (not (= :none (get-in % [:synsem :infl] :none))))
+                                      vals))))
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
-  (analyze token (fn [k]
+    (analyze token (fn [k]
                    (get lexicon k))))
 
