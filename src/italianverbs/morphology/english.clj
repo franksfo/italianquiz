@@ -674,11 +674,17 @@
      true
      expr)))
 
+(def plural-to-singular-noun
+  {#"s$"
+   {:replace-with ""
+    :unify-with {:synsem {:cat :noun
+                          :agr {:number :plur}}}}})
+
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
         (merge 
-         )
+         plural-to-singular-noun)
         
         analyzed
         (remove fail?
