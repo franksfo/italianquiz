@@ -459,7 +459,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
         (and (string? (get-in lexical-entry '(:italiano)))
              (= :verb (get-in lexical-entry '(:synsem :cat))))
-        (merge {:italiano {:infinitive (get-in lexical-entry '(:italiano))}}
+        (merge {:italiano {:italiano (get-in lexical-entry '(:italiano))}}
                (embed-phon (dissoc lexical-entry ':italiano)))
 
         (string? (get-in lexical-entry '(:italiano)))
@@ -507,7 +507,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
 (defn transitive-verb-rule [lexical-entry]
   (cond (and (= (get-in lexical-entry [:synsem :cat]) :verb)
-             (not (nil? (get-in lexical-entry '(:synsem :sem :obj))))
+             (not (nil? (get-in lexical-entry [:synsem :sem :obj])))
              (not (= (get-in lexical-entry [:synsem :sem :obj]) :unspec)))
         (unifyc
          lexical-entry
@@ -517,20 +517,19 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 
 (defn verb-rule [lexical-entry]
   "every verb has at least a subject."
-  (cond (= (get-in lexical-entry '(:synsem :cat)) :verb)
+  (cond (= (get-in lexical-entry [:synsem :cat]) :verb)
         (unifyc
          lexical-entry
          verb-subjective)
         true
         lexical-entry))
 
-
 (defn commonnoun [lexical-entry]
   ;; subcat non-empty: pronoun is false
-  (cond (and (= (get-in lexical-entry '(:synsem :cat)) :noun)
-             (= (not (empty? (get-in lexical-entry '(:synsem :subcat)))))
-             (not (= (get-in lexical-entry '(:synsem :pronoun)) true))
-             (not (= (get-in lexical-entry '(:synsem :propernoun)) true)))
+  (cond (and (= (get-in lexical-entry [:synsem :cat]) :noun)
+             (= (not (empty? (get-in lexical-entry [:synsem :subcat]))))
+             (not (= (get-in lexical-entry [:synsem :pronoun]) true))
+             (not (= (get-in lexical-entry [:synsem :propernoun]) true)))
         (unifyc lexical-entry
                 (unifyc agreement-noun
                         common-noun
@@ -541,7 +540,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
         lexical-entry))
 
 (defn semantic-implicature [lexical-entry]
-  {:synsem {:sem (sem-impl (get-in lexical-entry '(:synsem :sem)))}})
+  {:synsem {:sem (sem-impl (get-in lexical-entry [:synsem :sem]))}})
 
 (defn put-a-bird-on-it [lexical-entry]
   "example lexical entry transformer."
@@ -645,7 +644,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 ;; TODO: allow transforming rules to emit sequences as well as just the
 ;; input value. i.e they should take a map and return either: a map, or a sequence of maps.
 ;; This means we have to check the type of the return value 'result' below.
-(defn transform [lexical-entry]
+(defn transform [lexical-entry rules]
   "keep transforming lexical entries until there's no changes. No changes is
    defined as: (isomorphic? input output) => true, where output is one iteration's
    applications of all of the rules."
@@ -698,26 +697,14 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                         result))
 
                 ;; not done yet: continue.
-                (transform result)))))))
-
-
-(defn transform-each-lexical-val-with-fn [italian-lexical-string lexical-val the-fn]
-  (let [lexical-val
-        (the-fn lexical-val italian-lexical-string)]
-    (cond
-     (map? lexical-val)
-     (transform lexical-val)
-     true
-     (map (fn [each]
-            (transform each))
-          lexical-val))))
+                (transform result rules)))))))
 
 (defn transform-each-lexical-val [italian-lexical-string lexical-val]
   (map (fn [each]
-         (transform each))
+         (transform each rules))
        lexical-val))
 
-(defn compile-lex [lexicon-source exception-generator phonize-fn]
+(defn compile-lex [lexicon-source exception-generator phonize-fn & [language-specific-rules]]
   (let [;; take source lexicon (declared above) and compile it.
         ;; 1. canonicalize all lexical entries
         ;; (i.e. vectorize the values of the map).
@@ -731,16 +718,30 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
         ;; 2. apply grammatical-category and semantic rules to each element in the lexicon
         lexicon-stage-2 (map-function-on-map-vals 
                          phon-lexicon
-                         transform-each-lexical-val)
+                         (fn [lexical-string lexeme]
+                           (map (fn [lexeme]
+                                  (transform lexeme rules))
+                                lexeme)))
 
-        ;; 3. generate exceptions
+        ;; 3. apply language-specific grammatical rules to each element in the lexicon
+;                           lexicon-stage-3 lexicon-stage-2
+        lexicon-stage-3 (if language-specific-rules
+                          (map-function-on-map-vals
+                           lexicon-stage-2
+                           (fn [lexical-string lexeme]
+                             (map (fn [lexeme]
+                                    (transform lexeme language-specific-rules))
+                                  lexeme)))
+                          lexicon-stage-2)
+
+        ;; 4. generate exceptions
         ;; problem: merge is overwriting values: use a collator that accumulates values.
         exceptions (listify (reduce #(merge-with concat %1 %2)
                                     (map #(listify %)
-                                         (exception-generator lexicon-stage-2))))
+                                         (exception-generator lexicon-stage-3))))
 
         lexicon
-        (merge-with concat lexicon-stage-2 exceptions)]
+        (merge-with concat lexicon-stage-3 exceptions)]
     lexicon))
 
 

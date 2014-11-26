@@ -1,13 +1,14 @@
-(ns italianverbs.lexicon.italiano)
+(ns italianverbs.lexicon.italiano
+  (:refer-clojure :exclude [get-in]))
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
 (require '[italianverbs.pos :refer :all])
-(require '[italianverbs.unify :refer (copy)])
+(require '[italianverbs.pos.italiano :as it-pos])
+(require '[italianverbs.unify :refer (copy get-in)])
 
 (def lexicon-source
   {
-
    "a"
 
    [(let [location (ref {:place true})]
@@ -169,11 +170,9 @@
           ;; "andare"-intransitive
           (unify
            intransitive
-           {:synsem {:sem {:location '()}}})
+           {:synsem {:sem {:location '()}}}
 
-          ;; "andare" that takes a prepositional phrase
-          (unify
-           verb-subjective
+           ;; "andare" that takes a prepositional phrase
            (let [place-sem (ref {:place true
                                  :pred :a})]
              {:synsem {:sem {:location place-sem}
@@ -183,7 +182,6 @@
               :note "andare-pp"}))))
 
    "Antonio"
-
    {:synsem {:agr {:number :sing
                    :person :3rd
                    :gender :masc}
@@ -242,7 +240,6 @@
       ;; 2. an intransitive verb.
       (unify
        verb-aux
-       verb-subjective
        avere-common
        {:note "avere(aux): takes intrans"
         :synsem {:infl :present
@@ -1097,5 +1094,31 @@
                {:italiano a-string}
                common))))
 
+(defn agreement [lexical-entry]
+  (cond
+   (= (get-in lexical-entry [:synsem :cat] :none) :verb)
+   (let [agr (ref :top)
+         infl (ref :top)]
+     (unify lexical-entry
+            {:italiano {:agr agr
+                        :infl infl}
+             :synsem {:agr agr
+                      :infl infl}}))
+
+   (= (get-in lexical-entry [:synsem :cat] :none) :noun)
+   (let [agr (ref :top)
+         cat (ref :top)]
+     (unify lexical-entry
+            {:italiano {:agr agr
+                        :cat cat}
+             :synsem {:agr agr
+                      :cat cat}}))
+
+   true
+   lexical-entry))
+
+(def italian-specific-rules
+  (list agreement))
+
 (def lexicon
-  (compile-lex lexicon-source exception-generator phonize))
+  (compile-lex lexicon-source exception-generator phonize italian-specific-rules))
