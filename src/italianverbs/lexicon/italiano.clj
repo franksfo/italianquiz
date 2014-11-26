@@ -9,11 +9,11 @@
                                               comparative
                                               countable-noun determiner
                                               drinkable-noun feminine-noun 
-                                              human transitive masculine-noun 
+                                              human masculine-noun 
                                               non-comparative-adjective noun
                                               pronoun-acc pronoun-noun sentential-adverb
                                               verb verb-aux)])
-(require '[italianverbs.pos.italiano :refer (intransitive intransitive-unspecified-obj verb-subjective)])
+(require '[italianverbs.pos.italiano :refer (intransitive intransitive-unspecified-obj transitive verb-subjective)])
 (require '[italianverbs.unify :refer (copy get-in)])
 
 (def lexicon-source

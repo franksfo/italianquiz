@@ -3,20 +3,6 @@
 (require '[italianverbs.pos :as pos])
 (require '[italianverbs.unify :refer (unifyc)])
 
-(declare verb-subjective)
-
-(def intransitive
-  (unifyc verb-subjective
-          pos/intransitive))
-
-(def intransitive-unspecified-obj
-  (unifyc verb-subjective
-          pos/intransitive-unspecified-obj))
-
-(def transitive
-  (unifyc verb-subjective
-          pos/transitive))
-
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
 (def verb-subjective
@@ -33,4 +19,15 @@
                       :essere essere-type
                       :subcat {:1 {:sem subj-sem}}}})))
 
+(def transitive
+  (unifyc verb-subjective
+          pos/transitive))
+
+(def intransitive-unspecified-obj
+  (unifyc verb-subjective
+          pos/intransitive-unspecified-obj))
+
+(def intransitive
+  (unifyc verb-subjective
+          pos/intransitive))
 
