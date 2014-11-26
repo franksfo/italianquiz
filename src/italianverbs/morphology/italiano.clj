@@ -93,78 +93,19 @@
    true
    infinitive))
 
-(defn analyze-italian-1 [word]
-  (let [person (get-in word '(:agr :person))
-        number (get-in word '(:agr :number))]
-    {:person person
-     :number number
-     :infinitive?    (and (= :infinitive (get-in word '(:infl)))
-                          (string? (get-in word '(:italiano))))
-
-     :irregular-futuro?    (and
-                            (= (get-in word '(:infl)) :futuro)
-                            (map? (get-in word '(:futuro))))
-
-     :regular-futuro?    (and (= (get-in word '(:infl)) :futuro)
-                              (get-in word '(:italiano)))
-
-     :regular-imperfetto?    (and (= (get-in word '(:infl)) :imperfetto)
-                                  (get-in word '(:italiano)))
-
-     :irregular-past?    (and
-                          (= :past (get-in word '(:infl)))
-                          (string? (get-in word '(:past))))
-
-     ;;nei: not enough information to conjugate.
-     :past-irregular-essere-type-nei
-     (and (= :past (get-in word '(:infl)))
-          (get-in word '(:passato))
-          (get-in word '(:essere) true)
-          (or (= :notfound (get-in word '(:agr :number) :notfound))
-              (= :top (get-in word '(:agr :number)))))
-
-     ;;nei: not enough information to conjugate.
-     :past-esseri-but-nei?
-     (and (= :past (get-in word '(:infl)))
-          (get-in word '(:essere) true)
-          (or (= :notfound (get-in word '(:agr :number) :notfound))
-              (= :top (get-in word '(:agr :number)))))
-
-   :irregular-passato?
-     (and (= :past (get-in word '(:infl)))
-          (get-in word '(:passato)))
-
-   :regular-passato
-     (= :past (get-in word '(:infl)))
-
-     :present
-     (= (get-in word '(:infl)) :present)}))
-
 ;; TODO: this is an overly huge method that needs to be rewritten to be easier to understand and maintain.
 (defn get-string-1 [word]
   (if (seq? word)
     (map (string/join " " #(get-string-1 %))
          word)
-  (let [analysis (analyze-italian-1 word)
-        person (get-in word '(:agr :person))
+  (let [person (get-in word '(:agr :person))
         number (get-in word '(:agr :number))
-        info (log/debug "get-string-1: input word: " word)
-        ]
-
-    (if (and false get-in word '(:a))
-      (do (log/info (str "a? " (get-in word '(:a))))
-          (log/info (str "b? " (get-in word '(:b))))
-          (log/info (str "analysis: " analysis))))
+        info (log/debug "get-string-1: input word: " word)]
 
     (log/debug (str "word's a is a string? " (get-in word '(:a)) " => " (string? (get-in word '(:a)))))
     (log/debug (str "word's b is a map? " (get-in word '(:b)) " => " (map? (get-in word '(:b)))))
 
     (log/debug (str "word's a italian is a string? " (get-in word '(:a :italiano)) " => " (string? (get-in word '(:a :italiano)))))
-
-
-    ;; throw exception if contradictory facts are found:
-;    (if (= (get-in word '(:a :initial) false))
-;      (throw (Exception. (str ":a's initial is false: (:a should always be initial=true)."))))
 
     (cond
 
