@@ -26,7 +26,8 @@
    [italianverbs.morphology.english :as en-m]
    [italianverbs.morphology.italiano :as it-m]
    [italianverbs.over :refer :all]
-   [italianverbs.parse :refer :all]
+   [italianverbs.parse :as parse]
+   [italianverbs.translate :refer :all]
    [italianverbs.pos :refer :all]
    ;; we excluded lightning-bolt from italianverbs.forest, so that we can use italianverbs.test.forest's instead:
 ;;   [italianverbs.test.forest :refer :all]

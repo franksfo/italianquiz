@@ -28,4 +28,12 @@
         (fo (it/generate (get-meaning english-parse)))))))
 
 
+(defn parse [input]
+  (let [italian-parses (it/parse input)
+        english-parses (en/parse input)] ;; lazy: no english parsing will be done unless it's needed (i.e. if italian parsing fails).
+    ;; since we can parse it as italian, translate it to english.
+    (if (not (empty? italian-parses))
+      italian-parses
+      english-parses)))
+
 
