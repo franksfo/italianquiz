@@ -3,16 +3,16 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
-(require '[italianverbs.pos :refer (adjective agreement-noun 
-                                              cat-of-pronoun common-noun
-                                              comparative
-                                              countable-noun determiner
-                                              drinkable-noun feminine-noun 
-                                              masculine-noun 
-                                              non-comparative-adjective noun
-                                              pronoun-acc pronoun-noun sentential-adverb
-                                              verb verb-aux)])
-(require '[italianverbs.pos.italiano :refer (intransitive intransitive-unspecified-obj transitive verb-subjective)])
+(require '[italianverbs.pos :refer (agreement-noun 
+                                    cat-of-pronoun common-noun
+                                    comparative
+                                    countable-noun determiner
+                                    drinkable-noun feminine-noun 
+                                    masculine-noun 
+                                    non-comparative-adjective noun
+                                    pronoun-acc pronoun-noun sentential-adverb
+                                    verb verb-aux)])
+(require '[italianverbs.pos.italiano :refer (adjective intransitive intransitive-unspecified-obj transitive verb-subjective)])
 (require '[italianverbs.unify :refer (copy get-in)])
 
 (def lexicon-source

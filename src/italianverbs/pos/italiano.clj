@@ -3,6 +3,15 @@
 (require '[italianverbs.pos :as pos])
 (require '[italianverbs.unify :refer (unifyc)])
 
+(def adjective
+  (unifyc pos/adjective
+          (let [agr (ref :top)
+                cat (ref :top)]
+            {:italiano {:agr agr
+                        :cat cat}
+             :synsem {:agr agr
+                      :cat cat}})))
+
 ;; A generalization of intransitive and transitive:
 ;; they both have a subject, thus "subjective".
 (def verb-subjective
