@@ -20,7 +20,6 @@
 (def lexicon-source
   {
    "a"
-
    [(let [location (ref {:place true})]
       {:synsem {:cat :prep
                 :sem {:pred :a

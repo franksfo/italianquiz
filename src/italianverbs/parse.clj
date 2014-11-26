@@ -3,48 +3,40 @@
 
 (require '[clojure.string :as str])
 (require '[clojure.tools.logging :as log])
+
+;; this require is language-specific 
 (require '[italianverbs.morphology :refer (fo fo-ps)])
+
 (require '[italianverbs.over :as over])
 (require '[italianverbs.unify :refer (get-in strip-refs)])
-
-;; TODO: remove language-specific stuff here.
-(require '[italianverbs.grammar.english :as en-g])
-(require '[italianverbs.grammar.italiano :as it-g])
-(require '[italianverbs.lexicon.english :as en])
-(require '[italianverbs.lexicon.italiano :as it])
-(require '[italianverbs.morphology.english :as en-m])
-(require '[italianverbs.morphology.italiano :as it-m])
 
 ;; for now, using a language-independent tokenizer.
 (def tokenizer #"[ ']")
 
 (declare toks2)
 
-(defn toks [s & [lexicon]]
-  (let [lexicon (if lexicon lexicon it/lexicon)]
-    (vec (toks2 (str/split s tokenizer) lexicon))))
+(defn toks [s lexicon lookup]
+  (vec (toks2 (str/split s tokenizer) lexicon lookup)))
 
-(defn toks2 [tokens lexicon]
+(defn toks2 [tokens lexicon lookup]
   "like (toks), but use lexicon to consolidate two initial tokens into one. may consolidate larger groups than two in the future."
-  (let [lexicon (if lexicon lexicon it/lexicon)
-        lookup (if (= lexicon it/lexicon) it/lookup en/lookup)]
-    (cond (nil? tokens) nil
-          (empty? tokens) nil
-          (> (.size tokens) 1)
-          ;; it's two or more tokens, so try to combine the first and the second of them:
-          (let [looked-up (lookup (str (first tokens) " " (second tokens)))]
-            (if (not (empty? looked-up))
-              ;; found a match by combining first two tokens.
-              (cons looked-up
-                    (toks2 (rest (rest tokens)) lexicon))
-              ;; else, no match: consider the first token as a standalone token and continue.
-              (cons (lookup (first tokens))
-                    (toks2 (rest tokens) lexicon))))
-          ;; only one token left: look it up.
-          (= (.size tokens) 1)
-          (list (lookup (first tokens)))
-          true
-          nil)))
+  (cond (nil? tokens) nil
+        (empty? tokens) nil
+        (> (.size tokens) 1)
+        ;; it's two or more tokens, so try to combine the first and the second of them:
+        (let [looked-up (lookup (str (first tokens) " " (second tokens)))]
+          (if (not (empty? looked-up))
+            ;; found a match by combining first two tokens.
+            (cons looked-up
+                  (toks2 (rest (rest tokens)) lexicon lookup))
+            ;; else, no match: consider the first token as a standalone token and continue.
+            (cons (lookup (first tokens))
+                  (toks2 (rest tokens) lexicon lookup))))
+        ;; only one token left: look it up.
+        (= (.size tokens) 1)
+        (list (lookup (first tokens)))
+        true
+        nil))
 
 (defn create-unigram-map [args index]
   (if (< index (.size args))
@@ -140,29 +132,25 @@
                 true
                 nminus1grams))))
 
-(defn parse [arg & [lexicon grammar]]
+;; TODO: move tokenization to within lexicon.
+(defn parse [arg lexicon lookup grammar]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
-  (let [lexicon (if lexicon lexicon it/lexicon)
-        grammar (if grammar grammar it-g/grammar)]
-    (cond (string? arg)
-          (parse (toks arg lexicon) lexicon grammar)
+  (cond (string? arg)
+        (parse (toks arg lexicon lookup) lexicon lookup grammar)
         
-          (and (vector? arg)
-               (empty? (rest arg)))
-          (first arg)
+        (and (vector? arg)
+             (empty? (rest arg)))
+        (first arg)
 
-          (vector? arg)
-          ;; return the parse of the whole expression.
-          ;; TODO: if a parse for the whole expression is not found,
-          ;; return the largest subparse(s).
-          (get (create-xgram-map arg (.size arg) 0 grammar)
-               [0 (.size arg)])
-          true
-          :error)))
+        (vector? arg)
+        ;; return the parse of the whole expression.
+        ;; TODO: if a parse for the whole expression is not found,
+        ;; return the largest subparse(s).
+        (get (create-xgram-map arg (.size arg) 0 grammar)
+             [0 (.size arg)])
+        true
+        :error))
 
-;; TODO: will go away: should be nothing language-specific in here.
-(defn lookup [token]
-  (it/lookup token))
+;(log/info (str "parse: " (fo (parse "il gatto ha dormito" it/lexicon it-g/grammar))))
 
-(log/info (str "parse: " (fo (parse "il gatto ha dormito"))))
 
