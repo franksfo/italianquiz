@@ -42,9 +42,8 @@
                           :subj {:human true}
                           :obj {:living true}}}})
 
-   "read"
-   (let [common {:english {:english "to read" ;; spelled "read" but pronounced like "reed".
-                           :past "read"
+   "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
+   (let [common {:english {:past "read"
                            :note "(past)"} ;; spelled "read" but pronounced like "red".
                  :synsem {:sem {:pred :leggere
                                 :discrete false
@@ -80,6 +79,7 @@
 
 (defn phonize [a-map a-string]
   (let [common {:phrasal false}]
+    ;; TODO: remove support for either list-of-maps - too confusing. Instead, just require a list of maps.
     (cond (or (vector? a-map) (seq? a-map))
           (map (fn [each-entry]
                  (phonize each-entry a-string))
