@@ -668,9 +668,10 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                 (fn [rule]
                                   ;; check for return value of (apply rule (list lexical-entry)):
                                   ;; if not list, make it a list.
-                                  (let [result (apply rule (list lexical-entry))]
+                                  (let [result (rule lexical-entry)]
                                     (if (and (not (fail? lexical-entry)) (fail? result))
-                                      (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
+                                      (do (log/warn (str "unify-type lexical rule: " rule " caused lexical-entry: " 
+                                                         (dissoc (strip-refs lexical-entry) :serialized)
                                                          " to fail; fail path was: " (fail-path result)))
                                           result)
                                       (do
@@ -678,7 +679,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                 rules))
                 result (if (not (fail? result))
                          (reduce merge  (map (fn [rule]
-                                               (let [result (apply rule (list result))]
+                                               (let [result (rule result)]
                                                  (if (fail? result)
                                                    (do (log/error (str "merge-type lexical rule: " rule " caused lexical-entry: " lexical-entry 
                                                                        " to fail; fail path was: " (fail-path result)))
