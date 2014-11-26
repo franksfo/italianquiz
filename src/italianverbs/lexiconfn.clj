@@ -378,9 +378,6 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
 (defn map-function-on-map-vals [m f]
   (into {} (for [[k v] m] [k (f k v)])))
 
-(defn map-function-on-map-vals [m f]
-  (into {} (for [[k v] m] [k (f k v)])))
-
 (defn check-lexicon [lexicon]
   (let [check-one (fn [k v]
                     (let [result (fail? v)]
