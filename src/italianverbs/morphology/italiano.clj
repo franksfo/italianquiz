@@ -234,6 +234,12 @@
      (string/trim (str (get-in word '(:a :italiano))
                  " " (get-string-1 (get-in word '(:b)))))
 
+     (= true (get-in word [:exception]))
+     (get-in word [:italiano])
+
+     ;; TODO: all of the rules that handle exceptions should be removed:
+     ;; exceptions are dealt with at compile-time now, via italianverbs.lexicon.italiano/exception-generator
+
      ;; handle lexical exceptions (plural feminine adjectives):
      (and
       (= (get-in word '(:agr :number)) :plur)

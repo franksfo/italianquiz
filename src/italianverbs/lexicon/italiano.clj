@@ -971,6 +971,7 @@
 })
 
 ;; TODO: need to regenerate :serialized for each exception.
+;; TODO: move to italianverbs.morphology.italiano
 (defn exception-generator [lexicon]
   (let [lexeme-kv (first lexicon)
         lexemes (second lexeme-kv)]
@@ -999,7 +1000,10 @@
                                                        (dissoc (copy lexeme) :serialized))]
                                       (if (not (= :none (get-in lexeme path :none)))
                                         (list {(get-in lexeme path :none)
-                                               (merge lexeme (apply merge-fn (list lexeme)))}))))
+                                               (merge
+                                                lexeme
+                                                (unify (apply merge-fn (list lexeme))
+                                                       {:italiano {:exception true}}))}))))
                                   lexemes)))
                       [
                        ;; 1. past-tense exceptions
