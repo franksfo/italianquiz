@@ -58,6 +58,14 @@
       (unify
        common
        intransitive-unspecified-obj)])
+
+
+   "the"
+   {:synsem {:cat :det
+             :def :def
+             :mass false
+             :gender :masc
+             :number :sing}}
    
 
 })
