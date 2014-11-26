@@ -3,8 +3,9 @@
   (:require 
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
-   [italianverbs.generate :as gen]
+   [italianverbs.generate :as generate]
    [italianverbs.lexicon.english :as en-lex]
+   [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.parse :as parse]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
@@ -15,12 +16,6 @@
 
 (declare cache)
 (declare grammar)
-
-(defn generate [spec]
-  (gen/generate spec
-                grammar
-                lexicon
-                cache))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -333,10 +328,19 @@
 (def cache nil)
 ;; TODO: trying to print cache takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to show only keys and first value or something.
-(def cache (future (create-index grammar lexicon head-principle)))
+(def cache (create-index grammar (flatten (vals lexicon)) head-principle))
 
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
 
 (defn parse [string]
   (parse/parse string lexicon en-lex/lookup grammar))
+
+(defn sentence [ & [spec]]
+  (let [spec (if spec spec :top)]
+    (generate/sentence spec grammar (flatten (vals lexicon)) cache)))
+
+(defn generate [ & [spec]]
+  (let [spec (if spec spec :top)]
+    (generate/generate spec grammar (flatten (vals lexicon)) cache)))
+

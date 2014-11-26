@@ -10,7 +10,6 @@
    [italianverbs.cache :refer (build-lex-sch-cache get-comp-phrases-of get-head-phrases-of get-lex
                                                    get-parent-phrases-for-spec
                                                    overc overh overh-with-cache overc-with-cache)]
-   [italianverbs.lexicon :refer (it)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :as over]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle ref? remove-top-values-log show-spec unifyc)]))
@@ -42,8 +41,7 @@
         true
         spec))
 
-(defn generate [spec grammar lexicon & [cache]]
-  ;; doesn't work yet..
+(defn generate [spec grammar lexicon cache]
   (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
   (log/debug (str "generate: " (show-spec spec)))
   (-> (lightning-bolt grammar
