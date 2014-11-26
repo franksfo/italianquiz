@@ -3,6 +3,7 @@
 
 (require '[clojure.core :as core])
 (require '[clojure.string :refer :all])
+(require '[clojure.string :as string])
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.unify :refer :all])
 
@@ -672,4 +673,28 @@
 
      true
      expr)))
+
+(defn analyze [surface-form lookup-fn]
+  "return the map incorporating the lexical information about a surface form."
+  (let [replace-pairs
+        (merge 
+         )
+        
+        analyzed
+        (remove fail?
+                (mapcat
+                 (fn [key]
+                   (and (re-find key surface-form)
+                        (let [lexical-form (string/replace surface-form key
+                                                           (:replace-with (get replace-pairs key)))
+                              looked-up (lookup-fn lexical-form)]
+                          (map #(unifyc % (:unify-with (get replace-pairs key)))
+                               looked-up))))
+                 (keys replace-pairs)))]
+    (concat
+     analyzed
+
+     ;; also lookup the surface form itself, which
+     ;; might be either the canonical form of a word, or an irregular conjugation of a word.
+     (lookup-fn surface-form))))
 

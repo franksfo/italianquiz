@@ -3,6 +3,7 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
+(require '[italianverbs.morphology.italiano :refer (analyze)])
 (require '[italianverbs.pos :refer (agreement-noun 
                                     cat-of-pronoun common-noun
                                     comparative
@@ -1142,3 +1143,10 @@
 
 (def lexicon
   (compile-lex lexicon-source exception-generator phonize italian-specific-rules))
+
+(defn lookup [token]
+  "return the subset of lexemes that match this token from the lexicon."
+  (analyze token (fn [k]
+                   (get lexicon k))))
+
+

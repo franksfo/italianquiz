@@ -1395,7 +1395,6 @@
                           :agr {:gender :fem
                                 :number :plur}}}}})
 
-
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs

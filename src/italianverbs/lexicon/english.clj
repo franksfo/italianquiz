@@ -2,6 +2,7 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
+(require '[italianverbs.morphology.english :refer (analyze)])
 (require '[italianverbs.pos :refer :all])
 (require '[italianverbs.unify :refer (copy)])
 
@@ -81,3 +82,7 @@
 
 (def lexicon (compile-lex lexicon-source exception-generator phonize))
 
+(defn lookup [token]
+  "return the subset of lexemes that match this token from the lexicon."
+  (analyze token (fn [k]
+                   (get lexicon k))))
