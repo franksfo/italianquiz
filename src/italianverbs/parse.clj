@@ -3,20 +3,17 @@
 
 (require '[clojure.string :as str])
 (require '[clojure.tools.logging :as log])
-(require '[italianverbs.grammar.english :as en-g])
-(require '[italianverbs.grammar.italiano :as it-g])
-(require '[italianverbs.lexicon.english :as en-l])
-(require '[italianverbs.lexicon.italiano :as it-l])
 (require '[italianverbs.morphology :refer (fo fo-ps)])
-(require '[italianverbs.morphology.english :as en-m])
-(require '[italianverbs.morphology.italiano :as it-m])
 (require '[italianverbs.over :as over])
 (require '[italianverbs.unify :refer (get-in strip-refs)])
 
-(def en-grammar en-g/grammar)
-(def en-lexicon en-l/lexicon)
-(def it-grammar it-g/grammar)
-(def it-lexicon it-l/lexicon)
+;; TODO: remove language-specific stuff here.
+(require '[italianverbs.grammar.english :as en-g])
+(require '[italianverbs.grammar.italiano :as it-g])
+(require '[italianverbs.lexicon.english :as en])
+(require '[italianverbs.lexicon.italiano :as it])
+(require '[italianverbs.morphology.english :as en-m])
+(require '[italianverbs.morphology.italiano :as it-m])
 
 ;; for now, using a language-independent tokenizer.
 (def tokenizer #"[ ']")
@@ -24,13 +21,13 @@
 (declare toks2)
 
 (defn toks [s & [lexicon]]
-  (let [lexicon (if lexicon lexicon it-lexicon)]
+  (let [lexicon (if lexicon lexicon it/lexicon)]
     (vec (toks2 (str/split s tokenizer) lexicon))))
 
 (defn toks2 [tokens lexicon]
   "like (toks), but use lexicon to consolidate two initial tokens into one. may consolidate larger groups than two in the future."
-  (let [lexicon (if lexicon lexicon it-lexicon)
-        lookup (if (= lexicon it-lexicon) it-l/lookup en-l/lookup)]
+  (let [lexicon (if lexicon lexicon it/lexicon)
+        lookup (if (= lexicon it/lexicon) it/lookup en/lookup)]
     (cond (nil? tokens) nil
           (empty? tokens) nil
           (> (.size tokens) 1)
@@ -48,8 +45,6 @@
           (list (lookup (first tokens)))
           true
           nil)))
-
-(declare parse)
 
 (defn create-unigram-map [args index]
   (if (< index (.size args))
@@ -148,8 +143,8 @@
 
 (defn parse [arg & [lexicon grammar]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
-  (let [lexicon (if lexicon lexicon it-lexicon)
-        grammar (if grammar grammar it-grammar)]
+  (let [lexicon (if lexicon lexicon it/lexicon)
+        grammar (if grammar grammar it-g/grammar)]
     (cond (string? arg)
           (parse (toks arg lexicon) lexicon grammar)
         
@@ -166,11 +161,9 @@
           true
           :error)))
 
+;; TODO: will go away: should be nothing language-specific in here.
 (defn lookup [token]
-  (it-l/lookup token))
+  (it/lookup token))
 
 (log/info (str "parse: " (fo (parse "il gatto ha dormito"))))
-
-
-
 
