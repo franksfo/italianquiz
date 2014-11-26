@@ -1288,7 +1288,7 @@
                             :agr {:number :plur
                                   :person :2nd}}}}
    
-   #"ano$"
+   #"ono$"
    {:replace-with "ire"
     :unify-with {:italiano {:infl :present
                             :agr {:number :plur
