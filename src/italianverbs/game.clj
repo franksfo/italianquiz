@@ -136,7 +136,7 @@
   (let [spec
         {:head {:phrasal :top}
          :comp {:phrasal false}
-         :synsem {;:sem {:pred :leggere}
+         :synsem {:sem {:pred :leggere}
                   :cat :verb
                   :subcat '()}}
 
