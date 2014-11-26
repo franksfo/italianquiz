@@ -1,10 +1,21 @@
-(ns italianverbs.lexicon.english)
+(ns italianverbs.lexicon.english
+  (:refer-clojure :exclude [get-in]))
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
+;(require '[italianverbs.morphology.english :refer (agreement analyze exception-generator phonize english-specific-rules)])
 (require '[italianverbs.morphology.english :refer (analyze)])
-(require '[italianverbs.pos :refer :all])
-(require '[italianverbs.unify :refer (copy)])
+(require '[italianverbs.pos :refer (adjective animal agreement-noun
+                                    cat-of-pronoun common-noun
+                                    comparative
+                                    countable-noun determiner
+                                    drinkable-noun feminine-noun 
+                                    masculine-noun 
+                                    non-comparative-adjective noun
+                                    pronoun-acc pronoun-noun sentential-adverb
+                                    verb verb-aux)])
+(require '[italianverbs.pos.english :refer (intransitive intransitive-unspecified-obj transitive)])
+(require '[italianverbs.unify :as unify])
 
 (def lexicon-source
   {"a"
@@ -69,8 +80,7 @@
                  (phonize each-entry a-string))
                a-map)
 
-          (and (map? a-map)
-               (not (= :no-english (get-in a-map [:english] :no-english))))
+          (map? a-map)
           (unify {:english {:english a-string}}
                  common
                  a-map)
