@@ -9,10 +9,13 @@
 (declare get-meaning)
 
 (defn translate [input]
-  (map fo
-       (lazy-cat
-        (en/generate (get-meaning (it/parse input)))
-        (it/generate (get-meaning (en/parse input))))))
+  (let [return-val
+        (map fo
+             (lazy-cat
+              (en/generate (get-meaning (it/parse input)))
+              (it/generate (get-meaning (en/parse input)))))]
+    (if (= 1 (.size return-val))
+      (first return-val))))
 
 (defn get-meaning [input-map]
   "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
