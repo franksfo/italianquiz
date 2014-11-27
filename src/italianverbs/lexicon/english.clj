@@ -89,10 +89,12 @@
              :subcat '()}}
 
    "sleep"
-   {:synsem {:cat :verb
-             :sem {:subj {:animate true}
-                   :discrete false
-                   :pred :dormire}}}
+   (unify
+    intransitive
+    {:synsem {:cat :verb
+              :sem {:subj {:animate true}
+                    :discrete false
+                    :pred :dormire}}})
 
    "the"
    {:synsem {:cat :det
