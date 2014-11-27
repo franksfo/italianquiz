@@ -66,6 +66,16 @@
        common
        intransitive-unspecified-obj)])
 
+   "she"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :gender :fem
+                   :number :sing}
+             :sem {:human true
+                   :pred :lei}
+             :subcat '()}}
 
    "the"
    {:synsem {:cat :det
@@ -74,6 +84,17 @@
              :gender :masc
              :number :sing}}
    
+
+   "you"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :2nd
+                   :number :sing}
+             :sem {:human true
+                   :pred :tu}
+             :subcat '()}}
+
 
 })
 
