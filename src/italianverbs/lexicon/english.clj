@@ -47,6 +47,17 @@
                    :pred :io}
              :subcat '()}}
 
+   "he"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :gender :masc
+                   :number :sing}
+             :sem {:human true
+                   :pred :lui}
+             :subcat '()}}
+
    "hug"
    (unify transitive
           {:synsem {:sem {:pred :abbracciare
