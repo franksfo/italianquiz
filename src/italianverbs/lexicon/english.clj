@@ -54,12 +54,9 @@
                           :obj {:living true}}}})
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
-   (let [common {:english {:past "read"
-                           :note "(past)"} ;; spelled "read" but pronounced like "red".
-                 :synsem {:sem {:pred :leggere
+   (let [common {:synsem {:sem {:pred :leggere
                                 :discrete false
                                 :subj {:human true}}}}]
-                 
      [(unify
        common
        transitive
