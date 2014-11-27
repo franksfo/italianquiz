@@ -88,6 +88,12 @@
                    :pred :lei}
              :subcat '()}}
 
+   "sleep"
+   {:synsem {:cat :verb
+             :sem {:subj {:animate true}
+                   :discrete false
+                   :pred :dormire}}}
+
    "the"
    {:synsem {:cat :det
              :def :def
