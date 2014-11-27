@@ -1401,8 +1401,9 @@
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
-        ;; TODO: should not merge this into a single map: the same regex may match in more than one way.
-        ;; for example, a surface form could be analyzed as both a noun and a verb.
+        ;; Even though it's possible for more than one KV pair to have the same key:
+        ;; e.g. plural-to-singular-noun-masc-1 and plural-to-singular-noun-masc-2 both have
+        ;; #"i$", they are distinct as separate keys in this 'replace-pairs' hash, as they should be.
         (merge 
          future-to-infinitive
          imperfect-to-infinitive-irreg1
@@ -1435,7 +1436,6 @@
                                  (:unify-with replace-with))
                                looked-up))))
                  (keys replace-pairs)))
-
 
         ;; Analyzed-via-identity is used to handle infinitive verbs: converts them from unspecified inflection to
         ;; {:infl :infinitive}
