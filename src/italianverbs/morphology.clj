@@ -24,16 +24,6 @@
     (log/warn (str "fix this stubbed out function."))
     input))
 
-(defn get-italian-1 [input]
-  (do
-    (log/warn (str "fix this stubbed out function."))
-    input))
-
-(defn get-english-1 [input]
-  (do
-    (log/warn (str "fix this stubbed out function."))
-    input))
-
 (defn fo [input]
   (cond 
 
