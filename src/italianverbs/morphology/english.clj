@@ -23,7 +23,7 @@
         (nil? (:a word))
         (nil? (:b word))
         (nil? (:english word))
-        (nil? (:infinitive word)))
+        (nil? (:english word)))
    ".."
 
    ;; "to do [past]" + "well" => "did well"
@@ -125,9 +125,9 @@
    (get-string (get-in word '(:a))
                 (get-in word '(:b)))
 
-   (and (= :infinitive (get-in word '(:infl)))
-        (string? (get-in word '(:infinitive))))
-   (get-in word '(:infinitive))
+   (and (= :english (get-in word '(:infl)))
+        (string? (get-in word '(:english))))
+   (get-in word '(:english))
 
    (= true (get-in word '(:hidden)))
 ;;   "Ø"
@@ -144,18 +144,18 @@
    (get-string-1 (get-in word '(:a)))
 
    (and (= (get-in word '(:infl)) :conditional)
-        (get-in word '(:infinitive))
+        (get-in word '(:english))
         (not (nil? (get-in word '(:agr :number))))
         (not (nil? (get-in word '(:agr :person)))))
-   (let [infinitive (get-in word '(:infinitive))
+   (let [infinitive (get-in word '(:english))
          stem (replace infinitive #"^to " "")]
      (str "would " stem))
 
    (and (= (get-in word '(:infl)) :futuro)
-        (get-in word '(:infinitive))
+        (get-in word '(:english))
         (not (nil? (get-in word '(:agr :number))))
         (not (nil? (get-in word '(:agr :person)))))
-   (let [infinitive (get-in word '(:infinitive))
+   (let [infinitive (get-in word '(:english))
          stem (replace infinitive #"^to " "")]
      (str "will " stem))
 
@@ -181,8 +181,8 @@
 
 
    (and (= (get-in word '(:infl)) :imperfetto)
-        (get-in word '(:infinitive)))
-   (let [infinitive (get-in word '(:infinitive))
+        (get-in word '(:english)))
+   (let [infinitive (get-in word '(:english))
          stem (replace infinitive #"^to " "")
          to-final (re-find #" to$" stem) ;; occurs in e.g. "have to": in imperfect becomes "was having to"
          stem (replace stem #" to$" "")
@@ -240,7 +240,7 @@
    (str "[" (get-in word '(:past :2sing)) "]")
 
    (= :top (get-in word '(:infl)))
-   (get-in word '(:infinitive))
+   (get-in word '(:english))
 
    ;; irregular past (2): a different inflection for each persons/numbers.
    (and (= :past (get-in word '(:infl)))
@@ -263,8 +263,8 @@
 
    ;; regular past
    (and (= :past (get-in word '(:infl)))
-        (string? (get-in word '(:infinitive))))
-   (let [infinitive (get-in word '(:infinitive))
+        (string? (get-in word '(:english))))
+   (let [infinitive (get-in word '(:english))
          stem (replace infinitive #"^to " "")
          stem-minus-one (nth (re-find #"(.*).$" stem) 1)
          penultimate-stem-char (nth (re-find #"(.).$" stem) 1)
@@ -277,13 +277,13 @@
 
    (and
     (= :present (get-in word '(:infl)))
-    (string? (get-in word '(:infinitive))))
-   (let [root (get-in word '(:infinitive))
+    (string? (get-in word '(:english))))
+   (let [root (get-in word '(:english))
          ;; TODO: throw exception rather than encoding error "nilrootz" as part
          ;; of the english string.
          root (if (nil? root) "(nilrootz)" root)
          root (if (not (= (type root) java.lang.String))
-                (get-in word '(:infinitive :infinitive))
+                (get-in word '(:english :english))
                 root)
          person (get-in word '(:agr :person))
          number (get-in word '(:agr :number))
@@ -336,8 +336,8 @@
       (and (= person :3rd) (= number :plur))
       (str stem "")
 
-      (string? (get-in word '(:infinitive)))
-      (get-in word '(:infinitive))
+      (string? (get-in word '(:english)))
+      (get-in word '(:english))
 
       (string? (get-in word '(:english)))
       (get-in word '(:english))
@@ -425,8 +425,8 @@
         (= (.size (keys word)) 1))
    (get-in word '(:english :english))
 
-   (string? (get-in word '(:infinitive)))
-   (get-in word '(:infinitive))
+   (string? (get-in word '(:english)))
+   (get-in word '(:english))
 
    :else
    word))
