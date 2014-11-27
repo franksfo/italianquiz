@@ -1,5 +1,6 @@
 (ns italianverbs.test.translate)
 (require '[italianverbs.morphology :refer (fo)])
+(require '[italianverbs.grammar.english :as en])
 (require '[italianverbs.grammar.italiano :as it])
 (require '[italianverbs.translate :refer :all])
 (require '[clojure.test :refer :all])
@@ -20,4 +21,15 @@
      (and
       (string? retval)
       (is (= "io dormo" retval))))))
+
+(deftest test-roundtrip-english
+  (let [retval (fo (en/generate (get-meaning (parse "she sleeps"))))]
+    (or
+     (and
+      (seq? retval)
+      (= (.size retval))
+      (is (= "she sleeps" (first retval))))
+     (and
+      (string? retval)
+      (is (= "she sleeps" retval))))))
 
