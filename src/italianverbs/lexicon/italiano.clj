@@ -476,15 +476,20 @@
                              :artifact false}}})
 
       "cercare"
-      ;; cercare
-      (unify
-       (:transitive verb)
-       {:synsem {:essere false
-                 :sem {:pred :cercare
-                       :activity true
-                       :discrete false
-                       :subj {:human true}
-                       :obj {:physical-object true}}}})
+      (let [common {:synsem {:essere false
+                             :sem {:activity true
+                                   :discrete false
+                                   :pred :cercare
+                                   :subj {:animate true}}}}]
+
+        [(unify
+          common
+          transitive
+          {:synsem {:sem {:obj {:physical-object true}}}})
+
+         (unify
+          common
+          intransitive-unspecified-obj)])
 
       "città"
       (unify agreement-noun
