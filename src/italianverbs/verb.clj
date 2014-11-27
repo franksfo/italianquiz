@@ -10,6 +10,8 @@
    [italianverbs.html :as html]
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
+   [italianverbs.morphology.english :as en-m]
+   [italianverbs.morphology.italiano :as it-m]
    [italianverbs.morphology :refer (normalize-whitespace)]
    [italianverbs.unify :refer :all]
 
@@ -71,9 +73,9 @@
       (str (html [:tr
                   [:th.num i]
                   [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
-                        (morph/get-italian-1 (:italian (first results)))]]
+                        (it-m/get-string (first results))]]
                   [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
-                        (morph/get-italian-1 (:english (first results)))]]
+                        (en-m/get-string (:english (first results)))]]
                   [:td [:span {:class "date"}
                         (f/unparse html/short-format (:created (first results)))]]
 
