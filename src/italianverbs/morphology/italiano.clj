@@ -1424,7 +1424,6 @@
                 (mapcat
                  (fn [key]
                    (if (and (not (keyword? key)) (re-find key surface-form))
-                        ;; TODO: factor out multiple calls to (get replace-pairs key) into a (let [replace-with ..])
                         (let [replace-with (get replace-pairs key)
                               lexical-form (if (= key :identity)
                                              surface-form
@@ -1438,12 +1437,14 @@
                  (keys replace-pairs)))
 
 
+        ;; Analyzed-via-identity is used to handle infinitive verbs: converts them from unspecified inflection to
+        ;; {:infl :infinitive}
+        ;; Might also be used in the future to convert nouns from unspecified number to singular number.
         analyzed-via-identity
         (remove fail?
                 (mapcat
                  (fn [key]
                    (if (and (keyword? key) (= key :identity))
-                        ;; TODO: factor out multiple calls to (get replace-pairs key) into a (let [replace-with ..])
                         (let [lexical-form surface-form
                               looked-up (lookup-fn lexical-form)]
                           (map #(unifyc 
