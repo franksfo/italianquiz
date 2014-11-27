@@ -8,8 +8,11 @@
 
 (defn get-meaning [input-map]
   "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
-  {:synsem {:sem (get-in input-map [:synsem :sem] :top)
-            :cat (get-in input-map [:synsem :cat] :top)}})
+  (if (seq? input-map)
+    (map get-meaning
+         input-map)
+    {:synsem {:sem (get-in input-map [:synsem :sem] :top)
+              :cat (get-in input-map [:synsem :cat] :top)}}))
 
 (defn translate-it2en [italian]
   (fo (en/generate (get-meaning (first (it/parse italian))))))
@@ -18,22 +21,26 @@
   (fo (it/generate (get-meaning (first (en/parse english))))))
 
 (defn translate [input]
-  (let [italian-parse (first (it/parse input))
-        english-parses (en/parse input)] ;; lazy: no english parsing will be done unless it's needed (i.e. if italian parsing fails).
-    ;; since we can parse it as italian, translate it to english.
-    (if italian-parse
-      (fo (en/generate (get-meaning italian-parse)))
-      ;; otherwise, try the other direction (english to italian):
-      (let [english-parse (first (take 1 english-parses))]
-        (fo (it/generate (get-meaning english-parse)))))))
-
+  (if (seq? input)
+    (map translate
+         input)
+    (let [italian-parse (it/parse input)]
+      ;; since we can parse it as italian, translate it to english:
+      (if (not (empty? italian-parse))
+        (fo (en/generate (get-meaning italian-parse)))
+        ;; otherwise, try parsing it as english and translating it to italian:
+        (fo (it/generate (get-meaning (en/parse input))))))))
 
 (defn parse [input]
-  (let [italian-parses (it/parse input)
-        english-parses (en/parse input)] ;; lazy: no english parsing will be done unless it's needed (i.e. if italian parsing fails).
-    ;; since we can parse it as italian, translate it to english.
+  (let [italian-parses (it/parse input)]
     (if (not (empty? italian-parses))
       italian-parses
-      english-parses)))
+      (en/parse input))))
+
+(defn lookup [input]
+  (let [italian-lookup (en/lookup input)]
+    (if (not (empty? italian-lookup))
+      italian-lookup
+      (en/lookup input))))
 
 

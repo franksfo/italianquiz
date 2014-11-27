@@ -348,8 +348,11 @@
 
 (defn generate [ & [spec]]
   (let [spec (if spec spec :top)]
-    (generate/generate spec
-                  grammar
-                  lexicon
-                  cache)))
+    (if (seq? spec)
+      (map generate spec)
+      (generate/generate spec
+                         grammar
+                         lexicon
+                         cache))))
+
 
