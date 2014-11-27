@@ -1592,8 +1592,7 @@
              {:italiano {:agr agr
                          :cat cat
                          :infl infl}
-              :synsem {:agr agr
-                       :cat cat
+              :synsem {:cat cat
                        :infl infl}}))
 
    (= (get-in lexical-entry [:synsem :cat]) :noun)
