@@ -11,8 +11,9 @@
   (if (seq? input-map)
     (map get-meaning
          input-map)
-    {:synsem {:sem (get-in input-map [:synsem :sem] :top)
-              :cat (get-in input-map [:synsem :cat] :top)}}))
+    {:synsem {:cat (get-in input-map [:synsem :cat] :top)
+              :sem (get-in input-map [:synsem :sem] :top)
+              :subcat (get-in input-map [:synsem :subcat] :top)}}))
 
 (defn translate-it2en [italian]
   (fo (en/generate (get-meaning (first (it/parse italian))))))
@@ -40,6 +41,3 @@
 (defn lookup [input]
   (lazy-cat (it/lookup input)
             (en/lookup input)))
-
-
-
