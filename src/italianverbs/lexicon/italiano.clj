@@ -683,11 +683,13 @@
                                     :subcat '()}}}})
 
       "dormire"
-      {:synsem {:cat :verb
-                :essere false
-                :sem {:subj {:animate true}
-                      :discrete false
-                      :pred :dormire}}}
+      (unify
+       intransitive
+       {:synsem {:cat :verb
+                 :essere false
+                 :sem {:subj {:animate true}
+                       :discrete false
+                       :pred :dormire}}})
 
 
       "gatto"
