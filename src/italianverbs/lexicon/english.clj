@@ -36,6 +36,17 @@
           {:synsem {:sem {:pred :abbracciare
                           :subj {:human true}}}})
 
+
+   "i"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :1st
+                   :number :sing}
+             :sem {:human true
+                   :pred :io}
+             :subcat '()}}
+
    "hug"
    (unify transitive
           {:synsem {:sem {:pred :abbracciare
