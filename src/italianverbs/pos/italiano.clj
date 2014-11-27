@@ -19,9 +19,7 @@
 ;; they both have a subject, thus "subjective".
 (def verb-subjective
   (unifyc pos/verb-subjective
-          (let [subj-sem (ref :top)
-                subject-agreement (ref :nom)
-                infl (ref :top)
+          (let [infl (ref :top)
                 agr (ref :top)
                 essere-type (ref :top)]
             {:italiano {:agr agr
@@ -29,7 +27,7 @@
                         :infl infl}
              :synsem {:infl infl
                       :essere essere-type
-                      :subcat {:1 {:sem subj-sem}}}})))
+                      :subcat {:1 {:agr agr}}}})))
 
 (def transitive
   (unifyc verb-subjective

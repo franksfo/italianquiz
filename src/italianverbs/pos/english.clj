@@ -16,7 +16,8 @@
                 agr (ref :top)]
             {:english {:agr agr
                        :infl infl}
-             :synsem {:infl infl}})))
+             :synsem {:infl infl
+                      :subcat {:1 {:agr agr}}}})))
 
 (def transitive
   (unifyc verb-subjective
