@@ -3,7 +3,7 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
-(require '[italianverbs.morphology.english :refer (analyze)])
+(require '[italianverbs.morphology.english :refer (analyze english-specific-rules)])
 (require '[italianverbs.pos :refer (adjective animal
                                     cat-of-pronoun common-noun
                                     comparative
@@ -106,7 +106,7 @@
                {:english a-string}
                common))))
 
-(def lexicon (compile-lex lexicon-source exception-generator phonize))
+(def lexicon (compile-lex lexicon-source exception-generator phonize english-specific-rules))
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."

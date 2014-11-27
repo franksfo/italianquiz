@@ -620,27 +620,99 @@
     :unify-with {:synsem {:cat :noun
                           :agr {:number :plur}}}}})
 
+(def infinitive-to-infinitive
+  {:identity1
+   {:unify-with {:synsem {:infl :infinitive}}}})
+
+(def infinitive-to-1sing-present
+  {:identity2
+   {:unify-with {:synsem {:infl :present
+                          :agr {:number :sing
+                                :person :1st}}}}})
+
+(def infinitive-to-2sing-present
+  {:identity3
+   {:unify-with {:synsem {:infl :present
+                          :agr {:number :sing
+                                :person :2nd}}}}})
+
+(def infinitive-to-3sing-present
+  {#"s$"
+   {:replace-with ""
+    :unify-with {:synsem {:infl :present
+                          :agr {:number :sing
+                                :person :3rd}}}}})
+
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
         (merge 
-         plural-to-singular-noun)
+         plural-to-singular-noun
+         infinitive-to-infinitive
+         infinitive-to-1sing-present
+         infinitive-to-2sing-present
+         infinitive-to-3sing-present
+         )
         
         analyzed
         (remove fail?
                 (mapcat
                  (fn [key]
-                   (and (re-find key surface-form)
-                        (let [lexical-form (string/replace surface-form key
-                                                           (:replace-with (get replace-pairs key)))
-                              looked-up (lookup-fn lexical-form)]
-                          (map #(unifyc % (:unify-with (get replace-pairs key)))
-                               looked-up))))
+                   (if (and (not (keyword? key)) (re-find key surface-form))
+                     (let [lexical-form (string/replace surface-form key
+                                                        (:replace-with (get replace-pairs key)))
+                           looked-up (lookup-fn lexical-form)]
+                       (map #(unifyc % (:unify-with (get replace-pairs key)))
+                            looked-up))))
+                 (keys replace-pairs)))
+
+        analyzed-via-identity
+        (remove fail?
+                (mapcat
+                 (fn [key]
+                   (if (keyword? key)
+                     (let [lexical-form surface-form
+                           looked-up (lookup-fn lexical-form)]
+                       (map #(unifyc % (:unify-with (get replace-pairs key)))
+                            looked-up))))
                  (keys replace-pairs)))]
+
     (concat
      analyzed
 
      ;; also lookup the surface form itself, which
      ;; might be either the canonical form of a word, or an irregular conjugation of a word.
-     (lookup-fn surface-form))))
+     (if (not (empty? analyzed-via-identity))
+       analyzed-via-identity
+       (lookup-fn surface-form)))))
+
+(defn agreement [lexical-entry]
+  (cond
+   (= (get-in lexical-entry [:synsem :cat]) :verb)
+   (let [agr (ref :top)
+         cat (ref :top)
+         infl (ref :top)]
+     (unifyc lexical-entry
+             {:english {:agr agr
+                        :cat cat
+                        :infl infl}
+              :synsem {:agr agr
+                       :cat cat
+                       :infl infl}}))
+
+   (= (get-in lexical-entry [:synsem :cat]) :noun)
+   (let [agr (ref :top)
+         cat (ref :top)]
+     (unifyc lexical-entry
+             {:english {:agr agr
+                         :cat cat}
+              :synsem {:agr agr
+                       :cat cat}}))
+
+   true
+   lexical-entry))
+
+(def english-specific-rules
+  (list agreement))
+
 
