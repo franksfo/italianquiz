@@ -6,6 +6,14 @@
 (require '[italianverbs.morphology :refer [finalize fo fo-ps]])
 (require '[italianverbs.unify :refer [get-in]])
 
+(declare get-meaning)
+
+(defn translate [input]
+  (map fo
+       (lazy-cat
+        (en/generate (get-meaning (it/parse input)))
+        (it/generate (get-meaning (en/parse input))))))
+
 (defn get-meaning [input-map]
   "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."
   (if (seq? input-map)
@@ -20,17 +28,6 @@
 
 (defn translate-en2it [english]
   (fo (it/generate (get-meaning (first (en/parse english))))))
-
-(defn translate [input]
-  (if (seq? input)
-    (map translate
-         input)
-    (let [italian-parse (it/parse input)]
-      ;; since we can parse it as italian, translate it to english:
-      (if (not (empty? italian-parse))
-        (fo (en/generate (get-meaning italian-parse)))
-        ;; otherwise, try parsing it as english and translating it to italian:
-        (fo (it/generate (get-meaning (en/parse input))))))))
 
 (defn parse [input]
   (let [italian-parses (it/parse input)]
