@@ -1585,12 +1585,10 @@
 (defn agreement [lexical-entry]
   (cond
    (= (get-in lexical-entry [:synsem :cat]) :verb)
-   (let [agr (ref :top)
-         cat (ref :top)
+   (let [cat (ref :top)
          infl (ref :top)]
      (unifyc lexical-entry
-             {:italiano {:agr agr
-                         :cat cat
+             {:italiano {:cat cat
                          :infl infl}
               :synsem {:cat cat
                        :infl infl}}))
