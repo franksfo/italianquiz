@@ -1,6 +1,6 @@
 (ns italianverbs.translate
   (:refer-clojure :exclude [get-in merge resolve find]))
-
+(require '[clojure.tools.logging :as log])
 (require '[italianverbs.grammar.english :as en])
 (require '[italianverbs.grammar.italiano :as it])
 (require '[italianverbs.morphology :refer [finalize fo fo-ps]])
@@ -41,3 +41,7 @@
 (defn lookup [input]
   (lazy-cat (it/lookup input)
             (en/lookup input)))
+
+(log/info "doing stuff..")
+(def do-parse (fo (parse "il gatto ha dormito")))
+(log/info "done doing stuff.")
