@@ -1423,17 +1423,17 @@
         (remove fail?
                 (mapcat
                  (fn [key]
-                   (if (or (and (not (keyword? key)) (re-find key surface-form))
-                           (and false (keyword? key) (= key :identity)))
+                   (if (and (not (keyword? key)) (re-find key surface-form))
                         ;; TODO: factor out multiple calls to (get replace-pairs key) into a (let [replace-with ..])
-                        (let [lexical-form (if (= key :identity)
+                        (let [replace-with (get replace-pairs key)
+                              lexical-form (if (= key :identity)
                                              surface-form
                                              (string/replace surface-form key
-                                                             (:replace-with (get replace-pairs key))))
+                                                             (:replace-with replace-with)))
                               looked-up (lookup-fn lexical-form)]
                           (map #(unifyc 
                                  %
-                                 (:unify-with (get replace-pairs key)))
+                                 (:unify-with replace-with))
                                looked-up))))
                  (keys replace-pairs)))
 
@@ -1442,13 +1442,9 @@
         (remove fail?
                 (mapcat
                  (fn [key]
-                   (if (or (and false (not (keyword? key)) (re-find key surface-form))
-                           (and (keyword? key) (= key :identity)))
+                   (if (and (keyword? key) (= key :identity))
                         ;; TODO: factor out multiple calls to (get replace-pairs key) into a (let [replace-with ..])
-                        (let [lexical-form (if (= key :identity)
-                                             surface-form
-                                             (string/replace surface-form key
-                                                             (:replace-with (get replace-pairs key))))
+                        (let [lexical-form surface-form
                               looked-up (lookup-fn lexical-form)]
                           (map #(unifyc 
                                  %
