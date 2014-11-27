@@ -624,24 +624,43 @@
   {:identity1
    {:unify-with {:synsem {:infl :infinitive}}}})
 
-(def infinitive-to-1sing-present
+(def infinitive-to-1sing-present ;; infinitive "read" -> "i read"
   {:identity2
    {:unify-with {:synsem {:infl :present
-                          :agr {:number :sing
-                                :person :1st}}}}})
+                          :subcat {:1 {:agr {:number :sing
+                                             :person :1st}}}}}}})
 
-(def infinitive-to-2sing-present
+(def infinitive-to-2sing-present ;; infinitive "read" -> "you read"
   {:identity3
    {:unify-with {:synsem {:infl :present
-                          :agr {:number :sing
-                                :person :2nd}}}}})
+                          :subcat {:1 {:agr {:number :sing
+                                             :person :2nd}}}}}}})
 
-(def infinitive-to-3sing-present
+(def infinitive-to-3sing-present ;; infinitive "read" -> "she reads"
   {#"s$"
    {:replace-with ""
     :unify-with {:synsem {:infl :present
-                          :agr {:number :sing
-                                :person :3rd}}}}})
+                          :subcat {:1 {:agr {:number :sing
+                                             :person :3rd}}}}}}})
+
+(def infinitive-to-1plur-present ;; infinitive "read" -> "we read"
+  {:identity4
+   {:unify-with {:synsem {:infl :present
+                          :subcat {:1 {:agr {:number :plur
+                                             :person :1st}}}}}}})
+
+(def infinitive-to-2plur-present ;; infinitive "read" -> "you all read"
+  {:identity5
+   {:unify-with {:synsem {:infl :present
+                          :subcat {:1 {:agr {:number :plur
+                                             :person :2nd}}}}}}})
+
+(def infinitive-to-3plur-present ;; infinitive "read" -> "they read"
+  {:identity6
+   {:replace-with ""
+    :unify-with {:synsem {:infl :present
+                          :subcat {:1 {:agr {:number :plur
+                                             :person :3rd}}}}}}})
 
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
@@ -652,6 +671,11 @@
          infinitive-to-1sing-present
          infinitive-to-2sing-present
          infinitive-to-3sing-present
+
+         infinitive-to-1plur-present
+         infinitive-to-2plur-present
+         infinitive-to-3plur-present
+
          )
         
         analyzed
@@ -689,15 +713,12 @@
 (defn agreement [lexical-entry]
   (cond
    (= (get-in lexical-entry [:synsem :cat]) :verb)
-   (let [agr (ref :top)
-         cat (ref :top)
+   (let [cat (ref :top)
          infl (ref :top)]
      (unifyc lexical-entry
-             {:english {:agr agr
-                        :cat cat
+             {:english {:cat cat
                         :infl infl}
-              :synsem {:agr agr
-                       :cat cat
+              :synsem {:cat cat
                        :infl infl}}))
 
    (= (get-in lexical-entry [:synsem :cat]) :noun)
