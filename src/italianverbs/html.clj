@@ -295,6 +295,7 @@
       (map? arg)
 
       (not (= :subcat (last path)))
+      (not (= :english (last path)))
       (not (= :italiano (last path)))
 
       ;; display :extends properly (i.e. not a tree).
@@ -307,7 +308,6 @@
       (not (= :f (last path)))
       (not (= :g (last path)))
 
-      (not (= :english (last path)))
       (not (= :none (:1 arg :none)))
       (not (= :none (:2 arg :none))))
 
@@ -390,8 +390,13 @@
 
 
      (and (map? arg)
+          (= (last path) :english))
+     (str "<i>" (fo {:english arg}) "</i>")
+
+     (and (map? arg)
           (= (last path) :italiano))
      (str "<i>" (fo {:italiano arg}) "</i>")
+
 
      ;; displaying a feature structure.
      (map? arg)
