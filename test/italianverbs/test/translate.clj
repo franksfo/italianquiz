@@ -5,3 +5,6 @@
 (deftest translate-a-cat
   (is (= "a cat" (translate "un gatto"))))
 
+(deftest translate-she-reads
+  (is (= "she reads" (translate "lei legge"))))
+
