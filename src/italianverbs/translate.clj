@@ -38,7 +38,7 @@
       (en/parse input))))
 
 (defn lookup [input]
-  (let [italian-lookup (en/lookup input)]
+  (let [italian-lookup (it/lookup input)]
     (if (not (empty? italian-lookup))
       italian-lookup
       (en/lookup input))))
