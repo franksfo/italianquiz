@@ -6,7 +6,7 @@
 ;; not yet needed, but might be some day.
 ;(require '[italianverbs.generate :as gen])
 
-(require '[italianverbs.grammar.english :as en])
+(require '[italianverbs.english :as en])
 (require '[italianverbs.grammar.italiano :as it])
 
 (require '[italianverbs.morphology :refer [fo]])

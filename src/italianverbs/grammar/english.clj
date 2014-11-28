@@ -10,10 +10,6 @@
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
 
-;; TODO: move these two convenience declarations to a super-package like italianverbs.english.
-(def lexicon en-lex/lexicon)
-(def lookup en-lex/lookup)
-
 (declare cache)
 (declare grammar)
 
@@ -292,7 +288,6 @@
 
 ))
 
-
 (defn aux-is-head-feature [phrase]
   (cond (= :verb (get-in phrase '(:synsem :cat)))
         (unifyc phrase
@@ -322,28 +317,3 @@
      grammar))
 
 (log/info "English grammar defined.")
-
-(def begin (System/currentTimeMillis))
-(log/info "building grammatical and lexical index..")
-(def cache nil)
-;; TODO: trying to print cache takes forever and blows up emacs buffer:
-;; figure out how to change printable version to show only keys and first value or something.
-(def cache (create-index grammar (flatten (vals lexicon)) head-principle))
-
-(def end (System/currentTimeMillis))
-(log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
-
-(defn parse [string]
-  (parse/parse string lexicon en-lex/lookup grammar))
-
-(defn sentence [ & [spec]]
-  (let [spec (if spec spec :top)]
-    (generate/sentence spec grammar (flatten (vals lexicon)) cache)))
-
-(defn generate [ & [spec]]
-  (let [spec (if spec spec :top)]
-    (if (seq? spec)
-      (map generate spec)
-      (generate/generate spec grammar (flatten (vals lexicon)) cache))))
-
-

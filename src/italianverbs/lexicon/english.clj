@@ -1,9 +1,6 @@
-(ns italianverbs.lexicon.english
-  (:refer-clojure :exclude [get-in]))
+(ns italianverbs.lexicon.english)
 
-(require '[clojure.tools.logging :as log])
-(require '[italianverbs.lexiconfn :refer (compile-lex unify)])
-(require '[italianverbs.morphology.english :refer (analyze english-specific-rules)])
+(require '[italianverbs.lexiconfn :refer (unify)])
 (require '[italianverbs.pos :refer (adjective animal
                                     cat-of-pronoun common-noun
                                     comparative
@@ -12,8 +9,7 @@
                                     non-comparative-adjective noun
                                     pronoun-acc pronoun-noun sentential-adverb
                                     verb verb-aux)])
-(require '[italianverbs.pos.english :refer (agreement-noun intransitive intransitive-unspecified-obj transitive)])
-(require '[italianverbs.unify :as unify])
+(require '[italianverbs.pos.english :refer :all])
 
 (def lexicon-source
   {"a"
@@ -112,35 +108,3 @@
 
 
 })
-
-;; TODO: just a stub for now:
-(defn exception-generator [lexicon]
-  (let [lexeme-kv (first lexicon)
-        lexemes (second lexeme-kv)]
-    (if lexeme-kv
-      (list {})
-      (list {}))))
-
-(defn phonize [a-map a-string]
-  (let [common {:phrasal false}]
-    ;; TODO: remove support for either list-of-maps - too confusing. Instead, just require a list of maps.
-    (cond (or (vector? a-map) (seq? a-map))
-          (map (fn [each-entry]
-                 (phonize each-entry a-string))
-               a-map)
-
-          (map? a-map)
-          (unify {:english {:english a-string}}
-                 common
-                 a-map)
-
-        true
-        (unify a-map
-               {:english a-string}
-               common))))
-
-(def lexicon (compile-lex lexicon-source exception-generator phonize english-specific-rules))
-
-(defn lookup [token]
-  "return the subset of lexemes that match this token from the lexicon."
-  (analyze token #(get lexicon %)))
