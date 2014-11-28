@@ -198,12 +198,9 @@
 
 
 ;; TODO: remove when I feel safe that I don't need it anymore..
-;; commented out until new per-language stuff is working.
-(def get-stuff-initialized (sentence {:comp {:phrasal false}
-                                      :head {:phrasal false}
-                                      :synsem {:subcat '() :cat :verb
-                                              :sem {:pred :dormire
-                                                     :subj {:pred :lei}}}}
-                                     it/grammar))
+(def get-stuff-initialized1 (parse "io leggo il libro"))
+(def get-stuff-initialized2 (translate "io leggo il libro"))
 
-(log/info (str "done initializing workbook. " (fo get-stuff-initialized)))
+(log/info (str "done initializing workbook(1): " (fo get-stuff-initialized1)))
+(log/info (str "done initializing workbook(2): " get-stuff-initialized2))
+
