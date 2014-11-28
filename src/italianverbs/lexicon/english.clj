@@ -100,9 +100,7 @@
    {:synsem {:cat :det
              :def :def
              :mass false
-             :gender :masc
-             :number :sing}}
-   
+             :gender :masc}}
 
    "you"
    {:synsem {:cat :noun
@@ -147,5 +145,4 @@
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
-  (analyze token (fn [k]
-                   (get lexicon k))))
+  (analyze token #(get lexicon %)))
