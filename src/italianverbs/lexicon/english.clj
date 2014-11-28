@@ -20,7 +20,6 @@
    {:synsem {:cat :det
              :def :indef
              :mass false
-             :gender :masc
              :number :sing}}
 
    "cat"
@@ -99,8 +98,7 @@
    "the"
    {:synsem {:cat :det
              :def :def
-             :mass false
-             :gender :masc}}
+             :mass false}}
 
    "you"
    {:synsem {:cat :noun
