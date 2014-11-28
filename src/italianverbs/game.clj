@@ -111,7 +111,7 @@
 
         italiano (it/sentence spec)
 
-        semantics (get-meaning italiano)
+        semantics (strip-refs (get-meaning italiano))
 
         english (en/sentence semantics)]
 
