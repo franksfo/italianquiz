@@ -18,6 +18,19 @@
              :mass false
              :number :sing}}
 
+
+   "book"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          {:synsem {:sem {:pred :libro
+                          :legible true
+                          :speakable false
+                          :mass false
+                          :buyable true
+                          :consumable false
+                          :artifact true}}})
+
    "cat"
    (unify agreement-noun
           common-noun
