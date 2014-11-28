@@ -26,22 +26,11 @@
               :sem (get-in input-map [:synsem :sem] :top)
               :subcat (get-in input-map [:synsem :subcat] :top)}}))
 
-(defn translate-it2en [italian]
-  (fo (en/generate (get-meaning (first (it/parse italian))))))
-
-(defn translate-en2it [english]
-  (fo (it/generate (get-meaning (first (en/parse english))))))
-
 (defn parse [input]
-  (let [italian-parses (it/parse input)]
-    (if (not (empty? italian-parses))
-      italian-parses
-      (en/parse input))))
+  (lazy-cat (it/parse input)
+            (en/parse input)))
 
 (defn lookup [input]
   (lazy-cat (it/lookup input)
             (en/lookup input)))
 
-(log/info "doing stuff..")
-(def do-parse (fo (parse "il gatto ha dormito")))
-(log/info "done doing stuff.")
