@@ -19,6 +19,15 @@
              :number :sing}}
 
 
+   "black"
+   (unify adjective
+          {:synsem {:cat :adjective
+                    :sem {:pred :nero
+                          :comparative false
+                          :physical-object true
+                          :human false}}})
+
+
    "book"
    (unify agreement-noun
           common-noun
@@ -84,6 +93,14 @@
       (unify
        common
        intransitive-unspecified-obj)])
+
+   "red"
+   (unify adjective
+          {:synsem {:cat :adjective
+                    :sem {:pred :rosso
+                          :comparative false
+                          :physical-object true
+                          :human false}}})
 
    "she"
    {:synsem {:cat :noun
