@@ -958,6 +958,13 @@
                                  :number :sing
                                  :def :def}}}})
 
+
+   "qualche"
+   {:synsem {:cat :det
+             :def :indef
+             :mass false
+             :number :sing}}
+
    ;; non-comparative
    ;; TODO: add comparative
    "rosso"
