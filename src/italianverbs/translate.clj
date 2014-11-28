@@ -1,8 +1,8 @@
 (ns italianverbs.translate
   (:refer-clojure :exclude [get-in merge resolve find]))
 (require '[clojure.tools.logging :as log])
-(require '[italianverbs.grammar.english :as en])
-(require '[italianverbs.grammar.italiano :as it])
+(require '[italianverbs.english :as en])
+(require '[italianverbs.italiano :as it])
 (require '[italianverbs.morphology :refer [finalize fo fo-ps]])
 (require '[italianverbs.unify :refer [get-in]])
 

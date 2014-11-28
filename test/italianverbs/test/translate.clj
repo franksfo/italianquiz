@@ -1,7 +1,7 @@
 (ns italianverbs.test.translate)
 (require '[italianverbs.morphology :refer (fo)])
-(require '[italianverbs.grammar.english :as en])
-(require '[italianverbs.grammar.italiano :as it])
+(require '[italianverbs.english :as en])
+(require '[italianverbs.italiano :as it])
 (require '[italianverbs.translate :refer :all])
 (require '[clojure.test :refer :all])
 
