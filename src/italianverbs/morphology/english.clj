@@ -669,6 +669,11 @@
                           :subcat {:1 {:agr {:number :plur
                                              :person :3rd}}}}}}})
 
+(def lexical-noun-to-singular
+  {:identity
+   {:unify-with {:synsem {:cat :noun
+                          :agr {:number :sing}}}}})
+
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
@@ -682,6 +687,8 @@
          infinitive-to-1plur-present
          infinitive-to-2plur-present
          infinitive-to-3plur-present
+
+         lexical-noun-to-singular ;; turns :number :top to :number :sing
 
          )
         

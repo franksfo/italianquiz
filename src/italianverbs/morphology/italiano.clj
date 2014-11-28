@@ -1396,7 +1396,13 @@
 
 (def infinitive-to-infinitive
   {:identity
-   {:unify-with {:synsem {:infl :infinitive}}}})
+   {:unify-with {:synsem {:cat :verb
+                          :infl :infinitive}}}})
+
+(def lexical-noun-to-singular
+  {:identity
+   {:unify-with {:synsem {:cat :noun
+                          :agr {:number :sing}}}}})
 
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
@@ -1408,6 +1414,7 @@
          future-to-infinitive
          imperfect-to-infinitive-irreg1
          infinitive-to-infinitive ;; simply turns :top into :infl
+         lexical-noun-to-singular ;; turns :number :top to :number :sing
          past-to-infinitive
          present-to-infinitive-ire
          present-to-infinitive-ere
