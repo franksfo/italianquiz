@@ -104,6 +104,14 @@
                     :discrete false
                     :pred :dormire}}})
 
+   "some"
+   [{:synsem {:cat :det
+              :def :partitivo
+              :number :plur}}
+    {:synsem {:cat :det
+              :def :indef
+              :number :sing}}]
+
    "the"
    {:synsem {:cat :det
              :def :def
