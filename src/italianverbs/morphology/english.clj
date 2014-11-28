@@ -622,43 +622,50 @@
 
 (def infinitive-to-infinitive
   {:identity1
-   {:unify-with {:synsem {:infl :infinitive}}}})
+   {:unify-with {:synsem {:cat :verb
+                          :infl :infinitive}}}})
 
 (def infinitive-to-1sing-present ;; infinitive "read" -> "i read"
   {:identity2
-   {:unify-with {:synsem {:infl :present
+   {:unify-with {:synsem {:cat :verb
+                          :infl :present
                           :subcat {:1 {:agr {:number :sing
                                              :person :1st}}}}}}})
 
 (def infinitive-to-2sing-present ;; infinitive "read" -> "you read"
   {:identity3
-   {:unify-with {:synsem {:infl :present
+   {:unify-with {:synsem {:cat :verb
+                          :infl :present
                           :subcat {:1 {:agr {:number :sing
                                              :person :2nd}}}}}}})
 
 (def infinitive-to-3sing-present ;; infinitive "read" -> "she reads"
   {#"s$"
    {:replace-with ""
-    :unify-with {:synsem {:infl :present
+    :unify-with {:synsem {:cat :verb
+                          :infl :present
                           :subcat {:1 {:agr {:number :sing
                                              :person :3rd}}}}}}})
 
 (def infinitive-to-1plur-present ;; infinitive "read" -> "we read"
   {:identity4
-   {:unify-with {:synsem {:infl :present
+   {:unify-with {:synsem {:cat :verb
+                          :infl :present
                           :subcat {:1 {:agr {:number :plur
                                              :person :1st}}}}}}})
 
 (def infinitive-to-2plur-present ;; infinitive "read" -> "you all read"
   {:identity5
-   {:unify-with {:synsem {:infl :present
+   {:unify-with {:synsem {:cat :verb
+                          :infl :present
                           :subcat {:1 {:agr {:number :plur
                                              :person :2nd}}}}}}})
 
 (def infinitive-to-3plur-present ;; infinitive "read" -> "they read"
   {:identity6
    {:replace-with ""
-    :unify-with {:synsem {:infl :present
+    :unify-with {:synsem {:cat :verb
+                          :infl :present
                           :subcat {:1 {:agr {:number :plur
                                              :person :3rd}}}}}}})
 
