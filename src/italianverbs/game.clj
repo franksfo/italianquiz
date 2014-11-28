@@ -5,19 +5,14 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [hiccup.page :refer :all]
-   [italianverbs.cache :refer (create-index)]
-   [italianverbs.generate :as gen]
-   [italianverbs.grammar.english :as en]
-   [italianverbs.grammar.italiano :as it]
    [hiccup.page :as h]
-   [italianverbs.html :as html]
-   [italianverbs.lexicon.english :as en-l]
-   [italianverbs.lexicon.italiano :as it-l]
+   [italianverbs.english :as en]
+   [italianverbs.generate :as gen]
    [italianverbs.morphology :as morph]
-   [italianverbs.morphology :refer [fo fo-ps]]
-   [italianverbs.morphology.english :as en-m]
-   [italianverbs.morphology.italiano :as it-m]
-   [italianverbs.ug :refer [head-principle]]
+   [italianverbs.morphology :refer [fo]]
+   [italianverbs.html :as html]
+   [italianverbs.italiano :as it]
+   [italianverbs.translate :refer [get-meaning]]
    [italianverbs.unify :refer [get-in strip-refs unifyc]]
    ))
 
@@ -101,36 +96,10 @@
   (do
     (log/info (str "question: " (morph/fo question)))
     (log/info (str "head english: " (get-in question [:head :english])))
-    {:left_context_english (morph/remove-parens (en-m/get-string (get-in question [:comp :english])))
-     :head_of_english (morph/remove-parens (en-m/get-string (get-in question [:head :english])))
+    {:left_context_english (morph/remove-parens (en/get-string (get-in question [:comp :english])))
+     :head_of_english (morph/remove-parens (en/get-string (get-in question [:head :english])))
      :right_context_english ""
      :right_context_italian ""}))
-
-(def mini-english-grammar
-  (filter #(or (= (:rule %) "s-present")
-               (= (:rule %) "s-future")
-               (= (:rule %) "s-aux")
-               (= (:rule %) "vp-aux")
-               (= (:rule %) "s-imperfetto")
-               (= (:rule %) "s-conditional"))
-          en/grammar))
-
-(def mini-italian-grammar
-  (filter #(or (= (:rule %) "s-present")
-               (= (:rule %) "s-future")
-               (= (:rule %) "s-aux")
-               (= (:rule %) "vp-aux")
-               (= (:rule %) "s-imperfetto")
-               (= (:rule %) "s-conditional"))
-          it/grammar))
-
-(def en-lexicon (flatten (vals en-l/lexicon)))
-(def en-index
-  (create-index mini-english-grammar en-lexicon head-principle))
-
-(def it-lexicon (flatten (vals it-l/lexicon)))
-(def it-index
-  (create-index mini-italian-grammar it-lexicon head-principle))
 
 (defn generate-question [request]
   (let [spec
@@ -140,17 +109,11 @@
                   :cat :verb
                   :subcat '()}}
 
-        italiano (gen/sentence spec 
-                               mini-italian-grammar it-index it-lexicon)
+        italiano (it/sentence spec)
 
-        semantics (strip-refs (get-in italiano [:synsem :sem]))
+        semantics (get-meaning italiano)
 
-        english (gen/sentence (unifyc
-                               spec
-                               {:synsem {:sem (get-in italiano [:synsem :sem] :top)}})
-                              mini-english-grammar
-                              en-index
-                              en-lexicon)]
+        english (en/sentence semantics)]
 
     (log/info "generate-question: italiano: " (fo italiano))
 
@@ -182,8 +145,7 @@
 ;; a reference for how to use the generate API.
 (defn working [ & [spec]]
   (let [spec (if spec spec :top)]
-    (gen/sentence spec mini-italian-grammar en/grammar it-index en/cache 
-                  it-lexicon)))
+    (it/sentence spec)))
 
 (defn generate-answers [request]
   "generate a single sentence according to the semantics of the request."
@@ -193,17 +155,14 @@
   (log/info (str "semantics:" (json/read-str (get-in request [:params :semantics]))))
   (let [semantics (json/read-str (get-in request [:params :semantics])
                                  :key-fn keyword)
-        generated (gen/generate
+        generated (it/generate
                    {:synsem {:subcat '()
                              :sem semantics}
                     :head {:phrasal :top}
-                    :comp {:phrasal false}}
-                   mini-italian-grammar
-                   it-l/lexicon
-                   it-index)
+                    :comp {:phrasal false}})
 
-        italian (it-m/get-string
-                 (:italian generated))]
+        italian (it/get-string generated)]
+
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"}
      :body
@@ -213,8 +172,8 @@
        :group_by (if (= (get-in generated [:head :synsem :aux]))
                    (get-in (strip-refs generated) [:head :comp :italian :infinitive])
                    (get-in generated [:head :italian :infinitive]))
-       :left_context_of_answer (morph/remove-parens (it-m/get-string (get-in generated [:comp :italian])))
-       :answer (morph/remove-parens (it-m/get-string (get-in generated [:head :italian])))
+       :left_context_of_answer (morph/remove-parens (it/get-string (get-in generated [:comp :italian])))
+       :answer (morph/remove-parens (it/get-string (get-in generated [:head :italian])))
        :semantics semantics
        :right_context_of_answer ""
        :italian italian})}))
