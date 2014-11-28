@@ -9,7 +9,6 @@
 
    [clojure.tools.logging :as log]
 
-   [italianverbs.lexicon :refer :all]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
    [italianverbs.unify :refer :all :exclude [unify]]))
@@ -27,9 +26,6 @@
 
    (map? arg)
    (list arg)
-
-   (string? arg)
-   (seq (it arg))
 
    (nil? arg)
    (list :top)
@@ -202,9 +198,6 @@
                (not (fail? result)))
              (over-each-parent-head parents head)))
 
-   (string? head)
-   (overh parent (it head))
-
    (or (set? head)
        (vector? head))
    (do (log/debug "head is a set: converting to a seq.")
@@ -275,9 +268,6 @@
 
    (future? comp)
    (overc parent (deref comp))
-
-   (string? comp)
-   (overc parent (it comp))
 
    (or (set? comp)
        (vector? comp))

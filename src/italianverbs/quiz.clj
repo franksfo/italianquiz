@@ -8,12 +8,10 @@
             [hiccup.core :refer :all]
             [hiccup.page :refer :all]
             [italianverbs.generate :refer (sentence)]
-            [italianverbs.grammar.english :as en]
-            [italianverbs.grammar.italiano :as it]
+            [italianverbs.english :as en]
+            [italianverbs.italiano :as it]
             [italianverbs.html :as html]
             [italianverbs.lev :as lev]
-            [italianverbs.lexicon :as lex]
-            [italianverbs.lexicon :refer (lexicon)]
             [italianverbs.lexiconfn :as lexfn]
             [italianverbs.morphology :refer (finalize fo)]
             [italianverbs.session :as session]
@@ -334,10 +332,10 @@
 ;;    (db/fetch-one :question :where {:id (new org.bson.types.ObjectId qid)})))
 
 (defn oct2011 []
-  (lex/choose-lexeme {:oct2011 true}))
+  (it/choose-lexeme {:oct2011 true}))
 
 (defn che-tempo []
-  (lex/choose-lexeme {:chetempo true}))
+  (it/choose-lexeme {:chetempo true}))
 
 (defn random-sentence []
   "choose a random sentence generated via populate.clj/populate."
@@ -395,9 +393,9 @@
 ;    {:english (gram/english-time hour minute ampm)
 ;     :italian (gram/italian-time hour minute ampm)})
    (= question-type :mese)
-   (lex/choose-lexeme {:month true})
+   (it/choose-lexeme {:month true})
    (= question-type :giorni)
-   (lex/choose-lexeme {:giorni-della-settimana true})))
+   (it/choose-lexeme {:giorni-della-settimana true})))
 
 (defn- controls [session & [ form-action onclick ] ]
   "This is called by show-controls."

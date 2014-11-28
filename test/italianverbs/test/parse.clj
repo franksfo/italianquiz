@@ -7,7 +7,7 @@
 ;(require '[italianverbs.generate :as gen])
 
 (require '[italianverbs.english :as en])
-(require '[italianverbs.grammar.italiano :as it])
+(require '[italianverbs.italiano :as it])
 
 (require '[italianverbs.morphology :refer [fo]])
 (require '[italianverbs.parse :refer :all])

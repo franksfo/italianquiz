@@ -12,8 +12,7 @@
                                                    get-parent-phrases-for-spec
                                                    overc overh overh-with-cache overc-with-cache)]
    [italianverbs.forest :refer :all]
-   [italianverbs.grammar.italiano :as it]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :as over]
    [italianverbs.unify :as unify]
@@ -24,6 +23,6 @@
                                   {:synsem {:aux false 
                                             :cat :verb :subcat '() 
                                             :sem {:subj {:animate true}}}}
-                                  it/grammar lexicon it/cache)))]
+                                  it/grammar it/lexicon it/cache)))]
     (is (not (fail? generated)))
     (is (not (nil? generated)))))

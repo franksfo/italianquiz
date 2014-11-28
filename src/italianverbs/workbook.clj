@@ -18,13 +18,11 @@
    [italianverbs.game :as game]
 
    [italianverbs.generate :as generate :refer :all :exclude [lightning-bolt sentence]]
-   [italianverbs.grammar.english :as en]
-   [italianverbs.grammar.italiano :as it]
+   [italianverbs.english :as en]
+   [italianverbs.italiano :as it]
    [italianverbs.html :as html]
    [italianverbs.lexiconfn :refer :all]
    [italianverbs.morphology :refer [finalize fo fo-ps]]
-   [italianverbs.morphology.english :as en-m]
-   [italianverbs.morphology.italiano :as it-m]
    [italianverbs.over :refer :all]
    [italianverbs.parse :as parse]
    [italianverbs.translate :refer :all]
@@ -184,9 +182,9 @@
           
           [:tr
            [:td
-            (it-m/get-string (:italiano to-show))]
+            (it/get-string (:italiano to-show))]
            [:td
-            (en-m/get-string (:english to-show))]]
+            (en/get-string (:english to-show))]]
 
           [:tr
            [:td (html/tablize (remove-false (get-in to-show [:italiano :synsem :sem])))]

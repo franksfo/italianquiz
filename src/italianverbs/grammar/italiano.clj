@@ -4,18 +4,10 @@
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)]
    [italianverbs.generate :as generate]
-   [italianverbs.lexicon.italiano :as it-lex]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.parse :as parse]
    [italianverbs.ug :refer :all]
    [italianverbs.unify :refer (get-in unifyc)]))
-
-;; TODO: move these two convenience declarations to a super-package like italianverbs.italiano.
-(def lexicon it-lex/lexicon)
-(def lookup it-lex/lookup)
-
-(declare cache)
-(declare grammar)
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -328,31 +320,3 @@
      grammar))
 
 (log/info "Italian grammar defined.")
-
-(def begin (System/currentTimeMillis))
-(log/debug "building grammatical and lexical cache..")
-(def cache nil)
-;; TODO: trying to print cache takes forever and blows up emacs buffer:
-;; figure out how to change printable version to (keys cache).
-(def cache (create-index grammar (flatten (vals lexicon)) head-principle))
-
-(def end (System/currentTimeMillis))
-(log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
-
-(defn parse [string]
-  (parse/parse string lexicon it-lex/lookup grammar))
-
-(defn sentence [ & [spec]]
-  (let [spec (if spec spec :top)]
-    (generate/sentence spec grammar cache (flatten (vals lexicon)))))
-
-(defn generate [ & [spec]]
-  (let [spec (if spec spec :top)]
-    (if (seq? spec)
-      (map generate spec)
-      (generate/generate spec
-                         grammar
-                         lexicon
-                         cache))))
-
-

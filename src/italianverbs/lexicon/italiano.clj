@@ -1002,21 +1002,3 @@
              :subcat '()}}
 
 })
-
-(def lexicon
-  (-> (compile-lex lexicon-source exception-generator phonize italian-specific-rules)
-
-      ;; Cleanup functions can go here. Number them for ease of reading.
-      ;; 1. this filters out any verbs without an inflection: infinitive verbs should have inflection ':infinitive', 
-      ;; rather than not having any inflection.
-      (map-function-on-map-vals 
-       (fn [k vals]
-         (filter #(or (not (= :verb (get-in % [:synsem :cat])))
-                      (not (= :none (get-in % [:synsem :infl] :none))))
-                 vals)))))
-
-(defn lookup [token]
-  "return the subset of lexemes that match this token from the lexicon."
-    (analyze token (fn [k]
-                   (get lexicon k))))
-

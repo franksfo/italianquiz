@@ -1,8 +1,7 @@
 (ns italianverbs.session
     (:use
     [hiccup core])
-    (:require [italianverbs.lexicon :as lexicon]
-              [clojure.string :as string]
+    (:require [clojure.string :as string]
               [somnium.congomongo :as db])
     (:import (java.security ;; TOODO: what are these imports doing here?
               NoSuchAlgorithmException

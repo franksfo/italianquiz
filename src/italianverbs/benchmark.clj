@@ -9,9 +9,8 @@
    [italianverbs.cache :as cache]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
    [italianverbs.generate :refer :all]
-   [italianverbs.grammar.english :as en]
-   [italianverbs.grammar.italiano :as it]
-   [italianverbs.lexicon :refer :all]
+   [italianverbs.english :as en]
+   [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overc overh)]
    [italianverbs.parse :refer (parse)]
@@ -108,21 +107,15 @@
 
 (defn sentence-subject-verb [trials]
   (run-benchmark
-   #(fo (generate {:comp {:phrasal false}
-                   :head {:phrasal false}}
-                  (list it/s-present)
-                  lexicon
-                  it/cache))
+   #(fo (it/generate {:comp {:phrasal false}
+                      :head {:phrasal false}}))
    trials
    "sentence which is simply a subject plus a verb"))
 
 (defn saux [trials]
   (run-benchmark 
-   #(fo (generate
-         {:synsem {:subcat '()}}
-         (list it/s-aux it/vp-aux) it/cache)
-        trials
-        "saux")))
+   #(fo (it/generate
+         {:synsem {:subcat '()}}))))
 
 (defn run-sentence [trials]
   (run-benchmark
@@ -195,13 +188,12 @@
 ;; (fo-ps (take 1 (cp-over-hl hl-over-cg1h)))
 ;; "[vp-imperfetto amare (were loving) [noun-phrase il vostro (your (pl) ) gatto (cat)]]"
 (defn catlove []
-  (generate
+  (it/generate
    {:synsem {:cat :verb
                      :aux false
              :infl :imperfetto
              :sem {:pred :amare
-                   :obj {:pred :gatto}}}}
-   it/grammar lexicon it/cache))
+                   :obj {:pred :gatto}}}}))
 
 (defn run-gatto [trials]
   (run-benchmark
@@ -220,7 +212,7 @@
                       :aux false
                       :sem {:subj {:animate true}}
                       :subcat '()}})]
-    (run-benchmark #(fo (generate spec grammar lexicon cache))
+    (run-benchmark #(fo (it/generate spec))
                    trials
                    name)))
 
@@ -285,27 +277,22 @@
 
 (defn word-speaker [trials]
   (run-benchmark
-   #(fo (sentence {:synsem {:subcat '() :cat :verb
+   #(fo (it/sentence {:synsem {:subcat '() :cat :verb
                             :sem {:pred :parlare
                                   :subj {:pred :lei}
-                                  :obj {:pred :parola}}}}
-                  lexicon it/grammar))
+                                  :obj {:pred :parola}}}}))
    trials))
 
 (defn word-spoken [trials]
   (run-benchmark
-   #(fo-ps (take 1 (generate {:synsem {:subcat '() :cat :noun
-                                       :sem {:pred :parola}}}
-                             it/grammar lexicon it/cache)))
+   #(fo-ps (take 1 (it/generate)))
    trials))
 
 (defn word-spoken2 [trials]
-  (let [lexicon (seq (union (it "parola") (it "bianco") (it "la")))]
+  ;; TODO: allow it/generate to accept a lexicon as a parameter to (generate)
+  (let [lexicon (seq (union (set (it/lookup "parola")) (set (it/lookup "bianco")) (set (it/lookup "la"))))]
     (run-benchmark
-     #(fo-ps (take 1 (generate {:synsem {:subcat '() :cat :noun
-                                         :sem {:pred :parola}}}
-                               (list it/noun-phrase1 it/nbar)
-                               lexicon it/cache)))
+     #(fo-ps (take 1 (it/generate)))
      trials)))
 
 (defn parsing [trials]

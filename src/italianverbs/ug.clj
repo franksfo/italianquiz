@@ -1,7 +1,6 @@
 (ns italianverbs.ug
   (:refer-clojure :exclude [get-in merge resolve])
   (:require [clojure.tools.logging :as log]
-            [italianverbs.lexicon :as lex]
             [italianverbs.lexiconfn :refer (sem-impl)]
             [italianverbs.morphology :refer (fo fo-ps)]
             [italianverbs.unify :refer (fail? get-in merge unifyc)]

@@ -13,7 +13,6 @@
    [italianverbs.cache :refer (build-lex-sch-cache over spec-to-phrases get-comp-phrases-of)]
    [italianverbs.forest :as forest]
    [italianverbs.generate :refer :all]
-   [italianverbs.lexicon :refer :all]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :refer (overc overh)]
    [italianverbs.ug :refer (head-principle)]
