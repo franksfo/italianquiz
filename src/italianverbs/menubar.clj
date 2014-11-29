@@ -64,7 +64,7 @@
                           (re-find #"/map" current-url)))
                  :show? true
                  :current-url current-url 
-                 :text "Map Game" 
+                 :text "Map Tour" 
                  :url-for-this-item "/map"
                  :requires-admin false
                  :requires-authentication false})
