@@ -26,16 +26,13 @@ Phrase Structure Grammar</a> [Pollard and Sag 1994].
      Results: Stored in vars *1, *2, *3, an exception in *e
     
     user=> (load "italianverbs/workbook")
-    INFO  Th: 33:19,007 italianverbs.ug: Universal Grammar Immediate Dominance schemata are defined in our environment.
-    INFO  Th: 33:19,162 italianverbs.grammar.english: English grammar loaded.
-    INFO  Th: 33:30,753 italianverbs.grammar.english: Built grammatical and lexical cache in  11589  msec.
-    INFO  Th: 33:30,860 italianverbs.grammar.italiano: Italian grammar defined.
-    INFO  Th: 33:31,023 italianverbs.grammar.italiano: Built grammatical and lexical cache in  162  msec.
     nil
     user=> (in-ns 'italianverbs.workbook)
     #<Namespace italianverbs.workbook>
-    italianverbs.workbook=> (fo (sentence)
-    "en:(\"(Our woman will think).\") it:(\"La nostra donna penserà ().\")"
+    italianverbs.workbook> (fo (sentence))
+    "loro l'amavano"
+    italianverbs.workbook> (translate "I speak")
+    "io parlo"
 
 ## Benchmarking
 
@@ -43,10 +40,11 @@ Phrase Structure Grammar</a> [Pollard and Sag 1994].
     user=> (in-ns 'italianverbs.benchmark)
     #<Namespace italianverbs.benchmark>
     italianverbs.benchmark=> (standard-benchmark 1)
-    ' (Lui andava ().) ' took:  328  msec.
-    stats for 'bolt-benchmark-it' {:trials 1, :mean 328.0, :median 328, :stddev 0.0, :min 328, :max 328, :95% 328, :99% 328}
-    ' ((Your happy mothers will look for you).) ' took:  819  msec.
-    stats for 'bolt-benchmark-en' {:trials 1, :mean 819.0, :median 819, :stddev 0.0, :min 819, :max 819, :95% 819, :99% 819}
-    ' (Voi perderete Roma (You all will lose Rome).) ' took:  3986  msec.
-    stats for 'italian2english' {:trials 1, :mean 3986.0, :median 3986, :stddev 0.0, :min 3986, :max 3986, :95% 3986, :99% 3986}
+    ' tu mangerai ' took:  456  msec.
+    stats for 'bolt-benchmark-it' {:trials 1, :mean 456.0, :median 456, :stddev 0.0, :min 456, :max 456, :95% 456, :99% 456}
+    ' Antonio parlava ' took:  519  msec.
+    stats for 'bolt-benchmark-en' {:trials 1, :mean 519.0, :median 519, :stddev 0.0, :min 519, :max 519, :95% 519, :99% 519}
+    ' I speak ' took:  474  msec.
+    stats for 'italian2english' {:trials 1, :mean 474.0, :median 474, :stddev 0.0, :min 474, :max 474, :95% 474, :99% 474}
     nil
+
