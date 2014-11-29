@@ -172,7 +172,7 @@ function add_cloud(cloud_id) {
 	// Someday will be extended to handle multiple questions at a time for real
 	// language learning champs :)
 	if (this_many_questions_at_a_time == 1) {
-	    $("#left_context_destination").html(evaluated.left_context_of_answer + " ");
+//	    $("#left_context_destination").html(evaluated.left_context_of_answer + " ");
 	}
 
     }
