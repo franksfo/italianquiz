@@ -991,6 +991,13 @@
               :mass false
               :gender :masc
               :number :sing}}]
+   "una"
+   [{:synsem {:cat :det
+              :def :indef
+              :mass false
+              :gender :fem
+              :number :sing}}]
+
    "vino"
    (unify drinkable-noun
           agreement-noun
