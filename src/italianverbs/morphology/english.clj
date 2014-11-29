@@ -736,13 +736,45 @@
 (def english-specific-rules
   (list agreement))
 
-;; TODO: english's exception-generator is just a stub for now.
+;; TODO: english's exception-generator has only one function: pluralizing exceptions for nouns: add more.
 (defn exception-generator [lexicon]
-  (let [lexeme-kv (first lexicon)
-        lexemes (second lexeme-kv)]
-    (if lexeme-kv
-      (list {})
-      (list {}))))
+  (if (not (empty? lexicon))
+    (let [lexeme-kv (first lexicon)
+          lexemes (second lexeme-kv)]
+      (let [result (mapcat (fn [path-and-merge-fn]
+                             (let [path (:path path-and-merge-fn)
+                                   merge-fn (:merge-fn path-and-merge-fn)]
+                               ;; a lexeme-kv is a pair of a key and value. The key is a string (the word's surface form)
+                               ;; and the value is a list of lexemes for that string.
+                               (log/debug (str (first lexeme-kv) "looking at path: " path))
+                               (mapcat (fn [lexeme]
+                                         ;; this is where a unify/dissoc that supported
+                                         ;; non-maps like :top and :fail, would be useful:
+                                         ;; would not need the (if (not (fail? lexeme)..)) check
+                                         ;; to avoid a difficult-to-understand "java.lang.ClassCastException: clojure.lang.Keyword cannot be cast to clojure.lang.IPersistentMap" error.
+                                         (let [lexeme (cond (= lexeme :fail)
+                                                            :fail
+                                                            (= lexeme :top)
+                                                            :top
+                                                            true
+                                                            (dissoc (copy lexeme) :serialized))]
+                                           (if (not (= :none (get-in lexeme path :none)))
+                                             (list {(get-in lexeme path :none)
+                                                    (merge
+                                                     lexeme
+                                                     (unifyc (merge-fn lexeme)
+                                                             {:english {:exception true}}))}))))
+                                       lexemes)))
+                           [
+                            ;; 1. plural exceptions: e.g. "men","women":
+                            {:path [:english :plur]
+                             :merge-fn
+                             (fn [val]
+                               {:synsem {:cat :noun}
+                                :english {:agr {:number :plur}
+                                          :english (get-in val [:english :plur])}})}
+                            ])]
+        (concat result (exception-generator (rest lexicon)))))))
 
 (defn phonize [a-map a-string]
   (let [common {:phrasal false}]

@@ -189,7 +189,8 @@
    (unify agreement-noun
           common-noun
           countable-noun
-          {:synsem {:sem {:human true
+          {:english {:plur "women"}
+           :synsem {:sem {:human true
                           :pred :donna
                           :child false}}})
 
