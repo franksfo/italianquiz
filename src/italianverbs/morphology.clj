@@ -82,7 +82,7 @@
         ""))
 
 (defn remove-parens [str]
-  (replace str #"\(.*\)" ""))
+  (string/replace str #"\(.*\)" ""))
 
 (defn finalize [expr]
   (cond
