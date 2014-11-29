@@ -958,6 +958,15 @@
                                  :def :def}}}})
 
 
+   "parlare"
+   (let [common
+         {:synsem {:essere false
+                   :sem {:pred :parlare
+                         :subj {:human true}}}}]
+     (unify common transitive
+            {:synsem {:obj {:speakable true}}})
+     (unify common intransitive intransitive-unspecified-obj))
+
    "qualche"
    {:synsem {:cat :det
              :def :indef
