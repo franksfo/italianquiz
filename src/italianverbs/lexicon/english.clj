@@ -69,6 +69,22 @@
           {:synsem {:sem (unify animal {:pred :cane
                                         :pet true})}})
 
+
+
+   "drink"
+   (let [common {:synsem {:sem {:pred :bere
+                                :discrete false
+                                :subj {:animate true}}}}]
+     [(unify
+       common
+       transitive
+       {:synsem {:sem {:obj {:drinkable true}}}})
+
+      (unify
+       common
+       intransitive-unspecified-obj)])
+
+
    "embrace"
    (unify transitive
           {:synsem {:sem {:pred :abbracciare
