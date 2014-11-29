@@ -4,7 +4,6 @@
    [italianverbs.grammar.italiano :as gram]
    [italianverbs.lexicon.italiano :as lex]
    [italianverbs.morphology.italiano :as morph]))
-
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)])
 (require '[italianverbs.generate :as generate])
@@ -31,34 +30,37 @@
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
-  (morph/analyze token (fn [k]
-                         (get lexicon k))))
+  (morph/analyze token #(get lexicon %)))
 
 (defn parse [string]
   (parse/parse string lexicon lookup grammar))
 
 (def begin (System/currentTimeMillis))
-(log/debug "building grammatical and lexical cache..")
-(def cache nil)
-;; TODO: trying to print cache takes forever and blows up emacs buffer:
-;; figure out how to change printable version to (keys cache).
-(def cache (create-index grammar (flatten (vals lexicon)) head-principle))
+(log/debug "building grammatical and lexical index..")
+(def index nil)
+;; TODO: trying to print index takes forever and blows up emacs buffer:
+;; figure out how to change printable version to (keys index).
+(def index (create-index grammar (flatten (vals lexicon)) head-principle))
 
 (def end (System/currentTimeMillis))
-(log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
+(log/info "Built grammatical and lexical index in " (- end begin) " msec.")
 
 (defn sentence [ & [spec]]
   (let [spec (if spec spec :top)]
-    (generate/sentence spec grammar cache (flatten (vals lexicon)))))
+    (generate/sentence spec grammar index (flatten (vals lexicon)))))
 
-(defn generate [ & [spec]]
-  (let [spec (if spec spec :top)]
+(defn generate [ & [spec {use-grammar :grammar
+                          use-index :index}]]
+  (let [spec (if spec spec :top)
+        use-grammar (if use-grammar use-grammar grammar)
+        use-index (if use-index use-index index)]
+    (log/info (str "using grammar of size: " (.size use-grammar)))
+    (log/info (str "using index of size: " (.size use-index)))
     (if (seq? spec)
       (map generate spec)
-      (generate/generate spec
-                         grammar
-                         lexicon
-                         cache))))
+      (generate/generate spec use-grammar
+                         (flatten (vals lexicon))
+                         use-index))))
 
 ;; TODO: move the following 2 to lexicon.clj:
 (def lookup-in
