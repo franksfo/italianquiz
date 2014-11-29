@@ -229,7 +229,7 @@
                           unified-spec (unifyc sentence-spec spec)]
                       (fo (en/generate unified-spec)))
                    trials
-                   "itialian2english")))
+                   "italian2english")))
 
 (declare standard-benchmark-en)
 (declare standard-benchmark-it)
