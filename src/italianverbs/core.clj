@@ -63,7 +63,7 @@
   (GET "/" request
        ;; response map
        {:status 302
-        :headers {"Location" "/game"}})
+        :headers {"Location" "/cloud"}})
 
   (GET "/about" request
        {:status 200
@@ -228,27 +228,27 @@
        (auth/confirm-and-create-user request))
 
 
-  (GET "/game" request
+  (GET "/cloud" request
        {:status 200
-        :body (html/page "Rain Forest" (game/game) request {:onload "start_game();" :js "/js/game.js"})})
+        :body (html/page "Cloud Game" (game/game) request {:onload "start_game();" :js "/js/game.js"})})
 
-  (GET "/game/" request
+  (GET "/cloud/" request
        {:status 302
-        :headers {"Location" "/game"}})
+        :headers {"Location" "/cloud"}})
 
-  (POST "/game/evaluate" request
+  (POST "/cloud/evaluate" request
         {:status 200
          :headers {"Content-Type" "text/html;charset=utf-8"}
          :body (game/evaluate request)})
 
-  (GET "/game/generate-answers" request
+  (GET "/cloud/generate-answers" request
        (game/generate-answers request))
 
-  (GET "/game/generate-question" request
+  (GET "/cloud/generate-question" request
        (game/generate-question request))
 
 
-  (GET "/game/genlab" request
+  (GET "/cloud/genlab" request
        (game/genlab request))
 
   (GET "/generate/" request

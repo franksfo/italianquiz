@@ -192,11 +192,11 @@ function add_cloud(cloud_id) {
 				   "<span class='spacing'> </span>" +
 				   "<span class='right_context_of_answer hidden'    id='right_context_of_answer_"+cloud_id+"'>" + "" + "</span>");
 				   
-	log(DEBUG,"Sending request: /game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
+	log(DEBUG,"Sending request: /cloud/generate-answers?cloud_id="+ cloud_id + "&semantics=" + evaluated.semantics);
 
 	$.ajax({
 	    dataType: "html",
-	    url: "/game/generate-answers?cloud_id="+ cloud_id + "&semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
+	    url: "/cloud/generate-answers?cloud_id="+ cloud_id + "&semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
 	    success: update_answer_fn
 	    });
     }
@@ -205,7 +205,7 @@ function add_cloud(cloud_id) {
     $.ajax({
 	cache: false,
         dataType: "html",
-        url: "/game/generate-question",
+        url: "/cloud/generate-question",
         success: update_cloud_fn
     });
 }

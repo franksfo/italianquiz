@@ -45,14 +45,14 @@
 
       (menuitem {:selected?
                  (or (and (not (nil? current-url))
-                          (re-find #"/game" current-url))
-                     (= current-url "/game")
+                          (re-find #"/cloud" current-url))
+                     (= current-url "/cloud")
                      (and (not (nil? current-url))
-                          (re-find #"/game" current-url)))
+                          (re-find #"/cloud" current-url)))
                  :show? true
                  :current-url current-url 
-                 :text "Game" 
-                 :url-for-this-item "/game"
+                 :text "Cloud Game" 
+                 :url-for-this-item "/cloud"
                  :requires-admin false
                  :requires-authentication false})
 

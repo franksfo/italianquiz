@@ -121,7 +121,7 @@
 
 (def mini-it-index (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
 
-(def possible-preds [:leggere :parlare])
+(def possible-preds [:bere :leggere :parlare])
 
 (defn generate-question [request]
   (let [pred (nth possible-preds (rand-int (.size possible-preds)))
