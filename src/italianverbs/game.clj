@@ -17,6 +17,35 @@
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer [get-in merge strip-refs unifyc]]))
 
+(def game-pairs
+  [{:source "en"
+    :destination "it"
+    :source_flag "/svg/britain.svg"
+    :destination_flag "/svg/italy.svg"}])
+
+(def possible-preds [:bere :leggere :parlare])
+
+(defn direction-chooser []
+  (h/html5
+   [:dev#chooser
+    [:select
+     [:option {:onclick "location='/cloud?src=en&dest=it';"}
+      "en -> it"
+      ]
+     
+     [:option {:onclick "location='/cloud?src=it&dest=en';"}
+      "it -> en"
+      ]
+
+     [:option {:onclick "location='/cloud?src=en&dest=es';"}
+      "en -> es"
+      ]
+
+     [:option {:onclick "location='/cloud?src=es&dest=en';"}
+      "es -> en"
+      ]
+     ]]))
+
 (defn game []
   (h/html5
    [:div#game
@@ -36,9 +65,11 @@
 
       ]
      
+     (direction-chooser)
+     
      [:div#score
       "Score:"
-      [:div#scorevalue
+      [:span#scorevalue
        "0"
        ]
      ]
@@ -120,8 +151,6 @@
           it/grammar))
 
 (def mini-it-index (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
-
-(def possible-preds [:bere :leggere :parlare])
 
 (defn generate-question [request]
   (let [pred (nth possible-preds (rand-int (.size possible-preds)))

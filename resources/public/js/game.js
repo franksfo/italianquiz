@@ -184,7 +184,7 @@ function add_cloud(cloud_id) {
         $("#"+cloud_q_dom_id).html("<span class='left_context_of_question question' id='left_context_of_question_"+cloud_id+"'>" + evaluated.left_context_of_question + "</span>" +
 				   "<span class='spacing'> </span>" +
 				   "<span class='question'                          id='question_"+cloud_id+"'>" + evaluated.question + "</span>" +
-				   "<span class='full_question'                     id='fullquestion_"+cloud_id+"'>" + evaluated.english + "</span>" +
+				   "<span class='full_question'                     id='fullquestion_"+cloud_id+"'>" + evaluated.full_question + "</span>" +
 				   "<span class='spacing'> </span>" +
 				   "<span class='left_context_of_answer hidden'     id='left_context_of_answer_"+cloud_id+"'> </span>" +
 				   "<span class='spacing'> </span>" +

@@ -58,13 +58,23 @@
 }
 
 #score {
-    width:5em;
+    padding:1px;
+    width:10em;
     float:left;
     position:absolute;
     top:2px;
     right:2px;
     border:2px solid lightblue;
     background:white;
+    color:green;
+    z-index:2;
+}
+
+#chooser {
+    float:left;
+    position:absolute;
+    top:2px;
+    right:11em;
     color:green;
     z-index:2;
 }
