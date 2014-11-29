@@ -350,6 +350,9 @@ function submit_normal_response(form_input_id) {
 		grow_tree(bare_id);
 
 		clean_up_cloud(bare_id,answer_text,form_input_id);
+
+		increment_score(100);
+
 		return false;
 	    }
 	}
@@ -361,6 +364,10 @@ function submit_normal_response(form_input_id) {
 	    $("#"+form_input_id).val("");
 	}
     });
+}
+
+function increment_score(by) {
+    $("#scorevalue").html(parseInt($("#scorevalue").html()) + by);
 }
 
 // http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box

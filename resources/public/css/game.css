@@ -44,7 +44,6 @@
     position:relative;
 }
 
-
 #wordbar {
     display:none;
     position: absolute;
@@ -56,6 +55,22 @@
     float:left;
     border-top:2px solid lightgreen;
     background:lightskyblue;
+}
+
+#score {
+    width:5em;
+    float:left;
+    position:absolute;
+    top:2px;
+    right:2px;
+    border:2px solid lightblue;
+    background:white;
+    color:green;
+    z-index:2;
+}
+
+#scorevalue {
+    text-align:right;
 }
 
 #wordbar div {

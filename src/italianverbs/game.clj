@@ -36,6 +36,13 @@
 
       ]
      
+     [:div#score
+      "Score:"
+      [:div#scorevalue
+       "0"
+       ]
+     ]
+
      [:div#sky ]
 
      [:div#correction_dialog {:style "display:none"}
