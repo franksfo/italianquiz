@@ -1505,7 +1505,7 @@
                                              (list {(get-in lexeme path :none)
                                                     (merge
                                                      lexeme
-                                                     (unifyc (apply merge-fn (list lexeme))
+                                                     (unifyc (merge-fn lexeme)
                                                              {:italiano {:exception true}}))}))))
                                        lexemes)))
                            [
@@ -1577,9 +1577,7 @@
                                {:italiano {:agr {:gender :fem
                                                  :number :plur}}})}
                             ])]
-        (if (not (empty? result))
-          (concat result (exception-generator (rest lexicon)))
-          (exception-generator (rest lexicon)))))))
+        (concat result (exception-generator (rest lexicon)))))))
 
 (defn phonize [a-map a-string]
   (let [common {:phrasal false}]
