@@ -240,7 +240,7 @@ function grow_tree(question_id) {
     //
     // In the future, group_by may change, e.g. split the possible groups into a larger set such as
     // infinitive+tense. 
-    if ($("#tree_" + group_by)[0]) {
+    if ((group_by != undefined) && $("#tree_" + group_by)[0]) {
 	// grow the existing tree for this group.
 	log(INFO,"Growing an existing tree.");
 	var tree_dom_id = "#tree_"+group_by[0];
