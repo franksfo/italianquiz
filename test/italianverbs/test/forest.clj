@@ -19,10 +19,9 @@
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
 (deftest generate-test
-  (let [generated (first (take 1 (generate
+  (let [generated (first (take 1 (it/generate
                                   {:synsem {:aux false 
                                             :cat :verb :subcat '() 
-                                            :sem {:subj {:animate true}}}}
-                                  it/grammar it/lexicon it/cache)))]
+                                            :sem {:subj {:animate true}}}})))]
     (is (not (fail? generated)))
     (is (not (nil? generated)))))
