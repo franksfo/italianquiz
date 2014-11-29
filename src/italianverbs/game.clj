@@ -134,7 +134,6 @@
 (defn html-form [question]
   (do
     (log/info (str "html-form: question: " (fo question)))
-    (log/info (str "html-form: head english: " (get-in question [:head :english])))
     {:left_context_source (morph/remove-parens (fo (get-in question [:comp])))
      :head_of_source (morph/remove-parens (fo (get-in question [:head])))
      :right_context_source ""
@@ -164,7 +163,7 @@
                                     :index mini-en-index})
         form (html-form question)]
 
-    (log/info "generate-question: english: " (fo question))
+    (log/info "generate-question: question: " (fo question))
 
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
