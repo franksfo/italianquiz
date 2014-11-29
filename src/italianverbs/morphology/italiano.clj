@@ -1405,15 +1405,15 @@
                           :agr {:gender :fem
                                 :number :plur}}}}})
 
-(def infinitive-to-infinitive
-  {:identity
+(def identity-analyzers
+  {:infinitive-verbs
    {:unify-with {:synsem {:cat :verb
-                          :infl :infinitive}}}})
-
-(def lexical-noun-to-singular
-  {:identity
+                          :infl :infinitive}}}
+   :singular-nouns
    {:unify-with {:synsem {:cat :noun
-                          :agr {:number :sing}}}}})
+                          :agr {:number :sing}}}}
+   :determiners
+   {:unify-with {:synsem {:cat :det}}}})
 
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
@@ -1424,8 +1424,6 @@
         (merge 
          future-to-infinitive
          imperfect-to-infinitive-irreg1
-         infinitive-to-infinitive ;; simply turns :top into :infl
-         lexical-noun-to-singular ;; turns :number :top to :number :sing
          past-to-infinitive
          present-to-infinitive-ire
          present-to-infinitive-ere
@@ -1442,7 +1440,7 @@
         (remove fail?
                 (mapcat
                  (fn [key]
-                   (if (and (not (keyword? key)) (re-find key surface-form))
+                   (if (re-find key surface-form)
                         (let [replace-with (get replace-pairs key)
                               lexical-form (if (= key :identity)
                                              surface-form
@@ -1455,22 +1453,23 @@
                                looked-up))))
                  (keys replace-pairs)))
 
-        ;; Analyzed-via-identity is used to handle infinitive verbs: converts them from unspecified inflection to
+        ;; Analyzed-via-identity is used to: 
+        ;; 1. handle infinitive verbs: converts them from unspecified inflection to
         ;; {:infl :infinitive}
-        ;; Might also be used in the future to convert nouns from unspecified number to singular number.
+        ;; 2. convert nouns from unspecified number to singular number: {:synsem {:agr {:num :sing}}}
         analyzed-via-identity
         (remove fail?
                 (mapcat
                  (fn [key]
-                   (if (and (keyword? key) (= key :identity))
-                        (let [lexical-form surface-form
-                              looked-up (lookup-fn lexical-form)]
-                          (map #(unifyc 
-                                 %
-                                 (:unify-with (get replace-pairs key)))
-                               looked-up))))
-                 (keys replace-pairs)))]
-
+                   (let [lexical-form surface-form
+                         looked-up (lookup-fn lexical-form)]
+                     (map #(unifyc 
+                            %
+                            (:unify-with (get replace-pairs key))
+                            {:via key
+                             :identity-with (get replace-pairs key)})
+                          looked-up)))
+                 (keys identity-analyzers)))]
 
     (concat
      analyzed
@@ -1479,7 +1478,7 @@
      ;; might be either the canonical form of a word, or an irregular conjugation of a word.
      (if (not (empty? analyzed-via-identity))
        analyzed-via-identity
-       (lookup-fn surface-form)))))
+     (lookup-fn surface-form)))))
 
 (defn exception-generator [lexicon]
   (let [lexeme-kv (first lexicon)
