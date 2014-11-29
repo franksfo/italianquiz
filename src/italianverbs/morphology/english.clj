@@ -279,9 +279,9 @@
     (= :present (get-in word '(:infl)))
     (string? (get-in word '(:english))))
    (let [root (get-in word '(:english))
-         ;; TODO: throw exception rather than encoding error "nilrootz" as part
+         ;; TODO: throw exception rather than encoding error "(no root)" as part
          ;; of the english string.
-         root (if (nil? root) "(nilrootz)" root)
+         root (if (nil? root) "(no root)" root)
          root (if (not (= (type root) java.lang.String))
                 (get-in word '(:english :english))
                 root)
@@ -399,14 +399,16 @@
 
    (and (= (get-in word '(:agr :number)) :plur)
         (= (get-in word '(:cat)) :noun)
-        (string? (get-in word '(:english))))
+        (string? (get-in word '(:english)))
+        (not (= (get-in word [:pronoun]) true)))
    (str (plural-en (get-in word '(:english)))
         (if (get-in word '(:note))
           (str (get-in word '(:note)))))
 
    (and (= (get-in word '(:agr :number)) :plur)
         (= (get-in word '(:cat)) :noun)
-        (string? (get-in word '(:english :english))))
+        (string? (get-in word '(:english :english)))
+        (not (= (get-in word [:pronoun]) true)))
    (str (plural-en (get-in word '(:english :english)))
         (if (get-in word '(:english :note))
           (str (get-in word '(:english :note)))))
@@ -504,25 +506,6 @@
         (merge
          {:remove-to string}
          english-verb-phrase)))))
-
-;; TODO: not used; remove after getting useful stuff out.
-(defn add-s-to-first-word [english-verb-phrase]
-  (let [english-verb-string (get english-verb-phrase :english)]
-    (let [regex #"^[ ]*([^ ]+)[ ]*(.*)"
-          with-s
-          (replace
-           english-verb-string
-           regex
-           (fn [[_ first-word rest]]
-             (str first-word (if (re-find #"o$" first-word) "e") "s" " " rest)))]
-      (merge
-       {:add-s with-s}
-       english-verb-phrase))))
-
-(defn if-isco [verb]
-  (if (= (get verb :isco) true)
-    "isc"
-    ""))
 
 (defn plural-en [english]
   (if (re-find #"[t][y]$" english) ;; city => cities
@@ -737,12 +720,15 @@
 
    (= (get-in lexical-entry [:synsem :cat]) :noun)
    (let [agr (ref :top)
-         cat (ref :top)]
+         cat (ref :top)
+         pronoun (ref :top)]
      (unifyc lexical-entry
              {:english {:agr agr
-                         :cat cat}
+                        :cat cat
+                        :pronoun pronoun}
               :synsem {:agr agr
-                       :cat cat}}))
+                       :cat cat
+                       :pronoun pronoun}}))
 
    true
    lexical-entry))
