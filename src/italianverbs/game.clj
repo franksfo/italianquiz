@@ -1,11 +1,12 @@
 (ns italianverbs.game
-  (:refer-clojure :exclude [get-in])
+  (:refer-clojure :exclude [get-in merge])
   (:require
    [clojure.data.json :as json]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [hiccup.page :refer :all]
    [hiccup.page :as h]
+   [italianverbs.cache :refer (create-index)]
    [italianverbs.english :as en]
    [italianverbs.generate :as gen]
    [italianverbs.morphology :as morph]
@@ -13,11 +14,8 @@
    [italianverbs.html :as html]
    [italianverbs.italiano :as it]
    [italianverbs.translate :refer [get-meaning]]
-   [italianverbs.unify :refer [get-in strip-refs unifyc]]
-   ))
-
-(require '[italianverbs.cache :refer (create-index)])
-(require '[italianverbs.ug :refer (head-principle)])
+   [italianverbs.ug :refer (head-principle)]
+   [italianverbs.unify :refer [get-in merge strip-refs unifyc]]))
 
 (defn game []
   (h/html5
@@ -123,14 +121,11 @@
          :synsem {:sem {:pred :leggere}
                   :cat :verb
                   :subcat '()}}
+        question (en/generate spec {:grammar mini-en-grammar
+                                    :index mini-en-index})
+        form (html-form question)]
 
-        italiano (it/generate spec {:grammar mini-it-grammar
-                                    :index mini-it-index})
-        meaning (strip-refs (get-meaning italiano))
-        english (en/generate meaning {:grammar mini-en-grammar
-                                   :index mini-en-index})]
-
-    (log/info "generate-question: italiano: " (fo italiano))
+    (log/info "generate-question: english: " (fo question))
 
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
@@ -139,9 +134,11 @@
                "Pragma" "no-cache"
                "Expires" "0"}
      :body (json/write-str
-            {:italiano (fo italiano)
-             :english (fo english)
-             :semantics meaning})}))
+            {:left_context_of_question (:left_context_english form)
+             :question (:head_of_english form)
+             :right_context_of_question (:right_context_english form)
+             :english (fo question)
+             :semantics (strip-refs (get-meaning question))})}))
 
 (defn genlab [request]
   (do
@@ -169,14 +166,34 @@
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
   (log/info (str "semantics:" (json/read-str (get-in request [:params :semantics]))))
   (let [semantics (json/read-str (get-in request [:params :semantics])
-                                 :key-fn keyword)
-        generated (it/generate
-                   {:synsem {:subcat '()
-                             :sem semantics}
-                    :head {:phrasal :top}
-                    :comp {:phrasal false}})
+                                 :key-fn keyword
+                                 :value-fn (fn [k v]
+                                            (cond (string? v)
+                                                  (keyword v)
+                                                  :else v)))
+        debug (log/info (str "semantic2: " semantics))
 
-        italian (it/get-string generated)]
+        more-constraints {:synsem {:subcat '()}
+                          :head {:phrasal :top}
+                          :comp {:phrasal false}}
+
+
+        to-generate (merge semantics more-constraints)
+
+        debug (log/info (str "to-generate: " to-generate))
+
+        generated (it/generate
+                   to-generate
+                   {:grammar mini-it-grammar
+                    :index mini-it-index})
+
+        debug (log/info (str "generated:" generated))
+
+        italian (fo generated)
+
+        debug (log/info (str "italian:" italian))
+
+]
 
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"}
@@ -187,8 +204,8 @@
        :group_by (if (= (get-in generated [:head :synsem :aux]))
                    (get-in (strip-refs generated) [:head :comp :italian :infinitive])
                    (get-in generated [:head :italian :infinitive]))
-       :left_context_of_answer (morph/remove-parens (it/get-string (get-in generated [:comp :italian])))
-       :answer (morph/remove-parens (it/get-string (get-in generated [:head :italian])))
+       :left_context_of_answer (morph/remove-parens (fo (get-in generated [:comp])))
+       :answer (morph/remove-parens (fo (get-in generated [:head])))
        :semantics semantics
        :right_context_of_answer ""
        :italian italian})}))
