@@ -95,10 +95,10 @@
 
 (defn html-form [question]
   (do
-    (log/info (str "question: " (morph/fo question)))
-    (log/info (str "head english: " (get-in question [:head :english])))
-    {:left_context_english (morph/remove-parens (en/get-string (get-in question [:comp :english])))
-     :head_of_english (morph/remove-parens (en/get-string (get-in question [:head :english])))
+    (log/info (str "html-form: question: " (fo question)))
+    (log/info (str "html-form: head english: " (get-in question [:head :english])))
+    {:left_context_english (morph/remove-parens (fo (get-in question [:comp :english])))
+     :head_of_english (morph/remove-parens (fo (get-in question [:head :english])))
      :right_context_english ""
      :right_context_italian ""}))
 
@@ -187,11 +187,9 @@
                    {:grammar mini-it-grammar
                     :index mini-it-index})
 
-        debug (log/info (str "generated:" generated))
-
         italian (fo generated)
 
-        debug (log/info (str "italian:" italian))
+        debug (log/info (str "answer:" italian))
 
 ]
 
