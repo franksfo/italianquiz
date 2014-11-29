@@ -56,6 +56,19 @@
                  :requires-admin false
                  :requires-authentication false})
 
+      (menuitem {:selected?
+                 (or (and (not (nil? current-url))
+                          (re-find #"/map" current-url))
+                     (= current-url "/map")
+                     (and (not (nil? current-url))
+                          (re-find #"/map" current-url)))
+                 :show? true
+                 :current-url current-url 
+                 :text "Map Game" 
+                 :url-for-this-item "/map"
+                 :requires-admin false
+                 :requires-authentication false})
+
       (do
         (log/info (str "got here - current-url is: " current-url))
         (menuitem {:selected?

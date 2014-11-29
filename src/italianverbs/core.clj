@@ -248,8 +248,25 @@
        (game/generate-question request))
 
 
-  (GET "/cloud/genlab" request
-       (game/genlab request))
+  (GET "/map" request
+       {:status 200
+        :body (html/page "Map Game" (game/game) request {:onload "start_game();" :js "/js/game.js"})})
+
+  (GET "/map/" request
+       {:status 302
+        :headers {"Location" "/map"}})
+
+  (POST "/map/evaluate" request
+        {:status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"}
+         :body (game/evaluate request)})
+
+  (GET "/map/generate-answers" request
+       (game/generate-answers request))
+
+  (GET "/map/generate-question" request
+       (game/generate-question request))
+
 
   (GET "/generate/" request
        {:status 302
