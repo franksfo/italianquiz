@@ -49,25 +49,29 @@
 
 (def begin (System/currentTimeMillis))
 (log/info "building grammatical and lexical index..")
-(def cache nil)
-;; TODO: trying to print cache takes forever and blows up emacs buffer:
+(def index nil)
+;; TODO: trying to print index takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to show only keys and first value or something.
-(def cache (create-index grammar (flatten (vals lexicon)) head-principle))
+(def index (create-index grammar (flatten (vals lexicon)) head-principle))
 
 (def end (System/currentTimeMillis))
-(log/info "Built grammatical and lexical cache in " (- end begin) " msec.")
+(log/info "Built grammatical and lexical index in " (- end begin) " msec.")
 
 (defn parse [string]
   (parse/parse string lexicon lookup grammar))
 
 (defn sentence [ & [spec]]
   (let [spec (if spec spec :top)]
-    (generate/sentence spec grammar (flatten (vals lexicon)) cache)))
+    (generate/sentence spec grammar index (flatten (vals lexicon)))))
 
-(defn generate [ & [spec]]
-  (let [spec (if spec spec :top)]
+(defn generate [ & [spec {use-grammar :grammar}]]
+  (let [spec (if spec spec :top)
+        use-grammar (if use-grammar use-grammar grammar)]
+    (log/info (str "using grammar of size: " (.size use-grammar)))
     (if (seq? spec)
       (map generate spec)
-      (generate/generate spec grammar (flatten (vals lexicon)) cache))))
+      (generate/generate spec use-grammar
+                         (flatten (vals lexicon)) 
+                         index))))
 
 
