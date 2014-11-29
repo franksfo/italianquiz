@@ -13,35 +13,9 @@
 
 (def get-string morph/get-string)
 (def grammar gram/grammar)
+(def lexicon-source lex/lexicon-source)
 
-;; TODO: just a stub for now:
-(defn exception-generator [lexicon]
-  (let [lexeme-kv (first lexicon)
-        lexemes (second lexeme-kv)]
-    (if lexeme-kv
-      (list {})
-      (list {}))))
-
-(defn phonize [a-map a-string]
-  (let [common {:phrasal false}]
-    ;; TODO: remove support for either list-of-maps - too confusing. Instead, just require a list of maps.
-    (cond (or (vector? a-map) (seq? a-map))
-          (map (fn [each-entry]
-                 (phonize each-entry a-string))
-               a-map)
-
-          (map? a-map)
-          (unify {:english {:english a-string}}
-                 common
-                 a-map)
-
-        true
-        (unify a-map
-               {:english a-string}
-               common))))
-
-(def lexicon (compile-lex lex/lexicon-source exception-generator phonize 
-                          morph/english-specific-rules))
+(def lexicon (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/english-specific-rules))
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
@@ -73,5 +47,16 @@
       (generate/generate spec use-grammar
                          (flatten (vals lexicon)) 
                          index))))
+
+(defn generate-all [ & [spec {use-grammar :grammar}]]
+  (let [spec (if spec spec :top)
+        use-grammar (if use-grammar use-grammar grammar)]
+    (log/info (str "using grammar of size: " (.size use-grammar)))
+    (if (seq? spec)
+      (map generate-all spec)
+      (generate/generate-all spec use-grammar
+                             (flatten (vals lexicon)) 
+                             index))))
+
 
 

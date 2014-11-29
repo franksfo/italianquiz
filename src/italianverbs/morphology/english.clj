@@ -736,4 +736,30 @@
 (def english-specific-rules
   (list agreement))
 
+;; TODO: english's exception-generator is just a stub for now.
+(defn exception-generator [lexicon]
+  (let [lexeme-kv (first lexicon)
+        lexemes (second lexeme-kv)]
+    (if lexeme-kv
+      (list {})
+      (list {}))))
+
+(defn phonize [a-map a-string]
+  (let [common {:phrasal false}]
+    ;; TODO: remove support for either list-of-maps - too confusing. Instead, just require a list of maps.
+    (cond (or (vector? a-map) (seq? a-map))
+          (map (fn [each-entry]
+                 (phonize each-entry a-string))
+               a-map)
+
+          (map? a-map)
+          (unify {:english {:english a-string}}
+                 common
+                 a-map)
+
+        true
+        (unify a-map
+               {:english a-string}
+               common))))
+
 

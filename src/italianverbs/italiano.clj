@@ -15,6 +15,7 @@
 
 (def get-string morph/get-string)
 (def grammar gram/grammar)
+(def lexicon-source lex/lexicon-source)
 
 (def lexicon
   (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/italian-specific-rules)
@@ -61,6 +62,19 @@
       (generate/generate spec use-grammar
                          (flatten (vals lexicon))
                          use-index))))
+
+(defn generate-all [ & [spec {use-grammar :grammar
+                              use-index :index}]]
+  (let [spec (if spec spec :top)
+        use-grammar (if use-grammar use-grammar grammar)
+        use-index (if use-index use-index index)]
+    (log/info (str "using grammar of size: " (.size use-grammar)))
+    (log/info (str "using index of size: " (.size use-index)))
+    (if (seq? spec)
+      (map generate-all spec)
+      (generate/generate-all spec use-grammar
+                             (flatten (vals lexicon))
+                             use-index))))
 
 ;; TODO: move the following 2 to lexicon.clj:
 (def lookup-in

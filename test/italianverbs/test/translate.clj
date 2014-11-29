@@ -1,14 +1,18 @@
 (ns italianverbs.test.translate)
+(require '[clojure.set :refer :all])
+(require '[clojure.test :refer :all])
 (require '[italianverbs.morphology :refer (fo)])
 (require '[italianverbs.english :as en])
 (require '[italianverbs.italiano :as it])
 (require '[italianverbs.translate :refer :all])
-(require '[clojure.test :refer :all])
 
 (deftest translate-a-cat
-  (let [un-gatto (translate "un gatto")]
-    (is (or (= "a cat" un-gatto)
-            (= "some cat" un-gatto)))))
+  (let [un-gatto (translate-all "un gatto")
+        formatted (if (seq? un-gatto)
+                    (set (map fo un-gatto))
+                    (set (list (fo un-gatto))))]
+    (is (not (empty? (select #(= "a cat" %)
+                             formatted))))))
 
 (deftest translate-she-reads
   (is (= "she reads" (translate "lei legge"))))
