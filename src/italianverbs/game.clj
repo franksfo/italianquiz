@@ -114,11 +114,14 @@
 
 (def mini-it-index (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
 
+(def possible-preds [:leggere :parlare])
+
 (defn generate-question [request]
-  (let [spec
+  (let [pred (nth possible-preds (rand-int (.size possible-preds)))
+        spec
         {:head {:phrasal :top}
          :comp {:phrasal false}
-         :synsem {:sem {:pred :leggere}
+         :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
         question (en/generate spec {:grammar mini-en-grammar
