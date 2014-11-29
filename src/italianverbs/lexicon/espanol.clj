@@ -10,7 +10,7 @@
                                     comparative
                                     countable-noun determiner
                                     drinkable-noun non-comparative-adjective noun
-                                    pronoun-acc pronoun-noun sentential-adverb
+                                    pronoun-acc sentential-adverb
                                     verb verb-aux)])
 (require '[italianverbs.pos.italiano :refer (adjective
                                              intransitive intransitive-unspecified-obj
@@ -71,7 +71,15 @@
 "ganar" {:synsem {:cat :verb}}
 "guardar" {:synsem {:cat :verb}}
 "gustar" {:synsem {:cat :verb}}
-"hablar" {:synsem {:cat :verb}}
+
+"hablar" 
+   (let [common
+         {:synsem {:sem {:pred :parlare
+                         :subj {:human true}}}}]
+     (unify common transitive
+            {:synsem {:obj {:speakable true}}})
+     (unify common intransitive intransitive-unspecified-obj))
+
 "imaginar" {:synsem {:cat :verb}}
 "importar" {:synsem {:cat :verb}}
 "iniciar" {:synsem {:cat :verb}}
