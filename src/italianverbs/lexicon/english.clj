@@ -51,7 +51,8 @@
    "embrace"
    (unify transitive
           {:synsem {:sem {:pred :abbracciare
-                          :subj {:human true}}}})
+                          :subject {:human true}
+                          :obj {:human true}}}})
 
 
    "i"
@@ -79,7 +80,7 @@
    (unify transitive
           {:synsem {:sem {:pred :abbracciare
                           :subj {:human true}
-                          :obj {:living true}}}})
+                          :obj {:animate true}}}})
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
    (let [common {:synsem {:sem {:pred :leggere
@@ -134,6 +135,14 @@
              :def :def
              :mass false}}
 
+   "woman"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          {:synsem {:sem {:human true
+                          :pred :donna
+                          :child false}}})
+
    "you"
    {:synsem {:cat :noun
              :pronoun true
@@ -143,6 +152,5 @@
              :sem {:human true
                    :pred :tu}
              :subcat '()}}
-
 
 })
