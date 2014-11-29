@@ -191,17 +191,22 @@
 
         debug (log/info (str "answer:" italian))
 
-]
+        group_by (if (= (get-in generated [:head :synsem :aux]) true)
+                   (get-in generated [:head :comp :italiano :italiano])
+                   (get-in generated [:head :italiano :italiano]))
 
+        debug (log/info (str "group_by: " group_by))
+        
+
+        ]
+    
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"}
      :body
      (json/write-str
       {:cloud_id (get-in request [:params :cloud_id])
        :tree (morph/fo-ps (strip-refs generated))
-       :group_by (if (= (get-in generated [:head :synsem :aux]))
-                   (get-in (strip-refs generated) [:head :comp :italian :infinitive])
-                   (get-in generated [:head :italian :infinitive]))
+       :group_by group_by
        :left_context_of_answer (morph/remove-parens (fo (get-in generated [:comp])))
        :answer (morph/remove-parens (fo (get-in generated [:head])))
        :semantics semantics
