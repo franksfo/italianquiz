@@ -7,7 +7,7 @@
                                     countable-noun determiner
                                     drinkable-noun
                                     non-comparative-adjective noun
-                                    pronoun-acc pronoun-noun sentential-adverb
+                                    pronoun-acc sentential-adverb
                                     verb verb-aux)])
 (require '[italianverbs.pos.english :refer :all])
 

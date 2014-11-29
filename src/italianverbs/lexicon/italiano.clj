@@ -10,7 +10,7 @@
                                     comparative
                                     countable-noun determiner
                                     drinkable-noun non-comparative-adjective noun
-                                    pronoun-acc pronoun-noun sentential-adverb
+                                    pronoun-acc sentential-adverb
                                     verb verb-aux)])
 (require '[italianverbs.pos.italiano :refer (adjective
                                              intransitive intransitive-unspecified-obj
@@ -453,7 +453,7 @@
                 :subcat '()}}
 
       "ci"
-      {:synsem {:cat pronoun-noun
+      {:synsem {:cat :noun
                 :pronoun true
                 :case pronoun-acc
                 :agr {:person :1st
@@ -462,7 +462,7 @@
                       :pred :noi}
                 :subcat '()}
        :italiano {:initial true
-                  :cat pronoun-noun
+                  :cat :noun
                   :case pronoun-acc}}
 
       "cipolla"
@@ -728,63 +728,63 @@
       "la"
       ;; TODO: refactor commonalities
       ;; 1. pronoun: human
-   [{:synsem {:cat pronoun-noun
-             :pronoun true
-             :case pronoun-acc
-             :agr {:gender :fem
-                   :person :3rd
-                   :number :sing}
-             :sem {:human true
-                   :pred :lei}
-             :subcat '()}
-     :italiano {:initial true   ;; TODO: verify that 'la' above and this below are being unified correctly.
-                :cat pronoun-noun
-                :case pronoun-acc}}
+      [{:synsem {:cat :noun
+                 :pronoun true
+                 :case pronoun-acc
+                 :agr {:gender :fem
+                       :person :3rd
+                       :number :sing}
+                 :sem {:human true
+                       :pred :lei}
+                 :subcat '()}
+        :italiano {:initial true   ;; TODO: verify that 'la' above and this below are being unified correctly.
+                   :cat :noun
+                   :case pronoun-acc}}
 
-    ;; 2. pronoun: non-human
-    {:synsem {:cat pronoun-noun
-              :pronoun true
-              :case pronoun-acc
-              :agr {:gender :fem
-                    :person :3rd
-                    :number :sing}
-              :sem {:human false
-                    :place false ;; "they go to it (loro vanna a la)" sounds strange
-                    :pred :lei}
-              :subcat '()}
-     :italiano {:initial true
-                :cat pronoun-noun
-                :case pronoun-acc}}
+       ;; 2. pronoun: non-human
+       {:synsem {:cat :noun
+                 :pronoun true
+                 :case pronoun-acc
+                 :agr {:gender :fem
+                       :person :3rd
+                       :number :sing}
+                 :sem {:human false
+                       :place false ;; "they go to it (loro vanna a la)" sounds strange
+                       :pred :lei}
+                 :subcat '()}
+        :italiano {:initial true
+                   :cat :noun
+                   :case pronoun-acc}}
 
-    ;; 3. article
-    {:synsem {:cat :det
-              :def :def
-              :gender :fem
-              :number :sing}}]
-   
-   "la loro"
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing
-             :sem {:number :plur
-                   :person :3rd}}}
+       ;; 3. article
+       {:synsem {:cat :det
+                 :def :def
+                 :gender :fem
+                 :number :sing}}]
+      
+      "la loro"
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing
+                :sem {:number :plur
+                      :person :3rd}}}
 
-   "la mia"
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing
-             :sem {:number :sing
-                   :person :1st}}}
+      "la mia"
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing
+                :sem {:number :sing
+                      :person :1st}}}
 
-   "la nostra"
-   {:synsem {:cat :det
-             :def :possessive
-             :gender :fem
-             :number :sing
-             :sem {:number :plur
-                   :person :1st}}}
+      "la nostra"
+      {:synsem {:cat :det
+                :def :possessive
+                :gender :fem
+                :number :sing
+                :sem {:number :plur
+                      :person :1st}}}
 
    ;; TODO for below: add pronominal "la sua" (translated in English as "his" and "hers", depending on gender of the owner of the referent).
    ;; e.g. "I gatti sono i suoi. (The cats are hers) (if talking about a female owner) or (The cats are his) (if talking about a male owner).
@@ -856,7 +856,7 @@
                           :artifact true}}})
 
    "lo"
-   [{:synsem {:cat pronoun-noun
+   [{:synsem {:cat :noun
               :pronoun true
               :case pronoun-acc
               :agr {:gender :masc
@@ -866,7 +866,7 @@
                     :pred :lo}
               :subcat '()}}
 
-    {:synsem {:cat pronoun-noun
+    {:synsem {:cat :noun
               :pronoun true
               :case pronoun-acc
               :agr {:gender :masc
@@ -878,7 +878,7 @@
               :subcat '()}
        :italiano {:initial true  ;; TODO: verify that 'lo' above and this below are being unified correctly.
                   :pronoun true
-                  :cat pronoun-noun
+                  :cat :noun
                   :case pronoun-acc}}]
 
    "loro"

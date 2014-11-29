@@ -194,7 +194,6 @@
                      :2 {:cat :prep
                          :subcat '()}}}})
 
-(def pronoun-noun (ref :noun))
 (def pronoun-acc (ref :acc))
 
 (def subcat1 {:synsem {:subcat {:1 {:cat :top}
