@@ -606,14 +606,19 @@
            ere-type (re-find #"ere$" infinitive)
            ire-type (re-find #"ire$" infinitive)
            stem (string/replace infinitive #"[iae]re$" "")
-           last-stem-char-is-i (re-find #"ire$" infinitive)
-           last-stem-char-is-e (re-find #"ere$" infinitive)
+           last-stem-char-is-i (re-find #"i[iae]re$" infinitive)
+           last-stem-char-is-e (re-find #"e[iae]re$" infinitive)
            is-care-or-gare? (re-find #"[cg]are$" infinitive)
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))]
        (cond
         (and (= person :1st) (= number :sing))
         (str stem "o")
+
+        (and (= person :2nd) (= number :sing)
+             last-stem-char-is-i)
+        ;; do not add 'i' at the end here to prevent double i:
+        (str stem "")
 
         (and (= person :2nd) (= number :sing))
         (str stem "i")
@@ -649,10 +654,11 @@
         (str stem "ite")
 
         (and (= person :3rd) (= number :plur)
-             last-stem-char-is-i)
+             ire-type)
         (str stem "ono")
+
         (and (= person :3rd) (= number :plur)
-             last-stem-char-is-e)
+             ere-type)
         (str stem "ono")
 
         (and (= person :3rd) (= number :plur))
@@ -1288,7 +1294,12 @@
                             :agr {:number :sing
                                   :person :1st}}}}
 
-   #"i$"
+   #"ci$" ;; e.g. "abbracci" => "abbracciare"
+   {:replace-with "ciare"
+    :unify-with {:italiano {:infl :present
+                            :agr {:number :sing
+                                  :person :2nd}}}}
+   #"[^c]i$"
    {:replace-with "are"
     :unify-with {:italiano {:infl :present
                             :agr {:number :sing
