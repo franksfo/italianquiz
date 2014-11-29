@@ -285,8 +285,7 @@
 
    "bere"
    (let [bere-common
-         {:italiano {:italiano "bere"
-                     :passato "bevuto"
+         {:italiano {:passato "bevuto"
                      :futuro-stem "berr"
                      :imperfetto {:1sing "bevevo"
                                   :2sing "bevevi"
@@ -308,11 +307,9 @@
        transitive
        {:synsem {:sem {:obj {:drinkable true}}}})
       
-      ;; even though there is no grammatical object here (since it is intransitive, maybe there could
-      ;; be a semantic-only object (at some extra-grammatical level of representation) that could be {:drinkable true}.
       (unify
        bere-common
-       intransitive)])
+       intransitive-unspecified-obj)])
 
    "bianco"
    (unify adjective
