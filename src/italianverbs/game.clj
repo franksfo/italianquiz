@@ -72,8 +72,8 @@
 
 
      ;; e.g., if the Italian is "io parlo", and the English is "I speak", and you are supposed to answer "parlo", then
-     ;; the left_context_italian will be "io".
-     [:span {:id "left_context_italian"}
+     ;; the left_context_destination will be "io".
+     [:span {:id "left_context_destination"}
       ]
 
 
@@ -104,10 +104,10 @@
   (do
     (log/info (str "html-form: question: " (fo question)))
     (log/info (str "html-form: head english: " (get-in question [:head :english])))
-    {:left_context_english (morph/remove-parens (fo (get-in question [:comp])))
-     :head_of_english (morph/remove-parens (fo (get-in question [:head])))
-     :right_context_english ""
-     :right_context_italian ""}))
+    {:left_context_source (morph/remove-parens (fo (get-in question [:comp])))
+     :head_of_source (morph/remove-parens (fo (get-in question [:head])))
+     :right_context_source ""
+     :right_context_destination ""}))
 
 (def mini-en-grammar
   (filter #(= (:rule %) "s-present")
@@ -144,30 +144,11 @@
                "Pragma" "no-cache"
                "Expires" "0"}
      :body (json/write-str
-            {:left_context_of_question (:left_context_english form)
-             :question (:head_of_english form)
-             :right_context_of_question (:right_context_english form)
-             :english (fo question)
+            {:left_context_of_question (:left_context_source form)
+             :full_question (fo question)
+             :question (:head_of_source form)
+             :right_context_of_question (:right_context_source form)
              :semantics (strip-refs (get-meaning question))})}))
-
-(defn genlab [request]
-  (do
-    (log/info "rendering genlab page..")
-    {:status 200
-     :headers {"Content-Type" "text/html;charset=utf-8"}
-     :body (html/page "Rain Forest: Lab" 
-                      (h/html5
-                       [:h1 "Welcome to the lab.."]
-                       [:div#labform
-                        [:h2 "input" ]
-                        [:textarea ]
-                        [:h3 "output "]
-                        [:div#output ]]))}))
-
-;; a reference for how to use the generate API.
-(defn working [ & [spec]]
-  (let [spec (if spec spec :top)]
-    (it/sentence spec)))
 
 (defn generate-answers [request]
   "generate a single sentence according to the semantics of the request."
@@ -197,17 +178,8 @@
                    {:grammar mini-it-grammar
                     :index mini-it-index})
 
-        italian (fo generated)
-
-        debug (log/info (str "answer:" italian))
-
-        group_by (if (= (get-in generated [:head :synsem :aux]) true)
-                   (get-in generated [:head :comp :italiano :italiano])
-                   (get-in generated [:head :italiano :italiano]))
-
+        group_by (get-in generated [:synsem :sem :pred])
         debug (log/info (str "group_by: " group_by))
-        
-
         ]
     
     {:status 200
@@ -220,6 +192,7 @@
        :left_context_of_answer (morph/remove-parens (fo (get-in generated [:comp])))
        :answer (morph/remove-parens (fo (get-in generated [:head])))
        :semantics semantics
-       :right_context_of_answer ""
-       :italian italian})}))
+       :right_context_of_answer ""})}))
+
+
 

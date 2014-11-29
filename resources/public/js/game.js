@@ -168,11 +168,11 @@ function add_cloud(cloud_id) {
 	$("#gameform").append("<div class='answer_info' id='answer_info_" + evaluated.cloud_id + "> " +  content + " </div>");
 	answer_info[evaluated.cloud_id] = evaluated;
 
-	// there is only a single place to put the left_context_italian for now.
+	// there is only a single place to put the left_context_destination for now.
 	// Someday will be extended to handle multiple questions at a time for real
 	// language learning champs :)
 	if (this_many_questions_at_a_time == 1) {
-	    $("#left_context_italian").html(evaluated.left_context_of_answer + " ");
+	    $("#left_context_destination").html(evaluated.left_context_of_answer + " ");
 	}
 
     }
@@ -556,7 +556,7 @@ function clean_up_cloud(bare_id,answer_text,form_input_id) {
     $("#question_" + bare_id).remove();
     $("#answer_" + bare_id).html(answer_text);
 
-    $("#left_context_italian").html("");
+    $("#left_context_destination").html("");
 
     $("#cloud_" + bare_id).fadeOut(1000,function () {$("#cloud_" + bare_id).remove();});
     $("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
@@ -565,7 +565,7 @@ function clean_up_cloud(bare_id,answer_text,form_input_id) {
 }
 
 function clean_up_cloud_quickly(bare_id,answer_text,form_input_id) {
-    $("#left_context_italian").html("");
+    $("#left_context_destination").html("");
 
     $("#cloud_" + bare_id).remove();
     $("#cloud_" + bare_id + "_q").remove();
