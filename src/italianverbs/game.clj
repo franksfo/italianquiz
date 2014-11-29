@@ -219,8 +219,79 @@
        :group_by group_by
        :left_context_of_answer (morph/remove-parens (fo (get-in generated [:comp])))
        :answer (morph/remove-parens (fo (get-in generated [:head])))
+       :full_answer (morph/remove-parens (fo generated))
        :semantics semantics
        :right_context_of_answer ""})}))
 
+(def map_src "https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=es-419&amp;geocode=&amp;q=buenos+aires&amp;sll=37.0625,-95.677068&amp;sspn=38.638819,80.859375&amp;t=h&amp;ie=UTF8&amp;hq=&amp;hnear=Buenos+Aires,+Argentina&amp;z=11&amp;ll=-34.603723,-58.381593&amp;output=embed")
 
+(defn tour []
+  (h/html5
+   [:div#maptour
+
+    [:svg {:id "svgarena"}]
+
+
+    [:div#world
+
+     [:div#wordbar
+
+      [:div#q1 "wordbar"]
+
+      [:div#q2 "not used"]
+
+      [:div#q3 "yet"]
+
+      ]
+     
+     (direction-chooser)
+     
+     [:div#score
+      "Score:"
+      [:span#scorevalue
+       "0"
+       ]
+     ]
+
+     [:h3 "Benvenuto a Firenze"]
+
+     [:div {:style "z-index:3"}
+      [:iframe {:height "500px" :width "100%" :src map_src} ]
+      ]
+
+     [:div#correction_dialog {:style "display:none"}
+
+      [:form {:onsubmit "return false;"}
+       [:div#cd_left_context_of_answer {:class "correct_answer" } "" ]
+       [:div#cd_rca {:class "correct_answer" } "" ]
+       [:h3#correct_answer "" ]
+       [:div#full_question {:class "question"} " " ]
+       [:input {:id "correction_bare_id" :type "hidden"}]
+       ]
+      ;; end of :form
+
+      ] ;; end of :div #correction_dialog
+
+
+     ] ;; end of :div#world
+
+    [:div#gameform
+
+
+     ;; e.g., if the Italian is "io parlo", and the English is "I speak", and you are supposed to answer "parlo", then
+     ;; the left_context_destination will be "io".
+     [:span {:id "left_context_destination"}
+      ]
+
+
+      [:input {:id "game_input" :size "50"}]
+     
+      [:button#answer_button {:class "click;float:right;width:auto"
+                             :onclick "submit_game_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
+     
+      ] ;; end of :div #gameform
+    ] ;; end of :div #game
+) ; html5/div
+
+) ;; end of (defn)
 
