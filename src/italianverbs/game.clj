@@ -9,12 +9,15 @@
    [italianverbs.english :as en]
    [italianverbs.generate :as gen]
    [italianverbs.morphology :as morph]
-   [italianverbs.morphology :refer [fo]]
+   [italianverbs.morphology :refer [fo fo-ps]]
    [italianverbs.html :as html]
    [italianverbs.italiano :as it]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.unify :refer [get-in strip-refs unifyc]]
    ))
+
+(require '[italianverbs.cache :refer (create-index)])
+(require '[italianverbs.ug :refer (head-principle)])
 
 (defn game []
   (h/html5
@@ -101,6 +104,18 @@
      :right_context_english ""
      :right_context_italian ""}))
 
+(def mini-en-grammar
+  (filter #(= (:rule %) "s-present")
+          en/grammar))
+
+(def mini-en-index (create-index mini-en-grammar (flatten (vals en/lexicon)) head-principle))
+
+(def mini-it-grammar
+  (filter #(= (:rule %) "s-present")
+          it/grammar))
+
+(def mini-it-index (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
+
 (defn generate-question [request]
   (let [spec
         {:head {:phrasal :top}
@@ -109,11 +124,11 @@
                   :cat :verb
                   :subcat '()}}
 
-        italiano (it/sentence spec)
-
-        semantics (strip-refs (get-meaning italiano))
-
-        english (en/sentence semantics)]
+        italiano (it/generate spec {:grammar mini-it-grammar
+                                    :index mini-it-index})
+        meaning (strip-refs (get-meaning italiano))
+        english (en/generate meaning {:grammar mini-en-grammar
+                                   :index mini-en-index})]
 
     (log/info "generate-question: italiano: " (fo italiano))
 
@@ -126,7 +141,7 @@
      :body (json/write-str
             {:italiano (fo italiano)
              :english (fo english)
-             :semantics semantics})}))
+             :semantics meaning})}))
 
 (defn genlab [request]
   (do
