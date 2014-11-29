@@ -229,9 +229,8 @@
                           unified-spec (unifyc sentence-spec spec)]
                       (fo (generate-from unified-spec
                                          en/grammar
-                                         it/grammar
-                                         en/cache
-                                         it/cache
+                                         en/lexicon
+                                         en/index
                                          )))
                    trials
                    "itialian2english")))
@@ -252,22 +251,22 @@
 (defn standard-benchmark-it [ & [ trials ]]
   (let [trials
         (if (nil? trials) 1 trials)]
-    (bolt-benchmark trials it/grammar it/cache "bolt-benchmark-it")))
+    (bolt-benchmark trials it/grammar it/index "bolt-benchmark-it")))
 
 (defn standard-benchmark-it-with [ trials spec ]
   (let [trials
         (if (nil? trials) 1 trials)]
-    (bolt-benchmark trials it/grammar it/cache "bolt-benchmark-it" spec)))
+    (bolt-benchmark trials it/grammar it/index "bolt-benchmark-it" spec)))
 
 (defn standard-benchmark-en-with [ trials spec ]
   (let [trials
         (if (nil? trials) 1 trials)]
-    (bolt-benchmark trials en/grammar en/cache "bolt-benchmark-en" spec)))
+    (bolt-benchmark trials en/grammar en/index "bolt-benchmark-en" spec)))
 
 (defn standard-benchmark-en [ & [ trials ]]
   (let [trialsa
         (if (nil? trials) 1 trials)]
-    (bolt-benchmark trials en/grammar en/cache "bolt-benchmark-en")))
+    (bolt-benchmark trials en/grammar en/index "bolt-benchmark-en")))
 
 (defn standard-benchmark-with [ trials spec ]
   (let [trials
