@@ -97,8 +97,8 @@
   (do
     (log/info (str "html-form: question: " (fo question)))
     (log/info (str "html-form: head english: " (get-in question [:head :english])))
-    {:left_context_english (morph/remove-parens (fo (get-in question [:comp :english])))
-     :head_of_english (morph/remove-parens (fo (get-in question [:head :english])))
+    {:left_context_english (morph/remove-parens (fo (get-in question [:comp])))
+     :head_of_english (morph/remove-parens (fo (get-in question [:head])))
      :right_context_english ""
      :right_context_italian ""}))
 
