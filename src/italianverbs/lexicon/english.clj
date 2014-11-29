@@ -62,6 +62,12 @@
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
 
+   "dog"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          {:synsem {:sem (unify animal {:pred :cane
+                                        :pet true})}})
 
    "embrace"
    (unify transitive
@@ -144,6 +150,15 @@
     {:synsem {:cat :det
               :def :indef
               :number :sing}}]
+
+   "speak"
+   (let [common
+         {:synsem {:essere false
+                   :sem {:pred :parlare
+                         :subj {:human true}}}}]
+     (unify common transitive
+            {:synsem {:obj {:speakable true}}})
+     (unify common intransitive intransitive-unspecified-obj))
 
    "the"
    {:synsem {:cat :det
