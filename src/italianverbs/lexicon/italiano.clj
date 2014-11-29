@@ -21,6 +21,22 @@
 
 (def lexicon-source
   {
+   "Antonia"
+   {:synsem {:sem {:pred :antonia
+                   :human true}
+             :agr {:number :sing
+                   :person :3rd
+                   :gender :fem}
+             :propernoun true}}
+
+   "Antonio"
+   {:synsem {:agr {:number :sing
+                   :person :3rd
+                   :gender :masc}
+             :sem {:pred :antonio
+                   :human true}
+             :propernoun true}}
+
    "a"
    [(let [location (ref {:place true})]
       {:synsem {:cat :prep
@@ -190,23 +206,6 @@
                                     :subcat '()
                                     :cat :prep}}}
               :note "andare-pp"}))))
-
-   "Antonio"
-   {:synsem {:agr {:number :sing
-                   :person :3rd
-                   :gender :masc}
-             :sem {:pred :antonio
-                   :human true}
-             :propernoun true}}
-
-   "Antonia"
-
-   {:synsem {:sem {:pred :antonia
-                   :human true}
-             :agr {:number :sing
-                   :person :3rd
-                   :gender :fem}
-             :propernoun true}}
 
    "avere"
    (let [avere-common {:synsem {:essere false
