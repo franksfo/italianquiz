@@ -12,7 +12,22 @@
 (require '[italianverbs.pos.english :refer :all])
 
 (def lexicon-source
-  {"a"
+  {"Antonia"
+   {:synsem {:sem {:pred :antonia
+                   :human true}
+             :agr {:number :sing
+                   :person :3rd
+                   :gender :fem}
+             :propernoun true}}
+   "Antonio"
+   {:synsem {:agr {:number :sing
+                   :person :3rd
+                   :gender :masc}
+             :sem {:pred :antonio
+                   :human true}
+             :propernoun true}}
+
+   "a"
    {:synsem {:cat :det
              :def :indef
              :mass false
@@ -55,7 +70,7 @@
                           :obj {:human true}}}})
 
 
-   "i"
+   "I"
    {:synsem {:cat :noun
              :pronoun true
              :case :nom
@@ -135,6 +150,26 @@
              :def :def
              :mass false}}
 
+   "they"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :number :plur}
+             :sem {:human true
+                   :pred :loro}
+             :subcat '()}}
+
+   "we"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :1st
+                   :number :plur}
+             :sem {:human true
+                   :pred :noi}
+             :subcat '()}}
+
    "woman"
    (unify agreement-noun
           common-noun
@@ -152,5 +187,16 @@
              :sem {:human true
                    :pred :tu}
              :subcat '()}}
+
+   "you all"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :2nd
+                   :number :plur}
+             :sem {:human true
+                   :pred :voi}
+             :subcat '()}}
+
 
 })
