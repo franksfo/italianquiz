@@ -21,7 +21,7 @@
     :source_flag "/svg/britain.svg"
     :destination_flag "/svg/italy.svg"}])
 
-(def possible-preds [:bere :leggere :parlare])
+(def possible-preds [:bere :dormire :leggere :mangiare :parlare])
 
 (defn direction-chooser []
   (h/html5
