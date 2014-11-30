@@ -84,7 +84,19 @@
        common
        intransitive-unspecified-obj)])
 
+   "eat"
+   (let [common {:synsem {:sem {:pred :mangiare
+                                :discrete false
+                                :subj {:animate true}}}}]
+     [(unify
+       common
+       transitive
+       {:synsem {:sem {:obj {:edible true}}}})
 
+      (unify
+       common
+       intransitive-unspecified-obj)])
+   
    "embrace"
    (unify transitive
           {:synsem {:sem {:pred :abbracciare
