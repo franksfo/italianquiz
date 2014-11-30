@@ -182,14 +182,13 @@
   (log/info (str "generate-answers: request params: " (get-in request [:params])))
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
-  (log/info (str "semantics:" (json/read-str (get-in request [:params :semantics]))))
   (let [semantics (json/read-str (get-in request [:params :semantics])
                                  :key-fn keyword
                                  :value-fn (fn [k v]
                                             (cond (string? v)
                                                   (keyword v)
                                                   :else v)))
-        debug (log/info (str "semantic2: " semantics))
+        debug (log/debug (str "semantics: " semantics))
 
         more-constraints {:synsem {:subcat '()}
                           :head {:phrasal :top}
@@ -217,8 +216,12 @@
        :tree (morph/fo-ps (strip-refs generated))
        :group_by group_by
        :left_context_of_answer (morph/remove-parens (fo (get-in generated [:comp])))
-       :answer (morph/remove-parens (fo (get-in generated [:head])))
-       :full_answer (morph/remove-parens (fo generated))
+       ;; here we combine all of the possible answers,
+       ;; using a primitive means of delimitation (a comma).
+       :answer (string/join ","
+                            (list 
+                             (morph/remove-parens (fo (get-in generated [:head])))
+                             (morph/remove-parens (fo generated))))
        :semantics semantics
        :right_context_of_answer ""})}))
 

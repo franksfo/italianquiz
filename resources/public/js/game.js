@@ -159,8 +159,6 @@ function add_cloud(cloud_id) {
 	// TODO: pass JSON directly rather than using the DOM as a data store.
 	// Though the DOM has some advantages in that you can use it for presentation purposes.
 	$("#"+cloud_a_dom_id).val(evaluated.answer);
-	log(INFO,"The full answer is: " + evaluated.full_answer);
-//	$("#"+cloud_full_answer_dom_id).val(evaluated.full_answer);
 	$("#"+left_context_of_answer_dom_id).html(evaluated.left_context_of_answer);
 	$("#"+rca_dom_id).html(evaluated.rca);
 	log(DEBUG,"Updating question color for dom id: " + cloud_q_dom_id);
@@ -269,10 +267,7 @@ function grow_tree(question_id) {
 	var new_top = existing_top - 10;
 	log(INFO,"New top: " + new_top);
 	$("#tree_"+group_by).css({ 'top': new_top + "px" });
-
-
     } else {
-
 	// add a new tree for this group, since it doesn't exist yet.
 	var left=Math.floor(Math.random()*80) + 10;
 	var top=Math.floor(Math.random()*65) - 20;
@@ -330,9 +325,12 @@ function submit_normal_response(form_input_id) {
 	    return false;
 	}
 
-	// A given question may have more than one possible right answer, separated by commmas.
+	// A given question may have more than one possible right answer, separated by commas.
+	// TODO: server should use a javascript array rather than embedding an array within a string
+	// as is the case currently.
 	var answers = answer.value.split(",");
-	log(DEBUG,"Answers: " + answers);
+	log(INFO,"Total answers: " + answers.length);
+	log(INFO,"Possible answers: " + answers);
 
 	var i;
 	for (i = 0; i < answers.length; i++) {
@@ -439,7 +437,9 @@ function correction_dialog(question_left_context_of_answer_text,question_text,co
     $("#correction_bare_id").val(bare_id);
     $("#answer_button")[0].innerHTML = "Correct";
     $("#cd_left_context_of_answer").html(question_left_context_of_answer_text + " ");
-    $("#correct_answer").html(correct_answer);
+    var answers = correct_answer;
+    var first_correct_answer = answers.split(",")[0];
+    $("#correct_answer").html(first_correct_answer);
     $("#full_question").html(full_question);
     log(INFO,"correction_dialog: done populating.");
 }
@@ -557,9 +557,11 @@ function clean_up_cloud(bare_id,answer_text,form_input_id) {
     $("#cloud_" + bare_id).addClass("solved");
     $("#cloud_" + bare_id + "_a").remove;
     $("#question_" + bare_id).remove();
+    var lca = $("#left_context_of_answer_" + bare_id).html();
+    if (answer_text.substring(0,lca.length) === lca) {
+	$("#left_context_of_answer_" + bare_id).html("");
+    }
     $("#answer_" + bare_id).html(answer_text);
-
-    $("#left_context_destination").html("");
 
     $("#cloud_" + bare_id).fadeOut(1000,function () {$("#cloud_" + bare_id).remove();});
     $("#cloud_" + bare_id + "_q").fadeOut(2000,function () {$("#cloud_" + bare_id + "_a").remove();});
