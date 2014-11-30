@@ -52,7 +52,6 @@
 
     [:svg {:id "svgarena"}]
 
-
     [:div#rainforest
 
      [:div#wordbar
@@ -232,12 +231,13 @@
 
 (defn tour []
   (h/html5
-   [:div#maptour
+   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Italia!"]
+
+   [:div#game
 
     [:svg {:id "svgarena"}]
 
-
-    [:div#world
+    [:div#rainforest
 
      [:div#wordbar
 
@@ -251,16 +251,14 @@
      
      (direction-chooser)
      
-     [:div#score
-      "Score:"
+     [:div#kilos
+      "Kilometri:"
       [:span#scorevalue
        "0"
        ]
      ]
 
-     [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Italia!"]
-
-     [:div {:style "z-index:3"}
+     [:div {:style "z-index:2"}
       [:iframe {:height "500px" :width "100%" :src map_src} ]
       ]
 

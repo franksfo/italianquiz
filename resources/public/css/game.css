@@ -57,6 +57,19 @@
     background:lightskyblue;
 }
 
+#kilos {
+    padding:1px;
+    width:10em;
+    float:left;
+    position:absolute;
+    top:2px;
+    right:50%;
+    border:2px solid lightblue;
+    background:white;
+    color:green;
+    z-index:2;
+}
+
 #score {
     padding:1px;
     width:10em;
