@@ -227,8 +227,8 @@
 
 (def map_src_google "https://maps.google.com/maps?z=7&ll=40.603723,14.381593&output=embed")
 
-(def map_src map_src_openstreetmaps)
-;(def map_src map_src_google)
+;(def map_src map_src_openstreetmaps)
+(def map_src map_src_google)
 
 (defn tour []
   (h/html5
