@@ -4,16 +4,17 @@
    [clojure.data.json :as json]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [hiccup.page :refer :all]
-   [hiccup.page :as h]
+
+   [hiccup.page :refer (html5)]
+
    [italianverbs.cache :refer (create-index)]
-   [italianverbs.english :as en]
-   [italianverbs.morphology :as morph]
-   [italianverbs.morphology :refer [fo fo-ps]]
-   [italianverbs.italiano :as it]
+   [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
-   [italianverbs.unify :refer [get-in merge strip-refs unifyc]]))
+   [italianverbs.unify :refer [get-in merge strip-refs]]
+
+   [italianverbs.english :as en]
+   [italianverbs.italiano :as it]))
 
 (def game-pairs
   [{:source "en"
@@ -24,7 +25,7 @@
 (def possible-preds [:bere :dormire :leggere :mangiare :parlare])
 
 (defn direction-chooser []
-  (h/html5
+  (html5
    [:dev#chooser
     [:select
      [:option {:onclick "location='/cloud?src=en&dest=it';"}
@@ -45,7 +46,7 @@
      ]]))
 
 (defn game []
-  (h/html5
+  (html5
    [:div#game
 
     [:svg {:id "svgarena"}]
@@ -131,8 +132,8 @@
 (defn html-form [question]
   (do
     (log/info (str "html-form: question: " (fo question)))
-    {:left_context_source (morph/remove-parens (fo (get-in question [:comp])))
-     :head_of_source (morph/remove-parens (fo (get-in question [:head])))
+    {:left_context_source (remove-parens (fo (get-in question [:comp])))
+     :head_of_source (remove-parens (fo (get-in question [:head])))
      :right_context_source ""
      :right_context_destination ""}))
 
@@ -211,15 +212,15 @@
      :body
      (json/write-str
       {:cloud_id (get-in request [:params :cloud_id])
-       :tree (morph/fo-ps (strip-refs generated))
+       :tree (fo-ps (strip-refs generated))
        :group_by group_by
-       :left_context_of_answer (morph/remove-parens (fo (get-in generated [:comp])))
+       :left_context_of_answer (remove-parens (fo (get-in generated [:comp])))
        ;; here we combine all of the possible answers,
        ;; using a primitive means of delimitation (a comma).
        :answer (string/join ","
                             (list 
-                             (morph/remove-parens (fo (get-in generated [:head])))
-                             (morph/remove-parens (fo generated))))
+                             (remove-parens (fo (get-in generated [:head])))
+                             (remove-parens (fo generated))))
        :semantics semantics
        :right_context_of_answer ""})}))
 
@@ -231,7 +232,7 @@
 (def map_src map_src_google)
 
 (defn tour []
-  (h/html5
+  (html5
    [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a l'Italia!"]
 
    [:div#game
