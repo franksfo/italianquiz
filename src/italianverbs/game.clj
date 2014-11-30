@@ -99,17 +99,10 @@
 
     [:div#gameform
 
-
-     ;; e.g., if the Italian is "io parlo", and the English is "I speak", and you are supposed to answer "parlo", then
-     ;; the left_context_destination will be "io".
-     [:span {:id "left_context_destination"}
-      ]
-
-
       [:input {:id "game_input" :size "50"}]
      
       [:button#answer_button {:class "click;float:right;width:auto"
-                             :onclick "submit_game_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
+                              :onclick "submit_game_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
      
       ] ;; end of :div #gameform
     ] ;; end of :div #game
@@ -287,16 +280,10 @@
       ""
       ]
 
-     ;; e.g., if the Italian is "io parlo", and the English is "I speak", and you are supposed to answer "parlo", then
-     ;; the left_context_destination will be "io".
-     [:span {:id "left_context_destination"}
-      ]
-
-
       [:input {:id "game_input" :size "50"}]
      
       [:button#answer_button {:class "click;float:right;width:auto"
-                             :onclick "submit_game_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
+                              :onclick "submit_tour_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
      
       ] ;; end of :div #gameform
     ] ;; end of :div #game
