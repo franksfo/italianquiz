@@ -139,6 +139,7 @@ function add_cloud(cloud_id) {
     update_answer_fn = function(content) {
 	evaluated  = jQuery.parseJSON(content);
 
+	// TODO: this is a big hairy mess: don't use the DOM for temporary storage like this.
 	log(INFO,"map from the server's <answer> response: " + evaluated);
 
 	var cloud_a_dom_id = "cloud_" + evaluated.cloud_id + "_a";
