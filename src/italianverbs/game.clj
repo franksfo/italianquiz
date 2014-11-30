@@ -223,7 +223,12 @@
        :semantics semantics
        :right_context_of_answer ""})}))
 
-(def map_src "https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=es-419&amp;geocode=&amp;q=buenos+aires&amp;sll=37.0625,-95.677068&amp;sspn=38.638819,80.859375&amp;t=h&amp;ie=UTF8&amp;hq=&amp;hnear=Buenos+Aires,+Argentina&amp;z=11&amp;ll=-34.603723,-58.381593&amp;output=embed")
+(def map_src_openstreetmaps "http://www.openstreetmap.org/export/embed.html?bbox=9%2C43.700395862593545%2C11.283645629882812%2C43.860524730744096&layer=mapnik")
+
+(def map_src_google "https://maps.google.com/maps?z=7&ll=40.603723,14.381593&output=embed")
+
+(def map_src map_src_openstreetmaps)
+;(def map_src map_src_google)
 
 (defn tour []
   (h/html5
@@ -253,7 +258,7 @@
        ]
      ]
 
-     [:h3 "Benvenuto a Firenze"]
+     [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Italia!"]
 
      [:div {:style "z-index:3"}
       [:iframe {:height "500px" :width "100%" :src map_src} ]
