@@ -70,6 +70,15 @@
     z-index:2;
 }
 
+#tourquestion {
+    text-align:center;
+    width:10em;
+    margin:2px;
+    padding:2px;
+    border:1px solid blue;
+    background:lightblue;
+}
+
 #score {
     padding:1px;
     width:10em;

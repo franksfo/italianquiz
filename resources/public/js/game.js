@@ -27,8 +27,11 @@ var max_speed = 15;
 // (rain not used at present)
 var rain_time = 1000;
 // timer for cloud motion interval, in milliseconds.
-// a low blow_time looks smooth but will chow javascript CPUs.
+// a low blow_time looks smooth but will chow javascript engine CPUs.
 var blow_time = 50;
+
+// every X milliseconds, decrement remaining time to answer this question on a tour.
+var tour_question_decrement_interval = 5000;
 
 var cloud_ceiling = 20;
 var cloud_altitude = function() {
@@ -42,8 +45,7 @@ var tree_colors = ["lightgreen","darkgreen","forestgreen","seagreen","mediumseag
 
 // End of configurable section.
 
-
-// Begin static variables.
+// Begin variable declarations.
 
 // 'freezed' rather than 'frozen' in order to make freeze-related functionality more easily searchable.
 var wind_is_freezed = false;
@@ -54,7 +56,11 @@ var answer_info = {}; // key: question_id; val: answer information.
 // Each tree is created when a question having that infinitive_verb is answered correctly.
 // The tree grows bigger as the user answers more correct questions with that infinitive verb.
 
-// End of static variables.
+var global_cloud_id = 0;
+
+var cloud_speeds = {};
+
+// End variable declarations.
 
 // Begin function declarations (until end of file).
 
@@ -83,18 +89,46 @@ function start_game() {
     },blow_time);
 }
 
- var global_cloud_id = 0;
-
- function add_clouds(add_this_many) {
-     var added = 0;
-     while (added < add_this_many) {
-	 add_cloud(global_cloud_id);
-	 added++;
-	 global_cloud_id++;
-    }
+function start_tour() {
+    normal_returnkey_mode();
+    var svg = d3.select("#svgarena");
+    create_tour_question();
+    
+    $("#game_input").focus();
+    
+    setInterval(function() {
+	decrement_remaining_tour_question_time();
+    },tour_question_decrement_interval);
 }
 
-var cloud_speeds = {};
+function create_tour_question() {
+    update_tour_question = function (content) {
+	evaluated = jQuery.parseJSON(content);
+	var question = evaluated.full_question;
+	log(INFO,"Updating tour with question:" + question);
+	$("#tourquestion").html(question);
+    }
+
+    $.ajax({
+	cache: false,
+        dataType: "html",
+        url: "/cloud/generate-question",
+        success: update_tour_question
+    });
+}
+
+function decrement_remaining_tour_question_time() {
+    log(INFO,"decrement remaining time..");
+}
+
+function add_clouds(add_this_many) {
+    var added = 0;
+    while (added < add_this_many) {
+	add_cloud(global_cloud_id);
+	added++;
+	global_cloud_id++;
+    }
+}
 
 function add_cloud(cloud_id) {
     log(INFO,"add_cloud(" + cloud_id + ")");

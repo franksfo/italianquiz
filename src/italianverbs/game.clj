@@ -234,7 +234,7 @@
 
 (defn tour []
   (h/html5
-   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Italia!"]
+   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a l'Italia!"]
 
    [:div#game
 
@@ -283,6 +283,10 @@
 
     [:div#gameform
 
+
+     [:div#tourquestion
+      ""
+      ]
 
      ;; e.g., if the Italian is "io parlo", and the English is "I speak", and you are supposed to answer "parlo", then
      ;; the left_context_destination will be "io".
