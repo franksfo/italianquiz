@@ -254,6 +254,16 @@ function submit_game_response(form_input_id) {
     }
 }
 
+function submit_tour_response(form_input_id) {
+    if (in_correction_mode) {
+	submit_correction_response(form_input_id);
+    } else {
+	var guess = $("#"+form_input_id).val();
+	log(INFO,"submit_tour_response() guess: " + guess);
+	var matched = false;
+    }
+}
+
 function grow_tree(question_id) {
     // question with id <question_id> was answered correctly: grow its tree.
     log(INFO,"question_id: " + question_id);
