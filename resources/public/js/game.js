@@ -159,6 +159,8 @@ function add_cloud(cloud_id) {
 	// TODO: pass JSON directly rather than using the DOM as a data store.
 	// Though the DOM has some advantages in that you can use it for presentation purposes.
 	$("#"+cloud_a_dom_id).val(evaluated.answer);
+	log(INFO,"The full answer is: " + evaluated.full_answer);
+//	$("#"+cloud_full_answer_dom_id).val(evaluated.full_answer);
 	$("#"+left_context_of_answer_dom_id).html(evaluated.left_context_of_answer);
 	$("#"+rca_dom_id).html(evaluated.rca);
 	log(DEBUG,"Updating question color for dom id: " + cloud_q_dom_id);
