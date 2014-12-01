@@ -169,9 +169,10 @@
              :right_context_of_question (:right_context_source form)
              :semantics (strip-refs (get-meaning question))})}))
 
+;; This is the counterpart to (generate-questions) immediately above: it generates
+;; an expression that the user should be learniong.
 (defn generate-answers [request]
   "generate a single sentence according to the semantics of the request."
-  (log/info (str "generate-answers: request params: " (get-in request [:params])))
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
   (let [semantics (json/read-str (get-in request [:params :semantics])
@@ -191,12 +192,19 @@
 
         debug (log/info (str "to-generate: " to-generate))
 
-        generated (it/generate
-                   to-generate
-                   {:grammar mini-it-grammar
-                    :index mini-it-index})
+        ;; TODO: for now, we are hard-wired to generate an answer in Italian,
+        ;; but function should accept an input parameter to determine which language should be
+        ;; used.
+        answer (it/generate
+                to-generate
+                {:grammar mini-it-grammar
+                 :index mini-it-index})
 
-        group_by (get-in generated [:synsem :sem :pred])
+        ;; used to group questions by some common feature - in this case,
+        ;; we'll use the pred since this is a way of cross-linguistically
+        ;; grouping verbs with the same meaning together.
+        group_by (get-in answer [:synsem :sem :pred])
+
         debug (log/info (str "group_by: " group_by))
         ]
     
