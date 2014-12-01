@@ -89,24 +89,68 @@ function start_game() {
     },blow_time);
 }
 
+// TODO: openstreetmaps and googlemaps origins are not equivalent geographically:
+// they use different coordinate systems, and so are not easily compared.
+var openstreetmaps_origin = "http://www.openstreetmap.org/export/embed.html?bbox=3%2C43.5%2C11.5%2C44&layer=mapnik";
+
+var googlemaps_lat_origin  = 41.0000;
+var googlemaps_long_origin = 14.0000;
+var googlemaps_zoom_origin = 11;
+
+var maps_origin = googlemaps_origin;
+
+var maps_current_lat = googlemaps_lat_origin;
+var maps_current_long = googlemaps_long_origin;
+var maps_current_zoom = googlemaps_zoom_origin;
+
+function create_googlemaps_url(new_lat,new_long,new_zoom) {
+    maps_current_lat = new_lat;
+    maps_current_long = new_long;
+    maps_current_zoom = new_zoom;
+    return "https://maps.google.com/maps?z="+new_zoom+
+	"&ll="+new_lat+","+new_long+"&output=embed";
+}
+
 function start_tour() {
+    $("#mapframe").attr('src',create_googlemaps_url(googlemaps_lat_origin,
+						    googlemaps_long_origin,
+						    googlemaps_zoom_origin));
     normal_returnkey_mode();
-    var svg = d3.select("#svgarena");
+    tour_loop();
+}
+
+function tour_loop() {
     create_tour_question();
-    
     $("#game_input").focus();
+    $("#game_input").val("");
     
+    // TODO: when timeout expires, pop up correction dialog.
     setInterval(function() {
 	decrement_remaining_tour_question_time();
     },tour_question_decrement_interval);
 }
 
+var answer_info;
+
 function create_tour_question() {
+    update_tour_answer_fn = function(content) {
+	var evaluated  = jQuery.parseJSON(content);
+	log(INFO,"map from the server's answer response: " + evaluated);
+	answer_info = evaluated;
+    }
+
     update_tour_question = function (content) {
-	evaluated = jQuery.parseJSON(content);
-	var question = evaluated.full_question;
-	log(INFO,"Updating tour with question:" + question);
-	$("#tourquestion").html(question);
+	var evaluated = jQuery.parseJSON(content);
+	log(INFO,"Updating tour with question:" + evaluated.full_question);
+	$("#tourquestion").html(evaluated.full_question);
+
+	$.ajax({
+	    cache: false,
+	    dataType: "html",
+	    url: "/cloud/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
+	    success: update_tour_answer_fn
+	});
+
     }
 
     $.ajax({
@@ -261,7 +305,31 @@ function submit_tour_response(form_input_id) {
 	var guess = $("#"+form_input_id).val();
 	log(INFO,"submit_tour_response() guess: " + guess);
 	var matched = false;
+
+	// A given question may have more than one possible right answer, separated by commas.
+	// TODO: server should use a javascript array rather than embedding an array within a string
+	// as is the case currently.
+	var answers = answer_info.answer.split(",");
+
+	var i;
+	for (i = 0; i < answers.length; i++) {
+	    var answer_text = answers[i];
+	    if (answer_text === guess) {
+		log(INFO,"You got one right!");
+		update_map();
+		// go to next question.
+		return tour_loop();
+	    }
+	}
+	log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
+	return false;
     }
+}
+
+function update_map() {
+    $("#mapframe").attr('src', create_googlemaps_url(maps_current_lat+0.1,
+						      maps_current_long+0.1,
+						      maps_current_zoom));
 }
 
 function grow_tree(question_id) {
@@ -293,7 +361,6 @@ function grow_tree(question_id) {
 	log(INFO,"New font size: " + new_font_size);
 	$("#tree_"+group_by).css({ 'font-size': new_font_size + "px" });
 
-
 	// we need to make the top lower if the tree grows; otherwise the tree might float in the air (have a top smaller than the ground's top).
 	var existing_top = $("#tree_" + group_by).css("top");
 	log(INFO,"Existing top(1): " + existing_top);
@@ -316,7 +383,6 @@ function grow_tree(question_id) {
 	log(INFO,"Tree color: " + color);
 	$("#tree_"+group_by).css({'top':top+"px"});
 	$("#tree_"+group_by).css({'color':color});
-
     }
 }
 

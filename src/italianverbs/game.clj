@@ -213,24 +213,19 @@
      :body
      (json/write-str
       {:cloud_id (get-in request [:params :cloud_id])
-       :tree (fo-ps (strip-refs generated))
+ 
        :group_by group_by
-       :left_context_of_answer (remove-parens (fo (get-in generated [:comp])))
+       :left_context_of_answer (remove-parens (fo (get-in answer [:comp])))
        ;; here we combine all of the possible answers,
-       ;; using a primitive means of delimitation (a comma).
+       ;; using punctuation within the string as means of delimitation (a comma).
+       ;; TODO: use a JSON array instead, and also, remove the use of (remove-parens),
+       ;; since this is another way that punctuation being abused to serialize data structures.
        :answer (string/join ","
                             (list 
-                             (remove-parens (fo (get-in generated [:head])))
-                             (remove-parens (fo generated))))
+                             (remove-parens (fo (get-in answer [:head])))
+                             (remove-parens (fo answer))))
        :semantics semantics
        :right_context_of_answer ""})}))
-
-(def map_src_openstreetmaps "http://www.openstreetmap.org/export/embed.html?bbox=9%2C43.700395862593545%2C11.283645629882812%2C43.860524730744096&layer=mapnik")
-
-(def map_src_google "https://maps.google.com/maps?z=7&ll=40.603723,14.381593&output=embed")
-
-;(def map_src map_src_openstreetmaps)
-(def map_src map_src_google)
 
 (defn tour []
   (html5
@@ -262,7 +257,7 @@
      ]
 
      [:div {:style "z-index:2"}
-      [:iframe {:height "500px" :width "100%" :src map_src} ]
+      [:iframe#mapframe {:height "500px" :width "100%"} ]
       ]
 
      [:div#correction_dialog {:style "display:none"}
@@ -288,12 +283,12 @@
       ""
       ]
 
-      [:input {:id "game_input" :size "50"}]
+     [:input {:id "game_input" :size "30"}]
      
-      [:button#answer_button {:class "click;float:right;width:auto"
-                              :onclick "submit_tour_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
+     [:button#answer_button {:class "click;float:right;width:auto"
+                             :onclick "submit_tour_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
      
-      ] ;; end of :div #gameform
+     ] ;; end of :div #gameform
     ] ;; end of :div #game
 ) ; html5/div
 
