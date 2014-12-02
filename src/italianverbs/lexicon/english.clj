@@ -103,7 +103,6 @@
                           :subject {:human true}
                           :obj {:human true}}}})
 
-
    "I"
    {:synsem {:cat :noun
              :pronoun true
@@ -143,6 +142,14 @@
       (unify
        common
        intransitive-unspecified-obj)])
+
+   "mother"
+   (unify agreement-noun
+          common-noun
+          countable-noun
+          {:synsem {:sem {:human true
+                          :pred :madre
+                          :child false}}})
 
    "red"
    (unify adjective
