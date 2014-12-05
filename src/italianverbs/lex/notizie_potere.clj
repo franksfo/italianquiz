@@ -1,6 +1,8 @@
+;; TODO: This is going away: using language-specific lexicons in the future.
 (ns italianverbs.lex.notizie_potere
   (:require
    [italianverbs.lexiconfn :refer (unify)]
+   [italianverbs.pos.italiano :refer (feminine-noun)]
    [italianverbs.pos :refer :all]))
 
 (def notizie-potere
