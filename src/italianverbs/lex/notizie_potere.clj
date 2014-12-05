@@ -2,7 +2,7 @@
 (ns italianverbs.lex.notizie_potere
   (:require
    [italianverbs.lexiconfn :refer (unify)]
-   [italianverbs.pos.italiano :refer (feminine-noun)]
+   [italianverbs.pos.italiano :refer (feminine-noun masculine-noun)]
    [italianverbs.pos :refer :all]))
 
 (def notizie-potere
