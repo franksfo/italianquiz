@@ -1,3 +1,5 @@
+;; lexicon.clj is going away in favor of language-specific lexicons (lexici?)
+;; TODO git rm lexicon.clj
 (ns italianverbs.lexicon
   (:refer-clojure :exclude [get-in resolve find merge])
   (:require
@@ -60,9 +62,11 @@
 
 (load "pos")
 
-(def lexicon
-  ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
-  ;; default shown is (not (nil? entry)) i.e. no restrictions except that an entry must be non-nil.
-  ;;  (currently there is one nil below: "chiunque (anyone)").
-  (future (flatten (vals italiano/lexicon))))
+;; this does not work anymore because italiano/lexicon doesn't exist.
+
+;(def lexicon-deprecated
+;  ;; this filter is for debugging purposes to restrict lexicon to particular entries, if desired.
+;  ;; default shown is (not (nil? entry)) i.e. no restrictions except that an entry must be non-nil.
+;  ;;  (currently there is one nil below: "chiunque (anyone)").
+;  (future (flatten (vals italiano/lexicon))))
 
