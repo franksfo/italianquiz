@@ -142,6 +142,14 @@
 
 (def mini-it-index (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
 
+(def source-language-generate en/generate)
+(def source-language-grammar mini-en-grammar)
+(def source-language-index mini-en-index)
+
+(def target-language-generate it/generate)
+(def target-language-grammar mini-it-grammar)
+(def target-language-index mini-it-index)
+
 (defn generate-question [request]
   (let [pred (nth possible-preds (rand-int (.size possible-preds)))
         spec
@@ -150,8 +158,9 @@
          :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
-        question (en/generate spec {:grammar mini-en-grammar
-                                    :index mini-en-index})
+        question (source-language-generate
+                  spec {:grammar source-language-grammar
+                        :index source-language-index})
         form (html-form question)]
 
     (log/info "generate-question: question: " (fo question))
@@ -195,10 +204,10 @@
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (it/generate
+        answer (target-language-generate
                 to-generate
-                {:grammar mini-it-grammar
-                 :index mini-it-index})
+                {:grammar target-language-grammar
+                 :index target-language-index})
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically
