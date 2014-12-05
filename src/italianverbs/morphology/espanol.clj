@@ -553,6 +553,8 @@
            ;; for passato prossimo, the last char depends on gender and number, if an essere-verb.
            suffix (suffix-of word)
 
+           vosotros false ;; this is dialect-dependent: only certain Spanish-speaking dialects use this.
+           ustedes false  ;; this is dialect-dependent: only certain Spanish-speaking dialects use this.
            ]
 
        (cond
@@ -562,13 +564,13 @@
         (and (= person :2nd) (= number :sing) ar-type)
         (str stem "aste")
 
-        (and (= person :2nd) (= number :sing) (or ir-type er-type)
+        (and (= person :2nd) (= number :sing) (or ir-type er-type))
         (str stem "iste")
        
         (and (= person :3rd) (= number :sing) (or ir-type er-type))
         (str stem "ó")
 
-        (and (= person :3rd) (= number :sing) are-type)
+        (and (= person :3rd) (= number :sing) ar-type)
         (str stem "ió")
 
 
@@ -680,7 +682,7 @@
         (and (= person :3rd) (= number :sing) (or ir-type er-type))
         (str stem "e")
 
-        (and (= person :3rd) (= number :sing) are-type)
+        (and (= person :3rd) (= number :sing) ar-type)
         (str stem "a")
 
 
@@ -854,7 +856,7 @@
    ;; in other words, if we've gotten this far, it's a bug.
    :else
    word)
-  )))
+  ))
 
 (defn get-string [a & [ b ]]
   (cond (and (nil? b)
