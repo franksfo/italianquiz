@@ -10,7 +10,7 @@
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache get-comp-phrases-of get-head-phrases-of get-lex
                                                    get-parent-phrases-for-spec
-                                                   overc overh overh-with-cache overc-with-cache)]
+                                                   overc overh)]
    [italianverbs.forest :refer :all]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo fo-ps)]

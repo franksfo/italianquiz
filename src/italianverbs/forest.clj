@@ -9,7 +9,7 @@
    [clojure.tools.logging :as log]
    [italianverbs.cache :refer (build-lex-sch-cache get-comp-phrases-of get-head-phrases-of get-lex
                                                    get-parent-phrases-for-spec
-                                                   overc overh overh-with-cache overc-with-cache)]
+                                                   overc overh)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :as over]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle ref? remove-top-values-log show-spec unifyc)]))

@@ -220,29 +220,7 @@
       :notfound
       (get ls-part (show-spec use-spec) :notfound))))
 
-(defn overc-with-cache [parents cache]
-  (if (not (empty? parents))
-    (let [parent (first parents)
-          use-spec {:synsem (get-in parent [:comp :synsem])}
-          lexicon (let [cached (get-subset-from-cache cache (show-spec use-spec))]
-                    (lazy-shuffle (if (= cached :notfound)
-                                    (get-lex parent :comp cache nil)
-                                    cached)))]
-      (lazy-cat (overc-with-cache-1 parent (filter (fn [lexeme]
-                                                     (not (fail? (unifyc lexeme
-                                                                         use-spec))))
-                                                   lexicon))
-                (overc-with-cache (rest parents) cache lexicon)))))
-
-(defn overh-with-cache [parent cache lexicon]
-  (let [lexicon (lazy-shuffle (get-lex parent :head cache lexicon))
-        use-spec {:synsem (get-in parent [:head :synsem])}]
-    (overh parent
-            (filter (fn [lexeme]
-                      (not (fail? (unifyc lexeme
-                                          use-spec))))
-                    lexicon))))
-
+;; TODO: document how this works and especially what 'phrase-constraint' means.
 (defn create-index [grammar lexicon phrase-constraint]
   (conj (build-lex-sch-cache grammar
                              (map (fn [lexeme]
