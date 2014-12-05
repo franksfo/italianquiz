@@ -542,11 +542,11 @@
      (and (= :past (get-in word '(:infl)))
           (string? (get-in word '(:espanol))))
      (let [infinitive (get-in word '(:espanol))
-           are-type (try (re-find #"are$" infinitive)
+           ar-type (try (re-find #"are$" infinitive)
                          (catch Exception e
                            (throw (Exception. (str "Can't regex-find on non-string: " infinitive)))))
-           ere-type (re-find #"ere$" infinitive)
-           ire-type (re-find #"ire$" infinitive)
+           er-type (re-find #"ere$" infinitive)
+           ir-type (re-find #"ire$" infinitive)
            stem (string/replace infinitive #"[iae]re$" "")
            last-stem-char-is-i (re-find #"i$" stem)
 
