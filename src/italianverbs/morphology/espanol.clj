@@ -667,8 +667,11 @@
            last-stem-char-is-i (re-find #"ir$" infinitive)
            last-stem-char-is-e (re-find #"er$" infinitive)
            is-care-or-gare? (re-find #"[cg]ar$" infinitive)
+           vosotros false ;; TODO: dialect dependent: make morphology dialect-aware.
+           ustedes false;; TODO: dialect dependent: same comment applies.
            person (get-in word '(:agr :person))
            number (get-in word '(:agr :number))]
+
        (cond
         (and (= person :1st) (= number :sing))
         (str stem "o")
@@ -676,7 +679,7 @@
         (and (= person :2nd) (= number :sing) ar-type)
         (str stem "as")
 
-        (and (= person :2nd) (= number :sing) (or ir-type er-type)
+        (and (= person :2nd) (= number :sing) (or ir-type er-type))
         (str stem "es")
        
         (and (= person :3rd) (= number :sing) (or ir-type er-type))
@@ -733,7 +736,8 @@
         ;; </third person plural present>
 
         :else
-        "non so cosa fare")))
+        "non so cosa fare"))
+
 
      (and
       (string? (get-in word '(:espanol)))
