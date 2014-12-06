@@ -728,16 +728,21 @@
      (include-css "/css/font-awesome.min.css"))
    (include-css "/css/game.css")
    (include-css "/css/lab.css")
+   (include-css "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css")
 
    [:style {:type "text/css"} "ul { padding-left: 2em }"]
+
+   ;; end of CSS includes
+   ;; begin Javascript includes
    
    [:script {:type "text/javascript" :src "/js/jquery-1.6.4.min.js"}]
    [:script {:type "text/javascript" :src "/webjars/js/foundation.min.js" }]
    [:script {:type "text/javascript" :src "/js/autogrow.js"}]
 
-   ;; TODO: move this [:script ] to quiz.clj somehow: should keep quiz.js stuff with quiz.clj, search.js stuff with search.clj,etc.
-   [:script {:type "text/javascript" :src "/js/quiz.js"}]
 
+   ;; TODO: move this [:script ] to quiz.clj somehow: should keep quiz.js stuff with quiz.clj, search.js stuff with search.clj,etc.
+   ;; TODO: use include-js for consistency for these rather than [:script ... ] for consistency.
+   [:script {:type "text/javascript" :src "/js/quiz.js"}]
    [:script {:type "text/javascript" :src "/js/workbook.js"}]
    [:script {:type "text/javascript" :src "/js/search.js"}]
    

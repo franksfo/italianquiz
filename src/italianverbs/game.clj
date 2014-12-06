@@ -266,6 +266,11 @@
      ]
 
      [:div {:style "z-index:2"}
+      
+
+      [:div#map {:style "height:180px;"}  ]
+
+
       [:iframe#mapframe {:height "500px" :width "100%"} ]
       ]
 
@@ -283,7 +288,7 @@
       ] ;; end of :div #correction_dialog
 
 
-     ] ;; end of :div#world
+     ] ;; end of :div#rainforest
 
     [:div#gameform
 
