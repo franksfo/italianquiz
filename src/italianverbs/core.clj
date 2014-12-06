@@ -250,7 +250,8 @@
 
   (GET "/map" request
        {:status 200
-        :body (html/page "Map Tour" (game/tour) request {:onload "start_tour();" :js "/js/game.js"})})
+        :body (html/page "Map Tour" (game/tour) request {:onload "start_tour();" 
+                                                         :js "/js/game.js"})})
 
   (GET "/map/" request
        {:status 302
