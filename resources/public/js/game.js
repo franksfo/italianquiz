@@ -122,14 +122,22 @@ function update_map(correct_answer) {
     var increment_x = direction_x * increment;
     var increment_y = direction_y * increment;
 
+    L.circle([maps_current_lat, 
+	      maps_current_long], 10, {
+	color: 'lightblue',
+	fillColor: 'green',
+	fillOpacity: 0.5
+    }).addTo(map).bindPopup(correct_answer)
+
+
     maps_current_lat = maps_current_lat + increment_x;
-    maps_current_lat = maps_current_lat + increment_y;
+    maps_current_long = maps_current_long + increment_y;
     
     map.panTo([maps_current_lat,maps_current_long]);
    
     // update the marker too:
     marker.setLatLng([maps_current_lat,maps_current_long]);
-    marker.setPopupContent("answer: "+correct_answer);
+    marker.setPopupContent("last answer: "+correct_answer);
 }
 
 function increment_map_score() {
@@ -161,8 +169,8 @@ function start_tour() {
 	.bindPopup("<b>Benvenuto a Napoli!</b>").openPopup();
 
     L.circle([googlemaps_lat_origin, googlemaps_long_origin], 10, {
-	color: 'red',
-	fillColor: '#f03',
+	color: 'lightblue',
+	fillColor: 'green',
 	fillOpacity: 0.5
     }).addTo(map).bindPopup("I am a circle.");
     
