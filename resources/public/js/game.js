@@ -103,6 +103,12 @@ var maps_current_lat = googlemaps_lat_origin;
 var maps_current_long = googlemaps_long_origin;
 var maps_current_zoom = googlemaps_zoom_origin;
 
+function update_map() {
+    $("#mapframe").attr('src', create_googlemaps_url(maps_current_lat+0.1,
+						      maps_current_long+0.1,
+						      maps_current_zoom));
+}
+
 function create_googlemaps_url(new_lat,new_long,new_zoom) {
     maps_current_lat = new_lat;
     maps_current_long = new_long;
@@ -124,7 +130,7 @@ function tour_loop() {
     $("#game_input").focus();
     $("#game_input").val("");
     
-    // TODO: when timeout expires, pop up correction dialog.
+    // TODO: when timeout expires, pop up correction dialog: currently we don't do anything here.
     setInterval(function() {
 	decrement_remaining_tour_question_time();
     },tour_question_decrement_interval);
@@ -133,6 +139,15 @@ function tour_loop() {
 var answer_info;
 
 function create_tour_question() {
+
+    // We use this function as the callback after we generate a question, so that
+    // the answer is a function of the question. that is, we generate a question,
+    // then generate the correct possible answers. The server will reply with all of 
+    // the correct answers, but for most games, the user needs only to respond with one of them.
+    // The server's set of correct answers are stored in the global answer_info variable.
+    //
+    // We evaluate the user's guess against this set in submit_tour_response().
+
     update_tour_answer_fn = function(content) {
 	var evaluated  = jQuery.parseJSON(content);
 	log(INFO,"map from the server's answer response: " + evaluated);
@@ -150,7 +165,6 @@ function create_tour_question() {
 	    url: "/cloud/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
 	    success: update_tour_answer_fn
 	});
-
     }
 
     $.ajax({
@@ -317,6 +331,8 @@ function submit_tour_response(form_input_id) {
 	    if (answer_text === guess) {
 		log(INFO,"You got one right!");
 		update_map();
+		increment_score(100); // here the 'score' is in kilometri.
+		// TODO: score should vary depending on the next 'leg' of the trip.
 		// go to next question.
 		return tour_loop();
 	    }
@@ -324,12 +340,6 @@ function submit_tour_response(form_input_id) {
 	log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
 	return false;
     }
-}
-
-function update_map() {
-    $("#mapframe").attr('src', create_googlemaps_url(maps_current_lat+0.1,
-						      maps_current_long+0.1,
-						      maps_current_zoom));
 }
 
 function grow_tree(question_id) {
