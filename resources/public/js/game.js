@@ -146,7 +146,7 @@ function start_tour() {
 
 
 
-    var map = L.map('map').setView([51.505, -0.09], 13);
+    var map = L.map('map').setView([googlemaps_lat_origin, googlemaps_long_origin], 17);
 
     L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
 	maxZoom: 18,
@@ -157,15 +157,16 @@ function start_tour() {
     }).addTo(map);
     
     
-    L.marker([51.5, -0.09]).addTo(map)
-	.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
+    L.marker([googlemaps_lat_origin, googlemaps_long_origin]).addTo(map)
+	.bindPopup("<b>Benvenuto a Napoli!</b>").openPopup();
 
-    L.circle([51.508, -0.11], 500, {
+    L.circle([googlemaps_lat_origin, googlemaps_long_origin], 10, {
 	color: 'red',
 	fillColor: '#f03',
 	fillOpacity: 0.5
     }).addTo(map).bindPopup("I am a circle.");
     
+    // TODO: fix to make this Napoli-centric.
     L.polygon([
 	[51.509, -0.08],
 	[51.503, -0.06],
