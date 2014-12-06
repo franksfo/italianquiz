@@ -93,9 +93,12 @@ function start_game() {
 // they use different coordinate systems, and so are not easily compared.
 var openstreetmaps_origin = "http://www.openstreetmap.org/export/embed.html?bbox=3%2C43.5%2C11.5%2C44&layer=mapnik";
 
-var googlemaps_lat_origin  = 41.0000;
-var googlemaps_long_origin = 14.0000;
-var googlemaps_zoom_origin = 11;
+// origin: Napoli centro: https://www.google.com/maps/@40.8526241,14.2671395,18z?hl=en-US
+// origin: Napoli centro: https://www.google.com/maps/@40.852624,14.267139,345m/data=!3m1!1e3?hl=en-US
+//https://www.google.com/maps?ll=40.852176,14.268379&z=18&t=m&hl=en-US&gl=US&mapclient=embed
+var googlemaps_lat_origin  = 40.852176;
+var googlemaps_long_origin = 14.268379;
+var googlemaps_zoom_origin = 18;
 
 var maps_origin = googlemaps_origin;
 
@@ -104,9 +107,26 @@ var maps_current_long = googlemaps_long_origin;
 var maps_current_zoom = googlemaps_zoom_origin;
 
 function update_map() {
-    $("#mapframe").attr('src', create_googlemaps_url(maps_current_lat+0.1,
-						      maps_current_long+0.1,
-						      maps_current_zoom));
+    // how far you can get in one direction in one turn.
+    var increment = 0.0005;
+
+    var direction_x = Math.floor(Math.random()*3) - 1; // possible values [-1 0 1]
+    var direction_y = Math.floor(Math.random()*3) - 1; // possible-values [-1 0 1]
+
+    var increment_x = direction_x * increment;
+    var increment_y = direction_y * increment;
+
+    maps_current_lat = maps_current_lat + increment_x;
+    maps_current_lat = maps_current_lat + increment_y;
+    
+    $("#mapframe").attr('src', create_googlemaps_url(maps_current_lat,
+						     maps_current_long,
+						     maps_current_zoom));
+}
+
+function increment_map_score() {
+    var distance = 0.5;
+    $("#scorevalue").html(parseInt($("#scorevalue").html()) + distance);
 }
 
 function create_googlemaps_url(new_lat,new_long,new_zoom) {
@@ -115,6 +135,10 @@ function create_googlemaps_url(new_lat,new_long,new_zoom) {
     maps_current_zoom = new_zoom;
     return "https://maps.google.com/maps?z="+new_zoom+
 	"&ll="+new_lat+","+new_long+"&output=embed";
+
+    // google maps forbids the fancy 3D stuff apparently..
+//    return "https://maps.google.com/maps/@" + new_lat + "," + new_long + ",345m/data=!3m1!1e3" + 
+//	"&output=embed";
 }
 
 function start_tour() {
@@ -331,7 +355,7 @@ function submit_tour_response(form_input_id) {
 	    if (answer_text === guess) {
 		log(INFO,"You got one right!");
 		update_map();
-		increment_score(100); // here the 'score' is in kilometri.
+		increment_map_score(); // here the 'score' is in kilometri (distance traveled)
 		// TODO: score should vary depending on the next 'leg' of the trip.
 		// go to next question.
 		return tour_loop();
