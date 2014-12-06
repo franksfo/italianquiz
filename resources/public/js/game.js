@@ -93,24 +93,9 @@ var map;
 
 var marker;
 
-// TODO: openstreetmaps and googlemaps origins are not equivalent geographically:
-// they use different coordinate systems, and so are not easily compared.
-var openstreetmaps_origin = "http://www.openstreetmap.org/export/embed.html?bbox=3%2C43.5%2C11.5%2C44&layer=mapnik";
-
-// origin: Napoli centro: https://www.google.com/maps/@40.8526241,14.2671395,18z?hl=en-US
-// origin: Napoli centro: https://www.google.com/maps/@40.852624,14.267139,345m/data=!3m1!1e3?hl=en-US
-//https://www.google.com/maps?ll=40.852176,14.268379&z=18&t=m&hl=en-US&gl=US&mapclient=embed
-var googlemaps_origin = "https://www.google.com/maps?ll=40.851114,14.268615&z=18&t=h&hl=en-US&gl=US&deg=0&mapclient=embed";
-
-var googlemaps_lat_origin  = 40.852176;
-var googlemaps_long_origin = 14.268379;
-var googlemaps_zoom_origin = 17;
-
-var maps_origin = googlemaps_origin;
-
-var maps_current_lat = googlemaps_lat_origin;
-var maps_current_long = googlemaps_long_origin;
-var maps_current_zoom = googlemaps_zoom_origin;
+var current_lat = 40.852176;
+var current_long = 14.268379;
+var current_zoom = 17;
 
 function update_map(correct_answer) {
     // how far you can get in one direction in one turn.
@@ -122,21 +107,21 @@ function update_map(correct_answer) {
     var increment_x = direction_x * increment;
     var increment_y = direction_y * increment;
 
-    L.circle([maps_current_lat, 
-	      maps_current_long], 10, {
+    L.circle([current_lat, 
+	      current_long], 10, {
 	color: 'lightblue',
 	fillColor: 'green',
 	fillOpacity: 0.5
     }).addTo(map).bindPopup(correct_answer)
 
 
-    maps_current_lat = maps_current_lat + increment_x;
-    maps_current_long = maps_current_long + increment_y;
+    current_lat = current_lat + increment_x;
+    current_long = current_long + increment_y;
     
-    map.panTo([maps_current_lat,maps_current_long]);
+    map.panTo([current_lat,current_long]);
    
     // update the marker too:
-    marker.setLatLng([maps_current_lat,maps_current_long]);
+    marker.setLatLng([current_lat,current_long]);
     marker.setPopupContent("last answer: "+correct_answer);
 }
 
@@ -145,16 +130,8 @@ function increment_map_score() {
     $("#scorevalue").html(parseInt($("#scorevalue").html()) + distance);
 }
 
-function create_googlemaps_url(new_lat,new_long,new_zoom) {
-    maps_current_lat = new_lat;
-    maps_current_long = new_long;
-    maps_current_zoom = new_zoom;
-    return "https://maps.google.com/maps?z="+new_zoom+
-	"&ll="+new_lat+","+new_long+"&output=embed";
-}
-
 function start_tour() {
-    map = L.map('map').setView([googlemaps_lat_origin, googlemaps_long_origin], 17);
+    map = L.map('map').setView([current_lat, current_long], current_zoom);
 
     L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
 	maxZoom: 18,
@@ -165,14 +142,8 @@ function start_tour() {
     }).addTo(map);
     
     
-    marker = L.marker([googlemaps_lat_origin, googlemaps_long_origin]).addTo(map)
+    marker = L.marker([current_lat, current_long]).addTo(map)
 	.bindPopup("<b>Benvenuto a Napoli!</b>").openPopup();
-
-    L.circle([googlemaps_lat_origin, googlemaps_long_origin], 10, {
-	color: 'lightblue',
-	fillColor: 'green',
-	fillOpacity: 0.5
-    }).addTo(map).bindPopup("I am a circle.");
     
     // TODO: fix to make this Napoli-centric: right now it is
     // centered over London, England.
