@@ -259,7 +259,7 @@
      (direction-chooser)
      
      [:div#kilos
-      "Kilometri:"
+      "Score:"
       [:span#scorevalue
        "0"
        ]
