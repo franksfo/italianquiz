@@ -93,20 +93,28 @@ var map;
 
 var marker;
 
-var current_lat = 40.852176;
-var current_long = 14.268379;
+var step = 0;
+var direction = 1;
+
+var path = [
+    [40.8517192,14.2689937],
+    [40.8517192,14.2680000],
+    [40.8517192,14.2670000],
+    [40.8517679,14.2660738],
+    [40.8525226,14.2644661],
+    [40.8524009,14.2628032],
+    [40.8519144,14.260546],
+    [40.8517419,14.2584131],
+    [40.8516526,14.2561815],
+    [40.8515796,14.2541537],
+    [40.8522775,14.2523513],
+    [40.8531296,14.2506669]];
+
+var current_lat = path[0][0];
+var current_long = path[0][1];
 var current_zoom = 17;
 
-function update_map(correct_answer) {
-    // how far you can get in one direction in one turn.
-    var increment = 0.0005;
-
-    var direction_x = Math.floor(Math.random()*3) - 1; // possible values [-1 0 1]
-    var direction_y = Math.floor(Math.random()*3) - 1; // possible-values [-1 0 1]
-
-    var increment_x = direction_x * increment;
-    var increment_y = direction_y * increment;
-
+function update_map(correct_answer) {    
     L.circle([current_lat, 
 	      current_long], 10, {
 	color: 'lightblue',
@@ -115,19 +123,30 @@ function update_map(correct_answer) {
     }).addTo(map).bindPopup(correct_answer)
 
 
-    current_lat = current_lat + increment_x;
-    current_long = current_long + increment_y;
-    
-    map.panTo([current_lat,current_long]);
+    if (step >= (path.length - 1)) {
+	step = path.length - 1;
+	direction = -1;
+    } else {
+	if (step <= 0) {
+	    step = 0;
+	    direction = 1;
+	}
+    }
+
+    step = step + direction;
+    current_lat = path[step][0];
+    current_long = path[step][1];
+
+    map.panTo(path[step]);
    
     // update the marker too:
-    marker.setLatLng([current_lat,current_long]);
-    marker.setPopupContent("last answer: "+correct_answer);
+    marker.setLatLng(path[step]);
+    marker.setPopupContent(correct_answer + ";" + step + "/" + path.length);
 }
 
 function increment_map_score() {
-    var distance = 0.5;
-    $("#scorevalue").html(parseInt($("#scorevalue").html()) + distance);
+    var score = 100;
+    $("#scorevalue").html(parseInt($("#scorevalue").html()) + score);
 }
 
 function start_tour() {
@@ -144,6 +163,14 @@ function start_tour() {
     
     marker = L.marker([current_lat, current_long]).addTo(map)
 	.bindPopup("<b>Benvenuto a Napoli!</b>").openPopup();
+    
+    L.circle([current_lat, 
+	      current_long], 10, {
+	color: 'lightblue',
+	fillColor: 'green',
+	fillOpacity: 0.5
+    }).addTo(map).bindPopup("start")
+
     
     // TODO: fix to make this Napoli-centric: right now it is
     // centered over London, England.
