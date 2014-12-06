@@ -89,6 +89,8 @@ function start_game() {
     },blow_time);
 }
 
+var map;
+
 // TODO: openstreetmaps and googlemaps origins are not equivalent geographically:
 // they use different coordinate systems, and so are not easily compared.
 var openstreetmaps_origin = "http://www.openstreetmap.org/export/embed.html?bbox=3%2C43.5%2C11.5%2C44&layer=mapnik";
@@ -124,6 +126,9 @@ function update_map() {
     $("#mapframe").attr('src', create_googlemaps_url(maps_current_lat,
 						     maps_current_long,
 						     maps_current_zoom));
+
+    log(INFO,"THE MAP IS: " + map);
+    map.panTo([maps_current_lat,maps_current_long]);
 }
 
 function increment_map_score() {
@@ -146,7 +151,7 @@ function start_tour() {
 
 
 
-    var map = L.map('map').setView([googlemaps_lat_origin, googlemaps_long_origin], 17);
+    map = L.map('map').setView([googlemaps_lat_origin, googlemaps_long_origin], 17);
 
     L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
 	maxZoom: 18,
@@ -166,7 +171,8 @@ function start_tour() {
 	fillOpacity: 0.5
     }).addTo(map).bindPopup("I am a circle.");
     
-    // TODO: fix to make this Napoli-centric.
+    // TODO: fix to make this Napoli-centric: right now it is
+    // centered over London, England.
     L.polygon([
 	[51.509, -0.08],
 	[51.503, -0.06],
