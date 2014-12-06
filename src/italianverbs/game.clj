@@ -27,7 +27,7 @@
 (defn direction-chooser []
   (html5
    [:dev#chooser
-    [:select
+    [:select {:style "display:none" :disabled "true" };; TODO: not working yet, so disabled.
      [:option {:onclick "location='/cloud?src=en&dest=it';"}
       "en -> it"
       ]
