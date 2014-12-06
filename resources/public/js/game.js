@@ -91,6 +91,8 @@ function start_game() {
 
 var map;
 
+var marker;
+
 // TODO: openstreetmaps and googlemaps origins are not equivalent geographically:
 // they use different coordinate systems, and so are not easily compared.
 var openstreetmaps_origin = "http://www.openstreetmap.org/export/embed.html?bbox=3%2C43.5%2C11.5%2C44&layer=mapnik";
@@ -110,7 +112,7 @@ var maps_current_lat = googlemaps_lat_origin;
 var maps_current_long = googlemaps_long_origin;
 var maps_current_zoom = googlemaps_zoom_origin;
 
-function update_map() {
+function update_map(correct_answer) {
     // how far you can get in one direction in one turn.
     var increment = 0.0005;
 
@@ -123,8 +125,11 @@ function update_map() {
     maps_current_lat = maps_current_lat + increment_x;
     maps_current_lat = maps_current_lat + increment_y;
     
-    log(INFO,"THE MAP IS: " + map);
     map.panTo([maps_current_lat,maps_current_long]);
+   
+    // update the marker too:
+    marker.setLatLng([maps_current_lat,maps_current_long]);
+    marker.setPopupContent("answer: "+correct_answer);
 }
 
 function increment_map_score() {
@@ -141,8 +146,6 @@ function create_googlemaps_url(new_lat,new_long,new_zoom) {
 }
 
 function start_tour() {
-
-
     map = L.map('map').setView([googlemaps_lat_origin, googlemaps_long_origin], 17);
 
     L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
@@ -154,7 +157,7 @@ function start_tour() {
     }).addTo(map);
     
     
-    L.marker([googlemaps_lat_origin, googlemaps_long_origin]).addTo(map)
+    marker = L.marker([googlemaps_lat_origin, googlemaps_long_origin]).addTo(map)
 	.bindPopup("<b>Benvenuto a Napoli!</b>").openPopup();
 
     L.circle([googlemaps_lat_origin, googlemaps_long_origin], 10, {
@@ -392,7 +395,7 @@ function submit_tour_response(form_input_id) {
 	    var answer_text = answers[i];
 	    if (answer_text === guess) {
 		log(INFO,"You got one right!");
-		update_map();
+		update_map(guess);
 		increment_map_score(); // here the 'score' is in kilometri (distance traveled)
 		// TODO: score should vary depending on the next 'leg' of the trip.
 		// go to next question.
