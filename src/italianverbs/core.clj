@@ -251,7 +251,8 @@
   (GET "/map" request
        {:status 200
         :body (html/page "Map Tour" (game/tour) request {:onload "start_tour();" 
-                                                         :js "/js/game.js"})})
+                                                         :jss ["/js/game.js"
+                                                               "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"]})})
 
   (GET "/map/" request
        {:status 302

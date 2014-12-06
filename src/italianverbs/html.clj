@@ -699,9 +699,15 @@
       ]]
     ])
 
+(defn includes-js [includes]
+  (if (not (empty? includes))
+    (do
+      (include-js (first includes))
+      (includes-js (rest includes)))))
 
-(defn pretty-head [title & [js]]
-  (log/debug (str "pretty-head js: " js))
+(defn pretty-head [title & [js jss]]
+  (log/info (str "pretty-head js: " js))
+  (log/info (str "pretty-head jss: " jss))
   [:head 
    [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
@@ -740,7 +746,16 @@
    (include-js "/js/d3.v2.min.js")
    (include-js "/js/log4.js")
 
-   (if js (include-js js))
+   (if js
+     (include-js js))
+   
+   ;; calling a function (like includes-js) doesn't seem to work here, so doing
+   ;; include-js for the first two elements of jss.
+   ;; I guess I need a macro here to expand this to include a vector of javascript.
+   (if (nth jss 0)
+     (include-js (nth jss 0)))
+   (if (nth jss 1)
+     (include-js (nth jss 1)))
 
     ; enable this 'reset.css' at some point.
     ;  (include-css "/italian/css/reset.css")
@@ -796,7 +811,7 @@
   (let [title (if title title "default page title")]
     (log/info (str "page-body with options: " options))
     (h/html5
-     (pretty-head title (:js options))
+     (pretty-head title (:js options) (:jss options))
      (pretty-body
       options
       (if-let [identity (friend/identity req)]
