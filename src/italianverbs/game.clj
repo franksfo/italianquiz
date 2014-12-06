@@ -268,10 +268,9 @@
      [:div {:style "z-index:2"}
       
 
-      [:div#map {:style "height:180px;"}  ]
+      [:div#map {:style "height:400px;"}  ]
 
 
-      [:iframe#mapframe {:height "500px" :width "100%"} ]
       ]
 
      [:div#correction_dialog {:style "display:none"}

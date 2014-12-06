@@ -123,10 +123,6 @@ function update_map() {
     maps_current_lat = maps_current_lat + increment_x;
     maps_current_lat = maps_current_lat + increment_y;
     
-    $("#mapframe").attr('src', create_googlemaps_url(maps_current_lat,
-						     maps_current_long,
-						     maps_current_zoom));
-
     log(INFO,"THE MAP IS: " + map);
     map.panTo([maps_current_lat,maps_current_long]);
 }
@@ -145,10 +141,6 @@ function create_googlemaps_url(new_lat,new_long,new_zoom) {
 }
 
 function start_tour() {
-    $("#mapframe").attr('src',create_googlemaps_url(googlemaps_lat_origin,
-						    googlemaps_long_origin,
-						    googlemaps_zoom_origin));
-
 
 
     map = L.map('map').setView([googlemaps_lat_origin, googlemaps_long_origin], 17);
