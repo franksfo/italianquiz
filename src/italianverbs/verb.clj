@@ -138,7 +138,8 @@
                [:tr 
                 [:th [:input {:type "checkbox"}]]
                 [:td infl]])
-             ["Presente"
+             ["Imperfetto"
+              "Presente"
               "Futuro"
               "Passato Prossimo"])]
         ]
