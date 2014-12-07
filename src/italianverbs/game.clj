@@ -267,11 +267,12 @@
 
      [:div {:style "z-index:2"}
       
-      [:div#map {:style "height:400px;width:75%;z-index:3;float:left"}  ]
+      ;; map and streetview should be side by side
+      [:div#map {:style "width:75%;z-index:3;float:left"}  ]
 
       [:div#streetview {:style "width:25%;float:right"}
        [:img#streetviewimage
-        {:src ""}]]
+        {:src ""}]] ;; src value is filled in with Javascript.
 
       ]
 
