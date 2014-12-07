@@ -17,6 +17,9 @@
 
    ))
 
+
+(def generate-this-many-at-once 25)
+
 (declare delete-form)
 (declare new-verb-form)
 (declare select)
@@ -24,7 +27,7 @@
 (declare validate-new-verb)
 
 (defn onload []
-  (str "gen('examples',1,10);")) ;; javascript to be executed at page load.
+  (str "gen('examples',1," generate-this-many-at-once ");")) ;; javascript to be executed at page load.
 
 (defn delete [verb]
   (db/fetch-and-modify :verb (db/object-id verb) {} true))
@@ -149,7 +152,7 @@
            [:th "English"]
            [:th "Italiano"]
            ]
-          (table-of-examples 1 10)
+          (table-of-examples 1 generate-this-many-at-once)
           ]
        ]
 
@@ -167,14 +170,14 @@
     ))) 
 
 (defn table-of-examples [index upto]
-  (if (< index upto)
+  (if (<= index upto)
     (html
      [:tr
       [:th (str index)]
       [:td {:id (str "example_q_" index)}]
       [:td {:id (str "example_a_" index)}]]
      
-     (table-of-examples (+ 1 index) 10))))
+     (table-of-examples (+ 1 index) generate-this-many-at-once))))
 
 (defn select [request haz-admin]
   (let [script "/* js goes here.. */"]
