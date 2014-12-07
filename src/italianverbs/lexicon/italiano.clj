@@ -298,7 +298,7 @@
                                :3sing "beve"
                                :1plur "beviamo"
                                :2plur "bevete"
-                               :3plur "bevano"}}
+                               :3plur "bevono"}}
           :synsem {:essere false
                    :sem {:pred :bere
                          :subj {:animate true}}}}]
