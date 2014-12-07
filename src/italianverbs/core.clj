@@ -731,17 +731,22 @@
                                         "?result=" (:message result))}}))))
    
    (GET "/gen" request
-        {:body (html/page 
-                "Generation" 
-                (verb/control-panel request
-                                    (haz-admin))
-                request
-                {:css "/css/settings.css"
-                 :js "/js/gen.js"
-                 :onload (verb/onload)})
-
-         :status 200
-         :headers {"Content-Type" "text/html;charset=utf-8"}})
+        (let [do-generation (fn []
+                              {:body (html/page 
+                                      "Generation" 
+                                      (verb/control-panel request
+                                                          (haz-admin))
+                                      request
+                                      {:css "/css/settings.css"
+                                       :js "/js/gen.js"
+                                       :onload (verb/onload)})
+                               :status 200
+                               :headers {"Content-Type" "text/html;charset=utf-8"}})]
+                              
+        (if false ;; TODO: define config variable workstation-mode.
+          (friend/authorize #{::admin} do-generation)
+          ;; turn off security for workstation dev
+          (do-generation))))
 
    (GET "/gen/" request
         {:status 302

@@ -24,7 +24,7 @@
 (declare validate-new-verb)
 
 (defn onload []
-  (str "gen('examples');")) ;; javascript to be executed at page load.
+  (str "gen('examples',1,10);")) ;; javascript to be executed at page load.
 
 (defn delete [verb]
   (db/fetch-and-modify :verb (db/object-id verb) {} true))
@@ -45,6 +45,8 @@
       (insert-new-verb new-verb)))
   ;; TODO: ..append result code to request.
   (select session request))
+
+(declare table-of-examples)
 
 (defn control-panel [request haz-admin]
   (let [current-size "5,436"
@@ -140,6 +142,15 @@
 
       [:div#examples
        [:h3 "Examples"] ;; see (defn onload)
+                                 
+         [:table
+          [:tr
+           [:th]
+           [:th "English"]
+           [:th "Italiano"]
+           ]
+          (table-of-examples 1 10)
+          ]
        ]
 
       [:div#currentsize
@@ -154,6 +165,15 @@
 
       ]
     ))) 
+
+(defn table-of-examples [index upto]
+  (if (< index upto)
+    (html
+     [:tr
+      [:th (str index)]
+      [:td {:id (str "example_q_" index)}]]
+     
+     (table-of-examples (+ 1 index) 10))))
 
 (defn select [request haz-admin]
   (let [script "/* js goes here.. */"]
