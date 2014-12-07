@@ -171,7 +171,8 @@
     (html
      [:tr
       [:th (str index)]
-      [:td {:id (str "example_q_" index)}]]
+      [:td {:id (str "example_q_" index)}]
+      [:td {:id (str "example_a_" index)}]]
      
      (table-of-examples (+ 1 index) 10))))
 
