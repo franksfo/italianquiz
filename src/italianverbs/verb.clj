@@ -7,11 +7,11 @@
    [clj-time.local :as l]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [italianverbs.english :as en]
    [italianverbs.html :as html]
+   [italianverbs.italiano :as it]
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
-   [italianverbs.morphology.english :as en-m]
-   [italianverbs.morphology.italiano :as it-m]
    [italianverbs.morphology :refer (normalize-whitespace)]
    [italianverbs.unify :refer :all]
 
@@ -44,31 +44,89 @@
   (select session request))
 
 (defn control-panel [request haz-admin]
-  (let [current-size "5,436"]
+  (let [current-size "5,436"
+        desired-size "10,000"]
     (html
      [:div#generation {:class "major"}
       [:h2 "Generation"]
+
+      [:div
+       [:button "Update"]]
       
       [:div#currentsize
-       "Current Corpus Size:" current-size
-       ]
-
-      [:button "Save and Update"]
+       [:h3 "Corpus Size" ]
+       [:table
+        [:tr
+         [:th "Current"]
+         [:td current-size]]
+        [:tr
+         [:th "Desired"]
+         [:td [:input {:value desired-size}]]]]]
 
       [:div#vocabulary
-       [:h3 "Vocabulary"]
+       [:h3 "Lexicon"]
 
        [:div#verbs 
         [:h4 "Verbs"]
+        [:table
+        (map (fn [lexeme]
+               [:tr 
+                [:th [:input {:type "checkbox"}]]
+                [:td lexeme]])
+             (filter (fn [lexeme]
+                       (not (empty?
+                             (filter (fn [lex]
+                                       (and
+                                        (= :top (get-in lex [:synsem :infl]))
+                                        (= :verb
+                                           (get-in lex [:synsem :cat]))))
+                                     (get it/lexicon lexeme)))))
+                     (sort (keys it/lexicon))))
+         ]
+         
         ]
 
        [:div#noun
         [:h4 "Nouns and Pronouns"]
+        [:table
+
+         (map (fn [lexeme]
+                [:tr 
+                 [:th [:input {:type "checkbox"}]]
+                 [:td lexeme]])
+              (filter (fn [lexeme]
+                        (not (empty?
+                              (filter (fn [lex]
+                                        (= :noun
+                                           (get-in lex [:synsem :cat])))
+                                      (get it/lexicon lexeme)))))
+                      (sort (keys it/lexicon))))
+
+
+         ]
+
         ]
 
        [:div#dets
         [:h4 "Determiners"]
-        ]
+        [:table
+
+         (map (fn [lexeme]
+                [:tr 
+                 [:th [:input {:type "checkbox"}]]
+                 [:td lexeme]])
+              (filter (fn [lexeme]
+                        (not (empty?
+                              (filter (fn [lex]
+                                        (= :det
+                                           (get-in lex [:synsem :cat])))
+                                      (get it/lexicon lexeme)))))
+                      (sort (keys it/lexicon))))
+
+
+         ]
+
+       ]
 
        ]
 
@@ -117,9 +175,9 @@
       (str (html [:tr
                   [:th.num i]
                   [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
-                        (it-m/get-string (first results))]]
+                        (it/get-string (first results))]]
                   [:td [:a {:href (str "/verb/" (:_id (first results))"/") } 
-                        (en-m/get-string (:english (first results)))]]
+                        (en/get-string (:english (first results)))]]
                   [:td [:span {:class "date"}
                         (f/unparse html/short-format (:created (first results)))]]
 
