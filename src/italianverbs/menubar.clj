@@ -69,21 +69,6 @@
                  :requires-admin false
                  :requires-authentication false})
 
-      (do
-        (log/info (str "got here - current-url is: " current-url))
-        (menuitem {:selected?
-                   (or (and (not (nil? current-url))
-                            (re-find #"/lab" current-url))
-                     (= current-url "/lab")
-                     (and (not (nil? current-url))
-                          (re-find #"/lab" current-url)))
-                   :show? true
-                   :current-url current-url 
-                   :text "Lab" 
-                   :url-for-this-item "/lab"
-                   :requires-admin false
-                   :requires-authentication false}))
-
       (menuitem {:selected?
                  (and (not (nil? current-url))
                       (re-find #"/class" current-url))
@@ -109,11 +94,11 @@
                  :url-for-this-item (str "/student" (if (get suffixes :student)
                                                       (get suffixes :student)))})
 
-      (menuitem {:show? true
+      (menuitem {:show? haz-admin?
                  :selected? (and (not (nil? current-url))
-                                 (re-find #"/verb" current-url))
+                                 (re-find #"/gen" current-url))
                  :current-url current-url
-                 :text "Verbs" :url-for-this-item "/verb/"})
+                 :text "Generation" :url-for-this-item "/gen/"})
 
       (menuitem {:show? haz-authentication
                  :selected? (and (not (nil? current-url))

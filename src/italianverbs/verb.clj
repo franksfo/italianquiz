@@ -43,6 +43,50 @@
   ;; TODO: ..append result code to request.
   (select session request))
 
+(defn control-panel [request haz-admin]
+  (let [current-size "5,436"]
+    (html
+     [:div#generation {:class "major"}
+      [:h2 "Generation"]
+      
+      [:div#currentsize
+       "Current Corpus Size:" current-size
+       ]
+
+      [:button "Save and Update"]
+
+      [:div#vocabulary
+       [:h3 "Vocabulary"]
+
+       [:div#verbs 
+        [:h4 "Verbs"]
+        ]
+
+       [:div#noun
+        [:h4 "Nouns and Pronouns"]
+        ]
+
+       [:div#dets
+        [:h4 "Determiners"]
+        ]
+
+       ]
+
+      [:div#inflections
+       [:h3 "Inflections"]
+       [:table
+
+        (map (fn [infl]
+               [:tr 
+                [:th [:input {:type "checkbox"}]]
+                [:td infl]])
+             ["Presente"
+              "Futuro"
+              "Passato Prossimo"])]
+        ]
+      ]
+    ))) 
+
 (defn select [request haz-admin]
   (let [script "/* js goes here.. */"]
     (html

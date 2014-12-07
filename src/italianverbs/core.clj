@@ -730,17 +730,18 @@
               :headers {"Location" (str "/test/" (:testid result) "/submittals/" (:submittalid result) 
                                         "?result=" (:message result))}}))))
    
-   (GET "/verb" request
+   (GET "/gen" request
         {:body (html/page 
-                "Verbs" 
-                (verb/select request
-                             (haz-admin))
+                "Generation" 
+                (verb/control-panel request
+                                    (haz-admin))
                 request)
          :status 200
          :headers {"Content-Type" "text/html;charset=utf-8"}})
-   (GET "/verb/" request
+
+   (GET "/gen/" request
         {:status 302
-         :headers {"Location" "/verb"}})
+         :headers {"Location" "/gen"}})
    
    ;; TODO: figure out how to combine destructuring with sending request (which we need for the
    ;; menubar and maybe other things like authorization.
