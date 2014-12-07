@@ -238,7 +238,7 @@
 
 (defn tour []
   (html5
-   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a l'Italia!"]
+   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
 
    [:div#game
 
@@ -258,7 +258,7 @@
      
      (direction-chooser)
      
-     [:div#kilos
+     [:div#kilos {:style "z-index:4"}
       "Score:"
       [:span#scorevalue
        "0"
@@ -267,9 +267,11 @@
 
      [:div {:style "z-index:2"}
       
+      [:div#map {:style "height:400px;width:75%;z-index:3;float:left"}  ]
 
-      [:div#map {:style "height:400px;"}  ]
-
+      [:div#streetview {:style "width:25%;float:right"}
+       [:img#streetviewimage
+        {:src ""}]]
 
       ]
 

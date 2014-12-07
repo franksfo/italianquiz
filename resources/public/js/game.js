@@ -1,5 +1,52 @@
 // Begin configurable section.
 
+// latitude and longitude paths of tour through Napoli
+var tour_path = [
+    [40.8526231,14.2722163],  // Napoli Centrali train station
+    [40.85318758861975,14.271989576518536],
+    [40.853398582562534,14.27162479609251],
+    [40.854177631299656,14.271528236567972],
+    [40.854128941021976,14.270348064601421],
+    [40.85401533023488,14.269661419093609],
+    [40.85345538850926,14.269779436290264],
+    [40.85266010082301,14.269639961421488],
+    [40.85255460275972,14.268921129405499],
+    [40.85258706372015,14.268234483897686],
+    [40.85262763989835,14.267622940242289],
+    [40.85294413323541,14.266914837062359],
+    [40.85305774585944,14.266678802669047],
+    [40.85330120082628,14.266238920390606],
+    [40.85278182914886,14.266238920390606],
+    [40.8527737139341,14.265681020915508],
+    [40.85270879218017,14.264747612178324],
+    [40.85243287401638,14.263782016932964],
+    [40.85296036362221,14.26338504999876],
+    [40.852676331279376,14.262430183589458],
+    [40.85244098927289,14.261732809245586],
+    [40.852205646430455,14.260971061885357],
+    [40.85191349553206,14.260091297328472],
+    [40.851694381512836,14.259351007640362],
+    [40.851377882205846,14.258503429591656],
+    [40.851012688819125,14.257452003657818],
+    [40.85086661090081,14.256958477199078],
+    [40.85066372436894,14.256336204707623],
+    [40.850412144206636,14.255660288035868],
+    [40.850266064964366,14.255231134593487],
+    [40.850144332016434,14.254834167659283],
+    [40.85001448329216,14.2544050142169],
+    [40.85066372436894,14.254018776118754], // TODO bear north
+    [40.85128861289717,14.253675453364849], // TODO bear north
+    [40.851596997271706,14.253439418971539],
+    [40.85132107447789,14.252570383250713],
+    [40.851183112650055,14.251754991710184],
+    [40.852027109923384,14.251636974513529],
+    [40.8527980595754,14.251583330333233],
+    [40.85322816443017,14.251540414988995] // Museo Archeologico Nazionale
+
+];
+
+var heading = 270; // headed west.
+
 var logging_level = INFO;
 
 var fa_cloud = "fa-cloud";
@@ -96,22 +143,8 @@ var marker;
 var step = 0;
 var direction = 1;
 
-var path = [
-    [40.85426, 14.27141],
-    [40.85158, 14.269],
-    [40.85201, 14.26687],
-    [40.8517679,14.2660738],
-    [40.8525226,14.2644661],
-    [40.8524009,14.2628032],
-    [40.8519144,14.260546],
-    [40.8517419,14.2584131],
-    [40.8516526,14.2561815],
-    [40.8515796,14.2541537],
-    [40.8522775,14.2523513],
-    [40.8531296,14.2506669]];
-
-var current_lat = path[0][0];
-var current_long = path[0][1];
+var current_lat = tour_path[0][0];
+var current_long = tour_path[0][1];
 var current_zoom = 17;
 
 function update_map(correct_answer) {    
@@ -120,28 +153,34 @@ function update_map(correct_answer) {
 	color: 'lightblue',
 	fillColor: 'green',
 	fillOpacity: 0.5
-    }).addTo(map).bindPopup(correct_answer)
+    }).addTo(map).bindPopup(correct_answer + ":" + "["+current_lat+","+current_long+"]")
 
 
-    if (step >= (path.length - 1)) {
-	step = path.length - 1;
+    if (step >= (tour_path.length - 1)) {
+	step = tour_path.length - 1;
 	direction = -1;
+	heading = 90; // headed east.
     } else {
 	if (step <= 0) {
 	    step = 0;
 	    direction = 1;
+	    heading = 270; // headed west.
 	}
     }
 
     step = step + direction;
-    current_lat = path[step][0];
-    current_long = path[step][1];
+    current_lat = tour_path[step][0];
+    current_long = tour_path[step][1];
 
-    map.panTo(path[step]);
+    map.panTo(tour_path[step]);
    
     // update the marker too:
-    marker.setLatLng(path[step]);
-    marker.setPopupContent(correct_answer + ";" + step + "/" + path.length);
+    marker.setLatLng(tour_path[step]);
+    marker.setPopupContent(correct_answer + ";" + step + "/" + tour_path.length);
+
+    // update streetview:
+    $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
+
 }
 
 function increment_map_score() {
@@ -186,11 +225,17 @@ function start_tour() {
     function onMapClick(e) {
 	popup
 	    .setLatLng(e.latlng)
-	    .setContent("You clicked the map at " + e.latlng.toString())
+	    .setContent("[" + e.latlng.lat + "," + e.latlng.lng + "]")
 	    .openOn(map);
+	$("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+e.latlng.lat+","+e.latlng.lng+"&fov=90&heading="+heading+"&pitch=10");
+
     }
     
     map.on('click', onMapClick);
+
+    // update streetview:
+    $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
+
     
     normal_returnkey_mode();
     tour_loop();
