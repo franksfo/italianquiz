@@ -4,11 +4,11 @@
 var tour_path = [
     [40.8526231,14.2722163],  // Napoli Centrali train station
     [40.85318758861975,14.271989576518536],
-    [40.853398582562534,14.27162479609251],
+    [40.853398582562534,14.27162479609251], // TODO bear north
     [40.854177631299656,14.271528236567972],
     [40.854128941021976,14.270348064601421],
-    [40.85401533023488,14.269661419093609],
-    [40.85345538850926,14.269779436290264],
+    [40.85401533023488,14.269661419093609], // TODO bear south
+    [40.85345538850926,14.269779436290264], // TODO bear south
     [40.85266010082301,14.269639961421488],
     [40.85255460275972,14.268921129405499],
     [40.85258706372015,14.268234483897686],
@@ -44,6 +44,12 @@ var tour_path = [
     [40.85322816443017,14.251540414988995] // Museo Archeologico Nazionale
 
 ];
+
+var encouragements = [
+    "Buono!",
+    "Certo!",
+    "Fantastico.."
+    ]
 
 var heading = 270; // headed west.
 
@@ -147,13 +153,13 @@ var current_lat = tour_path[0][0];
 var current_long = tour_path[0][1];
 var current_zoom = 17;
 
-function update_map(correct_answer) {    
+function update_map(question,correct_answer) {    
     L.circle([current_lat, 
 	      current_long], 10, {
 	color: 'lightblue',
 	fillColor: 'green',
 	fillOpacity: 0.5
-    }).addTo(map).bindPopup(correct_answer + ":" + "["+current_lat+","+current_long+"]")
+    }).addTo(map).bindPopup(question + " &rarr; <i>" + correct_answer + "</i><br/>" + "<tt>["+current_lat+","+current_long+"]</tt>")
 
 
     if (step >= (tour_path.length - 1)) {
@@ -176,7 +182,9 @@ function update_map(correct_answer) {
    
     // update the marker too:
     marker.setLatLng(tour_path[step]);
-    marker.setPopupContent(correct_answer + ";" + step + "/" + tour_path.length);
+    var encouragement = Math.floor(Math.random()*encouragements.length);
+    marker.setPopupContent("<b>" + encouragements[encouragement] + 
+			   "</b> " + step + "/" + tour_path.length);
 
     // update streetview:
     $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
@@ -213,12 +221,13 @@ function start_tour() {
     
     // TODO: fix to make this Napoli-centric: right now it is
     // centered over London, England.
-    L.polygon([
-	[51.509, -0.08],
-	[51.503, -0.06],
-	[51.51, -0.047]
-    ]).addTo(map).bindPopup("I am a polygon.");
-    
+    if (false) {
+	L.polygon([
+	    [51.509, -0.08],
+	    [51.503, -0.06],
+	    [51.51, -0.047]
+	]).addTo(map).bindPopup("I am a polygon.");
+    }
     
     var popup = L.popup();
     
@@ -227,7 +236,7 @@ function start_tour() {
 	    .setLatLng(e.latlng)
 	    .setContent("[" + e.latlng.lat + "," + e.latlng.lng + "]")
 	    .openOn(map);
-	$("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+e.latlng.lat+","+e.latlng.lng+"&fov=90&heading="+heading+"&pitch=10");
+	$("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=500x500&location="+e.latlng.lat+","+e.latlng.lng+"&fov=90&heading="+heading+"&pitch=10");
 
     }
     
@@ -235,7 +244,6 @@ function start_tour() {
 
     // update streetview:
     $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
-
     
     normal_returnkey_mode();
     tour_loop();
@@ -272,8 +280,9 @@ function create_tour_question() {
 
     update_tour_question = function (content) {
 	var evaluated = jQuery.parseJSON(content);
-	log(INFO,"Updating tour with question:" + evaluated.full_question);
-	$("#tourquestion").html(evaluated.full_question);
+	var question = evaluated.full_question;
+	log(INFO,"Updating tour with question:" + question);
+	$("#tourquestion").html(question);
 
 	$.ajax({
 	    cache: false,
@@ -283,6 +292,10 @@ function create_tour_question() {
 	});
     }
 
+    // generate a question by calling /cloud/generate-question on the server.
+    // The server's response to this causes the above update_tour_question() to be
+    // executed here in the client's Javascript interpreter, which in turn causes
+    // the client to make a call to the server for /cloud/generate-answers.
     $.ajax({
 	cache: false,
         dataType: "html",
@@ -446,7 +459,7 @@ function submit_tour_response(form_input_id) {
 	    var answer_text = answers[i];
 	    if (answer_text === guess) {
 		log(INFO,"You got one right!");
-		update_map(guess);
+		update_map($("#tourquestion").html(), guess);
 		increment_map_score(); // here the 'score' is in kilometri (distance traveled)
 		// TODO: score should vary depending on the next 'leg' of the trip.
 		// go to next question.
