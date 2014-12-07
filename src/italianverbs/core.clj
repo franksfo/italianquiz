@@ -735,7 +735,11 @@
                 "Generation" 
                 (verb/control-panel request
                                     (haz-admin))
-                request)
+                request
+                {:css "/css/settings.css"
+                 :js "/js/gen.js"
+                 :onload (verb/onload)})
+
          :status 200
          :headers {"Content-Type" "text/html;charset=utf-8"}})
 

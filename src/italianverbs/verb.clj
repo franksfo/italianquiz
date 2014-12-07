@@ -23,6 +23,9 @@
 (declare show-as-rows)
 (declare validate-new-verb)
 
+(defn onload []
+  (str "gen('examples');")) ;; javascript to be executed at page load.
+
 (defn delete [verb]
   (db/fetch-and-modify :verb (db/object-id verb) {} true))
 
@@ -50,19 +53,9 @@
      [:div#generation {:class "major"}
       [:h2 "Generation"]
 
-      [:div
-       [:button "Update"]]
+;      [:div
+;       [:button "Update"]]
       
-      [:div#currentsize
-       [:h3 "Corpus Size" ]
-       [:table
-        [:tr
-         [:th "Current"]
-         [:td current-size]]
-        [:tr
-         [:th "Desired"]
-         [:td [:input {:value desired-size}]]]]]
-
       [:div#vocabulary
        [:h3 "Lexicon"]
 
@@ -143,6 +136,22 @@
               "Futuro"
               "Passato Prossimo"])]
         ]
+
+
+      [:div#examples
+       [:h3 "Examples"] ;; see (defn onload)
+       ]
+
+      [:div#currentsize
+       [:h3 "Corpus Size" ]
+       [:table
+        [:tr
+         [:th "Current"]
+         [:td current-size]]
+        [:tr
+         [:th "Desired"]
+         [:td [:input {:value desired-size}]]]]]
+
       ]
     ))) 
 
