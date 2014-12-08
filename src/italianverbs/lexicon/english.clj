@@ -63,9 +63,8 @@
                                         :pet true})}})
 
    "change" (unify {:synsem {:sem {:pred :cambiare}}} transitive)
-
    "erase"  (unify {:synsem {:sem {:pred :cancellare}}} transitive)
-   "sing"  (unify {:synsem {:sem {:pred :??}}} transitive)
+   "sing"  (unify {:synsem {:sem {:pred :cantare}}} transitive)
    "charge" (unify {:synsem {:sem {:pred :caricare}}} transitive)
    "upload"  (unify {:synsem {:sem {:pred :caricare}}} transitive)
    "dine"  (unify {:synsem {:sem {:pred :cenare}}} transitive)
