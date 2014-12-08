@@ -20,3 +20,9 @@
     float:right;
     width:50%;
 }
+
+verbs.table th {
+    text-align:right;
+    padding:0.25em;
+    margin:.5em;
+}
