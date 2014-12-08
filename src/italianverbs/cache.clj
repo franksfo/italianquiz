@@ -50,6 +50,7 @@
 
    End result is a set of phrase => {:comp subset-of-lexicon 
                                      :head subset-of-lexicon}."
+  (log/debug (str "build-lex-sch-cache: lexicon size: " (.size lexicon)))
   (if (not (empty? phrases))
     (conj
      {(:rule (first phrases))
@@ -167,7 +168,7 @@
                              nil))
                        
                          true
-                         (do (log/warn (str "CACHE MISS 3"))
+                         (do (log/warn (str "CACHE MISS 3: head-or-comp:" head-or-comp))
                              nil))]
         (let [filtering false ;; no quantitative evidence that this helps, so turning off.
               result
@@ -222,20 +223,25 @@
 
 ;; TODO: document how this works and especially what 'phrase-constraint' means.
 (defn create-index [grammar lexicon phrase-constraint]
-  (conj (build-lex-sch-cache grammar
-                             (map (fn [lexeme]
-                                    (unifyc lexeme
-                                            {:phrasal false}))
-                                  lexicon)
-                             grammar)
-        {:phrase-constraints phrase-constraint
-         :phrases-for-spec
-         (spec-to-phrases
-          ;; TODO: make this list derivable from the grammar and /or lexicon.
-          (list {:synsem {}, :head {:synsem {}}, :phrasal true}
-                {:synsem {:cat :verb, :aux false}, :head {:synsem {:subcat {:2 {}, :1 {}}, :infl :present, :cat :verb, :sem {:tense :present}}, :phrasal false}, :phrasal true}
-                {:synsem {:cat :verb}, :head {:synsem {:cat :verb, :infl {:not :past}, :subcat {:2 {:cat :noun, :subcat (), :pronoun true}, :1 {}}}, :phrasal false}, :phrasal true}
-                {:synsem {:cat :verb, :aux false}, :head {:synsem {:cat :verb, :infl :infinitive, :subcat {:2 {}, :1 {}}}, :phrasal false}, :phrasal true}
-                )
-          grammar)}))
+  (let [lexicon (if (map? lexicon)
+                  (keys lexicon)
+                  lexicon)]
+    (log/debug (str "create index with lexicon: " (.size lexicon)))
+    (conj (build-lex-sch-cache grammar
+                               (map (fn [lexeme]
+                                      (unifyc lexeme
+                                              {:phrasal false}))
+                                    lexicon)
+                               grammar)
+          {:phrase-constraints phrase-constraint
+           :phrases-for-spec
+           (spec-to-phrases
+            ;; TODO: make this list derivable from the grammar and /or lexicon.
+            (list {:synsem {}, :head {:synsem {}}, :phrasal true}
+                  {:synsem {:cat :verb, :aux false}, :head {:synsem {:subcat {:2 {}, :1 {}}, :infl :present, :cat :verb, :sem {:tense :present}}, :phrasal false}, :phrasal true}
+                  {:synsem {:cat :verb}, :head {:synsem {:cat :verb, :infl {:not :past}, :subcat {:2 {:cat :noun, :subcat (), :pronoun true}, :1 {}}}, :phrasal false}, :phrasal true}
+                  {:synsem {:cat :verb, :aux false}, :head {:synsem {:cat :verb, :infl :infinitive, :subcat {:2 {}, :1 {}}}, :phrasal false}, :phrasal true}
+                  )
+            grammar)})))
+
 

@@ -43,7 +43,7 @@
 
 (defn generate [spec grammar lexicon cache]
   (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
-  (log/debug (str "generate: " (show-spec spec)))
+  (log/debug (str "generate(details): " (show-spec spec)))
   (-> (lightning-bolt grammar
                       lexicon
                       spec 0 cache)
@@ -66,7 +66,18 @@ of this function with complements."
                                       (map (fn [rule]
                                              (unifyc spec rule))
                                            (if parent (get-head-phrases-of parent cache)
-                                               grammar))))]
+                                               grammar))))
+        debug (log/debug (str "parent: " (if parent (:rule parent)
+                                             "(no parent)")))
+        debug (log/debug (str "lexical head candidates:"
+                              (if parent
+                                (fo (get-lex parent :head cache spec))
+                                "(no head candidates)")))
+        debug (log/debug (str "grammar size: " (.size grammar)))
+        debug (log/debug (str "candidate-parents size: " (if (nil? candidate-parents)
+                                                           "no candidate-parents"
+                                                           (.size candidate-parents))))
+        ]
     (if (seq candidate-parents)
       (let [lexical ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
             (mapcat (fn [parent]
