@@ -17,8 +17,7 @@
 
    ))
 
-
-(def generate-this-many-at-once 50)
+(def generate-this-many-at-once 10)
 
 (declare delete-form)
 (declare new-verb-form)
