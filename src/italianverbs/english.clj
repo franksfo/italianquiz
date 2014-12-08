@@ -15,9 +15,15 @@
 (def grammar gram/grammar)
 (def lexicon-source lex/lexicon-source)
 
+(log/info "compiling: source-lexicon: " (.size (keys lex/lexicon-source)))
 (def lexicon (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/english-specific-rules))
+(log/info "finished: compiled lexicon: " (.size (keys lexicon)))
 
 (defn lookup [token]
+  "return the subset of lexemes that match this token from the lexicon."
+  (get lexicon token))
+
+(defn analyze [token]
   "return the subset of lexemes that match this token from the lexicon."
   (morph/analyze token #(get lexicon %)))
 
@@ -38,15 +44,20 @@
   (let [spec (if spec spec :top)]
     (generate/sentence spec grammar index (flatten (vals lexicon)))))
 
-(defn generate [ & [spec {use-grammar :grammar}]]
+(defn generate [ & [spec {use-grammar :grammar
+                          use-index :index
+                          use-lexicon :lexicon}]]
   (let [spec (if spec spec :top)
-        use-grammar (if use-grammar use-grammar grammar)]
+        use-grammar (if use-grammar use-grammar grammar)
+        use-index (if use-index use-index index)
+        use-lexicon (if use-lexicon use-lexicon lexicon)]
     (log/info (str "using grammar of size: " (.size use-grammar)))
+    (log/info (str "using lexicon of size: " (.size (flatten (vals use-lexicon)))))
     (if (seq? spec)
       (map generate spec)
       (generate/generate spec use-grammar
-                         (flatten (vals lexicon)) 
-                         index))))
+                         (flatten (vals use-lexicon)) 
+                         use-index))))
 
 (defn generate-all [ & [spec {use-grammar :grammar}]]
   (let [spec (if spec spec :top)
@@ -57,6 +68,3 @@
       (generate/generate-all spec use-grammar
                              (flatten (vals lexicon)) 
                              index))))
-
-
-

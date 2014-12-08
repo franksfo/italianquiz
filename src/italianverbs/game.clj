@@ -22,7 +22,7 @@
     :source_flag "/svg/britain.svg"
     :destination_flag "/svg/italy.svg"}])
 
-(def possible-preds [:bere :dormire :leggere :mangiare :parlare])
+(def possible-preds [:top])
 
 (defn direction-chooser []
   (html5
@@ -131,13 +131,29 @@
      :right_context_destination ""}))
 
 (def mini-en-grammar
-  (filter #(= (:rule %) "s-present")
+  (filter #(or (= (:rule %) "s-present")
+               (and false (= (:rule %) "s-future"))
+               (and false (= (:rule %) "s-conditional")))
           en/grammar))
 
-(def mini-en-index (create-index mini-en-grammar (flatten (vals en/lexicon)) head-principle))
+(def en-lexicon
+  (into {}
+        (for [[k v] en/lexicon]
+          (let [filtered-v
+                (filter #(or (= (get-in % [:synsem :sem :pred]) :antonio)
+                             (= (get-in % [:synsem :sem :pred]) :dormire)
+                             (= (get-in % [:synsem :sem :pred]) :bere))
+                        v)]
+            (if (not (empty? filtered-v))
+              [k filtered-v])))))
 
-(def mini-it-grammar
-  (filter #(= (:rule %) "s-present")
+(def foo 43)
+(def mini-en-index (create-index mini-en-grammar en-lexicon head-principle))
+
+(if false (do (def mini-it-grammar
+  (filter #(or (= (:rule %) "s-present")
+               (and false (= (:rule %) "s-future"))
+               (and false (= (:rule %) "s-conditional")))
           it/grammar))
 
 (def mini-it-index (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
@@ -149,6 +165,12 @@
 (def target-language-generate it/generate)
 (def target-language-grammar mini-it-grammar)
 (def target-language-index mini-it-index)
+
+(defn en-generate [ & [spec]]
+  (let [spec (if spec spec :top)]
+    (en/generate spec {:grammar mini-en-grammar
+                       :index mini-en-index
+                       :lexicon en-lexicon})))
 
 (defn generate-question [request]
   (let [pred (nth possible-preds (rand-int (.size possible-preds)))
@@ -310,3 +332,4 @@
 
 ) ;; end of (defn)
 
+)
