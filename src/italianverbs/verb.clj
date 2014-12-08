@@ -18,7 +18,7 @@
    ))
 
 
-(def generate-this-many-at-once 25)
+(def generate-this-many-at-once 50)
 
 (declare delete-form)
 (declare new-verb-form)
@@ -136,7 +136,8 @@
                [:tr 
                 [:th [:input {:type "checkbox"}]]
                 [:td infl]])
-             ["Imperfetto"
+             ["Condizionale"
+              "Imperfetto"
               "Presente"
               "Futuro"
               "Passato Prossimo"])]
