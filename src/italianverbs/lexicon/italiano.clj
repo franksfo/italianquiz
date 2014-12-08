@@ -66,14 +66,14 @@
                                          :2 '()}}
                             :2 '()}}})]
 
-   "abbracciare"
-   (unify transitive
-           {:synsem {:essere false
-                     :sem {:pred :abbracciare
-                           :activity false
-                           :discrete false
-                           :subj {:human true}
-                           :obj {:animate true}}}})
+;   "abbracciare"
+;   (unify transitive
+;           {:synsem {:essere false
+;                     :sem {:pred :abbracciare
+;                           :activity false
+;                           :discrete false
+;                           :subj {:human true}
+;                           :obj {:animate true}}}})
 
 
 
@@ -432,9 +432,9 @@
    "stampare" (unify {:synsem {:sem {:pred :stampare}}} transitive)
    "studiare" (unify {:synsem {:sem {:pred :studiare}}} transitive)
    "suonare" (unify {:synsem {:sem {:pred :suonare}}} transitive)
-   "telefonare" (unify intransitive
-                       {:synsem {:essere false
-                                 :sem :telephonare}})
+;   "telefonare" (unify intransitive
+;                       {:synsem {:essere false
+;                                 :sem :telephonare}})
    "chiedere" (unify transitive
                      {:synsem {:sem {:pred :chiedere}}
                       :italiano {:passato "chiesto"}})
