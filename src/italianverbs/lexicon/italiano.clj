@@ -380,58 +380,77 @@
                           :consumable false
                           :clothing true}}})
 
-   "cambiare" transitive
-   "cancellare" transitive
-   "cantare" transitive
-   "caricare" transitive
+   "cambiare" (unify {:synsem {:sem {:pred :cambiare}}} transitive)
+   "cancellare" (unify {:synsem {:sem {:pred :cancellare}}} transitive)
+   "cantare" (unify {:synsem {:sem {:pred :cantare}}} transitive)
+   "caricare" (unify {:synsem {:sem {:pred :caricare}}} transitive)
    "cenare" (unify intransitive
-                   {:synsem {:essere false}})
-   "desiderare" transitive
+                   {:synsem {:essere false
+                             :sem {:pred :cenare}}})
+   "desiderare" (unify {:synsem {:sem {:pred :desiderare}}} transitive)
    "dipingere" (unify transitive
-                      {:italiano {:passato "dipinto"}})
+                      {:synsem {
+                                :sem {
+                                      :pred :dipingere
+                                      }
+                                }
+                       :italiano {:passato "dipinto"}
+                       }
+                      )
    "entrare" (unify intransitive
-                    {:synsem {:essere true}})
-   "frequentare" transitive
+                    {:synsem {:essere true
+                              :sem {:pred "entrare"}}})
+
+   "frequentare" (unify {:synsem {:sem {:pred :frequentare}}} transitive)
    "funzionare" (unify intransitive
-                       {:synsem {:essere false}})
-   "giocare" transitive
-   "guidare" transitive
-   "imparare" transitive
-   "incontrare" transitive
-   "insegnare" transitive
-   "lavorare" transitive
-   "mandare" transitive
-   "portare" transitive
+                       {:synsem {:essere false
+                                 :sem {:pred :funzionare}}})
+   "giocare" (unify {:synsem {:sem {:pred :giocare}}} transitive)
+   "guidare" (unify {:synsem {:sem {:pred :guidare}}} transitive)
+   "imparare" (unify {:synsem {:sem {:pred :imparare}}} transitive)
+   "incontrare" (unify {:synsem {:sem {:pred :incontrare}}} transitive)
+   "insegnare" (unify {:synsem {:sem {:pred :insegnare}}} transitive)
+   "lavorare" (unify {:synsem {:sem {:pred :lavorare}}} transitive)
+   "mandare" (unify {:synsem {:sem {:pred :mandare}}} transitive)
+   "portare" (unify {:synsem {:sem {:pred :portare}}} transitive)
    "prendere" (unify transitive
-                     {:italiano {:passato "preso"}})
-   "ricevere" transitive
-   "ricordare" transitive
+                     {:synsem {:sem {:pred :prendere}}
+                      :italiano {:passato "preso"}})
+   "ricevere" (unify {:synsem {:sem {:pred :ricevere}}} transitive)
+   "ricordare" (unify {:synsem {:sem {:pred :ricordare}}} transitive)
    "rispondere" (unify intransitive
-                       {:synsem {:essere false}
+                       {:synsem {:essere false
+                                 :sem {:pred :rispondere}}
                         :italiano {:passato "risposto"}})
 
    "ritornare" (unify intransitive
-                      {:synsem {:essere true}})
+                      {:synsem {:sem {:pred :ritornare}
+                                :essere true}})
 
-   "scaricare" transitive
-   "scrivere" transitive
-   "stampare" transitive
-   "studiare" transitive
-   "suonare" transitive
+   "scaricare" (unify {:synsem {:sem {:pred :scaricare}}} transitive)
+   "scrivere" (unify {:synsem {:sem {:pred :scrivere}}} transitive)
+   "stampare" (unify {:synsem {:sem {:pred :stampare}}} transitive)
+   "studiare" (unify {:synsem {:sem {:pred :studiare}}} transitive)
+   "suonare" (unify {:synsem {:sem {:pred :suonare}}} transitive)
    "telefonare" (unify intransitive
-                       {:synsem {:essere false}})
+                       {:synsem {:essere false
+                                 :sem :telephonare}})
    "chiedere" (unify transitive
-                     {:italiano {:passato "chiesto"}})
+                     {:synsem {:sem {:pred :chiedere}}
+                      :italiano {:passato "chiesto"}})
    "tornare" (unify intransitive
-                    {:synsem {:essere true}})
-   "usare" transitive
+                    {:synsem {:sem {:pred :tornare}
+                              :essere true}})
+   "usare" (unify {:synsem {:sem {:pred :usare}}} transitive)
    "vedere" (unify transitive
-                   {:italiano {:passato "visto"
+                   {:synsem {:sem {:pred :vedere}}
+                    :italiano {:passato "visto"
                                :futuro-stem "vedr"}})
 
-   "vendere" transitive
+   "vendere" (unify {:synsem {:sem {:pred :vendere}}} transitive)
    "venire" (unify intransitive
-                   {:synsem {:essere true}
+                   {:synsem {:essere true
+                             :sem {:pred :venire}}
                     :italiano {:passato "venuto"
                                :futuro-stem "verr"}})
 
