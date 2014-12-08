@@ -773,6 +773,23 @@
                                {:synsem {:cat :noun}
                                 :english {:agr {:number :plur}
                                           :english (get-in val [:english :plur])}})}
+
+                            ;; 2. past exceptions: e.g. "sleep" -> "slept"
+                            {:path [:english :past]
+                             :merge-fn
+                             (fn [val]
+                               {:synsem {:cat :verb}
+                                :english {:infl :past
+                                          :english (get-in val [:english :past])}})}
+
+                            {:path [:english :imperfetto]
+                             :merge-fn
+                             (fn [val]
+                               {:synsem {:cat :verb}
+                                :english {:infl :imperfetto
+                                          :english (get-in val [:english :imperfetto])}})}
+
+
                             ])]
         (concat result (exception-generator (rest lexicon)))))))
 
