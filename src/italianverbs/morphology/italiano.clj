@@ -355,7 +355,7 @@
         :else
         (get-in word '(:italiano))))
 
-     ;; irregular inflection of conditional
+     ;; regular inflection of conditional
      (and (= (get-in word '(:infl)) :conditional)
           (get-in word '(:futuro-stem)))
      (let [stem (get-in word '(:futuro-stem))]
