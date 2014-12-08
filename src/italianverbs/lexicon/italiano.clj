@@ -380,6 +380,61 @@
                           :consumable false
                           :clothing true}}})
 
+   "cambiare" transitive
+   "cancellare" transitive
+   "cantare" transitive
+   "caricare" transitive
+   "cenare" (unify intransitive
+                   {:synsem {:essere false}})
+   "desiderare" transitive
+   "dipingere" (unify transitive
+                      {:italiano {:passato "dipinto"}})
+   "entrare" (unify intransitive
+                    {:synsem {:essere true}})
+   "frequentare" transitive
+   "funzionare" (unify intransitive
+                       {:synsem {:essere false}})
+   "giocare" transitive
+   "guidare" transitive
+   "imparare" transitive
+   "incontrare" transitive
+   "insegnare" transitive
+   "lavorare" transitive
+   "mandare" transitive
+   "portare" transitive
+   "prendere" (unify transitive
+                     {:italiano {:passato "preso"}})
+   "ricevere" transitive
+   "ricordare" transitive
+   "rispondere" (unify intransitive
+                       {:synsem {:essere false}
+                        :italiano {:passato "risposto"}})
+
+   "ritornare" (unify intransitive
+                      {:synsem {:essere true}})
+
+   "scaricare" transitive
+   "scrivere" transitive
+   "stampare" transitive
+   "studiare" transitive
+   "suonare" transitive
+   "telefonare" (unify intransitive
+                       {:synsem {:essere false}})
+   "chiedere" (unify transitive
+                     {:italiano {:passato "chiesto"}})
+   "tornare" (unify intransitive
+                    {:synsem {:essere true}})
+   "usare" transitive
+   "vedere" (unify transitive
+                   {:italiano {:passato "visto"
+                               :futuro-stem "vedr"}})
+
+   "vendere" transitive
+   "venire" (unify intransitive
+                   {:synsem {:essere true}
+                    :italiano {:passato "venuto"
+                               :futuro-stem "verr"}})
+
    "camicia"
     (unify agreement-noun
            common-noun
