@@ -31,7 +31,8 @@
 
 (def transitive
   (unifyc verb-subjective
-          pos/transitive))
+          pos/transitive
+          {:synsem {:essere false}}))
 
 (def intransitive-unspecified-obj
   (unifyc verb-subjective
