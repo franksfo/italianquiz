@@ -90,8 +90,11 @@
    "send"  (unify {:synsem {:sem {:pred :mandare}}} transitive)
    "carry"  (unify {:synsem {:sem {:pred :portare}}} transitive)
    "wear"  (unify {:synsem {:sem {:pred :portare}}} transitive)
-   "grab"  (unify {:synsem {:sem {:pred :prendere}}} transitive)
-   "take"  (unify {:synsem {:sem {:pred :prendere}}} transitive)
+   "grab"  (unify {:synsem {:sem {:pred :prendere}}} transitive
+                  {:english {:imperfetto "grabbing"
+                             :past "grabbed"}})
+   "take"  (unify {:synsem {:sem {:pred :prendere}}} transitive
+                  {:english {:past "took"}})
    "receive"  (unify {:synsem {:sem {:pred :ricevere}}} transitive)
    "remember"  (unify {:synsem {:sem {:pred :ricordare}}} transitive)
    "respond"  (unify {:synsem {:sem {:pred :rispondere}}} transitive)
@@ -230,7 +233,8 @@
     {:synsem {:cat :verb
               :sem {:subj {:animate true}
                     :discrete false
-                    :pred :dormire}}})
+                    :pred :dormire}}
+     :english {:past "slept"}})
 
    "some"
    [{:synsem {:cat :det
