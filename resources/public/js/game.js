@@ -46,9 +46,11 @@ var tour_path = [
 ];
 
 var encouragements = [
-    "Buono!",
+    "Bene!",
     "Certo!",
-    "Fantastico.."
+    "Cosi mi piace",
+    "Fantastico..",
+    "Ottimo"
     ]
 
 var heading = 270; // headed west.
