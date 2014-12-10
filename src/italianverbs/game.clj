@@ -136,7 +136,7 @@
                (and false (= (:rule %) "s-conditional")))
           en/grammar))
 
-(def en-lexicon
+(def mini-en-lexicon
   (into {}
         (for [[k v] en/lexicon]
           (let [filtered-v
@@ -147,30 +147,36 @@
             (if (not (empty? filtered-v))
               [k filtered-v])))))
 
-(def foo 43)
-(def mini-en-index (create-index mini-en-grammar en-lexicon head-principle))
+(def mini-en-index (create-index mini-en-grammar (flatten (vals mini-en-lexicon)) head-principle))
 
-(if false (do (def mini-it-grammar
+(def mini-it-grammar
   (filter #(or (= (:rule %) "s-present")
                (and false (= (:rule %) "s-future"))
                (and false (= (:rule %) "s-conditional")))
           it/grammar))
 
-(def mini-it-index (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
+(def mini-it-lexicon
+  (into {}
+        (for [[k v] it/lexicon]
+          (let [filtered-v
+                (filter #(or (= (get-in % [:synsem :sem :pred]) :antonio)
+                             (= (get-in % [:synsem :sem :pred]) :dormire)
+                             (= (get-in % [:synsem :sem :pred]) :bere))
+                        v)]
+            (if (not (empty? filtered-v))
+              [k filtered-v])))))
 
-(def source-language-generate en/generate)
+(def mini-it-index (create-index mini-it-grammar (flatten (vals mini-it-lexicon)) head-principle))
+
 (def source-language-grammar mini-en-grammar)
 (def source-language-index mini-en-index)
+(defn source-language-generate [spec]
+  (en/generate spec {:grammar source-language-grammar
+                     :index source-language-index}))
 
 (def target-language-generate it/generate)
 (def target-language-grammar mini-it-grammar)
 (def target-language-index mini-it-index)
-
-(defn en-generate [ & [spec]]
-  (let [spec (if spec spec :top)]
-    (en/generate spec {:grammar mini-en-grammar
-                       :index mini-en-index
-                       :lexicon en-lexicon})))
 
 (defn generate-question [request]
   (let [pred (nth possible-preds (rand-int (.size possible-preds)))
@@ -180,9 +186,7 @@
          :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
-        question (source-language-generate
-                  spec {:grammar source-language-grammar
-                        :index source-language-index})
+        question (source-language-generate spec)
         form (html-form question)]
 
     (log/info "generate-question: question: " (fo question))
@@ -332,4 +336,3 @@
 
 ) ;; end of (defn)
 
-)
