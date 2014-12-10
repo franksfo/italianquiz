@@ -1,9 +1,12 @@
 #map {
-    height:500px;
+    height:400px;
+    width:400px;
     float:left;
 }
 
 #streetview {
+    height:400px;
+    width:400px;
     float:right;
 }
 
