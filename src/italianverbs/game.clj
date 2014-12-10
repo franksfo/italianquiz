@@ -287,7 +287,7 @@
        ]
      ]
 
-     [:div {:style "z-index:2"}
+     [:div#sidebyside {:style "z-index:2"}
       
       ;; map and streetview should be side by side
       [:div#map ]
