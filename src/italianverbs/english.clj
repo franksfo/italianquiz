@@ -21,10 +21,6 @@
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
-  (get lexicon token))
-
-(defn analyze [token]
-  "return the subset of lexemes that match this token from the lexicon."
   (morph/analyze token #(get lexicon %)))
 
 (def begin (System/currentTimeMillis))
