@@ -48,7 +48,7 @@ var tour_path = [
 var encouragements = [
     "Bene!",
     "Certo!",
-    "Cosi mi piace",
+    "Così mi piace!",
     "Fantastico..",
     "Ottimo"
     ]
