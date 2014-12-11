@@ -1,4 +1,4 @@
-#generation div {
+#generation > div {
     float:left;
 }
 
@@ -11,7 +11,7 @@
     width:50%;
 }
 
-#vocabulary div {
+#vocabulary > div {
     margin:0.5em;
     padding:0.25em;
 }
@@ -25,4 +25,38 @@ verbs.table th {
     text-align:right;
     padding:0.25em;
     margin:.5em;
+}
+
+#verbs {
+    float:left;
+    width:100%;
+    border:0px dashed blue;
+}
+div.checkbox {
+    float:left;
+    width:50%;
+}
+
+div.lexeme {
+    float:left;
+    border:0px dashed green;
+    padding-left:2em;
+    margin:0;
+    width:100%;
+}
+
+div.lexeme > div {
+    float:left;
+    border:0px dashed green;
+    padding:0;
+    margin:0;
+}
+
+div.lexeme div.example {
+    border:0px solid blue;
+    text-align:right;
+}
+
+div.gen_source {
+    border:1px dashed green;
 }

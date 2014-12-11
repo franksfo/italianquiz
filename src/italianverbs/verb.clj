@@ -65,11 +65,12 @@
 
        [:div#verbs 
         [:h4 "Verbs"]
-        [:table
         (map (fn [lexeme]
-               [:tr 
-                [:th [:input {:type "checkbox"}]]
-                [:td lexeme]])
+               [:div.lexeme
+                [:div.checkbox
+                 [:input {:type "checkbox"} ] lexeme ]
+                [:div.example
+                 [:div.gen_source {:id (str "verb_" lexeme)} ".." ]] ])
              (filter (fn [lexeme]
                        (not (empty?
                              (filter (fn [lex]
@@ -80,8 +81,6 @@
                                      (get it/lexicon lexeme)))))
                      (sort (keys it/lexicon))))
          ]
-         
-        ]
 
        [:div#noun
         [:h4 "Nouns and Pronouns"]
@@ -329,7 +328,3 @@
     (html
      [:form {:method "post" :action (str "/verb/" (db/primary-key row) "/delete/")}
       [:button {:onclick "submit()"} "delete"]])))
-
-
-
-
