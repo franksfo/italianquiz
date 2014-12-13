@@ -241,6 +241,9 @@
          :headers {"Content-Type" "text/html;charset=utf-8"}
          :body (game/evaluate request)})
 
+  (GET "/cloud/generate" request
+       (game/generate request))
+
   (GET "/cloud/generate-answers" request
        (game/generate-answers request))
 

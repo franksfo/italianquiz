@@ -25,8 +25,9 @@
 (declare show-as-rows)
 (declare validate-new-verb)
 
+;; see core.clj: (GET "/gen" request
 (defn onload []
-  (str "gen('examples',1," generate-this-many-at-once ");")) ;; javascript to be executed at page load.
+  (str "gen('examples',1," generate-this-many-at-once ");gen_per_verb();")) ;; javascript to be executed at page load.
 
 (defn delete [verb]
   (db/fetch-and-modify :verb (db/object-id verb) {} true))
