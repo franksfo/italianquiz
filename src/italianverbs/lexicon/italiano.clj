@@ -155,14 +155,14 @@
                                     :sem complement-sem}}}}))]
 
    "amare"
-    (unify transitive
-           {:synsem {:essere false
-                     :sem {:pred :amare
-                           :activity false
-                           :discrete false
-                           :subj {:human true}
-                           :obj {:animate true}}}})
-
+   (let [common {:synsem {:essere false
+                          :sem {:pred :amare
+                                :activity false
+                                :discrete false
+                                :subj {:human true}}}}]
+     [(unify common transitive
+             {:synsem {:sem {:obj {:animate true}}}})
+      (unify common intransitive-unspecified-obj)])
 
    "amico"
    (unify agreement-noun
