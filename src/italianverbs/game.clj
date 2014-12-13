@@ -140,7 +140,8 @@
   (into {}
         (for [[k v] en/lexicon]
           (let [filtered-v
-                (filter #(or (= (get-in % [:synsem :sem :pred]) :antonio)
+                (filter #(or true
+                             (= (get-in % [:synsem :sem :pred]) :antonio)
                              (= (get-in % [:synsem :sem :pred]) :dormire)
                              (= (get-in % [:synsem :sem :pred]) :bere))
                         v)]
@@ -159,7 +160,8 @@
   (into {}
         (for [[k v] it/lexicon]
           (let [filtered-v
-                (filter #(or (= (get-in % [:synsem :sem :pred]) :antonio)
+                (filter #(or true
+                             (= (get-in % [:synsem :sem :pred]) :antonio)
                              (= (get-in % [:synsem :sem :pred]) :dormire)
                              (= (get-in % [:synsem :sem :pred]) :bere))
                         v)]
@@ -178,15 +180,41 @@
 (def target-language-grammar mini-it-grammar)
 (def target-language-index mini-it-index)
 
+(defn generate-expression [spec language]
+  (cond (= language "it")
+        (it/generate spec {:grammar target-language-grammar
+                           :index target-language-index})
+        (= language "en")
+        (en/generate spec {:grammar source-language-grammar
+                           :index source-language-index})
+        true
+        (log/error "cannot generate - language: " language " not supported.")))
+
+(defn generate [request]
+  (let [pred (keyword (get-in request [:params :pred]))
+        lang (get-in request [:params :lang])]
+    (log/info (str "generate with pred: " pred "; lang: " lang))
+    (let [expression (generate-expression {:synsem {:sem {:pred pred}}} lang)]
+      {:status 200
+       :headers {"Content-Type" "application/json;charset=utf-8"
+                 "Cache-Control" "no-cache, no-store, must-revalidate"
+                 "Pragma" "no-cache"
+                 "Expires" "0"}
+       :body (json/write-str
+              {(keyword lang) (fo expression)})})))
+
 (defn generate-question [request]
-  (let [pred (nth possible-preds (rand-int (.size possible-preds)))
+  (let [pred (if (not (= :null (get-in request [:params :pred] :null)))
+               (keyword (get-in request [:params :pred]))
+               (nth possible-preds (rand-int (.size possible-preds))))
+        debug (log/info (str "generate-question: pred: " pred))
         spec
         {:head {:phrasal :top}
          :comp {:phrasal false}
          :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
-        question (source-language-generate spec)
+        question (generate-expression spec "en")
         form (html-form question)]
 
     (log/info "generate-question: question: " (fo question))
@@ -221,7 +249,6 @@
         more-constraints {:synsem {:subcat '()}
                           :head {:phrasal :top}
                           :comp {:phrasal false}}
-
 
         to-generate (merge semantics more-constraints)
 
