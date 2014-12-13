@@ -11,7 +11,7 @@
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
-   [italianverbs.unify :refer [get-in merge strip-refs]]
+   [italianverbs.unify :refer [get-in merge strip-refs unify]]
 
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]))
@@ -153,6 +153,8 @@
 (def mini-it-grammar
   (filter #(or (= (:rule %) "s-present")
                (and false (= (:rule %) "s-future"))
+               (and false (= (:rule %) "vp-future"))
+               (and false (= (:rule %) "vp-present"))
                (and false (= (:rule %) "s-conditional")))
           it/grammar))
 
@@ -180,21 +182,29 @@
 (def target-language-grammar mini-it-grammar)
 (def target-language-index mini-it-index)
 
-(defn generate-expression [spec language]
-  (cond (= language "it")
-        (it/generate spec {:grammar target-language-grammar
-                           :index target-language-index})
-        (= language "en")
-        (en/generate spec {:grammar source-language-grammar
-                           :index source-language-index})
-        true
-        (log/error "cannot generate - language: " language " not supported.")))
+(def target-language-grammar-full it/grammar)
+(def target-language-index-full
+;  (create-index mini-it-grammar (flatten (vals mini-it-lexicon)) head-principle))
+;  (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
+  (create-index it/grammar (flatten (vals it/lexicon)) head-principle))
+
+(defn generate-expression [spec language grammar-and-lexicon]
+  (let [spec (unify spec
+                    {:synsem {:subcat '()}})]
+    (cond (= language "it")
+          (it/generate spec grammar-and-lexicon)
+          (= language "en")
+          (en/generate spec grammar-and-lexicon)
+          true
+          (log/error "cannot generate - language: " language " not supported."))))
 
 (defn generate [request]
   (let [pred (keyword (get-in request [:params :pred]))
         lang (get-in request [:params :lang])]
     (log/info (str "generate with pred: " pred "; lang: " lang))
-    (let [expression (generate-expression {:synsem {:sem {:pred pred}}} lang)]
+    (let [expression (generate-expression {:synsem {:sem {:pred pred}}} lang
+                                          {:grammar target-language-grammar-full
+                                           :index target-language-index-full})]
       {:status 200
        :headers {"Content-Type" "application/json;charset=utf-8"
                  "Cache-Control" "no-cache, no-store, must-revalidate"
@@ -214,7 +224,8 @@
          :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
-        question (generate-expression spec "en")
+        question (generate-expression spec "en" {:grammar source-language-grammar
+                                                 :index source-language-index})
         form (html-form question)]
 
     (log/info "generate-question: question: " (fo question))
