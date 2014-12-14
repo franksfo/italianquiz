@@ -11,10 +11,15 @@
                                     verb verb-aux)])
 (require '[italianverbs.pos.english :refer :all])
 
-(defn trans-intrans [spec]
+(defn trans-intrans [spec & [opts]]
   [(unify
     spec
-    transitive)
+    transitive
+    (if (:subj opts)
+      {:synsem {:sem {:subj (:subj opts)}}}
+      :top)
+    (if (:obj opts) {:sem {:obj (:obj opts)}}
+        :top))
 
    (unify
     spec
@@ -180,6 +185,16 @@
                    :pred :io}
              :subcat '()}}
 
+   "have"
+   (trans-intrans {:synsem {:cat :verb
+                            :sem {:activity false
+                                  :discrete false
+                                  :pred :avere}
+                            :english {:english "have"
+                                      :present {:3sing "has"}}}}
+                  {:subj {:human true}
+                   :obj {:buyable true}})
+
    "he"
    {:synsem {:cat :noun
              :pronoun true
@@ -191,11 +206,11 @@
                    :pred :lui}
              :subcat '()}}
 
-;   "hug"
-;   (unify transitive
-;          {:synsem {:sem {:pred :abbracciare
-;                          :subj {:human true}
-;                          :obj {:animate true}}}})
+   "hug"
+   (unify transitive
+          {:synsem {:sem {:pred :abbracciare
+                          :subj {:human true}
+                          :obj {:animate true}}}})
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
    (let [common {:synsem {:sem {:pred :leggere
