@@ -194,9 +194,9 @@
    (trans-intrans {:synsem {:cat :verb
                             :sem {:activity false
                                   :discrete false
-                                  :pred :avere}
-                            :english {:english "have"
-                                      :present {:3sing "has"}}}}
+                                  :pred :avere}}
+                   :english {:english "have"
+                             :present {:3sing "has"}}}
                   {:subj {:human true}
                    :obj {:buyable true}})
 
