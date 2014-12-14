@@ -66,22 +66,42 @@
 
        [:div#verbs 
         [:h4 "Verbs"]
-        (map (fn [lexeme]
-               [:div.lexeme
-                [:div.checkbox
-                 [:input {:type "checkbox"} ] lexeme ]
-                [:div.example
-                 [:div.gen_source {:id (str "verb_" lexeme)} ".." ]] ])
-             (filter (fn [lexeme]
-                       (not (empty?
-                             (filter (fn [lex]
-                                       (and
-                                        (= :top (get-in lex [:synsem :infl]))
-                                        (= :verb
-                                           (get-in lex [:synsem :cat]))))
-                                     (get it/lexicon lexeme)))))
-                     (sort (keys it/lexicon))))
-         ]
+
+        [:table 
+
+          [:tr
+           
+           [:th ""]
+           [:th "Italian"]
+           [:th "Example"]
+           
+           ]
+
+         (map (fn [lexeme]
+                [:tr.lexeme
+                 
+                 [:td
+                  [:input {:type "checkbox"} ]]
+
+                 [:td lexeme ]
+                 [:td.example
+                  [:div.gen_source {:id (str "verb_" lexeme)} ".." ]]])
+         
+              (let [all-verbs
+                    (filter (fn [lexeme]
+                              (not (empty?
+                                    (filter (fn [lex]
+                                              (and
+                                               (= :top (get-in lex [:synsem :infl]))
+                                               (= :verb
+                                                  (get-in lex [:synsem :cat]))))
+                                            (get it/lexicon lexeme)))))
+                            (sort (keys it/lexicon)))]
+                (list
+                 (first all-verbs)
+                 (second all-verbs))))]]
+
+        
 
        [:div#noun
         [:h4 "Nouns and Pronouns"]

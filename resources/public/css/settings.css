@@ -8,7 +8,7 @@
 
 #vocabulary {
     float:left;
-    width:50%;
+    width:100%;
 }
 
 #vocabulary > div {
@@ -32,29 +32,21 @@ verbs.table th {
     width:100%;
     border:0px dashed blue;
 }
-div.checkbox {
-    float:left;
-    width:50%;
-}
 
-div.lexeme {
-    float:left;
+.lexeme {
     border:0px dashed green;
     padding-left:2em;
     margin:0;
-    width:100%;
 }
 
-div.lexeme > div {
-    float:left;
+.lexeme > div {
     border:0px dashed green;
     padding:0;
     margin:0;
 }
 
-div.lexeme div.example {
+.example {
     border:0px solid blue;
-    text-align:right;
 }
 
 div.gen_source {
