@@ -228,10 +228,10 @@
        ;; this function should create the user, log the user in and let them set their password.
        (auth/confirm-and-create-user request))
 
-  (GET "/cloud/lookup" request
+  (GET "/engine/lookup" request
        (engine/lookup request))
 
-  (GET "/cloud/generate-from-semantics" request
+  (GET "/engine/generate-from-semantics" request
        (engine/generate-from-semantics request))
 
   (GET "/cloud" request
@@ -247,7 +247,7 @@
          :headers {"Content-Type" "text/html;charset=utf-8"}
          :body (game/evaluate request)})
 
-  (GET "/cloud/generate" request
+  (GET "/engine/generate" request
        (engine/generate request))
 
   (GET "/cloud/generate-answers" request

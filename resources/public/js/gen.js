@@ -31,7 +31,7 @@ function gen(div_id,index,upto) {
 	    $.ajax({
 		cache: false,
 		dataType: "html",
-		url: "/cloud/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
+		url: "/engine/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
 		success: update_answer_fn
 	    });
 	}
@@ -39,7 +39,7 @@ function gen(div_id,index,upto) {
 	$.ajax({
 	    cache: false,
             dataType: "html",
-            url: "/cloud/generate-question",
+            url: "/engine/generate-question",
             success: generate_at_row
 	});
     }
@@ -78,7 +78,7 @@ function gen_from_verb(verb) {
 		$.ajax({
 		    cache: false,
 		    dataType: "html",
-		    url: "/cloud/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
+		    url: "/engine/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
 		    success: translate
 		});
 	    }
@@ -87,7 +87,7 @@ function gen_from_verb(verb) {
 	$.ajax({
 	    cache: false,
 	    dataType: "html",
-	    url: "/cloud/lookup?lang=en&pred=" + pred,
+	    url: "/engine/lookup?lang=en&pred=" + pred,
 	    success: translate_verb
 	});
 
@@ -96,7 +96,7 @@ function gen_from_verb(verb) {
     $.ajax({
 	cache: false,
 	dataType: "html",
-	url: "/cloud/generate?pred="+verb+"&lang=it",
+	url: "/engine/generate?pred="+verb+"&lang=it",
 	success: generate_with_verb
     });
 }
