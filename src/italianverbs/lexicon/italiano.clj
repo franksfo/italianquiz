@@ -259,7 +259,11 @@
       ;; 4. avere: unspecified object
       (unify
        avere-common
-       intransitive-unspecified-obj)])
+       intransitive-unspecified-obj
+       {:synsem {:sem {:pred :avere
+                       :activity false
+                       :discrete false
+                       :subj {:human true}}}})])
 
    "bello"
 
