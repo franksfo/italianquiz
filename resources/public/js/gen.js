@@ -62,11 +62,23 @@ function gen_from_verb(verb) {
 	var pred = evaluated.pred;
 	$("#verb_"+verb).html(example);
 
+	function translate_verb(content) {
+	    evaluated = jQuery.parseJSON(content);
+	    $("#english_verb_"+pred).html(evaluated.en);
+	}
+
+	$.ajax({
+	    cache: false,
+	    dataType: "html",
+	    url: "/cloud/lookup?lang=en&pred=" + pred,
+	    success: translate_verb
+	});
+
 	function translate(content) {
 	    evaluated  = jQuery.parseJSON(content);
-	    $("#english_translation_"+pred).html(evaluated.answer);
+	    $("#english_translation_"+pred).html(evaluated.en);
 	}
-	
+
 	$.ajax({
 	    cache: false,
 	    dataType: "html",

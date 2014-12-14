@@ -191,6 +191,7 @@
 (def source-language-index-full
   (create-index en/grammar (flatten (vals en/lexicon)) head-principle))
 
+;; TODO: move out of game ns.
 (defn generate-expression [spec language grammar-and-lexicon]
   (let [spec (unify spec
                     {:synsem {:subcat '()}})]
@@ -201,6 +202,7 @@
           true
           (log/error "cannot generate - language: " language " not supported."))))
 
+;; TODO: move out of game ns.
 (defn generate [request]
   (let [pred (keyword (get-in request [:params :pred]))
         lang (get-in request [:params :lang])]
@@ -218,6 +220,7 @@
                :semantics (strip-refs (get-in expression [:synsem :sem]))
                (keyword lang) (fo expression)})})))
 
+;; TODO: move out of game ns.
 (defn generate-from-semantics [request]
   (let [semantics (get-in request [:params :semantics])
         semantics (json/read-str semantics
@@ -229,7 +232,7 @@
         lang (get-in request [:params :lang])]
     (generate-expression {:synsem {:sem semantics}} lang {:grammar en/grammar
                                                           :index source-language-index-full})))
-
+;; TODO: move out of game ns.
 (defn generate-question [request]
   (let [pred (if (not (= :null (get-in request [:params :pred] :null)))
                (keyword (get-in request [:params :pred]))
@@ -259,6 +262,28 @@
              :question (:head_of_source form)
              :right_context_of_question (:right_context_source form)
              :semantics (strip-refs (get-meaning question))})}))
+
+;; TODO: move out of game ns.
+;; TODO: support multiple languages.
+(defn lookup [request]
+  (let [pred (if (not (= :null (get-in request [:params :pred] :null)))
+               (keyword (get-in request [:params :pred])))
+        results
+        (into {}
+              (for [[k v] en/lexicon]
+                (let [filtered-v
+                      (filter #(= (get-in % [:synsem :sem :pred]) pred)
+                              v)]
+                  (if (not (empty? filtered-v))
+                    [k filtered-v]))))]
+    {:status 200
+     :headers {"Content-Type" "application/json;charset=utf-8"
+               
+               "Cache-Control" "no-cache, no-store, must-revalidate"
+               "Pragma" "no-cache"
+               "Expires" "0"}
+     :body (json/write-str
+            {:en (string/join "," (keys results))})}))
 
 ;; This is the counterpart to (generate-questions) immediately above: it generates
 ;; an expression that the user should be learniong.

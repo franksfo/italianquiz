@@ -72,11 +72,11 @@
           [:tr
            
            [:th ""]
-           [:th "Italian"]
-           [:th "Example"]
+           [:th {:style "width:10em"} "Italian"]
+           [:th {:style "width:20em"} "Example"]
            
-           [:th "English"]
-           [:th "Example"]
+           [:th {:style "width:10em"} "English"]
+           [:th {:style "width:20em"} "Translation"]
 
            ]
 
@@ -100,7 +100,7 @@
                                     (filter (fn [lex]
                                               (and
                                                (= :top (get-in lex [:synsem :infl]))
-                                               (= :bere (get-in lex [:synsem :sem :pred]))
+                                               ;(= :bere (get-in lex [:synsem :sem :pred]))
                                                (= :verb
                                                   (get-in lex [:synsem :cat]))))
                                             (get it/lexicon lexeme)))))
@@ -122,10 +122,7 @@
                                            (get-in lex [:synsem :cat])))
                                       (get it/lexicon lexeme)))))
                       (sort (keys it/lexicon))))
-
-
          ]
-
         ]
 
        [:div#dets
@@ -143,12 +140,8 @@
                                            (get-in lex [:synsem :cat])))
                                       (get it/lexicon lexeme)))))
                       (sort (keys it/lexicon))))
-
-
          ]
-
        ]
-
        ]
 
       [:div#inflections

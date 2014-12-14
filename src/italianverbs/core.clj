@@ -227,6 +227,9 @@
        ;; this function should create the user, log the user in and let them set their password.
        (auth/confirm-and-create-user request))
 
+  (GET "/cloud/lookup" request
+       (game/lookup request))
+
   (GET "/cloud/generate-from-semantics" request
        (game/generate-from-semantics request))
 
