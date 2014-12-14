@@ -69,6 +69,12 @@
                           :consumable false
                           :artifact true}}})
 
+   "buy" (trans-intrans {:synsem {:sem {:pred :bought}}
+                         :english {:english {:past "bought"}}}
+
+                        {:subj {:human true}
+                         :obj {:buyable true}})
+
    "cat"
    (unify agreement-noun
           common-noun
@@ -76,63 +82,62 @@
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
 
-   "change" (unify {:synsem {:sem {:pred :cambiare}}} transitive)
-   "erase"  (unify {:synsem {:sem {:pred :cancellare}}} transitive)
+   "change" (trans-intrans {:synsem {:sem {:pred :cambiare}}}) ;; TODO: add reflexive sense
+   "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}})
-   "sing"  (unify {:synsem {:sem {:pred :cantare}}} transitive)
-   "charge" (unify {:synsem {:sem {:pred :caricare}}} transitive)
-   "upload"  (unify {:synsem {:sem {:pred :caricare}}} transitive)
-   "dine"  (unify {:synsem {:sem {:pred :cenare}}} transitive)
-   "have dinner"  (unify {:synsem {:sem {:pred :cenare}}} transitive
-                         {:english {:present {:3sing "has dinner"}
-                                    :past "had dinner"}})
-   "eat dinner"  (unify {:synsem {:sem {:pred :cenare}}} transitive
-                         {:english {:present {:3sing "eats dinner"}
-                                    :past "ate dinner"}})
-   "desire"  (unify {:synsem {:sem {:pred :desiderare}}} transitive)
-   "paint"  (unify {:synsem {:sem {:pred :dipingere}}} transitive)
-   "enter"  (unify {:synsem {:sem {:pred :entrare}}} transitive)
-   "attend"  (unify {:synsem {:sem {:pred :frequentare}}} transitive)
-   "(machines) work"  (unify {:english {:note "nonliving"} ;; TODO: add support in cloud for :note.
-                              :synsem {:sem {:subj {:living false}
-                                             :pred :funzionare}}} transitive)
-   "(game) play" (unify {:synsem {:sem {:pred :giocare}}} transitive)
-   "drive"  (unify {:synsem {:sem {:pred :guidare}}} transitive)
-   "learn"  (unify {:synsem {:sem {:pred :imparare}}} transitive)
-   "meet"  (unify {:synsem {:sem {:pred :incontrare}}} transitive)
-   "teach"  (unify {:synsem {:sem {:pred :insegnare}}} transitive)
-   "(human) work"  (unify {:synsem {:sem {:pred :lavorare}}} transitive)
-   "send"  (unify {:synsem {:sem {:pred :mandare}}} transitive)
-   "carry"  (unify {:synsem {:sem {:pred :portare}}} transitive)
-   "wear"  (unify {:synsem {:sem {:pred :portare}}} transitive)
-   "grab"  (unify {:synsem {:sem {:pred :prendere}}} transitive
-                  {:english {:imperfetto "grabbing"
-                             :past "grabbed"}})
-   "take"  (unify {:synsem {:sem {:pred :prendere}}} transitive
-                  {:english {:past "took"}})
-   "receive"  (unify {:synsem {:sem {:pred :ricevere}}} transitive)
-   "remember"  (unify {:synsem {:sem {:pred :ricordare}}} transitive)
-   "respond"  (unify {:synsem {:sem {:pred :rispondere}}} transitive)
-   "return" [
-             (unify {:synsem {:sem {:pred :ritornare}}} transitive)
+   "sing"  (trans-intrans {:synsem {:sem {:pred :cantare}}})
+   "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
+   "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
+   "dine"  (trans-intrans {:synsem {:sem {:pred :cenare}}})
+   "have dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
+                                  :english {:present {:3sing "has dinner"}
+                                            :past "had dinner"}})
+   "eat dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
+                                 :english {:present {:3sing "eats dinner"}
+                                           :past "ate dinner"}})
+   "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
+   "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
+   "enter"  (trans-intrans {:synsem {:sem {:pred :entrare}}})
+   "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
+   "(machines) work" (trans-intrans {:english {:note "nonliving"} ;; TODO: add support in cloud for :note.
+                                     :synsem {:sem {:subj {:living false}
+                                                   :pred :funzionare}}})
+   "(game) play" (trans-intrans {:synsem {:sem {:pred :giocare}}})
+   "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}})
+   "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
+   "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}})
+   "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
+   "(human) work"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
+   "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}})
+   "carry"  (trans-intrans {:synsem {:sem {:pred :portare}}})
+   "wear"  (trans-intrans {:synsem {:sem {:pred :portare}}})
+   "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
+                           :english {:imperfetto "grabbing"
+                                     :past "grabbed"}})
+   "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
+                           :english {:past "took"}})
+   "receive"  (trans-intrans {:synsem {:sem {:pred :ricevere}}})
+   "remember"  (trans-intrans {:synsem {:sem {:pred :ricordare}}})
+   "respond"  (trans-intrans {:synsem {:sem {:pred :rispondere}}})
+   "return" (flatten
+             (list
+              (trans-intrans {:synsem {:sem {:pred :ritornare}}})
+              (trans-intrans {:synsem {:sem {:pred :tornare}}})))
 
-             (unify {:synsem {:sem {:pred :tornare}}} transitive)]
+   "download"  (trans-intrans {:synsem {:sem {:pred :scaricare}}})
+   "write"  (trans-intrans {:english {:past "wrote"}
+                            :synsem {:sem {:pred :scrivere}}})
+   "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
+   "study"  (trans-intrans {:synsem {:sem {:pred :studiare}}})
+   "(music) play" (trans-intrans {:synsem {:sem {:pred :suonare}}})
+   "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere}}})
+   "use"  (trans-intrans {:synsem {:sem {:pred :usare}}})
+   "see"  (trans-intrans {:synsem {:sem {:pred :vedere}}
+                          :english {:past "saw"
+                                    :past-participle "seen"}})
 
-   "download"  (unify {:synsem {:sem {:pred :scaricare}}} transitive)
-   "write"  (unify {:english {:past "wrote"}
-                    :synsem {:sem {:pred :scrivere}}} transitive)
-   "print"  (unify {:synsem {:sem {:pred :stampare}}} transitive)
-   "study"  (unify {:synsem {:sem {:pred :studiare}}} transitive)
-   "(music) play"  (unify {:synsem {:sem {:pred :suonare}}} transitive)
-   "ask"  (unify {:synsem {:sem {:pred :chiedere}}} transitive)
-   "use"  (unify {:synsem {:sem {:pred :usare}}} transitive)
-   "see"  (unify {:synsem {:sem {:pred :vedere}}} transitive
-                 {:english {:past "saw"
-                            :past-participle "seen"}})
-
-   "sell"  (unify {:synsem {:sem {:pred :vendere}}
-                   :english {:past "sold"}}
-                  transitive)
+   "sell"  (trans-intrans {:synsem {:sem {:pred :vendere}}
+                           :english {:past "sold"}})
 
    "dog"
    (unify agreement-noun
