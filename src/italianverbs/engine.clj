@@ -93,6 +93,12 @@
         (generate-expression {:synsem {:sem semantics}}
                              (cond (= model "en")
                                    en/small
+                                   (= model "en-small")
+                                   en/small
+                                   (= model "it")
+                                   it/small
+                                   (= model "it-small")
+                                   it/small
                                    true ;; TODO: throw exception if we got here.
                                    en/small))]
     {:status 200
