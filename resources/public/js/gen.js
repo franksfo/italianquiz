@@ -62,7 +62,7 @@ function gen_from_verb(verb) {
 	var pred = evaluated.pred;
 	var semantics = evaluated.semantics;
 	$("#verb_"+verb).html(example);
-	$("#semantics_"+verb).html(evaluated.semantics_display);
+//	$("#semantics_"+verb).html(evaluated.semantics_display);
 
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
@@ -70,18 +70,16 @@ function gen_from_verb(verb) {
 
 	    function translate(content) {
 		evaluated  = jQuery.parseJSON(content);
-		$("#english_translation_"+pred).html(evaluated.en);
+		$("#english_translation_"+pred).html(evaluated.response);
 	    }
 
 	    // disabled for now for most verbs, until we can generate an english sentence.
-	    if (pred == "bere") {
-		$.ajax({
-		    cache: false,
-		    dataType: "html",
-		    url: "/engine/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
-		    success: translate
-		});
-	    }
+	    $.ajax({
+		cache: false,
+		dataType: "html",
+		url: "/engine/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
+		success: translate
+	    });
 	}
 
 	$.ajax({

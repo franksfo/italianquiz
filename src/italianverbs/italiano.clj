@@ -94,4 +94,21 @@
 (defn choose-lexeme [spec]
   (first (unify/lazy-shuffle (lookup-in spec (vals lexicon)))))
 
+(def small
+  (let [grammar
+        (filter #(= (:rule %) "s-present")
+                grammar)
 
+        lexicon
+        (into {}
+              (for [[k v] lexicon]
+                (let [filtered-v
+                      (filter #(or (= (get-in % [:synsem :sem :pred]) :antonio)
+                                   (= (get-in % [:synsem :sem :pred]) :bere)
+                                   (= (get-in % [:synsem :sem :pred]) :dormire))
+                              v)]
+                  (if (not (empty? filtered-v))
+                    [k filtered-v]))))]
+    {:grammar grammar
+     :lexicon lexicon
+     :index (create-index grammar (flatten (vals lexicon)) head-principle)}))

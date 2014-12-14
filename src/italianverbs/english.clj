@@ -10,6 +10,7 @@
 (require '[italianverbs.morphology.english :as morph])
 (require '[italianverbs.parse :as parse])
 (require '[italianverbs.ug :refer :all])
+(require '[italianverbs.unify :refer (get-in)])
 
 (def get-string morph/get-string)
 (def grammar gram/grammar)
@@ -64,3 +65,24 @@
       (generate/generate-all spec use-grammar
                              (flatten (vals lexicon)) 
                              index))))
+
+(def small
+  (let [grammar
+        (filter #(= (:rule %) "s-present")
+                grammar)
+
+        lexicon
+        (into {}
+              (for [[k v] lexicon]
+                (let [filtered-v
+                      (filter #(or (= (get-in % [:synsem :sem :pred]) :antonio)
+                                   (= (get-in % [:synsem :sem :pred]) :bere)
+                                   (= (get-in % [:synsem :sem :pred]) :dormire))
+                              v)]
+                  (if (not (empty? filtered-v))
+                    [k filtered-v]))))]
+    {:grammar grammar
+     :lexicon lexicon
+     :index (create-index grammar (flatten (vals lexicon)) head-principle)}))
+
+
