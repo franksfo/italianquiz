@@ -923,8 +923,10 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
       (zipmap
        keys
        (map (fn [paths]
-              (if (nil? paths) 0
-                  (apply max (map (fn [path] (if (nil? path) 0 (.size path))) paths))))
+              (cond (nil? paths) 0
+                    (= 0 (.size paths)) 0
+                    true
+                    (apply max (map (fn [path] (if (nil? path) 0 (.size path))) paths))))
             keys)))))
 
 (defn sort-by-max-lengths [serialization]
