@@ -15,6 +15,7 @@
    [hiccup.element :as e]
    [italianverbs.auth :as auth] ;; auth/confirm-and-create-user
    [italianverbs.class :as vc-class]
+   [italianverbs.engine :as engine]
    [italianverbs.game :as game]
    [italianverbs.gen :as g]
    [italianverbs.korma :as db]
@@ -228,10 +229,10 @@
        (auth/confirm-and-create-user request))
 
   (GET "/cloud/lookup" request
-       (game/lookup request))
+       (engine/lookup request))
 
   (GET "/cloud/generate-from-semantics" request
-       (game/generate-from-semantics request))
+       (engine/generate-from-semantics request))
 
   (GET "/cloud" request
        {:status 200
@@ -247,7 +248,7 @@
          :body (game/evaluate request)})
 
   (GET "/cloud/generate" request
-       (game/generate request))
+       (engine/generate request))
 
   (GET "/cloud/generate-answers" request
        (game/generate-answers request))

@@ -3,36 +3,24 @@
   (:require
    [clojure.core :exclude [get-in]]
    [clojure.core :as core] ;; This allows us to use core's get-in by doing "(core/get-in ..)"
-   [clojure.set :refer :all]
+   [clojure.set :as set]
    [clojure.string :as string]
+   [clojure.tools.logging :as log]
 
    [clojail.core :refer [sandbox]]
    [clojail.testers :refer :all]
-   [clojure.tools.logging :as log]
-   [hiccup.core :refer :all]
 
-   [italianverbs.benchmark :refer :all]
-   [italianverbs.forest :as forest]
-   [italianverbs.forest :refer :all :exclude [lightning-bolt unifyc deref future generate rand-int]]
+   [hiccup.core :refer [html]]
 
-   [italianverbs.game :as game]
-
-   [italianverbs.generate :as generate :refer :all :exclude [lightning-bolt sentence]]
+   [italianverbs.engine :refer :all]
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
+   [italianverbs.morphology :refer [fo fo-ps]]
    [italianverbs.html :as html]
-   [italianverbs.lexiconfn :refer :all]
-   [italianverbs.morphology :refer [finalize fo fo-ps]]
-   [italianverbs.over :refer :all]
-   [italianverbs.parse :as parse]
-   [italianverbs.translate :refer :all]
-   [italianverbs.pos :refer :all]
-   ;; we excluded lightning-bolt from italianverbs.forest, so that we can use italianverbs.test.forest's instead:
-;;   [italianverbs.test.forest :refer :all]
-   
-   [italianverbs.translate :refer :all]
-   [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer :all :exclude [unify]]))
+   [italianverbs.parse :refer [parse]]
+   [italianverbs.translate :refer [translate]]
+   [italianverbs.unify :refer [get-in remove-false strip-refs]]
+))
 
 ;(def avoid-init-errors (nounphrase))
 (def avoid-init-errors true)
@@ -198,7 +186,7 @@
 
 
 ;; TODO: remove when I feel safe that I don't need it anymore..
-(def get-stuff-initialized1 (parse "io leggo il libro"))
+(def get-stuff-initialized1 (it/parse "io leggo il libro"))
 (def get-stuff-initialized2 (translate "io leggo il libro"))
 
 (log/info (str "done initializing workbook(1): " (fo get-stuff-initialized1)))

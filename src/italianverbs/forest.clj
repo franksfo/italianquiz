@@ -12,7 +12,7 @@
                                                    overc overh)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :as over]
-   [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle ref? remove-top-values-log show-spec unifyc)]))
+   [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle ref? remove-false remove-top-values-log show-spec unifyc)]))
 
 (def concurrent false)
 (declare path-to-map)
@@ -21,25 +21,6 @@
 (declare add-complements-to-bolts)
 
 (declare lightning-bolt)
-
-(defn remove-false [spec]
-  (cond (map? spec)
-        (into {}
-              (map (fn [key]
-                     (let [val (get-in spec (list key))]
-                       (if (not (= val false))
-                         [key (remove-false val)])))
-                   (keys spec)))
-        
-        (seq? spec)
-        (map (fn [each]
-               (remove-false each))
-             spec)
-        (ref? spec)
-        (remove-false @spec)
-
-        true
-        spec))
 
 (defn generate [spec grammar lexicon cache]
   (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))

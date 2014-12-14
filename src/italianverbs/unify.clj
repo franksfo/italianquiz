@@ -1532,6 +1532,25 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
              (cons elem
                    (lazy-shuffle (concat prior (rest remainder))))))))))
 
+(defn remove-false [spec]
+  (cond (map? spec)
+        (into {}
+              (map (fn [key]
+                     (let [val (get-in spec (list key))]
+                       (if (not (= val false))
+                         [key (remove-false val)])))
+                   (keys spec)))
+        
+        (seq? spec)
+        (map (fn [each]
+               (remove-false each))
+             spec)
+        (ref? spec)
+        (remove-false @spec)
+
+        true
+        spec))
+
 (defn show-spec [spec]
   (cond (seq? spec)
         (map show-spec spec)
