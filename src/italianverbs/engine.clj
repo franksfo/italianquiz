@@ -65,9 +65,7 @@
         lang (get-in request [:params :lang])]
     (log/info (str "generate with pred: " pred "; lang: " lang))
     (let [expression (generate-expression {:synsem {:sem {:pred pred}}}
-                                          {:grammar target-language-grammar-full
-                                           :lexicon target-language-lexicon-full
-                                           :index target-language-index-full})
+                                          it/small)
           semantics (strip-refs (get-in expression [:synsem :sem]))]
       (log/info (str "fo of expression: " (fo expression)))
       (log/info (str "semantics of expression: " semantics))
@@ -91,21 +89,19 @@
                                                   (keyword v)
                                                   :else v)))
         model (get-in request [:params :model])
-        expression
-        (if false
-          (generate-expression {:synsem {:sem {:pred :dormire}}} en/small)
-          (generate-expression {:synsem {:sem {:pred (get-in semantics [:pred])}}}
-                               (cond (= model "en")
-                                     en/small
-                                     true ;; TODO: throw exception if we got here.
-                                     en/small)))]
+        translation
+        (generate-expression {:synsem {:sem semantics}}
+                             (cond (= model "en")
+                                   en/small
+                                   true ;; TODO: throw exception if we got here.
+                                   en/small))]
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
                "Cache-Control" "no-cache, no-store, must-revalidate"
                "Pragma" "no-cache"
                "Expires" "0"}
      :body (json/write-str
-            {:response (fo expression)})}))
+            {:response (fo translation)})}))
 
 (def possible-preds [:top])
 

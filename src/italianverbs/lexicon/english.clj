@@ -11,6 +11,15 @@
                                     verb verb-aux)])
 (require '[italianverbs.pos.english :refer :all])
 
+(defn trans-intrans [spec]
+  [(unify
+    spec
+    transitive)
+
+   (unify
+    spec
+    intransitive-unspecified-obj)])
+
 (def lexicon-source
   {"Antonia"
    {:synsem {:sem {:pred :antonia
@@ -64,6 +73,7 @@
 
    "change" (unify {:synsem {:sem {:pred :cambiare}}} transitive)
    "erase"  (unify {:synsem {:sem {:pred :cancellare}}} transitive)
+   "love" (trans-intrans {:synsem {:sem {:pred :amare}}})
    "sing"  (unify {:synsem {:sem {:pred :cantare}}} transitive)
    "charge" (unify {:synsem {:sem {:pred :caricare}}} transitive)
    "upload"  (unify {:synsem {:sem {:pred :caricare}}} transitive)

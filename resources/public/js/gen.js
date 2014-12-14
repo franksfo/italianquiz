@@ -62,7 +62,9 @@ function gen_from_verb(verb) {
 	var pred = evaluated.pred;
 	var semantics = evaluated.semantics;
 	$("#verb_"+verb).html(example);
-//	$("#semantics_"+verb).html(evaluated.semantics_display);
+
+	// hide semantics for now
+	//	$("#semantics_"+verb).html(evaluated.semantics_display);
 
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
@@ -73,7 +75,6 @@ function gen_from_verb(verb) {
 		$("#english_translation_"+pred).html(evaluated.response);
 	    }
 
-	    // disabled for now for most verbs, until we can generate an english sentence.
 	    $.ajax({
 		cache: false,
 		dataType: "html",

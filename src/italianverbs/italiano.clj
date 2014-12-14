@@ -96,16 +96,15 @@
 
 (def small
   (let [grammar
-        (filter #(= (:rule %) "s-present")
+        (filter #(or (= (:rule %) "s-present")
+                     (= (:rule %) "s-future"))
                 grammar)
-
         lexicon
         (into {}
               (for [[k v] lexicon]
                 (let [filtered-v
                       (filter #(or (= (get-in % [:synsem :sem :pred]) :antonio)
-                                   (= (get-in % [:synsem :sem :pred]) :bere)
-                                   (= (get-in % [:synsem :sem :pred]) :dormire))
+                                   (= (get-in % [:synsem :cat]) :verb))
                               v)]
                   (if (not (empty? filtered-v))
                     [k filtered-v]))))]
