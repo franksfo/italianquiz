@@ -254,8 +254,12 @@
         :synsem {:infl :present
                  :subcat {:2 {:essere false
                               :subcat {:1 :top
-                                       :2 '()}}}}})])
+                                       :2 '()}}}}})
 
+      ;; 4. avere: unspecified object
+      (unify
+       avere-common
+       intransitive-unspecified-obj)])
 
    "bello"
 
