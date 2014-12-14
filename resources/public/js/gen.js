@@ -72,7 +72,12 @@ function gen_from_verb(verb) {
 
 	    function translate(content) {
 		evaluated  = jQuery.parseJSON(content);
-		$("#english_translation_"+pred).html(evaluated.response);
+		if (evaluated.response == "") {
+		    $("#english_translation_"+pred).html("<a href='/engine/generate-from-semantics?lang=en&semantics=" +
+							 encodeURIComponent(JSON.stringify(semantics)) + "'>..</a>");
+		} else {
+		    $("#english_translation_"+pred).html(evaluated.response);
+		}
 	    }
 
 	    $.ajax({
