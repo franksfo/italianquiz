@@ -91,7 +91,9 @@ function gen_from_verb(verb) {
 	$.ajax({
 	    cache: false,
 	    dataType: "html",
-	    url: "/engine/lookup?lang=en&pred=" + pred,
+	    url: "/engine/lookup?lang=en&spec=" + encodeURIComponent(JSON.stringify({"synsem": {"cat": "verb",
+												"sem": {"pred": pred},
+												"infl": "infinitive"}})),
 	    success: translate_verb
 	});
 

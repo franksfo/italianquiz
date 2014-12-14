@@ -13,7 +13,7 @@
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
-   [italianverbs.unify :refer [get-in merge strip-refs unify]]
+   [italianverbs.unify :refer [fail? get-in merge strip-refs unify unifyc]]
 
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]))
@@ -111,15 +111,21 @@
 
 (def possible-preds [:top])
 
-;; TODO: support multiple languages.
+;; TODO: support multiple languages: for now, only works with english.
 (defn lookup [request]
-  (let [pred (if (not (= :null (get-in request [:params :pred] :null)))
-               (keyword (get-in request [:params :pred])))
+  (let [spec (if (not (= :null (get-in request [:params :spec] :null)))
+               (json/read-str (get-in request [:params :spec])
+                              :key-fn keyword
+                              :value-fn (fn [k v]
+                                          (cond (string? v)
+                                                (keyword v)
+                                                :else v)))
+               :fail)
         results
         (into {}
               (for [[k v] en/lexicon]
                 (let [filtered-v
-                      (filter #(= (get-in % [:synsem :sem :pred]) pred)
+                      (filter #(not (fail? (unifyc % spec)))
                               v)]
                   (if (not (empty? filtered-v))
                     [k filtered-v]))))]
