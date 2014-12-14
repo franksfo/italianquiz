@@ -75,6 +75,9 @@
            [:th "Italian"]
            [:th "Example"]
            
+           [:th "English"]
+           [:th "Example"]
+
            ]
 
          (map (fn [lexeme]
@@ -85,7 +88,11 @@
 
                  [:td lexeme ]
                  [:td.example
-                  [:div.gen_source {:id (str "verb_" lexeme)} ".." ]]])
+                  [:div.gen_source {:id (str "verb_" lexeme)} ".." ]]
+
+                 [:td {:id (str "english_verb_" lexeme)}]
+
+                 [:td {:id (str "english_translation_" lexeme)}]])
          
               (let [all-verbs
                     (filter (fn [lexeme]
@@ -93,15 +100,12 @@
                                     (filter (fn [lex]
                                               (and
                                                (= :top (get-in lex [:synsem :infl]))
+                                               (= :bere (get-in lex [:synsem :sem :pred]))
                                                (= :verb
                                                   (get-in lex [:synsem :cat]))))
                                             (get it/lexicon lexeme)))))
                             (sort (keys it/lexicon)))]
-                (list
-                 (first all-verbs)
-                 (second all-verbs))))]]
-
-        
+                all-verbs))]]
 
        [:div#noun
         [:h4 "Nouns and Pronouns"]

@@ -49,6 +49,10 @@ verbs.table th {
     border:0px solid blue;
 }
 
+#verbs th {
+    text-align:center;
+}
+
 div.gen_source {
     border:0px dashed green;
 }

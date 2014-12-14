@@ -188,6 +188,9 @@
 ;  (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
   (create-index it/grammar (flatten (vals it/lexicon)) head-principle))
 
+(def source-language-index-full
+  (create-index en/grammar (flatten (vals en/lexicon)) head-principle))
+
 (defn generate-expression [spec language grammar-and-lexicon]
   (let [spec (unify spec
                     {:synsem {:subcat '()}})]
@@ -211,7 +214,21 @@
                  "Pragma" "no-cache"
                  "Expires" "0"}
        :body (json/write-str
-              {(keyword lang) (fo expression)})})))
+              {:pred pred
+               :semantics (strip-refs (get-in expression [:synsem :sem]))
+               (keyword lang) (fo expression)})})))
+
+(defn generate-from-semantics [request]
+  (let [semantics (get-in request [:params :semantics])
+        semantics (json/read-str semantics
+                                 :key-fn keyword
+                                 :value-fn (fn [k v]
+                                            (cond (string? v)
+                                                  (keyword v)
+                                                  :else v)))
+        lang (get-in request [:params :lang])]
+    (generate-expression {:synsem {:sem semantics}} lang {:grammar en/grammar
+                                                          :index source-language-index-full})))
 
 (defn generate-question [request]
   (let [pred (if (not (= :null (get-in request [:params :pred] :null)))

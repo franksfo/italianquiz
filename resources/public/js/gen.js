@@ -4,14 +4,21 @@ var logging_level = INFO;
 function gen(div_id,index,upto) {
     log(INFO,"generating sentence at index:" + index);
 
-    if (index <= upto) {
+    // generating in per-lexeme table for now, so disabling this with false.
+    if (false && index <= upto) {
 	function generate_at_row(content) {
 	    var evaluated = jQuery.parseJSON(content);
 	    var question = evaluated.full_question;
 	    log(INFO,"Updating tour with question:" + question + " with index: " + index);
 	    $("#example_q_"+index).html(question);
 	    
-	    // order of 1 and 2 below don't matter; they are independent of one another.
+	    // The following actions need to be taken:
+	    // 1. generate next question
+	    // 2. generate answer to that question.
+	    // The order of 1 and 2 don't matter; they are independent of one another.
+	    // From the client side, 1 and 2 are simply requests to the server
+	    // (for which we receive answer asynchronously).
+
 	    // 1. generate next question.
 	    gen(div_id,index+1,upto);
 	    
@@ -52,7 +59,20 @@ function gen_from_verb(verb) {
     function generate_with_verb(content) {
 	var evaluated = jQuery.parseJSON(content);
 	var example = evaluated.it;
+	var pred = evaluated.pred;
 	$("#verb_"+verb).html(example);
+
+	function translate(content) {
+	    evaluated  = jQuery.parseJSON(content);
+	    $("#english_translation_"+pred).html(evaluated.answer);
+	}
+	
+	$.ajax({
+	    cache: false,
+	    dataType: "html",
+	    url: "/cloud/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
+	    success: translate
+	});
     }
 
     $.ajax({

@@ -227,6 +227,8 @@
        ;; this function should create the user, log the user in and let them set their password.
        (auth/confirm-and-create-user request))
 
+  (GET "/cloud/generate-from-semantics" request
+       (game/generate-from-semantics request))
 
   (GET "/cloud" request
        {:status 200
@@ -249,7 +251,6 @@
 
   (GET "/cloud/generate-question" request
        (game/generate-question request))
-
 
   (GET "/map" request
        {:status 200
@@ -831,11 +832,13 @@
   (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
   (route/resources "/")
 
-  ;; TODO: how to show info about the request (e.g. request path)
-  (route/not-found (html/page "Non posso trovare questa pagina (page not found)." (str "Non posso trovare questa pagina. Sorry, page not found. "))))
+  ;; TODO: how to show info about the request (e.g. request path and error code).
+
+  ;; currently, we show this '404' error regardless of what the error actually is (might be 500 or otherwise).
+;  (route/not-found (html/page "Non posso trovare questa pagina (page not found)." (str "Non posso trovare questa pagina. Sorry, page not found. ")))
+)
 
 (def main-site main-routes)
-
 
 ;; <BEGIN TEST AUTHENTICATION/AUTHORIZATION>
 ;; TODO: move to dedicated namespace.
