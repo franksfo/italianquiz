@@ -79,12 +79,15 @@ function gen_from_verb(verb) {
 	    $("#english_translation_"+pred).html(evaluated.en);
 	}
 
-	$.ajax({
-	    cache: false,
-	    dataType: "html",
-	    url: "/cloud/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
-	    success: translate
-	});
+	// disabled for now for most verbs..
+	if (pred != "dormire") {
+	    $.ajax({
+		cache: false,
+		dataType: "html",
+		url: "/cloud/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
+		success: translate
+	    });
+	}
     }
 
     $.ajax({

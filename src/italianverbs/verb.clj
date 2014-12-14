@@ -88,11 +88,11 @@
 
                  [:td lexeme ]
                  [:td.example
-                  [:div.gen_source {:id (str "verb_" lexeme)} ".." ]]
+                  [:div.gen_source {:id (str "verb_" lexeme)}  [:i {:class "fa fa-spinner"} "" ] ]]
 
-                 [:td {:id (str "english_verb_" lexeme)}]
+                 [:td {:id (str "english_verb_" lexeme)}  [:i {:class "fa fa-spinner"} "" ] ]
 
-                 [:td {:id (str "english_translation_" lexeme)}]])
+                 [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner"} "" ]]])
          
               (let [all-verbs
                     (filter (fn [lexeme]
