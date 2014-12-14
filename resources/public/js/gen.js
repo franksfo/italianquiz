@@ -60,11 +60,28 @@ function gen_from_verb(verb) {
 	var evaluated = jQuery.parseJSON(content);
 	var example = evaluated.it;
 	var pred = evaluated.pred;
+	var semantics = evaluated.semantics;
 	$("#verb_"+verb).html(example);
+	$("#semantics_"+verb).html(evaluated.semantics_display);
 
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
 	    $("#english_verb_"+pred).html(evaluated.en);
+
+	    function translate(content) {
+		evaluated  = jQuery.parseJSON(content);
+		$("#english_translation_"+pred).html(evaluated.en);
+	    }
+
+	    // disabled for now for most verbs, until we can generate an english sentence.
+	    if (pred == "bere") {
+		$.ajax({
+		    cache: false,
+		    dataType: "html",
+		    url: "/cloud/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
+		    success: translate
+		});
+	    }
 	}
 
 	$.ajax({
@@ -74,20 +91,6 @@ function gen_from_verb(verb) {
 	    success: translate_verb
 	});
 
-	function translate(content) {
-	    evaluated  = jQuery.parseJSON(content);
-	    $("#english_translation_"+pred).html(evaluated.en);
-	}
-
-	// disabled for now for most verbs..
-	if (pred != "dormire") {
-	    $.ajax({
-		cache: false,
-		dataType: "html",
-		url: "/cloud/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
-		success: translate
-	    });
-	}
     }
 
     $.ajax({

@@ -8,6 +8,7 @@
    [hiccup.page :refer (html5)]
 
    [italianverbs.cache :refer (create-index)]
+   [italianverbs.html :refer (tablize)]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
@@ -209,7 +210,10 @@
     (log/info (str "generate with pred: " pred "; lang: " lang))
     (let [expression (generate-expression {:synsem {:sem {:pred pred}}} lang
                                           {:grammar target-language-grammar-full
-                                           :index target-language-index-full})]
+                                           :index target-language-index-full})
+          semantics (strip-refs (get-in expression [:synsem :sem]))]
+      (log/info (str "fo of expression: " (fo expression)))
+      (log/info (str "semantics of expression: " semantics))
       {:status 200
        :headers {"Content-Type" "application/json;charset=utf-8"
                  "Cache-Control" "no-cache, no-store, must-revalidate"
@@ -217,7 +221,8 @@
                  "Expires" "0"}
        :body (json/write-str
               {:pred pred
-               :semantics (strip-refs (get-in expression [:synsem :sem]))
+               :semantics semantics
+               :semantics_display (tablize semantics)
                (keyword lang) (fo expression)})})))
 
 ;; TODO: move out of game ns.
@@ -335,7 +340,7 @@
        ;; using punctuation within the string as means of delimitation (a comma).
        ;; TODO: use a JSON array instead, and also, remove the use of (remove-parens),
        ;; since this is another way that punctuation being abused to serialize data structures.
-       :answer (string/join ","
+       :answer (string/join ", "
                             (list 
                              (remove-parens (fo (get-in answer [:head])))
                              (remove-parens (fo answer))))

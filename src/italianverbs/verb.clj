@@ -27,7 +27,7 @@
 
 ;; see core.clj: (GET "/gen" request
 (defn onload []
-  (str "gen('examples',1," generate-this-many-at-once ");gen_per_verb();")) ;; javascript to be executed at page load.
+  (str "gen('examples',1," generate-this-many-at-once "); gen_per_verb();")) ;; javascript to be executed at page load.
 
 (defn delete [verb]
   (db/fetch-and-modify :verb (db/object-id verb) {} true))
@@ -74,7 +74,7 @@
            [:th ""]
            [:th {:style "width:10em"} "Italian"]
            [:th {:style "width:20em"} "Example"]
-           
+           [:th {:style "width:10em"} "Semantics"]
            [:th {:style "width:10em"} "English"]
            [:th {:style "width:20em"} "Translation"]
 
@@ -88,11 +88,13 @@
 
                  [:td lexeme ]
                  [:td.example
-                  [:div.gen_source {:id (str "verb_" lexeme)}  [:i {:class "fa fa-spinner"} "" ] ]]
+                  [:div.gen_source {:id (str "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
 
-                 [:td {:id (str "english_verb_" lexeme)}  [:i {:class "fa fa-spinner"} "" ] ]
+                 [:td.semantics {:id (str "semantics_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
-                 [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner"} "" ]]])
+                 [:td {:id (str "english_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
+
+                 [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]]])
          
               (let [all-verbs
                     (filter (fn [lexeme]
@@ -100,7 +102,7 @@
                                     (filter (fn [lex]
                                               (and
                                                (= :top (get-in lex [:synsem :infl]))
-                                               ;(= :bere (get-in lex [:synsem :sem :pred]))
+                                               (= :bere (get-in lex [:synsem :sem :pred]))
                                                (= :verb
                                                   (get-in lex [:synsem :cat]))))
                                             (get it/lexicon lexeme)))))
