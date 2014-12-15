@@ -78,23 +78,21 @@ function gen_from_verb(verb) {
 	    evaluated = jQuery.parseJSON(content);
 	    $("#english_verb_"+pred).html(evaluated.en);
 
-	    function translate(content) {
-		evaluated  = jQuery.parseJSON(content);
-		if (evaluated.response == "") {
-		    // could not generate anything: show a link with an error icon (fa-times-circle)
-		    $("#english_translation_"+pred).html("<a href='/engine/generate-from-semantics?lang=en&semantics=" +
-							 encodeURIComponent(JSON.stringify(semantics)) + "'>" + 
-							 "<i class='fa fa-times-circle'> </i>" + " </a>");
-		} else {
-		    $("#english_translation_"+pred).html(evaluated.response);
-		}
-	    }
-
 	    $.ajax({
 		cache: false,
 		dataType: "html",
 		url: "/engine/generate-from-semantics?model=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
-		success: translate
+		success: function translate(content) {
+		    evaluated  = jQuery.parseJSON(content);
+		    if (evaluated.response == "") {
+			// could not generate anything: show a link with an error icon (fa-times-circle)
+			$("#english_translation_"+pred).html("<a href='/engine/generate-from-semantics?lang=en&semantics=" +
+							     encodeURIComponent(JSON.stringify(semantics)) + "'>" + 
+							     "<i class='fa fa-times-circle'> </i>" + " </a>");
+		    } else {
+			$("#english_translation_"+pred).html(evaluated.response);
+		    }
+		}
 	    });
 	}
 
