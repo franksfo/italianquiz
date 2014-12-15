@@ -69,7 +69,10 @@
 (def small
   (let [grammar
         (filter #(or (= (:rule %) "s-present")
-                     (= (:rule %) "s-future"))
+                     (= (:rule %) "s-future")
+                     (= (:rule %) "s-imperfetto")
+                     (= (:rule %) "s-past")
+                     (= (:rule %) "s-aux"))
                 grammar)
 
         lexicon
