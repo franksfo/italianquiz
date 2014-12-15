@@ -610,18 +610,10 @@
                              :artifact true}}})
 
       "comprare"
-      (let [common {:synsem {:essere false
-                             :sem {:pred :comprare
-                                   :subj {:human true}}}}]
-        [(unify
-          transitive
-          common
-          {:synsem {:essere false
-                    :sem {:obj {:buyable true}}}})
-         (unify
-          common
-          intransitive-unspecified-obj)])
-
+      (trans-intrans {:synsem {:essere false
+                               :sem {:pred :comprare}}}
+                     {:subj {:human true}
+                      :obj {:buyable true}})
       
       "contento"
       [(let [complement-complement-sem (ref {:human true})
