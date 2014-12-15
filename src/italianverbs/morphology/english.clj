@@ -630,6 +630,19 @@
                           :subcat {:1 {:agr {:number :sing
                                              :person :3rd}}}}}}})
 
+
+(def infinitive-to-past-1
+  {#"d$"
+   {:replace-with ""
+    :unify-with {:synsem {:cat :verb
+                          :infl :past}}}})
+
+(def infinitive-to-past-2
+  {#"ed$"
+   {:replace-with ""
+    :unify-with {:synsem {:cat :verb
+                          :infl :past}}}})
+
 (def infinitive-to-1plur-present ;; infinitive "read" -> "we read"
   {:identity4
    {:unify-with {:synsem {:cat :verb
@@ -657,6 +670,8 @@
    {:unify-with {:synsem {:cat :noun
                           :agr {:number :sing}}}}})
 
+
+
 (defn analyze [surface-form lookup-fn]
   "return the map incorporating the lexical information about a surface form."
   (let [replace-pairs
@@ -672,6 +687,9 @@
          infinitive-to-3plur-present
 
          lexical-noun-to-singular ;; turns :number :top to :number :sing
+
+         infinitive-to-past-1 ;; love => loved
+         infinitive-to-past-2 ;; talked => talk
 
          )
         
