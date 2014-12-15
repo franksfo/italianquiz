@@ -16,6 +16,7 @@
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer [fo fo-ps]]
+   [italianverbs.over :refer [over]]
    [italianverbs.html :as html]
    [italianverbs.parse :refer [parse]]
    [italianverbs.translate :refer [translate]]
