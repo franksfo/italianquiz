@@ -121,7 +121,7 @@
 
     ] ;; only places can be crowded.
 
-   "aiutare" ;; disabled for now: (:disable :fail)
+   "aiutare"
    (trans-intrans {:synsem {:essere false
                             :sem {:pred :aiutare
                                   :activity true}}}
@@ -324,14 +324,8 @@
           :synsem {:essere false
                    :sem {:pred :bere
                          :subj {:animate true}}}}]
-     [(unify
-       bere-common
-       transitive
-       {:synsem {:sem {:obj {:drinkable true}}}})
-      
-      (unify
-       bere-common
-       intransitive-unspecified-obj)])
+     (trans-intrans bere-common
+                    {:obj {:drinkable true}}))
 
    "bianco"
    (unify adjective
@@ -660,16 +654,18 @@
                               :human true}}
                :italiano {:cat :adjective}})]
 
+      ;; TODO: account for "dare" being ditransitive.
       "dare"
-      {:italiano {:present {:2sing "dai"
-                            :3plur "danno"}
-                  :futuro-stem "dar"}
-       :synsem {:cat :verb
-                :essere false
-                :sem {:subj {:human true}
-                      :iobj {:animate true}
-                      :obj {:buyable true}
-                      :pred :dare}}}
+      (trans-intrans
+       {:italiano {:present {:2sing "dai"
+                             :3plur "danno"}
+                   :futuro-stem "dar"}
+        :synsem {:cat :verb
+                 :essere false
+                 :sem {:pred :dare}}}
+       {:subj {:human true}
+        :iobj {:animate true}
+        :obj {:buyable true}})
 
       "dei"
       {:synsem {:cat :det
@@ -685,16 +681,14 @@
 
                
       "deludere"
-      (unify
-       transitive
-       {:italiano {:passato "deluso"}
-        :synsem {:essere false
-                 :sem {:subj {:human true}
-                       :obj {:human true}
-                       :deliberate false
-                       :discrete true
-                       :activity false
-                       :pred :deludere}}})
+      (trans-intrans {:italiano {:passato "deluso"}
+                      :synsem {:essere false
+                               :sem {:deliberate false
+                                     :discrete true
+                                     :activity false
+                                     :pred :deludere}}}
+                     {:subj {:human true}
+                      :obj {:human true}})
 
       "difficile"
       ;; non-comparative
