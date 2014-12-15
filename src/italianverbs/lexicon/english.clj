@@ -82,12 +82,22 @@
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
 
+   "carry"  (trans-intrans {:synsem {:sem {:pred :portare}}
+                            :english {:past "carried"}})
+
    "change" (trans-intrans {:synsem {:sem {:pred :cambiare}}}) ;; TODO: add reflexive sense
 
    "come" (trans-intrans {:synsem {:sem {:pred :venire}}
                           :english {:past "came"}})
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
+
+   "drink" (trans-intrans
+            {:synsem {:sem {:pred :bere
+                            :discrete false}}
+             :english {:past "drank"}}
+            {:subj {:animate true}
+             :obj {:drinkable true}})
 
    "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}
                             :english {:past "drove"}})
@@ -136,7 +146,6 @@
    "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
    "(human) work"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
    "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}})
-   "carry"  (trans-intrans {:synsem {:sem {:pred :portare}}})
    "wear"  (trans-intrans {:synsem {:sem {:pred :portare}}})
    "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
                            :english {:imperfetto "grabbing"
@@ -174,20 +183,6 @@
           {:synsem {:sem (unify animal {:pred :cane
                                         :pet true})}})
 
-
-
-   "drink"
-   (let [common {:synsem {:sem {:pred :bere
-                                :discrete false
-                                :subj {:animate true}}}}]
-     [(unify
-       common
-       transitive
-       {:synsem {:sem {:obj {:drinkable true}}}})
-
-      (unify
-       common
-       intransitive-unspecified-obj)])
 
    "eat"
    (let [common {:synsem {:sem {:pred :mangiare
