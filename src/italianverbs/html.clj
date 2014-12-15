@@ -728,7 +728,7 @@
      (include-css "/css/font-awesome.min.css"))
    (include-css "/css/game.css")
    (include-css "/css/lab.css")
-   (include-css "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css")
+;   (include-css "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css")
    (include-css "/css/settings.css")
 
    [:style {:type "text/css"} "ul { padding-left: 2em }"]
