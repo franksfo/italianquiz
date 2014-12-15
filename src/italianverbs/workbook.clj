@@ -188,9 +188,9 @@
 
 
 ;; TODO: remove when I feel safe that I don't need it anymore..
-(def get-stuff-initialized1 (it/parse "io leggo il libro"))
-(def get-stuff-initialized2 (translate "io leggo il libro"))
+;(def get-stuff-initialized1 (it/parse "io leggo il libro"))
+;(def get-stuff-initialized2 (translate "io leggo il libro"))
 
-(log/info (str "done initializing workbook(1): " (fo get-stuff-initialized1)))
-(log/info (str "done initializing workbook(2): " get-stuff-initialized2))
+;(log/info (str "done initializing workbook(1): " (fo get-stuff-initialized1)))
+;(log/info (str "done initializing workbook(2): " get-stuff-initialized2))
 
