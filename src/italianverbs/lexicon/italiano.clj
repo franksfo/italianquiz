@@ -122,14 +122,11 @@
     ] ;; only places can be crowded.
 
    "aiutare" ;; disabled for now: (:disable :fail)
-
-   {:synsem {:essere false
-             :disable :fail ;; disabled for now.
-             :sem {:pred :aiutare
-                   :activity true
-                   :subj {:human true}
-                   :obj {:human true}}}}
-
+   (trans-intrans {:synsem {:essere false
+                            :sem {:pred :aiutare
+                                  :activity true}}}
+                  {:subj {:human true}
+                   :obj {:human true}})
 
    "alto"
 
