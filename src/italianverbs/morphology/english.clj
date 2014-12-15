@@ -271,7 +271,8 @@
          last-stem-char (re-find #".$" stem)
          last-stem-char-is-e (re-find #"e$" stem)]
      (cond last-stem-char-is-e
-           (str stem-minus-one penultimate-stem-char "ed")
+;           (str stem-minus-one penultimate-stem-char "ed")
+           (str stem-minus-one "ed")
            true
            (str stem "ed")))
 
