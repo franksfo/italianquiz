@@ -212,7 +212,6 @@
                                 :cat :verb}
                        :italiano {:italiano "avere"
                                   :drop-e true
-                                  :passato "avuto"
                                   :present {:1sing "ho"
                                             :2sing "hai"
                                             :3sing "ha"
@@ -222,14 +221,27 @@
      [(unify ;; 1. "avere": to possess something buyable
        transitive
        avere-common
-       {:synsem {:sem {:pred :avere
+       {:note "avere (possess)"
+        :synsem {:sem {:pred :avere
                        :activity false
                        :discrete false
                        :subj {:human true}
                        :obj {:buyable true}}}})
 
 
-      ;; 2. "avere" that takes a transitive verb: e.g. "io l'ho vista (i saw her)"
+      ;; 2. avere: unspecified object
+      (unify
+       avere-common
+       verb-subjective
+       intransitive-unspecified-obj
+       {:note "avere (possess): unspecified object"
+        :synsem {:sem {:pred :avere
+                       :activity false
+                       :discrete false
+                       :subj {:human true}}}})
+
+
+      ;; 3. "avere" that takes a transitive verb: e.g. "io l'ho vista (i saw her)"
       (let [agr-of-obj-of-main-verb (ref :top)]
         (unify
          verb-aux
@@ -242,7 +254,7 @@
                                             :pronoun true}}
                                :essere false}}}}))
 
-      ;; 3. "avere" that takes an intransitive verb or a transitive verb within a VP
+      ;; 4. "avere" that takes an intransitive verb or a transitive verb within a VP
       ;;    with the object (e.g. "io ho dormito (i slept)" or "io ho [mangiato la pizza] (i ate the pizza)"
       ;; "avere": auxiliary-verb: takes 2 args:
       ;; 1. subject that is the same as the subject of 2.
@@ -254,22 +266,12 @@
          avere-common
          {:note "avere(aux): takes intrans"
           :synsem {:infl :present
-                   :subcat {:1 {:foo 42
-                                :agr agr-of-subj-of-main-verb}
+                   :subcat {:1 {:agr agr-of-subj-of-main-verb}
                             :2 {:essere false
                                 :agr agr-of-subj-of-main-verb
                                 :subcat {:1 {:agr agr-of-subj-of-main-verb}
-                                         :2 '()}}}}}))
+                                         :2 '()}}}}}))])
 
-      ;; 4. avere: unspecified object
-      (unify
-       avere-common
-       intransitive-unspecified-obj
-       {:note "avere: unspecified object"
-        :synsem {:sem {:pred :avere
-                       :activity false
-                       :discrete false
-                       :subj {:human true}}}})])
 
    "bello"
 
