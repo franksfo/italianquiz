@@ -246,14 +246,22 @@
                           :obj {:animate true}}}})
 
    "it"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :3rd
-                   :number :plur}
-             :sem {:pred :loro
-                   :subj {:human false}}
-             :subcat '()}}
+   [{:synsem {:cat :noun
+              :pronoun true
+              :case :nom
+              :agr {:person :3rd
+                    :number :sing}
+              :sem {:pred :lui
+                    :subj {:human false}}
+              :subcat '()}}
+    {:synsem {:cat :noun
+              :pronoun true
+              :case :nom
+              :agr {:person :3rd
+                    :number :sing}
+              :sem {:pred :lei
+                    :subj {:human false}}
+              :subcat '()}}]
 
    "mother"
    (unify agreement-noun
