@@ -188,6 +188,16 @@
                                      :sem {:aspect :perfect
                                            :tense :past}}})
 
+                   (unifyc c10
+                           {:head {:phrasal false ;; non-auxiliary past: e.g. "he slept"
+                                   :synsem {:aux false}}
+                            :rule "s-past"
+                            :synsem {:infl :past
+                                     :cat :verb
+                                     :sem {:aspect :perfect
+                                           :tense :past}}})
+
+
 
                    (unifyc c10
                           {:rule "s-conditional"
