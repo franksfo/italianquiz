@@ -141,7 +141,7 @@
          :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
-        question (generate-expression spec en/small)
+        question (generate spec en/small)
         form (html-form question)]
 
     (log/info "generate-question: question: " (fo question))
