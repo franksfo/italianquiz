@@ -155,6 +155,9 @@
          (fs/ref= arg '(:comp :english) '(:english :a)))))]
     retval))
 
+(def show-top true)
+(def show-true true)
+
 ;; TODO: use multimethod based on arg's type.
 (defn tablize [arg & [path serialized opts]]
  ;; set defaults.
@@ -455,19 +458,21 @@
                      (= (first %) :phrasal)
                      (= (first %) :schema-symbol)
                      (= (first %) :serialized)
-                     (and (fs/ref? (second %))
+                     (and (not show-top)
+                          (fs/ref? (second %))
                           (= @(second %) false))
-                     (and (fs/ref? (second %))
+                     (and (not show-top)
+                          (fs/ref? (second %))
                           (= @(second %) :top))
                      (= (second %) false)
-                     (= (second %) :top)
+                     (and (not show-top) (= (second %) :top))
 
-                     (and (fs/ref? (second %))
+                     (and (not show-true) (fs/ref? (second %))
                           (= @(second %) true))
-                     (and (fs/ref? (second %))
+                     (and (not show-true) (fs/ref? (second %))
                           (= @(second %) :top))
-                     (= (second %) true)
-                     (= (second %) :top))
+                     (and (not show-true) (= (second %) true))
+                     (and (not show-top) (= (second %) :top)))
 
                 (into (sorted-map) arg))
         ))
