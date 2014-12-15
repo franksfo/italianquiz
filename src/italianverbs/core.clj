@@ -248,7 +248,7 @@
          :body (game/evaluate request)})
 
   (GET "/engine/generate" request
-       (engine/generate request))
+       (engine/generate-from-request request))
 
   (GET "/cloud/generate-answers" request
        (game/generate-answers request))

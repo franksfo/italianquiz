@@ -52,7 +52,7 @@
 ;  (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
   (create-index it/grammar (flatten (vals it/lexicon)) head-principle))
 
-(defn generate-expression [spec language-model]
+(defn generate [spec language-model]
   (let [spec (unify spec
                     {:synsem {:subcat '()}})]
     (generate/generate spec 
@@ -60,12 +60,12 @@
                        (:lexicon language-model)
                        (:index language-model))))
 
-(defn generate [request]
+(defn generate-from-request [request]
   (let [pred (keyword (get-in request [:params :pred]))
         lang (get-in request [:params :lang])]
     (log/info (str "generate with pred: " pred "; lang: " lang))
-    (let [expression (generate-expression {:synsem {:sem {:pred pred}}}
-                                          it/small)
+    (let [expression (generate {:synsem {:sem {:pred pred}}}
+                               it/small)
           semantics (strip-refs (get-in expression [:synsem :sem]))]
       (log/info (str "fo of expression: " (fo expression)))
       (log/info (str "semantics of expression: " semantics))
@@ -90,17 +90,17 @@
                                                   :else v)))
         model (get-in request [:params :model])
         translation
-        (generate-expression {:synsem {:sem semantics}}
-                             (cond (= model "en")
-                                   en/small
-                                   (= model "en-small")
-                                   en/small
-                                   (= model "it")
-                                   it/small
-                                   (= model "it-small")
-                                   it/small
-                                   true ;; TODO: throw exception if we got here.
-                                   en/small))]
+        (generate {:synsem {:sem semantics}}
+                  (cond (= model "en")
+                        en/small
+                        (= model "en-small")
+                        en/small
+                        (= model "it")
+                        it/small
+                        (= model "it-small")
+                        it/small
+                        true ;; TODO: throw exception if we got here.
+                        en/small))]
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
                "Cache-Control" "no-cache, no-store, must-revalidate"
@@ -108,6 +108,7 @@
                "Expires" "0"}
      :body (json/write-str
             {:semantics semantics
+             :fo-ps (fo-ps translation)
              :response (fo translation)})}))
 
 (def possible-preds [:top])
