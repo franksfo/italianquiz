@@ -8,32 +8,40 @@ function gen(div_id,index,upto) {
     if (false && index <= upto) {
 	function generate_at_row(content) {
 	    var evaluated = jQuery.parseJSON(content);
-	    var question = evaluated.full_question;
-	    log(INFO,"Updating tour with question:" + question + " with index: " + index);
-	    $("#example_q_"+index).html(question);
-	    
-	    // The following actions need to be taken:
-	    // 1. generate next question
-	    // 2. generate answer to that question.
-	    // The order of 1 and 2 don't matter; they are independent of one another.
-	    // From the client side, 1 and 2 are simply requests to the server
-	    // (for which we receive answer asynchronously).
 
-	    // 1. generate next question.
-	    gen(div_id,index+1,upto);
+	    if (evaluated.full_question == "") {
+		// could not generate anything: show a link with an error icon (fa-times-circle)
+		$("#example_q_"+index).html("<a href='/engine/generate-from-semantics?lang=en&semantics=" +
+						     encodeURIComponent(JSON.stringify(semantics)) + "'>" + 
+							 "<i class='fa fa-times-circle'> </i>" + " </a>");
+	    } else {
+		var question = evaluated.full_question;
+		log(INFO,"Updating tour with question:" + question + " with index: " + index);
+		$("#example_q_"+index).html(question);
 	    
-	    // 2. generate answer to this question.
-	    function update_answer_fn(content) {
-		evaluated  = jQuery.parseJSON(content);
-		$("#example_a_"+index).html(evaluated.answer);
+		// The following actions need to be taken:
+		// 1. generate next question
+		// 2. generate answer to that question.
+		// The order of 1 and 2 don't matter; they are independent of one another.
+		// From the client side, 1 and 2 are simply requests to the server
+		// (for which we receive answer asynchronously).
+
+		// 1. generate next question.
+		gen(div_id,index+1,upto);
+	    
+		// 2. generate answer to this question.
+		function update_answer_fn(content) {
+		    evaluated  = jQuery.parseJSON(content);
+		    $("#example_a_"+index).html(evaluated.answer);
+		}
+
+		$.ajax({
+		    cache: false,
+		    dataType: "html",
+		    url: "/engine/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
+		    success: update_answer_fn
+		});
 	    }
-
-	    $.ajax({
-		cache: false,
-		dataType: "html",
-		url: "/engine/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
-		success: update_answer_fn
-	    });
 	}
 
 	$.ajax({
@@ -73,6 +81,7 @@ function gen_from_verb(verb) {
 	    function translate(content) {
 		evaluated  = jQuery.parseJSON(content);
 		if (evaluated.response == "") {
+		    // could not generate anything: show a link with an error icon (fa-times-circle)
 		    $("#english_translation_"+pred).html("<a href='/engine/generate-from-semantics?lang=en&semantics=" +
 							 encodeURIComponent(JSON.stringify(semantics)) + "'>" + 
 							 "<i class='fa fa-times-circle'> </i>" + " </a>");
@@ -84,7 +93,7 @@ function gen_from_verb(verb) {
 	    $.ajax({
 		cache: false,
 		dataType: "html",
-		url: "/engine/generate-from-semantics?lang=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
+		url: "/engine/generate-from-semantics?model=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
 		success: translate
 	    });
 	}
