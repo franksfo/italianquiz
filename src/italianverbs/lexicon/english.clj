@@ -83,13 +83,24 @@
                                         :pet true})}})
 
    "change" (trans-intrans {:synsem {:sem {:pred :cambiare}}}) ;; TODO: add reflexive sense
+
+   "come" (trans-intrans {:synsem {:sem {:pred :venire}}
+                          :english {:past "came"}})
+
+   "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
+
+   "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}
+                            :english {:past "drove"}})
+
+   "eat dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
+                                 :english {:present {:3sing "eats dinner"}
+                                           :past "ate dinner"}})
+
    "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
 
    "give" (trans-intrans {:synsem {:sem {:pred :dare}}
                           :english {:past "gave"}})
 
-   "come" (trans-intrans {:synsem {:sem {:pred :venire}}
-                          :english {:past "came"}})
 
 
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}})
@@ -101,10 +112,6 @@
                                   :english {:present {:3sing "has dinner"}
                                             :past "had dinner"
                                             :imperfetto "having dinner"}})
-   "eat dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
-                                 :english {:present {:3sing "eats dinner"}
-                                           :past "ate dinner"}})
-   "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
    "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
    "enter"  (trans-intrans {:synsem {:sem {:pred :entrare}}})
    "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
@@ -112,8 +119,6 @@
                                      :synsem {:sem {:subj {:living false}
                                                    :pred :funzionare}}})
    "(game) play" (trans-intrans {:synsem {:sem {:pred :giocare}}})
-   "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}
-                            :english {:past "drove"}})
 
    "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
 
@@ -240,18 +245,15 @@
                           :subj {:human true}
                           :obj {:animate true}}}})
 
-   "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
-   (let [common {:synsem {:sem {:pred :leggere
-                                :discrete false
-                                :subj {:human true}}}}]
-     [(unify
-       common
-       transitive
-       {:synsem {:sem {:obj {:legible true}}}})
-
-      (unify
-       common
-       intransitive-unspecified-obj)])
+   "it"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :number :plur}
+             :sem {:pred :loro
+                   :subj {:human false}}
+             :subcat '()}}
 
    "mother"
    (unify agreement-noun
@@ -260,6 +262,12 @@
           {:synsem {:sem {:human true
                           :pred :madre
                           :child false}}})
+
+   "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
+   (trans-intrans {:synsem {:sem {:pred :leggere
+                                  :discrete false}}}
+                  {:subj {:human true}
+                   :obj {:legible true}})
 
    "red"
    (unify adjective
@@ -317,8 +325,7 @@
              :case :nom
              :agr {:person :3rd
                    :number :plur}
-             :sem {:human true
-                   :pred :loro}
+             :sem {:pred :loro}
              :subcat '()}}
 
    "we"
