@@ -19,6 +19,20 @@
 (require '[italianverbs.unify :refer (get-in)])
 (require '[italianverbs.unify :as unify])
 
+(defn trans-intrans [spec & [opts]]
+  [(unify
+    spec
+    transitive
+    (if (:subj opts)
+      {:synsem {:sem {:subj (:subj opts)}}}
+      :top)
+    (if (:obj opts) {:sem {:obj (:obj opts)}}
+        :top))
+
+   (unify
+    spec
+    intransitive-unspecified-obj)])
+
 (def lexicon-source
   {
    "Antonia"
@@ -66,26 +80,21 @@
                                          :2 '()}}
                             :2 '()}}})]
 
-;   "abbracciare"
-;   (unify transitive
-;           {:synsem {:essere false
-;                     :sem {:pred :abbracciare
-;                           :activity false
-;                           :discrete false
-;                           :subj {:human true}
-;                           :obj {:animate true}}}})
-
-
+   "abbracciare"
+   (trans-intrans {:synsem {:essere false
+                            :sem {:pred :abbracciare
+                                  :activity false
+                                  :discrete false}}}
+                  {:subj {:human true}
+                   :obj {:animate true}})
 
    "acqua"
-
    (unify (:agreement noun)
           (:drinkable noun)
           (:feminine noun)
           {:synsem {:sem {:artifact false
                           :animate false
-                          :pred :acqua}}}
-          )
+                          :pred :acqua}}})
 
    "affolato"
 
@@ -918,8 +927,7 @@
              :agr {:person :3rd
                    :gender :fem
                    :number :sing}
-             :sem {:human true
-                   :pred :lei}
+             :sem {:pred :lei} ;; note: we don't specify human=true (english "it").
              :subcat '()}}
 
    "leggere"
@@ -993,8 +1001,7 @@
              :agr {:person :3rd
                    :gender :masc
                    :number :sing}
-             :sem {:human true
-                   :pred :lui}
+             :sem {:pred :lui} ;; note: we don't specify human=true (english "it").
              :subcat '()}}
 
    "madre"
