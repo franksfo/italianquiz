@@ -109,7 +109,6 @@
    "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
 
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}})
-   "sing"  (trans-intrans {:synsem {:sem {:pred :cantare}}})
    "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
    "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
    "dine"  (trans-intrans {:synsem {:sem {:pred :cenare}}})
@@ -132,11 +131,11 @@
                                          :present {:3sing "looks for"}}})
 
    "look up"  (trans-intrans {:synsem {:sem {:pred :cercare}}
-                              :english {:present {:3sing "looks up"}}})
+                              :english {:imperfetto "looking up"
+                                        :present {:3sing "looks up"}}})
 
-
-;; TODO: search _within_ or _on_: depends on the object.
-;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
+   ;; TODO: search _within_ or _on_: depends on the object.
+   ;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
 
    "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
    "(human) work"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
@@ -301,6 +300,9 @@
              :sem {:human true
                    :pred :lei}
              :subcat '()}}
+
+   "sing"  (trans-intrans {:synsem {:sem {:pred :cantare}}
+                           :english {:past "sang"}})
 
    "sleep"
    (unify
