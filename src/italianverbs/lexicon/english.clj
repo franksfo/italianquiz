@@ -99,7 +99,8 @@
    "dine"  (trans-intrans {:synsem {:sem {:pred :cenare}}})
    "have dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
                                   :english {:present {:3sing "has dinner"}
-                                            :past "had dinner"}})
+                                            :past "had dinner"
+                                            :imperfetto "having dinner"}})
    "eat dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
                                  :english {:present {:3sing "eats dinner"}
                                            :past "ate dinner"}})
@@ -197,10 +198,9 @@
        intransitive-unspecified-obj)])
    
    "embrace"
-   (unify transitive
-          {:synsem {:sem {:pred :abbracciare
-                          :subject {:human true}
-                          :obj {:human true}}}})
+   (trans-intrans {:synsem {:sem {:pred :abbracciare}}}
+                  {:subj {:human true}}
+                  {:obj {:human true}})
 
    "I"
    {:synsem {:cat :noun
