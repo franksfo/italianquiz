@@ -214,11 +214,12 @@
 
    "have"
    (trans-intrans {:synsem {:cat :verb
-                            :sem {:activity false
-                                  :discrete false
-                                  :pred :avere}}
+                             :sem {:activity false
+                                   :discrete false
+                                   :pred :avere}}
                    :english {:english "have"
-                             :present {:3sing "has"}}}
+                             :present {:3sing "has"}
+                             :past "had"}}
                   {:subj {:human true}
                    :obj {:buyable true}})
 
