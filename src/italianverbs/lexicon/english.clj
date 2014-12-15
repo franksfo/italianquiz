@@ -84,6 +84,14 @@
 
    "change" (trans-intrans {:synsem {:sem {:pred :cambiare}}}) ;; TODO: add reflexive sense
    "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
+
+   "give" (trans-intrans {:synsem {:sem {:pred :dare}}
+                          :english {:past "gave"}})
+
+   "come" (trans-intrans {:synsem {:sem {:pred :venire}}
+                          :english {:past "came"}})
+
+
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}})
    "sing"  (trans-intrans {:synsem {:sem {:pred :cantare}}})
    "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
@@ -137,6 +145,7 @@
               (trans-intrans {:synsem {:sem {:pred :ritornare}}})
               (trans-intrans {:synsem {:sem {:pred :tornare}}})))
 
+   "disappoint"  (trans-intrans {:synsem {:sem {:pred :deludere}}})
    "download"  (trans-intrans {:synsem {:sem {:pred :scaricare}}})
    "write"  (trans-intrans {:english {:past "wrote"}
                             :synsem {:sem {:pred :scrivere}}})
