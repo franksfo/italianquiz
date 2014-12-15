@@ -69,8 +69,8 @@
                           :consumable false
                           :artifact true}}})
 
-   "buy" (trans-intrans {:synsem {:sem {:pred :bought}}
-                         :english {:english {:past "bought"}}}
+   "buy" (trans-intrans {:synsem {:sem {:pred :comprare}}
+                         :english {:past "bought"}}
 
                         {:subj {:human true}
                          :obj {:buyable true}})
@@ -103,8 +103,21 @@
                                      :synsem {:sem {:subj {:living false}
                                                    :pred :funzionare}}})
    "(game) play" (trans-intrans {:synsem {:sem {:pred :giocare}}})
-   "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}})
+   "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}
+                            :english {:past "drove"}})
+
    "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
+
+   "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
+                               :english {:present {:3sing "looks for"}}})
+
+   "look up"  (trans-intrans {:synsem {:sem {:pred :cercare}}
+                              :english {:present {:3sing "looks up"}}})
+
+
+;; TODO: search _within_ or _on_: depends on the object.
+;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
+
    "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}})
    "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
    "(human) work"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
