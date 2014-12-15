@@ -557,11 +557,14 @@
 
        (cond
 
-        (or are-type ere-type)
-        (str stem "at" suffix) ;; "ato" or "ati"
+        ere-type
+        (str stem "ut" suffix) ;; "uto","uti","uta" or "ute"
+
+        are-type
+        (str stem "at" suffix) ;; "ato","ati","ata", or "ate"
 
         (or are-type ire-type)
-        (str stem "it" suffix) ;; "ito" or "iti"
+        (str stem "it" suffix) ;; "ito","iti","ita", or "ite"
 
         true
         (str "(regpast:TODO):" stem)))
