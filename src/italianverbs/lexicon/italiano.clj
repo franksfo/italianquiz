@@ -442,7 +442,8 @@
                                 :essere true}})
 
    "scaricare" (unify {:synsem {:sem {:pred :scaricare}}} transitive)
-   "scrivere" (unify {:synsem {:sem {:pred :scrivere}}} transitive)
+   "scrivere" (unify {:synsem {:sem {:pred :scrivere}}} transitive
+                     {:italiano {:passato "scritto"}})
    "stampare" (unify {:synsem {:sem {:pred :stampare}}} transitive)
    "studiare" (unify {:synsem {:sem {:pred :studiare}}} transitive)
    "suonare" (unify {:synsem {:sem {:pred :suonare}}} transitive)
