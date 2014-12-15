@@ -107,7 +107,8 @@
                "Pragma" "no-cache"
                "Expires" "0"}
      :body (json/write-str
-            {:response (fo translation)})}))
+            {:semantics semantics
+             :response (fo translation)})}))
 
 (def possible-preds [:top])
 
