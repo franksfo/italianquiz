@@ -19,6 +19,7 @@
    [italianverbs.over :refer [over]]
    [italianverbs.html :as html]
    [italianverbs.parse :refer [parse]]
+   [italianverbs.pos :as pos]
    [italianverbs.translate :refer [translate]]
    [italianverbs.unify :refer [get-in remove-false strip-refs]]
 ))
