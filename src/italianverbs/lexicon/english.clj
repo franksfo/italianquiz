@@ -108,11 +108,6 @@
 
    "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
 
-   "give" (trans-intrans {:synsem {:sem {:pred :dare}}
-                          :english {:past "gave"}})
-
-
-
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}})
    "sing"  (trans-intrans {:synsem {:sem {:pred :cantare}}})
    "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
@@ -133,7 +128,8 @@
    "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
 
    "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
-                               :english {:present {:3sing "looks for"}}})
+                               :english {:imperfetto "looking for"
+                                         :present {:3sing "looks for"}}})
 
    "look up"  (trans-intrans {:synsem {:sem {:pred :cercare}}
                               :english {:present {:3sing "looks up"}}})
@@ -142,10 +138,8 @@
 ;; TODO: search _within_ or _on_: depends on the object.
 ;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
 
-   "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}})
    "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
    "(human) work"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
-   "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}})
    "wear"  (trans-intrans {:synsem {:sem {:pred :portare}}})
    "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
                            :english {:imperfetto "grabbing"
@@ -165,7 +159,6 @@
    "write"  (trans-intrans {:english {:past "wrote"}
                             :synsem {:sem {:pred :scrivere}}})
    "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
-   "study"  (trans-intrans {:synsem {:sem {:pred :studiare}}})
    "(music) play" (trans-intrans {:synsem {:sem {:pred :suonare}}})
    "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere}}})
    "use"  (trans-intrans {:synsem {:sem {:pred :usare}}})
@@ -202,6 +195,10 @@
                   {:subj {:human true}}
                   {:obj {:human true}})
 
+   ;; TODO: account for "give" being ditransitive.
+   "give" (trans-intrans {:synsem {:sem {:pred :dare}}
+                          :english {:past "gave"}})
+
    "I"
    {:synsem {:cat :noun
              :pronoun true
@@ -234,6 +231,14 @@
                    :pred :lui}
              :subcat '()}}
 
+   "help"
+   (trans-intrans {:synsem {:essere false
+                            :sem {:pred :aiutare
+                                  :activity true}}}
+                  {:subj {:human true}
+                   :obj {:human true}})
+
+
    "hug"
    (unify transitive
           {:synsem {:sem {:pred :abbracciare
@@ -258,6 +263,9 @@
                     :subj {:human false}}
               :subcat '()}}]
 
+   "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}
+                           :english {:past "met"}})
+
    "mother"
    (unify agreement-noun
           common-noun
@@ -279,6 +287,9 @@
                           :comparative false
                           :physical-object true
                           :human false}}})
+
+   "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}
+                           :english {:past "sent"}})
 
    "she"
    {:synsem {:cat :noun
@@ -309,13 +320,15 @@
               :number :sing}}]
 
    "speak"
-   (let [common
-         {:synsem {:essere false
-                   :sem {:pred :parlare
-                         :subj {:human true}}}}]
-     (unify common transitive
-            {:synsem {:obj {:speakable true}}})
-     (unify common intransitive intransitive-unspecified-obj))
+   (trans-intrans
+    {:english {:past "spoke"}
+     :synsem {:essere false
+              :sem {:pred :parlare
+                    :subj {:human true}}}}
+    {:obj {:speakable true}})
+
+   "study"  (trans-intrans {:synsem {:sem {:pred :studiare}}
+                            :english {:past "studied"}})
 
    "the"
    {:synsem {:cat :det
