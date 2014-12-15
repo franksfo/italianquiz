@@ -251,7 +251,7 @@
               :agr {:person :3rd
                     :number :sing}
               :sem {:pred :lui
-                    :subj {:human false}}
+                    :human false}
               :subcat '()}}
     {:synsem {:cat :noun
               :pronoun true
@@ -259,7 +259,7 @@
               :agr {:person :3rd
                     :number :sing}
               :sem {:pred :lei
-                    :subj {:human false}}
+                    :human false}
               :subcat '()}}]
 
    "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}
