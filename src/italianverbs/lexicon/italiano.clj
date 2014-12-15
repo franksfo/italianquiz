@@ -247,20 +247,26 @@
       ;; "avere": auxiliary-verb: takes 2 args:
       ;; 1. subject that is the same as the subject of 2.
       ;; 2. an intransitive verb.
-      (unify
-       verb-aux
-       avere-common
-       {:note "avere(aux): takes intrans"
-        :synsem {:infl :present
-                 :subcat {:2 {:essere false
-                              :subcat {:1 :top
-                                       :2 '()}}}}})
+      (let [agr-of-subj-of-main-verb (ref :top)]
+        (unify
+         verb-aux
+         verb-subjective
+         avere-common
+         {:note "avere(aux): takes intrans"
+          :synsem {:infl :present
+                   :subcat {:1 {:foo 42
+                                :agr agr-of-subj-of-main-verb}
+                            :2 {:essere false
+                                :agr agr-of-subj-of-main-verb
+                                :subcat {:1 {:agr agr-of-subj-of-main-verb}
+                                         :2 '()}}}}}))
 
       ;; 4. avere: unspecified object
       (unify
        avere-common
        intransitive-unspecified-obj
-       {:synsem {:sem {:pred :avere
+       {:note "avere: unspecified object"
+        :synsem {:sem {:pred :avere
                        :activity false
                        :discrete false
                        :subj {:human true}}}})])
