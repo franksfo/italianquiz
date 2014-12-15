@@ -997,18 +997,11 @@
                           :child false}}})
 
    "mangiare"
-   (let [common
-         {:synsem {:essere false
-                   :sem {:pred :mangiare
-                         :subj {:animate true}}}}]
-     [(unify
-       common
-       transitive
-       {:synsem {:sem {:obj {:edible true}}}})
-
-      (unify
-       common
-       intransitive)])
+   (trans-intrans
+    {:synsem {:essere false
+              :sem {:pred :mangiare
+                    :subj {:animate true}}}}
+    {:obj {:edible true}})
 
    ;; non-comparative
    ;; TODO: add comparative
