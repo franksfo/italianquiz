@@ -402,7 +402,8 @@
    "caricare" (unify {:synsem {:sem {:pred :caricare}}} transitive)
    "cenare" (unify intransitive
                    {:synsem {:essere false
-                             :sem {:pred :cenare}}})
+                             :sem {:subj {:human true}
+                                   :pred :cenare}}})
    "desiderare" (unify {:synsem {:sem {:pred :desiderare}}} transitive)
    "dipingere" (unify transitive
                       {:synsem {

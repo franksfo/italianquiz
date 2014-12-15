@@ -102,7 +102,9 @@
    "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}
                             :english {:past "drove"}})
 
-   "eat dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
+   "eat dinner"  (unify intransitive
+                        {:synsem {:sem {:pred :cenare
+                                        :subj {:human true}}}
                                  :english {:present {:3sing "eats dinner"}
                                            :past "ate dinner"}})
 
@@ -128,10 +130,12 @@
 
    "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
                                :english {:imperfetto "looking for"
+                                         :past "looked for"
                                          :present {:3sing "looks for"}}})
 
    "look up"  (trans-intrans {:synsem {:sem {:pred :cercare}}
                               :english {:imperfetto "looking up"
+                                        :past "looked up"
                                         :present {:3sing "looks up"}}})
 
    ;; TODO: search _within_ or _on_: depends on the object.
