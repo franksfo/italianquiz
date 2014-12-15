@@ -416,9 +416,11 @@
                               :sem {:pred "entrare"}}})
 
    "frequentare" (unify {:synsem {:sem {:pred :frequentare}}} transitive)
+
    "funzionare" (unify intransitive
                        {:synsem {:essere false
-                                 :sem {:pred :funzionare}}})
+                                 :sem {:pred :funzionare
+                                       :subj {:human false}}}})
    "giocare" (unify {:synsem {:sem {:pred :giocare}}} transitive)
    "guidare" (unify {:synsem {:sem {:pred :guidare}}} transitive)
    "imparare" (unify {:synsem {:sem {:pred :imparare}}} transitive)
