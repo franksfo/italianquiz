@@ -105,8 +105,8 @@
                                                (or true (= :bere (get-in lex [:synsem :sem :pred])))
                                                (= :verb
                                                   (get-in lex [:synsem :cat]))))
-                                            (get it/lexicon lexeme)))))
-                            (sort (keys it/lexicon)))]
+                                            (get @it/lexicon lexeme)))))
+                            (sort (keys @it/lexicon)))]
                 all-verbs))]]
 
        [:div#noun
@@ -122,8 +122,8 @@
                               (filter (fn [lex]
                                         (= :noun
                                            (get-in lex [:synsem :cat])))
-                                      (get it/lexicon lexeme)))))
-                      (sort (keys it/lexicon))))
+                                      (get @it/lexicon lexeme)))))
+                      (sort (keys @it/lexicon))))
          ]
         ]
 
@@ -140,8 +140,8 @@
                               (filter (fn [lex]
                                         (= :det
                                            (get-in lex [:synsem :cat])))
-                                      (get it/lexicon lexeme)))))
-                      (sort (keys it/lexicon))))
+                                      (get @it/lexicon lexeme)))))
+                      (sort (keys @it/lexicon))))
          ]
        ]
        ]

@@ -15,13 +15,13 @@
   (filter #(= (:rule %) "s-present")
           en/grammar))
 
-(def mini-en-index (create-index mini-en-grammar (flatten (vals en/lexicon)) head-principle))
+(def mini-en-index (create-index mini-en-grammar (flatten (vals @en/lexicon)) head-principle))
 
 (def mini-it-grammar
   (filter #(= (:rule %) "s-present")
           it/grammar))
 
-(def mini-it-index (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
+(def mini-it-index (create-index mini-it-grammar (flatten (vals @it/lexicon)) head-principle))
 
 (def en {:generate en/generate
          :grammar mini-en-grammar
