@@ -16,7 +16,8 @@
 (declare toks2)
 
 (defn toks [s lexicon lookup]
-  (vec (toks2 (str/split s tokenizer) lexicon lookup)))
+  (let [lexicon (if (future? lexicon) @lexicon lexicon)]
+    (vec (toks2 (str/split s tokenizer) lexicon lookup))))
 
 (defn toks2 [tokens lexicon lookup]
   "like (toks), but use lexicon to consolidate two initial tokens into one. may consolidate larger groups than two in the future."
@@ -124,7 +125,7 @@
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
   (cond (string? arg)
         (parse (toks arg lexicon lookup) lexicon lookup grammar)
-        
+
         (and (vector? arg)
              (empty? (rest arg)))
         (first arg)

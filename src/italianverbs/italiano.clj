@@ -18,20 +18,20 @@
 (def lexicon-source lex/lexicon-source)
 
 (def lexicon
-  (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/italian-specific-rules)
+  (future (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/italian-specific-rules)
 
-      ;; Cleanup functions can go here. Number them for ease of reading.
-      ;; 1. this filters out any verbs without an inflection: infinitive verbs should have inflection ':infinitive', 
-      ;; rather than not having any inflection.
-      (map-function-on-map-vals 
-       (fn [k vals]
-         (filter #(or (not (= :verb (get-in % [:synsem :cat])))
-                      (not (= :none (get-in % [:synsem :infl] :none))))
-                 vals)))))
+              ;; Cleanup functions can go here. Number them for ease of reading.
+              ;; 1. this filters out any verbs without an inflection: infinitive verbs should have inflection ':infinitive', 
+              ;; rather than not having any inflection.
+              (map-function-on-map-vals 
+               (fn [k vals]
+                 (filter #(or (not (= :verb (get-in % [:synsem :cat])))
+                              (not (= :none (get-in % [:synsem :infl] :none))))
+                         vals))))))
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
-  (morph/analyze token #(get lexicon %)))
+  (morph/analyze token #(get @lexicon %)))
 
 (defn parse [string]
   (parse/parse string lexicon lookup grammar))
@@ -41,7 +41,7 @@
 (def index nil)
 ;; TODO: trying to print index takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to (keys index).
-(def index (create-index grammar (flatten (vals lexicon)) head-principle))
+(def index (future (create-index grammar (flatten (vals @lexicon)) head-principle)))
 
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical index in " (- end begin) " msec.")
@@ -51,29 +51,32 @@
     (generate/sentence spec grammar index (flatten (vals lexicon)))))
 
 (defn generate [ & [spec {use-grammar :grammar
-                          use-index :index}]]
+                          use-index :index
+                          use-lexicon :lexicon}]]
   (let [spec (if spec spec :top)
         use-grammar (if use-grammar use-grammar grammar)
-        use-index (if use-index use-index index)]
+        use-index (if use-index use-index index)
+        use-lexicon (if use-lexicon use-lexicon lexicon)]
     (log/info (str "using grammar of size: " (.size use-grammar)))
-    (log/info (str "using index of size: " (.size use-index)))
     (if (seq? spec)
       (map generate spec)
       (generate/generate spec use-grammar
-                         (flatten (vals lexicon))
+                         (flatten (vals @use-lexicon))
                          use-index))))
 
 (defn generate-all [ & [spec {use-grammar :grammar
-                              use-index :index}]]
+                              use-index :index
+                              use-lexicon :lexicon}]]
   (let [spec (if spec spec :top)
         use-grammar (if use-grammar use-grammar grammar)
-        use-index (if use-index use-index index)]
+        use-index (if use-index use-index index)
+        use-lexicon (if use-lexicon use-lexicon lexicon)]
     (log/info (str "using grammar of size: " (.size use-grammar)))
-    (log/info (str "using index of size: " (.size use-index)))
+    (log/info (str "using index of size: " (.size @use-index)))
     (if (seq? spec)
       (map generate-all spec)
       (generate/generate-all spec use-grammar
-                             (flatten (vals lexicon))
+                             (flatten (vals @use-lexicon))
                              use-index))))
 
 ;; TODO: move the following 2 to lexicon.clj:
@@ -104,7 +107,7 @@
                 grammar)
         lexicon
         (into {}
-              (for [[k v] lexicon]
+              (for [[k v] @lexicon]
                 (let [filtered-v
                       (filter #(or (= (get-in % [:synsem :cat]) :verb)
                                    (= (get-in % [:synsem :propernoun]) true)

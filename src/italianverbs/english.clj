@@ -17,19 +17,19 @@
 (def lexicon-source lex/lexicon-source)
 
 (log/info "compiling: source-lexicon: " (.size (keys lex/lexicon-source)))
-(def lexicon (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/english-specific-rules))
-(log/info "finished: compiled lexicon: " (.size (keys lexicon)))
+(def lexicon (future (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/english-specific-rules)))
+;(log/info "finished: compiled lexicon: " (.size (keys lexicon)))
 
 (defn lookup [token]
   "return the subset of lexemes that match this token from the lexicon."
-  (morph/analyze token #(get lexicon %)))
+  (morph/analyze token #(get @lexicon %)))
 
 (def begin (System/currentTimeMillis))
 (log/info "building grammatical and lexical index..")
 (def index nil)
 ;; TODO: trying to print index takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to show only keys and first value or something.
-(def index (create-index grammar (flatten (vals lexicon)) head-principle))
+(def index (future (create-index grammar (flatten (vals @lexicon)) head-principle)))
 
 (def end (System/currentTimeMillis))
 (log/info "Built grammatical and lexical index in " (- end begin) " msec.")
@@ -49,11 +49,10 @@
         use-index (if use-index use-index index)
         use-lexicon (if use-lexicon use-lexicon lexicon)]
     (log/info (str "using grammar of size: " (.size use-grammar)))
-    (log/info (str "using lexicon of size: " (.size (flatten (vals use-lexicon)))))
     (if (seq? spec)
       (map generate spec)
       (generate/generate spec use-grammar
-                         (flatten (vals use-lexicon)) 
+                         (flatten (vals @use-lexicon)) 
                          use-index))))
 
 (defn generate-all [ & [spec {use-grammar :grammar}]]
@@ -63,7 +62,7 @@
     (if (seq? spec)
       (map generate-all spec)
       (generate/generate-all spec use-grammar
-                             (flatten (vals lexicon)) 
+                             (flatten (vals @lexicon)) 
                              index))))
 
 (def small
@@ -77,16 +76,19 @@
 
         lexicon
         (into {}
-              (for [[k v] lexicon]
+              (for [[k v] @lexicon]
                 (let [filtered-v
                       (filter #(or (= (get-in % [:synsem :cat]) :verb)
                                    (= (get-in % [:synsem :propernoun]) true)
                                    (= (get-in % [:synsem :pronoun]) true))
                               v)]
                   (if (not (empty? filtered-v))
-                    [k filtered-v]))))]
+                    [k filtered-v]))))
+        ]
     {:grammar grammar
      :lexicon lexicon
-     :index (create-index grammar (flatten (vals lexicon)) head-principle)}))
+     :index (create-index grammar (flatten (vals lexicon)) head-principle)
+}))
+
 
 
