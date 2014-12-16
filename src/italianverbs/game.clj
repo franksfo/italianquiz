@@ -8,7 +8,7 @@
    [hiccup.page :refer (html5)]
 
    [italianverbs.cache :refer (create-index)]
-   [italianverbs.engine :refer :all]
+   [italianverbs.engine :as engine]
    [italianverbs.html :refer (tablize)]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
@@ -23,6 +23,8 @@
     :destination "it"
     :source_flag "/svg/britain.svg"
     :destination_flag "/svg/italy.svg"}])
+
+(def possible-preds [:top])
 
 (defn direction-chooser []
   (html5
@@ -141,7 +143,7 @@
          :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
-        question (generate spec en/small)
+        question (engine/generate spec en/small)
         form (html-form question)]
 
     (log/info "generate-question: question: " (fo question))
@@ -184,10 +186,7 @@
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (target-language-generate
-                to-generate
-                {:grammar target-language-grammar
-                 :index target-language-index})
+        answer (engine/generate to-generate it/small)
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically

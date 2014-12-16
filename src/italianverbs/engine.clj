@@ -18,40 +18,6 @@
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]))
 
-(def mini-it-grammar
-  (filter #(or (= (:rule %) "s-present")
-               (and false (= (:rule %) "s-future"))
-               (and false (= (:rule %) "vp-future"))
-               (and false (= (:rule %) "vp-present"))
-               (and false (= (:rule %) "s-conditional")))
-          it/grammar))
-
-(def mini-it-lexicon
-  (into {}
-        (for [[k v] it/lexicon]
-          (let [filtered-v
-                (filter #(or true
-                             (= (get-in % [:synsem :sem :pred]) :antonio)
-                             (= (get-in % [:synsem :sem :pred]) :dormire)
-                             (= (get-in % [:synsem :sem :pred]) :bere))
-                        v)]
-            (if (not (empty? filtered-v))
-              [k filtered-v])))))
-
-(def mini-it-index (create-index mini-it-grammar (flatten (vals mini-it-lexicon)) head-principle))
-
-(def target-language-generate it/generate)
-(def target-language-grammar mini-it-grammar)
-(def target-language-index mini-it-index)
-(def target-language-lexicon mini-it-lexicon)
-(def target-language-lexicon-full it/lexicon)
-
-(def target-language-grammar-full it/grammar)
-(def target-language-index-full
-;  (create-index mini-it-grammar (flatten (vals mini-it-lexicon)) head-principle))
-;  (create-index mini-it-grammar (flatten (vals it/lexicon)) head-principle))
-  (create-index it/grammar (flatten (vals it/lexicon)) head-principle))
-
 (defn generate [spec language-model]
   (let [spec (unify spec
                     {:synsem {:subcat '()}})]
@@ -60,6 +26,7 @@
                        (:lexicon language-model)
                        (:index language-model))))
 
+;; TODO: language-independent (not it/small) and make it accept a spec, not a pred.
 (defn generate-from-request [request]
   (let [pred (keyword (get-in request [:params :pred]))
         lang (get-in request [:params :lang])]
@@ -80,6 +47,7 @@
                :semantics_display (tablize semantics)
                (keyword lang) (fo expression)})})))
 
+;; TODO: remove: use generate-from-request instead.
 (defn generate-from-semantics [request]
   (let [semantics (get-in request [:params :semantics])
         semantics (json/read-str semantics
