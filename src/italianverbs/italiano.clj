@@ -6,7 +6,7 @@
    [italianverbs.morphology.italiano :as morph]))
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)])
-(require '[italianverbs.generate :as generate])
+(require '[italianverbs.forest :as forest])
 (require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals unify)])
 (require '[italianverbs.parse :as parse])
 (require '[italianverbs.ug :refer :all])
@@ -47,8 +47,10 @@
 (log/info "Built grammatical and lexical index in " (- end begin) " msec.")
 
 (defn sentence [ & [spec]]
-  (let [spec (if spec spec :top)]
-    (generate/sentence spec grammar index (flatten (vals lexicon)))))
+  (let [spec (unify (if spec spec :top)
+                    {:synsem {:subcat '()
+                              :cat :verb}})]
+    (forest/generate spec grammar (flatten (vals lexicon)) index)))
 
 (defn generate [ & [spec {use-grammar :grammar
                           use-index :index
@@ -60,9 +62,9 @@
     (log/info (str "using grammar of size: " (.size use-grammar)))
     (if (seq? spec)
       (map generate spec)
-      (generate/generate spec use-grammar
-                         (flatten (vals @use-lexicon))
-                         use-index))))
+      (take 1 (forest/generate spec use-grammar
+                               (flatten (vals @use-lexicon))
+                               use-index)))))
 
 (defn generate-all [ & [spec {use-grammar :grammar
                               use-index :index
@@ -75,9 +77,9 @@
     (log/info (str "using index of size: " (.size @use-index)))
     (if (seq? spec)
       (map generate-all spec)
-      (generate/generate-all spec use-grammar
-                             (flatten (vals @use-lexicon))
-                             use-index))))
+      (forest/generate spec use-grammar
+                       (flatten (vals @use-lexicon))
+                       use-index))))
 
 ;; TODO: move the following 2 to lexicon.clj:
 (def lookup-in

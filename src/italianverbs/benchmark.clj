@@ -8,7 +8,6 @@
    [clojure.tools.logging :as log]
    [italianverbs.cache :as cache]
    [italianverbs.forest :as forest] ;; this allows us to use newly-defined functions from the forest namespace.
-   [italianverbs.generate :refer :all]
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo fo-ps)]
@@ -26,7 +25,7 @@
 ;; italianverbs.benchmark> (standard-benchmark 5)
 ;;
 
-;; italianverbs.benchmark> (run-benchmark #(fo (sentence)) 1)
+;; italianverbs.benchmark> (run-benchmark #(fo (it/sentence)) 1)
 ;; prints:
 ;;   ' (Il tuo ragazzo contento sarà Giorgio (This guy will be Giorgio).) ' took:  12041  msec.
 ;;   stats for '(unnamed)' {:trials 1, :mean 12041.0, :median 12041, :stddev 0.0, :min 12041, :max 12041, :95% 12041, :99% 12041}
@@ -97,11 +96,11 @@
 
 (defn past-perfect [trials]
   (run-benchmark
-   #(fo-ps (sentence {:synsem {:sem {:aspect :perfect 
-                                     :tense :past 
-                                     :pred :perdere
-                                     :subj {:pred :io}
-                                     :obj {:pred :roma}}}}))
+   #(fo-ps (it/sentence {:synsem {:sem {:aspect :perfect 
+                                        :tense :past 
+                                        :pred :perdere
+                                        :subj {:pred :io}
+                                        :obj {:pred :roma}}}}))
    trials
    "past-perfect-tense generation is needful of optimization."))
 
@@ -119,7 +118,7 @@
 
 (defn run-sentence [trials]
   (run-benchmark
-   #(fo (sentence {:synsem {:sem {:pred :impazzire}}}))
+   #(fo (it/sentence {:synsem {:sem {:pred :impazzire}}}))
    trials
    "sentence with 'impazzire'"))
 
