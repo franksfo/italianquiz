@@ -17,17 +17,12 @@
    [italianverbs.class :as vc-class]
    [italianverbs.engine :as engine]
    [italianverbs.game :as game]
-   [italianverbs.gen :as g]
    [italianverbs.korma :as db]
-   [italianverbs.lab :as lab]
    [italianverbs.lesson :as lesson]
-   [italianverbs.menubar :as menubar]
-   [italianverbs.xml :as xml]
    [italianverbs.html :as html]
-   [italianverbs.search :as search]
    [italianverbs.session :as session]
-   [italianverbs.student :as student]
    [italianverbs.studenttest :as stest]
+   [italianverbs.student :as student]
    [italianverbs.test_submit :as tsubmit]
    [italianverbs.question :as question]
    [italianverbs.quiz :as quiz]
@@ -35,7 +30,6 @@
    [italianverbs.workbook :as workbook]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.basic-authentication :as basic]
-   [ring.middleware.session :as rsession]
    [ring.middleware.session.cookie :as cookie]
    [ring.middleware.stacktrace :as trace]
    [ring.util.response :as resp]
@@ -277,23 +271,6 @@
   (GET "/map/generate-question" request
        (game/generate-question request))
 
-
-  (GET "/generate/" request
-       {:status 302
-        :headers {"Location" "/generate"}})
-
-  (GET "/generate" request
-       (friend/authorize #{::admin}
-                         {:body (html/page "Generate" (g/generate request) request)
-                          :status 200
-                          :headers {"Content-Type" "text/html;charset=utf-8"}}))
-
-  (GET "/generate/:tag/" request
-       (friend/authorize #{::admin}
-                         (let [tag (:tag (:route-params request))]
-                           {:status 200
-                            :body (html/page "Generate" (g/generate-from tag) request)})))
-
   (GET "/guess/"
        request
        {:body
@@ -305,16 +282,6 @@
         :status 200
         :headers {"Content-Type" "text/xml;charset=utf-8"}
         })
-
-  
-  ;; <lab>
-  (GET "/lab" request
-       {:status 302 :headers {"Location" "/lab/"}})
-  (GET "/lab/" request
-       {:status 302 :headers {"Location" "/lab/giardino"}})
-  (GET "/lab/giardino" request (lab/giardino request))
-  (GET "/lab/giardino/" request {:status 302 :headers {"Location" "/lab/giardino"}})
-  ;; </lab>
 
   (GET "/lesson/" request
        {:status 302
