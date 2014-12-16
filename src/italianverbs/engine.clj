@@ -93,7 +93,7 @@
                :fail)
         results
         (into {}
-              (for [[k v] en/lexicon]
+              (for [[k v] @en/lexicon]
                 (let [filtered-v
                       (filter #(not (fail? (unifyc % spec)))
                               v)]
