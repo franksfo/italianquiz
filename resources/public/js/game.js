@@ -578,6 +578,9 @@ function submit_normal_response(form_input_id) {
 	var i;
 	for (i = 0; i < answers.length; i++) {
 	    var answer_text = answers[i];
+	    if (answer_text == "") {
+		log(ERROR,"The answer text is blank! Student will not be able to answer this correctly.");
+	    }
 	    log(DEBUG,"answer_text is:: " + answer_text);
 	    log(DEBUG,"checking guess: " + guess + " against answer: " + answer_text);
 	    if ((answer_text === guess) && (solved == null)) {
