@@ -1,3 +1,4 @@
+;; TODO: remove this namespace; it's just a thin and unnecessary wrapper on italianverbs.forest.
 (ns italianverbs.generate
   (:refer-clojure :exclude [get-in merge])
   (:require
