@@ -83,26 +83,13 @@
   (log/debug (str "create-ngram-map: left:" left ";split-at:" split-at "; size:" (.size args) "; x:" x))
   (if (< (+ left (- split-at 2))
          (/ (.size args) 2))
-    (do
-      (lazy-cat
-       (let [left-parses (get ngrams [left (+ left (- split-at 0))] '())
-             right-parses (get ngrams [(+ left split-at 0) (- (.size args) 0)] '())]
-         (if (and (not (empty? left-parses))
-                  (not (empty? right-parses)))
-           (let [result (over/over grammar left-parses right-parses)]
-             (log/debug (str "create-ngram-map: left:" left ";split-at:" split-at "; size:" (.size args) "; x:" x))
-             (log/info (str "create-ngram-map: " 
-                            [left (+ left (- split-at 0))]
-                            " | "
-                            [(+ left split-at) (- (.size args) 0)] " : "
-                            (fo (get ngrams
-                                     [left (+ left (- split-at 0))]))
-                            " | "
-                            (fo (get ngrams
-                                     [(+ left split-at) (- (.size args) 0)]))))
-             (log/debug "")
-             result)))
-       (create-ngram-map args left ngrams grammar (+ 1 split-at) x)))))
+    (lazy-cat
+     (let [left-parses (get ngrams [left (+ left (- split-at 0))] '())
+           right-parses (get ngrams [(+ left split-at 0) (- (.size args) 0)] '())]
+       (if (and (not (empty? left-parses))
+                (not (empty? right-parses)))
+         (over/over grammar left-parses right-parses)))
+     (create-ngram-map args left ngrams grammar (+ 1 split-at) x))))
 
 (defn create-xgram-map [args x index grammar & [nminus1grams runlevel]]
   (cond (= x 0) {}
