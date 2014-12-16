@@ -139,17 +139,12 @@
        [:textarea {:cols 80 :rows 4 :id "workbookq" }
         (if search-query
           search-query
-          "(fo (take 1 (repeatedly #(sentence))))")
+          "(fo (take 1 (repeatedly #(it/sentence))))")
         ]
        [:button {:onclick "workbook()"} "evaluate"]]
       [:div#workbooka
        (if search-query
          (workbookq search-query))]])))
-
-(defn sentence [ & [spec it-grammar]]
-  (let [spec (if spec spec :top)
-        it-grammar (if it-grammar it-grammar it/grammar)]
-    (it/sentence spec {:grammar it-grammar})))
 
 (defn show-sem [to-show]
   (cond (seq? to-show)
