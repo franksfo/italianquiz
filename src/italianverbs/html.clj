@@ -648,11 +648,6 @@
 
          [:tr
           [:td {:colspan "3"}
-           (powered-by "generate" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/generate.clj")
-           ]
-          ]
-         [:tr
-          [:td {:colspan "3"}
            (powered-by "forest" "https://github.com/ekoontz/italianquiz/tree/master/src/italianverbs/forest.clj")
            ]
           ]

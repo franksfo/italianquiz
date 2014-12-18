@@ -6,7 +6,7 @@
    [clojure.java.io :as io]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [compojure.core :as compojure :refer [defroutes GET PUT POST DELETE ANY]]
+   [compojure.core :as compojure :refer [context defroutes GET PUT POST DELETE ANY]]
    [compojure.handler :refer [site]]
    [compojure.route :as route]
    [compojure.handler :as handler]
@@ -15,6 +15,7 @@
    [hiccup.element :as e]
    [italianverbs.auth :as auth] ;; auth/confirm-and-create-user
    [italianverbs.class :as vc-class]
+   [italianverbs.editor :as editor]
    [italianverbs.engine :as engine]
    [italianverbs.game :as game]
    [italianverbs.korma :as db]
@@ -221,6 +222,9 @@
   (GET "/auth/confirm" request
        ;; this function should create the user, log the user in and let them set their password.
        (auth/confirm-and-create-user request))
+
+  (context "/editor" []
+           (editor/editor-routes))
 
   (GET "/engine/lookup" request
        (engine/lookup request))

@@ -74,10 +74,11 @@
            [:th ""]
            [:th {:style "width:10em"} "Italian"]
            [:th {:style "width:20em"} "Example"]
+
 ;           [:th {:style "width:10em"} "Semantics"]
            [:th {:style "width:10em"} "English"]
            [:th {:style "width:20em"} "Translation"]
-
+           [:th {:style "width:3em"} ""]
            ]
 
          (map (fn [lexeme]
@@ -94,7 +95,11 @@
 
                  [:td {:id (str "english_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
-                 [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]]])
+                 [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
+
+                 [:td [:i {:class "fa fa-refresh"} "" ] ]
+
+                 ])
          
               (let [all-verbs
                     (filter (fn [lexeme]
