@@ -8,7 +8,7 @@
    [hiccup.page :refer (html5)]
 
    [italianverbs.cache :refer (create-index)]
-   [italianverbs.generate :as generate]
+   [italianverbs.forest :as forest]
    [italianverbs.html :refer (tablize)]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
@@ -21,10 +21,10 @@
 (defn generate [spec language-model]
   (let [spec (unify spec
                     {:synsem {:subcat '()}})]
-    (generate/generate spec 
-                       (:grammar language-model)
-                       (:lexicon language-model)
-                       (:index language-model))))
+    (forest/generate spec 
+                     (:grammar language-model)
+                     (:lexicon language-model)
+                     (:index language-model))))
 
 ;; TODO: language-independent (not it/small) and make it accept a spec, not a pred.
 (defn generate-from-request [request]
