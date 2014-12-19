@@ -66,6 +66,7 @@
                                (flatten (vals @use-lexicon))
                                use-index)))))
 
+;; TODO: factor out to forest/.
 (defn generate-all [ & [spec {use-grammar :grammar
                               use-index :index
                               use-lexicon :lexicon}]]

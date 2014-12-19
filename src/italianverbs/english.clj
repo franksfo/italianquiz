@@ -3,6 +3,7 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)])
+(require '[italianverbs.forest :as forest])
 (require '[italianverbs.grammar.english :as gram])
 (require '[italianverbs.lexicon.english :as lex])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
@@ -38,7 +39,7 @@
 
 (defn sentence [ & [spec]]
   (let [spec (if spec spec :top)]
-    (generate/sentence spec grammar index (flatten (vals lexicon)))))
+    (forest/generate spec grammar index (flatten (vals lexicon)))))
 
 (defn generate [ & [spec {use-grammar :grammar
                           use-index :index
@@ -50,19 +51,25 @@
     (log/info (str "using grammar of size: " (.size use-grammar)))
     (if (seq? spec)
       (map generate spec)
-      (generate/generate spec use-grammar
+      (forest/generate spec use-grammar
                          (flatten (vals @use-lexicon)) 
                          use-index))))
 
-(defn generate-all [ & [spec {use-grammar :grammar}]]
+;; TODO: copied from italiano.clj: factor out to forest/.
+(defn generate-all [ & [spec {use-grammar :grammar
+                              use-index :index
+                              use-lexicon :lexicon}]]
   (let [spec (if spec spec :top)
-        use-grammar (if use-grammar use-grammar grammar)]
+        use-grammar (if use-grammar use-grammar grammar)
+        use-index (if use-index use-index index)
+        use-lexicon (if use-lexicon use-lexicon lexicon)]
     (log/info (str "using grammar of size: " (.size use-grammar)))
+    (log/info (str "using index of size: " (.size @use-index)))
     (if (seq? spec)
       (map generate-all spec)
-      (generate/generate-all spec use-grammar
-                             (flatten (vals @lexicon)) 
-                             index))))
+      (forest/generate spec use-grammar
+                       (flatten (vals @use-lexicon))
+                       use-index))))
 
 (def small
   (let [grammar
