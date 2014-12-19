@@ -43,12 +43,6 @@
   (let [username (:username (friend/current-authentication))]
     (:id (first (db/fetch :student {:username username})))))
 
-(defn haz-admin []
-  (if (not (nil? (friend/current-authentication)))
-    (not (nil?
-          (:italianverbs.core/admin
-           (:roles (friend/current-authentication)))))))
-
 (defn is-authenticated [request if-authenticated]
   (if (not (nil? (friend/current-authentication)))
     if-authenticated
@@ -75,14 +69,14 @@
        (is-authenticated request
                          {:status 200
                           :body (html/page "Classes" 
-                                           (vc-class/show request (haz-admin))
+                                           (vc-class/show request (auth/haz-admin))
                                            request)}))
 
   (GET "/class/my" request
        (is-authenticated request
                          {:status 200
                           :body (html/page "My Classes" 
-                                           (vc-class/show request (haz-admin))
+                                           (vc-class/show request (auth/haz-admin))
                                            request)}))
 
 
@@ -176,7 +170,7 @@
        (is-authenticated request
                          {:body (html/page "Classes" (vc-class/show-one
                                                       (:class (:route-params request))
-                                                      (haz-admin)
+                                                      (auth/haz-admin)
                                                       (get-user-id))
                                            request)}))
   (GET "/class/:class/" request
@@ -292,7 +286,7 @@
         :headers {"Location" "/lesson"}})
 
   (GET "/lesson" request
-       {:body (html/page "Groups" (lesson/lesson request (haz-admin)) request)
+       {:body (html/page "Groups" (lesson/lesson request (auth/haz-admin)) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -314,7 +308,7 @@
 
   (POST "/lesson/new" request
         (friend/authorize #{::admin}
-                          (let [result (lesson/new request (haz-admin))]
+                          (let [result (lesson/new request (auth/haz-admin))]
                             {:status 302
                              :headers {"Location" (str "/lesson/?result=" (:message result))}})))
 
@@ -328,7 +322,7 @@
 
   (GET "/lesson/:tag/" request
        {:body (html/page "Groups" (lesson/show (:tag (:route-params request))
-                                               (haz-admin)) request)})
+                                               (auth/haz-admin)) request)})
 
   (GET "/lesson/:tag/delete/:verb/" request
        (friend/authorize #{::admin}
@@ -526,7 +520,7 @@
   (GET "/student/:student" request
        (friend/authorize #{::admin}
                          {:body (html/page "Students" (student/show-one (:student (:route-params request))
-                                                                        (haz-admin))
+                                                                        (auth/haz-admin))
                                            request)}))
 
   (GET "/student/:student/" request
@@ -579,12 +573,12 @@
         (friend/authenticated
          {:status 200
           :headers {"Content-Type" "text/html;charset=utf-8"}
-          :body (html/page "Tests" (stest/show request (haz-admin)) request)}))
+          :body (html/page "Tests" (stest/show request (auth/haz-admin)) request)}))
 
    (GET "/test" request
         {:status 200
          :headers {"Content-Type" "text/html;charset=utf-8"}
-         :body (html/page "Tests" (stest/show request (haz-admin)) request)})
+         :body (html/page "Tests" (stest/show request (auth/haz-admin)) request)})
 
   (GET "/test/" request
        (friend/authorize #{::admin}
@@ -620,7 +614,7 @@
          (let [test (:id (:route-params request))]
            {:status 200
             :headers {"Content-Type" "text/html;charset=utf-8"}
-            :body (html/page "Tests" (stest/show-one test (haz-admin)) request)})))
+            :body (html/page "Tests" (stest/show-one test (auth/haz-admin)) request)})))
 
    (GET "/test/:id/edit" request
         (friend/authorize #{::admin}
@@ -714,7 +708,7 @@
                               {:body (html/page 
                                       "Generation" 
                                       (verb/control-panel request
-                                                          (haz-admin))
+                                                          (auth/haz-admin))
                                       request
                                       {:css "/css/settings.css"
                                        :js "/js/gen.js"
@@ -736,7 +730,7 @@
    (GET "/verb/:verb/" request
         (let [verb (:verb (:route-params request))]
           {:body (html/page "Verbs"
-                            (verb/select-one verb (haz-admin))
+                            (verb/select-one verb (auth/haz-admin))
                             request)
            :status 200}))
 
