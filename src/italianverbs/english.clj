@@ -3,7 +3,6 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)])
-(require '[italianverbs.generate :as generate])
 (require '[italianverbs.grammar.english :as gram])
 (require '[italianverbs.lexicon.english :as lex])
 (require '[italianverbs.lexiconfn :refer (compile-lex unify)])
