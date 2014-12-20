@@ -1202,6 +1202,9 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 (defn strip-refs [map-with-refs]
   "return a map like map-with-refs, but without refs - (e.g. {:foo (ref 42)} => {:foo 42}) - used for printing maps in plain (i.e. non html) format"
   (cond
+   (or (vector? map-with-refs)
+       (seq? map-with-refs))
+   (map strip-refs map-with-refs)
    (= map-with-refs {})
    {}
    (map? map-with-refs)
