@@ -536,28 +536,9 @@
               :headers {"Location" (str "/test/" (:testid result) "/submittals/" (:submittalid result) 
                                         "?result=" (:message result))}}))))
    
-   (GET "/gen" request
-        (let [do-generation (fn []
-                              {:body (html/page 
-                                      "Generation" 
-                                      (verb/control-panel request
-                                                          (haz-admin))
-                                      request
-                                      {:css "/css/settings.css"
-                                       :js "/js/gen.js"
-                                       :onload (verb/onload)})
-                               :status 200
-                               :headers {"Content-Type" "text/html;charset=utf-8"}})]
-                              
-        (if false ;; TODO: define config variable workstation-mode.
-          (friend/authorize #{::admin} do-generation)
-          ;; turn off security for workstation dev
-          (do-generation))))
+  (context "/gen" []
+           (verb/routes))
 
-   (GET "/gen/" request
-        {:status 302
-         :headers {"Location" "/gen"}})
-   
    ;; TODO: figure out how to combine destructuring with sending request (which we need for the
    ;; menubar and maybe other things like authorization.
    (GET "/verb/:verb/" request

@@ -2,11 +2,14 @@
   (:refer-clojure :exclude [get-in merge resolve])
   (:use [hiccup core])
   (:require
+   [cemerick.friend :as friend]
    [clj-time.format :as f]
    [clj-time.core :as t]
    [clj-time.local :as l]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
+   [italianverbs.auth :refer (haz-admin)]
    [italianverbs.english :as en]
    [italianverbs.html :as html]
    [italianverbs.italiano :as it]
@@ -353,3 +356,24 @@
     (html
      [:form {:method "post" :action (str "/verb/" (db/primary-key row) "/delete/")}
       [:button {:onclick "submit()"} "delete"]])))
+
+(defn routes []
+  (compojure/routes
+   (GET "/" request
+        (let [do-generation (fn []
+                              {:body (html/page 
+                                      "Generation" 
+                                      (control-panel request
+                                                     (haz-admin))
+                                      request
+                                      {:css "/css/settings.css"
+                                       :js "/js/gen.js"
+                                       :onload (onload)})
+                               :status 200
+                               :headers {"Content-Type" "text/html;charset=utf-8"}})]
+                              
+          (if false ;; TODO: define config variable workstation-mode.
+            (friend/authorize #{::admin} do-generation)
+            ;; turn off security for workstation dev
+            (do-generation))))))
+   
