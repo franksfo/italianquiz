@@ -69,14 +69,29 @@ function gen_from_verb(verb) {
 	var example = evaluated.it;
 	var pred = evaluated.pred;
 	var semantics = evaluated.semantics;
-	$("#verb_"+verb).html(example);
+	if (example == "") {
+	    $("#verb_"+verb).html("<a href='/engine/generate?pred="+verb+"&lang=it'>" + 
+				  "<i class='fa fa-times-circle'> </i>" + " </a>");
+	} else {
+	    $("#verb_"+verb).html(example);
+	}
 
 	// hide semantics for now
 	//	$("#semantics_"+verb).html(evaluated.semantics_display);
 
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
-	    $("#english_verb_"+pred).html(evaluated.en);
+	    if (evaluated.response == "") {
+		// could not translate: show a link with an error icon (fa-times-circle)
+		$("#english_verb_"+pred).html("<a href='/engine/lookup?lang=en&spec=" + 
+					      encodeURIComponent(JSON.stringify({"synsem": {"cat": "verb",
+											    "sem": {"pred": pred},
+											    "infl": "infinitive"}})) + "'>" +
+					      "<i class='fa fa-times-circle'> </i>" + " </a>");
+
+	    } else {
+		$("#english_verb_"+pred).html(evaluated.en);
+	    }
 
 	    $.ajax({
 		cache: false,
