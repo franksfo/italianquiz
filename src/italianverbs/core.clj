@@ -615,22 +615,8 @@
                                    {:status 302
                                     :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))))))
 
-  (GET "/workbook" request
-       {:status 302
-        :body (html/page "Workbook" (workbook/workbook-ui request) request)
-        :headers {"Location" "/workbook/"}})
-
-  (GET "/workbook/" request
-       {:status 200
-        :body (html/page "Workbook" (workbook/workbook-ui request) request)
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/workbook/q/" request
-       {:status 200
-        :body (workbook/workbookq (get (get request :query-params) "search")
-                                  (get (get request :query-params) "attrs"))
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
+  (context "/workbook" []
+           (workbook/routes))
   (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
   (route/resources "/")
 

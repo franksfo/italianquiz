@@ -10,9 +10,11 @@
    [clojail.core :refer [sandbox]]
    [clojail.testers :refer :all]
 
+   [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
+
    [hiccup.core :refer [html]]
 
-   [italianverbs.engine :refer :all]
+   [italianverbs.engine :refer :all :exclude [routes]]
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer [fo fo-ps]]
@@ -20,7 +22,7 @@
    [italianverbs.html :as html]
    [italianverbs.parse :refer [parse]]
    [italianverbs.pos :as pos]
-   [italianverbs.translate :refer [translate]]
+   [italianverbs.translate :refer [translate translate-all]]
    [italianverbs.unify :refer [get-in remove-false strip-refs]]
 ))
 
@@ -182,10 +184,33 @@
 
 
 
+
 ;; TODO: remove when I feel safe that I don't need it anymore..
 ;(def get-stuff-initialized1 (it/parse "io leggo il libro"))
+(def get-stuff-initialized1 (translate "il gatto"))
 ;(def get-stuff-initialized2 (translate "io leggo il libro"))
 
 ;(log/info (str "done initializing workbook(1): " (fo get-stuff-initialized1)))
 ;(log/info (str "done initializing workbook(2): " get-stuff-initialized2))
+
+(defn routes []
+  (compojure/routes
+
+
+  (GET "" request
+       {:status 302
+        :body (html/page "Workbook" (workbook-ui request) request)
+        :headers {"Location" "/workbook/"}})
+
+  (GET "/" request
+       {:status 200
+        :body (html/page "Workbook" (workbook-ui request) request)
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+  (GET "/q/" request
+       {:status 200
+        :body (workbookq (get (get request :query-params) "search")
+                         (get (get request :query-params) "attrs"))
+        :headers {"Content-Type" "text/html;charset=utf-8"}})
+  ))
 
