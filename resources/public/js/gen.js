@@ -4,53 +4,48 @@ var logging_level = INFO;
 function gen(div_id,index,upto) {
     log(INFO,"generating sentence at index:" + index);
 
-    // generating in per-lexeme table for now, so disabling this with false.
-    if (false && index <= upto) {
-	function generate_at_row(content) {
-	    var evaluated = jQuery.parseJSON(content);
-
-	    if (evaluated.full_question == "") {
-		// could not generate anything: show a link with an error icon (fa-times-circle)
-		$("#example_q_"+index).html("<a href='/engine/generate-from-semantics?lang=en&semantics=" +
-						     encodeURIComponent(JSON.stringify(semantics)) + "'>" + 
-							 "<i class='fa fa-times-circle'> </i>" + " </a>");
-	    } else {
-		var question = evaluated.full_question;
-		log(INFO,"Updating tour with question:" + question + " with index: " + index);
-		$("#example_q_"+index).html(question);
+    function generate_at_row(content) {
+	var evaluated = jQuery.parseJSON(content);
+	
+	if ((evaluated == null) || (evaluated.full_question == "")) {
+	    // could not generate anything: show a link with an error icon (fa-times-circle)
+	    $("#example_q_"+index).html("<i class='fa fa-times-circle'> </i>");
+	} else {
+	    var question = evaluated.full_question;
+	    log(INFO,"Updating tour with question:" + question + " with index: " + index);
+	    $("#example_q_"+index).html(question);
 	    
-		// The following actions need to be taken:
-		// 1. generate next question
-		// 2. generate answer to that question.
-		// The order of 1 and 2 don't matter; they are independent of one another.
-		// From the client side, 1 and 2 are simply requests to the server
-		// (for which we receive answer asynchronously).
+	    // The following actions need to be taken:
+	    // 1. generate next question
+	    // 2. generate answer to that question.
+	    // The order of 1 and 2 don't matter; they are independent of one another.
+	    // From the client side, 1 and 2 are simply requests to the server
+	    // (for which we receive answer asynchronously).
 
-		// 1. generate next question.
-		gen(div_id,index+1,upto);
+	    // 1. generate next question.
+	    gen(div_id,index+1,upto);
 	    
-		// 2. generate answer to this question.
-		function update_answer_fn(content) {
-		    evaluated  = jQuery.parseJSON(content);
-		    $("#example_a_"+index).html(evaluated.answer);
-		}
-
-		$.ajax({
-		    cache: false,
-		    dataType: "html",
-		    url: "/engine/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
-		    success: update_answer_fn
-		});
+	    // 2. generate answer to this question.
+	    function update_answer_fn(content) {
+		evaluated  = jQuery.parseJSON(content);
+		$("#example_a_"+index).html(evaluated.answer);
 	    }
-	}
 
-	$.ajax({
-	    cache: false,
-            dataType: "html",
-            url: "/engine/generate-question",
-            success: generate_at_row
-	});
+	    $.ajax({
+		cache: false,
+		dataType: "html",
+		url: "/engine/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
+		success: update_answer_fn
+	    });
+	}
     }
+
+    $.ajax({
+	cache: false,
+        dataType: "html",
+        url: "/engine/generate-question",
+        success: generate_at_row
+    });
 }
 
 function gen_per_verb() {
