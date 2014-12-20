@@ -17,13 +17,14 @@
 
 (declare control-panel)
 
-(defn do-x [request]
-  {:status 200
-   :body (html/page "Editor" "You chose X, and we respect that choice." request {})})
-
-(defn do-y [request]
-  {:status 200
-   :body (html/page "Editor" "You chose Y...." request {})})
+(defn create [request])
+(defn create-form [request])
+(defn read [request])
+(defn update [request])
+(defn update-form [request])
+(defn delete [request])
+(defn delete-form [request])
+(defn list [request])
 
 (declare onload)
 
@@ -51,10 +52,23 @@
         {:status 302
          :headers {"Location" "/editor/gen"}})
 
-   (GET "/x" request
-        (do-x request))
-   (GET "/y" request
-        (do-y request))))
+   (GET "/create" request
+        (create-form request))
+   (POST "/create" request
+        (create request))
+
+   (GET "/read" request
+        (read request))
+
+   (GET "/update" request
+        (update-form request))
+   (POST "/update" request
+        (update request))
+
+   (GET "/delete" request
+        (delete-form request))
+   (POST "/delete" request
+        (delete request))))
 
 (def generate-this-many-at-once 10)
 
