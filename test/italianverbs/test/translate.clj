@@ -7,12 +7,9 @@
 (require '[italianverbs.translate :refer :all])
 
 (deftest translate-a-cat
-  (let [un-gatto (translate-all "un gatto")
-        formatted (if (seq? un-gatto)
-                    (set (map fo un-gatto))
-                    (set (list (fo un-gatto))))]
+  (let [un-gatto (translate-all "un gatto")]
     (is (not (empty? (select #(= "a cat" %)
-                             formatted))))))
+                             (set un-gatto)))))))
 
 (deftest translate-she-reads
   (is (= "she reads" (translate "lei legge"))))

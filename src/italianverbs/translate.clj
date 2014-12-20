@@ -24,7 +24,7 @@
         (lazy-cat
          (en/generate-all (get-meaning (it/parse input)))
          (it/generate-all (get-meaning (en/parse input))))]
-    (fo return-val)))
+    (map fo return-val)))
 
 (defn get-meaning [input-map]
   "create a language-independent syntax+semantics that can be translated efficiently. The :cat specification helps speed up generation by avoiding searching syntactic constructs that are different from the desired input."

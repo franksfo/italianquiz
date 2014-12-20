@@ -66,7 +66,7 @@
     (log/info (str "using grammar of size: " (.size use-grammar)))
     (log/info (str "using index of size: " (.size @use-index)))
     (if (seq? spec)
-      (map generate-all spec)
+      (mapcat generate-all spec)
       (forest/generate-all spec use-grammar
                            (flatten (vals @use-lexicon))
                            use-index))))
