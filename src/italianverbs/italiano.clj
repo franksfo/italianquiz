@@ -62,9 +62,9 @@
     (log/info (str "using grammar of size: " (.size use-grammar)))
     (if (seq? spec)
       (map generate spec)
-      (take 1 (forest/generate spec use-grammar
-                               (flatten (vals @use-lexicon))
-                               use-index)))))
+      (forest/generate spec use-grammar
+                       (flatten (vals @use-lexicon))
+                       use-index))))
 
 ;; TODO: factor out to forest/.
 (defn generate-all [ & [spec {use-grammar :grammar
@@ -78,9 +78,9 @@
     (log/info (str "using index of size: " (.size @use-index)))
     (if (seq? spec)
       (map generate-all spec)
-      (forest/generate spec use-grammar
-                       (flatten (vals @use-lexicon))
-                       use-index))))
+      (forest/generate-all spec use-grammar
+                           (flatten (vals @use-lexicon))
+                           use-index))))
 
 ;; TODO: move the following 2 to lexicon.clj:
 (def lookup-in

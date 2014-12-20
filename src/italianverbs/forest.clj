@@ -21,17 +21,42 @@
 (declare add-complements-to-bolts)
 
 (declare lightning-bolt)
+(declare generate-all)
 
 (defn generate [spec grammar lexicon cache]
-  (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
-  (log/debug (str "generate(details): " (show-spec spec)))
-  (-> (lightning-bolt grammar
-                      lexicon
-                      spec 0 cache)
-      (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :head :comp]       :top grammar lexicon cache)
-      (add-complements-to-bolts [:head :comp]             :top grammar lexicon cache)
-      (add-complements-to-bolts [:comp]                   :top grammar lexicon cache)))
+  (first (take 1 (generate-all spec grammar lexicon cache))))
+
+(defn generate-all-with-model [spec {grammar :grammar
+                                     index :index
+                                     lexicon :lexicon}]
+  (let [index (if (future? index) @index index)
+        lexicon (if (future? lexicon) @lexicon lexicon)]
+    (log/info (str "using grammar of size: " (.size grammar)))
+    (log/info (str "using index of size: " (.size index)))
+    (if (seq? spec)
+      (map generate-all spec grammar lexicon index)
+      (generate spec grammar
+                (flatten (vals lexicon))
+                index))))
+
+(defn generate-all [spec grammar lexicon cache]
+  (cond (and (or (seq? spec)
+                 (vector? spec))
+             (not (empty? spec)))
+        (lazy-cat (generate-all (first spec) grammar lexicon cache)
+                  (generate-all (rest spec) grammar lexicon cache))
+        true
+        (do
+          (log/info (str "generate: " (show-spec (remove-false (get-in spec [:synsem :sem])))))
+          (log/debug (str "generate(details): " (show-spec spec)))
+          (-> (lightning-bolt grammar
+                              lexicon
+                              spec 0 cache)
+              ;; TODO: allow more than a fixed maximum depth of generation (here, 4 levels from top of tree).
+              (add-complements-to-bolts [:head :head :head :comp] :top grammar lexicon cache)
+              (add-complements-to-bolts [:head :head :comp]       :top grammar lexicon cache)
+              (add-complements-to-bolts [:head :comp]             :top grammar lexicon cache)
+              (add-complements-to-bolts [:comp]                   :top grammar lexicon cache)))))
 
 ;; TODO: add usage of rule-to-lexicon cache (rather than using lexicon directly)
 (defn lightning-bolt [grammar lexicon spec & [ depth cache parent]]

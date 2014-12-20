@@ -67,9 +67,9 @@
     (log/info (str "using index of size: " (.size @use-index)))
     (if (seq? spec)
       (map generate-all spec)
-      (forest/generate spec use-grammar
-                       (flatten (vals @use-lexicon))
-                       use-index))))
+      (forest/generate-all spec use-grammar
+                           (flatten (vals @use-lexicon))
+                           use-index))))
 
 (def small
   (let [grammar
