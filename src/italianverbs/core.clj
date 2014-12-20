@@ -13,7 +13,7 @@
    [environ.core :refer [env]]
    [hiccup.page :as h]
    [hiccup.element :as e]
-   [italianverbs.auth :as auth] ;; auth/confirm-and-create-user
+   [italianverbs.auth :as auth :refer [confirm-and-create-user get-user-id haz-admin is-authenticated]]
    [italianverbs.class :as vc-class]
    [italianverbs.editor :as editor]
    [italianverbs.engine :as engine]
@@ -39,16 +39,6 @@
 ;; not used at the moment, but might be handy someday:
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
 
-(defn get-user-id []
-  (let [username (:username (friend/current-authentication))]
-    (:id (first (db/fetch :student {:username username})))))
-
-(defn is-authenticated [request if-authenticated]
-  (if (not (nil? (friend/current-authentication)))
-    if-authenticated
-    {:status 302
-     :headers {"Location" "/login"}}))
-
 (defroutes main-routes
   (GET "/" request
        ;; response map
@@ -61,161 +51,9 @@
                          (html/about)
                          request)})
 
-  (GET "/class/" request
-       {:status 302
-        :headers {"Location" "/class"}})
-
-  (GET "/class" request
-       (is-authenticated request
-                         {:status 200
-                          :body (html/page "Classes" 
-                                           (vc-class/show request (auth/haz-admin))
-                                           request)}))
-
-  (GET "/class/my" request
-       (is-authenticated request
-                         {:status 200
-                          :body (html/page "My Classes" 
-                                           (vc-class/show request (auth/haz-admin))
-                                           request)}))
-
-
-  (POST "/class/:class/addtest/:test" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))
-                                test (:test (:route-params request))]
-                            (let [result (vc-class/add-test class test)]
-                              {:status 302
-                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
-
-  (GET "/class/:class/removeuser/:student" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))
-                                student (:student (:route-params request))
-                                redirect (str "/class/" class)
-                                result (vc-class/remove-user class student)]
-                            {:status 302
-                             :headers {"Location" (str redirect "?result=" (:message result))}})))
-
-  (POST "/class/:class/removeuser/:student" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))
-                                debug (log/info (str "PROCESSING REMOVE - THE FORM-PARAMS ARE: " (:form-params request)))
-                                student (:student (:route-params request))
-                                redirect (get (:form-params request) "redirect")
-                                redirect (if redirect redirect
-                                              (str "/class/" class))
-                                result (vc-class/remove-user class student)]
-                              {:status 302
-                               :headers {"Location" (str redirect "?result=" (:message result))}})))
-
-  (GET "/class/:class/removetest/:test" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))
-                                test (:test (:route-params request))]
-                            (let [result {:message "Ignoring and Redirecting."}]
-                              {:status 302
-                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
-
-  (POST "/class/:class/removetest/:test" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))
-                                test (:test (:route-params request))]
-                            (let [result (vc-class/remove-test class test)]
-                              {:status 302
-                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
-
-  (GET "/class/:class/delete" request
-       {:status 302
-        :headers {"Location" (str "/class")}})
-
-  (POST "/class/:class/delete" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))]
-                            (let [result (vc-class/delete class)]
-                              {:status 302
-                               :headers {"Location" (str "/class?result=" (:message result))}}))))
-
-  ;; for now, just redirect GET /class/new -> GET /class
-  (GET "/class/new" request
-       (friend/authorize #{::admin}
-                         {:body (html/page "Classes"
-                                           (vc-class/new-form request)
-                                           request)}))
-  (GET "/class/new/" request
-       (friend/authorize #{::admin}
-                         {:body (html/page "Classes"
-                                           (vc-class/new-form request)
-                                           request)}))
-
-  (POST "/class/new" request
-        (friend/authorize #{::admin}
-                          (vc-class/new request)))
-
-  (POST "/class/new/" request
-        (friend/authorize #{::admin}
-                          (vc-class/new request)))
-
-   ;; TODO: use class/rename-format to validate 'rename' form POST.
-   (POST "/class/:id/rename" request
-         (friend/authorize #{::admin}
-                           (let [class-id (:id (:route-params request))
-                                 name (get (:form-params request) "name")]
-                             (let [result (vc-class/rename class-id name)]
-                               {:status 302
-                                :headers {"Location" (str "/class/" class-id "?result=" (:message result))}}))))
-
-
-  (GET "/class/:class" request
-       (is-authenticated request
-                         {:body (html/page "Classes" (vc-class/show-one
-                                                      (:class (:route-params request))
-                                                      (auth/haz-admin)
-                                                      (get-user-id))
-                                           request)}))
-  (GET "/class/:class/" request
-       {:status 302
-        :headers {"Location" (str "/class/" (:class (:route-params request)))}})
-
-  (GET "/class/:class/delete/:student/" request
-       (friend/authorize #{::admin}
-                         (let [tag (:class (:route-params request))
-                               verb (:verb (:route-params request))]
-                           (let [result {:message "redirected-no-effect"}]
-                             {:status 302
-                              :headers {"Location" (str "/class/" tag "/")}}))))
-  (POST "/class/:class/delete/:student" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))
-                                student (:student (:route-params request))
-                                result (vc-class/delete-from-class class student)
-                                message (:message result)
-                                redirect (get (:form-params request) "redirect")
-                                redirect (if redirect redirect
-                                             (str "/class/" class))]
-                            {:status 302
-                             :headers {"Location" (str "/class/" class)}})))
-
-  (GET "/class/:class/add/:student" request
-       (friend/authorize #{::admin}
-                         (let [class-id (:class (:route-params request))]
-                           {:status 302
-                            :headers {"Location" (str "/class/" class-id)}})))
-  (POST "/class/:class/add/:student" request
-        (friend/authorize #{::admin}
-                          (let [class (:class (:route-params request))
-                                student (:student (:route-params request))
-                                result (vc-class/add-user class student)
-                                message (:message result)
-                                redirect (get (:form-params request) "redirect")
-                                redirect (if redirect redirect
-                                              (str "/class/" class))]
-                            {:status 302
-                             :headers {"Location" (str redirect "?result=" message)}})))
-
   (GET "/auth/confirm" request
        ;; this function should create the user, log the user in and let them set their password.
-       (auth/confirm-and-create-user request))
+       (confirm-and-create-user request))
 
   (context "/engine" []
            (engine/routes))
@@ -281,7 +119,7 @@
         :headers {"Location" "/lesson"}})
 
   (GET "/lesson" request
-       {:body (html/page "Groups" (lesson/lesson request (auth/haz-admin)) request)
+       {:body (html/page "Groups" (lesson/lesson request (haz-admin)) request)
         :status 200
         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
@@ -303,7 +141,7 @@
 
   (POST "/lesson/new" request
         (friend/authorize #{::admin}
-                          (let [result (lesson/new request (auth/haz-admin))]
+                          (let [result (lesson/new request (haz-admin))]
                             {:status 302
                              :headers {"Location" (str "/lesson/?result=" (:message result))}})))
 
@@ -317,7 +155,7 @@
 
   (GET "/lesson/:tag/" request
        {:body (html/page "Groups" (lesson/show (:tag (:route-params request))
-                                               (auth/haz-admin)) request)})
+                                               (haz-admin)) request)})
 
   (GET "/lesson/:tag/delete/:verb/" request
        (friend/authorize #{::admin}
@@ -515,7 +353,7 @@
   (GET "/student/:student" request
        (friend/authorize #{::admin}
                          {:body (html/page "Students" (student/show-one (:student (:route-params request))
-                                                                        (auth/haz-admin))
+                                                                        (haz-admin))
                                            request)}))
 
   (GET "/student/:student/" request
@@ -568,12 +406,12 @@
         (friend/authenticated
          {:status 200
           :headers {"Content-Type" "text/html;charset=utf-8"}
-          :body (html/page "Tests" (stest/show request (auth/haz-admin)) request)}))
+          :body (html/page "Tests" (stest/show request (haz-admin)) request)}))
 
    (GET "/test" request
         {:status 200
          :headers {"Content-Type" "text/html;charset=utf-8"}
-         :body (html/page "Tests" (stest/show request (auth/haz-admin)) request)})
+         :body (html/page "Tests" (stest/show request (haz-admin)) request)})
 
   (GET "/test/" request
        (friend/authorize #{::admin}
@@ -609,7 +447,7 @@
          (let [test (:id (:route-params request))]
            {:status 200
             :headers {"Content-Type" "text/html;charset=utf-8"}
-            :body (html/page "Tests" (stest/show-one test (auth/haz-admin)) request)})))
+            :body (html/page "Tests" (stest/show-one test (haz-admin)) request)})))
 
    (GET "/test/:id/edit" request
         (friend/authorize #{::admin}
@@ -666,7 +504,7 @@
    (GET "/test/:id/mine" request
         (friend/authenticated
                           (let [test (Integer. (:id (:route-params request)))]
-                            (html/page "Tests" (tsubmit/submittals-by-student test (get-user-id))
+                            (html/page "Tests" (tsubmit/submittals-by-student test (get-user-id db/fetch))
                                        request))))
 
    (GET "/test/:id/submittals" request
@@ -703,7 +541,7 @@
                               {:body (html/page 
                                       "Generation" 
                                       (verb/control-panel request
-                                                          (auth/haz-admin))
+                                                          (haz-admin))
                                       request
                                       {:css "/css/settings.css"
                                        :js "/js/gen.js"
@@ -725,7 +563,7 @@
    (GET "/verb/:verb/" request
         (let [verb (:verb (:route-params request))]
           {:body (html/page "Verbs"
-                            (verb/select-one verb (auth/haz-admin))
+                            (verb/select-one verb (haz-admin))
                             request)
            :status 200}))
 

@@ -9,6 +9,10 @@
 (require '[cemerick.friend.workflows :as workflows])
 (require '[cemerick.friend.credentials :as creds])
 
+(defn get-user-id [fetch-fn]
+  (let [username (:username (friend/current-authentication))]
+    (:id (first (fetch-fn :student {:username username})))))
+
 (defn confirm-and-create-user [request]
   (do (log/info (str "confirm-and-create-user: " request))
       {:status 302
@@ -19,3 +23,10 @@
     (not (nil?
           (:italianverbs.core/admin
            (:roles (friend/current-authentication)))))))
+
+(defn is-authenticated [request if-authenticated]
+  (if (not (nil? (friend/current-authentication)))
+    if-authenticated
+    {:status 302
+     :headers {"Location" "/login"}}))
+

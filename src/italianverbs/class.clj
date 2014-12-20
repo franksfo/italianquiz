@@ -3,14 +3,17 @@
 ;; TODO: find a better name for "a set of students and a teacher associated for a given period of time" than "class".
 ;; maybe 'course-term' or something like that.
 (ns italianverbs.class
-  (:refer-clojure :exclude [class]) ;; probably bad idea to exclude this..
+  (:refer-clojure :exclude [class]) ;; probably bad idea to exclude these, at least from the point of view of readability by other developers, since they are basic.
   (:use [hiccup core])
   (:require
+   [cemerick.friend :as friend]
    [clj-time.core :as t]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
+   [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [formative.core :as f]
    [formative.parse :as fp]
+   [italianverbs.auth :refer [get-user-id haz-admin is-authenticated]]
    [italianverbs.html :as html]
    [italianverbs.korma :as db]
    [italianverbs.student :as student]
@@ -207,7 +210,7 @@
   (db/fetch-and-modify :class (db/object-id class-id) {} true)
   {:message "deleted class"})
 
-(defn new [request]
+(defn create [request]
   (log/info (str "class/new with request: " (:form-params request)))
   (fp/with-fallback #(html/page "Create a new class" 
                                 (new-form request :problems %) request)
@@ -328,4 +331,160 @@
                                           INNER JOIN test ON test.id = tests_in_classes.test
                                                          AND class=?)" [class-id]]
                :results))
+
+(defn routes []
+  (compojure/routes
+   (GET "/class/" request
+        {:status 302
+         :headers {"Location" "/class"}})
+
+   (GET "/class" request
+        (is-authenticated request
+                          {:status 200
+                           :body (html/page "Classes" 
+                                            (show request (haz-admin))
+                                            request)}))
+
+   (GET "/class/my" request
+        (is-authenticated request
+                          {:status 200
+                           :body (html/page "My Classes" 
+                                            (show request (haz-admin))
+                                            request)}))
+
+
+   (POST "/class/:class/addtest/:test" request
+         (friend/authorize #{::admin}
+                           (let [class (:class (:route-params request))
+                                 test (:test (:route-params request))]
+                             (let [result (add-test class test)]
+                               {:status 302
+                                :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+
+   (GET "/class/:class/removeuser/:student" request
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                student (:student (:route-params request))
+                                redirect (str "/class/" class)
+                                result (remove-user class student)]
+                            {:status 302
+                             :headers {"Location" (str redirect "?result=" (:message result))}})))
+
+   (POST "/class/:class/removeuser/:student" request
+         (friend/authorize #{::admin}
+                           (let [class (:class (:route-params request))
+                                 debug (log/info (str "PROCESSING REMOVE - THE FORM-PARAMS ARE: " (:form-params request)))
+                                 student (:student (:route-params request))
+                                 redirect (get (:form-params request) "redirect")
+                                 redirect (if redirect redirect
+                                              (str "/class/" class))
+                                 result (remove-user class student)]
+                             {:status 302
+                              :headers {"Location" (str redirect "?result=" (:message result))}})))
+
+   (GET "/class/:class/removetest/:test" request
+        (friend/authorize #{::admin}
+                          (let [class (:class (:route-params request))
+                                test (:test (:route-params request))]
+                            (let [result {:message "Ignoring and Redirecting."}]
+                              {:status 302
+                               :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+
+   (POST "/class/:class/removetest/:test" request
+         (friend/authorize #{::admin}
+                           (let [class (:class (:route-params request))
+                                 test (:test (:route-params request))]
+                             (let [result (remove-test class test)]
+                               {:status 302
+                                :headers {"Location" (str "/class/" class "?result=" (:message result))}}))))
+
+   (GET "/class/:class/delete" request
+        {:status 302
+         :headers {"Location" (str "/class")}})
+
+   (POST "/class/:class/delete" request
+         (friend/authorize #{::admin}
+                           (let [class (:class (:route-params request))]
+                             (let [result (delete class)]
+                               {:status 302
+                                :headers {"Location" (str "/class?result=" (:message result))}}))))
+
+   ;; for now, just redirect GET /class/new -> GET /class
+   (GET "/class/new" request
+        (friend/authorize #{::admin}
+                          {:body (html/page "Classes"
+                                            (new-form request)
+                                            request)}))
+
+   (GET "/class/new/" request
+        (friend/authorize #{::admin}
+                          {:body (html/page "Classes"
+                                            (new-form request)
+                                            request)}))
+
+   (POST "/class/new" request
+         (friend/authorize #{::admin}
+                           (create request)))
+
+   (POST "/class/new/" request
+         (friend/authorize #{::admin}
+                           (create request)))
+
+   (POST "/class/:id/rename" request
+         (friend/authorize #{::admin}
+                           (let [class-id (:id (:route-params request))
+                                 name (get (:form-params request) "name")]
+                             (let [result (rename class-id name)]
+                               {:status 302
+                                :headers {"Location" (str "/class/" class-id "?result=" (:message result))}}))))
+
+   (GET "/class/:class" request
+        (is-authenticated request
+                          {:body (html/page "Classes" (show-one
+                                                       (:class (:route-params request))
+                                                       (haz-admin)
+                                                       (get-user-id))
+                                            request)}))
+
+   (GET "/class/:class/" request
+        {:status 302
+         :headers {"Location" (str "/class/" (:class (:route-params request)))}})
+   
+   (GET "/class/:class/delete/:student/" request
+        (friend/authorize #{::admin}
+                          (let [tag (:class (:route-params request))
+                                verb (:verb (:route-params request))]
+                            (let [result {:message "redirected-no-effect"}]
+                              {:status 302
+                               :headers {"Location" (str "/class/" tag "/")}}))))
+
+   (POST "/class/:class/delete/:student" request
+         (friend/authorize #{::admin}
+                           (let [class (:class (:route-params request))
+                                 student (:student (:route-params request))
+                                 result (delete-from-class class student)
+                                message (:message result)
+                                 redirect (get (:form-params request) "redirect")
+                                 redirect (if redirect redirect
+                                              (str "/class/" class))]
+                             {:status 302
+                              :headers {"Location" (str "/class/" class)}})))
+
+   (GET "/class/:class/add/:student" request
+        (friend/authorize #{::admin}
+                          (let [class-id (:class (:route-params request))]
+                            {:status 302
+                             :headers {"Location" (str "/class/" class-id)}})))
+
+   (POST "/class/:class/add/:student" request
+         (friend/authorize #{::admin}
+                           (let [class (:class (:route-params request))
+                                 student (:student (:route-params request))
+                                 result (add-user class student)
+                                 message (:message result)
+                                 redirect (get (:form-params request) "redirect")
+                                 redirect (if redirect redirect
+                                              (str "/class/" class))]
+                             {:status 302
+                              :headers {"Location" (str redirect "?result=" message)}})))))
 
