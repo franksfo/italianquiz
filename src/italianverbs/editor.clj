@@ -4,7 +4,7 @@
    [clj-time.format :as f]
    [clj-time.core :as t]
    [clojure.tools.logging :as log]
-   [compojure.core :as compojure :refer [defroutes routes GET PUT POST DELETE ANY]]
+   [compojure.core :as compojure :refer [defroutes GET PUT POST DELETE ANY]]
    [italianverbs.auth :as auth]
    [italianverbs.english :as en]
    [italianverbs.html :as html]
@@ -27,8 +27,8 @@
 
 (declare onload)
 
-(defn editor-routes []
-  (routes
+(defn routes []
+  (compojure/routes
    (GET "/gen" request
         (let [do-generation (fn []
                               {:body (html/page 
