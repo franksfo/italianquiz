@@ -4,7 +4,7 @@
    [clojure.data.json :as json]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-   [compojure.core :as compojure :refer [defroutes GET PUT POST DELETE ANY]]
+   [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.page :refer (html5)]
 
    [italianverbs.cache :refer (create-index)]

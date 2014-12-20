@@ -4,7 +4,7 @@
    [clj-time.format :as f]
    [clj-time.core :as t]
    [clojure.tools.logging :as log]
-   [compojure.core :as compojure :refer [defroutes GET PUT POST DELETE ANY]]
+   [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [italianverbs.auth :as auth]
    [italianverbs.english :as en]
    [italianverbs.html :as html]
