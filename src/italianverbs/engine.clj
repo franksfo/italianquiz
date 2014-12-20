@@ -4,19 +4,33 @@
    [clojure.data.json :as json]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-
+   [compojure.core :as compojure :refer [defroutes GET PUT POST DELETE ANY]]
    [hiccup.page :refer (html5)]
 
    [italianverbs.cache :refer (create-index)]
    [italianverbs.forest :as forest]
    [italianverbs.html :refer (tablize)]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
-   [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer [fail? get-in merge strip-refs unify unifyc]]
 
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]))
+
+(declare lookup)
+(declare generate-from-request)
+(declare generate-from-semantics)
+
+(defn routes []
+  (compojure/routes
+   (GET "/lookup" request
+       (lookup request))
+
+  (GET "/generate" request
+       (generate-from-request request))
+
+   (GET "/generate-from-semantics" request
+       (generate-from-semantics request))))
 
 (defn generate [spec language-model]
   (let [spec (unify spec

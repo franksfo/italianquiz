@@ -217,14 +217,11 @@
        ;; this function should create the user, log the user in and let them set their password.
        (auth/confirm-and-create-user request))
 
+  (context "/engine" []
+           (engine/routes))
+
   (context "/editor" []
-           (editor/editor-routes))
-
-  (GET "/engine/lookup" request
-       (engine/lookup request))
-
-  (GET "/engine/generate-from-semantics" request
-       (engine/generate-from-semantics request))
+           (editor/routes))
 
   (GET "/cloud" request
        {:status 200
@@ -239,8 +236,6 @@
          :headers {"Content-Type" "text/html;charset=utf-8"}
          :body (game/evaluate request)})
 
-  (GET "/engine/generate" request
-       (engine/generate-from-request request))
 
   (GET "/cloud/generate-answers" request
        (game/generate-answers request))
