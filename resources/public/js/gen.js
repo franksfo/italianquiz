@@ -12,54 +12,6 @@ function gen_per_verb() {
     });
 }
 
-// TODO: div_id is not used yet, cannot populate tables yet (id is hard-wired to 'example_q').
-function gen(div_id,index,upto) {
-    log(INFO,"generating sentence at index:" + index);
-
-    function generate_at_row(content) {
-	var evaluated = jQuery.parseJSON(content);
-	
-	if ((evaluated == null) || (evaluated.full_question == "")) {
-	    // could not generate anything: show a link with an error icon (fa-times-circle)
-	    $("#example_q_"+index).html("<i class='fa fa-times-circle'> </i>");
-	} else {
-	    var question = evaluated.full_question;
-	    log(INFO,"Updating tour with question:" + question + " with index: " + index);
-	    $("#example_q_"+index).html(question);
-	    
-	    // The following actions need to be taken:
-	    // 1. generate next question
-	    // 2. generate answer to that question.
-	    // The order of 1 and 2 don't matter; they are independent of one another.
-	    // From the client side, 1 and 2 are simply requests to the server
-	    // (for which we receive answer asynchronously).
-
-	    // 1. generate next question.
-	    gen(div_id,index+1,upto);
-	    
-	    // 2. generate answer to this question.
-	    function update_answer_fn(content) {
-		evaluated  = jQuery.parseJSON(content);
-		$("#example_a_"+index).html(evaluated.answer);
-	    }
-
-	    $.ajax({
-		cache: false,
-		dataType: "html",
-		url: "/engine/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
-		success: update_answer_fn
-	    });
-	}
-    }
-
-    $.ajax({
-	cache: false,
-        dataType: "html",
-        url: "/engine/generate-question",
-        success: generate_at_row
-    });
-}
-
 function gen_from_verb(verb) {
     function generate_with_verb(content) {
 	var evaluated = jQuery.parseJSON(content);
