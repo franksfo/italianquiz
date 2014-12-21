@@ -1,5 +1,17 @@
 var logging_level = INFO;
 
+/* this iterates through all verb on the page (indicated by having class "gen_source"), 
+   calling gen_from_verb() for each. */
+function gen_per_verb() {
+    $(".gen_source").each(function() {
+	var verb_dom_id = this.id;
+	log(INFO,"verb_dom_id: " + verb_dom_id);
+	var verb = verb_dom_id.replace(/^verb_/,"");
+	log(INFO,"verb:" + verb);
+	gen_from_verb(verb);
+    });
+}
+
 // TODO: div_id is not used yet, cannot populate tables yet (id is hard-wired to 'example_q').
 function gen(div_id,index,upto) {
     log(INFO,"generating sentence at index:" + index);
@@ -45,16 +57,6 @@ function gen(div_id,index,upto) {
         dataType: "html",
         url: "/engine/generate-question",
         success: generate_at_row
-    });
-}
-
-function gen_per_verb() {
-    $(".gen_source").each(function() {
-	var verb_dom_id = this.id;
-	log(INFO,"verb_dom_id: " + verb_dom_id);
-	var verb = verb_dom_id.replace(/^verb_/,"");
-	log(INFO,"verb:" + verb);
-	gen_from_verb(verb);
     });
 }
 
