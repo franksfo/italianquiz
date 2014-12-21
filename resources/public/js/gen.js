@@ -1,6 +1,6 @@
 var logging_level = INFO;
 
-/* this iterates through all verb on the page (indicated by having class "gen_source"), 
+/* this iterates through all verbs on the page (each verb has class "gen_source"), 
    calling gen_from_verb() for each. */
 function gen_per_verb() {
     $(".gen_source").each(function() {
@@ -10,6 +10,13 @@ function gen_per_verb() {
 	log(INFO,"verb:" + verb);
 	gen_from_verb(verb);
     });
+}
+
+function refresh_verb(verb) {
+    $("#verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
+    $("#english_verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
+    $("#english_translation_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
+    gen_from_verb(verb);
 }
 
 function gen_from_verb(verb) {
@@ -24,6 +31,11 @@ function gen_from_verb(verb) {
 	} else {
 	    $("#verb_"+verb).html(example);
 	}
+
+	
+	// reload link:
+	$("#reload_"+verb).attr("onclick","javascript:refresh_verb('"+verb+"');");
+
 
 	// hide semantics for now
 	//	$("#semantics_"+verb).html(evaluated.semantics_display);
