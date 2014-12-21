@@ -110,7 +110,8 @@
 
    "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
 
-   "love" (trans-intrans {:synsem {:sem {:pred :amare}}})
+   "love" (trans-intrans {:synsem {:sem {:pred :amare}}}
+                         {:subj {:human true}})
    "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
    "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
    "dine"  (trans-intrans {:synsem {:sem {:pred :cenare}}})
@@ -143,7 +144,8 @@
 
    "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
    "(human) work"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
-   "wear"  (trans-intrans {:synsem {:sem {:pred :portare}}})
+   "wear"  (trans-intrans {:english {:past "wore"}
+                           :synsem {:sem {:pred :portare}}})
    "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
                            :english {:imperfetto "grabbing"
                                      :past "grabbed"}})
@@ -278,7 +280,8 @@
                           :child false}}})
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
-   (trans-intrans {:synsem {:sem {:pred :leggere
+   (trans-intrans {:english {:past "read (past)"}
+                   :synsem {:sem {:pred :leggere
                                   :discrete false}}}
                   {:subj {:human true}
                    :obj {:legible true}})
