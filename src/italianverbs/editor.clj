@@ -64,7 +64,7 @@
 (def generate-this-many-at-once 10)
 
 (defn onload []
-  (str "alert('editor onload: fill me in...');"))
+  (str "log(INFO,'editor onload: stub.');"))
 
 (declare table-of-examples)
 
