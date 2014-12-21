@@ -4,6 +4,7 @@
    [clj-time.format :as f]
    [clj-time.core :as t]
    [clojure.tools.logging :as log]
+   [clojure.string :as string]
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [italianverbs.auth :as auth]
    [italianverbs.english :as en]
@@ -17,9 +18,6 @@
 
 (declare control-panel)
 
-(defn create [request])
-(defn create-form [request])
-
 (defn read [request])
 
 (defn update [request])
@@ -30,21 +28,57 @@
 
 (declare onload)
 
+(def route-graph
+  {:home {:create {:get "Create new game"}}
+   :create {:home {:get "Cancel"}
+            :create {:post {:button "New Game"}}}})
+
+(defn home-page [request]
+  (let [links (html 
+               (map (fn [action]
+                      [:a {:href (str "/editor/" (string/replace-first (str action) ":" ""))} (get-in route-graph [:home action :get])])
+                    (keys (:home route-graph))))]
+    (html
+     [:div {:style "border:2px dashed blue"}
+      links])))
+
+(defn create [request]
+  (let [links (html 
+               (map (fn [action]
+                      [:a {:href (str "/editor/" (string/replace-first (str action) ":" ""))} (get-in route-graph [:create action :get])])
+                    (keys (:create route-graph))))]
+    (html
+     [:div {:style "border:2px dashed pink"}
+      links])))
+
+(defn body [title content request]
+  (html/page 
+   title
+   (html
+    [:div {:style "border:2px dashed green"}
+     content])
+   request
+   {:css "/css/editor.css"
+    :js "/js/editor.js"
+    :onload (onload)}))
+
 (defn routes []
   (compojure/routes
    (GET "/" request
-        {:body (html/page 
-                "Editor: Top-level" 
-                (str "the answer is: " (+ 40 2))
-                request
-                {:css "/css/editor.css"
-                 :js "/js/editor.js"
-                 :onload (onload)})
+        {:body (body "Editor: Top-level" (home-page request) request)
          :status 200
          :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+   ;; alias for '/editor' (above)
+   (GET "/home" request
+        {:status 302
+         :headers {"Location" "/editor"}})
   
    (GET "/create" request
-        (create-form request))
+        {:body (body "Editor: Create a new game" (create request) request)
+         :status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
    (POST "/create" request
         (create request))
 
@@ -61,12 +95,12 @@
    (POST "/delete" request
         (delete request))))
 
-(def generate-this-many-at-once 10)
-
 (defn onload []
   (str "log(INFO,'editor onload: stub.');"))
 
 (declare table-of-examples)
+
+(def generate-this-many-at-once 10)
 
 (defn control-panel [request haz-admin]
   (let [current-size "5,436"
