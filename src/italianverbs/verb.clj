@@ -100,7 +100,7 @@
 
                  [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
 
-                 [:td [:i {:class "fa fa-refresh"} "" ] ]
+                 [:td {:id (str "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]
 
                  ])
          
