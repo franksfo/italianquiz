@@ -563,20 +563,11 @@
                              :artifact false}}})
 
       "cercare"
-      (let [common {:synsem {:essere false
-                             :sem {:activity true
-                                   :discrete false
-                                   :pred :cercare
-                                   :subj {:animate true}}}}]
-
-        [(unify
-          common
-          transitive
-          {:synsem {:sem {:obj {:physical-object true}}}})
-
-         (unify
-          common
-          intransitive-unspecified-obj)])
+      (trans-intrans {:synsem {:essere false
+                               :sem {:activity true
+                                     :discrete false
+                                     :pred :cercare}}}
+                     {:subj {:animate true}})
 
       "città"
       (unify agreement-noun
@@ -775,6 +766,110 @@
                        :discrete false
                        :pred :dormire}}})
 
+
+      "essere"
+      (let [essere-common 
+            (let [infl (ref :top)
+                  agr (ref :top)]
+              {:synsem {:essere true
+                        :subcat {:1 {:agr agr}}
+                        :agr agr
+                        :infl infl}
+               :italiano {:agr agr
+                          :futuro-stem "sar"
+                          :essere true
+                          :infinitive "essere"
+                          :infl infl
+                          :present {:1sing "sono"
+                                    :2sing "sei"
+                                    :3sing "è"
+                                    :1plur "siamo"
+                                    :2plur "siete"
+                                    :3plur "sono"}
+                          :passato "stato"
+                          :imperfetto {:1sing "ero"
+                                       :2sing "eri"
+                                       :3sing "era"
+                                       :1plur "eravamo"
+                                       :2plur "eravate"
+                                       :3plur "erano"}
+                          :futuro {:1sing "sarò"
+                                   :2sing "sarai"
+                                   :3sing "sarà"
+                                   :1plur "saremo"
+                                   :2plur "sarete"
+                                   :3plur "saranno"}}})]
+        [;; essere: adjective
+         ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry.
+         (let [gender (ref :top)
+               number (ref :top)]
+           (unify
+            essere-common
+            {:notes "essere-adjective"
+             :synsem {:cat :verb
+                      :sem {:pred :essere
+                            :subj :top
+                            :obj :top}
+                      :subcat {:1 {:cat :noun
+                                 :agr {:gender gender
+                                       :number number}}
+                               :2 {:cat :adjective
+                                   :sem {:comparative false}
+                                   :subcat {:1 :top
+                                            :2 '()}
+                                   :agr {:gender gender
+                                         :number number}}}}}))
+
+         ;; essere: copula ;; note that we don't enforce agreement the same here as we do in essere-adjective: TODO: try to make more consistent.
+         (let [gender (ref :top)
+               number (ref :top)
+               human (ref :top)]
+           (unify
+            transitive
+            essere-common
+            {:notes "copula" ;; significant only for debugging.
+             :synsem {:cat :verb
+                      :subcat {:1 {:cat :noun
+                                   :agr {:gender gender
+                                         :number number}}
+                               :2 {:cat :noun
+                                   :pronoun {:not true} ;; accusative pronouns cause unbounded depth-first searches on the subject side. (TODO: not sure if this problem is still present)
+                                   :def {:not :demonstrativo}
+                                   :agr {:gender gender
+                                         :number number}}}
+                      :sem {:pred :essere
+                            :activity false
+                            :discrete false
+                            :subj {:human human}
+                            :obj {:human human}}}}))
+
+         ;; essere: intensifier
+         ;; this is for e.g "essere più alto di quelle donne belle (to be taller than those beautiful women)"
+         (let [gender (ref :top)
+               number (ref :top)
+               subject (ref {:agr {:gender gender
+                                   :number number}
+                             :cat :noun})
+               comp-sem (ref
+                         {:activity false
+                          :discrete false})]
+           (unify
+            verb-subjective
+            essere-common
+            {:notes "essere-intensifer"
+             :synsem {:cat :verb
+                      :subcat {:1 subject
+                               :2 {:cat :intensifier
+                                   :sem comp-sem
+                                   :subcat {:1 subject
+                                            :2 '()}}}
+                      :sem {:pred :intensifier
+                            :obj comp-sem}}}))
+
+         (unify essere-common
+                verb-aux
+                verb-subjective
+                {:italiano {:notes "essere-aux"}})])
 
       "gatto"
       (unify agreement-noun
