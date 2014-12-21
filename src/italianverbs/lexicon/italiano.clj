@@ -161,14 +161,11 @@
                                     :sem complement-sem}}}}))]
 
    "amare"
-   (let [common {:synsem {:essere false
-                          :sem {:pred :amare
-                                :activity false
-                                :discrete false
-                                :subj {:human true}}}}]
-     [(unify common transitive
-             {:synsem {:sem {:obj {:animate true}}}})
-      (unify common intransitive-unspecified-obj)])
+   (trans-intrans {:synsem {:essere false
+                            :sem {:pred :amare
+                                  :activity false
+                                  :discrete false}}}
+                  {:subj {:human true}})
 
    "amico"
    (unify agreement-noun
@@ -915,19 +912,11 @@
              :subcat '()}}
 
    "leggere"
-   (let [common {:italiano {:passato "letto"}
-                  :synsem {:essere false
-                           :sem {:pred :leggere
-                                 :discrete false
-                                 :subj {:human true}}}}]
-     [(unify
-       common
-       transitive
-       {:synsem {:sem {:obj {:legible true}}}})
-
-      (unify
-       common
-       intransitive-unspecified-obj)])
+   (trans-intrans {:italiano {:passato "letto"}
+                   :synsem {:essere false
+                            :sem {:pred :leggere
+                                  :discrete false}}}
+                  {:subj {:human true}})
 
    "libro"
    (unify agreement-noun
