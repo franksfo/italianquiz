@@ -40,10 +40,23 @@
 (def server-hostname (.getHostName (java.net.InetAddress/getLocalHost)))
 
 (defroutes main-routes
+  ;; top-level page: currently redirects to the "Cloud" game.
   (GET "/" request
        ;; response map
        {:status 302
         :headers {"Location" "/cloud"}})
+
+  (context "/editor" []
+           (editor/routes))
+
+  (context "/engine" []
+           (engine/routes))
+
+  (context "/gen" []
+           (verb/routes))
+
+  (context "/workbook" []
+           (workbook/routes))
 
   (GET "/about" request
        {:status 200
@@ -54,12 +67,6 @@
   (GET "/auth/confirm" request
        ;; this function should create the user, log the user in and let them set their password.
        (confirm-and-create-user request))
-
-  (context "/engine" []
-           (engine/routes))
-
-  (context "/editor" []
-           (editor/routes))
 
   (GET "/cloud" request
        {:status 200
@@ -536,9 +543,6 @@
               :headers {"Location" (str "/test/" (:testid result) "/submittals/" (:submittalid result) 
                                         "?result=" (:message result))}}))))
    
-  (context "/gen" []
-           (verb/routes))
-
    ;; TODO: figure out how to combine destructuring with sending request (which we need for the
    ;; menubar and maybe other things like authorization.
    (GET "/verb/:verb/" request
@@ -596,8 +600,6 @@
                                    {:status 302
                                     :headers {"Location" (str "/verb/" id "/?result=" (:message result))}})))))))
 
-  (context "/workbook" []
-           (workbook/routes))
   (route/resources "/webjars" {:root "META-INF/resources/webjars/foundation/4.0.4/"})
   (route/resources "/")
 
