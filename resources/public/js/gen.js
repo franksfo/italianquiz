@@ -25,20 +25,14 @@ function gen_from_verb(verb) {
 	var example = evaluated.it;
 	var pred = evaluated.pred;
 	var semantics = evaluated.semantics;
+	var response = example;
 	if (example == "") {
-	    $("#verb_"+verb).html("<a href='/engine/generate?pred="+verb+"&lang=it'>" + 
-				  "<i class='fa fa-times-circle'> </i>" + " </a>");
-	} else {
-	    $("#verb_"+verb).html(example);
+	    response = "<i class='fa fa-times-circle'> </i>";
 	}
-
+	$("#verb_"+verb).html("<a href='/engine/generate?pred="+verb+"&lang=it'>" + response + "</a>");
 	
 	// reload link:
 	$("#reload_"+verb).attr("onclick","javascript:refresh_verb('"+verb+"');");
-
-
-	// hide semantics for now
-	//	$("#semantics_"+verb).html(evaluated.semantics_display);
 
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
@@ -54,20 +48,20 @@ function gen_from_verb(verb) {
 		$("#english_verb_"+pred).html(evaluated.en);
 	    }
 
+	    var generate_semantics_url = "/engine/generate-from-semantics?model=en&semantics=" + encodeURIComponent(JSON.stringify(semantics));
+
 	    $.ajax({
 		cache: false,
 		dataType: "html",
-		url: "/engine/generate-from-semantics?model=en&semantics=" + encodeURIComponent(JSON.stringify(semantics)),
+		url: generate_semantics_url,
 		success: function translate(content) {
-		    evaluated  = jQuery.parseJSON(content);
-		    if (evaluated.response == "") {
+		    var evaluated  = jQuery.parseJSON(content);
+		    var response = evaluated.response;
+		    if (response == "") {
 			// could not generate anything: show a link with an error icon (fa-times-circle)
-			$("#english_translation_"+pred).html("<a href='/engine/generate-from-semantics?lang=en&semantics=" +
-							     encodeURIComponent(JSON.stringify(semantics)) + "'>" + 
-							     "<i class='fa fa-times-circle'> </i>" + " </a>");
-		    } else {
-			$("#english_translation_"+pred).html(evaluated.response);
+			response = "<i class='fa fa-times-circle'> </i>";
 		    }
+		    $("#english_translation_"+pred).html("<a href='" + generate_semantics_url + "'>" + response + "</a>");
 		}
 	    });
 	}
