@@ -19,39 +19,30 @@
 
 (defn create [request])
 (defn create-form [request])
+
 (defn read [request])
+
 (defn update [request])
 (defn update-form [request])
+
 (defn delete [request])
 (defn delete-form [request])
-(defn list [request])
 
 (declare onload)
 
 (defn routes []
   (compojure/routes
-   (GET "/gen" request
-        (let [do-generation (fn []
-                              {:body (html/page 
-                                      "Editor: Generation" 
-                                      (control-panel request
-                                                     (auth/haz-admin))
-                                      request
-                                      {:css "/css/settings.css"
-                                       :js "/js/gen.js"
-                                       :onload (onload)})
-                               :status 200
-                               :headers {"Content-Type" "text/html;charset=utf-8"}})]
-                              
-        (if false ;; TODO: define config variable workstation-mode.
-          (friend/authorize #{::admin} do-generation)
-          ;; turn off security for workstation dev
-          (do-generation))))
-
-   (GET "/gen/" request
-        {:status 302
-         :headers {"Location" "/editor/gen"}})
-
+   (GET "/" request
+        {:body (html/page 
+                "Editor: Top-level" 
+                (str "the answer is: " (+ 40 2))
+                request
+                {:css "/css/editor.css"
+                 :js "/js/editor.js"
+                 :onload (onload)})
+         :status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
+  
    (GET "/create" request
         (create-form request))
    (POST "/create" request
@@ -72,9 +63,8 @@
 
 (def generate-this-many-at-once 10)
 
-;; see core.clj: (GET "/gen" request
 (defn onload []
-  (str "gen('examples',1," generate-this-many-at-once "); gen_per_verb();")) ;; javascript to be executed at page load.
+  (str "alert('editor onload: fill me in...');"))
 
 (declare table-of-examples)
 
