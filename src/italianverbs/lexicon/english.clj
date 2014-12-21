@@ -47,6 +47,31 @@
              :mass false
              :number :sing}}
 
+   "be"
+   (let [essere-common 
+         (let [infl (ref :top)
+               agr (ref :top)]
+           {:synsem {:essere true
+                     :subcat {:1 {:agr agr}}
+                     :agr agr
+                     :infl infl}
+            :english {:agr agr
+                      :infl infl
+                      :present {:1sing "am"
+                                :2sing "are"
+                                :3sing "is"
+                                :1plur "are"
+                                :2plur "are"
+                                :3plur "are"}
+                          :past {:1sing "was"
+                                 :2sing "were"
+                                 :3sing "was"
+                                 :1plur "were"
+                                 :2plur "were"
+                                 :3plur "were"}
+                          :imperfetto "were being"}})]
+     (unify essere-common
+            {:synsem {:sem {:pred :essere}}}))
 
    "black"
    (unify adjective
@@ -283,8 +308,8 @@
    (trans-intrans {:english {:past "read (past)"}
                    :synsem {:sem {:pred :leggere
                                   :discrete false}}}
-                  {:subj {:human true}
-                   :obj {:legible true}})
+                  {:subj {:human true}}
+                  {:obj {:legible true}})
 
    "red"
    (unify adjective
