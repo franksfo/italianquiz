@@ -74,11 +74,8 @@
 
           [:tr
            
-           [:th ""]
            [:th {:style "width:10em"} "Italian"]
            [:th {:style "width:20em"} "Example"]
-
-;           [:th {:style "width:10em"} "Semantics"]
            [:th {:style "width:10em"} "English"]
            [:th {:style "width:20em"} "Translation"]
            [:th {:style "width:3em"} ""]
@@ -86,15 +83,9 @@
 
          (map (fn [lexeme]
                 [:tr.lexeme
-                 
-                 [:td
-                  [:input {:type "checkbox"} ]]
-
                  [:td lexeme ]
                  [:td.example
                   [:div.gen_source {:id (str "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
-
-;                 [:td.semantics {:id (str "semantics_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
                  [:td {:id (str "english_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
@@ -110,7 +101,6 @@
                                     (filter (fn [lex]
                                               (and
                                                (= :top (get-in lex [:synsem :infl]))
-                                               (or true (= :bere (get-in lex [:synsem :sem :pred])))
                                                (= :verb
                                                   (get-in lex [:synsem :cat]))))
                                             (get @it/lexicon lexeme)))))
