@@ -771,10 +771,11 @@
       (let [essere-common 
             (let [infl (ref :top)
                   agr (ref :top)]
-              {:synsem {:essere true
-                        :subcat {:1 {:agr agr}}
-                        :agr agr
-                        :infl infl}
+              {:synsem {:agr agr
+                        :cat :verb
+                        :essere true
+                        :infl infl
+                        :subcat {:1 {:agr agr}}}
                :italiano {:agr agr
                           :futuro-stem "sar"
                           :essere true

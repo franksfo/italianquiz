@@ -51,7 +51,7 @@
    (let [essere-common 
          (let [infl (ref :top)
                agr (ref :top)]
-           {:synsem {:essere true
+           {:synsem {:cat :verb
                      :subcat {:1 {:agr agr}}
                      :agr agr
                      :infl infl}
