@@ -23,6 +23,9 @@
 
    (unify
     spec
+    (if (:subj opts)
+      {:synsem {:sem {:subj (:subj opts)}}}
+      :top)
     intransitive-unspecified-obj)])
 
 (def lexicon-source
