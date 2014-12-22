@@ -13,8 +13,8 @@
    [italianverbs.morphology :refer (normalize-whitespace)]
    [italianverbs.korma :as db]
    [hiccup.core :refer (html)]
-
-   ))
+   [korma.core :as k]
+))
 
 (declare control-panel)
 
@@ -33,12 +33,51 @@
    :create {:home {:get "Cancel"}
             :create {:post {:button "New Game"}}}})
 
+(def games-table "games")
+
+(defn create-games-table []
+  (k/exec-raw [(str "CREATE TABLE " games-table " (id bigint NOT NULL,
+                                                   name text);")])
+  (k/exec-raw [(str "CREATE SEQUENCE games_id_seq
+                     START WITH 1
+                     INCREMENT BY 1
+                     NO MINVALUE
+                     NO MAXVALUE
+                     CACHE 1;")])
+  (k/exec-raw [(str "ALTER TABLE ONLY " games-table " ALTER COLUMN id SET DEFAULT nextval('games_id_seq'::regclass);")]))
+
+(defn show [request]
+  (let [table-name games-table
+        games
+        (try
+          (k/exec-raw [(str "SELECT *
+                               FROM " table-name)] :results)
+          (catch Exception e
+            (let [message (.getMessage e)]
+              (if (= (subs message 0 38)
+                     (str "ERROR: relation \"" table-name "\" does not exist"))
+                (do (create-games-table)
+                    ;; retry now that we have created the table.
+                    (show request))
+                (throw e)))))]
+    games))
+
 (defn home-page [request]
   (let [links (html 
                (map (fn [action]
                       [:a {:href (str "/editor/" (string/replace-first (str action) ":" ""))} (get-in route-graph [:home action :get])])
-                    (keys (:home route-graph))))]
+                    (keys (:home route-graph))))
+        games (show request)]
     (html
+     (cond
+      (empty? games)
+      [:div "no games yet."]
+      true
+      [:table
+       (map (fn [each]
+              [:tr [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
+            games)])
+     
      [:div {:style "border:2px dashed blue"}
       links])))
 
