@@ -24,6 +24,8 @@
   "return the subset of lexemes that match this token from the lexicon."
   (morph/analyze token #(get @lexicon %)))
 
+(def en lookup)
+
 (def begin (System/currentTimeMillis))
 (log/info "building grammatical and lexical index..")
 (def index nil)

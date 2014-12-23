@@ -16,7 +16,9 @@
 
    [italianverbs.engine :refer :all :exclude [routes]]
    [italianverbs.english :as en]
+   [italianverbs.english :refer [en]]
    [italianverbs.italiano :as it]
+   [italianverbs.italiano :refer [it]]
    [italianverbs.morphology :refer [fo fo-ps]]
    [italianverbs.over :refer [over]]
    [italianverbs.html :as html]
