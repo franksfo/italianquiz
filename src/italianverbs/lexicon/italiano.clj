@@ -461,17 +461,6 @@
                     {:synsem {:sem {:pred :tornare}
                               :essere true}})
    "usare" (unifyc {:synsem {:sem {:pred :usare}}} transitive)
-   "vedere" (unifyc transitive
-                   {:synsem {:sem {:pred :vedere}}
-                    :italiano {:passato "visto"
-                               :futuro-stem "vedr"}})
-
-   "vendere" (unifyc {:synsem {:sem {:pred :vendere}}} transitive)
-   "venire" (unifyc intransitive
-                   {:synsem {:essere true
-                             :sem {:pred :venire}}
-                    :italiano {:passato "venuto"
-                               :futuro-stem "verr"}})
 
    "camicia"
     (unifyc agreement-noun
@@ -1171,6 +1160,22 @@
               :mass false
               :gender :fem
               :number :sing}}]
+
+   "vedere" (trans-intrans
+                   {:synsem {:sem {:pred :vedere}}
+                    :italiano {:passato "visto"
+                               :futuro-stem "vedr"}})
+
+   "vendere" (trans-intrans {:synsem {:sem {:pred :vendere}}}
+                            {:subj {:human true}
+                             :obj {:human false}})
+                            
+   "venire" (unifyc intransitive
+                   {:synsem {:essere true
+                             :sem {:pred :venire}}
+                    :italiano {:passato "venuto"
+                               :futuro-stem "verr"}})
+
 
    "vino"
    (unifyc drinkable-noun
