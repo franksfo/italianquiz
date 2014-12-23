@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [get-in]))
 
 (require '[clojure.tools.logging :as log])
-(require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals unify)])
+(require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals)])
 (require '[italianverbs.morphology.italiano :refer (agreement analyze exception-generator phonize italian-specific-rules)])
 (require '[italianverbs.morphology.italiano :as m])
 (require '[italianverbs.pos :refer (agreement-noun 
@@ -16,20 +16,20 @@
                                              intransitive intransitive-unspecified-obj
                                              feminine-noun masculine-noun
                                              transitive verb-subjective)])
-(require '[italianverbs.unify :refer (get-in)])
+(require '[italianverbs.unify :refer (get-in unifyc)])
 (require '[italianverbs.unify :as unify])
 
 (defn trans-intrans [spec & [opts]]
-  [(unify
+  [(unifyc
     spec
     transitive
     (if (:subj opts)
       {:synsem {:sem {:subj (:subj opts)}}}
       :top)
-    (if (:obj opts) {:sem {:obj (:obj opts)}}
+    (if (:obj opts) {:synsem {:sem {:obj (:obj opts)}}}
         :top))
 
-   (unify
+   (unifyc
     spec
     (if (:subj opts)
       {:synsem {:sem {:subj (:subj opts)}}}
@@ -92,7 +92,7 @@
                    :obj {:animate true}})
 
    "acqua"
-   (unify (:agreement noun)
+   (unifyc (:agreement noun)
           (:drinkable noun)
           (:feminine noun)
           {:synsem {:sem {:artifact false
@@ -105,7 +105,7 @@
     (let [is-place (ref {:place true}) ;; only places can be crowded.
           than-this (ref {:pred :di
                           :mod is-place})]
-      (unify adjective
+      (unifyc adjective
              comparative
              {:synsem {:sem {:pred :affolato
                              :arg1 is-place
@@ -115,7 +115,7 @@
                                 :2 {:cat :prep
                                     :sem than-this}}}}))
     ;; non-comparative
-    (unify adjective
+    (unifyc adjective
            {:synsem {:cat :adjective
                      :sem {:pred :affolato
                            :comparative false
@@ -136,7 +136,7 @@
    [;; non-comparative:
     (let [subject-sem (ref {:human true}) ;; only humans can be tall.
           subject-agr (ref :top)] 
-      (unify adjective
+      (unifyc adjective
              non-comparative-adjective
              {:synsem {:cat :adjective
                        :sem {:pred :alto
@@ -153,7 +153,7 @@
           complement-sem (ref {:pred :di
                                :mod complement-complement-sem})
           subject-sem (ref {:human true})] ;; only humans can be tall.
-      (unify adjective
+      (unifyc adjective
              comparative
              {:synsem {:sem {:pred :alto
                              :arg1 subject-sem
@@ -171,7 +171,7 @@
                   {:subj {:human true}})
 
    "amico"
-   (unify agreement-noun
+   (unifyc agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -180,7 +180,7 @@
                           :child false}}})
    "andare"
    (map (fn [each]
-          (unify
+          (unifyc
            each
            ;; common part of all andare lexemes:
            {:italiano {:italiano "andare"
@@ -200,7 +200,7 @@
                            :motion false}}}))
         (list
           ;; "andare"-intransitive
-          (unify
+          (unifyc
            intransitive
            {:synsem {:sem {:location '()}}}
 
@@ -224,7 +224,7 @@
                                             :1plur "abbiamo"
                                             :2plur "avete"
                                             :3plur "hanno"}}}]
-     [(unify ;; 1. "avere": to possess something buyable
+     [(unifyc ;; 1. "avere": to possess something buyable
        transitive
        avere-common
        {:note "avere (possess)"
@@ -236,7 +236,7 @@
 
 
       ;; 2. avere: unspecified object
-      (unify
+      (unifyc
        avere-common
        verb-subjective
        intransitive-unspecified-obj
@@ -249,7 +249,7 @@
 
       ;; 3. "avere" that takes a transitive verb: e.g. "io l'ho vista (i saw her)"
       (let [agr-of-obj-of-main-verb (ref :top)]
-        (unify
+        (unifyc
          verb-aux
          verb-subjective
          avere-common
@@ -266,7 +266,7 @@
       ;; 1. subject that is the same as the subject of 2.
       ;; 2. an intransitive verb.
       (let [agr-of-subj-of-main-verb (ref :top)]
-        (unify
+        (unifyc
          verb-aux
          verb-subjective
          avere-common
@@ -282,7 +282,7 @@
    "bello"
 
    [;; non-comparative
-    (unify adjective
+    (unifyc adjective
            {:synsem {:sem {:pred :bello
                            :comparative false
                            }}}) ;; for now, no restrictions on what can be beautiful.
@@ -291,7 +291,7 @@
           complement-sem (ref {:pred :di
                                :mod complement-complement-sem})
           subject-sem (ref :top)] ;; subject can be anything.
-      (unify adjective
+      (unifyc adjective
              comparative
              {:synsem {:sem {:pred :bello
                              :arg1 subject-sem
@@ -328,7 +328,7 @@
                     {:obj {:drinkable true}}))
 
    "bianco"
-   (unify adjective
+   (unifyc adjective
           {:synsem {:cat :adjective
                     :sem {:pred :bianco
                           :comparative false
@@ -339,7 +339,7 @@
                       :cat :adjective}})
 
    "birra"
-   (unify agreement-noun
+   (unifyc agreement-noun
           drinkable-noun
           feminine-noun
           {:synsem {:sem {:pred :birra
@@ -347,7 +347,7 @@
 
 
    "braccio"
-   (unify agreement-noun
+   (unifyc agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -363,7 +363,7 @@
    "brutto"
    ;; non-comparative
    ;; TODO: add comparative
-   (unify adjective
+   (unifyc adjective
           {:synsem {:cat :adjective
                     :sem {:pred :brutto
                           :comparative false
@@ -385,7 +385,7 @@
 
    "calzoni"
    ;; inherently plural
-   (unify agreement-noun
+   (unifyc agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -396,16 +396,16 @@
                           :consumable false
                           :clothing true}}})
 
-   "cambiare" (unify {:synsem {:sem {:pred :cambiare}}} transitive)
-   "cancellare" (unify {:synsem {:sem {:pred :cancellare}}} transitive)
-   "cantare" (unify {:synsem {:sem {:pred :cantare}}} transitive)
-   "caricare" (unify {:synsem {:sem {:pred :caricare}}} transitive)
-   "cenare" (unify intransitive
+   "cambiare" (trans-intrans {:synsem {:sem {:pred :cambiare}}})
+   "cancellare" (unifyc {:synsem {:sem {:pred :cancellare}}} transitive)
+   "cantare" (unifyc {:synsem {:sem {:pred :cantare}}} transitive)
+   "caricare" (unifyc {:synsem {:sem {:pred :caricare}}} transitive)
+   "cenare" (unifyc intransitive
                    {:synsem {:essere false
                              :sem {:subj {:human true}
                                    :pred :cenare}}})
-   "desiderare" (unify {:synsem {:sem {:pred :desiderare}}} transitive)
-   "dipingere" (unify transitive
+   "desiderare" (unifyc {:synsem {:sem {:pred :desiderare}}} transitive)
+   "dipingere" (unifyc transitive
                       {:synsem {
                                 :sem {
                                       :pred :dipingere
@@ -414,68 +414,68 @@
                        :italiano {:passato "dipinto"}
                        }
                       )
-   "entrare" (unify intransitive
+   "entrare" (unifyc intransitive
                     {:synsem {:essere true
                               :sem {:pred "entrare"}}})
 
-   "frequentare" (unify {:synsem {:sem {:pred :frequentare}}} transitive)
+   "frequentare" (unifyc {:synsem {:sem {:pred :frequentare}}} transitive)
 
-   "funzionare" (unify intransitive
+   "funzionare" (unifyc intransitive
                        {:synsem {:essere false
                                  :sem {:pred :funzionare
                                        :subj {:human false}}}})
-   "giocare" (unify {:synsem {:sem {:pred :giocare}}} transitive)
-   "guidare" (unify {:synsem {:sem {:pred :guidare}}} transitive)
-   "imparare" (unify {:synsem {:sem {:pred :imparare}}} transitive)
-   "incontrare" (unify {:synsem {:sem {:pred :incontrare}}} transitive)
-   "insegnare" (unify {:synsem {:sem {:pred :insegnare}}} transitive)
-   "lavorare" (unify {:synsem {:sem {:pred :lavorare}}} transitive)
-   "mandare" (unify {:synsem {:sem {:pred :mandare}}} transitive)
-   "portare" (unify {:synsem {:sem {:pred :portare}}} transitive)
-   "prendere" (unify transitive
+   "giocare" (unifyc {:synsem {:sem {:pred :giocare}}} transitive)
+   "guidare" (unifyc {:synsem {:sem {:pred :guidare}}} transitive)
+   "imparare" (unifyc {:synsem {:sem {:pred :imparare}}} transitive)
+   "incontrare" (unifyc {:synsem {:sem {:pred :incontrare}}} transitive)
+   "insegnare" (unifyc {:synsem {:sem {:pred :insegnare}}} transitive)
+   "lavorare" (unifyc {:synsem {:sem {:pred :lavorare}}} transitive)
+   "mandare" (unifyc {:synsem {:sem {:pred :mandare}}} transitive)
+   "portare" (unifyc {:synsem {:sem {:pred :portare}}} transitive)
+   "prendere" (unifyc transitive
                      {:synsem {:sem {:pred :prendere}}
                       :italiano {:passato "preso"}})
-   "ricevere" (unify {:synsem {:sem {:pred :ricevere}}} transitive)
-   "ricordare" (unify {:synsem {:sem {:pred :ricordare}}} transitive)
-   "rispondere" (unify intransitive
+   "ricevere" (unifyc {:synsem {:sem {:pred :ricevere}}} transitive)
+   "ricordare" (unifyc {:synsem {:sem {:pred :ricordare}}} transitive)
+   "rispondere" (unifyc intransitive
                        {:synsem {:essere false
                                  :sem {:pred :rispondere}}
                         :italiano {:passato "risposto"}})
 
-   "ritornare" (unify intransitive
+   "ritornare" (unifyc intransitive
                       {:synsem {:sem {:pred :ritornare}
                                 :essere true}})
 
-   "scaricare" (unify {:synsem {:sem {:pred :scaricare}}} transitive)
-   "scrivere" (unify {:synsem {:sem {:pred :scrivere}}} transitive
+   "scaricare" (unifyc {:synsem {:sem {:pred :scaricare}}} transitive)
+   "scrivere" (unifyc {:synsem {:sem {:pred :scrivere}}} transitive
                      {:italiano {:passato "scritto"}})
-   "stampare" (unify {:synsem {:sem {:pred :stampare}}} transitive)
-   "studiare" (unify {:synsem {:sem {:pred :studiare}}} transitive)
-   "suonare" (unify {:synsem {:sem {:pred :suonare}}} transitive)
-;   "telefonare" (unify intransitive
+   "stampare" (unifyc {:synsem {:sem {:pred :stampare}}} transitive)
+   "studiare" (unifyc {:synsem {:sem {:pred :studiare}}} transitive)
+   "suonare" (unifyc {:synsem {:sem {:pred :suonare}}} transitive)
+;   "telefonare" (unifyc intransitive
 ;                       {:synsem {:essere false
 ;                                 :sem :telephonare}})
-   "chiedere" (unify transitive
+   "chiedere" (unifyc transitive
                      {:synsem {:sem {:pred :chiedere}}
                       :italiano {:passato "chiesto"}})
-   "tornare" (unify intransitive
+   "tornare" (unifyc intransitive
                     {:synsem {:sem {:pred :tornare}
                               :essere true}})
-   "usare" (unify {:synsem {:sem {:pred :usare}}} transitive)
-   "vedere" (unify transitive
+   "usare" (unifyc {:synsem {:sem {:pred :usare}}} transitive)
+   "vedere" (unifyc transitive
                    {:synsem {:sem {:pred :vedere}}
                     :italiano {:passato "visto"
                                :futuro-stem "vedr"}})
 
-   "vendere" (unify {:synsem {:sem {:pred :vendere}}} transitive)
-   "venire" (unify intransitive
+   "vendere" (unifyc {:synsem {:sem {:pred :vendere}}} transitive)
+   "venire" (unifyc intransitive
                    {:synsem {:essere true
                              :sem {:pred :venire}}
                     :italiano {:passato "venuto"
                                :futuro-stem "verr"}})
 
    "camicia"
-    (unify agreement-noun
+    (unifyc agreement-noun
            common-noun
            countable-noun
            feminine-noun
@@ -488,7 +488,7 @@
                            :clothing true}}})
 
    "cane"
-   (unify agreement-noun
+   (unifyc agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -499,7 +499,7 @@
 
 
    "casa"
-    (unify agreement-noun
+    (unifyc agreement-noun
            common-noun
            countable-noun
            feminine-noun
@@ -510,7 +510,7 @@
                            :place true}}})
 
     "cattivo"
-     (unify adjective
+     (unifyc adjective
             {:synsem {:cat :adjective
                       :sem {:pred :cattivo
                             :comparative false
@@ -520,7 +520,7 @@
 
       ;; working on: "mi sono comprato un nuovo cellulare"
      "cellulare"
-      (unify agreement-noun
+      (unifyc agreement-noun
              masculine-noun
              common-noun
              countable-noun
@@ -557,7 +557,7 @@
                   :case pronoun-acc}}
 
       "cipolla"
-      (unify agreement-noun
+      (unifyc agreement-noun
              common-noun
              feminine-noun
              {:synsem {:sem {:pred :cipolla
@@ -573,7 +573,7 @@
                      {:subj {:animate true}})
 
       "città"
-      (unify agreement-noun
+      (unifyc agreement-noun
              common-noun
              countable-noun
              feminine-noun
@@ -585,7 +585,7 @@
                                     :def :def}}}})
       
       "compito"
-      (unify agreement-noun
+      (unifyc agreement-noun
              common-noun
              countable-noun
              masculine-noun
@@ -606,7 +606,7 @@
              complement-sem (ref {:pred :di
                                   :mod complement-complement-sem})
              subject-sem (ref {:place true})]
-         (unify adjective
+         (unifyc adjective
                 comparative
                 {:synsem {:sem {:pred :contento
                                 :arg1 subject-sem
@@ -617,7 +617,7 @@
                                      :sem complement-sem}}}})
 
          ;; non-comparative
-         (unify adjective
+         (unifyc adjective
                 {:synsem {:cat :adjective
                           :sem {:pred :contento
                                 :comparative false
@@ -628,7 +628,7 @@
              complement-sem (ref {:pred :di
                                   :mod complement-complement-sem})
              subject-sem (ref {:human true})] ;; only humans can be short.
-        (unify adjective
+        (unifyc adjective
                comparative
                {:synsem {:sem {:pred :corto
                                :arg1 subject-sem
@@ -639,7 +639,7 @@
                                       :sem complement-sem}}}}))
 
        ;; non-comparative
-       (unify adjective
+       (unifyc adjective
               {:synsem {:cat :adjective
                         :sem {:pred :corto
                               :comparative false
@@ -685,7 +685,7 @@
       "difficile"
       ;; non-comparative
       ;; TODO: add comparative
-      (unify adjective
+      (unifyc adjective
              {:synsem {:cat :adjective
                        :sem {:pred :difficile
                              :comparative false
@@ -735,7 +735,7 @@
                 :gender :masc}}
 
       "domani"
-      (unify sentential-adverb
+      (unifyc sentential-adverb
              {:synsem {:cat :sent-modifier
                        :sem {:pred :domani}
                        :subcat {:1 {:infl :futuro
@@ -744,7 +744,7 @@
               :italiano "domani"})
 
       "donna"
-      (unify agreement-noun
+      (unifyc agreement-noun
              common-noun
              countable-noun
              feminine-noun
@@ -753,7 +753,7 @@
                              :child false}}})
 
       "dopodomani"
-      (unify sentential-adverb
+      (unifyc sentential-adverb
              {:synsem {:cat :sent-modifier
                        :sem {:pred :dopodomani}
                        :subcat {:1 {:infl :futuro
@@ -761,7 +761,7 @@
                                     :subcat '()}}}})
 
       "dormire"
-      (unify
+      (unifyc
        intransitive
        {:synsem {:cat :verb
                  :essere false
@@ -807,7 +807,7 @@
          ;; TODO: unify essere-adjective and essere-intensifier into one lexical entry.
          (let [gender (ref :top)
                number (ref :top)]
-           (unify
+           (unifyc
             essere-common
             {:notes "essere-adjective"
              :synsem {:cat :verb
@@ -828,7 +828,7 @@
          (let [gender (ref :top)
                number (ref :top)
                human (ref :top)]
-           (unify
+           (unifyc
             transitive
             essere-common
             {:notes "copula" ;; significant only for debugging.
@@ -857,7 +857,7 @@
                comp-sem (ref
                          {:activity false
                           :discrete false})]
-           (unify
+           (unifyc
             verb-subjective
             essere-common
             {:notes "essere-intensifer"
@@ -870,13 +870,13 @@
                       :sem {:pred :intensifier
                             :obj comp-sem}}}))
 
-         (unify essere-common
+         (unifyc essere-common
                 verb-aux
                 verb-subjective
                 {:italiano {:notes "essere-aux"}})])
 
       "gatto"
-      (unify agreement-noun
+      (unifyc agreement-noun
              common-noun
              countable-noun
              masculine-noun
@@ -886,14 +886,14 @@
                              :pet true}}})
       
       "i"
-      (unify determiner
+      (unifyc determiner
              {:synsem {:cat :det
                        :def :def
                        :gender :masc
                        :number :plur}})
 
       "il"
-      (unify determiner
+      (unifyc determiner
              {:synsem {:cat :det
                        :def :def
                        :gender :masc
@@ -1018,7 +1018,7 @@
                   {:subj {:human true}})
 
    "libro"
-   (unify agreement-noun
+   (unifyc agreement-noun
           common-noun
           countable-noun
           masculine-noun
@@ -1077,7 +1077,7 @@
              :subcat '()}}
 
    "madre"
-   (unify agreement-noun
+   (unifyc agreement-noun
           common-noun
           countable-noun
           feminine-noun
@@ -1095,7 +1095,7 @@
    ;; non-comparative
    ;; TODO: add comparative
    "nero"
-   (unify adjective
+   (unifyc adjective
           {:synsem {:cat :adjective
                     :sem {:pred :nero
                           :comparative false
@@ -1114,7 +1114,7 @@
 
    "pane"
    ;; inherently singular.
-   (unify agreement-noun
+   (unifyc agreement-noun
           common-noun
           masculine-noun
           {:synsem {:sem {:pred :pane
@@ -1130,9 +1130,9 @@
          {:synsem {:essere false
                    :sem {:pred :parlare
                          :subj {:human true}}}}]
-     (unify common transitive
+     (unifyc common transitive
             {:synsem {:obj {:speakable true}}})
-     (unify common intransitive intransitive-unspecified-obj))
+     (unifyc common intransitive intransitive-unspecified-obj))
 
    "qualche"
    {:synsem {:cat :det
@@ -1143,7 +1143,7 @@
    ;; non-comparative
    ;; TODO: add comparative
    "rosso"
-   (unify adjective
+   (unifyc adjective
           {:synsem {:cat :adjective
                     :sem {:pred :rosso
                           :comparative false
@@ -1174,7 +1174,7 @@
               :number :sing}}]
 
    "vino"
-   (unify drinkable-noun
+   (unifyc drinkable-noun
           agreement-noun
           masculine-noun
           {:synsem {:sem {:pred :vino
