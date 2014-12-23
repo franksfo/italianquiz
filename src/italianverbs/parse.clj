@@ -121,7 +121,7 @@
                 nminus1grams))))
 
 ;; TODO: move tokenization to within lexicon.
-(defn parse [arg lexicon lookup grammar]
+(defn parse [arg & [ lexicon lookup grammar ]]
   "return a list of all possible parse trees for a string or a list of lists of maps (a result of looking up in a dictionary a list of tokens from the input string)"
   (cond (string? arg)
         (parse (toks arg lexicon lookup) lexicon lookup grammar)
