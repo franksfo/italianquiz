@@ -6,7 +6,7 @@
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.parse :as parse]
    [italianverbs.ug :refer :all]
-   [italianverbs.unify :refer (get-in unifyc)]))
+   [italianverbs.unify :refer (fail? get-in merge unifyc)]))
 
 (def hc-agreement
   (let [agr (ref :top)]
@@ -38,6 +38,7 @@
                 :b head-italian}})))
 
 ;; -- BEGIN SCHEMA DEFINITIONS
+;; <TODO: move to ug>
 (def schema-10
   (unifyc
    subcat-1-principle
@@ -111,8 +112,17 @@
    head-principle
    head-first
    {:comment "h21"
-    :schema-symbol 'h21 ;; used by over-each-parent to know where to put children.
+    :schema-symbol 'h21
     :first :head}))
+
+;; h21a is a specialization of h21. it's used for vp-aux to prevent over-generation.
+(def h21a
+  (merge
+   (unifyc
+    h21
+    {:head {:synsem {:subcat {:2 {:subcat {:2 '()}}}}}})
+   {:comment "h21a"
+    :schema-symbol 'h21a}))
 
 (def h22
   (unifyc
@@ -132,6 +142,7 @@
     :schema-symbol 'h32 ;; used by over-each-parent to know where to put children.
     :first :head}))
 
+;; </TODO: move to ug>
 ;; -- END SCHEMA DEFINITIONS
 
 (def grammar (list (unifyc h21
@@ -227,7 +238,7 @@
                                      :infl :infinitive
                                      :cat :verb}})
 
-                   (unifyc h21
+                   (unifyc h21a
                            {:rule "vp-aux"
                             :head {:phrasal false}
                             :synsem {:aux true
