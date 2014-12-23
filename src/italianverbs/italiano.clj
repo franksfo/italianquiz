@@ -50,7 +50,7 @@
   (let [spec (unify (if spec spec :top)
                     {:synsem {:subcat '()
                               :cat :verb}})]
-    (forest/generate spec grammar (flatten (vals lexicon)) index)))
+    (forest/generate spec grammar (flatten (vals @lexicon)) index)))
 
 (defn generate [ & [spec {use-grammar :grammar
                           use-index :index
