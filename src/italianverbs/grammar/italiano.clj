@@ -306,11 +306,13 @@
                    :head {:synsem {:modal ref}}}))
         true phrase))
 
+;; TODO: warn about failures.
 (def grammar
   (map (fn [phrase]
          (modal-is-head-feature
           (aux-is-head-feature phrase)))
-       grammar))
+       (filter #(not (fail? %))
+               grammar)))
 
 ;; TODO: calling (.size) because (map) is lazy, and I want to realize
 ;; the sequence - must be a better way to loop over the grammar and realize the result.
