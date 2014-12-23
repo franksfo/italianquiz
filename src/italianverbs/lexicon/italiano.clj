@@ -292,40 +292,39 @@
                                :mod complement-complement-sem})
           subject-sem (ref :top)] ;; subject can be anything.
       (unifyc adjective
-             comparative
-             {:synsem {:sem {:pred :bello
-                             :arg1 subject-sem
-                             :arg2 complement-complement-sem}
-                       :subcat {:1 {:cat :noun
+              comparative
+              {:synsem {:sem {:pred :bello
+                              :arg1 subject-sem
+                              :arg2 complement-complement-sem}
+                        :subcat {:1 {:cat :noun
                                     :sem subject-sem}
-                                :2 {:cat :prep
-                                    :sem complement-sem}}}}))]
+                                 :2 {:cat :prep
+                                     :sem complement-sem}}}}))]
 
    "bene"
    {:synsem {:cat :adverb
              :sem {:pred :bene}}}
 
    "bere"
-   (let [bere-common
-         {:italiano {:passato "bevuto"
-                     :futuro-stem "berr"
-                     :imperfetto {:1sing "bevevo"
-                                  :2sing "bevevi"
-                                  :3sing "beveva"
-                                  :1plur "bevevamo"
-                                  :2plur "bevevate"
-                                  :3plur "bevevano"}
-                     :present {:1sing "bevo"
-                               :2sing "bevi"
-                               :3sing "beve"
-                               :1plur "beviamo"
-                               :2plur "bevete"
-                               :3plur "bevono"}}
-          :synsem {:essere false
-                   :sem {:pred :bere
-                         :subj {:animate true}}}}]
-     (trans-intrans bere-common
-                    {:obj {:drinkable true}}))
+   (trans-intrans
+    {:italiano {:passato "bevuto"
+                :futuro-stem "berr"
+                :imperfetto {:1sing "bevevo"
+                             :2sing "bevevi"
+                             :3sing "beveva"
+                             :1plur "bevevamo"
+                             :2plur "bevevate"
+                             :3plur "bevevano"}
+                :present {:1sing "bevo"
+                          :2sing "bevi"
+                          :3sing "beve"
+                          :1plur "beviamo"
+                          :2plur "bevete"
+                          :3plur "bevono"}}
+     :synsem {:essere false
+              :sem {:pred :bere
+                    :subj {:animate true}}}}
+    {:obj {:drinkable true}})
 
    "bianco"
    (unifyc adjective
