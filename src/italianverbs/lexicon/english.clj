@@ -211,19 +211,12 @@
 
 
    "eat"
-   (let [common {:english {:past "ate"}
-                 :synsem {:sem {:pred :mangiare
-                                :discrete false
-                                :subj {:animate true}}}}]
-     [(unify
-       common
-       transitive
-       {:synsem {:sem {:obj {:edible true}}}})
+   (trans-intrans
+    {:english {:past "ate"}
+     :synsem {:sem {:pred :mangiare
+                    :subj {:animate true}}}}
+    {:obj {:edible true}})
 
-      (unify
-       common
-       intransitive-unspecified-obj)])
-   
    "embrace"
    (trans-intrans {:synsem {:sem {:pred :abbracciare}}}
                   {:subj {:human true}}
