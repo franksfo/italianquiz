@@ -211,7 +211,8 @@
 
 
    "eat"
-   (let [common {:synsem {:sem {:pred :mangiare
+   (let [common {:english {:past "ate"}
+                 :synsem {:sem {:pred :mangiare
                                 :discrete false
                                 :subj {:animate true}}}}]
      [(unify
