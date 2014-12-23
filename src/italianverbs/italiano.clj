@@ -9,6 +9,7 @@
 (require '[italianverbs.forest :as forest])
 (require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals unify)])
 (require '[italianverbs.parse :as parse])
+(require '[italianverbs.pos.italiano :refer :all])
 (require '[italianverbs.ug :refer :all])
 (require '[italianverbs.unify :refer (get-in)])
 (require '[italianverbs.unify :as unify])
