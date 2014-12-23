@@ -18,7 +18,7 @@
     (if (:subj opts)
       {:synsem {:sem {:subj (:subj opts)}}}
       :top)
-    (if (:obj opts) {:sem {:obj (:obj opts)}}
+    (if (:obj opts) {:synsem {:sem {:obj (:obj opts)}}}
         :top))
 
    (unify
