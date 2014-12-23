@@ -203,270 +203,269 @@
       arg2)))
 
 (defn unify [& args]
-  (if (empty? (rest args)) (first args))
-  (let [val1 (first args)
-        val2 (second args)]
-    (log/debug (str "unify val1: " val1))
-    (log/debug (str "      val2: " val2))
-    (log/debug (str "set? val1:" (set? val1)))
-    (log/debug (str "set? val2:" (set? val2)))
-    (log/debug (str "has-set? val1:" (has-set? val1)))
-    (log/debug (str "has-set? val2:" (has-set? val2)))
-    (log/debug (str "= val1 '()? " (= val1 '())))
-    (log/debug (str "= val2 :top? " (= val2 :top)))
-    (log/debug (str "= val2 '()? " (= val2 '())))
-    (cond
-     (set? val1)
-     (set (filter (fn [each]
-                    (not (fail? each)))
-                  (reduce union
-                          (map (fn [each]
-                                 (let [result (unifyc each val2)]
-                                   (cond (set? result)
-                                         result
-                                         (seq? result)
-                                         (set result)
-                                         true
-                                         (set (list result)))))
-                               val1))))
+  (cond (empty? (rest args))
+        (first args)
+        (and (seq? args)
+             (empty? (rest args)))
+        (first args)
+        (and (seq? args)
+             (not (empty? (rest (rest args)))))
+        (unify (first args) (apply unify (rest args)))
+        true
+        (let [val1 (first args)
+              val2 (second args)]
+          (cond
+           (set? val1)
+           (set (filter (fn [each]
+                          (not (fail? each)))
+                        (reduce union
+                                (map (fn [each]
+                                       (let [result (unifyc each val2)]
+                                         (cond (set? result)
+                                               result
+                                               (seq? result)
+                                               (set result)
+                                               true
+                                               (set (list result)))))
+                                     val1))))
 
-     (set? val2)
-     (set (filter (fn [each]
-                    (not (fail? each)))
-                  (reduce union
-                          (map (fn [each]
-                                 (let [result (unifyc each val1)]
-                                   (cond (set? result)
-                                         result
-                                         (seq? result)
-                                         (set result)
-                                         true
-                                         (set (list result)))))
-                               val2))))
-
-     (has-set? val1)
-     (unify (expand-disj val1) val2)
-
-     (has-set? val2)
-     (unify val1 (expand-disj val2))
-
-     (and (= val1 '())
-          (= val2 :top))
-     val1
-
-     (and (= val1 '())
-          (= val2 '()))
-     val1
-
-     (and (= val1 '()))
-     :fail
-
-     (and (= val1 nil)
-          (= val2 :top))
-     val1
-
-     (= val1 nil)
-     :fail
-
-     (and (set? val1)
-          (set? val2))
-     (intersection val1 val2)
-
-     (nil? args) nil
-
-     (= (.count args) 1)
-     (first args)
-
-     (= :fail (first args))
-     :fail
-
-     (= :fail (second args))
-     :fail
-
-     (seq? val1)
-     (map (fn [each]
-            (unify each val2))
-          val1)
-
-     ;; This is the canonical unification case: unifying two DAGs
-     ;; (maps with possible references within them).
-     ;;
-     (and (map? val1)
-          (map? val2))
-     (let [debug (log/debug "map? val1 true; map? val2 true")
-           result (merge-with-keys val1 val2)]
-       (log/debug (str "result: " result))
-       (if (fail? result)
-         :fail
-         (if (empty? (rest (rest args)))
-           result
-           (unify result
-                  (apply unify (rest (rest args)))))))
-
-     ;; val1 is a ref, val2 is a map that contains val1: return fail.
-     (and (ref? val1)
-          (map? val2)
-          (some #(= val1 %) (get-refs-in val2)))
-     (do
-       (log/debug (str "unification would create a cycle: returning fail."))
-     :fail)
-
-     (and (ref? val2)
-          (map? val1)
-          (some #(= val2 %) (get-refs-in val1)))
-     (do
-       (log/debug (str "unification would create a cycle: returning fail."))
-     :fail)
-
-     ;; val1 is a ref, val2 is not a ref.
-     (and
-      (= (type val1) clojure.lang.Ref)
-      (not (= (type val2) clojure.lang.Ref)))
-     (do
-       (log/debug (str "val1 is a ref, but not val2."))
-       (dosync
-          (alter val1
-                 (fn [x] (unify @val1 val2))))
-         ;; alternative to the above (not tested yet):  (fn [x] (unify (copy @val1) val2))))
-         ;; TODO: why is this false-disabled? (document and test) or remove
-         (if (and false (fail? @val1)) :fail
-         val1))
-
-     ;; val2 is a ref, val1 is not a ref.
-     (and
-      (= (type val2) clojure.lang.Ref)
-      (not (= (type val1) clojure.lang.Ref)))
-     (do
-       (log/debug (str "val2 is a ref, but not val1."))
-       (dosync
-          (alter val2
-                 (fn [x] (unify val1 @val2))))
-         ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
-         ;; TODO: why is this false-disabled? (document and test) or remove.
-         (if (and false (fail? @val2)) :fail
-         val2))
-
-     (and
-      (= (type val1) clojure.lang.Ref)
-      (= (type val2) clojure.lang.Ref))
-     (let [refs-in-val1 (get-refs-in @val1)
-           refs-in-val2 (get-refs-in @val2)]
-
-       (log/debug (str "val1 and val2 are both refs."))
-       (log/debug (str "=? val1 val2 : " (= val1 val2)))
-       (log/debug (str "=? val1 @val2 : " (= val1 @val2)))
-
-       (log/debug (str " refs of @val1: " refs-in-val1))
-       (log/debug (str " refs of @val2: " refs-in-val2))
-
-       (cond
-        (or (= val1 val2) ;; same reference.
-            (= val1 @val2)) ;; val1 <- val2
-        val1
-
-        (= @val1 val2) ;; val1 -> val2
-        val2
-
-        (some #(= val2 %) refs-in-val1)
-        :fail
-
-        (some #(= val1 %) refs-in-val2)
-        :fail
-
-        :else
-        (do
-          (log/debug (str "unifying two refs: " val1 " and " val2))
-          (log/debug (str " whose values are: " @val1 " and " @val2))
-          (log/debug (str " refs of @val1: " (get-refs-in @val1)))
-          (log/debug (str " refs of @val2: " (get-refs-in @val2)))
-          (dosync
-           (alter val1
-                  (fn [x] (unify @val1 @val2))))
-          (dosync
-           (alter val2
-                  (fn [x] val1))) ;; note that now val2 is a ref to a ref.
-          (log/debug (str "returning ref: " val1))
-          ;; TODO: remove, since it's disabled, or add a global setting to en/dis-able.
-          (if (and false (fail? @val1)) :fail
-              val1))))
-
-     ;; convoluted way of expressing: "if val1 has the form: {:not X}, then .."
-     (not (= :notfound (:not val1 :notfound)))
-     (if (= val2 :top)
-;       :top ;; special case: (unify :top {:not X}) => :top
-       val1
-       ;; else
-       (let [debug1 (log/debug (str "VAL1: " val1))
-             debug2 (log/debug (str "VAL2: " val2))
-             result (unify (:not val1) val2)]
-         (if (= result :fail)
-           val2
-           :fail)))
-
-     ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
-     (not (= :notfound (:not val2 :notfound)))
-     (if (= val1 :top)
-;       val1 ;; special case mentioned above in comments preceding this function.
-       val2
-       (let [debug1 (log/debug (str "VAL1: " val1))
-             debug2 (log/debug (str "VAL2: " val2))
-             result (unify val1 (:not val2))]
-         (if (= result :fail)
+           (set? val2)
+           (set (filter (fn [each]
+                          (not (fail? each)))
+                        (reduce union
+                                (map (fn [each]
+                                       (let [result (unifyc each val1)]
+                                         (cond (set? result)
+                                               result
+                                               (seq? result)
+                                               (set result)
+                                               true
+                                               (set (list result)))))
+                                     val2))))
+           
+           (has-set? val1)
+           (unify (expand-disj val1) val2)
+           
+           (has-set? val2)
+           (unify val1 (expand-disj val2))
+           
+           (and (= val1 '())
+                (= val2 :top))
            val1
-           :fail)))
 
-     (or (= val1 :fail)
-         (= val2 :fail))
-     :fail
+           (and (= val1 '())
+                (= val2 '()))
+           val1
 
-     (= val1 :top) val2
-     (= val2 :top) val1
+           (and (= val1 '()))
+           :fail
 
-     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
-     ;; these two rules are unfortunately necessary because of congomongo's storage of keywords as strings.
-     (= val1 "top") val2
-     (= val2 "top") val1
+           (and (= val1 nil)
+                (= val2 :top))
+           val1
 
-     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
-     ;; :foo,"foo" => :foo
-     (and (= (type val1) clojure.lang.Keyword)
-          (= (type val2) java.lang.String)
-          (= (string/replace-first (str val1) ":" "") val2))
-     val1
+           (= val1 nil)
+           :fail
 
-     ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
-     ;; "foo",:foo => :foo
-     (and (= (type val2) clojure.lang.Keyword)
-          (= (type val1) java.lang.String)
-          (= (string/replace-first (str val2) ":" "") val1))
-     val2
+           (and (set? val1)
+                (set? val2))
+           (intersection val1 val2)
+           
+           (nil? args) nil
+           
+           (= (.count args) 1)
+           (first args)
+           
+           (= :fail (first args))
+           :fail
+           
+           (= :fail (second args))
+           :fail
+           
+           (seq? val1)
+           (map (fn [each]
+                  (unify each val2))
+                val1)
 
-     (= val1 val2) val1
+           ;; This is the canonical unification case: unifying two DAGs
+           ;; (maps with possible references within them).
+           ;;
+           (and (map? val1)
+                (map? val2))
+           (let [debug (log/debug "map? val1 true; map? val2 true")
+                 result (merge-with-keys val1 val2)]
+             (log/debug (str "result: " result))
+             (if (fail? result)
+               :fail
+               (if (empty? (rest (rest args)))
+                 result
+                 (unify result
+                        (apply unify (rest (rest args)))))))
 
-     ;; The follow two 2 rules allow values of :english and :italian that
-     ;; are strings to over-ride values that are maps (in which
-     ;; case they are specs of how to compute a string: agreement
-     ;; information such as gender and number.
-     (and
-      (not strict)
-      (map? val1)
-      (string? val2))
-     (do
-       (log/debug "unifying a map and a string: ignoring the former and returning the latter: 'val2'")
-       val2)
+           ;; val1 is a ref, val2 is a map that contains val1: return fail.
+           (and (ref? val1)
+                (map? val2)
+                (some #(= val1 %) (get-refs-in val2)))
+           (do
+             (log/debug (str "unification would create a cycle: returning fail."))
+             :fail)
 
-     (and
-      (not strict)
-      (string? val1)
-      (map? val2))
-     (do
-       (log/debug (str "unifying a string and a map: ignoring the latter and returning the former: '" val1 "'"))
-       val1)
+           (and (ref? val2)
+                (map? val1)
+                (some #(= val2 %) (get-refs-in val1)))
+           (do
+             (log/debug (str "unification would create a cycle: returning fail."))
+             :fail)
+           
+           ;; val1 is a ref, val2 is not a ref.
+           (and
+            (= (type val1) clojure.lang.Ref)
+            (not (= (type val2) clojure.lang.Ref)))
+           (do
+             (log/debug (str "val1 is a ref, but not val2."))
+             (dosync
+              (alter val1
+                     (fn [x] (unify @val1 val2))))
+             ;; alternative to the above (not tested yet):  (fn [x] (unify (copy @val1) val2))))
+             ;; TODO: why is this false-disabled? (document and test) or remove
+             (if (and false (fail? @val1)) :fail
+                 val1))
+           
+           ;; val2 is a ref, val1 is not a ref.
+           (and
+            (= (type val2) clojure.lang.Ref)
+            (not (= (type val1) clojure.lang.Ref)))
+           (do
+             (log/debug (str "val2 is a ref, but not val1."))
+             (dosync
+              (alter val2
+                     (fn [x] (unify val1 @val2))))
+             ;; alternative to the above (not tested yet): (fn [x] (unify val1 (fs/copy @val2)))))
+             ;; TODO: why is this false-disabled? (document and test) or remove.
+             (if (and false (fail? @val2)) :fail
+                 val2))
 
-     :else ;; fail.
-     (do
-       (log/debug (str "(" val1 ", " val2 ") => :fail"))
-       :fail))))
+           (and
+            (= (type val1) clojure.lang.Ref)
+            (= (type val2) clojure.lang.Ref))
+           (let [refs-in-val1 (get-refs-in @val1)
+                 refs-in-val2 (get-refs-in @val2)]
+             
+             (log/debug (str "val1 and val2 are both refs."))
+             (log/debug (str "=? val1 val2 : " (= val1 val2)))
+             (log/debug (str "=? val1 @val2 : " (= val1 @val2)))
+             
+             (log/debug (str " refs of @val1: " refs-in-val1))
+             (log/debug (str " refs of @val2: " refs-in-val2))
+             
+             (cond
+              (or (= val1 val2) ;; same reference.
+                  (= val1 @val2)) ;; val1 <- val2
+              val1
+
+              (= @val1 val2) ;; val1 -> val2
+              val2
+              
+              (some #(= val2 %) refs-in-val1)
+              :fail
+
+              (some #(= val1 %) refs-in-val2)
+              :fail
+
+              :else
+              (do
+                (log/debug (str "unifying two refs: " val1 " and " val2))
+                (log/debug (str " whose values are: " @val1 " and " @val2))
+                (log/debug (str " refs of @val1: " (get-refs-in @val1)))
+                (log/debug (str " refs of @val2: " (get-refs-in @val2)))
+                (dosync
+                 (alter val1
+                        (fn [x] (unify @val1 @val2))))
+                (dosync
+                 (alter val2
+                        (fn [x] val1))) ;; note that now val2 is a ref to a ref.
+                (log/debug (str "returning ref: " val1))
+                ;; TODO: remove, since it's disabled, or add a global setting to en/dis-able.
+                (if (and false (fail? @val1)) :fail
+                    val1))))
+
+           ;; convoluted way of expressing: "if val1 has the form: {:not X}, then .."
+           (not (= :notfound (:not val1 :notfound)))
+           (if (= val2 :top)
+                                        ;       :top ;; special case: (unify :top {:not X}) => :top
+             val1
+             ;; else
+             (let [debug1 (log/debug (str "VAL1: " val1))
+                   debug2 (log/debug (str "VAL2: " val2))
+                   result (unify (:not val1) val2)]
+               (if (= result :fail)
+                 val2
+                 :fail)))
+           
+           ;; convoluted way of expressing: "if val2 has the form: {:not X}, then .."
+           (not (= :notfound (:not val2 :notfound)))
+           (if (= val1 :top)
+                                        ;       val1 ;; special case mentioned above in comments preceding this function.
+             val2
+             (let [debug1 (log/debug (str "VAL1: " val1))
+                   debug2 (log/debug (str "VAL2: " val2))
+                   result (unify val1 (:not val2))]
+               (if (= result :fail)
+                 val1
+                 :fail)))
+           
+           (or (= val1 :fail)
+               (= val2 :fail))
+           :fail
+
+           (= val1 :top) val2
+           (= val2 :top) val1
+           
+           ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
+           ;; these two rules are unfortunately necessary because of congomongo's storage of keywords as strings.
+           (= val1 "top") val2
+           (= val2 "top") val1
+
+           ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
+           ;; :foo,"foo" => :foo
+           (and (= (type val1) clojure.lang.Keyword)
+                (= (type val2) java.lang.String)
+                (= (string/replace-first (str val1) ":" "") val2))
+           val1
+
+           ;; TODO: verify that these keyword/string exceptions are necessary - otherwise remove them.
+           ;; "foo",:foo => :foo
+           (and (= (type val2) clojure.lang.Keyword)
+                (= (type val1) java.lang.String)
+                (= (string/replace-first (str val2) ":" "") val1))
+           val2
+
+           (= val1 val2) val1
+           
+           ;; The follow two 2 rules allow values of :english and :italian that
+           ;; are strings to over-ride values that are maps (in which
+           ;; case they are specs of how to compute a string: agreement
+           ;; information such as gender and number.
+           (and
+            (not strict)
+            (map? val1)
+            (string? val2))
+           (do
+             (log/debug "unifying a map and a string: ignoring the former and returning the latter: 'val2'")
+             val2)
+
+           (and
+            (not strict)
+            (string? val1)
+            (map? val2))
+           (do
+             (log/debug (str "unifying a string and a map: ignoring the latter and returning the former: '" val1 "'"))
+             val1)
+
+           :else ;; fail.
+           (do
+             (log/debug (str "(" val1 ", " val2 ") => :fail"))
+             :fail)))))
 
 ;; unify vs. merge:
 ;;
