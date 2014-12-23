@@ -71,6 +71,7 @@
                                                   (keyword v)
                                                   :else v)))
         model (get-in request [:params :model])
+        debug (get-in request [:params :debug] false)
         translation
         (generate {:synsem {:sem semantics}}
                   (cond (= model "en")
@@ -81,7 +82,7 @@
                         it/small
                         (= model "it-small")
                         it/small
-                        true ;; TODO: throw exception if we got here.
+                        true ;; TODO: throw exception "no language model" if we got here.
                         en/small))]
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
@@ -89,9 +90,11 @@
                "Pragma" "no-cache"
                "Expires" "0"}
      :body (json/write-str
-            {:semantics semantics
-             :fo-ps (fo-ps translation)
-             :response (fo translation)})}))
+            (merge
+             (if debug {:debug (strip-refs translation)} {})
+             {:semantics semantics
+              :fo-ps (fo-ps translation)
+              :response (fo translation)}))}))
 
 (def possible-preds [:top])
 
