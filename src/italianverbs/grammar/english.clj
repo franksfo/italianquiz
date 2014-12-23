@@ -35,6 +35,8 @@
      :english {:a comp-english
                :b head-english}}))
 
+;; -- BEGIN SCHEMA DEFINITIONS
+;; <TODO: move to ug>
 (def schema-10
   (unifyc
    subcat-1-principle
@@ -128,6 +130,7 @@
     :schema-symbol 'h32 ;; used by over-each-parent to know where to put children.
     :first :head}))
 
+;; </TODO: move to ug>
 ;; -- END SCHEMA DEFINITIONS
 
 (def grammar (list (unifyc h21
