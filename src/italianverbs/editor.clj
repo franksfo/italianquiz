@@ -18,7 +18,7 @@
 
 (declare control-panel)
 
-(defn read [request])
+(defn read-request [request])
 
 (defn update [request])
 (defn update-form [request])
@@ -122,7 +122,7 @@
         (create request))
 
    (GET "/read" request
-        (read request))
+        (read-request request))
 
    (GET "/update" request
         (update-form request))
