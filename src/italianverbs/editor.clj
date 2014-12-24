@@ -1,24 +1,91 @@
 (ns italianverbs.editor
+  (:refer-clojure :exclude [get-in])
   (:require
    [cemerick.friend :as friend]
-   [clj-time.format :as f]
-   [clj-time.core :as t]
    [clojure.tools.logging :as log]
    [clojure.string :as string]
    [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
+   [formative.core :as f]
+   [formative.parse :as fp]
    [italianverbs.auth :as auth]
    [italianverbs.english :as en]
    [italianverbs.html :as html]
    [italianverbs.italiano :as it]
-   [italianverbs.morphology :refer (normalize-whitespace)]
+   [italianverbs.morphology :refer (fo)]
    [italianverbs.korma :as db]
+   [italianverbs.unify :refer [get-in]]
    [hiccup.core :refer (html)]
    [korma.core :as k]
 ))
 
+(declare body)
 (declare control-panel)
+(declare create)
+(declare create-form)
+(declare delete)
+(declare delete-form)
+(declare home-page)
+(declare read-request)
+(declare update)
+(declare update-form)
 
-(defn read-request [request])
+(defn routes []
+  (compojure/routes
+   (GET "/" request
+        {:body (body "Editor: Top-level" (home-page request) request)
+         :status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+   ;; alias for '/editor' (above)
+   (GET "/home" request
+        {:status 302
+         :headers {"Location" "/editor"}})
+  
+   (GET "/create" request
+        {:body (body "Editor: Create a new game" (create-form request) request)
+         :status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
+
+   (POST "/create" request
+        (create request))
+
+   (GET "/read" request
+        (read-request request))
+
+   (GET "/update" request
+        (update-form request))
+   (POST "/update" request
+        (update request))
+
+   (GET "/delete" request
+        (delete-form request))
+   (POST "/delete" request
+        (delete request))
+
+   ;; alias for '/read' (above)
+   (GET "/:game" request
+        {:body (body (str "Showing game: " (:game (:route-params request))) (read-request request) request)
+         :status 200})))
+
+(defn onload []
+  (str "log(INFO,'editor onload: stub.');"))
+
+(defn body [title content request]
+  (html/page 
+   title
+   (html
+    [:div {:class "major"}
+     [:h2 "Game Editor"]
+     content])
+   request
+   {:css "/css/editor.css"
+    :js "/js/editor.js"
+    :onload (onload)}))
+
+(defn read-request [request]
+  (html
+   [:i (:message (:params request))]
+   [:div (str "Game: " (:game (:params request)))]))
 
 (defn update [request])
 (defn update-form [request])
@@ -54,7 +121,7 @@
                                FROM " table-name)] :results)
           (catch Exception e
             (let [message (.getMessage e)]
-              (if (= (subs message 0 38)
+              (if (= (subs message 0 38) ;; TODO: too fragile: depends on an exact string match from the error message.
                      (str "ERROR: relation \"" table-name "\" does not exist"))
                 (do (create-games-table)
                     ;; retry now that we have created the table.
@@ -69,73 +136,61 @@
                     (keys (:home route-graph))))
         games (show request)]
     (html
-     (cond
-      (empty? games)
-      [:div "no games yet."]
-      true
-      [:table
-       (map (fn [each]
-              [:tr [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
-            games)])
-     
-     [:div {:style "border:2px dashed blue"}
+     [:div
+      (cond
+       (empty? games)
+       [:div "No games yet."]
+       true
+       [:table
+        (map (fn [each]
+               [:tr [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
+             games)])
+
       links])))
 
+(def game-form
+  {:fields [{:name :name :size 50 :label "Name"}]
+   :validations [[:required [:name]]
+                 [:min-length 1 :verbs "Select one or more verbs"]]})
+
+(def all-verbs
+  (filter (fn [lexeme]
+            (not (empty?
+                  (filter (fn [lex]
+                            (and
+                             (= :top (get-in lex [:synsem :infl]))
+                             (= :verb
+                                (get-in lex [:synsem :cat]))))
+                          (get @it/lexicon lexeme)))))
+          (sort (keys @it/lexicon))))
+
+(def defaults {})
+
 (defn create [request]
+  (log/info (str "editor/new with request: " (:form-params request)))
+  (let [values (fp/parse-params game-form (:form-params request))
+        insert-sql (str "INSERT INTO games (id,name) VALUES (DEFAULT,'" (:name values) "') RETURNING id")]
+    (let [results (k/exec-raw [insert-sql] :results)
+          new-game-id (:id (first results))]
+      {:status 302
+       :headers {"Location" (str "/editor/" new-game-id "?message=created.")}})))
+
+(defn create-form [request]
   (let [links (html 
                (map (fn [action]
                       [:a {:href (str "/editor/" (string/replace-first (str action) ":" ""))} (get-in route-graph [:create action :get])])
                     (keys (:create route-graph))))]
     (html
-     [:div {:style "border:2px dashed pink"}
+     [:div
+
+      (f/render-form (assoc (-> game-form
+                                (f/merge-fields [{:name :tests :label "Verbs for this game"
+                                                  :type :checkboxes
+                                                  :options all-verbs}]))
+                       :values (merge defaults (:form-params request))
+                       :action "/editor/create"
+                       :method "post"))
       links])))
-
-(defn body [title content request]
-  (html/page 
-   title
-   (html
-    [:div {:style "border:2px dashed green"}
-     content])
-   request
-   {:css "/css/editor.css"
-    :js "/js/editor.js"
-    :onload (onload)}))
-
-(defn routes []
-  (compojure/routes
-   (GET "/" request
-        {:body (body "Editor: Top-level" (home-page request) request)
-         :status 200
-         :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-   ;; alias for '/editor' (above)
-   (GET "/home" request
-        {:status 302
-         :headers {"Location" "/editor"}})
-  
-   (GET "/create" request
-        {:body (body "Editor: Create a new game" (create request) request)
-         :status 200
-         :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-   (POST "/create" request
-        (create request))
-
-   (GET "/read" request
-        (read-request request))
-
-   (GET "/update" request
-        (update-form request))
-   (POST "/update" request
-        (update request))
-
-   (GET "/delete" request
-        (delete-form request))
-   (POST "/delete" request
-        (delete request))))
-
-(defn onload []
-  (str "log(INFO,'editor onload: stub.');"))
 
 (declare table-of-examples)
 
