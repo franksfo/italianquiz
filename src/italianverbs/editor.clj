@@ -18,6 +18,11 @@
    [korma.core :as k]
 ))
 
+(def route-graph
+  {:home {:create {:get "Create new game"}}
+   :create {:home {:get "Cancel"}
+            :create {:post {:button "New Game"}}}})
+
 (declare body)
 (declare control-panel)
 (declare create)
@@ -25,6 +30,7 @@
 (declare delete)
 (declare delete-form)
 (declare home-page)
+(declare links)
 (declare read-request)
 (declare update)
 (declare update-form)
@@ -64,7 +70,7 @@
 
    ;; alias for '/read' (above)
    (GET "/:game" request
-        {:body (body (str "Showing game: " (:game (:route-params request))) (read-request request) request)
+        {:body (read-request request)
          :status 200})))
 
 (defn onload []
@@ -83,9 +89,14 @@
     :onload (onload)}))
 
 (defn read-request [request]
-  (html
-   [:i (:message (:params request))]
-   [:div (str "Game: " (:game (:params request)))]))
+  (let [game-id (:game (:params request))
+        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
+    (body (str "Showing game: " (:name game-row))
+          (html
+           [:i (:message (:params request))]
+           [:div (str "Game: " (:name game-row))]
+           (links request))
+          request)))
 
 (defn update [request])
 (defn update-form [request])
@@ -94,11 +105,6 @@
 (defn delete-form [request])
 
 (declare onload)
-
-(def route-graph
-  {:home {:create {:get "Create new game"}}
-   :create {:home {:get "Cancel"}
-            :create {:post {:button "New Game"}}}})
 
 (def games-table "games")
 
@@ -130,10 +136,7 @@
     games))
 
 (defn home-page [request]
-  (let [links (html 
-               (map (fn [action]
-                      [:a {:href (str "/editor/" (string/replace-first (str action) ":" ""))} (get-in route-graph [:home action :get])])
-                    (keys (:home route-graph))))
+  (let [links (links request)
         games (show request)]
     (html
      [:div
@@ -175,11 +178,17 @@
       {:status 302
        :headers {"Location" (str "/editor/" new-game-id "?message=created.")}})))
 
+(defn links [request]
+  (let [left :create
+        method :get]
+    (html
+     [:div {:class "links" :style "float:left; margin-top:1em; border-top: 1px solid lightgreen; margin:0.25em;width:95%"}
+      (let [action :create]
+        [:a {:href (str "/editor/" (string/replace-first (str action) ":" ""))}
+         (get-in route-graph [:home :create :get])])])))
+
 (defn create-form [request]
-  (let [links (html 
-               (map (fn [action]
-                      [:a {:href (str "/editor/" (string/replace-first (str action) ":" ""))} (get-in route-graph [:create action :get])])
-                    (keys (:create route-graph))))]
+  (let [links (links request)]
     (html
      [:div
 
