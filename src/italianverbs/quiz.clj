@@ -7,7 +7,6 @@
             [clojure.tools.logging :as log]
             [hiccup.core :refer :all]
             [hiccup.page :refer :all]
-            [italianverbs.generate :refer (sentence)]
             [italianverbs.english :as en]
             [italianverbs.italiano :as it]
             [italianverbs.html :as html]
@@ -372,7 +371,7 @@
    (let [spec (question-type-to-sentence-spec question-type)]
      (log/info (str "generate-question with type: " question-type))
      (log/info (str "generate-question with spec: " spec))
-     (finalize (sentence spec)))
+     (finalize (it/sentence spec)))
    (= question-type :oct2011)
    (oct2011)
    (= question-type :chetempo)
