@@ -7,8 +7,10 @@
    ]
    [:require
     [somnium.congomongo :as mongo]
-    [italianverbs.generate :as gen]
+    [italianverbs.engine :as engine]
+    [italianverbs.english :as en]
     [italianverbs.html :as html]
+    [italianverbs.italiano :as it]
     [italianverbs.unify :as unify]
     [clojure.set :as set]
     [clojure.string :as string]
@@ -22,9 +24,10 @@
   ;; TODO: add switch to avoid removing existing mongodb, if desired.
   (mongo/destroy! :sentences {})
   (dotimes [n num]
-    (let [sentence (finalize (gen/sentence))]
-      (mongo/insert! :sentences {:italian (unify/get-in sentence '(:italian))
-                                 :english (unify/get-in sentence '(:english))})))
+    (let [italian-sentence (it/sentence)
+          english-sentence (engine/generate {:synsem {:sem (get-in italian-sentence [:synsem :sem])}})]
+      (mongo/insert! :sentences {:italian (fo italian-sentence)
+                                 :english (fo english-sentence)})))
   (let [count (mongo/fetch-count :sentences)]
     (println (str "sentence collection now has " count " sentences."))
     count))
