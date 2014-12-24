@@ -70,13 +70,12 @@
                                 :1plur "are"
                                 :2plur "are"
                                 :3plur "are"}
-                          :past {:1sing "was"
-                                 :2sing "were"
-                                 :3sing "was"
-                                 :1plur "were"
-                                 :2plur "were"
-                                 :3plur "were"}
-                          :imperfetto "were being"}})]
+                      :past {:1sing "was"
+                             :2sing "were"
+                             :3sing "was"
+                             :1plur "were"
+                             :2plur "were"
+                             :3plur "were"}}})]
      (unify essere-common
             {:synsem {:sem {:pred :essere}}}))
 
@@ -160,7 +159,7 @@
                         {:synsem {:sem {:pred :cenare
                                         :subj {:human true}}}
                                  :english {:present {:3sing "eats dinner"}
-                                           :imperfetto "eating dinner"
+                                           :participle "eating dinner"
                                            :past "ate dinner"}})
 
    "embrace"
@@ -177,7 +176,7 @@
                           :english {:past "gave"}})
 
    "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
-                           :english {:imperfetto "grabbing"
+                           :english {:participle "grabbing"
                                      :past "grabbed"}})
 
    "have"
@@ -194,7 +193,7 @@
    "have dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
                                   :english {:present {:3sing "has dinner"}
                                             :past "had dinner"
-                                            :imperfetto "having dinner"}})
+                                            :participle "having dinner"}})
 
    "he"
    {:synsem {:cat :noun
@@ -219,7 +218,7 @@
    (trans-intrans
           {:synsem {:sem {:pred :abbracciare}}
            :english {:past "hugged"
-                     :imperfetto "hugging"}}
+                     :participle "hugging"}}
           {:subj {:human true}
            :obj {:animate true}})
 
@@ -254,12 +253,12 @@
    "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
 
    "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
-                               :english {:imperfetto "looking for"
+                               :english {:participle "looking for"
                                          :past "looked for"
                                          :present {:3sing "looks for"}}})
 
    "look up"  (trans-intrans {:synsem {:sem {:pred :cercare}}
-                              :english {:imperfetto "looking up"
+                              :english {:participle "looking up"
                                         :past "looked up"
                                         :present {:3sing "looks up"}}})
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}}

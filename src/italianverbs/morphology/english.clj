@@ -151,6 +151,7 @@
          stem (replace infinitive #"^to " "")]
      (str "would " stem))
 
+   ;; TODO: s/futuro/future/
    (and (= (get-in word '(:infl)) :futuro)
         (get-in word '(:english))
         (not (nil? (get-in word '(:agr :number))))
@@ -159,27 +160,7 @@
          stem (replace infinitive #"^to " "")]
      (str "will " stem))
 
-   (and (= (get-in word '(:infl)) :imperfetto)
-        (= :plur (get-in word '(:agr :number)))
-        (get-in word '(:imperfect :plur)))
-   (str (get-in word '(:imperfect :plur)))
-
-   (and (= (get-in word '(:infl)) :imperfetto)
-        (= :sing (get-in word '(:agr :number)))
-        (= :2nd (get-in word '(:agr :person)))
-        (get-in word '(:imperfect :2sing)))
-   (str (get-in word '(:imperfect :2sing)))
-
-   ;; if neither of the two above does not match:
-   (and (= (get-in word '(:infl)) :imperfetto)
-        (map? (get-in word '(:imperfect))))
-   (str (get-in word '(:imperfect :default)))
-
-   (and (= (get-in word '(:infl)) :imperfetto)
-        (get-in word '(:imperfect)))
-   (str (get-in word '(:imperfect)))
-
-
+   ;; TODO: s/imperfetto/imperfect/
    (and (= (get-in word '(:infl)) :imperfetto)
         (get-in word '(:english)))
    (let [infinitive (get-in word '(:english))
@@ -203,22 +184,29 @@
                   stem)]
        (cond
 
-        ;; TODO: add support for per-agreement (by number or person) irregular imperfetto;
-        ;; for now, only support for a single imperfetto irregular form for all agreements.
+        ;; TODO: add support for per-agreement (by number or person) irregular participle;
+        ;; for now, only support for a single participle irregular form for all agreements.
         ;; (might not be needed for english)
 
         ;; 2) use irregular that is the same for all number and person if there is one.
-        (string? (get-in word '(:imperfetto)))
-        (get-in word '(:imperfetto))
+        (and (string? (get-in word '(:participle)))
+             (= :sing (get-in word '(:agr :number)))
+             (or (= :1st (get-in word '(:agr :person)))
+                 (= :3rd (get-in word '(:agr :person))))
+             (string? (get-in word '(:participle))))
+        (str "was " (get-in word '(:participle)))
+
+        (string? (get-in word '(:participle)))
+        (str "were " (get-in word '(:participle)))
 
         (and (= :sing (get-in word '(:agr :number)))
              (or (= :1st (get-in word '(:agr :person)))
                  (= :3rd (get-in word '(:agr :person))))
-             (string? (get-in word '(:imperfetto-suffix))))
-        (str "was " (get-in word '(:imperfetto-suffix)))
+             (string? (get-in word '(:participle-suffix))))
+        (str "was " (get-in word '(:participle-suffix)))
 
-        (string? (get-in word '(:imperfetto-suffix)))
-        (str "were " (get-in word '(:imperfetto-suffix)))
+        (string? (get-in word '(:participle-suffix)))
+        (str "were " (get-in word '(:participle-suffix)))
 
         (and (= :sing (get-in word '(:agr :number)))
              (or (= :1st (get-in word '(:agr :person)))
@@ -290,7 +278,8 @@
          number (get-in word '(:agr :number))
          stem (replace root #"^to " "")
          last-stem-char-is-e (re-find #"e$" stem)
-         last-stem-char-is-vowel (re-find #"[aeiou]$" stem)]
+         last-stem-char-is-vowel (re-find #"[aeiouy]$" stem)
+         stem-minus-final-y (replace root #"y$" "")]
      (log/debug "+else")
      (log/debug (str "(english):word: " word))
      (cond
@@ -324,6 +313,10 @@
       (and (= person :3rd) (= number :sing)
            (= last-stem-char-is-vowel "o"))
       (str stem "es")
+
+      (and (= person :3rd) (= number :sing)
+           (= last-stem-char-is-vowel "y")) ;; "carry"+"s" => "carries"
+      (str stem-minus-final-y "ies")
 
       (and (= person :3rd) (= number :sing))
       (str stem "s")
@@ -801,12 +794,12 @@
                                 :english {:infl :past
                                           :english (get-in val [:english :past])}})}
 
-                            {:path [:english :imperfetto]
+                            {:path [:english :participle]
                              :merge-fn
                              (fn [val]
                                {:synsem {:cat :verb}
-                                :english {:infl :imperfetto
-                                          :english (get-in val [:english :imperfetto])}})}
+                                :english {:infl :participle
+                                          :english (get-in val [:english :participle])}})}
 
 
                             ])]
