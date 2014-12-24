@@ -58,7 +58,6 @@
        :body (json/write-str
               {:pred pred
                :semantics semantics
-               :semantics_display (tablize semantics)
                (keyword lang) (fo expression)})})))
 
 ;; TODO: remove: use generate-from-request instead.
