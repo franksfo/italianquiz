@@ -58,6 +58,19 @@
 
       (menuitem {:selected?
                  (or (and (not (nil? current-url))
+                          (re-find #"/editor" current-url))
+                     (= current-url "/editor")
+                     (and (not (nil? current-url))
+                          (re-find #"/editor" current-url)))
+                 :show? true
+                 :current-url current-url 
+                 :text "Game Editor" 
+                 :url-for-this-item "/editor"
+                 :requires-admin false
+                 :requires-authentication false})
+
+      (menuitem {:selected?
+                 (or (and (not (nil? current-url))
                           (re-find #"/map" current-url))
                      (= current-url "/map")
                      (and (not (nil? current-url))
