@@ -160,6 +160,7 @@
                         {:synsem {:sem {:pred :cenare
                                         :subj {:human true}}}
                                  :english {:present {:3sing "eats dinner"}
+                                           :imperfetto "eating dinner"
                                            :past "ate dinner"}})
 
    "embrace"
@@ -216,7 +217,8 @@
 
    "hug"
    (trans-intrans
-          {:synsem {:sem {:pred :abbracciare}}}
+          {:synsem {:sem {:pred :abbracciare}}
+           :english {:past "hugged"}}
           {:subj {:human true}
            :obj {:animate true}})
 
