@@ -107,7 +107,7 @@
                  :url-for-this-item (str "/student" (if (get suffixes :student)
                                                       (get suffixes :student)))})
 
-      (menuitem {:show? haz-admin?
+      (menuitem {:show? (or true haz-admin?)
                  :selected? (and (not (nil? current-url))
                                  (re-find #"/gen" current-url))
                  :current-url current-url
