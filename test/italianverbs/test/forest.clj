@@ -18,6 +18,8 @@
    [italianverbs.unify :as unify]
    [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle remove-top-values-log show-spec unifyc)]))
 
+;; TODO: this test brings in extra stuff (namely italiano) that is built upon forest, not forest itself.
+;; make more illustrative tests of core forest functionality (e.g. lighting-bolt)
 (deftest generate-test
   (let [generated (first (take 1 (it/generate
                                   {:synsem {:aux false 
