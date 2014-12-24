@@ -218,7 +218,8 @@
    "hug"
    (trans-intrans
           {:synsem {:sem {:pred :abbracciare}}
-           :english {:past "hugged"}}
+           :english {:past "hugged"
+                     :imperfetto "hugging"}}
           {:subj {:human true}
            :obj {:animate true}})
 
