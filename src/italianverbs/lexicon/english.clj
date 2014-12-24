@@ -50,6 +50,10 @@
              :mass false
              :number :sing}}
 
+   "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere}}})
+
+   "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
+
    "be"
    (let [essere-common 
          (let [infl (ref :top)
@@ -115,10 +119,14 @@
 
    "change" (trans-intrans {:synsem {:sem {:pred :cambiare}}}) ;; TODO: add reflexive sense
 
+   "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
+
    "come" (trans-intrans {:synsem {:sem {:pred :venire}}
                           :english {:past "came"}})
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
+
+   "dine"  (trans-intrans {:synsem {:sem {:pred :cenare}}})
 
    "drink" (trans-intrans
             {:synsem {:sem {:pred :bere
@@ -130,77 +138,8 @@
    "drive"  (trans-intrans {:synsem {:sem {:pred :guidare}}
                             :english {:past "drove"}})
 
-   "eat dinner"  (unify intransitive
-                        {:synsem {:sem {:pred :cenare
-                                        :subj {:human true}}}
-                                 :english {:present {:3sing "eats dinner"}
-                                           :past "ate dinner"}})
-
-   "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
-
-   "love" (trans-intrans {:synsem {:sem {:pred :amare}}}
-                         {:subj {:human true}})
-   "charge" (trans-intrans {:synsem {:sem {:pred :caricare}}})
-   "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
-   "dine"  (trans-intrans {:synsem {:sem {:pred :cenare}}})
-   "have dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
-                                  :english {:present {:3sing "has dinner"}
-                                            :past "had dinner"
-                                            :imperfetto "having dinner"}})
-   "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
-   "enter"  (trans-intrans {:synsem {:sem {:pred :entrare}}})
-   "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
-   "(machines) work" (trans-intrans {:english {:note "nonliving"} ;; TODO: add support in cloud for :note.
-                                     :synsem {:sem {:subj {:living false}
-                                                   :pred :funzionare}}})
-   "(game) play" (trans-intrans {:synsem {:sem {:pred :giocare}}})
-
-   "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
-
-   "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
-                               :english {:imperfetto "looking for"
-                                         :past "looked for"
-                                         :present {:3sing "looks for"}}})
-
-   "look up"  (trans-intrans {:synsem {:sem {:pred :cercare}}
-                              :english {:imperfetto "looking up"
-                                        :past "looked up"
-                                        :present {:3sing "looks up"}}})
-
-   ;; TODO: search _within_ or _on_: depends on the object.
-   ;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
-
-   "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
-   "(human) work"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
-   "wear"  (trans-intrans {:english {:past "wore"}
-                           :synsem {:sem {:pred :portare}}})
-   "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
-                           :english {:imperfetto "grabbing"
-                                     :past "grabbed"}})
-   "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
-                           :english {:past "took"}})
-   "receive"  (trans-intrans {:synsem {:sem {:pred :ricevere}}})
-   "remember"  (trans-intrans {:synsem {:sem {:pred :ricordare}}})
-   "respond"  (trans-intrans {:synsem {:sem {:pred :rispondere}}})
-   "return" (flatten
-             (list
-              (trans-intrans {:synsem {:sem {:pred :ritornare}}})
-              (trans-intrans {:synsem {:sem {:pred :tornare}}})))
-
    "disappoint"  (trans-intrans {:synsem {:sem {:pred :deludere}}})
    "download"  (trans-intrans {:synsem {:sem {:pred :scaricare}}})
-   "write"  (trans-intrans {:english {:past "wrote"}
-                            :synsem {:sem {:pred :scrivere}}})
-   "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
-   "(music) play" (trans-intrans {:synsem {:sem {:pred :suonare}}})
-   "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere}}})
-   "use"  (trans-intrans {:synsem {:sem {:pred :usare}}})
-   "see"  (trans-intrans {:synsem {:sem {:pred :vedere}}
-                          :english {:past "saw"
-                                    :past-participle "seen"}})
-
-   "sell"  (trans-intrans {:synsem {:sem {:pred :vendere}}
-                           :english {:past "sold"}})
 
    "dog"
    (unify agreement-noun
@@ -217,24 +156,28 @@
                     :subj {:animate true}}}}
     {:obj {:edible true}})
 
+   "eat dinner"  (unify intransitive
+                        {:synsem {:sem {:pred :cenare
+                                        :subj {:human true}}}
+                                 :english {:present {:3sing "eats dinner"}
+                                           :past "ate dinner"}})
+
    "embrace"
    (trans-intrans {:synsem {:sem {:pred :abbracciare}}}
                   {:subj {:human true}}
                   {:obj {:human true}})
 
+   "enter"  (trans-intrans {:synsem {:sem {:pred :entrare}}})
+
+   "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
+
    ;; TODO: account for "give" being ditransitive.
    "give" (trans-intrans {:synsem {:sem {:pred :dare}}
                           :english {:past "gave"}})
 
-   "I"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :1st
-                   :number :sing}
-             :sem {:human true
-                   :pred :io}
-             :subcat '()}}
+   "grab"  (trans-intrans {:synsem {:sem {:pred :prendere}}
+                           :english {:imperfetto "grabbing"
+                                     :past "grabbed"}})
 
    "have"
    (trans-intrans {:synsem {:cat :verb
@@ -246,6 +189,11 @@
                              :past "had"}}
                   {:subj {:human true}
                    :obj {:buyable true}})
+
+   "have dinner"  (trans-intrans {:synsem {:sem {:pred :cenare}}
+                                  :english {:present {:3sing "has dinner"}
+                                            :past "had dinner"
+                                            :imperfetto "having dinner"}})
 
    "he"
    {:synsem {:cat :noun
@@ -267,10 +215,20 @@
 
 
    "hug"
-   (unify transitive
-          {:synsem {:sem {:pred :abbracciare
-                          :subj {:human true}
-                          :obj {:animate true}}}})
+   (trans-intrans
+          {:synsem {:sem {:pred :abbracciare}}}
+          {:subj {:human true}
+           :obj {:animate true}})
+
+   "I"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :1st
+                   :number :sing}
+             :sem {:human true
+                   :pred :io}
+             :subcat '()}}
 
    "it"
    [{:synsem {:cat :noun
@@ -290,6 +248,20 @@
                     :human false}
               :subcat '()}}]
 
+   "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
+
+   "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
+                               :english {:imperfetto "looking for"
+                                         :past "looked for"
+                                         :present {:3sing "looks for"}}})
+
+   "look up"  (trans-intrans {:synsem {:sem {:pred :cercare}}
+                              :english {:imperfetto "looking up"
+                                        :past "looked up"
+                                        :present {:3sing "looks up"}}})
+   "love" (trans-intrans {:synsem {:sem {:pred :amare}}}
+                         {:subj {:human true}})
+
    "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}
                            :english {:past "met"}})
 
@@ -301,6 +273,12 @@
                           :pred :madre
                           :child false}}})
 
+   "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
+   "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
+   "play (games)" (trans-intrans {:synsem {:sem {:pred :giocare}}})
+   "play (music)" (trans-intrans {:synsem {:sem {:pred :suonare}}})
+
+
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
    (trans-intrans {:english {:past "read (past)"}
                    :synsem {:sem {:pred :leggere
@@ -308,6 +286,7 @@
                   {:subj {:human true}}
                   {:obj {:legible true}})
 
+   "receive"  (trans-intrans {:synsem {:sem {:pred :ricevere}}})
    "red"
    (unify adjective
           {:synsem {:cat :adjective
@@ -315,6 +294,22 @@
                           :comparative false
                           :physical-object true
                           :human false}}})
+   "remember"  (trans-intrans {:synsem {:sem {:pred :ricordare}}})
+   "respond"  (trans-intrans {:synsem {:sem {:pred :rispondere}}})
+   "return" (flatten
+             (list
+              (trans-intrans {:synsem {:sem {:pred :ritornare}}})
+              (trans-intrans {:synsem {:sem {:pred :tornare}}})))
+
+   ;; TODO: search _within_ or _on_: depends on the object.
+   ;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
+
+   "see"  (trans-intrans {:synsem {:sem {:pred :vedere}}
+                          :english {:past "saw"
+                                    :past-participle "seen"}})
+
+   "sell"  (trans-intrans {:synsem {:sem {:pred :vendere}}
+                           :english {:past "sold"}})
 
    "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}
                            :english {:past "sent"}})
@@ -361,6 +356,10 @@
    "study"  (trans-intrans {:synsem {:sem {:pred :studiare}}
                             :english {:past "studied"}})
 
+   "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
+
+   "telephone" (trans-intrans {:synsem {:sem {:pred :telefonare}}})
+
    "the"
    {:synsem {:cat :det
              :def :def
@@ -375,6 +374,13 @@
              :sem {:pred :loro}
              :subcat '()}}
 
+   "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
+                           :english {:past "took"}})
+
+   "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
+
+   "use"  (trans-intrans {:synsem {:sem {:pred :usare}}})
+
    "we"
    {:synsem {:cat :noun
              :pronoun true
@@ -385,6 +391,9 @@
                    :pred :noi}
              :subcat '()}}
 
+   "wear"  (trans-intrans {:english {:past "wore"}
+                           :synsem {:sem {:pred :portare}}})
+
    "woman"
    (unify agreement-noun
           common-noun
@@ -393,6 +402,15 @@
            :synsem {:sem {:human true
                           :pred :donna
                           :child false}}})
+
+   "work (human)"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
+
+   "work (machines)" (trans-intrans {:english {:note "nonliving"} ;; TODO: add support in cloud for :note.
+                                     :synsem {:sem {:subj {:living false}
+                                                   :pred :funzionare}}})
+
+   "write"  (trans-intrans {:english {:past "wrote"}
+                            :synsem {:sem {:pred :scrivere}}})
 
    "you"
    {:synsem {:cat :noun

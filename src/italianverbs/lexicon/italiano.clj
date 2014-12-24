@@ -19,6 +19,10 @@
 (require '[italianverbs.unify :refer (get-in unifyc)])
 (require '[italianverbs.unify :as unify])
 
+(defn intrans [spec]
+  (unifyc intransitive
+          spec))
+
 (defn trans-intrans [spec & [opts]]
   [(unifyc
     spec
@@ -396,71 +400,18 @@
                           :clothing true}}})
 
    "cambiare" (trans-intrans {:synsem {:sem {:pred :cambiare}}})
-   "cancellare" (unifyc {:synsem {:sem {:pred :cancellare}}} transitive)
-   "cantare" (unifyc {:synsem {:sem {:pred :cantare}}} transitive)
-   "caricare" (unifyc {:synsem {:sem {:pred :caricare}}} transitive)
-   "cenare" (unifyc intransitive
-                   {:synsem {:essere false
-                             :sem {:subj {:human true}
-                                   :pred :cenare}}})
-   "desiderare" (unifyc {:synsem {:sem {:pred :desiderare}}} transitive)
-   "dipingere" (unifyc transitive
-                      {:synsem {
-                                :sem {
-                                      :pred :dipingere
-                                      }
-                                }
-                       :italiano {:passato "dipinto"}
-                       }
-                      )
-   "entrare" (unifyc intransitive
-                    {:synsem {:essere true
-                              :sem {:pred "entrare"}}})
 
-   "frequentare" (unifyc {:synsem {:sem {:pred :frequentare}}} transitive)
+   "cancellare" (trans-intrans {:synsem {:sem {:pred :cancellare}}})
 
-   "funzionare" (unifyc intransitive
-                       {:synsem {:essere false
-                                 :sem {:pred :funzionare
-                                       :subj {:human false}}}})
-   "giocare" (unifyc {:synsem {:sem {:pred :giocare}}} transitive)
-   "guidare" (unifyc {:synsem {:sem {:pred :guidare}}} transitive)
-   "imparare" (unifyc {:synsem {:sem {:pred :imparare}}} transitive)
-   "incontrare" (unifyc {:synsem {:sem {:pred :incontrare}}} transitive)
-   "insegnare" (unifyc {:synsem {:sem {:pred :insegnare}}} transitive)
-   "lavorare" (unifyc {:synsem {:sem {:pred :lavorare}}} transitive)
-   "mandare" (unifyc {:synsem {:sem {:pred :mandare}}} transitive)
-   "portare" (unifyc {:synsem {:sem {:pred :portare}}} transitive)
-   "prendere" (unifyc transitive
-                     {:synsem {:sem {:pred :prendere}}
-                      :italiano {:passato "preso"}})
-   "ricevere" (unifyc {:synsem {:sem {:pred :ricevere}}} transitive)
-   "ricordare" (unifyc {:synsem {:sem {:pred :ricordare}}} transitive)
-   "rispondere" (unifyc intransitive
-                       {:synsem {:essere false
-                                 :sem {:pred :rispondere}}
-                        :italiano {:passato "risposto"}})
+   "cantare" (trans-intrans {:synsem {:sem {:pred :cantare}}})
 
-   "ritornare" (unifyc intransitive
-                      {:synsem {:sem {:pred :ritornare}
-                                :essere true}})
+   "caricare" (trans-intrans {:synsem {:sem {:pred :caricare}}})
 
-   "scaricare" (unifyc {:synsem {:sem {:pred :scaricare}}} transitive)
-   "scrivere" (unifyc {:synsem {:sem {:pred :scrivere}}} transitive
-                     {:italiano {:passato "scritto"}})
-   "stampare" (unifyc {:synsem {:sem {:pred :stampare}}} transitive)
-   "studiare" (unifyc {:synsem {:sem {:pred :studiare}}} transitive)
-   "suonare" (unifyc {:synsem {:sem {:pred :suonare}}} transitive)
-;   "telefonare" (unifyc intransitive
-;                       {:synsem {:essere false
-;                                 :sem :telephonare}})
-   "chiedere" (unifyc transitive
-                     {:synsem {:sem {:pred :chiedere}}
-                      :italiano {:passato "chiesto"}})
-   "tornare" (unifyc intransitive
-                    {:synsem {:sem {:pred :tornare}
-                              :essere true}})
-   "usare" (unifyc {:synsem {:sem {:pred :usare}}} transitive)
+   "cenare" (intrans
+             {:synsem {:essere false
+                       :sem {:subj {:human true}
+                             :pred :cenare}}})
+
 
    "camicia"
     (unifyc agreement-noun
@@ -520,6 +471,10 @@
                       :place false
                       :speakable false}}})
       
+      "chiedere" (trans-intrans
+                  {:synsem {:sem {:pred :chiedere}}
+                   :italiano {:passato "chiesto"}})
+
       "chiunque"
       {:synsem {:cat :fail ; :noun ;; disabling until more constraints are put on usage of it (TODO).
                 :pronoun true
@@ -670,24 +625,7 @@
                      {:subj {:human true}
                       :obj {:human true}})
 
-      "difficile"
-      ;; non-comparative
-      ;; TODO: add comparative
-      (unifyc adjective
-             {:synsem {:cat :adjective
-                       :sem {:pred :difficile
-                             :comparative false
-                             ;; "difficile" has a very specific list of things it can modify:
-                             :drinkable false
-                             :human false
-                             :animate false
-                             :buyable false
-                             :legible true
-;                             :activity true ;; TODO: cannot declare this as an activity because of some semantic implicature..
-                             :artifact true
-                             :physical-object true
-                             :edible false}}
-              :italiano {:cat :adjective}})
+      "desiderare" (trans-intrans {:synsem {:sem {:pred :desiderare}}})
       
       "di"
       {:synsem {:cat :prep
@@ -721,6 +659,29 @@
                 :number :sing
                 :mass true
                 :gender :masc}}
+
+      "difficile"
+      ;; non-comparative
+      ;; TODO: add comparative
+      (unifyc adjective
+             {:synsem {:cat :adjective
+                       :sem {:pred :difficile
+                             :comparative false
+                             ;; "difficile" has a very specific list of things it can modify:
+                             :drinkable false
+                             :human false
+                             :animate false
+                             :buyable false
+                             :legible true
+;                             :activity true ;; TODO: cannot declare this as an activity because of some semantic implicature..
+                             :artifact true
+                             :physical-object true
+                             :edible false}}
+              :italiano {:cat :adjective}})
+
+      "dipingere" (trans-intrans
+                   {:synsem {:sem {:pred :dipingere}}
+                    :italiano {:passato "dipinto"}})
 
       "domani"
       (unifyc sentential-adverb
@@ -757,6 +718,9 @@
                        :discrete false
                        :pred :dormire}}})
 
+      "entrare" (trans-intrans
+                 {:synsem {:essere true
+                           :sem {:pred "entrare"}}})
 
       "essere"
       (let [essere-common 
@@ -769,7 +733,6 @@
                         :subcat {:1 {:agr agr}}}
                :italiano {:agr agr
                           :futuro-stem "sar"
-                          :essere true
                           :infinitive "essere"
                           :infl infl
                           :present {:1sing "sono"
@@ -811,6 +774,8 @@
                                             :2 '()}
                                    :agr {:gender gender
                                          :number number}}}}}))
+
+         (intrans (unifyc essere-common {:synsem {:sem {:pred :essere}}}))
 
          ;; essere: copula ;; note that we don't enforce agreement the same here as we do in essere-adjective: TODO: try to make more consistent.
          (let [gender (ref :top)
@@ -863,6 +828,13 @@
                 verb-subjective
                 {:italiano {:notes "essere-aux"}})])
 
+      "frequentare" (trans-intrans {:synsem {:sem {:pred :frequentare}}})
+
+      "funzionare" (trans-intrans
+                    {:synsem {:essere false
+                              :sem {:pred :funzionare
+                                    :subj {:human false}}}})
+
       "gatto"
       (unifyc agreement-noun
              common-noun
@@ -872,6 +844,9 @@
                              :human false
                              :pred :gatto
                              :pet true}}})
+
+      "giocare" (trans-intrans {:synsem {:sem {:pred :giocare}}})
+      "guidare" (trans-intrans {:synsem {:sem {:pred :guidare}}})
       
       "i"
       (unifyc determiner
@@ -880,12 +855,17 @@
                        :gender :masc
                        :number :plur}})
 
+
       "il"
       (unifyc determiner
              {:synsem {:cat :det
                        :def :def
                        :gender :masc
                        :number :sing}})
+
+      "imparare" (trans-intrans {:synsem {:sem {:pred :imparare}}})
+      "incontrare" (trans-intrans {:synsem {:sem {:pred :incontrare}}})
+      "insegnare" (trans-intrans {:synsem {:sem {:pred :insegnare}}})
 
       "io"
       {:synsem {:cat :noun
@@ -982,6 +962,8 @@
                 :sem {:number :plur
                       :person :2nd}}}]
 
+   "lavorare" (trans-intrans {:synsem {:sem {:pred :lavorare}}})
+
    "le"
    {:synsem {:cat :det
              :def :def
@@ -1073,6 +1055,8 @@
                           :pred :madre
                           :child false}}})
 
+   "mandare" (trans-intrans {:synsem {:sem {:pred :mandare}}})
+
    "mangiare"
    (trans-intrans
     {:synsem {:essere false
@@ -1112,7 +1096,6 @@
                                  :number :sing
                                  :def :def}}}})
 
-
    "parlare"
    (let [common
          {:synsem {:essere false
@@ -1122,12 +1105,28 @@
             {:synsem {:obj {:speakable true}}})
      (unifyc common intransitive intransitive-unspecified-obj))
 
+   "portare" (trans-intrans {:synsem {:sem {:pred :portare}}})
+   "prendere" (trans-intrans
+               {:synsem {:sem {:pred :prendere}}
+                :italiano {:passato "preso"}})
+
    "qualche"
    {:synsem {:cat :det
              :def :indef
              :mass false
              :number :sing}}
 
+   "ricevere" (trans-intrans {:synsem {:sem {:pred :ricevere}}})
+   "ricordare" (trans-intrans {:synsem {:sem {:pred :ricordare}}})
+   "rispondere" (trans-intrans
+                 {:synsem {:essere false
+                           :sem {:pred :rispondere}}
+                  :italiano {:passato "risposto"}})
+      
+   "ritornare" (trans-intrans
+                {:synsem {:sem {:pred :ritornare}
+                          :essere true}})
+      
    ;; non-comparative
    ;; TODO: add comparative
    "rosso"
@@ -1137,6 +1136,19 @@
                           :comparative false
                           :physical-object true
                           :human false}}})
+
+   "scaricare" (trans-intrans {:synsem {:sem {:pred :scaricare}}})
+   "scrivere" (trans-intrans {:synsem {:sem {:pred :scrivere}}
+                              :italiano {:passato "scritto"}})
+   "stampare" (trans-intrans {:synsem {:sem {:pred :stampare}}})
+   "studiare" (trans-intrans {:synsem {:sem {:pred :studiare}}})
+   "suonare" (trans-intrans {:synsem {:sem {:pred :suonare}}})
+
+   "telefonare" (trans-intrans {:synsem {:essere false
+                                         :sem {:pred :telefonare}}})
+   "tornare" (trans-intrans
+                    {:synsem {:sem {:pred :tornare}
+                              :essere true}})
 
    "tu"
    {:synsem {:cat :noun
@@ -1161,6 +1173,8 @@
               :gender :fem
               :number :sing}}]
 
+   "usare" (trans-intrans {:synsem {:sem {:pred :usare}}})
+
    "vedere" (trans-intrans
                    {:synsem {:sem {:pred :vedere}}
                     :italiano {:passato "visto"
@@ -1170,11 +1184,11 @@
                             {:subj {:human true}
                              :obj {:human false}})
                             
-   "venire" (unifyc intransitive
-                   {:synsem {:essere true
-                             :sem {:pred :venire}}
-                    :italiano {:passato "venuto"
-                               :futuro-stem "verr"}})
+   "venire" (intrans
+             {:synsem {:essere true
+                       :sem {:pred :venire}}
+              :italiano {:passato "venuto"
+                         :futuro-stem "verr"}})
 
 
    "vino"
