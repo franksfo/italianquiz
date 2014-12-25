@@ -476,3 +476,7 @@ td.num {
 .links span {
     padding-right:1em;
 }
+
+.delete {
+    float:right;
+}

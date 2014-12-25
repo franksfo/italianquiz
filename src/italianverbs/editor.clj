@@ -36,12 +36,14 @@
 (declare update)
 (declare update-form)
 
+(def headers {"Content-Type" "text/html;charset=utf-8"})
+
 (defn routes []
   (compojure/routes
    (GET "/" request
         {:body (body "Editor: Top-level" (home-page request) request)
          :status 200
-         :headers {"Content-Type" "text/html;charset=utf-8"}})
+         :headers headers})
 
    ;; alias for '/editor' (above)
    (GET "/home" request
@@ -49,9 +51,7 @@
          :headers {"Location" "/editor"}})
   
    (GET "/create" request
-        {:body (body "Editor: Create a new game" (create-form request) request)
-         :status 200
-         :headers {"Content-Type" "text/html;charset=utf-8"}})
+        (create-form request))
 
    (POST "/create" request
         (create request))
@@ -101,8 +101,10 @@
            ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
            [:i {:class "user-alert"} (:message (:params request))]
 
-           [:button {:onclick (str "javascript:window.location.href = '/editor/delete/' + '" game-id "';")}
-            "Delete" ]
+           
+           [:div.delete
+            [:button {:onclick (str "javascript:window.location.href = '/editor/delete/' + '" game-id "';")}
+             "Delete" ]]
 
 
            (links request :read))
@@ -207,12 +209,13 @@
 
 (defn create [request]
   (log/info (str "editor/new with request: " (:form-params request)))
-  (let [values (fp/parse-params game-form (:form-params request))
-        insert-sql (str "INSERT INTO games (id,name) VALUES (DEFAULT,'" (:name values) "') RETURNING id")]
-    (let [results (k/exec-raw [insert-sql] :results)
-          new-game-id (:id (first results))]
-      {:status 302
-       :headers {"Location" (str "/editor/" new-game-id "?message=created.")}})))
+  (fp/with-fallback #(create-form request :problems %)
+    (let [values (fp/parse-params game-form (:form-params request))
+          insert-sql (str "INSERT INTO games (id,name) VALUES (DEFAULT,'" (:name values) "') RETURNING id")]
+      (let [results (k/exec-raw [insert-sql] :results)
+            new-game-id (:id (first results))]
+        {:status 302
+         :headers {"Location" (str "/editor/" new-game-id "?message=created.")}}))))
 
 (defn links [request current]
   ;; TODO: _current_ param can be derived from request.
@@ -226,19 +229,23 @@
 
       ])))
 
-(defn create-form [request]
-  (let [links (links request :create)]
-    (html
-     [:div
-
-      (f/render-form (assoc (-> game-form
-                                (f/merge-fields [{:name :tests :label "Verbs for this game"
-                                                  :type :checkboxes
-                                                  :options all-verbs}]))
-                       :values (merge defaults (:form-params request))
-                       :action "/editor/create"
-                       :method "post"))
-      links])))
+(defn create-form [request & [:problems problems]]
+  {:body (body "Editor: Create a new game"
+               (let [links (links request :create)]
+                 (html
+                  [:div
+                   (f/render-form (assoc (-> game-form
+                                             (f/merge-fields [{:name :tests :label "Verbs for this game"
+                                                               :type :checkboxes
+                                                               :options all-verbs}]))
+                                    :values (merge defaults (:form-params request))
+                                    :action "/editor/create"
+                                    :method "post"
+                                    :problems problems))
+                   links]))
+               request)
+   :status 200
+   :headers headers})
 
 (declare table-of-examples)
 
