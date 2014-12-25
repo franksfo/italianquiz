@@ -32,7 +32,9 @@
 (declare delete-form)
 (declare home-page)
 (declare links)
+(declare onload)
 (declare read-request)
+(declare show-games-per-table)
 (declare update)
 (declare update-form)
 
@@ -61,8 +63,9 @@
 
    (GET "/update" request
         (update-form request))
-   (POST "/update" request
-        (update request))
+
+   (POST "/update/:game" request
+         (update request))
 
    (GET "/delete/:game" request
         (delete-form request))
@@ -74,6 +77,11 @@
    (GET "/:game" request
         {:body (read-request request)
          :status 200})))
+
+(def game-form
+  {:fields [{:name :name :size 50 :label "Name"}]
+   :validations [[:required [:name]]
+                 [:min-length 1 :verbs "Select one or more verbs"]]})
 
 (defn onload []
   (str "log(INFO,'editor onload: stub.');"))
@@ -98,9 +106,14 @@
           (html
            [:h3 (:name game-row)]
 
-           ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
-           [:i {:class "user-alert"} (:message (:params request))]
+           (map (fn [game]
+                  [:div (str "game:" game)])
+                (show-games-per-table request))
 
+           ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
+           [:div.user-alert (:message (:params request))]
+
+           (update-form request game-row)
            
            [:div.delete
             [:button {:onclick (str "javascript:window.location.href = '/editor/delete/' + '" game-id "';")}
@@ -110,8 +123,15 @@
            (links request :read))
           request)))
 
-(defn update [request])
-(defn update-form [request])
+(defn update [request]
+  (log/info (str "editor/update with request: " (:form-params request)))
+  (fp/with-fallback #(update-form request :problems %)
+    (let [values (fp/parse-params game-form (:form-params request))
+          debug (log/debug (str "values: " values))
+          results (k/exec-raw ["UPDATE games SET (name) = (?) RETURNING id" [(:name values)]] :results)
+          new-game-id (:id (first results))]
+        {:status 302
+         :headers {"Location" (str "/editor/" new-game-id "?message=updated.")}})))
 
 (defn delete [request]
   (let [game-id (:game (:params request))
@@ -135,15 +155,12 @@
              "Confirm" ]]
 
            ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
-           [:i {:class "user-alert"} (:message (:params request))]
+           [:div.user-alert (:message (:params request))]
 
            (links request :read))
           request)))
 
-(declare onload)
-
 (def games-table "games")
-
 (defn create-games-table []
   (k/exec-raw [(str "CREATE TABLE " games-table " (id bigint NOT NULL,
                                                    name text);")])
@@ -153,7 +170,12 @@
                      NO MINVALUE
                      NO MAXVALUE
                      CACHE 1;")])
-  (k/exec-raw [(str "ALTER TABLE ONLY " games-table " ALTER COLUMN id SET DEFAULT nextval('games_id_seq'::regclass);")]))
+  (k/exec-raw [(str "ALTER TABLE ONLY " games-table " ALTER COLUMN id SET DEFAULT nextval('games_id_seq'::regclass);")])
+  (k/exec-raw [(str "ALTER TABLE ONLY " games-table " ADD CONSTRAINT games_pkey PRIMARY KEY (id)")]))
+
+(def words-per-game-table "words_per_game")
+(defn create-wpg-table []
+  (k/exec-raw [(str "CREATE TABLE " words-per-game-table " (game bigint REFERENCES " games-table "(id),word text)")]))
 
 (defn show [request]
   (let [table-name games-table
@@ -170,6 +192,24 @@
                     (show request))
                 (throw e)))))]
     games))
+
+(defn show-games-per-table [request]
+  (let [table-name words-per-game-table
+        game-id (:game (:params request))
+        words
+        (try
+          (k/exec-raw [(str "SELECT *
+                               FROM " table-name " WHERE game = '" game-id "'")] :results)
+          (catch Exception e
+            (let [message (.getMessage e)
+                  error-message (str "ERROR: relation \"" table-name "\" does not exist")]
+              (if (= (subs message 0 (.length error-message)) ;; TODO: too fragile: depends on an exact string match from the error message.
+                     error-message)
+                (do (create-wpg-table)
+                    ;; retry now that we have created the table.
+                    (show-games-per-table request))
+                (throw e)))))]
+    words))
 
 (defn home-page [request]
   (let [links (links request :home)
@@ -189,11 +229,6 @@
 
       links])))
 
-(def game-form
-  {:fields [{:name :name :size 50 :label "Name"}]
-   :validations [[:required [:name]]
-                 [:min-length 1 :verbs "Select one or more verbs"]]})
-
 (def all-verbs
   (filter (fn [lexeme]
             (not (empty?
@@ -205,7 +240,7 @@
                           (get @it/lexicon lexeme)))))
           (sort (keys @it/lexicon))))
 
-(def defaults {})
+(def game-default-values {})
 
 (defn create [request]
   (log/info (str "editor/new with request: " (:form-params request)))
@@ -235,10 +270,11 @@
                  (html
                   [:div
                    (f/render-form (assoc (-> game-form
-                                             (f/merge-fields [{:name :tests :label "Verbs for this game"
+                                             (f/merge-fields [{:name :tests 
+                                                               :label "Verbs for this game"
                                                                :type :checkboxes
                                                                :options all-verbs}]))
-                                    :values (merge defaults (:form-params request))
+                                    :values (merge game-default-values (:form-params request))
                                     :action "/editor/create"
                                     :method "post"
                                     :problems problems))
@@ -246,6 +282,19 @@
                request)
    :status 200
    :headers headers})
+
+(defn update-form [request game & [:problems problems]]
+  (html
+   [:div
+    (f/render-form (assoc (-> game-form
+                              (f/merge-fields [{:name :tests 
+                                                :label "Verbs for this game"
+                                                :type :checkboxes
+                                                :options all-verbs}]))
+                     :values (merge game-default-values {:name (:name game)})
+                     :action (str "/editor/update/" (:id game)) 
+                     :method "post"
+                     :problems problems))]))
 
 (declare table-of-examples)
 
