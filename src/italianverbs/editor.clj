@@ -106,9 +106,13 @@
           (html
            [:h3 (:name game-row)]
 
-           (map (fn [game]
-                  [:div (str "game:" game)])
-                (show-games-per-table request))
+           [:h4 "Verbs"]
+           [:ul
+            (map (fn [word]
+                   [:li (str word)])
+                 (map #(:word %)
+                      (show-games-per-table request)))
+            ]
 
            ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
            [:div.user-alert (:message (:params request))]
@@ -123,15 +127,33 @@
            (links request :read))
           request)))
 
+
+(defn update-verb-for-game [game-id words]
+  (if (not (empty? words))
+    (let [word (first words)]
+      (log/info (str "INSERT INTO words_per_game (game,word) " game-id "," word))
+      (k/exec-raw [(str "INSERT INTO words_per_game (game,word) VALUES (?,?)") [(Integer. game-id)
+                                                                                     word]])
+      (update-verb-for-game game-id (rest words)))))
+    
+
+(defn update-verbs-for-game [game-id words]
+  (let [words (remove #(= % "")
+                      (get words "words[]"))]
+    (log/info (str "updating verbs for this game: " game-id " with: " (string/join "," words)))
+    (k/exec-raw [(str "DELETE FROM words_per_game WHERE game=?") [(Integer. game-id)]])
+    (update-verb-for-game game-id words)))
+
 (defn update [request]
   (log/info (str "editor/update with request: " (:form-params request)))
   (fp/with-fallback #(update-form request :problems %)
     (let [values (fp/parse-params game-form (:form-params request))
           debug (log/debug (str "values: " values))
           results (k/exec-raw ["UPDATE games SET (name) = (?) RETURNING id" [(:name values)]] :results)
-          new-game-id (:id (first results))]
-        {:status 302
-         :headers {"Location" (str "/editor/" new-game-id "?message=updated.")}})))
+          edited-game-id (:id (first results))]
+      (update-verbs-for-game edited-game-id (:form-params request))
+      {:status 302
+       :headers {"Location" (str "/editor/" edited-game-id "?message=updated.")}})))
 
 (defn delete [request]
   (let [game-id (:game (:params request))
@@ -199,7 +221,7 @@
         words
         (try
           (k/exec-raw [(str "SELECT *
-                               FROM " table-name " WHERE game = ?") [(Integer. game-id)]] :results)
+                               FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)
           (catch Exception e
             (let [message (.getMessage e)
                   error-message (str "ERROR: relation \"" table-name "\" does not exist")]
@@ -270,7 +292,7 @@
                  (html
                   [:div
                    (f/render-form (assoc (-> game-form
-                                             (f/merge-fields [{:name :tests 
+                                             (f/merge-fields [{:name :words
                                                                :label "Verbs for this game"
                                                                :type :checkboxes
                                                                :options all-verbs}]))
@@ -287,7 +309,7 @@
   (html
    [:div
     (f/render-form (assoc (-> game-form
-                              (f/merge-fields [{:name :tests 
+                              (f/merge-fields [{:name :words
                                                 :label "Verbs for this game"
                                                 :type :checkboxes
                                                 :options all-verbs}]))
