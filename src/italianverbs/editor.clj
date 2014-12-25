@@ -271,8 +271,9 @@
     (let [values (fp/parse-params game-form (:form-params request))
           results (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
           new-game-id (:id (first results))]
-        {:status 302
-         :headers {"Location" (str "/editor/" new-game-id "?message=created.")}})))
+      (update-verbs-for-game new-game-id (:form-params request))
+      {:status 302
+       :headers {"Location" (str "/editor/" new-game-id "?message=created.")}})))
 
 (defn links [request current]
   ;; TODO: _current_ param can be derived from request.
