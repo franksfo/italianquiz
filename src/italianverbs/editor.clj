@@ -21,7 +21,8 @@
 (def route-graph
   {:home {:create {:get "Create new game"}}
    :create {:home {:get "Cancel"}
-            :create {:post {:button "New Game"}}}})
+            :create {:post {:button "New Game"}}}
+   :read {:home {:get "Show all games"}}})
 
 (declare body)
 (declare control-panel)
@@ -93,9 +94,9 @@
         game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
     (body (str "Showing game: " (:name game-row))
           (html
+           [:h3 (:name game-row)]
            [:i (:message (:params request))]
-           [:div (str "Game: " (:name game-row))]
-           (links request))
+           (links request :read))
           request)))
 
 (defn update [request])
@@ -136,7 +137,7 @@
     games))
 
 (defn home-page [request]
-  (let [links (links request)
+  (let [links (links request :home)
         games (show request)]
     (html
      [:div
@@ -144,6 +145,8 @@
        (empty? games)
        [:div "No games yet."]
        true
+       
+       ;; TODO: derive <td> links from route-graph, like (links) does.
        [:table
         (map (fn [each]
                [:tr [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
@@ -178,17 +181,20 @@
       {:status 302
        :headers {"Location" (str "/editor/" new-game-id "?message=created.")}})))
 
-(defn links [request]
-  (let [left :create
-        method :get]
+(defn links [request current]
+  ;; TODO: _current_ param can be derived from request.
+  (let [method :get]
     (html
-     [:div {:class "links" :style "float:left; margin-top:1em; border-top: 1px solid lightgreen; margin:0.25em;width:95%"}
-      (let [action :create]
-        [:a {:href (str "/editor/" (string/replace-first (str action) ":" ""))}
-         (get-in route-graph [:home :create :get])])])))
+     [:div {:class "links"}
+
+      ;; TODO: vary these links depending on context (which can be obtained by loooking in request).
+      [:span [:a {:href (str "/editor/" (string/replace-first (str :create) ":" ""))} "Create new game"]]
+      [:span [:a {:href (str "/editor/" (string/replace-first (str :home) ":" ""))} "Show all games"]]
+
+      ])))
 
 (defn create-form [request]
-  (let [links (links request)]
+  (let [links (links request :create)]
     (html
      [:div
 
