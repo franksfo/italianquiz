@@ -98,11 +98,12 @@
           (html
            [:h3 (:name game-row)]
 
+           ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
+           [:i {:class "user-alert"} (:message (:params request))]
+
            [:button {:onclick (str "javascript:window.location.href = '/editor/delete/' + '" game-id "';")}
             "Delete" ]
 
-           ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
-           [:i {:class "user-alert"} (:message (:params request))]
 
            (links request :read))
           request)))
@@ -111,12 +112,15 @@
 (defn update-form [request])
 
 (defn delete [request]
-  {:status 302
-   :headers {"Location" (str "/editor/" "?message=deleted.")}})
+  (let [game-id (:game (:params request))
+        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
+    (k/exec-raw [(str "DELETE FROM games WHERE id='" game-id "'")])
+    {:status 302
+     :headers {"Location" (str "/editor/" "?message=deleted+game:" (:name game-row))}}))
 
 (defn delete-form [request]
  (let [game-id (:game (:params request))
-        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
+       game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
     (body (str "Deleting game: " (:name game-row))
           (html
            [:h3 (str "Confirm - deleting '" (:name game-row) "'")]
@@ -172,7 +176,7 @@
      [:div
       (cond
        (empty? games)
-       [:div "No games yet."]
+       [:div "No games."]
        true
        
        ;; TODO: derive <td> links from route-graph, like (links) does.

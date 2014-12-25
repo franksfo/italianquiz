@@ -464,6 +464,7 @@ td.num {
 
 /* Create/Read/Update/Delete standard elements (TODO: move to crud.css) */
 .links {
+    white-space:nowrap;
     border-top:1px solid lightgreen;
     margin:0.25em;
     width:95%;
