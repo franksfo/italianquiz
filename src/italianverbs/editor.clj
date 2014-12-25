@@ -101,7 +101,7 @@
 (defn read-request [request]
   "show a single game, along with UI to edit or delete the game."
   (let [game-id (:game (:params request))
-        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
+        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)] ] :results))]
     (body (str "Showing game: " (:name game-row))
           (html
            [:h3 (:name game-row)]
@@ -135,14 +135,14 @@
 
 (defn delete [request]
   (let [game-id (:game (:params request))
-        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
-    (k/exec-raw [(str "DELETE FROM games WHERE id='" game-id "'")])
+        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)]] :results))]
+    (k/exec-raw [(str "DELETE FROM games WHERE id=?") [(Integer. game-id)]])
     {:status 302
      :headers {"Location" (str "/editor/" "?message=deleted+game:" (:name game-row))}}))
 
 (defn delete-form [request]
  (let [game-id (:game (:params request))
-       game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
+       game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)]] :results))]
     (body (str "Deleting game: " (:name game-row))
           (html
            [:h3 (str "Confirm - deleting '" (:name game-row) "'")]
@@ -199,7 +199,7 @@
         words
         (try
           (k/exec-raw [(str "SELECT *
-                               FROM " table-name " WHERE game = '" game-id "'")] :results)
+                               FROM " table-name " WHERE game = ?") [(Integer. game-id)]] :results)
           (catch Exception e
             (let [message (.getMessage e)
                   error-message (str "ERROR: relation \"" table-name "\" does not exist")]
@@ -215,6 +215,7 @@
   (let [links (links request :home)
         games (show request)]
     (html
+     [:div.user-alert (:message (:params request))]
      [:div
       (cond
        (empty? games)
@@ -246,11 +247,10 @@
   (log/info (str "editor/new with request: " (:form-params request)))
   (fp/with-fallback #(create-form request :problems %)
     (let [values (fp/parse-params game-form (:form-params request))
-          insert-sql (str "INSERT INTO games (id,name) VALUES (DEFAULT,'" (:name values) "') RETURNING id")]
-      (let [results (k/exec-raw [insert-sql] :results)
-            new-game-id (:id (first results))]
+          results (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
+          new-game-id (:id (first results))]
         {:status 302
-         :headers {"Location" (str "/editor/" new-game-id "?message=created.")}}))))
+         :headers {"Location" (str "/editor/" new-game-id "?message=created.")}})))
 
 (defn links [request current]
   ;; TODO: _current_ param can be derived from request.
