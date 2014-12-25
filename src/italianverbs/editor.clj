@@ -64,9 +64,10 @@
    (POST "/update" request
         (update request))
 
-   (GET "/delete" request
+   (GET "/delete/:game" request
         (delete-form request))
-   (POST "/delete" request
+
+   (POST "/delete/:game" request
         (delete request))
 
    ;; alias for '/read' (above)
@@ -90,20 +91,48 @@
     :onload (onload)}))
 
 (defn read-request [request]
+  "show a single game, along with UI to edit or delete the game."
   (let [game-id (:game (:params request))
         game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
     (body (str "Showing game: " (:name game-row))
           (html
            [:h3 (:name game-row)]
-           [:i (:message (:params request))]
+
+           [:button {:onclick (str "javascript:window.location.href = '/editor/delete/' + '" game-id "';")}
+            "Delete" ]
+
+           ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
+           [:i {:class "user-alert"} (:message (:params request))]
+
            (links request :read))
           request)))
 
 (defn update [request])
 (defn update-form [request])
 
-(defn delete [request])
-(defn delete-form [request])
+(defn delete [request]
+  {:status 302
+   :headers {"Location" (str "/editor/" "?message=deleted.")}})
+
+(defn delete-form [request]
+ (let [game-id (:game (:params request))
+        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id='" game-id "'")] :results))]
+    (body (str "Deleting game: " (:name game-row))
+          (html
+           [:h3 (str "Confirm - deleting '" (:name game-row) "'")]
+
+           [:p "Are you sure you want to delete this game?"]
+
+           [:form {:method "post"
+                   :action (str "/editor/delete/" game-id)}
+            [:button {:onclick (str "javascript:submit();")}
+             "Confirm" ]]
+
+           ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
+           [:i {:class "user-alert"} (:message (:params request))]
+
+           (links request :read))
+          request)))
 
 (declare onload)
 
