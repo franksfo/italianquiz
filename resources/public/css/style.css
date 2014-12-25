@@ -480,3 +480,10 @@ td.num {
 .delete {
     float:right;
 }
+
+.user-alert {
+    float:right;
+    text-align:right;
+    color:#aaa;
+    font-style:italic;
+}
