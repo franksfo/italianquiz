@@ -314,6 +314,7 @@
       ])))
 
 (defn create-form [request & [:problems problems]]
+  (log/debug (str "create-form with request: " request " and problems: " problems))
   {:body (body "Editor: Create a new game"
                (let [links (links request :create)]
                  (html
