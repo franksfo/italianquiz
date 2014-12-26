@@ -335,7 +335,8 @@
    :headers headers})
 
 (defn update-form [request game & [:problems problems]]
-  (let [game-id (:game (:params request))]
+  (log/debug (str "update-form: request: " request "; game: " game))
+  (let [game-id (:id game)]
     (html
      [:div
       (f/render-form (assoc (-> game-form
