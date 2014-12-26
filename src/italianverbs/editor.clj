@@ -34,7 +34,7 @@
 (declare links)
 (declare onload)
 (declare read-request)
-(declare show-games-per-table)
+(declare show-words-per-game)
 (declare update)
 (declare update-form)
 
@@ -79,7 +79,13 @@
          :status 200})))
 
 (def game-form
-  {:fields [{:name :name :size 50 :label "Name"}]
+  {:fields [{:name :name :size 50 :label "Name"}
+            {:name :game :type :hidden}
+            {:name :words
+             :label "Verbs for this game.."
+             :type :checkboxes
+             :datatype :strs
+             :options all-verbs}]
    :validations [[:required [:name]]
                  [:min-length 1 :verbs "Select one or more verbs"]]})
 
@@ -111,7 +117,7 @@
             (map (fn [word]
                    [:li (str word)])
                  (map #(:word %)
-                      (show-games-per-table request)))
+                      (show-words-per-game request)))
             ]
 
            ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
@@ -149,7 +155,9 @@
   (fp/with-fallback #(update-form request :problems %)
     (let [values (fp/parse-params game-form (:form-params request))
           debug (log/debug (str "values: " values))
-          results (k/exec-raw ["UPDATE games SET (name) = (?) RETURNING id" [(:name values)]] :results)
+          results (k/exec-raw ["UPDATE games SET (name) = (?) WHERE id=? RETURNING id" [(:name values)
+                                                                                        (Integer. (:game values))]] 
+                              :results)
           edited-game-id (:id (first results))]
       (update-verbs-for-game edited-game-id (:form-params request))
       {:status 302
@@ -158,6 +166,7 @@
 (defn delete [request]
   (let [game-id (:game (:params request))
         game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)]] :results))]
+    (k/exec-raw [(str "DELETE FROM words_per_game WHERE game=?") [(Integer. game-id)]])
     (k/exec-raw [(str "DELETE FROM games WHERE id=?") [(Integer. game-id)]])
     {:status 302
      :headers {"Location" (str "/editor/" "?message=deleted+game:" (:name game-row))}}))
@@ -215,7 +224,7 @@
                 (throw e)))))]
     games))
 
-(defn show-games-per-table [request]
+(defn show-words-per-game [request]
   (let [table-name words-per-game-table
         game-id (:game (:params request))
         words
@@ -229,7 +238,7 @@
                      error-message)
                 (do (create-wpg-table)
                     ;; retry now that we have created the table.
-                    (show-games-per-table request))
+                    (show-words-per-game request))
                 (throw e)))))]
     words))
 
@@ -262,6 +271,13 @@
                                 (get-in lex [:synsem :cat]))))
                           (get @it/lexicon lexeme)))))
           (sort (keys @it/lexicon))))
+
+(defn verbs-per-game [game-id]
+  (let [verbs (map #(:word %)
+                   (k/exec-raw [(str "SELECT word
+                                        FROM " words-per-game-table " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results))]
+    (log/debug (str "check these boxes: " (string/join "," verbs)))
+    verbs))
 
 (def game-default-values {})
 
@@ -296,6 +312,7 @@
                                              (f/merge-fields [{:name :words
                                                                :label "Verbs for this game"
                                                                :type :checkboxes
+                                                               :cols 3
                                                                :options all-verbs}]))
                                     :values (merge game-default-values (:form-params request))
                                     :action "/editor/create"
@@ -307,17 +324,17 @@
    :headers headers})
 
 (defn update-form [request game & [:problems problems]]
-  (html
-   [:div
-    (f/render-form (assoc (-> game-form
-                              (f/merge-fields [{:name :words
-                                                :label "Verbs for this game"
-                                                :type :checkboxes
-                                                :options all-verbs}]))
-                     :values (merge game-default-values {:name (:name game)})
-                     :action (str "/editor/update/" (:id game)) 
-                     :method "post"
-                     :problems problems))]))
+  (let [game-id (:game (:params request))]
+    (html
+     [:div
+      (f/render-form (assoc (-> game-form
+                                (f/merge-fields [{:name :words}]))
+                       :values (merge game-default-values {:name (:name game)
+                                                           :game game-id
+                                                           :words (verbs-per-game game-id)})
+                       :action (str "/editor/update/" (:id game)) 
+                       :method "post"
+                       :problems problems))])))
 
 (declare table-of-examples)
 
