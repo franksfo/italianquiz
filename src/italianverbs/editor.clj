@@ -315,6 +315,7 @@
 
 (defn create-form [request & [:problems problems]]
   (log/debug (str "create-form with request: " request " and problems: " problems))
+  (log/debug (str "all-verbs: " (string/join "," all-verbs)))
   {:body (body "Editor: Create a new game"
                (let [links (links request :create)]
                  (html
@@ -335,7 +336,7 @@
    :headers headers})
 
 (defn update-form [request game & [:problems problems]]
-  (log/debug (str "update-form: request: " request "; game: " game))
+  (log/debug (str "update-form: game: " game))
   (let [game-id (:id game)]
     (html
      [:div
