@@ -104,23 +104,25 @@
   (first (unify/lazy-shuffle (lookup-in spec (vals lexicon)))))
 
 (def small
-  (let [grammar
-        (filter #(or (= (:rule %) "s-present")
-                     (= (:rule %) "s-future")
-                     (= (:rule %) "s-imperfetto")
-                     (= (:rule %) "s-aux")
-                     (= (:rule %) "vp-aux"))
-                grammar)
-        lexicon
-        (into {}
-              (for [[k v] @lexicon]
-                (let [filtered-v
-                      (filter #(or (= (get-in % [:synsem :cat]) :verb)
-                                   (= (get-in % [:synsem :propernoun]) true)
-                                   (= (get-in % [:synsem :pronoun]) true))
-                              v)]
-                  (if (not (empty? filtered-v))
-                    [k filtered-v]))))]
-    {:grammar grammar
-     :lexicon lexicon
-     :index (create-index grammar (flatten (vals lexicon)) head-principle)}))
+  (future
+    (let [grammar
+          (filter #(or (= (:rule %) "s-present")
+                       (= (:rule %) "s-future")
+                       (= (:rule %) "s-imperfetto")
+                       (= (:rule %) "s-aux")
+                       (= (:rule %) "vp-aux"))
+                  grammar)
+          lexicon
+          (into {}
+                (for [[k v] @lexicon]
+                  (let [filtered-v
+                        (filter #(or (= (get-in % [:synsem :cat]) :verb)
+                                     (= (get-in % [:synsem :propernoun]) true)
+                                     (= (get-in % [:synsem :pronoun]) true))
+                                v)]
+                    (if (not (empty? filtered-v))
+                      [k filtered-v]))))]
+      {:grammar grammar
+       :lexicon lexicon
+       :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
+

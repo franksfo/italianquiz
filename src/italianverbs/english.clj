@@ -74,29 +74,31 @@
                            use-index))))
 
 (def small
-  (let [grammar
-        (filter #(or (= (:rule %) "s-present")
-                     (= (:rule %) "s-future")
-                     (= (:rule %) "s-imperfetto")
-                     (= (:rule %) "s-past")
+  (future
+    (let [grammar
+          (filter #(or (= (:rule %) "s-present")
+                       (= (:rule %) "s-future")
+                       (= (:rule %) "s-imperfetto")
+                       (= (:rule %) "s-past")
                      (= (:rule %) "s-aux"))
-                grammar)
+                  grammar)
 
-        lexicon
-        (into {}
-              (for [[k v] @lexicon]
-                (let [filtered-v
-                      (filter #(or (= (get-in % [:synsem :cat]) :verb)
-                                   (= (get-in % [:synsem :propernoun]) true)
-                                   (= (get-in % [:synsem :pronoun]) true))
-                              v)]
-                  (if (not (empty? filtered-v))
-                    [k filtered-v]))))
-        ]
-    {:grammar grammar
-     :lexicon lexicon
-     :index (create-index grammar (flatten (vals lexicon)) head-principle)
-}))
+          lexicon
+          (into {}
+                (for [[k v] @lexicon]
+                  (let [filtered-v
+                        (filter #(or (= (get-in % [:synsem :cat]) :verb)
+                                     (= (get-in % [:synsem :propernoun]) true)
+                                     (= (get-in % [:synsem :pronoun]) true))
+                                v)]
+                    (if (not (empty? filtered-v))
+                      [k filtered-v]))))
+          ]
+      {:grammar grammar
+       :lexicon lexicon
+       :index (create-index grammar (flatten (vals lexicon)) head-principle)
+       })))
+
 
 
 

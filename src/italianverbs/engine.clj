@@ -34,7 +34,10 @@
 
 (defn generate [spec language-model]
   (let [spec (unify spec
-                    {:synsem {:subcat '()}})]
+                    {:synsem {:subcat '()}})
+        language-model (if (future? language-model)
+                         @language-model
+                         language-model)]
     (forest/generate spec 
                      (:grammar language-model)
                      (:lexicon language-model)
