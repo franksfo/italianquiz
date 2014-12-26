@@ -215,7 +215,7 @@
         games
         (try
           (k/exec-raw [(str "SELECT *
-                               FROM " table-name)] :results)
+                               FROM " table-name " ORDER BY name")] :results)
           (catch Exception e
             (let [message (.getMessage e)]
               (if (= (subs message 0 38) ;; TODO: too fragile: depends on an exact string match from the error message.
