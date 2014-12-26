@@ -241,6 +241,7 @@
                 (do (create-wpg-table)
                     ;; retry now that we have created the table.
                     (show-words-per-game request))
+                ;; if it still fails, we throw a 500 I suppose.
                 (throw e)))))]
     words))
 
@@ -287,7 +288,14 @@
   (log/info (str "editor/new with request: " (:form-params request)))
   (fp/with-fallback #(create-form request :problems %)
     (let [values (fp/parse-params game-form (:form-params request))
-          results (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
+          results 
+          (try
+            (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
+            (catch Exception e
+              (let [message (.getMessage e)]
+                (log/error (str "Failed inserting into games:{:name=>" (:name values) "}"))
+                ;; TODO: maybe there's something we can do to remedy the problem..?
+                (throw e))))
           new-game-id (:id (first results))]
       (update-verbs-for-game new-game-id (:form-params request))
       {:status 302
