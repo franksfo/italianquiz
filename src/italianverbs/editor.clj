@@ -78,6 +78,8 @@
         {:body (read-request request)
          :status 200})))
 
+(declare all-verbs)
+
 (def game-form
   {:fields [{:name :name :size 50 :label "Name"}
             {:name :game :type :hidden}
