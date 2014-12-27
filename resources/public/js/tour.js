@@ -159,19 +159,19 @@ function create_tour_question() {
 	$.ajax({
 	    cache: false,
 	    dataType: "html",
-	    url: "/cloud/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
+	    url: "/tour/generate-answers?semantics=" + encodeURIComponent(JSON.stringify(evaluated.semantics)),
 	    success: update_tour_answer_fn
 	});
     }
 
-    // generate a question by calling /cloud/generate-question on the server.
+    // generate a question by calling /tour/generate-question on the server.
     // The server's response to this causes the above update_tour_question() to be
     // executed here in the client's Javascript interpreter, which in turn causes
-    // the client to make a call to the server for /cloud/generate-answers.
+    // the client to make a call to the server for /tour/generate-answers.
     $.ajax({
 	cache: false,
         dataType: "html",
-        url: "/cloud/generate-question",
+        url: "/tour/generate-question",
         success: update_tour_question
     });
 }

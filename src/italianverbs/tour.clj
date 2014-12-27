@@ -14,7 +14,8 @@
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer [get-in merge strip-refs unify]]
    [italianverbs.english :as en]
-   [italianverbs.italiano :as it]))
+   [italianverbs.italiano :as it]
+   [korma.core :as k]))
 
 (declare evaluate)
 (declare generate-answers)
@@ -46,7 +47,18 @@
     :source_flag "/svg/britain.svg"
     :destination_flag "/svg/italy.svg"}])
 
-(def possible-preds [:top])
+;(def possible-preds [:top])
+;; SELECT DISTINCT word FROM games_to_use INNER JOIN games ON games_to_use.game = games.id INNER JOIN words_per_game ON words_per_game.game = games.id;
+
+(defn get-possible-preds []
+  (map (fn [row]
+         (keyword (:word row)))
+       (k/exec-raw [(str "SELECT DISTINCT word 
+                            FROM games_to_use 
+                      INNER JOIN games ON games_to_use.game = games.id 
+                      INNER JOIN words_per_game ON words_per_game.game = games.id")] :results)))
+
+(def possible-preds [:mangiare])
 
 (defn direction-chooser []
   (html5
@@ -155,7 +167,8 @@
      :right_context_destination ""}))
 
 (defn generate-question [request]
-  (let [pred (if (not (= :null (get-in request [:params :pred] :null)))
+  (let [possible-preds (get-possible-preds)
+        pred (if (not (= :null (get-in request [:params :pred] :null)))
                (keyword (get-in request [:params :pred]))
                (nth possible-preds (rand-int (.size possible-preds))))
         debug (log/info (str "generate-question: pred: " pred))
