@@ -6,8 +6,7 @@
             [italianverbs.unify :refer (fail? get-in merge unifyc)]
             [clojure.string :as string]))
 
-;; ^^ true: pre-compute cross product of phrases X lexicon (slow startup, fast runtime)
-;;    false: don't pre-compute product (fast startup, slow runtime)
+(log/info "ug.clj: start.")
 
 (def phrasal {:phrasal true})
 
@@ -263,5 +262,5 @@
   "shortcut"
   (sentence-impl input))
 
-(log/info "Universal Grammar Immediate Dominance schemata are defined in our environment.")
+(log/info "ug.clj: done.")
 

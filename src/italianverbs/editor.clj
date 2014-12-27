@@ -61,9 +61,6 @@
    (GET "/read" request
         (read-request request))
 
-   (GET "/update" request
-        (update-form request))
-
    (POST "/update/:game" request
          (update request))
 
@@ -78,7 +75,16 @@
         {:body (read-request request)
          :status 200})))
 
-(declare all-verbs)
+(def all-verbs
+  (filter (fn [lexeme]
+            (not (empty?
+                  (filter (fn [lex]
+                            (and
+                             (= :top (get-in lex [:synsem :infl]))
+                             (= :verb
+                                (get-in lex [:synsem :cat]))))
+                          (get @it/lexicon lexeme)))))
+          (sort (keys @it/lexicon))))
 
 (def game-form
   {:fields [{:name :name :size 50 :label "Name"}
@@ -155,8 +161,8 @@
 (defn update [request]
   (log/info (str "editor/update with request: " (:form-params request)))
   (fp/with-fallback #(update-form request :problems %)
-    (let [values (fp/parse-params game-form (:form-params request))
-          debug (log/debug (str "values: " values))
+    (let [debug (log/debug (str "editor/update..about to fp/parse-params with game-form: " game-form))
+          values (fp/parse-params game-form (:form-params request))
           results (k/exec-raw ["UPDATE games SET (name) = (?) WHERE id=? RETURNING id" [(:name values)
                                                                                         (Integer. (:game values))]] 
                               :results)
@@ -264,17 +270,6 @@
 
       links])))
 
-(def all-verbs
-  (filter (fn [lexeme]
-            (not (empty?
-                  (filter (fn [lex]
-                            (and
-                             (= :top (get-in lex [:synsem :infl]))
-                             (= :verb
-                                (get-in lex [:synsem :cat]))))
-                          (get @it/lexicon lexeme)))))
-          (sort (keys @it/lexicon))))
-
 (defn verbs-per-game [game-id]
   (let [verbs (map #(:word %)
                    (k/exec-raw [(str "SELECT word
@@ -291,8 +286,7 @@
           debug (log/debug (str "editor/new: values: " values))
           results 
           (try
-;            (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
-            (log/debug (str "I guess INSERT is not working."))
+            (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
             (catch Exception e
               (let [message (.getMessage e)]
                 (log/error (str "Failed inserting into games:{:name=>" (:name values) "}"))
@@ -316,12 +310,14 @@
       ])))
 
 (defn create-form [request & [:problems problems]]
-  (log/debug (str "create-form with request: " request " and problems: " problems))
-  (log/debug (str "all-verbs: " (string/join "," all-verbs)))
-  {:body (body "Editor: Create a new game"
-               (let [links (links request :create)]
-                 (html
-                  [:div
+  (let [debug (log/error (str "WTF: " request))]
+    (log/debug (str "all-verbs: " (string/join "," all-verbs)))
+    {:status 200
+     :body (body "Editor: Create a new game"
+                 (let [links (links request :create)]
+                   (html
+                    [:div
+
                    (f/render-form (assoc (-> game-form
                                              (f/merge-fields [{:name :words
                                                                :label "Verbs for this game"
@@ -332,21 +328,25 @@
                                     :action "/editor/create"
                                     :method "post"
                                     :problems problems))
-                   links]))
-               request)
-   :status 200
-   :headers headers})
+                     ]))
+                 request)
+     :headers headers}))
 
 (defn update-form [request game & [:problems problems]]
-  (log/debug (str "update-form: game: " game))
+  (log/info (str "update-form game: " game))
   (let [game-id (:id game)]
     (html
      [:div
       (f/render-form (assoc (-> game-form
-                                (f/merge-fields [{:name :words}]))
-                       :values (merge game-default-values {:name (:name game)
-                                                           :game game-id
-                                                           :words (verbs-per-game game-id)})
+                                (f/merge-fields [{:name :words
+                                                  :label "Verbs for this game"
+                                                  :type :checkboxes
+                                                  :cols 3
+                                                  :options all-verbs}]))
+                       :values (merge game-default-values 
+                                      {:name (:name game)
+                                       :game game-id
+                                       :words (verbs-per-game game-id)})
                        :action (str "/editor/update/" (:id game))
                        :method "post"
                        :problems problems))])))
