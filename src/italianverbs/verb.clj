@@ -28,7 +28,7 @@
 (declare show-as-rows)
 (declare validate-new-verb)
 
-;; see core.clj: (GET "/gen" request
+;; in core.clj, top-level url "/gen" maps to routes here: see (defn routes []) below.
 (defn onload []
   (str "gen_per_verb();")) ;; javascript to be executed at page load.
 
@@ -54,6 +54,34 @@
 
 (declare table-of-examples)
 
+(defn generation-table [verbs & [:id_prefix id_prefix]]
+  (let [id_prefix (if id_prefix id_prefix "")]
+    (html
+     [:table.striped
+      [:tr
+       [:th {:style "width:10em"} "Italian"]
+       [:th {:style "width:20em"} "Example"]
+       [:th {:style "width:10em"} "English"]
+       [:th {:style "width:20em"} "Translation"]
+       [:th {:style "width:3em"} ""]
+       ]
+      
+      (map (fn [lexeme]
+             [:tr.lexeme
+              [:td lexeme ]
+              [:td.example
+               [:div.gen_source {:id (str "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
+              
+              [:td {:id (str "english_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
+              
+              [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
+              
+              [:td {:id (str "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]
+            
+              ])
+           verbs)
+      ])))
+
 (defn control-panel [request haz-admin]
   (let [current-size "5,436"
         desired-size "10,000"]
@@ -70,42 +98,18 @@
        [:div#verbs 
         [:h4 "Verbs"]
 
-        [:table.striped
-
-          [:tr
-           
-           [:th {:style "width:10em"} "Italian"]
-           [:th {:style "width:20em"} "Example"]
-           [:th {:style "width:10em"} "English"]
-           [:th {:style "width:20em"} "Translation"]
-           [:th {:style "width:3em"} ""]
-           ]
-
-         (map (fn [lexeme]
-                [:tr.lexeme
-                 [:td lexeme ]
-                 [:td.example
-                  [:div.gen_source {:id (str "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
-
-                 [:td {:id (str "english_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
-
-                 [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
-
-                 [:td {:id (str "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]
-
-                 ])
-         
-              (let [all-verbs
-                    (filter (fn [lexeme]
-                              (not (empty?
-                                    (filter (fn [lex]
-                                              (and
-                                               (= :top (get-in lex [:synsem :infl]))
-                                               (= :verb
-                                                  (get-in lex [:synsem :cat]))))
-                                            (get @it/lexicon lexeme)))))
-                            (sort (keys @it/lexicon)))]
-                all-verbs))]]
+        (generation-table (let [all-verbs
+                                (filter (fn [lexeme]
+                                          (not (empty?
+                                                (filter (fn [lex]
+                                                          (and
+                                                           (= :top (get-in lex [:synsem :infl]))
+                                                           (= :verb
+                                                              (get-in lex [:synsem :cat]))))
+                                                        (get @it/lexicon lexeme)))))
+                                        (sort (keys @it/lexicon)))]
+                            all-verbs))
+        ]
 
        [:div#noun
         [:h4 "Nouns and Pronouns"]
