@@ -16,7 +16,7 @@
 (def grammar gram/grammar)
 (def lexicon-source lex/lexicon-source)
 
-(log/info "compiling: source-lexicon: " (.size (keys lex/lexicon-source)))
+(log/info "compiling: source lexicon size: " (.size (keys lex/lexicon-source)))
 (def lexicon (future (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/english-specific-rules)))
 ;(log/info "finished: compiled lexicon: " (.size (keys lexicon)))
 
@@ -26,15 +26,10 @@
 
 (def en lookup)
 
-(def begin (System/currentTimeMillis))
-(log/info "building grammatical and lexical index..")
 (def index nil)
 ;; TODO: trying to print index takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to show only keys and first value or something.
 (def index (future (create-index grammar (flatten (vals @lexicon)) head-principle)))
-
-(def end (System/currentTimeMillis))
-(log/info "Built grammatical and lexical index in " (- end begin) " msec.")
 
 (defn parse [string]
   (parse/parse string lexicon lookup grammar))

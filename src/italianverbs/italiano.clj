@@ -40,15 +40,10 @@
 (defn parse [string]
   (parse/parse string lexicon lookup grammar))
 
-(def begin (System/currentTimeMillis))
-(log/debug "building grammatical and lexical index..")
 (def index nil)
 ;; TODO: trying to print index takes forever and blows up emacs buffer:
 ;; figure out how to change printable version to (keys index).
 (def index (future (create-index grammar (flatten (vals @lexicon)) head-principle)))
-
-(def end (System/currentTimeMillis))
-(log/info "Built grammatical and lexical index in " (- end begin) " msec.")
 
 (defn sentence [ & [spec]]
   (let [spec (unify (if spec spec :top)
