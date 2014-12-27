@@ -345,7 +345,7 @@
                        :values (merge game-default-values {:name (:name game)
                                                            :game game-id
                                                            :words (verbs-per-game game-id)})
-                       :action (str "/editor/update/" (:id game)) 
+                       :action (str "/editor/update/" (:id game))
                        :method "post"
                        :problems problems))])))
 
