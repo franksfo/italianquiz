@@ -32,7 +32,7 @@ function gen_from_verb(verb) {
 	$("#verb_"+verb).html("<a href='/engine/generate?pred="+verb+"&lang=it&debug=true'>" + response + "</a>");
 	
 	// reload link:
-	$("#reload_"+verb).attr("onclick","javascript:refresh_verb('"+verb+"');");
+	$("#reload_"+verb).attr("onclick","javascript:refresh_verb('"+verb+"');return false;");
 
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
