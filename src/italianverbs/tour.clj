@@ -47,18 +47,17 @@
     :source_flag "/svg/britain.svg"
     :destination_flag "/svg/italy.svg"}])
 
-;(def possible-preds [:top])
-;; SELECT DISTINCT word FROM games_to_use INNER JOIN games ON games_to_use.game = games.id INNER JOIN words_per_game ON words_per_game.game = games.id;
-
 (defn get-possible-preds []
-  (map (fn [row]
-         (keyword (:word row)))
-       (k/exec-raw [(str "SELECT DISTINCT word 
+  (let [result
+        (map (fn [row]
+               (keyword (:word row)))
+             (k/exec-raw [(str "SELECT DISTINCT word 
                             FROM games_to_use 
                       INNER JOIN games ON games_to_use.game = games.id 
-                      INNER JOIN words_per_game ON words_per_game.game = games.id")] :results)))
-
-(def possible-preds [:mangiare])
+                      INNER JOIN words_per_game ON words_per_game.game = games.id")] :results))]
+    (if (empty? result) ;; no tests are possible, so just allow any verb (:top will match any verb).
+      [:top]
+      result)))
 
 (defn direction-chooser []
   (html5
