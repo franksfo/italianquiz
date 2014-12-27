@@ -1595,10 +1595,10 @@
                   common
                   a-map)
 
-        true
-        (unifyc a-map
-                {:italiano a-string}
-                common))))
+          true
+          (unifyc a-map
+                  {:italiano a-string}
+                  common))))
 
 (defn agreement [lexical-entry]
   (cond
@@ -1623,5 +1623,13 @@
    true
    lexical-entry))
 
+(defn essere-default [lexical-entry]
+  "if :essere is not set, then it's false."
+  (cond
+   (= (get-in lexical-entry [:synsem :essere] :top) :top)
+   (unifyc lexical-entry
+           {:synsem {:essere false}})
+   true lexical-entry))
+
 (def italian-specific-rules
-  (list agreement))
+  (list agreement essere-default))
