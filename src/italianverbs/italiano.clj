@@ -18,6 +18,7 @@
 (def grammar gram/grammar)
 (def lexicon-source lex/lexicon-source)
 
+;; see TODOs in lexiconfn/compile-lex (should be more of a pipeline as opposed to a argument-position-sensitive function.
 (def lexicon
   (future (-> (compile-lex lex/lexicon-source morph/exception-generator morph/phonize morph/italian-specific-rules)
 
