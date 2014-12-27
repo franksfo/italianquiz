@@ -9,7 +9,6 @@
    [formative.parse :as fp]
    [italianverbs.auth :as auth]
    [italianverbs.english :as en]
-   [italianverbs.gen :as gen]
    [italianverbs.html :as html]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo)]

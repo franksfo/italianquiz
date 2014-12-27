@@ -8,7 +8,6 @@
    [clojure.tools.logging :as log]
    [formative.core :as f]
    [formative.parse :as fp]
-   [italianverbs.gen :as gen]
    [italianverbs.html :as html]
    [italianverbs.korma :as db]
    [italianverbs.morphology :as morph]
@@ -386,7 +385,8 @@
     (log/info "gen-and-add: test=" test "; group=" group)
     (let [verb (first (shuffle verbs))]
       (log/info " gen-and-add verb: " verb)
-      (let [sentence (morph/finalize (gen/generate-sentence (first (shuffle verbs))))]
+      ;; TODO: gen/ has gone away; use engine/ instead.
+      (let [sentence (morph/finalize "stub")];; (gen/generate-sentence (first (shuffle verbs))))]
         (log/info " gen-and-add sentence: " sentence)
         (question/new {"testid" test
                        "italiano" (:italian sentence)
