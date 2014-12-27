@@ -71,14 +71,14 @@
 
       (menuitem {:selected?
                  (or (and (not (nil? current-url))
-                          (re-find #"/map" current-url))
-                     (= current-url "/map")
+                          (re-find #"/tour" current-url))
+                     (= current-url "/tour")
                      (and (not (nil? current-url))
-                          (re-find #"/map" current-url)))
+                          (re-find #"/tour" current-url)))
                  :show? true
                  :current-url current-url 
                  :text "Map Tour" 
-                 :url-for-this-item "/map"
+                 :url-for-this-item "/tour"
                  :requires-admin false
                  :requires-authentication false})
 
