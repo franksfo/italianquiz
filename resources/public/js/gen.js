@@ -6,15 +6,25 @@ var default_prefix = "";
 function gen_per_verb(prefix) {
     if (prefix == undefined) {
 	prefix = default_prefix;
-    }
-    $(".gen_source").each(function() {
-	var verb_dom_id = this.id;
-	var verb = verb_dom_id;
-	var re = new RegExp("^" + prefix);
+	$(".gen_source").each(function() {
+	    var verb_dom_id = this.id;
+	    var verb = verb_dom_id;
+	    var re = new RegExp("^" + prefix);
 	verb = verb.replace(re,"");
-	verb = verb.replace(/^verb_/,"");
-	gen_from_verb(verb,prefix);
-    });
+	    verb = verb.replace(/^verb_/,"");
+	    gen_from_verb(verb,prefix);
+	});
+    } else {
+	var selector = '#'+"generation_list_"+prefix;
+	$(selector).find(".gen_source").each(function() {
+	    var verb_dom_id = this.id;
+	    var verb = verb_dom_id;
+	    var re = new RegExp("^" + prefix);
+	verb = verb.replace(re,"");
+	    verb = verb.replace(/^verb_/,"");
+	    gen_from_verb(verb,prefix);
+	});
+    }
 }
 
 function refresh_verb(verb,prefix) {
@@ -25,10 +35,16 @@ function refresh_verb(verb,prefix) {
 }
 
 function gen_from_verb(verb,prefix) {
+    log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
+    var re = new RegExp("^" + prefix);
+    verb = verb.replace(re,"");
+    verb = verb.replace(/^verb_/,"");
+
     function generate_with_verb(content) {
 	var evaluated = jQuery.parseJSON(content);
 	var example = evaluated.it;
 	var pred = evaluated.pred;
+
 	var semantics = evaluated.semantics;
 	var response = example;
 	if (example == "") {
@@ -43,6 +59,9 @@ function gen_from_verb(verb,prefix) {
 	    evaluated = jQuery.parseJSON(content);
 	    if (evaluated.response == "") {
 		// could not translate: show a link with an error icon (fa-times-circle)
+
+		log(INFO,"GOT HERE: pred is: " + pred);
+
 		$("#"+prefix+"english_verb_"+pred).html("<a href='/engine/lookup?lang=en&spec=" + 
 					      encodeURIComponent(JSON.stringify({"synsem": {"cat": "verb",
 											    "sem": {"pred": pred},

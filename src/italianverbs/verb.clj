@@ -57,7 +57,7 @@
 (defn generation-table [verbs & [:id_prefix id_prefix]]
   (let [id_prefix (if id_prefix id_prefix "")]
     (html
-     [:table.striped
+     [:table.striped (if id_prefix {:id (str "generation_list_" id_prefix)} {})
       [:tr
        [:th {:style "width:10em"} "Italian"]
        [:th {:style "width:20em"} "Example"]

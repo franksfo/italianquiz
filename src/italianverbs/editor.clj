@@ -107,11 +107,14 @@
                  [:min-length 1 :verbs "Select one or more verbs"]]})
 
 
-;(def use-prefix "pertest_")
-(def use-prefix "x")
-
 (defn onload []
-  (str "log(INFO,'editor onload: loading gen_per_verb()'); gen_per_verb('" use-prefix "');"))
+  (string/join " " 
+               (map (fn [game]
+                      (let [game-id (:game game)]
+                        (str 
+                         "log(INFO,'editor onload: loading gen_per_verb( " game-id " )');"
+                         "gen_per_verb('" game-id "');")))
+                    (k/exec-raw [(str "SELECT game FROM games_to_use")] :results))))
 
 (defn body [title content request]
   (html/page 
@@ -138,7 +141,7 @@
             (map (fn [word]
                    [:li (str word)])
                  (map #(:word %)
-                      (show-words-per-game request :prefix use-prefix)))
+                      (show-words-per-game request)))
             ]
 
            ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
@@ -286,7 +289,7 @@
                     [:div {:style "width:100%;float:left"}
                      [:h4 {:style "width:100%"} [:span {:style "padding-right: 1em"} (:name each) ":"] [:i (string/join "," (verbs-per-game (:id each)))]]
                      (generation-table (verbs-per-game (:id each))
-                                       :id_prefix use-prefix)])))
+                                       :id_prefix (:id each))])))
                games))
         ]])
 
