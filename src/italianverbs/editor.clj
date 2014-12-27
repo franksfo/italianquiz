@@ -288,9 +288,11 @@
   (log/info (str "editor/new with request: " (:form-params request)))
   (fp/with-fallback #(create-form request :problems %)
     (let [values (fp/parse-params game-form (:form-params request))
+          debug (log/debug (str "editor/new: values: " values))
           results 
           (try
-            (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
+;            (k/exec-raw [(str "INSERT INTO games (id,name) VALUES (DEFAULT,?) RETURNING id") [(:name values)]] :results)
+            (log/debug (str "I guess INSERT is not working."))
             (catch Exception e
               (let [message (.getMessage e)]
                 (log/error (str "Failed inserting into games:{:name=>" (:name values) "}"))
