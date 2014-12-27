@@ -9,11 +9,13 @@
    [formative.parse :as fp]
    [italianverbs.auth :as auth]
    [italianverbs.english :as en]
+   [italianverbs.gen :as gen]
    [italianverbs.html :as html]
    [italianverbs.italiano :as it]
    [italianverbs.morphology :refer (fo)]
    [italianverbs.korma :as db]
    [italianverbs.unify :refer [get-in]]
+   [italianverbs.verb :refer [generation-table]]
    [hiccup.core :refer (html)]
    [korma.core :as k]
 ))
@@ -38,6 +40,7 @@
 (declare update)
 (declare update-form)
 (declare set-as-default)
+(declare verbs-per-game)
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 
@@ -104,7 +107,7 @@
                  [:min-length 1 :verbs "Select one or more verbs"]]})
 
 (defn onload []
-  (str "log(INFO,'editor onload: stub.');"))
+  (str "log(INFO,'editor onload: loading gen_per_verb()'); gen_per_verb();"))
 
 (defn body [title content request]
   (html/page 
@@ -115,7 +118,7 @@
      content])
    request
    {:css "/css/editor.css"
-    :js "/js/editor.js"
+    :jss ["/js/editor.js" "/js/gen.js"]
     :onload (onload)}))
 
 (defn read-request [request]
@@ -146,7 +149,6 @@
 
            (links request :read))
           request)))
-
 
 (defn update-verb-for-game [game-id words]
   (if (not (empty? words))
@@ -243,8 +245,8 @@
       (cond
        (empty? games)
        [:div "No games."]
+
        true
-       
        ;; TODO: derive <td> links from route-graph, like (links) does.
        [:form {:method "post"
                :action "/editor/use"}
@@ -264,14 +266,24 @@
                  [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
               games)]
         
-        [:div {:style "width:100%"}
+        [:div {:style "width:100%;float:left;margin-top:0.5em"}
          [:input {:type "submit"
-                  :value "Update games to use"}]]
-
-        ]
+                  :value "Select games to use"}]]
 
 
-       )
+       [:div  {:style "width:100%"}
+        [:h3  "Examples" ]
+        (if (empty? games-to-use)
+          [:div.advice "No games selected to generate examples." ]
+
+          (map (fn [each]
+                 (if (some #(= % (:id each)) games-to-use)
+                   (html
+                    [:div {:style "width:100%;float:left"}
+                     [:h4 {:style "width:100%"} [:span {:style "padding-right: 1em"} (:name each) ":"] [:i (string/join "," (verbs-per-game (:id each)))]]
+                     (generation-table (verbs-per-game (:id each)))])))
+               games))
+        ]])
 
       links])))
 
