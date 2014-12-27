@@ -487,3 +487,7 @@ td.num {
     color:#aaa;
     font-style:italic;
 }
+
+table.striped tr:nth-of-type(odd) {
+  background-color:ghostwhite;
+}

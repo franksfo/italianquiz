@@ -48,10 +48,6 @@ verbs.table th {
 tr.lexeme > td {
 }
 
-tr.lexeme:nth-of-type(odd) {
-  background-color:ghostwhite;
-}
-
 .example {
     border:0px solid blue;
 }

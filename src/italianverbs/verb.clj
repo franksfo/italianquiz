@@ -70,7 +70,7 @@
        [:div#verbs 
         [:h4 "Verbs"]
 
-        [:table 
+        [:table.striped
 
           [:tr
            
