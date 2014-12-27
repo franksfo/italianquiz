@@ -37,6 +37,7 @@
 (declare show-words-per-game)
 (declare update)
 (declare update-form)
+(declare set-as-default)
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 
@@ -73,7 +74,11 @@
    ;; alias for '/read' (above)
    (GET "/:game" request
         {:body (read-request request)
-         :status 200})))
+         :status 200})
+
+   ;; which game(s) will be active (more than one are possible).
+   (POST "/use" request
+         (set-as-default request))))
 
 (def all-verbs
   (filter (fn [lexeme]
@@ -90,7 +95,8 @@
   {:fields [{:name :name :size 50 :label "Name"}
             {:name :game :type :hidden}
             {:name :words
-             :label "Verbs for this game.."
+             :label "Verbs for this game"
+             :cols 3
              :type :checkboxes
              :datatype :strs
              :options all-verbs}]
@@ -171,6 +177,23 @@
       {:status 302
        :headers {"Location" (str "/editor/" edited-game-id "?message=updated.")}})))
 
+(defn set-each-as-default [params]
+  (if (not (empty? params))
+    (let [param (first params)]
+      (log/debug (str "use param: " param))
+      (let [k (first param)
+            v (second param)]
+      (if (= v "on")
+        (k/exec-raw [(str "INSERT INTO games_to_use (game) VALUES (?)") [(Integer. k)]]))
+      (set-each-as-default (rest params))))))
+
+(defn set-as-default [request]
+  (let [games-to-use (:params request)]
+    (k/exec-raw [(str "DELETE FROM games_to_use")])
+    (set-each-as-default games-to-use)
+    {:status 302
+     :headers {"Location" (str "/editor/?message=updated.")}}))
+
 (defn delete [request]
   (let [game-id (:game (:params request))
         game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)]] :results))]
@@ -200,60 +223,20 @@
           request)))
 
 (def games-table "games")
-(defn create-games-table []
-  (k/exec-raw [(str "CREATE TABLE " games-table " (id bigint NOT NULL,
-                                                   name text);")])
-  (k/exec-raw [(str "CREATE SEQUENCE games_id_seq
-                     START WITH 1
-                     INCREMENT BY 1
-                     NO MINVALUE
-                     NO MAXVALUE
-                     CACHE 1;")])
-  (k/exec-raw [(str "ALTER TABLE ONLY " games-table " ALTER COLUMN id SET DEFAULT nextval('games_id_seq'::regclass);")])
-  (k/exec-raw [(str "ALTER TABLE ONLY " games-table " ADD CONSTRAINT games_pkey PRIMARY KEY (id)")]))
-
 (def words-per-game-table "words_per_game")
-(defn create-wpg-table []
-  (k/exec-raw [(str "CREATE TABLE " words-per-game-table " (game bigint REFERENCES " games-table "(id),word text)")]))
 
 (defn show [request]
-  (let [table-name games-table
-        games
-        (try
-          (k/exec-raw [(str "SELECT *
-                               FROM " table-name " ORDER BY name")] :results)
-          (catch Exception e
-            (let [message (.getMessage e)]
-              (if (= (subs message 0 38) ;; TODO: too fragile: depends on an exact string match from the error message.
-                     (str "ERROR: relation \"" table-name "\" does not exist"))
-                (do (create-games-table)
-                    ;; retry now that we have created the table.
-                    (show request))
-                (throw e)))))]
-    games))
+  (k/exec-raw [(str "SELECT * FROM " games-table " ORDER BY name")] :results))
 
 (defn show-words-per-game [request]
   (let [table-name words-per-game-table
-        game-id (:game (:params request))
-        words
-        (try
-          (k/exec-raw [(str "SELECT *
-                               FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)
-          (catch Exception e
-            (let [message (.getMessage e)
-                  error-message (str "ERROR: relation \"" table-name "\" does not exist")]
-              (if (= (subs message 0 (.length error-message)) ;; TODO: too fragile: depends on an exact string match from the error message.
-                     error-message)
-                (do (create-wpg-table)
-                    ;; retry now that we have created the table.
-                    (show-words-per-game request))
-                ;; if it still fails, we throw a 500 I suppose.
-                (throw e)))))]
-    words))
+        game-id (:game (:params request))]
+    (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results)))
 
 (defn home-page [request]
   (let [links (links request :home)
-        games (show request)]
+        games (show request)
+        games-to-use (set (mapcat vals (k/exec-raw ["SELECT * FROM games_to_use"] :results)))]
     (html
      [:div.user-alert (:message (:params request))]
      [:div
@@ -263,10 +246,32 @@
        true
        
        ;; TODO: derive <td> links from route-graph, like (links) does.
-       [:table
-        (map (fn [each]
-               [:tr [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
-             games)])
+       [:form {:method "post"
+               :action "/editor/use"}
+        [:table.striped
+         [:tr 
+          [:th  {:style "padding-right:1em"} "Use?"]
+          [:th "Game"]]
+          
+         (map (fn [each]
+                [:tr 
+                 [:th [:input 
+                       (merge
+                        {:name (str (:id each)) :type "checkbox"}
+                        (if (some #(= % (:id each)) games-to-use)
+                          {:checked "checked"}))
+                       ]]
+                 [:td [:a {:href (str "/editor/" (:id each))} (:name each)]]])
+              games)]
+        
+        [:div {:style "width:100%"}
+         [:input {:type "submit"
+                  :value "Update games to use"}]]
+
+        ]
+
+
+       )
 
       links])))
 
