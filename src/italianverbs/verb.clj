@@ -70,13 +70,13 @@
              [:tr.lexeme
               [:td lexeme ]
               [:td.example
-               [:div.gen_source {:id (str "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
+               [:div.gen_source {:id (str id_prefix "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
               
-              [:td {:id (str "english_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
+              [:td {:id (str id_prefix "english_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
               
-              [:td {:id (str "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
+              [:td {:id (str id_prefix "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
               
-              [:td {:id (str "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]
+              [:td {:id (str id_prefix "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]
             
               ])
            verbs)

@@ -1,14 +1,18 @@
 var logging_level = INFO;
 
+var default_prefix = "";
 /* this iterates through all verbs on the page (each verb has class "gen_source"), 
    calling gen_from_verb() for each. */
-function gen_per_verb() {
-    var prefix = "";
+function gen_per_verb(prefix) {
+    if (prefix == undefined) {
+	prefix = default_prefix;
+    }
     $(".gen_source").each(function() {
 	var verb_dom_id = this.id;
-	log(INFO,"verb_dom_id: " + verb_dom_id);
-	var verb = verb_dom_id.replace(/^verb_/,"");
-	log(INFO,"verb:" + verb);
+	var verb = verb_dom_id;
+	var re = new RegExp("^" + prefix);
+	verb = verb.replace(re,"");
+	verb = verb.replace(/^verb_/,"");
 	gen_from_verb(verb,prefix);
     });
 }
