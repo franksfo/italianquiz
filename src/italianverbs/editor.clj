@@ -206,6 +206,7 @@
   (let [game-id (:game (:params request))
         game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)]] :results))]
     (k/exec-raw [(str "DELETE FROM words_per_game WHERE game=?") [(Integer. game-id)]])
+    (k/exec-raw [(str "DELETE FROM games_to_use WHERE game=?") [(Integer. game-id)]])
     (k/exec-raw [(str "DELETE FROM games WHERE id=?") [(Integer. game-id)]])
     {:status 302
      :headers {"Location" (str "/editor/" "?message=deleted+game:" (:name game-row))}}))
