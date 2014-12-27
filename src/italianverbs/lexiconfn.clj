@@ -697,11 +697,18 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                 ;; not done yet: continue.
                 (transform result rules)))))))
 
+;; TODO: remove italian-lexical-string, not used and language-specific.
 (defn transform-each-lexical-val [italian-lexical-string lexical-val]
   (map (fn [each]
          (transform each rules))
        lexical-val))
 
+;; TODO: compile-lex should simply be a pipeline rather than an argument-position-sensitive function.
+;; The current form is too complex because each argument has a slightly different signature.
+;; Instead, it should be a pipeline where each argument is fn(lexicon) => lexicon (i.e. it takes a lexicon, 
+;; and a lexicon is returned, where a lexicon is a map<string,vector>.
+;; Or, perhaps more conveniently, fn(lexeme) => lexeme, where a lexeme is a vector of maps,
+;; or fn(lexeme) => lexeme, where a lexeme is simply a map.
 (defn compile-lex [lexicon-source exception-generator phonize-fn & [language-specific-rules]]
   (let [;; take source lexicon (declared above) and compile it.
         ;; 1. canonicalize all lexical entries
@@ -722,7 +729,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                                 lexeme)))
 
         ;; 3. apply language-specific grammatical rules to each element in the lexicon
-;                           lexicon-stage-3 lexicon-stage-2
+        ;; for an example of a language-specific rule, see italianverbs/morphology/italiano.clj:(defn agreement [lexical-entry]).
         lexicon-stage-3 (if language-specific-rules
                           (map-function-on-map-vals
                            lexicon-stage-2
@@ -730,6 +737,7 @@ storing a deserialized form of each lexical entry avoids the need to serialize e
                              (map (fn [lexeme]
                                     (transform lexeme language-specific-rules))
                                   lexeme)))
+                          ;; no language-specific rules: lexicon-stage-3 == lexicon-stage-2
                           lexicon-stage-2)
 
         ;; 4. generate exceptions
