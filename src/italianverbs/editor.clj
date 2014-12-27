@@ -286,7 +286,7 @@
                  (if (some #(= % (:id each)) games-to-use)
                    (html
                     [:div {:style "width:100%;float:left"}
-                     [:h4 {:style "width:100%"} [:span {:style "padding-right: 1em"} (:name each) ":"] [:i (string/join "," (verbs-per-game (:id each)))]]
+                     [:h4 {:style "width:100%"} [:span {:style "padding-right: 1em"} [:a {:href (str "/editor/" (:id each))}(:name each) ] ":"] [:i (string/join "," (verbs-per-game (:id each)))]]
                      (generation-table (verbs-per-game (:id each))
                                        :id_prefix (:id each))])))
                games))
