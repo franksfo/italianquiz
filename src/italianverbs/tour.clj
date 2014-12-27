@@ -1,22 +1,44 @@
-(ns italianverbs.game
+(ns italianverbs.tour
   (:refer-clojure :exclude [get-in merge])
   (:require
-   [clojure.data.json :as json]
+   [clojure.data.json :refer [read-str write-str]]
    [clojure.string :as string]
    [clojure.tools.logging :as log]
-
+   [compojure.core :as compojure :refer [GET PUT POST DELETE ANY]]
    [hiccup.page :refer (html5)]
 
-   [italianverbs.cache :refer (create-index)]
-   [italianverbs.engine :as engine]
-   [italianverbs.html :refer (tablize)]
+   [italianverbs.engine :refer [generate]]
+   [italianverbs.html :refer [page]]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
    [italianverbs.unify :refer [get-in merge strip-refs unify]]
-
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]))
+
+(declare evaluate)
+(declare generate-answers)
+(declare generate-question)
+(declare tour)
+
+(defn routes []
+  (compojure/routes
+   (GET "/" request
+        {:status 200
+         :body (page "Map Tour" (tour) request {:onload "start_tour();" 
+                                                :jss ["/js/tour.js"
+                                                      "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"]})})
+
+   (POST "/evaluate" request
+         {:status 200
+          :headers {"Content-Type" "text/html;charset=utf-8"}
+          :body (evaluate request)})
+
+   (GET "/generate-answers" request
+        (generate-answers request))
+
+   (GET "/generate-question" request
+        (generate-question request))))
 
 (def game-pairs
   [{:source "en"
@@ -143,7 +165,7 @@
          :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
-        question (engine/generate spec en/small)
+        question (generate spec en/small)
         form (html-form question)]
 
     (log/info "generate-question: question: " (fo question))
@@ -154,7 +176,7 @@
                "Cache-Control" "no-cache, no-store, must-revalidate"
                "Pragma" "no-cache"
                "Expires" "0"}
-     :body (json/write-str
+     :body (write-str
             {:left_context_of_question (:left_context_source form)
              :full_question (fo question)
              :question (:head_of_source form)
@@ -167,12 +189,12 @@
   "generate a single sentence according to the semantics of the request."
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
-  (let [semantics (json/read-str (get-in request [:params :semantics])
-                                 :key-fn keyword
-                                 :value-fn (fn [k v]
-                                            (cond (string? v)
-                                                  (keyword v)
-                                                  :else v)))
+  (let [semantics (read-str (get-in request [:params :semantics])
+                            :key-fn keyword
+                            :value-fn (fn [k v]
+                                        (cond (string? v)
+                                              (keyword v)
+                                              :else v)))
         debug (log/debug (str "semantics: " semantics))
 
         more-constraints {:synsem {:subcat '()}
@@ -186,7 +208,7 @@
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (engine/generate to-generate it/small)
+        answer (generate to-generate it/small)
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically
@@ -199,7 +221,7 @@
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"}
      :body
-     (json/write-str
+     (write-str
       {:cloud_id (get-in request [:params :cloud_id])
  
        :group_by group_by
@@ -215,4 +237,77 @@
        :semantics semantics
        :right_context_of_answer ""})}))
 
+(defn tour []
+  (html5
+   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
+
+   [:div#game
+
+    [:svg {:id "svgarena"}]
+
+    [:div#rainforest
+
+     [:div#wordbar
+
+      [:div#q1 "wordbar"]
+
+      [:div#q2 "not used"]
+
+      [:div#q3 "yet"]
+
+      ]
+     
+     (direction-chooser)
+     
+     [:div#kilos {:style "z-index:4"}
+      "Score:"
+      [:span#scorevalue
+       "0"
+       ]
+     ]
+
+     [:div#sidebyside {:style "z-index:2"}
+      
+      ;; map and streetview should be side by side
+      [:div#map ]
+
+      [:div#streetview
+       [:img#streetviewimage
+        {:src ""}]] ;; src value is filled in with Javascript.
+
+      ]
+
+     [:div#correction_dialog {:style "display:none"}
+
+      [:form {:onsubmit "return false;"}
+       [:div#cd_left_context_of_answer {:class "correct_answer" } "" ]
+       [:div#cd_rca {:class "correct_answer" } "" ]
+       [:h3#correct_answer "" ]
+       [:div#full_question {:class "question"} " " ]
+       [:input {:id "correction_bare_id" :type "hidden"}]
+       ]
+      ;; end of :form
+
+      ] ;; end of :div #correction_dialog
+
+
+     ] ;; end of :div#rainforest
+
+    [:div#gameform
+
+
+     [:div#tourquestion
+      ""
+      ]
+
+     [:input {:id "game_input" :size "30"}]
+     
+     [:button#answer_button {:class "click;float:right;width:auto"
+                             :onclick "submit_tour_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
+     
+     ] ;; end of :div #gameform
+    ] ;; end of :div #game
+) ; html5/div
+
+) ;; end of (defn)
 

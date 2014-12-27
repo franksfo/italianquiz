@@ -25,6 +25,7 @@
    [italianverbs.studenttest :as stest]
    [italianverbs.student :as student]
    [italianverbs.test_submit :as tsubmit]
+   [italianverbs.tour :as tour]
    [italianverbs.question :as question]
    [italianverbs.quiz :as quiz]
    [italianverbs.verb :as verb]
@@ -54,6 +55,9 @@
 
   (context "/gen" []
            (verb/routes))
+
+  (context "/tour" []
+           (tour/routes))
 
   (context "/workbook" []
            (workbook/routes))
@@ -86,27 +90,6 @@
        (game/generate-answers request))
 
   (GET "/cloud/generate-question" request
-       (game/generate-question request))
-
-  (GET "/map" request
-       {:status 200
-        :body (html/page "Map Tour" (game/tour) request {:onload "start_tour();" 
-                                                         :jss ["/js/game.js"
-                                                               "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"]})})
-
-  (GET "/map/" request
-       {:status 302
-        :headers {"Location" "/map"}})
-
-  (POST "/map/evaluate" request
-        {:status 200
-         :headers {"Content-Type" "text/html;charset=utf-8"}
-         :body (game/evaluate request)})
-
-  (GET "/map/generate-answers" request
-       (game/generate-answers request))
-
-  (GET "/map/generate-question" request
        (game/generate-question request))
 
   (GET "/guess/"
