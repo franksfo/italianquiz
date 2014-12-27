@@ -23,6 +23,7 @@
   (unifyc intransitive
           spec))
 
+;; TODO: (defn trans-intrans [spec & [:subj subj :obj obj]])
 (defn trans-intrans [spec & [opts]]
   [(unifyc
     spec
@@ -1176,9 +1177,9 @@
    "usare" (trans-intrans {:synsem {:sem {:pred :usare}}})
 
    "vedere" (trans-intrans
-                   {:synsem {:sem {:pred :vedere}}
-                    :italiano {:passato "visto"
-                               :futuro-stem "vedr"}})
+             {:synsem {:sem {:pred :vedere}}
+              :italiano {:passato "visto"
+                         :futuro-stem "vedr"}})
 
    "vendere" (trans-intrans {:synsem {:sem {:pred :vendere}}}
                             {:subj {:human true}
