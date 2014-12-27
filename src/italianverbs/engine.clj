@@ -46,7 +46,8 @@
 ;; TODO: language-independent (not it/small) and make it accept a spec, not a pred.
 (defn generate-from-request [request]
   (let [pred (keyword (get-in request [:params :pred]))
-        lang (get-in request [:params :lang])]
+        lang (get-in request [:params :lang])
+        debug (get-in request [:params :debug] false)] ;; note that client's intended _true_ will be "true" rather than true.
     (log/info (str "generate with pred: " pred "; lang: " lang))
     (let [expression (generate {:synsem {:sem {:pred pred}}}
                                it/small)
@@ -59,9 +60,14 @@
                  "Pragma" "no-cache"
                  "Expires" "0"}
        :body (json/write-str
-              {:pred pred
-               :semantics semantics
-               (keyword lang) (fo expression)})})))
+              (merge
+               {:pred pred
+                :semantics semantics
+                (keyword lang) (fo expression)}
+               (if (or (= debug true)
+                       (= debug "true"))
+                 {:debug {:head (strip-refs (get-in expression [:head]))}}
+                 {})))})))
 
 ;; TODO: remove: use generate-from-request instead.
 (defn generate-from-semantics [request]

@@ -29,7 +29,7 @@ function gen_from_verb(verb) {
 	if (example == "") {
 	    response = "<i class='fa fa-times-circle'> </i>";
 	}
-	$("#verb_"+verb).html("<a href='/engine/generate?pred="+verb+"&lang=it'>" + response + "</a>");
+	$("#verb_"+verb).html("<a href='/engine/generate?pred="+verb+"&lang=it&debug=true'>" + response + "</a>");
 	
 	// reload link:
 	$("#reload_"+verb).attr("onclick","javascript:refresh_verb('"+verb+"');");
