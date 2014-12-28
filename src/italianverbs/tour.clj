@@ -60,25 +60,24 @@
       result)))
 
 (defn direction-chooser []
-  (html5
-   [:dev#chooser
-    [:select {:style "display:none" :disabled "true" };; TODO: not working yet, so disabled.
-     [:option {:onclick "location='/cloud?src=en&dest=it';"}
-      "en -> it"
-      ]
-     
-     [:option {:onclick "location='/cloud?src=it&dest=en';"}
-      "it -> en"
-      ]
+  [:dev#chooser
+   [:select {:style "display:none" :disabled "true" };; TODO: not working yet, so disabled.
+    [:option {:onclick "location='/cloud?src=en&dest=it';"}
+     "en -> it"
+     ]
+    
+    [:option {:onclick "location='/cloud?src=it&dest=en';"}
+     "it -> en"
+     ]
+    
+    [:option {:onclick "location='/cloud?src=en&dest=es';"}
+     "en -> es"
+     ]
 
-     [:option {:onclick "location='/cloud?src=en&dest=es';"}
-      "en -> es"
-      ]
-
-     [:option {:onclick "location='/cloud?src=es&dest=en';"}
-      "es -> en"
-      ]
-     ]]))
+    [:option {:onclick "location='/cloud?src=es&dest=en';"}
+     "es -> en"
+     ]
+    ]])
 
 (defn game []
   (html5
@@ -250,76 +249,71 @@
        :right_context_of_answer ""})}))
 
 (defn tour []
-  (html5
-   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
+  [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
 
-   [:div#game
+  [:div#game
 
-    [:svg {:id "svgarena"}]
+   [:svg {:id "svgarena"}]
 
-    [:div#rainforest
+   [:div#rainforest
 
-     [:div#wordbar
+    [:div#wordbar
 
-      [:div#q1 "wordbar"]
+     [:div#q1 "wordbar"]
 
-      [:div#q2 "not used"]
+     [:div#q2 "not used"]
 
-      [:div#q3 "yet"]
+     [:div#q3 "yet"]
 
+     ]
+     
+    (direction-chooser)
+     
+    [:div#kilos {:style "z-index:4"}
+     "Score:"
+     [:span#scorevalue
+      "0"
       ]
-     
-     (direction-chooser)
-     
-     [:div#kilos {:style "z-index:4"}
-      "Score:"
-      [:span#scorevalue
-       "0"
-       ]
      ]
 
-     [:div#sidebyside {:style "z-index:2"}
+    [:div#sidebyside {:style "z-index:2"}
       
-      ;; map and streetview should be side by side
-      [:div#map ]
+     ;; map and streetview should be side by side
+     [:div#map ]
 
-      [:div#streetview
-       [:img#streetviewimage
-        {:src ""}]] ;; src value is filled in with Javascript.
+     [:div#streetview
+      [:img#streetviewimage
+       {:src ""}]] ;; src value is filled in with Javascript.
+     ]
 
+    [:div#correction_dialog {:style "display:none"}
+     [:form {:onsubmit "return false;"}
+      [:div#cd_left_context_of_answer {:class "correct_answer" } "" ]
+      [:div#cd_rca {:class "correct_answer" } "" ]
+      [:h3#correct_answer "" ]
+      [:div#full_question {:class "question"} " " ]
+      [:input {:id "correction_bare_id" :type "hidden"}]
       ]
+     ;; end of :form
 
-     [:div#correction_dialog {:style "display:none"}
-
-      [:form {:onsubmit "return false;"}
-       [:div#cd_left_context_of_answer {:class "correct_answer" } "" ]
-       [:div#cd_rca {:class "correct_answer" } "" ]
-       [:h3#correct_answer "" ]
-       [:div#full_question {:class "question"} " " ]
-       [:input {:id "correction_bare_id" :type "hidden"}]
-       ]
-      ;; end of :form
-
-      ] ;; end of :div #correction_dialog
+     ] ;; end of :div #correction_dialog
 
 
-     ] ;; end of :div#rainforest
+    ] ;; end of :div#rainforest
 
-    [:div#gameform
+   [:div#gameform
 
+    [:div#tourquestion
+     ""
+     ]
 
-     [:div#tourquestion
-      ""
-      ]
-
-     [:input {:id "game_input" :size "30"}]
+    [:input {:id "game_input" :size "30"}]
      
-     [:button#answer_button {:class "click;float:right;width:auto"
-                             :onclick "submit_tour_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
+    [:button#answer_button {:class "click;float:right;width:auto"
+                            :onclick "submit_tour_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
      
-     ] ;; end of :div #gameform
-    ] ;; end of :div #game
-) ; html5/div
+    ] ;; end of :div #gameform
+   ] ;; end of :div #game
 
 ) ;; end of (defn)
 
