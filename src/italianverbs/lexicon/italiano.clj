@@ -1189,6 +1189,10 @@
              {:synsem {:essere true
                        :sem {:pred :venire}}
               :italiano {:passato "venuto"
+                         :present {:1st "vengo"
+                                   :2nd "vieni"
+                                   :3sing "viene"
+                                   :3plur "vengono"}
                          :futuro-stem "verr"}})
 
 
