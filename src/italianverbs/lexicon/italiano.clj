@@ -1147,6 +1147,15 @@
 
    "telefonare" (trans-intrans {:synsem {:essere false
                                          :sem {:pred :telefonare}}})
+
+   "tenere" (trans-intrans {:synsem {:sem {:pred :tenere}}
+                            :italiano {:passato "venuto"
+                                       :present {:1st "tengo"
+                                                 :2nd "tieni"
+                                                 :3sing "tiene"
+                                                 :3plur "tengono"}
+                                       :futuro-stem "terr"}})
+
    "tornare" (trans-intrans
                     {:synsem {:sem {:pred :tornare}
                               :essere true}})

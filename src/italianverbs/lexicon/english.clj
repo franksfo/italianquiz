@@ -214,6 +214,10 @@
                    :obj {:human true}})
 
 
+   "hold"
+   (trans-intrans {:synsem {:sem {:pred :tenere}}
+                   :english {:past "held"}})
+
    "hug"
    (trans-intrans
           {:synsem {:sem {:pred :abbracciare}}
@@ -249,6 +253,12 @@
               :sem {:pred :lei
                     :human false}
               :subcat '()}}]
+
+
+   "keep"
+   (trans-intrans {:synsem {:sem {:pred :tenere}}
+                   :english {:past "kept"}})
+
 
    "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
 
