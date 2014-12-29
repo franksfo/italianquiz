@@ -16,3 +16,5 @@ ALTER TABLE ONLY games ADD CONSTRAINT games_pkey PRIMARY KEY (id);
 CREATE TABLE words_per_game (game bigint REFERENCES games(id),word text);
 
 CREATE TABLE games_to_use (game bigint REFERENCES games(id));
+
+CREATE TABLE inflections_per_game (game bigint REFERENCES games(id),inflection text);

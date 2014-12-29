@@ -35,6 +35,7 @@
 (declare links)
 (declare onload)
 (declare read-request)
+(declare show-inflections-per-game)
 (declare show-words-per-game)
 (declare update)
 (declare update-form)
@@ -82,6 +83,9 @@
    (POST "/use" request
          (set-as-default request))))
 
+(def all-inflections
+  [:conditional :present :future :imperfect :passato])
+
 (def all-verbs
   (filter (fn [lexeme]
             (not (empty?
@@ -101,10 +105,15 @@
              :cols 3
              :type :checkboxes
              :datatype :strs
-             :options all-verbs}]
+             :options all-verbs}
+            {:name :inflections
+             :label "Inflections for this group"
+             :type :checkboxes
+             :datatype :strs
+             :options all-inflections}
+            ]
    :validations [[:required [:name]]
                  [:min-length 1 :verbs "Select one or more verbs"]]})
-
 
 (defn onload []
   (string/join " " 
@@ -136,12 +145,24 @@
            [:h3 (:name game-row)]
 
            [:h4 "Verbs"]
-           [:ul
-            (map (fn [word]
-                   [:li (str word)])
-                 (map #(:word %)
-                      (show-words-per-game request)))
-            ]
+           (let [verbs (show-words-per-game request)]
+             (if (empty? verbs)
+               [:p "No verbs chosen."]
+               [:ul
+                (map (fn [word]
+                       [:li (str word)])
+                     (map #(:word %)
+                          verbs))]))
+
+           [:h4 "Inflections"]
+           (let [inflections (show-inflections-per-game request)]
+             (if (empty? inflections)
+               [:p "No inflections chosen."]
+               [:ul
+                (map (fn [inflection]
+                       [:li (str inflection)])
+                     (map #(:inflection %)
+                          inflections))]))
 
            ;; allows application to send messages to user after redirection via URL param: "&message=<some message>"
            [:div.user-alert (:message (:params request))]
@@ -233,9 +254,15 @@
 
 (def games-table "games")
 (def words-per-game-table "words_per_game")
+(def inflections-per-game-table "inflections_per_game")
 
 (defn show [request]
   (k/exec-raw [(str "SELECT * FROM " games-table " ORDER BY name")] :results))
+
+(defn show-inflections-per-game [request]
+  (let [table-name inflections-per-game-table
+        game-id (:game (:params request))]
+    (k/exec-raw [(str "SELECT * FROM " table-name " WHERE game = ? ORDER BY inflection") [(Integer. game-id)]] :results)))
 
 (defn show-words-per-game [request]
   (let [table-name words-per-game-table
