@@ -120,7 +120,7 @@
    title
    (html
     [:div {:class "major"}
-     [:h2 "Game Editor"]
+     [:h2 "Group Editor"]
      content])
    request
    {:css "/css/editor.css"
@@ -251,7 +251,7 @@
      [:div
       (cond
        (empty? games)
-       [:div "No games."]
+       [:div "No groups."]
 
        true
        ;; TODO: derive <td> links from route-graph, like (links) does.
@@ -260,7 +260,7 @@
         [:table.striped
          [:tr 
           [:th  {:style "padding-right:1em"} "Use?"]
-          [:th "Game"]]
+          [:th "Groups"]]
           
          (map (fn [each]
                 [:tr 
@@ -275,7 +275,7 @@
         
         [:div {:style "width:100%;float:left;margin-top:0.5em"}
          [:input {:type "submit"
-                  :value "Select games to use"}]]
+                  :value "Select groups to use"}]]
 
 
        [:div  {:style "width:100%"}
