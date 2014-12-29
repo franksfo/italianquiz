@@ -226,18 +226,31 @@
           {:subj {:human true}
            :obj {:animate true}})
 
-   "I"
+   "I (♂)"
    {:synsem {:cat :noun
              :pronoun true
              :case :nom
-             :agr {:person :1st
+             :agr {:gender :masc
+                   :person :1st
                    :number :sing}
              :sem {:human true
                    :pred :io}
              :subcat '()}}
 
-   "it"
-   [{:synsem {:cat :noun
+   "I (♀)"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:gender :fem
+                   :person :1st
+                   :number :sing}
+             :sem {:human true
+                   :pred :io}
+             :subcat '()}}
+
+
+   "it (♂)"
+   {:synsem {:cat :noun
               :pronoun true
               :case :nom
               :agr {:person :3rd
@@ -245,6 +258,8 @@
               :sem {:pred :lui
                     :human false}
               :subcat '()}}
+
+   "it (♀)"
     {:synsem {:cat :noun
               :pronoun true
               :case :nom
@@ -252,7 +267,7 @@
                     :number :sing}
               :sem {:pred :lei
                     :human false}
-              :subcat '()}}]
+              :subcat '()}}
 
 
    "keep"
@@ -377,13 +392,30 @@
              :def :def
              :mass false}}
 
-   "they"
+
+
+   "they (♂)"
    {:synsem {:cat :noun
              :pronoun true
              :case :nom
              :agr {:person :3rd
+                   :gender :masc
                    :number :plur}
-             :sem {:pred :loro}
+             :sem {:human true
+                   :gender :masc
+                   :pred :loro}
+             :subcat '()}}
+
+   "they (♀)"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :3rd
+                   :gender :fem
+                   :number :plur}
+             :sem {:human true
+                   :gender :fem
+                   :pred :loro}
              :subcat '()}}
 
    "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
@@ -393,11 +425,23 @@
 
    "use"  (trans-intrans {:synsem {:sem {:pred :usare}}})
 
-   "we"
+   "we (♀)"
    {:synsem {:cat :noun
              :pronoun true
              :case :nom
              :agr {:person :1st
+                   :gender :fem
+                   :number :plur}
+             :sem {:human true
+                   :pred :noi}
+             :subcat '()}}
+
+   "we (♂)"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :1st
+                   :gender :masc
                    :number :plur}
              :sem {:human true
                    :pred :noi}
@@ -424,23 +468,52 @@
    "write"  (trans-intrans {:english {:past "wrote"}
                             :synsem {:sem {:pred :scrivere}}})
 
-   "you"
+   "you (♂)"
    {:synsem {:cat :noun
              :pronoun true
              :case :nom
              :agr {:person :2nd
+                   :gender :masc
                    :number :sing}
              :sem {:human true
+                   :gender :masc
                    :pred :tu}
              :subcat '()}}
 
-   "you all"
+   "you (♀)"
    {:synsem {:cat :noun
              :pronoun true
              :case :nom
              :agr {:person :2nd
+                   :gender :fem
+                   :number :sing}
+             :sem {:human true
+                   :gender :fem
+                   :pred :tu}
+             :subcat '()}}
+
+
+   "you all (♂)"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :2nd
+                   :gender :masc
                    :number :plur}
              :sem {:human true
+                   :gender :masc
+                   :pred :voi}
+             :subcat '()}}
+
+   "you all (♀)"
+   {:synsem {:cat :noun
+             :pronoun true
+             :case :nom
+             :agr {:person :2nd
+                   :gender :fem
+                   :number :plur}
+             :sem {:human true
+                   :gender :fem
                    :pred :voi}
              :subcat '()}}
 

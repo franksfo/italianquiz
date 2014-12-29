@@ -870,15 +870,25 @@
       "insegnare" (trans-intrans {:synsem {:sem {:pred :insegnare}}})
 
       "io"
-      {:synsem {:cat :noun
-                :pronoun true
-                :case :nom
-                :agr {:person :1st
-                      :number :sing}
+      [{:synsem {:cat :noun
+                 :pronoun true
+                 :case :nom
+                 :agr {:gender :fem
+                       :person :1st
+                       :number :sing}
                 :sem {:human true
                       :pred :io}
                 :subcat '()}}
 
+       {:synsem {:cat :noun
+                 :pronoun true
+                 :case :nom
+                 :agr {:gender :masc
+                       :person :1st
+                       :number :sing}
+                 :sem {:human true
+                       :pred :io}
+                 :subcat '()}}]
       "la"
       ;; TODO: refactor commonalities
       ;; 1. pronoun: human
@@ -1029,14 +1039,26 @@
                   :case pronoun-acc}}]
 
    "loro"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :3rd
-                   :number :plur}
-             :sem {:human true
-                   :pred :loro}
-             :subcat '()}}
+   [{:synsem {:cat :noun
+              :pronoun true
+              :case :nom
+              :agr {:person :3rd
+                    :gender :fem
+                    :number :plur}
+              :sem {:human true
+                    :gender :fem
+                    :pred :loro}
+              :subcat '()}}
+    {:synsem {:cat :noun
+              :pronoun true
+              :case :nom
+              :agr {:person :3rd
+                    :gender :masc
+                    :number :plur}
+              :sem {:human true
+                    :gender :masc
+                    :pred :loro}
+              :subcat '()}}]
 
    "lui"
    {:synsem {:cat :noun
@@ -1077,15 +1099,26 @@
                           :human false}}})
 
    "noi"
-   {:synsem {:cat :noun
+   [{:synsem {:cat :noun
              :pronoun true
              :case :nom
-             :agr {:person :1st
+             :agr {:gender :fem
+                   :person :1st
                    :number :plur}
              :sem {:human true
+                   :gender :fem
                    :pred :noi}
              :subcat '()}}
-
+    {:synsem {:cat :noun
+              :pronoun true
+              :case :nom
+             :agr {:gender :masc
+                   :person :1st
+                   :number :plur}
+              :sem {:human true
+                    :gender :masc
+                    :pred :noi}
+              :subcat '()}}]
    "pane"
    ;; inherently singular.
    (unifyc agreement-noun
@@ -1150,7 +1183,7 @@
                                          :sem {:pred :telefonare}}})
 
    "tenere" (trans-intrans {:synsem {:sem {:pred :tenere}}
-                            :italiano {:passato "venuto"
+                            :italiano {:passato "tenuto"
                                        :present {:1st "tengo"
                                                  :2nd "tieni"
                                                  :3sing "tiene"
@@ -1162,14 +1195,26 @@
                               :essere true}})
 
    "tu"
-   {:synsem {:cat :noun
-             :pronoun true
-             :case :nom
-             :agr {:person :2nd
-                   :number :sing}
-             :sem {:human true
-                   :pred :tu}
-             :subcat '()}}
+   [{:synsem {:cat :noun
+              :pronoun true
+              :case :nom
+              :agr {:person :2nd
+                    :gender :fem
+                    :number :sing}
+              :sem {:human true
+                    :gender :fem
+                    :pred :tu}
+              :subcat '()}}
+    {:synsem {:cat :noun
+              :pronoun true
+              :case :nom
+              :agr {:person :2nd
+                    :gender :masc
+                    :number :sing}
+              :sem {:human true
+                    :gender :masc
+                    :pred :tu}
+              :subcat '()}}]
 
    "un"
    [{:synsem {:cat :det
@@ -1214,13 +1259,24 @@
                           :artifact true}}})
 
    "voi"
-   {:synsem {:cat cat-of-pronoun
+   [{:synsem {:cat cat-of-pronoun
              :pronoun true
              :case :nom
              :agr {:person :2nd
+                   :gender :fem
                    :number :plur}
              :sem {:human true
                    :pred :voi}
              :subcat '()}}
+
+    {:synsem {:cat cat-of-pronoun
+              :pronoun true
+              :case :nom
+              :agr {:person :2nd
+                    :gender :masc
+                    :number :plur}
+             :sem {:human true
+                   :pred :voi}
+              :subcat '()}}]
 
 })
