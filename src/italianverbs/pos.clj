@@ -17,11 +17,14 @@
         (let [number (ref :top)
               gender (ref :top)
               person (ref :top)
+              pronoun (ref :top)
               agr (ref {:number number
+                        :pronoun pronoun
                         :gender gender
                         :person person})
               cat (ref :top)]
           {:synsem {:cat cat
+                    :pronoun pronoun
                     :case :top
                     :subcat {:1 {:number number
                                  :person person

@@ -5,6 +5,7 @@
 (require '[clojure.string :as string])
 (require '[clojure.string :refer (trim)])
 (require '[clojure.tools.logging :as log])
+(require '[italianverbs.pos :refer (noun)])
 (require '[italianverbs.stringutils :refer :all])
 (require '[italianverbs.unify :refer (copy dissoc-paths fail? get-in merge ref? unifyc)])
 
@@ -1612,13 +1613,7 @@
                        :infl infl}}))
 
    (= (get-in lexical-entry [:synsem :cat]) :noun)
-   (let [agr (ref :top)
-         cat (ref :top)]
-     (unifyc lexical-entry
-             {:italiano {:agr agr
-                         :cat cat}
-              :synsem {:agr agr
-                       :cat cat}}))
+   (unifyc lexical-entry noun)
 
    true
    lexical-entry))
