@@ -218,7 +218,7 @@
           (html
            [:h3 (str "Confirm - deleting '" (:name game-row) "'")]
 
-           [:p "Are you sure you want to delete this game?"]
+           [:p "Are you sure you want to delete this group?"]
 
            [:form {:method "post"
                    :action (str "/editor/delete/" game-id)}
@@ -341,9 +341,7 @@
                (let [links (links request :create)]
                  (html
                   [:div
-                   (f/render-form (assoc (-> game-form
-                                             (f/merge-fields [{:name :words
-                                                               :options all-verbs}]))
+                   (f/render-form (assoc game-form
                                     :values (merge game-default-values (:form-params request))
                                     :action "/editor/create"
                                     :method "post"
@@ -357,10 +355,9 @@
   (let [game-id (:id game)]
     (html
      [:div
-      (f/render-form (assoc (-> game-form
-                                (f/merge-fields [{:name :words
-                                                  :options all-verbs}]))
-                       :values (merge game-default-values 
+      (f/render-form (assoc game-form
+                       :values (merge game-default-values
+                                      (:form-params request)
                                       {:name (:name game)
                                        :game game-id
                                        :words (verbs-per-game game-id)})
