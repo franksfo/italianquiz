@@ -706,8 +706,8 @@
       (includes-js (rest includes)))))
 
 (defn pretty-head [title & [js jss]]
-  (log/info (str "pretty-head js: " js))
-  (log/info (str "pretty-head jss: " jss))
+  (log/debug (str "pretty-head js: " js))
+  (log/debug (str "pretty-head jss: " jss))
   [:head 
    [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
