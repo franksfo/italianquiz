@@ -1,4 +1,5 @@
 (ns italianverbs.test.translate)
+(require '[clojure.tools.logging :as log])
 (require '[clojure.set :refer :all])
 (require '[clojure.test :refer :all])
 (require '[italianverbs.morphology :refer (fo)])
@@ -15,24 +16,34 @@
   (is (= "she reads" (translate "lei legge"))))
 
 (deftest test-roundtrip-italian
-  (let [retval (fo (it/generate (get-meaning (parse "io dormo"))))]
-    (or
+  (let [retval (it/generate (get-meaning (parse "io dormo")))
+        retval (cond (seq? retval)
+                     (map fo retval)
+                     true (fo retval))]
+    (is
      (and
       (seq? retval)
-      (= (.size retval))
-      (is (= "io dormo" (first retval))))
-     (and
-      (string? retval)
-      (is (= "io dormo" retval))))))
+      (not (empty? retval))
+      (= "io dormo" (first retval)))
+
+      (and
+       (string? retval)
+       (= "io dormo" retval)))))
 
 (deftest test-roundtrip-english
-  (let [retval (fo (en/generate (get-meaning (parse "she sleeps"))))]
-    (or
-     (and
-      (seq? retval)
-      (= (.size retval))
-      (is (= "she sleeps" (first retval))))
-     (and
-      (string? retval)
-      (is (= "she sleeps" retval))))))
+  (let [retval (en/generate (get-meaning (parse "she sleeps")))
+        retval (cond (seq? retval)
+                     (map fo retval)
+                     true (fo retval))]
+    (is
+     (or
+      (and
+       (seq? retval)
+       (not (empty? retval))
+       (= "she sleeps" (first retval)))
+      (and
+       (string? retval)
+       (= "she sleeps" retval))))))
+
+
 
