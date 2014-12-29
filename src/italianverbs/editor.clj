@@ -84,7 +84,8 @@
          (set-as-default request))))
 
 (def all-inflections
-  [:conditional :present :future :imperfect :passato])
+  (map #(string/replace-first (str %) ":" "")
+       [:conditional :present :future :imperfect :passato]))
 
 (def all-verbs
   (filter (fn [lexeme]
@@ -192,18 +193,37 @@
     (k/exec-raw [(str "DELETE FROM words_per_game WHERE game=?") [(Integer. game-id)]])
     (update-verb-for-game game-id words)))
 
+(defn update-inflection-for-game [game-id inflections]
+  (if (not (empty? inflections))
+    (let [inflection (first inflections)]
+      (log/info (str "INSERT INTO inflections_per_game (game,inflection) " game-id "," inflection))
+      (k/exec-raw [(str "INSERT INTO inflections_per_game (game,inflection) VALUES (?,?)") [(Integer. game-id)
+                                                                                     inflection]])
+      (update-inflection-for-game game-id (rest inflections)))))
+
+(defn update-inflections-for-game [game-id inflections]
+  (let [inflections (remove #(= % "")
+                      (get inflections "inflections[]"))]
+    (log/info (str "updating verbs for this group: " game-id " with: " (string/join "," inflections)))
+    (k/exec-raw [(str "DELETE FROM inflections_per_game WHERE game=?") [(Integer. game-id)]])
+    (update-inflection-for-game game-id inflections)))
+
 (defn update [request]
-  (log/info (str "editor/update with request: " (:form-params request)))
-  (fp/with-fallback #(update-form request :problems %)
-    (let [debug (log/debug (str "editor/update..about to fp/parse-params with game-form: " game-form))
-          values (fp/parse-params game-form (:form-params request))
-          results (k/exec-raw ["UPDATE games SET (name) = (?) WHERE id=? RETURNING id" [(:name values)
-                                                                                        (Integer. (:game values))]] 
-                              :results)
-          edited-game-id (:id (first results))]
-      (update-verbs-for-game edited-game-id (:form-params request))
-      {:status 302
-       :headers {"Location" (str "/editor/" edited-game-id "?message=updated.")}})))
+  (let [game-id (:game (:params request))
+        game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)] ] :results))]
+    (log/debug (str "editor/update with request: " (:form-params request)))
+    (fp/with-fallback #(update-form request game-row :problems %)
+      (let [debug (log/debug (str "editor/update..about to fp/parse-params with params: " (:form-params request)))
+            values (fp/parse-params game-form (:form-params request))
+            debug (log/debug (str "values parsed from form params: " values))
+            results (k/exec-raw ["UPDATE games SET (name) = (?) WHERE id=? RETURNING id" [(:name values)
+                                                                                          (Integer. (:game values))]] 
+                                :results)
+            edited-game-id (:id (first results))]
+        (update-verbs-for-game edited-game-id (:form-params request))
+        (update-inflections-for-game edited-game-id (:form-params request))
+        {:status 302
+         :headers {"Location" (str "/editor/" edited-game-id "?message=updated.")}}))))
 
 (defn set-each-as-default [params]
   (if (not (empty? params))
@@ -226,6 +246,7 @@
   (let [game-id (:game (:params request))
         game-row (first (k/exec-raw [(str "SELECT * FROM games WHERE id=?") [(Integer. game-id)]] :results))]
     (k/exec-raw [(str "DELETE FROM words_per_game WHERE game=?") [(Integer. game-id)]])
+    (k/exec-raw [(str "DELETE FROM inflections_per_game WHERE game=?") [(Integer. game-id)]])
     (k/exec-raw [(str "DELETE FROM games_to_use WHERE game=?") [(Integer. game-id)]])
     (k/exec-raw [(str "DELETE FROM games WHERE id=?") [(Integer. game-id)]])
     {:status 302
@@ -286,7 +307,7 @@
         [:table.striped
          [:tr 
           [:th  {:style "padding-right:1em"} "Use?"]
-          [:th "Groups"]]
+          [:th "Group"]]
           
          (map (fn [each]
                 [:tr 
@@ -322,11 +343,23 @@
       links])))
 
 (defn verbs-per-game [game-id]
-  (let [verbs (map #(:word %)
-                   (k/exec-raw [(str "SELECT word
-                                        FROM " words-per-game-table " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results))]
+  (log/info (str "verbs-per-game: " game-id))
+  (let [verbs
+        (map #(:word %)
+             (k/exec-raw [(str "SELECT word
+                                  FROM " words-per-game-table 
+                               " WHERE game = ? ORDER BY word") [(Integer. game-id)]] :results))]
     (log/debug (str "check these boxes: " (string/join "," verbs)))
     verbs))
+
+(defn inflections-per-game [game-id]
+  (let [inflections
+        (map #(:inflection %)
+             (k/exec-raw [(str "SELECT inflection
+                                  FROM " inflections-per-game-table 
+                               " WHERE game = ? ORDER BY inflection") [(Integer. game-id)]] :results))]
+    (log/debug (str "check these boxes: " (string/join "," inflections)))
+    inflections))
 
 (def game-default-values {})
 
@@ -375,7 +408,10 @@
                request)
    :headers headers})
 
+;; TODO: update-form should be a complete request structure (with :status, :body, and :headers), just like
+;; (create-form) above.
 (defn update-form [request game & [:problems problems]]
+  (log/debug (str "update-form with game: " game))
   (let [game-id (:id game)]
     (html
      [:div
@@ -384,7 +420,8 @@
                                       (:form-params request)
                                       {:name (:name game)
                                        :game game-id
-                                       :words (verbs-per-game game-id)})
+                                       :words (verbs-per-game game-id)
+                                       :inflections (inflections-per-game game-id)})
                        :action (str "/editor/update/" (:id game))
                        :method "post"
                        :problems problems))])))
