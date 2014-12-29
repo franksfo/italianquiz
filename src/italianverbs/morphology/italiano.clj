@@ -709,94 +709,57 @@
       (get-string-1 (get-in word '(:a :italiano)))
       " " "..")
 
-
-     ;; TODO: remove support for deprecated :root.
-     (and
-      (= (get-in word '(:agr :gender)) :masc)
-      (= (get-in word '(:agr :number)) :sing)
-      (= (get-in word '(:cat)) :noun)
-      (get-in word '(:root)))
-     (get-in word '(:root))
-
      (and
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :sing)
       (= (get-in word '(:cat)) :noun))
      (get-in word '(:italiano))
 
-     ;; deprecated: remove support for :root.
+     (and
+      (= (get-in word '(:agr :gender)) :masc)
+      (= (get-in word '(:agr :number)) :sing)
+      (= (get-in word '(:cat) :adjective)))
+     (get-in word '(:italiano)) ;; nero
+
      (and
       (= (get-in word '(:agr :gender)) :masc)
       (= (get-in word '(:agr :number)) :plur)
-      (= (get-in word '(:cat) :noun))
-      (get-in word '(:root)))
-     (string/replace (get-in word '(:root))
-                     #"[eo]$" "i") ;; dottore => dottori; medico => medici
+      (= (get-in word '(:cat)) :adjective)
+      ;; handle lexical exceptions.
+      (string? (get-in word '(:masc :plur))))
+     (get-in word '(:masc :plur))
 
-   ;; deprecated: TODO: remove this
-   (and
-    (= (get-in word '(:agr :gender)) :fem)
-    (= (get-in word '(:agr :number)) :plur)
-    (= (get-in word '(:cat)) :noun)
-    (get-in word '(:root)))
-   (string/replace (get-in word '(:root))
-                   #"[a]$" "e") ;; donna => donne
+     (and
+      (= (get-in word '(:agr :gender)) :fem)
+      (= (get-in word '(:agr :number)) :plur)
+      (= (get-in word '(:cat)) :adjective)
+      ;; handle lexical exceptions.
+      (string? (get-in word '(:fem :plur))))
+     (get-in word '(:fem :plur))
+     
+     (string? (get-in word '(:italiano)))
+     (get-in word '(:italiano))
 
+     (or
+      (not (= :none (get-in word '(:a) :none)))
+      (not (= :none (get-in word '(:b) :none))))
+     (get-string (get-in word '(:a))
+                 (get-in word '(:b)))
 
-   ;; deprecated: TODO: remove support for :root.
-   (and
-    (= (get-in word '(:agr :gender)) :fem)
-    (= (get-in word '(:agr :number)) :sing)
-    (= (get-in word '(:cat)) :noun)
-    (string? (get-in word '(:root))))
-   (get-in word '(:root))
+     (and (map? word)
+          (nil? (:italiano word)))
+     ".."
 
-   (and
-    (= (get-in word '(:agr :gender)) :masc)
-    (= (get-in word '(:agr :number)) :sing)
-    (= (get-in word '(:cat) :adjective)))
-   (get-in word '(:italiano)) ;; nero
+     (or
+      (= (get-in word '(:case)) {:not :acc})
+      (= (get-in word '(:agr)) :top))
+     ".."
 
-   (and
-    (= (get-in word '(:agr :gender)) :masc)
-    (= (get-in word '(:agr :number)) :plur)
-    (= (get-in word '(:cat)) :adjective)
-    ;; handle lexical exceptions.
-    (string? (get-in word '(:masc :plur))))
-   (get-in word '(:masc :plur))
-
-
-   (and
-    (= (get-in word '(:agr :gender)) :fem)
-    (= (get-in word '(:agr :number)) :plur)
-    (= (get-in word '(:cat)) :adjective)
-    ;; handle lexical exceptions.
-    (string? (get-in word '(:fem :plur))))
-   (get-in word '(:fem :plur))
-
-   (string? (get-in word '(:italiano)))
-   (get-in word '(:italiano))
-
-   (or
-    (not (= :none (get-in word '(:a) :none)))
-    (not (= :none (get-in word '(:b) :none))))
-   (get-string (get-in word '(:a))
-                (get-in word '(:b)))
-
-   (and (map? word)
-        (nil? (:italiano word)))
-   ".."
-
-   (or
-    (= (get-in word '(:case)) {:not :acc})
-    (= (get-in word '(:agr)) :top))
-   ".."
-
-   ;; TODO: throw exception rather than returning _word_, which is a map or something else unprintable.
-   ;; in other words, if we've gotten this far, it's a bug.
-   :else
-   word)
-  )))
+     ;; TODO: throw exception rather than returning _word_, which is a map or something else unprintable.
+     ;; in other words, if we've gotten this far, it's a bug.
+     :else
+     word)
+    )))
 
 (defn get-string [a & [ b ]]
   (cond (and (nil? b)
