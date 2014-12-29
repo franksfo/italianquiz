@@ -5,6 +5,7 @@
 (require '[clojure.string :refer :all])
 (require '[clojure.string :as string])
 (require '[clojure.tools.logging :as log])
+(require '[italianverbs.pos :refer (noun)])
 (require '[italianverbs.unify :refer :all])
 
 (declare get-string)
@@ -719,6 +720,11 @@
        analyzed-via-identity
        (lookup-fn surface-form)))))
 
+(def pronoun-semantic-gender-agreement
+  (let [gender (ref :top)]
+    {:synsem {:sem {:gender gender}
+              :agr {:gender gender}}}))
+
 (defn agreement [lexical-entry]
   (cond
    (= (get-in lexical-entry [:synsem :cat]) :verb)
@@ -729,6 +735,10 @@
                         :infl infl}
               :synsem {:cat cat
                        :infl infl}}))
+
+   (and (= (get-in lexical-entry [:synsem :cat]) :noun)
+        (= (get-in lexical-entry [:synsem :pronoun]) true))
+   (unifyc lexical-entry noun pronoun-semantic-gender-agreement)
 
    (= (get-in lexical-entry [:synsem :cat]) :noun)
    (let [agr (ref :top)
