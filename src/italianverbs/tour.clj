@@ -22,7 +22,7 @@
 (declare generate-question)
 (declare tour)
 
-(defn routes []
+(def routes
   (compojure/routes
    (GET "/" request
         {:status 200

@@ -44,7 +44,7 @@
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 
-(defn routes []
+(def routes
   (compojure/routes
    (GET "/" request
         {:body (body "Editor: Top-level" (home-page request) request)
@@ -184,7 +184,6 @@
       (k/exec-raw [(str "INSERT INTO words_per_game (game,word) VALUES (?,?)") [(Integer. game-id)
                                                                                      word]])
       (update-verb-for-game game-id (rest words)))))
-    
 
 (defn update-verbs-for-game [game-id words]
   (let [words (remove #(= % "")
@@ -362,7 +361,6 @@
       ])))
 
 (defn create-form [request & [:problems problems]]
-  (log/debug (str "all-verbs: " (string/join "," all-verbs)))
   {:status 200
    :body (body "Editor: Create a new game"
                (let [links (links request :create)]
@@ -378,7 +376,6 @@
    :headers headers})
 
 (defn update-form [request game & [:problems problems]]
-  (log/info (str "update-form game: " game))
   (let [game-id (:id game)]
     (html
      [:div
@@ -403,9 +400,6 @@
      [:div#generation {:class "major"}
       [:h2 "Generation"]
 
-;      [:div
-;       [:button "Update"]]
-      
       [:div#vocabulary
        [:h3 "Lexicon"]
 

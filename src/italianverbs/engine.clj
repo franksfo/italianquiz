@@ -21,7 +21,7 @@
 (declare generate-from-request)
 (declare generate-from-semantics)
 
-(defn routes []
+(def routes
   (compojure/routes
    (GET "/lookup" request
        (lookup request))

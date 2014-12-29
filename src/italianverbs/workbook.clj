@@ -184,9 +184,6 @@
         true
         (fo to-show)))
 
-
-
-
 ;; TODO: remove when I feel safe that I don't need it anymore..
 ;(def get-stuff-initialized1 (it/parse "io leggo il libro"))
 (def get-stuff-initialized1 (translate "il gatto"))
@@ -195,24 +192,22 @@
 ;(log/info (str "done initializing workbook(1): " (fo get-stuff-initialized1)))
 ;(log/info (str "done initializing workbook(2): " get-stuff-initialized2))
 
-(defn routes []
+(def routes
   (compojure/routes
 
+   (GET "" request
+        {:status 302
+         :body (html/page "Workbook" (workbook-ui request) request)
+         :headers {"Location" "/workbook/"}})
 
-  (GET "" request
-       {:status 302
-        :body (html/page "Workbook" (workbook-ui request) request)
-        :headers {"Location" "/workbook/"}})
+   (GET "/" request
+        {:status 200
+         :body (html/page "Workbook" (workbook-ui request) request)
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
 
-  (GET "/" request
-       {:status 200
-        :body (html/page "Workbook" (workbook-ui request) request)
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
-
-  (GET "/q/" request
-       {:status 200
-        :body (workbookq (get (get request :query-params) "search")
-                         (get (get request :query-params) "attrs"))
-        :headers {"Content-Type" "text/html;charset=utf-8"}})
+   (GET "/q/" request
+        {:status 200
+         :body (workbookq (get (get request :query-params) "search")
+                          (get (get request :query-params) "attrs"))
+         :headers {"Content-Type" "text/html;charset=utf-8"}})
   ))
-

@@ -48,19 +48,19 @@
         :headers {"Location" "/cloud"}})
 
   (context "/editor" []
-           (editor/routes))
+           editor/routes)
 
   (context "/engine" []
-           (engine/routes))
+           engine/routes)
 
   (context "/gen" []
-           (verb/routes))
+           verb/routes)
 
   (context "/tour" []
-           (tour/routes))
+           tour/routes)
 
   (context "/workbook" []
-           (workbook/routes))
+           workbook/routes)
 
   (GET "/about" request
        {:status 200

@@ -367,7 +367,7 @@
      [:form {:method "post" :action (str "/verb/" (db/primary-key row) "/delete/")}
       [:button {:onclick "submit()"} "delete"]])))
 
-(defn routes []
+(def routes
   (compojure/routes
    (GET "/" request
         (let [do-generation (fn []
