@@ -681,7 +681,7 @@
      (get-in word [:italiano])
 
      (= (get-in word '(:infl)) :top)
-     (str (get-in word '(:italiano)) )
+     (str (get-in word '(:italiano)))
 
      (and
       (get-in word '(:a))
@@ -1567,6 +1567,11 @@
                   {:italiano a-string}
                   common))))
 
+(def pronoun-semantic-gender-agreement
+  (let [gender (ref :top)]
+    {:synsem {:sem {:gender gender}
+              :agr {:gender gender}}}))
+
 (defn agreement [lexical-entry]
   (cond
    (= (get-in lexical-entry [:synsem :cat]) :verb)
@@ -1577,6 +1582,10 @@
                          :infl infl}
               :synsem {:cat cat
                        :infl infl}}))
+
+   (and (= (get-in lexical-entry [:synsem :cat]) :noun)
+        (= (get-in lexical-entry [:synsem :pronoun]) true))
+   (unifyc lexical-entry noun pronoun-semantic-gender-agreement)
 
    (= (get-in lexical-entry [:synsem :cat]) :noun)
    (unifyc lexical-entry noun)

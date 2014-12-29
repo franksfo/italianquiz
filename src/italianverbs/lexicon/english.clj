@@ -269,7 +269,6 @@
                     :human false}
               :subcat '()}}
 
-
    "keep"
    (trans-intrans {:synsem {:sem {:pred :tenere}}
                    :english {:past "kept"}})
@@ -402,7 +401,6 @@
                    :gender :masc
                    :number :plur}
              :sem {:human true
-                   :gender :masc
                    :pred :loro}
              :subcat '()}}
 
@@ -414,7 +412,6 @@
                    :gender :fem
                    :number :plur}
              :sem {:human true
-                   :gender :fem
                    :pred :loro}
              :subcat '()}}
 
@@ -476,7 +473,6 @@
                    :gender :masc
                    :number :sing}
              :sem {:human true
-                   :gender :masc
                    :pred :tu}
              :subcat '()}}
 
@@ -488,7 +484,6 @@
                    :gender :fem
                    :number :sing}
              :sem {:human true
-                   :gender :fem
                    :pred :tu}
              :subcat '()}}
 
@@ -501,7 +496,6 @@
                    :gender :masc
                    :number :plur}
              :sem {:human true
-                   :gender :masc
                    :pred :voi}
              :subcat '()}}
 
@@ -513,7 +507,6 @@
                    :gender :fem
                    :number :plur}
              :sem {:human true
-                   :gender :fem
                    :pred :voi}
              :subcat '()}}
 

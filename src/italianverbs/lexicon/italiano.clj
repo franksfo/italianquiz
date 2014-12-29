@@ -1046,7 +1046,6 @@
                     :gender :fem
                     :number :plur}
               :sem {:human true
-                    :gender :fem
                     :pred :loro}
               :subcat '()}}
     {:synsem {:cat :noun
@@ -1056,7 +1055,6 @@
                     :gender :masc
                     :number :plur}
               :sem {:human true
-                    :gender :masc
                     :pred :loro}
               :subcat '()}}]
 
@@ -1106,7 +1104,6 @@
                    :person :1st
                    :number :plur}
              :sem {:human true
-                   :gender :fem
                    :pred :noi}
              :subcat '()}}
     {:synsem {:cat :noun
@@ -1116,7 +1113,6 @@
                    :person :1st
                    :number :plur}
               :sem {:human true
-                    :gender :masc
                     :pred :noi}
               :subcat '()}}]
    "pane"
@@ -1202,7 +1198,6 @@
                     :gender :fem
                     :number :sing}
               :sem {:human true
-                    :gender :fem
                     :pred :tu}
               :subcat '()}}
     {:synsem {:cat :noun
@@ -1212,7 +1207,6 @@
                     :gender :masc
                     :number :sing}
               :sem {:human true
-                    :gender :masc
                     :pred :tu}
               :subcat '()}}]
 
