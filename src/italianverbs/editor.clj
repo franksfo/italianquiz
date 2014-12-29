@@ -97,7 +97,7 @@
   {:fields [{:name :name :size 50 :label "Name"}
             {:name :game :type :hidden}
             {:name :words
-             :label "Verbs for this game"
+             :label "Verbs for this group"
              :cols 3
              :type :checkboxes
              :datatype :strs
@@ -168,7 +168,7 @@
 (defn update-verbs-for-game [game-id words]
   (let [words (remove #(= % "")
                       (get words "words[]"))]
-    (log/info (str "updating verbs for this game: " game-id " with: " (string/join "," words)))
+    (log/info (str "updating verbs for this group: " game-id " with: " (string/join "," words)))
     (k/exec-raw [(str "DELETE FROM words_per_game WHERE game=?") [(Integer. game-id)]])
     (update-verb-for-game game-id words)))
 
@@ -329,33 +329,28 @@
      [:div {:class "links"}
 
       ;; TODO: vary these links depending on context (which can be obtained by loooking in request).
-      [:span [:a {:href (str "/editor/" (string/replace-first (str :create) ":" ""))} "Create new game"]]
-      [:span [:a {:href (str "/editor/" (string/replace-first (str :home) ":" ""))} "Show all games"]]
+      [:span [:a {:href (str "/editor/" (string/replace-first (str :create) ":" ""))} "Create new group"]]
+      [:span [:a {:href (str "/editor/" (string/replace-first (str :home) ":" ""))} "Show all groups"]]
 
       ])))
 
 (defn create-form [request & [:problems problems]]
-  (let [debug (log/error (str "WTF: " request))]
-    (log/debug (str "all-verbs: " (string/join "," all-verbs)))
-    {:status 200
-     :body (body "Editor: Create a new game"
-                 (let [links (links request :create)]
-                   (html
-                    [:div
-
+  (log/debug (str "all-verbs: " (string/join "," all-verbs)))
+  {:status 200
+   :body (body "Editor: Create a new game"
+               (let [links (links request :create)]
+                 (html
+                  [:div
                    (f/render-form (assoc (-> game-form
                                              (f/merge-fields [{:name :words
-                                                               :label "Verbs for this game"
-                                                               :type :checkboxes
-                                                               :cols 3
                                                                :options all-verbs}]))
                                     :values (merge game-default-values (:form-params request))
                                     :action "/editor/create"
                                     :method "post"
                                     :problems problems))
-                     ]))
-                 request)
-     :headers headers}))
+                   ]))
+               request)
+   :headers headers})
 
 (defn update-form [request game & [:problems problems]]
   (log/info (str "update-form game: " game))
@@ -364,9 +359,6 @@
      [:div
       (f/render-form (assoc (-> game-form
                                 (f/merge-fields [{:name :words
-                                                  :label "Verbs for this game"
-                                                  :type :checkboxes
-                                                  :cols 3
                                                   :options all-verbs}]))
                        :values (merge game-default-values 
                                       {:name (:name game)
