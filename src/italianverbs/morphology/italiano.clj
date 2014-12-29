@@ -359,8 +359,11 @@
 
      ;; regular inflection of conditional
      (and (= (get-in word '(:infl)) :conditional)
-          (get-in word '(:futuro-stem)))
-     (let [stem (get-in word '(:futuro-stem))]
+          (string? (get-in word '(:futuro-stem) :none)))
+     (let [stem (get-in word '(:futuro-stem))
+           person (get-in word '(:agr :person))
+           number (get-in word '(:agr :number))
+           drop-e (get-in word '(:italiano :drop-e) false)]
        (cond
         (and (= person :1st) (= number :sing))
         (str stem "ei")
