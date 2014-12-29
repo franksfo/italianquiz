@@ -235,6 +235,7 @@
       (= (get-in word '(:agr :gender)) :masc)
       (= (get-in word '(:agr :number)) :plur)
       (= :noun (get-in word '(:cat)))
+      (not (= true (get-in word '(:pronoun))))
       (get-in word '(:italiano)))
      (string/replace (get-in word '(:italiano))
                      #"[eo]$" "i") ;; dottore => dottori; medico => medici
