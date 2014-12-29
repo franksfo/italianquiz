@@ -302,7 +302,7 @@
         ;; TODO: describe when it might be ok, i.e. why log/warn not log/error.
         (do (log/warn (str "get-string-1 could not match: " word))
         word)))
-     
+
      ;; futuro: 2) futuro-stem specified
      (and (= (get-in word '(:infl)) :futuro)
           (get-in word '(:futuro-stem)))
