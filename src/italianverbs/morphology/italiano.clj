@@ -176,9 +176,6 @@
      (string/trim (str (get-in word '(:a :italiano))
                  " " (get-string-1 (get-in word '(:b)))))
 
-     (= true (get-in word [:exception]))
-     (get-in word [:italiano])
-
      ;; TODO: all of the rules that handle exceptions should be removed:
      ;; exceptions are dealt with at compile-time now, via italianverbs.lexicon.italiano/exception-generator
 
@@ -245,7 +242,7 @@
       (string? (get-in word [:italiano]))
       (= (get-in word '(:agr :gender)) :fem)
       (= (get-in word '(:agr :number)) :plur)
-      (= (get-in word '(:cat)) :adjective)
+      (= (get-in word '(:cat)) :noun)
       (get-in word '(:italiano)))
      (string/replace (get-in word '(:italiano))
                      #"[a]$" "e") ;; donna => donne
@@ -490,7 +487,6 @@
         (merge word
                {:error 1})))
 
-
      (and
       (get-in word '(:a))
       (get-in word '(:b))
@@ -680,6 +676,9 @@
       (= :top (get-in word '(:agr :sing) :top)))
      (str (get-in word '(:italiano)))
 
+     ;; TODO: possibly remove this: not sure it's doing anything.
+     (= true (get-in word [:exception]))
+     (get-in word [:italiano])
 
      (= (get-in word '(:infl)) :top)
      (str (get-in word '(:italiano)) )
