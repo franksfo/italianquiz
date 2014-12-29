@@ -222,6 +222,7 @@
    (let [avere-common {:synsem {:essere false
                                 :cat :verb}
                        :italiano {:italiano "avere"
+                                  :futuro-stem "avr"
                                   :drop-e true
                                   :present {:1sing "ho"
                                             :2sing "hai"
