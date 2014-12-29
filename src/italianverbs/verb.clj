@@ -84,7 +84,13 @@
 
 (defn control-panel [request haz-admin]
   (let [current-size "5,436"
-        desired-size "10,000"]
+        desired-size "10,000"
+        show-nouns false
+        show-determiners false
+        show-inflections false
+        show-examples false
+        show-corpus-size false
+        ]
     (html
      [:div#generation {:class "major"}
       [:h2 "Generation"]
@@ -111,6 +117,8 @@
                             all-verbs))
         ]
 
+       (if show-nouns
+
        [:div#noun
         [:h4 "Nouns and Pronouns"]
         [:table
@@ -127,7 +135,9 @@
                                       (get @it/lexicon lexeme)))))
                       (sort (keys @it/lexicon))))
          ]
-        ]
+        ])
+
+       (if show-determiners
 
        [:div#dets
         [:h4 "Determiners"]
@@ -145,9 +155,11 @@
                                       (get @it/lexicon lexeme)))))
                       (sort (keys @it/lexicon))))
          ]
-       ]
+       ])
+
        ]
 
+      (if show-inflections
       [:div#inflections
        [:h3 "Inflections"]
        [:table
@@ -162,7 +174,9 @@
               "Futuro"
               "Passato Prossimo"])]
         ]
+      )
 
+      (if show-examples
 
       [:div#examples
        [:h3 "Examples"] ;; see (defn onload)
@@ -175,8 +189,9 @@
            ]
           (table-of-examples 1 generate-this-many-at-once)
           ]
-       ]
+       ])
 
+      (if show-corpus-size
       [:div#currentsize
        [:h3 "Corpus Size" ]
        [:table
@@ -185,9 +200,10 @@
          [:td current-size]]
         [:tr
          [:th "Desired"]
-         [:td [:input {:value desired-size}]]]]]
+         [:td [:input {:value desired-size}]]]]])
 
       ]
+      
     ))) 
 
 (defn table-of-examples [index upto]
