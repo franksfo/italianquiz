@@ -40,6 +40,7 @@
 (declare update)
 (declare update-form)
 (declare set-as-default)
+(declare tenses-per-game)
 (declare verbs-per-game)
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
@@ -335,12 +336,20 @@
                    (html
                     [:div {:style "width:100%;float:left"}
                      [:h4 {:style "width:100%"} [:span {:style "padding-right: 1em"} [:a {:href (str "/editor/" (:id each))}(:name each) ] ":"] [:i (string/join "," (verbs-per-game (:id each)))]]
+                     [:h4 "Inflections:"  [:span {:style "padding-left: 1em"} [:i (string/join "," (tenses-per-game (:id each)))]]]
                      (generation-table (verbs-per-game (:id each))
                                        :id_prefix (:id each))])))
                games))
         ]])
 
       links])))
+
+(defn tenses-per-game [game-id]
+  (log/info (str "verbs-per-game: " game-id))
+  (map #(:inflection %)
+       (k/exec-raw [(str "SELECT inflection
+                                  FROM " inflections-per-game-table 
+                               " WHERE game = ? ORDER BY inflection") [(Integer. game-id)]] :results)))
 
 (defn verbs-per-game [game-id]
   (log/info (str "verbs-per-game: " game-id))
