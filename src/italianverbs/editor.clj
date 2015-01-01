@@ -108,7 +108,7 @@
              :datatype :strs
              :options all-verbs}
             {:name :inflections
-             :label "Inflections for this group"
+             :label "Tenses for this group"
              :type :checkboxes
              :datatype :strs
              :options all-inflections}
