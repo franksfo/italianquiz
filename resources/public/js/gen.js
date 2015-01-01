@@ -10,7 +10,7 @@ function gen_per_verb(prefix) {
 	    var verb_dom_id = this.id;
 	    var verb = verb_dom_id;
 	    var re = new RegExp("^" + prefix);
-	verb = verb.replace(re,"");
+	    verb = verb.replace(re,"");
 	    verb = verb.replace(/^verb_/,"");
 	    gen_from_verb(verb,prefix);
 	});
@@ -20,7 +20,7 @@ function gen_per_verb(prefix) {
 	    var verb_dom_id = this.id;
 	    var verb = verb_dom_id;
 	    var re = new RegExp("^" + prefix);
-	verb = verb.replace(re,"");
+	    verb = verb.replace(re,"");
 	    verb = verb.replace(/^verb_/,"");
 	    gen_from_verb(verb,prefix);
 	});
