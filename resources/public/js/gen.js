@@ -34,6 +34,12 @@ function refresh_row(verb,prefix) {
     gen_from_verb(verb,prefix);
 }
 
+var source_language = "it";
+var source_language_model = "small";
+
+var target_language = "en";
+var target_language_model = "small";
+
 function gen_from_verb(verb,prefix) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
     var re = new RegExp("^" + prefix);
@@ -42,7 +48,7 @@ function gen_from_verb(verb,prefix) {
 
     function generate_with_verb(content) {
 	var evaluated = jQuery.parseJSON(content);
-	var example = evaluated.it;
+	var example = evaluated[source_language];
 	var spec = evaluated.spec;
 	var pred = spec["synsem"]["sem"]["pred"];
 
@@ -51,12 +57,6 @@ function gen_from_verb(verb,prefix) {
 	if (example == "") {
 	    response = "<i class='fa fa-times-circle'> </i>";
 	}
-
-	var source_language = "it";
-	var source_language_model = "small";
-
-	var target_language = "en";
-	var target_language_model = "small";
 
 	var serialized_spec = encodeURIComponent(JSON.stringify(spec));
 
