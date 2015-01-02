@@ -80,7 +80,7 @@ function gen_from_verb(verb,prefix) {
 	    response = "<i class='fa fa-times-circle'> </i>";
 	}
 
-	var serialized_spec = encodeURIComponent(JSON.stringify(spec));
+	var serialized_spec = encodeURIComponent(JSON.stringify({"synsem": {"sem": semantics}}));
 
 	$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?" + 
 					"&spec=" + serialized_spec + 
