@@ -48,6 +48,16 @@ function gen_from_verb(verb,prefix) {
     verb = verb.replace(re,"");
     verb = verb.replace(/^verb_/,"");
 
+    var spec = {"synsem": {"sem": {"pred": verb}}};
+    var serialized_spec = encodeURIComponent(JSON.stringify(spec));
+
+    $.ajax({
+	cache: false,
+	dataType: "html",
+	url: "/engine/generate?lang=it&model=small&spec="+serialized_spec,
+	success: generate_with_verb
+    });
+
     function generate_with_verb(content) {
 	var evaluated = jQuery.parseJSON(content);
 	var example = evaluated[source_language];
@@ -74,21 +84,18 @@ function gen_from_verb(verb,prefix) {
 
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
+	    var response;
 	    if (evaluated.response == "") {
 		// could not translate: show a link with an error icon (fa-times-circle)
-		$("#"+prefix+"english_verb_"+pred).html("<a href='/engine/lookup?lang="+ target_language + "&spec=" + 
-					      encodeURIComponent(JSON.stringify(
-
-						  {"synsem": {"cat": "verb",
-							      "sem": {"pred": pred},
-							      "infl": "infinitive"}}
-
-					      )) + "'>" +
-					      "<i class='fa fa-times-circle'> </i>" + " </a>");
-
+		response = "<a href='/engine/lookup?lang="+ target_language + "&spec=" + serialized-spec + "'>" +
+		    "<i class='fa fa-times-circle'> </i>" + " </a>";
 	    } else {
-		$("#"+prefix+"english_verb_"+pred).html(evaluated[target_language]);
+
+		response = evaluated[target_language];
 	    }
+	    // TODO: should not be language specific here:
+	    $("#"+prefix+"english_verb_"+pred).html(response);
+
 
 	    var spec = {"synsem": {"sem": semantics}};
 
@@ -106,6 +113,7 @@ function gen_from_verb(verb,prefix) {
 			// could not generate anything: show a link with an error icon (fa-times-circle)
 			response = "<i class='fa fa-times-circle'> </i>";
 		    }
+		    // TODO: should not be language specific here:
 		    $("#"+prefix+"english_translation_"+pred).html("<a href='" + generate_target_language_url + "'>" + response + "</a>");
 		}
 	    });
@@ -125,16 +133,6 @@ function gen_from_verb(verb,prefix) {
 	});
 
     }
-
-    var spec = {"synsem": {"sem": {"pred": verb}}};
-    var serialized_spec = encodeURIComponent(JSON.stringify(spec));
-
-    $.ajax({
-	cache: false,
-	dataType: "html",
-	url: "/engine/generate?lang=it&model=small&spec="+serialized_spec,
-	success: generate_with_verb
-    });
 }
 
 function refresh_row(verb,prefix) {
