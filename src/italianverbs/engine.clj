@@ -20,6 +20,7 @@
 (declare lookup)
 (declare generate-from-request)
 (declare generate-from-semantics)
+(declare resolve-model)
 
 (def routes
   (compojure/routes
@@ -43,9 +44,8 @@
                      (:lexicon language-model)
                      (:index language-model))))
 
-;; TODO: language-independent (not it/small) and make it accept a spec, not a pred.
 (defn generate-from-request [request]
-  ;; TODO: use request's lang= and model= params below.
+  "respond to an HTTP client's request with a generated sentence, given the client's desired spec, language name, and language model name."
   (let [pred (keyword (get-in request [:params :pred] :top))
         spec (get-in request [:params :spec])
         spec (if spec (json/read-str spec
@@ -57,14 +57,14 @@
                  :top)
 
         lang (get-in request [:params :lang])
+        model (resolve-model (get-in request [:params :model]) lang)
         debug (get-in request [:params :debug] false)
         unified (unify {:synsem {:sem {:pred pred}}}
                        spec)
 
         ] ;; note that client's intended _true_ will be "true" rather than true.
     (log/info (str "generate with pred: " pred "; lang: " lang))
-    (let [expression (generate unified
-                               it/small)
+    (let [expression (generate unified model)
           semantics (strip-refs (get-in expression [:synsem :sem]))]
       (log/info (str "fo of expression: " (fo expression)))
       (log/info (str "semantics of expression: " semantics))
@@ -84,45 +84,26 @@
                  {:debug {:head (strip-refs (get-in expression [:head]))}}
                  {})))})))
 
-;; TODO: remove: use generate-from-request instead.
-(defn generate-from-semantics [request]
-  (let [semantics (get-in request [:params :semantics])
-        semantics (json/read-str semantics
-                                 :key-fn keyword
-                                 :value-fn (fn [k v]
-                                            (cond (string? v)
-                                                  (keyword v)
-                                                  :else v)))
-        model (get-in request [:params :model])
-        debug (get-in request [:params :debug] false)
-        translation
-        (generate {:synsem {:sem semantics}}
-                  (cond (= model "en")
-                        en/small
-                        (= model "en-small")
-                        en/small
-                        (= model "it")
-                        it/small
-                        (= model "it-small")
-                        it/small
-                        true ;; TODO: throw exception "no language model" if we got here.
-                        en/small))]
-    {:status 200
-     :headers {"Content-Type" "application/json;charset=utf-8"
-               "Cache-Control" "no-cache, no-store, must-revalidate"
-               "Pragma" "no-cache"
-               "Expires" "0"}
-     :body (json/write-str
-            (merge
-             (if debug {:debug (strip-refs translation)} {})
-             {:semantics semantics
-              :fo-ps (fo-ps translation)
-              :en (fo translation)
-              :response (fo translation)}))}))
+(defn resolve-model [model lang]
+  (cond 
+        (= model "en-small")
+        en/small
+        (= model "it-small")
+        it/small
+
+        ;; defaults if no model is given
+        (= lang "en")
+        en/small
+
+        (= lang "it")
+        it/small
+
+        true ;; TODO: throw exception "no language model" if we got here.
+        en/small))
 
 (def possible-preds [:top])
 
-;; TODO: support multiple languages: for now, only works with english.
+;; TODO: support multiple languages: for now, only works with english: see reference to en/lexicon below.
 (defn lookup [request]
   (let [spec (if (not (= :null (get-in request [:params :spec] :null)))
                (json/read-str (get-in request [:params :spec])
@@ -132,14 +113,24 @@
                                                 (keyword v)
                                                 :else v)))
                :fail)
-        results
+        results-en
         (into {}
               (for [[k v] @en/lexicon]
                 (let [filtered-v
                       (filter #(not (fail? (unifyc % spec)))
                               v)]
                   (if (not (empty? filtered-v))
+                    [k filtered-v]))))
+
+        results-it
+        (into {}
+              (for [[k v] @it/lexicon]
+                (let [filtered-v
+                      (filter #(not (fail? (unifyc % spec)))
+                              v)]
+                  (if (not (empty? filtered-v))
                     [k filtered-v]))))]
+
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
                
@@ -147,4 +138,5 @@
                "Pragma" "no-cache"
                "Expires" "0"}
      :body (json/write-str
-            {:en (string/join "," (keys results))})}))
+            {:en (string/join "," (keys results-en))
+             :it (string/join "," (keys results-it))})}))

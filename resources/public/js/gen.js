@@ -70,9 +70,6 @@ function gen_from_verb(verb,prefix) {
 	    evaluated = jQuery.parseJSON(content);
 	    if (evaluated.response == "") {
 		// could not translate: show a link with an error icon (fa-times-circle)
-
-		log(INFO,"GOT HERE: pred is: " + pred);
-
 		$("#"+prefix+"english_verb_"+pred).html("<a href='/engine/lookup?lang=en&spec=" + 
 					      encodeURIComponent(JSON.stringify(
 
@@ -87,21 +84,23 @@ function gen_from_verb(verb,prefix) {
 		$("#"+prefix+"english_verb_"+pred).html(evaluated.en);
 	    }
 
+	    var spec = {"synsem": {"sem": semantics}};
+
 	    // TODO: just use /engine/generate here.
-	    var generate_semantics_url = "/engine/generate-from-semantics?model=en&semantics=" + encodeURIComponent(JSON.stringify(semantics));
+	    var generate_target_language_url = "/engine/generate?lang=en&model=small&spec=" + encodeURIComponent(JSON.stringify(spec));
 
 	    $.ajax({
 		cache: false,
 		dataType: "html",
-		url: generate_semantics_url,
+		url: generate_target_language_url,
 		success: function translate(content) {
 		    var evaluated  = jQuery.parseJSON(content);
-		    var response = evaluated.response;
+		    var response = evaluated.en;
 		    if (response == "") {
 			// could not generate anything: show a link with an error icon (fa-times-circle)
 			response = "<i class='fa fa-times-circle'> </i>";
 		    }
-		    $("#"+prefix+"english_translation_"+pred).html("<a href='" + generate_semantics_url + "'>" + response + "</a>");
+		    $("#"+prefix+"english_translation_"+pred).html("<a href='" + generate_target_language_url + "'>" + response + "</a>");
 		}
 	    });
 	}
