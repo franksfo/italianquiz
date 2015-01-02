@@ -1,8 +1,19 @@
 var logging_level = INFO;
 
 var default_prefix = "";
-/* this iterates through all verbs on the page (each verb has class "gen_source"), 
-   calling gen_from_verb() for each. */
+
+
+var source_language = "it";
+var source_language_model = "small";
+
+var target_language = "en";
+var target_language_model = "small";
+
+
+/* This is the entry point that editor.clj tell the client to use in its onload().
+   It looks through the DOM and populates each node with what its contents should be. The initial nodes
+   are all of the verbs supplied by verb.clj:(defn generation-table), which creates a <tr> for each verb, 
+   along with the <tr>'s interior <td> skeleton that gen_per_verb() fleshes out. */
 function gen_per_verb(prefix) {
     if (prefix == undefined) {
 	prefix = default_prefix;
@@ -26,19 +37,6 @@ function gen_per_verb(prefix) {
 	});
     }
 }
-
-function refresh_row(verb,prefix) {
-    $("#"+prefix+"verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
-    $("#"+prefix+"english_verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
-    $("#"+prefix+"english_translation_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
-    gen_from_verb(verb,prefix);
-}
-
-var source_language = "it";
-var source_language_model = "small";
-
-var target_language = "en";
-var target_language_model = "small";
 
 function gen_from_verb(verb,prefix) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
@@ -133,4 +131,11 @@ function gen_from_verb(verb,prefix) {
 	url: "/engine/generate?lang=it&model=small&spec="+serialized_spec,
 	success: generate_with_verb
     });
+}
+
+function refresh_row(verb,prefix) {
+    $("#"+prefix+"verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
+    $("#"+prefix+"english_verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
+    $("#"+prefix+"english_translation_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
+    gen_from_verb(verb,prefix);
 }
