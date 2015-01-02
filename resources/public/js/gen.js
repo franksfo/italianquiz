@@ -27,7 +27,7 @@ function gen_per_verb(prefix) {
     }
 }
 
-function refresh_verb(verb,prefix) {
+function refresh_row(verb,prefix) {
     $("#"+prefix+"verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
     $("#"+prefix+"english_verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
     $("#"+prefix+"english_translation_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
@@ -51,10 +51,20 @@ function gen_from_verb(verb,prefix) {
 	    response = "<i class='fa fa-times-circle'> </i>";
 	}
 
-	$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?pred="+verb+"&lang=it&debug=true'>" + response + "</a>");
-	
+	var spec = {"synsem": {"sem": {"pred": pred}}};
+	var source_language = "it";
+	var source_language_model = "small";
+
+	$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?lang=" + source_language + 
+					"&model=" + source_language_model + 
+					"&debug=true" +
+					"&spec="+ 
+					encodeURIComponent(JSON.stringify(
+					    spec
+					)) + "'>" + response + "</a>");
+
 	// reload link:
-	$("#"+prefix+"reload_"+verb).attr("onclick","javascript:refresh_verb('" + verb + "','" + prefix + "');return false;");
+	$("#"+prefix+"reload_"+verb).attr("onclick","javascript:refresh_row('" + verb + "','" + prefix + "');return false;");
 
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
@@ -64,15 +74,20 @@ function gen_from_verb(verb,prefix) {
 		log(INFO,"GOT HERE: pred is: " + pred);
 
 		$("#"+prefix+"english_verb_"+pred).html("<a href='/engine/lookup?lang=en&spec=" + 
-					      encodeURIComponent(JSON.stringify({"synsem": {"cat": "verb",
-											    "sem": {"pred": pred},
-											    "infl": "infinitive"}})) + "'>" +
+					      encodeURIComponent(JSON.stringify(
+
+						  {"synsem": {"cat": "verb",
+							      "sem": {"pred": pred},
+							      "infl": "infinitive"}}
+
+					      )) + "'>" +
 					      "<i class='fa fa-times-circle'> </i>" + " </a>");
 
 	    } else {
 		$("#"+prefix+"english_verb_"+pred).html(evaluated.en);
 	    }
 
+	    // TODO: just use /engine/generate here.
 	    var generate_semantics_url = "/engine/generate-from-semantics?model=en&semantics=" + encodeURIComponent(JSON.stringify(semantics));
 
 	    $.ajax({
@@ -102,10 +117,13 @@ function gen_from_verb(verb,prefix) {
 
     }
 
+    var spec = {"synsem": {"sem": {"pred": verb}}};
+    var spec_serialized = encodeURIComponent(JSON.stringify(spec));
+
     $.ajax({
 	cache: false,
 	dataType: "html",
-	url: "/engine/generate?pred="+verb+"&lang=it",
+	url: "/engine/generate?spec="+spec_serialized+"&lang=it",
 	success: generate_with_verb
     });
 }

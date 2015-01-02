@@ -45,6 +45,7 @@
 
 ;; TODO: language-independent (not it/small) and make it accept a spec, not a pred.
 (defn generate-from-request [request]
+  ;; TODO: use request's lang= and model= params below.
   (let [pred (keyword (get-in request [:params :pred] :top))
         spec (get-in request [:params :spec])
         spec (if spec (json/read-str spec
@@ -59,6 +60,7 @@
         debug (get-in request [:params :debug] false)
         unified (unify {:synsem {:sem {:pred pred}}}
                        spec)
+
         ] ;; note that client's intended _true_ will be "true" rather than true.
     (log/info (str "generate with pred: " pred "; lang: " lang))
     (let [expression (generate unified
@@ -73,7 +75,7 @@
                  "Expires" "0"}
        :body (json/write-str
               (merge
-               {:pred pred
+               {:spec spec
                 :unified unified
                 :semantics semantics
                 (keyword lang) (fo expression)}
