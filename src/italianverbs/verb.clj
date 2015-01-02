@@ -99,10 +99,11 @@
 ;       [:button "Update"]]
       
       [:div#vocabulary
-       [:h3 "Lexicon"]
+;       [:h3 "Lexicon"]
 
+        [:h3 "Verbs"] ;; right now, we are only showing verbs (the show-X flags are all false now), so lexicon=verbs for UI. So [:h3 "Lexicon" above] is commented out.
        [:div#verbs 
-        [:h4 "Verbs"]
+
 
         (generation-table (let [all-verbs
                                 (filter (fn [lexeme]
@@ -203,8 +204,8 @@
          [:td [:input {:value desired-size}]]]]])
 
       ]
-      
-    ))) 
+
+)))
 
 (defn table-of-examples [index upto]
   (if (<= index upto)
