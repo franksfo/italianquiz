@@ -43,7 +43,8 @@ function gen_from_verb(verb,prefix) {
     function generate_with_verb(content) {
 	var evaluated = jQuery.parseJSON(content);
 	var example = evaluated.it;
-	var pred = evaluated.pred;
+	var spec = evaluated.spec;
+	var pred = spec["synsem"]["sem"]["pred"];
 
 	var semantics = evaluated.semantics;
 	var response = example;
@@ -51,7 +52,6 @@ function gen_from_verb(verb,prefix) {
 	    response = "<i class='fa fa-times-circle'> </i>";
 	}
 
-	var spec = {"synsem": {"sem": {"pred": pred}}};
 	var source_language = "it";
 	var source_language_model = "small";
 
@@ -110,7 +110,7 @@ function gen_from_verb(verb,prefix) {
 	    cache: false,
 	    dataType: "html",
 	    url: "/engine/lookup?lang=en&spec=" + encodeURIComponent(JSON.stringify({"synsem": {"cat": "verb",
-												"sem": {"pred": pred},
+												"sem": {"pred": verb},
 												"infl": "infinitive"}})),
 	    success: translate_verb
 	});
@@ -123,7 +123,7 @@ function gen_from_verb(verb,prefix) {
     $.ajax({
 	cache: false,
 	dataType: "html",
-	url: "/engine/generate?spec="+spec_serialized+"&lang=it",
+	url: "/engine/generate?lang=it&model=small&spec="+spec_serialized,
 	success: generate_with_verb
     });
 }

@@ -76,9 +76,9 @@
        :body (json/write-str
               (merge
                {:spec spec
-                :unified unified
-                :semantics semantics
-                (keyword lang) (fo expression)}
+                :pred pred
+                (keyword lang) (fo expression)
+                :semantics semantics}
                (if (or (= debug true)
                        (= debug "true"))
                  {:debug {:head (strip-refs (get-in expression [:head]))}}
@@ -117,6 +117,7 @@
              (if debug {:debug (strip-refs translation)} {})
              {:semantics semantics
               :fo-ps (fo-ps translation)
+              :en (fo translation)
               :response (fo translation)}))}))
 
 (def possible-preds [:top])
