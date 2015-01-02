@@ -55,13 +55,17 @@ function gen_from_verb(verb,prefix) {
 	var source_language = "it";
 	var source_language_model = "small";
 
-	$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?lang=" + source_language + 
+	var target_language = "en";
+	var target_language_model = "small";
+
+	var serialized_spec = encodeURIComponent(JSON.stringify(spec));
+
+	$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?" + 
+					"&spec=" + serialized_spec + 
+					"&lang=" + source_language + 
 					"&model=" + source_language_model + 
 					"&debug=true" +
-					"&spec="+ 
-					encodeURIComponent(JSON.stringify(
-					    spec
-					)) + "'>" + response + "</a>");
+					"'>" + response + "</a>");
 
 	// reload link:
 	$("#"+prefix+"reload_"+verb).attr("onclick","javascript:refresh_row('" + verb + "','" + prefix + "');return false;");
@@ -70,7 +74,7 @@ function gen_from_verb(verb,prefix) {
 	    evaluated = jQuery.parseJSON(content);
 	    if (evaluated.response == "") {
 		// could not translate: show a link with an error icon (fa-times-circle)
-		$("#"+prefix+"english_verb_"+pred).html("<a href='/engine/lookup?lang=en&spec=" + 
+		$("#"+prefix+"english_verb_"+pred).html("<a href='/engine/lookup?lang="+ target_language + "&spec=" + 
 					      encodeURIComponent(JSON.stringify(
 
 						  {"synsem": {"cat": "verb",
@@ -81,13 +85,13 @@ function gen_from_verb(verb,prefix) {
 					      "<i class='fa fa-times-circle'> </i>" + " </a>");
 
 	    } else {
-		$("#"+prefix+"english_verb_"+pred).html(evaluated.en);
+		$("#"+prefix+"english_verb_"+pred).html(evaluated[target_language]);
 	    }
 
 	    var spec = {"synsem": {"sem": semantics}};
 
-	    // TODO: just use /engine/generate here.
-	    var generate_target_language_url = "/engine/generate?lang=en&model=small&spec=" + encodeURIComponent(JSON.stringify(spec));
+	    var generate_target_language_url = "/engine/generate?lang="+ target_language + "&model=" + 
+		target_language_model + "&spec=" + encodeURIComponent(JSON.stringify(spec));
 
 	    $.ajax({
 		cache: false,
@@ -95,7 +99,7 @@ function gen_from_verb(verb,prefix) {
 		url: generate_target_language_url,
 		success: function translate(content) {
 		    var evaluated  = jQuery.parseJSON(content);
-		    var response = evaluated.en;
+		    var response = evaluated[target_language];
 		    if (response == "") {
 			// could not generate anything: show a link with an error icon (fa-times-circle)
 			response = "<i class='fa fa-times-circle'> </i>";
@@ -105,24 +109,28 @@ function gen_from_verb(verb,prefix) {
 	    });
 	}
 
+	var infinitive_spec = {"synsem": {"cat": "verb",
+					  "sem": {"pred": verb},
+					  "infl": "infinitive"}};
+
+	var serialized_spec = encodeURIComponent(JSON.stringify(infinitive_spec));
+
 	$.ajax({
 	    cache: false,
 	    dataType: "html",
-	    url: "/engine/lookup?lang=en&spec=" + encodeURIComponent(JSON.stringify({"synsem": {"cat": "verb",
-												"sem": {"pred": verb},
-												"infl": "infinitive"}})),
+	    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_spec,
 	    success: translate_verb
 	});
 
     }
 
     var spec = {"synsem": {"sem": {"pred": verb}}};
-    var spec_serialized = encodeURIComponent(JSON.stringify(spec));
+    var serialized_spec = encodeURIComponent(JSON.stringify(spec));
 
     $.ajax({
 	cache: false,
 	dataType: "html",
-	url: "/engine/generate?lang=it&model=small&spec="+spec_serialized,
+	url: "/engine/generate?lang=it&model=small&spec="+serialized_spec,
 	success: generate_with_verb
     });
 }
