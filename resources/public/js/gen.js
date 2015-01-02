@@ -82,6 +82,19 @@ function gen_from_verb(verb,prefix) {
 	// reload link:
 	$("#"+prefix+"reload_"+verb).attr("onclick","javascript:refresh_row('" + verb + "','" + prefix + "');return false;");
 
+	var infinitive_spec = {"synsem": {"cat": "verb",
+					  "sem": {"pred": verb},
+					  "infl": "infinitive"}};
+
+	var serialized_spec = encodeURIComponent(JSON.stringify(infinitive_spec));
+
+	$.ajax({
+	    cache: false,
+	    dataType: "html",
+	    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_spec,
+	    success: translate_verb
+	});
+
 	function translate_verb(content) {
 	    evaluated = jQuery.parseJSON(content);
 	    var response;
@@ -118,19 +131,6 @@ function gen_from_verb(verb,prefix) {
 		}
 	    });
 	}
-
-	var infinitive_spec = {"synsem": {"cat": "verb",
-					  "sem": {"pred": verb},
-					  "infl": "infinitive"}};
-
-	var serialized_spec = encodeURIComponent(JSON.stringify(infinitive_spec));
-
-	$.ajax({
-	    cache: false,
-	    dataType: "html",
-	    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_spec,
-	    success: translate_verb
-	});
 
     }
 }
