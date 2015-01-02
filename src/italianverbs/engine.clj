@@ -103,9 +103,9 @@
 
 (def possible-preds [:top])
 
-;; TODO: support multiple languages: for now, only works with english: see reference to en/lexicon below.
 (defn lookup [request]
-  (let [spec (if (not (= :null (get-in request [:params :spec] :null)))
+  (let [lang (get-in request [:params :lang] "en") ;; if no lang specified, use english.
+        spec (if (not (= :null (get-in request [:params :spec] :null)))
                (json/read-str (get-in request [:params :spec])
                               :key-fn keyword
                               :value-fn (fn [k v]
@@ -113,30 +113,20 @@
                                                 (keyword v)
                                                 :else v)))
                :fail)
-        results-en
-        (into {}
-              (for [[k v] @en/lexicon]
-                (let [filtered-v
-                      (filter #(not (fail? (unifyc % spec)))
-                              v)]
-                  (if (not (empty? filtered-v))
-                    [k filtered-v]))))
-
-        results-it
-        (into {}
-              (for [[k v] @it/lexicon]
-                (let [filtered-v
-                      (filter #(not (fail? (unifyc % spec)))
-                              v)]
-                  (if (not (empty? filtered-v))
-                    [k filtered-v]))))]
-
+        results
+        {(keyword lang)
+         (string/join "," (keys
+                           (into {}
+                                 (for [[k v] @en/lexicon]
+                                   (let [filtered-v
+                                         (filter #(not (fail? (unifyc % spec)))
+                                                 v)]
+                                     (if (not (empty? filtered-v))
+                                       [k filtered-v]))))))}]
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
                
                "Cache-Control" "no-cache, no-store, must-revalidate"
                "Pragma" "no-cache"
                "Expires" "0"}
-     :body (json/write-str
-            {:en (string/join "," (keys results-en))
-             :it (string/join "," (keys results-it))})}))
+     :body (json/write-str results)}))
