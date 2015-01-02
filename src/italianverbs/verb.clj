@@ -59,9 +59,9 @@
     (html
      [:table.striped (if id_prefix {:id (str "generation_list_" id_prefix)} {})
       [:tr
-       [:th {:style "width:10em"} "Italian"]
-       [:th {:style "width:20em"} "Example"]
-       [:th {:style "width:10em"} "English"]
+       [:th {:style "width:10em"} "Italian"] ;; TODO: source language name
+       [:th {:style "width:20em"} "Example"] 
+       [:th {:style "width:10em"} "English"] ;; TODO target language name
        [:th {:style "width:20em"} "Translation"]
        [:th {:style "width:3em"} ""]
        ]
@@ -72,8 +72,10 @@
               [:td.example
                [:div.gen_source {:id (str id_prefix "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
               
+              ;; TODO: target_verb_
               [:td {:id (str id_prefix "english_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
               
+              ;; TODO: target_translation_
               [:td {:id (str id_prefix "english_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
               
               [:td {:id (str id_prefix "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]

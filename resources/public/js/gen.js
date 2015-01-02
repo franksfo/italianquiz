@@ -2,19 +2,28 @@ var logging_level = INFO;
 
 var default_prefix = "";
 
-
 var source_language = "it";
 var source_language_model = "small";
 
 var target_language = "en";
 var target_language_model = "small";
 
-function get_verb_rows_by_class() {
-    return $(".gen_source");
-}
+function present_spec(verb) {
+	return {"synsem": {
+	    "infl": "present",
+	    "sem": {
+		"tense": "present",    
+		"pred": verb}}};
+    };
 
-function get_verb_rows_by_prefix(prefix) {
-    return $('#'+"generation_list_"+prefix).find(".gen_source");
+
+// passato_spec does not work for english yet.
+function passato_spec(verb) {
+    return {"synsem": {
+	"infl": "present",
+	"sem": {
+	    "tense": "past",    
+	    "pred": verb}}};
 }
 
 /* This is the entry point that editor.clj tell the client to use in its onload().
@@ -48,7 +57,8 @@ function gen_from_verb(verb,prefix) {
     verb = verb.replace(re,"");
     verb = verb.replace(/^verb_/,"");
 
-    var spec = {"synsem": {"sem": {"pred": verb}}};
+    spec = present_spec(verb);
+
     var serialized_spec = encodeURIComponent(JSON.stringify(spec));
 
     $.ajax({
@@ -86,12 +96,12 @@ function gen_from_verb(verb,prefix) {
 					  "sem": {"pred": verb},
 					  "infl": "infinitive"}};
 
-	var serialized_spec = encodeURIComponent(JSON.stringify(infinitive_spec));
+	var serialized_infinitive_spec = encodeURIComponent(JSON.stringify(infinitive_spec));
 
 	$.ajax({
 	    cache: false,
 	    dataType: "html",
-	    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_spec,
+	    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_infinitive_spec,
 	    success: translate_verb
 	});
 
@@ -109,11 +119,10 @@ function gen_from_verb(verb,prefix) {
 	    // TODO: should not be language specific here:
 	    $("#"+prefix+"english_verb_"+pred).html(response);
 
-
-	    var spec = {"synsem": {"sem": semantics}};
+//	    var spec = {"synsem": {"sem": semantics}};
 
 	    var generate_target_language_url = "/engine/generate?lang="+ target_language + "&model=" + 
-		target_language_model + "&spec=" + encodeURIComponent(JSON.stringify(spec));
+		target_language_model + "&spec=" + serialized_spec;
 
 	    $.ajax({
 		cache: false,
@@ -131,7 +140,6 @@ function gen_from_verb(verb,prefix) {
 		}
 	    });
 	}
-
     }
 }
 
@@ -141,3 +149,12 @@ function refresh_row(verb,prefix) {
     $("#"+prefix+"english_translation_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
     gen_from_verb(verb,prefix);
 }
+
+function get_verb_rows_by_class() {
+    return $(".gen_source");
+}
+
+function get_verb_rows_by_prefix(prefix) {
+    return $('#'+"generation_list_"+prefix).find(".gen_source");
+}
+
