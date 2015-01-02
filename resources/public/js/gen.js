@@ -9,33 +9,37 @@ var source_language_model = "small";
 var target_language = "en";
 var target_language_model = "small";
 
+function get_verb_rows_by_class() {
+    return $(".gen_source");
+}
+
+function get_verb_rows_by_prefix(prefix) {
+    return $('#'+"generation_list_"+prefix).find(".gen_source");
+}
 
 /* This is the entry point that editor.clj tell the client to use in its onload().
    It looks through the DOM and populates each node with what its contents should be. The initial nodes
    are all of the verbs supplied by verb.clj:(defn generation-table), which creates a <tr> for each verb, 
    along with the <tr>'s interior <td> skeleton that gen_per_verb() fleshes out. */
 function gen_per_verb(prefix) {
+    var verb_rows;
+
     if (prefix == undefined) {
 	prefix = default_prefix;
-	$(".gen_source").each(function() {
-	    var verb_dom_id = this.id;
-	    var verb = verb_dom_id;
-	    var re = new RegExp("^" + prefix);
-	    verb = verb.replace(re,"");
-	    verb = verb.replace(/^verb_/,"");
-	    gen_from_verb(verb,prefix);
-	});
+	verb_rows = get_verb_rows_by_class();
     } else {
-	var selector = '#'+"generation_list_"+prefix;
-	$(selector).find(".gen_source").each(function() {
-	    var verb_dom_id = this.id;
-	    var verb = verb_dom_id;
-	    var re = new RegExp("^" + prefix);
-	    verb = verb.replace(re,"");
-	    verb = verb.replace(/^verb_/,"");
-	    gen_from_verb(verb,prefix);
-	});
+	verb_rows = get_verb_rows_by_prefix(prefix);
     }
+
+    // now call gen_from_verb() for each verb row, which will fill in all of the <td>s.
+    verb_rows.each(function() {
+	var verb_dom_id = this.id;
+	var verb = verb_dom_id;
+	var re = new RegExp("^" + prefix);
+	verb = verb.replace(re,"");
+	    verb = verb.replace(/^verb_/,"");
+	gen_from_verb(verb,prefix);
+    });
 }
 
 function gen_from_verb(verb,prefix) {
