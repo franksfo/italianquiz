@@ -2,5 +2,7 @@
     width:95%;
     margin-left:0.5em;
     float:left;
+    margin-top:1.5em;
+    border-bottom: 1px solid lightgrey;
 }
 
