@@ -62,6 +62,10 @@ function gen_per_verb(prefix) {
     });
 }
 
+function sentence_with_tense_info(language,pred) {
+    return italian_present_tense(pred);
+}
+
 function gen_from_verb(verb,prefix) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
 
@@ -70,7 +74,7 @@ function gen_from_verb(verb,prefix) {
     verb = verb.replace(re,"");
     verb = verb.replace(/^verb_/,"");
 
-    spec = italian_present_tense(verb);
+    spec = sentence_with_tense_info(source_language,verb);
     var serialized_spec = encodeURIComponent(JSON.stringify(spec));
 
     $.ajax({
