@@ -59,8 +59,8 @@
     (html
      [:table.striped (if id_prefix {:id (str "generation_list_" id_prefix)} {})
       [:tr
-       [:th {:style "width:10em"} "Source"] ;; TODO: source language name
-       [:th {:style "width:10em"} "Target"] ;; TODO target language name
+       [:th {:style "width:10em"} "Source"] ;; TODO: source language name, e.g. "Italian"
+       [:th {:style "width:10em"} "Target"] ;; TODO target language name, .e.g. "English"
        [:th {:style "width:20em"} "Example"] 
        [:th {:style "width:20em"} "Translation"]
        [:th {:style "width:3em"} ""]
