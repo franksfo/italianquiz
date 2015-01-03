@@ -705,13 +705,14 @@
       (include-js (first includes))
       (includes-js (rest includes)))))
 
-(defn pretty-head [title & [js jss]]
+(defn pretty-head [title & [js jss css_set]]
   (log/debug (str "pretty-head js: " js))
-  (log/debug (str "pretty-head jss: " jss))
+  (log/debug (str "pretty-head jss: " jss));; TODO: jss => js_set.
   [:head 
    [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
    (include-css "/css/style.css")
+   (include-css "/css/editor.css")
    (include-css "/css/layout.css")
    (include-css "/css/fs.css")
    (include-css "/css/tag.css")

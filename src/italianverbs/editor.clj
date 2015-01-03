@@ -334,11 +334,17 @@
           (map (fn [each]
                  (if (some #(= % (:id each)) games-to-use)
                    (html
-                    [:div {:style "width:100%;float:left"}
+                    
+                    [:div {:class "game_container"}
                      [:h4 {:style "width:100%"} [:span {:style "padding-right: 1em"} [:a {:href (str "/editor/" (:id each))}(:name each) ] ":"] [:i (string/join "," (verbs-per-game (:id each)))]]
                      [:h4 "Inflections:"  [:span {:style "padding-left: 1em"} [:i (string/join "," (tenses-per-game (:id each)))]]]
                      (generation-table (verbs-per-game (:id each))
-                                       :id_prefix (:id each))])))
+                                       :id_prefix (:id each))]
+
+
+
+                    )))
+
                games))
         ]])
 
