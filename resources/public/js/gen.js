@@ -41,79 +41,73 @@ function gen_per_verb(prefix) {
 	    cache: false,
 	    dataType: "html",
 	    url: "/engine/generate?lang=" + source_language + "&model=" + source_language_model + "&spec="+serialized_spec,
-	    success: generate_with_verb
-	});
-
-	function generate_with_verb(content) {
-	    // 1. The server sent us an example sentence: parse the response into a JSON object.
-	    var evaluated = jQuery.parseJSON(content);
-	    var response = evaluated[source_language];
-	    var spec = evaluated.spec;
-	    var pred = spec["synsem"]["sem"]["pred"];
-	    
-	    var semantics = evaluated.semantics;
-	    if (response == "") {
-	    response = "<i class='fa fa-times-circle'> </i>";
-	    }
-	    
-	    var serialized_spec = encodeURIComponent(JSON.stringify({"synsem": {"sem": semantics}}));
-	    
-	    // 2. Now that we have the example sentence in the source language in the variable _response_: now, paste it in to the DOM tree in the right place:
-	    $("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?" + 
-					    "&spec=" + serialized_spec + 
-					    "&lang=" + source_language + 
-					    "&model=" + source_language_model + 
-					    "&debug=true" +
-					    "'>" + response + "</a>");
-	    
-	    // reload link:
-	    $("#"+prefix+"reload_"+verb).attr("onclick","javascript:refresh_row('" + verb + "','" + prefix + "');return false;");
-	    
-	    var infinitive_spec = {"synsem": {"cat": "verb",
-					      "sem": {"pred": verb},
-					  "infl": "infinitive"}};
-	    
-	    var serialized_infinitive_spec = encodeURIComponent(JSON.stringify(infinitive_spec));
-	    
-	    $.ajax({
-		cache: false,
-		dataType: "html",
-	    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_infinitive_spec,
-		success: translate_from_semantics
-	    });
-	    
-	    function translate_from_semantics(content) {
-		evaluated = jQuery.parseJSON(content);
-		var response;
-		if (evaluated.response == "") {
-		    // could not translate: show a link with an error icon (fa-times-circle)
-		response = "<a href='/engine/lookup?lang="+ target_language + "&spec=" + serialized-spec + "'>" +
-			"<i class='fa fa-times-circle'> </i>" + " </a>";
-		} else {
-		    
-		    response = evaluated[target_language];
+	    success: function (content) {
+		// 1. The server sent us an example sentence: parse the response into a JSON object.
+		var evaluated = jQuery.parseJSON(content);
+		var response = evaluated[source_language];
+		var spec = evaluated.spec;
+		var pred = spec["synsem"]["sem"]["pred"];
+		
+		var semantics = evaluated.semantics;
+		if (response == "") {
+		    response = "<i class='fa fa-times-circle'> </i>";
 		}
-		$("#"+prefix+"target_verb_"+pred).html(response);
-
-		var generate_target_language_url = "/engine/generate?lang="+ target_language + "&model=" + 
-		    target_language_model + "&spec=" + serialized_spec;
+		
+		var serialized_spec = encodeURIComponent(JSON.stringify({"synsem": {"sem": semantics}}));
+		
+		// 2. Now that we have the example sentence in the source language in the variable _response_: now, paste it in to the DOM tree in the right place:
+		$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?" + 
+						"&spec=" + serialized_spec + 
+						"&lang=" + source_language + 
+						"&model=" + source_language_model + 
+						"&debug=true" +
+						"'>" + response + "</a>");
+		
+		// reload link:
+		$("#"+prefix+"reload_"+verb).attr("onclick","javascript:refresh_row('" + verb + "','" + prefix + "');return false;");
+		
+		var infinitive_spec = {"synsem": {"cat": "verb",
+					      "sem": {"pred": verb},
+						  "infl": "infinitive"}};
+		
+		var serialized_infinitive_spec = encodeURIComponent(JSON.stringify(infinitive_spec));
 		
 		$.ajax({
 		    cache: false,
 		    dataType: "html",
-		    url: generate_target_language_url,
-		    success: function translate(content) {
-			var evaluated  = jQuery.parseJSON(content);
-			var response = evaluated[target_language];
-			if (response == "") {
-			    // could not generate anything: show a link with an error icon (fa-times-circle)
-			    response = "<i class='fa fa-times-circle'> </i>";
+		    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_infinitive_spec,
+		    success: function (content) {
+			evaluated = jQuery.parseJSON(content);
+			var response;
+			if (evaluated.response == "") {
+			    // could not translate: show a link with an error icon (fa-times-circle)
+			    response = "<a href='/engine/lookup?lang="+ target_language + "&spec=" + serialized-spec + "'>" +
+			    "<i class='fa fa-times-circle'> </i>" + " </a>";
+			} else {
+			    response = evaluated[target_language];
 			}
-			$("#"+prefix+"target_translation_"+pred).html("<a href='" + generate_target_language_url + "'>" + response + "</a>");
-		    }
-		});
+			$("#"+prefix+"target_verb_"+pred).html(response);
+			
+			var generate_target_language_url = "/engine/generate?lang="+ target_language + "&model=" + 
+			    target_language_model + "&spec=" + serialized_spec;
+			
+			$.ajax({
+			    cache: false,
+			    dataType: "html",
+			    url: generate_target_language_url,
+			    success: function (content) {
+				var evaluated  = jQuery.parseJSON(content);
+				var response = evaluated[target_language];
+				if (response == "") {
+				    // could not generate anything: show a link with an error icon (fa-times-circle)
+				    response = "<i class='fa fa-times-circle'> </i>";
+				}
+				$("#"+prefix+"target_translation_"+pred).html("<a href='" + generate_target_language_url + "'>" + response + "</a>");
+			    }
+			});
+		    }});
 	    }
-	}
+	});
     });
 }
 
