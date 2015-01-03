@@ -30,6 +30,10 @@ function gen_per_verb(prefix, source_language, target_language) {
     });
 }
 
+function gen_per_verb_with_dropdown(prefix,source_dropdown,target_dropdown) {
+    gen_per_verb(prefix,$("#"+source_dropdown).val(),$("#"+target_dropdown).val());
+}
+
 function gen_from_verb(verb,prefix,source_language,target_language) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
 

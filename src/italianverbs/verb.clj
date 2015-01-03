@@ -22,15 +22,39 @@
 
 (def generate-this-many-at-once 10)
 
+(declare control-panel)
 (declare delete-form)
 (declare new-verb-form)
+(declare onload)
 (declare select)
 (declare show-as-rows)
 (declare validate-new-verb)
 
+(def routes
+  (compojure/routes
+   (GET "/" request
+        (let [do-generation (fn []
+                              {:body (html/page 
+                                      "Generation" 
+                                      (control-panel request
+                                                     (haz-admin))
+                                      request
+                                      {:css "/css/settings.css"
+                                       :js "/js/gen.js"
+                                       :onload (onload request)})
+                               :status 200
+                               :headers {"Content-Type" "text/html;charset=utf-8"}})]
+                              
+          (if false ;; TODO: define config variable workstation-mode.
+            (friend/authorize #{::admin} do-generation)
+            ;; turn off security for workstation dev
+            (do-generation))))))
+
 ;; in core.clj, top-level url "/gen" maps to routes here: see (defn routes []) below.
-(defn onload []
-  (str "gen_per_verb();")) ;; javascript to be executed at page load.
+(defn onload [request]
+  (let [source (get-in request [:params :source] "en")
+        target (get-in request [:params :target] "it")]
+    (str "gen_per_verb('','" source "','" target "');"))) ;; javascript to be executed at page load.
 
 (defn delete [verb]
   (db/fetch-and-modify :verb (db/object-id verb) {} true))
@@ -95,18 +119,49 @@
         show-inflections false
         show-examples false
         show-corpus-size false
+        source (get-in request [:params :source] "en")
+        target (get-in request [:params :target] "it")
         ]
     (html
      [:div#generation {:class "major"}
       [:h2 "Generation"]
 
-;      [:div
-;       [:button "Update"]]
+       [:div#directionchooser
+        [:form {:method "get" :action "/gen/"}
+         [:span "Source " ]
+         [:select#source {:name "target" :onchange "submit()"}
+          [:option (merge {:value "en"}
+                          (if (= source "en")
+                            {:selected "selected"}
+                            {}))
+           "English"]
+          [:option (merge {:value "it"}
+                          (if (= source "it")
+                            {:selected "selected"}
+                            {}))
+           "Italian"]
+          ]
+         [:span " Target " ]
+         [:select#target {:name "source" :onchange "submit()"}
+          [:option (merge {:value "en"}
+                          (if (= target "en")
+                            {:selected "selected"}
+                            {}))
+           "English"]
+          [:option (merge {:value "it"}
+                          (if (= target "it")
+                            {:selected "selected"}
+                            {}))
+           "Italian"]
+          ]
+         ]
+        ]
       
       [:div#vocabulary
 ;       [:h3 "Lexicon"]
 
-        [:h3 "Verbs"] ;; right now, we are only showing verbs (the show-X flags are all false now), so lexicon=verbs for UI. So [:h3 "Lexicon" above] is commented out.
+       [:h3 "Verbs"] ;; right now, we are only showing verbs (the show-X flags are all false now), so lexicon=verbs for UI. So [:h3 "Lexicon" above] is commented out.
+       
        [:div#verbs 
 
 
@@ -372,24 +427,4 @@
     (html
      [:form {:method "post" :action (str "/verb/" (db/primary-key row) "/delete/")}
       [:button {:onclick "submit()"} "delete"]])))
-
-(def routes
-  (compojure/routes
-   (GET "/" request
-        (let [do-generation (fn []
-                              {:body (html/page 
-                                      "Generation" 
-                                      (control-panel request
-                                                     (haz-admin))
-                                      request
-                                      {:css "/css/settings.css"
-                                       :js "/js/gen.js"
-                                       :onload (onload)})
-                               :status 200
-                               :headers {"Content-Type" "text/html;charset=utf-8"}})]
-                              
-          (if false ;; TODO: define config variable workstation-mode.
-            (friend/authorize #{::admin} do-generation)
-            ;; turn off security for workstation dev
-            (do-generation))))))
    
