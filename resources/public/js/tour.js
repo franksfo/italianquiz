@@ -193,9 +193,14 @@ function submit_tour_response(form_input_id) {
 	// as is the case currently.
 	var answers = answer_info.answer.split(",");
 
+
 	var i;
 	for (i = 0; i < answers.length; i++) {
 	    var answer_text = answers[i];
+	    answer_text = answer_text.replace(/^ +/,"");
+	    answer_text = answers[i].replace(/ +$/,"");
+	    log(INFO,"Comparing: '" + answer_text + "' with your guess: '" + guess + "'");
+
 	    if (answer_text === guess) {
 		log(INFO,"You got one right!");
 		update_map($("#tourquestion").html(), guess);
