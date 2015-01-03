@@ -19,7 +19,6 @@
 
 (declare lookup)
 (declare generate-from-request)
-(declare generate-from-semantics)
 (declare resolve-model)
 
 (def routes
@@ -28,10 +27,7 @@
        (lookup request))
 
   (GET "/generate" request
-       (generate-from-request request))
-
-   (GET "/generate-from-semantics" request
-       (generate-from-semantics request))))
+       (generate-from-request request))))
 
 (defn generate [spec language-model]
   (let [spec (unify spec
