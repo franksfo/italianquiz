@@ -125,7 +125,8 @@
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
 
-   "dine"  (trans-intrans {:synsem {:sem {:pred :cenare}}})
+   "dine"  (unify intransitive {:synsem {:sem {:pred :cenare
+                                    :subj {:human true}}}})
 
    "drink" (trans-intrans
             {:synsem {:sem {:pred :bere
@@ -460,7 +461,7 @@
 
    "work (machines)" (trans-intrans {:english {:note "nonliving"} ;; TODO: add support in cloud for :note.
                                      :synsem {:sem {:subj {:living false}
-                                                   :pred :funzionare}}})
+                                                    :pred :funzionare}}})
 
    "write"  (trans-intrans {:english {:past "wrote"}
                             :synsem {:sem {:pred :scrivere}}})
