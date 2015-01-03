@@ -1,3 +1,6 @@
+This distribution includes code from many open source/free software projects as listed below;
+the remainder is licenced under: the heading 'remainder'.
+
 resources/public/js/d3.vs.min.js :
 ####
 "
