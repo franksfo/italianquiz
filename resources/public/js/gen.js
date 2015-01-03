@@ -55,7 +55,8 @@ function gen_per_verb(prefix) {
 		
 		var serialized_spec = encodeURIComponent(JSON.stringify({"synsem": {"sem": semantics}}));
 		
-		// 2. Now that we have the example sentence in the source language in the variable _response_: now, paste it in to the DOM tree in the right place:
+		// 2. Now that we have the example sentence in the source language in the variable _response_: now, paste it in to the DOM tree in the column of the generation table.
+		//    The content is wrapped in a <a href='..'> so the user can click on it and see diagnostics about the response.
 		$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?" + 
 						"&spec=" + serialized_spec + 
 						"&lang=" + source_language + 
