@@ -91,19 +91,21 @@ function gen_from_verb(verb,prefix) {
     });
 
     function generate_with_verb(content) {
+	// 1. The server sent us an example sentence: parse the response into a JSON object.
 	var evaluated = jQuery.parseJSON(content);
-	var example = evaluated[source_language];
+	var response = evaluated[source_language];
 	var spec = evaluated.spec;
 	var pred = spec["synsem"]["sem"]["pred"];
 
 	var semantics = evaluated.semantics;
-	var response = example;
-	if (example == "") {
+	if (response == "") {
 	    response = "<i class='fa fa-times-circle'> </i>";
 	}
 
 	var serialized_spec = encodeURIComponent(JSON.stringify({"synsem": {"sem": semantics}}));
 
+
+	// 2. Now that we have the example sentence in the source language in the variable _response_: now, paste it in to the DOM tree in the right place:
 	$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?" + 
 					"&spec=" + serialized_spec + 
 					"&lang=" + source_language + 
