@@ -8,35 +8,6 @@ var source_language_model = "small";
 var target_language = "en";
 var target_language_model = "small";
 
-function italian_present_tense(pred) {
-    return {"synsem": {
-	"infl": "present",
-	"sem": {
-	    "tense": "present",    
-	    "pred": pred}}};
-};
-
-function english_present_tense(pred) {
-    // italian and english are the same for present tense, so simply use one for the other.
-    return italian_present_tense(pred);
-};
-
-function italian_passato_spec(verb) {
-    return {"synsem": {
-	"infl": "present",
-	"sem": {
-	    "tense": "past",    
-	    "pred": pred}}};
-}
-
-function english_passato_spec(verb) {
-    return {"synsem": {
-	"sem": {
-	    "tense": "past",    
-	    "pred": pred}}};
-}
-
-
 /* This is the entry point that editor.clj tell the client to use in its onload().
    It looks through the DOM and populates each node with what its contents should be. The initial nodes
    are all of the verbs supplied by verb.clj:(defn generation-table), which creates a <tr> for each verb, 
@@ -178,3 +149,32 @@ function get_verb_rows_by_prefix(prefix) {
     return $('#'+"generation_list_"+prefix).find(".gen_source");
 }
 
+
+// TODO: move to language-specific Javascript (or better, ClojureScript).
+function italian_present_tense(pred) {
+    return {"synsem": {
+	"infl": "present",
+	"sem": {
+	    "tense": "present",    
+	    "pred": pred}}};
+};
+
+function english_present_tense(pred) {
+    // italian and english are the same for present tense, so simply use one for the other.
+    return italian_present_tense(pred);
+};
+
+function italian_passato_spec(verb) {
+    return {"synsem": {
+	"infl": "present",
+	"sem": {
+	    "tense": "past",    
+	    "pred": pred}}};
+}
+
+function english_passato_spec(verb) {
+    return {"synsem": {
+	"sem": {
+	    "tense": "past",    
+	    "pred": pred}}};
+}
