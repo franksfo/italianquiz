@@ -8,23 +8,34 @@ var source_language_model = "small";
 var target_language = "en";
 var target_language_model = "small";
 
-function present_spec(verb) {
-	return {"synsem": {
-	    "infl": "present",
-	    "sem": {
-		"tense": "present",    
-		"pred": verb}}};
-    };
+function italian_present_tense(pred) {
+    return {"synsem": {
+	"infl": "present",
+	"sem": {
+	    "tense": "present",    
+	    "pred": pred}}};
+};
 
+function english_present_tense(pred) {
+    // italian and english are the same for present tense, so simply use one for the other.
+    return italian_present_tense(pred);
+};
 
-// passato_spec does not work for english yet.
-function passato_spec(verb) {
+function italian_passato_spec(verb) {
     return {"synsem": {
 	"infl": "present",
 	"sem": {
 	    "tense": "past",    
-	    "pred": verb}}};
+	    "pred": pred}}};
 }
+
+function english_passato_spec(verb) {
+    return {"synsem": {
+	"sem": {
+	    "tense": "past",    
+	    "pred": pred}}};
+}
+
 
 /* This is the entry point that editor.clj tell the client to use in its onload().
    It looks through the DOM and populates each node with what its contents should be. The initial nodes
@@ -53,18 +64,19 @@ function gen_per_verb(prefix) {
 
 function gen_from_verb(verb,prefix) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
+
+    // not sure why or if this is necessary..??
     var re = new RegExp("^" + prefix);
     verb = verb.replace(re,"");
     verb = verb.replace(/^verb_/,"");
 
-    spec = present_spec(verb);
-
+    spec = italian_present_tense(verb);
     var serialized_spec = encodeURIComponent(JSON.stringify(spec));
 
     $.ajax({
 	cache: false,
 	dataType: "html",
-	url: "/engine/generate?lang=it&model=small&spec="+serialized_spec,
+	url: "/engine/generate?lang=" + source_language + "&model=" + source_language_model + "&spec="+serialized_spec,
 	success: generate_with_verb
     });
 
@@ -102,10 +114,10 @@ function gen_from_verb(verb,prefix) {
 	    cache: false,
 	    dataType: "html",
 	    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_infinitive_spec,
-	    success: translate_verb
+	    success: translate_from_semantics
 	});
 
-	function translate_verb(content) {
+	function translate_from_semantics(content) {
 	    evaluated = jQuery.parseJSON(content);
 	    var response;
 	    if (evaluated.response == "") {
@@ -118,8 +130,6 @@ function gen_from_verb(verb,prefix) {
 	    }
 	    // TODO: should not be language specific here:
 	    $("#"+prefix+"english_verb_"+pred).html(response);
-
-//	    var spec = {"synsem": {"sem": semantics}};
 
 	    var generate_target_language_url = "/engine/generate?lang="+ target_language + "&model=" + 
 		target_language_model + "&spec=" + serialized_spec;
