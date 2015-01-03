@@ -42,7 +42,14 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
     verb = verb.replace(re,"");
     verb = verb.replace(/^verb_/,"");
 
-    spec = sentence_with_tense_info(source_language,verb);
+    if ($("#"+prefix+"_tenses")) {
+	log(INFO,"tense_info? " + $("#"+prefix+"_tenses").text());
+    } else {
+	log(WARN,"NO TENSE INFO FOR: " + prefix);
+    }
+    
+    var tenses = $("#"+prefix+"_tenses").text().split(/[ ]+/);
+    spec = sentence_with_tense_info(source_language,verb,tenses);
     var serialized_spec = encodeURIComponent(JSON.stringify(spec));
 
     $.ajax({
@@ -142,9 +149,118 @@ function get_verb_rows_by_prefix(prefix) {
     return $('#'+"generation_list_"+prefix).find(".gen_source");
 }
 
+function sentence_with_tense_info(language,pred,tenses) {
+    log(INFO, "sentences with tense_info: " + tenses);
+    var tense = tenses[Math.floor(Math.random()*tenses.length)];
+
+    log(INFO, "Use tense: " + tense);
+
+    if (tense == "conditional") {
+	if (language == "it") {
+	    return italian_conditional(pred);
+	}
+	if (language == "en") {
+	    return english_conditional(pred);
+	}
+    }
+
+    if (tense == "future") {
+	if (language == "it") {
+	    return italian_future(pred);
+	}
+	if (language == "en") {
+	    return english_future(pred);
+	}
+    }
+
+    if (tense == "futuro") {
+	if (language == "it") {
+	    return italian_future(pred);
+	}
+	if (language == "en") {
+	    return english_future(pred);
+	}
+    }
+
+    if (tense == "imperfect") {
+	if (language == "it") {
+	    return italian_imperfect(pred);
+	}
+	if (language == "en") {
+	    return english_imperfect(pred);
+	}
+    }
+
+    if (tense == "imperfetto") {
+	if (language == "it") {
+	    return italian_imperfect(pred);
+	}
+	if (language == "en") {
+	    return english_imperfect(pred);
+	}
+    }
+
+    if (tense == "passato") {
+	if (language == "it") {
+	    return italian_passato(pred);
+	}
+	if (language == "en") {
+	    return english_passato(pred);
+	}
+    }
+
+    if (tense == "present") {
+	if (language == "it") {
+	    return italian_present(pred);
+	}
+	if (language == "en") {
+	    return english_present(pred);
+	}
+    }
+
+    log(ERROR,"don't know what to do with sentence_with_tense_info(language=" + language + ",pred=" + pred + ",tenses=" + tenses + ")");
+    log(ERROR,"  chosen tense: " + tense);
+    return undefined;
+}
 
 // TODO: move to language-specific Javascript (or better, ClojureScript).
-function italian_present_tense(pred) {
+
+function italian_conditional(pred) {
+    return {"synsem": {
+	"sem": {
+	    "tense": "conditional",    
+	    "pred": pred}}};
+};
+
+function english_conditional(pred) {
+    // italian and english are the same for future tense, so simply use one for the other.
+    return italian_conditional(pred);
+};
+
+function italian_future(pred) {
+    return {"synsem": {
+	"sem": {
+	    "tense": "futuro",    
+	    "pred": pred}}};
+};
+
+function english_future(pred) {
+    // italian and english are the same for future tense, so simply use one for the other.
+    return italian_future(pred);
+};
+
+function italian_imperfect(pred) {
+    return {"synsem": {"infl" : "imperfetto",
+		       "sem" : { "pred" : pred }}}; 
+	
+};
+
+function english_imperfect(pred) {
+    // italian and english are the same for imperfect, so simply use one for the other.
+    return italian_imperfect(pred);
+};
+
+function italian_present(pred) {
     return {"synsem": {
 	"infl": "present",
 	"sem": {
@@ -152,32 +268,24 @@ function italian_present_tense(pred) {
 	    "pred": pred}}};
 };
 
-function sentence_with_tense_info(language,pred) {
-    if (language == "it") {
-	return italian_present_tense(pred);
-    }
-    if (language == "en") {
-	return english_present_tense(pred);
-    }
-    return italian_present_tense(pred);
-}
-
-function english_present_tense(pred) {
+function english_present(pred) {
     // italian and english are the same for present tense, so simply use one for the other.
-    return italian_present_tense(pred);
+    return italian_present(pred);
 };
 
-function italian_passato_spec(verb) {
+function italian_passato(pred) {
     return {"synsem": {
 	"infl": "present",
 	"sem": {
+	    "aspect": "perfect",
 	    "tense": "past",    
 	    "pred": pred}}};
 }
 
-function english_passato_spec(verb) {
+function english_passato(pred) {
     return {"synsem": {
 	"sem": {
+	    "aspect": "perfect",
 	    "tense": "past",    
 	    "pred": pred}}};
 }

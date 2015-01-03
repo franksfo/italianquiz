@@ -21,6 +21,7 @@
    ))
 
 (def generate-this-many-at-once 10)
+(def all-tenses ["conditional" "imperfetto" "present" "futuro" "passato"])
 
 (declare control-panel)
 (declare delete-form)
@@ -78,11 +79,17 @@
 
 (declare table-of-examples)
 
-(defn generation-table [verbs & [:id_prefix id_prefix :source source :target target ]]
-  (let [id_prefix (if id_prefix id_prefix "")]
+(defn generation-table [verbs & [:id_prefix id_prefix :source source :target target :tenses tenses ]]
+  (let [id_prefix (if id_prefix id_prefix "")
+        tenses (if (not (empty? tenses)) tenses all-tenses)]
+    (log/info (str "Tenses for this table: " (string/join " " tenses)))
     (html
+     ;; <id_prefix>_tenses is used to pass tense info to javascript so it can in turn pass it on to the server.
+     [:i {:style "display:none" :id (str id_prefix "_tenses")} (string/join " " tenses)]
+
      [:table.striped (merge {:style "width:100%"} (if id_prefix {:id (str "generation_list_" id_prefix)} {}))
       [:tr
+       [:th {:style "width:10em"} "Meaning"] ;; :pred is language-independent
        [:th {:style "width:10em"} "Source"] ;; verb in source language, e.g. English
        [:th {:style "width:20em"} "Source Example"] 
        [:th {:style "width:10em"} "Target"] ;; verb in target language, e.g. Italian
@@ -92,10 +99,12 @@
       
       (map (fn [lexeme]
              [:tr.lexeme
-        
-              ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called pred to be more accurate what it means).
-              [:td {:id (str id_prefix "target_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
+              
+              [:td lexeme
+               ]
 
+        ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called pred to be more accurate what it means).
+              [:td {:id (str id_prefix "target_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
               [:td.example.gen_source {:id (str id_prefix "verb_" lexeme)}
                [:i {:class "fa fa-spinner fa-spin"} "" ] ]

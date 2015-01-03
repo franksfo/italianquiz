@@ -172,10 +172,10 @@
                      (map #(:word %)
                           verbs))]))
 
-           [:h4 "Inflections"]
+           [:h4 "Tenses"]
            (let [inflections (show-inflections-per-game request)]
              (if (empty? inflections)
-               [:p "No inflections chosen."]
+               [:p "No tenses chosen."]
                [:ul
                 (map (fn [inflection]
                        [:li (str inflection)])
@@ -362,11 +362,13 @@
                             [:i (short-language-name-to-long (:target each))]]]]
 
                      [:div {:style "width:30%; float:right"}
-                      [:h4 "Inflections:"  [:span {:style "padding-left:1em"} [:i (string/join "," (tenses-per-game (:id each)))]]]]
+                      [:h4 "Tenses:"  [:span {:style "padding-left:1em"} [:i (string/join "," (tenses-per-game (:id each)))]]]]
                      (generation-table (verbs-per-game (:id each))
                                        :id_prefix (:id each)
                                        :source (:source each)
-                                       :target (:target each))]
+                                       :target (:target each)
+                                       :tenses (tenses-per-game (:id each))
+                                       )]
 
                     )))
 
