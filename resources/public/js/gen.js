@@ -22,13 +22,10 @@ function gen_per_verb(prefix) {
 	verb_rows = get_verb_rows_by_prefix(prefix);
     }
 
-    // now we know what rows to work on - fill in each of them.
+    // now we know what rows to work on - fill in the first column of the table with the generated sentence in the source language.
     verb_rows.each(function() {
 	var verb_dom_id = this.id;
 	var verb = verb_dom_id;
-	var re = new RegExp("^" + prefix);
-	verb = verb.replace(re,"");
-	verb = verb.replace(/^verb_/,"");
 	
 	log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
 	
