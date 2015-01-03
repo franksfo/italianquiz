@@ -193,6 +193,7 @@ function submit_tour_response(form_input_id) {
 	// as is the case currently.
 	var answers = answer_info.answer.split(",");
 
+	log(DEBUG,"Ssh..don't tell anyone; but here are the possible answers: " + answers);
 
 	var i;
 	for (i = 0; i < answers.length; i++) {
