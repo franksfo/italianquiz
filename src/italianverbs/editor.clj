@@ -336,8 +336,9 @@
                    (html
                     
                     [:div {:class "game_container"}
-                     [:h4 {:style "width:70%;float:left;padding-right:1em"} [:span {:style ""} [:a {:href (str "/editor/" (:id each))}(:name each) ] ":"] [:i (string/join "," (verbs-per-game (:id each)))]]
-                     [:h4 "Inflections:"  [:span {:style "float:right; width:30%;"} [:i (string/join "," (tenses-per-game (:id each)))]]]
+                     [:h4 {:style "width:70%;float:left;padding-right:1em"} [:span {:style ""} [:a {:href (str "/editor/" (:id each))}(:name each) ] ":"] [:span {:style "padding-left:1em"} [:i (string/join "," (verbs-per-game (:id each)))]]]
+                     [:div {:style "width:30%; float:right"}
+                      [:h4 "Inflections:"  [:span {:style "padding-left:1em"} [:i (string/join "," (tenses-per-game (:id each)))]]]]
                      (generation-table (verbs-per-game (:id each))
                                        :id_prefix (:id each))]
 

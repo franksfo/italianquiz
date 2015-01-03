@@ -57,7 +57,7 @@
 (defn generation-table [verbs & [:id_prefix id_prefix]]
   (let [id_prefix (if id_prefix id_prefix "")]
     (html
-     [:table.striped (if id_prefix {:id (str "generation_list_" id_prefix)} {})
+     [:table.striped (merge {:style "width:100%"} (if id_prefix {:id (str "generation_list_" id_prefix)} {}))
       [:tr
        [:th {:style "width:10em"} "Source"] ;; TODO: source language name, e.g. "Italian"
        [:th {:style "width:10em"} "Target"] ;; TODO target language name, .e.g. "English"
