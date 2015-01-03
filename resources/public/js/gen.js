@@ -72,7 +72,9 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
 					"'>" + response + "</a>");
 
 	// reload link:
-	$("#"+prefix+"reload_"+verb).attr("onclick","javascript:refresh_row('" + verb + "','" + prefix + "');return false;");
+	$("#"+prefix+"reload_"+verb).attr("onclick",
+					  "javascript:refresh_row('" + verb + "','" + prefix + "','" + 
+					  source_language + "','" + target_language + "');return false;");
 
 	var infinitive_spec = {"synsem": {"cat": "verb",
 					  "sem": {"pred": verb},
@@ -121,11 +123,11 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
     }
 }
 
-function refresh_row(verb,prefix) {
+function refresh_row(verb,prefix,source_language,target_language) {
     $("#"+prefix+"verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
     $("#"+prefix+"target_verb").html("<i class='fa fa-spinner fa-spin'> </i>");
     $("#"+prefix+"target_translation_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
-    gen_from_verb(verb,prefix);
+    gen_from_verb(verb,prefix,source_language,target_language);
 }
 
 function get_verb_rows_by_class() {
