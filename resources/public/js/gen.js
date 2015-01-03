@@ -138,8 +138,7 @@ function gen_from_verb(verb,prefix) {
 
 		response = evaluated[target_language];
 	    }
-	    // TODO: should not be language specific here:
-	    $("#"+prefix+"english_verb_"+pred).html(response);
+	    $("#"+prefix+"target_verb_"+pred).html(response);
 
 	    var generate_target_language_url = "/engine/generate?lang="+ target_language + "&model=" + 
 		target_language_model + "&spec=" + serialized_spec;
@@ -155,8 +154,7 @@ function gen_from_verb(verb,prefix) {
 			// could not generate anything: show a link with an error icon (fa-times-circle)
 			response = "<i class='fa fa-times-circle'> </i>";
 		    }
-		    // TODO: should not be language specific here:
-		    $("#"+prefix+"english_translation_"+pred).html("<a href='" + generate_target_language_url + "'>" + response + "</a>");
+		    $("#"+prefix+"target_translation_"+pred).html("<a href='" + generate_target_language_url + "'>" + response + "</a>");
 		}
 	    });
 	}
@@ -165,8 +163,8 @@ function gen_from_verb(verb,prefix) {
 
 function refresh_row(verb,prefix) {
     $("#"+prefix+"verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
-    $("#"+prefix+"english_verb_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
-    $("#"+prefix+"english_translation_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
+    $("#"+prefix+"target_verb").html("<i class='fa fa-spinner fa-spin'> </i>");
+    $("#"+prefix+"target_translation_"+verb).html("<i class='fa fa-spinner fa-spin'> </i>");
     gen_from_verb(verb,prefix);
 }
 
