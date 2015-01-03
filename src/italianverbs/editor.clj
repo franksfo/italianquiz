@@ -42,6 +42,7 @@
 (declare set-as-default)
 (declare tenses-per-game)
 (declare verbs-per-game)
+(declare short-language-name-to-long)
 
 (def headers {"Content-Type" "text/html;charset=utf-8"})
 
@@ -101,6 +102,16 @@
 
 (def game-form
   {:fields [{:name :name :size 50 :label "Name"}
+            {:name :source :type :select 
+             :label "Source Language"
+             :options [{:value "en" :label "English"}
+                       {:value "it" :label "Italian"}
+                       {:value "es" :label "Spanish"}]}
+            {:name :target :type :select 
+             :label "Target Language"
+             :options [{:value "en" :label "English"}
+                       {:value "it" :label "Italian"}
+                       {:value "es" :label "Spanish"}]}
             {:name :game :type :hidden}
             {:name :words
              :label "Verbs for this group"
@@ -120,11 +131,16 @@
 (defn onload []
   (string/join " " 
                (map (fn [game]
-                      (let [game-id (:game game)]
+                      (let [game-id (:game game)
+                            source (:source game)
+                            target (:target game)]
                         (str 
                          "log(INFO,'editor onload: loading gen_per_verb( " game-id " )');"
-                         "gen_per_verb('" game-id "');")))
-                    (k/exec-raw [(str "SELECT game FROM games_to_use")] :results))))
+                         "gen_per_verb('" game-id "','" source "','" target "');")))
+                    (k/exec-raw [(str "SELECT games_to_use.game,games.source,games.target 
+                                         FROM games_to_use 
+                                   INNER JOIN games 
+                                           ON games_to_use.game = games.id")] :results))))
 
 (defn body [title content request]
   (html/page 
@@ -217,8 +233,10 @@
       (let [debug (log/debug (str "editor/update..about to fp/parse-params with params: " (:form-params request)))
             values (fp/parse-params game-form (:form-params request))
             debug (log/debug (str "values parsed from form params: " values))
-            results (k/exec-raw ["UPDATE games SET (name) = (?) WHERE id=? RETURNING id" [(:name values)
-                                                                                          (Integer. (:game values))]] 
+            results (k/exec-raw ["UPDATE games SET (name, source,target) = (?,?,?) WHERE id=? RETURNING id" [(:name values)
+                                                                                                             (:source values)
+                                                                                                             (:target values)
+                                                                                                             (Integer. (:game values))]] 
                                 :results)
             edited-game-id (:id (first results))]
         (update-verbs-for-game edited-game-id (:form-params request))
@@ -336,13 +354,19 @@
                    (html
                     
                     [:div {:class "game_container"}
-                     [:h4 {:style "width:70%;float:left;padding-right:1em"} [:span {:style ""} [:a {:href (str "/editor/" (:id each))}(:name each) ] ":"] [:span {:style "padding-left:1em"} [:i (string/join "," (verbs-per-game (:id each)))]]]
+                     [:h4 {:style "width:30%;float:left;padding-right:1em"} [:span {:style ""} [:a {:href (str "/editor/" (:id each))}(:name each) ] ":"] [:span {:style "padding-left:1em"} [:i (string/join "," (verbs-per-game (:id each)))]]]
+                     [:div {:style "width:30%; float:left"}
+                      [:h4 [:span {:style "padding-left:1em"} 
+                            [:i (short-language-name-to-long (:source each))] 
+                       " ⇒ "
+                            [:i (short-language-name-to-long (:target each))]]]]
+
                      [:div {:style "width:30%; float:right"}
                       [:h4 "Inflections:"  [:span {:style "padding-left:1em"} [:i (string/join "," (tenses-per-game (:id each)))]]]]
                      (generation-table (verbs-per-game (:id each))
-                                       :id_prefix (:id each))]
-
-
+                                       :id_prefix (:id each)
+                                       :source (:source each)
+                                       :target (:target each))]
 
                     )))
 
@@ -435,6 +459,8 @@
                        :values (merge game-default-values
                                       (:form-params request)
                                       {:name (:name game)
+                                       :source (:source game)
+                                       :target (:target game)
                                        :game game-id
                                        :words (verbs-per-game game-id)
                                        :inflections (inflections-per-game game-id)})
@@ -442,3 +468,10 @@
                        :method "post"
                        :problems problems))])))
 
+(defn short-language-name-to-long [lang]
+  (cond (= lang "it") "Italian"
+        (= lang "en") "English"
+        (= lang "es") "Spanish"
+        true "???"))
+
+  

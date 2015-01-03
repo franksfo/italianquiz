@@ -18,3 +18,6 @@ CREATE TABLE words_per_game (game bigint REFERENCES games(id),word text);
 CREATE TABLE games_to_use (game bigint REFERENCES games(id));
 
 CREATE TABLE inflections_per_game (game bigint REFERENCES games(id),inflection text);
+
+ALTER TABLE games ADD COLUMN target text;
+ALTER TABLE games ADD COLUMN source text;

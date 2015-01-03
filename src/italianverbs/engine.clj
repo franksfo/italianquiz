@@ -56,9 +56,7 @@
         model (resolve-model (get-in request [:params :model]) lang)
         debug (get-in request [:params :debug] false)
         unified (unify {:synsem {:sem {:pred pred}}}
-                       spec)
-
-        ] ;; note that client's intended _true_ will be "true" rather than true.
+                       spec)]
     (log/info (str "generate with pred: " pred "; lang: " lang))
     (let [expression (generate unified model)
           semantics (strip-refs (get-in expression [:synsem :sem]))]
@@ -75,6 +73,8 @@
                 :pred pred
                 (keyword lang) (fo expression)
                 :semantics semantics}
+
+               ;; note that client's intended _true_ will be "true" rather than true.
                (if (or (= debug true)
                        (= debug "true"))
                  {:debug {:head (strip-refs (get-in expression [:head]))}}

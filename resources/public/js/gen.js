@@ -2,17 +2,14 @@ var logging_level = INFO;
 
 var default_prefix = "";
 
-var source_language = "it";
 var source_language_model = "small";
-
-var target_language = "en";
 var target_language_model = "small";
 
 /* This is the entry point that editor.clj tell the client to use in its onload().
    It looks through the DOM and populates each node with what its contents should be. The initial nodes
    are all of the verbs supplied by verb.clj:(defn generation-table), which creates a <tr> for each verb, 
    along with the <tr>'s interior <td> skeleton that gen_per_verb() fleshes out. */
-function gen_per_verb(prefix) {
+function gen_per_verb(prefix, source_language, target_language) {
     var verb_rows;
 
     if (prefix == undefined) {
@@ -29,11 +26,11 @@ function gen_per_verb(prefix) {
 	var re = new RegExp("^" + prefix);
 	verb = verb.replace(re,"");
 	    verb = verb.replace(/^verb_/,"");
-	gen_from_verb(verb,prefix);
+	gen_from_verb(verb,prefix,source_language,target_language);
     });
 }
 
-function gen_from_verb(verb,prefix) {
+function gen_from_verb(verb,prefix,source_language,target_language) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
 
     // not sure why or if this is necessary..??

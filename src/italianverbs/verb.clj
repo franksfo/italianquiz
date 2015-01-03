@@ -54,30 +54,31 @@
 
 (declare table-of-examples)
 
-(defn generation-table [verbs & [:id_prefix id_prefix]]
+(defn generation-table [verbs & [:id_prefix id_prefix :source source :target target ]]
   (let [id_prefix (if id_prefix id_prefix "")]
     (html
      [:table.striped (merge {:style "width:100%"} (if id_prefix {:id (str "generation_list_" id_prefix)} {}))
       [:tr
-       [:th {:style "width:10em"} "Source"] ;; TODO: source language name, e.g. "Italian"
-       [:th {:style "width:10em"} "Target"] ;; TODO target language name, .e.g. "English"
-       [:th {:style "width:20em"} "Example"] 
-       [:th {:style "width:20em"} "Translation"]
+       [:th {:style "width:10em"} "Source"] ;; verb in source language, e.g. English
+       [:th {:style "width:20em"} "Source Example"] 
+       [:th {:style "width:10em"} "Target"] ;; verb in target language, e.g. Italian
+       [:th {:style "width:20em"} "Target Example"]
        [:th {:style "width:3em"} ""]
        ]
       
       (map (fn [lexeme]
              [:tr.lexeme
         
+              ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called pred to be more accurate what it means).
+              [:td {:id (str id_prefix "target_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
+
+
+              [:td.example.gen_source {:id (str id_prefix "verb_" lexeme)}
+               [:i {:class "fa fa-spinner fa-spin"} "" ] ]
+
               ;; maybe we will have an dom ID for this,too, but for now, it's not needed.
               [:td lexeme ]
 
-              ;; the lexeme(s) in the target language. Might be more than one; it depends on 'lexeme' (TODO: should be called pred to be more accurate what it means).
-              [:td {:id (str id_prefix "target_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
-
-              [:td.example
-               [:div.gen_source {:id (str id_prefix "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
-              
               [:td {:id (str id_prefix "target_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
               
               [:td {:id (str id_prefix "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]
