@@ -68,15 +68,16 @@
       
       (map (fn [lexeme]
              [:tr.lexeme
+        
+              ;; maybe we will have an dom ID for this,too, but for now, it's not needed.
               [:td lexeme ]
 
-              ;; TODO: target_verb_
+              ;; the lexeme(s) in the target language. Might be more than one; it depends on 'lexeme' (TODO: should be called pred to be more accurate what it means).
               [:td {:id (str id_prefix "target_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
               [:td.example
                [:div.gen_source {:id (str id_prefix "verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]]
               
-              ;; TODO: target_translation_
               [:td {:id (str id_prefix "target_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
               
               [:td {:id (str id_prefix "reload_" lexeme)} [:button {:class "fa fa-refresh"} ]]
