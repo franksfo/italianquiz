@@ -33,16 +33,6 @@ function gen_per_verb(prefix) {
     });
 }
 
-function sentence_with_tense_info(language,pred) {
-    if (language == "it") {
-	return italian_present_tense(pred);
-    }
-    if (language == "en") {
-	return english_present_tense(pred);
-    }
-    return italian_present_tense(pred);
-}
-
 function gen_from_verb(verb,prefix) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
 
@@ -159,6 +149,16 @@ function italian_present_tense(pred) {
 	    "pred": pred}}};
 };
 
+function sentence_with_tense_info(language,pred) {
+    if (language == "it") {
+	return italian_present_tense(pred);
+    }
+    if (language == "en") {
+	return english_present_tense(pred);
+    }
+    return italian_present_tense(pred);
+}
+
 function english_present_tense(pred) {
     // italian and english are the same for present tense, so simply use one for the other.
     return italian_present_tense(pred);
@@ -178,3 +178,4 @@ function english_passato_spec(verb) {
 	    "tense": "past",    
 	    "pred": pred}}};
 }
+
