@@ -103,7 +103,7 @@
         info (log/debug "get-string-1: input word: " word)
         vosotros (if vosotros vosotros false)
         ustedes (if ustedes ustedes false)
-        tú (if tú ´tu false)
+        tú (if tú tú false)
         usted (if usted usted false)]
 
     (log/debug (str "word's a is a string? " (get-in word '(:a)) " => " (string? (get-in word '(:a)))))

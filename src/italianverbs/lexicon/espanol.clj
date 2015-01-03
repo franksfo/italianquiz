@@ -99,7 +99,7 @@
                      "escuchar" {:synsem {:cat :verb
                                           :sem {:pred :??}}}
                      "esperar" {:synsem {:cat :verb
-                   :sem {:pred :??}}}
+                                         :sem {:pred :??}}}
                      "estudiar" {:synsem {:cat :verb
                                           :sem {:pred :??}}}
                      "evitar" {:synsem {:cat :verb
