@@ -63,6 +63,12 @@ function gen_per_verb(prefix) {
 }
 
 function sentence_with_tense_info(language,pred) {
+    if (source_language == "it") {
+	return italian_present_tense(pred);
+    }
+    if (source_language == "en") {
+	return english_present_tense(pred);
+    }
     return italian_present_tense(pred);
 }
 
