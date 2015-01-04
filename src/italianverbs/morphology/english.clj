@@ -738,7 +738,17 @@
 
    (and (= (get-in lexical-entry [:synsem :cat]) :noun)
         (= (get-in lexical-entry [:synsem :pronoun]) true))
-   (unifyc lexical-entry noun pronoun-semantic-gender-agreement)
+   (let [agr (ref :top)
+         cat (ref :top)
+         pronoun (ref :top)]
+     (unifyc lexical-entry
+             {:english {:agr agr
+                        :cat cat
+                        :pronoun pronoun}
+              :synsem {:agr agr
+                       :cat cat
+                       :pronoun pronoun}}
+             pronoun-semantic-gender-agreement))
 
    (= (get-in lexical-entry [:synsem :cat]) :noun)
    (let [agr (ref :top)
