@@ -768,7 +768,6 @@
 (def english-specific-rules
   (list agreement))
 
-;; TODO: english's exception-generator has only one function: pluralizing exceptions for nouns: add more.
 (defn exception-generator [lexicon]
   (if (not (empty? lexicon))
     (let [lexeme-kv (first lexicon)
@@ -832,15 +831,10 @@
           (map (fn [each-entry]
                  (phonize each-entry a-string))
                a-map)
-
-          (map? a-map)
-          (unify {:english {:english a-string}}
-                 common
-                 a-map)
-
-        true
-        (unify a-map
-               {:english a-string}
-               common))))
+          
+          true
+          (unify a-map
+                 {:english {:english a-string}}
+                 common))))
 
 
