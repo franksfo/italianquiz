@@ -11,6 +11,16 @@
                                     verb verb-aux)])
 (require '[italianverbs.pos.english :refer :all])
 
+(defn intrans [spec & [opts]]
+  [(unify
+    spec
+    transitive
+    (if (:subj opts)
+      {:synsem {:sem {:subj (:subj opts)}}}
+      :top)
+    (if (:obj opts) {:synsem {:sem {:obj (:obj opts)}}}
+        :top))])
+
 (defn trans-intrans [spec & [opts]]
   [(unify
     spec
@@ -51,8 +61,8 @@
              :number :sing}}
 
 
-   "abandon" {:synsem {:cat :verb
-                       :sem {:pred :abandon}}}
+   "abandon" (trans-intrans {:synsem {:cat :verb
+                                      :sem {:pred :abandon}}})
 
 
    "accept" {:synsem {:cat :verb
@@ -168,7 +178,7 @@
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
 
-   "dine"  (unify intransitive {:synsem {:sem {:pred :cenare
+   "dine"  (intrans {:synsem {:sem {:pred :cenare
                                     :subj {:human true}}}})
 
    "drink" (trans-intrans
