@@ -50,10 +50,34 @@
              :mass false
              :number :sing}}
 
+
+   "abandon" {:synsem {:cat :verb
+                       :sem {:pred :abandon}}}
+
+
+   "accept" {:synsem {:cat :verb
+                      :sem {:pred :accept}}}
+   
+   "accompany" {:synsem {:cat :verb
+                         :sem {:pred :accompany}}}
+
+
+   "announce" {:synsem {:cat :verb
+                        :sem {:pred :announce}}}
+
+   "answer"  (trans-intrans {:synsem {:sem {:pred :answer}}})
+
    "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere}}})
+
+
+   "assure" {:synsem {:cat :verb
+                      :sem {:pred :assure}}}
 
    "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
 
+   "base" {:synsem {:cat :verb
+                    :sem {:pred :support}}}
+   
    "be"
    (let [essere-common 
          (let [infl (ref :top)
@@ -123,6 +147,25 @@
    "come" (trans-intrans {:synsem {:sem {:pred :venire}}
                           :english {:past "came"}})
 
+   "comment" {:synsem {:cat :verb
+                       :sem {:pred :comment}}}
+
+   "conserve" {:synsem {:cat :verb
+                        :sem {:pred :conserve}}}
+
+   "consider" {:synsem {:cat :verb
+                        :sem {:pred :consider}}}
+
+   "correspond" {:synsem {:cat :verb
+                          :sem {:pred :correspond}}}
+
+   "create" {:synsem {:cat :verb
+                      :sem {:pred :create}}}
+
+   "cut" {:english {:past "cut"}
+          :synsem {:cat :verb
+                   :sem {:pred :cut}}}
+
    "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
 
    "dine"  (unify intransitive {:synsem {:sem {:pred :cenare
@@ -168,9 +211,16 @@
                   {:subj {:human true}}
                   {:obj {:human true}})
 
+   "enjoy" {:synsem {:cat :verb
+                     :sem {:pred :enjoy}}}
+
    "enter"  (trans-intrans {:synsem {:sem {:pred :entrare}}})
 
    "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
+
+
+   "finish" {:synsem {:cat :verb
+                      :sem {:pred :finish}}}
 
    ;; TODO: account for "give" being ditransitive.
    "give" (trans-intrans {:synsem {:sem {:pred :dare}}
@@ -249,6 +299,11 @@
                    :pred :io}
              :subcat '()}}
 
+   "increase" {:synsem {:cat :verb
+                        :sem {:pred :increase}}}
+
+   "insure" {:synsem {:cat :verb
+                      :sem {:pred :insure}}}
 
    "it (♂)"
    {:synsem {:cat :noun
@@ -289,6 +344,9 @@
    "love" (trans-intrans {:synsem {:sem {:pred :amare}}}
                          {:subj {:human true}})
 
+   "lower" {:synsem {:cat :verb
+                     :sem {:pred :lower}}}
+
    "meet"  (trans-intrans {:synsem {:sem {:pred :incontrare}}
                            :english {:past "met"}})
 
@@ -305,6 +363,8 @@
    "play (games)" (trans-intrans {:synsem {:sem {:pred :giocare}}})
    "play (music)" (trans-intrans {:synsem {:sem {:pred :suonare}}})
 
+   "preserve" {:synsem {:cat :verb
+                        :sem {:pred :preserve}}}
 
    "read" ;; if this was a phonetic dictionary, there would be two entries for each pronounciation (i.e. both "reed" or "red" pronounciations)
    (trans-intrans {:english {:past "read (past)"}
@@ -322,11 +382,16 @@
                           :physical-object true
                           :human false}}})
    "remember"  (trans-intrans {:synsem {:sem {:pred :ricordare}}})
-   "respond"  (trans-intrans {:synsem {:sem {:pred :rispondere}}})
+   "respond"  (trans-intrans {:synsem {:sem {:pred :answer}}})
    "return" (flatten
              (list
               (trans-intrans {:synsem {:sem {:pred :ritornare}}})
               (trans-intrans {:synsem {:sem {:pred :tornare}}})))
+
+   "run" {:english {:past "ran"
+                    :participle "run"}
+          :synsem {:cat :verb
+                   :sem {:pred :run}}}
 
    ;; TODO: search _within_ or _on_: depends on the object.
    ;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
@@ -340,6 +405,9 @@
 
    "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}
                            :english {:past "sent"}})
+
+   "share" {:synsem {:cat :verb
+                     :sem {:pred :share}}}
 
    "she"
    {:synsem {:cat :noun
@@ -383,6 +451,14 @@
    "study"  (trans-intrans {:synsem {:sem {:pred :studiare}}
                             :english {:past "studied"}})
 
+   "support" {:synsem {:cat :verb
+                       :sem {:pred :support}}}
+
+   "take advantage of" {:english {:past "took advantage of"
+                                  :participle "taken advantage of"}
+                        :synsem {:cat :verb
+                                 :sem {:pred :take-advantage-of}}}
+
    "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
 
    "telephone" (trans-intrans {:synsem {:sem {:pred :telefonare}}})
@@ -418,6 +494,10 @@
 
    "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
                            :english {:past "took"}})
+
+   "understand" {:synsem {:cat :verb
+                          :sem {:pred :understand}}}
+                          
 
    "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
 

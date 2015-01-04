@@ -23,63 +23,90 @@
 (def lexicon-source {
 
                      "abandonar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
+                                           :sem {:pred :abandon}}}
                      "acabar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :finish}}}
                      "aceptar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
+                                         :sem {:pred :accept}}}
                      "acompañar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
+                                           :sem {:pred :accompany}}}
                      "anunciar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
+                                          :sem {:pred :announce}}}
                      "apoyar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :support}}}
                      "aprender" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
-                     "aprovechar" {:synsem {:cat :verb
-                                            :sem {:pred :??}}}
-                     "asegurar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
+                                          :sem {:pred :imparare}}}
+
+                     "aprovechar" [
+                                   {:synsem {:cat :verb
+                                             :sem {:pred :take-advantage-of}}}
+                                   {:synsem {:cat :verb
+                                             :sem {:pred :enjoy}}}]
+
+                     "asegurar" [{:synsem {:cat :verb
+                                           :sem {:pred :assure}}}
+                                 {:synsem {:cat :verb
+                                           :sem {:pred :insure}}}]
+
                      "aumentar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
+                                          :sem {:pred :increase}}}
+
                      "ayudar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :aiutare}}}
+
                      "bajar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
+                                       :sem {:pred :lower}}}
+
                      "cambiar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
+                                         :sem {:pred :cambiare}}}
+
                      "comentar" {:synsem {:cat :verb
-                                          :sem {:pred :??}}}
+                                          :sem {:pred :comment}}}
+
                      "comer" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
+                                       :sem {:pred :mangiare}}}
+
                      "compartir" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
+                                           :sem {:pred :share}}}
+
                      "comprar" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
+                                         :sem {:pred :comprare}}}
+
                      "comprender" {:synsem {:cat :verb
-                                            :sem {:pred :??}}}
-                     "conservar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
+                                            :sem {:pred :understand}}}
+
+                     "conservar" [{:synsem {:cat :verb
+                                           :sem {:pred :conserve}}}
+                                  {:synsem {:cat :verb
+                                            :sem {:pred :preserve}}}]
+
                      "considerar" {:synsem {:cat :verb
-                                            :sem {:pred :??}}}
-                     "consistir" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
+                                            :sem {:pred :consider}}}
+
                      "contestar" {:synsem {:cat :verb
-                                           :sem {:pred :??}}}
+                                           :sem {:pred :answer}}}
+
                      "correr" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :run}}}
+
                      "corresponder" {:synsem {:cat :verb
-                                              :sem {:pred :??}}}
+                                              :sem {:pred :correspond}}}
+
                      "cortar" {:synsem {:cat :verb
-                                        :sem {:pred :??}}}
+                                        :sem {:pred :cut}}}
+
                      "crear" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
+                                       :sem {:pred :create}}}
+
                      "cumplir" {:synsem {:cat :verb
                                          :sem {:pred :??}}}
+
                      "deber" {:synsem {:cat :verb
                                        :sem {:pred :??}}}
+
                      "decidir" {:synsem {:cat :verb
                                          :sem {:pred :??}}}
+
                      "dejar" {:synsem {:cat :verb
                                        :sem {:pred :??}}}
                      "depender" {:synsem {:cat :verb

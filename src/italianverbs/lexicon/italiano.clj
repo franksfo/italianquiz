@@ -88,6 +88,12 @@
                                          :2 '()}}
                             :2 '()}}})]
 
+   "abbandonare" {:synsem {:cat :verb
+                           :sem {:pred :abandon}}}
+
+   "abbassare" {:synsem {:cat :verb
+                         :sem {:pred :lower}}}
+
    "abbracciare"
    (trans-intrans {:synsem {:essere false
                             :sem {:pred :abbracciare
@@ -95,6 +101,12 @@
                                   :discrete false}}}
                   {:subj {:human true}
                    :obj {:animate true}})
+
+   "accettare" {:synsem {:cat :verb
+                         :sem {:pred :accept}}}
+
+   "accompagnare" {:synsem {:cat :verb
+                            :sem {:pred :accompany}}}
 
    "acqua"
    (unifyc (:agreement noun)
@@ -217,6 +229,28 @@
                                     :subcat '()
                                     :cat :prep}}}
               :note "andare-pp"}))))
+
+
+   "annunciare" {:synsem {:cat :verb
+                          :sem {:pred :announce}}}
+
+   "appoggiare" {:synsem {:cat :verb
+                          :sem {:pred :support}}}
+
+   "apprendere" {:synsem {:cat :verb
+                          :sem {:pred :imparare}}}
+
+   "approfittare" [{:synsem {:cat :verb
+                             :sem {:pred :take-advantage-of}}}]
+
+
+   "assicurare" [{:synsem {:cat :verb
+                           :sem {:pred :assure}}}
+                 {:synsem {:cat :verb
+                         :sem {:pred :insure}}}]
+
+   "aumentare" {:synsem {:cat :verb
+                         :sem {:pred :increase}}}
 
    "avere"
    (let [avere-common {:synsem {:essere false
@@ -391,15 +425,15 @@
    "calzoni"
    ;; inherently plural
    (unifyc agreement-noun
-          common-noun
-          countable-noun
-          masculine-noun
-          {:synsem {:sem {:pred :calzoni
-                          :artifact true
-                          :speakable false
-                          :legible false
-                          :consumable false
-                          :clothing true}}})
+           common-noun
+           countable-noun
+           masculine-noun
+           {:synsem {:sem {:pred :calzoni
+                           :artifact true
+                           :speakable false
+                           :legible false
+                           :consumable false
+                           :clothing true}}})
 
    "cambiare" (trans-intrans {:synsem {:sem {:pred :cambiare}}})
 
@@ -413,7 +447,6 @@
              {:synsem {:essere false
                        :sem {:subj {:human true}
                              :pred :cenare}}})
-
 
    "camicia"
     (unifyc agreement-noun
@@ -439,6 +472,11 @@
                           :pred :cane}}})
 
 
+   "capire" {:italian {:boot-stem1 "capisc"
+                       :boot-stem2 "cap"}
+             :synsem {:cat :verb
+                      :sem {:pred :understand}}}
+
    "casa"
     (unifyc agreement-noun
            common-noun
@@ -461,17 +499,17 @@
 
       ;; working on: "mi sono comprato un nuovo cellulare"
      "cellulare"
-      (unifyc agreement-noun
+     (unifyc agreement-noun
              masculine-noun
              common-noun
              countable-noun
-      {:synsem {:cat :noun
-                :sem {:pred :cellulare
-                      :artifact true
-                      :consumable false
-                      :writable false
-                      :place false
-                      :speakable false}}})
+             {:synsem {:cat :noun
+                       :sem {:pred :cellulare
+                             :artifact true
+                             :consumable false
+                             :writable false
+                             :place false
+                             :speakable false}}})
       
       "chiedere" (trans-intrans
                   {:synsem {:sem {:pred :chiedere}}
@@ -540,12 +578,29 @@
                              :buyable false
                              :artifact true}}})
 
+
+      "commentare" {:synsem {:cat :verb
+                             :sem {:pred :comment}}}
+
       "comprare"
       (trans-intrans {:synsem {:essere false
                                :sem {:pred :comprare}}}
                      {:subj {:human true}
                       :obj {:buyable true}})
       
+      "condividere" {:synsem {:cat :verb
+                              :sem {:pred :share}}}
+
+
+      "conservare" [{:synsem {:cat :verb
+                             :sem {:pred :conserve}}}
+                   {:synsem {:cat :verb
+                             :sem {:pred :preserve}}}]
+
+
+      "considerare" {:synsem {:cat :verb
+                              :sem {:pred :consider}}}
+
       "contento"
       [(let [complement-complement-sem (ref {:human true})
              complement-sem (ref {:pred :di
@@ -567,6 +622,13 @@
                           :sem {:pred :contento
                                 :comparative false
                                 :human true}}}))]
+
+      "correre" {:italian {:passato "corso"}
+                 :synsem {:cat :verb
+                          :sem {:pred :run}}}
+
+      "correspondere" {:synsem {:cat :verb
+                               :sem {:pred :correspond}}}
 
       "corto"
       [(let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
@@ -590,6 +652,9 @@
                               :comparative false
                               :human true}}
                :italiano {:cat :adjective}})]
+
+      "creare" {:synsem {:cat :verb
+                         :sem {:pred :create}}}
 
       ;; TODO: account for "dare" being ditransitive.
       "dare"
@@ -829,6 +894,11 @@
                 verb-aux
                 verb-subjective
                 {:italiano {:notes "essere-aux"}})])
+
+      "finire" {:italian {:boot-stem1 "finisc"
+                          :boot-stem2 "fin"}
+                :synsem {:cat :verb
+                         :sem {:pred :finish}}}
 
       "frequentare" (trans-intrans {:synsem {:sem {:pred :frequentare}}})
 
@@ -1149,9 +1219,10 @@
 
    "ricevere" (trans-intrans {:synsem {:sem {:pred :ricevere}}})
    "ricordare" (trans-intrans {:synsem {:sem {:pred :ricordare}}})
+
    "rispondere" (trans-intrans
                  {:synsem {:essere false
-                           :sem {:pred :rispondere}}
+                           :sem {:pred :answer}}
                   :italiano {:passato "risposto"}})
       
    "ritornare" (trans-intrans
@@ -1174,6 +1245,9 @@
    "stampare" (trans-intrans {:synsem {:sem {:pred :stampare}}})
    "studiare" (trans-intrans {:synsem {:sem {:pred :studiare}}})
    "suonare" (trans-intrans {:synsem {:sem {:pred :suonare}}})
+
+   "tagliare" {:synsem {:cat :verb
+                        :sem {:pred :cut}}}
 
    "telefonare" (trans-intrans {:synsem {:essere false
                                          :sem {:pred :telefonare}}})
