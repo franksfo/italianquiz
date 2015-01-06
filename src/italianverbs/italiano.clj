@@ -1,13 +1,14 @@
 (ns italianverbs.italiano
-  (:refer-clojure :exclude [get-in])
-  (:require 
-   [italianverbs.grammar.italiano :as gram]
-   [italianverbs.lexicon.italiano :as lex]
-   [italianverbs.morphology.italiano :as morph]))
+  (:refer-clojure :exclude [get-in]))
+
+(require '[clojure.string :as string])
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.cache :refer (build-lex-sch-cache create-index over spec-to-phrases)])
 (require '[italianverbs.forest :as forest])
+(require '[italianverbs.grammar.italiano :as gram])
+(require '[italianverbs.lexicon.italiano :as lex])
 (require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals unify)])
+(require '[italianverbs.morphology.italiano :as morph])
 (require '[italianverbs.parse :as parse])
 (require '[italianverbs.pos.italiano :refer :all])
 (require '[italianverbs.ug :refer :all])
@@ -17,6 +18,9 @@
 (def get-string morph/get-string)
 (def grammar gram/grammar)
 (def lexicon-source lex/lexicon-source)
+
+(defn fo [input]
+  (string/trim (str (morph/get-string (:italiano input)))))
 
 ;; see TODOs in lexiconfn/compile-lex (should be more of a pipeline as opposed to a argument-position-sensitive function.
 (def lexicon
