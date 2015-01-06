@@ -99,7 +99,6 @@
 
 (def possible-preds [:top])
 
-;; TODO: only uses english lexicon - should use all lexicons.
 (defn lookup [request]
   (let [lang (get-in request [:params :lang] "en") ;; if no lang specified, use english.
         spec (if (not (= :null (get-in request [:params :spec] :null)))
