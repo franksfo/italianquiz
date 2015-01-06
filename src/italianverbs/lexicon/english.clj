@@ -550,7 +550,9 @@
    "work (human)"  (trans-intrans {:synsem {:sem {:pred :lavorare}}})
 
    "work (machines)" (trans-intrans {:english {:note "nonliving"} ;; TODO: add support in cloud for :note.
-                                     :synsem {:sem {:subj {:living false}
+                                     :synsem {:sem {:subj {:living false
+                                                           :human false ;; should not need to add human=false and animate=false: living=false should suffice.
+                                                           :animate false}
                                                     :pred :funzionare}}})
 
    "write"  (trans-intrans {:english {:past "wrote"}
