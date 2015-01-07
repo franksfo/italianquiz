@@ -159,48 +159,8 @@
 
 (def string-unifier-keys #{:english :italiano})
 
-(declare unify)
 (declare merge)
- 
-(defn merge-with-keys [arg1 arg2]
-  (log/debug (str "merge-with-keys: arg1:" arg1))
-  (log/debug (str "merge-with-keys: arg2" arg2))
-  (let [keys1 (keys arg1)
-        key1 (first keys1)]
-    (if key1
-      (cond
-       (and (string? (key1 arg1))
-            (contains? string-unifier-keys key1)
-            (contains? (set (keys arg2)) key1)
-            (map? (key1 arg2)))
-       (merge
-        {key1 (unify {key1 (key1 arg1)}
-                     (key1 arg2))}
-        (merge-with-keys (dissoc arg1 key1)
-                         (dissoc arg2 key1)))
-
-
-       (and (string? (key1 arg2))
-            (contains? string-unifier-keys key1)
-            (contains? (set (keys arg1)) key1)
-            (map? (key1 arg1)))
-       (merge
-        {key1 (unify {key1 (key1 arg2)}
-                     (key1 arg1))}
-        (merge-with-keys (dissoc arg1 key1)
-                         (dissoc arg2 key1)))
-
-       (contains? (set (keys arg2)) key1)
-       (merge {key1 (unify (key1 arg1)
-                           (key1 arg2))}
-              (merge-with-keys (dissoc arg1 key1)
-                               (dissoc arg2 key1)))
-
-       true
-       (merge {key1 (key1 arg1)}
-              (merge-with-keys (dissoc arg1 key1)
-                               (dissoc arg2 key1))))
-      arg2)))
+(declare merge-with-keys)
 
 (defn unify [& args]
   (cond (empty? (rest args))
@@ -466,6 +426,47 @@
            (do
              (log/debug (str "(" val1 ", " val2 ") => :fail"))
              :fail)))))
+
+(defn merge-with-keys [arg1 arg2]
+  (log/debug (str "merge-with-keys: arg1:" arg1))
+  (log/debug (str "merge-with-keys: arg2" arg2))
+  (let [keys1 (keys arg1)
+        key1 (first keys1)]
+    (if key1
+      (cond
+       (and (string? (key1 arg1))
+            (contains? string-unifier-keys key1)
+            (contains? (set (keys arg2)) key1)
+            (map? (key1 arg2)))
+       (merge
+        {key1 (unify {key1 (key1 arg1)}
+                     (key1 arg2))}
+        (merge-with-keys (dissoc arg1 key1)
+                         (dissoc arg2 key1)))
+
+
+       (and (string? (key1 arg2))
+            (contains? string-unifier-keys key1)
+            (contains? (set (keys arg1)) key1)
+            (map? (key1 arg1)))
+       (merge
+        {key1 (unify {key1 (key1 arg2)}
+                     (key1 arg1))}
+        (merge-with-keys (dissoc arg1 key1)
+                         (dissoc arg2 key1)))
+
+       (contains? (set (keys arg2)) key1)
+       (merge {key1 (unify (key1 arg1)
+                           (key1 arg2))}
+              (merge-with-keys (dissoc arg1 key1)
+                               (dissoc arg2 key1)))
+
+       true
+       (merge {key1 (key1 arg1)}
+              (merge-with-keys (dissoc arg1 key1)
+                               (dissoc arg2 key1))))
+      arg2)))
+
 
 ;; unify vs. merge:
 ;;
