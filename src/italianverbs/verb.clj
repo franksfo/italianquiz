@@ -100,10 +100,9 @@
       (map (fn [lexeme]
              [:tr.lexeme
               
-              [:td lexeme
-               ]
+              [:td lexeme ]
 
-        ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called pred to be more accurate what it means).
+        ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called 'pred' to be more accurate what it means).
               [:td {:id (str id_prefix "target_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
               [:td.example.gen_source {:id (str id_prefix "verb_" lexeme)}
@@ -174,17 +173,19 @@
        [:div#verbs 
 
 
-        (generation-table (let [all-verbs
-                                (filter (fn [lexeme]
-                                          (not (empty?
-                                                (filter (fn [lex]
-                                                          (and
-                                                           (= :top (get-in lex [:synsem :infl]))
-                                                           (= :verb
-                                                              (get-in lex [:synsem :cat]))))
-                                                        (get @it/lexicon lexeme)))))
-                                        (sort (keys @it/lexicon)))]
-                            all-verbs))
+        (generation-table (let [all-words (vals @it/lexicon)
+
+                                all-preds (sort (map #(string/replace-first (str %) ":" "")
+                                                     (set (filter #(and (not (= :top %))
+                                                                        (not (nil? %)))
+                                                                  (flatten (map (fn [lexs]
+                                                                                  (map (fn [lex]
+                                                                                         (if (and (= (get-in lex [:synsem :cat]) :verb)
+                                                                                                  (= (get-in lex [:synsem :infl]) :top))
+                                                                                           (get-in lex [:synsem :sem :pred])))
+                                                                                       lexs))
+                                                                                all-words))))))]
+                            all-preds))
         ]
 
        (if show-nouns
