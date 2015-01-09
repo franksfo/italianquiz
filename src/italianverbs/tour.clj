@@ -27,7 +27,7 @@
    (GET "/" request
         {:status 200
          :body (page "Map Tour" (tour) request {:onload "start_tour();" 
-                                                :jss ["/js/tour.js"
+                                                :jss ["/js/tour.js" "/js/gen.js"
                                                       "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"]})})
 
    (POST "/evaluate" request
@@ -47,17 +47,28 @@
     :source_flag "/svg/britain.svg"
     :destination_flag "/svg/italy.svg"}])
 
-(defn get-possible-preds []
-  (let [result
-        (map (fn [row]
-               (keyword (:word row)))
-             (k/exec-raw [(str "SELECT DISTINCT word 
-                            FROM games_to_use 
-                      INNER JOIN games ON games_to_use.game = games.id 
-                      INNER JOIN words_per_game ON words_per_game.game = games.id")] :results))]
-    (if (empty? result) ;; no tests are possible, so just allow any verb (:top will match any verb).
-      [:top]
-      result)))
+(defn get-possible-games [] 
+  (map (fn [row]
+         (keyword (:word row)))
+       (k/exec-raw [(str "SELECT * FROM games_to_use ")] :results)))
+
+(defn get-possible-preds [game-id]
+  (map (fn [row]
+         (keyword (:word row)))
+       (k/exec-raw [(str "SELECT DISTINCT word 
+                                     FROM games_to_use 
+                               INNER JOIN games ON games_to_use.game = games.id 
+                               INNER JOIN words_per_game ON words_per_game.game = games.id
+                                    WHERE games.id = ?") [(Integer. game-id)]] :results)))
+
+(defn get-possible-inflections [game-id]
+  (map (fn [row]
+         (keyword (:word row)))
+       (k/exec-raw [(str "SELECT DISTINCT word 
+                                     FROM games_to_use 
+                               INNER JOIN games ON games_to_use.game = games.id 
+                               INNER JOIN words_per_game ON words_per_game.game = games.id
+                                    WHERE games.id = ?") [(Integer. game-id)]] :results)))
 
 (defn direction-chooser []
   [:dev#chooser
@@ -166,6 +177,7 @@
 
 (defn generate-question [request]
   (let [possible-preds (get-possible-preds)
+        possible-inflections (get-possible-inflections)
         pred (if (not (= :null (get-in request [:params :pred] :null)))
                (keyword (get-in request [:params :pred]))
                (nth possible-preds (rand-int (.size possible-preds))))
