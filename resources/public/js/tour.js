@@ -90,17 +90,6 @@ function start_tour() {
 	fillOpacity: 0.5
     }).addTo(map).bindPopup("start")
 
-    
-    // TODO: fix to make this Napoli-centric: right now it is
-    // centered over London, England.
-    if (false) {
-	L.polygon([
-	    [51.509, -0.08],
-	    [51.503, -0.06],
-	    [51.51, -0.047]
-	]).addTo(map).bindPopup("I am a polygon.");
-    }
-    
     var popup = L.popup();
     
     function onMapClick(e) {
