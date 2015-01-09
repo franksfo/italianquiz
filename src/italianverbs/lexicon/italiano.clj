@@ -3,7 +3,8 @@
 
 (require '[clojure.tools.logging :as log])
 (require '[italianverbs.lexiconfn :refer (compile-lex map-function-on-map-vals)])
-(require '[italianverbs.morphology.italiano :refer (agreement analyze exception-generator phonize italian-specific-rules)])
+(require '[italianverbs.morphology.italiano :refer (agreement analyze exception-generator
+                                                              italian-specific-rules phonize)])
 (require '[italianverbs.morphology.italiano :as m])
 (require '[italianverbs.pos :refer (agreement-noun 
                                     cat-of-pronoun common-noun

@@ -1585,10 +1585,26 @@
 
    (and (= (get-in lexical-entry [:synsem :cat]) :noun)
         (= (get-in lexical-entry [:synsem :pronoun]) true))
-   (unifyc lexical-entry noun pronoun-semantic-gender-agreement)
+   (unifyc lexical-entry
+           pronoun-semantic-gender-agreement)
 
-   (= (get-in lexical-entry [:synsem :cat]) :noun)
-   (unifyc lexical-entry noun)
+   (and (= (get-in lexical-entry [:synsem :cat]) :noun)
+        (= (get-in lexical-entry [:synsem :subcat :1]) :top))
+   ;; nouns which select articles that match in gender and number.
+   (unifyc lexical-entry
+           (let [number (ref :top)
+                 gender (ref :top)
+                 person (ref :top)
+                 agr (ref {:number number
+                           :gender gender
+                           :person person})
+                 cat (ref :top)]
+             {:synsem {:cat cat
+                       :case :top
+                       :subcat {:1 {:number number
+                                    :person person
+                                    :gender gender}}
+                       :agr agr}}))
 
    true
    lexical-entry))
@@ -1602,4 +1618,5 @@
    true lexical-entry))
 
 (def italian-specific-rules
-  (list agreement essere-default))
+  (list agreement 
+        essere-default))
