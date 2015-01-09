@@ -64,7 +64,10 @@
   (cond (= :fail fs) true
         (seq? fs) false ;; a sequence is never fail.
         (= fs :fail) true ;; :fail is always fail.
-        (fn? fs) false ;; a function is never fail.
+ 
+        (and (map? fs) (fail? (get-in fs [:fail] :top))) true
+
+       (fn? fs) false ;; a function is never fail.
 
         ;; TODO: make cycle-checking work with other features (not just :subj).
         (and
@@ -253,10 +256,17 @@
            (and (map? val1)
                 (map? val2))
            (let [debug (log/debug "map? val1 true; map? val2 true")
-                 result (merge-with-keys val1 val2)]
+                 result (merge-with-keys val1 val2)
+                 use-merge-with-fail false
+                 ]
              (log/debug (str "result: " result))
              (if (fail? result)
-               :fail
+               (if use-merge-with-fail
+                 ;; this doesn't work yet: use-merge-with-fail will be enabled when it works.
+                 (merge {:fail true}
+                        result)
+                 :fail)
+
                (if (empty? (rest (rest args)))
                  result
                  (unify result
