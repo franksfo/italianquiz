@@ -755,13 +755,14 @@
    (if js
      (include-js js))
    
-   ;; calling a function (like includes-js) doesn't seem to work here, so doing
-   ;; include-js for the first two elements of jss.
-   ;; I guess I need a macro here to expand this to include a vector of javascript.
-   (if (nth jss 0)
+   ;; TODO: this is obviously broken; I don't know how to do this correctly:
+   (if (> (.size jss) 0)
      (include-js (nth jss 0)))
-   (if (nth jss 1)
+   (if (> (.size jss) 1)
      (include-js (nth jss 1)))
+   (if (> (.size jss) 2)
+     (include-js (nth jss 2)))
+   ;; and so on..?
 
     ; enable this 'reset.css' at some point.
     ;  (include-css "/italian/css/reset.css")
