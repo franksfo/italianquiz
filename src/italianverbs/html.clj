@@ -707,7 +707,7 @@
 
 (defn pretty-head [title & [js jss css_set]]
   (log/debug (str "pretty-head js: " js))
-  (log/debug (str "pretty-head jss: " jss));; TODO: jss => js_set.
+  (if jss (log/debug (str "pretty-head jss: " jss)));; TODO: jss => js_set.
   [:head 
    [:meta {:http-equiv "Content-Type" :content "text/html; charset=utf-8"}]
    [:link {:href "/webjars/css/normalize.css" :rel "stylesheet" :type "text/css"}]
@@ -756,12 +756,14 @@
      (include-js js))
    
    ;; TODO: this is obviously broken; I don't know how to do this correctly:
-   (if (> (.size jss) 0)
-     (include-js (nth jss 0)))
-   (if (> (.size jss) 1)
-     (include-js (nth jss 1)))
-   (if (> (.size jss) 2)
-     (include-js (nth jss 2)))
+   (if jss
+     (do
+       (if (> (.size jss) 0)
+         (include-js (nth jss 0)))
+       (if (> (.size jss) 1)
+         (include-js (nth jss 1)))
+       (if (> (.size jss) 2)
+         (include-js (nth jss 2)))))
    ;; and so on..?
 
     ; enable this 'reset.css' at some point.
