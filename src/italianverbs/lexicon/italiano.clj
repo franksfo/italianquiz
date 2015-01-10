@@ -670,6 +670,11 @@
         :iobj {:animate true}
         :obj {:buyable true}})
 
+      "decidere" {:synsem {:cat :verb
+                           :essere false
+                           :sem {:pred :decide}}
+                  :italiano {:passato "deciso"}}
+
       "dei"
       {:synsem {:cat :det
                 :def :partitivo
@@ -785,6 +790,18 @@
                  :sem {:subj {:animate true}
                        :discrete false
                        :pred :dormire}}})
+
+      "dovere" (trans-intrans
+                {:synsem {:sem {:pred :have-to}}
+                 :italiano {:futuro-stem "dovr"
+                            :drop-e true
+                            :present {:1sing "devo"
+                                      :2sing "devi"
+                                      :3sing "deve"
+                                      :1plur "dobbiamo"
+                                      :2plur "dovete"
+                                      :3plur "devono"}}})
+
 
       "entrare" (trans-intrans
                  {:synsem {:essere true
