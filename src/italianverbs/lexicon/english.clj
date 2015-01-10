@@ -188,7 +188,8 @@
           :synsem {:cat :verb
                    :sem {:pred :cut}}}
 
-   "decide" {:synsem {:cat :verb
+   "decide" {:english {:imperfect "was deciding"}
+             :synsem {:cat :verb
                       :sem {:pred :decide}}}
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
@@ -246,6 +247,9 @@
 
    "finish" {:synsem {:cat :verb
                       :sem {:pred :finish}}}
+
+   "game" {:synsem {:cat :noun
+                    :sem {:pred :game}}}
 
    ;; TODO: account for "give" being ditransitive.
    "give" (trans-intrans {:synsem {:sem {:pred :dare}}
@@ -370,11 +374,10 @@
 
    "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
 
-   "leave" {:synsem {:cat :verb
+   "leave" {:english {:past "left"}
+            :synsem {:cat :verb
                      :sem {:pred :leave-behind
                            :obj {:place false}}}}
-                            
-
 
    "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
                                :english {:participle "looking for"
@@ -402,10 +405,16 @@
                           :pred :madre
                           :child false}}})
 
-   "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
-   "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
-   "play (games)" (trans-intrans {:synsem {:sem {:pred :giocare}}})
-   "play (music)" (trans-intrans {:synsem {:sem {:pred :suonare}}})
+   "music" {:synsem {:cat :noun
+                    :sem {:pred :music}}}
+
+   "paint"  {:synsem {:sem {:pred :dipingere}}}
+   "print"  {:synsem {:sem {:pred :stampare}}}
+
+   "play" [{:synsem {:sem {:pred :giocare
+                           :obj {:games true}}}}
+           {:synsem {:sem {:pred :suonare
+                           :obj {:music true}}}}]
 
    "preserve" {:synsem {:cat :verb
                         :sem {:pred :preserve}}}
