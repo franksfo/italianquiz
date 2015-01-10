@@ -98,17 +98,19 @@
                      "crear" {:synsem {:cat :verb
                                        :sem {:pred :create}}}
 
-                     "cumplir" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
-
+;; TODO: clarify semantics of this in English 
+;;                     "cumplir" {:synsem {:cat :verb
+;;                                         :sem {:pred :turn-years}}}
+                     
                      "deber" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
+                                       :sem {:pred :have-to}}}
 
                      "decidir" {:synsem {:cat :verb
-                                         :sem {:pred :??}}}
+                                         :sem {:pred :decide}}}
 
                      "dejar" {:synsem {:cat :verb
-                                       :sem {:pred :??}}}
+                                       :sem {:pred :leave-behind}}}
+
                      "depender" {:synsem {:cat :verb
                                           :sem {:pred :??}}}
                      "desarrollar" {:synsem {:cat :verb
