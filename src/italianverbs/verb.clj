@@ -181,7 +181,8 @@
                                                                   (flatten (map (fn [lexs]
                                                                                   (map (fn [lex]
                                                                                          (if (and (= (get-in lex [:synsem :cat]) :verb)
-                                                                                                  (= (get-in lex [:synsem :infl]) :top))
+                                                                                                  (= (get-in lex [:synsem :infl]) :top)
+                                                                                                  (not (= :intensifier (get-in lex [:synsem :subcat :2 :cat]))))
                                                                                            (get-in lex [:synsem :sem :pred])))
                                                                                        lexs))
                                                                                 all-words))))))]
