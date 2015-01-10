@@ -875,8 +875,10 @@
                subject (ref {:agr {:gender gender
                                    :number number}
                              :cat :noun})
+               comp-pred (ref :top)
                comp-sem (ref
                          {:activity false
+                          :pred comp-pred
                           :discrete false})]
            (unifyc
             verb-subjective
@@ -888,7 +890,8 @@
                                    :sem comp-sem
                                    :subcat {:1 subject
                                             :2 '()}}}
-                      :sem {:pred :intensifier
+                      :sem {:pred comp-pred
+                            :intensified true
                             :obj comp-sem}}}))
 
          (unifyc essere-common
