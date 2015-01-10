@@ -756,14 +756,12 @@
      (include-js js))
    
    ;; TODO: this is obviously broken; I don't know how to do this correctly:
-   (if jss
-     (do
-       (if (> (.size jss) 0)
-         (include-js (nth jss 0)))
-       (if (> (.size jss) 1)
-         (include-js (nth jss 1)))
-       (if (> (.size jss) 2)
-         (include-js (nth jss 2)))))
+   (if (and jss (> (.size jss) 0))
+     (include-js (nth jss 0)))
+   (if (and jss (> (.size jss) 1))
+     (include-js (nth jss 1)))
+   (if (and jss (> (.size jss) 2))
+     (include-js (nth jss 2)))
    ;; and so on..?
 
     ; enable this 'reset.css' at some point.
