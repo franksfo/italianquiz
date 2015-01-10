@@ -85,6 +85,10 @@
 
    "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
 
+   "bag" {:synsem {:cat :noun
+                   :sem {:pred :bag
+                         :place false}}}
+
    "base" {:synsem {:cat :verb
                     :sem {:pred :support}}}
    
@@ -113,6 +117,10 @@
      (unify essere-common
             {:synsem {:sem {:pred :essere}}}))
 
+   "bicycle" {:synsem {:cat :noun
+                   :sem {:pred :bicycle
+                         :place false}}}
+
    "black"
    (unify adjective
           {:synsem {:cat :adjective
@@ -120,7 +128,6 @@
                           :comparative false
                           :physical-object true
                           :human false}}})
-
 
    "book"
    (unify agreement-noun
@@ -131,6 +138,7 @@
                           :speakable false
                           :mass false
                           :buyable true
+                          :place false
                           :consumable false
                           :artifact true}}})
 
@@ -146,6 +154,10 @@
           countable-noun
           {:synsem {:sem (unify animal {:pred :gatto
                                         :pet true})}})
+
+   "car" {:synsem {:cat :noun
+                   :sem {:pred :car
+                         :place false}}}
 
    "carry"  (trans-intrans {:synsem {:sem {:pred :portare}}
                             :english {:past "carried"}})
@@ -175,6 +187,9 @@
    "cut" {:english {:past "cut"}
           :synsem {:cat :verb
                    :sem {:pred :cut}}}
+
+   "decide" {:synsem {:cat :verb
+                      :sem {:pred :decide}}}
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
 
@@ -256,6 +271,17 @@
                                             :past "had dinner"
                                             :participle "having dinner"}})
 
+   "have to" (trans-intrans {:synsem {:sem {:pred :have-to}}
+                             :english {:present {:1sing "have to"
+                                                 :2sing "have to"
+                                                 :3sing "has to"
+                                                 :1plur "have to"
+                                                 :2plur "have to"
+                                                 :3plur "have to"}
+                                       :future "will have to"
+                                       :participle "having to"
+                                       :past "had to"}})
+
    "he"
    {:synsem {:cat :noun
              :pronoun true
@@ -273,7 +299,6 @@
                                   :activity true}}}
                   {:subj {:human true}
                    :obj {:human true}})
-
 
    "hold"
    (trans-intrans {:synsem {:sem {:pred :tenere}}
@@ -339,8 +364,17 @@
    (trans-intrans {:synsem {:sem {:pred :tenere}}
                    :english {:past "kept"}})
 
+   "key" {:synsem {:cat :noun
+                   :sem {:pred :key
+                         :place false}}}
 
    "learn"  (trans-intrans {:synsem {:sem {:pred :imparare}}})
+
+   "leave" {:synsem {:cat :verb
+                     :sem {:pred :leave-behind
+                           :obj {:place false}}}}
+                            
+
 
    "look for"  (trans-intrans {:synsem {:sem {:pred :cercare}}
                                :english {:participle "looking for"
