@@ -64,7 +64,7 @@
                           (re-find #"/editor" current-url)))
                  :show? true
                  :current-url current-url 
-                 :text "Game Editor" 
+                 :text "List and tenses" 
                  :url-for-this-item "/editor"
                  :requires-admin false
                  :requires-authentication false})
