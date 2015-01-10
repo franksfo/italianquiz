@@ -938,7 +938,10 @@
                              :pred :gatto
                              :pet true}}})
 
-      "giocare" (trans-intrans {:synsem {:sem {:pred :giocare}}})
+      "giocare" (trans-intrans {:synsem {:sem {:obj {:games true}
+                                               :pred :giocare}}
+                                :italiano {:futuro-stem "gioch"}})
+
       "guidare" (trans-intrans {:synsem {:sem {:pred :guidare}}})
       
       "i"
@@ -1265,7 +1268,8 @@
                               :italiano {:passato "scritto"}})
    "stampare" (trans-intrans {:synsem {:sem {:pred :stampare}}})
    "studiare" (trans-intrans {:synsem {:sem {:pred :studiare}}})
-   "suonare" (trans-intrans {:synsem {:sem {:pred :suonare}}})
+   "suonare" (trans-intrans {:synsem {:sem {:pred :suonare
+                                            :obj {:music true}}}})
 
    "tagliare" {:synsem {:cat :verb
                         :sem {:pred :cut}}}
