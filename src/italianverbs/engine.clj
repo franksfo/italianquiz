@@ -130,7 +130,15 @@
         {(keyword lang)
          (string/join "," (sort (keys intermediate)))}]
 
-    (if (= "true" (get-in request [:params :debug]))
+    (if (not (= "true" (get-in request [:params :debug])))
+      {:status 200
+       :headers {"Content-Type" "application/json;charset=utf-8"
+                 "Cache-Control" "no-cache, no-store, must-revalidate"
+                 "Pragma" "no-cache"
+                 "Expires" "0"}
+       :body (json/write-str results)}
+
+      ;; debug=true:
       {:status 200
        :headers {"Content-Type" "text/html;charset=utf-8"
                  "Cache-Control" "no-cache, no-store, must-revalidate"
@@ -147,7 +155,9 @@
                ]
               [:body
                [:div
+
                 [:div.major
+
                  [:h2 "input"]
 
                  [:table
@@ -174,12 +184,14 @@
 
                [:div.major
                 [:h2 "output"]
-                [:pre (json/write-str results)]]])}
+                [:pre (json/write-str results)]]
 
-      {:status 200
-       :headers {"Content-Type" "application/json;charset=utf-8"
-                 "Cache-Control" "no-cache, no-store, must-revalidate"
-                 "Pragma" "no-cache"
-                 "Expires" "0"}
-       :body (json/write-str results)})))
+               [:div#request {:class "major"}
+                [:h2 "request"]
+                (tablize request)]
+
+               ])})))
+
+
+
 
