@@ -523,7 +523,8 @@
                                        :synsem {:cat :verb
                                                 :sem {:pred :take-advantage-of}}})
 
-   "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
+   "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}
+                            :english {:past "taught"}})
 
    "telephone" (trans-intrans {:synsem {:sem {:pred :telefonare}}})
 
