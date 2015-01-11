@@ -698,7 +698,8 @@
                                      :activity false
                                      :pred :deludere}}}
                      {:subj {:human true}
-                      :obj {:human true}})
+                      })
+;                      :obj {:human true}})
 
       "desiderare" (trans-intrans {:synsem {:sem {:pred :desiderare}}})
       
@@ -940,7 +941,7 @@
                              :pred :gatto
                              :pet true}}})
 
-      "giocare" (trans-intrans {:synsem {:sem {:obj {:games true}
+      "giocare" (trans-intrans {:synsem {:sem {;:obj {:games true}
                                                :pred :giocare}}
                                 :italiano {:futuro-stem "gioch"}})
 
@@ -963,6 +964,9 @@
 
       "imparare" (trans-intrans {:synsem {:sem {:pred :imparare}}})
       "incontrare" (trans-intrans {:synsem {:sem {:pred :incontrare}}})
+
+      "indossare" (trans-intrans {:synsem {:sem {:pred :portare}}})
+
       "insegnare" (trans-intrans {:synsem {:sem {:pred :insegnare}}})
 
       "io"
@@ -1270,8 +1274,8 @@
                               :italiano {:passato "scritto"}})
    "stampare" (trans-intrans {:synsem {:sem {:pred :stampare}}})
    "studiare" (trans-intrans {:synsem {:sem {:pred :studiare}}})
-   "suonare" (trans-intrans {:synsem {:sem {:pred :suonare
-                                            :obj {:music true}}}})
+   "suonare" (trans-intrans {:synsem {:sem {:pred :suonare}}})
+;                                            :obj {:music true}}}})
 
    "tagliare" {:synsem {:cat :verb
                         :sem {:pred :cut}}}

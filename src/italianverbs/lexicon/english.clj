@@ -226,12 +226,12 @@
                     :subj {:animate true}}}}
     {:obj {:edible true}})
 
-   "eat dinner"  (unify intransitive
-                        {:synsem {:sem {:pred :cenare
-                                        :subj {:human true}}}
-                                 :english {:present {:3sing "eats dinner"}
-                                           :participle "eating dinner"
-                                           :past "ate dinner"}})
+   "eat dinner"  (intrans
+                  {:synsem {:sem {:pred :cenare
+                                  :subj {:human true}}}
+                   :english {:present {:3sing "eats dinner"}
+                             :participle "eating dinner"
+                             :past "ate dinner"}})
 
    "embrace"
    (trans-intrans {:synsem {:sem {:pred :abbracciare}}}
@@ -414,10 +414,14 @@
    "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
 
    "play" (concat
-           (trans-intrans {:synsem {:sem {:pred :giocare
-                                          :obj {:games true}}}})
-           (trans-intrans {:synsem {:sem {:pred :suonare
-                                          :obj {:music true}}}}))
+
+           (trans-intrans {:comment "We are talking about playing games or sports."
+                           :synsem {:sem {:pred :giocare}}})
+;                                          :obj {:games true}}}})
+
+           (trans-intrans {:comment "We are talking about playing music or sounds."
+                           :synsem {:sem {:pred :suonare}}}))
+;                                          :obj {:music true}}}}))
 
    "preserve" {:synsem {:cat :verb
                         :sem {:pred :preserve}}}
@@ -457,8 +461,8 @@
                                     :past-participle "seen"}})
 
    "sell"  (trans-intrans {:synsem {:sem {:pred :vendere
-                                          :subj {:human true}
-                                          :obj {:human false}}}
+                                          :subj {:human true}}}
+;                                          :obj {:human false}}}
                            :english {:past "sold"}})
 
    "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}
@@ -509,13 +513,14 @@
    "study"  (trans-intrans {:synsem {:sem {:pred :studiare}}
                             :english {:past "studied"}})
 
-   "support" {:synsem {:cat :verb
-                       :sem {:pred :support}}}
+   "support" (trans-intrans {:synsem {:cat :verb
+                                      :sem {:pred :support}}})
 
-   "take advantage of" {:english {:past "took advantage of"
-                                  :participle "taken advantage of"}
-                        :synsem {:cat :verb
-                                 :sem {:pred :take-advantage-of}}}
+   "take advantage of" (trans-intrans {:english {:past "took advantage of"
+                                                 :participle "taking advantage of"
+                                                 :past-participle "taken advantage of"}
+                                       :synsem {:cat :verb
+                                                :sem {:pred :take-advantage-of}}})
 
    "teach"  (trans-intrans {:synsem {:sem {:pred :insegnare}}})
 
@@ -603,7 +608,8 @@
                                                            :animate false}
                                                     :pred :funzionare}}})
 
-   "write"  (trans-intrans {:english {:past "wrote"}
+   "write"  (trans-intrans {:english {:past "wrote"
+                                      :past-participle "written"}
                             :synsem {:sem {:pred :scrivere}}})
 
    "you (♂)"
