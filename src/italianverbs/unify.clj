@@ -66,6 +66,7 @@
         (= fs :fail) true ;; :fail is always fail.
  
         (and (map? fs) (fail? (get-in fs [:fail] :top))) true
+        (and (map? fs) (= true (get-in fs [:fail] :top))) true ;; note: :top != true, and (fail? {:fail :top}) => false.
 
        (fn? fs) false ;; a function is never fail.
 
