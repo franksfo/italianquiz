@@ -69,7 +69,8 @@
                                       :sem {:pred :accept}}})
    
    "accompany" (trans-intrans {:synsem {:cat :verb
-                                         :sem {:pred :accompany}}})
+                                        :sem {:pred :accompany}}
+                               :english {:past "accompanied"}})
 
 
    "announce" (trans-intrans {:synsem {:cat :verb
