@@ -5,7 +5,8 @@ var default_prefix = "";
 var source_language_model = "small";
 var target_language_model = "small";
 
-/* This is the entry point that editor.clj tell the client to use in its onload().
+/* This is the entry point that the Clojure server side code (e.g. editor.clj:(onload), verb.clj:(onload))
+   puts in the onload="" to tell the client to use in its onload().
    It looks through the DOM and populates each node with what its contents should be. The initial nodes
    are all of the verbs supplied by verb.clj:(defn generation-table), which creates a <tr> for each verb, 
    along with the <tr>'s interior <td> skeleton that gen_per_verb() fleshes out. */
@@ -37,7 +38,10 @@ function gen_per_verb_with_dropdown(prefix,source_dropdown,target_dropdown) {
 function gen_from_verb(verb,prefix,source_language,target_language) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
 
-    $("#"+prefix+"source_verb_"+verb).html(verb);
+    var source_verb_spec = encodeURIComponent(JSON.stringify({"synsem": {"cat" : "verb",
+									 "sem": {"pred": verb}}}));
+
+    $("#"+prefix+"source_verb_"+verb).html("<a href='/engine/lookup?lang=" + source_language + "&spec=" + source_verb_spec + "&debug=true'>" + verb + "</a>");
 
     // not sure why or if this is necessary..??
     var re = new RegExp("^" + prefix);
@@ -94,11 +98,12 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
 					  "infl": "infinitive"}};
 
 	var serialized_infinitive_spec = encodeURIComponent(JSON.stringify(infinitive_spec));
+	var lookup_target_language_url = "/engine/lookup?lang=" + target_language + "&spec=" + serialized_infinitive_spec;
 
 	$.ajax({
 	    cache: false,
 	    dataType: "html",
-	    url: "/engine/lookup?lang=" + target_language + "&spec=" + serialized_infinitive_spec,
+	    url: lookup_target_language_url,
 	    success: translate_from_semantics
 	});
 
@@ -107,12 +112,11 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
 	    var response;
 	    if (evaluated.response == "") {
 		// could not translate: show a link with an error icon (fa-times-circle)
-		response = "<a href='/engine/lookup?lang="+ target_language + "&spec=" + serialized-spec + "'>" +
-		    "<i class='fa fa-times-circle'> </i>" + " </a>";
+		response = "<i class='fa fa-times-circle'> </i>" + " </a>";
 	    } else {
 		response = evaluated[target_language];
 	    }
-	    $("#"+prefix+"target_verb_"+verb).html(response);
+	    $("#"+prefix+"target_verb_"+verb).html("<a href='" + lookup_target_language_url + "&debug=true'>" + response + "</a>");
 
 	    var generate_target_language_url = "/engine/generate?lang="+ target_language + "&model=" + 
 		target_language_model + "&spec=" + serialized_spec;

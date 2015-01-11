@@ -1,5 +1,6 @@
 (ns italianverbs.engine
   (:refer-clojure :exclude [get-in merge])
+  (:use [hiccup core page])
   (:require
    [clojure.data.json :as json]
    [clojure.string :as string]
@@ -114,21 +115,71 @@
                                                 (keyword v)
                                                 :else v)))
                :fail)
+
+        intermediate
+        (into {}
+              (for [[k v] @lexicon]
+                (let [filtered-v
+                      (filter #(and (not (= true (get-in % [:synsem :aux]))) ;; filter out aux verbs.
+                                    (not (fail? (unifyc % spec))))
+                              v)]
+                  (if (not (empty? filtered-v))
+                    [k filtered-v]))))
+
         results
         {(keyword lang)
-         (string/join "," (keys
-                           (into {}
-                                 (for [[k v] @lexicon]
-                                   (let [filtered-v
-                                         (filter #(and true (not (fail? (unifyc % spec))))
-                                                 v)]
-                                     (if (not (empty? filtered-v))
-                                       [k filtered-v]))))))
-         }]
-    {:status 200
-     :headers {"Content-Type" "application/json;charset=utf-8"
-               
-               "Cache-Control" "no-cache, no-store, must-revalidate"
-               "Pragma" "no-cache"
-               "Expires" "0"}
-     :body (json/write-str results)}))
+         (string/join "," (sort (keys intermediate)))}]
+
+    (if (= "true" (get-in request [:params :debug]))
+      {:status 200
+       :headers {"Content-Type" "text/html;charset=utf-8"
+                 "Cache-Control" "no-cache, no-store, must-revalidate"
+                 "Pragma" "no-cache"
+                 "Expires" "0"}
+       :body (html
+              [:head
+               [:title "lookup: debug"]
+               (include-css "/css/fs.css")
+               (include-css "/css/layout.css")
+               (include-css "/css/quiz.css")
+               (include-css "/css/style.css")
+               (include-css "/css/debug.css")
+               ]
+              [:body
+               [:div
+                [:div.major
+                 [:h2 "input"]
+
+                 [:table
+                  [:tr
+                   [:th "spec"]
+                   [:td
+                    (tablize (json/read-str (get-in request [:params :spec])
+                                            :key-fn keyword
+                                            :value-fn (fn [k v]
+                                                        (cond (string? v)
+                                                              (keyword v)
+                                                              :else v))))]]]]]
+
+
+               [:div.major
+                [:h2 "intermediate"]
+                [:table
+                (map #(html [:tr 
+                             [:th.intermediate %]
+                             [:td.intermediate (map (fn [each-val]
+                                                      (html [:div.intermediate (tablize each-val)]))
+                                                    (get intermediate %))]])
+                     (keys intermediate))]]
+
+               [:div.major
+                [:h2 "output"]
+                [:pre (json/write-str results)]]])}
+
+      {:status 200
+       :headers {"Content-Type" "application/json;charset=utf-8"
+                 "Cache-Control" "no-cache, no-store, must-revalidate"
+                 "Pragma" "no-cache"
+                 "Expires" "0"}
+       :body (json/write-str results)})))
+
