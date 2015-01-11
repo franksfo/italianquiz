@@ -89,11 +89,11 @@
                                          :2 '()}}
                             :2 '()}}})]
 
-   "abbandonare" {:synsem {:cat :verb
-                           :sem {:pred :abandon}}}
+   "abbandonare" (trans-intrans{:synsem {:cat :verb
+                                         :sem {:pred :abandon}}})
 
-   "abbassare" {:synsem {:cat :verb
-                         :sem {:pred :lower}}}
+   "abbassare" (trans-intrans {:synsem {:cat :verb
+                                        :sem {:pred :lower}}})
 
    "abbracciare"
    (trans-intrans {:synsem {:essere false
@@ -103,11 +103,11 @@
                   {:subj {:human true}
                    :obj {:animate true}})
 
-   "accettare" {:synsem {:cat :verb
-                         :sem {:pred :accept}}}
+   "accettare" (trans-intrans {:synsem {:cat :verb
+                                        :sem {:pred :accept}}})
 
-   "accompagnare" {:synsem {:cat :verb
-                            :sem {:pred :accompany}}}
+   "accompagnare" (trans-intrans {:synsem {:cat :verb
+                                           :sem {:pred :accompany}}})
 
    "acqua"
    (unifyc (:agreement noun)
@@ -232,26 +232,26 @@
               :note "andare-pp"}))))
 
 
-   "annunciare" {:synsem {:cat :verb
-                          :sem {:pred :announce}}}
+   "annunciare" (trans-intrans {:synsem {:cat :verb
+                                         :sem {:pred :announce}}})
 
-   "appoggiare" {:synsem {:cat :verb
-                          :sem {:pred :support}}}
+   "appoggiare" (trans-intrans {:synsem {:cat :verb
+                                         :sem {:pred :support}}})
 
-   "apprendere" {:synsem {:cat :verb
-                          :sem {:pred :imparare}}}
+   "apprendere" (trans-intrans {:synsem {:cat :verb
+                                         :sem {:pred :imparare}}})
 
-   "approfittare" [{:synsem {:cat :verb
-                             :sem {:pred :take-advantage-of}}}]
+   "approfittare" (trans-intrans {:synsem {:cat :verb
+                                           :sem {:pred :take-advantage-of}}})
 
 
-   "assicurare" [{:synsem {:cat :verb
-                           :sem {:pred :assure}}}
-                 {:synsem {:cat :verb
-                         :sem {:pred :insure}}}]
+   "assicurare" (concat (trans-intrans {:synsem {:cat :verb
+                                                 :sem {:pred :assure}}})
+                        (trans-intrans {:synsem {:cat :verb
+                                                 :sem {:pred :insure}}}))
 
-   "aumentare" {:synsem {:cat :verb
-                         :sem {:pred :increase}}}
+   "aumentare"  (trans-intrans {:synsem {:cat :verb
+                                         :sem {:pred :increase}}})
 
    "avere"
    (let [avere-common {:synsem {:essere false
@@ -580,8 +580,8 @@
                              :artifact true}}})
 
 
-      "commentare" {:synsem {:cat :verb
-                             :sem {:pred :comment}}}
+      "commentare" (trans-intrans {:synsem {:cat :verb
+                                            :sem {:pred :comment}}})
 
       "comprare"
       (trans-intrans {:synsem {:essere false
@@ -589,18 +589,19 @@
                      {:subj {:human true}
                       :obj {:buyable true}})
       
-      "condividere" {:synsem {:cat :verb
-                              :sem {:pred :share}}}
+      "condividere" (trans-intrans {:synsem {:cat :verb
+                                             :sem {:pred :share}}})
 
 
-      "conservare" [{:synsem {:cat :verb
-                             :sem {:pred :conserve}}}
-                   {:synsem {:cat :verb
-                             :sem {:pred :preserve}}}]
+      "conservare" (concat
+                    (trans-intrans {:synsem {:cat :verb
+                                             :sem {:pred :conserve}}})
+                    (trans-intrans {:synsem {:cat :verb
+                                             :sem {:pred :preserve}}}))
 
-
-      "considerare" {:synsem {:cat :verb
-                              :sem {:pred :consider}}}
+      
+      "considerare" (trans-intrans {:synsem {:cat :verb
+                                             :sem {:pred :consider}}})
 
       "contento"
       [(let [complement-complement-sem (ref {:human true})
@@ -624,12 +625,12 @@
                                 :comparative false
                                 :human true}}}))]
 
-      "correre" {:italian {:passato "corso"}
-                 :synsem {:cat :verb
-                          :sem {:pred :run}}}
+      "correre" (trans-intrans {:italian {:passato "corso"}
+                                :synsem {:cat :verb
+                                         :sem {:pred :run}}})
 
-      "correspondere" {:synsem {:cat :verb
-                               :sem {:pred :correspond}}}
+      "corrispondere" (trans-intrans {:synsem {:cat :verb
+                                               :sem {:pred :correspond}}})
 
       "corto"
       [(let [complement-complement-sem (ref {:human true}) ;; only humans can be short.
@@ -654,26 +655,27 @@
                               :human true}}
                :italiano {:cat :adjective}})]
 
-      "creare" {:synsem {:cat :verb
-                         :sem {:pred :create}}}
+      "creare" (trans-intrans {:synsem {:cat :verb
+                                        :sem {:pred :create}}})
 
       ;; TODO: account for "dare" being ditransitive.
-      "dare"
-      (trans-intrans
-       {:italiano {:present {:2sing "dai"
-                             :3plur "danno"}
-                   :futuro-stem "dar"}
-        :synsem {:cat :verb
-                 :essere false
-                 :sem {:pred :dare}}}
-       {:subj {:human true}
-        :iobj {:animate true}
-        :obj {:buyable true}})
+      "dare" (trans-intrans {:synsem {:sem {:pred :dare}}
+                             :italiano {:present {:2sing "dai"
+                                                  :3plur "danno"}
+                                        :futuro-stem "dar"}})
 
-      "decidere" {:synsem {:cat :verb
-                           :essere false
-                           :sem {:pred :decide}}
-                  :italiano {:passato "deciso"}}
+;; TODO: something wrong here with respect to passato: probably the :essere=false is causing a problem.
+;        :synsem {:cat :verb
+;                 :essere false
+;                 :sem {:pred :dare
+;                       :subj {:human true}
+;                      :iobj {:animate true}
+;                       :obj {:buyable true}}}})
+      
+      "decidere" (trans-intrans {:synsem {:cat :verb
+                                          :essere false
+                                          :sem {:pred :decide}}
+                                 :italiano {:passato "deciso"}})
 
       "dei"
       {:synsem {:cat :det

@@ -65,23 +65,23 @@
                                       :sem {:pred :abandon}}})
 
 
-   "accept" {:synsem {:cat :verb
-                      :sem {:pred :accept}}}
+   "accept"  (trans-intrans {:synsem {:cat :verb
+                                      :sem {:pred :accept}}})
    
-   "accompany" {:synsem {:cat :verb
-                         :sem {:pred :accompany}}}
+   "accompany" (trans-intrans {:synsem {:cat :verb
+                                         :sem {:pred :accompany}}})
 
 
-   "announce" {:synsem {:cat :verb
-                        :sem {:pred :announce}}}
+   "announce" (trans-intrans {:synsem {:cat :verb
+                                       :sem {:pred :announce}}})
 
    "answer"  (trans-intrans {:synsem {:sem {:pred :answer}}})
 
    "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere}}})
 
 
-   "assure" {:synsem {:cat :verb
-                      :sem {:pred :assure}}}
+   "assure" (trans-intrans {:synsem {:cat :verb
+                                     :sem {:pred :assure}}})
 
    "attend"  (trans-intrans {:synsem {:sem {:pred :frequentare}}})
 
@@ -89,8 +89,8 @@
                    :sem {:pred :bag
                          :place false}}}
 
-   "base" {:synsem {:cat :verb
-                    :sem {:pred :support}}}
+   "base" (trans-intrans {:synsem {:cat :verb
+                                   :sem {:pred :support}}})
    
    "be"
    (let [essere-common 
@@ -169,28 +169,29 @@
    "come" (trans-intrans {:synsem {:sem {:pred :venire}}
                           :english {:past "came"}})
 
-   "comment" {:synsem {:cat :verb
-                       :sem {:pred :comment}}}
+   "comment" (trans-intrans {:synsem {:cat :verb
+                                      :sem {:pred :comment}}})
 
-   "conserve" {:synsem {:cat :verb
-                        :sem {:pred :conserve}}}
+   "conserve" (trans-intrans {:synsem {:cat :verb
+                                       :sem {:pred :conserve}}})
 
-   "consider" {:synsem {:cat :verb
-                        :sem {:pred :consider}}}
+   "consider" (trans-intrans  {:synsem {:cat :verb
+                                        :sem {:pred :consider}}})
 
-   "correspond" {:synsem {:cat :verb
-                          :sem {:pred :correspond}}}
+   "correspond" (trans-intrans  {:synsem {:cat :verb
+                          :sem {:pred :correspond}}})
 
-   "create" {:synsem {:cat :verb
-                      :sem {:pred :create}}}
+   "create" (trans-intrans  {:synsem {:cat :verb
+                                      :sem {:pred :create}}})
 
-   "cut" {:english {:past "cut"}
-          :synsem {:cat :verb
-                   :sem {:pred :cut}}}
+   "cut" (trans-intrans  {:english {:past "cut"
+                                    :participle "cutting"}
+                          :synsem {:cat :verb
+                                   :sem {:pred :cut}}})
 
-   "decide" {:english {:imperfect "was deciding"}
-             :synsem {:cat :verb
-                      :sem {:pred :decide}}}
+   "decide" (trans-intrans  {:english {:imperfect "was deciding"}
+                             :synsem {:cat :verb
+                                      :sem {:pred :decide}}})
 
    "desire"  (trans-intrans {:synsem {:sem {:pred :desiderare}}})
 
@@ -245,11 +246,12 @@
    "erase"  (trans-intrans {:synsem {:sem {:pred :cancellare}}})
 
 
-   "finish" {:synsem {:cat :verb
-                      :sem {:pred :finish}}}
+   "finish" (trans-intrans {:synsem {:cat :verb
+                                     :sem {:pred :finish}}})
 
    "game" {:synsem {:cat :noun
-                    :sem {:pred :game}}}
+                    :sem {:pred :game
+                          :games true}}}
 
    ;; TODO: account for "give" being ditransitive.
    "give" (trans-intrans {:synsem {:sem {:pred :dare}}
@@ -408,13 +410,14 @@
    "music" {:synsem {:cat :noun
                     :sem {:pred :music}}}
 
-   "paint"  {:synsem {:sem {:pred :dipingere}}}
-   "print"  {:synsem {:sem {:pred :stampare}}}
+   "paint"  (trans-intrans {:synsem {:sem {:pred :dipingere}}})
+   "print"  (trans-intrans {:synsem {:sem {:pred :stampare}}})
 
-   "play" [{:synsem {:sem {:pred :giocare
-                           :obj {:games true}}}}
-           {:synsem {:sem {:pred :suonare
-                           :obj {:music true}}}}]
+   "play" (concat
+           (trans-intrans {:synsem {:sem {:pred :giocare
+                                          :obj {:games true}}}})
+           (trans-intrans {:synsem {:sem {:pred :suonare
+                                          :obj {:music true}}}}))
 
    "preserve" {:synsem {:cat :verb
                         :sem {:pred :preserve}}}
@@ -453,7 +456,9 @@
                           :english {:past "saw"
                                     :past-participle "seen"}})
 
-   "sell"  (trans-intrans {:synsem {:sem {:pred :vendere}}
+   "sell"  (trans-intrans {:synsem {:sem {:pred :vendere
+                                          :subj {:human true}
+                                          :obj {:human false}}}
                            :english {:past "sold"}})
 
    "send"  (trans-intrans {:synsem {:sem {:pred :mandare}}
