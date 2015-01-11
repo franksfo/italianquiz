@@ -559,8 +559,9 @@
    "take"  (trans-intrans {:synsem {:sem {:pred :prendere}}
                            :english {:past "took"}})
 
-   "understand" {:synsem {:cat :verb
-                          :sem {:pred :understand}}}
+   "understand" (trans-intrans {:english {:past "understood"}
+                                :synsem {:cat :verb
+                                         :sem {:pred :understand}}})
                           
 
    "upload"  (trans-intrans {:synsem {:sem {:pred :caricare}}})
