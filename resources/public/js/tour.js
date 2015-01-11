@@ -61,7 +61,7 @@ var heading = 270; // headed west.
 // every X milliseconds, decrement remaining time to answer this question on a tour.
 var tour_question_decrement_interval = 5000;
 
-var logging_level = INFO;
+var logging_level = DEBUG;
 
 var step = 0;
 var direction = 1;
@@ -134,6 +134,7 @@ function create_tour_question() {
     // We evaluate the user's guess against this set in submit_tour_response().
 
     update_tour_answer_fn = function(content) {
+	log(INFO, "GOT HERE: THE SERVER GAVE US AN ANSWSER@!!!" + content);
 	var evaluated  = jQuery.parseJSON(content);
 	log(INFO,"map from the server's answer response: " + evaluated);
 	answer_info = evaluated;
@@ -174,7 +175,12 @@ function submit_tour_response(form_input_id) {
 	submit_correction_response(form_input_id);
     } else {
 	var guess = $("#"+form_input_id).val();
+	guess = guess.trim();
 	log(INFO,"submit_tour_response() guess: " + guess);
+
+
+	log(INFO,"ANSWER INFO: " + answer_info);
+
 	var matched = false;
 
 	// A given question may have more than one possible right answer, separated by commas.
@@ -182,13 +188,12 @@ function submit_tour_response(form_input_id) {
 	// as is the case currently.
 	var answers = answer_info.answer.split(",");
 
-	log(DEBUG,"Ssh..don't tell anyone; but here are the possible answers: " + answers);
+	log(INFO,"Ssh..don't tell anyone; but here are the possible answers: " + answers);
 
 	var i;
 	for (i = 0; i < answers.length; i++) {
 	    var answer_text = answers[i];
-	    answer_text = answer_text.replace(/^ +/,"");
-	    answer_text = answers[i].replace(/ +$/,"");
+	    answer_text = answer_text.trim();
 	    log(INFO,"Comparing: '" + answer_text + "' with your guess: '" + guess + "'");
 
 	    if (answer_text === guess) {
@@ -223,8 +228,6 @@ function normal_returnkey_mode() {
 	    }
 
 	    log(INFO,"It's time to try your normal-mode excellent guess: " + $("#game_input").val());
-	    log(INFO,"In correction mode is: " + in_correction_mode);
-	    log(INFO,"Correction mode IS FALSE (right?): " + in_correction_mode);
             $("#answer_button").click();
 	}
     });

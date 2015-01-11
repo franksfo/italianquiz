@@ -178,6 +178,15 @@
      :right_context_source ""
      :right_context_destination ""}))
 
+(defn english-inflection [inflection]
+  "turn an inflection keyword into a complete map of constraints on generation for an english sentence"
+  (cond (= inflection :passato)
+        {:synsem {:sem {:aspect :perfect
+                        :tense :past}}}
+
+        true
+        :top))
+
 (defn generate-question [request]
   (let [verb-group (choose-random-verb-group)
         possible-preds (get-possible-preds verb-group)
@@ -192,6 +201,10 @@
          :synsem {:sem {:pred pred}
                   :cat :verb
                   :subcat '()}}
+
+        spec (unify spec
+                    (english-inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))))
+
         question (generate spec en/small)
         form (html-form question)]
 
@@ -242,7 +255,9 @@
         ;; grouping verbs with the same meaning together.
         group_by (get-in answer [:synsem :sem :pred])
 
-        debug (log/info (str "group_by: " group_by))
+        debug (log/info (str "generate-answers: group_by: " group_by))
+
+        debug (log/info (str "generate-answers: answers: " (remove-parens (fo answer))))
         ]
     
     {:status 200
@@ -259,7 +274,6 @@
        ;; since this is another way that punctuation being abused to serialize data structures.
        :answer (string/join ", "
                             (list 
-                             (remove-parens (fo (get-in answer [:head])))
                              (remove-parens (fo answer))))
        :semantics semantics
        :right_context_of_answer ""})}))
