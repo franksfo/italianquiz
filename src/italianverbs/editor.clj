@@ -14,7 +14,7 @@
    [italianverbs.morphology :refer (fo)]
    [italianverbs.korma :as db]
    [italianverbs.unify :refer [get-in]]
-   [italianverbs.verb :refer [generation-table]]
+   [italianverbs.verb :refer [generation-table predicates-from-lexicon]]
    [hiccup.core :refer (html)]
    [korma.core :as k]
 ))
@@ -100,6 +100,8 @@
                           (get @it/lexicon lexeme)))))
           (sort (keys @it/lexicon))))
 
+(def all-preds (predicates-from-lexicon @it/lexicon))
+
 (def game-form
   {:fields [{:name :name :size 50 :label "Name"}
             {:name :source :type :select 
@@ -114,11 +116,11 @@
                        {:value "es" :label "Spanish"}]}
             {:name :game :type :hidden}
             {:name :words
-             :label "Verbs for this group"
+             :label "Predicates for this group"
              :cols 3
              :type :checkboxes
              :datatype :strs
-             :options all-verbs}
+             :options all-preds}
             {:name :inflections
              :label "Tenses for this group"
              :type :checkboxes

@@ -102,7 +102,7 @@
               
               [:td lexeme ]
 
-        ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called 'pred' to be more accurate what it means).
+              ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called 'pred' to be more accurate what it means).
               [:td {:id (str id_prefix "target_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
               [:td.example.gen_source {:id (str id_prefix "verb_" lexeme)}
@@ -118,6 +118,20 @@
               ])
            verbs)
       ])))
+
+(defn predicates-from-lexicon [lexicon]
+  (let [all-words (vals lexicon)]
+    (sort (map #(string/replace-first (str %) ":" "")
+               (set (filter #(and (not (= :top %))
+                                  (not (nil? %)))
+                            (flatten (map (fn [lexs]
+                                            (map (fn [lex]
+                                                   (if (and (= (get-in lex [:synsem :cat]) :verb)
+                                                            (= (get-in lex [:synsem :infl]) :top)
+                                                            (not (= :intensifier (get-in lex [:synsem :subcat :2 :cat]))))
+                                                     (get-in lex [:synsem :sem :pred])))
+                                                 lexs))
+                                          all-words))))))))
 
 (defn control-panel [request haz-admin]
   (let [current-size "5,436"
@@ -172,21 +186,8 @@
        
        [:div#verbs 
 
+        (generation-table (predicates-from-lexicon @it/lexicon))
 
-        (generation-table (let [all-words (vals @it/lexicon)
-
-                                all-preds (sort (map #(string/replace-first (str %) ":" "")
-                                                     (set (filter #(and (not (= :top %))
-                                                                        (not (nil? %)))
-                                                                  (flatten (map (fn [lexs]
-                                                                                  (map (fn [lex]
-                                                                                         (if (and (= (get-in lex [:synsem :cat]) :verb)
-                                                                                                  (= (get-in lex [:synsem :infl]) :top)
-                                                                                                  (not (= :intensifier (get-in lex [:synsem :subcat :2 :cat]))))
-                                                                                           (get-in lex [:synsem :sem :pred])))
-                                                                                       lexs))
-                                                                                all-words))))))]
-                            all-preds))
         ]
 
        (if show-nouns
