@@ -63,7 +63,6 @@
           semantics (strip-refs (get-in expression [:synsem :sem]))
           results (merge
                    {:spec spec
-                    :pred pred
                     (keyword lang) (fo expression)
                     :semantics semantics})]
       (log/info (str "fo of expression: " (fo expression)))
@@ -108,26 +107,26 @@
                                             :value-fn (fn [k v]
                                                         (cond (string? v)
                                                               (keyword v)
-                                                              :else v))))]]]]]
+                                                              :else v))))
+                    ]]]]
 
 
                [:div.major
-                [:h2 "intermediate"]
+                [:h2 "Generated"]
 
-                "intermediate stuff .."
+                (tablize expression)
 
                 ]
-
 
                [:div.major
                 [:h2 "output"]
                 (tablize results)]
-
+                
                [:div#request {:class "major"}
                 [:h2 "request"]
                 (tablize request)]
 
-               ])}))))
+               ]])}))))
 
 (defn resolve-model [model lang]
   (cond 
