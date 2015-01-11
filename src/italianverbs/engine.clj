@@ -163,12 +163,15 @@
                                                 :else v)))
                :fail)
 
+        spec (unifyc spec {:synsem {:aux false
+                                    :infl :infinitive
+                                    :sem {:intensified false}}})
+
         intermediate
         (into {}
               (for [[k v] @lexicon]
                 (let [filtered-v
-                      (filter #(and (not (= true (get-in % [:synsem :aux]))) ;; filter out aux verbs.
-                                    (not (fail? (unifyc % spec))))
+                      (filter #(not (fail? (unifyc % spec)))
                               v)]
                   (if (not (empty? filtered-v))
                     [k filtered-v]))))
@@ -209,15 +212,27 @@
                  [:h2 "input"]
 
                  [:table
+
                   [:tr
-                   [:th "spec"]
+                   [:th "requested-spec"]
                    [:td
                     (tablize (json/read-str (get-in request [:params :spec])
                                             :key-fn keyword
                                             :value-fn (fn [k v]
                                                         (cond (string? v)
                                                               (keyword v)
-                                                              :else v))))]]]]]
+                                                              :else v))))]]
+                  [:tr 
+                   [:th "spec"]
+
+                   [:td (tablize spec)]
+                   ]
+
+
+
+                  ]
+                 ]
+                ]
 
 
                [:div.major

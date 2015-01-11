@@ -41,7 +41,19 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
     var source_verb_spec = encodeURIComponent(JSON.stringify({"synsem": {"cat" : "verb",
 									 "sem": {"pred": verb}}}));
 
-    $("#"+prefix+"source_verb_"+verb).html("<a href='/engine/lookup?lang=" + source_language + "&spec=" + source_verb_spec + "&debug=true'>" + verb + "</a>");
+    function lookup_in_source_language(content) {
+	// 1. The server sent us the verb in the source language: parse the response into a JSON object.
+	var evaluated = jQuery.parseJSON(content);
+	var response = evaluated[source_language];
+	$("#"+prefix+"source_verb_"+verb).html("<a href='/engine/lookup?lang=" + source_language + "&spec=" + source_verb_spec + "&debug=true'>" + response+ "</a>");
+    }
+
+    $.ajax({
+	cache: false,
+	dataType: "html",
+	url: "/engine/lookup?lang=" + source_language + "&spec=" + source_verb_spec,
+	success: lookup_in_source_language
+    });
 
     // not sure why or if this is necessary..??
     var re = new RegExp("^" + prefix);
