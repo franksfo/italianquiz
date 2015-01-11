@@ -37,6 +37,8 @@ function gen_per_verb_with_dropdown(prefix,source_dropdown,target_dropdown) {
 function gen_from_verb(verb,prefix,source_language,target_language) {
     log(INFO,"gen_from_verb(" + verb + "," + prefix + ");");
 
+    $("#"+prefix+"source_verb_"+verb).html(verb);
+
     // not sure why or if this is necessary..??
     var re = new RegExp("^" + prefix);
     verb = verb.replace(re,"");
@@ -108,10 +110,9 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
 		response = "<a href='/engine/lookup?lang="+ target_language + "&spec=" + serialized-spec + "'>" +
 		    "<i class='fa fa-times-circle'> </i>" + " </a>";
 	    } else {
-
 		response = evaluated[target_language];
 	    }
-	    $("#"+prefix+"target_verb_"+pred).html(response);
+	    $("#"+prefix+"target_verb_"+verb).html(response);
 
 	    var generate_target_language_url = "/engine/generate?lang="+ target_language + "&model=" + 
 		target_language_model + "&spec=" + serialized_spec;

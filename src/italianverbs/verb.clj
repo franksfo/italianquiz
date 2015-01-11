@@ -100,16 +100,15 @@
       (map (fn [lexeme]
              [:tr.lexeme
               
-              [:td lexeme ]
+              [:td [:tt lexeme ]]
 
               ;; the lexeme(s) in the source language. Might be more than one; it depends on 'lexeme' (TODO: should be called 'pred' to be more accurate what it means).
-              [:td {:id (str id_prefix "target_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
+              [:td {:id (str id_prefix "source_verb_" lexeme)}  [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
               [:td.example.gen_source {:id (str id_prefix "verb_" lexeme)}
                [:i {:class "fa fa-spinner fa-spin"} "" ] ]
 
-              ;; maybe we will have an dom ID for this,too, but for now, it's not needed.
-              [:td lexeme ]
+              [:td {:id (str id_prefix "target_verb_" lexeme)  } [:i {:class "fa fa-spinner fa-spin"} ]]
 
               [:td {:id (str id_prefix "target_translation_" lexeme)} [:i {:class "fa fa-spinner fa-spin"} "" ]  ]
               

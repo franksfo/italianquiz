@@ -99,8 +99,13 @@
 
 (def possible-preds [:top])
 
+(def lang-to-lexicon
+  {"en" en/lexicon
+   "it" it/lexicon})
+
 (defn lookup [request]
   (let [lang (get-in request [:params :lang] "en") ;; if no lang specified, use english.
+        lexicon (lang-to-lexicon lang)
         spec (if (not (= :null (get-in request [:params :spec] :null)))
                (json/read-str (get-in request [:params :spec])
                               :key-fn keyword
@@ -113,12 +118,13 @@
         {(keyword lang)
          (string/join "," (keys
                            (into {}
-                                 (for [[k v] @en/lexicon]
+                                 (for [[k v] @lexicon]
                                    (let [filtered-v
-                                         (filter #(not (fail? (unifyc % spec)))
+                                         (filter #(and true (not (fail? (unifyc % spec))))
                                                  v)]
                                      (if (not (empty? filtered-v))
-                                       [k filtered-v]))))))}]
+                                       [k filtered-v]))))))
+         }]
     {:status 200
      :headers {"Content-Type" "application/json;charset=utf-8"
                
