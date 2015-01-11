@@ -79,10 +79,9 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
 
 	var serialized_spec = encodeURIComponent(JSON.stringify({"synsem": {"sem": semantics}}));
 
-
 	// 2. Now that we have the example sentence in the source language in the variable _response_: now, paste it in to the DOM tree in the right place:
 	$("#"+prefix+"verb_"+verb).html("<a href='/engine/generate?" + 
-					"&spec=" + serialized_spec + 
+					"spec=" + serialized_spec + 
 					"&lang=" + source_language + 
 					"&model=" + source_language_model + 
 					"&debug=true" +
@@ -132,7 +131,7 @@ function gen_from_verb(verb,prefix,source_language,target_language) {
 			// could not generate anything: show a link with an error icon (fa-times-circle)
 			response = "<i class='fa fa-times-circle'> </i>";
 		    }
-		    $("#"+prefix+"target_translation_"+pred).html("<a href='" + generate_target_language_url + "'>" + response + "</a>");
+		    $("#"+prefix+"target_translation_"+pred).html("<a href='" + generate_target_language_url + "&debug=true'>" + response + "</a>");
 		}
 	    });
 	}

@@ -60,26 +60,74 @@
                        spec)]
     (log/info (str "generate with pred: " pred "; lang: " lang))
     (let [expression (generate unified model)
-          semantics (strip-refs (get-in expression [:synsem :sem]))]
+          semantics (strip-refs (get-in expression [:synsem :sem]))
+          results (merge
+                   {:spec spec
+                    :pred pred
+                    (keyword lang) (fo expression)
+                    :semantics semantics})]
       (log/info (str "fo of expression: " (fo expression)))
       (log/info (str "semantics of expression: " semantics))
-      {:status 200
-       :headers {"Content-Type" "application/json;charset=utf-8"
-                 "Cache-Control" "no-cache, no-store, must-revalidate"
-                 "Pragma" "no-cache"
-                 "Expires" "0"}
-       :body (json/write-str
-              (merge
-               {:spec spec
-                :pred pred
-                (keyword lang) (fo expression)
-                :semantics semantics}
 
-               ;; note that client's intended _true_ will be "true" rather than true.
-               (if (or (= debug true)
-                       (= debug "true"))
-                 {:debug {:head (strip-refs (get-in expression [:head]))}}
-                 {})))})))
+      (if (not (= "true" (get-in request [:params :debug])))
+        ;; non-debug mode:
+        {:status 200
+         :headers {"Content-Type" "application/json;charset=utf-8"
+                   "Cache-Control" "no-cache, no-store, must-revalidate"
+                   "Pragma" "no-cache"
+                   "Expires" "0"}
+         :body (json/write-str results)}
+
+        {:status 200
+         :headers {"Content-Type" "text/html;charset=utf-8"
+                   "Cache-Control" "no-cache, no-store, must-revalidate"
+                   "Pragma" "no-cache"
+                   "Expires" "0"}
+         :body (html
+                [:head
+                 [:title "generate: debug"]
+                 (include-css "/css/fs.css")
+               (include-css "/css/layout.css")
+               (include-css "/css/quiz.css")
+               (include-css "/css/style.css")
+               (include-css "/css/debug.css")
+               ]
+              [:body
+               [:div
+
+                [:div.major
+
+                 [:h2 "input"]
+
+                 [:table
+                  [:tr
+                   [:th "spec"]
+                   [:td
+                    (tablize (json/read-str (get-in request [:params :spec])
+                                            :key-fn keyword
+                                            :value-fn (fn [k v]
+                                                        (cond (string? v)
+                                                              (keyword v)
+                                                              :else v))))]]]]]
+
+
+               [:div.major
+                [:h2 "intermediate"]
+
+                "intermediate stuff .."
+
+                ]
+
+
+               [:div.major
+                [:h2 "output"]
+                (tablize results)]
+
+               [:div#request {:class "major"}
+                [:h2 "request"]
+                (tablize request)]
+
+               ])}))))
 
 (defn resolve-model [model lang]
   (cond 
@@ -131,6 +179,7 @@
          (string/join "," (sort (keys intermediate)))}]
 
     (if (not (= "true" (get-in request [:params :debug])))
+      ;; non-debug mode:
       {:status 200
        :headers {"Content-Type" "application/json;charset=utf-8"
                  "Cache-Control" "no-cache, no-store, must-revalidate"
@@ -138,7 +187,7 @@
                  "Expires" "0"}
        :body (json/write-str results)}
 
-      ;; debug=true:
+      ;; debug mode:
       {:status 200
        :headers {"Content-Type" "text/html;charset=utf-8"
                  "Cache-Control" "no-cache, no-store, must-revalidate"
