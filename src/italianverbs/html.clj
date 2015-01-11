@@ -393,15 +393,14 @@
 
 
      (and (map? arg)
-          false
           (= (last path) :english))
-     (str "<i>" (fo {:english arg}) "</i>")
+     (tablize {:exterior (str "<i>" (fo {:english arg}) "</i>")
+               :interior arg})
 
      (and (map? arg)
-          false
           (= (last path) :italiano))
-     (str "<i>" (fo {:italiano arg}) "</i>")
-
+     (tablize {:exterior (str "<i>" (fo {:italiano arg}) "</i>")
+               :interior arg})
 
      ;; displaying a feature structure.
      (map? arg)
