@@ -393,10 +393,12 @@
 
 
      (and (map? arg)
+          false
           (= (last path) :english))
      (str "<i>" (fo {:english arg}) "</i>")
 
      (and (map? arg)
+          false
           (= (last path) :italiano))
      (str "<i>" (fo {:italiano arg}) "</i>")
 
