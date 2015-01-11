@@ -52,23 +52,26 @@
          (keyword (:word row)))
        (k/exec-raw [(str "SELECT * FROM games_to_use ")] :results)))
 
+(defn choose-random-verb-group []
+  "choose a verb group randomly from the games that are currently possible to play as determined by the games_to_use table."
+  (let [games (k/exec-raw [(str "SELECT id FROM games WHERE games.id IN (SELECT game FROM games_to_use)")] :results)]
+    (:id (nth games (rand-int (.size games))))))
+
 (defn get-possible-preds [game-id]
   (map (fn [row]
-         (keyword (:word row)))
-       (k/exec-raw [(str "SELECT DISTINCT word 
-                                     FROM games_to_use 
-                               INNER JOIN games ON games_to_use.game = games.id 
-                               INNER JOIN words_per_game ON words_per_game.game = games.id
-                                    WHERE games.id = ?") [(Integer. game-id)]] :results)))
+         (:pred row))
+       (k/exec-raw [(str "SELECT word AS pred
+                            FROM words_per_game
+                      INNER JOIN games
+                              ON words_per_game.game = games.id
+                           WHERE games.id = ?") [game-id]] :results)))
 
 (defn get-possible-inflections [game-id]
   (map (fn [row]
-         (keyword (:word row)))
-       (k/exec-raw [(str "SELECT DISTINCT word 
-                                     FROM games_to_use 
-                               INNER JOIN games ON games_to_use.game = games.id 
-                               INNER JOIN words_per_game ON words_per_game.game = games.id
-                                    WHERE games.id = ?") [(Integer. game-id)]] :results)))
+         (:inflection row))
+       (k/exec-raw [(str "SELECT inflection
+                            FROM inflections_per_game
+                           WHERE game = ?") [game-id]] :results)))
 
 (defn direction-chooser []
   [:dev#chooser
@@ -176,8 +179,9 @@
      :right_context_destination ""}))
 
 (defn generate-question [request]
-  (let [possible-preds (get-possible-preds)
-        possible-inflections (get-possible-inflections)
+  (let [verb-group (choose-random-verb-group)
+        possible-preds (get-possible-preds verb-group)
+        possible-inflections (get-possible-inflections verb-group)
         pred (if (not (= :null (get-in request [:params :pred] :null)))
                (keyword (get-in request [:params :pred]))
                (nth possible-preds (rand-int (.size possible-preds))))
