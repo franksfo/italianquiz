@@ -538,6 +538,11 @@
      (fn? arg)
      "&lambda;"
 
+
+     ;; TODO: should support objects of any otherwise-unsupported class: simply print out the classname in fixed-width font.
+     (= (type arg) org.eclipse.jetty.server.HttpInput)
+     "<tt>org.eclipse.jetty.server.HttpInput</tt>"
+
      true
      (str "<div class='unknown'>" "<b>don't know how to tablize this object : (type:" (type arg) "</b>;value=<b>"  arg "</b>)</div>"))))
 
