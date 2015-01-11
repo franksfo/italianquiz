@@ -449,10 +449,9 @@
               (trans-intrans {:synsem {:sem {:pred :ritornare}}})
               (trans-intrans {:synsem {:sem {:pred :tornare}}})))
 
-   "run" {:english {:past "ran"
-                    :participle "run"}
-          :synsem {:cat :verb
-                   :sem {:pred :run}}}
+   "run" (trans-intrans {:english {:past "ran"
+                                   :participle "run"}
+                         :sem {:pred :run}})
 
    ;; TODO: search _within_ or _on_: depends on the object.
    ;;   "search"  (trans-intrans {:synsem {:sem {:pred :cercare}}})
