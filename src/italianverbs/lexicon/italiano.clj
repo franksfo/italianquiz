@@ -1278,8 +1278,8 @@
    "suonare" (trans-intrans {:synsem {:sem {:pred :suonare}}})
 ;                                            :obj {:music true}}}})
 
-   "tagliare" {:synsem {:cat :verb
-                        :sem {:pred :cut}}}
+   "tagliare" (trans-intrans {:synsem {:cat :verb
+                                       :sem {:pred :cut}}})
 
    "telefonare" (trans-intrans {:synsem {:essere false
                                          :sem {:pred :telefonare}}})
