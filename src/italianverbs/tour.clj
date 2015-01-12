@@ -178,11 +178,16 @@
      :right_context_source ""
      :right_context_destination ""}))
 
+;; TODO: don't repeat stuff from gen.js.
 (defn english-inflection [inflection]
   "turn an inflection keyword into a complete map of constraints on generation for an english sentence"
   (cond (= inflection :passato)
         {:synsem {:sem {:aspect :perfect
                         :tense :past}}}
+
+        (= inflection :present)
+        {:synsem {:infl :present
+                  :sem {:tense :present}}}
 
         true
         :top))
@@ -227,6 +232,7 @@
 ;; an expression that the user should be learning.
 (defn generate-answers [request]
   "generate a single sentence according to the semantics of the request."
+  ;; TODO: generate more than one answer, possibly.
   (log/info (str "generate-answers: request semantics: " (get-in request [:params :semantics])))
   (log/info (str "cloud_id: " (get-in request [:params :cloud_id])))
   (let [semantics (read-str (get-in request [:params :semantics])
@@ -267,7 +273,12 @@
       {:cloud_id (get-in request [:params :cloud_id])
  
        :group_by group_by
+
+       ;; left-context is given here because the user should be able to omit
+       ;; this without penalty.
        :left_context_of_answer (remove-parens (fo (get-in answer [:comp])))
+
+
        ;; here we combine all of the possible answers,
        ;; using punctuation within the string as means of delimitation (a comma).
        ;; TODO: use a JSON array instead, and also, remove the use of (remove-parens),
