@@ -1,5 +1,6 @@
 (ns italianverbs.tour
   (:refer-clojure :exclude [get-in merge])
+  (:use [hiccup core page])
   (:require
    [clojure.data.json :refer [read-str write-str]]
    [clojure.string :as string]
@@ -8,7 +9,7 @@
    [hiccup.page :refer (html5)]
 
    [italianverbs.engine :refer [generate]]
-   [italianverbs.html :refer [page]]
+   [italianverbs.html :refer [page tablize]]
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
@@ -265,29 +266,68 @@
 
         debug (log/info (str "generate-answers: answers: " (remove-parens (fo answer))))
         ]
-    
-    {:status 200
-     :headers {"Content-Type" "application/json;charset=utf-8"}
-     :body
-     (write-str
-      {:cloud_id (get-in request [:params :cloud_id])
- 
-       :group_by group_by
 
-       ;; left-context is given here because the user should be able to omit
-       ;; this without penalty.
-       :left_context_of_answer (remove-parens (fo (get-in answer [:comp])))
+    (if (not (= "true" (get-in request [:params :debug])))
+      {:status 200
+       :headers {"Content-Type" "application/json;charset=utf-8"}
+       :body
+       (write-str
+        {:cloud_id (get-in request [:params :cloud_id])
+         :group_by group_by
+
+         ;; left-context is given here because the user should be able to omit
+         ;; this without penalty.
+         :left_context_of_answer (remove-parens (fo (get-in answer [:comp])))
+
+         ;; here we combine all of the possible answers,
+         ;; using punctuation within the string as means of delimitation (a comma).
+         ;; TODO: use a JSON array instead, and also, remove the use of (remove-parens),
+         ;; since this is another way that punctuation being abused to serialize data structures.
+         :answer (string/join ", "
+                              (list 
+                               (remove-parens (fo answer))))
+         :semantics semantics
+         :right_context_of_answer ""})}
+
+      {:status 200
+       :headers {"Content-Type" "text/html;charset=utf-8"
+                 "Cache-Control" "no-cache, no-store, must-revalidate"
+                 "Pragma" "no-cache"
+                 "Expires" "0"}
+       :body (html
+              [:head
+               [:title "tour: answers debug"]
+               (include-css "/css/fs.css")
+               (include-css "/css/layout.css")
+               (include-css "/css/quiz.css")
+               (include-css "/css/style.css")
+               (include-css "/css/debug.css")
+               ]
+              [:body
+               [:div
+
+                [:div.major
+                 [:h2 "input"]
+
+                 (tablize {:semantics (read-str (get-in request [:params :semantics])
+                                                :key-fn keyword
+                                                :value-fn (fn [k v]
+                                                            (cond (string? v)
+                                                                  (keyword v)
+                                                                  :else v)))})
+                 
+
+                 ]
+
+                [:div.major
+                 [:h2 "output"]
+                 (tablize {:answer-full answer
+                           :answer (string/join ", "
+                                                (list
+                                                 (remove-parens (fo answer))))})]
 
 
-       ;; here we combine all of the possible answers,
-       ;; using punctuation within the string as means of delimitation (a comma).
-       ;; TODO: use a JSON array instead, and also, remove the use of (remove-parens),
-       ;; since this is another way that punctuation being abused to serialize data structures.
-       :answer (string/join ", "
-                            (list 
-                             (remove-parens (fo answer))))
-       :semantics semantics
-       :right_context_of_answer ""})}))
+                ]])})))
 
 (defn tour []
   [:h3 {:style "background:lightgreen;padding:0.25em"} "Benvenuto a Napoli!"]
