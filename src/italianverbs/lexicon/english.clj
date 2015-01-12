@@ -78,8 +78,8 @@
 
    "answer"  (trans-intrans {:synsem {:sem {:pred :answer}}})
 
-   "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere}}})
-
+   "ask"  (trans-intrans {:synsem {:sem {:pred :chiedere
+                                         :subj {:human true}}}})
 
    "assure" (trans-intrans {:synsem {:cat :verb
                                      :sem {:pred :assure}}})

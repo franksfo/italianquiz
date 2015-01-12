@@ -513,7 +513,8 @@
                              :speakable false}}})
       
       "chiedere" (trans-intrans
-                  {:synsem {:sem {:pred :chiedere}}
+                  {:synsem {:sem {:subj {:human true}
+                                  :pred :chiedere}}
                    :italiano {:passato "chiesto"}})
 
       "chiunque"
