@@ -240,6 +240,8 @@ function common_prefix(user_guess,correct_answer) {
     var i;
     var prefix = "";
 
+    user_guess = user_guess.trim();
+    correct_answer = correct_answer.trim();
     for (i = 0; i < user_guess.length; i++) {
 	if (user_guess[i] == correct_answer[i]) {
 	    prefix = prefix + user_guess[i];
