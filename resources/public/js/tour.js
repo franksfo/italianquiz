@@ -168,44 +168,36 @@ function decrement_remaining_tour_question_time() {
 }
 
 function submit_user_guess(form_input_id) {
-    if (in_correction_mode) {
-	submit_correction_response(form_input_id);
-    } else {
-	var guess = $("#"+form_input_id).val();
-	guess = guess.trim();
-	log(INFO,"submit_user_guess() guess: " + guess);
+    var guess = $("#"+form_input_id).val();
+    guess = guess.trim();
+    log(INFO,"submit_user_guess() guess: " + guess);
 
+    log(INFO,"ANSWER INFO: " + answer_info.answer);
+    var matched = false;
+    // A given question may have more than one possible right answer, separated by commas.
+    // TODO: server should use a javascript array rather than embedding an array within a string
+    // as is the case currently.
+    var answers = answer_info.answer.split(",");
 
-	log(INFO,"ANSWER INFO: " + answer_info.answer);
+    log(INFO,"Ssh..don't tell anyone; but here are the possible answers: " + answers);
 
-	var matched = false;
-
-	// A given question may have more than one possible right answer, separated by commas.
-	// TODO: server should use a javascript array rather than embedding an array within a string
-	// as is the case currently.
-	var answers = answer_info.answer.split(",");
-
-	log(INFO,"Ssh..don't tell anyone; but here are the possible answers: " + answers);
-
-	var i;
-	for (i = 0; i < answers.length; i++) {
-	    var answer_text = answers[i];
-	    answer_text = answer_text.trim();
-	    log(INFO,"Comparing: '" + answer_text + "' with your guess: '" + guess + "'");
-
-	    if (answer_text === guess) {
-		log(INFO,"You got one right!");
-		update_map($("#tourquestion").html(), guess);
-		increment_map_score(); // here the 'score' is in kilometri (distance traveled)
-		// TODO: score should vary depending on the next 'leg' of the trip.
-		// go to next question.
-		return tour_loop();
-	    }
+    var i;
+    for (i = 0; i < answers.length; i++) {
+	var answer_text = answers[i];
+	answer_text = answer_text.trim();
+	log(INFO,"Comparing: '" + answer_text + "' with your guess: '" + guess + "'");
+	
+	if (answer_text === guess) {
+	    log(INFO,"You got one right!");
+	    update_map($("#tourquestion").html(), guess);
+	    increment_map_score(); // here the 'score' is in kilometri (distance traveled)
+	    // TODO: score should vary depending on the next 'leg' of the trip.
+	    // go to next question.
+	    return tour_loop();
 	}
-	log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
-	log(INFO,"Ssh..don't tell anyone; but here are the answers you could have given: " + answers);
-	return false;
     }
+    log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
+    return false;
 }
 
 function increment_map_score() {
