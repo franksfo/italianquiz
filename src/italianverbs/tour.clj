@@ -95,71 +95,6 @@
      ]
     ]])
 
-(defn game []
-  (html5
-   [:div#game
-
-    [:svg {:id "svgarena"}]
-
-    [:div#rainforest
-
-     [:div#wordbar
-
-      [:div#q1 "wordbar"]
-
-      [:div#q2 "not used"]
-
-      [:div#q3 "yet"]
-
-      ]
-     
-     (direction-chooser)
-     
-     [:div#score
-      "Score:"
-      [:span#scorevalue
-       "0"
-       ]
-     ]
-
-     [:div#sky ]
-
-     [:div#correction_dialog {:style "display:none"}
-
-      [:form {:onsubmit "return false;"}
-       [:div#cd_left_context_of_answer {:class "correct_answer" } "" ]
-       [:div#cd_rca {:class "correct_answer" } "" ]
-       [:h3#correct_answer "" ]
-       [:div#full_question {:class "question"} " " ]
-       [:input {:id "correction_bare_id" :type "hidden"}]
-       ]
-      ;; end of :form
-
-      ] ;; end of :div #correction_dialog
-
-
-
-     [:div#ground
-      
-
-
-      ] ;; end of :div#ground
-
-     ] ;; end of :div#rainforest
-
-    [:div#gameform
-
-      [:input {:id "game_input" :size "50"}]
-     
-      [:button#answer_button {:class "click;float:right;width:auto"
-                              :onclick "submit_game_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
-     
-      ] ;; end of :div #gameform
-    ] ;; end of :div #game
-) ; html5/div
-
-) ;; end of (defn)
-
 (defn evaluate [user-response]
   (let [params (:form-params user-response)]
     (log/info (str "keys: " (keys params)))
@@ -397,11 +332,9 @@
      
 
     [:div#userprogress 
-     "..."
      ]
 
     [:div#correctanswer 
-     "..."
      ]
 
 

@@ -11,3 +11,12 @@
 #tourgameform form input[type="text"] {
     text-transform: lowercase;
 }
+
+#correctanswer {
+    display:none;
+}
+
+#userprogress {
+    font-size: 200%;
+    color: lightblue;
+}

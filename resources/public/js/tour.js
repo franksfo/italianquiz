@@ -112,8 +112,8 @@ function start_tour() {
 
 function tour_loop() {
     create_tour_question();
-    $("#game_input").focus();
-    $("#game_input").val("");
+    $("#gameinput").focus();
+    $("#gameinput").val("");
     
     // TODO: when timeout expires, pop up correction dialog: currently we don't do anything here.
     setInterval(function() {
@@ -135,6 +135,7 @@ function create_tour_question() {
 
     update_tour_answer_fn = function(content) {
 	answer_info  = jQuery.parseJSON(content);
+	$("#correctanswer").html(answer_info.answer.split(",")[0]);
     }
 
     update_tour_question = function (content) {
@@ -179,8 +180,6 @@ function submit_user_guess(form_input_id) {
     // as is the case currently.
     var answers = answer_info.answer.split(",");
 
-    log(INFO,"Ssh..don't tell anyone; but here are the possible answers: " + answers);
-
     var i;
     for (i = 0; i < answers.length; i++) {
 	var answer_text = answers[i];
@@ -190,6 +189,10 @@ function submit_user_guess(form_input_id) {
 	if (answer_text === guess) {
 	    log(INFO,"You got one right!");
 	    update_map($("#tourquestion").html(), guess);
+	    $("#userprogress").html("");
+	    $("#userprogress").css("background","");
+	    $("#userprogress").css("color","");
+
 	    increment_map_score(); // here the 'score' is in kilometri (distance traveled)
 	    // TODO: score should vary depending on the next 'leg' of the trip.
 	    // go to next question.
@@ -197,6 +200,7 @@ function submit_user_guess(form_input_id) {
 	}
     }
     log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
+
     return false;
 }
 
@@ -207,21 +211,37 @@ function increment_map_score() {
 
 // http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
 function normal_returnkey_mode() {
-    in_correction_mode = false;
-    $("#game_input").keyup(function(event){
-	if(event.keyCode == 13){
-	    if (in_correction_mode == true) {
-		log(WARN,"Correction mode is true but unexpectedly the normal keyup function got called. No worries, though; transferring you right over to where you need to be.");
-		submit_correction_response("form_input");
-		log(INFO,"Finished recovering from getting unexpectedly in normal_returnkey_mode.");
-		return;
-	    }
-
-	    log(INFO,"It's time to try your normal-mode excellent guess: " + $("#game_input").val());
+    $("#gameinput").keyup(function(event){
+	log(INFO,"You hit the key: " + event.keyCode);
+	if (event.keyCode == 13){
+	    log(INFO,"It's time to try your normal-mode excellent guess: " + $("#gameinput").val());
             $("#answer_button").click();
+	} else {
+	    log(INFO,"updating your progress - so far you are at: " + $("#gameinput").val());
+	    
+	    /* update the feedback box so users know how they are doing */
+	    var common = common_prefix($("#gameinput").val(),$("#correctanswer").html());
+	    $("#userprogress").html(common);
+	    if (common == $("#correctanswer").html()) {
+		$("#userprogress").css("background","lightblue");
+		$("#userprogress").css("color","black");
+	    }
 	}
     });
-    log(DEBUG,"You are doing great! NORMAL RETURNKEY MODE.");
+}
+
+function common_prefix(user_guess,correct_answer) {
+    var i;
+    var prefix = "";
+
+    for (i = 0; i < user_guess.length; i++) {
+	if (user_guess[i] == correct_answer[i]) {
+	    prefix = prefix + user_guess[i];
+	} else {
+	    break;
+	}
+    }
+    return prefix;
 }
 
 function update_map(question,correct_answer) {    
