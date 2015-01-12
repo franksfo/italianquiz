@@ -770,11 +770,13 @@
      (include-js (nth jss 2)))
    ;; and so on..?
 
-   (if (and css_set (> (.size css_set) 0))
+   (if (string? css_set)
+     (include-css css_set))
+   (if (and css_set (or (vector? css_set) (seq? css_set)) (> (.size css_set) 0))
      (include-css (nth css_set 0)))
-   (if (and css_set (> (.size css_set) 1))
+   (if (and css_set (or (vector? css_set) (seq? css_set)) (> (.size css_set) 1))
      (include-css (nth css_set 1)))
-   (if (and css_set (> (.size css_set) 2))
+   (if (and css_set (or (vector? css_set) (seq? css_set)) (> (.size css_set) 2))
      (include-css (nth css_set 2)))
    ;; and so on..?
 
