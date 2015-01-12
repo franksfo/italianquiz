@@ -45,7 +45,7 @@
   (GET "/" request
        ;; response map
        {:status 302
-        :headers {"Location" "/cloud"}})
+        :headers {"Location" "/tour"}})
 
   (context "/editor" []
            editor/routes)
