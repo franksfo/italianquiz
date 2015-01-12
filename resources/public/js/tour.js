@@ -134,7 +134,6 @@ function create_tour_question() {
     // We evaluate the user's guess against this set in submit_tour_response().
 
     update_tour_answer_fn = function(content) {
-	log(INFO, "GOT HERE: THE SERVER GAVE US AN ANSWSER@!!!" + content);
 	var evaluated  = jQuery.parseJSON(content);
 	log(INFO,"map from the server's answer response: " + evaluated);
 	answer_info = evaluated;
@@ -180,6 +179,7 @@ function submit_tour_response(form_input_id) {
 
 
 	log(INFO,"ANSWER INFO: " + answer_info);
+	log(INFO,"ANSWER INFO(answer): " + answer_info.answer);
 
 	var matched = false;
 
@@ -206,6 +206,7 @@ function submit_tour_response(form_input_id) {
 	    }
 	}
 	log(INFO, "Your guess: '" + guess + "' did not match any answers, unfortunately.");
+	log(INFO,"Ssh..don't tell anyone; but here are the answers you could have given: " + answers);
 	return false;
     }
 }
