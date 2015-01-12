@@ -223,8 +223,14 @@ function normal_returnkey_mode() {
 	    var common = common_prefix($("#gameinput").val(),$("#correctanswer").html());
 	    $("#userprogress").html(common);
 	    if (common == $("#correctanswer").html()) {
+		/* user got it right - 'flash' their answer and click the butotn for them. */
 		$("#userprogress").css("background","lightblue");
 		$("#userprogress").css("color","black");
+
+		setTimeout(function(){
+		    $("#answer_button").click();
+		}, 1000);
+
 	    }
 	}
     });
