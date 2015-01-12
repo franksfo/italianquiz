@@ -392,7 +392,7 @@
     [:input {:id "game_input" :size "30"}]
      
     [:button#answer_button {:class "click;float:right;width:auto"
-                            :onclick "submit_tour_response('game_input'); event.preventDefault(); return false;"} "Answer" ]
+                            :onclick "submit_user_guess('game_input'); event.preventDefault(); return false;"} "Answer" ]
      
     ] ;; end of :div #gameform
    ] ;; end of :div #game
