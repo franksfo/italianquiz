@@ -770,6 +770,15 @@
      (include-js (nth jss 2)))
    ;; and so on..?
 
+   (if (and css_set (> (.size css_set) 0))
+     (include-css (nth css_set 0)))
+   (if (and css_set (> (.size css_set) 1))
+     (include-css (nth css_set 1)))
+   (if (and css_set (> (.size css_set) 2))
+     (include-css (nth css_set 2)))
+   ;; and so on..?
+
+
     ; enable this 'reset.css' at some point.
     ;  (include-css "/italian/css/reset.css")
 
@@ -824,7 +833,7 @@
   (let [title (if title title "default page title")]
     (log/info (str "page-body with options: " options))
     (h/html5
-     (pretty-head title (:js options) (:jss options))
+     (pretty-head title (:js options) (:jss options) (:css options))
      (pretty-body
       options
       (if-let [identity (friend/identity req)]

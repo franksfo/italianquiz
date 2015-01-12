@@ -1,0 +1,13 @@
+#tourgameform {
+    position:absolute;
+    padding:1em;
+    float:left;
+    top:25%;
+    left:45%;
+    width:auto;
+    border:0px dashed green;
+}
+
+#tourgameform form input[type="text"] {
+    text-transform: lowercase;
+}

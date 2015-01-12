@@ -27,7 +27,8 @@
   (compojure/routes
    (GET "/" request
         {:status 200
-         :body (page "Map Tour" (tour) request {:onload "start_tour();" 
+         :body (page "Map Tour" (tour) request {:onload "start_tour();"
+                                                :css ["/css/tour.css"]
                                                 :jss ["/js/tour.js" "/js/gen.js"
                                                       "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"]})})
 
@@ -383,17 +384,27 @@
 
     ] ;; end of :div#rainforest
 
-   [:div#gameform
+   [:div#tourgameform
 
     [:div#tourquestion
      ""
      ]
 
-    [:input {:id "game_input" :size "30"}]
+    [:input {:id "gameinput" :size "30"}]
      
     [:button#answer_button {:class "click;float:right;width:auto"
-                            :onclick "submit_user_guess('game_input'); event.preventDefault(); return false;"} "Answer" ]
+                            :onclick "submit_user_guess('gameinput'); event.preventDefault(); return false;"} "Answer" ]
      
+
+    [:div#userprogress 
+     "..."
+     ]
+
+    [:div#correctanswer 
+     "..."
+     ]
+
+
     ] ;; end of :div #gameform
    ] ;; end of :div #game
 
