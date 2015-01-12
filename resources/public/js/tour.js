@@ -131,12 +131,10 @@ function create_tour_question() {
     // the correct answers, but for most games, the user needs only to respond with one of them.
     // The server's set of correct answers are stored in the global answer_info variable.
     //
-    // We evaluate the user's guess against this set in submit_tour_response().
+    // We evaluate the user's guess against this set in submit_user_guess().
 
     update_tour_answer_fn = function(content) {
-	var evaluated  = jQuery.parseJSON(content);
-	log(INFO,"map from the server's answer response: " + evaluated);
-	answer_info = evaluated;
+	answer_info  = jQuery.parseJSON(content);
     }
 
     update_tour_question = function (content) {
@@ -169,17 +167,16 @@ function decrement_remaining_tour_question_time() {
     log(INFO,"decrement remaining time..");
 }
 
-function submit_tour_response(form_input_id) {
+function submit_user_guess(form_input_id) {
     if (in_correction_mode) {
 	submit_correction_response(form_input_id);
     } else {
 	var guess = $("#"+form_input_id).val();
 	guess = guess.trim();
-	log(INFO,"submit_tour_response() guess: " + guess);
+	log(INFO,"submit_user_guess() guess: " + guess);
 
 
-	log(INFO,"ANSWER INFO: " + answer_info);
-	log(INFO,"ANSWER INFO(answer): " + answer_info.answer);
+	log(INFO,"ANSWER INFO: " + answer_info.answer);
 
 	var matched = false;
 

@@ -322,6 +322,7 @@
                 [:div.major
                  [:h2 "output"]
                  (tablize {:answer-full answer
+                           :left-context-of-answer (remove-parens (fo (get-in answer [:comp])))
                            :answer (string/join ", "
                                                 (list
                                                  (remove-parens (fo answer))))})]
