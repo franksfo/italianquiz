@@ -106,7 +106,7 @@ function start_tour() {
     // update streetview:
     $("#streetviewimage").attr("src","https://maps.googleapis.com/maps/api/streetview?size=400x400&location="+current_lat+","+current_long+"&fov=90&heading="+heading+"&pitch=10");
     
-    normal_returnkey_mode();
+    user_keypress();
     tour_loop();
 }
 
@@ -132,6 +132,9 @@ function create_tour_question() {
     // The server's set of correct answers are stored in the global answer_info variable.
     //
     // We evaluate the user's guess against this set in submit_user_guess().
+
+    $("#userprogress").css("background","transparent");
+    $("#userprogress").css("color","lightblue");
 
     update_tour_answer_fn = function(content) {
 	answer_info  = jQuery.parseJSON(content);
@@ -186,12 +189,12 @@ function submit_user_guess(form_input_id) {
 	answer_text = answer_text.trim();
 	log(INFO,"Comparing: '" + answer_text + "' with your guess: '" + guess + "'");
 	
-	if (answer_text === guess) {
+	if (answer_text.toLowerCase() === guess.toLowerCase() && answer_text != '') {
 	    log(INFO,"You got one right!");
 	    update_map($("#tourquestion").html(), guess);
 	    $("#userprogress").html("");
-	    $("#userprogress").css("background","");
-	    $("#userprogress").css("color","");
+	    $("#userprogress").css("background","transparent");
+	    $("#userprogress").css("color","lightblue");
 
 	    increment_map_score(); // here the 'score' is in kilometri (distance traveled)
 	    // TODO: score should vary depending on the next 'leg' of the trip.
@@ -210,28 +213,22 @@ function increment_map_score() {
 }
 
 // http://stackoverflow.com/questions/155188/trigger-a-button-click-with-javascript-on-the-enter-key-in-a-text-box
-function normal_returnkey_mode() {
+function user_keypress() {
     $("#gameinput").keyup(function(event){
 	log(INFO,"You hit the key: " + event.keyCode);
-	if (event.keyCode == 13){
-	    log(INFO,"It's time to try your normal-mode excellent guess: " + $("#gameinput").val());
-            $("#answer_button").click();
-	} else {
-	    log(INFO,"updating your progress - so far you are at: " + $("#gameinput").val());
+	log(INFO,"updating your progress - so far you are at: " + $("#gameinput").val());
 	    
-	    /* update the feedback box so users know how they are doing */
-	    var common = common_prefix($("#gameinput").val(),$("#correctanswer").html());
-	    $("#userprogress").html(common);
-	    if (common == $("#correctanswer").html()) {
-		/* user got it right - 'flash' their answer and click the butotn for them. */
-		$("#userprogress").css("background","lightblue");
-		$("#userprogress").css("color","black");
-
-		setTimeout(function(){
-		    $("#answer_button").click();
-		}, 1000);
-
-	    }
+	/* update the feedback box so users know how they are doing */
+	var common = common_prefix($("#gameinput").val(),$("#correctanswer").html());
+	$("#userprogress").html(common);
+	if (common.toLowerCase() == $("#correctanswer").html().toLowerCase()) {
+	    /* user got it right - 'flash' their answer and click the button for them. */
+	    $("#userprogress").css("background","lightblue");
+	    $("#userprogress").css("color","black");
+	    
+	    setTimeout(function(){
+                submit_user_guess('gameinput');
+	    }, 1000);
 	}
     });
 }
@@ -239,12 +236,14 @@ function normal_returnkey_mode() {
 function common_prefix(user_guess,correct_answer) {
     var i;
     var prefix = "";
-
-    user_guess = user_guess.trim();
-    correct_answer = correct_answer.trim();
+    var case_sensitive_correct_answer = correct_answer;
+    user_guess = user_guess.trim().toLowerCase();
+    correct_answer = correct_answer.trim().toLowerCase();
     for (i = 0; i < user_guess.length; i++) {
-	if (user_guess[i] == correct_answer[i]) {
-	    prefix = prefix + user_guess[i];
+	var user_char = user_guess[i];
+	var correct_char = correct_answer[i];
+	if (user_char == correct_char) {
+	    prefix = prefix + case_sensitive_correct_answer[i];
 	} else {
 	    break;
 	}

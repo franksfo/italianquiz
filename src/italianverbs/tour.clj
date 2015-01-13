@@ -326,10 +326,6 @@
      ]
 
     [:input {:id "gameinput" :size "30"}]
-     
-    [:button#answer_button {:class "click;float:right;width:auto"
-                            :onclick "submit_user_guess('gameinput'); event.preventDefault(); return false;"} "Answer" ]
-     
 
     [:div#userprogress 
      ]
