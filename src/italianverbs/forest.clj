@@ -69,11 +69,12 @@ of this function with complements."
         cache (if (future? cache) @cache cache)
         lexicon (if (future? lexicon) @lexicon lexicon)
         depth (if depth depth 0)
-        candidate-parents (lazy-shuffle (filter #(not (fail? (unifyc spec %)))
-                                      (map (fn [rule]
-                                             (unifyc spec rule))
-                                           (if parent (get-head-phrases-of parent cache)
-                                               grammar))))
+        ;; TODO: unifyc is expensive: factor out into a let.
+        candidate-parents (lazy-shuffle (filter #(not (fail? %))
+                                                (map (fn [rule]
+                                                       (unifyc spec rule))
+                                                     (if parent (get-head-phrases-of parent cache)
+                                                         grammar))))
         debug (log/debug (str "parent: " (if parent (:rule parent)
                                              "(no parent)")))
         debug (log/debug (str "lexical head candidates:"
