@@ -115,20 +115,6 @@
      :right_context_source ""
      :right_context_destination ""}))
 
-;; TODO: don't repeat stuff from gen.js.
-(defn english-inflection [inflection]
-  "turn an inflection keyword into a complete map of constraints on generation for an english sentence"
-  (cond (= inflection :passato)
-        {:synsem {:sem {:aspect :perfect
-                        :tense :past}}}
-
-        (= inflection :present)
-        {:synsem {:infl :present
-                  :sem {:tense :present}}}
-
-        true
-        :top))
-
 (defn generate-question [request]
   (let [verb-group (choose-random-verb-group)
         possible-preds (get-possible-preds verb-group)
@@ -137,6 +123,7 @@
                (keyword (get-in request [:params :pred]))
                (nth possible-preds (rand-int (.size possible-preds))))
         debug (log/info (str "generate-question: pred: " pred))
+        debug (log/info (str "possible-inflections: " verb-group))
         spec
         {:head {:phrasal :top}
          :comp {:phrasal false}
@@ -144,9 +131,13 @@
                   :cat :verb
                   :subcat '()}}
 
+        ;; TODO: use runtime to decide which language rather than
+        ;; hard-coded en/inflection.
         spec (unify spec
-                    (english-inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))))
+                    (en/inflection (keyword (nth possible-inflections (rand-int (.size possible-inflections))))))
 
+        ;; TODO: use runtime to decide which language and grammar rather than
+        ;; hard-coded en/small.
         question (generate spec en/small)
         form (html-form question)]
 
