@@ -138,6 +138,9 @@ function create_tour_question() {
 
     update_tour_answer_fn = function(content) {
 	answer_info  = jQuery.parseJSON(content);
+	// TODO: update #correctanswer0, #correctanswer1, etc.. for each possible correct answer, rather
+	// than just the first one.
+	// TODO: use JSON array here rather than poor-man's CSV (i.e. the split(",") here.).
 	$("#correctanswer").html(answer_info.answer.split(",")[0]);
     }
 
