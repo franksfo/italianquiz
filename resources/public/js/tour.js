@@ -4,12 +4,12 @@
 var tour_path = [
     [40.8526231,14.2722163],  // Napoli Centrali train station
     [40.85318758861975,14.271989576518536],
-    [40.853398582562534,14.27162479609251], // TODO bear north
-    [40.854177631299656,14.271528236567972],
-    [40.854128941021976,14.270348064601421],
-    [40.85401533023488,14.269661419093609], // TODO bear south
-    [40.85345538850926,14.269779436290264], // TODO bear south
-    [40.85266010082301,14.269639961421488],
+    [40.853398582562534,14.27162479609251,   190],
+    [40.854177631299656,14.271528236567972,  0],
+    [40.854128941021976,14.270348064601421,  0],
+    [40.85401533023488,14.269661419093609, 180],
+    [40.85345538850926,14.269779436290264, 180],
+    [40.85266010082301,14.269639961421488, 180],
     [40.85255460275972,14.268921129405499],
     [40.85258706372015,14.268234483897686],
     [40.85262763989835,14.267622940242289],
@@ -55,8 +55,13 @@ var encouragements = [
 
 var current_lat = tour_path[0][0];
 var current_long = tour_path[0][1];
+var heading = 270;// default heading = 270; // headed west.
+
+if (tour_path[0][2]) {
+    heading = 0;
+}
+
 var current_zoom = 17;
-var heading = 270; // headed west.
 
 // every X milliseconds, decrement remaining time to answer this question on a tour.
 var tour_question_decrement_interval = 5000;
@@ -278,6 +283,9 @@ function update_map(question,correct_answer) {
     step = step + direction;
     current_lat = tour_path[step][0];
     current_long = tour_path[step][1];
+    if (tour_path[step][2]) {
+	heading = tour_path[step][2];
+    }
 
     map.panTo(tour_path[step]);
    
