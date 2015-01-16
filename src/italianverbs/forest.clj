@@ -1,5 +1,5 @@
 (ns italianverbs.forest
-  (:refer-clojure :exclude [get-in deref merge resolve find future parents])
+  (:refer-clojure :exclude [get-in deref resolve find future parents])
   (:require
    [clojure.core :as core]
    ;; have to exclude partition-by because of some namespace clash, not sure how else to fix
@@ -12,7 +12,8 @@
                                                    overc overh)]
    [italianverbs.morphology :refer (fo fo-ps)]
    [italianverbs.over :as over]
-   [italianverbs.unify :refer (dissoc-paths get-in fail? lazy-shuffle ref? remove-false remove-top-values-log show-spec unifyc)]))
+   [italianverbs.unify :refer (dissoc-paths get-in fail? fail-path-between lazy-shuffle ref? remove-false 
+                                            remove-top-values-log strip-refs show-spec unifyc)]))
 
 (def concurrent false)
 (declare path-to-map)
@@ -85,6 +86,12 @@ of this function with complements."
         debug (log/debug (str "candidate-parents size: " (if (nil? candidate-parents)
                                                            "no candidate-parents"
                                                            (.size candidate-parents))))
+        debug (log/debug (str "candidate-parents: " (if (nil? candidate-parents)
+                                                      "no candidate-parents"
+                                                      (string/join "," (map #(get-in % [:rule])
+                                                                            candidate-parents)))))
+
+
         ]
     (if (seq candidate-parents)
       (let [lexical ;; 1. generate list of all phrases where the head child of each parent is a lexeme.
@@ -148,9 +155,11 @@ of this function with complements."
                                                         complement))
                                    is-fail? (fail? result)]
                                (if is-fail?
-                                 (log/trace (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
-                                                                                                                (fo-ps result)
-                                                                                                                ":fail")))
+                                 (do
+                                   (log/trace (str "add-complement: " (fo-ps bolt) " + " complement " =(FAIL)=> " result))
+                                   (log/trace (str "fail-path-between:" (fail-path-between (strip-refs (get-in bolt path))
+                                                                                           (strip-refs complement)))))
+
                                  (log/trace (str "add-complement: " (fo-ps bolt) " + " (fo complement) " => " (if (not is-fail?)
                                                                                                                 (fo-ps result)
                                                                                                                 ":fail"))))
@@ -166,7 +175,16 @@ of this function with complements."
                 run-time (- (System/currentTimeMillis) start-time)]
             (if (seq return-val)
               (log/debug (str " add-complement took " run-time " msec: " (fo-ps from-bolt) " => " first-return-val-formatted))
-              (log/warn (str " add-complement took " run-time " msec, but found no complement for " (fo-ps from-bolt) ".")))
+              (do
+                (log/warn (str " add-complement took " run-time " msec, but found no complement for " (fo-ps from-bolt) ". Complements tried were: " (vec (map fo complement-candidate-lexemes))))
+                (log/debug (str " fail-paths:"))
+                (vec (map (fn [lexeme]
+                            (log/debug (str " FP:"
+                                            (merge {:lexeme (fo lexeme)}
+                                                   (fail-path-between (strip-refs (get-in bolt path))
+                                                                      (strip-refs lexeme))))))
+                          complement-candidate-lexemes))))
+                                                               
             return-val)))
 
       ;; path doesn't exist in bolt: simply return the bolt unmodified.

@@ -114,6 +114,22 @@
           (cons (first fs-keys) (fail-path (get-in fs (list (first fs-keys)))))
           (fail-path fs (rest fs-keys)))))))
 
+(defn find-fail-in [fs1 fs2 paths]
+  (if (not (empty? paths))
+    (let [path (first paths)
+          val1 (get-in fs1 path :top)
+          val2 (get-in fs2 path :top)]
+      (if (fail? (unify val1 val2))
+        {:fail-path path
+         :val1 val1
+         :val2 val2}
+        (find-fail-in fs1 fs2 (rest paths))))))
+
+(defn fail-path-between [fs1 fs2]
+  (let [paths-in-fs1 (map #(first (first %)) (pathify-r fs1))
+        paths-in-fs2 (map #(first (first %)) (pathify-r fs2))]
+    (find-fail-in fs1 fs2 (concat paths-in-fs1 paths-in-fs2))))
+
 (defn any? [fn members]
   (if (not (empty? members))
     (or (fn (first members))
@@ -754,14 +770,14 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
                   val (second kv)]
 ;              (println (str "K:" key))
               (if (not (contains? *exclude-keys* key))
-                (if (or (= (type val) clojure.lang.PersistentArrayMap)
+                (if (or (= (type val) clojure.lang.PersistentArrayMap) ;; TODO: just use (map?)
                         (= (type val) clojure.lang.PersistentHashMap))
                   (do
 ;                    (println (str "PAM"))
                     (pathify-r val (concat prefix (list key))))
                   (if (and (= (type val) clojure.lang.Ref)
                            (let [val @val]
-                             (or (= (type val) clojure.lang.PersistentArrayMap)
+                             (or (= (type val) clojure.lang.PersistentArrayMap) ;; TODO: just use (map?)
                                  (= (type val) clojure.lang.PersistentHashMap))))
                     (pathify-r @val (concat prefix (list key)))
                   (do
