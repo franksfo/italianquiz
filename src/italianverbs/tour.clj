@@ -318,8 +318,10 @@
 
     [:input {:id "gameinput" :size "30"}]
 
-    [:div#userprogress 
-     ]
+
+    [:div#userprogresscontainer
+     [:div#userprogress 
+      ]]
 
     [:div#correctanswer 
      ]

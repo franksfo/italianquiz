@@ -138,8 +138,8 @@ function create_tour_question() {
     //
     // We evaluate the user's guess against this set in submit_user_guess().
 
-    $("#userprogress").css("background","transparent");
-    $("#userprogress").css("color","lightblue");
+    $("#gameinput").css("background","white");
+    $("#gameinput").css("color","black");
 
     update_tour_answer_fn = function(content) {
 	answer_info  = jQuery.parseJSON(content);
@@ -200,9 +200,9 @@ function submit_user_guess(form_input_id) {
 	if (answer_text.toLowerCase() === guess.toLowerCase() && answer_text != '') {
 	    log(INFO,"You got one right!");
 	    update_map($("#tourquestion").html(), guess);
-	    $("#userprogress").html("");
-	    $("#userprogress").css("background","transparent");
-	    $("#userprogress").css("color","lightblue");
+	    $("#gameinput").html("");
+	    $("#gameinput").css("background","transparent");
+	    $("#gameinput").css("color","lightblue");
 
 	    increment_map_score(); // here the 'score' is in kilometri (distance traveled)
 	    // TODO: score should vary depending on the next 'leg' of the trip.
@@ -227,16 +227,31 @@ function user_keypress() {
 	log(INFO,"updating your progress - so far you are at: " + $("#gameinput").val());
 	    
 	/* update the feedback box so users know how they are doing */
-	var common = common_prefix($("#gameinput").val(),$("#correctanswer").html());
-	$("#userprogress").html(common);
-	if (common.toLowerCase() == $("#correctanswer").html().toLowerCase()) {
-	    /* user got it right - 'flash' their answer and click the button for them. */
-	    $("#userprogress").css("background","lightblue");
-	    $("#userprogress").css("color","black");
+	if ($("#correctanswer").html().length > 0) {
+	    var common = common_prefix($("#gameinput").val(),$("#correctanswer").html());
+	    $("#gameinput").val(common);
+
+	    log(INFO,"common length: " + common.trim().length);
+	    log(INFO,"answer length: " + $("#correctanswer").html().length);
+
+	    var percent = (common.trim().length / $("#correctanswer").html().length) * 100;
+
+	    log(INFO,"percent: " + percent);
 	    
-	    setTimeout(function(){
-                submit_user_guess('gameinput');
-	    }, 1000);
+	    $("#userprogress").css("width",percent+"%");
+	    
+	    if ((common.trim() != '') && (common.toLowerCase() == $("#correctanswer").html().toLowerCase())) {
+		/* user got it right - 'flash' their answer and submit the answer for them. */
+		$("#gameinput").css("background","lime");
+
+		// reset userprogress bar
+		$("#userprogress").css("width","0");
+
+		submit_user_guess('gameinput');
+
+	    }
+	} else {
+	    log(WARN,"No answer from server yet, or server answer was empty.");
 	}
     });
 }
@@ -245,7 +260,7 @@ function common_prefix(user_guess,correct_answer) {
     var i;
     var prefix = "";
     var case_sensitive_correct_answer = correct_answer;
-    user_guess = user_guess.trim().toLowerCase();
+    user_guess = user_guess.toLowerCase();
     correct_answer = correct_answer.trim().toLowerCase();
     for (i = 0; i < user_guess.length; i++) {
 	var user_char = user_guess[i];

@@ -16,7 +16,20 @@
     display:none;
 }
 
+#userprogresscontainer {
+    margin-top:0.25em;
+    font-size:200%;
+    width:10em;
+    height:0.5em;
+    border-radius: 5px;
+    color: transparent;
+    border:1px solid lime;
+}
+
+
 #userprogress {
-    font-size: 200%;
-    color: lightblue;
+    border-radius: 5px;
+    background:lime;
+    height:0.5em;
+    width:0%;
 }
