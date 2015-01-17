@@ -244,11 +244,11 @@ function user_keypress() {
 		/* user got it right - 'flash' their answer and submit the answer for them. */
 		$("#gameinput").css("background","lime");
 
-		// reset userprogress bar
-		$("#userprogress").css("width","0");
-
-		submit_user_guess('gameinput');
-
+		setTimeout(function(){
+	            submit_user_guess('gameinput');
+		    // reset userprogress bar
+		    $("#userprogress").css("width","0");
+		}, 1000);
 	    }
 	} else {
 	    log(WARN,"No answer from server yet, or server answer was empty.");
