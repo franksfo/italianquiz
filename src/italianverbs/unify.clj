@@ -10,7 +10,6 @@
 (ns italianverbs.unify
   (:refer-clojure :exclude [get-in merge resolve])
   (:require
-   [italianverbs.unify :refer :all]
    [clojure.set :refer :all]
    [clojure.string :as string]
    [clojure.tools.logging :as log]))
@@ -113,22 +112,6 @@
         (if (fail? (get-in fs (list (first fs-keys))))
           (cons (first fs-keys) (fail-path (get-in fs (list (first fs-keys)))))
           (fail-path fs (rest fs-keys)))))))
-
-(defn find-fail-in [fs1 fs2 paths]
-  (if (not (empty? paths))
-    (let [path (first paths)
-          val1 (get-in fs1 path :top)
-          val2 (get-in fs2 path :top)]
-      (if (fail? (unify val1 val2))
-        {:fail-path path
-         :val1 val1
-         :val2 val2}
-        (find-fail-in fs1 fs2 (rest paths))))))
-
-(defn fail-path-between [fs1 fs2]
-  (let [paths-in-fs1 (map #(first (first %)) (pathify-r fs1))
-        paths-in-fs2 (map #(first (first %)) (pathify-r fs2))]
-    (find-fail-in fs1 fs2 (concat paths-in-fs1 paths-in-fs2))))
 
 (defn any? [fn members]
   (if (not (empty? members))
@@ -1622,3 +1605,19 @@ The idea is to map the key :foo to the (recursive) result of pathify on :foo's v
 
 (defn label-of [parent]
   (if (:rule parent) (:rule parent) (:comment parent)))
+
+(defn find-fail-in [fs1 fs2 paths]
+  (if (not (empty? paths))
+    (let [path (first paths)
+          val1 (get-in fs1 path :top)
+          val2 (get-in fs2 path :top)]
+      (if (fail? (unify val1 val2))
+        {:fail-path path
+         :val1 val1
+         :val2 val2}
+        (find-fail-in fs1 fs2 (rest paths))))))
+
+(defn fail-path-between [fs1 fs2]
+  (let [paths-in-fs1 (map #(first (first %)) (pathify-r fs1))
+        paths-in-fs2 (map #(first (first %)) (pathify-r fs2))]
+    (find-fail-in fs1 fs2 (concat paths-in-fs1 paths-in-fs2))))
