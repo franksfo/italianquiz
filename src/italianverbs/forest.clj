@@ -144,7 +144,8 @@ of this function with complements."
             (if (not (nil? semantics)) (log/debug (str "  with semantics:" semantics)))))
         (log/trace (str " immediate parent:" (get-in immediate-parent [:rule])))
         (log/trace (str "add-complement to: " (fo-ps bolt) " with spec " (show-spec spec) " at path: " path))
-        (let [return-val
+        (let [shuffled-candidate-complements (lazy-shuffle complement-candidate-lexemes)
+              return-val
               (filter (fn [result]
                         (not (fail? result)))
                       (map (fn [complement]
@@ -167,7 +168,7 @@ of this function with complements."
                      
                            ;; lazy-sequence of complements to pass one-by-one to the above (map)'s function.
                            (let [phrasal (generate spec grammar lexicon cache)
-                                 lexical (lazy-shuffle complement-candidate-lexemes)]
+                                 lexical shuffled-candidate-complements]
                              (if (= (rand-int 2) 0)
                                (lazy-cat lexical phrasal)
                                (lazy-cat phrasal lexical)))))]
