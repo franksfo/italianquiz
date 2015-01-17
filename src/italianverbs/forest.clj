@@ -167,11 +167,10 @@ of this function with complements."
                                (if is-fail? :fail result)))
                      
                            ;; lazy-sequence of complements to pass one-by-one to the above (map)'s function.
-                           (let [phrasal (generate spec grammar lexicon cache)
-                                 lexical shuffled-candidate-complements]
+                           (let [phrasal (generate spec grammar lexicon cache)]
                              (if (= (rand-int 2) 0)
-                               (lazy-cat lexical phrasal)
-                               (lazy-cat phrasal lexical)))))]
+                               (lazy-cat shuffled-candidate-complements phrasal)
+                               (lazy-cat phrasal shuffled-candidate-complements)))))]
           (let [first-return-val-formatted (fo-ps (first return-val))
                 run-time (- (System/currentTimeMillis) start-time)]
             (if (seq return-val)
