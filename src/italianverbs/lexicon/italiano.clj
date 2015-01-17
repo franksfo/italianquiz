@@ -809,7 +809,7 @@
 
       "entrare" (trans-intrans
                  {:synsem {:essere true
-                           :sem {:pred "entrare"}}})
+                           :sem {:pred :entrare}}})
 
       "essere"
       (let [essere-common 
