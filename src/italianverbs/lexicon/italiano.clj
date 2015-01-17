@@ -1286,8 +1286,8 @@
 
    "tenere" (trans-intrans {:synsem {:sem {:pred :tenere}}
                             :italiano {:passato "tenuto"
-                                       :present {:1st "tengo"
-                                                 :2nd "tieni"
+                                       :present {:1sing "tengo"
+                                                 :2sing "tieni"
                                                  :3sing "tiene"
                                                  :3plur "tengono"}
                                        :futuro-stem "terr"}})
@@ -1344,12 +1344,11 @@
              {:synsem {:essere true
                        :sem {:pred :venire}}
               :italiano {:passato "venuto"
-                         :present {:1st "vengo"
-                                   :2nd "vieni"
+                         :present {:1sing "vengo"
+                                   :2sing "vieni"
                                    :3sing "viene"
                                    :3plur "vengono"}
                          :futuro-stem "verr"}})
-
 
    "vino"
    (unifyc drinkable-noun
