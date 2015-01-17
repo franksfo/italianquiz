@@ -41,5 +41,3 @@
 
 (deftest enrich-test
   (let [took-time (time (fo (generate (enrich killer-spec) it/small)))]))
-
-
