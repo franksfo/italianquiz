@@ -13,7 +13,7 @@
    [italianverbs.morphology :refer [fo fo-ps remove-parens]]
    [italianverbs.translate :refer [get-meaning]]
    [italianverbs.ug :refer (head-principle)]
-   [italianverbs.unify :refer [get-in merge strip-refs unify]]
+   [italianverbs.unify :refer [fail? get-in merge strip-refs unify]]
    [italianverbs.english :as en]
    [italianverbs.italiano :as it]
    [korma.core :as k]))
@@ -155,6 +155,60 @@
              :question (:head_of_source form)
              :right_context_of_question (:right_context_source form)
              :semantics (strip-refs (get-meaning question))})}))
+
+(defn matching-head-lexemes [spec]
+  (let [pred-of-head (get-in spec [:synsem :sem :pred] :top)]
+    (if (= pred-of-head :top)
+      spec
+      (mapcat (fn [lexemes]
+                (mapcat (fn [lexeme]
+                          (if (= pred-of-head
+                                 (get-in lexeme [:synsem :sem :pred] :top))
+                            (list lexeme)))
+                        lexemes))
+              (vals @it/lexicon)))))
+
+
+(defn against-pred [spec]
+  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
+    (if (= :top pred-of-comp)
+      spec
+      (mapcat (fn [lexeme]
+                (let [result (unify spec
+;                                    {:synsem {:sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}
+                                    {:synsem {:essere (strip-refs (get-in lexeme [:synsem :essere] :top))}}
+                                    )]
+                  (if (not (fail? result))
+                    (list result))))
+              (matching-head-lexemes spec)))))
+
+(defn matching-comp-lexemes [spec]
+  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
+    (if (= pred-of-comp :top)
+      spec
+      (mapcat (fn [lexemes]
+                (mapcat (fn [lexeme]
+                          (if (= pred-of-comp
+                                 (get-in lexeme [:synsem :sem :pred] :top))
+                            (list lexeme)))
+                        lexemes))
+              (vals @it/lexicon)))))
+
+(defn against-comp [spec]
+  (let [pred-of-comp (get-in spec [:synsem :sem :subj :pred] :top)]
+    (if (= :top pred-of-comp)
+      spec
+      (map (fn [lexeme]
+             (unify spec
+                    {:comp {:synsem {:agr (strip-refs (get-in lexeme [:synsem :agr] :top))
+                                     :sem (strip-refs (get-in lexeme [:synsem :sem] :top))}}}
+                    ))
+           (matching-comp-lexemes spec)))))
+
+(defn enrich [spec]
+  (let [pred (get-in spec [:synsem :sem :pred] nil)]
+    (mapcat against-comp
+            (against-pred spec))))
 
 ;; This is the counterpart to (generate-question) immediately above: it generates
 ;; an expression that the user should be learning.
