@@ -180,6 +180,9 @@ of this function with complements."
                 (log/warn (str " add-complement took " run-time " msec, but found no complement for " (fo-ps from-bolt) ". Complements tried were: " (vec (map fo complement-candidate-lexemes))))
                 (log/debug (str " fail-paths:"))
                 (vec (map (fn [lexeme]
+                            (log/debug (str " path in bolt: " path))
+                            (log/debug (str " value of bolt at path: " (get-in bolt path)))
+                            (log/debug (str " value of gender at path: " (get-in bolt (concat path [:synsem :agr :gender]))))
                             (log/debug (str " FP:"
                                             (merge {:lexeme (fo lexeme)}
                                                    (fail-path-between (strip-refs (get-in bolt path))
