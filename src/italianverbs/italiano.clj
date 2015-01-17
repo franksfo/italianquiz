@@ -103,6 +103,8 @@
 (defn choose-lexeme [spec]
   (first (unify/lazy-shuffle (lookup-in spec (vals lexicon)))))
 
+(declare enrich)
+
 (def small
   (future
     (let [grammar
@@ -123,7 +125,8 @@
                                 v)]
                     (if (not (empty? filtered-v))
                       [k filtered-v]))))]
-      {:grammar grammar
+      {:enrich enrich
+       :grammar grammar
        :lexicon lexicon
        :index (create-index grammar (flatten (vals lexicon)) head-principle)})))
 

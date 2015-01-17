@@ -179,12 +179,10 @@
 
         debug (log/info (str "to-generate: " to-generate))
 
-        debug (log/info (str "enriched   : " (string/join " ; " (it/enrich to-generate))))
-
         ;; TODO: for now, we are hard-wired to generate an answer in Italian,
         ;; but function should accept an input parameter to determine which language should be
         ;; used.
-        answer (generate (it/enrich to-generate) it/small)
+        answer (generate to-generate it/small)
 
         ;; used to group questions by some common feature - in this case,
         ;; we'll use the pred since this is a way of cross-linguistically

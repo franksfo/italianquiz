@@ -35,7 +35,11 @@
                     {:synsem {:subcat '()}})
         language-model (if (future? language-model)
                          @language-model
-                         language-model)]
+                         language-model)
+        spec (if (:enrich language-model)
+               ((:enrich language-model)
+                spec)
+               spec)]
     (forest/generate spec 
                      (:grammar language-model)
                      (:lexicon language-model)
